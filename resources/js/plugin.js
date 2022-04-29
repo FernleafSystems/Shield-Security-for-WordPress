@@ -373,14 +373,44 @@ let iCWP_WPSF_ProgressMeters = new function () {
 	};
 }();
 
+let iCWP_WPSF_Helpscout = new function () {
+	this.initialise = function ( workingData ) {
+		beaconInit();
+		window.Beacon( 'init', workingData.beacon_id );
+		Beacon( 'navigate', '/' );
+
+		jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
+			evt.preventDefault();
+			let link = jQuery( evt.currentTarget );
+			let id = link.data( 'beacon-article-id' );
+			if ( id ) {
+				let format = '';
+				if ( link.data( 'beacon-article-format' ) ) {
+					format = link.data( 'beacon-article-format' );
+				}
+				Beacon( 'article', String( id ), { type: format } );
+			}
+			return false;
+		} );
+	};
+
+	let beaconInit = function () {
+		!function(e,t,n){function a(){var e=t.getElementsByTagName("script")[0],n=t.createElement("script");n.type="text/javascript",n.async=!0,n.src="https://beacon-v2.helpscout.net",e.parentNode.insertBefore(n,e)}if(e.Beacon=n=function(t,n,a){e.Beacon.readyQueue.push({method:t,options:n,data:a})},n.readyQueue=[],"complete"===t.readyState)return a();e.attachEvent?e.attachEvent("onload",a):e.addEventListener("load",a,!1)}(window,document,window.Beacon||function(){});
+	};
+}();
+
 jQuery( document ).ready( function () {
 
 	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
 		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
 	}
 
-	if ( typeof icwp_wpsf_vars_plugin.vars.mod_options !== 'undefined' ) {
-		iCWP_WPSF_OptionsFormSubmit.initialise( icwp_wpsf_vars_plugin.vars.mod_options );
+	if ( typeof icwp_wpsf_vars_plugin.components.mod_options !== 'undefined' ) {
+		iCWP_WPSF_OptionsFormSubmit.initialise( icwp_wpsf_vars_plugin.components.mod_options );
+	}
+
+	if ( typeof icwp_wpsf_vars_plugin.components.helpscout !== 'undefined' ) {
+		iCWP_WPSF_Helpscout.initialise( icwp_wpsf_vars_plugin.components.helpscout );
 	}
 
 	jQuery( document ).ajaxComplete( function () {
@@ -419,19 +449,5 @@ jQuery( document ).ready( function () {
 				};
 			}
 		}
-	} );
-
-	jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
-		evt.preventDefault();
-		let link = jQuery( evt.currentTarget );
-		let id = link.data( 'beacon-article-id' );
-		if ( id ) {
-			let format = '';
-			if ( link.data( 'beacon-article-format' ) ) {
-				format = link.data( 'beacon-article-format' );
-			}
-			Beacon( 'article', String( id ), { type: format } );
-		}
-		return false;
 	} );
 } );

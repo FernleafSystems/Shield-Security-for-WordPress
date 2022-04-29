@@ -37,7 +37,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$opts->setOpt(
 			'api_namespace_exclusions',
-			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' )
+			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^\da-z_-]#i' )
 		);
 	}
 }

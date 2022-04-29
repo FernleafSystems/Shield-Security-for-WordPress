@@ -197,7 +197,7 @@ class ModCon extends BaseShield\ModCon {
 				else {
 					$exclusion = wp_normalize_path( trim( $exclusion ) );
 					if ( strpos( $exclusion, '/' ) === false ) { // filename only
-						$exclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $exclusion ) );
+						$exclusion = trim( preg_replace( '#[^.\da-z_-]#i', '', $exclusion ) );
 					}
 				}
 

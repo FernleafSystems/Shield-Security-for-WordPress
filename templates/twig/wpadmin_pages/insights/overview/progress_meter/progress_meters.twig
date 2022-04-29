@@ -40,7 +40,6 @@
 			      <div class="card-footer">
 				      <a class="btn {% if meter.has_critical|default(false) %}btn-danger{% elseif meter.totals.percentage > 50 %}btn-success{% else %}btn-warning{% endif %}"
 				         href="javascript:{iCWP_WPSF_ProgressMeters.renderAnalysis('{{ meter_slug }}')}"
-						      {#             data-bs-toggle="offcanvas" data-bs-target="#ShieldProgressMeterOffcanvas" #}
 						     aria-controls="ShieldProgressMeterOffcanvas">
 								<span class="button-svg-container">{{ imgs.svgs.analysis|raw }}</span>
 					      {{ strings.analysis }}

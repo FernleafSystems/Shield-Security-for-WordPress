@@ -1088,7 +1088,9 @@ table.odp-table.scan-table td.column-path code {
 	/*display: block;*/
 }
 
-.option_label_name .beacon-article > .dashicons,
+.option_label_name .beacon-article > sup svg {
+	width: 14px;
+}
 .icwpOptionsForm .option_link_info > .dashicons {
 	font-size: 16px;
 	text-decoration: none;

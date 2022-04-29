@@ -11,7 +11,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getRestApiAnonymousExclusions() :array {
 		$exc = apply_filters( 'shield/anonymous_rest_api_exclusions', $this->getOpt( 'api_namespace_exclusions' ) );
-		return $this->getMod()->cleanStringArray( $exc, '#[^a-z0-9_-]#i' );
+		return $this->getMod()->cleanStringArray( $exc, '#[^\da-z_-]#i' );
 	}
 
 	public function isOptFileEditingDisabled() :bool {

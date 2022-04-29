@@ -42,22 +42,7 @@ class Processor extends BaseShield\Processor {
 	 * @deprecated 15.0
 	 */
 	private function printDashboardWidget() {
-		$con = $this->getCon();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$labels = $con->getLabels();
-
-		echo $this->getMod()->renderTemplate(
-			'snippets/widget_dashboard_plugin.php',
-			[
-				'install_days' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $opts->getInstallationDays() ),
-				'footer'       => sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $con->getHumanName(),
-					sprintf( '<a href="%s" target="_blank">%s</a>', $labels[ 'AuthorURI' ], $labels[ 'Author' ] )
-				),
-				'ip_address'   => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ),
-					Services::IP()->getRequestIp() )
-			]
-		);
+		echo '';
 	}
 
 	public function runDailyCron() {

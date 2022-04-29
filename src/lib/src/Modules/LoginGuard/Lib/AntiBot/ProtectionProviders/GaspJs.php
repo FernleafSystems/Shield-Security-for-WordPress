@@ -30,7 +30,7 @@ class GaspJs extends BaseProtectionProvider {
 					'icwp_wpsf_vars_lpantibot',
 					[
 						'form_selectors' => implode( ',', $opts->getAntiBotFormSelectors() ),
-						'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+						'uniq'           => preg_replace( '#[^\da-zA-Z]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
 						'cbname'         => $mod->getGaspKey(),
 						'strings'        => [
 							'label'   => $mod->getTextImAHuman(),

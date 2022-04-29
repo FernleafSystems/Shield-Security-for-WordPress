@@ -36,7 +36,7 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\Reporting
 	 */
-	private $oReporting;
+	private $reporting;
 
 	/**
 	 * @var Shield\Modules\Base\UI
@@ -51,7 +51,7 @@ abstract class ModCon {
 	/**
 	 * @var Shield\Modules\Base\WpCli
 	 */
-	private $oWpCli;
+	private $wpCli;
 
 	/**
 	 * @var Shield\Modules\Base\AdminPage
@@ -603,16 +603,14 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @param bool   $bAsString
-	 * @param string $sGlue
 	 * @return string|array
 	 */
-	public function getLastErrors( $bAsString = false, $sGlue = " " ) {
+	public function getLastErrors( bool $asString = false, string $glue = " " ) {
 		$errors = $this->getOptions()->getOpt( 'last_errors' );
 		if ( !is_array( $errors ) ) {
 			$errors = [];
 		}
-		return $bAsString ? implode( $sGlue, $errors ) : $errors;
+		return $asString ? implode( $glue, $errors ) : $errors;
 	}
 
 	public function hasLastErrors() :bool {
@@ -998,10 +996,10 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\WpCli
 	 */
 	public function getWpCli() {
-		if ( !isset( $this->oWpCli ) ) {
-			$this->oWpCli = $this->loadModElement( 'WpCli' );
+		if ( !isset( $this->wpCli ) ) {
+			$this->wpCli = $this->loadModElement( 'WpCli' );
 		}
-		return $this->oWpCli;
+		return $this->wpCli;
 	}
 
 	/**
@@ -1034,10 +1032,10 @@ abstract class ModCon {
 	 * @return Shield\Modules\Base\Reporting|mixed|false
 	 */
 	public function getReportingHandler() {
-		if ( !isset( $this->oReporting ) ) {
-			$this->oReporting = $this->loadModElement( 'Reporting' );
+		if ( !isset( $this->reporting ) ) {
+			$this->reporting = $this->loadModElement( 'Reporting' );
 		}
-		return $this->oReporting;
+		return $this->reporting;
 	}
 
 	public function getAdminNotices() {

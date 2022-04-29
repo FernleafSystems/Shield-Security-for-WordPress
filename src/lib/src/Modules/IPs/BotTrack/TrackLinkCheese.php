@@ -53,7 +53,7 @@ class TrackLinkCheese extends Base {
 			$reqPath = trim( (string)Services::Request()->getPath(), '/' );
 			$isCheese = ( $reqPath ===
 						  trim( (string)parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' ) )
-						|| preg_match( '#icwp-wpsf-[a-z]+-[a-z0-9]{7,9}#', $reqPath ) > 0;
+						|| preg_match( '#icwp-wpsf-[a-z]+-[a-z\d]{7,9}#', $reqPath ) > 0;
 			/** TODO: 10.3 legacy remove */
 		}
 		else {

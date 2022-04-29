@@ -61,9 +61,6 @@ class UI extends Base\UI {
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
 				],
 				'vars'    => [
-					'helpscout_beacon_id' => $isPremium ?
-						'db2ff886-2329-4029-9452-44587df92c8c'
-						: 'aded6929-af83-452d-993f-a60c03b46568'
 				],
 				'classes' => [
 					'top_container' => implode( ' ', array_filter( [

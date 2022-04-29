@@ -5,7 +5,7 @@
 <h3 class="subheader">
 	{{ strings.security_progress }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.overview }}">{{ strings.progress_overview }}</a>]</small>
+		<small>[<a href="{{ hrefs.overview }}" target="_blank">{{ strings.progress_overview }}</a>]</small>
 	{% endif %}
 </h3>
 <div class="shield-progress-bar
@@ -23,7 +23,7 @@
 <h3 class="subheader">
 	{{ strings.recent_blocked }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.ips }}" target="_blank">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 
@@ -59,7 +59,7 @@
 <h3 class="subheader">
 	{{ strings.recent_offenses }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.ips }}" target="_blank">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 {% if vars.recent_ips_offense|default([])|length > 0 %}
@@ -135,7 +135,7 @@
 <h3 class="subheader">
 	{{ strings.recent_activity }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.audit_trail }}">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.audit_trail }}" target="_blank">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 {% if vars.recent_events|default([])|length > 0 %}
@@ -164,7 +164,7 @@
 <div class="jump-buttons">
 	{% if flags.show_internal_links %}
 		{% for jump_link in vars.jump_links %}
-			<a href="{{ jump_link.href }}">{{ jump_link.text }}</a>
+			<a href="{{ jump_link.href }}" target="_blank">{{ jump_link.text }}</a>
 		{% endfor %}
 	{% endif %}
 </div>

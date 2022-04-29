@@ -74,9 +74,6 @@ class DashboardWidget {
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
 		if ( $refresh || empty( $vars ) ) {
-			error_log( var_export( ( new Components() )
-									   ->setCon( $this->getCon() )
-									   ->getComponent( 'all' )[ 'original_score' ], true ) );
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
 				'security_progress'  => ( new Components() )

@@ -1,9 +1,0 @@
-{% extends "/notices/base-info.twig" %}
-
-{% block notice_body %}
-	<div class="row">
-		<div class="col">
-			<p>{{ strings.message is iterable ? strings.message|join('<br />')|raw : strings.message }}</p>
-		</div>
-	</div>
-{% endblock %}

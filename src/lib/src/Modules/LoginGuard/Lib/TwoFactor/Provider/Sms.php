@@ -60,7 +60,7 @@ class Sms extends BaseProvider {
 
 		$country = strtoupper( $country );
 
-		if ( !preg_match( '#^[0-9]{7,15}$#', $phone ) ) {
+		if ( !preg_match( '#^\d{7,15}$#', $phone ) ) {
 			throw new \Exception( 'Phone numbers should contain only digits (0-9) and be no more than 15 digits in length.' );
 		}
 		if ( !preg_match( '#^[A-Z]{2}$#', $country ) ) {

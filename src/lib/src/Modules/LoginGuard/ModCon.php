@@ -56,7 +56,7 @@ class ModCon extends BaseShield\ModCon {
 			$opts->setOpt( 'mfa_verify_page', 'custom_shield' );
 		}
 
-		$redirect = preg_replace( '#[^0-9a-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
+		$redirect = preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
 		if ( !empty( $redirect ) ) {
 
 			$redirect = preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
@@ -157,7 +157,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$path = $opts->getCustomLoginPath();
 		if ( !empty( $path ) ) {
-			$path = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $path, '/' ) );
+			$path = preg_replace( '#[^\da-zA-Z-]#', '', trim( $path, '/' ) );
 			$this->getOptions()->setOpt( 'rename_wplogin_path', $path );
 		}
 	}

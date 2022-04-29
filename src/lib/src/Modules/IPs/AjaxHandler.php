@@ -168,7 +168,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	public function ajaxExec_IpReviewSelect() :array {
 		$req = Services::Request();
 
-		$filter = preg_replace( '#[^0-9a-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
+		$filter = preg_replace( '#[^\da-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
 		$ips = ( new FindAllPluginIps() )
 			->setCon( $this->getCon() )
 			->run( $filter );

@@ -295,7 +295,7 @@ class ModCon extends BaseShield\ModCon {
 		if ( $nSpacePos !== false ) {
 			$sCaptchaKey = substr( $sCaptchaKey, 0, $nSpacePos + 1 ); // cut off the string if there's spaces
 		}
-		$sCaptchaKey = preg_replace( '#[^0-9a-zA-Z_-]#', '', $sCaptchaKey ); // restrict character set
+		$sCaptchaKey = preg_replace( '#[^\da-zA-Z_-]#', '', $sCaptchaKey ); // restrict character set
 //			if ( strlen( $sCaptchaKey ) != 40 ) {
 //				$sCaptchaKey = ''; // need to verify length is 40.
 //			}
@@ -389,6 +389,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
+		$con = $this->getCon();
 
 		$tourManager = $this->getTourManager();
 		$locals[] = [
@@ -405,17 +406,21 @@ class ModCon extends BaseShield\ModCon {
 			'plugin',
 			'icwp_wpsf_vars_plugin',
 			[
-				'strings' => [
-					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
+				'components' => [
+					'helpscout'   => [
+						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
+						'visible'   => $con->isModulePage()
+					],
 					'mod_options' => [
 						'ajax' => [
 							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
 						]
-					]
-				]
+					],
+				],
+				'strings'    => [
+					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+				],
 			]
 		];
 

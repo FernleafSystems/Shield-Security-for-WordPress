@@ -8,8 +8,16 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 		window.history.replaceState(
 			{},
 			response.data.page_title,
-			response.data.page_url
+			// response.data.page_url
 		);
+
+		// Using links to specific config sections, we extract the section and trigger the tab show()
+		if ( window.location.hash ) {
+			let theTabToShow = document.querySelector( '#tab-navlink-' + window.location.hash.split( '-' )[ 1 ] );
+			if ( theTabToShow ) {
+				(new bootstrap.Tab( theTabToShow )).show();
+			}
+		}
 
 		document.getElementById( 'PageTitle' ).innerHTML = response.data.page_title;
 

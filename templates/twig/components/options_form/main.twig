@@ -37,7 +37,7 @@
 								   data-beacon-article-id="{{ opt_section.beacon_id }}"
 								   data-beacon-article-format="modal"
 								   title="{{ strings.opt_info_helpdesk }}">
-									<span class="dashicons dashicons-editor-help"></span>
+									<sup>{{ imgs.svgs.help|raw }}</sup>
 								</a>
 
 							{% else %}
@@ -84,7 +84,7 @@
 					{% endfor %}
 				{% endif %}
 
-				{% for key, aOption in opt_section.options %}
+				{% for key, option in opt_section.options %}
 					{% include '/components/options_form/option.twig' %}
 				{% endfor %}
 		</div>

@@ -56,13 +56,9 @@ class UI {
 			'sPageTitle' => $mod->getMainFeatureName(),
 			'ajax'       => [
 			],
-			'vars'       => [
-				'mod_slug'         => $mod->getModSlug(),
-				'unique_render_id' => uniqid(),
-			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
-				'access_restricted'     => $mod->isAccessRestricted(),
+				'access_restricted'     => method_exists( $mod, 'isAccessRestricted' ) && $mod->isAccessRestricted(),
 				'show_ads'              => $mod->getIsShowMarketing(),
 				'wrap_page_content'     => true,
 				'show_standard_options' => true,
@@ -94,6 +90,7 @@ class UI {
 			],
 			'imgs'       => [
 				'svgs'           => [
+					'help'     => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
 					'ignore'   => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle' => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
 				],
@@ -107,7 +104,11 @@ class UI {
 				'actions'        => '',
 				'help'           => '',
 				'wizard_landing' => ''
-			]
+			],
+			'vars'       => [
+				'mod_slug'         => $mod->getModSlug(),
+				'unique_render_id' => uniqid(),
+			],
 		];
 	}
 
