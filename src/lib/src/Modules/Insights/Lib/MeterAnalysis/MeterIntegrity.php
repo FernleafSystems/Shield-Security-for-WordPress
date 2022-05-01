@@ -6,6 +6,16 @@ class MeterIntegrity extends MeterBase {
 
 	const SLUG = 'integrity';
 
+	protected function getWorkingMods() :array {
+		return array_filter(
+			$this->getCon()->modules,
+			function ( $mod ) {
+				return ( $mod->cfg->properties[ 'show_module_options' ] ?? false )
+					   && $mod->getSlug() !== 'plugin';
+			}
+		);
+	}
+
 	protected function title() :string {
 		return __( 'Site Security Integrity', 'wp-simple-firewall' );
 	}

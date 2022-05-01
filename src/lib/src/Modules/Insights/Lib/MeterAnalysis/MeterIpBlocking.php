@@ -6,6 +6,10 @@ class MeterIpBlocking extends MeterBase {
 
 	const SLUG = 'ips';
 
+	protected function getWorkingMods() :array {
+		return [ $this->getCon()->getModule_IPs() ];
+	}
+
 	protected function title() :string {
 		return __( 'IP Blocking and Bot Detection', 'wp-simple-firewall' );
 	}

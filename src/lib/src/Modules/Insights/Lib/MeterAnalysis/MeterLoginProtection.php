@@ -6,6 +6,13 @@ class MeterLoginProtection extends MeterBase {
 
 	const SLUG = 'login';
 
+	protected function getWorkingMods() :array {
+		return [
+			$this->getCon()->getModule_LoginGuard(),
+			$this->getCon()->getModule_UserManagement()
+		];
+	}
+
 	protected function title() :string {
 		return __( 'Login Protection', 'wp-simple-firewall' );
 	}

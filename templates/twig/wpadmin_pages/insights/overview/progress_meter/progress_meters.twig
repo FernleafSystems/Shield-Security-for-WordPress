@@ -31,7 +31,13 @@
 					      {{ meter.title }}
 					      <br /><small class="text-muted">{{ meter.subtitle }}</small>
 				      </h6>
-				      {#              <small>{{ meter.subtitle }}</small> #}
+				      {% if meter.warning|default([]) is not empty %}
+					      <div class="alert alert-danger">
+						      {{ meter.warning.text }}
+						      <a href="{{ meter.warning.href }}" class="alert-link" target="_blank">
+							      {{ strings.view_details }}</a>
+					      </div>
+				      {% endif %}
 				      {% for desc in meter.description %}
 					      <p class="card-text">{{ desc }}</p>
 				      {% endfor %}
@@ -40,7 +46,7 @@
 			      <div class="card-footer">
 				      <a class="btn {% if meter.has_critical|default(false) %}btn-danger{% elseif meter.totals.percentage > 50 %}btn-success{% else %}btn-warning{% endif %}"
 				         href="javascript:{iCWP_WPSF_ProgressMeters.renderAnalysis('{{ meter_slug }}')}"
-						     aria-controls="ShieldProgressMeterOffcanvas">
+				         aria-controls="ShieldProgressMeterOffcanvas">
 								<span class="button-svg-container">{{ imgs.svgs.analysis|raw }}</span>
 					      {{ strings.analysis }}
 							</a>

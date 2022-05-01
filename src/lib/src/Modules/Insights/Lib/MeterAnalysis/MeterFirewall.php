@@ -6,6 +6,10 @@ class MeterFirewall extends MeterBase {
 
 	const SLUG = 'firewall';
 
+	protected function getWorkingMods() :array {
+		return [ $this->getCon()->getModule_Firewall() ];
+	}
+
 	protected function title() :string {
 		return __( 'Powerful WordPress Firewall', 'wp-simple-firewall' );
 	}

@@ -6,6 +6,10 @@ class MeterScans extends MeterBase {
 
 	const SLUG = 'scans';
 
+	protected function getWorkingMods() :array {
+		return [ $this->getCon()->getModule_HackGuard() ];
+	}
+
 	protected function title() :string {
 		return __( 'Site Scanning', 'wp-simple-firewall' );
 	}

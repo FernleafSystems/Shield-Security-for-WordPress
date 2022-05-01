@@ -4,18 +4,56 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render\BaseTemplateRenderer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	BaseShield,
+	Plugin
+};
 
 abstract class MeterBase extends BaseTemplateRenderer {
 
 	const SLUG = '';
 
+	/**
+	 * @return BaseShield\ModCon[]|Plugin\ModCon[]
+	 */
+	protected function getWorkingMods() :array {
+		return [];
+	}
+
 	public function buildMeterComponents() :array {
 		return $this->postProcessMeter( [
 			'title'       => $this->title(),
 			'subtitle'    => $this->subtitle(),
+			'warning'     => $this->warning(),
 			'description' => $this->description(),
 			'components'  => $this->buildComponents(),
 		] );
+	}
+
+	protected function warning() :array {
+		$con = $this->getCon();
+		$pluginMod = $con->getModule_Plugin();
+		/** @var Plugin\Options $pluginOpts */
+		$pluginOpts = $pluginMod->getOptions();
+		$warning = [];
+		if ( $pluginOpts->isPluginGloballyDisabled() ) {
+			$warning = [
+				'text' => __( 'The plugin is currently entirely disabled.' ),
+				'href' => $pluginMod->getUrl_DirectLinkToOption( 'global_enable_plugin_features' ),
+			];
+		}
+		else {
+			foreach ( $this->getWorkingMods() as $workingMod ) {
+				if ( !$workingMod->isModOptEnabled() ) {
+					$warning = [
+						'text' => __( 'A module that manages some of these settings is disabled.' ),
+						'href' => $workingMod->getUrl_DirectLinkToOption( $workingMod->getEnableModOptKey() ),
+					];
+					break;
+				}
+			}
+		}
+		return $warning;
 	}
 
 	protected function postProcessMeter( array $meter ) :array {
@@ -64,7 +102,7 @@ abstract class MeterBase extends BaseTemplateRenderer {
 			0
 		];
 
-		$meter[ 'has_critical' ] = $hasCritical;
+		$meter[ 'has_critical' ] = $hasCritical || !empty( $meter[ 'warning' ] );
 
 		return $meter;
 	}

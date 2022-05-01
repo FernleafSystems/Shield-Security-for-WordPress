@@ -10,4 +10,8 @@ class ModCon extends BaseShield\ModCon {
 		return ( new Lib\SureSend\SureSendController() )
 			->setMod( $this );
 	}
+
+	public function isModOptEnabled() :bool {
+		return true;
+	}
 }
