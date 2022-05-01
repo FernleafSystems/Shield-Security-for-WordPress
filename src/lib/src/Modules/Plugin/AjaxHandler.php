@@ -44,7 +44,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		return [
 			'success'     => $success,
-			'redirect_to' => $saver->getMod()->getUrl_AdminPage(),
+			'redirect_to' => $saver->getMod()->getUrl_OptionsConfigPage(),
 			'html'        => '', //we reload the page
 			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $name )

@@ -52,10 +52,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getUrl_SubInsightsPage( 'users' );
 	}
 
-	public function getUrl_SubInsightsPage( string $insightsPage, string $subNav = '' ) :string {
+	public function getUrl_SubInsightsPage( string $inavPage, string $subNav = '' ) :string {
 		return add_query_arg(
 			array_filter( [
-				'inav'   => sanitize_key( $insightsPage ),
+				'inav'   => sanitize_key( $inavPage ),
 				'subnav' => sanitize_key( $subNav ),
 			] ),
 			$this->getUrl_AdminPage()

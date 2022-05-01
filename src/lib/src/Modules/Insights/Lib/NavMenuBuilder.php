@@ -293,7 +293,8 @@ class NavMenuBuilder {
 					'classes'       => [ 'dynamic_body_load', 'body_content_link' ],
 					'data'          => [
 						'load_type'    => $slug,
-						'load_variant' => $cfg->slug
+						'load_variant' => $cfg->slug,
+						'target_href'  => $module->getUrl_OptionsConfigPage(),
 					],
 					'active'        => Services::Request()->query( 'subnav' ) === $cfg->slug,
 					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],

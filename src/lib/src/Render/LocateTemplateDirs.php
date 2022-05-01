@@ -13,14 +13,14 @@ class LocateTemplateDirs {
 	 * @return string[]
 	 */
 	public function run() :array {
-		$aDirs = array_filter(
+		$dirs = array_filter(
 			$this->getCustomTemplateDirs(),
-			function ( $sDir ) {
-				return Services::WpFs()->isDir( $sDir );
+			function ( $dir ) {
+				return Services::WpFs()->isDir( $dir );
 			}
 		);
-		$aDirs[] = path_join( $this->getCon()->getPath_Templates(), 'twig' );
-		return $aDirs;
+		$dirs[] = path_join( $this->getCon()->getPath_Templates(), 'twig' );
+		return $dirs;
 	}
 
 	/**

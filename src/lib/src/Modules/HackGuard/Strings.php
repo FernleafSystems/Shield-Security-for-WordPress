@@ -351,8 +351,6 @@ class Strings extends Base\Strings {
 
 	private function deprecated_strings() {
 		// scan
-		__( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' );
-		__( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' );
 		__( "Detect files that may be infected with malware", 'wp-simple-firewall' );
 		__( '%s has detected abandoned plugins installed on your site.', 'wp-simple-firewall' );
 		__( "Running code that hasn't seen any updates for over 2 years is far from ideal.", 'wp-simple-firewall' );

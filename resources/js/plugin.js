@@ -132,7 +132,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
 
 		setTimeout( function () {
-			window.location.replace( response.data.redirect_to );
+			// window.location.replace( response.data.redirect_to );
+			window.location.reload();
 		}, 1000 );
 	};
 

@@ -419,6 +419,10 @@ abstract class ModCon {
 		return $this->loadProcessor();
 	}
 
+	public function getUrl_OptionsConfigPage() :string {
+		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'settings', $this->getSlug() );
+	}
+
 	public function getUrl_AdminPage() :string {
 		return Services::WpGeneral()
 					   ->getUrl_AdminPage(
@@ -475,19 +479,17 @@ abstract class ModCon {
 	}
 
 	public function getUrl_DirectLinkToOption( string $key ) :string {
-		$url = $this->getUrl_AdminPage();
 		$def = $this->getOptions()->getOptDefinition( $key );
-		if ( !empty( $def[ 'section' ] ) ) {
-			$url = $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
-		}
-		return $url;
+		return empty( $def[ 'section' ] ) ?
+			$this->getUrl_OptionsConfigPage()
+			: $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
 	}
 
 	public function getUrl_DirectLinkToSection( string $section ) :string {
 		if ( $section == 'primary' ) {
 			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];
 		}
-		return $this->getUrl_AdminPage().'#tab-'.$section;
+		return $this->getUrl_OptionsConfigPage().'#tab-'.$section;
 	}
 
 	/**

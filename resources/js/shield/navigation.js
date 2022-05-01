@@ -13,10 +13,12 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 			}
 		}
 
+		// we then update the window URL (after triggering tabs)
+		let currentTargetHref = jQuery( currentMenuLoadItem ).data( 'target_href' );
 		window.history.replaceState(
 			{},
 			response.data.page_title,
-			response.data.page_url
+			currentTargetHref ? currentTargetHref : response.data.page_url
 		);
 
 		document.getElementById( 'PageTitle' ).innerHTML = response.data.page_title;
