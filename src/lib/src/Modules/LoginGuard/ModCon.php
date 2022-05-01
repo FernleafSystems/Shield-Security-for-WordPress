@@ -25,7 +25,8 @@ class ModCon extends BaseShield\ModCon {
 		$WP = Services::WpGeneral();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( $this->isModuleOptionsRequest() && $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
+		if ( $opts->isEnabledEmailAuth() && $opts->isOptChanged( 'enable_email_authentication' )
+			 && !$opts->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}

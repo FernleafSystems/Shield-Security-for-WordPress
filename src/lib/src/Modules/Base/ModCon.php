@@ -824,8 +824,11 @@ abstract class ModCon {
 			   && Services::Request()->query( 'inav' ) == $this->getSlug();
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	protected function isModuleOptionsRequest() :bool {
-		return Services::Request()->post( 'mod_slug' ) === $this->getModSlug();
+		return false;
 	}
 
 	protected function isWizardPage() :bool {
