@@ -1,14 +1,14 @@
 {% import "/common/macros.twig" as icwp_macros %}
 <style>
 	#ButtonBuyNow {
-		margin: 20px;
-	}
-	.card {
-		margin-bottom: 20px;
-	}
-	.license-summary .card-body {
-		padding: 0;
-	}
+	  margin: 20px;
+  }
+  .card {
+	  margin-bottom: 20px;
+  }
+  .license-summary .card-body {
+	  padding: 0;
+  }
 
 </style>
 
@@ -46,7 +46,7 @@
 
 				<ol>
 					<li>
-						<a target="_blank" href="{{ aHrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
+						<a target="_blank" href="{{ hrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
 					</li>
 					<li>{{ strings.url_to_activate }}:
 						<code class="font-weight-bold">{{ vars.activation_url }}</code></li>
@@ -62,7 +62,7 @@
 					<input type="hidden" name="license-action" value="check" />
 					<p class="text-center">
 						<button class="btn btn-success m-2" type="submit"
-								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
+						        {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
 							{{ strings.check_license }}
 						</button>
 					</p>
@@ -78,8 +78,8 @@
 								<input type="hidden" name="license-action" value="clear" />
 
 								<button class="btn btn-link p-0" type="submit"
-										style="text-decoration: none; font-size: small;"
-										{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
+								        style="text-decoration: none; font-size: small;"
+								        {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
 									<span class="text-danger">&#10008; {{ strings.clear_license }}</span>
 								</button>
 							</form>
@@ -96,8 +96,8 @@
 							{% endfor %}
 							<p class="mb-0 text-end">
 								<button class="btn btn-link btn-sm p-0"
-										title="{{ strings.incase_debug }}"
-										type="submit">{{ strings.debug }}</button>
+								        title="{{ strings.incase_debug }}"
+								        type="submit">{{ strings.debug }}</button>
 							</p>
 						</form>
 					</div>
@@ -134,74 +134,44 @@
 	<div class="col-7">
 	  <div class="card gopro-card">
 
-		<div id="collone" aria-labelledby="headingOne">
 		  <div class="card-body">
-			  <p><a href="https://shsec.io/gp" target="_blank" class="btn btn-outline-success">
-					  See All PRO Features and Extras</a></p>
-			<dl class="pro-features">
-				<dt>Easiest, Frustration-Free WP Pro-Upgrade Anywhere</dt>
-				<dd>No more license keys to remember/copy-paste! Simply activate your site URL in your
-					{{ icwp_macros.shieldpro }} control panel and get Pro features enabled on your site automatically.
-				</dd>
 
-				<dt>Protect your <code>wp-config.php</code> files</dt>
-				<dd>The only WordPress security plugin to add monitoring of your
-					<code>wp-config.php</code> files with automatic rollback and recovery.</dd>
+			  <div class="d-grid mb-3">
+				  <a href="https://shsec.io/gp"
+				     target="_blank"
+				     class="btn {{ flags.is_pro ? 'btn-outline-success' : 'btn-success' }}">
+					  See All PRO Features and Extras</a>
+			  </div>
 
-				<dt>MainWP Integration (no extra extension plugins required)</dt>
-				<dd>Use MainWP to manage and monitor the security of all your WordPress sites.</dd>
+			  <div class="accordion" id="AccordionProFeatures">
+				  {% for feature_key,feature in strings.pro_features %}
+					  <div class="accordion-item">
+						  <h2 class="accordion-header" id="featureHeading{{ feature_key }}">
+							  <button class="accordion-button {{ feature_key == 0 ? '' : 'collapsed' }}" type="button"
+							          data-bs-toggle="collapse"
+							          data-bs-target="#collapse{{ feature_key }}"
+							          aria-expanded="false" aria-controls="collapse{{ feature_key }}">
+								  <span class="svg-container me-2 text-success">{{ imgs.svgs.thumbs_up|raw }}</span>
+								  {{ feature.title|raw }}
+							  </button>
+						  </h2>
 
-				<dt>Malware Scanner: Auto-learning and Detects Never-Before-Seen Malware</dt>
-				<dd>Detects common and uncommon malware patterns in PHP files and alerts you immediately.
-					<br />With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives
-					so you can focus on risks that matter, and can ignore the noise that wastes your time.
-				</dd>
+						  <div id="collapse{{ feature_key }}"
+						       class="accordion-collapse collapse {{ feature_key == 0 ? 'show' : '' }}"
+						       data-bs-parent="#AccordionProFeatures"
+						       aria-labelledby="featureHeading{{ feature_key }}">
+							  <div class="accordion-body">
+								  {% for line in feature.lines %}
+									  {{ line|raw }}
+								  {% endfor %}
+							  </div>
+						  </div>
 
-				<dt>ShieldNET Integration</dt>
-				<dd>Take advantage of the intelligence gathered throughout the entire Shield network to protect
-					your WordPress sites.</dd>
-
-				<dt>Traffic Rate Limiting</dt>
-				<dd>Prevent abuse of your web hosting resources by detecting and blocking bots that send
-					too many requests to your site.
-				</dd>
-
-				<dt>Plugin and Theme Vulnerability Scanner</dt>
-				<dd>Alerts to plugin/theme vulnerabilities.
-					Shield can then automatically upgrade as updates become available.
-				</dd>
-
-				<dt>Catch Hacks Immediately - Plugins and Themes Guard</dt>
-				<dd>Be alerted to ANY unauthorized changes to plugins/themes.</dd>
-
-				<dt>Powerful User Password Policies</dt>
-				<dd>Ensures that all users maintain strong passwords.</dd>
-
-				<dt>Support for WooCommerce &amp; other 3rd party plugins</dt>
-				<dd>Provide tighter security for your WooCommerce customers.
-				</dd>
-
-				<dt>Exclusive Customer Support</dt>
-				<dd>Technical support for Shield is exclusive to Pro customers.</dd>
-
-				<dt>Import and Export of plugin options</dt>
-				<dd>Automatically import settings directly from 1 site to another.</dd>
-
-				<dt>Exclusive Early-Access </dt>
-				<dd>Be 1st to get new security features, as soon as they're available.</dd>
-
-				<dt>Unlimited Audit Trail</dt>
-				<dd>Retain logs for as long as you need - no limits.</dd>
-
-				<dt>White Label</dt>
-				<dd>Re-Brand Shield Security as your own!</dd>
-
-				<dt>Customize text shown to visitors</dt>
-				<dd>Edit customer-facing messages/text of the Shield plugin.</dd>
-			</dl>
+					  </div>
+				  {% endfor %}
+			  </div>
 		  </div>
 		</div>
-	  </div>
 	</div>
 
 </div>

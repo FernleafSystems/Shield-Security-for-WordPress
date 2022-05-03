@@ -109,7 +109,11 @@ class UI extends BaseShield\UI {
 			case 'license':
 				/** @var Shield\Modules\License\UI $UILicense */
 				$UILicense = $con->getModule_License()->getUIHandler();
-				$data = $UILicense->buildInsightsVars();
+				$data = [
+					'content' => [
+						'licensing' => $UILicense->renderLicensePage()
+					],
+				];
 				break;
 
 			case 'notes':

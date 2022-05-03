@@ -1056,59 +1056,6 @@ body.folded #FooterBannerGoPro {
 	font-size: 3rem;
 	line-height: 3.5rem;
 }
-#odp-PageContainer .summary-card.card {
-	border-color: transparent;
-}
-.summary-card.card,
-.summary-card .card-body {
-	background-color: transparent;
-}
-.summary-card .card-body {
-	padding: 0.1rem;
-}
-.summary-card .card-footer {
-	border: 1px solid transparent;
-	background-color: transparent;
-}
-.summary-card .card-footer h6 {
-	font-size: 0.8rem;
-	margin: 0;
-	text-align: center;
-}
-.summary-card.enabled .icon,
-.summary-card.enabled .card-footer a {
-	color: #008000;
-}
-.summary-card.disabled .icon,
-.summary-card.disabled .card-footer a {
-	color: #c23e0c;
-}
-.summary-card a[target="_blank"]::after {
-	content: '' !important;
-	margin: 0 !important;
-}
-.summary-card .icon > svg {
-	width: 64px;
-	height: 64px;
-	padding: 12px;
-	border: 1px solid #008000;
-	border-radius: 32px;
-	/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#f8ffe8+0,e3f5ab+33,b7df2d+100;Green+3D+%234 */
-	background: #f8ffe8; /* Old browsers */
-	background: -moz-linear-gradient(top, #f8ffe8 0%, #e3f5ab 33%, #b7df2d 100%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #f8ffe8 0%, #e3f5ab 33%, #b7df2d 100%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #f8ffe8 0%, #e3f5ab 33%, #b7df2d 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f8ffe8', endColorstr='#b7df2d', GradientType=0); /* IE6-9 */
-}
-.summary-card.disabled .icon > svg {
-	border-color: #c23e0c;
-	/* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#ffeded+0,fcd6d6+12,f9acac+88 */
-	background: #ffeded; /* Old browsers */
-	background: -moz-linear-gradient(top, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #ffeded 0%, #fcd6d6 12%, #f9acac 88%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeded', endColorstr='#f9acac', GradientType=0); /* IE6-9 */
-}
 #odp-PageContainer .card.progress-meter {
 	box-shadow: 1px 1px 2px rgb(0 0 0 / 20%);
 	background: rgb(253 253 253 / 45%);
@@ -1180,7 +1127,7 @@ button.bs-placeholder {
 #ShieldProgressMeterOffcanvas {
 	width: 600px;
 }
-.button-svg-container > .bi {
+.svg-container > .bi {
 	vertical-align: -0.125em;
 }
 #tabEvents .card-body > ul {
