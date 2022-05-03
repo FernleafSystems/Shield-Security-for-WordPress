@@ -27,7 +27,8 @@ class MeterIntegrity extends MeterBase {
 	protected function description() :array {
 		return [
 			__( "There are many components to a well-protected WordPress site.", 'wp-simple-firewall' ),
-			__( "This section deals with general factors that will assist you in managing your WordPress security in the most efficient way possible.", 'wp-simple-firewall' ),
+			__( "This section assesses from an overall perspective and will assist you in managing your WordPress security in the most effective way possible.", 'wp-simple-firewall' ),
+			__( "There is an overall score included here that incorporates all other security overview scores.", 'wp-simple-firewall' ),
 		];
 	}
 

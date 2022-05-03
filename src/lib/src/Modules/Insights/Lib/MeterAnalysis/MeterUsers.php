@@ -23,10 +23,9 @@ class MeterUsers extends MeterBase {
 
 	protected function description() :array {
 		return [
-			__( "Regular file scanning is important to ensure malicious files are caught before they can be abused.", 'wp-simple-firewall' ),
-			__( "Scanning is often marketed as the most important aspect of security, but this thinking is backwards.", 'wp-simple-firewall' )
-			.' '.__( "Scanning is remedial and detection of malware, for example, is a symptom of larger problem i.e. that your site is vulnerable to intrusion.", 'wp-simple-firewall' ),
-			__( "It is, nevertheless, a critical component of WordPress security hygiene.", 'wp-simple-firewall' ),
+			__( "It is important to not only block malicious request, but also protect your existing users and customers.", 'wp-simple-firewall' ),
+			__( "This section assesses how well you're protecting existing users, administrator accounts, and passwords.", 'wp-simple-firewall' ),
+			__( "Another, often overlooked, component of security is how you communicate to your visitors that you're employing strong security practices and that you take their data and privacy seriously.", 'wp-simple-firewall' ),
 		];
 	}
 

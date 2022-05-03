@@ -460,7 +460,7 @@ class Components {
 						'desc_protected'   => __( 'Traffic rate limiting is enabled reducing the likelihood that bots can overwhelm your site.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Traffic is never rate limited meaning abusive bots and crawlers may consume resources without limits and potentially overload your system.", 'wp-simple-firewall' ),
 						'href'             => $modTraffic->isModOptEnabled() ?
-							$modTraffic->getUrl_DirectLinkToOption( 'section_traffic_limiter' )
+							$modTraffic->getUrl_DirectLinkToOption( 'enable_limiter' )
 							: $modTraffic->getUrl_DirectLinkToOption( 'enable_traffic' ),
 						'protected'        => $modTraffic->isModOptEnabled() && $optsTraffic->isTrafficLimitEnabled(),
 						'weight'           => 35,

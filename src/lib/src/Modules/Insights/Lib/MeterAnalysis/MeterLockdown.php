@@ -20,8 +20,7 @@ class MeterLockdown extends MeterBase {
 
 	protected function description() :array {
 		return [
-			__( "The section forms the core foundation of long-term, powerful WordPress protection.", 'wp-simple-firewall' ),
-			__( "Your biggest threat comes from automated bots, so detecting them quickly and blocking them early is your greatest source of protection.", 'wp-simple-firewall' ),
+			__( "This section assesses how, and whether, you've locked down certain WordPress components which, for the vast majority of website, don't need to remain enabled by default.", 'wp-simple-firewall' ),
 		];
 	}
 
