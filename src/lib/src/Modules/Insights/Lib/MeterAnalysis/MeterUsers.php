@@ -31,6 +31,7 @@ class MeterUsers extends MeterBase {
 
 	protected function getComponentSlugs() :array {
 		$components = [
+			'ssl_certificate',
 			'admin_user',
 			'secadmin_admins',
 			'2fa',

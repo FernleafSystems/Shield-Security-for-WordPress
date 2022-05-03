@@ -45,7 +45,7 @@
     },
     {
       "slug":        "section_human_spam_filter",
-      "title":       "Human Comment SPAM Protection Filter",
+      "title":       "Human Comment SPAM Protection",
       "title_short": "Human SPAM",
       "beacon_id":   262,
       "summary":     [

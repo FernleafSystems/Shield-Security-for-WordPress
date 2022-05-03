@@ -151,9 +151,12 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			);
 		}
 		elseif ( Services::IP()->isValidIp( $ip ) ) {
-			$content = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>',
+			$content = sprintf(
+				'<a href="%s" target="_blank" title="%s" class="%s" data-ip="%s">%s</a>',
 				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
+				'modal_ip_analysis',
+				$ip,
 				$ip
 			);
 		}

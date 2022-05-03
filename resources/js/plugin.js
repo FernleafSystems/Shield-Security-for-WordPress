@@ -21,6 +21,50 @@ var iCWP_WPSF_OptionsPages = new function () {
 	};
 }();
 
+let iCWP_WPSF_Modals = new function () {
+	let workingData = {};
+
+	let renderModalIpAnalysis = function ( ip ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let reqData = workingData.modal_ip_analysis.ajax.render_ip_analysis;
+		reqData.ip = ip;
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				dataType: "json",
+				success: function ( raw ) {
+					iCWP_WPSF_Modals.display( raw.data );
+				},
+			}
+		).fail( function () {
+		} ).always( function () {
+			iCWP_WPSF_BodyOverlay.hide();
+		} );
+	};
+
+	this.display = function ( params ) {
+		let modal = document.getElementById( 'ShieldGeneralPurposeDialog' );
+		jQuery( '.modal-dialog', modal ).addClass( 'modal-xl' );
+		jQuery( '.modal-title', modal ).html( params.title );
+		jQuery( '.modal-body .col', modal ).html( params.body );
+		(new bootstrap.Modal( modal )).show();
+	};
+
+	this.setData = function ( key, data ) {
+		workingData[ key ] = data;
+	};
+
+	this.initialise = function () {
+		jQuery( document ).on( 'click', '.modal_ip_analysis', function ( evt ) {
+			evt.preventDefault();
+			renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+			return false;
+		} );
+	};
+}();
+
 var iCWP_WPSF_Toaster = new function () {
 
 	let toasterContainer;
@@ -116,7 +160,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		} ).always( function () {
 			requestRunning = false;
 		} );
-
 	};
 
 	let handleResponse = function ( raw ) {
@@ -387,6 +430,11 @@ jQuery( document ).ready( function () {
 
 	if ( typeof icwp_wpsf_vars_plugin.components.helpscout !== 'undefined' ) {
 		iCWP_WPSF_Helpscout.initialise( icwp_wpsf_vars_plugin.components.helpscout );
+	}
+
+	iCWP_WPSF_Modals.initialise();
+	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
+		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
 	}
 
 	jQuery( document ).ajaxComplete( function () {

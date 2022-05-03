@@ -1133,3 +1133,15 @@ button.bs-placeholder {
 #tabEvents .card-body > ul {
 	padding: 0;
 }
+#ShieldGeneralPurposeDialog {
+	z-index: 99999; /** Above WP admin bar **/
+}
+#ShieldGeneralPurposeDialog .card {
+	max-width: none;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+}
+#ShieldGeneralPurposeDialog .card-header {
+	background: transparent;
+}

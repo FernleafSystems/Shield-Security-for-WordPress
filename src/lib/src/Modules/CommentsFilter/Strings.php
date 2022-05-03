@@ -86,7 +86,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_human_spam_filter' :
-				$title = sprintf( __( '%s Comment SPAM Protection Filter', 'wp-simple-firewall' ), __( 'Human', 'wp-simple-firewall' ) );
+				$title = sprintf( __( '%s Comment SPAM Protection', 'wp-simple-firewall' ), __( 'Human', 'wp-simple-firewall' ) );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),

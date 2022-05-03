@@ -28,7 +28,6 @@ class BuildDisplay {
 	use ModConsumer;
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	public function run() :string {

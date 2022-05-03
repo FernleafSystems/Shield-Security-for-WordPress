@@ -134,6 +134,25 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oOffenseTracker;
 	}
 
+	public function getScriptLocalisations() :array {
+		$locals = parent::getScriptLocalisations();
+
+		$locals[] = [
+			'plugin',
+			'icwp_wpsf_vars_ips',
+			[
+				'components' => [
+					'modal_ip_analysis'   => [
+						'ajax' => [
+							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' )
+						]
+					],
+				],
+			]
+		];
+		return $locals;
+	}
+
 	public function getTextOptDefault( string $key ) :string {
 
 		switch ( $key ) {
