@@ -90,4 +90,8 @@ class Options extends BaseShield\Options {
 	public function getEmailValidationChecks() :array {
 		return $this->getOpt( 'email_checks', [] );
 	}
+
+	public function isValidateEmailOnRegistration() :bool {
+		return $this->getValidateEmailOnRegistration() !== 'disabled' && !empty( $this->getEmailValidationChecks() );
+	}
 }

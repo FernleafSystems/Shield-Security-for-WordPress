@@ -239,7 +239,7 @@ class Components {
 						'desc_protected'   => __( 'Comments are auto-approved only if they have at least 1 other approved comment.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Comments are auto-approved only if they have at least 1 other approved comment.", 'wp-simple-firewall' ),
 						'href'             => $modComments->isModOptEnabled() ?
-							$modComments->getUrl_DirectLinkToOption( 'enable_comments_human_spam_filter' )
+							$modComments->getUrl_DirectLinkToOption( 'trusted_commenter_minimum' )
 							: $modComments->getUrl_DirectLinkToOption( 'enable_comments_filter' ),
 						'protected'        => $modComments->isModOptEnabled() && $optsComments->getApprovedMinimum() > 1,
 						'weight'           => 10,
@@ -366,6 +366,21 @@ class Components {
 						'weight'           => 30,
 					];
 				},
+				'user_email_validation'    => function () {
+					$modUM = $this->getCon()->getModule_UserManagement();
+					/** @var UserManagement\Options $optsUM */
+					$optsUM = $modUM->getOptions();
+					return [
+						'title'            => __( 'User Registration Email Validation', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Newly registered users have their email address checked for valid and non-SPAM domain names.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Newly registered users don't have their email address checked for valid and non-SPAM domain names.", 'wp-simple-firewall' ),
+						'href'             => $modUM->isModOptEnabled() ?
+							$modUM->getUrl_DirectLinkToOption( 'reg_email_validate' )
+							: $modUM->getUrl_DirectLinkToOption( 'enable_user_management' ),
+						'protected'        => $modUM->isModOptEnabled() && $optsUM->isValidateEmailOnRegistration(),
+						'weight'           => 30,
+					];
+				},
 				'pass_pwned'               => function () {
 					$modUM = $this->getCon()->getModule_UserManagement();
 					/** @var UserManagement\Options $optsUM */
@@ -405,8 +420,8 @@ class Components {
 						'desc_protected'   => __( 'Your customers and visitors are reassured that you take their security seriously.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Your customers and visitors aren't given reassurance that you take their security seriously.", 'wp-simple-firewall' ),
 						'href'             => $modPlugin->isModOptEnabled() ?
-							$modPlugin->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
-							: $modPlugin->getUrl_DirectLinkToOption( 'enable_plugin' ),
+							$modPlugin->getUrl_DirectLinkToOption( 'display_plugin_badge' )
+							: $modPlugin->getUrl_DirectLinkToOption( 'global_enable_plugin_features' ),
 						'protected'        => $modPlugin->isModOptEnabled() && $optsPlugin->isOpt( 'display_plugin_badge', 'Y' ),
 						'weight'           => 5,
 					];

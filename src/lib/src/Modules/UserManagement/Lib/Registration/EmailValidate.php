@@ -13,7 +13,7 @@ class EmailValidate extends ExecOnceModConsumer {
 	protected function run() {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
-		if ( $opts->getValidateEmailOnRegistration() != 'disabled' ) {
+		if ( $opts->isValidateEmailOnRegistration() ) {
 			add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
 		}
 	}

@@ -37,6 +37,7 @@ class MeterUsers extends MeterBase {
 			'2fa',
 			'sessions_idle',
 			'users_inactive',
+			'user_email_validation',
 			'pass_policies',
 			'pass_pwned',
 			'pass_str',

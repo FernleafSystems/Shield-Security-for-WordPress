@@ -478,6 +478,12 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oCaptchaEnqueue;
 	}
 
+	public function isModOptEnabled() :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return !$opts->isPluginGloballyDisabled();
+	}
+
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
 	}

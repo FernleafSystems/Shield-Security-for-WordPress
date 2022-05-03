@@ -5,27 +5,37 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 	var handleDynamicLoad = function ( evt, response ) {
 		document.querySelector( '#apto-PageMainBody' ).innerHTML = response.data.html;
 
+		let urlHash = window.location.hash ? window.location.hash : '';
 		// Using links to specific config sections, we extract the section and trigger the tab show()
-		if ( window.location.hash ) {
-			let theTabToShow = document.querySelector( '#tab-navlink-' + window.location.hash.split( '-' )[ 1 ] );
+		if ( urlHash ) {
+			let theTabToShow = document.querySelector( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
 			if ( theTabToShow ) {
 				(new bootstrap.Tab( theTabToShow )).show();
 			}
 		}
 		jQuery( 'html,body' ).scrollTop( 0 );
 
-		// we then update the window URL (after triggering tabs)
+		/**
+		 *  we then update the window URL (only after triggering tabs)
+		 *  We need to take into account the window's hash link. We do this by checking
+		 *  for its existence on-page and only add it back to the URL if it's applicable.
+		 */
 		let currentTargetHref = jQuery( currentMenuLoadItem ).data( 'target_href' );
+		let replaceStateUrl = currentTargetHref ? currentTargetHref : response.data.page_url;
+		let hashOnPageElement = document.getElementById( urlHash.replace( /#/, '' ) );
+		if ( hashOnPageElement ) {
+			replaceStateUrl += urlHash;
+		}
 		window.history.replaceState(
 			{},
 			response.data.page_title,
-			currentTargetHref ? currentTargetHref : response.data.page_url
+			replaceStateUrl
 		);
 
 		document.getElementById( 'PageTitle' ).innerHTML = response.data.page_title;
 
 		let activeLinks = document.querySelectorAll( '#NavSideBar a.nav-link.active' );
-		for ( var i = 0; i < activeLinks.length; i++ ) {
+		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
 		}
 		currentMenuLoadItem.classList.add( 'active' );

@@ -234,7 +234,7 @@ class Strings extends Base\Strings {
 				$summary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
 				$description = [
 					__( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' ),
-					__( 'To validate an email your site sends a request to the WPHashes API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
+					__( 'To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
 				];
 				break;
 
