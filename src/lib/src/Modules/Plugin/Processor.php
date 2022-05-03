@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AllowBetaUpgrades;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
 use FernleafSystems\Wordpress\Services\Services;
@@ -25,6 +26,9 @@ class Processor extends BaseShield\Processor {
 		( new PluginTelemetry() )
 			->setMod( $this->getMod() )
 			->execute();
+		( new AllowBetaUpgrades() )
+			->setMod( $this->getMod() )
+			->execute();
 
 		if ( $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) ) {
 			$mod->getImpExpController()->execute();
@@ -33,9 +37,6 @@ class Processor extends BaseShield\Processor {
 		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
-
-		add_action( $con->prefix( 'dashboard_widget_content' ), function () {
-		}, 11 );
 	}
 
 	/**

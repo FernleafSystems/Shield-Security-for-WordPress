@@ -17,7 +17,6 @@ class Retrieve {
 	}
 
 	/**
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function fromRepo() :array {
