@@ -1010,26 +1010,6 @@ body.folded #FooterBannerGoPro {
 	border-left: 3px solid rgba(0, 128, 0, 0.4);
 	padding-left: 6px !important;
 }
-.subnav-menu {
-	visibility: hidden;
-	background-color: rgba(238, 246, 238, 0.99);
-	border: 1px solid rgba(177, 216, 178, 0.99);
-	position: absolute;
-	left: 130px;
-	width: 200px;
-	z-index: 1000;
-	height: auto;
-	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-	margin-top: -40px;
-	opacity: 0;
-	transition: visibility 0.15s 0s, opacity 0.15s ease-in;
-}
-.with-submenu.activesub .subnav-menu {
-	visibility: visible;
-	opacity: 1;
-	transition: visibility 0s, opacity 0.15s ease-in;
-	z-index: 1001;
-}
 .primary_side_sub_menu {
 }
 .primary_side_sub_menu a {
@@ -1202,4 +1182,7 @@ button.bs-placeholder {
 }
 .button-svg-container > .bi {
 	vertical-align: -0.125em;
+}
+#tabEvents .card-body > ul {
+	padding: 0;
 }

@@ -289,7 +289,7 @@ class NavMenuBuilder {
 					'mod_slug'      => $cfg->slug,
 					'slug'          => $slug.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
-					'href'          => '',
+					'href'          => $module->getUrl_OptionsConfigPage(),
 					'classes'       => [ 'dynamic_body_load', 'body_content_link' ],
 					'data'          => [
 						'load_type'    => $slug,
