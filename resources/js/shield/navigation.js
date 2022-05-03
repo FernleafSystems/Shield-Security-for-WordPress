@@ -12,6 +12,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 				(new bootstrap.Tab( theTabToShow )).show();
 			}
 		}
+		jQuery( 'html,body' ).scrollTop( 0 );
 
 		// we then update the window URL (after triggering tabs)
 		let currentTargetHref = jQuery( currentMenuLoadItem ).data( 'target_href' );
