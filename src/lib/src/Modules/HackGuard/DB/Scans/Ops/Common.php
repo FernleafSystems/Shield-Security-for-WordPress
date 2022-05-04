@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Scans\Ops;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 trait Common {
 
 	public function filterByScan( string $scan ) {

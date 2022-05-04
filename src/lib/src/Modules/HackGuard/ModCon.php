@@ -224,6 +224,12 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'filelocker' );
 	}
 
+	protected function cleanupDatabases() {
+		( new Shield\Modules\HackGuard\DB\Utility\Clean() )
+			->setMod( $this )
+			->execute();
+	}
+
 	/**
 	 * @throws \Exception
 	 */
