@@ -7,22 +7,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
 
+/**
+ * Allows the plugin to access WordPress.org SVN updates/tags that haven't actually been released.
+ * This way we can more easily test upgrades to ensure there are no upgrade errors etc. and make it easier for testers.
+ */
 class AllowBetaUpgrades extends ExecOnceModConsumer {
 
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
-		return $con->isPremiumActive()
-			   && apply_filters( 'shield/allow_beta_upgrades', $con->is_mode_debug );
+		return $con->isPremiumActive() && apply_filters( 'shield/allow_beta_upgrades', $con->is_mode_debug );
 	}
 
 	protected function run() {
 		add_filter( 'pre_set_site_transient_update_plugins', function ( $updates ) {
+			$con = $this->getCon();
+			// only offer "betas" when there is no "normal" upgrade already available
 			if ( is_object( $updates ) && isset( $updates->response )
 				 && is_array( $updates->response ) && empty( $updates->response[ $con->base_file ] ) ) {
 
-				$con = $this->getCon();
 				$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
 				$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
 				$versions = $versionsLookup->all();
