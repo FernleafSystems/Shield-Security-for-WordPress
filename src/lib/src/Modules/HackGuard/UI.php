@@ -40,7 +40,6 @@ class UI extends BaseShield\UI {
 			],
 			'strings'     => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
-				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
 				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),

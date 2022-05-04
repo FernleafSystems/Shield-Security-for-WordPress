@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 class Clean extends ExecOnceModConsumer {
 
 	protected function run() {
-		error_log( 'clean' );
 		$this->deleteScansThatNeverCompleted();
 		$this->deleteEarlierScans();
 	}
