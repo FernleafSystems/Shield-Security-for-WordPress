@@ -23,8 +23,6 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->getOptions();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [

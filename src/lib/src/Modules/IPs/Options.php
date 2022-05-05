@@ -110,7 +110,7 @@ class Options extends BaseShield\Options {
 		if ( $this->isTrackOptDoubleTransgression( $key ) ) {
 			$count = 2;
 		}
-		elseif ( $this->isTrackOptTransgression( $key ) ) {
+		elseif ( $this->isTrackOptTransgression( $key ) || $this->isTrackOptImmediateBlock( $key ) ) {
 			$count = 1;
 		}
 		else {
