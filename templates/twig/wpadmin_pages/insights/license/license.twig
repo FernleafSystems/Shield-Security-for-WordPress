@@ -164,6 +164,9 @@
 								  {% for line in feature.lines %}
 									  {{ line|raw }}
 								  {% endfor %}
+								  {% if feature.href|default('') is not empty %}
+									  <br/><a href="{{ feature.href }}" target="_blank" class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info }}</a>
+								  {% endif %}
 							  </div>
 						  </div>
 

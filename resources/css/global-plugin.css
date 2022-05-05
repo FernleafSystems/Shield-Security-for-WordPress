@@ -290,12 +290,26 @@ tr.icwp-plugin-vulnerability dd {
 	z-index: 1;
 }
 #ShieldDashboardWidget .jump-buttons {
-	margin: 10px auto;
+	margin: 20px 3px 14px;
 
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
 	gap: 7px;
+}
+#icwp-wpsf-dashboard_widget {
+	border: 1px solid rgba(119, 159, 119, 0.5);
+}
+#icwp-wpsf-dashboard_widget .postbox-header {
+	border-bottom: 1px solid rgba(119, 159, 119, 0.5);
+}
+#ShieldDashboardWidget a.jump-link {
+	text-decoration: none;
+	flex-grow: 1;
+	font-size: smaller;
+}
+#ShieldDashboardWidget a.jump-link > svg {
+	vertical-align: text-bottom;
 }
 #ShieldDashboardWidget .shield-progress-bar {
 	height: 20px;

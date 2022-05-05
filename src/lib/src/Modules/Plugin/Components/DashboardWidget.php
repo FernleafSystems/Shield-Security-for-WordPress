@@ -24,6 +24,11 @@ class DashboardWidget {
 										  ->setTimestamp( $vars[ 'generated_at' ] )
 										  ->diffForHumans();
 
+		$logoSrc = $con->urls->forImage( 'pluginlogo_banner-772x250.png' );
+		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+			$logoSrc = $con->getLabels()[ 'wl_login2fa_logourl' ] ?? ( $con->getLabels()[ 'wl_dashboardlogourl' ] ?? '' );
+		}
+
 		return $this->getMod()
 					->getRenderer()
 					->setTemplate( '/admin/admin_dashboard_widget.twig' )
@@ -39,7 +44,7 @@ class DashboardWidget {
 							'show_internal_links' => $con->isPluginAdmin()
 						],
 						'imgs'    => [
-							'logo' => $con->urls->forImage( 'pluginlogo_banner-772x250.png' )
+							'logo' => $logoSrc,
 						],
 						'strings' => [
 							'security_progress' => __( 'Overall Security Progress', 'wp-simple-firewall' ),
@@ -70,35 +75,40 @@ class DashboardWidget {
 	private function getVars( bool $refresh ) :array {
 		$con = $this->getCon();
 		$modInsights = $con->getModule_Insights();
-		$recent = ( new RecentStats() )->setCon( $this->getCon() );
+		$recent = ( new RecentStats() )->setCon( $con );
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
 		if ( $refresh || empty( $vars ) ) {
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
 				'security_progress'  => ( new Components() )
-											->setCon( $this->getCon() )
+											->setCon( $con )
 											->getComponent( 'all' )[ 'original_score' ],
 				'jump_links'         => [
 					[
 						'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),
-						'text' => __( 'Overview', 'wp-simple-firewall' ),
+						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
+						'svg'  => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
 					[
 						'href' => $modInsights->getUrl_IPs(),
 						'text' => __( 'IPs', 'wp-simple-firewall' ),
+						'svg'  => $con->svgs->raw( 'bootstrap/diagram-3.svg' ),
 					],
 					[
 						'href' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
+						'svg'  => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 					],
 					[
 						'href' => $modInsights->getUrl_SubInsightsPage( 'traffic' ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
+						'svg'  => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
 						'href' => $con->getModule_Plugin()->getUrl_AdminPage(),
 						'text' => __( 'Config', 'wp-simple-firewall' ),
+						'svg'  => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 					],
 				],
 				'recent_events'      => array_map(

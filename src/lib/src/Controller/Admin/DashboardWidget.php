@@ -29,7 +29,8 @@ class DashboardWidget {
 			apply_filters( 'shield/dashboard_widget_title',
 				sprintf( '%s: %s', $con->getHumanName(), __( 'Overview', 'wp-simple-firewall' ) ) ),
 			function () {
-				echo '<div id="ShieldDashboardWidget"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+				echo sprintf( '<div id="ShieldDashboardWidget"><div class="spinner-border" role="status"><span class="visually-hidden">%s...</span></div></div>',
+					__( 'Loading', 'wp-simple-firewall' ) );
 			}
 		);
 	}

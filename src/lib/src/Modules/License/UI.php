@@ -112,6 +112,7 @@ class UI extends BaseShield\UI {
 				'lines' => [
 					sprintf( __( 'The only WordPress security plugin to add monitoring of your %s files with automatic rollback and recovery.', 'wp-simple-firewall' ), '<code>wp-config.php</code>' ),
 				],
+				'href'  => 'https://shsec.io/ki'
 			],
 			[
 				'title' => __( 'Support for WooCommerce, Contact Form 7, Elementor PRO, Ninja Form & more', 'wp-simple-firewall' ),
@@ -126,48 +127,63 @@ class UI extends BaseShield\UI {
 					__( 'Detects common and uncommon malware patterns in PHP files and alerts you immediately.', 'wp-simple-firewall' ),
 					__( 'With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives so you can focus on risks that matter, and can ignore the noise that wastes your time.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/kj'
 			],
 			[
 				'title' => __( 'Plugin and Theme Vulnerability Scanner', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Alerts to plugin/theme vulnerabilities. Shield can then automatically upgrade as updates become available.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/kk'
 			],
 			[
 				'title' => __( 'Catch Plugin & Theme Hacks Immediately', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Be alerted to ANY unauthorized changes to plugins/themes.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/kl'
 			],
 			[
 				'title' => __( 'Traffic Rate Limiting', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Prevent abuse of your web hosting resources by detecting and blocking bots that send too many requests to your site.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/km'
 			],
 			[
 				'title' => sprintf( '%s: %s', __( 'Intelligence From The Collective', 'wp-simple-firewall' ), 'ShieldNET' ),
 				'lines' => [
 					__( 'Take advantage of the intelligence gathered throughout the entire Shield network to better protect your WordPress sites', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/kn'
 			],
 			[
 				'title' => __( 'Easiest, Frustration-Free WP Pro-Upgrade Anywhere', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'No more license keys to remember/copy-paste! Simply activate your site URL in your ShieldPRO control panel and get Pro features enabled on your site automatically.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/ko'
 			],
 			[
 				'title' => __( 'MainWP Integration', 'wp-simple-firewall' ).' ('.__( 'No extra extension plugins required', 'wp-simple-firewall' ).')',
 				'lines' => [
 					__( 'Use MainWP to manage and monitor the security of all your WordPress sites.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/kp'
 			],
 			[
 				'title' => __( 'Powerful User Password Policies', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Ensures that all users maintain strong passwords.', 'wp-simple-firewall' ),
 				],
+				'href'  => 'https://shsec.io/kq'
+			],
+			[
+				'title' => __( 'White Label', 'wp-simple-firewall' ),
+				'lines' => [
+					__( 'Re-Brand Shield Security as your own!', 'wp-simple-firewall' ),
+				],
+				'href'  => 'https://shsec.io/kr'
 			],
 			[
 				'title' => __( 'Exclusive Customer Support', 'wp-simple-firewall' ),
@@ -179,12 +195,6 @@ class UI extends BaseShield\UI {
 				'title' => __( 'Unlimited Audit Trail', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Retain logs for as long as you need without limits.', 'wp-simple-firewall' ),
-				],
-			],
-			[
-				'title' => __( 'White Label', 'wp-simple-firewall' ),
-				'lines' => [
-					__( 'Re-Brand Shield Security as your own!', 'wp-simple-firewall' ),
 				],
 			],
 		];

@@ -71,10 +71,6 @@ class WhitelabelController extends ExecOnceModConsumer {
 		// TODO
 	}
 
-	/**
-	 * @param array $pluginLabels
-	 * @return array
-	 */
 	public function applyPluginLabels( array $pluginLabels ) :array {
 		$labels = ( new BuildOptions() )
 			->setMod( $this->getMod() )

@@ -5,13 +5,13 @@
 <h3 class="subheader">
 	{{ strings.security_progress }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.overview }}" target="_blank">{{ strings.progress_overview }}</a>]</small>
+		<small>[<a href="{{ hrefs.overview }}">{{ strings.progress_overview }}</a>]</small>
 	{% endif %}
 </h3>
 <div class="shield-progress-bar
 	{% if vars.security_progress < 45 %}
 		red
-	{% elseif vars.security_progress < 75 %}
+	{% elseif vars.security_progress < 70 %}
 		orange
 	{% endif %}
 	">
@@ -23,7 +23,7 @@
 <h3 class="subheader">
 	{{ strings.recent_blocked }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.ips }}" target="_blank">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 
@@ -41,7 +41,7 @@
 				<tr>
 					<td>
 						{% if flags.show_internal_links %}
-							<a href="{{ ip.ip_href }}" target="_blank">{{ ip.ip }}</a>
+							<a href="{{ ip.ip_href }}">{{ ip.ip }}</a>
 						{% else %}
 							{{ ip.ip }}
 						{% endif %}
@@ -59,7 +59,7 @@
 <h3 class="subheader">
 	{{ strings.recent_offenses }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.ips }}" target="_blank">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 {% if vars.recent_ips_offense|default([])|length > 0 %}
@@ -164,7 +164,9 @@
 <div class="jump-buttons">
 	{% if flags.show_internal_links %}
 		{% for jump_link in vars.jump_links %}
-			<a href="{{ jump_link.href }}" target="_blank">{{ jump_link.text }}</a>
+			<a href="{{ jump_link.href }}" class="jump-link" title="Jump to {{ jump_link.text }}">
+				{{ jump_link.svg|raw }} {{ jump_link.text }}
+			</a>
 		{% endfor %}
 	{% endif %}
 </div>

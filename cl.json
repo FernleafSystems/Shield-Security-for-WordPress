@@ -42,6 +42,28 @@
         ]
       },
       {
+        "type":        "new",
+        "title":       "All-New WordPress Dashboard Widget",
+        "description": [
+          "The original WordPress Admin Dashboard widget was pretty basic, so we've completely revamped it with some of your latest site activity."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Visitor IP Source Detection",
+        "description": [
+          "It's critical that Shield can get the correct visitor IP address. Unfortunately many webhosts drop the ball when it comes to their configurations.",
+          "We've added a completely automated and highly reliable method of determining the best source for Visitor IP addresses. If it's there, Shield will find it."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Shield Dashboard Navigation",
+        "description": [
+          "We've done quite a bit of work to smooth out and simplify Shield's admin UI making it easier to navigate and find what you need."
+        ]
+      },
+      {
         "type":        "improved",
         "title":       "Author Discovery/Fishing",
         "description": [

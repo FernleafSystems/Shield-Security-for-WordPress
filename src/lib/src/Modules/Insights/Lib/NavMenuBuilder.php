@@ -269,7 +269,7 @@ class NavMenuBuilder {
 		return [
 			'slug'    => 'overview',
 			'title'   => __( 'Overview', 'wp-simple-firewall' ),
-			'img'     => $this->getCon()->svgs->raw( 'bootstrap/binoculars.svg' ),
+			'img'     => $this->getCon()->svgs->raw( 'bootstrap/speedometer.svg' ),
 			'href'    => $mod->getUrl_SubInsightsPage( 'overview' ),
 			'introjs' => [
 				'body' => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
