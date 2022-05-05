@@ -28,26 +28,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function updateLastActivity( $session ) {
-		$oR = Services::Request();
-		return $this->updateSession(
-			$session,
-			[
-				'last_activity_at'  => $oR->ts(),
-				'last_activity_uri' => $oR->server( 'REQUEST_URI' )
-			]
-		);
-	}
-
-	/**
-	 * @param EntryVO $session
-	 * @param int     $nExpiresAt
-	 * @return bool
-	 */
-	public function updateLoginIntentExpiresAt( $session, $nExpiresAt ) {
-		return $this->updateSession(
-			$session,
-			[ 'login_intent_expires_at' => (int)$nExpiresAt ]
-		);
+		return true;
 	}
 
 	/**

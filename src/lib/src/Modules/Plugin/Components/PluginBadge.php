@@ -57,6 +57,7 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 
 	public function render( bool $isFloating = false ) :string {
 		$con = $this->getCon();
+		$mod = $this->getMod();
 		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
 
 		if ( $wlCon->isEnabled() && $wlCon->isReplacePluginBadge() ) {
@@ -93,32 +94,30 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 			$badgeAttrs = apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $isFloating );
 		}
 
-		return $this->getMod()
-					->renderTemplate(
-						'snippets/plugin_badge_widget',
-						[
-							'ajax'    => [
-								'plugin_badge_close' => $this->getMod()
-															 ->getAjaxActionData( 'plugin_badge_close', true ),
-							],
-							'content' => [
-								'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
-							],
-							'flags'   => [
-								'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-								'is_floating' => $isFloating
-							],
-							'hrefs'   => [
-								'badge' => $badgeAttrs[ 'url' ],
-								'logo'  => $badgeAttrs[ 'logo' ],
-							],
-							'strings' => [
-								'protected' => $badgeAttrs[ 'protected_by' ],
-								'name'      => $badgeAttrs[ 'name' ],
-							],
-						],
-						true
-					);
+		return $mod->renderTemplate(
+			'snippets/plugin_badge_widget',
+			[
+				'ajax'    => [
+					'plugin_badge_close' => $mod->getAjaxActionData( 'plugin_badge_close', true ),
+				],
+				'content' => [
+					'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
+				],
+				'flags'   => [
+					'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
+					'is_floating' => $isFloating
+				],
+				'hrefs'   => [
+					'badge' => $badgeAttrs[ 'url' ],
+					'logo'  => $badgeAttrs[ 'logo' ],
+				],
+				'strings' => [
+					'protected' => $badgeAttrs[ 'protected_by' ],
+					'name'      => $badgeAttrs[ 'name' ],
+				],
+			],
+			true
+		);
 	}
 
 	public function setBadgeStateClosed() :bool {

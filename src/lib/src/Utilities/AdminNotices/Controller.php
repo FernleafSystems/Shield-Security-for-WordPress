@@ -70,15 +70,15 @@ class Controller {
 	 */
 	protected function collectAllPluginNotices() :array {
 		/** @var NoticeVO[] $notices */
-		$notices = apply_filters( $this->getCon()->prefix( 'collectNotices' ), [] );
-		if ( !is_array( $notices ) ) {
-			$notices = [];
+		$notices = [];
+		foreach ( $this->getCon()->modules as $mod ) {
+			$notices = array_merge( $notices, $mod->getAdminNotices()->getNotices() );
 		}
 		$notices[] = $this->getFlashNotice();
 		return array_filter(
 			$notices,
 			function ( $notice ) {
-				return ( $notice instanceof NoticeVO );
+				return $notice instanceof NoticeVO;
 			}
 		);
 	}

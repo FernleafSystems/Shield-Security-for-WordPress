@@ -8,7 +8,20 @@
 		<li>{{ strings.limit_60 }}</li>
 	</ul>
 	<p style="text-align: center">
-		<a href="{{ hrefs.unblock }}" class="button">
+		<a href="javascript:{ sendEmail() }" class="btn btn-warning">
 			{{ strings.click_to_send }} <code>{{ vars.email }}</code></a>
 	</p>
 </div>
+<script>
+	let sendEmail = function () {
+	  let xmlHttp = new XMLHttpRequest();
+	  xmlHttp.open( "GET", '{{ hrefs.unblock|raw }}', false ); // false for synchronous request
+	  xmlHttp.send( null );
+	  if ( xmlHttp.status === 200 ) {
+		  alert( 'Please check your email for a link to confirm.' );
+	  }
+	  else {
+		  alert( 'Request Failed. Likely you have tried to request an email too soon after the previous attempt.' );
+	  }
+  };
+</script>

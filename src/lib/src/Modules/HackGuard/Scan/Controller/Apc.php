@@ -53,11 +53,4 @@ class Apc extends BaseForAssets {
 			->build()
 			->getScanActionVO();
 	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function addAdminMenuBarItem( array $items ) :array {
-		return $items;
-	}
 }

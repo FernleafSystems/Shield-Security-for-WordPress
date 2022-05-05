@@ -13,15 +13,15 @@ iCWP_WPSF_JSErrorTrack.initialise();
 
 var iCWP_WPSF_ParseAjaxResponse = new function () {
 	this.parseIt = function ( raw ) {
-		var parsed = {};
+		let parsed = {};
 		try {
 			parsed = JSON.parse( raw );
 		}
 		catch ( e ) {
-			var openJsonTag = '##APTO_OPEN##';
-			var closeJsonTag = '##APTO_CLOSE##';
-			var start = 0;
-			var end = 0;
+			let openJsonTag = '##APTO_OPEN##';
+			let closeJsonTag = '##APTO_CLOSE##';
+			let start = 0;
+			let end = 0;
 
 			if ( raw.indexOf( openJsonTag ) >= 0 ) {
 				start = raw.indexOf( openJsonTag ) + openJsonTag.length;
@@ -56,7 +56,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 			data: reqData,
 			dataType: "text",
 			success: function ( raw ) {
-				var resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+				let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
 				if ( typeof resp.data.show_toast === typeof undefined || resp.data.show_toast ) {
 
@@ -76,7 +76,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 				}
 
 				if ( triggerEvent.length > 0 ) {
-					jQuery( document ).trigger( 'shield-'+triggerEvent, resp );
+					jQuery( document ).trigger( 'shield-' + triggerEvent, resp );
 				}
 				else if ( resp.data.page_reload ) {
 					setTimeout( function () {
@@ -240,12 +240,40 @@ var iCWP_WPSF_Growl = new function () {
 	};
 
 	var createDynDiv = function ( sClass ) {
-		var $oDiv = jQuery( '<div />' ).appendTo( 'body' );
-		$oDiv.attr( 'id', 'icwp-growl-notice' + Math.floor( (Math.random() * 100) + 1 ) );
-		$oDiv.addClass( sClass ).addClass( 'icwp-growl-notice' );
-		return $oDiv;
+		let div = jQuery( '<div />' ).appendTo( 'body' );
+		div.attr( 'id', 'icwp-growl-notice' + Math.floor( (Math.random() * 100) + 1 ) );
+		div.addClass( sClass ).addClass( 'icwp-growl-notice' );
+		return div;
 	};
 
+}();
+
+let Shield_WP_Dashboard_Widget = new function () {
+	let data;
+	this.render = function ( refresh = 0 ) {
+
+		let widgetContainer = jQuery( '#ShieldDashboardWidget' );
+
+		if ( widgetContainer.length === 1 ) {
+			widgetContainer.text( 'loading ...' );
+			data.ajax.render_dashboard_widget.refresh = refresh;
+			jQuery.ajax( {
+				type: "POST",
+				url: ajaxurl,
+				data: data.ajax.render_dashboard_widget,
+				dataType: "json",
+				success: function ( raw ) {
+					widgetContainer.html( raw.data.html );
+				}
+			} ).fail( function () {
+				widgetContainer.text( 'There was a problem loading the content.' )
+			} );
+		}
+	};
+	this.initialise = function ( workingData ) {
+		data = workingData;
+		this.render();
+	};
 }();
 
 var iCWP_WPSF_BodyOverlay = new function () {
@@ -278,4 +306,8 @@ var iCWP_WPSF_BodyOverlay = new function () {
 
 jQuery( document ).ready( function () {
 	iCWP_WPSF_BodyOverlay.initialise();
+
+	if ( typeof icwp_wpsf_vars_globalplugin.vars.dashboard_widget !== 'undefined' ) {
+		Shield_WP_Dashboard_Widget.initialise( icwp_wpsf_vars_globalplugin.vars.dashboard_widget );
+	}
 } );

@@ -26,7 +26,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_AkismetRunning( NoticeVO $notice ) {
-		$oWpPlugins = Services::WpPlugins();
+		$WPP = Services::WpPlugins();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -37,15 +37,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'click_to_deactivate'     => __( 'Click to deactivate Akismet now.', 'wp-simple-firewall' ),
 			],
 			'hrefs'             => [
-				'deactivate' => $oWpPlugins->getUrl_Deactivate( $oWpPlugins->findPluginFileFromDirName( 'akismet' ) )
+				'deactivate' => $WPP->getUrl_Deactivate( $WPP->findPluginFileFromDirName( 'akismet' ) )
 			]
 		];
 	}
 
-	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $notice
-	 * @return bool
-	 */
 	protected function isDisplayNeeded( Shield\Utilities\AdminNotices\NoticeVO $notice ) :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -53,11 +49,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $notice->id ) {
 
 			case 'akismet-running':
-				$oWpPlugins = Services::WpPlugins();
-				$sPluginFile = $oWpPlugins->findPluginFileFromDirName( 'akismet' );
+				$WPP = Services::WpPlugins();
+				$file = $WPP->findPluginFileFromDirName( 'akismet' );
 				$needed = $this->getMod()->isModuleEnabled()
-						  && !empty( $sPluginFile )
-						  && $oWpPlugins->isActive( $sPluginFile )
+						  && !empty( $file )
+						  && $WPP->isActive( $file )
 						  && $opts->isEnabledHumanCheck();
 				break;
 

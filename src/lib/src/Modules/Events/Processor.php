@@ -15,13 +15,9 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		$this->loadStatsWriter()->setIfCommit( true );
-		add_action( $this->getCon()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
 	}
 
-	/**
-	 * @return Events\Lib\StatsWriter
-	 */
-	public function loadStatsWriter() {
+	public function loadStatsWriter() :Events\Lib\StatsWriter {
 		if ( !isset( $this->oStatsWriter ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
@@ -29,57 +25,6 @@ class Processor extends BaseShield\Processor {
 				->setDbHandler( $mod->getDbHandler_Events() );
 		}
 		return $this->oStatsWriter;
-	}
-
-	public function statsWidget() {
-		/** @var Databases\Events\Select $selector */
-		$selector = $this->getCon()
-						 ->getModule_Events()
-						 ->getDbHandler_Events()
-						 ->getQuerySelector();
-
-		$aKeyStats = [
-			'comments'          => [
-				__( 'Comment Blocks', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvents( [
-					'spam_block_bot',
-					'spam_block_human',
-					'spam_block_recaptcha'
-				] )
-			],
-			'firewall'          => [
-				__( 'Firewall Blocks', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( 'firewall_block' )
-			],
-			'login_fail'        => [
-				__( 'Login Blocks', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( 'login_block' )
-			],
-			'login_verified'    => [
-				__( 'Login Verified', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( '2fa_success' )
-			],
-			'session_start'     => [
-				__( 'User Sessions', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( 'session_start' )
-			],
-			'ip_killed'         => [
-				__( 'IP Blocks', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( 'conn_kill' )
-			],
-			'ip_transgressions' => [
-				__( 'Total Offenses', 'wp-simple-firewall' ),
-				$selector->clearWheres()->sumEvent( 'ip_offense' )
-			],
-		];
-
-		echo $this->getMod()->renderTemplate(
-			'snippets/widget_dashboard_statistics.php',
-			[
-				'sHeading'  => sprintf( __( '%s Statistics', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
-				'aKeyStats' => $aKeyStats,
-			]
-		);
 	}
 
 	public function runDailyCron() {

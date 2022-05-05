@@ -2,9 +2,10 @@
   "slug":       "insights",
   "properties": {
     "slug":                  "insights",
+    "load_priority":         2,
+    "menu_priority":         5,
     "name":                  "Dashboard",
     "menu_title":            "Security Dashboard",
-    "menu_priority":         "5",
     "show_module_menu_item": true,
     "show_module_options":   false,
     "auto_enabled":          true,

@@ -4,16 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 class SiteGroundPluginCompatibility {
 
-	/**
-	 * @return bool
-	 */
-	public function testIsIncompatible() {
-		$bIncompatExist = false;
+	public function testIsIncompatible() :bool {
+		$incompat = false;
 		if ( $this->isSGOptimizerPluginAsExpected() ) {
 			try {
 				foreach ( $this->getIncompatOptions() as $sOption ) {
 					if ( \SiteGround_Optimizer\Options\Options::is_enabled( $sOption ) ) {
-						$bIncompatExist = true;
+						$incompat = true;
 						break;
 					}
 				}
@@ -21,7 +18,7 @@ class SiteGroundPluginCompatibility {
 			catch ( \Exception $e ) {
 			}
 		}
-		return $bIncompatExist;
+		return $incompat;
 	}
 
 	public function isSGOptimizerPluginAsExpected() :bool {
@@ -36,10 +33,7 @@ class SiteGroundPluginCompatibility {
 		return $isExpected;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function switchOffOptions() {
+	public function switchOffOptions() :bool {
 		$success = false;
 		if ( $this->isSGOptimizerPluginAsExpected() ) {
 			try {

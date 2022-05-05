@@ -96,13 +96,12 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$sModName = $this->getMod()->getMainFeatureName();
-
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_user_accounts_management' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ),
+					$this->getMod()->getMainFeatureName() );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
@@ -167,23 +166,25 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$oOpts = $this->getOptions();
-		$sModName = $this->getMod()->getMainFeatureName();
+		$opts = $this->getOptions();
+		$name = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_user_management' :
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $name );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $name );
+				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $name );
 				break;
 
 			case 'enable_admin_login_email_notification' :
 				$name = __( 'Admin Login Notification Email', 'wp-simple-firewall' );
 				$summary = __( 'Send An Notification Email When Administrator Logs In', 'wp-simple-firewall' );
-				$description = __( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' )
-							   .'<br />'.__( 'No email address - No Notification.', 'wp-simple-firewall' )
-							   .'<br />'.__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' );
+				$description = [
+					__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' ),
+					__( 'No email address - No Notification.', 'wp-simple-firewall' ),
+					__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'enable_user_login_email_notification' :
@@ -195,17 +196,21 @@ class Strings extends Base\Strings {
 			case 'session_timeout_interval' :
 				$name = __( 'Session Timeout', 'wp-simple-firewall' );
 				$summary = __( 'Specify How Many Days After Login To Automatically Force Re-Login', 'wp-simple-firewall' );
-				$description = __( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' )
-							   .'<br />'.__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' )
-							   .'<br />'.sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' )
-							   .' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$oOpts->getOptDefault( 'session_timeout_interval' ).'</strong>' );
+				$description = [
+					__( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' ),
+					__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' ),
+					sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$opts->getOptDefault( 'session_timeout_interval' ).'</strong>' )
+				];
 				break;
 
 			case 'session_idle_timeout_interval' :
 				$name = __( 'Idle Timeout', 'wp-simple-firewall' );
 				$summary = __( 'Specify How Many Hours After Inactivity To Automatically Logout User', 'wp-simple-firewall' );
-				$description = __( 'If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return.', 'wp-simple-firewall' )
-							   .'<br />'.sprintf( __( 'Set to %s to turn off this option.', 'wp-simple-firewall' ), '"<strong>0</strong>"' );
+				$description = [
+					__( 'If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return.', 'wp-simple-firewall' ),
+					sprintf( __( 'Set to %s to turn off this option.', 'wp-simple-firewall' ), '"<strong>0</strong>"' )
+				];
 				break;
 
 			case 'session_lock_location' :
@@ -218,8 +223,10 @@ class Strings extends Base\Strings {
 			case 'session_username_concurrent_limit' :
 				$name = __( 'Max Simultaneous Sessions', 'wp-simple-firewall' );
 				$summary = __( 'Limit Simultaneous Sessions For The Same Username', 'wp-simple-firewall' );
-				$description = __( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.', 'wp-simple-firewall' )
-							   .'<br />'.__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' );
+				$description = [
+					__( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.', 'wp-simple-firewall' ),
+					__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'reg_email_validate' :
@@ -227,7 +234,7 @@ class Strings extends Base\Strings {
 				$summary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
 				$description = [
 					__( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' ),
-					__( 'To validate an email your site sends a request to the WPHashes API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
+					__( 'To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -308,7 +315,7 @@ class Strings extends Base\Strings {
 							   .'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
 							   .'<br/>'.sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ), implode( ', ', Services::WpUsers()
 																																 ->getAvailableUserRoles() ) )
-							   .'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $oOpts->getOptDefault( 'auto_idle_roles' ) ) );
+							   .'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) );
 				break;
 
 			default:

@@ -21,11 +21,12 @@ class UserMetas {
 		$meta = null;
 		try {
 			$meta = Shield\Users\ShieldUserMeta::Load( $con->prefix(), (int)$user->ID );
-			$this->loadMetaRecord( $meta );
-			$this->setup( $meta );
-
-			// TODO: a query to delete all of these
-			Services::WpUsers()->deleteUserMeta( $con->prefix( 'meta-version' ), $user->ID );
+			if ( empty( $meta->record ) ) {
+				$this->loadMetaRecord( $meta );
+				$this->setup( $meta );
+				// TODO: a query to delete all of these
+				Services::WpUsers()->deleteUserMeta( $con->prefix( 'meta-version' ), $user->ID );
+			}
 		}
 		catch ( \Exception $e ) {
 		}

@@ -2,6 +2,7 @@
   "slug":        "user_management",
   "properties":  {
     "slug":                  "user_management",
+    "load_priority":         100,
     "name":                  "User Management",
     "sidebar_name":          "Users",
     "show_module_menu_item": false,
@@ -15,6 +16,9 @@
     "run_if_verified_bot":   false,
     "run_if_wpcli":          false,
     "order":                 40
+  },
+  "menus":         {
+    "config_menu_priority": 31
   },
   "wpcli":       {
     "enabled": true

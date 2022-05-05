@@ -6,19 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
-use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
-
-	public function buildInsightsVars_Dashboard() :array {
-		return [
-			'content' => [
-				'dashboard_cards' => ( new Insights\DashboardCards() )
-					->setMod( $this->getMod() )
-					->renderAll(),
-			],
-		];
-	}
 
 	public function buildInsightsVars_Debug() :array {
 		return [
@@ -65,17 +54,6 @@ class UI extends BaseShield\UI {
 		return $data;
 	}
 
-	/**
-	 * @param array $option
-	 * @return array
-	 */
-	protected function buildOptionForUi( $option ) {
-		$option = parent::buildOptionForUi( $option );
-		if ( $option[ 'key' ] === 'visitor_address_source' ) {
-		}
-		return $option;
-	}
-
 	public function getSectionWarnings( string $section ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -95,6 +73,8 @@ class UI extends BaseShield\UI {
 									  .__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' );
 					}
 				}
+				break;
+			default:
 				break;
 		}
 

@@ -1,0 +1,108 @@
+{% extends '/pages/base.twig' %}
+
+{% block body_start %}
+<div class="px-4 my-5 text-center border-bottom">
+{% endblock %}
+
+	{% block body_header %}
+		<div class="overflow-hidden" style="max-height: 30vh;">
+	    <div class="container px-5">
+	      <img src="{{ imgs.banner }}" class="img-fluid rounded-3 mb-4"
+	           alt="Example image" width="400" loading="lazy">
+	    </div>
+	  </div>
+
+		<div class="row">
+	    <div class="col-lg-6 col-md-9 mx-auto">
+
+				<h1 class="display-4 fw-bold mb-3">
+					{% block block_header_title %}
+						{{ strings.title|default('NO TITLE') }}
+					{% endblock %}
+			  </h1>
+
+	      <p class="lead mb-1">
+	        {% block block_header_subtitle %}
+		        {{ strings.subtitle|default('NO SUBTITLE') }}
+	        {% endblock %}
+	      </p>
+
+	    </div>
+	  </div>
+	{% endblock %}
+
+	{% block body_content %}
+
+		{% block body_restriction_details %}
+
+			<div class="row">
+		    <div class="col-lg-6 col-md-9 mx-auto text-start mt-5">
+		      <h3 class="">{{ strings.restriction_details|default('Restriction Details') }}</h3>
+
+			    {% block restriction_details_blurb %}
+				    {% for blurb in strings.restriction_details_blurb %}
+					    <p class="mb-2">
+						    {{ blurb|raw }}
+					    </p>
+				    {% endfor %}
+			    {% endblock %}
+
+		    </div>
+		  </div>
+
+			{% block restriction_details_points %}
+			<div class="row">
+			    <div class="col-lg-6 col-md-9 mx-auto d-flex justify-content-end my-3">
+				    <table class="table table-compact table-sm">
+					    {% for row_header,row_content in vars.restriction_details_points %}
+						    <tr>
+							    <th class="text-start">{{ row_header }}</th>
+							    <td class="text-end px-2">{{ row_content }}</td>
+						    </tr>
+					    {% endfor %}
+				    </table>
+			    </div>
+			  </div>
+		{% endblock %}
+
+		{% endblock %}
+
+		{% block page_actions %}
+		{% endblock %}
+
+	{% endblock %}
+
+	{% block body_footer %}
+		<div class="col-lg-6 col-md-9 mx-auto text-start mt-3 mb-5">
+
+				<div class="card mb-3">
+				  <div class="row g-0">
+				    <div class="col-4 d-flex justify-content-center align-items-center">
+				      <img src="{{ imgs.about_shield }}" class="img-fluid rounded-start" alt="...">
+				    </div>
+				    <div class="col-8">
+				      <div class="card-body">
+				        <h5 class="card-title">About Shield Security for WordPress</h5>
+				        <p class="card-text">
+					        Shield Security is a powerful WordPress Security service deployed on over 60,000+ WordPress websites.
+				        </p>
+				        <p class="card-text">
+					        As a smarter approach to security, it quickly identifies & blocks malicious bots.
+					        <br />It prevents SPAM on comments and contact forms, blocks brute-force logins, rate-limits abusive traffic,
+					        and scans for Malware and similar file hacks.
+				        </p>
+				        <p class="card-text"><small class="text-muted">More Information can be found at https://getshieldsecurity.com</small></p>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+			{#      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5"> #}
+			{#        <button type="button" class="btn btn-primary btn-lg px-4 me-sm-3">Primary button</button> #}
+			{#        <button type="button" class="btn btn-outline-secondary btn-lg px-4">Secondary</button> #}
+			{#      </div> #}
+	    </div>
+	{% endblock %}
+
+	{% block body_end %}
+</div>
+{% endblock %}

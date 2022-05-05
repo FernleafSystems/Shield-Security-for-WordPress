@@ -25,17 +25,12 @@ class GaspJs extends BaseProtectionProvider {
 				/** @var LoginGuard\Options $opts */
 				$opts = $this->getOptions();
 
-				$ts = Services::Request()->ts();
-				$nonce = $mod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
-				$nonce[ 'ts' ] = $ts;
-				$nonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
-
 				$localz[] = [
 					'shield/loginbot',
 					'icwp_wpsf_vars_lpantibot',
 					[
 						'form_selectors' => implode( ',', $opts->getAntiBotFormSelectors() ),
-						'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+						'uniq'           => preg_replace( '#[^\da-zA-Z]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
 						'cbname'         => $mod->getGaspKey(),
 						'strings'        => [
 							'label'   => $mod->getTextImAHuman(),
@@ -113,7 +108,7 @@ class GaspJs extends BaseProtectionProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function buildFormInsert( $oFormProvider ) {
+	public function buildFormInsert( $formProvider ) {
 		return $this->getMod()->renderTemplate(
 			'/snippets/anti_bot/gasp_js.twig',
 			[

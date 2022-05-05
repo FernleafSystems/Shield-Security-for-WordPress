@@ -150,7 +150,7 @@ class GoogleAuth extends BaseProvider {
 	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
 		$valid = false;
 		try {
-			$valid = preg_match( '#^[0-9]{6}$#', $otp )
+			$valid = preg_match( '#^\d{6}$#', $otp )
 					 && ( new GoogleAuthenticator() )->authenticate( $this->getSecret(), $otp );
 		}
 		catch ( \Exception $e ) {
@@ -177,7 +177,7 @@ class GoogleAuth extends BaseProvider {
 			$this->oWorkingSecret = ( new SecretFactory() )
 				->create(
 					sanitize_user( $this->getUser()->user_login ),
-					preg_replace( '#[^0-9a-z]#i', '', Services::WpGeneral()->getSiteName() )
+					preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() )
 				);
 		}
 		return $this->oWorkingSecret;

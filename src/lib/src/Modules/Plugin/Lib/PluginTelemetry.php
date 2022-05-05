@@ -111,7 +111,6 @@ class PluginTelemetry extends ExecOnceModConsumer {
 
 	/**
 	 * @param ModCon $mod
-	 * @return array
 	 */
 	private function buildOptionsDataForMod( $mod ) :array {
 		$data = [];

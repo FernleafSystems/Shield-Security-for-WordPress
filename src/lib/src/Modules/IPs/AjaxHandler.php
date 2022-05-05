@@ -17,12 +17,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		] );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'ip_insert'         => [ $this, 'ajaxExec_AddIp' ],
-				'ip_delete'         => [ $this, 'ajaxExec_IpDelete' ],
-				'render_table_ip'   => [ $this, 'ajaxExec_BuildTableIps' ],
-				'ip_analyse_build'  => [ $this, 'ajaxExec_BuildIpAnalyse' ],
-				'ip_analyse_action' => [ $this, 'ajaxExec_IpAnalyseAction' ],
-				'ip_review_select'  => [ $this, 'ajaxExec_IpReviewSelect' ],
+				'ip_insert'          => [ $this, 'ajaxExec_AddIp' ],
+				'ip_delete'          => [ $this, 'ajaxExec_IpDelete' ],
+				'render_table_ip'    => [ $this, 'ajaxExec_BuildTableIps' ],
+				'ip_analyse_build'   => [ $this, 'ajaxExec_BuildIpAnalyse' ],
+				'ip_analyse_action'  => [ $this, 'ajaxExec_IpAnalyseAction' ],
+				'ip_review_select'   => [ $this, 'ajaxExec_IpReviewSelect' ],
+				'render_ip_analysis' => [ $this, 'ajaxExec_RenderIpAnalysis' ],
 			] );
 		}
 		return $map;
@@ -168,7 +169,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	public function ajaxExec_IpReviewSelect() :array {
 		$req = Services::Request();
 
-		$filter = preg_replace( '#[^0-9a-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
+		$filter = preg_replace( '#[^\da-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
 		$ips = ( new FindAllPluginIps() )
 			->setCon( $this->getCon() )
 			->run( $filter );
@@ -184,6 +185,26 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'message'     => '',
 			'page_reload' => false,
 		];
+	}
+
+	public function ajaxExec_RenderIpAnalysis() :array {
+		$data = [
+			'success' => false,
+			'title'   => __( "Couldn't Build IP Analysis", 'wp-simple-firewall' ),
+			'body'    => __( "Couldn't Build IP Analysis", 'wp-simple-firewall' ),
+		];
+		try {
+			$ip = Services::Request()->post( 'ip', '' );
+			$data[ 'title' ] = sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $ip );
+			$data[ 'body' ] = ( new Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay() )
+				->setMod( $this->getMod() )
+				->setIP( $ip )
+				->run();
+		}
+		catch ( \Exception $e ) {
+			$data[ 'body' ] = $e->getMessage();
+		}
+		return $data;
 	}
 
 	public function ajaxExec_IpAnalyseAction() :array {

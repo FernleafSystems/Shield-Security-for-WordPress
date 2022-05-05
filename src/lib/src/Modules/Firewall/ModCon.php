@@ -7,47 +7,30 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
-	/**
-	 * @param string $sParam
-	 * @param string $sPage
-	 */
-	public function addParamToWhitelist( $sParam, $sPage = '*' ) {
+	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		if ( empty( $sPage ) ) {
-			$sPage = '*';
-		}
-
-		$aW = $opts->getCustomWhitelist();
-		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : [];
-		$aParams[] = $sParam;
-		natsort( $aParams );
-		$aW[ $sPage ] = array_unique( $aParams );
-
-		$opts->setOpt( 'page_params_whitelist', $aW );
+		return array_filter(
+			[
+				Rules\Build\FirewallSqlQueries::class,
+				Rules\Build\FirewallDirTraversal::class,
+				Rules\Build\FirewallFieldTruncation::class,
+				Rules\Build\FirewallWordpressTerms::class,
+				Rules\Build\FirewallPhpCode::class,
+				Rules\Build\FirewallLeadingSchema::class,
+				Rules\Build\FirewallAggressive::class,
+				Rules\Build\FirewallExeFileUploads::class,
+			],
+			function ( $blockTypeClass ) use ( $opts ) {
+				/** @var Rules\Build\BuildFirewallBase $blockTypeClass */
+				return $opts->isOpt( 'block_'.$blockTypeClass::SCAN_CATEGORY, 'Y' );
+			}
+		);
 	}
 
 	public function getBlockResponse() :string {
 		$response = $this->getOptions()->getOpt( 'block_response', '' );
 		return !empty( $response ) ? $response : 'redirect_die_message'; // TODO: use default
-	}
-
-	public function getTextOptDefault( string $key ) :string {
-
-		switch ( $key ) {
-			case 'text_firewalldie':
-				$text = sprintf(
-					__( "You were blocked by the %s Firewall.", 'wp-simple-firewall' ),
-					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
-																										->getHumanName().'</a>'
-				);
-				break;
-
-			default:
-				$text = parent::getTextOptDefault( $key );
-				break;
-		}
-		return $text;
 	}
 }

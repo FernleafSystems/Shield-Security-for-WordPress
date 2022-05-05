@@ -3,6 +3,8 @@
   "properties":    {
     "slug":                  "admin_access_restriction",
     "name":                  "Security Admin",
+    "namespace":             "SecurityAdmin",
+    "load_priority":         11,
     "sidebar_name":          "Security Admin",
     "show_module_menu_item": false,
     "show_module_options":   true,
@@ -15,6 +17,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
     "order":                 20
+  },
+  "menus":         {
+    "config_menu_priority": 15
   },
   "wpcli":         {
     "enabled":  true,
@@ -173,9 +178,9 @@
       "link_info":   "https://shsec.io/a0",
       "link_blog":   "https://shsec.io/wpsf32",
       "beacon_id":   214,
-      "name":        "Options",
-      "summary":     "Restrict Access To Key WordPress Posts And Pages Actions",
-      "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
+      "name":        "WordPress Options",
+      "summary":     "Restrict Access To Certain WordPress Admin Options",
+      "description": "Careful: This will restrict the ability of WordPress administrators from changing key WordPress settings."
     },
     {
       "key":         "admin_access_restrict_admin_users",

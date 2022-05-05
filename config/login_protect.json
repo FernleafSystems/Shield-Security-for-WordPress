@@ -2,7 +2,9 @@
   "slug":          "login_protect",
   "properties":    {
     "slug":                  "login_protect",
+    "load_priority":         100,
     "name":                  "Login Guard",
+    "namespace":             "LoginGuard",
     "sidebar_name":          "Login Protection",
     "show_module_menu_item": false,
     "show_module_options":   true,
@@ -15,6 +17,9 @@
     "run_if_verified_bot":   false,
     "run_if_wpcli":          false,
     "order":                 40
+  },
+  "menus":         {
+    "config_menu_priority": 30
   },
   "wpcli":         {
     "enabled": true
@@ -40,6 +45,17 @@
       "summary":     [
         "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
         "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
+      "slug":        "section_twofactor_auth",
+      "title":       "Multi-Factor Authentication",
+      "title_short": "2-Factor Auth",
+      "beacon_id":   326,
+      "summary":     [
+        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
+        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
+        "Note: You may combine multiple authentication factors for increased security."
       ]
     },
     {
@@ -75,17 +91,6 @@
       ]
     },
     {
-      "slug":        "section_multifactor_authentication",
-      "title":       "Multi-Factor Authentication",
-      "title_short": "2-Factor Auth",
-      "beacon_id":   326,
-      "summary":     [
-        "Purpose - Verifies the identity of users who log in to your site - i.e. they are who they say they are.",
-        "Recommendation - Use of this feature is highly recommend. However, if your host blocks email sending you may lock yourself out.",
-        "Note: You may combine multiple authentication factors for increased security."
-      ]
-    },
-    {
       "slug":        "section_rename_wplogin",
       "title":       "Hide WP Login Page",
       "title_short": "Hide Login Page",
@@ -114,6 +119,14 @@
       "summary":     [
         "Purpose - Login Guard blocks all automated and brute force attempts to log in to your site.",
         "Recommendation - Keep the Login Guard module turned on."
+      ]
+    },
+    {
+      "slug":        "section_deprecated",
+      "title":       "Deprecated",
+      "title_short": "Deprecated",
+      "summary":     [
+        "These options will be removed in the future. Please use the ADE option under Bot SPAM section."
       ]
     },
     {
@@ -165,17 +178,17 @@
     },
     {
       "key":           "mfa_verify_page",
-      "section":       "section_multifactor_authentication",
-      "default":       "custom_shield",
+      "section":       "section_twofactor_auth",
+      "default":       "wp_login",
       "type":          "select",
       "value_options": [
         {
-          "value_key": "custom_shield",
-          "text":      "Custom Shield MFA Page"
+          "value_key": "wp_login",
+          "text":      "WP Login Page"
         },
         {
-          "value_key": "wp_login",
-          "text":      "WP Login Page (beta)"
+          "value_key": "custom_shield",
+          "text":      "Custom Shield MFA Page"
         }
       ],
       "link_info":     "",
@@ -187,7 +200,7 @@
     },
     {
       "key":           "mfa_user_setup_pages",
-      "section":       "section_multifactor_authentication",
+      "section":       "section_twofactor_auth",
       "type":          "multiple_select",
       "default":       [
         "profile"
@@ -211,7 +224,7 @@
     },
     {
       "key":         "mfa_skip",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_twofactor_auth",
       "premium":     true,
       "type":        "integer",
       "default":     0,
@@ -225,7 +238,7 @@
     },
     {
       "key":         "allow_backupcodes",
-      "section":     "section_multifactor_authentication",
+      "section":     "section_twofactor_auth",
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
@@ -363,7 +376,7 @@
     },
     {
       "key":         "enable_login_gasp_check",
-      "section":     "section_brute_force_login_protection",
+      "section":     "section_deprecated",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3r",
@@ -375,7 +388,7 @@
     },
     {
       "key":           "enable_google_recaptcha_login",
-      "section":       "section_brute_force_login_protection",
+      "section":       "section_deprecated",
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -409,7 +422,7 @@
     },
     {
       "key":         "antibot_form_ids",
-      "section":     "section_brute_force_login_protection",
+      "section":     "section_deprecated",
       "advanced":    true,
       "premium":     true,
       "type":        "array",
@@ -473,7 +486,7 @@
     },
     {
       "key":         "text_imahuman",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "premium":     true,
       "default":     "default",
@@ -486,7 +499,7 @@
     },
     {
       "key":         "text_pleasecheckbox",
-      "section":     "section_user_messages",
+      "section":     "section_deprecated",
       "sensitive":   true,
       "premium":     true,
       "default":     "default",

@@ -91,7 +91,28 @@ class SectionPlugins extends SectionPluginThemesBase {
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
 
-		$data = [
+		$isCheckActive = apply_filters( 'shield/scans_check_plugin_active', true );
+		$isCheckUpdates = apply_filters( 'shield/scans_check_plugin_update', true );
+
+		$flags = [
+			'has_update'      => $plugin->hasUpdate(),
+			'has_guard_files' => !empty( $guardFilesData ),
+			'is_abandoned'    => !empty( $abandoned ),
+			'is_active'       => $plugin->active,
+			'is_vulnerable'   => !empty( $vulnerabilities ),
+			'is_wporg'        => $plugin->isWpOrg(),
+		];
+		$flags[ 'has_issue' ] = $flags[ 'is_abandoned' ]
+								|| $flags[ 'has_guard_files' ]
+								|| $flags[ 'is_vulnerable' ];
+		$flags[ 'has_warning' ] = !$flags[ 'has_issue' ]
+								  && (
+									  ( $isCheckActive && !$flags[ 'is_active' ] )
+									  ||
+									  ( $isCheckUpdates && $flags[ 'has_update' ] )
+								  );
+
+		return [
 			'info'  => [
 				'type'         => 'plugin',
 				'name'         => $plugin->Title,
@@ -117,28 +138,12 @@ class SectionPlugins extends SectionPluginThemesBase {
 					'https://shsec.io/shieldvulnerabilitylookup'
 				),
 			],
-			'flags' => [
-				'has_update'      => $plugin->hasUpdate(),
-				'has_guard_files' => !empty( $guardFilesData ),
-				'is_abandoned'    => !empty( $abandoned ),
-				'is_active'       => $plugin->active,
-				'is_vulnerable'   => !empty( $vulnerabilities ),
-				'is_wporg'        => $plugin->isWpOrg(),
-			],
+			'flags' => $flags,
 			'vars'  => [
 				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
 				'count_items'   => count( $guardFilesData ) + count( $vulnerabilities )
 								   + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
-		$data[ 'flags' ][ 'has_issue' ] = $data[ 'flags' ][ 'is_abandoned' ]
-										  || $data[ 'flags' ][ 'has_guard_files' ]
-										  || $data[ 'flags' ][ 'is_vulnerable' ];
-		$data[ 'flags' ][ 'has_warning' ] = !$data[ 'flags' ][ 'has_issue' ]
-											&& (
-												!$data[ 'flags' ][ 'is_active' ]
-												|| $data[ 'flags' ][ 'has_update' ]
-											);
-		return $data;
 	}
 }

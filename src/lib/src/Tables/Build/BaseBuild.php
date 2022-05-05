@@ -22,7 +22,8 @@ class BaseBuild {
 
 	public function render() :string {
 
-		if ( !$this->getDbHandler()->isReady() ) {
+		$db = $this->getDbHandler();
+		if ( $db && !$this->getDbHandler()->isReady() ) {
 			$render = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
 		}
 		else {
@@ -199,10 +200,14 @@ class BaseBuild {
 
 	protected function getIpAnalysisLink( string $ip ) :string {
 		$srvIP = Services::IP();
-		return sprintf( '<a href="%s" target="_blank" title="%s" class="ip-whois">%s</a>',
-			$srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) :
-				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip ),
+		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) :
+			$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip );
+		return sprintf(
+			'<a href="%s" target="_blank" title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
+			$href,
 			__( 'IP Analysis' ),
+			$srvIP->isValidIpRange( $ip ) ? '' : 'modal_ip_analysis',
+			$ip,
 			$ip
 		);
 	}

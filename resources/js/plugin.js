@@ -17,57 +17,51 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( document ).on( 'shown.bs.tab', '#ModuleOptionsNav a.nav-link', function ( e ) {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
-
-			jQuery( document ).on( 'odp-optsrender', onOptsTabRender );
-		} );
-	};
-
-	var onOptsTabRender = function ( evt ) {
-		var sActiveTabHash = window.location.hash;
-		if ( typeof sActiveTabHash !== 'undefined' ) {
-			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
-			jQuery( 'html,body' ).scrollTop( 0 );
-		}
-
-		jQuery( function () {
-			// jQuery( 'a.section_title_info' ).popover( {
-			// 	placement: 'bottom',
-			// 	trigger: 'click',
-			// 	delay: 50,
-			// 	html: true
-			// } );
-
-			// jQuery( '[data-bs-toggle="tooltip"]' ).tooltip( {
-			// 	placement: 'left',
-			// 	trigger: 'hover focus',
-			// 	delay: 150,
-			// 	html: false
-			// } );
 		} );
 	};
 }();
 
-let iCWP_WPSF_OptsPageRender = new function () {
-	this.renderForm = function ( reqData ) {
+let iCWP_WPSF_Modals = new function () {
+	let workingData = {};
+
+	let renderModalIpAnalysis = function ( ip ) {
 		iCWP_WPSF_BodyOverlay.show();
+		let reqData = workingData.modal_ip_analysis.ajax.render_ip_analysis;
+		reqData.ip = ip;
 		jQuery.ajax(
 			{
 				type: "POST",
 				url: ajaxurl,
 				data: reqData,
-				dataType: "text",
-				success: function ( rawResponse ) {
-					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
-					jQuery( '#ColumnOptions .content-options' )
-					.html( response.data.html )
-					.trigger( 'odp-optsrender' );
-				}
+				dataType: "json",
+				success: function ( raw ) {
+					iCWP_WPSF_Modals.display( raw.data );
+				},
 			}
-		).always(
-			function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
+		).fail( function () {
+		} ).always( function () {
+			iCWP_WPSF_BodyOverlay.hide();
+		} );
+	};
+
+	this.display = function ( params ) {
+		let modal = document.getElementById( 'ShieldGeneralPurposeDialog' );
+		jQuery( '.modal-dialog', modal ).addClass( 'modal-xl' );
+		jQuery( '.modal-title', modal ).html( params.title );
+		jQuery( '.modal-body .col', modal ).html( params.body );
+		(new bootstrap.Modal( modal )).show();
+	};
+
+	this.setData = function ( key, data ) {
+		workingData[ key ] = data;
+	};
+
+	this.initialise = function () {
+		jQuery( document ).on( 'click', '.modal_ip_analysis', function ( evt ) {
+			evt.preventDefault();
+			renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+			return false;
+		} );
 	};
 }();
 
@@ -105,20 +99,16 @@ iCWP_WPSF_Toaster.initialise();
 
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
-	let bRequestCurrentlyRunning = false;
-	var reqParams = icwp_wpsf_vars_base.ajax.mod_options;
+	let workingData;
+	let requestRunning = false;
 
 	this.submit = function ( msg, success ) {
-		let $oDiv = createDynDiv( success ? 'success' : 'failed' );
-		$oDiv.fadeIn().html( msg );
+		let theDiv = createDynDiv( success ? 'success' : 'failed' );
+		theDiv.fadeIn().html( msg );
 		setTimeout( function () {
-			$oDiv.fadeOut( 5000 );
-			$oDiv.remove();
+			theDiv.fadeOut( 5000 );
+			theDiv.remove();
 		}, 4000 );
-	};
-
-	this.updateAjaxReqParams = function ( params ) {
-		reqParams = params;
 	};
 
 	/**
@@ -138,9 +128,9 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			alert( 'Missing form data' );
 			return false;
 		}
-		reqParams.mod_slug = $form.data( 'mod_slug' );
+
 		let reqs = jQuery.extend(
-			reqParams,
+			workingData.ajax.mod_options_save,
 			{
 				'form_params': Base64.encode( formData ),
 				'enc_params': useCompression ? 'lz-string' : 'b64',
@@ -168,15 +158,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 
 		} ).always( function () {
-			bRequestCurrentlyRunning = false;
-			setTimeout( function () {
-				location.reload();
-			}, 1000 );
+			requestRunning = false;
 		} );
-
 	};
 
-	var handleResponse = function ( raw ) {
+	let handleResponse = function ( raw ) {
 		let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 		let msg;
 		if ( response === null || typeof response.data === 'undefined'
@@ -187,26 +173,31 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			msg = response.data.message;
 		}
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
+
+		setTimeout( function () {
+			// window.location.replace( response.data.redirect_to );
+			window.location.reload();
+		}, 1000 );
 	};
 
-	var submitOptionsForm = function ( event ) {
+	let submitOptionsForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		if ( bRequestCurrentlyRunning ) {
+		if ( requestRunning ) {
 			return false;
 		}
-		bRequestCurrentlyRunning = true;
+		requestRunning = true;
 		event.preventDefault();
 
-		var $form = jQuery( this );
+		let $form = jQuery( this );
 
 		var $passwordsReady = true;
 		jQuery( 'input[type=password]', $form ).each( function () {
-			var $oPass = jQuery( this );
-			var $oConfirm = jQuery( '#' + $oPass.attr( 'id' ) + '_confirm', $form );
-			if ( typeof $oConfirm.attr( 'id' ) !== 'undefined' ) {
-				if ( $oPass.val() && !$oConfirm.val() ) {
-					$oConfirm.addClass( 'is-invalid' );
+			let $pass = jQuery( this );
+			let $confirm = jQuery( '#' + $pass.attr( 'id' ) + '_confirm', $form );
+			if ( typeof $confirm.attr( 'id' ) !== 'undefined' ) {
+				if ( $pass.val() && !$confirm.val() ) {
+					$confirm.addClass( 'is-invalid' );
 					alert( 'Form not submitted due to error: password confirmation field not provided.' );
 					$passwordsReady = false;
 				}
@@ -218,15 +209,13 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		}
 	};
 
-	this.initialise = function () {
-		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", 'form.icwpOptionsForm', submitOptionsForm );
-		} );
+	this.initialise = function ( data ) {
+		workingData = data;
+		jQuery( document ).on( "submit", 'form.icwpOptionsForm', submitOptionsForm );
 	};
 }();
 
 iCWP_WPSF_OptionsPages.initialise();
-iCWP_WPSF_OptionsFormSubmit.initialise();
 
 jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
@@ -350,7 +339,103 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 	} );
 }
 
+let iCWP_WPSF_ProgressMeters = new function () {
+
+	let data;
+	let $canvas;
+	let analysisContainer;
+
+	this.renderAnalysis = function ( meter ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let reqData = data.ajax.render_meter_analysis;
+		reqData.meter = meter;
+
+		$canvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		analysisContainer.show();
+
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				dataType: "text",
+				success: function ( raw ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+					$canvas.html( response.data.html );
+				}
+			}
+		).always(
+			function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	this.initialise = function ( workingData ) {
+		data = workingData;
+		$canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
+		analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+
+		const circle = new CircularProgressBar( 'pie' );
+		circle.initial();
+	};
+}();
+
+let iCWP_WPSF_Helpscout = new function () {
+	this.initialise = function ( workingData ) {
+		beaconInit();
+		window.Beacon( 'init', workingData.beacon_id );
+		Beacon( 'navigate', '/' );
+
+		jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
+			evt.preventDefault();
+			let link = jQuery( evt.currentTarget );
+			let id = link.data( 'beacon-article-id' );
+			if ( id ) {
+				let format = '';
+				if ( link.data( 'beacon-article-format' ) ) {
+					format = link.data( 'beacon-article-format' );
+				}
+				Beacon( 'article', String( id ), { type: format } );
+			}
+			return false;
+		} );
+	};
+
+	let beaconInit = function () {
+		!function ( e, t, n ) {
+			function a() {
+				var e = t.getElementsByTagName( "script" )[ 0 ], n = t.createElement( "script" );
+				n.type = "text/javascript", n.async = !0, n.src = "https://beacon-v2.helpscout.net", e.parentNode.insertBefore( n, e )
+			}
+
+			if ( e.Beacon = n = function ( t, n, a ) {
+				e.Beacon.readyQueue.push( { method: t, options: n, data: a } )
+			}, n.readyQueue = [], "complete" === t.readyState ) return a();
+			e.attachEvent ? e.attachEvent( "onload", a ) : e.addEventListener( "load", a, !1 )
+		}( window, document, window.Beacon || function () {
+		} );
+	};
+}();
+
 jQuery( document ).ready( function () {
+
+	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
+		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
+	}
+
+	if ( typeof icwp_wpsf_vars_plugin.components.mod_options !== 'undefined' ) {
+		iCWP_WPSF_OptionsFormSubmit.initialise( icwp_wpsf_vars_plugin.components.mod_options );
+	}
+
+	if ( typeof icwp_wpsf_vars_plugin.components.helpscout !== 'undefined' ) {
+		iCWP_WPSF_Helpscout.initialise( icwp_wpsf_vars_plugin.components.helpscout );
+	}
+
+	iCWP_WPSF_Modals.initialise();
+	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
+		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
+	}
 
 	jQuery( document ).ajaxComplete( function () {
 		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
@@ -388,19 +473,5 @@ jQuery( document ).ready( function () {
 				};
 			}
 		}
-	} );
-
-	jQuery( document ).on( 'click', 'a.beacon-article', function ( evt ) {
-		evt.preventDefault();
-		let link = jQuery( evt.currentTarget );
-		let id = link.data( 'beacon-article-id' );
-		if ( id ) {
-			let format = '';
-			if ( link.data( 'beacon-article-format' ) ) {
-				format = link.data( 'beacon-article-format' );
-			}
-			Beacon( 'article', String( id ), { type: format } );
-		}
-		return false;
 	} );
 } );

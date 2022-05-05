@@ -7,7 +7,7 @@ class FormidableForms extends Base {
 	protected function run() {
 		add_filter( 'frm_validate_entry', function ( $errors ) {
 			if ( !is_array( $errors ) || empty( $errors[ 'spam' ] ) ) {
-				if ( $this->isSpam() ) {
+				if ( $this->isBotBlockRequired() ) {
 					if ( !is_array( $errors ) ) {
 						$errors = [];
 					}

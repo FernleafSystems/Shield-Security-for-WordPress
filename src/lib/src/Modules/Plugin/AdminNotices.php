@@ -17,6 +17,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
+			case 'rules-not-running':
+				$this->buildNotice_RulesNotRunning( $notice );
+				break;
+
 			case 'plugin-too-old':
 				$this->buildNotice_PluginTooOld( $notice );
 				break;
@@ -59,13 +63,32 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 	}
 
+	private function buildNotice_RulesNotRunning( NoticeVO $notice ) {
+		$name = $this->getCon()->getHumanName();
+
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title' => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( "%s's Rules Engine Isn't Running", 'wp-simple-firewall' ), $name ) ),
+				'lines' => [
+					sprintf(
+						__( "The Rules Engine that processes requests and protects your site doesn't appear to be operating normally.", 'wp-simple-firewall' ),
+						$name
+					),
+					__( "This could be a webhosting configuration issue, but please reach out to our support desk for help to isolate the issue.", 'wp-simple-firewall' ),
+				],
+			],
+		];
+	}
+
 	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
 		$name = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+				'title'        => sprintf( '%s: %s', __( 'asdfasdf', 'wp-simple-firewall' ),
 					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
 				'lines'        => [
 					sprintf(
@@ -261,12 +284,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$needed = false;
 				break;
 
+			case 'rules-not-running':
+				$needed = $this->isNeeded_RulesNotRunning();
+				break;
+
 			case 'plugin-too-old':
 				$needed = $this->isNeeded_PluginTooOld();
 				break;
 
 			case 'override-forceoff':
-				$needed = $con->getIfForceOffActive();
+				$needed = $con->this_req->is_force_off;
 				break;
 
 			case 'plugin-disabled':
@@ -292,6 +319,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		return $needed;
 	}
 
+	private function isNeeded_RulesNotRunning() :bool {
+		$con = $this->getCon();
+		return !$con->rules->isRulesEngineReady() || !$con->rules->processComplete;
+	}
+
 	private function isNeeded_PluginTooOld() :bool {
 		$needed = false;
 		$con = $this->getCon();
@@ -307,11 +339,5 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				}, $versions ) ) ) > 2;
 		}
 		return $needed;
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function handleAuthAjax( array $ajaxResponse ) :array {
 	}
 }

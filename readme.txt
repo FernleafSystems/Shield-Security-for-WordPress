@@ -3,12 +3,12 @@ Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: scan, malware, firewall, two factor authentication, login protection
+Tags: limit login, malware scan, firewall, two factor authentication, login protection
 Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
-Tested up to: 5.9
-Stable tag: 14.1.7
+Tested up to: 6.0
+Stable tag: 15.0.0
 
 No-Nonsense Security Hardening that protects WordPress against hackers, malicious bots, and spammers (no captchas!). Now with exclusive ShieldNET Technology.
 

@@ -162,9 +162,8 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		return !$mod->isVisitorWhitelisted() && count( $this->getProvidersForUser( $user, true ) ) > 0;
+		return !$this->getCon()->this_req->request_bypasses_all_restrictions
+			   && count( $this->getProvidersForUser( $user, true ) ) > 0;
 	}
 
 	public function removeAllFactorsForUser( int $userID ) :StdResponse {

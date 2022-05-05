@@ -11,6 +11,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
  * @property int $btcheese_at
  * @property int $btfake_at
  * @property int $btinvalidscript_at
+ * @property int $btauthorfishing_at
  * @property int $btloginfail_at
  * @property int $btlogininvalid_at
  * @property int $btua_at
@@ -32,4 +33,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\Ops;
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+
+		if ( $key === 'ip_ref' ) {
+			$value = (int)$value;
+		}
+
+		return $value;
+	}
 }

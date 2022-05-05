@@ -2,11 +2,12 @@
   "slug":          "comments_filter",
   "properties":    {
     "slug":                  "comments_filter",
+    "storage_key":           "commentsfilter",
+    "load_priority":         100,
     "name":                  "Comments SPAM",
     "sidebar_name":          "SPAM",
     "show_module_menu_item": false,
     "show_module_options":   true,
-    "storage_key":           "commentsfilter",
     "tagline":               "Block comment SPAM and retain your privacy",
     "show_central":          true,
     "access_restricted":     true,
@@ -15,6 +16,9 @@
     "run_if_verified_bot":   false,
     "run_if_wpcli":          false,
     "order":                 50
+  },
+  "menus":         {
+    "config_menu_priority": 40
   },
   "wpcli":         {
     "enabled": true
@@ -41,7 +45,7 @@
     },
     {
       "slug":        "section_human_spam_filter",
-      "title":       "Human Comment SPAM Protection Filter",
+      "title":       "Human Comment SPAM Protection",
       "title_short": "Human SPAM",
       "beacon_id":   262,
       "summary":     [
@@ -77,14 +81,6 @@
       "summary":     [
         "Purpose - The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.",
         "Recommendation - Keep the Comments Filter feature turned on."
-      ]
-    },
-    {
-      "slug":        "section_deprecated",
-      "title":       "Deprecated Options",
-      "title_short": "Deprecated Options",
-      "summary":     [
-        "These options will be removed in the future. Please use the ADE option under Bot SPAM section."
       ]
     },
     {
@@ -181,52 +177,6 @@
       "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
     },
     {
-      "key":           "google_recaptcha_style_comments",
-      "section":       "section_deprecated",
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "default",
-          "text":      "Default Style"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible"
-        }
-      ],
-      "link_info":     "https://shsec.io/e4",
-      "link_blog":     "",
-      "beacon_id":     269,
-      "name":          "CAPTCHA",
-      "summary":       "Enable CAPTCHA To Protect Against SPAM Comments",
-      "description":   "You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA."
-    },
-    {
-      "key":         "enable_comments_gasp_protection",
-      "section":     "section_deprecated",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/3n",
-      "link_blog":   "https://shsec.io/2n",
-      "beacon_id":   401,
-      "name":        "GASP Protection",
-      "summary":     "Block Bot Comment SPAM",
-      "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
-    },
-    {
       "key":         "enable_comments_human_spam_filter",
       "section":     "section_human_spam_filter",
       "default":     "N",
@@ -266,65 +216,6 @@
       "description":   "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
     },
     {
-      "key":         "custom_message_checkbox",
-      "section":     "section_deprecated",
-      "sensitive":   true,
-      "default":     "default",
-      "type":        "text",
-      "link_info":   "https://shsec.io/3p",
-      "link_blog":   "",
-      "beacon_id":   403,
-      "name":        "Custom Checkbox Message",
-      "summary":     "If you want a custom checkbox message, please provide this here",
-      "description": "You can customise the message beside the checkbox."
-    },
-    {
-      "key":         "custom_message_alert",
-      "section":     "section_deprecated",
-      "sensitive":   true,
-      "default":     "default",
-      "type":        "text",
-      "link_info":   "https://shsec.io/3p",
-      "link_blog":   "",
-      "beacon_id":   403,
-      "name":        "Custom Alert Message",
-      "summary":     "If you want a custom alert message, please provide this here",
-      "description": "This alert message is displayed when a visitor attempts to submit a comment without checking the box."
-    },
-    {
-      "key":         "custom_message_comment_wait",
-      "section":     "section_deprecated",
-      "sensitive":   true,
-      "default":     "default",
-      "type":        "text",
-      "link_info":   "https://shsec.io/3p",
-      "link_blog":   "",
-      "beacon_id":   403,
-      "name":        "Custom Wait Message",
-      "summary":     "If you want a custom submit-button wait message, please provide this here.",
-      "description": "Where you see the '%s' this will be the number of seconds. You must ensure you include 1, and only 1, of these."
-    },
-    {
-      "key":         "custom_message_comment_reload",
-      "section":     "section_deprecated",
-      "sensitive":   true,
-      "default":     "default",
-      "type":        "text",
-      "link_info":   "https://shsec.io/3p",
-      "link_blog":   "",
-      "beacon_id":   403,
-      "name":        "Custom Reload Message",
-      "summary":     "If you want a custom message when the comment token has expired, please provide this here.",
-      "description": "This message is displayed on the submit-button when the comment token is expired."
-    },
-    {
-      "key":     "comments_cooldown",
-      "section": "section_non_ui",
-      "type":    "integer",
-      "default": 10,
-      "min":     0
-    },
-    {
       "key":     "human_spam_items",
       "section": "section_non_ui",
       "type":    "array",
@@ -336,16 +227,9 @@
         "ip_address",
         "user_agent"
       ]
-    },
-    {
-      "key":     "enable_antibot_check",
-      "section": "section_non_ui",
-      "type":    "checkbox",
-      "default": ""
     }
   ],
   "definitions":   {
-    "comments_expire":          1800,
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
       "comment_spam_block":   {

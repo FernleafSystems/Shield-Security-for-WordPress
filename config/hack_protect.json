@@ -2,7 +2,10 @@
   "slug":             "hack_protect",
   "properties":       {
     "slug":                  "hack_protect",
+    "load_priority":         100,
+    "menu_priority":         20,
     "name":                  "Hack Guard",
+    "namespace":             "HackGuard",
     "sidebar_name":          "Scanners",
     "show_module_menu_item": false,
     "show_module_options":   true,
@@ -15,6 +18,9 @@
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
+  },
+  "menus":         {
+    "config_menu_priority": 25
   },
   "wpcli":            {
     "enabled": true,
@@ -55,16 +61,6 @@
       "summary":     [
         "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
         "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
-      "slug":        "section_realtime",
-      "title":       "Realtime Change Detection",
-      "title_short": "Realtime Change Detection",
-      "beacon_id":   226,
-      "summary":     [
-        "Purpose - Monitor Your WordPress Site For Changes To Critical Components In Realtime.",
-        "Recommendation - Keep The Realtime Change Detection Active."
       ]
     },
     {
@@ -147,17 +143,35 @@
       "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
     },
     {
-      "key":         "auto_filter_results",
-      "section":     "section_file_guard",
-      "premium":     false,
-      "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
-      "beacon_id":   439,
-      "name":        "Auto-Filter Results",
-      "summary":     "Automatically Filter Results Of Irrelevant Items",
-      "description": "Automatically remove items from results that are irrelevant."
+      "key":           "file_locker",
+      "section":       "section_file_guard",
+      "premium":       true,
+      "type":          "multiple_select",
+      "default":       [],
+      "value_options": [
+        {
+          "value_key": "wpconfig",
+          "text":      "WP Config"
+        },
+        {
+          "value_key": "root_htaccess",
+          "text":      "Root .htaccess"
+        },
+        {
+          "value_key": "root_index",
+          "text":      "Root index.php"
+        },
+        {
+          "value_key": "root_webconfig",
+          "text":      "Root Web.Config"
+        }
+      ],
+      "link_info":     "https://shsec.io/h7",
+      "link_blog":     "https://shsec.io/h8",
+      "beacon_id":     226,
+      "name":          "File Locker",
+      "summary":       "Lock Files Against Tampering and Changes",
+      "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
     },
     {
       "key":         "scan_path_exclusions",
@@ -220,37 +234,6 @@
       "name":        "Automatic Updates",
       "summary":     "Apply Updates Automatically To Vulnerable Plugins",
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
-    },
-    {
-      "key":           "file_locker",
-      "section":       "section_realtime",
-      "premium":       true,
-      "type":          "multiple_select",
-      "default":       [],
-      "value_options": [
-        {
-          "value_key": "wpconfig",
-          "text":      "WP Config"
-        },
-        {
-          "value_key": "root_htaccess",
-          "text":      "Root .htaccess"
-        },
-        {
-          "value_key": "root_index",
-          "text":      "Root index.php"
-        },
-        {
-          "value_key": "root_webconfig",
-          "text":      "Root Web.Config"
-        }
-      ],
-      "link_info":     "https://shsec.io/h7",
-      "link_blog":     "https://shsec.io/h8",
-      "beacon_id":     226,
-      "name":          "File Locker",
-      "summary":       "Lock Files Against Tampering and Changes",
-      "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
     },
     {
       "key":           "scan_frequency",

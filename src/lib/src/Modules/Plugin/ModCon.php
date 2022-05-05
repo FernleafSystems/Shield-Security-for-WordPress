@@ -58,7 +58,26 @@ class ModCon extends BaseShield\ModCon {
 		$this->setVisitorIpSource();
 	}
 
+	protected function enumRuleBuilders() :array {
+		return [
+			Rules\Build\RequestStatusIsAdmin::class,
+			Rules\Build\RequestStatusIsAjax::class,
+			Rules\Build\RequestStatusIsXmlRpc::class,
+			Rules\Build\RequestStatusIsWpCli::class,
+			Rules\Build\IsServerLoopback::class,
+			Rules\Build\IsTrustedBot::class,
+			Rules\Build\IsPublicWebRequest::class,
+			Rules\Build\RequestBypassesAllRestrictions::class,
+		];
+	}
+
 	protected function preProcessOptions() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
+			$opts->setOpt( 'ipdetect_at', 0 );
+		}
+
 		( new Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )
 			->checkAll();
@@ -77,28 +96,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	public function onPluginShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
-			$preferred = Services::IP()->getIpDetector()->getLastSuccessfulSource();
-			if ( !empty( $preferred ) ) {
-				$this->getOptions()->setOpt( 'last_ip_detect_source', $preferred );
-			}
-		}
-		parent::onPluginShutdown();
-	}
-
-	public function onWpInit() {
-		parent::onWpInit();
-		$this->getImportExportSecretKey();
-	}
-
 	/**
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( !$opts->isIpSourceAutoDetect() ) {
+		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
 			Services::IP()->setIpDetector(
 				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
@@ -111,6 +115,8 @@ class ModCon extends BaseShield\ModCon {
 				( new Lib\ImportExport\Export() )
 					->setMod( $this )
 					->toFile();
+				break;
+			default:
 				break;
 		}
 	}
@@ -143,43 +149,30 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function canSiteLoopback() :bool {
-		$canLoopback = false;
+		$can = false;
 		if ( class_exists( '\WP_Site_Health' ) && method_exists( '\WP_Site_Health', 'get_instance' ) ) {
-			$canLoopback = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
+			$can = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
 		}
-		if ( !$canLoopback ) {
-			$canLoopback = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
+		if ( !$can ) {
+			$can = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
 				'timeout' => 10
 			] );
 		}
-		return $canLoopback;
+		return $can;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getActivePluginFeatures() :array {
-		$features = $this->getOptions()->getDef( 'active_plugin_features' );
-
-		$available = [];
-		if ( is_array( $features ) ) {
-
-			foreach ( $features as $feature ) {
-				if ( isset( $feature[ 'hidden' ] ) && $feature[ 'hidden' ] ) {
-					continue;
-				}
-				$available[ $feature[ 'slug' ] ] = $feature;
-			}
-		}
-		return $available;
+		return $this->getOptions()->getDef( 'active_plugin_features' );
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return add_query_arg(
-			[ 'shield_action' => 'dump_tracking_data' ],
-			Services::WpGeneral()->getAdminUrl()
-		);
+		return add_query_arg( [ 'shield_action' => 'dump_tracking_data' ], Services::WpGeneral()->getAdminUrl() );
 	}
 
 	public function getPluginReportEmail() :string {
@@ -195,13 +188,13 @@ class ModCon extends BaseShield\ModCon {
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		$this->storeRealInstallDate();
 
-		if ( $oOpts->isTrackingEnabled() && !$oOpts->isTrackingPermissionSet() ) {
-			$oOpts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		if ( $opts->isTrackingEnabled() && !$opts->isTrackingPermissionSet() ) {
+			$opts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -279,9 +272,9 @@ class ModCon extends BaseShield\ModCon {
 		$WP = Services::WpGeneral();
 		$ts = Services::Request()->ts();
 
-		$sOptKey = $this->getCon()->prefixOption( 'install_date' );
+		$key = $this->getCon()->prefixOption( 'install_date' );
 
-		$nWpDate = $WP->getOption( $sOptKey );
+		$nWpDate = $WP->getOption( $key );
 		if ( empty( $nWpDate ) ) {
 			$nWpDate = $ts;
 		}
@@ -292,7 +285,7 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$nFinal = min( $nPluginDate, $nWpDate );
-		$WP->updateOption( $sOptKey, $nFinal );
+		$WP->updateOption( $key, $nFinal );
 		$this->getOptions()->setOpt( 'installation_time', $nPluginDate );
 
 		return $nFinal;
@@ -308,7 +301,7 @@ class ModCon extends BaseShield\ModCon {
 		if ( $nSpacePos !== false ) {
 			$sCaptchaKey = substr( $sCaptchaKey, 0, $nSpacePos + 1 ); // cut off the string if there's spaces
 		}
-		$sCaptchaKey = preg_replace( '#[^0-9a-zA-Z_-]#', '', $sCaptchaKey ); // restrict character set
+		$sCaptchaKey = preg_replace( '#[^\da-zA-Z_-]#', '', $sCaptchaKey ); // restrict character set
 //			if ( strlen( $sCaptchaKey ) != 40 ) {
 //				$sCaptchaKey = ''; // need to verify length is 40.
 //			}
@@ -363,126 +356,37 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	public function hasImportExportWhitelistSites() :bool {
-		return count( $this->getImportExportWhitelist() ) > 0;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getImportExportWhitelist() :array {
-		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
-		return is_array( $list ) ? $list : [];
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getImportExportSecretKey() {
+	private function cleanImportExportWhitelistUrls() {
+		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$ID = $opts->getOpt( 'importexport_secretkey', '' );
-		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = sha1( $this->getCon()->getSiteInstallationId().wp_rand( 0, PHP_INT_MAX ) );
-			$opts->setOpt( 'importexport_secretkey', $ID )
-				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
-		}
-		return $ID;
-	}
+		$cleaned = [];
+		$whitelist = $opts->getImportExportWhitelist();
+		foreach ( $whitelist as $url ) {
 
-	protected function isImportExportSecretKeyExpired() :bool {
-		return Services::Request()->ts() >
-			   $this->getOptions()->getOpt( 'importexport_secretkey_expires_at' );
-	}
-
-	public function isImportExportWhitelistNotify() :bool {
-		return $this->getOptions()->isOpt( 'importexport_whitelist_notify', 'Y' );
-	}
-
-	/**
-	 * @param string $sUrl
-	 * @return $this
-	 */
-	public function addUrlToImportExportWhitelistUrls( $sUrl ) {
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $sUrl );
-		if ( $sUrl !== false ) {
-			$aWhitelistUrls = $this->getImportExportWhitelist();
-			$aWhitelistUrls[] = $sUrl;
-			$this->getOptions()->setOpt( 'importexport_whitelist', $aWhitelistUrls );
-			$this->saveModOptions();
-		}
-		return $this;
-	}
-
-	/**
-	 * @param string $url
-	 * @return $this
-	 */
-	public function removeUrlFromImportExportWhitelistUrls( $url ) {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url !== false ) {
-			$aWhitelistUrls = $this->getImportExportWhitelist();
-			$sKey = array_search( $url, $aWhitelistUrls );
-			if ( $sKey !== false ) {
-				unset( $aWhitelistUrls[ $sKey ] );
-			}
-			$this->getOptions()->setOpt( 'importexport_whitelist', $aWhitelistUrls );
-			$this->saveModOptions();
-		}
-		return $this;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isImportExportSecretKey( $sKey ) :bool {
-		return !empty( $sKey ) && $this->getImportExportSecretKey() == $sKey;
-	}
-
-	protected function cleanImportExportWhitelistUrls() {
-		$oDP = Services::Data();
-
-		$aCleaned = [];
-		$aWhitelistUrls = $this->getImportExportWhitelist();
-		foreach ( $aWhitelistUrls as $nKey => $sUrl ) {
-
-			$sUrl = $oDP->validateSimpleHttpUrl( $sUrl );
-			if ( $sUrl !== false ) {
-				$aCleaned[] = $sUrl;
+			$url = Services::Data()->validateSimpleHttpUrl( $url );
+			if ( $url !== false ) {
+				$cleaned[] = $url;
 			}
 		}
-		$this->getOptions()->setOpt( 'importexport_whitelist', array_unique( $aCleaned ) );
+		$opts->setOpt( 'importexport_whitelist', array_unique( $cleaned ) );
 	}
 
-	protected function cleanImportExportMasterImportUrl() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$url = Services::Data()->validateSimpleHttpUrl( $oOpts->getImportExportMasterImportUrl() );
-		if ( $url === false ) {
-			$url = '';
-		}
-		$this->getOptions()->setOpt( 'importexport_masterurl', $url );
+	private function cleanImportExportMasterImportUrl() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
+		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
 	/**
-	 * @param string $url
-	 * @return $this
+	 * @param string $id
 	 */
-	public function setImportExportMasterImportUrl( $url ) {
-		$this->getOptions()->setOpt( 'importexport_masterurl', $url ); //saving will clean the URL
-		return $this->saveModOptions();
-	}
-
-	/**
-	 * @param string $sId
-	 * @return bool
-	 */
-	protected function isValidInstallId( $sId ) :bool {
-		return !empty( $sId ) && is_string( $sId ) && strlen( $sId ) == 40;
+	protected function isValidInstallId( $id ) :bool {
+		return !empty( $id ) && is_string( $id ) && strlen( $id ) == 40;
 	}
 
 	public function isXmlrpcBypass() :bool {
-		return $this->getOptions()->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
+		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
 
 	public function getCanAdminNotes() :bool {
@@ -491,6 +395,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
+		$con = $this->getCon();
 
 		$tourManager = $this->getTourManager();
 		$locals[] = [
@@ -507,12 +412,55 @@ class ModCon extends BaseShield\ModCon {
 			'plugin',
 			'icwp_wpsf_vars_plugin',
 			[
-				'strings' => [
+				'components' => [
+					'helpscout'   => [
+						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
+						'visible'   => $con->isModulePage()
+					],
+					'mod_options' => [
+						'ajax' => [
+							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
+						]
+					],
+				],
+				'strings'    => [
 					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
 					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 				],
 			]
 		];
+
+		$locals[] = [
+			'global-plugin',
+			'icwp_wpsf_vars_globalplugin',
+			[
+				'vars' => [
+					'dashboard_widget' => [
+						'ajax' => [
+							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )
+						]
+					]
+				],
+			]
+		];
+
+		$opts = $this->getOptions();
+		if ( Services::Request()->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 ) {
+			$opts->setOpt( 'ipdetect_at', Services::Request()->ts() );
+			$locals[] = [
+				'shield/ip_detect',
+				'icwp_wpsf_vars_ipdetect',
+				[
+					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
+					'ajax'    => $this->getAjaxActionData( 'ipdetect' ),
+					'strings' => [
+						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
+						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),
+						'reloading'    => __( 'Please reload the page.', 'wp-simple-firewall' ),
+					],
+				]
+			];
+		}
 
 		return $locals;
 	}
@@ -541,7 +489,21 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oCaptchaEnqueue;
 	}
 
+	public function isModOptEnabled() :bool {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return !$opts->isPluginGloballyDisabled();
+	}
+
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
+	}
+
+	/**
+	 * @deprecated 15.0
+	 */
+	public function getImportExportWhitelist() :array {
+		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
+		return is_array( $list ) ? $list : [];
 	}
 }

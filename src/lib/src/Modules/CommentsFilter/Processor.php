@@ -12,20 +12,17 @@ class Processor extends BaseShield\Processor {
 		$opts = $this->getOptions();
 		$WPU = Services::WpUsers();
 
-		$loadCommentFilter = !$WPU->isUserLoggedIn() ||
-							 !( new Scan\IsEmailTrusted() )->trusted(
-								 $WPU->getCurrentWpUser()->user_email,
-								 $opts->getApprovedMinimum(),
-								 $opts->getTrustedRoles()
-							 );
+		$commentsFilterBypass = $this->getCon()->this_req->request_bypasses_all_restrictions ||
+								( $WPU->isUserLoggedIn() &&
+								  ( new Scan\IsEmailTrusted() )->trusted(
+									  $WPU->getCurrentWpUser()->user_email,
+									  $opts->getApprovedMinimum(),
+									  $opts->getTrustedRoles()
+								  ) );
 
-		( new Scan\CommentAdditiveCleaner() )
-			->setMod( $this->getMod() )
-			->execute();
+		if ( !$commentsFilterBypass ) {
 
-		if ( $loadCommentFilter ) {
-
-			( new Forms\GoogleRecaptcha() )
+			( new Scan\CommentAdditiveCleaner() )
 				->setMod( $this->getMod() )
 				->execute();
 
@@ -35,19 +32,6 @@ class Processor extends BaseShield\Processor {
 					->execute();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
-			else {
-				( new Forms\Gasp() )
-					->setMod( $this->getMod() )
-					->execute();
-			}
-		}
-	}
-
-	public function runHourlyCron() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isEnabledGaspCheck() && function_exists( 'delete_expired_transients' ) ) {
-			delete_expired_transients(); // cleanup unused comment tokens
 		}
 	}
 

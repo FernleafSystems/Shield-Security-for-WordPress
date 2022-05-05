@@ -103,7 +103,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		}
 
 		$nonce = (string)$req->post( 'login_nonce' );
-		if ( !preg_match( '#^[a-z0-9]{10}$#i', $nonce ) ) {
+		if ( !preg_match( '#^[\da-z]{10}$#i', $nonce ) ) {
 			throw new NoLoginIntentForUserException();
 		}
 

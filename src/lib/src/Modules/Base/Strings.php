@@ -10,7 +10,7 @@ class Strings {
 	use ModConsumer;
 
 	public function getModTagLine() :string {
-		return (string)__( $this->getOptions()->getFeatureProperty( 'tagline' ), 'wp-simple-firewall' );
+		return __( $this->getMod()->cfg->properties[ 'tagline' ], 'wp-simple-firewall' );
 	}
 
 	/**
@@ -19,7 +19,7 @@ class Strings {
 	public function getDisplayStrings() :array {
 		$con = $this->getCon();
 
-		$aProFeatures = [
+		$proFeatures = [
 			__( 'More Scans', 'wp-simple-firewall' ),
 			__( 'Malware Scanner', 'wp-simple-firewall' ),
 			__( 'Scan Every Hour', 'wp-simple-firewall' ),
@@ -30,14 +30,13 @@ class Strings {
 			__( 'WooCommerce Support', 'wp-simple-firewall' ),
 			__( 'MainWP Integration', 'wp-simple-firewall' ),
 		];
-		$aProFeaturesDisplay = array_intersect_key( $aProFeatures, array_flip( array_rand( $aProFeatures, 6 ) ) );
-		$aProFeaturesDisplay[] = __( 'and much more!' );
+		$proFeaturesDisplay = array_intersect_key( $proFeatures, array_flip( array_rand( $proFeatures, 6 ) ) );
+		$proFeaturesDisplay[] = __( 'and much more!' );
 
 		$bIsAdvanced = $this->getCon()->getModule_Plugin()->isShowAdvanced();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
 			[
-				'see_help_video'    => __( 'Watch Help Video' ),
 				'btn_save'          => __( 'Save Options' ),
 				'btn_options'       => __( 'Options' ),
 				'btn_help'          => __( 'Help' ),
@@ -51,6 +50,7 @@ class Strings {
 				'time_until'        => __( 'Until', 'wp-simple-firewall' ),
 				'time_since'        => __( 'Since', 'wp-simple-firewall' ),
 				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'view_details'      => __( 'View Details', 'wp-simple-firewall' ),
 				'opt_info_helpdesk' => __( 'Read the HelpDesk article for this option', 'wp-simple-firewall' ),
 				'opt_info_blog'     => __( 'Read our Blog article for this option', 'wp-simple-firewall' ),
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
@@ -114,20 +114,15 @@ class Strings {
 
 				'pro_features'       => __( 'Pro features include', 'wp-simple-firewall' ),
 				'join_thousands_H'   => __( "Join The 1,000s Who've Already Upgraded Their WordPress Security To Better Protect Their Sites.", 'wp-simple-firewall' ),
-				'join_thousands_P'   => implode( ', ', $aProFeaturesDisplay ),
+				'join_thousands_P'   => implode( ', ', $proFeaturesDisplay ),
 				'get_pro_protection' => __( 'Get Pro Protection', 'wp-simple-firewall' ),
 
-				'recommendation'      => ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
-				'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
-				'box_welcome_title'   => sprintf( __( 'Welcome To %s Security Insights Dashboard', 'wp-simple-firewall' ), $con->getHumanName() ),
-				'options'             => __( 'Options', 'wp-simple-firewall' ),
-				'not_available'       => __( 'Sorry, this feature is included with Pro subscriptions.', 'wp-simple-firewall' ),
-				'not_enabled'         => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-				'please_upgrade'      => __( 'You can get this feature (along with loads more) by going Pro.', 'wp-simple-firewall' ),
-				'please_enable'       => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
-				'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
-				'this_is_wonderful'   => __( 'This is wonderful!', 'wp-simple-firewall' ),
-				'yyyymmdd'            => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
+				'options'        => __( 'Options', 'wp-simple-firewall' ),
+				'not_available'  => __( 'Sorry, this feature is included with Pro subscriptions.', 'wp-simple-firewall' ),
+				'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
+				'please_upgrade' => __( 'You can get this feature (along with loads more) by going Pro.', 'wp-simple-firewall' ),
+				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
+				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
 				'wphashes_token'      => 'WPHashes.com API Token',
 				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
@@ -166,7 +161,7 @@ class Strings {
 	 */
 	public function getOptionStrings( string $key ) :array {
 		$opt = $this->getOptions()->getOptDefinition( $key );
-		if ( is_array( $opt ) && !empty( $opt[ 'name' ] ) && !empty( $opt[ 'summary' ] ) && !empty( $opt[ 'description' ] ) ) {
+		if ( !empty( $opt[ 'name' ] ) && !empty( $opt[ 'summary' ] ) && !empty( $opt[ 'description' ] ) ) {
 			return [
 				'name'        => __( $opt[ 'name' ], 'wp-simple-firewall' ),
 				'summary'     => __( $opt[ 'summary' ], 'wp-simple-firewall' ),
@@ -182,7 +177,6 @@ class Strings {
 	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
-
 			default:
 				$section = $this->getOptions()->getSection( $section );
 				if ( is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {

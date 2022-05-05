@@ -61,7 +61,7 @@ class RenderLoginIntentPage extends RenderBase {
 
 		return $mod->renderTemplate( '/pages/login_intent/index.twig',
 			Services::DataManipulation()->mergeArraysRecursive(
-				$mod->getUIHandler()->getBaseDisplayData(), $data ), true );
+				$mod->getUIHandler()->getBaseDisplayData(), $data ) );
 	}
 
 	private function renderForm() :string {

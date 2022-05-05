@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta;
 
 class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
@@ -15,13 +14,14 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return Services::WpUsers()->isUserLoggedIn();
 	}
 
-	protected function run() {
-		add_filter( $this->getCon()->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
+	public function getNotices() :array {
+		return $this->buildNotices();
 	}
 
 	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO[] $notices
 	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
+	 * @deprecated 15.0
 	 */
 	public function addNotices( $notices ) {
 		return array_merge( $notices, $this->buildNotices() );
@@ -132,10 +132,6 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return $dismissedUser || $dismissedMod;
 	}
 
-	/**
-	 * @param NoticeVO $notice
-	 * @return bool
-	 */
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		return true;
 	}
@@ -144,7 +140,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$dismissed = false;
 
 		$meta = $this->getCon()->getCurrentUserMeta();
-		if ( $meta instanceof PluginUserMeta ) {
+		if ( !empty( $meta ) ) {
 			$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
 			if ( isset( $meta->{$noticeMetaKey} ) ) {
@@ -174,7 +170,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
 		if ( $notice->per_user ) {
-			if ( $meta instanceof PluginUserMeta ) {
+			if ( !empty( $meta ) ) {
 				$meta->{$noticeMetaKey} = $ts;
 			}
 		}
@@ -185,7 +181,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$mod->setDismissedNotices( $allDismissed );
 
 			// Clear out any old
-			if ( $meta instanceof PluginUserMeta ) {
+			if ( !empty( $meta ) ) {
 				unset( $meta->{$noticeMetaKey} );
 			}
 		}
@@ -193,12 +189,5 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {
 		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function handleAuthAjax( array $ajaxResponse ) :array {
-		return $ajaxResponse;
 	}
 }

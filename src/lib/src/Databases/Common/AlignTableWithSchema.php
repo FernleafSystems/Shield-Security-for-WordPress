@@ -32,6 +32,7 @@ class AlignTableWithSchema {
 		$DB = Services::WpDb();
 		if ( !$DB->getIfTableExists( $this->schema->table ) ) {
 			$DB->doSql( $this->schema->buildCreate() );
+			$DB->clearResultShowTables();
 		}
 		else {
 			$this->alignColumns();

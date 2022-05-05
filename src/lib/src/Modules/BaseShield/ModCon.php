@@ -12,24 +12,37 @@ class ModCon extends Base\ModCon {
 
 	/**
 	 * @var bool
+	 * @deprecated 15.0
 	 */
 	protected static $bIsVerifiedBot;
 
 	/**
 	 * @var bool
+	 * @deprecated 15.0
 	 */
 	private static $bVisitorIsWhitelisted;
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getDbHandler_Sessions() :Shield\Databases\Session\Handler {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getDbHandler_Sessions();
 	}
 
+	public function getSessionWP() :Shield\Modules\Sessions\Lib\SessionVO {
+		return $this->getCon()
+					->getModule_Sessions()
+					->getSessionCon()
+					->getCurrentWP();
+	}
+
 	/**
 	 * @return Shield\Databases\Session\EntryVO|null
+	 * @deprecated 15.0
 	 */
-	public function getSession() {
+	public function getSession() :array {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getSessionCon()
@@ -82,108 +95,48 @@ class ModCon extends Base\ModCon {
 					->getPluginReportEmail();
 	}
 
-	/**
-	 * @uses echo()
-	 */
-	public function displayModuleAdminPage() {
-		if ( $this->canDisplayOptionsForm() ) {
-			parent::displayModuleAdminPage();
-		}
-		else {
-			echo $this->renderRestrictedPage();
-		}
-	}
-
-	public function renderRestrictedPage() :string {
-		/** @var Shield\Modules\SecurityAdmin\Options $secOpts */
-		$secOpts = $this->getCon()
-						->getModule_SecAdmin()
-						->getOptions();
-
-		return $this->renderTemplate(
-			'/wpadmin_pages/security_admin/index.twig',
-			Services::DataManipulation()
-					->mergeArraysRecursive(
-						$this->getUIHandler()->getBaseDisplayData(),
-						[
-							'ajax'    => [
-								'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
-							],
-							'strings' => [
-								'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
-								'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
-								'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
-									Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
-								'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
-							],
-							'flags'   => [
-								'allow_email_override' => $secOpts->isEmailOverridePermitted()
-							]
-						]
-					),
-			true );
-	}
-
 	public function getIfSupport3rdParty() :bool {
 		return $this->isPremium();
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		$opts = $this->getOptions();
-		return ( $opts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
-			   && ( $opts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
-			   && ( $opts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
+		$req = $this->getCon()->this_req;
+		return ( !$req->request_bypasses_all_restrictions || $this->cfg->properties[ 'run_if_whitelisted' ] )
+			   && ( !$req->is_trusted_bot || $this->cfg->properties[ 'run_if_verified_bot' ] )
+			   && ( !$req->wp_is_wpcli || $this->cfg->properties[ 'run_if_wpcli' ] )
 			   && parent::isReadyToExecute();
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isVisitorWhitelisted() :bool {
-		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
-
-			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-
-			if ( in_array( $ipID, $this->getUntrustedProviders() ) ) {
-				self::$bVisitorIsWhitelisted = false;
-			}
-			elseif ( in_array( $ipID, Services::ServiceProviders()->getWpSiteManagementProviders() ) ) {
-				self::$bVisitorIsWhitelisted = true; // iControlWP / ManageWP
-			}
-			else {
-				self::$bVisitorIsWhitelisted =
-					( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
-						->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-						->setIP( Services::IP()->getRequestIp() )
-						->setListTypeBypass()
-						->lookup() instanceof Shield\Databases\IPs\EntryVO;
-			}
-		}
-		return self::$bVisitorIsWhitelisted;
+		return $this->getCon()->this_req->is_ip_whitelisted;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isTrustedVerifiedBot() :bool {
-		return $this->isVerifiedBot()
-			   && !in_array( Services::IP()->getIpDetector()->getIPIdentity(), $this->getUntrustedProviders() );
+		return $this->getCon()->this_req->is_trusted_bot;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	protected function getUntrustedProviders() :array {
 		$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
 		return is_array( $untrustedProviders ) ? $untrustedProviders : [];
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isVerifiedBot() :bool {
-		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-			self::$bIsVerifiedBot = !Services::IP()->isLoopback() &&
-									!in_array( $ipID, [
-										Utilities\Net\IpID::UNKNOWN,
-										Utilities\Net\IpID::THIS_SERVER,
-										Utilities\Net\IpID::VISITOR,
-									] );
-		}
-		return self::$bIsVerifiedBot;
+		return $this->isTrustedVerifiedBot();
 	}
 
 	public function isXmlrpcBypass() :bool {

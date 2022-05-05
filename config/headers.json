@@ -2,6 +2,7 @@
   "slug":       "headers",
   "properties": {
     "slug":                  "headers",
+    "load_priority":         100,
     "name":                  "HTTP Headers",
     "sidebar_name":          "HTTP Headers",
     "show_module_menu_item": false,
@@ -15,6 +16,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
     "order":                 80
+  },
+  "menus":         {
+    "config_menu_priority": 60
   },
   "wpcli":      {
     "enabled": true

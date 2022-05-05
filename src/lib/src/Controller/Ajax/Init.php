@@ -43,7 +43,10 @@ class Init {
 			$response = $this->normaliseAjaxResponse( $response );
 		}
 		else {
-			$response = [];
+			$response = [
+				'success' => false,
+				'error'   => 'There was no AJAX handler available for '.$nonceAction
+			];
 			$noise = [];
 		}
 

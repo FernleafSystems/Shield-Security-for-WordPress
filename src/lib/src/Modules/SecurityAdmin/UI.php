@@ -22,10 +22,4 @@ class UI extends BaseShield\UI {
 
 		return $warning;
 	}
-
-	public function isEnabledForUiSummary() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getSecurityAdminController()->isEnabledSecAdmin();
-	}
 }

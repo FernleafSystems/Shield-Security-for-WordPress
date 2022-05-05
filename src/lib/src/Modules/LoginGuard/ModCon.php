@@ -14,29 +14,31 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $mfaCon;
 
+	public function getMfaController() :Lib\TwoFactor\MfaController {
+		if ( !isset( $this->mfaCon ) ) {
+			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
+		}
+		return $this->mfaCon;
+	}
+
 	protected function preProcessOptions() {
+		$WP = Services::WpGeneral();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		/**
-		 * $oWp = $this->loadWpFunctionsProcessor();
-		 * $sCustomLoginPath = $this->cleanLoginUrlPath();
-		 * if ( !empty( $sCustomLoginPath ) && $oWp->getIsPermalinksEnabled() ) {
-		 * $oWp->resavePermalinks();
-		 * }
-		 */
-		if ( $this->isModuleOptionsRequest() && $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
+		if ( $opts->isEnabledEmailAuth() && $opts->isOptChanged( 'enable_email_authentication' )
+			 && !$opts->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}
 
 		$IDs = $opts->getOpt( 'antibot_form_ids', [] );
-		foreach ( $IDs as $nKey => $id ) {
+		foreach ( $IDs as $key => $id ) {
 			$id = trim( strip_tags( $id ) );
 			if ( empty( $id ) ) {
-				unset( $IDs[ $nKey ] );
+				unset( $IDs[ $key ] );
 			}
 			else {
-				$IDs[ $nKey ] = $id;
+				$IDs[ $key ] = $id;
 			}
 		}
 		$opts->setOpt( 'antibot_form_ids', array_values( array_unique( $IDs ) ) );
@@ -51,12 +53,11 @@ class ModCon extends BaseShield\ModCon {
 
 		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
 
-		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' )
-			 && !Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.0' ) ) {
-			$opts->resetOptToDefault( 'mfa_verify_page' );
+		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' ) && !$WP->getWordpressIsAtLeastVersion( '4.0' ) ) {
+			$opts->setOpt( 'mfa_verify_page', 'custom_shield' );
 		}
 
-		$redirect = preg_replace( '#[^0-9a-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
+		$redirect = preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
 		if ( !empty( $redirect ) ) {
 
 			$redirect = preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
@@ -123,15 +124,10 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
-	/**
-	 * @param string $to
-	 * @param bool   $bSendAsLink
-	 * @return bool
-	 */
-	public function sendEmailVerifyCanSend( $to = null, $bSendAsLink = true ) {
+	public function sendEmailVerifyCanSend( string $to = '', bool $sendAsLink = true ) :bool {
 
 		if ( !Services::Data()->validEmail( $to ) ) {
-			$to = get_bloginfo( 'admin_email' );
+			$to = Services::WpGeneral()->getSiteAdminEmail();
 		}
 
 		$msg = [
@@ -140,7 +136,7 @@ class ModCon extends BaseShield\ModCon {
 			''
 		];
 
-		if ( $bSendAsLink ) {
+		if ( $sendAsLink ) {
 			$msg[] = sprintf(
 				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
 				add_query_arg( $this->getModActionParams( 'email_send_verify' ), Services::WpGeneral()->getHomeUrl() )
@@ -150,12 +146,11 @@ class ModCon extends BaseShield\ModCon {
 			$msg[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );
 		}
 
-		return $this->getEmailProcessor()
-					->sendEmailWithWrap(
-						$to,
-						__( 'Email Sending Verification', 'wp-simple-firewall' ),
-						$msg
-					);
+		return $this->getEmailProcessor()->sendEmailWithWrap(
+			$to,
+			__( 'Email Sending Verification', 'wp-simple-firewall' ),
+			$msg
+		);
 	}
 
 	private function cleanLoginUrlPath() {
@@ -163,7 +158,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$path = $opts->getCustomLoginPath();
 		if ( !empty( $path ) ) {
-			$path = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $path, '/' ) );
+			$path = preg_replace( '#[^\da-zA-Z-]#', '', trim( $path, '/' ) );
 			$this->getOptions()->setOpt( 'rename_wplogin_path', $path );
 		}
 	}
@@ -171,12 +166,12 @@ class ModCon extends BaseShield\ModCon {
 	public function getGaspKey() :string {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$sKey = $opts->getOpt( 'gasp_key' );
-		if ( empty( $sKey ) ) {
-			$sKey = uniqid();
-			$opts->setOpt( 'gasp_key', $sKey );
+		$key = $opts->getOpt( 'gasp_key' );
+		if ( empty( $key ) ) {
+			$key = uniqid();
+			$opts->setOpt( 'gasp_key', $key );
 		}
-		return $this->prefix( $sKey );
+		return $this->getCon()->prefix( $key );
 	}
 
 	public function getTextImAHuman() :string {
@@ -209,28 +204,12 @@ class ModCon extends BaseShield\ModCon {
 		return $cfg;
 	}
 
-	public function getMfaController() :Lib\TwoFactor\MfaController {
-		if ( !isset( $this->mfaCon ) ) {
-			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
-		}
-		return $this->mfaCon;
-	}
-
 	/**
-	 * @param bool $bCan
 	 * @return $this
 	 */
-	public function setIfCanSendEmail( $bCan ) {
-		$this->getOptions()->setOpt( 'email_can_send_verified_at', $bCan ? Services::Request()->ts() : 0 );
+	public function setIfCanSendEmail( bool $can ) {
+		$this->getOptions()->setOpt( 'email_can_send_verified_at', $can ? Services::Request()->ts() : 0 );
 		return $this;
-	}
-
-	public function setEnabled2FaEmail( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_email_authentication', $enable ? 'Y' : 'N' );
-	}
-
-	public function setEnabled2FaGoogleAuthenticator( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_google_authenticator', $enable ? 'Y' : 'N' );
 	}
 
 	public function getTextOptDefault( string $key ) :string {
@@ -251,10 +230,6 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	public function setEnabledAntiBotDetection( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_antibot_check', $enable ? 'Y' : 'N' );
-	}
-
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
 		$locals[] = [
@@ -271,15 +246,15 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCustomScriptEnqueues() :array {
-		$enqs = [];
+		$enq = [];
 		if ( is_admin() || is_network_admin() ) {
-			$enqs[ Enqueue::CSS ] = [
+			$enq[ Enqueue::CSS ] = [
 				'wp-wp-jquery-ui-dialog'
 			];
-			$enqs[ Enqueue::JS ] = [
+			$enq[ Enqueue::JS ] = [
 				'wp-jquery-ui-dialog'
 			];
 		}
-		return $enqs;
+		return $enq;
 	}
 }

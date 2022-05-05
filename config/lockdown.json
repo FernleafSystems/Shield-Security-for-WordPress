@@ -2,6 +2,7 @@
   "slug":        "lockdown",
   "properties":  {
     "slug":                  "lockdown",
+    "load_priority":         100,
     "name":                  "WP Lockdown",
     "sidebar_name":          "Lockdown",
     "show_module_menu_item": false,
@@ -15,6 +16,9 @@
     "run_if_verified_bot":   false,
     "run_if_wpcli":          false,
     "order":                 90
+  },
+  "menus":         {
+    "config_menu_priority": 45
   },
   "wpcli":       {
     "enabled": true
@@ -181,13 +185,17 @@
     }
   ],
   "definitions": {
-    "events":                     {
+    "events": {
       "block_anonymous_restapi": {
         "audit_params": [
           "namespace"
         ],
         "level":        "warning",
         "recent":       true
+      },
+      "block_author_fishing":    {
+        "level":   "notice",
+        "offense": true
       },
       "block_xml":               {
         "level":   "notice",

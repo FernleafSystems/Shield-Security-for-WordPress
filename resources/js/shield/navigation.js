@@ -1,25 +1,46 @@
 jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 
-	let currentMenuClickTarget;
+	let currentMenuLoadItem;
 
 	var handleDynamicLoad = function ( evt, response ) {
 		document.querySelector( '#apto-PageMainBody' ).innerHTML = response.data.html;
 
+		let urlHash = window.location.hash ? window.location.hash : '';
+		// Using links to specific config sections, we extract the section and trigger the tab show()
+		if ( urlHash ) {
+			let theTabToShow = document.querySelector( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
+			if ( theTabToShow ) {
+				(new bootstrap.Tab( theTabToShow )).show();
+			}
+		}
+		jQuery( 'html,body' ).scrollTop( 0 );
+
+		/**
+		 *  we then update the window URL (only after triggering tabs)
+		 *  We need to take into account the window's hash link. We do this by checking
+		 *  for its existence on-page and only add it back to the URL if it's applicable.
+		 */
+		let currentTargetHref = jQuery( currentMenuLoadItem ).data( 'target_href' );
+		let replaceStateUrl = currentTargetHref ? currentTargetHref : response.data.page_url;
+		let hashOnPageElement = document.getElementById( urlHash.replace( /#/, '' ) );
+		if ( hashOnPageElement ) {
+			replaceStateUrl += urlHash;
+		}
 		window.history.replaceState(
 			{},
 			response.data.page_title,
-			response.data.page_url
+			replaceStateUrl
 		);
 
 		document.getElementById( 'PageTitle' ).innerHTML = response.data.page_title;
 
 		let activeLinks = document.querySelectorAll( '#NavSideBar a.nav-link.active' );
-		for ( var i = 0; i < activeLinks.length; i++ ) {
+		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
 		}
-		currentMenuClickTarget.classList.add( 'active' );
+		currentMenuLoadItem.classList.add( 'active' );
 
-		let parentNav = currentMenuClickTarget.closest( 'ul' ).closest( 'li.nav-item' );
+		let parentNav = currentMenuLoadItem.closest( 'ul' ).closest( 'li.nav-item' );
 		if ( parentNav !== null ) {
 			parentNav.querySelector( 'li.nav-item > a.nav-link' ).classList.add( 'active' );
 		}
@@ -27,12 +48,12 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 		iCWP_WPSF_BodyOverlay.hide();
 	};
 
-	var renderDynamicPageLoad = function ( params ) {
+	let renderDynamicPageLoad = function ( params ) {
 		sendReq( params );
 	};
 
-	var sendReq = function ( params ) {
-		document.querySelector( '#apto-PageMainBody' ).innerHTML = 'Loading ...';
+	let sendReq = function ( params ) {
+		document.querySelector( '#apto-PageMainBody' ).innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 		shield_vars_navigation.ajax.dynamic_load.load_params = params;
 		iCWP_WPSF_StandardAjax.send_ajax_req(
 			shield_vars_navigation.ajax.dynamic_load, false, 'dynamic_load'
@@ -41,37 +62,26 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 
 	var initialise = function () {
 
+		jQuery( document ).on( 'shield-dynamic_load', handleDynamicLoad );
+
 		jQuery( document ).ready( function () {
 
 			jQuery( document ).on( 'click', 'a.dynamic_body_load', function ( evt ) {
 				evt.preventDefault();
-				currentMenuClickTarget = evt.currentTarget;
-				renderDynamicPageLoad( jQuery( currentMenuClickTarget ).data() );
+				currentMenuLoadItem = evt.currentTarget;
+				renderDynamicPageLoad( jQuery( currentMenuLoadItem ).data() );
 				return false;
 			} );
 
-			jQuery( document ).on( 'shield-dynamic_load', handleDynamicLoad );
-
-			let navBar = jQuery( '#NavSideBar' );
-			navBar.on( 'click', 'li.nav-item.with-submenu', function ( evt ) {
-				let $theLink = jQuery( evt.currentTarget );
-				if ( $theLink.hasClass( 'activesub' ) ) {
-					$theLink.removeClass( 'activesub' )
-				}
-				else {
-					jQuery( 'li.nav-item.with-submenu.activesub', navBar ).removeClass( 'activesub' );
-					$theLink.addClass( 'activesub' )
-				}
-			} );
-			jQuery( document ).on( 'click', function ( evt ) {
-				if ( !jQuery( evt.target ).closest( navBar ).length && jQuery( navBar ).is( ":visible" ) ) {
-					jQuery( 'li.nav-item.with-submenu.activesub', navBar ).removeClass( 'activesub' );
-				}
-			} );
+			let activePageLink = jQuery( '#NavSideBar a.active.body_content_link.dynamic_body_load' );
+			if ( activePageLink.length === 1 ) {
+				currentMenuLoadItem = activePageLink[ 0 ];
+				renderDynamicPageLoad( jQuery( activePageLink ).data() );
+			}
 		} );
 	};
 
-	var opts = jQuery.extend( {}, options );
+	let opts = jQuery.extend( {}, options );
 	initialise();
 
 	return this;

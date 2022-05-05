@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -13,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $this_req
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -30,6 +32,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
+ * @property Shield\Rules\RulesController                           $rules
  * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
@@ -66,10 +69,7 @@ class Controller extends DynPropertiesClass {
 		return $this;
 	}
 
-	/**
-	 * @return Shield\Modules\Events\Lib\EventsService
-	 */
-	public function loadEventsService() {
+	public function loadEventsService() :Shield\Modules\Events\Lib\EventsService {
 		if ( !isset( $this->service_events ) ) {
 			$this->service_events = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
@@ -122,6 +122,20 @@ class Controller extends DynPropertiesClass {
 		$val = parent::__get( $key );
 
 		switch ( $key ) {
+
+			case 'this_req':
+				if ( is_null( $val ) ) {
+					$val = new Shield\Request\ThisRequest( $this );
+					$this->this_req = $val;
+				}
+				break;
+
+			case 'rules':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\Rules\RulesController() )->setCon( $this );
+					$this->rules = $val;
+				}
+				break;
 
 			case 'is_activating':
 			case 'is_my_upgrade':
@@ -280,17 +294,24 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
+	/**
+	 * Supported if:
+	 * - the mysql version is at least the minimum version
+	 * - OR: it's mariaDB and it doesn't match the pattern: 5.5.xx-MariaDB
+	 * - OR: we can find the function 'INET6_ATON'
+	 */
 	private function isMysqlVersionSupported( string $versionToSupport ) :bool {
 		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
 		$supported = empty( $versionToSupport )
 					 || empty( $mysqlInfo )
-					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false )
-					 || version_compare( preg_replace( '/[^0-9.].*/', '', $mysqlInfo ), $versionToSupport, '>=' );
+					 || version_compare( preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
+					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false && !preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
+
 		if ( !$supported ) {
 			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
-			if ( !empty( $miscFunctions ) && is_array( $miscFunctions ) ) {
-				foreach ( $miscFunctions as $func ) {
-					if ( strtoupper( $func[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
+			if ( is_array( $miscFunctions ) ) {
+				foreach ( $miscFunctions as $fn ) {
+					if ( is_array( $fn ) && strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
 						$supported = true;
 						break;
 					}
@@ -807,10 +828,10 @@ class Controller extends DynPropertiesClass {
 			apply_filters( $this->prefix( 'plugin_labels' ), $this->cfg->labels )
 		);
 
-		$oDP = Services::Data();
+		$D = Services::Data();
 		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
 			$key = 'icon_url_'.$dimension;
-			if ( !empty( $labels[ $key ] ) && !$oDP->isValidWebUrl( $labels[ $key ] ) ) {
+			if ( !empty( $labels[ $key ] ) && !$D->isValidWebUrl( $labels[ $key ] ) ) {
 				$labels[ $key ] = $this->urls->forImage( $labels[ $key ] );
 			}
 		}
@@ -927,8 +948,8 @@ class Controller extends DynPropertiesClass {
 		return $this->getCfgProperty( 'base_permissions' );
 	}
 
-	public function isValidAdminArea( bool $bCheckUserPerms = false ) :bool {
-		if ( $bCheckUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
+	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
+		if ( $checkUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
 		}
 
@@ -1106,24 +1127,24 @@ class Controller extends DynPropertiesClass {
 		self::$sSessionId = null;
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function deleteForceOffFile() {
-		if ( $this->getIfForceOffActive() ) {
-			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
-			unset( $this->file_forceoff );
+		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
+			Services::WpFs()->deleteFile( $this->file_forceoff );
+			$this->this_req->is_force_off = false;
 			clearstatcache();
 		}
-		return $this;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getIfForceOffActive() :bool {
-		return $this->getForceOffFilePath() !== false;
+		return (bool)$this->this_req->is_force_off;
 	}
 
 	/**
 	 * @return false|string
+	 * @deprecated 15.0
 	 */
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->file_forceoff ) ) {
@@ -1172,17 +1193,12 @@ class Controller extends DynPropertiesClass {
 	 * We let the \Exception from the core plugin feature to bubble up because it's critical.
 	 * @return Shield\Modules\Plugin\ModCon
 	 * @throws \Exception from loadFeatureHandler()
+	 * @deprecated 15.0
 	 */
 	public function loadCorePluginFeatureHandler() {
 		$plugin = $this->modules[ 'plugin' ] ?? null;
 		if ( !$plugin instanceof Shield\Modules\Plugin\ModCon ) {
-			$this->loadFeatureHandler(
-				[
-					'slug'          => 'plugin',
-					'storage_key'   => 'plugin',
-					'load_priority' => 10
-				]
-			);
+			$this->getModule_Plugin();
 		}
 		return $this->modules[ 'plugin' ];
 	}
@@ -1191,9 +1207,30 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
-		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $slug ) {
+		$modsCfg = empty( $this->cfg->mods_cfg ) ? [] : $this->cfg->mods_cfg;
+
+		// First load all module Configs
+		foreach ( $this->cfg->modules as $slug ) {
+			$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
+				->setCon( $this )
+				->run();
+		}
+
+		// Order Modules
+		uasort( $modsCfg, function ( $a, $b ) {
+			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
+			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
+			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
+				return 0;
+			}
+			return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
+		} );
+
+		$this->cfg->mods_cfg = $modsCfg;
+
+		foreach ( $this->cfg->mods_cfg as $cfg ) {
 			try {
-				$this->getModule( $slug );
+				$this->getModule( $cfg->slug );
 			}
 			catch ( \Exception $e ) {
 				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
@@ -1212,7 +1249,20 @@ class Controller extends DynPropertiesClass {
 			->execute();
 
 		do_action( $this->prefix( 'modules_loaded' ) );
-		do_action( $this->prefix( 'run_processors' ) );
+
+		$this->rules->execute();
+		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
+
+			$this->rules->processRules();
+
+			foreach ( $this->modules as $module ) {
+				$module->onRunProcessors();
+			}
+
+			// This is where any rules responses will execute (i.e. after processors are run):
+			do_action( $this->prefix( 'after_run_processors' ) );
+		}
+
 		return true;
 	}
 
@@ -1223,12 +1273,11 @@ class Controller extends DynPropertiesClass {
 		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
-				$mods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
-				if ( isset( $mods[ $slug ] ) ) {
-					$mod = $this->loadFeatureHandler( $mods[ $slug ] );
-				}
+				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
 			}
 			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
+				die();
 			}
 		}
 		return $mod;
@@ -1236,6 +1285,10 @@ class Controller extends DynPropertiesClass {
 
 	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
 		return $this->getModule( 'audit_trail' );
+	}
+
+	public function getModule_Autoupdates() :Shield\Modules\Autoupdates\ModCon {
+		return $this->getModule( 'autoupdates' );
 	}
 
 	public function getModule_Comments() :Shield\Modules\CommentsFilter\ModCon {
@@ -1262,8 +1315,16 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'firewall' );
 	}
 
+	public function getModule_Lockdown() :Shield\Modules\Lockdown\ModCon {
+		return $this->getModule( 'lockdown' );
+	}
+
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
 		return $this->getModule( 'hack_protect' );
+	}
+
+	public function getModule_Headers() :Shield\Modules\Headers\ModCon {
+		return $this->getModule( 'headers' );
 	}
 
 	public function getModule_Insights() :Shield\Modules\Insights\ModCon {
@@ -1287,7 +1348,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
-		return $this->loadCorePluginFeatureHandler();
+		return $this->getModule( 'plugin' );
 	}
 
 	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
@@ -1318,30 +1379,18 @@ class Controller extends DynPropertiesClass {
 	 * @return Shield\Modules\Base\ModCon|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( array $modProps ) {
-		$modSlug = $modProps[ 'slug' ];
-		$mod = $this->modules[ $modSlug ] ?? null;
-		if ( $mod instanceof Shield\Modules\Base\ModCon ) {
-			return $mod;
-		}
+	private function loadFeatureHandler( Shield\Modules\Base\Config\ModConfigVO $cfg ) {
+		$modSlug = $cfg->properties[ 'slug' ];
 
-		if ( empty( $modProps[ 'storage_key' ] ) ) {
-			$modProps[ 'storage_key' ] = $modSlug;
-		}
-		if ( empty( $modProps[ 'namespace' ] ) ) {
-			$modProps[ 'namespace' ] = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) );
-		}
-
-		$modName = $modProps[ 'namespace' ];
-
-		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon', $modName );
+		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
+				$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) ) );
 		if ( !class_exists( $className ) ) {
 			// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 			throw new \Exception( sprintf( 'Class "%s" is missing', $className ) );
 		}
 
 		$modules = $this->modules;
-		$modules[ $modSlug ] = new $className( $this, $modProps );
+		$modules[ $modSlug ] = new $className( $this, $cfg );
 		$this->modules = $modules;
 
 		return $this->modules[ $modSlug ];

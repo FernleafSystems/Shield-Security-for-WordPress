@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "14.1.7",
-    "release_timestamp":       1648194288,
-    "build":                   "202203.2501",
+    "version":                 "15.0.0",
+    "release_timestamp":       1652184000,
+    "build":                   "202205.0501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -77,7 +77,9 @@
         "shield/datatables",
         "shield/traffic",
         "shield/audit_trail",
-        "shield/scanners"
+        "shield/scanners",
+        "shield/ip_detect",
+        "tp/circular-progress"
       ]
     },
     "frontend":     {
@@ -198,6 +200,11 @@
             "wp-jquery"
           ]
         },
+        "tp/circular-progress":       {
+          "url":  "https://cdn.jsdelivr.net/gh/tomik23/circular-progress-bar@1.1.9/dist/circularProgressBar.min.js",
+          "deps": [
+          ]
+        },
         "select2":                 {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js",
           "deps": [
@@ -285,24 +292,10 @@
             "plugin"
           ]
         },
-        "shuffle":                 {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/Shuffle/5.3.0/shuffle.min.js"
-        },
-        "shield/shuffle":          {
-          "deps": [
-            "shuffle"
-          ]
-        },
         "shield/dialog":           {
           "deps": [
             "wp-jquery-ui-dialog"
           ]
-        },
-        "shield/comments":         {
-          "deps":   [
-            "wp-jquery"
-          ],
-          "footer": true
         },
         "shield/loginbot":         {
           "deps": [
@@ -323,6 +316,11 @@
         "shield/audit_trail":      {
           "deps": [
             "shield/datatables"
+          ]
+        },
+        "shield/ip_detect":        {
+          "deps": [
+            "wp-jquery"
           ]
         },
         "shield/traffic":          {
@@ -480,5 +478,29 @@
         "show":      "free"
       }
     ]
-  }
+  },
+  "modules":          [
+    "plugin",
+    "data",
+    "admin_access_restriction",
+    "audit_trail",
+    "autoupdates",
+    "comments_filter",
+    "comms",
+    "email",
+    "events",
+    "firewall",
+    "hack_protect",
+    "headers",
+    "insights",
+    "integrations",
+    "ips",
+    "license",
+    "lockdown",
+    "login_protect",
+    "reporting",
+    "sessions",
+    "traffic",
+    "user_management"
+  ]
 }

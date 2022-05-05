@@ -1,35 +1,16 @@
 <div id="NavSideBar">
 
-<ul class="nav top-level-nav flex-column mt-3">
+<ul class="nav top-level-nav flex-column mt-3 accordion" id="ShieldCollapseNav">
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item pb-3 {% if mitem.sub_items|default([]) is not empty %}with-submenu{% endif %}"
-			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
+		<li class="nav-item pb-2{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
+		    {% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
-
-			{% if mitem.sub_items|default([]) is not empty %}
-				<div class="subnav-menu" id="subnav-{{ mitem.slug }}">
-					<ul class="nav flex-column pt-0 primary_side_sub_menu px-2 py-2">
-						<li class="nav-item mb-0 pl-0 py-1">
-							<span class="text-secondary font-italic text-monospace">{{ mitem.title }}</span>
-						</li>
-						{% for sub in mitem.sub_items %}
-							<li class="mb-0 pl-0 py-0">
-							<a class="py-1 px-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
-							   href="{{ sub.href|default('#') }}"
-									{% for data_key,data_val in sub.data|default([]) %}
-										data-{{ data_key }}="{{ data_val }}"
-									{% endfor %}
-									{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
-							>{{ sub.title }}</a>
-						</li>
-						{% endfor %}
-					</ul>
-				</div>
-			{% endif %}
-
-			<a class="nav-link p-0 mb-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start"
-			   href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
+			<a class="nav-link p-0 mb-2 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }} "
+					{% if mitem.sub_items|default([]) is not empty %}
+						data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
+					{% endif %}
+         href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
 					{% for data_key,data_val in mitem.data|default([]) %}
 						data-{{ data_key }}="{{ data_val }}"
 					{% endfor %}
@@ -60,6 +41,25 @@
 				{% endif %}
 			</a>
 
+			{% if mitem.sub_items|default([]) is not empty %}
+				<div class="subnava-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}" id="subnav-{{ mitem.slug }}"
+				     data-bs-parent="#ShieldCollapseNav"
+				>
+					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
+						{% for sub in mitem.sub_items %}
+							<li class="mb-0 pl-0 py-0">
+							<a class="py-1 m0-1 pe-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
+							   href="{{ sub.href|default('#') }}"
+									{% for data_key,data_val in sub.data|default([]) %}
+										data-{{ data_key }}="{{ data_val }}"
+									{% endfor %}
+									{% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
+							>{{ sub.title }}</a>
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
+			{% endif %}
 		</li>
 
 	{% endfor %}

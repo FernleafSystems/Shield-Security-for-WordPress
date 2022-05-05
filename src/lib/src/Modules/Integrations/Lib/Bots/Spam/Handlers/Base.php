@@ -13,17 +13,26 @@ abstract class Base extends BaseHandler {
 		return $mod->getController_SpamForms();
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isSpam() :bool {
-		$isSpam = $this->isBot();
+		return parent::isBot();
+	}
+
+	protected function fireBotEvent() {
 		$this->getCon()->fireEvent(
-			sprintf( 'spam_form_%s', $isSpam ? 'fail' : 'pass' ),
+			sprintf( 'spam_form_%s', $this->isBot() ? 'fail' : 'pass' ),
 			[
 				'audit_params' => [
 					'form_provider' => $this->getHandlerName(),
 				]
 			]
 		);
-		return $isSpam;
+	}
+
+	protected function isBotBlockEnabled() :bool {
+		return $this->isEnabled();
 	}
 
 	protected function getCommonSpamMessage() :string {

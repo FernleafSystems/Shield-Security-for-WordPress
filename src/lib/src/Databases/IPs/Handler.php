@@ -20,7 +20,7 @@ class Handler extends Base\Handler {
 	}
 
 	public function cleanLabel( string $label ) :string {
-		return trim( empty( $label ) ? '' : preg_replace( '#[^\sa-z0-9_-]#i', '', $label ) );
+		return trim( empty( $label ) ? '' : preg_replace( '#[^\s\da-z_-]#i', '', $label ) );
 	}
 
 	/**

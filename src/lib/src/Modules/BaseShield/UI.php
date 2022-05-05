@@ -32,8 +32,18 @@ class UI extends Base\UI {
 						],
 						[
 							'type'      => 'http-equiv',
+							'type_type' => 'Cache-Control',
+							'content'   => 'max-age=0',
+						],
+						[
+							'type'      => 'http-equiv',
 							'type_type' => 'Expires',
 							'content'   => '0',
+						],
+						[
+							'type'      => 'name',
+							'type_type' => 'robots',
+							'content'   => implode( ',', [ 'noindex', 'nofollow', 'noarchve', 'noimageindex' ] ),
 						],
 					],
 					'scripts' => []
@@ -42,9 +52,7 @@ class UI extends Base\UI {
 					'sec_admin_login' => $con->getModule_SecAdmin()->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'has_session'             => $con->getModule_Sessions()
-													 ->getSessionCon()
-													 ->hasSession(),
+					'has_session'             => $mod->getSessionWP()->valid,
 					'display_helpdesk_widget' => !$isWhitelabelled,
 					'is_whitelabelled'        => $isWhitelabelled
 				],
@@ -53,9 +61,6 @@ class UI extends Base\UI {
 						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
 				],
 				'vars'    => [
-					'helpscout_beacon_id' => $isPremium ?
-						'db2ff886-2329-4029-9452-44587df92c8c'
-						: 'aded6929-af83-452d-993f-a60c03b46568'
 				],
 				'classes' => [
 					'top_container' => implode( ' ', array_filter( [

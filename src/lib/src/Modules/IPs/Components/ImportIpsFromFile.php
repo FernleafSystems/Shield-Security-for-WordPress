@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
+	protected function canRun() :bool {
+		return $this->getCon()->isPremiumActive();
+	}
+
 	protected function run() {
 		foreach ( [ 'black', 'white', 'block', 'bypass' ] as $type ) {
 			$this->runFileImport( $type );

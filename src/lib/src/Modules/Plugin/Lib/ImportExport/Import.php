@@ -100,76 +100,67 @@ class Import {
 	}
 
 	/**
-	 * @param string    $masterSiteURL
-	 * @param string    $sSecretKey
-	 * @param bool|null $bEnableNetwork
+	 * @param bool|null $isEnableNetwork
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function fromSite( $masterSiteURL = '', $sSecretKey = '', $bEnableNetwork = null ) {
+	public function fromSite( string $masterURL = '', string $secretKey = '', $isEnableNetwork = null ) {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 		$DP = Services::Data();
 
-		if ( empty( $masterSiteURL ) ) {
-			$masterSiteURL = $opts->getImportExportMasterImportUrl();
+		if ( empty( $masterURL ) ) {
+			$masterURL = $opts->getImportExportMasterImportUrl();
 		}
 
-		$sOriginalMasterSiteUrl = $opts->getImportExportMasterImportUrl();
-		$bHadMasterSiteUrl = $opts->hasImportExportMasterImportUrl();
-		$bCheckKeyFormat = !$bHadMasterSiteUrl;
-		$sSecretKey = sanitize_key( $sSecretKey );
+		$originalMasterSiteURL = $opts->getImportExportMasterImportUrl();
+		$hadMasterSiteUrl = $opts->hasImportExportMasterImportUrl();
+		$secretKey = sanitize_key( $secretKey );
 
-		if ( $bCheckKeyFormat ) {
-			if ( empty( $sSecretKey ) ) {
+		if ( !$hadMasterSiteUrl ) {
+			if ( empty( $secretKey ) ) {
 				throw new \Exception( 'Empty secret key', 1 );
 			}
-			if ( strlen( $sSecretKey ) != 40 ) {
+			if ( strlen( $secretKey ) !== 40 ) {
 				throw new \Exception( "Secret key isn't of the correct format", 2 );
 			}
 		}
 
 		// Ensure we have entries for 'scheme' and 'host'
-		$aUrlParts = wp_parse_url( $masterSiteURL );
-		$bHasParts = !empty( $aUrlParts )
+		$urlParts = wp_parse_url( $masterURL );
+		$hasParts = !empty( $urlParts )
 					 && count(
 							array_filter( array_intersect_key(
-								$aUrlParts,
+								$urlParts,
 								array_flip( [ 'scheme', 'host' ] )
 							) )
 						) === 2;
-		if ( !$bHasParts ) {
-			throw new \Exception( "Couldn't parse the URL into its parts", 4 );
+		if ( !$hasParts ) {
+			throw new \Exception( "Couldn't parse the URL.", 4 );
 		}
-		$masterSiteURL = $DP->validateSimpleHttpUrl( $masterSiteURL ); // final clean
-		if ( empty( $masterSiteURL ) ) {
+		$masterURL = $DP->validateSimpleHttpUrl( $masterURL ); // final clean
+		if ( empty( $masterURL ) ) {
 			throw new \Exception( "Couldn't validate the URL.", 4 );
 		}
 
 		// Begin the handshake process.
-		$opts->setOpt(
-			'importexport_handshake_expires_at',
-			Services::Request()->ts() + 30
-		);
-		$this->getMod()->saveModOptions();
+		$opts->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
+		$mod->saveModOptions();
 
 		$data = [
 			'shield_action' => 'importexport_export',
-			'secret'        => $sSecretKey,
+			'secret'        => $secretKey,
 			'url'           => Services::WpGeneral()->getHomeUrl()
 		];
 		// Don't send the network setup request if it's the cron.
-		if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
-			$data[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
+		if ( !is_null( $isEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
+			$data[ 'network' ] = $isEnableNetwork ? 'Y' : 'N';
 		}
 
 		{ // Make the request
-			$sFinalUrl = add_query_arg( $data, $masterSiteURL );
-			$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
-			$response = @json_decode( $sResponse, true );
-
+			$response = @json_decode( Services::HttpRequest()->getContent( add_query_arg( $data, $masterURL ) ), true );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}
@@ -189,25 +180,27 @@ class Import {
 			throw new \Exception( "Response data was empty", 8 );
 		}
 
-		$this->processDataImport( $response[ 'data' ], $masterSiteURL );
+		$this->processDataImport( $response[ 'data' ], $masterURL );
 
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
-		if ( is_null( $bEnableNetwork ) ) {
-			if ( $bHadMasterSiteUrl && !$opts->hasImportExportMasterImportUrl() ) {
-				$mod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
+		if ( is_null( $isEnableNetwork ) ) {
+			if ( $hadMasterSiteUrl && !$opts->hasImportExportMasterImportUrl() ) {
+				$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
 			}
 		}
-		elseif ( $bEnableNetwork === true ) {
-			$mod->setImportExportMasterImportUrl( $masterSiteURL );
+		elseif ( $isEnableNetwork === true ) {
+			$opts->setOpt( 'importexport_masterurl', $masterURL );
 			$this->getCon()->fireEvent(
 				'master_url_set',
-				[ 'audit_params' => [ 'site' => $masterSiteURL ] ]
+				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
 		}
-		elseif ( $bEnableNetwork === false ) {
-			$mod->setImportExportMasterImportUrl( '' );
+		elseif ( $isEnableNetwork === false ) {
+			$opts->setOpt( 'importexport_masterurl', '' );
 		}
+		// store & clean the master URL
+		$mod->saveModOptions();
 
 		return 0;
 	}

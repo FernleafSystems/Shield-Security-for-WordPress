@@ -10,8 +10,7 @@ class WpOptions extends Base {
 	protected function canRun() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $opts->getAdminAccessArea_Options()
-			   && !$this->getMod()->isUpgrading() && !Services::WpGeneral()->isLoginRequest();
+		return $opts->isRestrictWpOptions() && !Services::WpGeneral()->isLoginRequest();
 	}
 
 	protected function run() {

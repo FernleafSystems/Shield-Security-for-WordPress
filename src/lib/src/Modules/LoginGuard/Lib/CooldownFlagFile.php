@@ -13,27 +13,20 @@ class CooldownFlagFile {
 		return $this->getCooldownRemaining() > 0;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getCooldownRemaining() {
+	public function getCooldownRemaining() :int {
 		/** @var Modules\LoginGuard\Options $opts */
 		$opts = $this->getOptions();
-		return max( 0, $opts->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
+		return (int)max( 0, $opts->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
 	}
 
 	public function getFlagFilePath() :string {
 		return $this->getCon()->paths->forCacheItem( 'mode.login_throttled' );
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getSecondsSinceLastLogin() {
+	public function getSecondsSinceLastLogin() :int {
 		$FS = Services::WpFs();
 		$file = $this->getFlagFilePath();
-		$lastLogin = $FS->exists( $file ) ? $FS->getModifiedTime( $file ) : 0;
-		return Services::Request()->ts() - $lastLogin;
+		return Services::Request()->ts() - ( $FS->exists( $file ) ? $FS->getModifiedTime( $file ) : 0 );
 	}
 
 	/**

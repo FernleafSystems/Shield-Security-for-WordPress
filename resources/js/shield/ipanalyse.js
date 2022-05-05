@@ -27,22 +27,22 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 		jQuery( '#IpReviewContent' ).html( 'loading IP info ...' );
 
-		var aReqData = aOpts[ 'ajax_ip_analyse_build' ];
-		jQuery.post( ajaxurl, jQuery.extend( aReqData, params ),
-			function ( oResponse ) {
+		let reqData = aOpts[ 'ajax_ip_analyse_build' ];
+		jQuery.post( ajaxurl, jQuery.extend( reqData, params ),
+			function ( response ) {
 
-				if ( oResponse.success ) {
+				if ( response.success ) {
 					jQuery( '#IpSelectContent' ).addClass( "d-none" );
 					jQuery( '#IpReviewContent' ).removeClass( "d-none" )
-												.html( oResponse.data.html );
-					if ( oResponse.page_reload ) {
+												.html( response.data.html );
+					if ( response.page_reload ) {
 						location.reload();
 					}
 				}
 				else {
 					var msg = 'Communications error with site.';
-					if ( oResponse.data.message !== undefined ) {
-						msg = oResponse.data.message;
+					if ( response.data.message !== undefined ) {
+						msg = response.data.message;
 					}
 					jQuery( '#IpSelectContent' ).removeClass( "d-none" );
 					jQuery( '#IpReviewContent' ).addClass( "d-none" );
@@ -91,7 +91,6 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 					$ipSelect.append( new Option( theIP, theIP, true, true ) ).trigger( 'change' );
 				}
 				$ipSelect.val( theIP );
-				runAnalysis();
 			}
 			else {
 				let activeTab = localStorage.getItem( 'ipsActiveTab' );

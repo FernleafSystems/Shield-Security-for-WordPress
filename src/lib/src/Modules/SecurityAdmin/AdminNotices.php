@@ -30,7 +30,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_CertainOptionsRestricted( NoticeVO $notice ) {
-		$oMod = $this->getMod();
+		$mod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
@@ -43,7 +43,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$oMod->getUrl_AdminPage(),
+					$mod->getUrl_AdminPage(),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
 				)
@@ -52,7 +52,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_AdminUsersRestricted( NoticeVO $notice ) {
-		$oMod = $this->getMod();
+		$mod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 
 		$notice->render_data = [
@@ -71,7 +71,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$oMod->getUrl_AdminPage(),
+					$mod->getUrl_AdminPage(),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
 				)

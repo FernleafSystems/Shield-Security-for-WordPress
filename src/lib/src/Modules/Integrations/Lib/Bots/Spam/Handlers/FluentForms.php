@@ -11,7 +11,7 @@ class FluentForms extends Base {
 	protected function run() {
 		\FluentForm\App::getApplication()->addAction( 'fluentform_before_insert_submission',
 			function () {
-				if ( $this->isSpam() ) {
+				if ( $this->isBotBlockRequired() ) {
 					wp_send_json( [
 						'errors' => $this->getCommonSpamMessage()
 					], 422 );

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FormParams {
@@ -10,7 +9,6 @@ class FormParams {
 	const ENC_NONE = 'none';
 	const ENC_LZ = 'lz-string';
 	const ENC_BASE64 = 'b64';
-	use ModConsumer;
 
 	public static function Retrieve( string $encoding = self::ENC_NONE ) :array {
 		$req = Services::Request();

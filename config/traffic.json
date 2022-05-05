@@ -2,6 +2,8 @@
   "slug":             "traffic",
   "properties":       {
     "slug":                  "traffic",
+    "load_priority":         12,
+    "menu_priority":         50,
     "name":                  "Traffic Watch",
     "sidebar_name":          "Traffic",
     "show_module_menu_item": false,
@@ -15,6 +17,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
     "order":                 110
+  },
+  "menus":         {
+    "config_menu_priority": 35
   },
   "wpcli":            {
     "enabled": true
@@ -110,18 +115,6 @@
         "uptime"
       ],
       "value_options": [
-        {
-          "value_key": "simple",
-          "text":      "Simple Requests"
-        },
-        {
-          "value_key": "api",
-          "text":      "REST API"
-        },
-        {
-          "value_key": "ajax",
-          "text":      "AJAX"
-        },
         {
           "value_key": "logged_in",
           "text":      "Logged-In Users"

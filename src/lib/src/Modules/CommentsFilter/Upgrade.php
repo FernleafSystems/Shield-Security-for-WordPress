@@ -15,7 +15,7 @@ class Upgrade extends Base\Upgrade {
 	protected function upgrade_1411() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( $opts->isOpt( 'enable_antibot_check', 'Y' ) || $opts->isEnabledCaptcha() || $opts->isEnabledGaspCheck() ) {
+		if ( $opts->isOpt( 'enable_antibot_check', 'Y' ) ) {
 			$opts->setEnabledAntiBot();
 		}
 	}

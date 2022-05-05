@@ -120,7 +120,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_scan_wpv' :
-				$shortTitle = __( 'Vulnerabilities', 'wp-simple-firewall' );
+				$shortTitle = sprintf( '%s, %s, %s', __( 'Vulnerabilities', 'wp-simple-firewall' ),
+					__( 'Plugins', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) );
 				$title = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.', 'wp-simple-firewall' ) ),
@@ -137,17 +138,6 @@ class Strings extends Base\Strings {
 						__( 'Monitor WordPress files and protect against malicious intrusion and hacking.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $title ) )
-				];
-				break;
-
-			case 'section_realtime' :
-				$shortTitle = __( 'Realtime Change Detection', 'wp-simple-firewall' );
-				$title = __( 'Realtime Change Detection', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
-						__( 'Monitor Your WordPress Site For Changes To Critical Components In Realtime.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						sprintf( __( 'Enable The Realtime Change Detection Features.', 'wp-simple-firewall' ), $title ) )
 				];
 				break;
 
@@ -318,15 +308,6 @@ class Strings extends Base\Strings {
 				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
 				break;
 
-			case 'auto_filter_results' :
-				$name = __( 'Auto-Filter Results', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Filter Results Of Irrelevant Items', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Automatically remove items from results that are irrelevant.', 'wp-simple-firewall' ),
-					__( "An example of this is filtering out results for PHP files that don't have any executable code.", 'wp-simple-firewall' ),
-				];
-				break;
-
 			case 'scan_path_exclusions' :
 				$name = __( 'Scan Exclusions', 'wp-simple-firewall' );
 				$summary = __( 'Scan File And Folder Exclusions', 'wp-simple-firewall' );
@@ -370,8 +351,6 @@ class Strings extends Base\Strings {
 
 	private function deprecated_strings() {
 		// scan
-		__( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' );
-		__( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' );
 		__( "Detect files that may be infected with malware", 'wp-simple-firewall' );
 		__( '%s has detected abandoned plugins installed on your site.', 'wp-simple-firewall' );
 		__( "Running code that hasn't seen any updates for over 2 years is far from ideal.", 'wp-simple-firewall' );

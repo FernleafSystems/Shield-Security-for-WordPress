@@ -9,7 +9,7 @@ class Buddyboss extends Base {
 	}
 
 	public function checkRegister_BP() {
-		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$bp = \buddypress();
 			if ( is_object( $bp->signup ) ) {
 				$bp->signup->errors[ 'shield-fail-register' ] = 'Failed AntiBot SPAM Check';

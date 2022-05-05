@@ -35,8 +35,6 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $null
-	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdExport( array $null, array $args ) {

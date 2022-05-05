@@ -58,8 +58,6 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $null
-	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdImport( array $null, array $args ) {
@@ -123,8 +121,8 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		( new Lib\ImportExport\Import() )
 			->setMod( $this->getMod() )
 			->fromSite(
-				$args[ 'source' ],
-				$secret,
+				(string)$args[ 'source' ],
+				(string)$secret,
 				$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
 			);
 	}

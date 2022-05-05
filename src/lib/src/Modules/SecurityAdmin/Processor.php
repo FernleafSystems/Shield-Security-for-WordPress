@@ -6,10 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
 
-	protected function run() {
+	public function onWpInit() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$mod->getWhiteLabelController()->execute();
 		$mod->getSecurityAdminController()->execute();
+		$mod->getWhiteLabelController()->execute();
 	}
 }

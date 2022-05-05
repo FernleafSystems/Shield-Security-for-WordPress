@@ -7,10 +7,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseHandler extends ExecOnceModConsumer {
 
+	private static $isBot = null;
+
 	protected function canRun() :bool {
-		return static::IsProviderInstalled()
-			   && $this->isEnabled()
-			   && ( $this->getCon()->isPremiumActive() || !$this->isProOnly() );
+		return static::IsProviderInstalled();
 	}
 
 	/**
@@ -47,10 +47,24 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	}
 
 	protected function isBot() :bool {
-		return $this->getCon()
-					->getModule_IPs()
-					->getBotSignalsController()
-					->isBot( Services::IP()->getRequestIp() );
+		if ( is_null( self::$isBot ) ) {
+			self::$isBot = $this->getCon()
+								->getModule_IPs()
+								->getBotSignalsController()
+								->isBot( Services::IP()->getRequestIp() );
+			$this->fireBotEvent();
+		}
+		return self::$isBot;
+	}
+
+	abstract protected function fireBotEvent();
+
+	protected function isBotBlockEnabled() :bool {
+		return $this->isEnabled();
+	}
+
+	public function isBotBlockRequired() :bool {
+		return $this->isBot() && $this->isBotBlockEnabled();
 	}
 
 	protected function isSpam_Human() :bool {
@@ -58,7 +72,8 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	}
 
 	public function isEnabled() :bool {
-		return in_array( $this->getHandlerSlug(), $this->getHandlerController()->getSelectedProviders() );
+		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
+			   && in_array( $this->getHandlerSlug(), $this->getHandlerController()->getSelectedProviders() );
 	}
 
 	public static function IsProviderInstalled() :bool {

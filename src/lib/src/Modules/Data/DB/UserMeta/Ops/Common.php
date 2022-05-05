@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops;
 
 trait Common {
 
+	public function filterByIPRef( int $ipRef ) {
+		return $this->addWhereEquals( 'ip_ref', $ipRef );
+	}
+
 	public function filterByUser( int $userID ) {
 		return $this->addWhereEquals( 'user_id', $userID );
 	}

@@ -40,8 +40,8 @@ class NotBotHandler extends ExecOnceModConsumer {
 
 	private function registerFrontPageLoad() {
 		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
-			$req = Services::Request();
-			if ( $req->isGet() && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+			if ( Services::Request()->isGet() && did_action( 'wp' )
+				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
 				$mod->getBotSignalsController()
@@ -69,7 +69,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 			$cookieLife = apply_filters( 'shield/notbot_cookie_life', self::LIFETIME );
 			$ts = Services::Request()->ts() + $cookieLife;
 			Services::Response()->cookieSet(
-				$this->getMod()->prefix( self::SLUG ),
+				$this->getCon()->prefix( self::SLUG ),
 				sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
 				$cookieLife
 			);
@@ -80,7 +80,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 
 	public function clearCookie() :bool {
 		Services::Response()->cookieSet(
-			$this->getMod()->prefix( self::SLUG ),
+			$this->getCon()->prefix( self::SLUG ),
 			'',
 			-self::LIFETIME
 		);
@@ -104,7 +104,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 	private function getCookieParts() :array {
 		$parts = [];
 		$req = Services::Request();
-		$notBot = $req->cookie( $this->getMod()->prefix( self::SLUG ), '' );
+		$notBot = $req->cookie( $this->getCon()->prefix( self::SLUG ), '' );
 		if ( !empty( $notBot ) && strpos( $notBot, 'z' ) ) {
 			list( $ts, $hash ) = explode( 'z', $notBot );
 			$parts[ 'ts' ] = $ts;

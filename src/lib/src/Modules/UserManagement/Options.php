@@ -31,11 +31,8 @@ class Options extends BaseShield\Options {
 		return ( $this->isPasswordPoliciesEnabled() && $this->isPremium() ) ? (int)$this->getOpt( 'pass_expire' ) : 0;
 	}
 
-	/**
-	 * @return int seconds
-	 */
-	public function getPassExpireTimeout() {
-		return $this->getPassExpireDays()*DAY_IN_SECONDS;
+	public function getPassExpireTimeout() :int {
+		return $this->getPassExpireDays()*DAY_IN_SECONDS; /* seconds */
 	}
 
 	public function getPassMinLength() :int {
@@ -79,21 +76,22 @@ class Options extends BaseShield\Options {
 
 	public function isSuspendAutoPasswordEnabled() :bool {
 		return $this->isOpt( 'auto_password', 'Y' )
-			   && $this->isPasswordPoliciesEnabled() && $this->getPassExpireTimeout();
+			   && $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
 	}
 
 	public function isSuspendManualEnabled() :bool {
 		return $this->isOpt( 'manual_suspend', 'Y' );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getValidateEmailOnRegistration() {
-		return $this->isPremium() ? $this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
+	public function getValidateEmailOnRegistration() :string {
+		return $this->isPremium() ? (string)$this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
 	}
 
 	public function getEmailValidationChecks() :array {
 		return $this->getOpt( 'email_checks', [] );
+	}
+
+	public function isValidateEmailOnRegistration() :bool {
+		return $this->getValidateEmailOnRegistration() !== 'disabled' && !empty( $this->getEmailValidationChecks() );
 	}
 }

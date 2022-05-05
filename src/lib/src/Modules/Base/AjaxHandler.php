@@ -14,7 +14,7 @@ abstract class AjaxHandler {
 	 */
 	public function __construct( $mod ) {
 		$this->setMod( $mod );
-		add_filter( $mod->prefix( 'ajax_handlers' ),
+		add_filter( $mod->getCon()->prefix( 'ajax_handlers' ),
 			function ( array $ajaxHandlers, bool $isAuth ) {
 				return \array_merge( $ajaxHandlers, $this->getAjaxActionCallbackMap( $isAuth ) );
 			},
@@ -52,59 +52,5 @@ abstract class AjaxHandler {
 
 		// leave response empty if it doesn't apply here, so other modules can process it.
 		return $ajaxResponse;
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function init() {
-	}
-
-	/**
-	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
-	 * so if we send something back non-empty, it'll be treated like a "handled" response and
-	 * processing will finish
-	 * @deprecated 14.1
-	 */
-	protected function normaliseAjaxResponse( array $ajaxResponse ) :array {
-		return $ajaxResponse;
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 14.1
-	 */
-	protected function processAjaxAction() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function handleAjaxAuth( array $ajaxResponse, string $ajaxAction ) :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function handleAjaxNonAuth( array $ajaxResponse, string $ajaxAction ) :array {
-		return [];
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 14.1
-	 */
-	protected function processAuthAjaxAction() :array {
-		return [];
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 14.1
-	 */
-	protected function processNonAuthAjaxAction() :array {
-		return [];
 	}
 }

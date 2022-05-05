@@ -26,7 +26,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$secAdminCon = $mod->getSecurityAdminController();
 		return [
 			'time_remaining' => $secAdminCon->getSecAdminTimeRemaining(),
-			'success'        => $secAdminCon->isCurrentlySecAdmin()
+			'success'        => $this->getCon()->this_req->is_security_admin
 		];
 	}
 

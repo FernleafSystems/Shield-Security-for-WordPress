@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
@@ -275,8 +275,11 @@ class Strings extends Base\Strings {
 
 			case 'enable_upgrade_admin_notice' :
 				$name = __( 'In-Plugin Notices', 'wp-simple-firewall' );
-				$summary = __( 'Display Plugin Specific Notices', 'wp-simple-firewall' );
-				$desc = __( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.', 'wp-simple-firewall' );
+				$summary = __( 'Display Non-Essential Plugin Notices And Admin Bar Menu', 'wp-simple-firewall' );
+				$desc = [
+					__( 'By default Shield displays non-essential notices in the admin area and admin bar.', 'wp-simple-firewall' ),
+					__( 'These notices can be hidden by switching off this option.', 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'display_plugin_badge' :
@@ -312,12 +315,6 @@ class Strings extends Base\Strings {
 					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
 						implode( ', ', ( new GetAllAvailableLocales() )->setCon( $this->getCon() )->run() ) ),
 				];
-				break;
-
-			case 'enable_xmlrpc_compatibility' :
-				$name = __( 'XML-RPC Compatibility', 'wp-simple-firewall' );
-				$summary = __( 'Allow Login Through XML-RPC To Bypass Accounts Management Rules', 'wp-simple-firewall' );
-				$desc = __( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.', 'wp-simple-firewall' );
 				break;
 
 			case 'importexport_enable' :

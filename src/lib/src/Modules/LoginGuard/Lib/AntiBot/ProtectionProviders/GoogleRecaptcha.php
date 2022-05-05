@@ -43,7 +43,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function buildFormInsert( $oFormProvider ) {
+	public function buildFormInsert( $formProvider ) {
 		return $this->getCaptchaHtml();
 	}
 

@@ -33,13 +33,6 @@ class Wpv extends BaseForAssets {
 		}
 	}
 
-	/**
-	 * @deprecated 14.1
-	 */
-	public function addAdminMenuBarItem( array $items ) :array {
-		return $items;
-	}
-
 	public function getAdminMenuItems() :array {
 		$items = [];
 		$status = $this->getScansController()->getScanResultsCount();

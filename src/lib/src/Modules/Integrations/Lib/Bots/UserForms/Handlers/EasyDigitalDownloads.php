@@ -9,7 +9,7 @@ class EasyDigitalDownloads extends Base {
 	}
 
 	public function checkRegister_EDD() {
-		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			edd_set_error( $this->getCon()->prefix( rand() ), $this->getErrorMessage() );
 		}
 	}

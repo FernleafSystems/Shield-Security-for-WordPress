@@ -16,7 +16,7 @@ class ProfileBuilder extends Base {
 	 * @return array
 	 */
 	public function checkRegister_PB( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$errors[ 'shield-fail-register' ] = sprintf( '<span class="wppb-form-error">%s</span>', $this->getErrorMessage() );
 		}
 		return $errors;

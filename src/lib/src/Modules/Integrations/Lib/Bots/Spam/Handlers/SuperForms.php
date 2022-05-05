@@ -6,7 +6,7 @@ class SuperForms extends Base {
 
 	protected function run() {
 		add_action( 'super_before_sending_email_hook', function ( $formSubmissionData ) {
-			if ( $this->isSpam() ) {
+			if ( $this->isBotBlockRequired() ) {
 				\SUPER_Common::output_message( true, esc_html( $this->getCommonSpamMessage() ) );
 			}
 		}, 1000 );

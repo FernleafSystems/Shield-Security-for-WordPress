@@ -40,7 +40,6 @@ class UI extends BaseShield\UI {
 			],
 			'strings'     => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
-				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
 				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
@@ -208,8 +207,8 @@ class UI extends BaseShield\UI {
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'options'       => $mod->getUrl_DirectLinkToSection( 'section_realtime' ),
-				'please_enable' => $mod->getUrl_DirectLinkToSection( 'section_realtime' ),
+				'options'       => $mod->getUrl_DirectLinkToOption( 'file_locker' ),
+				'please_enable' => $mod->getUrl_DirectLinkToOption( 'file_locker' ),
 			],
 			'vars'    => [
 				'file_locks' => [
@@ -228,17 +227,23 @@ class UI extends BaseShield\UI {
 	}
 
 	public function getSectionWarnings( string $section ) :array {
+		$con = $this->getCon();
 		$warnings = [];
 
 		switch ( $section ) {
 
-			case 'section_realtime':
-				$canHandshake = $this->getCon()
-									 ->getModule_Plugin()
-									 ->getShieldNetApiController()
-									 ->canHandshake();
-				if ( !$canHandshake ) {
-					$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
+			case 'section_file_guard':
+				if ( !$this->getCon()->cache_dir_handler->dirExists() ) {
+					$warnings[] = __( "Plugin/Theme file scanners are unavailable because we couldn't create a temporary directory to store files.", 'wp-simple-firewall' );
+				}
+
+				if ( $con->isPremiumActive() ) {
+					$canHandshake = $con->getModule_Plugin()
+										->getShieldNetApiController()
+										->canHandshake();
+					if ( !$canHandshake ) {
+						$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
+					}
 				}
 //				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 //					$warnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
@@ -246,12 +251,6 @@ class UI extends BaseShield\UI {
 //				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
 //					$warnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
-				break;
-
-			case 'section_file_guard':
-				if ( !$this->getCon()->cache_dir_handler->dirExists() ) {
-					$warnings[] = __( "Plugin/Theme file scanners are unavailable because we couldn't create a temporary directory to store files.", 'wp-simple-firewall' );
-				}
 				break;
 		}
 

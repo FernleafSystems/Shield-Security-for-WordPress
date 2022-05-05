@@ -11,13 +11,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 	use WpLoginCapture;
 
-	protected function canRun() :bool {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getDbHandler_Sessions()
-					->isReady();
-	}
-
 	protected function run() {
 		$this->setupLoginCaptureHooks();
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -26,7 +19,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$this->enforceSessionLimits( $user );
 	}
 
 	public function onWpLoaded() {
@@ -39,7 +31,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		$srvIP = Services::IP();
 
-		$user = Services::WpUsers()->getCurrentWpUser();
 		try {
 			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) && !$srvIP->isLoopback() ) {
 				$this->assessSession();
@@ -54,7 +45,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 				$con->fireEvent( $event, [
 					'audit_params' => [
-						'user_login' => $user->user_login
+						'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
 					]
 				] );
 
@@ -77,18 +68,18 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$sess = $this->getCon()
 					 ->getModule_Sessions()
 					 ->getSessionCon()
-					 ->getCurrent();
-		if ( empty( $sess ) ) {
+					 ->getCurrentWP();
+		if ( !$sess->valid ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
 		$ts = Services::Request()->ts();
 
-		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess->logged_in_at > $opts->getMaxSessionTime() ) ) {
+		if ( $opts->hasMaxSessionTimeout() && ( $ts - $sess->login > $opts->getMaxSessionTime() ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 
-		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess->last_activity_at > $opts->getIdleTimeoutInterval() ) ) {
+		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess->shield[ 'last_activity_at' ] > $opts->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
 
@@ -106,25 +97,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		/** @var UserManagement\Options $opts */
 		$opts = $this->getOptions();
 		return $opts->hasMaxSessionTimeout() ? min( $timeout, $opts->getMaxSessionTime() ) : $timeout;
-	}
-
-	private function enforceSessionLimits( \WP_User $user ) {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-
-		$sessionLimit = (int)$opts->getOpt( 'session_username_concurrent_limit', 1 );
-		if ( $sessionLimit > 0 ) {
-			try {
-				$this->getCon()
-					 ->getModule_Sessions()
-					 ->getDbHandler_Sessions()
-					 ->getQueryDeleter()
-					 ->addWhere( 'wp_username', $user->user_login )
-					 ->deleteExcess( $sessionLimit, 'last_activity_at', true );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
 	}
 
 	/**

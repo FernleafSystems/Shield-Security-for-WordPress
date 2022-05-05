@@ -6,6 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
+	protected function enumRuleBuilders() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return [
+			$opts->isXmlrpcDisabled() ? Rules\Build\DisableXmlrpc::class : null,
+			$opts->isOptFileEditingDisabled() ? Rules\Build\DisableFileEditing::class : null,
+			$opts->isBlockAuthorDiscovery() ? Rules\Build\IsRequestAuthorDiscovery::class : null,
+			$opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ? Rules\Build\HideGeneratorTag::class : null,
+			( $opts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) ? Rules\Build\ForceSslAdmin::class : null,
+		];
+	}
+
 	/**
 	 * @param string $namespace
 	 * @return bool
@@ -25,7 +37,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$opts->setOpt(
 			'api_namespace_exclusions',
-			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' )
+			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^\da-z_-]#i' )
 		);
 	}
 }

@@ -1,0 +1,178 @@
+<a class="shield-logo" href="{{ hrefs.logo }}" target="_blank" style="display: block">
+	<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
+</a>
+
+<h3 class="subheader">
+	{{ strings.security_progress }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.overview }}">{{ strings.progress_overview }}</a>]</small>
+	{% endif %}
+</h3>
+<div class="shield-progress-bar
+	{% if vars.security_progress < 45 %}
+		red
+	{% elseif vars.security_progress < 70 %}
+		orange
+	{% endif %}
+	">
+  <div class="thebar" style="width: {{ vars.security_progress }}%">
+		<div class="thepercent">{{ vars.security_progress }}&percnt;</div>
+  </div>
+</div>
+
+<h3 class="subheader">
+	{{ strings.recent_blocked }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
+
+{% if vars.recent_ips_blocked|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>IP</th>
+				<th>{{ strings.blocked }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for ip in vars.recent_ips_blocked %}
+				<tr>
+					<td>
+						{% if flags.show_internal_links %}
+							<a href="{{ ip.ip_href }}">{{ ip.ip }}</a>
+						{% else %}
+							{{ ip.ip }}
+						{% endif %}
+					</td>
+					<td>{{ ip.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p class="no-entries">{{ strings.no_blocked }}</p>
+{% endif %}
+
+<h3 class="subheader">
+	{{ strings.recent_offenses }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.ips }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
+{% if vars.recent_ips_offense|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>IP</th>
+				<th>{{ strings.last_offense }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for ip in vars.recent_ips_offense %}
+				<tr>
+					<td>
+						{% if flags.show_internal_links %}
+							<a href="{{ ip.ip_href }}" target="_blank">{{ ip.ip }}</a>
+						{% else %}
+							{{ ip.ip }}
+						{% endif %}
+					</td>
+					<td>{{ ip.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p class="no-entries">{{ strings.no_offenses }}</p>
+{% endif %}
+
+<h3 class="subheader">
+	{{ strings.recent_sessions }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.sessions }}">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
+{% if vars.recent_users|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>{{ strings.user }}</th>
+				<th>IP</th>
+				<th>{{ strings.session_started }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for session in vars.recent_users %}
+				<tr>
+					<td>
+						<a href="{{ session.user_href }}" target="_blank">{{ session.user }}</a>
+					</td>
+
+					<td>
+						{% if flags.show_internal_links %}
+							<a href="{{ session.ip_href }}" target="_blank">{{ session.ip }}</a>
+						{% else %}
+							{{ session.ip }}
+						{% endif %}
+					</td>
+
+					<td>{{ session.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p class="no-entries">{{ strings.no_sessions }}</p>
+{% endif %}
+
+<h3 class="subheader">
+	{{ strings.recent_activity }}
+	{% if flags.show_internal_links %}
+		<small>[<a href="{{ hrefs.audit_trail }}" target="_blank">{{ strings.view_all }}</a>]</small>
+	{% endif %}
+</h3>
+{% if vars.recent_events|default([])|length > 0 %}
+	<div class="mini-scrolling-table">
+		<table class="table-recent wp-list-table widefat fixed striped">
+			<thead>
+			<tr>
+				<th>{{ strings.events }}</th>
+				<th>{{ strings.time }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for event in vars.recent_events %}
+				<tr>
+					<td>{{ event.name }}</td>
+					<td>{{ event.at }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p class="no-entries">{{ strings.no_activity }}</p>
+{% endif %}
+
+<div class="jump-buttons">
+	{% if flags.show_internal_links %}
+		{% for jump_link in vars.jump_links %}
+			<a href="{{ jump_link.href }}" class="jump-link" title="Jump to {{ jump_link.text }}">
+				{{ jump_link.svg|raw }} {{ jump_link.text }}
+			</a>
+		{% endfor %}
+	{% endif %}
+</div>
+
+<div>
+	<p style="text-align: center; font-size: smaller">{{ strings.generated }}: {{ vars.generated_at }}
+		<a href="javascript:{ Shield_WP_Dashboard_Widget.render( 1 ) }">{{ strings.refresh }}</a>
+	</p>
+</div>

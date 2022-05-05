@@ -33,13 +33,10 @@ class UI extends BaseShield\UI {
 
 	private function buildInsightsVars_Overview() :array {
 		return [
-			'vars'    => [
-				'overview_cards' => ( new Lib\OverviewCards() )
+			'content' => [
+				'progress_meters' => ( new Lib\MeterAnalysis\Handler() )
 					->setMod( $this->getMod() )
-					->buildForShuffle(),
-				'summary_cards'  => ( new Lib\SummaryCards() )
-					->setMod( $this->getMod() )
-					->build(),
+					->renderDashboardMeters(),
 			],
 			'strings' => [
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),
@@ -63,6 +60,7 @@ class UI extends BaseShield\UI {
 
 		$modPlugin = $con->getModule_Plugin();
 
+		$data = [];
 		switch ( $inav ) {
 
 			case 'audit':
@@ -88,12 +86,6 @@ class UI extends BaseShield\UI {
 				];
 				break;
 
-			case 'dashboard':
-				/** @var Shield\Modules\Plugin\UI $UI */
-				$UI = $con->getModule_Plugin()->getUIHandler();
-				$data = $UI->buildInsightsVars_Dashboard();
-				break;
-
 			case 'debug':
 				/** @var Shield\Modules\Plugin\UI $UI */
 				$UI = $con->getModule_Plugin()->getUIHandler();
@@ -117,7 +109,11 @@ class UI extends BaseShield\UI {
 			case 'license':
 				/** @var Shield\Modules\License\UI $UILicense */
 				$UILicense = $con->getModule_License()->getUIHandler();
-				$data = $UILicense->buildInsightsVars();
+				$data = [
+					'content' => [
+						'licensing' => $UILicense->renderLicensePage()
+					],
+				];
 				break;
 
 			case 'notes':
@@ -134,6 +130,14 @@ class UI extends BaseShield\UI {
 				/** @var Shield\Modules\Reporting\UI $UIReporting */
 				$UIReporting = $con->getModule_Reporting()->getUIHandler();
 				$data = $UIReporting->buildInsightsVars();
+				break;
+
+			case 'rules':
+				$data = [
+					'content' => [
+						'rules_summary' => $con->rules->renderSummary()
+					]
+				];
 				break;
 
 			case 'scans_results':
@@ -164,6 +168,7 @@ class UI extends BaseShield\UI {
 				$data = $UIUsers->buildInsightsVars();
 				break;
 
+			case 'dashboard':
 			case 'overview':
 			case 'index':
 				$data = $this->buildInsightsVars_Overview();
@@ -202,29 +207,24 @@ class UI extends BaseShield\UI {
 			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
 			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),
 			'license'       => __( 'ShieldPRO', 'wp-simple-firewall' ),
-			'importexport'  => __( 'Import / Export', 'wp-simple-firewall' ),
+			'importexport'  => sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
 			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
+			'rules'         => __( 'Rules', 'wp-simple-firewall' ),
 			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
 			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
-		$modsToSearch = array_filter(
-			$mod->getModulesSummaryData(),
-			function ( $modSummary ) {
-				return !empty( $modSummary[ 'show_mod_opts' ] );
-			}
-		);
-
 		$pageTitle = $availablePages[ $inav ];
-		if ( !empty( $subNavSection ) ) {
+		if ( $inav === 'settings' && !empty( $subNavSection ) ) {
+			$mod = $con->getModule( $subNavSection );
 			$pageTitle = sprintf( '%s: %s',
-				__( 'Configuration', 'wp-simple-firewall' ), $modsToSearch[ $subNavSection ][ 'name' ] );
+				__( 'Configuration', 'wp-simple-firewall' ), empty( $mod ) ? 'Unknown Module' : $mod->getMainFeatureName() );
 		}
 
-		if ( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
-								 ->setMod( $this->getCon()->getModule_SecAdmin() )
+								 ->setMod( $con->getModule_SecAdmin() )
 								 ->build()[ 'url_login2fa_logourl' ];
 		}
 		else {
@@ -251,10 +251,9 @@ class UI extends BaseShield\UI {
 				],
 				'vars'    => [
 					'changelog_id'           => $con->cfg->meta[ 'announcekit_changelog_id' ],
-					'mods'                   => $this->buildSelectData_ModuleSettings(),
 					'search_select'          => $this->buildSelectData_OptionsSearch(),
 					'active_module_settings' => $subNavSection,
-					'navbar_menu'            => ( new Lib\SideMenuBuilder() )
+					'navbar_menu'            => ( new Lib\NavMenuBuilder() )
 						->setMod( $this->getMod() )
 						->build()
 				],
@@ -269,14 +268,13 @@ class UI extends BaseShield\UI {
 
 		return $mod->renderTemplate(
 			sprintf( '/wpadmin_pages/insights/%s/index.twig', $templateDir ),
-			$data,
-			true
+			$data
 		);
 	}
 
 	private function renderTabEvents() :string {
 		$con = $this->getCon();
-		$srvEvents = $this->getCon()->loadEventsService();
+		$srvEvents = $con->loadEventsService();
 
 		$eventsSortedByLevel = [
 			'Alert'   => [],

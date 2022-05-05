@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "integrations",
     "storage_key":           "integrations",
+    "load_priority":         20,
     "name":                  "Integrations",
     "menu_title":            "Integrations",
     "sidebar_name":          "Integrations",
@@ -17,6 +18,9 @@
     "run_if_verified_bot":   true,
     "skip_processor":        false,
     "tracking_exclude":      false
+  },
+  "menus":         {
+    "config_menu_priority": 50
   },
   "wpcli":       {
     "enabled": true

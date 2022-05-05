@@ -1,6 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
+    "load_priority":         0,
     "name":                  "General Settings",
     "sidebar_name":          "General",
     "menu_title":            "Configuration",
@@ -17,6 +18,9 @@
     "run_if_wpcli":          true,
     "order":                 10
   },
+  "menus":         {
+    "config_menu_priority": 10
+  },
   "wpcli":         {
     "enabled": true
   },
@@ -29,10 +33,18 @@
       "can_dismiss":      true,
       "type":             "error"
     },
+    "rules-not-running":             {
+      "id":               "rules-not-running",
+      "schedule":         "conditions",
+      "valid_admin":      false,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
     "override-forceoff":          {
       "id":               "override-forceoff",
       "schedule":         "conditions",
-      "valid_admin":      true,
+      "valid_admin":      false,
       "plugin_page_only": false,
       "can_dismiss":      false,
       "type":             "error"
@@ -278,17 +290,6 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
-      "key":         "enable_xmlrpc_compatibility",
-      "section":     "section_defaults",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "XML-RPC Compatibility",
-      "summary":     "Allow Login Through XML-RPC To By-Pass Login Guard Rules",
-      "description": "Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App."
-    },
-    {
       "key":         "importexport_enable",
       "section":     "section_importexport",
       "advanced":    true,
@@ -503,13 +504,6 @@
       "default":      0
     },
     {
-      "key":          "last_ip_detect_source",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "openssl_private_key",
       "transferable": false,
       "sensitive":    true,
@@ -538,10 +532,17 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "ipdetect_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "integer",
+      "default":      0
     }
   ],
   "definitions":   {
-    "rest_api":               {
+    "rest_api":            {
       "publish":    true,
       "pro_only":   true,
       "route_defs": {
@@ -557,11 +558,11 @@
         }
       }
     },
-    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
-    "db_classes":             {
+    "href_privacy_policy": "https://shsec.io/wpshieldprivacypolicy",
+    "db_classes":          {
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
     },
-    "db_table_notes":         {
+    "db_table_notes":      {
       "slug":           "notes",
       "has_updated_at": true,
       "cols_custom":    {
@@ -569,92 +570,7 @@
         "note":        "TEXT"
       }
     },
-    "active_plugin_features": [
-      {
-        "slug":          "data",
-        "load_priority": 1
-      },
-      {
-        "slug":          "insights",
-        "load_priority": 2,
-        "menu_priority": 5
-      },
-      {
-        "slug":          "admin_access_restriction",
-        "namespace":     "SecurityAdmin",
-        "load_priority": 11
-      },
-      {
-        "slug":          "ips",
-        "load_priority": 15,
-        "namespace":     "IPs"
-      },
-      {
-        "slug":          "audit_trail",
-        "load_priority": 11,
-        "hidden":        false
-      },
-      {
-        "slug":      "hack_protect",
-        "namespace": "HackGuard"
-      },
-      {
-        "slug":          "traffic",
-        "load_priority": 12
-      },
-      {
-        "slug":          "firewall",
-        "load_priority": 1000
-      },
-      {
-        "slug":        "login_protect",
-        "storage_key": "loginprotect",
-        "namespace":   "LoginGuard"
-      },
-      {
-        "slug": "user_management"
-      },
-      {
-        "slug":        "comments_filter",
-        "storage_key": "commentsfilter"
-      },
-      {
-        "slug":          "events",
-        "load_priority": 11
-      },
-      {
-        "slug":          "reporting",
-        "load_priority": 12
-      },
-      {
-        "slug":          "sessions",
-        "load_priority": 5
-      },
-      {
-        "slug":          "integrations",
-        "load_priority": 20
-      },
-      {
-        "slug":          "license",
-        "load_priority": 10
-      },
-      {
-        "slug": "autoupdates"
-      },
-      {
-        "slug": "headers"
-      },
-      {
-        "slug": "lockdown"
-      },
-      {
-        "slug": "comms"
-      },
-      {
-        "slug": "email"
-      }
-    ],
-    "events":                 {
+    "events":              {
       "debug_log":              {
         "audit_params": [
           "message"
@@ -748,7 +664,7 @@
         "stat":    false
       }
     },
-    "wizards":                {
+    "wizards":             {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
         "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",

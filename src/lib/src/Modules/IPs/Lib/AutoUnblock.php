@@ -1,17 +1,18 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AutoUnblock {
+class AutoUnblock extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	protected function canRun() :bool {
+		return $this->getCon()->this_req->is_ip_blocked;
+	}
 
 	/**
-	 * This should only be run if the current IP has been verified as being blocked
 	 * @return bool - true if IP is unblocked, false otherwise.
 	 */
 	public function run() :bool {
@@ -28,11 +29,15 @@ class AutoUnblock {
 			catch ( \Exception $e ) {
 			}
 		}
+
+		if ( $unblocked ) {
+			Services::Response()->redirectToHome();
+		}
+
 		return $unblocked;
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() :bool {
@@ -44,19 +49,20 @@ class AutoUnblock {
 
 		$unblocked = false;
 
-		if ( $opts->isEnabledAutoVisitorRecover() && $req->isPost()
-			 && $req->request( 'action' ) == $mod->prefix() && $req->request( 'exec' ) == 'uau' ) {
+		$ip = Services::IP()->getRequestIp();
+		if ( empty( $ip ) ) {
+			throw new \Exception( 'No IP' );
+		}
 
-			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
+		if ( $opts->isEnabledAutoVisitorRecover()
+			 && $req->post( 'action' ) == $mod->getCon()->prefix()
+			 && $req->post( 'exec' ) == 'uau-'.$ip ) {
+
+			if ( check_admin_referer( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
 			}
-			if ( strlen( $req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
+			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
 				throw new \Exception( 'Email should not be provided in honeypot' );
-			}
-
-			$ip = Services::IP()->getRequestIp();
-			if ( empty( $ip ) || $req->post( 'ip' ) !== Services::IP()->getRequestIp() ) {
-				throw new \Exception( 'IP does not match' );
 			}
 
 			if ( !$opts->getCanIpRequestAutoUnblock( $ip ) ) {
@@ -90,7 +96,6 @@ class AutoUnblock {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	private function processUserMagicLink() :bool {
@@ -103,7 +108,7 @@ class AutoUnblock {
 		$unblocked = false;
 
 		if ( $opts->isEnabledMagicEmailLinkRecover()
-			 && $req->query( 'action' ) == $mod->prefix()
+			 && $req->query( 'action' ) == $mod->getCon()->prefix()
 			 && strpos( $req->query( 'exec' ), 'uaum-' ) === 0 ) {
 
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
@@ -142,7 +147,8 @@ class AutoUnblock {
 						} )
 					);
 				}
-				wp_die( 'Email sent.' );
+				http_response_code( 200 );
+				die();
 			}
 			elseif ( $linkParts[ 1 ] === 'go' ) {
 				( new IPs\Lib\Ops\DeleteIp() )
@@ -171,45 +177,44 @@ class AutoUnblock {
 		$mod = $this->getMod();
 		$user = Services::WpUsers()->getCurrentWpUser();
 
-		$mod->getEmailProcessor()
-			->sendEmailWithTemplate(
-				'/email/uaum_init',
-				$user->user_email,
-				__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
-				[
-					'flags'   => [
-						'show_login_link' => !$this->getCon()->isRelabelled()
-					],
-					'vars'    => [
-					],
-					'hrefs'   => [
-						'unblock' => add_query_arg(
-							array_merge(
-								$mod->getNonceActionData( 'uaum-go-'.substr( sha1( $user->user_login ), 0, 6 ) ),
-								[
-									'ip' => Services::IP()->getRequestIp()
-								]
-							),
-							Services::WpGeneral()->getHomeUrl()
-						)
-					],
-					'strings' => [
-						'looks_like'       => __( "It looks like you've been blocked and have clicked to have your IP address removed from the blocklist.", 'wp-simple-firewall' ),
-						'please_click'     => __( 'Please click the link provided below to do so.', 'wp-simple-firewall' ),
-						'details'          => __( 'Details', 'wp-simple-firewall' ),
-						'unblock_my_ip'    => sprintf( '%s: %s',
-							__( 'Unblock My IP', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
-						'or_copy'          => __( 'Or Copy-Paste', 'wp-simple-firewall' ),
-						'details_url'      => sprintf( '%s: %s',
-							__( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-						'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-						'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
-																												   ->getRequestIp() ),
-						'important'        => __( 'Important', 'wp-simple-firewall' ),
-						'imp_limit'        => __( "You'll need to wait for a further 60 minutes if your IP address gets blocked again.", 'wp-simple-firewall' ),
-						'imp_browser'      => __( "This link will ONLY work if it opens in the same web browser that you used to request this email.", 'wp-simple-firewall' ),
-					]
+		$mod->getEmailProcessor()->sendEmailWithTemplate(
+			'/email/uaum_init',
+			$user->user_email,
+			__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
+			[
+				'flags'   => [
+					'show_login_link' => !$this->getCon()->isRelabelled()
+				],
+				'vars'    => [
+				],
+				'hrefs'   => [
+					'unblock' => add_query_arg(
+						array_merge(
+							$mod->getNonceActionData( 'uaum-go-'.substr( sha1( $user->user_login ), 0, 6 ) ),
+							[
+								'ip' => Services::IP()->getRequestIp()
+							]
+						),
+						Services::WpGeneral()->getHomeUrl()
+					)
+				],
+				'strings' => [
+					'looks_like'       => __( "It looks like you've been blocked and have clicked to have your IP address removed from the blocklist.", 'wp-simple-firewall' ),
+					'please_click'     => __( 'Please click the link provided below to do so.', 'wp-simple-firewall' ),
+					'details'          => __( 'Details', 'wp-simple-firewall' ),
+					'unblock_my_ip'    => sprintf( '%s: %s',
+						__( 'Unblock My IP', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
+					'or_copy'          => __( 'Or Copy-Paste', 'wp-simple-firewall' ),
+					'details_url'      => sprintf( '%s: %s',
+						__( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
+					'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+					'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
+																											   ->getRequestIp() ),
+					'important'        => __( 'Important', 'wp-simple-firewall' ),
+					'imp_limit'        => __( "You'll need to wait for a further 60 minutes if your IP address gets blocked again.", 'wp-simple-firewall' ),
+					'imp_browser'      => __( "This link will ONLY work if it opens in the same web browser that you used to request this email.", 'wp-simple-firewall' ),
 				]
-			);
+			]
+		);
 	}
 }

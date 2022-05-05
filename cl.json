@@ -1,4 +1,107 @@
 {
+  "15.0": {
+    "version":     "15.0",
+    "released_at": 1652184000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease150",
+      "upgrade": "https://shsec.io/shieldupgradeguide150"
+    },
+    "title":       "Rules Engine",
+    "description": [
+      "A major overhaul of how Shield assesses all incoming requests.",
+      "The Rule Engine allows for streamlined security processing and, in the future, easily customisable rules to handle any scenario."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Rules Engine",
+        "description": [
+          "Massive performance and processing optimisations with a brand new core Shield Rules Engine.",
+          "All requests are now processed using a unique and customisable (future releases) set of rules."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Brand New Shield Block Pages",
+        "description": [
+          "We now offer more user-friendly block pages to the visitor for all scenarios: firewall, IP block, username fishing."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "All-New Dashboard Overview",
+        "description": [
+          "The Shield Dashboard Overview provides detailed and actionable insights into your WordPress security and how to improve it."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Removed: Legacy Comment SPAM Detection",
+        "description": [
+          "We've completely removed the older, less reliable comment spam detection using Javascript and CAPTCHAs.",
+          "Please use the newer AntiBot Detection Engine."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "All-New WordPress Dashboard Widget",
+        "description": [
+          "The original WordPress Admin Dashboard widget was pretty basic, so we've completely revamped it with some of your latest site activity."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Visitor IP Source Detection",
+        "description": [
+          "It's critical that Shield can get the correct visitor IP address. Unfortunately many webhosts drop the ball when it comes to their configurations.",
+          "We've added a completely automated and highly reliable method of determining the best source for Visitor IP addresses. If it's there, Shield will find it."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Shield Dashboard Navigation",
+        "description": [
+          "We've done quite a bit of work to smooth out and simplify Shield's admin UI making it easier to navigate and find what you need."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Massive Performance Improvements",
+        "description": [
+          "Shield has undergone major enhancements and performance improvements."
+        ],
+        "list":        [
+          "Removed duplicate and unnecessary DB requests.",
+          "Consolidated and removed many excess WP Transients (fewer DB requests).",
+          "Optimised several DB queries."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Author Discovery/Fishing",
+        "description": [
+          "This feature is now a Bot Signal which is logged in the Audit Trail and triggers offenses."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "New Filters: Adjust scanner notices about plugin/theme update/active status",
+        "description": [
+          "You can now use filters to adjust whether Shield warns about inactive plugins/themes or those with updates."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Option Removed: Auto-Filter Scan Results",
+        "description": [
+          "Shield will now filter unnecessary scan results automatically. This can be adjusted using a WP filter."
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "14.1": {
     "version":     "14.1",
     "released_at": 1647269718,
@@ -98,20 +201,29 @@
         ]
       },
       {
+        "type":        "changed",
+        "pro_only":    false,
         "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Comments",
         "description": [
           "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Comment SPAM has been deprecated.",
           "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
-        ],
-        "type":        "changed",
-        "pro_only":    false
+        ]
       },
       {
-        "type":        "fixed",
-        "pro_only":    false,
-        "title":       "Firewall didn't always scan all parameters in some cases",
-        "description": [
-        ]
+        "type":  "improved",
+        "title": "Display of Shield's Admin Menu Bar items can be controlled using a plugin configuration option."
+      },
+      {
+        "type":  "fixed",
+        "title": "Shield's REST API supports non-permalinks style requests (?rest_route=), regardless of permalinks configuration."
+      },
+      {
+        "type":  "fixed",
+        "title": "Fix for non-URL-encoding of password reset URL parameters when using Rename Login feature."
+      },
+      {
+        "type":  "fixed",
+        "title": "Traffic Request Log wasn't correctly indicating a request was an offense in the log viewer."
       }
     ],
     "patches":     [

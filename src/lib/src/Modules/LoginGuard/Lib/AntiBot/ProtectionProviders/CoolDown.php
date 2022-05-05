@@ -18,15 +18,15 @@ class CoolDown extends BaseProtectionProvider {
 			// And finally return a WP_Error which will be reflected back to the user.
 			$cooldown = ( new CooldownFlagFile() )->setMod( $this->getMod() );
 			if ( $cooldown->isWithinCooldownPeriod() ) {
-				$sErrorString = __( "Request Cooldown in effect.", 'wp-simple-firewall' ).' '
-								.sprintf(
-									__( "You must wait %s seconds before attempting this action again.", 'wp-simple-firewall' ),
-									$cooldown->getCooldownRemaining()
-								);
+				$error = __( "Request Cooldown in effect.", 'wp-simple-firewall' ).' '
+						 .sprintf(
+							 __( "You must wait %s seconds before attempting this action again.", 'wp-simple-firewall' ),
+							 $cooldown->getCooldownRemaining()
+						 );
 
 				$this->getCon()->fireEvent( 'cooldown_fail' );
 				$this->processFailure();
-				throw new \Exception( $sErrorString );
+				throw new \Exception( $error );
 			}
 
 			$cooldown->updateCooldownFlag();
@@ -36,7 +36,7 @@ class CoolDown extends BaseProtectionProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function buildFormInsert( $oFormProvider ) {
+	public function buildFormInsert( $formProvider ) {
 		return '';
 	}
 }

@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops as ReqDB;
 
+/**
+ * Used in version 14.1.5 to migrate the request logs to the newer format.
+ */
 class QueueReqDbRecordMigrator extends Shield\Databases\Utility\QueueDbRecordsMigrator {
 
 	public function __construct() {

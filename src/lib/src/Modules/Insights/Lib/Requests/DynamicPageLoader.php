@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Requests;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
@@ -17,8 +19,6 @@ class DynamicPageLoader extends DynPropertiesClass {
 	private $params = [];
 
 	/**
-	 * @param array $params
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function build( array $params ) :array {
@@ -59,12 +59,17 @@ class DynamicPageLoader extends DynPropertiesClass {
 		return $content;
 	}
 
+	/**
+	 * this is messy! Need to build this properly.
+	 */
 	private function getPageUrl() :string {
 		$con = $this->getCon();
+		/** @var Insights\ModCon $mod */
+		$mod = $this->getMod();
 
 		switch ( $this->load_type ) {
 			case 'configuration':
-				$url = $con->getModule( $this->load_variant )->getUrl_AdminPage();
+				$url = $mod->getUrl_SubInsightsPage( 'settings', $this->load_variant );
 				break;
 
 			default:
@@ -94,12 +99,12 @@ class DynamicPageLoader extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function renderConfiguration() :string {
-
 		$mod = $this->getCon()->getModule( $this->load_variant );
 		if ( !$mod instanceof ModCon ) {
 			throw new \Exception( 'Invalid dynamic page load data (variant)' );
 		}
-
-		return $mod->renderOptionsForm();
+		return ( new RenderOptionsForm() )
+			->setMod( $mod )
+			->render();
 	}
 }

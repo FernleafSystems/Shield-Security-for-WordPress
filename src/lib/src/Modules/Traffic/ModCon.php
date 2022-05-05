@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,6 +19,14 @@ class ModCon extends BaseShield\ModCon {
 		return $this->requestLogger;
 	}
 
+	protected function enumRuleBuilders() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return [
+			$opts->isTrafficLimitEnabled() ? Rules\Build\IsRateLimitExceeded::class : null,
+		];
+	}
+
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -30,6 +36,17 @@ class ModCon extends BaseShield\ModCon {
 			},
 			$opts->getCustomExclusions()
 		) ) );
+
+		if ( !$this->getCon()->isPremiumActive() && $opts->isOpt( 'enable_limiter', 'Y' ) ) {
+			$opts->isOpt( 'enable_limiter', 'N' );
+		}
+
+		if ( $opts->isOpt( 'enable_limiter', 'Y' ) && !$opts->isTrafficLoggerEnabled() ) {
+			$opts->setOpt( 'enable_logger', 'Y' );
+			if ( $opts->getAutoCleanDays() === 0 ) {
+				$opts->resetOptToDefault( 'auto_clean' );
+			}
+		}
 	}
 
 	protected function isReadyToExecute() :bool {

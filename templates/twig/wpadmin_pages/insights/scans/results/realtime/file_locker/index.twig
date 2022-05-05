@@ -10,7 +10,17 @@
 			<div class="card-body">
 
 				{% if scan.flags.is_restricted %}
-					{% include '/wpadmin_pages/insights/scans/results/results/common_restricted.twig' %}
+					<div class="row">
+						<div class="col">
+							<div class="alert alert-warning m-0">
+								<h6 class="alert-heading">{{ strings.not_available }}</h6>
+								<p class="mb-0">
+									<a href="{{ hrefs.go_pro }}" target="_blank" class="alert-link"
+									>{{ strings.please_upgrade }}</a>
+								</p>
+							</div>
+						</div>
+					</div>
 				{% else %}
 					{% if scan.flags.is_enabled %}
 						<div class="col mt-3 mb-3">
@@ -38,7 +48,15 @@
 							</div>
 						</div>
 					{% else %}
-						{% include '/wpadmin_pages/insights/scans/results/results/common_disabled.twig' %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-success m-0">
+									<h6 class="alert-heading">{{ strings.not_enabled }}</h6>
+									<p class="m-0"><a class="alert-link" href="{{ scan.hrefs.please_enable }}"
+										>{{ strings.please_enable }}</a></p>
+								</div>
+							</div>
+						</div>
 					{% endif %}
 				{% endif %}
 			</div>

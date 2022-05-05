@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,7 +24,7 @@ class Processor extends BaseShield\Processor {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $mod->isXmlrpcBypass() ) {
+		if ( $this->getCon()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 
@@ -41,7 +40,7 @@ class Processor extends BaseShield\Processor {
 			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
-		if ( !$mod->isVisitorWhitelisted() ) {
+		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
 			( new Lib\Session\UserSessionHandler() )
 				->setMod( $this->getMod() )
 				->execute();
@@ -57,24 +56,28 @@ class Processor extends BaseShield\Processor {
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
 		$WPUsers = Services::WpUsers();
-		/** @var Select $sel */
-		$sel = $con->getModule_Sessions()->getDbHandler_Sessions()->getQuerySelector();
-		$sel->filterByLoginNotIdleExpired( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
-			->setOrderBy( 'last_activity_at', 'DESC' );
+
+		$recent = ( new FindSessions() )
+			->setMod( $this->getMod() )
+			->mostRecent();
 
 		$thisGroup = [
-			'title' => __( 'Recent Sessions', 'wp-simple-firewall' ),
+			'title' => __( 'Recent Users', 'wp-simple-firewall' ),
 			'href'  => $con->getModule_Insights()->getUrl_Sessions(),
 			'items' => [],
 		];
-		/** @var EntryVO $session */
-		foreach ( $sel->query() as $session ) {
-			$thisGroup[ 'items' ][] = [
-				'id'    => $con->prefix( 'session-'.$session->id ),
-				'title' => sprintf( '<a href="%s">%s (%s)</a>',
-					$WPUsers->getAdminUrl_ProfileEdit( $WPUsers->getUserByUsername( $session->wp_username ) ),
-					$session->wp_username, $session->ip ),
-			];
+		if ( !empty( $recent ) ) {
+
+			foreach ( $recent as $userID => $user ) {
+				$thisGroup[ 'items' ][] = [
+					'id'    => $con->prefix( 'meta-'.$userID ),
+					'title' => sprintf( '<a href="%s">%s (%s)</a>',
+						$WPUsers->getAdminUrl_ProfileEdit( $userID ),
+						$user[ 'user_login' ],
+						$user[ 'ip' ]
+					),
+				];
+			}
 		}
 
 		if ( !empty( $thisGroup[ 'items' ] ) ) {
@@ -265,11 +268,5 @@ class Processor extends BaseShield\Processor {
 		( new BulkUpdateUserMeta() )
 			->setCon( $this->getCon() )
 			->execute();
-	}
-
-	public function runDailyCron() {
-		( new Lib\CleanExpired() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 }

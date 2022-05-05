@@ -6,7 +6,7 @@ class Forminator extends Base {
 
 	protected function run() {
 		add_filter( 'forminator_spam_protection', function ( $wasSpam ) {
-			return $wasSpam || $this->isSpam();
+			return $wasSpam || $this->isBotBlockRequired();
 		}, 1000 );
 	}
 

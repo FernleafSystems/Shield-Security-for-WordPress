@@ -14,18 +14,11 @@ class FindAllPluginIps {
 	public function run( string $ipFilter = '' ) :array {
 		$con = $this->getCon();
 
-		// User Sessions
-		/** @var Databases\Session\Select $sel */
-		$sel = $con->getModule_Sessions()
-				   ->getDbHandler_Sessions()
-				   ->getQuerySelector();
-		$ips = $sel->getDistinctIps();
-
 		/** @var Select $sel */
 		$sel = $con->getModule_Data()
 				   ->getDbH_IPs()
 				   ->getQuerySelector();
-		$ips = array_merge( $ips, $sel->getDistinctIps() );
+		$ips = $sel->getDistinctIps();
 
 		// IP Addresses
 		/** @var Databases\IPs\Select $sel */

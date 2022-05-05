@@ -10,12 +10,9 @@ class Export {
 
 	use ModConsumer;
 
-	/**
-	 * @param string $sMethod
-	 */
-	public function run( $sMethod ) {
+	public function run( string $method ) {
 		try {
-			switch ( $sMethod ) {
+			switch ( $method ) {
 				case 'file':
 					$this->toFile();
 					break;
@@ -34,59 +31,56 @@ class Export {
 	public function toJson() {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
+		$ieCon = $mod->getImpExpController();
 		$req = Services::Request();
 
-		$sSecretKey = $req->query( 'secret', '' );
-
-		$sNetworkOpt = $req->query( 'network', '' );
-		$bDoNetwork = !empty( $sNetworkOpt );
-		$url = Services::Data()->validateSimpleHttpUrl( $req->query( 'url', '' ) );
-
-		if ( !$mod->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $url ) ) {
+		$url = Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
+		if ( !$ieCon->verifySecretKey( (string)$req->query( 'secret', '' ) ) && !$this->isUrlOnWhitelist( $url ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
 		}
 
-		$bSuccess = false;
-		$aData = [];
+		$success = false;
+		$data = [];
 
 		if ( !$this->verifyUrlWithHandshake( $url ) ) {
-			$nCode = 3;
-			$sMessage = __( 'Handshake verification failed.', 'wp-simple-firewall' );
+			$code = 3;
+			$msg = __( 'Handshake verification failed.', 'wp-simple-firewall' );
 		}
 		else {
-			$nCode = 0;
-			$bSuccess = true;
-			$aData = $this->getExportData();
-			$sMessage = 'Options Exported Successfully';
+			$code = 0;
+			$success = true;
+			$data = $this->getExportData();
+			$msg = 'Options Exported Successfully';
 
 			$this->getCon()->fireEvent(
 				'options_exported',
 				[ 'audit_params' => [ 'site' => $url ] ]
 			);
 
-			if ( $bDoNetwork ) {
-				if ( $sNetworkOpt === 'Y' ) {
-					$mod->addUrlToImportExportWhitelistUrls( $url );
-					$this->getCon()->fireEvent(
-						'whitelist_site_added',
-						[ 'audit_params' => [ 'site' => $url ] ]
-					);
-				}
-				else {
-					$mod->removeUrlFromImportExportWhitelistUrls( $url );
-					$this->getCon()->fireEvent(
-						'whitelist_site_removed',
-						[ 'audit_params' => [ 'site' => $url ] ]
-					);
-				}
+			// Only setup the network if we have a valid URL
+			$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
+
+			if ( $networkOpt === 'Y' ) {
+				$ieCon->addUrlToImportExportWhitelistUrls( $url );
+				$this->getCon()->fireEvent(
+					'whitelist_site_added',
+					[ 'audit_params' => [ 'site' => $url ] ]
+				);
+			}
+			elseif ( !empty( $networkOpt ) ) {
+				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
+				$this->getCon()->fireEvent(
+					'whitelist_site_removed',
+					[ 'audit_params' => [ 'site' => $url ] ]
+				);
 			}
 		}
 
 		echo json_encode( [
-			'success' => $bSuccess,
-			'code'    => $nCode,
-			'message' => $sMessage,
-			'data'    => $aData,
+			'success' => $success,
+			'code'    => $code,
+			'message' => $msg,
+			'data'    => $data,
 		] );
 		die();
 	}
@@ -141,7 +135,6 @@ class Export {
 
 	/**
 	 * @param string $url
-	 * @return bool
 	 */
 	private function isUrlOnWhitelist( $url ) :bool {
 		/** @var Plugin\Options $opts */

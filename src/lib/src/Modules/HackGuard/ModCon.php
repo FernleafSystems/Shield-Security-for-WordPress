@@ -173,7 +173,7 @@ class ModCon extends BaseShield\ModCon {
 		$freq = $opts->getScanFrequency();
 		Services::WpCron()
 				->addNewSchedule(
-					$this->prefix( sprintf( 'per-day-%s', $freq ) ),
+					$this->getCon()->prefix( sprintf( 'per-day-%s', $freq ) ),
 					[
 						'interval' => DAY_IN_SECONDS/$freq,
 						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
@@ -197,7 +197,7 @@ class ModCon extends BaseShield\ModCon {
 				else {
 					$exclusion = wp_normalize_path( trim( $exclusion ) );
 					if ( strpos( $exclusion, '/' ) === false ) { // filename only
-						$exclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $exclusion ) );
+						$exclusion = trim( preg_replace( '#[^.\da-z_-]#i', '', $exclusion ) );
 					}
 				}
 
@@ -222,6 +222,12 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
 		return $this->getDbH( 'filelocker' );
+	}
+
+	protected function cleanupDatabases() {
+		( new Shield\Modules\HackGuard\DB\Utility\Clean() )
+			->setMod( $this )
+			->execute();
 	}
 
 	/**

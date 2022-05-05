@@ -20,7 +20,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	public function ajaxExec_ConnectionDebug() :array {
-
 		$success = ( new Keyless\Ping() )->ping();
 		$host = wp_parse_url( Keyless\Base::DEFAULT_URL_STUB, PHP_URL_HOST );
 
@@ -68,7 +67,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			}
 			else {
 				try {
-					$success = $licHandler->verify( true )->hasValidWorkingLicense();
+					$success = $licHandler->verify()->hasValidWorkingLicense();
 					$msg = $success ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 				}
 				catch ( \Exception $e ) {

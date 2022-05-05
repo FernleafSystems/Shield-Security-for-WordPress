@@ -52,8 +52,21 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'ip_lists' );
 	}
 
+	protected function enumRuleBuilders() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return [
+			Rules\Build\IpWhitelisted::class,
+			Rules\Build\IsPathWhitelisted::class,
+			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlocked::class : null,
+			$opts->isEnabledTrack404() ? Rules\Build\BotTrack404::class : null,
+			$opts->isEnabledTrackXmlRpc() ? Rules\Build\BotTrackXmlrpc::class : null,
+			$opts->isEnabledTrackFakeWebCrawler() ? Rules\Build\BotTrackFakeWebCrawler::class : null,
+			$opts->isEnabledTrackInvalidScript() ? Rules\Build\BotTrackInvalidScript::class : null,
+		];
+	}
+
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
@@ -80,34 +93,26 @@ class ModCon extends BaseShield\ModCon {
 		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
-
-		$nLimit = $opts->getOffenseLimit();
-		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
-			$opts->resetOptToDefault( 'transgression_limit' );
-		}
-
 		$this->cleanPathWhitelist();
 	}
 
 	private function cleanPathWhitelist() {
+		$WP = Services::WpGeneral();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		$specialPaths = array_map(
-			function ( $url ) {
-				return (string)parse_url( $url, PHP_URL_PATH );
-			},
-			[
-				Services::WpGeneral()->getHomeUrl(),
-				Services::WpGeneral()->getWpUrl(),
-			]
-		);
-
-		$values = $opts->getOpt( 'request_whitelist', [] );
 		$opts->setOpt( 'request_whitelist',
 			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
-				is_array( $values ) ? $values : [],
-				$specialPaths,
+				$opts->getOpt( 'request_whitelist', [] ),
+				array_unique( array_map(
+					function ( $url ) {
+						return (string)wp_parse_url( $url, PHP_URL_PATH );
+					},
+					[
+						'/',
+						$WP->getHomeUrl(),
+						$WP->getWpUrl(),
+					]
+				) ),
 				Shield\Modules\Base\Options\WildCardOptions::URL_PATH
 			)
 		);
@@ -129,6 +134,25 @@ class ModCon extends BaseShield\ModCon {
 		return $this->oOffenseTracker;
 	}
 
+	public function getScriptLocalisations() :array {
+		$locals = parent::getScriptLocalisations();
+
+		$locals[] = [
+			'plugin',
+			'icwp_wpsf_vars_ips',
+			[
+				'components' => [
+					'modal_ip_analysis'   => [
+						'ajax' => [
+							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' )
+						]
+					],
+				],
+			]
+		];
+		return $locals;
+	}
+
 	public function getTextOptDefault( string $key ) :string {
 
 		switch ( $key ) {
@@ -137,15 +161,6 @@ class ModCon extends BaseShield\ModCon {
 				$text = sprintf( '%s: %s',
 					__( 'Warning', 'wp-simple-firewall' ),
 					__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' )
-				);
-				break;
-
-			case 'text_remainingtrans':
-				$text = sprintf( '%s: %s',
-					__( 'Warning', 'wp-simple-firewall' ),
-					__( 'You have %s remaining offenses(s) against this site and then your IP address will be completely blocked.', 'wp-simple-firewall' )
-					.'<br/><strong>'.__( 'Seriously, stop repeating what you are doing or you will be locked out.', 'wp-simple-firewall' ).'</strong>'
-					.sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldcantaccess', __( 'More Info', 'wp-simple-firewall' ) )
 				);
 				break;
 

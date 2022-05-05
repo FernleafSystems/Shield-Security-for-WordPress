@@ -23,7 +23,7 @@ class AntiBot extends BaseProtectionProvider {
 		}
 	}
 
-	public function buildFormInsert( $oFormProvider ) {
+	public function buildFormInsert( $formProvider ) {
 		return '';
 	}
 }

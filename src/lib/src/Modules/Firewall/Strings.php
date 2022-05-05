@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
@@ -105,8 +105,10 @@ class Strings extends Base\Strings {
 			case 'block_php_code' :
 				$name = __( 'PHP Code', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Block %s', 'wp-simple-firewall' ), __( 'PHP Code Includes', 'wp-simple-firewall' ) );
-				$desc = __( 'This will block any data that appears to try and include PHP files.', 'wp-simple-firewall' )
-						.'<br />'.__( 'Will probably block saving within the Plugin/Theme file editors.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'This will block any data that appears to try and include PHP files.', 'wp-simple-firewall' ),
+					__( 'Will probably block saving within the Plugin/Theme file editors.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'block_exe_file_uploads' :
@@ -124,8 +126,10 @@ class Strings extends Base\Strings {
 			case 'block_aggressive' :
 				$name = __( 'Aggressive Scan', 'wp-simple-firewall' );
 				$summary = __( 'Aggressively Block Data', 'wp-simple-firewall' );
-				$desc = __( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.', 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'May cause an increase in false-positive firewall blocks.', 'wp-simple-firewall' ) );
+				$desc = [
+					__( 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.', 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong> - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'May cause an increase in false-positive firewall blocks.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'block_response' :
@@ -182,12 +186,6 @@ class Strings extends Base\Strings {
 					__( 'The offending request parameter was "{{param}}" with a value of "{{value}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'check_skip'       => [
-				'name'  => __( 'Firewall Skip Checking', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'Skipping firewall checking for this visit: {{path}}.', 'wp-simple-firewall' )
-				],
-			],
 			'fw_email_success' => [
 				'name'  => __( 'Firewall Block Email Success', 'wp-simple-firewall' ),
 				'audit' => [
@@ -201,6 +199,19 @@ class Strings extends Base\Strings {
 				],
 			],
 		];
+	}
+
+	public function getFirewallCategoryName( string $category ) :string {
+		return [
+				   'dir_traversal'    => __( 'Directory Traversal', 'wp-simple-firewall' ),
+				   'wordpress_terms'  => __( 'WordPress Terms', 'wp-simple-firewall' ),
+				   'sql_queries'      => __( 'SQL Queries', 'wp-simple-firewall' ),
+				   'field_truncation' => __( 'Field Truncation', 'wp-simple-firewall' ),
+				   'aggressive'       => __( 'Aggressive Rules', 'wp-simple-firewall' ),
+				   'leading_schema'   => __( 'Leading Schema', 'wp-simple-firewall' ),
+				   'php_code'         => __( 'PHP Code', 'wp-simple-firewall' ),
+				   'exe_file_uploads' => __( 'EXE File Uploads', 'wp-simple-firewall' ),
+			   ][ $category ] ?? 'Unknown';
 	}
 
 	/**
@@ -218,10 +229,10 @@ class Strings extends Base\Strings {
 			'blockparam_fieldtruncation' => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'Field Truncation', 'wp-simple-firewall' ) )
 			],
-			'blockparam_sqlqueries'      => [
+			'blockparam_sql_queries'     => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'SQL Queries', 'wp-simple-firewall' ) )
 			],
-			'blockparam_schema'          => [
+			'blockparam_leading_schema'          => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'Leading Schema', 'wp-simple-firewall' ) )
 			],
 			'blockparam_aggressive'      => [

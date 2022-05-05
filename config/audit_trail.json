@@ -3,6 +3,8 @@
   "properties":       {
     "slug":                  "audit_trail",
     "name":                  "Audit Trail",
+    "load_priority":         11,
+    "menu_priority":         40,
     "sidebar_name":          "Audit Trail",
     "show_module_menu_item": false,
     "show_module_options":   true,
@@ -15,6 +17,9 @@
     "run_if_verified_bot":   false,
     "run_if_wpcli":          true,
     "order":                 110
+  },
+  "menus":            {
+    "config_menu_priority": 35
   },
   "wpcli":            {
     "enabled": true
@@ -35,14 +40,6 @@
     }
   ],
   "admin_notices":    {
-    "new-audit-trail": {
-      "id":               "new-audit-trail",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      true,
-      "type":             "info"
-    }
   },
   "sections":         [
     {

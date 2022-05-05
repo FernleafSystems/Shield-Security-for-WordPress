@@ -68,19 +68,12 @@ class Afs extends BaseForFiles {
 		$count = $status->countThemeFiles();
 		if ( $count > 0 ) {
 			$warning = $template;
-			$warning[ 'id' ] .= '-plugin';
+			$warning[ 'id' ] .= '-theme';
 			$warning[ 'title' ] = __( 'Theme Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
 			$warning[ 'warnings' ] = $count;
 			$items[] = $warning;
 		}
 
-		return $items;
-	}
-
-	/**
-	 * @deprecated 14.1
-	 */
-	public function addAdminMenuBarItem( array $items ) :array {
 		return $items;
 	}
 

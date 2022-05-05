@@ -27,7 +27,6 @@ class LoadConfig {
 	}
 
 	/**
-	 * @return ConfigVO
 	 * @throws \Exception
 	 */
 	public function run() :ConfigVO {

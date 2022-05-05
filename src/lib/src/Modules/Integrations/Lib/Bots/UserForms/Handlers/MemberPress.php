@@ -24,7 +24,7 @@ class MemberPress extends Base {
 	 * @return array
 	 */
 	public function checkLogin_MP( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'login' )->checkIsBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
 			$errors = [
 				$this->getErrorMessage()
 			];
@@ -37,7 +37,7 @@ class MemberPress extends Base {
 	 * @return array
 	 */
 	public function checkLostPassword_MP( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'lostpassword' )->checkIsBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'lostpassword' )->isBotBlockRequired() ) {
 			$errors = [
 				$this->getErrorMessage()
 			];
@@ -50,7 +50,7 @@ class MemberPress extends Base {
 	 * @return string[]
 	 */
 	public function checkRegister_MP( $errors ) {
-		if ( empty( $errors ) && $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( empty( $errors ) && $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$errors = [
 				$this->getErrorMessage()
 			];

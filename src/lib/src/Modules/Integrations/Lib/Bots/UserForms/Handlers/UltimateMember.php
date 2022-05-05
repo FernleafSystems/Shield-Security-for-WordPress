@@ -20,19 +20,19 @@ class UltimateMember extends Base {
 	}
 
 	public function checkLogin_UM() {
-		if ( $this->setAuditAction( 'login' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
 			\UM()->form()->add_error( 'shield-fail-login', $this->getErrorMessage() );
 		}
 	}
 
 	public function checkLostPassword_UM() {
-		if ( $this->setAuditAction( 'lostpassword' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'lostpassword' )->isBotBlockRequired() ) {
 			\UM()->form()->add_error( 'shield-fail-lostpassword', $this->getErrorMessage() );
 		}
 	}
 
 	public function checkRegister_UM() {
-		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			\UM()->form()->add_error( 'shield-fail-register', $this->getErrorMessage() );
 		}
 	}

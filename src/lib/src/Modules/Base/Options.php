@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\ModConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\OptValueSanitize;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,11 +24,6 @@ class Options {
 	 * @var array
 	 */
 	protected $aOld;
-
-	/**
-	 * @var array
-	 */
-	protected $aRawOptionsConfigData;
 
 	/**
 	 * @var bool
@@ -75,10 +71,6 @@ class Options {
 			}
 		}
 		return $this->aOptionsValues;
-	}
-
-	public function getSlug() :string {
-		return (string)$this->getFeatureProperty( 'slug' );
 	}
 
 	/**
@@ -133,7 +125,7 @@ class Options {
 	 */
 	public function getOptionsForTracking() :array {
 		$opts = [];
-		if ( (bool)$this->getFeatureProperty( 'tracking_exclude' ) === false ) {
+		if ( !$this->getMod()->cfg->properties[ 'tracking_exclude' ] ) {
 
 			$options = $this->getAllOptionsValues();
 			foreach ( $this->getOptionsKeys() as $key ) {
@@ -152,7 +144,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $property
 	 * @return mixed|null
 	 */
 	public function getFeatureProperty( string $property ) {
@@ -179,7 +170,7 @@ class Options {
 	}
 
 	/**
-	 * @return string
+	 * @deprecated 15.0
 	 */
 	public function getFeatureTagline() {
 		return $this->getFeatureProperty( 'tagline' );
@@ -410,24 +401,19 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param string $prop
 	 * @return mixed|null
 	 */
 	public function getOptProperty( string $key, string $prop ) {
 		return $this->getOptDefinition( $key )[ $prop ] ?? null;
 	}
 
+	public function cfg() :ModConfigVO {
+		return $this->getMod()->cfg;
+	}
+
 	public function getRawData_FullFeatureConfig() :array {
-		if ( empty( $this->aRawOptionsConfigData ) ) {
-			try {
-				$this->aRawOptionsConfigData = $this->getConfigLoader()->run();
-			}
-			catch ( \Exception $e ) {
-				$this->aRawOptionsConfigData = [];
-			}
-		}
-		return $this->aRawOptionsConfigData;
+		// TODO: use the cfg directly throughout instead of via array
+		return empty( $this->aRawOptionsConfigData ) ? $this->cfg()->getRawData() : $this->aRawOptionsConfigData;
 	}
 
 	protected function getRawData_AllOptions() :array {
@@ -453,21 +439,33 @@ class Options {
 		return $text;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isAccessRestricted() :bool {
 		$state = $this->getFeatureProperty( 'access_restricted' );
 		return is_null( $state ) || $state;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isModuleRunIfWhitelisted() :bool {
 		$state = $this->getFeatureProperty( 'run_if_whitelisted' );
 		return is_null( $state ) || $state;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isModuleRunUnderWpCli() :bool {
 		$state = $this->getFeatureProperty( 'run_if_wpcli' );
 		return is_null( $state ) || $state;
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function isModuleRunIfVerifiedBot() :bool {
 		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
 	}
@@ -560,7 +558,6 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
 	 * @return $this
 	 */
 	public function setOptAt( string $key ) {
@@ -569,8 +566,7 @@ class Options {
 
 	/**
 	 * Use this to directly set the option value without the risk of any recursion.
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return $this
 	 */
 	protected function setOptValue( string $key, $value ) {
@@ -581,9 +577,7 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $mPotentialValue
-	 * @return bool
+	 * @param mixed $mPotentialValue
 	 */
 	private function verifyCanSet( string $key, $mPotentialValue ) :bool {
 		$valid = true;
@@ -591,14 +585,14 @@ class Options {
 		switch ( $this->getOptionType( $key ) ) {
 
 			case 'integer':
-				$nMin = $this->getOptProperty( $key, 'min' );
-				if ( !is_null( $nMin ) ) {
-					$valid = $mPotentialValue >= $nMin;
+				$min = $this->getOptProperty( $key, 'min' );
+				if ( !is_null( $min ) ) {
+					$valid = $mPotentialValue >= $min;
 				}
 				if ( $valid ) {
-					$nMax = $this->getOptProperty( $key, 'max' );
-					if ( !is_null( $nMax ) ) {
-						$valid = $mPotentialValue <= $nMax;
+					$max = $this->getOptProperty( $key, 'max' );
+					if ( !is_null( $max ) ) {
+						$valid = $mPotentialValue <= $max;
 					}
 				}
 				break;
@@ -662,7 +656,6 @@ class Options {
 		return [
 			'dismissed_notices',
 			'ui_track',
-			'help_video_options',
 			'xfer_excluded',
 			'cfg_version'
 		];
@@ -689,7 +682,7 @@ class Options {
 
 	public function getConfigLoader() :Config\LoadConfig {
 		if ( empty( $this->cfgLoader ) ) {
-			$this->cfgLoader = ( new Config\LoadConfig() )->setMod( $this->getMod() );
+			$this->cfgLoader = new Config\LoadConfig( $this->getMod()->getSlug() );
 		}
 		return $this->cfgLoader;
 	}

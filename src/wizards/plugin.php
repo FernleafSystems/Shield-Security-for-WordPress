@@ -127,7 +127,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$stepsSlugs = [
 			'welcome',
-			'ip_detect'
 		];
 
 		if ( $con->isPremiumActive() ) {
@@ -283,9 +282,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					$users = Services::WpUsers()->getCurrentWpUser();
 					$additional = [
 						'hrefs'   => [
-							'facebook'       => 'https://shsec.io/pluginshieldsecuritygroupfb',
-							'twitter'        => 'https://shsec.io/pluginshieldsecuritytwitter',
-							'email'          => 'https://shsec.io/pluginshieldsecuritynewsletter',
+							'facebook' => 'https://shsec.io/pluginshieldsecuritygroupfb',
+							'twitter'  => 'https://shsec.io/pluginshieldsecuritytwitter',
+							'email'    => 'https://shsec.io/pluginshieldsecuritynewsletter',
 						],
 						'imgs'    => [
 							'facebook' => $con->svgs->raw( 'bootstrap/facebook.svg' ),
@@ -499,15 +498,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardImportOptions() {
 		$req = Services::Request();
-
-		$sMasterSiteUrl = $req->post( 'MasterSiteUrl' );
-		$sSecretKey = $req->post( 'MasterSiteSecretKey' );
-		$bEnabledNetwork = $req->post( 'ShieldNetworkCheck' ) === 'Y';
-
 		try {
 			$code = ( new Plugin\Lib\ImportExport\Import() )
 				->setMod( $this->getMod() )
-				->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork );
+				->fromSite( (string)$req->post( 'MasterSiteUrl' ), (string)$req->post( 'MasterSiteSecretKey' ), $req->post( 'ShieldNetworkCheck' ) === 'Y' );
 		}
 		catch ( Exception $e ) {
 			$sSiteResponse = $e->getMessage();
@@ -648,7 +642,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			if ( $enable ) { // we don't disable the whole module
 				$mod->setIsMainFeatureEnabled( true );
 			}
-			$mod->setEnabledAntiBotDetection( $enable );
+			$opts->setOpt( 'enable_antibot_check', $enable ? 'Y' : 'N' );
 			$mod->saveModOptions();
 
 			$success = $opts->isEnabledAntiBot() === $enable;

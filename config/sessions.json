@@ -1,6 +1,7 @@
 {
   "properties":  {
     "slug":                  "sessions",
+    "load_priority":         5,
     "name":                  "Sessions",
     "show_module_menu_item": false,
     "storage_key":           "sessions",

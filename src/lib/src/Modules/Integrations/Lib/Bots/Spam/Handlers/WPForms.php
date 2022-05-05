@@ -17,7 +17,7 @@ class WPForms extends Base {
 
 		add_filter( 'wpforms_process_initial_errors', function ( $errors, $formData ) {
 
-			if ( empty( $errors[ $this->workingFormID ] ) && $this->isSpam() ) {
+			if ( empty( $errors[ $this->workingFormID ] ) && $this->isBotBlockRequired() ) {
 				$errors[ $this->workingFormID ] = [
 					'header' => $this->getCommonSpamMessage(),
 				];

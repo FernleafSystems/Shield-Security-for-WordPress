@@ -2,16 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
-	ModCon,
-	DB\BotSignal
+	ModCon
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -23,8 +23,14 @@ class BotSignalsRecord {
 	public function delete() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$thisReq = $this->getCon()->this_req;
 		/** @var BotSignal\Ops\Select $select */
 		$select = $mod->getDbH_BotSignal()->getQueryDeleter();
+
+		if ( $thisReq->ip === $this->getIP() ) {
+			unset( $thisReq->botsignal_record );
+		}
+
 		return $select->filterByIP( $this->getIPRecord()->id )->query();
 	}
 
@@ -49,6 +55,11 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$thisReq = $this->getCon()->this_req;
+
+		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
+			return $thisReq->botsignal_record;
+		}
 
 		$r = $this->dbLoad();
 		if ( empty( $r ) ) {
@@ -78,15 +89,15 @@ class BotSignalsRecord {
 		}
 
 		if ( empty( $r->auth_at ) ) {
-			$dbhSessions = $this->getCon()
-								->getModule_Sessions()
-								->getDbHandler_Sessions();
-			/** @var Session\Select $selector */
-			$selector = $dbhSessions->getQuerySelector();
-			$session = $selector->setIncludeSoftDeleted( true )
-								->filterByIp( $this->getIP() )
-								->first();
-			$r->auth_at = empty( $session ) ? 0 : $session->created_at;
+			/** @var UserMetaDB\Select $userMetaSelect */
+			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
+												->setColumnsToSelect( [ 'last_login_at' ] )
+												->setOrderBy( 'last_login_at' )
+												->first();
+			if ( !empty( $lastUserMetaLogin ) ) {
+				$r->auth_at = $lastUserMetaLogin->last_login_at;
+			}
 		}
 
 		if ( $storeOnLoad ) {
@@ -129,13 +140,17 @@ class BotSignalsRecord {
 						   ->getQueryUpdater()
 						   ->updateById( $record->id, $data );
 		}
+
+		$thisReq = $this->getCon()->this_req;
+		if ( $thisReq->ip === $record->ip ) {
+			$thisReq->botsignal_record = $record;
+		}
+
 		return $success;
 	}
 
 	/**
-	 * @param string   $field
 	 * @param int|null $ts
-	 * @return BotSignalRecord
 	 * @throws \LogicException
 	 */
 	public function updateSignalField( string $field, $ts = null ) :BotSignalRecord {

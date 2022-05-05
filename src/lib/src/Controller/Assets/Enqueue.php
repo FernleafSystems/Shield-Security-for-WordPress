@@ -63,6 +63,7 @@ class Enqueue {
 		$toDequeue = [];
 		$prefix = $this->getCon()->prefix();
 		$conflictHandles = array_map( 'preg_quote', [
+			'cerber_css', // Really? on every WP admin page?
 			'bootstrap',
 			'wp-notes',
 		] );

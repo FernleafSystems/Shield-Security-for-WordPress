@@ -47,7 +47,7 @@ class Options extends BaseShield\Options {
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
 			},
-			is_array( $paths ) ? $paths : []
+			$paths
 		);
 	}
 
@@ -70,8 +70,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @param string $fileName
-	 * @param string $url
 	 * @return string[]
 	 */
 	private function getMalSignatures( string $fileName, string $url ) :array {
@@ -107,7 +105,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isAutoFilterResults() :bool {
-		return $this->isOpt( 'auto_filter_results', 'Y' );
+		return (bool)apply_filters( 'shield/scan_auto_filter_results', true );
 	}
 
 	public function isPtgReinstallLinks() :bool {

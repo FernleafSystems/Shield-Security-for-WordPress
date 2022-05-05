@@ -22,7 +22,7 @@ class WPMembers extends Base {
 	 * @return array
 	 */
 	public function checkLostPassword_WM( array $args ) {
-		if ( $this->setAuditAction( 'lostpassword' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'lostpassword' )->isBotBlockRequired() ) {
 			$args[ 'user' ] = null;
 			$args[ 'email' ] = null;
 		}
@@ -33,7 +33,7 @@ class WPMembers extends Base {
 	 * Offers no direct validation filter, so we jump in right before the DB insert.
 	 */
 	public function checkRegister_WM() {
-		if ( $this->setAuditAction( 'register' )->checkIsBot() ) {
+		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			global $wpmem_themsg;
 			$wpmem_themsg = $this->getErrorMessage();
 		}

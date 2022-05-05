@@ -17,7 +17,7 @@
 		{% for session in vars.sessions %}
 			<tr>
 			<td>
-				<span>{{ session.wp_username }}</span>
+				<span>{{ session.user_login }}</span>
 				<span>
 					{% if session.is_sec_admin %}
 						<a class="dashicons dashicons-shield-alt"

@@ -57,8 +57,8 @@ class ModCon extends BaseShield\ModCon {
 
 		$opts->setOpt( 'auto_idle_roles',
 			array_unique( array_filter( array_map(
-				function ( $sRole ) {
-					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+				function ( $role ) {
+					return preg_replace( '#[^\s\da-z_-]#i', '', trim( strtolower( $role ) ) );
 				},
 				$opts->getSuspendAutoIdleUserRoles()
 			) ) )

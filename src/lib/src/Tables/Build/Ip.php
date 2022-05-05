@@ -50,23 +50,23 @@ class Ip extends BaseBuild {
 
 		foreach ( $this->getEntriesRaw() as $key => $entry ) {
 			/** @var IPs\EntryVO $entry */
-			$aE = $entry->getRawData();
+			$e = $entry->getRawData();
 			$bBlocked = $entry->blocked_at > 0 || $entry->transgressions >= $nTransLimit;
-			$aE[ 'last_trans_at' ] = Services::Request()
+			$e[ 'last_trans_at' ] = Services::Request()
 											 ->carbon( true )
 											 ->setTimestamp( $entry->last_access_at )
 											 ->diffForHumans();
-			$aE[ 'last_access_at' ] = $this->formatTimestampField( $entry->last_access_at );
-			$aE[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
-			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
-			$aE[ 'expires_at' ] = $this->formatTimestampField( $entry->last_access_at + $opts->getAutoExpireTime() );
-			$aE[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
-			$aE[ 'ip' ] = sprintf( '%s%s',
+			$e[ 'last_access_at' ] = $this->formatTimestampField( $entry->last_access_at );
+			$e[ 'created_at' ] = $this->formatTimestampField( $entry->created_at );
+			$e[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
+			$e[ 'expires_at' ] = $this->formatTimestampField( $entry->last_access_at + $opts->getAutoExpireTime() );
+			$e[ 'is_you' ] = $srvIP->checkIp( $you, $entry->ip );
+			$e[ 'ip' ] = sprintf( '%s%s',
 				$this->getIpAnalysisLink( $entry->ip ),
-				$aE[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
+				$e[ 'is_you' ] ? ' <span class="small">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
-			$entries[ $key ] = $aE;
+			$entries[ $key ] = $e;
 		}
 		return $entries;
 	}

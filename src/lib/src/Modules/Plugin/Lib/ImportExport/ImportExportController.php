@@ -2,25 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ImportExportController {
+class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
-	use ExecOnce;
-	use ModConsumer;
 	use Shield\Crons\PluginCronsConsumer;
 
+	protected function canRun() :bool {
+		return $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) && $this->getCon()->isPremiumActive();
+	}
+
 	protected function run() {
-		$con = $this->getCon();
-		if ( $con->isPremiumActive() ) {
-			$this->setupHooks();
-			$this->setupCronHooks();
-		}
+		$this->setupHooks();
+		$this->setupCronHooks();
 	}
 
 	private function setupHooks() {
@@ -28,11 +25,13 @@ class ImportExportController {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
+		$this->getImportExportSecretKey();
+
 		// Cron
 		add_action( $con->prefix( 'importexport_notify' ), function () {
 			( new NotifyWhitelist() )
 				->setMod( $this->getMod() )
-				->run();
+				->execute();
 		} );
 
 		add_action( 'shield/plugin_activated', function () {
@@ -53,13 +52,13 @@ class ImportExportController {
 				case 'importexport_export':
 					( new Export() )
 						->setMod( $this->getMod() )
-						->run( Services::Request()->query( 'method' ) );
+						->run( (string)Services::Request()->query( 'method' ) );
 					break;
 
 				case 'importexport_import':
 					( new Import() )
 						->setMod( $this->getMod() )
-						->run( Services::Request()->query( 'method' ) );
+						->run( (string)Services::Request()->query( 'method' ) );
 					break;
 
 				case 'importexport_handshake':
@@ -71,6 +70,53 @@ class ImportExportController {
 					break;
 			}
 		} );
+	}
+
+	public function addUrlToImportExportWhitelistUrls( string $url ) {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		$url = Services::Data()->validateSimpleHttpUrl( $url );
+		if ( $url !== false ) {
+			$urls = $opts->getImportExportWhitelist();
+			$urls[] = $url;
+			$opts->setOpt( 'importexport_whitelist', $urls );
+			$this->getMod()->saveModOptions();
+		}
+	}
+
+	public function removeUrlFromImportExportWhitelistUrls( string $url ) {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		$url = Services::Data()->validateSimpleHttpUrl( $url );
+		if ( $url !== false ) {
+			$urls = $opts->getImportExportWhitelist();
+			$key = array_search( $url, $urls );
+			if ( $key !== false ) {
+				unset( $urls[ $key ] );
+			}
+			$opts->setOpt( 'importexport_whitelist', $urls );
+			$this->getMod()->saveModOptions();
+		}
+	}
+
+	protected function getImportExportSecretKey() :string {
+		/** @var Plugin\Options $opts */
+		$opts = $this->getOptions();
+		$ID = $opts->getOpt( 'importexport_secretkey', '' );
+		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
+			$ID = sha1( $this->getCon()->getSiteInstallationId().wp_rand( 0, PHP_INT_MAX ) );
+			$opts->setOpt( 'importexport_secretkey', $ID )
+				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
+		}
+		return $ID;
+	}
+
+	public function verifySecretKey( string $secret ) :bool {
+		return !empty( $secret ) && $this->getImportExportSecretKey() == $secret;
+	}
+
+	protected function isImportExportSecretKeyExpired() :bool {
+		return Services::Request()->ts() > $this->getOptions()->getOpt( 'importexport_secretkey_expires_at' );
 	}
 
 	private function importFromFlag() {

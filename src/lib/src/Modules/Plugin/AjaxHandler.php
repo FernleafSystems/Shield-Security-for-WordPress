@@ -16,6 +16,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		] );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
+				'mod_options_save'        => [ $this, 'ajaxExec_ModOptionsSave' ],
 				'bulk_action'             => [ $this, 'ajaxExec_BulkItemAction' ],
 				'delete_forceoff'         => [ $this, 'ajaxExec_DeleteForceOff' ],
 				'import_from_site'        => [ $this, 'ajaxExec_ImportFromSite' ],
@@ -28,9 +29,36 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
 				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
+				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
 			] );
 		}
 		return $map;
+	}
+
+	public function ajaxExec_ModOptionsSave() :array {
+		$name = $this->getCon()->getHumanName();
+
+		$saver = ( new Shield\Modules\Base\Options\HandleOptionsSaveRequest() )
+			->setMod( $this->getMod() );
+		$success = $saver->handleSave();
+
+		return [
+			'success'     => $success,
+			'redirect_to' => $saver->getMod()->getUrl_OptionsConfigPage(),
+			'html'        => '', //we reload the page
+			'message'     => $success ?
+				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $name )
+				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $name )
+		];
+	}
+
+	public function ajaxExec_RenderDashboardWidget() :array {
+		return [
+			'success' => true,
+			'html'    => ( new Components\DashboardWidget() )
+				->setMod( $this->getMod() )
+				->render( (bool)Services::Request()->post( 'refresh' ) )
+		];
 	}
 
 	public function ajaxExec_Wizard() :array {
@@ -97,14 +125,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	public function ajaxExec_DeleteForceOff() :array {
-		$stillActive = $this->getCon()
-							->deleteForceOffFile()
-							->getIfForceOffActive();
-		if ( $stillActive ) {
-			$this->getMod()
-				 ->setFlashAdminNotice( __( 'File could not be automatically removed.', 'wp-simple-firewall' ), null, true );
-		}
-		return [ 'success' => !$stillActive ];
+		$this->getCon()->deleteForceOffFile();
+		return [ 'success' => true ];
 	}
 
 	public function ajaxExec_RenderTableAdminNotes() :array {
@@ -123,17 +145,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$sItemId = Services::Request()->post( 'rid' );
-		if ( empty( $sItemId ) ) {
+		$noteID = Services::Request()->post( 'rid' );
+		if ( empty( $noteID ) ) {
 			$msg = __( 'Note not found.', 'wp-simple-firewall' );
 		}
 		else {
 			try {
-				$bSuccess = $mod->getDbHandler_Notes()
-								->getQueryDeleter()
-								->deleteById( $sItemId );
+				$success = $mod->getDbHandler_Notes()
+							   ->getQueryDeleter()
+							   ->deleteById( $noteID );
 
-				if ( $bSuccess ) {
+				if ( $success ) {
 					$msg = __( 'Note deleted', 'wp-simple-firewall' );
 				}
 				else {
@@ -165,17 +187,13 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
 		}
 		else {
-			$sMasterSiteUrl = $formParams[ 'MasterSiteUrl' ];
-			$sSecretKey = $formParams[ 'MasterSiteSecretKey' ];
-			$bEnabledNetwork = $formParams[ 'ShieldNetwork' ] === 'Y';
-			$bDisableNetwork = $formParams[ 'ShieldNetwork' ] === 'N';
-			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
+			$doNetwork = ( $formParams[ 'ShieldNetwork' ] === 'Y' ) ? true : ( ( $formParams[ 'ShieldNetwork' ] === 'N' ) ? false : null );
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
 			try {
 				$code = ( new Plugin\Lib\ImportExport\Import() )
 					->setMod( $this->getMod() )
-					->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+					->fromSite( (string)$formParams[ 'MasterSiteUrl' ], (string)$formParams[ 'MasterSiteSecretKey' ], $doNetwork );
 			}
 			catch ( \Exception $e ) {
 				$code = $e->getCode();
@@ -232,8 +250,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$opts->setVisitorAddressSource( $source );
 		}
 		return [
-			'success' => !empty( $source ),
-			'message' => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source
+			'success'   => !empty( $source ),
+			'message'   => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source,
+			'ip_source' => $source,
 		];
 	}
 

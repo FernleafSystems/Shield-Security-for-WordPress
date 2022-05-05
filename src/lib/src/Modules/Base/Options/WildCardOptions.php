@@ -88,7 +88,7 @@ class WildCardOptions {
 		return array_unique( $optValues );
 	}
 
-	public function buildFullRegexValue( string $value, int $type ) :string {
+	public function buildFullRegexValue( string $value, int $type, bool $regexWrap = true ) :string {
 		$valueRegEx = $this->convertValueToRegEx( $value, $type );
 
 		switch ( $type ) {
@@ -102,7 +102,7 @@ class WildCardOptions {
 				break;
 		}
 
-		return sprintf( '#^%s$#i', $fullValue );
+		return $regexWrap ? sprintf( '#^%s$#i', $fullValue ) : $fullValue;
 	}
 
 	protected function convertValueToRegEx( string $value, int $type ) :string {
