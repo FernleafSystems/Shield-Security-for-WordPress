@@ -72,6 +72,12 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function preProcessOptions() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
+			$opts->setOpt( 'ipdetect_at', 0 );
+		}
+
 		( new Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )
 			->checkAll();
@@ -445,8 +451,13 @@ class ModCon extends BaseShield\ModCon {
 				'shield/ip_detect',
 				'icwp_wpsf_vars_ipdetect',
 				[
-					'url'  => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
-					'ajax' => $this->getAjaxActionData( 'ipdetect' ),
+					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
+					'ajax'    => $this->getAjaxActionData( 'ipdetect' ),
+					'strings' => [
+						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
+						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),
+						'reloading'    => __( 'Please reload the page.', 'wp-simple-firewall' ),
+					],
 				]
 			];
 		}

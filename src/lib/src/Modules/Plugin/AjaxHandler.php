@@ -250,8 +250,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$opts->setVisitorAddressSource( $source );
 		}
 		return [
-			'success' => !empty( $source ),
-			'message' => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source
+			'success'   => !empty( $source ),
+			'message'   => empty( $source ) ? 'Could not find source' : 'IP Source Found: '.$source,
+			'ip_source' => $source,
 		];
 	}
 
