@@ -1,13 +1,15 @@
 {
   "15.0": {
     "version":     "15.0",
-    "released_at": 1649932802,
+    "released_at": 1652184000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease150",
       "upgrade": "https://shsec.io/shieldupgradeguide150"
     },
     "title":       "Rules Engine",
     "description": [
+      "A major overhaul of how Shield assesses all incoming requests.",
+      "The Rule Engine allows for streamlined security processing and, in the future, easily customisable rules to handle any scenario."
     ],
     "items":       [
       {
@@ -65,21 +67,21 @@
       },
       {
         "type":        "improved",
-        "title":       "Author Discovery/Fishing",
-        "description": [
-          "This feature is now a Bot Signal which is logged in the Audit Trail and triggers offenses."
-        ]
-      },
-      {
-        "type":        "improved",
         "title":       "Massive Performance Improvements",
         "description": [
           "Shield has undergone major enhancements and performance improvements."
         ],
         "list":        [
-          "Reduced duplicate and unnecessary DB requests.",
-          "Consolidated and removed many excess Transients (fewer DB requests).",
+          "Removed duplicate and unnecessary DB requests.",
+          "Consolidated and removed many excess WP Transients (fewer DB requests).",
           "Optimised several DB queries."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Author Discovery/Fishing",
+        "description": [
+          "This feature is now a Bot Signal which is logged in the Audit Trail and triggers offenses."
         ]
       },
       {
