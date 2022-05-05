@@ -12,7 +12,6 @@ if ( typeof icwp_wpsf_vars_ipdetect !== 'undefined' ) {
 						success: function ( raw ) {
 							let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 							if ( response.success ) {
-								console.log( response );
 								alert(
 									icwp_wpsf_vars_ipdetect.strings.source_found
 									+ "\n" + icwp_wpsf_vars_ipdetect.strings.ip_source + ': ' + response.data.ip_source

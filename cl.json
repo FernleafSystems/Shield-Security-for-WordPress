@@ -9,7 +9,7 @@
     "title":       "Rules Engine",
     "description": [
       "A major overhaul of how Shield assesses all incoming requests.",
-      "The Rule Engine allows for streamlined security processing and, in the future, easily customisable rules to handle any scenario."
+      "The Rules Engine allows for streamlined security processing and, in the future, easily customisable rules to handle any scenario."
     ],
     "items":       [
       {

@@ -18,7 +18,6 @@ class RealtimeFile extends BaseScan {
 
 		$mtime = $FS->isFile( $this->pathFull ) ? $FS->getModifiedTime( $this->pathFull ) : 0;
 		if ( $mtime > $action->realtime_scan_last_at ) {
-			error_log( var_export( $action->realtime_scan_last_at, true ) );
 			throw new RealtimeFileDiscoveredException( $this->pathFull, [ 'mtime' => $mtime ] );
 		}
 		return true;
