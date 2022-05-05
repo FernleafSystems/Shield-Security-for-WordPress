@@ -92,11 +92,7 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 		$this->isFrontend = $isFrontend;
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
 
-			$isPageWithProfileDisplay = in_array( $hook, [
-				'profile.php',
-				'user-edit.php',
-				'shieldpro_page_icwp-wpsf-my-login-security'
-			] );
+			$isPageWithProfileDisplay = preg_match( '#^(profile\.php|user-edit\.php|.*icwp-wpsf-my-login-security)$#', (string)$hook );
 			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
 				$enqueues[ Enqueue::CSS ][] = 'shield/dialog';
