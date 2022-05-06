@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\ConfigVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\{
+	Config\ConfigVO,
+	Exceptions\VersionMismatchException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -31,6 +34,8 @@ class LoadConfig {
 	 */
 	public function run() :ConfigVO {
 		$con = $this->getCon();
+		$WPP = Services::WpPlugins();
+
 		$def = $this->fromWp();
 		$rebuild = empty( $def ) || !is_array( $def );
 
@@ -40,7 +45,7 @@ class LoadConfig {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 
 			$rebuild = empty( $def[ 'hash' ] ) || !hash_equals( $def[ 'hash' ], $specHash )
-					   || ( $version !== Services::WpPlugins()->getPluginAsVo( $con->base_file )->Version );
+					   || ( $version !== $WPP->getPluginAsVo( $con->base_file )->Version );
 			$def[ 'hash' ] = $specHash;
 		}
 
@@ -55,6 +60,10 @@ class LoadConfig {
 
 		if ( empty( $cfg->previous_version ) ) {
 			$cfg->previous_version = $cfg->properties[ 'version' ];
+		}
+
+		if ( $cfg->properties[ 'version' ] !== $WPP->getPluginAsVo( $con->base_file )->Version ) {
+			throw new VersionMismatchException();
 		}
 
 		return $cfg;

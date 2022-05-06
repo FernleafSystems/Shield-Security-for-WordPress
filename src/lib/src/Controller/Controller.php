@@ -25,7 +25,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
- * @property bool                                                   $rebuild_options
  * @property Shield\Utilities\CacheDir                              $cache_dir_handler
  * @property bool                                                   $user_can_base_permissions
  * @property false|string                                           $file_forceoff
@@ -73,7 +72,6 @@ class Controller extends DynPropertiesClass {
 		if ( !isset( $this->service_events ) ) {
 			$this->service_events = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
-			$this->oEventsService = $this->service_events;
 		}
 		return $this->service_events;
 	}
@@ -106,7 +104,6 @@ class Controller extends DynPropertiesClass {
 			Services::WpPlugins()->activate( $this->base_file );
 		}
 		$this->loadConfig();
-
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
 
@@ -143,7 +140,6 @@ class Controller extends DynPropertiesClass {
 			case 'plugin_deactivating':
 			case 'plugin_deleting':
 			case 'plugin_reset':
-			case 'rebuild_options':
 			case 'user_can_base_permissions':
 				$val = (bool)$val;
 				break;
@@ -161,12 +157,6 @@ class Controller extends DynPropertiesClass {
 				if ( empty( $val ) ) {
 					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
 					$this->cache_dir_handler = $val;
-				}
-				break;
-
-			case 'cfg':
-				if ( !$val instanceof Config\ConfigVO ) {
-					$val = $this->loadConfig();
 				}
 				break;
 
@@ -341,36 +331,17 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function adminNoticePluginFailedToLoad() {
-		$this->getRenderer()
-			 ->setTemplate( 'notices/plugin-failed-to-load' )
-			 ->setRenderVars( [
-				 'strings' => [
-					 'summary_title'    => 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.',
-					 'more_information' => $this->sAdminNoticeError
-				 ]
-			 ] )
-			 ->display();
 	}
 
 	/**
 	 * All our module page names are prefixed
-	 * @return bool
 	 */
-	public function isThisPluginModuleRequest() {
+	public function isThisPluginModuleRequest() :bool {
 		return strpos( Services::Request()->query( 'page' ), $this->prefix() ) === 0;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getRequirementsMessages() {
-		if ( !isset( $this->aRequirementsMessages ) ) {
-			$this->aRequirementsMessages = [
-				'<h4>Shield Security Plugin - minimum site requirements are not met:</h4>'
-			];
-		}
-		return $this->aRequirementsMessages;
 	}
 
 	public function onWpDeactivatePlugin() {
@@ -923,7 +894,6 @@ class Controller extends DynPropertiesClass {
 				->setCon( $this )
 				->run();
 		}
-		$this->rebuild_options = $this->cfg->rebuilt;
 		return $this->cfg;
 	}
 
@@ -1233,11 +1203,6 @@ class Controller extends DynPropertiesClass {
 				$this->getModule( $cfg->slug );
 			}
 			catch ( \Exception $e ) {
-				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
-					$this->sAdminNoticeError = $e->getMessage();
-					add_action( 'admin_notices', [ $this, 'adminNoticePluginFailedToLoad' ] );
-					add_action( 'network_admin_notices', [ $this, 'adminNoticePluginFailedToLoad' ] );
-				}
 			}
 		}
 
@@ -1251,6 +1216,7 @@ class Controller extends DynPropertiesClass {
 		do_action( $this->prefix( 'modules_loaded' ) );
 
 		$this->rules->execute();
+
 		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
 
 			$this->rules->processRules();
