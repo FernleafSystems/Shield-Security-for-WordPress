@@ -19,7 +19,7 @@ class UI extends BaseShield\UI {
 				],
 				'flags'   => [],
 				'strings' => [
-					'table_title' => sprintf( '%s: %s', __( 'Logs', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ),
+					'table_title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'datatables_init' => ( new ForAuditTrail() )

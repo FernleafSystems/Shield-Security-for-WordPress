@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
-		$this->checkIP( '66.249.79.9' );
+		$this->checkIP( '88.201.163.83' );
 		die( 'finish' );
 	}
 

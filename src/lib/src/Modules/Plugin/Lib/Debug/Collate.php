@@ -160,7 +160,7 @@ class Collate {
 		$data = [];
 
 		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
-		$data[ 'DB Table: Audit Trail' ] = $dbh->isReady() ?
+		$data[ 'DB Table: Activity Log' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 

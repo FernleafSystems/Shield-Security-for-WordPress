@@ -95,9 +95,9 @@ class ModCon extends BaseShield\ModCon {
 			if ( !empty( $exportData ) ) {
 				$exportItems[] = [
 					'group_id'          => $this->getModSlug(),
-					'group_label'       => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ),
+					'group_label'       => sprintf( __( '[%s] Activity Log Entries', 'wp-simple-firewall' ),
 						$con->getHumanName() ),
-					'group_description' => sprintf( __( '[%s] Audit Trail Entries referencing the given user.', 'wp-simple-firewall' ),
+					'group_description' => sprintf( __( '[%s] Activity Log Entries referencing the given user.', 'wp-simple-firewall' ),
 						$con->getHumanName() ),
 					'item_id'           => $con->prefix( 'audit-trail' ),
 					'data'              => $exportData,

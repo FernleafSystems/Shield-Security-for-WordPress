@@ -32,7 +32,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				default:
-					throw new \Exception( 'Not a supported Audit Trail table sub_action: '.$action );
+					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
 			}
 		}
 		catch ( \Exception $e ) {

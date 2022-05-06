@@ -2,10 +2,10 @@
   "slug":             "audit_trail",
   "properties":       {
     "slug":                  "audit_trail",
-    "name":                  "Audit Trail",
+    "name":                  "Activity Log",
     "load_priority":         11,
     "menu_priority":         40,
-    "sidebar_name":          "Audit Trail",
+    "sidebar_name":          "Activity Log",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",
@@ -26,7 +26,7 @@
   },
   "menu_items":       [
     {
-      "title": "Audit Trail",
+      "title": "Activity Log",
       "slug":  "audit-redirect"
     }
   ],
@@ -49,7 +49,7 @@
       "title_short": "Log To DB",
       "beacon_id":   241,
       "summary":     [
-        "Purpose - Provides finer control over the audit trail itself.",
+        "Purpose - Provides finer control over the Activity Log itself.",
         "Recommendation - These settings are dependent on your requirements."
       ]
     },
@@ -59,18 +59,18 @@
       "title_short": "Log To File",
       "beacon_id":   241,
       "summary":     [
-        "Purpose - Provides finer control over the audit trail itself.",
+        "Purpose - Provides finer control over the Activity Log itself.",
         "Recommendation - These settings are dependent on your requirements."
       ]
     },
     {
       "slug":        "section_enable_plugin_feature_audit_trail",
-      "title":       "Enable Module: Audit Trail",
+      "title":       "Enable Module: Activity Log",
       "title_short": "Disable Module",
       "beacon_id":   241,
       "summary":     [
-        "Purpose - The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.",
-        "Recommendation - Keep the Audit Trail feature turned on."
+        "Purpose - The Activity Log is designed so you can look back on events and analyse what happened and what may have gone wrong.",
+        "Recommendation - Keep the Activity Log feature turned on."
       ]
     },
     {
@@ -88,9 +88,9 @@
       "link_info":   "https://shsec.io/5p",
       "link_blog":   "https://shsec.io/a1",
       "beacon_id":   241,
-      "name":        "Enable Audit Trail",
-      "summary":     "Enable (or Disable) The Audit Trail module",
-      "description": "Un-Checking this option will completely disable the Audit Trail module"
+      "name":        "Enable Activity Log",
+      "summary":     "Enable (or Disable) The Activity Log module",
+      "description": "Un-Checking this option will completely disable the Activity Log module"
     },
     {
       "key":           "log_level_db",

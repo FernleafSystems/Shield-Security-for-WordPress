@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ icwp_macros.slideTitle( 'Audit Trail and Logging' ) }}
+	{{ icwp_macros.slideTitle( 'Activity Log' ) }}
 
 	<p class="description">Turn on the Audit Trail below so you can track activity on your site and troubleshoot problems more easily.</p>
 
@@ -29,10 +29,10 @@
 			'N': '<span>Turn Off</span> - Do not log important site events'
 		}
 	%}
-	{{ icwp_macros.formInput_Radio( 'AuditTrailOption', radiovalues, 'Audit Trail' ) }}
+	{{ icwp_macros.formInput_Radio( 'AuditTrailOption', radiovalues, 'Activity Log' ) }}
 
 	{{ icwp_macros.formInput_Hidden( 'wizard-step', 'audit_trail' ) }}
-	{{ icwp_macros.formInput_Submit( 'Update The Audit Trail Setting' ) }}
+	{{ icwp_macros.formInput_Submit( 'Update The Activity Log Setting' ) }}
 </form>
 
 {% endblock %}

@@ -192,7 +192,7 @@ class UI extends BaseShield\UI {
 				],
 			],
 			[
-				'title' => __( 'Unlimited Audit Trail', 'wp-simple-firewall' ),
+				'title' => __( 'Unlimited Activity Log', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Retain logs for as long as you need without limits.', 'wp-simple-firewall' ),
 				],
