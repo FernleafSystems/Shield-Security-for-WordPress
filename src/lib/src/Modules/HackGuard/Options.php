@@ -33,14 +33,9 @@ class Options extends BaseShield\Options {
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
 	public function getWhitelistedPathsAsRegex() :array {
+		$paths = $this->getDef( 'default_whitelist_paths' );
 		if ( $this->isPremium() ) {
-			$paths = array_merge(
-				$this->getOpt( 'scan_path_exclusions', [] ),
-				$this->getDef( 'default_whitelist_paths' )
-			);
-		}
-		else {
-			$paths = [];
+			$paths = array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
 		}
 
 		return array_map(
