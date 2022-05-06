@@ -2,12 +2,6 @@
 	<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
 </a>
 
-<h3 class="subheader">
-	{{ strings.security_progress }}
-	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.overview }}">{{ strings.progress_overview }}</a>]</small>
-	{% endif %}
-</h3>
 <div class="shield-progress-bar
 	{% if vars.security_progress < 45 %}
 		red
@@ -15,9 +9,10 @@
 		orange
 	{% endif %}
 	">
-  <div class="thebar" style="width: {{ vars.security_progress }}%">
+  <a class="thebar" style="width: {{ vars.security_progress }}%"
+     href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
 		<div class="thepercent">{{ vars.security_progress }}&percnt;</div>
-  </div>
+  </a>
 </div>
 
 <h3 class="subheader">
