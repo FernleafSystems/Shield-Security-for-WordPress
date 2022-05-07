@@ -47,7 +47,7 @@ class BuildDisplay {
 					'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
 					'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
 					'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
-					'nav_audit'    => __( 'Audit Trail', 'wp-simple-firewall' ),
+					'nav_audit'    => __( 'Activity Log', 'wp-simple-firewall' ),
 					'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
 				],
 				'vars'    => [

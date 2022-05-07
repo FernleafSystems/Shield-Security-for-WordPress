@@ -323,6 +323,7 @@ tr.icwp-plugin-vulnerability dd {
 #ShieldDashboardWidget .shield-progress-bar > .thebar {
 	display: block;
 	height: 100%;
+	text-decoration: none;
 	border-top-right-radius: 8px;
 	border-bottom-right-radius: 8px;
 	border-top-left-radius: 20px;

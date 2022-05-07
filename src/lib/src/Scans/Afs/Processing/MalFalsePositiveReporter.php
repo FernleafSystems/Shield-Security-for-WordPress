@@ -10,8 +10,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 class MalFalsePositiveReporter {
 
-	const HASH_ALGO = 'sha1';
 	use Modules\ModConsumer;
+
+	const HASH_ALGO = 'sha1';
 
 	public function reportResultItem( ResultItem $item, bool $isFalsePositive = true ) {
 		$this->reportPath( $item->path_full, $isFalsePositive );

@@ -81,7 +81,7 @@
         "type":        "improved",
         "title":       "Author Discovery/Fishing",
         "description": [
-          "This feature is now a Bot Signal which is logged in the Audit Trail and triggers offenses."
+          "This feature is now a Bot Signal which is recorded in the Activity Log and triggers offenses."
         ]
       },
       {
@@ -96,6 +96,12 @@
         "title":       "Option Removed: Auto-Filter Scan Results",
         "description": [
           "Shield will now filter unnecessary scan results automatically. This can be adjusted using a WP filter."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Audit Trail Renamed to Activity Log",
+        "description": [
         ]
       }
     ],

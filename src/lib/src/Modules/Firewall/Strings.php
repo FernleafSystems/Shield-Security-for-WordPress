@@ -26,7 +26,7 @@ class Strings extends Base\Strings {
 					__( 'Here you choose what kind of malicious data to scan for.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
 						__( 'Turn on as many options here as you can.', 'wp-simple-firewall' ) )
-					.' '.__( 'If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail.', 'wp-simple-firewall' ),
+					.' '.__( 'If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Activity Log.', 'wp-simple-firewall' ),
 				];
 				$titleShort = __( 'Firewall Blocking', 'wp-simple-firewall' );
 				break;

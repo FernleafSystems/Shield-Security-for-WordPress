@@ -44,6 +44,9 @@ class ResultItem extends Base\ResultItem {
 				if ( !is_array( $value ) ) {
 					$value = json_decode( base64_decode( $value ), true );
 				}
+				if ( !is_array( $value ) ) {
+					$value = []; // make sure it is always an array for strict types
+				}
 				break;
 			case 'mal_sig':
 				$value = base64_decode( $value );

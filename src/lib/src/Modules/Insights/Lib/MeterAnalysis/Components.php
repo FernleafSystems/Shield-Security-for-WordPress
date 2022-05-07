@@ -436,14 +436,14 @@ class Components {
 						'weight'           => 25,
 					];
 				},
-				'audit_trail_enabled'      => function () {
+				'activity_log_enabled'      => function () {
 					$modAudit = $this->getCon()->getModule_AuditTrail();
 					/** @var AuditTrail\Options $optsAudit */
 					$optsAudit = $modAudit->getOptions();
 					return [
 						'title'            => __( 'Activity Logging', 'wp-simple-firewall' ),
-						'desc_protected'   => __( 'Tracking activity with the Audit Trail is enabled making it easier to track issues.', 'wp-simple-firewall' ),
-						'desc_unprotected' => __( "Activity tracking with the Audit Trail is disabled making it harder to track issues.", 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Tracking changes with the Activity Log is enabled making it easier to track issues.', 'wp-simple-firewall' ),
+						'desc_unprotected' => __( "Tracking changes with the Activity Log is disabled making it harder to track issues.", 'wp-simple-firewall' ),
 						'href'             => $modAudit->isModOptEnabled() ?
 							$modAudit->getUrl_DirectLinkToOption( 'section_localdb' )
 							: $modAudit->getUrl_DirectLinkToOption( 'enable_audit_trail' ),

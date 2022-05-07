@@ -88,7 +88,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'asdfasdf', 'wp-simple-firewall' ),
+				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
 					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
 				'lines'        => [
 					sprintf(

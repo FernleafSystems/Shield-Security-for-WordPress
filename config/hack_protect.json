@@ -565,6 +565,7 @@
       "wp-content/uploads/bb-plugin/cache/*",
       "wp-content/uploads/cache/wpml/twig/*",
       "wp-content/cache/*",
+      "src/lib/src/Rules/rules.json",
       "*/error_log",
       "*/php_error_log",
       "*/mail.log",

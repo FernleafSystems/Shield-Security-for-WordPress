@@ -430,7 +430,7 @@
   },
   "labels":           {
     "Name":             "Shield Security",
-    "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Audit Trail, Security Admin, and so much more.",
+    "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
     "Title":            "Shield Security",
     "Author":           "Shield Security",
     "AuthorName":       "Shield Security",
