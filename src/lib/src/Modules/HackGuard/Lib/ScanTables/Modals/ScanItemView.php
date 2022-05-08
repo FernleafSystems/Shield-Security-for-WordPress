@@ -36,8 +36,6 @@ class ScanItemView {
 			throw new \Exception( 'Non-file scan items are not supported yet.' );
 		}
 
-		$canDownload = Services::WpFs()->isFile( $item->path_full );
-
 		try {
 			$diffContent = $this->getFileDiff( $item );
 			$hasDiff = true;
@@ -50,7 +48,7 @@ class ScanItemView {
 		try {
 			$fileContent = ( new FileContents() )
 							   ->setMod( $mod )
-							   ->run( $rid )[ 'contents' ];
+							   ->run( $item )[ 'contents' ];
 			$hasContent = true;
 		}
 		catch ( \Exception $e ) {
@@ -69,6 +67,7 @@ class ScanItemView {
 			$hasHistory = false;
 		}
 
+		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
 			'path'     => \esc_html( $item->path_fragment ),
 			'contents' => $mod->renderTemplate(
@@ -84,7 +83,7 @@ class ScanItemView {
 							->run(),
 					],
 					'flags'   => [
-						'can_download' => $canDownload,
+						'can_download' => Services::WpFs()->isFile( $fullPath ),
 						'has_content'  => $hasContent,
 						'has_diff'     => $hasDiff,
 						'has_history'  => $hasHistory,
@@ -115,23 +114,20 @@ class ScanItemView {
 	}
 
 	/**
-	 * @param Scans\Afs\ResultItem $resultItem
-	 * @return string
+	 * @param Scans\Afs\ResultItem $item
 	 * @throws \Exception
 	 */
-	private function getFileDiff( $resultItem ) :string {
-		$pathFull = $resultItem->path_full;
+	private function getFileDiff( $item ) :string {
+		$pathFull = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 
-		if ( $resultItem->is_missing || !Services::WpFs()->isFile( $pathFull ) ) {
+		if ( $item->is_missing || !Services::WpFs()->isFile( $pathFull ) ) {
 			throw new \Exception( 'Diff is unavailable for missing files.' );
 		}
 
 		$original = '';
 		$coreHashes = Services::CoreFileHashes();
 		if ( $coreHashes->isCoreFile( $pathFull ) ) {
-			$original = Services::WpFs()->getFileContent(
-				( new WpOrg\Wp\Files() )->getOriginalFileFromVcs( $pathFull )
-			);
+			$original = ( new WpOrg\Wp\Files() )->getOriginalFileFromVcs( $pathFull );
 		}
 		else {
 			$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $pathFull );
@@ -156,11 +152,8 @@ class ScanItemView {
 			throw new \Exception( 'There is no original file available to create a diff.' );
 		}
 
-		$converter = new ConvertLineEndings();
-		$res = ( new Diff() )->getDiff(
-			$converter->dosToLinux( $original ),
-			$converter->fileDosToLinux( $pathFull )
-		);
+		$conv = new ConvertLineEndings();
+		$res = ( new Diff() )->getDiff( $conv->dosToLinux( $original ), $conv->fileDosToLinux( $pathFull ) );
 
 		if ( !is_array( $res ) || empty( $res[ 'html' ] ) ) {
 			throw new \Exception( 'Could not get a valid diff for this file.' );

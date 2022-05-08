@@ -12,21 +12,21 @@ use FernleafSystems\Wordpress\Services\Services;
 class SectionPluginThemesBase extends SectionBase {
 
 	protected function getCommonRenderData() :array {
-		return Services::DataManipulation()
-					   ->mergeArraysRecursive( parent::getCommonRenderData(), [
-						   'strings' => [
-							   'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-							   'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
-						   ],
-						   'flags'   => [
-							   'ptg_is_restricted' => $this->getScanConAFS()->isRestrictedPluginThemeScan(),
-						   ],
-						   'vars'    => [
-							   'datatables_init' => ( new ForPluginTheme() )
-								   ->setMod( $this->getMod() )
-								   ->build()
-						   ]
-					   ] );
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getCommonRenderData(), [
+			'strings' => [
+				'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
+				'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
+			],
+			'flags'   => [
+				'ptg_is_restricted' => $this->getScanConAFS()->isRestrictedPluginThemeScan(),
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForPluginTheme() )
+					->setMod( $this->getMod() )
+					->build()
+			]
+		] );
 	}
 
 	protected function getVulnerabilities() :Scans\Wpv\ResultsSet {

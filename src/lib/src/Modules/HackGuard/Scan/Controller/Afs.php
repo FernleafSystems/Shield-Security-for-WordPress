@@ -151,13 +151,12 @@ class Afs extends BaseForFiles {
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {
-
 			$CFH = Services::CoreFileHashes();
-			if ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
-				$updater->setItemRepaired( $item->VO->resultitem_id );
-			}
-			elseif ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
+			if ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
 				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+			}
+			elseif ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
+				$updater->setItemRepaired( $item->VO->resultitem_id );
 			}
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {

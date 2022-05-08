@@ -13,18 +13,10 @@ class FileContents {
 	use ModConsumer;
 
 	/**
+	 * @param Scans\Afs\ResultItem $item
 	 * @throws \Exception
 	 */
-	public function run( int $rid, bool $rawContents = false ) :array {
-		try {
-			$item = ( new Retrieve() )
-				->setMod( $this->getMod() )
-				->byID( $rid );
-		}
-		catch ( \Exception $e ) {
-			throw new \Exception( 'Not a valid file record' );
-		}
-
+	public function run( $item, bool $rawContents = false ) :array {
 		if ( empty( $item->path_fragment ) ) {
 			throw new \Exception( 'There is no path associated with this record' );
 		}

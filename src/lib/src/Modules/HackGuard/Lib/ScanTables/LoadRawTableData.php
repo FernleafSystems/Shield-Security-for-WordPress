@@ -219,9 +219,7 @@ class LoadRawTableData {
 	}
 
 	/**
-	 * @param string                $status
 	 * @param Scans\Base\ResultItem $item
-	 * @return array
 	 * @throws \Exception
 	 */
 	private function getActions( string $status, $item ) :array {
