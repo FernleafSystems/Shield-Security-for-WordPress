@@ -10,11 +10,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class SectionWordpress extends SectionBase {
 
 	public function render() :string {
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/scans/results/section/wordpress/index.twig',
-						$this->buildRenderData()
-					);
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/scans/results/section/wordpress/index.twig',
+			$this->buildRenderData()
+		);
 	}
 
 	protected function buildRenderData() :array {
@@ -39,9 +38,9 @@ class SectionWordpress extends SectionBase {
 		$WP = Services::WpGeneral();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$count =  $mod->getScansCon()
-					  ->getScanResultsCount()
-					  ->countWPFiles();
+		$count = $mod->getScansCon()
+					 ->getScanResultsCount()
+					 ->countWPFiles();
 		$data = [
 			'info'  => [
 				'type'    => 'wordpress',

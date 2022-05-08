@@ -52,6 +52,6 @@ class RenderBlockFirewall extends BaseBlockPage {
 	}
 
 	protected function getTemplateStub() :string {
-		return 'block_page_standard';
+		return 'block_page_firewall';
 	}
 }

@@ -11,12 +11,10 @@ use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 class SectionThemes extends SectionPluginThemesBase {
 
 	public function render() :string {
-		$renderData = $this->buildRenderData();
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/scans/results/section/themes/index.twig',
-						$renderData
-					);
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/scans/results/section/themes/index.twig',
+			$this->buildRenderData()
+		);
 	}
 
 	protected function buildRenderData() :array {
@@ -117,7 +115,6 @@ class SectionThemes extends SectionPluginThemesBase {
 									  ||
 									  ( $isCheckUpdates && $flags[ 'has_update' ] )
 								  );
-
 
 		if ( $theme->isWpOrg() && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
 			$wpOrgThemes = implode( '|', array_map( function ( $ver ) {

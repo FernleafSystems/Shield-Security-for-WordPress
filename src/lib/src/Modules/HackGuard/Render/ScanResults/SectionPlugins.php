@@ -10,11 +10,10 @@ use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 class SectionPlugins extends SectionPluginThemesBase {
 
 	public function render() :string {
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/scans/results/section/plugins/index.twig',
-						$this->buildRenderData()
-					);
+		return $this->getMod()->renderTemplate(
+			'/wpadmin_pages/insights/scans/results/section/plugins/index.twig',
+			$this->buildRenderData()
+		);
 	}
 
 	protected function buildRenderData() :array {

@@ -73,8 +73,8 @@
 	{% endblock %}
 
 	{% block body_footer %}
-		<div class="col-lg-6 col-md-9 mx-auto text-start mt-3 mb-5">
-
+		{% if not flags.is_whitelabelled %}
+			<div class="col-lg-6 col-md-9 mx-auto text-start mt-3 mb-5">
 				<div class="card mb-3">
 				  <div class="row g-0">
 				    <div class="col-4 d-flex justify-content-center align-items-center">
@@ -96,11 +96,8 @@
 				    </div>
 				  </div>
 				</div>
-			{#      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5"> #}
-			{#        <button type="button" class="btn btn-primary btn-lg px-4 me-sm-3">Primary button</button> #}
-			{#        <button type="button" class="btn btn-outline-secondary btn-lg px-4">Secondary</button> #}
-			{#      </div> #}
 	    </div>
+		{% endif %}
 	{% endblock %}
 
 	{% block body_end %}

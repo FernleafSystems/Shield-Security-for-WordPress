@@ -28,10 +28,12 @@ class LocateTemplateDirs {
 	 */
 	protected function getCustomTemplateDirs() :array {
 		$dir = $this->getCon()->getPluginSpec_Path( 'custom_templates' );
-		$dirs = array_unique( [
-			path_join( get_stylesheet_directory(), $dir ),
-			path_join( get_template_directory(), $dir ),
-		] );
+		$dirs = apply_filters( 'shield/custom_template_dirs',
+			array_unique( [
+				path_join( get_stylesheet_directory(), $dir ),
+				path_join( get_template_directory(), $dir ),
+			] )
+		);
 		return $this->getCon()->isPremiumActive() ? $dirs : [];
 	}
 }
