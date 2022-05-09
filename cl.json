@@ -163,10 +163,14 @@
       },
       {
         "version":     "5",
-        "released_at": 1652107639,
+        "released_at": 1652128056,
         "items":       [
           {
             "title": "Prevent a warning being displayed during WP login.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Prevent a reported fatal error.",
             "type":  "fixed"
           }
         ]
