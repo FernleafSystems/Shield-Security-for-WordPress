@@ -28,6 +28,7 @@ class WordPress extends Base {
 	 */
 	public function checkLogin_WP( $userOrError, $username ) {
 		if ( !is_wp_error( $userOrError ) || empty( $userOrError->get_error_codes() ) ) {
+			$this->fireEventBlockLogin();
 			$this->setAuditAction( 'login' )
 				 ->setAuditUser( $username );
 			if ( $this->isBotBlockRequired() ) {
@@ -45,6 +46,7 @@ class WordPress extends Base {
 	 */
 	public function checkLostPassword_WP( $wpError = null, $user = false ) {
 		if ( is_wp_error( $wpError ) && empty( $wpError->get_error_codes() ) ) {
+			$this->fireEventBlockLostpassword();
 			$this->setAuditAction( 'lostpassword' );
 			if ( $user instanceof \WP_User ) {
 				$this->setAuditUser( $user->user_login );
@@ -65,6 +67,7 @@ class WordPress extends Base {
 	 */
 	public function checkRegister_WP( $wpError, $username ) {
 		if ( !is_wp_error( $wpError ) || empty( $wpError->get_error_codes() ) ) {
+			$this->fireEventBlockRegister();
 			$this->setAuditAction( 'register' )
 				 ->setAuditUser( $username );
 			if ( $this->isBotBlockRequired() ) {

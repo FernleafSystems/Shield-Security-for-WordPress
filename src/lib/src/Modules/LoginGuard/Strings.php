@@ -48,10 +48,29 @@ class Strings extends Base\Strings {
 					__( 'User "{{user_login}}" failed to verify their identity using "{{method}}".', 'wp-simple-firewall' )
 				],
 			],
+			// todo rename to block_login
 			'login_block'        => [
 				'name'  => __( 'Login Blocked', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Login Blocked.', 'wp-simple-firewall' ),
+					__( 'User login request blocked.', 'wp-simple-firewall' ),
+				],
+			],
+			'block_register'     => [
+				'name'  => __( 'Registration Blocked', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'User registration request blocked.', 'wp-simple-firewall' ),
+				],
+			],
+			'block_lostpassword' => [
+				'name'  => __( 'Lost Password Blocked', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'User lost password request blocked.', 'wp-simple-firewall' ),
+				],
+			],
+			'block_checkout' => [
+				'name'  => __( 'Checkout Blocked', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'User attempting checkout request blocked.', 'wp-simple-firewall' ),
 				],
 			],
 			'hide_login_url'     => [

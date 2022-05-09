@@ -21,18 +21,21 @@ class UltimateMember extends Base {
 
 	public function checkLogin_UM() {
 		if ( $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
+			$this->fireEventBlockLogin();
 			\UM()->form()->add_error( 'shield-fail-login', $this->getErrorMessage() );
 		}
 	}
 
 	public function checkLostPassword_UM() {
 		if ( $this->setAuditAction( 'lostpassword' )->isBotBlockRequired() ) {
+			$this->fireEventBlockLostpassword();
 			\UM()->form()->add_error( 'shield-fail-lostpassword', $this->getErrorMessage() );
 		}
 	}
 
 	public function checkRegister_UM() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
+			$this->fireEventBlockRegister();
 			\UM()->form()->add_error( 'shield-fail-register', $this->getErrorMessage() );
 		}
 	}

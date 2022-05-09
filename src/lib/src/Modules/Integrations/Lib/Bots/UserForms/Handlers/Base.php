@@ -88,6 +88,22 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 		);
 	}
 
+	protected function fireEventBlockLogin() {
+		$this->getCon()->fireEvent( 'login_block' );
+	}
+
+	protected function fireEventBlockRegister() {
+		$this->getCon()->fireEvent( 'block_register' );
+	}
+
+	protected function fireEventBlockLostpassword() {
+		$this->getCon()->fireEvent( 'block_lostpassword' );
+	}
+
+	protected function fireEventBlockCheckout() {
+		$this->getCon()->fireEvent( 'block_checkout' );
+	}
+
 	protected function isBotBlockEnabled() :bool {
 		/** @var LoginGuard\Options $loginOpts */
 		$loginOpts = $this->getCon()->getModule_LoginGuard()->getOptions();
