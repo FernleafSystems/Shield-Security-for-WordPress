@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
@@ -888,7 +889,58 @@ class Controller extends DynPropertiesClass {
 				->setCon( $this )
 				->run();
 		}
+
+		$this->loadModConfigs();
+
+		$this->saveCurrentPluginControllerOptions();
+
 		return $this->cfg;
+	}
+
+	/**
+	 * @throws Exceptions\PluginConfigInvalidException
+	 */
+	private function loadModConfigs() {
+		if ( empty( $this->cfg->modules ) ) {
+			throw new Exceptions\PluginConfigInvalidException( 'No modules specified in the plugin config.' );
+		}
+
+		$modConfigs = empty( $this->cfg->mods_cfg ) ? [] : $this->cfg->mods_cfg;
+
+		// First load all module Configs
+		foreach ( $this->cfg->modules as $slug ) {
+			try {
+				$modCfg = ( new LoadConfig( $slug, $modConfigs[ $slug ] ?? null ) )
+					->setCon( $this )
+					->run();
+			}
+			catch ( \Exception $e ) {
+				throw new Exceptions\PluginConfigInvalidException( sprintf( "Exception loading config for module '%s': %s",
+					$slug, $e->getMessage() ) );
+			}
+
+			if ( empty( $modCfg ) || empty( $modCfg->properties ) ) {
+				throw new Exceptions\PluginConfigInvalidException( sprintf( "Loading config for module '%s' failed.", $slug ) );
+			}
+
+			$modConfigs[ $slug ] = $modCfg;
+		}
+
+		// Order Modules
+		uasort( $modConfigs, function ( $a, $b ) {
+			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
+			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
+			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
+				return 0;
+			}
+			return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
+		} );
+
+		$this->cfg->mods_cfg = $modConfigs;
+		// Sanity checking: count to ensure that when we set the cfgs, they were correctly set.
+		if ( count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== count( $modConfigs ) ) {
+			throw new Exceptions\PluginConfigInvalidException( "Building and storing module configurations failed." );
+		}
 	}
 
 	/**
@@ -1077,7 +1129,7 @@ class Controller extends DynPropertiesClass {
 			Transient::Delete( $this->getConfigStoreKey() );
 		}
 		elseif ( isset( $this->cfg ) ) {
-			Config\Ops\Save::ToWp( $this->cfg, $this->getConfigStoreKey() );
+			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() );
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
@@ -1137,26 +1189,6 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadAllFeatures() :bool {
-		$modsCfg = empty( $this->cfg->mods_cfg ) ? [] : $this->cfg->mods_cfg;
-
-		// First load all module Configs
-		foreach ( $this->cfg->modules as $slug ) {
-			$modsCfg[ $slug ] = ( new LoadConfig( $slug, $modsCfg[ $slug ] ?? null ) )
-				->setCon( $this )
-				->run();
-		}
-
-		// Order Modules
-		uasort( $modsCfg, function ( $a, $b ) {
-			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
-			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
-			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
-				return 0;
-			}
-			return ( $a->properties[ 'load_priority' ] < $b->properties[ 'load_priority' ] ) ? -1 : 1;
-		} );
-
-		$this->cfg->mods_cfg = $modsCfg;
 
 		foreach ( $this->cfg->mods_cfg as $cfg ) {
 			try {
@@ -1199,11 +1231,13 @@ class Controller extends DynPropertiesClass {
 		$mod = $this->modules[ $slug ] ?? null;
 		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
 			try {
+				if ( empty( $this->cfg->mods_cfg[ $slug ] ) ) {
+					throw new \Exception( 'No config available for module: '.$slug );
+				}
 				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
 			}
 			catch ( \Exception $e ) {
 				error_log( $e->getMessage() );
-				die();
 			}
 		}
 		return $mod;

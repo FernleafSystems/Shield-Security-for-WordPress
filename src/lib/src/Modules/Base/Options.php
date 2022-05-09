@@ -642,6 +642,9 @@ class Options {
 		}
 	}
 
+	/**
+	 * @deprecated 15.0
+	 */
 	public function getConfigLoader() :Config\LoadConfig {
 		if ( empty( $this->cfgLoader ) ) {
 			$this->cfgLoader = new Config\LoadConfig( $this->getMod()->getSlug() );
