@@ -65,6 +65,14 @@ catch ( Shield\Controller\Exceptions\VersionMismatchException $e ) {
 			'Shield Security: There appears to be a configuration issue - please reinstall the Shield Security plugin.' );
 	} );
 }
+catch ( Shield\Controller\Exceptions\PluginConfigInvalidException $e ) {
+	add_action( 'admin_notices', function () use ( $e ) {
+		echo sprintf( '<div class="notice error"><p>%s</p><p>%s</p></div>',
+			'Shield Security: Could not load the plugin modules configuration. Please refresh and if the problem persists, please reinstall the Shield plugin.',
+			$e->getMessage()
+		);
+	} );
+}
 catch ( \Exception $e ) {
 	error_log( 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.' );
 	error_log( $e->getMessage() );

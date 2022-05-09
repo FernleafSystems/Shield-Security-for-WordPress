@@ -26,6 +26,11 @@ trait WpLoginCapture {
 	 */
 	private $loggedInCookie = '';
 
+	/**
+	 * @var int
+	 */
+	private $capturedUserID = null;
+
 	abstract protected function captureLogin( \WP_User $user );
 
 	protected function getLoginPassword() :string {
@@ -46,6 +51,10 @@ trait WpLoginCapture {
 		return is_string( $cookie ) ? $cookie : '';
 	}
 
+	protected function getCapturedUserID() :int {
+		return is_int( $this->capturedUserID ) ? $this->capturedUserID : 0;
+	}
+
 	protected function isCaptureApplicationLogin() :bool {
 		return $this->isCaptureApplicationLogin;
 	}
@@ -56,7 +65,6 @@ trait WpLoginCapture {
 
 	/**
 	 * By default, will only capture logins if it's not an API request, or it's set to capture api requests also.
-	 * @return bool
 	 */
 	protected function isLoginToBeCaptured() :bool {
 		return !Services::WpGeneral()->isApplicationPasswordApiRequest() || $this->isCaptureApplicationLogin();
@@ -104,6 +112,7 @@ trait WpLoginCapture {
 			 && $this->isLoginToBeCaptured()
 			 && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
 			$this->setLoginCaptured();
+			$this->capturedUserID = $user->ID;
 			$this->captureLogin( $user );
 		}
 	}
@@ -117,6 +126,7 @@ trait WpLoginCapture {
 			 && $this->isLoginToBeCaptured()
 			 && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
 			$this->setLoginCaptured();
+			$this->capturedUserID = $user->ID;
 			$this->captureLogin( $user );
 		}
 	}
