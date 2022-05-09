@@ -1,7 +1,7 @@
 {
   "15.0": {
     "version":     "15.0",
-    "released_at": 1652184000,
+    "released_at": 1652090000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease150",
       "upgrade": "https://shsec.io/shieldupgradeguide150"
@@ -37,17 +37,17 @@
       },
       {
         "type":        "new",
-        "title":       "Removed: Legacy Comment SPAM Detection",
+        "title":       "All-New WordPress Dashboard Widget",
         "description": [
-          "We've completely removed the older, less reliable comment spam detection using Javascript and CAPTCHAs.",
-          "Please use the newer AntiBot Detection Engine."
+          "The original WordPress Admin Dashboard widget was pretty basic, so we've completely revamped it with some of your latest site activity."
         ]
       },
       {
         "type":        "new",
-        "title":       "All-New WordPress Dashboard Widget",
+        "title":       "Removed: Legacy Comment SPAM Detection",
         "description": [
-          "The original WordPress Admin Dashboard widget was pretty basic, so we've completely revamped it with some of your latest site activity."
+          "We've completely removed the older, less reliable comment spam detection using Javascript and CAPTCHAs.",
+          "Please use the newer AntiBot Detection Engine."
         ]
       },
       {
@@ -93,15 +93,56 @@
       },
       {
         "type":        "improved",
-        "title":       "Option Removed: Auto-Filter Scan Results",
+        "title":       "A New WP Filter To Add Custom Shield Template Directory",
         "description": [
-          "Shield will now filter unnecessary scan results automatically. This can be adjusted using a WP filter."
+          "If you're looking to adjust some of our page templates, such as the block pages, you can now provide custom templates more easily using the new filter."
         ]
       },
       {
         "type":        "changed",
         "title":       "Audit Trail Renamed to Activity Log",
         "description": [
+        ]
+      },
+      {
+        "type":        "changed",
+        "pro_only":    false,
+        "title":       "Deprecated: Options For CAPTCHA and GASP Bot Checking On WordPress Login Forms",
+        "description": [
+          "The options to use CAPTCHA and/or GASP Bot Checking for WordPress Login SPAM has been deprecated.",
+          "These options are replaced with the AntiBot Detection Engine and will be completely removed in a future release."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Option Removed: Auto-Filter Scan Results",
+        "description": [
+          "Shield will now filter unnecessary scan results automatically. This option can now be adjusted using a WP filter."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Option Removed: XML-RPC bypass option",
+        "description": [
+          "This option can now be adjusted using a WP filter."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Options Removed: XML-RPC bypass option",
+        "description": [
+          "This option can now be adjusted using a WP filter."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Numerous bug fixes",
+        "description": [
+        ],
+        "list":        [
+          "Broken password reset links in some cases when using hidden login page",
+          "fix for some scan results browsing errors",
+          "help ensure forward compatibility for sites with newer TWIG libraries also installed"
         ]
       }
     ],
