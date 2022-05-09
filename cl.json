@@ -147,6 +147,20 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "4",
+        "released_at": 1652107639,
+        "items":       [
+          {
+            "title": "File scanner alerting to Shield's own file (rules.json) on every scan.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Tracking Login Block events for statistical purposes wasn't always happening.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "14.1": {

@@ -8,7 +8,7 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.0
-Stable tag: 15.0.2
+Stable tag: 15.0.4
 
 No-Nonsense Security Hardening that protects WordPress against hackers, malicious bots, and spammers (no captchas!). Now with exclusive ShieldNET Technology.
 

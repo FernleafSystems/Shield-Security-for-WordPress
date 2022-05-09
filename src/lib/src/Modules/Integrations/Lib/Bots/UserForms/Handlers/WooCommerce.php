@@ -22,6 +22,7 @@ class WooCommerce extends Base {
 	 */
 	public function checkCheckout_Woo( $data, $wpError ) {
 		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'checkout' )->isBotBlockRequired() ) {
+			$this->fireEventBlockCheckout();
 			$wpError->add( 'shield-user-checkout', $this->getErrorMessage() );
 		}
 	}
@@ -33,6 +34,7 @@ class WooCommerce extends Base {
 	 */
 	public function checkLogin_Woo( $wpError, $username ) {
 		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
+			$this->fireEventBlockLogin();
 			$this->setAuditUser( $username );
 			$wpError->add( 'shield-user-login', $this->getErrorMessage() );
 		}
@@ -46,6 +48,7 @@ class WooCommerce extends Base {
 	 */
 	public function checkRegister_Woo( $wpError, $username ) {
 		if ( empty( $wpError->get_error_code() ) && $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
+			$this->fireEventBlockRegister();
 			$this->setAuditUser( $username );
 			$wpError->add( 'shield-user-register', $this->getErrorMessage() );
 		}

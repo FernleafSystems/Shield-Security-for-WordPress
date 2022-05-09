@@ -47,8 +47,6 @@ class DelegateAjaxHandler {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 
-		$success = false;
-
 		$items = $this->getItemIDs();
 
 		$scanSlugs = [];
@@ -74,11 +72,31 @@ class DelegateAjaxHandler {
 
 		if ( count( $successfulItems ) === count( $items ) ) {
 			$success = true;
-			$msg = __( 'Action successful.' );
+			switch ( $action ) {
+				case 'delete':
+					$msg = __( 'Delete Success', 'wp-simple-firewall' );
+					break;
+				case 'ignore':
+					$msg = __( 'Ignore Success', 'wp-simple-firewall' );
+					break;
+				case 'repair':
+					$msg = __( 'Repair Success', 'wp-simple-firewall' );
+					break;
+				case 'repair-delete':
+					$msg = __( 'Repair/Delete Success', 'wp-simple-firewall' );
+					break;
+				default:
+					$msg = __( 'Success', 'wp-simple-firewall' );
+					break;
+			}
+			$itemCount = count( $items );
+			$msg = sprintf( '%s: %s', $msg,
+				sprintf( _n( '%s item processed', '%s items processed', $itemCount, 'wp-simple-firewall' ), $itemCount ) );
 		}
 		else {
-			$msg = __( 'An error occurred.' )
-				   .' '.__( 'Some items may not have been processed.' );
+			$success = false;
+			$msg = __( 'An error occurred.', 'wp-simple-firewall' )
+				   .' '.__( 'Some items may not have been processed.', 'wp-simple-firewall' );
 		}
 
 		return [

@@ -10,6 +10,7 @@ class PaidMemberSubscriptions extends Base {
 
 	public function checkRegister_PMS() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
+			$this->fireEventBlockRegister();
 			\pms_errors()->add( 'shield-fail-register', $this->getErrorMessage() );
 		}
 	}
