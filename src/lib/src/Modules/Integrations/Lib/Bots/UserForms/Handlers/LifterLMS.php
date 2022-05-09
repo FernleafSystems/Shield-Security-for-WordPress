@@ -21,6 +21,7 @@ class LifterLMS extends Base {
 	 */
 	public function checkLogin_LLMS( $valid ) {
 		if ( !is_wp_error( $valid ) && $this->setAuditAction( 'login' )->isBotBlockRequired() ) {
+			$this->fireEventBlockLogin();
 			$valid = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 		}
 		return $valid;
@@ -32,6 +33,7 @@ class LifterLMS extends Base {
 	 */
 	public function checkRegister_LLMS( $valid ) {
 		if ( !is_wp_error( $valid ) && $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
+			$this->fireEventBlockRegister();
 			$valid = new \WP_Error( 'shield-fail-register', $this->getErrorMessage() );
 		}
 		return $valid;

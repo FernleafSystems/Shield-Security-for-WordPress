@@ -10,6 +10,7 @@ class Buddypress extends Base {
 
 	public function checkRegister_BP() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
+			$this->fireEventBlockRegister();
 			wp_die( $this->getErrorMessage() );
 		}
 	}

@@ -154,6 +154,10 @@
           {
             "title": "File scanner alerting to Shield's own file (rules.json) on every scan.",
             "type":  "fixed"
+          },
+          {
+            "title": "Tracking Login Block events for statistical purposes wasn't always happening.",
+            "type":  "fixed"
           }
         ]
       }

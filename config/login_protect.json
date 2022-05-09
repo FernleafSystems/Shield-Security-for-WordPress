@@ -564,9 +564,16 @@
         "level":        "warning"
       },
       "login_block":        {
-        "level":   "warning",
-        "recent":  true,
-        "offense": true
+        "level": "warning"
+      },
+      "block_register":     {
+        "level": "warning"
+      },
+      "block_lostpassword": {
+        "level": "warning"
+      },
+      "block_checkout": {
+        "level": "warning"
       },
       "hide_login_url":     {
         "level": "notice"
