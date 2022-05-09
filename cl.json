@@ -149,7 +149,7 @@
     "patches":     [
       {
         "version":     "4",
-        "released_at": 1647849231,
+        "released_at": 1652107639,
         "items":       [
           {
             "title": "File scanner alerting to Shield's own file (rules.json) on every scan.",
