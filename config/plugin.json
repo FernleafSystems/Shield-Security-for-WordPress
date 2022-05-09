@@ -681,7 +681,7 @@
             "title": "Security Admin"
           },
           "audit_trail":              {
-            "title": "Audit Trail"
+            "title": "Activity Log"
           },
           "ips":                      {
             "title": "IP Blacklist"

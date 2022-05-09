@@ -80,7 +80,7 @@ class ScanRepairs extends BaseReporter {
 					],
 					'strings' => [
 						'title'       => \__( 'Scanner Repairs', 'wp-simple-firewall' ),
-						'audit_trail' => \__( 'View all repairs and file deletions in the Audit Trail', 'wp-simple-firewall' ),
+						'audit_trail' => \__( 'View all repairs and file deletions in the Activity Log', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
 						'audit_trail' => $this->getCon()

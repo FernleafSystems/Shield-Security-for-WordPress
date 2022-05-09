@@ -159,7 +159,7 @@ class NavMenuBuilder {
 
 		return [
 			'slug'      => $slug,
-			'title'     => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'title'     => __( 'Activity Log', 'wp-simple-firewall' ),
 			'img'       => $this->getCon()->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 			'introjs'   => [
 				'body' => __( "Track and review all important actions taken on your site - see the Who, What and When.", 'wp-simple-firewall' ),

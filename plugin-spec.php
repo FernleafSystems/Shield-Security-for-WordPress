@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "15.0.0",
-    "release_timestamp":       1652184000,
-    "build":                   "202205.0501",
+    "version":                 "15.0.1",
+    "release_timestamp":       1652090000,
+    "build":                   "202205.0901",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -430,7 +430,7 @@
   },
   "labels":           {
     "Name":             "Shield Security",
-    "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Audit Trail, Security Admin, and so much more.",
+    "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
     "Title":            "Shield Security",
     "Author":           "Shield Security",
     "AuthorName":       "Shield Security",

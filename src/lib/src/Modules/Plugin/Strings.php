@@ -515,8 +515,8 @@ class Strings extends Base\Strings {
 		__( 'Protect your security plugin not just your WordPress site', 'wp-simple-firewall' );
 		__( 'Security Admin', 'wp-simple-firewall' );
 		__( 'Audit Trail', 'wp-simple-firewall' );
+		__( 'Activity Log', 'wp-simple-firewall' );
 		__( 'Get a view on what happens on your site, when it happens', 'wp-simple-firewall' );
-		__( 'Audit Trail Viewer', 'wp-simple-firewall' );
 		__( 'Automatic Updates', 'wp-simple-firewall' );
 		__( 'Take back full control of WordPress automatic updates', 'wp-simple-firewall' );
 		__( 'Comments SPAM', 'wp-simple-firewall' );

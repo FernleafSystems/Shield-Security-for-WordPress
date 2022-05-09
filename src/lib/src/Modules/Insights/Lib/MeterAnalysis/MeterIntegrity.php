@@ -37,7 +37,7 @@ class MeterIntegrity extends MeterBase {
 			'all',
 			'ssl_certificate',
 			'db_password',
-			'audit_trail_enabled',
+			'activity_log_enabled',
 			'traffic_log_enabled',
 			'report_email',
 		];

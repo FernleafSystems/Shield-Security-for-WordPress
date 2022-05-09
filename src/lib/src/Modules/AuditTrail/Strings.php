@@ -47,7 +47,7 @@ class Strings extends Base\Strings {
 					__( 'Theme "{{theme}}" was activated.', 'wp-simple-firewall' ),
 				],
 			],
-			'theme_installed'            => [
+			'theme_installed'             => [
 				'name'  => __( 'Theme Installed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Theme "{{theme}}" was installed.', 'wp-simple-firewall' )
@@ -224,18 +224,18 @@ class Strings extends Base\Strings {
 
 			case 'section_enable_plugin_feature_audit_trail' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
-																						->getMainFeatureName() );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ),
+					$this->getMod()->getMainFeatureName() );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Activity Log is designed so you can look back on events and analyse what happened and what may have gone wrong.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Activity Log', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
 			case 'section_localdb' :
 				$title = __( 'Log To DB', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the audit trail itself.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Activity Log itself.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
 				$titleShort = __( 'Log To DB', 'wp-simple-firewall' );
