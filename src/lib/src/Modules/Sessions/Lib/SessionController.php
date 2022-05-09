@@ -71,44 +71,51 @@ class SessionController extends ExecOnceModConsumer {
 			}
 
 			if ( is_array( $parsed ) && !empty( $parsed[ 'token' ] ) ) {
-				$manager = \WP_Session_Tokens::get_instance( $WPUsers->getCurrentWpUser()->ID );
 
-				$session = $manager->get( $parsed[ 'token' ] );
+				$user = $WPUsers->getCurrentWpUser();
+				$userID = $user instanceof \WP_User ? $user->ID : $this->getCapturedUserID();
 
-				if ( is_array( $session ) ) {
+				if ( !empty( $userID ) ) {
+					$manager = \WP_Session_Tokens::get_instance( $userID );
+					$session = $manager->get( $parsed[ 'token' ] );
+					if ( is_array( $session ) ) {
 
-					// Ensure the correct IP is stored
-					$srvIP = Services::IP();
-					$ip = $srvIP->getRequestIp();
-					if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->checkIp( $ip, $session[ 'ip' ] ) ) ) {
-						$session[ 'ip' ] = $ip;
-					}
+						// Ensure the correct IP is stored
+						$srvIP = Services::IP();
+						$ip = $srvIP->getRequestIp();
+						if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->checkIp( $ip, $session[ 'ip' ] ) ) ) {
+							$session[ 'ip' ] = $ip;
+						}
 
-					$shieldSessionMeta = $session[ 'shield' ] ?? [];
+						$shieldSessionMeta = $session[ 'shield' ] ?? [];
+						$shieldSessionMeta[ 'user_id' ] = $userID;
+						$shieldSessionMeta[ 'last_activity_at' ] = Services::Request()->ts();
+						if ( empty( $shieldSessionMeta[ 'unique' ] ) ) {
+							$shieldSessionMeta[ 'unique' ] = uniqid();
+						}
 
-					$shieldSessionMeta[ 'last_activity_at' ] = Services::Request()->ts();
-					if ( empty( $shieldSessionMeta[ 'unique' ] ) ) {
-						$shieldSessionMeta[ 'unique' ] = uniqid();
-					}
+						$session[ 'shield' ] = $shieldSessionMeta;
+						$manager->update( $parsed[ 'token' ], $session );
 
-					$session[ 'shield' ] = $shieldSessionMeta;
-					$manager->update( $parsed[ 'token' ], $session );
+						// all that follows should not be stored
+						$session[ 'token' ] = $parsed[ 'token' ];
+						// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
+						$session[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
+						$session[ 'valid' ] = true;
+						$this->currentWP->applyFromArray( $session );
 
-					// all that follows should not be stored
-					$session[ 'token' ] = $parsed[ 'token' ];
-					// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
-					$session[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
-					$session[ 'valid' ] = true;
-					$this->currentWP->applyFromArray( $session );
-
-					// Update User Last Seen IP.
-					try {
-						$this->getCon()->getCurrentUserMeta()->record->ip_ref = ( new IPRecords() )
-							->setMod( $this->getCon()->getModule_Data() )
-							->loadIP( $session[ 'ip' ], true )
-							->id;
-					}
-					catch ( \Exception $e ) {
+						// Update User Last Seen IP.
+						try {
+							$userMeta = $this->getCon()->getUserMeta( $WPUsers->getUserById( $userID ) );
+							if ( !empty( $userMeta ) ) {
+								$userMeta->record->ip_ref = ( new IPRecords() )
+									->setMod( $this->getCon()->getModule_Data() )
+									->loadIP( $session[ 'ip' ], true )
+									->id;
+							}
+						}
+						catch ( \Exception $e ) {
+						}
 					}
 				}
 			}
@@ -135,21 +142,25 @@ class SessionController extends ExecOnceModConsumer {
 	}
 
 	public function updateSessionParameter( string $key, $value ) {
-		$WPUsers = Services::WpUsers();
 		$current = $this->getCurrentWP();
 		if ( $current->valid ) {
-			$shield = $current->shield;
-			$shield[ $key ] = $value;
-			$current->shield = $shield;
-			\WP_Session_Tokens::get_instance( $WPUsers->getCurrentWpUserId() )
-							  ->update(
-								  $current->token,
-								  array_diff_key( $current->getRawData(), array_flip( [
-									  'token',
-									  'hashed_token',
-									  'valid'
-								  ] ) )
-							  );
+
+			$user = Services::WpUsers()->getCurrentWpUser();
+			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
+			if ( !empty( $userID ) ) {
+				$shield = $current->shield;
+				$shield[ $key ] = $value;
+				$current->shield = $shield;
+				\WP_Session_Tokens::get_instance( $userID )
+								  ->update(
+									  $current->token,
+									  array_diff_key( $current->getRawData(), array_flip( [
+										  'token',
+										  'hashed_token',
+										  'valid'
+									  ] ) )
+								  );
+			}
 		}
 	}
 
@@ -165,13 +176,16 @@ class SessionController extends ExecOnceModConsumer {
 
 		if ( $current->valid ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
-			\WP_Session_Tokens::get_instance( $user->ID )->destroy( $current->token );
-			$this->getCon()->fireEvent( 'session_terminate_current', [
-				'audit_params' => [
-					'user_login' => $user->user_login,
-					'session_id' => $current->token,
-				]
-			] );
+			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
+			if ( !empty( $userID ) ) {
+				\WP_Session_Tokens::get_instance( $userID )->destroy( $current->token );
+				$this->getCon()->fireEvent( 'session_terminate_current', [
+					'audit_params' => [
+						'user_login' => $user->user_login,
+						'session_id' => $current->token,
+					]
+				] );
+			}
 		}
 
 		unset( $this->currentWP );
