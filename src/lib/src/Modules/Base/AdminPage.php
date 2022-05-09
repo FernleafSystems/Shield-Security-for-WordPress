@@ -105,22 +105,8 @@ class AdminPage extends ExecOnceModConsumer {
 		);
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	protected function getMenuPriority() :int {
-		return $this->getMod()->cfg->properties[ 'menu_priority' ] ?? 100;
-	}
-
 	public function getCap() :string {
 		return $this->getCon()->getBasePermissions();
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isShowMenu() :bool {
-		return $this->getMod()->cfg->properties[ 'show_module_menu_item' ] ?? false;
 	}
 
 	public function isCurrentPage() :bool {

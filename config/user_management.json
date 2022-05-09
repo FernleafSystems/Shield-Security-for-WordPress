@@ -398,13 +398,6 @@
       "name":        "Auto-Suspend Idle Users",
       "summary":     "Automatically Suspend Idle User Accounts",
       "description": "Prevent login by idle users and require password reset to unsuspend."
-    },
-    {
-      "key":          "autoadd_sessions_started_at",
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "default":      0,
-      "transferable": false
     }
   ],
   "definitions": {

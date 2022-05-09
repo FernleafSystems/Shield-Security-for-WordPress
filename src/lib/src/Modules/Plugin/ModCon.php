@@ -164,13 +164,6 @@ class ModCon extends BaseShield\ModCon {
 		return $can;
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getActivePluginFeatures() :array {
-		return $this->getOptions()->getDef( 'active_plugin_features' );
-	}
-
 	public function getLinkToTrackingDataDump() :string {
 		return add_query_arg( [ 'shield_action' => 'dump_tracking_data' ], Services::WpGeneral()->getAdminUrl() );
 	}
@@ -497,13 +490,5 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getImportExportWhitelist() :array {
-		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
-		return is_array( $list ) ? $list : [];
 	}
 }

@@ -12,7 +12,7 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @deprecated 15.0 - see isRestrictWpOptions()
+	 * @deprecated 15.1
 	 */
 	public function getAdminAccessArea_Options() :bool {
 		return $this->isOpt( 'admin_access_restrict_options', 'Y' );

@@ -169,13 +169,6 @@ class Options {
 		return $this->getRawData_FullFeatureConfig()[ 'admin_notices' ] ?? [];
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getFeatureTagline() {
-		return $this->getFeatureProperty( 'tagline' );
-	}
-
 	public function isValidOptionKey( string $key ) :bool {
 		return in_array( $key, $this->getOptionsKeys() );
 	}
@@ -437,37 +430,6 @@ class Options {
 			}
 		}
 		return $text;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isAccessRestricted() :bool {
-		$state = $this->getFeatureProperty( 'access_restricted' );
-		return is_null( $state ) || $state;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isModuleRunIfWhitelisted() :bool {
-		$state = $this->getFeatureProperty( 'run_if_whitelisted' );
-		return is_null( $state ) || $state;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isModuleRunUnderWpCli() :bool {
-		$state = $this->getFeatureProperty( 'run_if_wpcli' );
-		return is_null( $state ) || $state;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isModuleRunIfVerifiedBot() :bool {
-		return (bool)$this->getFeatureProperty( 'run_if_verified_bot' );
 	}
 
 	public function isOptAdvanced( string $key ) :bool {

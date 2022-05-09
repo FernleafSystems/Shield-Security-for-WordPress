@@ -36,13 +36,6 @@ class Options extends BaseShield\Options {
 		return !empty( $this->getImportExportMasterImportUrl() );
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isIpSourceAutoDetect() :bool {
-		return $this->getIpSource() == 'AUTO_DETECT_IP';
-	}
-
 	public function isPluginGloballyDisabled() :bool {
 		return !$this->isOpt( 'global_enable_plugin_features', 'Y' );
 	}

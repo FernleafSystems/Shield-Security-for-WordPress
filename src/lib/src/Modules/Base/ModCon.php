@@ -389,13 +389,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @deprecated 15.0
-	 */
-	public function isUpgrading() :bool {
-		return $this->getCon()->cfg->rebuilt;
-	}
-
-	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
@@ -588,13 +581,6 @@ abstract class ModCon {
 
 	public function getIfShowModuleMenuItem() :bool {
 		return $this->cfg->properties[ 'show_module_menu_item' ];
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getIfShowModuleOpts() :bool {
-		return $this->cfg->properties[ 'show_module_options' ];
 	}
 
 	/**
@@ -824,26 +810,8 @@ abstract class ModCon {
 			   && Services::Request()->query( 'inav' ) == $this->getSlug();
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	protected function isModuleOptionsRequest() :bool {
-		return false;
-	}
-
 	protected function isWizardPage() :bool {
 		return $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage();
-	}
-
-	/**
-	 * Will prefix and return any string with the unique plugin prefix.
-	 * @param string $suffix
-	 * @param string $glue
-	 * @return string
-	 * @deprecated 15.0
-	 */
-	public function prefix( $suffix = '', $glue = '-' ) {
-		return $this->getCon()->prefix( $suffix, $glue );
 	}
 
 	protected function buildContextualHelp() {

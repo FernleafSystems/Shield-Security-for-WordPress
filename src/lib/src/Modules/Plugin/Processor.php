@@ -39,13 +39,6 @@ class Processor extends BaseShield\Processor {
 		} );
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	private function printDashboardWidget() {
-		echo '';
-	}
-
 	public function runDailyCron() {
 		$this->getCon()->fireEvent( 'test_cron_run' );
 		( new CleanStorage() )

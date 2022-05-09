@@ -19,15 +19,6 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO[] $notices
-	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
-	 * @deprecated 15.0
-	 */
-	public function addNotices( $notices ) {
-		return array_merge( $notices, $this->buildNotices() );
-	}
-
-	/**
 	 * @return Shield\Utilities\AdminNotices\NoticeVO[]
 	 */
 	protected function buildNotices() :array {

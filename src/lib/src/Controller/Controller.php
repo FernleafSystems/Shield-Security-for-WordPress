@@ -332,12 +332,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 15.0
-	 */
-	public function adminNoticePluginFailedToLoad() {
-	}
-
-	/**
 	 * All our module page names are prefixed
 	 */
 	public function isThisPluginModuleRequest() :bool {
@@ -1106,26 +1100,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 15.0
-	 */
-	public function getIfForceOffActive() :bool {
-		return (bool)$this->this_req->is_force_off;
-	}
-
-	/**
-	 * @return false|string
-	 * @deprecated 15.0
-	 */
-	protected function getForceOffFilePath() {
-		if ( !isset( $this->file_forceoff ) ) {
-			$FS = Services::WpFs();
-			$file = $FS->findFileInDir( 'forceoff', $this->getRootDir(), false, false );
-			$this->file_forceoff = empty( $file ) ? false : $file;
-		}
-		return $this->file_forceoff;
-	}
-
-	/**
 	 * @param bool $setIfNeeded
 	 * @return string
 	 */
@@ -1157,20 +1131,6 @@ class Controller extends DynPropertiesClass {
 
 	private function getSessionCookieID() :string {
 		return 'wp-'.$this->getPluginPrefix();
-	}
-
-	/**
-	 * We let the \Exception from the core plugin feature to bubble up because it's critical.
-	 * @return Shield\Modules\Plugin\ModCon
-	 * @throws \Exception from loadFeatureHandler()
-	 * @deprecated 15.0
-	 */
-	public function loadCorePluginFeatureHandler() {
-		$plugin = $this->modules[ 'plugin' ] ?? null;
-		if ( !$plugin instanceof Shield\Modules\Plugin\ModCon ) {
-			$this->getModule_Plugin();
-		}
-		return $this->modules[ 'plugin' ];
 	}
 
 	/**

@@ -74,7 +74,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
 						],
 						'flags'   => [
-							'restrict_options' => !$isSecAdmin && $opts->getAdminAccessArea_Options(),
+							'restrict_options' => !$isSecAdmin && $opts->isRestrictWpOptions(),
 							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
@@ -158,7 +158,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 		return $mod->renderTemplate( '/components/security_admin/login_box.twig', [
 			'flags'   => [
-				'restrict_options' => $opts->getAdminAccessArea_Options()
+				'restrict_options' => $opts->isRestrictWpOptions()
 			],
 			'strings' => [
 				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),

@@ -8,23 +8,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
-	/**
-	 * @var Session\EntryVO
-	 * @deprecated 15.0
-	 */
-	private $current;
-
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getSessionCon()->execute();
 		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	protected function captureLogin( \WP_User $user ) {
 	}
 
 	/**

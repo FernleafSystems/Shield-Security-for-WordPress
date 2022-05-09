@@ -12,21 +12,9 @@ class OffenseTracker extends EventsListener {
 	private $isBlocked = false;
 
 	/**
-	 * @var bool
-	 * @deprecated 15.0
-	 */
-	private $bIsBlocked = false;
-
-	/**
 	 * @var int
 	 */
 	private $offenseCount = 0;
-
-	/**
-	 * @var int
-	 * @deprecated 15.0
-	 */
-	private $nOffenseCount = 0;
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 		if ( !empty( $def[ 'offense' ] ) && empty( $meta[ 'suppress_offense' ] ) ) {
@@ -42,11 +30,11 @@ class OffenseTracker extends EventsListener {
 	}
 
 	public function isBlocked() :bool {
-		return (bool)( $this->isBlocked ?? $this->bIsBlocked );
+		return $this->isBlocked;
 	}
 
 	public function getOffenseCount() :int {
-		return (int)( $this->offenseCount ?? $this->nOffenseCount );
+		return $this->offenseCount;
 	}
 
 	/**
@@ -68,7 +56,7 @@ class OffenseTracker extends EventsListener {
 	 * @return $this
 	 */
 	public function setOffenseCount( int $offenseCount ) {
-		$this->offenseCount = max( $offenseCount, $this->getOffenseCount() );
+		$this->offenseCount = (int)max( $offenseCount, $this->getOffenseCount() );
 		return $this;
 	}
 }

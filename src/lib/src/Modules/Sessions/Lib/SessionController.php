@@ -18,18 +18,6 @@ class SessionController extends ExecOnceModConsumer {
 	 */
 	private $currentWP;
 
-	/**
-	 * @var Session\EntryVO
-	 * @deprecated 15.0
-	 */
-	private $current;
-
-	/**
-	 * @var ?string
-	 * @deprecated 15.0
-	 */
-	private $sessionID;
-
 	protected function run() {
 		if ( !Services::WpUsers()->isProfilePage() && !Services::IP()->isLoopback() ) { // only on logout
 			add_action( 'clear_auth_cookie', function () {
@@ -153,13 +141,6 @@ class SessionController extends ExecOnceModConsumer {
 		}
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function hasSession() :bool {
-		return (bool)$this->getCurrentWP()->valid;
-	}
-
 	public function terminateCurrentSession() :bool {
 		$current = $this->getCurrentWP();
 
@@ -179,42 +160,7 @@ class SessionController extends ExecOnceModConsumer {
 		return true;
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function hasSessionID() :bool {
-		return !empty( $this->getSessionID() );
-	}
-
 	public function getSessionID() :string {
 		return '';
-	}
-
-	/**
-	 * @param string $sessionID
-	 * @return Session\EntryVO|null
-	 * @deprecated 15.0
-	 */
-	private function queryGetSession( string $sessionID, $username = '' ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Session\Select $sel */
-		$sel = $mod->getDbHandler_Sessions()->getQuerySelector();
-		return $sel->retrieveUserSession( $sessionID, (string)$username );
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function createSession( \WP_User $user, string $sessionID = '' ) :bool {
-		return false;
-	}
-
-	/**
-	 * @return Session\EntryVO|null
-	 * @deprecated 15.0
-	 */
-	public function getCurrent() {
-		return $this->current ?? null;
 	}
 }

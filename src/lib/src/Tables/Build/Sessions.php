@@ -170,15 +170,6 @@ class Sessions extends BaseBuild {
 	}
 
 	/**
-	 * @param Session\EntryVO $oEntry
-	 * @return bool
-	 */
-	private function isSecAdminSession( $oEntry ) {
-		return ( $oEntry->getSecAdminAt() > 0 ) ||
-			   ( is_array( $this->aSecAdminUsers ) && in_array( $oEntry->wp_username, $this->aSecAdminUsers ) );
-	}
-
-	/**
 	 * @param array $aSecAdminUsernames
 	 * @return $this
 	 */
