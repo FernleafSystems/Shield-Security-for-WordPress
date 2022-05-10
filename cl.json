@@ -177,7 +177,7 @@
       },
       {
         "version":     "6",
-        "released_at": 1652128056,
+        "released_at": 1652183772,
         "items":       [
           {
             "title": "Fix for reCAPTCHA on login forms not properly rendering.",
