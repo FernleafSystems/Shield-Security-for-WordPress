@@ -180,10 +180,6 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 				'is_admin_profile' => $isAdmin,
 				'can_remove'       => $con->isPluginAdmin() || !$isAdmin,
 			],
-			'vars'    => [
-				'user_id'          => $user->ID,
-				'mfa_factor_names' => $providers,
-			],
 			'strings' => [
 				'title'            => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 				'provided_by'      => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $pluginName ),
@@ -196,6 +192,10 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 					$pluginName ),
 				'authenticate'     => sprintf( __( 'You may authenticate with the %s Security Admin system and return here.' ),
 					$pluginName ),
+			],
+			'vars'    => [
+				'user_id'          => $user->ID,
+				'mfa_factor_names' => $providers,
 			],
 		] );
 	}

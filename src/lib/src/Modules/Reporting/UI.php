@@ -11,31 +11,26 @@ class UI extends BaseShield\UI {
 	public function renderSectionCustomChart() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/reports/charts_custom.twig',
-						[
-							'ajax'    => [
-								'render_custom_chart' => $mod->getAjaxActionData( 'render_custom_chart', true ),
-							],
-							'strings' => [
-								'select_events'   => __( 'Events', 'wp-simple-firewall' ),
-								'select_interval' => __( 'Interval', 'wp-simple-firewall' ),
-								'build_chart'     => __( 'Build Chart', 'wp-simple-firewall' ),
-							],
-							'vars'    => [
-								'events'   => $this->buildPossibleEvents(),
-								'interval' => [
-									'hourly'  => __( 'Hourly', 'wp-simple-firewall' ),
-									'daily'   => __( 'Daily', 'wp-simple-firewall' ),
-									'weekly'  => __( 'Weekly', 'wp-simple-firewall' ),
-									'monthly' => __( 'Monthly', 'wp-simple-firewall' ),
-									'yearly'  => __( 'Yearly', 'wp-simple-firewall' ),
-								],
-							],
-						],
-						true
-					);
+		return $mod->renderTemplate( '/wpadmin_pages/insights/reports/charts_custom.twig', [
+			'ajax'    => [
+				'render_custom_chart' => $mod->getAjaxActionData( 'render_custom_chart', true ),
+			],
+			'strings' => [
+				'select_events'   => __( 'Events', 'wp-simple-firewall' ),
+				'select_interval' => __( 'Interval', 'wp-simple-firewall' ),
+				'build_chart'     => __( 'Build Chart', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'events'   => $this->buildPossibleEvents(),
+				'interval' => [
+					'hourly'  => __( 'Hourly', 'wp-simple-firewall' ),
+					'daily'   => __( 'Daily', 'wp-simple-firewall' ),
+					'weekly'  => __( 'Weekly', 'wp-simple-firewall' ),
+					'monthly' => __( 'Monthly', 'wp-simple-firewall' ),
+					'yearly'  => __( 'Yearly', 'wp-simple-firewall' ),
+				],
+			],
+		] );
 	}
 
 	/**
@@ -124,19 +119,14 @@ class UI extends BaseShield\UI {
 
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/reports/charts_summary.twig',
-						[
-							'ajax' => [
-								'render_summary_chart' => $mod->getAjaxActionData( 'render_summary_chart', true ),
-							],
-							'vars' => [
-								'stats' => $statsData,
-							],
-						],
-						true
-					);
+		return $mod->renderTemplate( '/wpadmin_pages/insights/reports/charts_summary.twig', [
+			'ajax' => [
+				'render_summary_chart' => $mod->getAjaxActionData( 'render_summary_chart', true ),
+			],
+			'vars' => [
+				'stats' => $statsData,
+			],
+		] );
 	}
 
 	public function buildInsightsVars() :array {

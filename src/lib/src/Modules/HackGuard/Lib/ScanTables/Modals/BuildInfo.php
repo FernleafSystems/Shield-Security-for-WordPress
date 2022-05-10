@@ -24,36 +24,33 @@ class BuildInfo {
 
 		$isCoreFile = Services::CoreFileHashes()->isCoreFile( $item->path_fragment );
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/scans/modal/scan_item_view/item_info.twig',
-			[
-				'flags'   => [
-					'is_core_file' => true,
-				],
-				'hrefs'   => [
-					'file_vcs' => $isCoreFile ?
-						( new Wp\Repo() )
-							->getVcsUrlForFileAndVersion( $item->path_fragment, $WP->getVersion(), false )
-						: ''
-				],
-				'vars'    => [
-					'path_fragment'    => $item->path_fragment,
-					'file_description' => $this->getFileDescriptionLines()
-				],
-				'strings' => [
-					'file_status'      => sprintf( '%s: %s',
-						__( 'File Status', 'wp-simple-firewall' ),
-						$this->getFileStatus()
-					),
-					'file_full_path'   => sprintf( '%s: <code>%s</code>',
-						__( 'Full Path To File', 'wp-simple-firewall' ),
-						$item->path_full
-					),
-					'file_description' => __( 'Description', 'wp-simple-firewall' ),
-					'view_file_vcs'    => __( 'View Original File Contents', 'wp-simple-firewall' ),
-				],
-			]
-		);
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/scans/modal/scan_item_view/item_info.twig', [
+			'flags'   => [
+				'is_core_file' => true,
+			],
+			'hrefs'   => [
+				'file_vcs' => $isCoreFile ?
+					( new Wp\Repo() )
+						->getVcsUrlForFileAndVersion( $item->path_fragment, $WP->getVersion(), false )
+					: ''
+			],
+			'vars'    => [
+				'path_fragment'    => $item->path_fragment,
+				'file_description' => $this->getFileDescriptionLines()
+			],
+			'strings' => [
+				'file_status'      => sprintf( '%s: %s',
+					__( 'File Status', 'wp-simple-firewall' ),
+					$this->getFileStatus()
+				),
+				'file_full_path'   => sprintf( '%s: <code>%s</code>',
+					__( 'Full Path To File', 'wp-simple-firewall' ),
+					$item->path_full
+				),
+				'file_description' => __( 'Description', 'wp-simple-firewall' ),
+				'view_file_vcs'    => __( 'View Original File Contents', 'wp-simple-firewall' ),
+			],
+		] );
 	}
 
 	private function getFileDescriptionLines() :array {

@@ -122,12 +122,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		return [
 			'success' => $data[ 'success' ],
 			'message' => $data[ 'error' ],
-			'html'    => $this->getMod()
-							  ->renderTemplate(
-								  '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig',
-								  $data,
-								  true
-							  )
+			'html'    => $mod->renderTemplate(
+				'/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig',
+				$data
+			)
 		];
 	}
 
@@ -212,19 +210,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success' => true,
 			'running' => $queueCon->getScansRunningStates(),
 			'vars'    => [
-				'progress_html' => $mod->renderTemplate(
-					'/wpadmin_pages/insights/scans/modal/progress_snippet.twig',
-					[
-						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
-						'scan'            => $currentScan,
-						'remaining_scans' => $remainingScans,
-						'progress'        => 100*$queueCon->getScanJobProgress(),
-						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
-						'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
-						'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
-					],
-					true
-				),
+				'progress_html' => $mod->renderTemplate( '/wpadmin_pages/insights/scans/modal/progress_snippet.twig', [
+					'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
+					'scan'            => $currentScan,
+					'remaining_scans' => $remainingScans,
+					'progress'        => 100*$queueCon->getScanJobProgress(),
+					'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
+					'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
+					'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
+				] ),
 			]
 		];
 	}

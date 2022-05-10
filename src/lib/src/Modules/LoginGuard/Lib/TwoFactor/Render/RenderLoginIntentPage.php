@@ -81,8 +81,7 @@ class RenderLoginIntentPage extends RenderBase {
 			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldcantaccess', __( 'More Info', 'wp-simple-firewall' ) );
 		}
 
-		return $mod->renderTemplate(
-			'/components/login_intent/form.twig',
+		return $mod->renderTemplate( '/components/login_intent/form.twig',
 			Services::DataManipulation()->mergeArraysRecursive(
 				$mod->getUIHandler()->getBaseDisplayData(),
 				$this->getCommonFormData(),
@@ -94,8 +93,6 @@ class RenderLoginIntentPage extends RenderBase {
 						'message_type' => 'info',
 					],
 				]
-			),
-			true
-		);
+			) );
 	}
 }

@@ -19,23 +19,20 @@ class FileLockerAlerts extends BaseReporter {
 		$notNotified = $lockOps->withProblemsNotNotified();
 
 		if ( count( $notNotified ) > 0 ) {
-			$alerts[] = $this->getMod()->renderTemplate(
-				'/components/reports/mod/hack_protect/alert_filelocker.twig',
-				[
-					'vars'    => [
-						'count' => $mod->getFileLocker()->countProblems()
-					],
-					'strings' => [
-						'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
-						'file_changed' => __( 'Changes have been detected in the contents of critical files.', 'wp-simple-firewall' ),
-						'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $notNotified ) ),
-						'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
-					],
-					'hrefs'   => [
-						'view_results' => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
-					],
-				]
-			);
+			$alerts[] = $this->getMod()->renderTemplate( '/components/reports/mod/hack_protect/alert_filelocker.twig', [
+				'hrefs'   => [
+					'view_results' => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+				],
+				'strings' => [
+					'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
+					'file_changed' => __( 'Changes have been detected in the contents of critical files.', 'wp-simple-firewall' ),
+					'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $notNotified ) ),
+					'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'count' => $mod->getFileLocker()->countProblems()
+				],
+			] );
 			$this->markAlertsAsNotified( $notNotified );
 			$lockOps->clearLocksCache();
 		}

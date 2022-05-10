@@ -71,8 +71,7 @@ class ScanRepairs extends BaseReporter {
 		}
 
 		if ( !empty( $repairs ) ) {
-			$alerts[] = $this->getMod()->renderTemplate(
-				'/components/reports/mod/hack_protect/alert_scanrepairs.twig',
+			$alerts[] = $this->getMod()->renderTemplate( '/components/reports/mod/hack_protect/alert_scanrepairs.twig',
 				[
 					'vars'    => [
 						'total'   => $total,

@@ -70,46 +70,43 @@ class ScanItemView {
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
 			'path'     => \esc_html( $item->path_fragment ),
-			'contents' => $mod->renderTemplate(
-				'/wpadmin_pages/insights/scans/modal/scan_item_view/modal_content.twig',
-				[
-					'content' => [
-						'tab_filecontents' => $fileContent,
-						'tab_diff'         => $diffContent,
-						'tab_history'      => $historyContent,
-						'tab_info'         => ( new BuildInfo() )
-							->setMod( $this->getMod() )
-							->setScanItem( $item )
-							->run(),
+			'contents' => $mod->renderTemplate( '/wpadmin_pages/insights/scans/modal/scan_item_view/modal_content.twig', [
+				'content' => [
+					'tab_filecontents' => $fileContent,
+					'tab_diff'         => $diffContent,
+					'tab_history'      => $historyContent,
+					'tab_info'         => ( new BuildInfo() )
+						->setMod( $this->getMod() )
+						->setScanItem( $item )
+						->run(),
+				],
+				'flags'   => [
+					'can_download' => Services::WpFs()->isFile( $fullPath ),
+					'has_content'  => $hasContent,
+					'has_diff'     => $hasDiff,
+					'has_history'  => $hasHistory,
+				],
+				'hrefs'   => [
+					'file_download' => $mod->getScanCon( $item->VO->scan )
+										   ->createFileDownloadLink( $item->VO->scanresult_id ),
+					'has_content'   => $hasContent,
+					'has_diff'      => $hasDiff,
+					'has_history'   => $hasHistory,
+				],
+				'imgs'    => [
+					'svgs' => [
+						'file_download' => $con->svgs->raw( 'bootstrap/download.svg' ),
 					],
-					'flags'   => [
-						'can_download' => Services::WpFs()->isFile( $fullPath ),
-						'has_content'  => $hasContent,
-						'has_diff'     => $hasDiff,
-						'has_history'  => $hasHistory,
-					],
-					'hrefs'   => [
-						'file_download' => $mod->getScanCon( $item->VO->scan )
-											   ->createFileDownloadLink( $item->VO->scanresult_id ),
-						'has_content'   => $hasContent,
-						'has_diff'      => $hasDiff,
-						'has_history'   => $hasHistory,
-					],
-					'imgs'    => [
-						'svgs' => [
-							'file_download' => $con->svgs->raw( 'bootstrap/download.svg' ),
-						],
-					],
-					'strings' => [
-						'modal_title'      => sprintf( '%s: %s', 'File', $item->path_fragment ),
-						'tab_filecontents' => 'Contents',
-						'tab_diff'         => 'Diff',
-						'tab_history'      => 'History',
-						'tab_info'         => 'Info',
-						'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
-					],
-				]
-			),
+				],
+				'strings' => [
+					'modal_title'      => sprintf( '%s: %s', 'File', $item->path_fragment ),
+					'tab_filecontents' => 'Contents',
+					'tab_diff'         => 'Diff',
+					'tab_history'      => 'History',
+					'tab_info'         => 'Info',
+					'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
+				],
+			] )
 		];
 	}
 

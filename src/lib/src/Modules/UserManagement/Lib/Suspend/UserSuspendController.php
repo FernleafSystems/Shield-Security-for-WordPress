@@ -200,7 +200,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 			'vars'    => [
 				'form_field' => 'shield_suspend_user',
 			]
-		], true );
+		] );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {

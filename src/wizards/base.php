@@ -101,12 +101,10 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	public function renderWizardLandingPage() {
 		try {
-			$content = $this->getMod()
-							->renderTemplate(
-								'wizard/pages/landing.twig',
-								$this->getRenderData_PageWizardLanding(),
-								true
-							);
+			$content = $this->getMod()->renderTemplate(
+				'wizard/pages/landing.twig',
+				$this->getRenderData_PageWizardLanding()
+			);
 		}
 		catch ( \Exception $e ) {
 			$content = $e->getMessage();
@@ -119,12 +117,10 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	public function renderWizardLandingSnippet() {
 		try {
-			$content = $this->getMod()
-							->renderTemplate(
-								'wizard/snippets/wizard_landing.twig',
-								$this->getRenderData_PageWizardLanding(),
-								true
-							);
+			$content = $this->getMod()->renderTemplate(
+				'wizard/snippets/wizard_landing.twig',
+				$this->getRenderData_PageWizardLanding()
+			);
 		}
 		catch ( \Exception $e ) {
 			$content = $e->getMessage();
@@ -246,8 +242,7 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	public function renderWizard() {
 		remove_all_actions( 'wp_footer' ); // FIX: nextgen gallery forces this to run.
-		return $this->getMod()
-					->renderTemplate( 'wizard/wizard_container.twig', $this->getRenderData_PageWizard(), true );
+		return $this->getMod()->renderTemplate( 'wizard/wizard_container.twig', $this->getRenderData_PageWizard() );
 	}
 
 	/**
@@ -455,24 +450,22 @@ abstract class ICWP_WPSF_Wizard_Base {
 	}
 
 	/**
-	 * @param string $sSlug
+	 * @param string $slug
 	 * @return string
 	 * @throws Exception
 	 */
-	protected function renderWizardStep( $sSlug ) {
+	protected function renderWizardStep( $slug ) {
 
-		$sTemplateSlug = $sSlug;
-		if ( strpos( $sSlug, '/' ) === false ) {
-			$sBase = $this->isSlideCommon( $sSlug ) ? 'common' : $this->getWizardSlug();
-			$sTemplateSlug = sprintf( '%s/%s', $sBase, $sSlug );
+		$template = $slug;
+		if ( strpos( $slug, '/' ) === false ) {
+			$base = $this->isSlideCommon( $slug ) ? 'common' : $this->getWizardSlug();
+			$template = sprintf( '%s/%s', $base, $slug );
 		}
 
-		return $this->getMod()
-					->renderTemplate(
-						sprintf( 'wizard/slides/%s.twig', $sTemplateSlug ),
-						$this->getRenderData_Slide( $sSlug ),
-						true
-					);
+		return $this->getMod()->renderTemplate(
+			sprintf( 'wizard/slides/%s.twig', $template ),
+			$this->getRenderData_Slide( $slug )
+		);
 	}
 
 	/**

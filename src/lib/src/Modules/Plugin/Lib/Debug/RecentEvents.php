@@ -12,20 +12,15 @@ class RecentEvents {
 
 	public function build() :string {
 		$con = $this->getCon();
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/overview/recent_events.twig',
-						[
-							'vars'    => [
-								'insight_events' => $this->getData()
-							],
-							'strings' => [
-								'title_recent'        => __( 'Recent Events Log', 'wp-simple-firewall' ),
-								'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), $con->getHumanName() ),
-							]
-						],
-						true
-					);
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/overview/recent_events.twig', [
+			'strings' => [
+				'title_recent'        => __( 'Recent Events Log', 'wp-simple-firewall' ),
+				'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), $con->getHumanName() ),
+			],
+			'vars'    => [
+				'insight_events' => $this->getData()
+			],
+		] );
 	}
 
 	private function getData() :array {

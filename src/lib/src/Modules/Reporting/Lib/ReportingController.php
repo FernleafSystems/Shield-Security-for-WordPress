@@ -134,7 +134,7 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 				$this->getMod()
 					 ->getEmailProcessor()
 					 ->sendEmailWithTemplate(
-						 '/email/reports/cron_alert_info_report',
+						 '/email/reports/cron_alert_info_report.twig',
 						 $this->getMod()->getPluginReportEmail(),
 						 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
 						 [

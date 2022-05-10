@@ -94,30 +94,26 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 			$badgeAttrs = apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $isFloating );
 		}
 
-		return $mod->renderTemplate(
-			'snippets/plugin_badge_widget',
-			[
-				'ajax'    => [
-					'plugin_badge_close' => $mod->getAjaxActionData( 'plugin_badge_close', true ),
-				],
-				'content' => [
-					'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
-				],
-				'flags'   => [
-					'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-					'is_floating' => $isFloating
-				],
-				'hrefs'   => [
-					'badge' => $badgeAttrs[ 'url' ],
-					'logo'  => $badgeAttrs[ 'logo' ],
-				],
-				'strings' => [
-					'protected' => $badgeAttrs[ 'protected_by' ],
-					'name'      => $badgeAttrs[ 'name' ],
-				],
+		return $mod->renderTemplate( 'snippets/plugin_badge_widget.twig', [
+			'ajax'    => [
+				'plugin_badge_close' => $mod->getAjaxActionData( 'plugin_badge_close', true ),
 			],
-			true
-		);
+			'content' => [
+				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
+			],
+			'flags'   => [
+				'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
+				'is_floating' => $isFloating
+			],
+			'hrefs'   => [
+				'badge' => $badgeAttrs[ 'url' ],
+				'logo'  => $badgeAttrs[ 'logo' ],
+			],
+			'strings' => [
+				'protected' => $badgeAttrs[ 'protected_by' ],
+				'name'      => $badgeAttrs[ 'name' ],
+			],
+		] );
 	}
 
 	public function setBadgeStateClosed() :bool {
