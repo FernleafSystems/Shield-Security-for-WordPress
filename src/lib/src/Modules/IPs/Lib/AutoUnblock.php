@@ -178,7 +178,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 		$user = Services::WpUsers()->getCurrentWpUser();
 
 		$mod->getEmailProcessor()->sendEmailWithTemplate(
-			'/email/uaum_init',
+			'/email/uaum_init.twig',
 			$user->user_email,
 			__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
 			[

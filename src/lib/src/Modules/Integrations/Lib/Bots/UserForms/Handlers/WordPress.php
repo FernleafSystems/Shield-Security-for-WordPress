@@ -28,10 +28,10 @@ class WordPress extends Base {
 	 */
 	public function checkLogin_WP( $userOrError, $username ) {
 		if ( !is_wp_error( $userOrError ) || empty( $userOrError->get_error_codes() ) ) {
-			$this->fireEventBlockLogin();
 			$this->setAuditAction( 'login' )
 				 ->setAuditUser( $username );
 			if ( $this->isBotBlockRequired() ) {
+				$this->fireEventBlockLogin();
 				$userOrError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 				remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 				remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
@@ -46,7 +46,6 @@ class WordPress extends Base {
 	 */
 	public function checkLostPassword_WP( $wpError = null, $user = false ) {
 		if ( is_wp_error( $wpError ) && empty( $wpError->get_error_codes() ) ) {
-			$this->fireEventBlockLostpassword();
 			$this->setAuditAction( 'lostpassword' );
 			if ( $user instanceof \WP_User ) {
 				$this->setAuditUser( $user->user_login );
@@ -55,6 +54,7 @@ class WordPress extends Base {
 				$this->setAuditUser( sanitize_user( Services::Request()->post( 'user_login', '' ) ) );
 			}
 			if ( $this->isBotBlockRequired() ) {
+				$this->fireEventBlockLostpassword();
 				$wpError->add( 'shield-fail-lostpassword', $this->getErrorMessage() );
 			}
 		}
@@ -67,10 +67,10 @@ class WordPress extends Base {
 	 */
 	public function checkRegister_WP( $wpError, $username ) {
 		if ( !is_wp_error( $wpError ) || empty( $wpError->get_error_codes() ) ) {
-			$this->fireEventBlockRegister();
 			$this->setAuditAction( 'register' )
 				 ->setAuditUser( $username );
 			if ( $this->isBotBlockRequired() ) {
+				$this->fireEventBlockRegister();
 				$wpError = new \WP_Error( 'shield-fail-login', $this->getErrorMessage() );
 			}
 		}

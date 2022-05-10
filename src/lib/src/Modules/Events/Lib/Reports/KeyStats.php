@@ -54,19 +54,16 @@ class KeyStats extends BaseReporter {
 		}
 
 		if ( count( $sums ) > 0 ) {
-			$alerts[] = $this->getMod()->renderTemplate(
-				'/components/reports/mod/events/info_keystats.twig',
-				[
-					'vars'    => [
-						'counts' => $sums
-					],
-					'strings' => [
-						'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
-					],
-					'hrefs'   => [
-					],
-				]
-			);
+			$alerts[] = $mod->renderTemplate( '/components/reports/mod/events/info_keystats.twig', [
+				'strings' => [
+					'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
+				],
+				'hrefs'   => [
+				],
+				'vars'    => [
+					'counts' => $sums
+				],
+			] );
 		}
 
 		return $alerts;

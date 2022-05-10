@@ -11,23 +11,19 @@ class UI extends BaseShield\UI {
 	public function renderAuditTrailTable() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/audit_trail/audit_table.twig',
-			[
-				'ajax'    => [
-					'logtable_action' => $mod->getAjaxActionData( 'logtable_action', true ),
-				],
-				'flags'   => [],
-				'strings' => [
-					'table_title' => __( 'Activity Log', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'datatables_init' => ( new ForAuditTrail() )
-						->setMod( $this->getMod() )
-						->build()
-				],
+		return $mod->renderTemplate( '/wpadmin_pages/insights/audit_trail/audit_table.twig', [
+			'ajax'    => [
+				'logtable_action' => $mod->getAjaxActionData( 'logtable_action', true ),
 			],
-			true
-		);
+			'flags'   => [],
+			'strings' => [
+				'table_title' => __( 'Activity Log', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForAuditTrail() )
+					->setMod( $this->getMod() )
+					->build()
+			],
+		] );
 	}
 }

@@ -10,18 +10,12 @@ class AdminNotes {
 	use ModConsumer;
 
 	public function render() :string {
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/notes/admin_notes.twig',
-						$this->buildData(),
-						true
-					);
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/notes/admin_notes.twig', $this->buildData() );
 	}
 
 	private function buildData() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
 		return [
 			'ajax'    => [
 				'render_table_adminnotes' => $mod->getAjaxActionData( 'render_table_adminnotes', true ),

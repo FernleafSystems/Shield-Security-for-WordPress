@@ -149,11 +149,8 @@ abstract class BaseProvider {
 			$this->getProviderSpecificRenderData()
 		);
 		$data[ 'flags' ][ 'show_explanatory_text' ] = false;
-		return $this->getMod()
-					->renderTemplate(
-						sprintf( '/user/profile/mfa/provider_%s.twig', static::SLUG ),
-						$data
-					);
+
+		return $this->getMod()->renderTemplate( sprintf( '/user/profile/mfa/provider_%s.twig', static::SLUG ), $data );
 	}
 
 	protected function getProviderSpecificRenderData() :array {

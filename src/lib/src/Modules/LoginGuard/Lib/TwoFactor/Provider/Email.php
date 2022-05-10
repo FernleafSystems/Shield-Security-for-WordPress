@@ -84,7 +84,7 @@ class Email extends BaseProvider {
 					   || $this->getMod()
 							   ->getEmailProcessor()
 							   ->sendEmailWithTemplate(
-								   '/email/lp_2fa_email_code',
+								   '/email/lp_2fa_email_code.twig',
 								   $user->user_email,
 								   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
 								   [

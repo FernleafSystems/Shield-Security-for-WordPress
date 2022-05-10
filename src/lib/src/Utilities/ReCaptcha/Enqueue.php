@@ -63,24 +63,20 @@ class Enqueue {
 	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
-		/** @var ModCon $oMod */
-		$oMod = $this->getMod();
-		$oCFG = $oMod->getCaptchaCfg();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$cfg = $mod->getCaptchaCfg();
 
 		if ( $this->bEnqueue ) {
-			echo $oMod->renderTemplate(
-				'snippets/google_recaptcha_js',
-				[
-					'sitekey' => $oCFG->key,
-					'size'    => $oCFG->invisible ? 'invisible' : '',
-					'theme'   => $oCFG->theme,
-					'invis'   => $oCFG->invisible,
-				]
-
-			);
+			echo $mod->renderTemplate( 'snippets/anti_bot/google_recaptcha_js.twig', [
+				'sitekey' => $cfg->key,
+				'size'    => $cfg->invisible ? 'invisible' : '',
+				'theme'   => $cfg->theme,
+				'invis'   => $cfg->invisible,
+			] );
 		}
 		else {
-			wp_dequeue_script( $oCFG->js_handle );
+			wp_dequeue_script( $cfg->js_handle );
 		}
 	}
 

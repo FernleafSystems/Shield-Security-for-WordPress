@@ -16,7 +16,6 @@ class BuildHistory {
 
 	/**
 	 * @param Scans\Base\ResultItem $resultItem
-	 * @return string
 	 * @throws \Exception
 	 */
 	public function run( $resultItem ) :string {
@@ -52,24 +51,20 @@ class BuildHistory {
 			}
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/scans/modal/scan_item_view/item_history.twig',
-			[
-				'flags'   => [
-					'has_history' => $results->hasItems(),
-				],
-				'vars'    => [
-					'history' => $this->convertHistoryToHuman(),
-				],
-				'strings' => [
-				],
-			]
-		);
+		return $mod->renderTemplate( '/wpadmin_pages/insights/scans/modal/scan_item_view/item_history.twig', [
+			'flags'   => [
+				'has_history' => $results->hasItems(),
+			],
+			'strings' => [
+			],
+			'vars'    => [
+				'history' => $this->convertHistoryToHuman(),
+			],
+		] );
 	}
 
 	/**
 	 * @param Scans\Base\ResultItem $item
-	 * @return string
 	 */
 	private function getItemFileStatus( $item ) :string {
 		if ( $item->is_unrecognised ) {

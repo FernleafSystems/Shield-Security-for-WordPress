@@ -111,32 +111,27 @@ class WpvAddPluginRows {
 		if ( $scanCon->hasVulnerabilities( $pluginFile ) ) {
 			$name = $scanCon->getCon()->getHumanName();
 			$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
-			echo $scanCon->getMod()
-						 ->renderTemplate(
-							 '/snippets/plugin_vulnerability.twig',
-							 [
-								 'strings' => [
-									 'known_vuln' => sprintf(
-										 __( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.', 'wp-simple-firewall' ),
-										 $name, '<strong>'.$pData[ 'Name' ].'</strong>' ),
-									 'more_info'  => __( 'More Info', 'wp-simple-firewall' ),
-								 ],
-								 'hrefs'   => [
-									 'vuln_lookup' => add_query_arg(
-										 [
-											 'type'    => $plugin->asset_type,
-											 'slug'    => $plugin->slug,
-											 'version' => $plugin->Version,
-										 ],
-										 'https://shsec.io/shieldvulnerabilitylookup'
-									 )
-								 ],
-								 'vars'    => [
-									 'colspan' => $this->nColumnsCount
-								 ],
-							 ],
-							 true
-						 );
+			echo $scanCon->getMod()->renderTemplate( '/snippets/plugin_vulnerability.twig', [
+				'strings' => [
+					'known_vuln' => sprintf(
+						__( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.', 'wp-simple-firewall' ),
+						$name, '<strong>'.$pData[ 'Name' ].'</strong>' ),
+					'more_info'  => __( 'More Info', 'wp-simple-firewall' ),
+				],
+				'hrefs'   => [
+					'vuln_lookup' => add_query_arg(
+						[
+							'type'    => $plugin->asset_type,
+							'slug'    => $plugin->slug,
+							'version' => $plugin->Version,
+						],
+						'https://shsec.io/shieldvulnerabilitylookup'
+					)
+				],
+				'vars'    => [
+					'colspan' => $this->nColumnsCount
+				],
+			] );
 		}
 	}
 
