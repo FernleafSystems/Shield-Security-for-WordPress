@@ -27,17 +27,14 @@ class BuilderAlerts extends BaseBuilder {
 	}
 
 	protected function render( array $gathered ) :string {
-		return $this->getMod()->renderTemplate(
-			'/components/reports/alert_body.twig',
-			[
-				'vars'    => [
-					'alerts' => $gathered
-				],
-				'strings' => [
-					'title'    => __( 'Important Alerts', 'wp-simple-firewall' ),
-					'subtitle' => __( 'The following is a collection of the latest alerts since your previous report.', 'wp-simple-firewall' ),
-				],
-			]
-		);
+		return $this->getMod()->renderTemplate( '/components/reports/alert_body.twig', [
+			'vars'    => [
+				'alerts' => $gathered
+			],
+			'strings' => [
+				'title'    => __( 'Important Alerts', 'wp-simple-firewall' ),
+				'subtitle' => __( 'The following is a collection of the latest alerts since your previous report.', 'wp-simple-firewall' ),
+			],
+		] );
 	}
 }

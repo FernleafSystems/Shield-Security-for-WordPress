@@ -1,0 +1,64 @@
+<script type="text/javascript">
+
+	var iCWP_WPSF_Recaptcha = new function () {
+
+	  let isInvisible = {{ invis ? 'true' : 'false' }};
+
+	  this.setupForm = function ( theForm ) {
+
+		  let recaptchaContainer = theForm.querySelector( '.icwpg-recaptcha' );
+
+		  if ( recaptchaContainer !== null ) {
+
+			  let recaptchaContainerSpec = grecaptcha.render(
+				  recaptchaContainer,
+				  {
+					  'sitekey': '{{ sitekey }}',
+					  'size': '{{ size }}',
+					  'theme': '{{ theme }}',
+					  'badge': 'bottomright',
+					  'callback': function ( reCaptchaToken ) {
+							{% if invis %}
+							  HTMLFormElement.prototype.submit.call( theForm );
+							{% endif %}
+					  },
+					  'expired-callback': function () {
+						  grecaptcha.reset( recaptchaContainerSpec );
+					  }
+				  }
+			  );
+
+			  {% if invis %}
+				  let submitInputs = theForm.querySelectorAll( 'input, button' );
+				  for ( var i = 0; i < submitInputs.length; i++ ) {
+					  if ( submitInputs[ i ].type.toLowerCase() === 'submit' ) {
+						  submitInputs[ i ].onclick = function ( event ) {
+							  event.preventDefault();
+							  grecaptcha.execute( recaptchaContainerSpec );
+						  };
+					  }
+				  }
+			  {% endif %}
+		  }
+	  };
+
+	  this.initialise = function () {
+		  if ( grecaptcha !== undefined ) {
+			  for ( var i = 0; i < document.forms.length; i++ ) {
+				  this.setupForm( document.forms[ i ] );
+			  }
+			  /**
+			   * For some crazy reason invisible recaptcha badge attaches to div with this class.
+			   * Fortunately removing the class at this stage doesn't interrupt normal behaviour.
+			   */
+			  if ( isInvisible ) {
+				  document.querySelector( 'form' ).classList.remove( 'shake' );
+			  }
+		  }
+	  };
+  }();
+
+  var onLoadIcwpRecaptchaCallback = function () {
+	  iCWP_WPSF_Recaptcha.initialise();
+  };
+</script>

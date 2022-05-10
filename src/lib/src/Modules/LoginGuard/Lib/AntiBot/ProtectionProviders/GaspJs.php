@@ -109,14 +109,11 @@ class GaspJs extends BaseProtectionProvider {
 	 * @inheritDoc
 	 */
 	public function buildFormInsert( $formProvider ) {
-		return $this->getMod()->renderTemplate(
-			'/snippets/anti_bot/gasp_js.twig',
-			[
-				'strings' => [
-					'loading' => __( 'Loading', 'wp-simple-firewall' )
-				]
+		return $this->getMod()->renderTemplate( '/snippets/anti_bot/gasp_js.twig', [
+			'strings' => [
+				'loading' => __( 'Loading', 'wp-simple-firewall' )
 			]
-		);
+		] );
 	}
 
 	protected function isFactorJsRequired() :bool {

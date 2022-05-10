@@ -298,23 +298,19 @@ class UI extends BaseShield\UI {
 			ksort( $events );
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/docs/events.twig',
-			[
-				'vars'    => [
-					// the keys here must match the changelog item types
-					'event_defs' => $eventsSortedByLevel
-				],
-				'strings' => [
-					// the keys here must match the changelog item types
-					'version'      => __( 'Version', 'wp-simple-firewall' ),
-					'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
-					'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
-					'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
-				],
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/docs/events.twig', [
+			'vars'    => [
+				// the keys here must match the changelog item types
+				'event_defs' => $eventsSortedByLevel
 			],
-			true
-		);
+			'strings' => [
+				// the keys here must match the changelog item types
+				'version'      => __( 'Version', 'wp-simple-firewall' ),
+				'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
+				'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
+				'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
+			],
+		] );
 	}
 
 	private function renderTabUpdates() :string {
@@ -329,31 +325,26 @@ class UI extends BaseShield\UI {
 				->fromFile();
 		}
 
-		return $this->getMod()
-					->renderTemplate(
-						'/wpadmin_pages/insights/overview/updates/index.twig',
-						[
-							'vars'      => [
-								// the keys here must match the changelog item types
-								'badge_types' => [
-									'new'      => 'primary',
-									'added'    => 'light',
-									'improved' => 'info',
-									'changed'  => 'warning',
-									'fixed'    => 'danger',
-								]
-							],
-							'strings'   => [
-								// the keys here must match the changelog item types
-								'version'      => __( 'Version', 'wp-simple-firewall' ),
-								'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
-								'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
-								'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
-							],
-							'changelog' => $changelog
-						],
-						true
-					);
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/overview/updates/index.twig', [
+			'changelog' => $changelog,
+			'strings'   => [
+				// the keys here must match the changelog item types
+				'version'      => __( 'Version', 'wp-simple-firewall' ),
+				'release_date' => __( 'Release Date', 'wp-simple-firewall' ),
+				'pro_only'     => __( 'Pro Only', 'wp-simple-firewall' ),
+				'full_release' => __( 'Full Release Announcement', 'wp-simple-firewall' ),
+			],
+			'vars'      => [
+				// the keys here must match the changelog item types
+				'badge_types' => [
+					'new'      => 'primary',
+					'added'    => 'light',
+					'improved' => 'info',
+					'changed'  => 'warning',
+					'fixed'    => 'danger',
+				]
+			],
+		] );
 	}
 
 	public function printAdminFooterItems() {
@@ -364,32 +355,26 @@ class UI extends BaseShield\UI {
 	private function printGoProFooter() {
 		$con = $this->getCon();
 		$nav = Services::Request()->query( 'inav', 'overview' );
-		echo $this->getMod()->renderTemplate(
-			'snippets/go_pro_banner.twig',
-			[
-				'flags' => [
-					'show_promo' => $con->isModulePage()
-									&& !$con->isPremiumActive()
-									&& ( !in_array( $nav, [ 'scans_results', 'scans_run', 'wizard' ] ) ),
-				],
-				'hrefs' => [
-					'go_pro' => 'https://shsec.io/shieldgoprofeature',
-				]
+		echo $this->getMod()->renderTemplate( 'snippets/go_pro_banner.twig', [
+			'flags' => [
+				'show_promo' => $con->isModulePage()
+								&& !$con->isPremiumActive()
+								&& ( !in_array( $nav, [ 'scans_results', 'scans_run', 'wizard' ] ) ),
+			],
+			'hrefs' => [
+				'go_pro' => 'https://shsec.io/shieldgoprofeature',
 			]
-		);
+		] );
 	}
 
 	private function printToastTemplate() {
 		if ( $this->getCon()->isModulePage() ) {
-			echo $this->getMod()->renderTemplate(
-				'snippets/toaster.twig',
-				[
-					'strings'     => [
-						'title' => $this->getCon()->getHumanName(),
-					],
-					'js_snippets' => []
-				]
-			);
+			echo $this->getMod()->renderTemplate( 'snippets/toaster.twig', [
+				'strings'     => [
+					'title' => $this->getCon()->getHumanName(),
+				],
+				'js_snippets' => []
+			] );
 		}
 	}
 }

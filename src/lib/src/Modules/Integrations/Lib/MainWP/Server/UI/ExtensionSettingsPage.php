@@ -80,28 +80,23 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 		}
 
 		try {
-			echo $this->getMod()
-					  ->renderTemplate(
-						  '/integration/mainwp/page_extension.twig',
-						  [
-							  'content' => [
-								  'mainwp_header' => $mainwpHeader,
-								  'mainwp_footer' => $mainwpFooter,
-								  'page_inner'    => $pageRenderer->setMod( $this->getMod() )->render(),
-							  ],
-							  'vars'    => [
-								  'submenu' => [
-									  [
-										  'title'  => 'Sites',
-										  'href'   => add_query_arg( [ 'tab' => 'sites' ], $req->getUri() ),
-										  'icon'   => 'globe',
-										  'active' => $currentTab === 'sites',
-									  ]
-								  ],
-							  ]
-						  ],
-						  true
-					  );
+			echo $this->getMod()->renderTemplate( '/integration/mainwp/page_extension.twig', [
+				'content' => [
+					'mainwp_header' => $mainwpHeader,
+					'mainwp_footer' => $mainwpFooter,
+					'page_inner'    => $pageRenderer->setMod( $this->getMod() )->render(),
+				],
+				'vars'    => [
+					'submenu' => [
+						[
+							'title'  => 'Sites',
+							'href'   => add_query_arg( [ 'tab' => 'sites' ], $req->getUri() ),
+							'icon'   => 'globe',
+							'active' => $currentTab === 'sites',
+						]
+					],
+				]
+			] );
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );

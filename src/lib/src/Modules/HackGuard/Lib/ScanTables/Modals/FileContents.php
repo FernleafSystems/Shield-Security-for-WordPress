@@ -34,13 +34,9 @@ class FileContents {
 
 		if ( !$rawContents ) {
 			$modContents = ( new ConvertLineEndings() )->fileDosToLinux( $path );
-			$contents = $this->getMod()
-							 ->renderTemplate(
-								 '/wpadmin_pages/insights/scans/modal/code_block.twig',
-								 [
-									 'lines' => explode( "\n", str_replace( "\t", "    ", $modContents ) ),
-								 ]
-							 );
+			$contents = $this->getMod()->renderTemplate( '/wpadmin_pages/insights/scans/modal/code_block.twig', [
+				'lines' => explode( "\n", str_replace( "\t", "    ", $modContents ) ),
+			] );
 		}
 		return [
 			'contents' => $contents,

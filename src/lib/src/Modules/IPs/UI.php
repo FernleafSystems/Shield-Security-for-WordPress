@@ -119,25 +119,21 @@ class UI extends BaseShield\UI {
 
 	private function renderIpAnalyse() :string {
 		$mod = $this->getMod();
-		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/index.twig',
-			[
-				'ajax'    => [
-					'ip_analyse_build'  => $mod->getAjaxActionData( 'ip_analyse_build', true ),
-					'ip_analyse_action' => $mod->getAjaxActionData( 'ip_analyse_action', true ),
-					'ip_review_select'  => $mod->getAjaxActionData( 'ip_review_select', true ),
-				],
-				'strings' => [
-					'select_ip'     => __( 'Select IP To Analyse', 'wp-simple-firewall' ),
-					'card_title'    => 'IP Analysis',
-					'card_summary'  => 'Investigate IP activity on this site',
-					'please_select' => 'Please select an IP address.',
-				],
-				'vars'    => [
-					'unique_ips' => []
-				]
+		return $mod->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/index.twig', [
+			'ajax'    => [
+				'ip_analyse_build'  => $mod->getAjaxActionData( 'ip_analyse_build', true ),
+				'ip_analyse_action' => $mod->getAjaxActionData( 'ip_analyse_action', true ),
+				'ip_review_select'  => $mod->getAjaxActionData( 'ip_review_select', true ),
 			],
-			true
-		);
+			'strings' => [
+				'select_ip'     => __( 'Select IP To Analyse', 'wp-simple-firewall' ),
+				'card_title'    => 'IP Analysis',
+				'card_summary'  => 'Investigate IP activity on this site',
+				'please_select' => 'Please select an IP address.',
+			],
+			'vars'    => [
+				'unique_ips' => []
+			]
+		] );
 	}
 }

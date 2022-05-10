@@ -39,30 +39,26 @@ class BuildDisplay {
 			throw new \Exception( "A valid IP address wasn't provided." );
 		}
 
-		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_info.twig',
-			[
-				'strings' => [
-					'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
-					'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
-					'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
-					'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
-					'nav_audit'    => __( 'Activity Log', 'wp-simple-firewall' ),
-					'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'ip' => $ip,
-				],
-				'content' => [
-					'general'     => $this->renderForGeneral(),
-					'signals'     => $this->renderForBotSignals(),
-					'sessions'    => $this->renderForSessions(),
-					'audit_trail' => $this->renderForAuditTrail(),
-					'traffic'     => $this->renderForTraffic(),
-				],
+		return $mod->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_info.twig', [
+			'content' => [
+				'general'     => $this->renderForGeneral(),
+				'signals'     => $this->renderForBotSignals(),
+				'sessions'    => $this->renderForSessions(),
+				'audit_trail' => $this->renderForAuditTrail(),
+				'traffic'     => $this->renderForTraffic(),
 			],
-			true
-		);
+			'strings' => [
+				'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
+				'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
+				'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
+				'nav_sessions' => __( 'User Sessions', 'wp-simple-firewall' ),
+				'nav_audit'    => __( 'Activity Log', 'wp-simple-firewall' ),
+				'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'ip' => $ip,
+			],
+		] );
 	}
 
 	private function renderForGeneral() :string {
@@ -131,82 +127,78 @@ class BuildDisplay {
 							  ->setIP( $ip )
 							  ->retrieve()[ 'reputation_score' ] ?? '-';
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig',
-			[
-				'strings' => [
-					'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
-					'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig', [
+			'flags'   => [
+				'has_geo' => !empty( $geo->getRawData() ),
+			],
+			'hrefs'   => [
+				'snapi_reputation_details' => add_query_arg(
+					[ 'ip' => $ip ], 'https://shsec.io/botornot'
+				)
+			],
+			'strings' => [
+				'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
+				'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
-					'block_ip'      => __( 'Block IP', 'wp-simple-firewall' ),
-					'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
-					'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
-					'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
-					'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
-					'see_details'   => __( 'See Details', 'wp-simple-firewall' ),
+				'block_ip'      => __( 'Block IP', 'wp-simple-firewall' ),
+				'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
+				'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+				'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+				'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
+				'see_details'   => __( 'See Details', 'wp-simple-firewall' ),
 
-					'status' => [
-						'is_you'              => __( 'Is It You?', 'wp-simple-firewall' ),
-						'offenses'            => __( 'Number of offenses', 'wp-simple-firewall' ),
-						'is_blocked'          => __( 'Is Blocked', 'wp-simple-firewall' ),
-						'is_bypass'           => __( 'Is Bypass IP', 'wp-simple-firewall' ),
-						'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
-						'snapi_ip_reputation' => __( 'ShieldNET IP Reputation Score', 'wp-simple-firewall' ),
-					],
-
-					'yes' => __( 'Yes', 'wp-simple-firewall' ),
-					'no'  => __( 'No', 'wp-simple-firewall' ),
-
-					'identity' => [
-						'who_is_it'   => __( 'Is this a known IP address?', 'wp-simple-firewall' ),
-						'rdns'        => 'rDNS',
-						'country'     => __( 'Country', 'wp-simple-firewall' ),
-						'timezone'    => __( 'Timezone', 'wp-simple-firewall' ),
-						'coordinates' => __( 'Coordinates', 'wp-simple-firewall' ),
-					],
-
-					'extras' => [
-						'title'          => __( 'Extras', 'wp-simple-firewall' ),
-						'ip_whois'       => __( 'IP Whois', 'wp-simple-firewall' ),
-						'query_ip_whois' => __( 'Query IP Whois', 'wp-simple-firewall' ),
-					],
+				'status' => [
+					'is_you'              => __( 'Is It You?', 'wp-simple-firewall' ),
+					'offenses'            => __( 'Number of offenses', 'wp-simple-firewall' ),
+					'is_blocked'          => __( 'Is Blocked', 'wp-simple-firewall' ),
+					'is_bypass'           => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+					'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
+					'snapi_ip_reputation' => __( 'ShieldNET IP Reputation Score', 'wp-simple-firewall' ),
 				],
-				'hrefs'   => [
-					'snapi_reputation_details' => add_query_arg(
-						[ 'ip' => $ip ], 'https://shsec.io/botornot'
-					)
+
+				'yes' => __( 'Yes', 'wp-simple-firewall' ),
+				'no'  => __( 'No', 'wp-simple-firewall' ),
+
+				'identity' => [
+					'who_is_it'   => __( 'Is this a known IP address?', 'wp-simple-firewall' ),
+					'rdns'        => 'rDNS',
+					'country'     => __( 'Country', 'wp-simple-firewall' ),
+					'timezone'    => __( 'Timezone', 'wp-simple-firewall' ),
+					'coordinates' => __( 'Coordinates', 'wp-simple-firewall' ),
 				],
-				'vars'    => [
-					'ip'       => $ip,
-					'status'   => [
-						'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-						'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
-						'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
-						'is_bypass'              => !empty( $bypassIP ),
-						'ip_reputation_score'    => $botScore,
-						'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
-						'is_bot'                 => $isBot,
-					],
-					'identity' => [
-						'who_is_it'    => $ipName,
-						'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
-						'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
-						'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
-						'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
-							__( 'Latitude', 'wp-simple-firewall' ), $geo->latitude,
-							__( 'Longitude', 'wp-simple-firewall' ), $geo->longitude )
-							: __( 'Unknown', 'wp-simple-firewall' )
-					],
-					'extras'   => [
-						'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),
-					],
-				],
-				'flags'   => [
-					'has_geo' => !empty( $geo->getRawData() ),
+
+				'extras' => [
+					'title'          => __( 'Extras', 'wp-simple-firewall' ),
+					'ip_whois'       => __( 'IP Whois', 'wp-simple-firewall' ),
+					'query_ip_whois' => __( 'Query IP Whois', 'wp-simple-firewall' ),
 				],
 			],
-			true
-		);
+			'vars'    => [
+				'ip'       => $ip,
+				'status'   => [
+					'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+					'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
+					'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
+					'is_bypass'              => !empty( $bypassIP ),
+					'ip_reputation_score'    => $botScore,
+					'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
+					'is_bot'                 => $isBot,
+				],
+				'identity' => [
+					'who_is_it'    => $ipName,
+					'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
+					'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
+					'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
+					'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
+						__( 'Latitude', 'wp-simple-firewall' ), $geo->latitude,
+						__( 'Longitude', 'wp-simple-firewall' ), $geo->longitude )
+						: __( 'Unknown', 'wp-simple-firewall' )
+				],
+				'extras'   => [
+					'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),
+				],
+			],
+		] );
 	}
 
 	private function renderForSessions() :string {
@@ -293,27 +285,23 @@ class BuildDisplay {
 			$requests[ $key ] = $asArray;
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_traffic.twig',
-			[
-				'strings' => [
-					'title'        => __( 'Visitor Requests', 'wp-simple-firewall' ),
-					'no_requests'  => __( 'No requests logged for this IP', 'wp-simple-firewall' ),
-					'path'         => __( 'Path', 'wp-simple-firewall' ),
-					'query'        => __( 'Query', 'wp-simple-firewall' ),
-					'verb'         => __( 'Verb', 'wp-simple-firewall' ),
-					'requested_at' => __( 'Requested At', 'wp-simple-firewall' ),
-					'response'     => __( 'Response', 'wp-simple-firewall' ),
-					'http_code'    => __( 'Code', 'wp-simple-firewall' ),
-					'offense'      => __( 'Offense', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'requests'       => $requests,
-					'total_requests' => count( $requests ),
-				],
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_traffic.twig', [
+			'strings' => [
+				'title'        => __( 'Visitor Requests', 'wp-simple-firewall' ),
+				'no_requests'  => __( 'No requests logged for this IP', 'wp-simple-firewall' ),
+				'path'         => __( 'Path', 'wp-simple-firewall' ),
+				'query'        => __( 'Query', 'wp-simple-firewall' ),
+				'verb'         => __( 'Verb', 'wp-simple-firewall' ),
+				'requested_at' => __( 'Requested At', 'wp-simple-firewall' ),
+				'response'     => __( 'Response', 'wp-simple-firewall' ),
+				'http_code'    => __( 'Code', 'wp-simple-firewall' ),
+				'offense'      => __( 'Offense', 'wp-simple-firewall' ),
 			],
-			true
-		);
+			'vars'    => [
+				'requests'       => $requests,
+				'total_requests' => count( $requests ),
+			],
+		] );
 	}
 
 	private function renderForBotSignals() :string {
@@ -355,37 +343,33 @@ class BuildDisplay {
 			}
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig',
-			[
-				'strings' => [
-					'title'            => __( 'Bot Signals', 'wp-simple-firewall' ),
-					'signal'           => __( 'Signal', 'wp-simple-firewall' ),
-					'score'            => __( 'Score', 'wp-simple-firewall' ),
-					'total_score'      => __( 'Total Reputation Score', 'wp-simple-firewall' ),
-					'when'             => __( 'When', 'wp-simple-firewall' ),
-					'bot_probability'  => __( 'Bad Bot Probability', 'wp-simple-firewall' ),
-					'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
-					'signal_names'     => $names,
-					'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
-				],
-				'ajax'    => [
-					'has_signals' => !empty( $signals ),
-				],
-				'flags'   => [
-					'has_signals' => !empty( $signals ),
-				],
-				'vars'    => [
-					'signals'       => $signals,
-					'total_signals' => count( $signals ),
-					'scores'        => $scores,
-					'total_score'   => array_sum( $scores ),
-					'minimum'       => array_sum( $scores ),
-					'probability'   => 100 - (int)max( 0, min( 100, array_sum( $scores ) ) )
-				],
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig', [
+			'strings' => [
+				'title'            => __( 'Bot Signals', 'wp-simple-firewall' ),
+				'signal'           => __( 'Signal', 'wp-simple-firewall' ),
+				'score'            => __( 'Score', 'wp-simple-firewall' ),
+				'total_score'      => __( 'Total Reputation Score', 'wp-simple-firewall' ),
+				'when'             => __( 'When', 'wp-simple-firewall' ),
+				'bot_probability'  => __( 'Bad Bot Probability', 'wp-simple-firewall' ),
+				'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
+				'signal_names'     => $names,
+				'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
 			],
-			true
-		);
+			'ajax'    => [
+				'has_signals' => !empty( $signals ),
+			],
+			'flags'   => [
+				'has_signals' => !empty( $signals ),
+			],
+			'vars'    => [
+				'signals'       => $signals,
+				'total_signals' => count( $signals ),
+				'scores'        => $scores,
+				'total_score'   => array_sum( $scores ),
+				'minimum'       => array_sum( $scores ),
+				'probability'   => 100 - (int)max( 0, min( 100, array_sum( $scores ) ) )
+			],
+		] );
 	}
 
 	private function renderForAuditTrail() :string {
@@ -413,24 +397,20 @@ class BuildDisplay {
 			}
 		}
 
-		return $this->getMod()->renderTemplate(
-			'/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig',
-			[
-				'strings' => [
-					'title'      => __( 'Audit Log Entries', 'wp-simple-firewall' ),
-					'no_logs'    => __( 'No logs at this IP', 'wp-simple-firewall' ),
-					'username'   => __( 'Username', 'wp-simple-firewall' ),
-					'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),
-					'event'      => __( 'Event', 'wp-simple-firewall' ),
-					'created_at' => __( 'Logged At', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'logs'       => $logs,
-					'total_logs' => count( $logs ),
-				],
+		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig', [
+			'strings' => [
+				'title'      => __( 'Audit Log Entries', 'wp-simple-firewall' ),
+				'no_logs'    => __( 'No logs at this IP', 'wp-simple-firewall' ),
+				'username'   => __( 'Username', 'wp-simple-firewall' ),
+				'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),
+				'event'      => __( 'Event', 'wp-simple-firewall' ),
+				'created_at' => __( 'Logged At', 'wp-simple-firewall' ),
 			],
-			true
-		);
+			'vars'    => [
+				'logs'       => $logs,
+				'total_logs' => count( $logs ),
+			],
+		] );
 	}
 
 	protected function getTimeAgo( int $ts ) :string {

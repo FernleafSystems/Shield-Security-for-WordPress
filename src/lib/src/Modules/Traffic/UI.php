@@ -13,29 +13,24 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-
-		return $mod->renderTemplate(
-			'/wpadmin_pages/insights/traffic/traffic_table.twig',
-			[
-				'ajax'    => [
-					'traffictable_action' => $mod->getAjaxActionData( 'traffictable_action', true ),
-				],
-				'flags'   => [
-					'is_enabled' => $opts->isTrafficLoggerEnabled(),
-				],
-				'hrefs'   => [
-					'please_enable' => $mod->getUrl_DirectLinkToOption( 'enable_logger' ),
-				],
-				'strings' => [
-				],
-				'vars'    => [
-					'datatables_init'   => ( new ForTraffic() )
-						->setMod( $this->getMod() )
-						->build()
-				],
+		return $mod->renderTemplate( '/wpadmin_pages/insights/traffic/traffic_table.twig', [
+			'ajax'    => [
+				'traffictable_action' => $mod->getAjaxActionData( 'traffictable_action', true ),
 			],
-			true
-		);
+			'flags'   => [
+				'is_enabled' => $opts->isTrafficLoggerEnabled(),
+			],
+			'hrefs'   => [
+				'please_enable' => $mod->getUrl_DirectLinkToOption( 'enable_logger' ),
+			],
+			'strings' => [
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForTraffic() )
+					->setMod( $this->getMod() )
+					->build()
+			],
+		] );
 	}
 
 	public function getSectionWarnings( string $section ) :array {
