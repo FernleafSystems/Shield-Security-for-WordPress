@@ -184,6 +184,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "7",
+        "released_at": 1652183772,
+        "items":       [
+          {
+            "title": "Prevent an error when handling user meta data.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
