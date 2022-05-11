@@ -39,16 +39,20 @@ class Clean extends ExecOnceModConsumer {
 		foreach ( $opts->getScanSlugs() as $scanSlug ) {
 			/** @var ScansDB\Select $select */
 			$select = $dbhScan->getQuerySelector();
-			$scanRecord = $select->filterByFinished()
-								 ->filterByScan( $scanSlug )
-								 ->setOrderBy( 'finished_at', 'DESC' )
-								 ->setLimit( 1 )
-								 ->queryWithResult();
-			$scanIDsToKeep[] = $scanRecord[ 0 ]->id;
+			$scanRecords = $select->filterByFinished()
+								  ->filterByScan( $scanSlug )
+								  ->setOrderBy( 'finished_at', 'DESC' )
+								  ->setLimit( 1 )
+								  ->queryWithResult();
+			if ( is_array( $scanRecords ) && count( $scanRecords ) === 1 ) {
+				$scanIDsToKeep[] = $scanRecords[ 0 ]->id;
+			}
 		}
 
-		Services::WpDb()->doSql( sprintf( 'DELETE FROM %s WHERE `id` NOT IN (%s) AND `finished_at`>0',
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			implode( ', ', $scanIDsToKeep ) ) );
+		if ( !empty( $scanIDsToKeep ) ) {
+			Services::WpDb()->doSql( sprintf( 'DELETE FROM %s WHERE `id` NOT IN (%s) AND `finished_at`>0',
+				$mod->getDbH_Scans()->getTableSchema()->table,
+				implode( ', ', $scanIDsToKeep ) ) );
+		}
 	}
 }
