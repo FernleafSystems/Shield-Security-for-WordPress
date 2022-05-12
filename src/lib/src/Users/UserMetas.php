@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserMetas {
@@ -59,6 +60,9 @@ class UserMetas {
 		$userID = (int)$meta->user_id;
 
 		$metaRecord = $metaLoader->loadMeta( $userID );
+		if ( empty( $metaRecord ) ) {
+			$metaRecord = $dbh->getRecord();
+		}
 
 		$dataToUpdate = [];
 
