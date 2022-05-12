@@ -186,8 +186,8 @@
         ]
       },
       {
-        "version":     "7",
-        "released_at": 1652354000,
+        "version":     "8",
+        "released_at": 1652357000,
         "items":       [
           {
             "title": "Adjusted how the security progress meters are displayed and switch to grades instead of percentages.",
