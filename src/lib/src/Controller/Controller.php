@@ -389,14 +389,12 @@ class Controller extends DynPropertiesClass {
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
 		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
-		add_filter( 'site_transient_update_plugins', [ $this, 'filter_hidePluginUpdatesFromUI' ] );
 		add_action( 'in_plugin_update_message-'.$this->base_file, [ $this, 'onWpPluginUpdateMessage' ] );
 		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
 		add_action( 'shutdown', [ $this, 'onWpShutdown' ], PHP_INT_MIN );
-		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR
 		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
@@ -542,7 +540,7 @@ class Controller extends DynPropertiesClass {
 	/**
 	 * @return Shield\Utilities\AdminNotices\Controller
 	 */
-	public function getAdminNotices() {
+	public function getAdminNotices() :Shield\Utilities\AdminNotices\Controller {
 		if ( !isset( $this->oNotices ) ) {
 			if ( $this->getIsPage_PluginAdmin() ) {
 				remove_all_filters( 'admin_notices' );
@@ -812,10 +810,10 @@ class Controller extends DynPropertiesClass {
 		$this->deleteFlags();
 	}
 
+	/**
+	 * @deprecated 15.1
+	 */
 	public function onWpLogout() {
-		if ( $this->hasSessionId() ) {
-			$this->clearSession();
-		}
 	}
 
 	protected function deleteFlags() {
@@ -842,21 +840,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * Added to the WordPress filter ('site_transient_update_plugins') in order to remove visibility of updates
-	 * from the WordPress Admin UI.
-	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
-	 * the list of plugins if DOING_CRON is set to true.
-	 * @param \stdClass $plugins
-	 * @return \stdClass
-	 */
-	public function filter_hidePluginUpdatesFromUI( $plugins ) {
-		if ( !Services::WpGeneral()->isCron() && apply_filters( $this->prefix( 'hide_plugin_updates' ), false ) ) {
-			unset( $plugins->response[ $this->base_file ] );
-		}
-		return $plugins;
-	}
-
-	/**
 	 * @param string $suffix
 	 * @param string $glue
 	 * @return string
@@ -878,7 +861,7 @@ class Controller extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	private function loadConfig() :Config\ConfigVO {
+	private function loadConfig() {
 		try {
 			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( true ), $this->getConfigStoreKey() ) )
 				->setCon( $this )
@@ -889,12 +872,8 @@ class Controller extends DynPropertiesClass {
 				->setCon( $this )
 				->run();
 		}
-
 		$this->loadModConfigs();
-
 		$this->saveCurrentPluginControllerOptions();
-
-		return $this->cfg;
 	}
 
 	/**
@@ -1138,51 +1117,12 @@ class Controller extends DynPropertiesClass {
 		return 'aptoweb_controller_'.substr( md5( get_class() ), 0, 6 );
 	}
 
-	public function clearSession() {
-		Services::Response()->cookieDelete( $this->getSessionCookieID() );
-		self::$sSessionId = null;
-	}
-
 	public function deleteForceOffFile() {
 		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
 			Services::WpFs()->deleteFile( $this->file_forceoff );
 			$this->this_req->is_force_off = false;
 			clearstatcache();
 		}
-	}
-
-	/**
-	 * @param bool $setIfNeeded
-	 * @return string
-	 */
-	public function getSessionId( $setIfNeeded = true ) {
-		if ( empty( self::$sSessionId ) ) {
-			$req = Services::Request();
-			self::$sSessionId = $req->cookie( $this->getSessionCookieID(), '' );
-			if ( empty( self::$sSessionId ) && $setIfNeeded ) {
-				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
-				$this->setSessionCookie();
-			}
-		}
-		return self::$sSessionId;
-	}
-
-	public function hasSessionId() :bool {
-		return !empty( $this->getSessionId( false ) );
-	}
-
-	protected function setSessionCookie() {
-		Services::Response()->cookieSet(
-			$this->getSessionCookieID(),
-			$this->getSessionId(),
-			Services::Request()->ts() + DAY_IN_SECONDS*30,
-			Services::WpGeneral()->getCookiePath(),
-			Services::WpGeneral()->getCookieDomain()
-		);
-	}
-
-	private function getSessionCookieID() :string {
-		return 'wp-'.$this->getPluginPrefix();
 	}
 
 	/**
@@ -1497,5 +1437,50 @@ class Controller extends DynPropertiesClass {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	public function clearSession() {
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	private function getSessionCookieID() :string {
+		return 'wp-null';
+	}
+
+	/**
+	 * @param bool $setIfNeeded
+	 * @return string
+	 * @deprecated 15.1
+	 */
+	public function getSessionId() {
+		return '';
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	public function hasSessionId() :bool {
+		return false;
+	}
+
+	protected function setSessionCookie() {
+	}
+
+	/**
+	 * Added to the WordPress filter ('site_transient_update_plugins') in order to remove visibility of updates
+	 * from the WordPress Admin UI.
+	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
+	 * the list of plugins if DOING_CRON is set to true.
+	 * @param \stdClass $plugins
+	 * @return \stdClass
+	 * @deprecated 15.1
+	 */
+	public function filter_hidePluginUpdatesFromUI( $plugins ) {
+		return $plugins;
 	}
 }
