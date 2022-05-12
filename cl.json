@@ -184,6 +184,28 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "7",
+        "released_at": 1652183772,
+        "items":       [
+          {
+            "title": "Adjusted how the security progress meters are displayed and switch to grades instead of percent.",
+            "type":  "improved"
+          },
+          {
+            "title": "Work around a horrendous Godaddy server 'protection' that was blocking access to the site entirely.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Prevent an error when handling user meta data.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Ensure Whitelabel logo is correctly displayed on dashboard widget.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },

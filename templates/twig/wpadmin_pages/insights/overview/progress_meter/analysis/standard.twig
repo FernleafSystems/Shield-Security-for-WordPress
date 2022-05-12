@@ -8,6 +8,14 @@
 <div class="offcanvas-body">
   {% block body %}
 	  {% block body_components %}
+
+		  <div class="alert alert-secondary mb-4">
+			  <h3 class="m-0">{{ strings.total_score }}:
+				  <span class="badge bg-dark text-white float-end">
+					 {{ vars.total_percentage_score }}/100
+				  </span>
+			  </h3>
+		  </div>
 		  <ul class="list-group">
 
 			  {% for component in vars.components %}

@@ -26,7 +26,7 @@ class DashboardWidget {
 
 		$logoSrc = $con->urls->forImage( 'pluginlogo_banner-772x250.png' );
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-			$logoSrc = $con->getLabels()[ 'wl_login2fa_logourl' ] ?? ( $con->getLabels()[ 'wl_dashboardlogourl' ] ?? '' );
+			$logoSrc = $con->getLabels()[ 'url_login2fa_logourl' ] ?? ( $con->getLabels()[ 'url_dashboardlogourl' ] ?? '' );
 		}
 
 		return $this->getMod()
@@ -47,6 +47,7 @@ class DashboardWidget {
 							'logo' => $logoSrc,
 						],
 						'strings' => [
+							'security_level'    => __( 'Level', 'wp-simple-firewall' ),
 							'security_progress' => __( 'Overall Security Progress', 'wp-simple-firewall' ),
 							'progress_overview' => __( 'Go To Overview', 'wp-simple-firewall' ),
 							'recent_blocked'    => __( 'Recently Blocked', 'wp-simple-firewall' ),
@@ -82,8 +83,8 @@ class DashboardWidget {
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
 				'security_progress'  => ( new Components() )
-											->setCon( $con )
-											->getComponent( 'all' )[ 'original_score' ],
+					->setCon( $con )
+					->getComponent( 'all' ),
 				'jump_links'         => [
 					[
 						'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),
