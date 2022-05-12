@@ -8,7 +8,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		let can_send_request = true;
 		let nonce_cook = '';
 		let ajaxurl = shield_vars_notbotjs.ajax.not_bot.ajaxurl;
-		let use_fetch = false;
+		let use_fetch = typeof fetch !== typeof undefined;
 
 		this.initialise = function () {
 			/**
@@ -36,7 +36,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		let fire = function () {
 			if ( can_send_request && request_count < 10 ) {
 				let current = getCookie( 'icwp-wpsf-notbot' );
-				if ( current === undefined || typeof (current) === 'undefined' ) {
+				if ( true || current === undefined || typeof (current) === 'undefined' ) {
 					sendReq();
 				}
 			}
@@ -50,7 +50,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			request_count++;
 
 			if ( use_fetch ) {
-				return sendReqWithFetch();
+				return notbotSendReqWithFetch();
 			}
 
 			let xhr = new XMLHttpRequest();
@@ -80,9 +80,9 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			xhr.send( (new URLSearchParams( shield_vars_notbotjs.ajax.not_bot )).toString() );
 		};
 
-		async function sendReqWithFetch() {
+		async function notbotSendReqWithFetch() {
 			try {
-				let resp = await fetch( ajaxurl, {
+				fetch( ajaxurl, {
 					method: 'POST',
 					body: (new URLSearchParams( shield_vars_notbotjs.ajax.not_bot )).toString(),
 					headers: {
@@ -90,17 +90,23 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 						'X-Requested-With': 'XMLHttpRequest',
 					}
 				} )
+
 				.then( response => response.json() )
+
+				.then( response_data => {
+					if ( response_data ) {
+						can_send_request = response_data && response_data.success;
+					}
+					else {
+						use_fetch = false;
+					}
+					return response_data;
+				} )
+
 				.catch( error => {
 					console.log( error );
 					use_fetch = false;
 				} );
-				if ( resp ) {
-					can_send_request = resp && resp.success;
-				}
-				else {
-					use_fetch = false;
-				}
 			}
 			catch ( error ) {
 				use_fetch = false;
