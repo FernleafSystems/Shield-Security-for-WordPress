@@ -47,6 +47,7 @@ class DashboardWidget {
 							'logo' => $logoSrc,
 						],
 						'strings' => [
+							'security_level'    => __( 'Level', 'wp-simple-firewall' ),
 							'security_progress' => __( 'Overall Security Progress', 'wp-simple-firewall' ),
 							'progress_overview' => __( 'Go To Overview', 'wp-simple-firewall' ),
 							'recent_blocked'    => __( 'Recently Blocked', 'wp-simple-firewall' ),
@@ -82,8 +83,8 @@ class DashboardWidget {
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
 				'security_progress'  => ( new Components() )
-											->setCon( $con )
-											->getComponent( 'all' )[ 'original_score' ],
+					->setCon( $con )
+					->getComponent( 'all' ),
 				'jump_links'         => [
 					[
 						'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),

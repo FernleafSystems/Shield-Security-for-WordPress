@@ -92,9 +92,10 @@ abstract class MeterBase extends BaseTemplateRenderer {
 
 		$percentage = (int)round( 100*$totalScore/$totalWeight );
 		$meter[ 'totals' ] = [
-			'score'      => $totalScore,
-			'max_weight' => $totalWeight,
-			'percentage' => $percentage,
+			'score'        => $totalScore,
+			'max_weight'   => $totalWeight,
+			'percentage'   => $percentage,
+			'letter_score' => $this->letterScoreFromPercentage( $percentage ),
 		];
 		$meter[ 'rgbs' ] = [
 			( 100 - $percentage )*128/100,
@@ -105,6 +106,14 @@ abstract class MeterBase extends BaseTemplateRenderer {
 		$meter[ 'has_critical' ] = $hasCritical || !empty( $meter[ 'warning' ] );
 
 		return $meter;
+	}
+
+	public function letterScoreFromPercentage( int $percentage ) :string {
+		return ( $percentage > 95 ? 'A+' :
+			( $percentage > 80 ? 'A' :
+				( $percentage > 60 ? 'B' :
+					( $percentage > 40 ? 'C' :
+						( $percentage > 20 ? 'D' : 'F' ) ) ) ) );
 	}
 
 	protected function buildComponents() :array {
@@ -118,16 +127,19 @@ abstract class MeterBase extends BaseTemplateRenderer {
 	}
 
 	protected function getRenderData() :array {
+		$components = $this->buildMeterComponents();
 		return Services::DataManipulation()->mergeArraysRecursive(
 			$this->getCon()->getModule_Plugin()->getUIHandler()->getBaseDisplayData(),
 			[
 				'strings' => [
 					'title'            => sprintf( '%s: %s', __( 'Analysis', 'wp-simple-firewall' ), $this->title() ),
+					'total_score'      => __( 'Total Score', 'wp-simple-firewall' ),
 					'scores_footnote1' => __( 'Scores are an approximate weighting for each component.', 'wp-simple-firewall' ),
 					'scores_footnote2' => __( 'As each issue is resolved the overall score will improve, up to 100%.', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
-					'components' => $this->buildMeterComponents()[ 'components' ]
+					'total_percentage_score' => $components[ 'totals' ][ 'percentage' ],
+					'components'             => $components[ 'components' ],
 				]
 			],
 			$this->getMeterRenderData()

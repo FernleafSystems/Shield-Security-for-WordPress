@@ -102,7 +102,7 @@ label input[type=checkbox] {
 	pointer-events: auto;
 }
 .content-wizards,
-/** NEW FORMS **/
+	/** NEW FORMS **/
 #wpwrap {
 	background-color: #f1f1f1;
 }
@@ -1071,8 +1071,14 @@ body.folded #FooterBannerGoPro {
 .card.progress-meter .card-footer {
 	text-align: right;
 	border: 0 none;
-	padding:  0.5rem 1rem 1rem;
+	padding: 0.5rem 1rem 1rem;
 	background-color: transparent;
+}
+.card.progress-meter .letter-score {
+	position: absolute;
+	font-size: 5rem;
+	margin: -10px auto 0;
+	text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
 }
 
 #ScanResultsPlugins li.nav-item a.nav-link {
