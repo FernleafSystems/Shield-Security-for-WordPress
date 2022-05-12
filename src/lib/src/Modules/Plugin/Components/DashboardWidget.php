@@ -26,7 +26,7 @@ class DashboardWidget {
 
 		$logoSrc = $con->urls->forImage( 'pluginlogo_banner-772x250.png' );
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-			$logoSrc = $con->getLabels()[ 'wl_login2fa_logourl' ] ?? ( $con->getLabels()[ 'wl_dashboardlogourl' ] ?? '' );
+			$logoSrc = $con->getLabels()[ 'url_login2fa_logourl' ] ?? ( $con->getLabels()[ 'url_dashboardlogourl' ] ?? '' );
 		}
 
 		return $this->getMod()

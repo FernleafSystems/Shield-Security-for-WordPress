@@ -192,6 +192,10 @@
           {
             "title": "Prevent an error when handling user meta data.",
             "type":  "fixed"
+          },
+          {
+            "title": "Ensure Whitelabel logo is correctly displayed on dashboard widget.",
+            "type":  "fixed"
           }
         ]
       }
