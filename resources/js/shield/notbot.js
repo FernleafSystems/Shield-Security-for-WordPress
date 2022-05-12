@@ -8,6 +8,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		let can_send_request = true;
 		let nonce_cook = '';
 		let ajaxurl = shield_vars_notbotjs.ajax.not_bot.ajaxurl;
+		let use_fetch = false;
 
 		this.initialise = function () {
 			/**
@@ -48,9 +49,14 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		let sendReq = function () {
 			request_count++;
 
+			if ( use_fetch ) {
+				return sendReqWithFetch();
+			}
+
 			let xhr = new XMLHttpRequest();
 			xhr.open( "POST", ajaxurl, true );
-			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded;' );
+			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+			xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 
 			/**
 			 * Ensures that if there's an error with the AJAX, we don't keep retrying the requests.
@@ -73,6 +79,34 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 
 			xhr.send( (new URLSearchParams( shield_vars_notbotjs.ajax.not_bot )).toString() );
 		};
+
+		async function sendReqWithFetch() {
+			try {
+				let resp = await fetch( ajaxurl, {
+					method: 'POST',
+					body: (new URLSearchParams( shield_vars_notbotjs.ajax.not_bot )).toString(),
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+						'X-Requested-With': 'XMLHttpRequest',
+					}
+				} )
+				.then( response => response.json() )
+				.catch( error => {
+					console.log( error );
+					use_fetch = false;
+				} );
+				if ( resp ) {
+					can_send_request = resp && resp.success;
+				}
+				else {
+					use_fetch = false;
+				}
+			}
+			catch ( error ) {
+				use_fetch = false;
+				console.log( error );
+			}
+		}
 
 		let getCookie = function ( name ) {
 			let value = "; " + document.cookie;
