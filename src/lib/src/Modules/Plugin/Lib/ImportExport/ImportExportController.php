@@ -133,18 +133,18 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	 * We've been notified that there's an update to pull in from the master site so we set a cron to do this.
 	 */
 	private function runOptionsUpdateNotified() {
-		$oCon = $this->getCon();
+		$con = $this->getCon();
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
-		$sCronHook = $oCon->prefix( 'importexport_updatenotified' );
-		if ( wp_next_scheduled( $sCronHook ) ) {
-			wp_clear_scheduled_hook( $sCronHook );
+		$cronHook = $con->prefix( 'importexport_updatenotified' );
+		if ( wp_next_scheduled( $cronHook ) ) {
+			wp_clear_scheduled_hook( $cronHook );
 		}
 
-		if ( !wp_next_scheduled( $sCronHook ) ) {
+		if ( !wp_next_scheduled( $cronHook ) ) {
 
-			wp_schedule_single_event( Services::Request()->ts() + 12, $sCronHook );
+			wp_schedule_single_event( Services::Request()->ts() + 12, $cronHook );
 
 			preg_match( '#.*WordPress/.*\s+(.*)\s?#', Services::Request()->getUserAgent(), $aMatches );
 			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
@@ -157,7 +157,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 				$url = '';
 			}
 
-			$this->getCon()->fireEvent(
+			$con->fireEvent(
 				'import_notify_received',
 				[ 'audit_params' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
 			);

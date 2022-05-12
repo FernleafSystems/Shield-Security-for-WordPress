@@ -566,8 +566,8 @@ abstract class ModCon {
 		$cfg = $this->getOptions()->getRawData_FullFeatureConfig();
 		if ( !empty( $cfg[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
 			foreach ( $cfg[ 'custom_redirects' ] as $redirect ) {
-				if ( Services::Request()->query( 'page' ) == $this->getCon()
-																  ->prefix( $redirect[ 'source_mod_page' ] ) ) {
+				if ( Services::Request()->query( 'page' )
+					 == $this->getCon()->prefix( $redirect[ 'source_mod_page' ] ) ) {
 					Services::Response()->redirect(
 						$this->getCon()->getModule( $redirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
 						$redirect[ 'query_args' ],

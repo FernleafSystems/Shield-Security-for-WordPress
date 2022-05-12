@@ -192,19 +192,19 @@ class Processor extends BaseShield\Processor {
 			'subscriber'    => 'read',
 		];
 
-		$sRoleToCheck = strtolower( apply_filters(
+		$roleToCheck = strtolower( apply_filters(
 			$con->prefix( 'login-notification-email-role' ), 'administrator' ) );
-		if ( !array_key_exists( $sRoleToCheck, $aUserCapToRolesMap ) ) {
-			$sRoleToCheck = 'administrator';
+		if ( !array_key_exists( $roleToCheck, $aUserCapToRolesMap ) ) {
+			$roleToCheck = 'administrator';
 		}
-		$sHumanName = ucwords( str_replace( '_', ' ', $sRoleToCheck ) ).'+';
+		$sHumanName = ucwords( str_replace( '_', ' ', $roleToCheck ) ).'+';
 
 		$isUserSignificantEnough = false;
 		foreach ( $aUserCapToRolesMap as $sRole => $sCap ) {
 			if ( isset( $user->allcaps[ $sCap ] ) && $user->allcaps[ $sCap ] ) {
 				$isUserSignificantEnough = true;
 			}
-			if ( $sRoleToCheck == $sRole ) {
+			if ( $roleToCheck == $sRole ) {
 				break; // we've hit our role limit.
 			}
 		}

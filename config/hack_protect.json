@@ -571,7 +571,6 @@
       "*/mail.log",
       "*/php_mail.log"
     ],
-    "cron_all_scans":              "all-scans",
     "wcf_exclusions":              [
       "readme.html",
       "license.txt",

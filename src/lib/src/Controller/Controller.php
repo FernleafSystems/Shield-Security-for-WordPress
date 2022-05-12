@@ -438,7 +438,6 @@ class Controller extends DynPropertiesClass {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
-		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
 		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
@@ -879,25 +878,7 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * Added to a WordPress filter ('all_plugins') which will remove this particular plugin from the
-	 * list of all plugins based on the "plugin file" name.
-	 * @param array $plugins
-	 * @return array
-	 */
-	public function filter_hidePluginFromTableList( $plugins ) {
-		if ( apply_filters( $this->prefix( 'hide_plugin' ), false ) ) {
-			unset( $plugins[ $this->base_file ] );
-		}
-		return $plugins;
-	}
-
-	/**
-	 * @param string $suffix
-	 * @param string $glue
-	 * @return string
-	 */
-	public function prefix( $suffix = '', $glue = '-' ) {
+	public function prefix( string $suffix = '', string $glue = '-' ) :string {
 		$prefix = $this->getPluginPrefix( $glue );
 
 		if ( $suffix == $prefix || strpos( $suffix, $prefix.$glue ) === 0 ) { //it already has the full prefix
@@ -1483,6 +1464,13 @@ class Controller extends DynPropertiesClass {
 	 * @deprecated 15.1
 	 */
 	public function filter_hidePluginUpdatesFromUI( $plugins ) {
+		return $plugins;
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	public function filter_hidePluginFromTableList( $plugins ) {
 		return $plugins;
 	}
 

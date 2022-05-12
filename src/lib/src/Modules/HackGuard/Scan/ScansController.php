@@ -227,6 +227,6 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	protected function getCronName() :string {
-		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
+		return $this->getCon()->prefix( $this->getOptions()->getDef( 'all-scans' ) );
 	}
 }
