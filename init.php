@@ -29,7 +29,7 @@ class ICWP_WPSF_Shield_Security {
 	}
 
 	public function start() {
-		$this->con->loadAllFeatures();
+		$this->con->boot();
 	}
 
 	/**

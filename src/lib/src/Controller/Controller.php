@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -128,13 +129,6 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
-			case 'rules':
-				if ( is_null( $val ) ) {
-					$val = ( new Shield\Rules\RulesController() )->setCon( $this );
-					$this->rules = $val;
-				}
-				break;
-
 			case 'is_activating':
 			case 'is_my_upgrade':
 			case 'modules_loaded':
@@ -233,6 +227,7 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'rules':
 			default:
 				break;
 		}
@@ -329,6 +324,64 @@ class Controller extends DynPropertiesClass {
 					 ]
 				 ] )
 				 ->display();
+		}
+	}
+
+	/**
+	 * This is where everything happens that runs the plugin.
+	 * 1) Modules are all loaded.
+	 * 2) Upgrades are run.
+	 * 3) Rules Engine is initiated
+	 * 4) If Rules Engine is ready, they're executed and then processors are kicked off.
+	 * @throws \Exception
+	 */
+	public function boot() {
+		$this->loadModules();
+
+		// Upgrade modules
+		( new Shield\Controller\Utilities\Upgrade() )
+			->setCon( $this )
+			->execute();
+
+		do_action( $this->prefix( 'modules_loaded' ) );
+
+		$this->rules = ( new Shield\Rules\RulesController() )->setCon( $this );
+		$this->rules->execute();
+
+		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
+
+			$this->rules->processRules();
+
+			foreach ( $this->modules as $module ) {
+				$module->onRunProcessors();
+			}
+
+			// This is where any rules responses will execute (i.e. after processors are run):
+			do_action( $this->prefix( 'after_run_processors' ) );
+		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function loadModules() {
+		if ( !$this->modules_loaded ) {
+			$modules = $this->modules ?? [];
+			foreach ( $this->cfg->mods_cfg as $cfg ) {
+
+				$slug = $cfg->properties[ 'slug' ];
+
+				$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
+						$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $slug ) ) ) );
+				if ( !class_exists( $className ) ) {
+					// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
+					throw new \Exception( sprintf( 'Class for module "%s" is missing', $className ) );
+				}
+
+				$modules[ $slug ] = new $className( $this, $cfg );
+				$this->modules = $modules;
+			}
+			$this->modules_loaded = true;
 		}
 	}
 
@@ -1126,61 +1179,10 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @throws \Exception
-	 */
-	public function loadAllFeatures() :bool {
-
-		foreach ( $this->cfg->mods_cfg as $cfg ) {
-			try {
-				$this->getModule( $cfg->slug );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		$this->modules_loaded = true;
-
-		// Upgrade modules
-		( new Shield\Controller\Utilities\Upgrade() )
-			->setCon( $this )
-			->execute();
-
-		do_action( $this->prefix( 'modules_loaded' ) );
-
-		$this->rules->execute();
-
-		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
-
-			$this->rules->processRules();
-
-			foreach ( $this->modules as $module ) {
-				$module->onRunProcessors();
-			}
-
-			// This is where any rules responses will execute (i.e. after processors are run):
-			do_action( $this->prefix( 'after_run_processors' ) );
-		}
-
-		return true;
-	}
-
-	/**
 	 * @return Shield\Modules\Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
-		$mod = $this->modules[ $slug ] ?? null;
-		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
-			try {
-				if ( empty( $this->cfg->mods_cfg[ $slug ] ) ) {
-					throw new \Exception( 'No config available for module: '.$slug );
-				}
-				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
-			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-			}
-		}
-		return $mod;
+		return $this->modules[ $slug ] ?? null;
 	}
 
 	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
@@ -1482,5 +1484,13 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function filter_hidePluginUpdatesFromUI( $plugins ) {
 		return $plugins;
+	}
+
+	/**
+	 * @throws \Exception
+	 * @deprecated 15.0
+	 */
+	public function loadAllFeatures() :bool {
+		return true;
 	}
 }
