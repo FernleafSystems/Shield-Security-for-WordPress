@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserMetas {
@@ -63,40 +62,41 @@ class UserMetas {
 		if ( empty( $metaRecord ) ) {
 			$metaRecord = $dbh->getRecord();
 		}
+		else {
+			$dataToUpdate = [];
 
-		$dataToUpdate = [];
-
-		// Copy old meta to new:
-		$directMap = [
-			'first_seen_at',
-			'last_login_at',
-			'hard_suspended_at',
-			'pass_started_at',
-		];
-		foreach ( $directMap as $directMapKey ) {
-			if ( !empty( $meta->{$directMapKey} ) && $meta->{$directMapKey} !== $metaRecord->{$directMapKey} ) {
-				$dataToUpdate[ $directMapKey ] = $meta->{$directMapKey};
-				unset( $meta->{$directMapKey} );
+			// Copy old meta to new:
+			$directMap = [
+				'first_seen_at',
+				'last_login_at',
+				'hard_suspended_at',
+				'pass_started_at',
+			];
+			foreach ( $directMap as $directMapKey ) {
+				if ( !empty( $meta->{$directMapKey} ) && $meta->{$directMapKey} !== $metaRecord->{$directMapKey} ) {
+					$dataToUpdate[ $directMapKey ] = $meta->{$directMapKey};
+					unset( $meta->{$directMapKey} );
+				}
 			}
-		}
 
-		$mfaProfiles = [
-			'backup',
-			'email',
-			'ga',
-			'u2f',
-			'yubi',
-		];
-		foreach ( $mfaProfiles as $profile ) {
-			$metaKey = $profile.'_validated';
-			if ( !empty( $meta->{$metaKey} ) && empty( $metaRecord->{$profile.'_ready_at'} ) ) {
-				$dataToUpdate[ $profile.'_ready_at' ] = Services::Request()->ts();
+			$mfaProfiles = [
+				'backup',
+				'email',
+				'ga',
+				'u2f',
+				'yubi',
+			];
+			foreach ( $mfaProfiles as $profile ) {
+				$metaKey = $profile.'_validated';
+				if ( !empty( $meta->{$metaKey} ) && empty( $metaRecord->{$profile.'_ready_at'} ) ) {
+					$dataToUpdate[ $profile.'_ready_at' ] = Services::Request()->ts();
+				}
 			}
-		}
 
-		if ( !empty( $dataToUpdate ) ) {
-			$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
-			$metaRecord = $metaLoader->loadMeta( $userID );
+			if ( !empty( $dataToUpdate ) ) {
+				$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
+				$metaRecord = $metaLoader->loadMeta( $userID );
+			}
 		}
 
 		$meta->record = $metaRecord;
