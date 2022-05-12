@@ -59,40 +59,44 @@ class UserMetas {
 		$userID = (int)$meta->user_id;
 
 		$metaRecord = $metaLoader->loadMeta( $userID );
-
-		$dataToUpdate = [];
-
-		// Copy old meta to new:
-		$directMap = [
-			'first_seen_at',
-			'last_login_at',
-			'hard_suspended_at',
-			'pass_started_at',
-		];
-		foreach ( $directMap as $directMapKey ) {
-			if ( !empty( $meta->{$directMapKey} ) && $meta->{$directMapKey} !== $metaRecord->{$directMapKey} ) {
-				$dataToUpdate[ $directMapKey ] = $meta->{$directMapKey};
-				unset( $meta->{$directMapKey} );
-			}
+		if ( empty( $metaRecord ) ) {
+			$metaRecord = $dbh->getRecord();
 		}
+		else {
+			$dataToUpdate = [];
 
-		$mfaProfiles = [
-			'backup',
-			'email',
-			'ga',
-			'u2f',
-			'yubi',
-		];
-		foreach ( $mfaProfiles as $profile ) {
-			$metaKey = $profile.'_validated';
-			if ( !empty( $meta->{$metaKey} ) && empty( $metaRecord->{$profile.'_ready_at'} ) ) {
-				$dataToUpdate[ $profile.'_ready_at' ] = Services::Request()->ts();
+			// Copy old meta to new:
+			$directMap = [
+				'first_seen_at',
+				'last_login_at',
+				'hard_suspended_at',
+				'pass_started_at',
+			];
+			foreach ( $directMap as $directMapKey ) {
+				if ( !empty( $meta->{$directMapKey} ) && $meta->{$directMapKey} !== $metaRecord->{$directMapKey} ) {
+					$dataToUpdate[ $directMapKey ] = $meta->{$directMapKey};
+					unset( $meta->{$directMapKey} );
+				}
 			}
-		}
 
-		if ( !empty( $dataToUpdate ) ) {
-			$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
-			$metaRecord = $metaLoader->loadMeta( $userID );
+			$mfaProfiles = [
+				'backup',
+				'email',
+				'ga',
+				'u2f',
+				'yubi',
+			];
+			foreach ( $mfaProfiles as $profile ) {
+				$metaKey = $profile.'_validated';
+				if ( !empty( $meta->{$metaKey} ) && empty( $metaRecord->{$profile.'_ready_at'} ) ) {
+					$dataToUpdate[ $profile.'_ready_at' ] = Services::Request()->ts();
+				}
+			}
+
+			if ( !empty( $dataToUpdate ) ) {
+				$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
+				$metaRecord = $metaLoader->loadMeta( $userID );
+			}
 		}
 
 		$meta->record = $metaRecord;

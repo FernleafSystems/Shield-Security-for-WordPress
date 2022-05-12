@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -40,6 +41,10 @@ class MetaRecords {
 		/** @var Ops\Record $record */
 		$record = $dbh->getRecord();
 		$record->user_id = $userID;
+		$record->ip_ref = ( new IPRecords() )
+			->setMod( $this->getCon()->getModule_Data() )
+			->loadIP( $this->getCon()->this_req->ip, true )
+			->id;
 		return $insert->insert( $record );
 	}
 }

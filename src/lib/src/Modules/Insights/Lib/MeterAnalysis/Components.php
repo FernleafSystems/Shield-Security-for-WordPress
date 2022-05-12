@@ -109,9 +109,8 @@ class Components {
 			[
 				'all'                      => function () {
 					$con = $this->getCon();
-					$meter = ( new MeterAll() )
-						->setCon( $this->getCon() )
-						->buildMeterComponents();
+					$allMeterGuage = ( new MeterAll() )->setCon( $this->getCon() );
+					$meter = $allMeterGuage->buildMeterComponents();
 
 					$weight = 200;
 					return [
@@ -123,6 +122,7 @@ class Components {
 						'score'            => $meter[ 'totals' ][ 'percentage' ]*$weight/100,
 						'weight'           => $weight,
 						'original_score'   => $meter[ 'totals' ][ 'percentage' ],
+						'letter_score'     => $allMeterGuage->letterScoreFromPercentage( $meter[ 'totals' ][ 'percentage' ] ),
 					];
 				},
 				'shieldpro'                => function () {
@@ -436,7 +436,7 @@ class Components {
 						'weight'           => 25,
 					];
 				},
-				'activity_log_enabled'      => function () {
+				'activity_log_enabled'     => function () {
 					$modAudit = $this->getCon()->getModule_AuditTrail();
 					/** @var AuditTrail\Options $optsAudit */
 					$optsAudit = $modAudit->getOptions();

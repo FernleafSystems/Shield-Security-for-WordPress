@@ -16,11 +16,14 @@
 				<div class="row g-0">
 			    <div class="col-md-4 col-lg-5 col-xl-5 d-flex justify-content-center align-items-center py-lg-4">
 
-						<div class="pie" data-pie='{
+						<div class="pie d-flex align-items-center justify-content-center" data-pie='{
+						  "number": false,
+						  "colorCircle": "rgba( {{ meter.rgbs|join(',') }},0.08 )",
 						  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )",
-						  "percent": {{ meter.totals.percentage }},
-						  "colorCircle": "#e6e6e6"
-						}'></div>
+						  "percent": {{ meter.totals.percentage }}
+						}'>
+							<div class="letter-score" style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div>
+						</div>
 
 			    </div>
 
