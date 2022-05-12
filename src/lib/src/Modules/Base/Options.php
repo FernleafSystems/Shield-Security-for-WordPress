@@ -642,16 +642,6 @@ class Options {
 		}
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getConfigLoader() :Config\LoadConfig {
-		if ( empty( $this->cfgLoader ) ) {
-			$this->cfgLoader = new Config\LoadConfig( $this->getMod()->getSlug() );
-		}
-		return $this->cfgLoader;
-	}
-
 	private function getOptsStorage() :Options\Storage {
 		if ( empty( $this->optsStorage ) ) {
 			$this->optsStorage = ( new Options\Storage() )->setMod( $this->getMod() );
