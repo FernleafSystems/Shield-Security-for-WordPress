@@ -11,8 +11,15 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
-		$this->checkIP( '88.201.163.83' );
+		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
 		die( 'finish' );
+	}
+
+	private function testAAAA( string $hostname ) {
+		$id = ( new IpID('2a03:2880:32ff:11::face:b00c', 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)') )->run();
+		var_dump($id);
+//		$record = dns_get_record( $hostname, DNS_AAAA );
+//		var_dump( $record );
 	}
 
 	private function checkIP( string $ip ) {
