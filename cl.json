@@ -19,7 +19,8 @@
         "description": [
           "Massive performance and processing optimisations with a brand new core Shield Rules Engine.",
           "All requests are now processed using a unique and customisable (future releases) set of rules."
-        ]
+        ],
+        "href":        "https://shsec.io/ks"
       },
       {
         "type":        "new",
@@ -204,6 +205,16 @@
           {
             "title": "Ensure Whitelabel logo is correctly displayed on dashboard widget.",
             "type":  "fixed"
+          }
+        ]
+      },
+      {
+        "version":     "9",
+        "released_at": 1652433200,
+        "items":       [
+          {
+            "title": "More accurate detection of crawlers such as Facebook that interchange IPv6 and IPv4 in their primary IP resolving.",
+            "type":  "improved"
           }
         ]
       }
