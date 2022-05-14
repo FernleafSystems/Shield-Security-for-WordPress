@@ -2,13 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ModCon {
+/**
+ * @property bool $is_booted
+ */
+abstract class ModCon extends DynPropertiesClass {
 
 	use Modules\PluginControllerConsumer;
 	use Shield\Crons\PluginCronsConsumer;
@@ -74,18 +76,32 @@ abstract class ModCon {
 	private $adminNotices;
 
 	/**
-	 * @param Shield\Controller\Controller $pluginCon
-	 * @param Config\ModConfigVO           $cfg
 	 * @throws \Exception
 	 */
 	public function __construct( Shield\Controller\Controller $pluginCon, Config\ModConfigVO $cfg ) {
 		$this->setCon( $pluginCon );
 		$this->cfg = $cfg;
-		if ( $this->verifyModuleMeetRequirements() ) {
-			$this->handleAutoPageRedirects();
-			$this->setupHooks();
-			$this->doPostConstruction();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function boot() {
+		if ( !$this->is_booted ) {
+			$this->is_booted = true;
+			if ( $this->moduleReadyCheck() ) {
+				$this->handleAutoPageRedirects();
+				$this->doPostConstruction();
+				$this->setupHooks();
+			}
 		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	protected function moduleReadyCheck() :bool {
+		return true;
 	}
 
 	protected function setupHooks() {
@@ -96,7 +112,7 @@ abstract class ModCon {
 		} );
 
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( 'init', [ $this, 'onWpLoaded' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
@@ -209,31 +225,6 @@ abstract class ModCon {
 	 */
 	public function getUpgradeHandler() {
 		return $this->loadModElement( 'Upgrade' );
-	}
-
-	private function verifyModuleMeetRequirements() :bool {
-		$meetReqs = true;
-
-		$reqPHP = $this->getOptions()->getFeatureRequirement( 'php' );
-		if ( !empty( $reqPHP ) ) {
-
-			if ( !empty( $reqPHP[ 'version' ] ) ) {
-				$meetReqs = Services::Data()->getPhpVersionIsAtLeast( $reqPHP[ 'version' ] );
-			}
-
-			if ( !empty( $reqPHP[ 'functions' ] ) && is_array( $reqPHP[ 'functions' ] ) ) {
-				foreach ( $reqPHP[ 'functions' ] as $func ) {
-					$meetReqs = $meetReqs && function_exists( $func );
-				}
-			}
-			if ( !empty( $reqPHP[ 'constants' ] ) && is_array( $reqPHP[ 'constants' ] ) ) {
-				foreach ( $reqPHP[ 'constants' ] as $constant ) {
-					$meetReqs = $meetReqs && defined( $constant );
-				}
-			}
-		}
-
-		return $meetReqs;
 	}
 
 	protected function onModulesLoaded() {

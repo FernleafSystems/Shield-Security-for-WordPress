@@ -381,6 +381,15 @@ class Controller extends DynPropertiesClass {
 				$modules[ $slug ] = new $className( $this, $cfg );
 				$this->modules = $modules;
 			}
+
+			( new Checks\PreModulesBootCheck() )
+				->setCon( $this )
+				->run();
+
+			foreach ( $this->modules as $module ) {
+				$module->boot();
+			}
+
 			$this->modules_loaded = true;
 		}
 	}
