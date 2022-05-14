@@ -217,6 +217,20 @@
             "type":  "improved"
           }
         ]
+      },
+      {
+        "version":     "10",
+        "released_at": 1652543645,
+        "items":       [
+          {
+            "title": "Prevent error that occurs when rendering the Firewall Block page in some cases.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Prevent error that occurs when testing whether plugin version is very old.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
