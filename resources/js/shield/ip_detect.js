@@ -1,4 +1,4 @@
-if ( typeof icwp_wpsf_vars_ipdetect !== 'undefined' ) {
+if ( typeof icwp_wpsf_vars_ipdetect !== typeof undefined ) {
 	jQuery( document ).ready( function () {
 		jQuery.getJSON( icwp_wpsf_vars_ipdetect.url, function ( response ) {
 			if ( typeof response !== 'undefined' && typeof response[ 'ip' ] !== 'undefined' ) {
@@ -12,10 +12,10 @@ if ( typeof icwp_wpsf_vars_ipdetect !== 'undefined' ) {
 						success: function ( raw ) {
 							let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 							if ( response.success ) {
-								alert(
+								console.log(
 									icwp_wpsf_vars_ipdetect.strings.source_found
-									+ "\n" + icwp_wpsf_vars_ipdetect.strings.ip_source + ': ' + response.data.ip_source
-									+ "\n" + icwp_wpsf_vars_ipdetect.strings.reloading + '...'
+									+ ' ' + icwp_wpsf_vars_ipdetect.strings.ip_source
+									+ ': ' + response.data.ip_source
 								);
 							}
 						}

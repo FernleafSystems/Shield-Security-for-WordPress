@@ -230,7 +230,13 @@ class Enqueue {
 
 	private function getAdminAssetsToEnq() {
 		$con = $this->getCon();
-		return $con->cfg->includes[ $con->getIsPage_PluginAdmin() ? 'plugin_admin' : 'admin' ];
+		$admin = $con->cfg->includes[ 'admin' ];
+		if ( $con->getIsPage_PluginAdmin() ) {
+			$plugin = $con->cfg->includes[ 'plugin_admin' ];
+			$admin[ 'css' ] = array_unique( array_merge( $admin[ 'css' ], $plugin[ 'css' ] ) );
+			$admin[ 'js' ] = array_unique( array_merge( $admin[ 'js' ], $plugin[ 'js' ] ) );
+		}
+		return $admin;
 	}
 
 	private function getFrontendAssetsToEnq() :array {

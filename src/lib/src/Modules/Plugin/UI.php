@@ -14,6 +14,9 @@ class UI extends BaseShield\UI {
 			'strings' => [
 				'page_title' => sprintf( __( '%s Debug Page' ), $this->getCon()->getHumanName() )
 			],
+			'hrefs'   => [
+				'check_visitor_ip_source' => add_query_arg( [ 'shield_check_ip_source' => '1' ] ),
+			],
 			'vars'    => [
 				'debug_data' => ( new Collate() )
 					->setMod( $this->getMod() )
