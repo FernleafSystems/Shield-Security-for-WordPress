@@ -63,14 +63,15 @@ class FirewallBlock extends Base {
 		$ip = Services::IP()->getRequestIp();
 
 		$resultData = $this->getConsolidatedConditionMeta();
+		$fwCategory = $resultData[ 'match_category' ] ?? '';
 		try {
 			$firewallRule = $this->getCon()
 								 ->getModule_Firewall()
 								 ->getStrings()
-								 ->getOptionStrings( 'block_'.$resultData[ 'match_category' ] )[ 'name' ] ?? 'No name';
+								 ->getOptionStrings( 'block_'.$fwCategory )[ 'name' ] ?? 'Unknown';
 		}
 		catch ( \Exception $e ) {
-			$firewallRule = 'unknown';
+			$firewallRule = 'Unknown';
 		}
 
 		$mod = $this->getCon()->getModule_Firewall();

@@ -307,7 +307,9 @@ var iCWP_WPSF_BodyOverlay = new function () {
 jQuery( document ).ready( function () {
 	iCWP_WPSF_BodyOverlay.initialise();
 
-	if ( typeof icwp_wpsf_vars_globalplugin.vars.dashboard_widget !== 'undefined' ) {
-		Shield_WP_Dashboard_Widget.initialise( icwp_wpsf_vars_globalplugin.vars.dashboard_widget );
+	if ( typeof icwp_wpsf_vars_globalplugin !== 'undefined' ) {
+		if ( typeof icwp_wpsf_vars_globalplugin.vars.dashboard_widget !== 'undefined' ) {
+			Shield_WP_Dashboard_Widget.initialise( icwp_wpsf_vars_globalplugin.vars.dashboard_widget );
+		}
 	}
 } );
