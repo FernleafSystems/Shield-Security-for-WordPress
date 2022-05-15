@@ -219,8 +219,8 @@
         ]
       },
       {
-        "version":     "11",
-        "released_at": 1652600000,
+        "version":     "12",
+        "released_at": 1652602100,
         "items":       [
           {
             "title": "Make automatic Visitor IP Source detection quieter and run more often.",
