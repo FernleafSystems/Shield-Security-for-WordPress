@@ -12,15 +12,16 @@ class ListTags {
 		$tags = [];
 		$raw = Services::HttpRequest()->getContent( sprintf( self::BASE_URL, $repo ) );
 		if ( !empty( $raw ) ) {
+			$decoded = @json_decode( $raw, true );
 			$tags = array_filter( array_map( function ( $tag ) {
 				$version = null;
 				if ( is_array( $tag ) && !empty( $tag[ 'name' ] ) && is_string( $tag[ 'name' ] ) ) {
 					$version = $tag[ 'name' ];
 				}
 				return $version;
-			}, json_decode( $raw, true ) ) );
+			}, is_array( $decoded ) ? $decoded : [] ) );
 		}
-		return is_array( $tags ) ? $tags : [];
+		return $tags;
 	}
 }
 
