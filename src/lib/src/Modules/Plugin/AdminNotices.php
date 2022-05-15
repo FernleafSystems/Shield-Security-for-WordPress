@@ -333,10 +333,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$versions = ( new Shield\Utilities\Github\ListTags() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
 				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
 			}
-			array_splice( $versions, array_search( $con->getVersion(), $versions ) );
-			$needed = count( array_unique( array_map( function ( $version ) {
-					return substr( $version, 0, strrpos( $version, '.' ) );
-				}, $versions ) ) ) > 2;
+
+			if ( !in_array( $con->getVersion(), $versions ) ) {
+				$needed = true;
+			}
+			else {
+				array_splice( $versions, array_search( $con->getVersion(), $versions ) );
+				$needed = count( array_unique( array_map( function ( $version ) {
+						return substr( $version, 0, strrpos( $version, '.' ) );
+					}, $versions ) ) ) > 2;
+			}
 		}
 		return $needed;
 	}
