@@ -63,6 +63,16 @@ class FirewallBlock extends Base {
 		$ip = Services::IP()->getRequestIp();
 
 		$resultData = $this->getConsolidatedConditionMeta();
+		$fwCategory = $resultData[ 'match_category' ] ?? '';
+		try {
+			$firewallRule = $this->getCon()
+								 ->getModule_Firewall()
+								 ->getStrings()
+								 ->getOptionStrings( 'block_'.$fwCategory )[ 'name' ] ?? 'Unknown';
+		}
+		catch ( \Exception $e ) {
+			$firewallRule = 'Unknown';
+		}
 
 		$mod = $this->getCon()->getModule_Firewall();
 		return $mod->getEmailProcessor()->sendEmailWithTemplate(
@@ -86,10 +96,7 @@ class FirewallBlock extends Base {
 				'vars'    => [
 					'req_details' => [
 						__( 'Visitor IP Address', 'wp-simple-firewall' ) => $ip,
-						__( 'Firewall Rule', 'wp-simple-firewall' )      => $this->getCon()
-																				 ->getModule_Firewall()
-																				 ->getStrings()
-																				 ->getOptionStrings( 'block_'.$resultData[ 'match_category' ] )[ 'name' ] ?? 'No name',
+						__( 'Firewall Rule', 'wp-simple-firewall' )      => $firewallRule,
 						__( 'Firewall Pattern', 'wp-simple-firewall' )   => $resultData[ 'match_pattern' ] ?? 'Unavailable',
 						__( 'Request Path', 'wp-simple-firewall' )       => Services::Request()->getPath(),
 						__( 'Parameter Name', 'wp-simple-firewall' )     => $resultData[ 'match_request_param' ] ?? 'Unavailable',

@@ -42,7 +42,8 @@ class RenderBlockFirewall extends BaseBlockPage {
 		return array_merge(
 			[
 				__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
-				__( 'Firewall Rule Category', 'wp-simple-firewall' )     => $str->getFirewallCategoryName( $aux[ 'match_category' ] ),
+				__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>
+					$str->getFirewallCategoryName( (string)$aux[ 'match_category' ] ?? '' ),
 				__( 'Request Parameter', 'wp-simple-firewall' )          => $aux[ 'match_request_param' ],
 				__( 'Request Parameter Value', 'wp-simple-firewall' )    => $aux[ 'match_request_value' ],
 				__( 'Firewall Pattern', 'wp-simple-firewall' )           => $aux[ 'match_pattern' ],

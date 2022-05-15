@@ -56,7 +56,7 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
+			'summary'     => $summary,
 		];
 	}
 
@@ -211,7 +211,7 @@ class Strings extends Base\Strings {
 				   'leading_schema'   => __( 'Leading Schema', 'wp-simple-firewall' ),
 				   'php_code'         => __( 'PHP Code', 'wp-simple-firewall' ),
 				   'exe_file_uploads' => __( 'EXE File Uploads', 'wp-simple-firewall' ),
-			   ][ $category ] ?? 'Unknown';
+			   ][ $category ] ?? 'Unspecified';
 	}
 
 	/**
@@ -232,7 +232,7 @@ class Strings extends Base\Strings {
 			'blockparam_sql_queries'     => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'SQL Queries', 'wp-simple-firewall' ) )
 			],
-			'blockparam_leading_schema'          => [
+			'blockparam_leading_schema'  => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'Leading Schema', 'wp-simple-firewall' ) )
 			],
 			'blockparam_aggressive'      => [

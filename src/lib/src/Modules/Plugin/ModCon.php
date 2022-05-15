@@ -437,9 +437,12 @@ class ModCon extends BaseShield\ModCon {
 			]
 		];
 
+		$req = Services::Request();
 		$opts = $this->getOptions();
-		if ( Services::Request()->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 ) {
-			$opts->setOpt( 'ipdetect_at', Services::Request()->ts() );
+		$runCheck = ( $req->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 )
+					|| ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
+		if ( $runCheck ) {
+			$opts->setOpt( 'ipdetect_at', $req->ts() );
 			$locals[] = [
 				'shield/ip_detect',
 				'icwp_wpsf_vars_ipdetect',

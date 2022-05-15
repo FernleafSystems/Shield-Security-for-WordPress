@@ -217,6 +217,24 @@
             "type":  "improved"
           }
         ]
+      },
+      {
+        "version":     "10",
+        "released_at": 1652600000,
+        "items":       [
+          {
+            "title": "Make automatic Visitor IP Source detection quieter and run more often.",
+            "type":  "improve"
+          },
+          {
+            "title": "Prevent error that occurs when rendering the Firewall Block page in some cases.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Prevent error that can occur when assessing whether plugin version is very old.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },

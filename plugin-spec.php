@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "15.0.9",
-    "release_timestamp":       1652433200,
-    "build":                   "202205.1301",
+    "version":                 "15.0.10",
+    "release_timestamp":       1652600000,
+    "build":                   "202205.1501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield Security",
@@ -56,7 +56,8 @@
         "global-plugin"
       ],
       "js":  [
-        "global-plugin"
+        "global-plugin",
+        "shield/ip_detect"
       ]
     },
     "plugin_admin": {
@@ -78,7 +79,6 @@
         "shield/traffic",
         "shield/audit_trail",
         "shield/scanners",
-        "shield/ip_detect",
         "tp/circular-progress"
       ]
     },
@@ -200,7 +200,7 @@
             "wp-jquery"
           ]
         },
-        "tp/circular-progress":       {
+        "tp/circular-progress":    {
           "url":  "https://cdn.jsdelivr.net/gh/tomik23/circular-progress-bar@1.1.9/dist/circularProgressBar.min.js",
           "deps": [
           ]
@@ -320,6 +320,7 @@
         },
         "shield/ip_detect":        {
           "deps": [
+            "global-plugin",
             "wp-jquery"
           ]
         },
