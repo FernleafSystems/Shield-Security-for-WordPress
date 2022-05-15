@@ -43,7 +43,7 @@ class MetaRecords {
 		$record->user_id = $userID;
 		$record->ip_ref = ( new IPRecords() )
 			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getCon()->this_req->ip, true )
+			->loadIP( (string)$this->getCon()->this_req->ip, true )
 			->id;
 		return $insert->insert( $record );
 	}
