@@ -235,6 +235,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "13",
+        "released_at": 1652947091,
+        "items":       [
+          {
+            "title": "An sporadic error relating to Shield's User Meta.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
