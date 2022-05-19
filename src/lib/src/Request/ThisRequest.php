@@ -39,7 +39,7 @@ class ThisRequest extends DynPropertiesClass {
 
 			case 'ip':
 				if ( empty( $value ) ) {
-					$value = Services::IP()->getRequestIp();
+					$value = (string)Services::IP()->getRequestIp();
 					$this->ip = $value;
 				}
 				break;
