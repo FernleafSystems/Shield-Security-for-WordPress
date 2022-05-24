@@ -28,6 +28,9 @@ class ICWP_WPSF_Shield_Security {
 		$this->con = $controller;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function start() {
 		$this->con->boot();
 	}

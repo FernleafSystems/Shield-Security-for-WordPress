@@ -18,6 +18,13 @@
     "run_if_wpcli":          true,
     "order":                 110
   },
+  "reqs":             {
+    "dbs": [
+      "ips",
+      "at_logs",
+      "at_meta"
+    ]
+  },
   "menus":            {
     "config_menu_priority": 35
   },

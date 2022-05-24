@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property Shield\Request\ThisRequest                             $this_req
+ * @property array                                                  $prechecks
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -107,7 +108,6 @@ class Controller extends DynPropertiesClass {
 		}
 		$this->loadConfig();
 		$this->checkMinimumRequirements();
-		$this->doRegisterHooks();
 
 		( new Shield\Controller\I18n\LoadTextDomain() )
 			->setCon( $this )
@@ -382,9 +382,12 @@ class Controller extends DynPropertiesClass {
 				$this->modules = $modules;
 			}
 
-			( new Checks\PreModulesBootCheck() )
+			$this->prechecks = ( new Checks\PreModulesBootCheck() )
 				->setCon( $this )
 				->run();
+
+			// Register the Controller hooks
+			$this->doRegisterHooks();
 
 			foreach ( $this->modules as $module ) {
 				$module->boot();

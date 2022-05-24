@@ -5,18 +5,30 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Checks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * All Plugin Modules have been created at this stage, we now run some prechecks to ensure we're ok to do full modules
- * boot.
+ * All Plugin Modules have been created at this stage.
+ * We now run some pre-checks to ensure we're ok to do full modules boot.
  */
 class PreModulesBootCheck {
 
 	use PluginControllerConsumer;
 
-	public function run() {
+	/**
+	 * @throws \Exception
+	 */
+	public function run() :array {
 		$con = $this->getCon();
 
-		$modData = $con->getModule_Data();
-		if ( $modData->getDbH_IPs()->isReady() ) {
+		$checks = [
+			'dbs' => [
+			]
+		];
+
+		foreach ( $con->modules as $mod ) {
+			foreach ( $mod->getDbHandler()->loadAllDbHandlers() as $dbh ) {
+				$checks[ 'dbs' ][ $dbh->getTableSchema()->slug ] = $dbh->isReady();
+			}
 		}
+
+		return $checks;
 	}
 }

@@ -19,6 +19,11 @@
     "skip_processor":        false,
     "tracking_exclude":      false
   },
+  "reqs":             {
+    "dbs": [
+      "botsignal"
+    ]
+  },
   "menus":         {
     "config_menu_priority": 50
   },

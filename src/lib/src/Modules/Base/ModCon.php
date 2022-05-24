@@ -89,19 +89,22 @@ abstract class ModCon extends DynPropertiesClass {
 	public function boot() {
 		if ( !$this->is_booted ) {
 			$this->is_booted = true;
-			if ( $this->moduleReadyCheck() ) {
-				$this->handleAutoPageRedirects();
-				$this->doPostConstruction();
-				$this->setupHooks();
-			}
+			$this->handleAutoPageRedirects();
+			$this->doPostConstruction();
+			$this->setupHooks();
 		}
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	protected function moduleReadyCheck() :bool {
-		return true;
+		try {
+			$ready = ( new Lib\CheckModuleRequirements() )
+				->setMod( $this )
+				->run();
+		}
+		catch ( \Exception $e ) {
+			$ready = false;
+		}
+		return $ready;
 	}
 
 	protected function setupHooks() {
@@ -506,7 +509,10 @@ abstract class ModCon extends DynPropertiesClass {
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
-		if ( $this->cfg->properties[ 'auto_enabled' ] ) {
+		if ( !$this->moduleReadyCheck() ) {
+			$enabled = false;
+		}
+		elseif ( $this->cfg->properties[ 'auto_enabled' ] ) {
 			// Auto enabled modules always run regardless
 			$enabled = true;
 		}

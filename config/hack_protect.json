@@ -19,7 +19,16 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
   },
-  "menus":         {
+  "reqs":             {
+    "dbs": [
+      "scans",
+      "scanitems",
+      "resultitems",
+      "resultitem_meta",
+      "scanresults"
+    ]
+  },
+  "menus":            {
     "config_menu_priority": 25
   },
   "wpcli":            {
