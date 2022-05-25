@@ -20,9 +20,10 @@
   },
   "reqs":             {
     "dbs": [
-      "ips",
       "at_logs",
-      "at_meta"
+      "at_meta",
+      "ips",
+      "req_logs"
     ]
   },
   "menus":            {

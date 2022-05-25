@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property Shield\Request\ThisRequest                             $this_req
  * @property array                                                  $prechecks
+ * @property array                                                  $flags
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug
  * @property bool                                                   $is_mode_staging
@@ -122,6 +123,13 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'flags':
+				if ( !is_array( $val ) ) {
+					$val = [];
+					$this->flags = $val;
+				}
+				break;
+
 			case 'this_req':
 				if ( is_null( $val ) ) {
 					$val = new Shield\Request\ThisRequest( $this );
@@ -152,25 +160,6 @@ class Controller extends DynPropertiesClass {
 				if ( empty( $val ) ) {
 					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
 					$this->cache_dir_handler = $val;
-				}
-				break;
-
-			case 'urls':
-				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
-					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
-				}
-				break;
-
-			case 'svgs':
-				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
-					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
-				}
-				break;
-
-			case 'paths':
-				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
-					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
-					$this->paths = $val;
 				}
 				break;
 
@@ -211,6 +200,25 @@ class Controller extends DynPropertiesClass {
 					$val = ( new Shield\Utilities\MU\MUHandler() )
 						->setCon( $this );
 					$this->mu_handler = $val;
+				}
+				break;
+
+			case 'paths':
+				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
+					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
+					$this->paths = $val;
+				}
+				break;
+
+			case 'svgs':
+				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
+					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
+				}
+				break;
+
+			case 'urls':
+				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
+					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
 				}
 				break;
 
@@ -1169,6 +1177,12 @@ class Controller extends DynPropertiesClass {
 			$this->this_req->is_force_off = false;
 			clearstatcache();
 		}
+	}
+
+	public function setFlag( string $flag, $value ) {
+		$flags = $this->flags;
+		$flags[ $flag ] = $value;
+		$this->flags = $flags;
 	}
 
 	/**

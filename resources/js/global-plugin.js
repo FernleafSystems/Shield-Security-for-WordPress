@@ -1,3 +1,6 @@
+/**
+ * @var ajaxurl string
+ */
 var iCWP_WPSF_JSErrorTrack = new function () {
 	var bHasError = false;
 	this.initialise = function () {
@@ -304,12 +307,42 @@ var iCWP_WPSF_BodyOverlay = new function () {
 
 }();
 
-jQuery( document ).ready( function () {
-	iCWP_WPSF_BodyOverlay.initialise();
+(function ( $ ) {
 
-	if ( typeof icwp_wpsf_vars_globalplugin !== 'undefined' ) {
-		if ( typeof icwp_wpsf_vars_globalplugin.vars.dashboard_widget !== 'undefined' ) {
-			Shield_WP_Dashboard_Widget.initialise( icwp_wpsf_vars_globalplugin.vars.dashboard_widget );
+	let Shield_WP_Admin_notices = new function () {
+		let self = this;
+		let data;
+		this.fireNoticeReq = function ( notice_action ) {
+			iCWP_WPSF_StandardAjax.send_ajax_req( data.ajax[ notice_action ] );
+		};
+
+		this.initialise = function ( workingData ) {
+			data = workingData;
+
+			$( document ).on( 'click', 'a.shield_admin_notice_action', function ( evt ) {
+				evt.preventDefault();
+				self.fireNoticeReq( $( evt.currentTarget ).data( 'notice_action' ) );
+				return false;
+			} );
+		};
+	}();
+
+	$( document ).ready( function () {
+		iCWP_WPSF_BodyOverlay.initialise();
+
+		if ( typeof icwp_wpsf_vars_globalplugin !== 'undefined' ) {
+
+			let globalVars = icwp_wpsf_vars_globalplugin;
+
+			/** Dashboard Widget **/
+			if ( typeof globalVars.vars.dashboard_widget !== 'undefined' ) {
+				Shield_WP_Dashboard_Widget.initialise( globalVars.vars.dashboard_widget );
+			}
+
+			if ( typeof globalVars.vars.notices !== 'undefined' ) {
+				Shield_WP_Admin_notices.initialise( globalVars.vars.notices );
+			}
 		}
-	}
-} );
+
+	} );
+})( jQuery );

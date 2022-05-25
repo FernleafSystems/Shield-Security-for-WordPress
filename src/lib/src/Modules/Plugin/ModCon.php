@@ -432,6 +432,12 @@ class ModCon extends BaseShield\ModCon {
 						'ajax' => [
 							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )
 						]
+					],
+					'notices'          => [
+						'ajax' => [
+							'auto_db_repair'  => $this->getAjaxActionData( 'auto_db_repair' ),
+							'delete_forceoff' => $this->getAjaxActionData( 'delete_forceoff' ),
+						]
 					]
 				],
 			]

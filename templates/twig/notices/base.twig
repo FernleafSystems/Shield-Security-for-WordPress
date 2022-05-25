@@ -24,8 +24,8 @@
 						{% endfor %}
 					{% endif %}
 					{% if strings.read_more|default('') is not empty %}
-						<p><a href="{{ hrefs.read_more }}" target="_blank">{{ strings.read_more }}</a></p>
-				  {% endif %}
+					<p><a href="{{ hrefs.read_more }}" target="_blank">{{ strings.read_more }}</a></p>
+				{% endif %}
 				{% endblock %}
 			</div>
 		</div>
