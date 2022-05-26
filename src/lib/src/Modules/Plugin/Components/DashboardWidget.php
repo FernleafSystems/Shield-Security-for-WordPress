@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\C
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class DashboardWidget {
@@ -169,10 +170,19 @@ class DashboardWidget {
 				),
 				'recent_users'       => array_map(
 					function ( $sess ) use ( $modInsights ) {
+
+						$user = $sess[ 'user_login' ];
+						$userHref = Services::WpUsers()->getAdminUrl_ProfileEdit( $sess[ 'user_id' ] );
+						if ( $this->isObfuscateData() ) {
+							$user = is_email( $user ) ?
+								Obfuscate::Email( $user )
+								: substr( $user, 0, 1 ).'****'.substr( $user, -1, 1 );
+							$userHref = '#';
+						}
+
 						return [
-							'user'      => $sess[ 'user_login' ],
-							'user_href' => Services::WpUsers()
-												   ->getAdminUrl_ProfileEdit( $sess[ 'user_id' ] ),
+							'user'      => $user,
+							'user_href' => $userHref,
 							'ip'        => $sess[ 'ip' ],
 							'ip_href'   => $modInsights->getUrl_IpAnalysis( $sess[ 'ip' ] ),
 							'at'        => Services::Request()
@@ -188,5 +198,9 @@ class DashboardWidget {
 		}
 
 		return $vars;
+	}
+
+	private function isObfuscateData() :bool {
+		return !$this->getCon()->isPluginAdmin();
 	}
 }
