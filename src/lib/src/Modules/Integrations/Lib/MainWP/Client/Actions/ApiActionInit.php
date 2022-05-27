@@ -15,7 +15,7 @@ class ApiActionInit {
 				$valid = $this->getCon()
 							  ->getModule_License()
 							  ->getLicenseHandler()
-							  ->verify()
+							  ->verify( true )
 							  ->hasValidWorkingLicense();
 				$response = [
 					'success' => $valid,

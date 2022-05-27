@@ -64,7 +64,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		$reqHost = Services::Request()->getHost();
 		if ( !$this->hasValidWorkingLicense() || empty( $licHost ) || empty( $reqHost ) || ( $licHost === $reqHost ) ) {
 			try {
-				$mod->getLicenseHandler()->verify();
+				$mod->getLicenseHandler()->verify( true );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -197,17 +197,24 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public function verify( bool $force = true ) {
-		if ( $force || ( $this->isVerifyRequired() && $this->canCheck() ) ) {
-			( new Verify() )
-				->setMod( $this->getMod() )
-				->run();
+	public function verify( bool $onDemand = false ) {
+		if ( $this->canCheck() ) {
+			if ( $onDemand ) {
+				Services::WpCron()->deleteCronJob( $this->getCon()->prefix( 'adhoc_cron_license_check' ) );
+				( new Verify() )
+					->setMod( $this->getMod() )
+					->run();
+			}
+			elseif ( $this->isVerifyRequired() ) {
+				$this->scheduleAdHocCheck( rand( MINUTE_IN_SECONDS, MINUTE_IN_SECONDS*30 ) );
+			}
 		}
+
 		return $this;
 	}
 
-	private function getIsLicenseNotCheckedFor( $nTimePeriod ) :bool {
-		return $this->getLicenseNotCheckedForInterval() > $nTimePeriod;
+	private function getIsLicenseNotCheckedFor( int $interval ) :bool {
+		return $this->getLicenseNotCheckedForInterval() > $interval;
 	}
 
 	private function canLicenseCheck_FileFlag() :bool {

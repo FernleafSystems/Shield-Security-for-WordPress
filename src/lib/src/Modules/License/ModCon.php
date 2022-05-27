@@ -55,14 +55,12 @@ class ModCon extends BaseShield\ModCon {
 		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
 	}
 
-	public function onPluginShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
-			try {
-				$this->getLicenseHandler()->verify( false );
-			}
-			catch ( \Exception $e ) {
-			}
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+		try {
+			$this->getLicenseHandler()->verify( false );
 		}
-		parent::onPluginShutdown();
+		catch ( \Exception $e ) {
+		}
 	}
 }
