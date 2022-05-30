@@ -1,4 +1,27 @@
 {
+  "15.1": {
+    "version":     "15.1",
+    "released_at": 1652090000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease151",
+      "upgrade": "https://shsec.io/shieldupgradeguide151"
+    },
+    "title":       "Optimisations",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Happy Forms",
+        "description": [
+          "Full support available for SPAM protection on Happy Forms."
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "15.0": {
     "version":     "15.0",
     "released_at": 1652090000,
@@ -14,7 +37,6 @@
     "items":       [
       {
         "type":        "new",
-        "pro_only":    true,
         "title":       "Rules Engine",
         "description": [
           "Massive performance and processing optimisations with a brand new core Shield Rules Engine.",

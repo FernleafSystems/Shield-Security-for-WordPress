@@ -22,6 +22,7 @@ class SpamController extends BaseBotDetectionController {
 			'forminator'      => Handlers\Forminator::class,
 			'gravityforms'    => Handlers\GravityForms::class,
 			'groundhogg'      => Handlers\Groundhogg::class,
+			'happyforms'      => Handlers\HappyForms::class,
 			'kaliforms'       => Handlers\KaliForms::class,
 			'ninjaforms'      => Handlers\NinjaForms::class,
 			'superforms'      => Handlers\SuperForms::class,
