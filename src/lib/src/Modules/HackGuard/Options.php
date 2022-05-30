@@ -185,42 +185,6 @@ class Options extends BaseShield\Options {
 		return $this;
 	}
 
-	/**
-	 * Provides an array where the key is the root dir, and the value is the specific file types.
-	 * An empty array means all files.
-	 * @return array[]
-	 */
-	public function getUfcScanDirectories() :array {
-		$dirs = [
-			path_join( ABSPATH, 'wp-admin' )    => [],
-			path_join( ABSPATH, 'wp-includes' ) => []
-		];
-
-		if ( $this->isOpt( 'ufc_scan_uploads', 'Y' ) ) { // include uploads
-			$uploadsDir = Services::WpGeneral()->getDirUploads();
-			if ( !empty( $uploadsDir ) ) {
-				$dirs[ $uploadsDir ] = [
-					'php',
-					'php5',
-					'js',
-				];
-			}
-		}
-
-		return $dirs;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUnrecognisedFileScannerOption() {
-		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
-	}
-
-	public function isUfsDeleteFiles() :bool {
-		return $this->getUnrecognisedFileScannerOption() === 'enabled_delete_only';
-	}
-
 	public function isScanCron() :bool {
 		return (bool)$this->getOpt( 'is_scan_cron' );
 	}

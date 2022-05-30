@@ -30,13 +30,12 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 		};
 
 		/**
-		 * @since 12.0.10 - rather than auto send request every page load, check for cookie repeatedly and send if
-		 *     absent.
+		 * @since 12.0.10 - rather than auto send each page load, check for cookie repeatedly and send if absent.
 		 */
 		let fire = function () {
 			if ( can_send_request && request_count < 10 ) {
 				let current = getCookie( 'icwp-wpsf-notbot' );
-				if ( true || current === undefined || typeof (current) === 'undefined' ) {
+				if ( current === undefined || typeof (current) === 'undefined' ) {
 					sendReq();
 				}
 			}
@@ -50,7 +49,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			request_count++;
 
 			if ( use_fetch ) {
-				return notbotSendReqWithFetch();
+				return notBotSendReqWithFetch();
 			}
 
 			let xhr = new XMLHttpRequest();
@@ -80,7 +79,7 @@ if ( typeof Shield_Antibot === typeof undefined && typeof shield_vars_notbotjs !
 			xhr.send( (new URLSearchParams( shield_vars_notbotjs.ajax.not_bot )).toString() );
 		};
 
-		async function notbotSendReqWithFetch() {
+		async function notBotSendReqWithFetch() {
 			try {
 				fetch( ajaxurl, {
 					method: 'POST',

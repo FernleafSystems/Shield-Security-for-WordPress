@@ -374,6 +374,9 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadModules() {
 		if ( !$this->modules_loaded ) {
+
+			$this->modules_loaded = true;
+
 			$modules = $this->modules ?? [];
 			foreach ( $this->cfg->mods_cfg as $cfg ) {
 
@@ -400,8 +403,6 @@ class Controller extends DynPropertiesClass {
 			foreach ( $this->modules as $module ) {
 				$module->boot();
 			}
-
-			$this->modules_loaded = true;
 		}
 	}
 
