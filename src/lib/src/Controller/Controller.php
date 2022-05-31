@@ -12,22 +12,22 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                                        $cfg
- * @property Shield\Controller\Assets\Urls                          $urls
- * @property Shield\Controller\Assets\Paths                         $paths
- * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property Shield\Request\ThisRequest                             $this_req
- * @property Config\LabelsVO                                        $labels
- * @property array                                                  $prechecks
- * @property array                                                  $flags
- * @property bool                                                   $is_activating
- * @property bool                                                   $is_mode_debug
- * @property bool                                                   $is_mode_staging
- * @property bool                                                   $is_mode_live
- * @property bool                                                   $is_my_upgrade
- * @property bool                                                   $is_rest_enabled
- * @property bool                                                   $modules_loaded
- * @property bool                                                   $plugin_deactivating
+ * @property Config\ConfigVO                $cfg
+ * @property Shield\Controller\Assets\Urls  $urls
+ * @property Shield\Controller\Assets\Paths $paths
+ * @property Shield\Controller\Assets\Svgs  $svgs
+ * @property Shield\Request\ThisRequest     $this_req
+ * @property Config\Labels                  $labels
+ * @property array                          $prechecks
+ * @property array                          $flags
+ * @property bool                           $is_activating
+ * @property bool                           $is_mode_debug
+ * @property bool                           $is_mode_staging
+ * @property bool                           $is_mode_live
+ * @property bool                           $is_my_upgrade
+ * @property bool                           $is_rest_enabled
+ * @property bool                           $modules_loaded
+ * @property bool                           $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property Shield\Utilities\CacheDir                              $cache_dir_handler
@@ -1445,7 +1445,7 @@ class Controller extends DynPropertiesClass {
 		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
 	}
 
-	private function labels() :Config\LabelsVO {
+	private function labels() :Config\Labels {
 		$labels = array_map( 'stripslashes', $this->cfg->labels );
 
 		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
@@ -1454,7 +1454,7 @@ class Controller extends DynPropertiesClass {
 			}
 		}
 
-		$labels = ( new Config\LabelsVO() )->applyFromArray( $labels );
+		$labels = ( new Config\Labels() )->applyFromArray( $labels );
 		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}

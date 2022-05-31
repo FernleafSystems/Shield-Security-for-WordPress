@@ -19,6 +19,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string $icon_url_32x32
  * @property string $icon_url_128x128
  */
-class LabelsVO extends DynPropertiesClass {
+class Labels extends DynPropertiesClass {
 
 }

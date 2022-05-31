@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\LabelsVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,7 +24,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 	protected function run() {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ] );
+		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 
 		/** @var SecurityAdmin\Options $opts */
@@ -42,7 +42,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		}
 	}
 
-	public function applyWhiteLabels( LabelsVO $labels ) :LabelsVO {
+	public function applyWhiteLabels( Labels $labels ) :Labels {
 		$opts = $this->getOptions();
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.

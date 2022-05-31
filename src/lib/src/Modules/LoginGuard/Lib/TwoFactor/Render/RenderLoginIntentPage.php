@@ -23,12 +23,11 @@ class RenderLoginIntentPage extends RenderBase {
 			'hrefs'   => [
 				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),
 				'js_bootstrap'  => $con->urls->forJs( 'bootstrap' ),
-				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'what_is_this'  => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
 			],
 			'imgs'    => [
 				'banner'  => empty( $con->labels ) ? $con->getLabels()[ 'url_login2fa_logourl' ] : $con->labels->url_img_pagebanner,
-				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
+				'favicon' => $con->labels->icon_url_32x32,
 			],
 			'flags'   => [
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),

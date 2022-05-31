@@ -1,14 +1,11 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
-class PluginNameSuffix {
-
-	use Modules\ModConsumer;
-	use ExecOnce;
+class PluginNameSuffix extends Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
@@ -17,10 +14,10 @@ class PluginNameSuffix {
 	}
 
 	protected function run() {
-		add_filter( $this->getCon()->prefix( 'plugin_labels' ), function ( $labels ) {
-			$labels[ 'Name' ] = 'ShieldPRO';
-			$labels[ 'Title' ] = 'ShieldPRO';
-			$labels[ 'MenuTitle' ] = 'ShieldPRO';
+		add_filter( $this->getCon()->prefix( 'labels' ), function ( Labels $labels ) {
+			$labels->Name = 'ShieldPRO';
+			$labels->Title = 'ShieldPRO';
+			$labels->MenuTitle = 'ShieldPRO';
 			return $labels;
 		} );
 	}

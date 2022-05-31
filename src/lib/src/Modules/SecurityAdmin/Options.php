@@ -19,8 +19,9 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @since 11.1
+	 * @since      11.1
 	 * @param string $area one of plugins, themes
+	 * @deprecated 15.1
 	 */
 	public function getSecAdminAreaCaps( $area = 'plugins' ) :array {
 		$d = $this->getOpt( 'admin_access_restrict_'.$area, [] );
@@ -32,25 +33,16 @@ class Options extends BaseShield\Options {
 		return is_array( $options ) ? $options : [];
 	}
 
-	/**
-	 * TODO: Bug where if $sType is defined, it'll be set to 'wp' anyway
-	 * @param string $type - wp or wpms
-	 * @return array
-	 */
-	public function getOptionsToRestrict( $type = '' ) {
-		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+	public function getOptionsToRestrict() :array {
+		$type = ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_options';
 		$options = $this->getRestrictedOptions();
-		return ( isset( $options[ $type.'_options' ] ) && is_array( $options[ $type.'_options' ] ) ) ? $options[ $type.'_options' ] : [];
+		return is_array( $options[ $type ] ?? [] ) ? $options[ $type ] : [];
 	}
 
-	/**
-	 * @param string $type - wp or wpms
-	 * @return array
-	 */
-	public function getOptionsPagesToRestrict( $type = '' ) {
-		$type = empty( $type ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
-		$aOptions = $this->getRestrictedOptions();
-		return ( isset( $aOptions[ $type.'_pages' ] ) && is_array( $aOptions[ $type.'_pages' ] ) ) ? $aOptions[ $type.'_pages' ] : [];
+	public function getOptionsPagesToRestrict() :array {
+		$type = ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages';
+		$options = $this->getRestrictedOptions();
+		return is_array( $options[ $type ] ?? [] ) ? $options[ $type ] : [];
 	}
 
 	public function getSecurityAdminUsers() :array {
