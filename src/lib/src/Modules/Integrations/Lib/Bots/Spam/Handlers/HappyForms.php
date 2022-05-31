@@ -6,7 +6,7 @@ class HappyForms extends Base {
 
 	protected function run() {
 		add_filter( 'happyforms_validate_submission',
-			function ( $is_valid, $request, $form ) {
+			function ( $is_valid, $request = null, $form = null ) {
 				if ( $is_valid ) {
 					$is_valid = !$this->isBotBlockRequired();
 				}

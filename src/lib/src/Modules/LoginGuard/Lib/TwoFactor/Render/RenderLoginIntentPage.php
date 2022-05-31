@@ -15,10 +15,6 @@ class RenderLoginIntentPage extends RenderBase {
 		$con = $this->getCon();
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-
-		$labels = $con->getLabels();
-		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-
 		$data = [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
@@ -31,7 +27,7 @@ class RenderLoginIntentPage extends RenderBase {
 				'what_is_this'  => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
 			],
 			'imgs'    => [
-				'banner'  => $bannerURL,
+				'banner'  => empty( $con->labels ) ? $con->getLabels()[ 'url_login2fa_logourl' ] : $con->labels->url_img_pagebanner,
 				'favicon' => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
@@ -59,9 +55,10 @@ class RenderLoginIntentPage extends RenderBase {
 			]
 		];
 
-		return $mod->renderTemplate( '/pages/login_intent/index.twig',
-			Services::DataManipulation()->mergeArraysRecursive(
-				$mod->getUIHandler()->getBaseDisplayData(), $data ) );
+		return $mod->renderTemplate(
+			'/pages/login_intent/index.twig',
+			Services::DataManipulation()->mergeArraysRecursive( $mod->getUIHandler()->getBaseDisplayData(), $data )
+		);
 	}
 
 	private function renderForm() :string {

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BasePageDisplay extends BaseTemplateRenderer {
+
 	public function display() {
 		$this->issueHeaders();
 		echo $this->render();
@@ -26,8 +27,14 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		$WP = Services::WpGeneral();
-		$labels = $con->getLabels();
-		$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
+
+		if ( empty( $con->labels ) ) {
+			$labels = $con->getLabels();
+			$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
+		}
+		else {
+			$bannerURL = $con->labels->url_img_pagebanner;
+		}
 
 		return [
 			'flags'   => [

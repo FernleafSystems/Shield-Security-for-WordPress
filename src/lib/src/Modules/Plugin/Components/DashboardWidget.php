@@ -17,26 +17,18 @@ class DashboardWidget {
 	public function render( bool $forceRefresh = false ) :string {
 		$con = $this->getCon();
 		$modInsights = $con->getModule_Insights();
-		$labels = $con->getLabels();
-
 		$vars = $this->getVars( $forceRefresh );
 		$vars[ 'generated_at' ] = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $vars[ 'generated_at' ] )
 										  ->diffForHumans();
-
-		$logoSrc = $con->urls->forImage( 'pluginlogo_banner-772x250.png' );
-		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-			$logoSrc = $con->getLabels()[ 'url_login2fa_logourl' ] ?? ( $con->getLabels()[ 'url_dashboardlogourl' ] ?? '' );
-		}
-
 		return $this->getMod()
 					->getRenderer()
 					->setTemplate( '/admin/admin_dashboard_widget.twig' )
 					->setRenderData( [
 						'hrefs'   => [
 							'overview'    => $modInsights->getUrl_SubInsightsPage( 'overview' ),
-							'logo'        => $labels[ 'PluginURI' ],
+							'logo'        => empty( $con->labels ) ? $con->getLabels()[ 'PluginURI' ] : $con->labels->PluginURI,
 							'audit_trail' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
 							'sessions'    => $modInsights->getUrl_SubInsightsPage( 'users' ),
 							'ips'         => $modInsights->getUrl_SubInsightsPage( 'ips' ),
@@ -45,7 +37,7 @@ class DashboardWidget {
 							'show_internal_links' => $con->isPluginAdmin()
 						],
 						'imgs'    => [
-							'logo' => $logoSrc,
+							'logo' => empty( $con->labels ) ? $con->getLabels()[ 'url_login2fa_logourl' ] : $con->labels->url_img_pagebanner,
 						],
 						'strings' => [
 							'security_level'    => __( 'Level', 'wp-simple-firewall' ),

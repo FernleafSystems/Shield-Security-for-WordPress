@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\LabelsVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -22,55 +23,93 @@ class WhitelabelController extends ExecOnceModConsumer {
 
 	protected function run() {
 		$con = $this->getCon();
-		add_action( 'init', [ $this, 'onWpInit' ] );
 		add_filter( $con->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $con->prefix( 'plugin_labels' ), [ $this, 'applyPluginLabels' ] );
+		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
-		add_action( 'admin_print_footer_scripts-plugin-editor.php', [ $this, 'hideFromPluginEditor' ] );
-	}
 
-	public function onWpInit() {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
-		if ( $opts->isOpt( 'wl_hide_updates', 'Y' ) && $this->isNeedToHideUpdates() && !$this->getCon()
-																							 ->isPluginAdmin() ) {
-			$this->hideUpdates();
+		if ( $opts->isOpt( 'wl_hide_updates', 'Y' ) && is_admin()
+			 && !Services::WpGeneral()->isCron()
+			 && !$this->getCon()->isPluginAdmin() ) {
+
+			if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
+				add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
+			}
+			else {
+				add_filter( 'wp_get_update_data', [ $this, 'adjustUpdateDataCount' ] );
+			}
 		}
 	}
 
-	/**
-	 * Depending on the page, we hide the update data,
-	 * or we adjust the number of displayed updates counts
-	 */
-	protected function hideUpdates() {
-		if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
-			add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
+	public function applyWhiteLabels( LabelsVO $labels ) :LabelsVO {
+		$opts = $this->getOptions();
+
+		// these are the old white labelling keys which will be replaced upon final release of white labelling.
+		$name = $opts->getOpt( 'wl_pluginnamemain' );
+		if ( !empty( $name ) ) {
+			$labels->Name = $name;
+			$labels->Title = $name;
 		}
-		else {
-			add_filter( 'wp_get_update_data', [ $this, 'adjustUpdateDataCount' ] );
+
+		$companyName = $opts->getOpt( 'wl_companyname' );
+		if ( !empty( $companyName ) ) {
+			$labels->Author = $companyName;
+			$labels->AuthorName = $companyName;
 		}
+
+		$labels->MenuTitle = empty( $opts->getOpt( 'wl_namemenu' ) ) ? $labels->Name : $opts->getOpt( 'wl_namemenu' );
+
+		if ( !empty( $opts->getOpt( 'wl_description' ) ) ) {
+			$labels->Description = $opts->getOpt( 'wl_description' );
+		}
+
+		$homeURL = $opts->getOpt( 'wl_homeurl' );
+		if ( !empty( $homeURL ) ) {
+			$labels->PluginURI = $homeURL;
+			$labels->AuthorURI = $homeURL;
+		}
+
+		$urlIcon = $this->constructImageURL( 'wl_menuiconurl' );
+		if ( !empty( $urlIcon ) ) {
+			$labels->icon_url_16x16 = $urlIcon;
+			$labels->icon_url_32x32 = $urlIcon;
+		}
+
+		$urlDashboardLogo = $this->constructImageURL( 'wl_dashboardlogourl' );
+		if ( !empty( $urlDashboardLogo ) ) {
+			$labels->icon_url_128x128 = $urlDashboardLogo;
+		}
+
+		$urlPageBanner = $this->constructImageURL( 'wl_login2fa_logourl' );
+		if ( !empty( $urlPageBanner ) ) {
+			$labels->url_img_pagebanner = $urlPageBanner;
+		}
+
+		$labels->url_secadmin_forgotten_key = $labels->AuthorURI;
+
+		return $labels;
 	}
 
 	/**
 	 * Adjusts the available updates count so as not to include Shield updates if they're hidden
-	 * @param array $aUpdateData
+	 * @param array $updateData
 	 * @return array
 	 */
-	public function adjustUpdateDataCount( $aUpdateData ) {
+	public function adjustUpdateDataCount( $updateData ) {
 
 		$file = $this->getCon()->base_file;
 		if ( Services::WpPlugins()->isUpdateAvailable( $file ) ) {
-			$aUpdateData[ 'counts' ][ 'total' ]--;
-			$aUpdateData[ 'counts' ][ 'plugins' ]--;
+			$updateData[ 'counts' ][ 'total' ]--;
+			$updateData[ 'counts' ][ 'plugins' ]--;
 		}
 
-		return $aUpdateData;
+		return $updateData;
 	}
 
-	public function hideFromPluginEditor() {
-		// TODO
-	}
-
+	/**
+	 * @deprecated 15.1
+	 */
 	public function applyPluginLabels( array $pluginLabels ) :array {
 		$labels = ( new BuildOptions() )
 			->setMod( $this->getMod() )
@@ -120,9 +159,8 @@ class WhitelabelController extends ExecOnceModConsumer {
 	public function verifyUrls() {
 		$DP = Services::Data();
 		$opts = $this->getOptions();
-		$optsBuilder = ( new BuildOptions() )->setMod( $this->getMod() );
 		foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
-			if ( $opts->isOptChanged( $key ) && !$DP->isValidWebUrl( $optsBuilder->buildWlImageUrl( $key ) ) ) {
+			if ( $opts->isOptChanged( $key ) && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
 				$opts->resetOptToDefault( $key );
 			}
 		}
@@ -152,7 +190,30 @@ class WhitelabelController extends ExecOnceModConsumer {
 		return $plugins;
 	}
 
-	private function isNeedToHideUpdates() :bool {
-		return is_admin() && !Services::WpGeneral()->isCron();
+	/**
+	 * We cater for 3 options:
+	 * Full URL
+	 * Relative path URL: i.e. starts with /
+	 * Or Plugin image URL i.e. doesn't start with HTTP or /
+	 * @param string $key
+	 * @return string
+	 */
+	private function constructImageURL( string $key ) :string {
+		$opts = $this->getOptions();
+
+		$url = $opts->getOpt( $key );
+		if ( empty( $url ) ) {
+			$opts->resetOptToDefault( $key );
+			$url = $opts->getOpt( $key );
+		}
+		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && strpos( $url, '/' ) !== 0 ) {
+			$url = $this->getCon()->urls->forImage( $url );
+			if ( empty( $url ) ) {
+				$opts->resetOptToDefault( $key );
+				$url = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
+			}
+		}
+
+		return $url;
 	}
 }

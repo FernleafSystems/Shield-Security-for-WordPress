@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property Shield\Request\ThisRequest                             $this_req
+ * @property Config\LabelsVO                                        $labels
  * @property array                                                  $prechecks
  * @property array                                                  $flags
  * @property bool                                                   $is_activating
@@ -127,6 +128,13 @@ class Controller extends DynPropertiesClass {
 				if ( !is_array( $val ) ) {
 					$val = [];
 					$this->flags = $val;
+				}
+				break;
+
+			case 'labels':
+				if ( is_null( $val ) ) {
+					$val = $this->labels();
+					$this->labels = $val;
 				}
 				break;
 
@@ -363,6 +371,8 @@ class Controller extends DynPropertiesClass {
 			foreach ( $this->modules as $module ) {
 				$module->onRunProcessors();
 			}
+
+			$this->labels; // Ensures labels are created.
 
 			// This is where any rules responses will execute (i.e. after processors are run):
 			do_action( $this->prefix( 'after_run_processors' ) );
@@ -842,22 +852,26 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$labels = $this->getLabels();
-		if ( empty( $labels ) ) {
-			return $plugins;
-		}
-
 		$file = $this->base_file;
-		// For this plugin, overwrite any specified settings
-		if ( array_key_exists( $file, $plugins ) ) {
-			foreach ( $labels as $sLabelKey => $sLabel ) {
-				$plugins[ $file ][ $sLabelKey ] = $sLabel;
-			}
+		if ( is_array( $plugins[ $file ] ?? null ) ) {
+			$plugins[ $file ] = array_merge(
+				$plugins[ $file ],
+				empty( $this->labels ) ? $this->getLabels() : $this->labels->getRawData()
+			);
 		}
-
 		return $plugins;
 	}
 
+	public function onWpShutdown() {
+		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
+		do_action( $this->prefix( 'plugin_shutdown' ) );
+		$this->saveCurrentPluginControllerOptions();
+		$this->deleteFlags();
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
 	public function getLabels() :array {
 
 		$labels = array_map(
@@ -874,13 +888,6 @@ class Controller extends DynPropertiesClass {
 		}
 
 		return $labels;
-	}
-
-	public function onWpShutdown() {
-		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
-		do_action( $this->prefix( 'plugin_shutdown' ) );
-		$this->saveCurrentPluginControllerOptions();
-		$this->deleteFlags();
 	}
 
 	/**
@@ -1052,8 +1059,7 @@ class Controller extends DynPropertiesClass {
 	 * @return string
 	 */
 	public function getHumanName() {
-		$labels = $this->getLabels();
-		return empty( $labels[ 'Name' ] ) ? $this->getCfgProperty( 'human_name' ) : $labels[ 'Name' ];
+		return empty( $this->labels ) ? $this->getLabels()[ 'Name' ] : $this->labels->Name;
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
@@ -1411,7 +1417,7 @@ class Controller extends DynPropertiesClass {
 		try {
 			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 				$name = $this->getHumanName();
-				$href = $this->getLabels()[ 'PluginURI' ];
+				$href = $this->labels->PluginURI;
 			}
 			else {
 				$name = $this->cfg->menu[ 'title' ];
@@ -1437,6 +1443,20 @@ class Controller extends DynPropertiesClass {
 			$content = '';
 		}
 		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
+	}
+
+	private function labels() :Config\LabelsVO {
+		$labels = array_map( 'stripslashes', $this->cfg->labels );
+
+		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
+			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
+				$labels[ $img ] = $this->urls->forImage( $labels[ $img ] );
+			}
+		}
+
+		$labels = ( new Config\LabelsVO() )->applyFromArray( $labels );
+		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
+		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 
 	private function runTests() {

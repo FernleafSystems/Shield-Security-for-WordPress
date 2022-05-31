@@ -426,7 +426,6 @@
     "title":          "Shield Security",
     "top_level":      true,
     "do_submenu_fix": true,
-    "icon_image":     "pluginlogo_16x16.png",
     "has_submenu":    true
   },
   "labels":           {

@@ -57,8 +57,7 @@ class UI extends Base\UI {
 					'is_whitelabelled'        => $isWhitelabelled
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $isWhitelabelled ?
-						$this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/gc'
+					'aar_forget_key' => empty( $con->labels ) ? $con->getLabels()[ 'AuthorURI' ] : $con->labels->url_secadmin_forgotten_key
 				],
 				'vars'    => [
 				],
