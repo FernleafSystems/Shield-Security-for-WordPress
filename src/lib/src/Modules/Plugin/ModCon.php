@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
 class ModCon extends BaseShield\ModCon {
@@ -103,10 +104,14 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
+			Services::Request()->setIpDetector(
+				( new RequestIpDetect() )->setPreferredSource( $opts->getIpSource() )
+			);
 			Services::IP()->setIpDetector(
 				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
 		}
+		$this->getCon()->this_req->ip = Services::Request()->ip();
 	}
 
 	protected function handleFileDownload( string $downloadID ) {

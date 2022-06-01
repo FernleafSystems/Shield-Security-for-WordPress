@@ -38,7 +38,7 @@ class ThisRequest extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'ip':
-				if ( empty( $value ) ) {
+				if ( !is_string( $value ) ) {
 					$value = (string)Services::IP()->getRequestIp();
 					$this->ip = $value;
 				}
