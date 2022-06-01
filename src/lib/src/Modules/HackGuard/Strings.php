@@ -258,10 +258,19 @@ class Strings extends Base\Strings {
 				}
 				break;
 
-			case 'ptg_reinstall_links' :
+			case 'ptg_reinstall_links':
 				$name = __( 'Show Re-Install Links', 'wp-simple-firewall' );
 				$summary = __( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' );
 				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
+				break;
+
+			case 'optimise_scan_speed':
+				$name = __( 'Optimise File Scans', 'wp-simple-firewall' );
+				$summary = __( 'Optimise File Scans', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Optimise file scans to run much faster.', 'wp-simple-firewall' ),
+					__( 'If you experience any errors in your logs or strange scanning behaviour, disable this option.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'scan_path_exclusions' :

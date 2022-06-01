@@ -36,7 +36,7 @@ class PopulateScanItems {
 				'meta' => $scanRecord->getRawData()[ 'meta' ]
 			] );
 
-		$sliceSize = $scanAction::QUEUE_GROUP_SIZE_LIMIT;
+		$sliceSize = $scanCon->getQueueGroupSize();
 
 		/** @var ScanItemsDB\Ops\Record $newRecord */
 		$newRecord = $dbhItems->getRecord();

@@ -17,7 +17,6 @@ abstract class BaseScanActionVO {
 
 	use DynProperties;
 
-	const QUEUE_GROUP_SIZE_LIMIT = 1;
 	const DEFAULT_SLEEP_SECONDS = 0;
 
 	public function getScanNamespace() :string {

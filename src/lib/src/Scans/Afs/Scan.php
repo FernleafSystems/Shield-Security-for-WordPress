@@ -19,6 +19,12 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
+		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) ) {
+			( new Processing\FileScanOptimiser() )
+				->setMod( $this->getMod() )
+				->filterFilesFromAction( $action );
+		}
+
 		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
 		$patterns = ( new Utilities\Patterns() )
@@ -36,5 +42,18 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 		return ( new ScanFromFileMap() )
 			->setMod( $this->getMod() )
 			->setScanActionVO( $this->getScanActionVO() );
+	}
+
+	protected function postScan() {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+
+		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) ) {
+			/** @var ScanActionVO $action */
+			$action = $this->getScanActionVO();
+			( new Processing\FileScanOptimiser() )
+				->setMod( $this->getMod() )
+				->addFilesFromAction( $action );
+		}
 	}
 }

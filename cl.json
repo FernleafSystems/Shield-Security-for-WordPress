@@ -12,6 +12,16 @@
     "items":       [
       {
         "type":        "new",
+        "pro_only":    false,
+        "title":       "Optimised File Scanning",
+        "description": [
+          "Significant optimisation in file scanning with reduction of full file scan times by up to 66%.",
+          "For example, if a file scan would have normally lasted for 3 minutes, it'll now take less than 1 minute.",
+          "This means faster scanning, less waiting, and much lighter on your servers by using fewer server resources."
+        ]
+      },
+      {
+        "type":        "new",
         "pro_only":    true,
         "title":       "Happy Forms",
         "description": [

@@ -185,6 +185,12 @@ class Afs extends BaseForFiles {
 		}
 	}
 
+	public function getQueueGroupSize() :int {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isOpt( 'optimise_scan_speed', 'Y' ) ? 100 : 35;
+	}
+
 	/**
 	 * @return Scans\Afs\Utilities\ItemActionHandler
 	 */

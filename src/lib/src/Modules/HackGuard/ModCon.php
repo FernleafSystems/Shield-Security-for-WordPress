@@ -223,6 +223,17 @@ class ModCon extends BaseShield\ModCon {
 		$this->getFileLocker()->purge();
 	}
 
+	public function runDailyCron() {
+		parent::runDailyCron();
+
+		$carbon = Services::Request()->carbon();
+		if ( $carbon->isSunday() ) {
+			( new Shield\Scans\Afs\Processing\FileScanOptimiser() )
+				->setMod( $this )
+				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 * @deprecated 13.1

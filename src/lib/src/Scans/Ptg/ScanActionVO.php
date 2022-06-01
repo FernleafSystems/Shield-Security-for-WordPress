@@ -11,5 +11,4 @@ class ScanActionVO extends BaseScanActionVO {
 
 	const CONTEXT_PLUGINS = 'plugins';
 	const CONTEXT_THEMES = 'themes';
-	const QUEUE_GROUP_SIZE_LIMIT = 50;
 }

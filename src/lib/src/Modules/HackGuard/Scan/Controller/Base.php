@@ -51,6 +51,10 @@ abstract class Base extends ExecOnceModConsumer {
 		return [];
 	}
 
+	public function getQueueGroupSize() :int {
+		return 1;
+	}
+
 	public function cleanStalesResults() {
 		foreach ( $this->getAllResults()->getItems() as $item ) {
 			$this->cleanStaleResultItem( $item );
