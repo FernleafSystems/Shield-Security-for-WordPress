@@ -172,7 +172,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	public function ajaxExec_DeleteForceOff() :array {
 		$this->getCon()->deleteForceOffFile();
-		return [ 'success' => true ];
+		return [
+			'success'     => true,
+			'page_reload' => true,
+			'message'     => __( 'Removed the forceoff file.', 'wp-simple-firewall' ),
+		];
 	}
 
 	public function ajaxExec_RenderTableAdminNotes() :array {

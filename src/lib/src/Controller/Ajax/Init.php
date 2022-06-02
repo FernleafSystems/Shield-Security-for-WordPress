@@ -71,7 +71,7 @@ class Init {
 				[
 					'success'     => false,
 					'page_reload' => false,
-					'message'     => 'Unknown',
+					'message'     => 'No AJAX Message provided',
 					'html'        => '',
 				],
 				$ajaxResponse

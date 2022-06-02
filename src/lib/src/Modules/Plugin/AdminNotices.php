@@ -145,9 +145,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				),
 				'delete'  => __( 'Click here to automatically delete the file', 'wp-simple-firewall' )
 			],
-			'ajax'              => [
-				'delete_forceoff' => $this->getMod()->getAjaxActionData( 'delete_forceoff', true )
-			]
 		];
 	}
 
