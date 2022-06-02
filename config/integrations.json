@@ -106,6 +106,10 @@
           "text":      "Groundhogg"
         },
         {
+          "value_key": "happyforms",
+          "text":      "HappyForms"
+        },
+        {
           "value_key": "kaliforms",
           "text":      "Kali Forms"
         },

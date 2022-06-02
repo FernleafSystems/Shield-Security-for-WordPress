@@ -478,7 +478,6 @@ class Strings extends Base\Strings {
 			__( 'Week', 'wp-simple-firewall' );
 			__( 'Month', 'wp-simple-firewall' );
 			__( 'With Shield Bot Protection', 'wp-simple-firewall' );
-			__( 'Audit Log Only', 'wp-simple-firewall' );
 			__( 'Increment Offense Counter', 'wp-simple-firewall' );
 			__( 'Double-Increment Offense Counter', 'wp-simple-firewall' );
 			__( 'Immediate Block', 'wp-simple-firewall' );

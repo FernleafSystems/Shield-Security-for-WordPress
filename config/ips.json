@@ -291,7 +291,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -326,7 +326,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -361,7 +361,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -396,7 +396,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -430,7 +430,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -465,7 +465,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -500,7 +500,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -535,7 +535,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
