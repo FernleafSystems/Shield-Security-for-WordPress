@@ -17,12 +17,17 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-
-		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
+		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ], 0 );
 		add_action( 'admin_init', function () {
 			$this->enqueueJS();
 		} );
+		add_action( 'init', [ $this, 'setupRestrictions' ] );
+	}
 
+	/**
+	 * Restrictions should only be applied after INIT
+	 */
+	public function setupRestrictions() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			foreach ( $this->enumRestrictionZones() as $zone ) {
 				( new $zone() )->setMod( $this->getMod() )->execute();
