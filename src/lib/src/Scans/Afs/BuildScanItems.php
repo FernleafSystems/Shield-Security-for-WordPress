@@ -81,12 +81,15 @@ class BuildScanItems extends BaseBuildFileMap {
 		$action = $this->getScanActionVO();
 
 		if ( empty( $action->scan_root_dirs ) || !is_array( $action->scan_root_dirs ) ) {
-			$action->scan_root_dirs = [
+			$rootDirs = [
 				ABSPATH                          => 1,
 				path_join( ABSPATH, WPINC )      => 0,
 				path_join( ABSPATH, 'wp-admin' ) => 0,
-				WP_CONTENT_DIR                   => 0,
 			];
+			if ( $this->getCon()->isPremiumActive() ) {
+				$rootDirs[ WP_CONTENT_DIR ] = 0;
+			}
+			$action->scan_root_dirs = $rootDirs;
 		}
 		if ( !is_array( $action->paths_whitelisted ) ) {
 			$action->paths_whitelisted = [];
