@@ -314,6 +314,7 @@
           "pwd",
           "url",
           "referredby",
+          "return",
           "redirect_to",
           "jetpack_sso_original_request",
           "jetpack_sso_redirect_to",
