@@ -188,7 +188,7 @@ class Afs extends BaseForFiles {
 	public function getQueueGroupSize() :int {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 35;
+		return $opts->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
 	}
 
 	/**

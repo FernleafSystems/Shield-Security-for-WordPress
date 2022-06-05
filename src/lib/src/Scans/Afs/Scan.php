@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
+class Scan extends Shield\Scans\Base\BaseScan {
 
 	/**
 	 * @throws \Exception
@@ -36,12 +36,25 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 	}
 
 	/**
-	 * @return ScanFromFileMap
+	 * @return $this
 	 */
-	protected function getScanFromFileMap() {
-		return ( new ScanFromFileMap() )
-			->setMod( $this->getMod() )
-			->setScanActionVO( $this->getScanActionVO() );
+	protected function scanSlice() {
+		$action = $this->getScanActionVO();
+
+		$action->results = array_map(
+			function ( $item ) {
+				return $item->getRawData();
+			},
+			// run the scan and get results:
+			( new ScanFromFileMap() )
+				->setMod( $this->getMod() )
+				->setScanController( $this->getScanController() )
+				->setScanActionVO( $action )
+				->run()
+				->getAllItems()
+		);
+
+		return $this;
 	}
 
 	protected function postScan() {
