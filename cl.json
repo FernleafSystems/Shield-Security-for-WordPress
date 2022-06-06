@@ -17,7 +17,7 @@
         "description": [
           "Significant optimisation in file scanning with reduction of full file scan times by up to 66%.",
           "For example, if a file scan would have normally lasted for 3 minutes, it'll now take less than 1 minute.",
-          "This means faster scanning, less waiting, and much lighter on your servers by using fewer server resources."
+          "This means faster scanning, less waiting, and much lighter load on your servers by using fewer resources."
         ]
       },
       {
@@ -26,6 +26,15 @@
         "title":       "Happy Forms",
         "description": [
           "Full support available for SPAM protection on Happy Forms."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Automatic Visitor IP Detection",
+        "description": [
+          "The 100% fully automatic detection of visitor IP addresses is a lofty goal and with each release we get a bit closer.",
+          "You can always help Shield by manually setting your Visitor IP source option: Shield > Config > General IP Source."
         ]
       }
     ],
