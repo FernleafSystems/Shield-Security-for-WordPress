@@ -107,51 +107,6 @@ class WhitelabelController extends ExecOnceModConsumer {
 		return $updateData;
 	}
 
-	/**
-	 * @deprecated 15.1
-	 */
-	public function applyPluginLabels( array $pluginLabels ) :array {
-		$labels = ( new BuildOptions() )
-			->setMod( $this->getMod() )
-			->build();
-
-		// these are the old white labelling keys which will be replaced upon final release of white labelling.
-		$serviceName = $labels[ 'name_main' ];
-		if ( !empty( $serviceName ) ) {
-			$pluginLabels[ 'Name' ] = $serviceName;
-			$pluginLabels[ 'Title' ] = $serviceName;
-		}
-		$companyName = $labels[ 'name_company' ];
-		if ( !empty( $companyName ) ) {
-			$pluginLabels[ 'Author' ] = $labels[ 'name_company' ];
-			$pluginLabels[ 'AuthorName' ] = $labels[ 'name_company' ];
-		}
-		$menuName = empty( $labels[ 'name_menu' ] ) ? $serviceName : $labels[ 'name_menu' ];
-		if ( !empty( $menuName ) ) {
-			$pluginLabels[ 'MenuTitle' ] = $menuName;
-		}
-
-		if ( !empty( $labels[ 'description' ] ) ) {
-			$pluginLabels[ 'Description' ] = $labels[ 'description' ];
-		}
-
-		if ( !empty( $labels[ 'url_home' ] ) ) {
-			$pluginLabels[ 'PluginURI' ] = $labels[ 'url_home' ];
-			$pluginLabels[ 'AuthorURI' ] = $labels[ 'url_home' ];
-		}
-
-		if ( !empty( $labels[ 'url_icon' ] ) ) {
-			$pluginLabels[ 'icon_url_16x16' ] = $labels[ 'url_icon' ];
-			$pluginLabels[ 'icon_url_32x32' ] = $labels[ 'url_icon' ];
-		}
-
-		if ( !empty( $labels[ 'url_dashboardlogourl' ] ) ) {
-			$pluginLabels[ 'icon_url_128x128' ] = $labels[ 'url_dashboardlogourl' ];
-		}
-
-		return array_merge( $labels, $pluginLabels );
-	}
-
 	public function isReplacePluginBadge() :bool {
 		return $this->getOptions()->isOpt( 'wl_replace_badge_url', 'Y' );
 	}

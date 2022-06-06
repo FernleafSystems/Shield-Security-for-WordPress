@@ -28,14 +28,6 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 		$con = $this->getCon();
 		$WP = Services::WpGeneral();
 
-		if ( empty( $con->labels ) ) {
-			$labels = $con->getLabels();
-			$bannerURL = empty( $labels[ 'url_login2fa_logourl' ] ) ? $con->urls->forImage( 'shield/banner-2FA.png' ) : $labels[ 'url_login2fa_logourl' ];
-		}
-		else {
-			$bannerURL = $con->labels->url_img_pagebanner;
-		}
-
 		return [
 			'flags'   => [
 				'is_whitelabelled' => $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled()
@@ -50,7 +42,7 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 			],
 			'imgs'    => [
 				'about_shield' => $con->urls->forImage( 'pluginlogo_128x128.png' ),
-				'banner'       => $bannerURL,
+				'banner'       => $con->labels->url_img_pagebanner,
 				'favicon'      => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 			],
 			'strings' => [

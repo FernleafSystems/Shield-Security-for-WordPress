@@ -223,16 +223,7 @@ class UI extends BaseShield\UI {
 		}
 
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-
-			if ( !empty( $con->labels ) ) {
-				$dashboardLogo = $con->labels->url_img_pagebanner;
-			}
-			else {
-				/** @deprecated 15.1 */
-				$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
-									 ->setMod( $con->getModule_SecAdmin() )
-									 ->build()[ 'url_login2fa_logourl' ];
-			}
+			$dashboardLogo = $con->labels->url_img_pagebanner;
 		}
 		else {
 			$dashboardLogo = $con->urls->forImage( 'pluginlogo_banner-170x40.png' );

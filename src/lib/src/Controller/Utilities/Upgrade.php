@@ -47,10 +47,4 @@ class Upgrade {
 			}
 		}
 	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	private function deleteOldModConfigs() {
-	}
 }

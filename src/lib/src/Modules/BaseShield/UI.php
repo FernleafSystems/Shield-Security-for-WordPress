@@ -57,7 +57,7 @@ class UI extends Base\UI {
 					'is_whitelabelled'        => $isWhitelabelled
 				],
 				'hrefs'   => [
-					'aar_forget_key' => empty( $con->labels ) ? $con->getLabels()[ 'AuthorURI' ] : $con->labels->url_secadmin_forgotten_key
+					'aar_forget_key' => $con->labels->url_secadmin_forgotten_key
 				],
 				'vars'    => [
 				],

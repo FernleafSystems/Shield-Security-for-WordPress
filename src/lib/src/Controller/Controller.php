@@ -12,22 +12,22 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                $cfg
- * @property Shield\Controller\Assets\Urls  $urls
- * @property Shield\Controller\Assets\Paths $paths
- * @property Shield\Controller\Assets\Svgs  $svgs
- * @property Shield\Request\ThisRequest     $this_req
- * @property Config\Labels                  $labels
- * @property array                          $prechecks
- * @property array                          $flags
- * @property bool                           $is_activating
- * @property bool                           $is_mode_debug
- * @property bool                           $is_mode_staging
- * @property bool                           $is_mode_live
- * @property bool                           $is_my_upgrade
- * @property bool                           $is_rest_enabled
- * @property bool                           $modules_loaded
- * @property bool                           $plugin_deactivating
+ * @property Config\ConfigVO                                        $cfg
+ * @property Shield\Controller\Assets\Urls                          $urls
+ * @property Shield\Controller\Assets\Paths                         $paths
+ * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $this_req
+ * @property Config\Labels                                          $labels
+ * @property array                                                  $prechecks
+ * @property array                                                  $flags
+ * @property bool                                                   $is_activating
+ * @property bool                                                   $is_mode_debug
+ * @property bool                                                   $is_mode_staging
+ * @property bool                                                   $is_mode_live
+ * @property bool                                                   $is_my_upgrade
+ * @property bool                                                   $is_rest_enabled
+ * @property bool                                                   $modules_loaded
+ * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property Shield\Utilities\CacheDir                              $cache_dir_handler
@@ -852,13 +852,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$file = $this->base_file;
-		if ( is_array( $plugins[ $file ] ?? null ) ) {
-			$plugins[ $file ] = array_merge(
-				$plugins[ $file ],
-				empty( $this->labels ) ? $this->getLabels() : $this->labels->getRawData()
-			);
-		}
+		$plugins[ $this->base_file ] = array_merge( is_array( $plugins[ $this->base_file ] ?? [] ), $this->labels->getRawData() );
 		return $plugins;
 	}
 
@@ -888,12 +882,6 @@ class Controller extends DynPropertiesClass {
 		}
 
 		return $labels;
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function onWpLogout() {
 	}
 
 	protected function deleteFlags() {
@@ -1059,7 +1047,7 @@ class Controller extends DynPropertiesClass {
 	 * @return string
 	 */
 	public function getHumanName() {
-		return empty( $this->labels ) ? $this->getLabels()[ 'Name' ] : $this->labels->Name;
+		return $this->labels->Name;
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
@@ -1456,6 +1444,7 @@ class Controller extends DynPropertiesClass {
 
 		$labels = ( new Config\Labels() )->applyFromArray( $labels );
 		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
+
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 
@@ -1467,65 +1456,5 @@ class Controller extends DynPropertiesClass {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function clearSession() {
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	private function getSessionCookieID() :string {
-		return 'wp-null';
-	}
-
-	/**
-	 * @param bool $setIfNeeded
-	 * @return string
-	 * @deprecated 15.1
-	 */
-	public function getSessionId() {
-		return '';
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function hasSessionId() :bool {
-		return false;
-	}
-
-	protected function setSessionCookie() {
-	}
-
-	/**
-	 * Added to the WordPress filter ('site_transient_update_plugins') in order to remove visibility of updates
-	 * from the WordPress Admin UI.
-	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
-	 * the list of plugins if DOING_CRON is set to true.
-	 * @param \stdClass $plugins
-	 * @return \stdClass
-	 * @deprecated 15.1
-	 */
-	public function filter_hidePluginUpdatesFromUI( $plugins ) {
-		return $plugins;
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function filter_hidePluginFromTableList( $plugins ) {
-		return $plugins;
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 15.0
-	 */
-	public function loadAllFeatures() :bool {
-		return true;
 	}
 }

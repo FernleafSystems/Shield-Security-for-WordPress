@@ -28,7 +28,7 @@ class DashboardWidget {
 					->setRenderData( [
 						'hrefs'   => [
 							'overview'    => $modInsights->getUrl_SubInsightsPage( 'overview' ),
-							'logo'        => empty( $con->labels ) ? $con->getLabels()[ 'PluginURI' ] : $con->labels->PluginURI,
+							'logo'        => $con->labels->PluginURI,
 							'audit_trail' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
 							'sessions'    => $modInsights->getUrl_SubInsightsPage( 'users' ),
 							'ips'         => $modInsights->getUrl_SubInsightsPage( 'ips' ),
@@ -37,7 +37,7 @@ class DashboardWidget {
 							'show_internal_links' => $con->isPluginAdmin()
 						],
 						'imgs'    => [
-							'logo' => empty( $con->labels ) ? $con->getLabels()[ 'url_login2fa_logourl' ] : $con->labels->url_img_pagebanner,
+							'logo' => $con->labels->url_img_pagebanner,
 						],
 						'strings' => [
 							'security_level'    => __( 'Level', 'wp-simple-firewall' ),

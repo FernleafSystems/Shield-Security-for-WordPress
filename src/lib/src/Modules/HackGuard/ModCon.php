@@ -180,12 +180,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this;
 	}
 
-	/**
-	 * @deprecated 15.1
-	 */
-	protected function cleanFileExclusions() {
-	}
-
 	public function getScansTempDir() :string {
 		return ( new CacheDir() )
 			->setCon( $this->getCon() )
