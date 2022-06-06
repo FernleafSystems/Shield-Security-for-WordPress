@@ -50,9 +50,9 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function isReadyToExecute() :bool {
-		$IP = Services::IP();
-		return $IP->isValidIp_PublicRange( $IP->getRequestIp() )
-			   && $this->getCon()->getModule_Data()->getDbH_ReqLogs()->isReady()
+		$con = $this->getCon();
+		return $con->this_req->ip_is_public
+			   && $con->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
 	}
 }

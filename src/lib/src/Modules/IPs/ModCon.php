@@ -70,8 +70,8 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		$oIp = Services::IP();
-		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
+		$con = $this->getCon();
+		return $con->this_req->ip_is_public
 			   && ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
 			   && $this->getDbHandler_IPs()->isReady()
 			   && parent::isReadyToExecute();
