@@ -60,13 +60,13 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function postScan() {
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 
-		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) ) {
-			/** @var ScanActionVO $action */
-			$action = $this->getScanActionVO();
+		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) && is_array( $action->valid_files ) ) {
 			( new Processing\FileScanOptimiser() )
 				->setMod( $this->getMod() )
-				->addFilesFromAction( $action );
+				->addFiles( $action->valid_files );
 		}
 	}
 }
