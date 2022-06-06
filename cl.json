@@ -1,7 +1,7 @@
 {
   "15.1": {
     "version":     "15.1",
-    "released_at": 1652090000,
+    "released_at": 1654522432,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease151",
       "upgrade": "https://shsec.io/shieldupgradeguide151"
@@ -31,10 +31,26 @@
       {
         "type":        "improved",
         "pro_only":    true,
+        "title":       "Whitelabelling",
+        "description": [
+          "We've refactored our white labelling feature to ensure your custom brand displays more consistently throughout the plugin."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
         "title":       "Automatic Visitor IP Detection",
         "description": [
           "The 100% fully automatic detection of visitor IP addresses is a lofty goal and with each release we get a bit closer.",
           "You can always help Shield by manually setting your Visitor IP source option: Shield > Config > General IP Source."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Plugin Loading",
+        "description": [
+          "Shield is a large and complex plugin so we've done a lot of work to help ensure it's more reliable when loading."
         ]
       }
     ],
