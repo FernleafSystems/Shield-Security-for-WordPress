@@ -245,6 +245,18 @@
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
     },
     {
+      "key":         "optimise_scan_speed",
+      "section":     "section_scan_options",
+      "premium":     false,
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Optimise File Scans",
+      "summary":     "Optimise File Scans",
+      "description": "Optimise file scans wherever possible."
+    },
+    {
       "key":           "scan_frequency",
       "section":       "section_scan_options",
       "premium":       true,
@@ -315,18 +327,6 @@
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
-    },
-    {
-      "key":         "optimise_scan_speed",
-      "section":     "section_scan_options",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Optimise File Scans",
-      "summary":     "Optimise File Scans",
-      "description": "Optimise file scans wherever possible."
     },
     {
       "key":              "scans_to_build",

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 /** @var string $rootFile */
 global $oICWP_Wpsf;
@@ -56,6 +57,8 @@ class ICWP_WPSF_Shield_Security {
 		return self::$oInstance;
 	}
 }
+
+Services::GetInstance();
 
 try {
 	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $rootFile );
