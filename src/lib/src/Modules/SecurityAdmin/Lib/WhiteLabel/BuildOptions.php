@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Whit
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 15.1
+ */
 class BuildOptions {
 
 	use ModConsumer;

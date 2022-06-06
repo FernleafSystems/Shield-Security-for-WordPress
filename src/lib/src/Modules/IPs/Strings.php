@@ -387,7 +387,7 @@ class Strings extends Base\Strings {
 					__( "Detect when a bot tries to load WordPress directly from a file that isn't normally used to load WordPress.", 'wp-simple-firewall' ),
 					__( 'WordPress should only be loaded in a limited number of ways.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this.', 'wp-simple-firewall' ), __( 'Audit Log Only', 'wp-simple-firewall' ) ) )
+						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) )
 				];
 				break;
 

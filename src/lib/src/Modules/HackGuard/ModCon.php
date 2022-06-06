@@ -112,10 +112,14 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$this->cleanFileExclusions();
-
 		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
 			$this->getScansCon()->deleteCron();
+		}
+
+		$lockFiles = $opts->getFilesToLock();
+		if ( in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
+			unset( $lockFiles[ array_search( 'root_webconfig', $lockFiles ) ] );
+			$opts->setOpt( 'file_locker', $lockFiles );
 		}
 
 		if ( count( $opts->getFilesToLock() ) === 0 || !$this->getCon()
@@ -124,12 +128,6 @@ class ModCon extends BaseShield\ModCon {
 															 ->canHandshake() ) {
 			$opts->setOpt( 'file_locker', [] );
 			$this->getFileLocker()->purge();
-		}
-
-		$lockFiles = $opts->getFilesToLock();
-		if ( in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
-			unset( $lockFiles[ array_search( 'root_webconfig', $lockFiles ) ] );
-			$opts->setOpt( 'file_locker', $lockFiles );
 		}
 
 		foreach ( $this->getScansCon()->getAllScanCons() as $con ) {
@@ -182,36 +180,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 15.1
+	 */
 	protected function cleanFileExclusions() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$excl = [];
-
-		$toClean = $opts->getOpt( 'ufc_exclusions', [] );
-		if ( is_array( $toClean ) ) {
-			foreach ( $toClean as $exclusion ) {
-
-				if ( preg_match( '/^#(.+)#$/', $exclusion, $matches ) ) { // it's not regex
-					$exclusion = str_replace( '\\', '\\\\', $exclusion );
-				}
-				else {
-					$exclusion = wp_normalize_path( trim( $exclusion ) );
-					if ( strpos( $exclusion, '/' ) === false ) { // filename only
-						$exclusion = trim( preg_replace( '#[^.\da-z_-]#i', '', $exclusion ) );
-					}
-				}
-
-				if ( !empty( $exclusion ) ) {
-					$excl[] = $exclusion;
-				}
-			}
-		}
-
-		$opts->setOpt( 'ufc_exclusions', array_unique( $excl ) );
-	}
-
-	public function hasWizard() :bool {
-		return false;
 	}
 
 	public function getScansTempDir() :string {
@@ -249,6 +221,17 @@ class ModCon extends BaseShield\ModCon {
 		$this->getDbH_ScanResults()->tableDelete();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
+	}
+
+	public function runDailyCron() {
+		parent::runDailyCron();
+
+		$carbon = Services::Request()->carbon();
+		if ( $carbon->isSunday() ) {
+			( new Shield\Scans\Afs\Processing\FileScanOptimiser() )
+				->setMod( $this )
+				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
+		}
 	}
 
 	/**

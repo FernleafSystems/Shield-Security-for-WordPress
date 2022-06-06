@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
 class ModCon extends BaseShield\ModCon {
@@ -100,13 +101,20 @@ class ModCon extends BaseShield\ModCon {
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
+		$con = $this->getCon();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
+			Services::Request()->setIpDetector(
+				( new RequestIpDetect() )->setPreferredSource( $opts->getIpSource() )
+			);
 			Services::IP()->setIpDetector(
 				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
 		}
+		$con->this_req->ip = Services::Request()->ip();
+		$con->this_req->ip_is_public = !empty( $con->this_req->ip )
+									   && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
 	}
 
 	protected function handleFileDownload( string $downloadID ) {
@@ -162,13 +170,6 @@ class ModCon extends BaseShield\ModCon {
 			] );
 		}
 		return $can;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getActivePluginFeatures() :array {
-		return $this->getOptions()->getDef( 'active_plugin_features' );
 	}
 
 	public function getLinkToTrackingDataDump() :string {
@@ -439,6 +440,12 @@ class ModCon extends BaseShield\ModCon {
 						'ajax' => [
 							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )
 						]
+					],
+					'notices'          => [
+						'ajax' => [
+							'auto_db_repair'  => $this->getAjaxActionData( 'auto_db_repair' ),
+							'delete_forceoff' => $this->getAjaxActionData( 'delete_forceoff' ),
+						]
 					]
 				],
 			]
@@ -500,13 +507,5 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getImportExportWhitelist() :array {
-		$list = $this->getOptions()->getOpt( 'importexport_whitelist', [] );
-		return is_array( $list ) ? $list : [];
 	}
 }

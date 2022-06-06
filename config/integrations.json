@@ -19,6 +19,12 @@
     "skip_processor":        false,
     "tracking_exclude":      false
   },
+  "reqs":             {
+    "dbs": [
+      "botsignal",
+      "ips"
+    ]
+  },
   "menus":         {
     "config_menu_priority": 50
   },
@@ -98,6 +104,10 @@
         {
           "value_key": "groundhogg",
           "text":      "Groundhogg"
+        },
+        {
+          "value_key": "happyforms",
+          "text":      "HappyForms"
         },
         {
           "value_key": "kaliforms",

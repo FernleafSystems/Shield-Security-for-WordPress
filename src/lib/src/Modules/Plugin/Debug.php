@@ -4,20 +4,35 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
+use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class Debug extends Modules\Base\Debug {
 
 	public function run() {
-		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
+//		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
+		$this->cleanoptimisehashes();
 		die( 'finish' );
 	}
 
+	private function cleanoptimisehashes() {
+		( new FileScanOptimiser() )
+			->setMod( $this->getMod() )
+			->cleanStaleHashesOlderThan( 1654091228 );
+	}
+
+	private function testFileSearch() {
+		$searcher = new SearchFile( $this->getCon()->root_file );
+		var_dump( $searcher->exists( 'a' ) );
+		var_dump( $searcher->multipleFindFirst( [ 'init', 'if' ] ) );
+	}
+
 	private function testAAAA( string $hostname ) {
-		$id = ( new IpID('2a03:2880:32ff:11::face:b00c', 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)') )->run();
-		var_dump($id);
+		$id = ( new IpID( '2a03:2880:32ff:11::face:b00c', 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)' ) )->run();
+		var_dump( $id );
 //		$record = dns_get_record( $hostname, DNS_AAAA );
 //		var_dump( $record );
 	}

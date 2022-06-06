@@ -100,7 +100,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 			}
 			$success = $mod
 				->getLicenseHandler()
-				->verify()
+				->verify( true )
 				->hasValidWorkingLicense();
 			$msg = $success ? __( 'Valid license found and installed.', 'wp-simple-firewall' )
 				: __( "Valid license couldn't be found.", 'wp-simple-firewall' );

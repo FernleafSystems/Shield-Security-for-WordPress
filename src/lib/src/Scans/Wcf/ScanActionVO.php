@@ -10,5 +10,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  */
 class ScanActionVO extends BaseScanActionVO {
 
-	const QUEUE_GROUP_SIZE_LIMIT = 100;
 }

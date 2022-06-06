@@ -3,12 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanAction extends Base\BuildScanAction {
 
-	protected function buildItems() {
-		$this->getScanActionVO()->items = ( new BuildScanItems() )
-			->setMod( $this->getScanController()->getMod() )
-			->run();
+	protected function buildScanItems() {
+		$items = Services::WpPlugins()->getInstalledPluginFiles();
+		$WPT = Services::WpThemes();
+		$items[] = ( $WPT->isActiveThemeAChild() ? $WPT->getCurrentParent() : $WPT->getCurrent() )->get_stylesheet();
+
+		$this->getScanActionVO()->items = $items;
 	}
 }

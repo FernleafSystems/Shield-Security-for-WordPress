@@ -42,32 +42,4 @@ class Options extends BaseShield\Options {
 	public function setEnabledAntiBot( bool $enabled = true ) {
 		$this->setOpt( 'enable_antibot_comments', $enabled ? 'Y' : 'N' );
 	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isEnabledGaspCheck() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isEnabledCaptcha() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getTokenExpireInterval() :int {
-		return 0;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getTokenCooldown() :int {
-		return 0;
-	}
 }

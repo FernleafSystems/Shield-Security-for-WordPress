@@ -17,6 +17,11 @@
     "run_if_wpcli":          false,
     "order":                 50
   },
+  "reqs":             {
+    "dbs": [
+      "botsignal"
+    ]
+  },
   "menus":         {
     "config_menu_priority": 40
   },

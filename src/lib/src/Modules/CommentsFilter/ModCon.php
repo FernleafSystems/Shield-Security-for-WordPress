@@ -24,24 +24,4 @@ class ModCon extends BaseShield\ModCon {
 	public function getSpamBlacklistFile() :string {
 		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
 	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isEnabledCaptcha() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function ensureCorrectCaptchaConfig() {
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getCaptchaCfg() :\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO {
-		return parent::getCaptchaCfg();
-	}
 }

@@ -10,43 +10,11 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class ModCon extends Base\ModCon {
 
-	/**
-	 * @var bool
-	 * @deprecated 15.0
-	 */
-	protected static $bIsVerifiedBot;
-
-	/**
-	 * @var bool
-	 * @deprecated 15.0
-	 */
-	private static $bVisitorIsWhitelisted;
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getDbHandler_Sessions() :Shield\Databases\Session\Handler {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getDbHandler_Sessions();
-	}
-
 	public function getSessionWP() :Shield\Modules\Sessions\Lib\SessionVO {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getSessionCon()
 					->getCurrentWP();
-	}
-
-	/**
-	 * @return Shield\Databases\Session\EntryVO|null
-	 * @deprecated 15.0
-	 */
-	public function getSession() :array {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getSessionCon()
-					->getCurrent();
 	}
 
 	public function onWpInit() {
@@ -108,35 +76,6 @@ class ModCon extends Base\ModCon {
 			   && ( !$req->is_trusted_bot || $this->cfg->properties[ 'run_if_verified_bot' ] )
 			   && ( !$req->wp_is_wpcli || $this->cfg->properties[ 'run_if_wpcli' ] )
 			   && parent::isReadyToExecute();
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isVisitorWhitelisted() :bool {
-		return $this->getCon()->this_req->is_ip_whitelisted;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isTrustedVerifiedBot() :bool {
-		return $this->getCon()->this_req->is_trusted_bot;
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	protected function getUntrustedProviders() :array {
-		$untrustedProviders = apply_filters( 'shield/untrusted_service_providers', [] );
-		return is_array( $untrustedProviders ) ? $untrustedProviders : [];
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function isVerifiedBot() :bool {
-		return $this->isTrustedVerifiedBot();
 	}
 
 	public function isXmlrpcBypass() :bool {

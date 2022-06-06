@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
 
-	public function onWpInit() {
+	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$mod->getSecurityAdminController()->execute();

@@ -27,11 +27,10 @@ trait StandardCron {
 	 * @return string
 	 */
 	protected function getCronRecurrence() {
-		$sFreq = $this->getCronFrequency();
-		$aStdIntervals = array_keys( wp_get_schedules() );
-		return in_array( $sFreq, $aStdIntervals ) ?
-			$sFreq
-			: $this->getCon()->prefix( sprintf( 'per-day-%s', $sFreq ) );
+		$frequency = $this->getCronFrequency();
+		return in_array( $frequency, array_keys( wp_get_schedules() ) ) ?
+			$frequency
+			: $this->getCon()->prefix( sprintf( 'per-day-%s', $frequency ) );
 	}
 
 	/**

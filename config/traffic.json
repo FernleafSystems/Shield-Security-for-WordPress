@@ -18,7 +18,13 @@
     "run_if_wpcli":          false,
     "order":                 110
   },
-  "menus":         {
+  "reqs":             {
+    "dbs": [
+      "ips",
+      "req_logs"
+    ]
+  },
+  "menus":            {
     "config_menu_priority": 35
   },
   "wpcli":            {

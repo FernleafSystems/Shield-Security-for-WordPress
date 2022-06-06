@@ -36,12 +36,9 @@ class WooCommerce extends BaseFormProvider {
 		add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkCheckout' ], 10, 2 );
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getCheckoutHookLocation() {
+	private function getCheckoutHookLocation() :string {
 		return apply_filters(
-			$this->getCon()->prefix( 'woocommerce_checkout_hook_location' ),
+			'shield/woocommerce_checkout_hook_location',
 			'woocommerce_after_checkout_registration_form'
 		);
 	}
@@ -86,58 +83,58 @@ class WooCommerce extends BaseFormProvider {
 	/**
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
-	 * @param null|\WP_User|\WP_Error $oUserOrError
+	 * @param null|\WP_User|\WP_Error $userOrError
 	 * @param string                  $sUsername
 	 * @return \WP_User|\WP_Error
 	 */
-	public function checkLogin( $oUserOrError, $sUsername ) {
+	public function checkLogin( $userOrError, $sUsername ) {
 		try {
-			if ( !is_wp_error( $oUserOrError ) && !empty( $sUsername ) ) {
+			if ( !is_wp_error( $userOrError ) && !empty( $sUsername ) ) {
 				$this->setUserToAudit( $sUsername )
 					 ->setActionToAudit( 'woo-register' )
 					 ->checkProviders();
 			}
 		}
 		catch ( \Exception $e ) {
-			$oUserOrError = $this->giveMeWpError( $oUserOrError );
-			$oUserOrError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
+			$userOrError = $this->giveMeWpError( $userOrError );
+			$userOrError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
 		}
-		return $oUserOrError;
+		return $userOrError;
 	}
 
 	/**
-	 * @param \WP_Error $oWpError
-	 * @param string    $sUsername
+	 * @param \WP_Error $wpError
+	 * @param string    $username
 	 * @return \WP_Error
 	 */
-	public function checkRegister( $oWpError, $sUsername ) {
+	public function checkRegister( $wpError, $username ) {
 		try {
-			$this->setUserToAudit( $sUsername )
+			$this->setUserToAudit( $username )
 				 ->setActionToAudit( 'woo-register' )
 				 ->checkProviders();
 		}
 		catch ( \Exception $e ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
+			$wpError = $this->giveMeWpError( $wpError );
+			$wpError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
 		}
-		return $oWpError;
+		return $wpError;
 	}
 
 	/**
 	 * see class-wc-checkout.php
-	 * @param \WP_Error $oWpError
+	 * @param \WP_Error $wpError
 	 * @param array     $aPostedData
 	 * @return \WP_Error
 	 */
-	public function checkCheckout( $aPostedData, $oWpError ) {
+	public function checkCheckout( $aPostedData, $wpError ) {
 		try {
 			$this->setActionToAudit( 'woo-checkout' )
 				 ->checkProviders();
 		}
 		catch ( \Exception $e ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
+			$wpError = $this->giveMeWpError( $wpError );
+			$wpError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
 		}
-		return $oWpError;
+		return $wpError;
 	}
 }

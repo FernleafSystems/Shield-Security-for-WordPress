@@ -59,6 +59,7 @@ class ProcessOffense {
 			 * so we fire ip_offense but suppress the audit
 			 */
 			if ( $toBlock ) {
+				/** @var Databases\IPs\Update $updater */
 				$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
 				$updater->setBlocked( $IP );
 				$con->fireEvent( 'ip_offense',

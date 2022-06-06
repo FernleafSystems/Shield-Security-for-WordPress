@@ -2,13 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ModCon {
+/**
+ * @property bool $is_booted
+ */
+abstract class ModCon extends DynPropertiesClass {
 
 	use Modules\PluginControllerConsumer;
 	use Shield\Crons\PluginCronsConsumer;
@@ -74,18 +76,35 @@ abstract class ModCon {
 	private $adminNotices;
 
 	/**
-	 * @param Shield\Controller\Controller $pluginCon
-	 * @param Config\ModConfigVO           $cfg
 	 * @throws \Exception
 	 */
 	public function __construct( Shield\Controller\Controller $pluginCon, Config\ModConfigVO $cfg ) {
 		$this->setCon( $pluginCon );
 		$this->cfg = $cfg;
-		if ( $this->verifyModuleMeetRequirements() ) {
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function boot() {
+		if ( !$this->is_booted ) {
+			$this->is_booted = true;
 			$this->handleAutoPageRedirects();
-			$this->setupHooks();
 			$this->doPostConstruction();
+			$this->setupHooks();
 		}
+	}
+
+	protected function moduleReadyCheck() :bool {
+		try {
+			$ready = ( new Lib\CheckModuleRequirements() )
+				->setMod( $this )
+				->run();
+		}
+		catch ( \Exception $e ) {
+			$ready = false;
+		}
+		return $ready;
 	}
 
 	protected function setupHooks() {
@@ -96,7 +115,7 @@ abstract class ModCon {
 		} );
 
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( 'init', [ $this, 'onWpLoaded' ] );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
@@ -209,31 +228,6 @@ abstract class ModCon {
 	 */
 	public function getUpgradeHandler() {
 		return $this->loadModElement( 'Upgrade' );
-	}
-
-	private function verifyModuleMeetRequirements() :bool {
-		$meetReqs = true;
-
-		$reqPHP = $this->getOptions()->getFeatureRequirement( 'php' );
-		if ( !empty( $reqPHP ) ) {
-
-			if ( !empty( $reqPHP[ 'version' ] ) ) {
-				$meetReqs = Services::Data()->getPhpVersionIsAtLeast( $reqPHP[ 'version' ] );
-			}
-
-			if ( !empty( $reqPHP[ 'functions' ] ) && is_array( $reqPHP[ 'functions' ] ) ) {
-				foreach ( $reqPHP[ 'functions' ] as $func ) {
-					$meetReqs = $meetReqs && function_exists( $func );
-				}
-			}
-			if ( !empty( $reqPHP[ 'constants' ] ) && is_array( $reqPHP[ 'constants' ] ) ) {
-				foreach ( $reqPHP[ 'constants' ] as $constant ) {
-					$meetReqs = $meetReqs && defined( $constant );
-				}
-			}
-		}
-
-		return $meetReqs;
 	}
 
 	protected function onModulesLoaded() {
@@ -389,13 +383,6 @@ abstract class ModCon {
 	}
 
 	/**
-	 * @deprecated 15.0
-	 */
-	public function isUpgrading() :bool {
-		return $this->getCon()->cfg->rebuilt;
-	}
-
-	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
@@ -522,7 +509,10 @@ abstract class ModCon {
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
-		if ( $this->cfg->properties[ 'auto_enabled' ] ) {
+		if ( !$this->moduleReadyCheck() ) {
+			$enabled = false;
+		}
+		elseif ( $this->cfg->properties[ 'auto_enabled' ] ) {
 			// Auto enabled modules always run regardless
 			$enabled = true;
 		}
@@ -573,8 +563,8 @@ abstract class ModCon {
 		$cfg = $this->getOptions()->getRawData_FullFeatureConfig();
 		if ( !empty( $cfg[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
 			foreach ( $cfg[ 'custom_redirects' ] as $redirect ) {
-				if ( Services::Request()->query( 'page' ) == $this->getCon()
-																  ->prefix( $redirect[ 'source_mod_page' ] ) ) {
+				if ( Services::Request()->query( 'page' )
+					 == $this->getCon()->prefix( $redirect[ 'source_mod_page' ] ) ) {
 					Services::Response()->redirect(
 						$this->getCon()->getModule( $redirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
 						$redirect[ 'query_args' ],
@@ -588,13 +578,6 @@ abstract class ModCon {
 
 	public function getIfShowModuleMenuItem() :bool {
 		return $this->cfg->properties[ 'show_module_menu_item' ];
-	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getIfShowModuleOpts() :bool {
-		return $this->cfg->properties[ 'show_module_options' ];
 	}
 
 	/**
@@ -824,26 +807,8 @@ abstract class ModCon {
 			   && Services::Request()->query( 'inav' ) == $this->getSlug();
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	protected function isModuleOptionsRequest() :bool {
-		return false;
-	}
-
 	protected function isWizardPage() :bool {
 		return $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage();
-	}
-
-	/**
-	 * Will prefix and return any string with the unique plugin prefix.
-	 * @param string $suffix
-	 * @param string $glue
-	 * @return string
-	 * @deprecated 15.0
-	 */
-	public function prefix( $suffix = '', $glue = '-' ) {
-		return $this->getCon()->prefix( $suffix, $glue );
 	}
 
 	protected function buildContextualHelp() {

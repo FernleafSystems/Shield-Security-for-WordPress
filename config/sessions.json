@@ -46,35 +46,9 @@
       "name":        "Enable Sessions",
       "summary":     "Enable (or Disable) The Sessions module",
       "description": "Un-Checking this option will completely disable the Sessions module"
-    },
-    {
-      "key":          "autoadd_sessions_started_at",
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "default":      0,
-      "transferable": false
     }
   ],
   "definitions": {
-    "db_classes":          {
-      "sessions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
-    },
-    "sessions_table_name": "sessions",
-    "db_table_sessions":   {
-      "slug":            "sessions",
-      "cols_custom":     {
-        "session_id":        "varchar(32) NOT NULL DEFAULT ''",
-        "wp_username":       "varchar(255) NOT NULL DEFAULT ''",
-        "ip":                "varchar(60) NOT NULL DEFAULT ''",
-        "browser":           "varchar(32) NOT NULL DEFAULT ''",
-        "last_activity_uri": "text NOT NULL DEFAULT ''"
-      },
-      "cols_timestamps": {
-        "logged_in_at":     "Session Started",
-        "last_activity_at": "Last Seen At",
-        "secadmin_at":      "Security Admin Authenticated"
-      }
-    },
     "events":              {
       "session_start":             {
         "audit_params": [

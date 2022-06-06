@@ -771,32 +771,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			->setMessageText( $msg );
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getGdprSearchItems() {
-		$aItems = Services::WpGeneral()->getTransient( $this->getCon()->prefix( 'gdpr-items' ) );
-		if ( !is_array( $aItems ) ) {
-			$aItems = [];
-		}
-		return $aItems;
-	}
-
-	/**
-	 * @param array $aItems
-	 * @return array
-	 */
-	private function setGdprSearchItems( $aItems ) {
-		if ( !is_array( $aItems ) ) {
-			$aItems = [];
-		}
-		$aItems = array_filter( array_unique( $aItems ) );
-		Services::WpGeneral()
-				->setTransient(
-					$this->getCon()->prefix( 'gdpr-items' ),
-					$aItems,
-					MINUTE_IN_SECONDS*10
-				);
-		return $aItems;
+	private function getGdprSearchItems() :array {
+		$items = Services::WpGeneral()->getTransient( $this->getCon()->prefix( 'gdpr-items' ) );
+		return is_array( $items ) ? $items : [];
 	}
 }

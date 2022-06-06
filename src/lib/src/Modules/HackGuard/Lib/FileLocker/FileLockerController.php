@@ -166,7 +166,7 @@ class FileLockerController {
 				}
 			}
 
-			add_action( $this->getCon()->prefix( 'create_file_locks' ), function () {
+			add_action( $con->prefix( 'create_file_locks' ), function () {
 				$this->runLocksCreation();
 			} );
 		}

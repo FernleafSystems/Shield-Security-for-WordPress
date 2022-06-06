@@ -31,22 +31,12 @@ class Upgrade {
 		Services::WpFs()->touch( $con->getPluginCachePath( 'upgrading.flag' ), Services::Request()->ts() );
 
 		$this->upgradeModules();
-		do_action( $con->prefix( 'plugin_shutdown' ), function () {
-			$this->deleteOldModConfigs();
-		} );
 
 		$con->cfg->previous_version = $con->getVersion();
 
 		add_action( $con->prefix( 'plugin_shutdown' ), function () {
 			Services::WpFs()->deleteFile( $this->getCon()->getPluginCachePath( 'upgrading.flag' ) );
 		} );
-	}
-
-	private function deleteOldModConfigs() {
-		$DB = Services::WpDb();
-		$DB->doSql(
-			sprintf( 'DELETE from `%s` where `option_name` LIKE "shield_mod_config_%%"', $DB->getTable_Options() )
-		);
 	}
 
 	private function upgradeModules() {
@@ -56,5 +46,11 @@ class Upgrade {
 				$H->execute();
 			}
 		}
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	private function deleteOldModConfigs() {
 	}
 }

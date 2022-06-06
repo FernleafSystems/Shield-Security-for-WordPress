@@ -258,54 +258,19 @@ class Strings extends Base\Strings {
 				}
 				break;
 
-			case 'enable_unrecognised_file_cleaner_scan' :
-				$name = __( 'Unrecognised Files Scanner', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Scans For Unrecognised Files In Core Directories', 'wp-simple-firewall' );
-				$desc = __( 'Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation.', 'wp-simple-firewall' );
-				break;
-
-			case 'ufc_scan_uploads' :
-				$name = __( 'Scan Uploads', 'wp-simple-firewall' );
-				$summary = __( 'Scan Uploads Folder For PHP and Javascript', 'wp-simple-firewall' );
-				$desc = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Take care when turning on this option - if you are unsure, leave it disabled.', 'wp-simple-firewall' ) )
-						.'<br />'.__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.', 'wp-simple-firewall' );
-				break;
-
-			case 'ufc_exclusions' :
-				$name = __( 'File Exclusions', 'wp-simple-firewall' );
-				$summary = __( 'Provide A List Of Files To Be Excluded From The Scan', 'wp-simple-firewall' );
-				$sDefaults = implode( ', ', $this->getOptions()->getOptDefault( 'ufc_exclusions' ) );
-				$desc = __( 'Take a new line for each file you wish to exclude from the scan.', 'wp-simple-firewall' )
-						.'<br/><strong>'.__( 'No commas are necessary.', 'wp-simple-firewall' ).'</strong>'
-						.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $sDefaults );
-				break;
-
-			case 'ic_enabled' :
-				$name = __( 'Enable Integrity Scan', 'wp-simple-firewall' );
-				$summary = __( 'Scans For Critical Changes Made To Your WordPress Site', 'wp-simple-firewall' );
-				$desc = __( 'Detects changes made to your WordPress site outside of WordPress.', 'wp-simple-firewall' );
-				break;
-
-			case 'ic_users' :
-				$name = __( 'Monitor User Accounts', 'wp-simple-firewall' );
-				$summary = __( 'Scans For Critical Changes Made To User Accounts', 'wp-simple-firewall' );
-				$desc = sprintf( __( 'Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system.', 'wp-simple-firewall' ), 'author=' )
-						.'<br />'.__( 'An example of this might be some form of SQL Injection attack.', 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Enabling this option for every page low may slow down your site with large numbers of users.', 'wp-simple-firewall' ) )
-						.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This option may cause critical problem with 3rd party plugins that manage user accounts.', 'wp-simple-firewall' ) );
-				break;
-
-			case 'ptg_depth' : /* DELETED */
-				$name = __( 'Guard/Scan Depth', 'wp-simple-firewall' );
-				$summary = __( 'How Deep Into The Plugin Directories To Scan And Guard', 'wp-simple-firewall' );
-				$desc = __( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.', 'wp-simple-firewall' )
-						.'<br/>'.sprintf( __( 'Setting it to %s will remove this limit and all sub-folders will be scanned - not recommended', 'wp-simple-firewall' ), 0 );
-				break;
-
-			case 'ptg_reinstall_links' :
+			case 'ptg_reinstall_links':
 				$name = __( 'Show Re-Install Links', 'wp-simple-firewall' );
 				$summary = __( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' );
 				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
+				break;
+
+			case 'optimise_scan_speed':
+				$name = __( 'Optimise File Scans', 'wp-simple-firewall' );
+				$summary = __( 'Optimise File Scans', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Optimise file scans to run much faster.', 'wp-simple-firewall' ),
+					__( 'If you experience any errors in your logs or strange scanning behaviour, disable this option.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'scan_path_exclusions' :

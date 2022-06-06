@@ -98,8 +98,8 @@ class MUHandler {
 		$replacements = [
 			'SHIELD_ROOT_FILE'     => $con->getRootFile(),
 			'SHIELD_PLUGIN_NAME'   => $con->getHumanName(),
-			'SHIELD_PLUGIN_URL'    => $con->getLabels()[ 'PluginURI' ],
-			'SHIELD_PLUGIN_AUTHOR' => $con->getLabels()[ 'Author' ],
+			'SHIELD_PLUGIN_URL'    => $con->labels->PluginURI,
+			'SHIELD_PLUGIN_AUTHOR' => $con->labels->Author,
 		];
 		return str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
 	}

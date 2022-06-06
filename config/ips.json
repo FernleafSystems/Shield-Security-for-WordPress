@@ -19,8 +19,13 @@
     "run_if_wpcli":          false,
     "order":                 100
   },
-  "menus":         {
+  "menus":            {
     "config_menu_priority": 20
+  },
+  "reqs":             {
+    "dbs": [
+      "ips"
+    ]
   },
   "wpcli":            {
     "enabled": true
@@ -47,20 +52,6 @@
       "plugin_page_only": true,
       "per_user":         true,
       "type":             "info"
-    }
-  },
-  "requirements":     {
-    "php": {
-      "functions": [
-        "filter_var"
-      ],
-      "constants": [
-        "FILTER_VALIDATE_IP",
-        "FILTER_FLAG_IPV4",
-        "FILTER_FLAG_IPV6",
-        "FILTER_FLAG_NO_PRIV_RANGE",
-        "FILTER_FLAG_NO_RES_RANGE"
-      ]
     }
   },
   "sections":         [
@@ -300,7 +291,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -335,7 +326,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -370,7 +361,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -405,7 +396,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -439,7 +430,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -474,7 +465,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -509,7 +500,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -544,7 +535,7 @@
         },
         {
           "value_key": "log",
-          "text":      "Audit Log Only"
+          "text":      "Activity Log Only"
         },
         {
           "value_key": "transgression-single",

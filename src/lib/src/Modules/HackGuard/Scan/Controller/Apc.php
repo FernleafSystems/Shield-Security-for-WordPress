@@ -29,6 +29,10 @@ class Apc extends BaseForAssets {
 		return $items;
 	}
 
+	public function getQueueGroupSize() :int {
+		return 3;
+	}
+
 	/**
 	 * @return Scans\Apc\Utilities\ItemActionHandler
 	 */

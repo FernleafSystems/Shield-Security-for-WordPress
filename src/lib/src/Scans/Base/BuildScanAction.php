@@ -19,7 +19,6 @@ abstract class BuildScanAction {
 		$scanCon = $this->getScanController();
 		$this->setScanActionVO( $scanCon->getScanActionVO() );
 
-		$this->setWhitelists();
 		$this->setCustomFields();
 		$this->buildScanItems();
 		$this->setStandardFields();
@@ -27,20 +26,7 @@ abstract class BuildScanAction {
 		return $this;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	protected function buildScanItems() {
-		$this->buildItems();
-	}
-
-	abstract protected function buildItems();
-
-	protected function getFileExts() :array {
-		$scanCon = $this->getScanController();
-		$ext = apply_filters( 'shield/scan_ptg_file_exts', $scanCon->getOptions()->getDef( 'file_scan_extensions' ) );
-		return is_array( $ext ) ? $ext : $scanCon->getOptions()->getDef( 'file_scan_extensions' );
-	}
+	abstract protected function buildScanItems();
 
 	protected function setStandardFields() {
 		$action = $this->getScanActionVO();
@@ -56,12 +42,5 @@ abstract class BuildScanAction {
 	}
 
 	protected function setCustomFields() {
-	}
-
-	protected function setWhitelists() {
-		/** @var Shield\Modules\HackGuard\Options $opts */
-		$opts = $this->getScanController()->getOptions();
-		$action = $this->getScanActionVO();
-		$action->paths_whitelisted = $opts->getWhitelistedPathsAsRegex();
 	}
 }

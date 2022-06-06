@@ -6,24 +6,28 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                                        $cfg
- * @property Shield\Controller\Assets\Urls                          $urls
- * @property Shield\Controller\Assets\Paths                         $paths
- * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property Shield\Request\ThisRequest                             $this_req
- * @property bool                                                   $is_activating
- * @property bool                                                   $is_mode_debug
- * @property bool                                                   $is_mode_staging
- * @property bool                                                   $is_mode_live
- * @property bool                                                   $is_my_upgrade
- * @property bool                                                   $is_rest_enabled
- * @property bool                                                   $modules_loaded
- * @property bool                                                   $plugin_deactivating
+ * @property Config\ConfigVO                $cfg
+ * @property Shield\Controller\Assets\Urls  $urls
+ * @property Shield\Controller\Assets\Paths $paths
+ * @property Shield\Controller\Assets\Svgs  $svgs
+ * @property Shield\Request\ThisRequest     $this_req
+ * @property Config\Labels                  $labels
+ * @property array                          $prechecks
+ * @property array                          $flags
+ * @property bool                           $is_activating
+ * @property bool                           $is_mode_debug
+ * @property bool                           $is_mode_staging
+ * @property bool                           $is_mode_live
+ * @property bool                           $is_my_upgrade
+ * @property bool                           $is_rest_enabled
+ * @property bool                           $modules_loaded
+ * @property bool                           $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property Shield\Utilities\CacheDir                              $cache_dir_handler
@@ -106,7 +110,6 @@ class Controller extends DynPropertiesClass {
 		}
 		$this->loadConfig();
 		$this->checkMinimumRequirements();
-		$this->doRegisterHooks();
 
 		( new Shield\Controller\I18n\LoadTextDomain() )
 			->setCon( $this )
@@ -121,17 +124,24 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'flags':
+				if ( !is_array( $val ) ) {
+					$val = [];
+					$this->flags = $val;
+				}
+				break;
+
+			case 'labels':
+				if ( is_null( $val ) ) {
+					$val = $this->labels();
+					$this->labels = $val;
+				}
+				break;
+
 			case 'this_req':
 				if ( is_null( $val ) ) {
 					$val = new Shield\Request\ThisRequest( $this );
 					$this->this_req = $val;
-				}
-				break;
-
-			case 'rules':
-				if ( is_null( $val ) ) {
-					$val = ( new Shield\Rules\RulesController() )->setCon( $this );
-					$this->rules = $val;
 				}
 				break;
 
@@ -158,25 +168,6 @@ class Controller extends DynPropertiesClass {
 				if ( empty( $val ) ) {
 					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
 					$this->cache_dir_handler = $val;
-				}
-				break;
-
-			case 'urls':
-				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
-					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
-				}
-				break;
-
-			case 'svgs':
-				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
-					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
-				}
-				break;
-
-			case 'paths':
-				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
-					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
-					$this->paths = $val;
 				}
 				break;
 
@@ -220,6 +211,25 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'paths':
+				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
+					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
+					$this->paths = $val;
+				}
+				break;
+
+			case 'svgs':
+				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
+					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
+				}
+				break;
+
+			case 'urls':
+				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
+					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+				}
+				break;
+
 			case 'reqs_not_met':
 				if ( !is_array( $val ) ) {
 					$val = [];
@@ -233,6 +243,7 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'rules':
 			default:
 				break;
 		}
@@ -333,9 +344,76 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 15.0
+	 * This is where everything happens that runs the plugin.
+	 * 1) Modules are all loaded.
+	 * 2) Upgrades are run.
+	 * 3) Rules Engine is initiated
+	 * 4) If Rules Engine is ready, they're executed and then processors are kicked off.
+	 * @throws \Exception
 	 */
-	public function adminNoticePluginFailedToLoad() {
+	public function boot() {
+		$this->loadModules();
+
+		// Upgrade modules
+		( new Shield\Controller\Utilities\Upgrade() )
+			->setCon( $this )
+			->execute();
+
+		do_action( $this->prefix( 'modules_loaded' ) );
+
+		$this->rules = ( new Shield\Rules\RulesController() )->setCon( $this );
+		$this->rules->execute();
+
+		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
+
+			$this->rules->processRules();
+
+			foreach ( $this->modules as $module ) {
+				$module->onRunProcessors();
+			}
+
+			$this->labels; // Ensures labels are created.
+
+			// This is where any rules responses will execute (i.e. after processors are run):
+			do_action( $this->prefix( 'after_run_processors' ) );
+		}
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function loadModules() {
+		if ( !$this->modules_loaded ) {
+
+			$this->modules_loaded = true;
+
+			$modules = $this->modules ?? [];
+			foreach ( $this->cfg->mods_cfg as $cfg ) {
+
+				$slug = $cfg->properties[ 'slug' ];
+
+				$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
+						$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $slug ) ) ) );
+				if ( !class_exists( $className ) ) {
+					// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
+					throw new \Exception( sprintf( 'Class for module "%s" is missing', $className ) );
+				}
+
+				$modules[ $slug ] = new $className( $this, $cfg );
+				$this->modules = $modules;
+			}
+
+			$this->prechecks = ( new Checks\PreModulesBootCheck() )
+				->setCon( $this )
+				->run();
+
+			// Register the Controller hooks
+			$this->doRegisterHooks();
+
+			foreach ( $this->modules as $module ) {
+				$module->boot();
+			}
+		}
 	}
 
 	/**
@@ -391,18 +469,15 @@ class Controller extends DynPropertiesClass {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
-		add_filter( 'all_plugins', [ $this, 'filter_hidePluginFromTableList' ] );
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
 		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
-		add_filter( 'site_transient_update_plugins', [ $this, 'filter_hidePluginUpdatesFromUI' ] );
 		add_action( 'in_plugin_update_message-'.$this->base_file, [ $this, 'onWpPluginUpdateMessage' ] );
 		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
 		add_action( 'shutdown', [ $this, 'onWpShutdown' ], PHP_INT_MIN );
-		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR
 		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
@@ -548,7 +623,7 @@ class Controller extends DynPropertiesClass {
 	/**
 	 * @return Shield\Utilities\AdminNotices\Controller
 	 */
-	public function getAdminNotices() {
+	public function getAdminNotices() :Shield\Utilities\AdminNotices\Controller {
 		if ( !isset( $this->oNotices ) ) {
 			if ( $this->getIsPage_PluginAdmin() ) {
 				remove_all_filters( 'admin_notices' );
@@ -777,22 +852,26 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$labels = $this->getLabels();
-		if ( empty( $labels ) ) {
-			return $plugins;
-		}
-
 		$file = $this->base_file;
-		// For this plugin, overwrite any specified settings
-		if ( array_key_exists( $file, $plugins ) ) {
-			foreach ( $labels as $sLabelKey => $sLabel ) {
-				$plugins[ $file ][ $sLabelKey ] = $sLabel;
-			}
+		if ( is_array( $plugins[ $file ] ?? null ) ) {
+			$plugins[ $file ] = array_merge(
+				$plugins[ $file ],
+				empty( $this->labels ) ? $this->getLabels() : $this->labels->getRawData()
+			);
 		}
-
 		return $plugins;
 	}
 
+	public function onWpShutdown() {
+		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
+		do_action( $this->prefix( 'plugin_shutdown' ) );
+		$this->saveCurrentPluginControllerOptions();
+		$this->deleteFlags();
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
 	public function getLabels() :array {
 
 		$labels = array_map(
@@ -811,17 +890,10 @@ class Controller extends DynPropertiesClass {
 		return $labels;
 	}
 
-	public function onWpShutdown() {
-		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
-		do_action( $this->prefix( 'plugin_shutdown' ) );
-		$this->saveCurrentPluginControllerOptions();
-		$this->deleteFlags();
-	}
-
+	/**
+	 * @deprecated 15.1
+	 */
 	public function onWpLogout() {
-		if ( $this->hasSessionId() ) {
-			$this->clearSession();
-		}
 	}
 
 	protected function deleteFlags() {
@@ -834,40 +906,7 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * Added to a WordPress filter ('all_plugins') which will remove this particular plugin from the
-	 * list of all plugins based on the "plugin file" name.
-	 * @param array $plugins
-	 * @return array
-	 */
-	public function filter_hidePluginFromTableList( $plugins ) {
-		if ( apply_filters( $this->prefix( 'hide_plugin' ), false ) ) {
-			unset( $plugins[ $this->base_file ] );
-		}
-		return $plugins;
-	}
-
-	/**
-	 * Added to the WordPress filter ('site_transient_update_plugins') in order to remove visibility of updates
-	 * from the WordPress Admin UI.
-	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
-	 * the list of plugins if DOING_CRON is set to true.
-	 * @param \stdClass $plugins
-	 * @return \stdClass
-	 */
-	public function filter_hidePluginUpdatesFromUI( $plugins ) {
-		if ( !Services::WpGeneral()->isCron() && apply_filters( $this->prefix( 'hide_plugin_updates' ), false ) ) {
-			unset( $plugins->response[ $this->base_file ] );
-		}
-		return $plugins;
-	}
-
-	/**
-	 * @param string $suffix
-	 * @param string $glue
-	 * @return string
-	 */
-	public function prefix( $suffix = '', $glue = '-' ) {
+	public function prefix( string $suffix = '', string $glue = '-' ) :string {
 		$prefix = $this->getPluginPrefix( $glue );
 
 		if ( $suffix == $prefix || strpos( $suffix, $prefix.$glue ) === 0 ) { //it already has the full prefix
@@ -884,7 +923,7 @@ class Controller extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	private function loadConfig() :Config\ConfigVO {
+	private function loadConfig() {
 		try {
 			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( true ), $this->getConfigStoreKey() ) )
 				->setCon( $this )
@@ -895,12 +934,8 @@ class Controller extends DynPropertiesClass {
 				->setCon( $this )
 				->run();
 		}
-
 		$this->loadModConfigs();
-
 		$this->saveCurrentPluginControllerOptions();
-
-		return $this->cfg;
 	}
 
 	/**
@@ -1024,8 +1059,7 @@ class Controller extends DynPropertiesClass {
 	 * @return string
 	 */
 	public function getHumanName() {
-		$labels = $this->getLabels();
-		return empty( $labels[ 'Name' ] ) ? $this->getCfgProperty( 'human_name' ) : $labels[ 'Name' ];
+		return empty( $this->labels ) ? $this->getLabels()[ 'Name' ] : $this->labels->Name;
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
@@ -1144,11 +1178,6 @@ class Controller extends DynPropertiesClass {
 		return 'aptoweb_controller_'.substr( md5( get_class() ), 0, 6 );
 	}
 
-	public function clearSession() {
-		Services::Response()->cookieDelete( $this->getSessionCookieID() );
-		self::$sSessionId = null;
-	}
-
 	public function deleteForceOffFile() {
 		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
 			Services::WpFs()->deleteFile( $this->file_forceoff );
@@ -1157,130 +1186,17 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getIfForceOffActive() :bool {
-		return (bool)$this->this_req->is_force_off;
-	}
-
-	/**
-	 * @return false|string
-	 * @deprecated 15.0
-	 */
-	protected function getForceOffFilePath() {
-		if ( !isset( $this->file_forceoff ) ) {
-			$FS = Services::WpFs();
-			$file = $FS->findFileInDir( 'forceoff', $this->getRootDir(), false, false );
-			$this->file_forceoff = empty( $file ) ? false : $file;
-		}
-		return $this->file_forceoff;
-	}
-
-	/**
-	 * @param bool $setIfNeeded
-	 * @return string
-	 */
-	public function getSessionId( $setIfNeeded = true ) {
-		if ( empty( self::$sSessionId ) ) {
-			$req = Services::Request();
-			self::$sSessionId = $req->cookie( $this->getSessionCookieID(), '' );
-			if ( empty( self::$sSessionId ) && $setIfNeeded ) {
-				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
-				$this->setSessionCookie();
-			}
-		}
-		return self::$sSessionId;
-	}
-
-	public function hasSessionId() :bool {
-		return !empty( $this->getSessionId( false ) );
-	}
-
-	protected function setSessionCookie() {
-		Services::Response()->cookieSet(
-			$this->getSessionCookieID(),
-			$this->getSessionId(),
-			Services::Request()->ts() + DAY_IN_SECONDS*30,
-			Services::WpGeneral()->getCookiePath(),
-			Services::WpGeneral()->getCookieDomain()
-		);
-	}
-
-	private function getSessionCookieID() :string {
-		return 'wp-'.$this->getPluginPrefix();
-	}
-
-	/**
-	 * We let the \Exception from the core plugin feature to bubble up because it's critical.
-	 * @return Shield\Modules\Plugin\ModCon
-	 * @throws \Exception from loadFeatureHandler()
-	 * @deprecated 15.0
-	 */
-	public function loadCorePluginFeatureHandler() {
-		$plugin = $this->modules[ 'plugin' ] ?? null;
-		if ( !$plugin instanceof Shield\Modules\Plugin\ModCon ) {
-			$this->getModule_Plugin();
-		}
-		return $this->modules[ 'plugin' ];
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	public function loadAllFeatures() :bool {
-
-		foreach ( $this->cfg->mods_cfg as $cfg ) {
-			try {
-				$this->getModule( $cfg->slug );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		$this->modules_loaded = true;
-
-		// Upgrade modules
-		( new Shield\Controller\Utilities\Upgrade() )
-			->setCon( $this )
-			->execute();
-
-		do_action( $this->prefix( 'modules_loaded' ) );
-
-		$this->rules->execute();
-
-		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
-
-			$this->rules->processRules();
-
-			foreach ( $this->modules as $module ) {
-				$module->onRunProcessors();
-			}
-
-			// This is where any rules responses will execute (i.e. after processors are run):
-			do_action( $this->prefix( 'after_run_processors' ) );
-		}
-
-		return true;
+	public function setFlag( string $flag, $value ) {
+		$flags = $this->flags;
+		$flags[ $flag ] = $value;
+		$this->flags = $flags;
 	}
 
 	/**
 	 * @return Shield\Modules\Base\ModCon|null|mixed
 	 */
 	public function getModule( string $slug ) {
-		$mod = $this->modules[ $slug ] ?? null;
-		if ( !$mod instanceof Shield\Modules\Base\ModCon ) {
-			try {
-				if ( empty( $this->cfg->mods_cfg[ $slug ] ) ) {
-					throw new \Exception( 'No config available for module: '.$slug );
-				}
-				$mod = $this->loadFeatureHandler( $this->cfg->mods_cfg[ $slug ] );
-			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-			}
-		}
-		return $mod;
+		return $this->modules[ $slug ] ?? null;
 	}
 
 	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
@@ -1501,7 +1417,7 @@ class Controller extends DynPropertiesClass {
 		try {
 			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 				$name = $this->getHumanName();
-				$href = $this->getLabels()[ 'PluginURI' ];
+				$href = $this->labels->PluginURI;
 			}
 			else {
 				$name = $this->cfg->menu[ 'title' ];
@@ -1529,6 +1445,20 @@ class Controller extends DynPropertiesClass {
 		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
 	}
 
+	private function labels() :Config\Labels {
+		$labels = array_map( 'stripslashes', $this->cfg->labels );
+
+		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
+			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
+				$labels[ $img ] = $this->urls->forImage( $labels[ $img ] );
+			}
+		}
+
+		$labels = ( new Config\Labels() )->applyFromArray( $labels );
+		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
+		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
 	private function runTests() {
 		die();
 		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
@@ -1537,5 +1467,65 @@ class Controller extends DynPropertiesClass {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	public function clearSession() {
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	private function getSessionCookieID() :string {
+		return 'wp-null';
+	}
+
+	/**
+	 * @param bool $setIfNeeded
+	 * @return string
+	 * @deprecated 15.1
+	 */
+	public function getSessionId() {
+		return '';
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	public function hasSessionId() :bool {
+		return false;
+	}
+
+	protected function setSessionCookie() {
+	}
+
+	/**
+	 * Added to the WordPress filter ('site_transient_update_plugins') in order to remove visibility of updates
+	 * from the WordPress Admin UI.
+	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
+	 * the list of plugins if DOING_CRON is set to true.
+	 * @param \stdClass $plugins
+	 * @return \stdClass
+	 * @deprecated 15.1
+	 */
+	public function filter_hidePluginUpdatesFromUI( $plugins ) {
+		return $plugins;
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	public function filter_hidePluginFromTableList( $plugins ) {
+		return $plugins;
+	}
+
+	/**
+	 * @throws \Exception
+	 * @deprecated 15.0
+	 */
+	public function loadAllFeatures() :bool {
+		return true;
 	}
 }

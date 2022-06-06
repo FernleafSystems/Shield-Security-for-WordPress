@@ -1,12 +1,10 @@
 {
   "properties":       {
-    "version":                 "15.0.13",
-    "release_timestamp":       1652947091,
-    "build":                   "202205.1901",
+    "version":                 "15.1.0",
+    "release_timestamp":       1654505519,
+    "build":                   "202206.0601",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
-    "human_name":              "Shield Security",
-    "menu_title":              "Shield",
     "text_domain":             "wp-simple-firewall",
     "base_permissions":        "manage_options",
     "wpms_network_admin_only": true,
@@ -423,23 +421,23 @@
   },
   "menu":             {
     "show":           true,
-    "title":          "Shield Security",
     "top_level":      true,
     "do_submenu_fix": true,
-    "icon_image":     "pluginlogo_16x16.png",
     "has_submenu":    true
   },
   "labels":           {
-    "Name":             "Shield Security",
-    "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
-    "Title":            "Shield Security",
-    "Author":           "Shield Security",
-    "AuthorName":       "Shield Security",
-    "PluginURI":        "https://shsec.io/2f",
-    "AuthorURI":        "https://shsec.io/bv",
-    "icon_url_16x16":   "pluginlogo_16x16.png",
-    "icon_url_32x32":   "pluginlogo_32x32.png",
-    "icon_url_128x128": "pluginlogo_128x128.png"
+    "Name":               "Shield Security",
+    "MenuTitle":          "Shield Security",
+    "Description":        "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
+    "Title":              "Shield Security",
+    "Author":             "Shield Security",
+    "AuthorName":         "Shield Security",
+    "PluginURI":          "https://shsec.io/2f",
+    "AuthorURI":          "https://shsec.io/bv",
+    "url_img_pagebanner": "pluginlogo_banner-1544x500.png",
+    "icon_url_16x16":     "pluginlogo_16x16.png",
+    "icon_url_32x32":     "pluginlogo_32x32.png",
+    "icon_url_128x128":   "pluginlogo_128x128.png"
   },
   "meta":             {
     "url_repo_home":            "https://shsec.io/eh",

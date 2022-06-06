@@ -80,20 +80,19 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		$sCurrentPage = Services::WpPost()->getCurrentPage();
+		$current = Services::WpPost()->getCurrentPage();
 
 		switch ( $notice->id ) {
 
 			case 'admin-users-restricted':
-				$needed = in_array( $sCurrentPage, $oOpts->getDef( 'restricted_pages_users' ) );
+				$needed = in_array( $current, $opts->getDef( 'restricted_pages_users' ) );
 				break;
 
 			case 'certain-options-restricted':
-				$sCurrentGetPage = Services::Request()->query( 'page' );
-				$needed = empty( $sCurrentGetPage ) && in_array( $sCurrentPage, $oOpts->getOptionsPagesToRestrict() );
+				$needed = empty( Services::Request()->query( 'page' ) ) && in_array( $current, $opts->getOptionsPagesToRestrict() );
 				break;
 
 			default:

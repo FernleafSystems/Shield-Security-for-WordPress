@@ -18,11 +18,4 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $this->sessionCon;
 	}
-
-	/**
-	 * @deprecated 15.0
-	 */
-	public function getDbHandler_Sessions() :Databases\Session\Handler {
-		return $this->getDbH( 'sessions' );
-	}
 }

@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property array  $properties
+ * @property array  $reqs
  * @property array  $menus
  * @property array  $meta
  * @property array  $options
@@ -15,4 +16,26 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class ModConfigVO extends DynPropertiesClass {
 
+	/**
+	 * @inheritDoc
+	 */
+	public function __get( string $key ) {
+
+		$value = parent::__get( $key );
+
+		switch ( $key ) {
+			case 'reqs':
+				$value = array_merge(
+					[
+						'dbs' => [],
+					],
+					is_array( $value ) ? $value : []
+				);
+				break;
+			default:
+				break;
+		}
+
+		return $value;
+	}
 }

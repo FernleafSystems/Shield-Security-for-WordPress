@@ -26,23 +26,23 @@ class WordPress extends BaseFormProvider {
 	/**
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
-	 * @param null|\WP_User|\WP_Error $oUserOrError
+	 * @param null|\WP_User|\WP_Error $userOrError
 	 * @param string                  $username
 	 * @return \WP_User|\WP_Error
 	 */
-	public function checkLogin( $oUserOrError, $username ) {
+	public function checkLogin( $userOrError, $username ) {
 		try {
-			if ( !is_wp_error( $oUserOrError ) && !empty( $username ) ) {
+			if ( !is_wp_error( $userOrError ) && !empty( $username ) ) {
 				$this->setUserToAudit( $username )
 					 ->setActionToAudit( 'login' )
 					 ->checkProviders();
 			}
 		}
 		catch ( \Exception $e ) {
-			$oUserOrError = $this->giveMeWpError( $oUserOrError );
-			$oUserOrError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
+			$userOrError = $this->giveMeWpError( $userOrError );
+			$userOrError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
 		}
-		return $oUserOrError;
+		return $userOrError;
 	}
 
 	/**
@@ -57,25 +57,25 @@ class WordPress extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$wpError = $this->giveMeWpError( $wpError );
-			$wpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
+			$wpError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $wpError;
 	}
 
 	/**
 	 * @param \WP_Error $wpError
-	 * @param string    $sUsername
+	 * @param string    $username
 	 * @return \WP_Error
 	 */
-	public function checkRegister( $wpError, $sUsername ) {
+	public function checkRegister( $wpError, $username ) {
 		try {
-			$this->setUserToAudit( $sUsername )
+			$this->setUserToAudit( $username )
 				 ->setActionToAudit( 'register' )
 				 ->checkProviders();
 		}
 		catch ( \Exception $e ) {
 			$wpError = $this->giveMeWpError( $wpError );
-			$wpError->add( $this->getCon()->prefix( rand() ), $e->getMessage() );
+			$wpError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $wpError;
 	}

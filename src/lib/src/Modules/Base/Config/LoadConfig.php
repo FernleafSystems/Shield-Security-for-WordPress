@@ -31,13 +31,6 @@ class LoadConfig {
 	}
 
 	/**
-	 * @deprecated 15.0
-	 */
-	public function isBuiltFromFile() :bool {
-		return $this->isBuiltFromFile;
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	public function run() :ModConfigVO {
@@ -48,24 +41,6 @@ class LoadConfig {
 			$this->getCon()->cfg->rebuilt = true;
 		}
 		return $rebuild ? ( new ModConfigVO() )->applyFromArray( $this->fromFile() ) : $this->cfg;
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 15.0
-	 */
-	public function fromWP() :array {
-		$FS = Services::WpFs();
-		$cfg = Transient::Get( $this->storeKey() );
-
-		if ( empty( $cfg ) || !is_array( $cfg ) || ( $FS->getModifiedTime( $this->getConfigSourceFile() ) > $cfg[ 'meta' ][ 'ts_mod' ] ) ) {
-			throw new \Exception( 'WP store is expired or non-existent' );
-		}
-		return $cfg;
-	}
-
-	public function storeKey() :string {
-		return 'shield_mod_config_'.$this->slug;
 	}
 
 	/**

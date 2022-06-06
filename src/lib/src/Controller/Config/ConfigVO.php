@@ -49,7 +49,6 @@ class ConfigVO extends DynPropertiesClass {
 						'has_submenu'    => true,
 						'title'          => 'undefined menu title',
 						'callback'       => 'undefinedMenuCallback',
-						'icon_image'     => 'pluginlogo_16x16.png',
 					],
 					is_array( $val ) ? $val : []
 				);

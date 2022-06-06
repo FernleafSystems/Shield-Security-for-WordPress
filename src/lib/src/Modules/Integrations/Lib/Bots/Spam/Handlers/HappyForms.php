@@ -1,0 +1,23 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers;
+
+class HappyForms extends Base {
+
+	protected function run() {
+		add_filter( 'happyforms_validate_submission',
+			function ( $is_valid, $request = null, $form = null ) {
+				if ( $is_valid ) {
+					$is_valid = !$this->isBotBlockRequired();
+				}
+				return $is_valid;
+			},
+			1000, 3
+		);
+	}
+
+	public static function IsProviderInstalled() :bool {
+		return function_exists( '\HappyForms' ) && @class_exists( '\HappyForms' )
+			   && function_exists( 'happyforms_get_version' ) && version_compare( (string)happyforms_get_version(), '1.15', '>=' );
+	}
+}
