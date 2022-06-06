@@ -218,9 +218,9 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function canLicenseCheck_FileFlag() :bool {
-		$mtime = Services::WpFs()->getModifiedTime(
-			$this->getCon()->paths->forFlag( 'license_check' )
-		);
+		$FS = Services::WpFs();
+		$path = $this->getCon()->paths->forFlag( 'license_check' );
+		$mtime = $FS->exists( $path ) ? $FS->getModifiedTime( $path ) : 0;
 		return ( Services::Request()->ts() - $mtime ) > MINUTE_IN_SECONDS;
 	}
 

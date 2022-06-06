@@ -12,24 +12,40 @@ class FileScanOptimiser {
 
 	use Modules\ModConsumer;
 
-	public function addFilesFromAction( ScanActionVO $action ) {
-		if ( is_array( $action->results ) && is_array( $action->items ) ) {
-			$results = array_map(
-				function ( $result ) {
-					return $result[ 'path_full' ];
-				},
-				$action->results
-			);
-			$items = array_map(
-				function ( $item ) {
-					return base64_decode( $item );
-				},
-				$action->items
-			);
+	public function addFiles( array $files ) {
+		$FS = Services::WpFs();
+		if ( $this->getCon()->cache_dir_handler->dirExists() && !empty( $files ) ) {
+			$pathToHashes = $this->pathToHashes();
+			if ( !$FS->exists( $pathToHashes ) ) {
+				$FS->touch( $pathToHashes );
+			}
+			if ( $FS->exists( $pathToHashes ) ) {
+				$fileHashes = array_unique( array_filter( array_map(
+					function ( $file ) {
+						return hash_file( 'md5', $file );
+					},
+					array_filter(
+						$files,
+						function ( $file ) {
+							return Services::WpFs()->exists( $file );
+						}
+					)
+				) ) );
 
-			$filesToAdd = array_diff( $items, $results );
-			if ( !empty( $filesToAdd ) ) {
-				$this->addFiles( $filesToAdd );
+				try {
+					$searcher = new SearchFile( $pathToHashes );
+					$allNotFoundHashes = array_diff(
+						$fileHashes,
+						array_keys( array_filter( $searcher->multipleExists( $fileHashes ) ) )
+					);
+					file_put_contents(
+						$pathToHashes,
+						sprintf( '%s:%s', Services::Request()->ts(), implode( ',', $allNotFoundHashes )."\n" ),
+						FILE_APPEND
+					);
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		}
 	}
@@ -125,44 +141,6 @@ class FileScanOptimiser {
 				}
 
 				$FS->move( $pathToHashesTmp, $pathToHashes );
-			}
-		}
-	}
-
-	public function addFiles( array $files ) {
-		$FS = Services::WpFs();
-		if ( $this->getCon()->cache_dir_handler->dirExists() ) {
-			$pathToHashes = $this->pathToHashes();
-			if ( !$FS->exists( $pathToHashes ) ) {
-				$FS->touch( $pathToHashes );
-			}
-			if ( $FS->exists( $pathToHashes ) ) {
-				$fileHashes = array_unique( array_filter( array_map(
-					function ( $file ) {
-						return hash_file( 'md5', $file );
-					},
-					array_filter(
-						$files,
-						function ( $file ) {
-							return Services::WpFs()->exists( $file );
-						}
-					)
-				) ) );
-
-				try {
-					$searcher = new SearchFile( $pathToHashes );
-					$allNotFoundHashes = array_diff(
-						$fileHashes,
-						array_keys( array_filter( $searcher->multipleExists( $fileHashes ) ) )
-					);
-					file_put_contents(
-						$pathToHashes,
-						sprintf( '%s:%s', Services::Request()->ts(), implode( ',', $allNotFoundHashes )."\n" ),
-						FILE_APPEND
-					);
-				}
-				catch ( \Exception $e ) {
-				}
 			}
 		}
 	}

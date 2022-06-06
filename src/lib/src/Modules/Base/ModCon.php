@@ -719,7 +719,7 @@ abstract class ModCon extends DynPropertiesClass {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()
-			 ->doOptionsSave( $con->getIsResetPlugin(), $this->isPremium() );
+			 ->doOptionsSave( $con->plugin_reset, $this->isPremium() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
