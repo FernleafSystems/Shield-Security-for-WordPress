@@ -12,22 +12,22 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                $cfg
- * @property Shield\Controller\Assets\Urls  $urls
- * @property Shield\Controller\Assets\Paths $paths
- * @property Shield\Controller\Assets\Svgs  $svgs
- * @property Shield\Request\ThisRequest     $this_req
- * @property Config\Labels                  $labels
- * @property array                          $prechecks
- * @property array                          $flags
- * @property bool                           $is_activating
- * @property bool                           $is_mode_debug
- * @property bool                           $is_mode_staging
- * @property bool                           $is_mode_live
- * @property bool                           $is_my_upgrade
- * @property bool                           $is_rest_enabled
- * @property bool                           $modules_loaded
- * @property bool                           $plugin_deactivating
+ * @property Config\ConfigVO                                        $cfg
+ * @property Shield\Controller\Assets\Urls                          $urls
+ * @property Shield\Controller\Assets\Paths                         $paths
+ * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $this_req
+ * @property Config\Labels                                          $labels
+ * @property array                                                  $prechecks
+ * @property array                                                  $flags
+ * @property bool                                                   $is_activating
+ * @property bool                                                   $is_mode_debug
+ * @property bool                                                   $is_mode_staging
+ * @property bool                                                   $is_mode_live
+ * @property bool                                                   $is_my_upgrade
+ * @property bool                                                   $is_rest_enabled
+ * @property bool                                                   $modules_loaded
+ * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property Shield\Utilities\CacheDir                              $cache_dir_handler
