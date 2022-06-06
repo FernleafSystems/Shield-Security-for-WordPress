@@ -34,19 +34,19 @@ class UI extends BaseShield\UI {
 	}
 
 	public function getSectionWarnings( string $section ) :array {
+		$con = $this->getCon();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$warning = [];
 
-		$srvIP = Services::IP();
-		if ( !$srvIP->isValidIp_PublicRange( $srvIP->getRequestIp() ) ) {
+		if ( !$con->this_req->ip_is_public ) {
 			$warning[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 		}
 
 		switch ( $section ) {
 			case 'section_traffic_limiter':
-				if ( $this->getCon()->isPremiumActive() ) {
+				if ( $con->isPremiumActive() ) {
 					if ( !$opts->isTrafficLoggerEnabled() ) {
 						$warning[] = sprintf( __( '%s may only be enabled if the Traffic Logger feature is also turned on.', 'wp-simple-firewall' ), __( 'Traffic Rate Limiter', 'wp-simple-firewall' ) );
 					}

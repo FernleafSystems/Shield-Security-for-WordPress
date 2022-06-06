@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryIpBlock;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
+use FernleafSystems\Wordpress\Services\Services;
 
 class IsIpBlocked extends Base {
 
@@ -18,10 +19,13 @@ class IsIpBlocked extends Base {
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;
 		if ( !isset( $thisReq->is_ip_blocked ) ) {
-			$thisReq->is_ip_blocked = ( new QueryIpBlock() )
-				->setMod( $this->getCon()->getModule_IPs() )
-				->setIp( $this->getRequestIP() )
-				->run();
+			$srvIP = Services::IP();
+			$thisReq->is_ip_blocked =
+				!$srvIP->checkIp( $this->getRequestIP(), $srvIP->getServerPublicIPs() )
+				&& ( new QueryIpBlock() )
+					->setMod( $this->getCon()->getModule_IPs() )
+					->setIp( $this->getRequestIP() )
+					->run();
 		}
 		return $thisReq->is_ip_blocked;
 	}

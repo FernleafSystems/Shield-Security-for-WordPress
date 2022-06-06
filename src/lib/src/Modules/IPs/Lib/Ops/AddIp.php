@@ -21,20 +21,16 @@ class AddIp {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$ip = $this->getIP();
-		if ( !Services::IP()->isValidIp( $ip ) ) {
+		if ( !Services::IP()->isValidIp( $this->getIP() ) ) {
 			throw new \Exception( "IP address isn't valid." );
-		}
-		if ( in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
-			throw new \Exception( 'Will not black mark our own server IP' );
 		}
 
 		$IP = ( new LookupIpOnList() )
 			->setDbHandler( $mod->getDbHandler_IPs() )
 			->setListTypeBlock()
-			->setIP( $ip )
+			->setIP( $this->getIP() )
 			->lookup( false );
-		if ( !$IP instanceof Databases\IPs\EntryVO ) {
+		if ( empty( $IP ) ) {
 			$IP = $this->add( $mod::LIST_AUTO_BLACK, 'auto', $req->ts() );
 			if ( !empty( $IP ) ) {
 				$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
@@ -46,7 +42,7 @@ class AddIp {
 		// We just reset the transgressions
 		/** @var Modules\IPs\Options $opts */
 		$opts = $this->getOptions();
-		if ( $IP->transgressions > 0 && ( $req->ts() - $opts->getAutoExpireTime() > (int)$IP->last_access_at ) ) {
+		if ( !empty( $IP ) && $IP->transgressions > 0 && ( $req->ts() - $opts->getAutoExpireTime() > $IP->last_access_at ) ) {
 			$mod->getDbHandler_IPs()
 				->getQueryUpdater()
 				->updateEntry( $IP, [
@@ -180,20 +176,26 @@ class AddIp {
 	 * @throws \Exception
 	 */
 	private function add( string $list, string $label = '', int $accessAt = 0 ) {
-		$IP = null;
-
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-
-		// Never add a reserved IP to any black list
 		$dbh = $mod->getDbHandler_IPs();
+		$srvIP = Services::IP();
+
+		$IP = null;
 
 		/** @var Databases\IPs\EntryVO $tmp */
 		$tmp = $dbh->getVo();
 		$tmp->ip = $this->getIP();
 		$tmp->list = $list;
-		$tmp->label = (string)$label;
+		$tmp->label = $label;
 		$tmp->last_access_at = $accessAt;
+
+		// Never add a reserved IP to any black list
+		if ( in_array( $tmp->list, [ $mod::LIST_AUTO_BLACK, $mod::LIST_MANUAL_BLACK ] ) ) {
+			if ( $srvIP->checkIp( $tmp->ip, $srvIP->getServerPublicIPs() ) ) {
+				throw new \Exception( "Forbidden to blacklist server's public IP." );
+			}
+		}
 
 		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
 			/** @var Databases\IPs\EntryVO $IP */
@@ -201,7 +203,7 @@ class AddIp {
 					  ->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 		}
 
-		if ( !$IP instanceof Databases\IPs\EntryVO ) {
+		if ( empty( $IP ) ) {
 			throw new \Exception( "IP couldn't be added to the database." );
 		}
 

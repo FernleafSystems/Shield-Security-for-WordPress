@@ -101,6 +101,7 @@ class ModCon extends BaseShield\ModCon {
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
+		$con = $this->getCon();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
@@ -111,7 +112,9 @@ class ModCon extends BaseShield\ModCon {
 				( new VisitorIpDetection() )->setPreferredSource( $opts->getIpSource() )
 			);
 		}
-		$this->getCon()->this_req->ip = Services::Request()->ip();
+		$con->this_req->ip = Services::Request()->ip();
+		$con->this_req->ip_is_public = !empty( $con->this_req->ip )
+									   && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
 	}
 
 	protected function handleFileDownload( string $downloadID ) {
