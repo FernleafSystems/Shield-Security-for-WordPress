@@ -15,6 +15,7 @@ class CleanQueue extends ExecOnceModConsumer {
 	protected function run() {
 		$this->resetStaleScanItems();
 		$this->deleteStaleScans();
+		$this->deleteStaleResultItems();
 	}
 
 	private function resetStaleScanItems() {
@@ -34,6 +35,24 @@ class CleanQueue extends ExecOnceModConsumer {
 	private function deleteStaleScans() {
 		$this->deleteStaleScansForTime();
 		$this->deleteScansWithNoScanItems();
+	}
+
+	private function deleteStaleResultItems() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$resultItemIds = $mod->getDbH_ScanResults()
+							 ->getQuerySelector()
+							 ->getDistinctForColumn( 'resultitem_ref' );
+		if ( !empty( $resultItemIds ) ) {
+			$dbhResultsItems = $mod->getDbH_ResultItems();
+			// 1. Get IDs for all scan items
+			Services::WpDb()->doSql(
+				sprintf( "DELETE FROM `%s` WHERE `id` NOT IN (%s)",
+					$dbhResultsItems->getTableSchema()->table,
+					implode( ',', $resultItemIds )
+				)
+			);
+		}
 	}
 
 	/**

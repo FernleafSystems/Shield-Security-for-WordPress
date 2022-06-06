@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  * @property string[] $patterns_regex
  * @property string[] $patterns_simple
  * @property int      $confidence_threshold
+ * @property string[] $valid_files
  */
 class ScanActionVO extends BaseScanActionVO {
 

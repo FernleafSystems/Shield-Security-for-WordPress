@@ -12,22 +12,22 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                $cfg
- * @property Shield\Controller\Assets\Urls  $urls
- * @property Shield\Controller\Assets\Paths $paths
- * @property Shield\Controller\Assets\Svgs  $svgs
- * @property Shield\Request\ThisRequest     $this_req
- * @property Config\Labels                  $labels
- * @property array                          $prechecks
- * @property array                          $flags
- * @property bool                           $is_activating
- * @property bool                           $is_mode_debug
- * @property bool                           $is_mode_staging
- * @property bool                           $is_mode_live
- * @property bool                           $is_my_upgrade
- * @property bool                           $is_rest_enabled
- * @property bool                           $modules_loaded
- * @property bool                           $plugin_deactivating
+ * @property Config\ConfigVO                                        $cfg
+ * @property Shield\Controller\Assets\Urls                          $urls
+ * @property Shield\Controller\Assets\Paths                         $paths
+ * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $this_req
+ * @property Config\Labels                                          $labels
+ * @property array                                                  $prechecks
+ * @property array                                                  $flags
+ * @property bool                                                   $is_activating
+ * @property bool                                                   $is_mode_debug
+ * @property bool                                                   $is_mode_staging
+ * @property bool                                                   $is_mode_live
+ * @property bool                                                   $is_my_upgrade
+ * @property bool                                                   $is_rest_enabled
+ * @property bool                                                   $modules_loaded
+ * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
  * @property Shield\Utilities\CacheDir                              $cache_dir_handler
@@ -122,6 +122,8 @@ class Controller extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
 
+		$FS = Services::WpFs();
+
 		switch ( $key ) {
 
 			case 'flags':
@@ -150,9 +152,15 @@ class Controller extends DynPropertiesClass {
 			case 'modules_loaded':
 			case 'plugin_deactivating':
 			case 'plugin_deleting':
-			case 'plugin_reset':
 			case 'user_can_base_permissions':
 				$val = (bool)$val;
+				break;
+
+			case 'plugin_reset':
+				if ( is_null( $val ) ) {
+					$val = $FS->isFile( $this->paths->forFlag( 'reset' ) );
+					$this->plugin_reset = $val;
+				}
 				break;
 
 			case 'is_rest_enabled':
@@ -898,11 +906,10 @@ class Controller extends DynPropertiesClass {
 
 	protected function deleteFlags() {
 		$FS = Services::WpFs();
-		if ( $FS->exists( $this->paths->forFlag( 'rebuild' ) ) ) {
-			$FS->deleteFile( $this->paths->forFlag( 'rebuild' ) );
-		}
-		if ( $this->getIsResetPlugin() ) {
-			$FS->deleteFile( $this->paths->forFlag( 'reset' ) );
+		foreach ( [ 'rebuild', 'reset' ] as $flag ) {
+			if ( $FS->exists( $this->paths->forFlag( $flag ) ) ) {
+				$FS->deleteFile( $this->paths->forFlag( $flag ) );
+			}
 		}
 	}
 
@@ -1066,6 +1073,9 @@ class Controller extends DynPropertiesClass {
 		return strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
 
+	/**
+	 * @deprecated 15.1
+	 */
 	public function getIsResetPlugin() :bool {
 		if ( !isset( $this->plugin_reset ) ) {
 			$this->plugin_reset = Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );

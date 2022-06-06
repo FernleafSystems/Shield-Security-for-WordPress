@@ -24,7 +24,7 @@ class Storage {
 	 * @throws \Exception
 	 */
 	public function loadOptions() :array {
-		if ( $this->getCon()->getIsResetPlugin() ) {
+		if ( $this->getCon()->plugin_reset ) {
 			throw new \Exception( 'Resetting plugin - not loading stored options' );
 		}
 		return $this->loadFromWP();
