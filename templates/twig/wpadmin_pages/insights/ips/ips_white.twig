@@ -82,7 +82,7 @@
 
 {% block section_table_js %}
 	<script>
-		var $oTableIpsWhite = jQuery( '#TableIpsWhite' ).icwpWpsfAjaxTable(
+		let $oTableIpsWhite = jQuery( '#TableIpsWhite' ).icwpWpsfAjaxTable(
 			{
 				'ajax_render':{{ ajax.render_table_ip|raw }},
 				'req_params': {

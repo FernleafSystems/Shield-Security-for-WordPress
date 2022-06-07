@@ -131,14 +131,12 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	public function getRegistrationExpiresAt() :int {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$opts = $this->getOptions();
 
-		$verifiedExpiredDays = rand( 9, 14 ) /* $this->getLicVerifyExpireDays() */
-							   + $opts->getDef( 'lic_verify_expire_grace_days' );
+		$verifiedExpiredDays = $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays();
 
 		$lic = $mod->getLicenseHandler()->getLicense();
 		return (int)min(
-			$lic->getExpiresAt() + $opts->getDef( 'lic_verify_expire_grace_days' )*DAY_IN_SECONDS,
+			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*DAY_IN_SECONDS,
 			$lic->last_verified_at + $verifiedExpiredDays*DAY_IN_SECONDS
 		);
 	}
@@ -163,14 +161,12 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
 	public function isLastVerifiedExpired() :bool {
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
-			   > rand( 9, 14 )*DAY_IN_SECONDS; /* $this->getLicVerifyExpireDays() */
+			   > $this->getLicVerifyExpireDays()*DAY_IN_SECONDS;
 	}
 
 	public function isLastVerifiedGraceExpired() :bool {
-		$opts = $this->getOptions();
-		$grace = ( rand( 9, 14 ) /* $this->getLicVerifyExpireDays() */
-				   + $opts->getDef( 'lic_verify_expire_grace_days' ) )*DAY_IN_SECONDS;
-		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at ) > $grace;
+		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
+			   > ( DAY_IN_SECONDS*( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() ) );
 	}
 
 	private function isMaybeExpiring() :bool {
@@ -225,7 +221,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function getLicVerifyExpireDays() :int {
-		return (int)rand( 9, 14 );
+		return (int)wp_rand( 9, 14 );
 	}
 
 	private function getLicExpireGraceDays() :int {
