@@ -142,9 +142,16 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_ips',
 			[
 				'components' => [
-					'modal_ip_analysis'   => [
+					'modal_ip_analysis' => [
 						'ajax' => [
-							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' )
+							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' ),
+						]
+					],
+					'ip_analysis'       => [
+						'ajax' => [
+							'ip_analyse_build'  => $this->getAjaxActionData( 'ip_analyse_build' ),
+							'ip_analyse_action' => $this->getAjaxActionData( 'ip_analyse_action' ),
+							'ip_review_select'  => $this->getAjaxActionData( 'ip_review_select' ),
 						]
 					],
 				],

@@ -227,14 +227,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		if ( !$validIP ) {
 			$msg = __( "IP provided was invalid.", 'wp-simple-firewall' );
 		}
-		elseif ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
-			$msg = sprintf( __( "IP can't be processed from this page as it's a known service IP: %s" ), $ipName );
-		}
 		else {
 			switch ( $req->post( 'ip_action' ) ) {
 
 				case 'block':
 					try {
+						if ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
+							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
+						}
 						$success = ( new Ops\AddIp() )
 									   ->setMod( $this->getMod() )
 									   ->setIP( $ip )
