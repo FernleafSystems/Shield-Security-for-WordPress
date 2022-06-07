@@ -161,9 +161,6 @@ class ModCon extends BaseShield\ModCon {
 					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
-					elseif ( $inav == 'ips' ) {
-						$enq[ Enqueue::JS ][] = 'shield/ipanalyse';
-					}
 					break;
 			}
 		}

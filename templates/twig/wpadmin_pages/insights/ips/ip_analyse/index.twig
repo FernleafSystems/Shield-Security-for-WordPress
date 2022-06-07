@@ -27,16 +27,3 @@
 		</div>
 	</div>
 </div>
-
-{% block section_table_js %}
-	<script type="text/javascript">
-		jQuery( document ).ready( function () {
-			jQuery( 'document' ).icwpWpsfIpAnalyse(
-				{
-					'ajax_ip_analyse_build':{{ ajax.ip_analyse_build|raw }},
-					'ajax_ip_analyse_action':{{ ajax.ip_analyse_action|raw }}
-				}
-			);
-		} );
-	</script>
-{% endblock %}

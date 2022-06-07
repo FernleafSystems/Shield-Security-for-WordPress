@@ -418,7 +418,9 @@ let iCWP_WPSF_Helpscout = new function () {
 	};
 }();
 
-jQuery( document ).ready( function () {
+let jQueryDoc = jQuery( 'document' );
+
+jQueryDoc.ready( function () {
 
 	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
 		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
@@ -435,6 +437,10 @@ jQuery( document ).ready( function () {
 	iCWP_WPSF_Modals.initialise();
 	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
 		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
+
+		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
+			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
+		}
 	}
 
 	jQuery( document ).ajaxComplete( function () {

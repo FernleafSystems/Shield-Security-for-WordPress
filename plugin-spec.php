@@ -1,7 +1,7 @@
 {
   "properties":       {
     "version":                 "15.1.1",
-    "release_timestamp":       1654522432,
+    "release_timestamp":       1654522433,
     "build":                   "202206.0602",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
@@ -72,11 +72,12 @@
         "plugin",
         "jquery/featherlight",
         "jquery/fileDownload",
-        "shield/tours",
-        "shield/datatables",
-        "shield/traffic",
         "shield/audit_trail",
+        "shield/datatables",
+        "shield/ipanalyse",
         "shield/scanners",
+        "shield/tours",
+        "shield/traffic",
         "tp/circular-progress"
       ]
     },
@@ -257,6 +258,8 @@
             "datatables-bootstrap",
             "global-plugin",
             "shield/navigation",
+            "shield/ipanalyse",
+            "shield/tables",
             "base64.min",
             "lz-string.min"
           ]
@@ -308,7 +311,7 @@
         },
         "shield/tables":           {
           "deps": [
-            "plugin"
+            "wp-jquery"
           ]
         },
         "shield/audit_trail":      {
@@ -370,7 +373,7 @@
         },
         "shield/ipanalyse":        {
           "deps": [
-            "plugin"
+            "wp-jquery"
           ]
         },
         "shield/mainwp-extension": {
