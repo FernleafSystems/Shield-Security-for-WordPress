@@ -570,6 +570,13 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "crowdsec_cfg",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":      {
@@ -600,7 +607,8 @@
       "woff2"
     ],
     "db_handler_classes":  {
-      "botsignal": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler"
+      "botsignal": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
+      "crowdsec":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSec\\Ops\\Handler"
     },
     "db_table_botsignal":  {
       "autoexpire":     0,
@@ -717,6 +725,20 @@
         "snsent_at":          {
           "macro_type": "timestamp",
           "comment":    "Sent To ShieldNET"
+        }
+      }
+    },
+    "db_table_crowdsec":   {
+      "autoexpire":     0,
+      "slug":           "crowdsec",
+      "has_updated_at": true,
+      "col_older_than": "updated_at",
+      "cols_custom":    {
+        "ip_ref":    {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
         }
       }
     },

@@ -12,6 +12,7 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$mod->getBlacklistHandler()->execute();
 		$mod->getBotSignalsController()->execute();
+		$mod->getCrowdSecCon()->execute();
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {

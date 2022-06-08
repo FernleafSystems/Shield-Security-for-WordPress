@@ -28,12 +28,24 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $botSignalsCon;
 
+	/**
+	 * @var Lib\CrowdSec\CrowdSecController
+	 */
+	private $crowdSecCon;
+
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
 		if ( !isset( $this->botSignalsCon ) ) {
 			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
 				->setMod( $this );
 		}
 		return $this->botSignalsCon;
+	}
+
+	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
+		if ( !isset( $this->crowdSecCon ) ) {
+			$this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
+		}
+		return $this->crowdSecCon;
 	}
 
 	public function getBlacklistHandler() :Lib\BlacklistHandler {
@@ -48,6 +60,11 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
+	public function getDbH_CrowdSec() :DB\CrowdSec\Ops\Handler {
+		$this->getCon()->getModule_Data()->getDbH_IPs();
+		return $this->getDbHandler()->loadDbH( 'crowdsec' );
+	}
+
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
 	}
@@ -57,6 +74,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		return [
 			Rules\Build\IpWhitelisted::class,
+			Rules\Build\IpCrowdSec::class,
 			Rules\Build\IsPathWhitelisted::class,
 			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlocked::class : null,
 			$opts->isEnabledTrack404() ? Rules\Build\BotTrack404::class : null,

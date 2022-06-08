@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_security_admin
  * @property bool            $is_trusted_bot
  * @property bool            $is_ip_blocked
+ * @property bool            $is_ip_crowdsec_blocked
  * @property bool            $is_ip_blacklisted
  * @property bool            $is_ip_whitelisted
  * @property bool            $is_server_loopback
@@ -54,6 +55,7 @@ class ThisRequest extends DynPropertiesClass {
 
 			case 'is_force_off':
 			case 'is_ip_blocked':
+			case 'is_ip_crowdsec_blocked':
 			case 'is_ip_whitelisted':
 			case 'request_bypasses_all_restrictions':
 			case 'is_security_admin':
