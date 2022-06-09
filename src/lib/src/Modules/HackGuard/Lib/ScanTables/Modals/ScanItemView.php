@@ -121,36 +121,33 @@ class ScanItemView {
 			throw new \Exception( 'Diff is unavailable for missing files.' );
 		}
 
-		$original = '';
 		$coreHashes = Services::CoreFileHashes();
 		if ( $coreHashes->isCoreFile( $pathFull ) ) {
-			$original = ( new WpOrg\Wp\Files() )->getOriginalFileFromVcs( $pathFull );
+			$originalFileDownload = ( new WpOrg\Wp\Files() )->getOriginalFileFromVcs( $pathFull );
 		}
 		else {
 			$plugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $pathFull );
 			if ( !empty( $plugin ) && $plugin->isWpOrg() && $plugin->svn_uses_tags ) {
 				$originalFileDownload = ( new WpOrg\Plugin\Files() )->getOriginalFileFromVcs( $pathFull );
-				if ( !empty( $originalFileDownload ) ) {
-					$original = Services::WpFs()->getFileContent( $originalFileDownload );
-				}
 			}
 			else {
 				$theme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $pathFull );
 				if ( !empty( $theme ) && $theme->isWpOrg() ) {
 					$originalFileDownload = ( new WpOrg\Theme\Files() )->getOriginalFileFromVcs( $pathFull );
-					if ( !empty( $originalFileDownload ) ) {
-						$original = Services::WpFs()->getFileContent( $originalFileDownload );
-					}
 				}
 			}
 		}
 
-		if ( empty( $original ) ) {
+		$FS = Services::WpFs();
+		if ( empty( $originalFileDownload ) || !$FS->isFile($originalFileDownload)) {
 			throw new \Exception( 'There is no original file available to create a diff.' );
 		}
 
 		$conv = new ConvertLineEndings();
-		$res = ( new Diff() )->getDiff( $conv->dosToLinux( $original ), $conv->fileDosToLinux( $pathFull ) );
+		$res = ( new Diff() )->getDiff(
+			$conv->dosToLinux( (string)$FS->getFileContent( $originalFileDownload ) ),
+			$conv->fileDosToLinux( $pathFull )
+		);
 
 		if ( !is_array( $res ) || empty( $res[ 'html' ] ) ) {
 			throw new \Exception( 'Could not get a valid diff for this file.' );
