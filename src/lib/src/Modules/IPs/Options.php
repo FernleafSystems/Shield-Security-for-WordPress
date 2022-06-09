@@ -70,6 +70,14 @@ class Options extends BaseShield\Options {
 		return $this->getOffenseLimit() > 0;
 	}
 
+	public function isEnabledCrowdSecAutoBlock() :bool {
+		return !$this->isOpt( 'cs_block', 'disabled' );
+	}
+
+	public function isEnabledCrowdSecAutoVisitorUnblock() :bool {
+		return $this->isOpt( 'cs_block', 'block_with_unblock' );
+	}
+
 	public function isEnabledAutoVisitorRecover() :bool {
 		return in_array( 'gasp', (array)$this->getOpt( 'user_auto_recover', [] ) );
 	}

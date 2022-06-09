@@ -38,13 +38,13 @@ class RenderBlockIP extends BaseBlockPage {
 		return 'block_page_ip';
 	}
 
-	private function renderAutoUnblock() :string {
+	protected function renderAutoUnblock() :string {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		$ip = Services::IP()->getRequestIp();
+		$ip = Services::Request()->ip();
 		$canAutoRecover = $opts->isEnabledAutoVisitorRecover()
 						  && $opts->getCanIpRequestAutoUnblock( $ip );
 
@@ -94,7 +94,7 @@ class RenderBlockIP extends BaseBlockPage {
 		);
 	}
 
-	private function renderEmailMagicLinkContent() :string {
+	protected function renderEmailMagicLinkContent() :string {
 		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();

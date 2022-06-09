@@ -6,28 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
-class RenderBlockCrowdSecIP extends RenderBlockIP {
-
-	protected function getPageSpecificData() :array {
-		$con = $this->getCon();
-
-		return [
-			'content' => [
-			],
-			'flags'   => [
-				'has_magiclink'   => !empty( $magicLink ),
-				'has_autorecover' => !empty( $autoUnblock ),
-			],
-			'hrefs'   => [
-				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
-			],
-			'strings' => [
-				'page_title' => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), $con->getHumanName() ),
-				'title'      => __( 'Access Restricted', 'wp-simple-firewall' ),
-				'subtitle'   => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
-			],
-		];
-	}
+class RenderBlockIpCrowdSec extends RenderBlockIP {
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [
@@ -38,21 +17,41 @@ class RenderBlockCrowdSecIP extends RenderBlockIP {
 	}
 
 	protected function getTemplateStub() :string {
-		return 'block_page_crowdsec_ip';
+		return 'block_page_ip_crowdsec';
 	}
 
-	private function renderAutoUnblock() :string {
+	protected function renderAutoUnblock() :string {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		$ip = Services::IP()->getRequestIp();
+		$ip = Services::Request()->ip();
 		$canAutoRecover = $opts->isEnabledAutoVisitorRecover()
 						  && $opts->getCanIpRequestAutoUnblock( $ip );
-
+		$canAutoRecover = true;
 		$content = '';
 
+		if ( $canAutoRecover ) {
+			$content = $mod->renderTemplate( '/pages/block/autorecover_crowdsec.twig', [
+				'hrefs'   => [
+					'home' => Services::WpGeneral()->getHomeUrl( '/' )
+				],
+				'vars'    => [
+					'nonce' => $mod->getNonceActionData( 'uau-cs-'.$ip ),
+				],
+				'strings' => [
+					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
+					'you_can' => __( 'You can automatically unblock your IP address by clicking the button below.', 'wp-simple-firewall' ),
+					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
+				],
+			] );
+		}
+
 		return $content;
+	}
+
+	protected function renderEmailMagicLinkContent() :string {
+		return '';
 	}
 }

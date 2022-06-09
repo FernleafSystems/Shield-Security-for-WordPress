@@ -270,6 +270,33 @@
       "description": "Request Path Whitelist."
     },
     {
+      "key":           "cs_block",
+      "section":       "section_crowdsec",
+      "advanced":      true,
+      "default":       "block_with_unblock",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "block_with_unblock",
+          "text":      "Block Request With Ability To Auto-Unblock"
+        },
+        {
+          "value_key": "block",
+          "text":      "Block Request"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "beacon_id":     0,
+      "name":          "CrowdSec IP Blocking",
+      "summary":       "How To Handle Requests From IPs Found On CrowdSec Blocklist",
+      "description":   "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+    },
+    {
       "key":         "cs_enroll_id",
       "section":     "section_crowdsec",
       "sensitive":   true,
@@ -748,16 +775,21 @@
       }
     },
     "db_table_crowdsec":   {
-      "autoexpire":     0,
-      "slug":           "crowdsec",
-      "has_updated_at": true,
-      "col_older_than": "updated_at",
-      "cols_custom":    {
+      "autoexpire":      0,
+      "slug":            "crowdsec",
+      "has_updated_at":  true,
+      "col_older_than":  "updated_at",
+      "cols_custom":     {
         "ip_ref": {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_ips"
           }
+        }
+      },
+      "cols_timestamps": {
+        "auto_unblock_at": {
+          "comment": "Visitor Requested Unblock"
         }
       }
     },
@@ -788,6 +820,10 @@
         "offense":      true
       },
       "conn_kill":               {
+        "level":           "warning",
+        "audit_countable": true
+      },
+      "conn_kill_crowdsec":      {
         "level":           "warning",
         "audit_countable": true
       },

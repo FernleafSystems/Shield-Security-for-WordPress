@@ -21,7 +21,7 @@ class IsIpCrowdsec extends Base {
 			$srvIP = Services::IP();
 			$thisReq->is_ip_crowdsec_blocked =
 				!$srvIP->checkIp( $this->getRequestIP(), $srvIP->getServerPublicIPs() )
-				&& $con->getModule_IPs()->getCrowdSecCon()->isIpOnCrowdSec( $this->getRequestIP() );
+				&& $con->getModule_IPs()->getCrowdSecCon()->isIpBlockedOnCrowdSec( $this->getRequestIP() );
 		}
 		return $thisReq->is_ip_crowdsec_blocked;
 	}

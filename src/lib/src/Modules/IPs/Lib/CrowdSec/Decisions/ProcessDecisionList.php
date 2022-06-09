@@ -65,6 +65,7 @@ class ProcessDecisionList {
 						$this->insertIP( $ipToAdd );
 					}
 					catch ( \Exception $e ) {
+						error_log( $e->getMessage() );
 					}
 				}
 			}

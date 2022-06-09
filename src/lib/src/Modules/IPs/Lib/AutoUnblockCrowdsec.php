@@ -6,12 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AutoUnblock extends ExecOnceModConsumer {
+class AutoUnblockCrowdsec extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		return $this->getCon()->this_req->is_ip_blocked && $opts->isEnabledAutoVisitorRecover();
+		return $this->getCon()->this_req->is_ip_crowdsec_blocked && $opts->isEnabledCrowdSecAutoVisitorUnblock();
 	}
 
 	protected function run() {
@@ -20,13 +20,6 @@ class AutoUnblock extends ExecOnceModConsumer {
 		}
 		catch ( \Exception $e ) {
 			$unblocked = false;
-		}
-		if ( !$unblocked ) {
-			try {
-				$unblocked = $this->processUserMagicLink();
-			}
-			catch ( \Exception $e ) {
-			}
 		}
 
 		if ( $unblocked ) {
@@ -46,15 +39,14 @@ class AutoUnblock extends ExecOnceModConsumer {
 
 		$unblocked = false;
 
-		$ip = Services::IP()->getRequestIp();
+		$ip = $req->ip();
 		if ( empty( $ip ) ) {
 			throw new \Exception( 'No IP' );
 		}
 
-		if ( $req->post( 'action' ) == $mod->getCon()->prefix()
-			 && $req->post( 'exec' ) == 'uau-'.$ip ) {
+		if ( $req->post( 'action' ) == $mod->getCon()->prefix() && $req->post( 'exec' ) == 'uau-cs-'.$ip ) {
 
-			if ( check_admin_referer( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
+			if ( check_admin_referer( 'uau-cs-'.$ip, 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
 			}
 			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
@@ -77,15 +69,18 @@ class AutoUnblock extends ExecOnceModConsumer {
 				);
 			}
 
-			( new IPs\Lib\Ops\DeleteIp() )
+			$csRecord = ( new IPs\DB\CrowdSec\LoadCrowdSecRecords() )
 				->setMod( $mod )
 				->setIP( $ip )
-				->fromBlacklist();
-			( new IPs\Lib\Bots\BotSignalsRecord() )
-				->setMod( $this->getMod() )
-				->setIP( $ip )
-				->delete();
-			$unblocked = true;
+				->loadRecord();
+			if ( !empty( $csRecord ) ) {
+				$mod->getDbH_CrowdSec()
+					->getQueryUpdater()
+					->updateById( $csRecord->id, [
+						'auto_unblock_at' => $req->ts()
+					] );
+				$unblocked = true;
+			}
 		}
 
 		return $unblocked;

@@ -5,14 +5,14 @@
 	<div class="row">
 		<div class="col-lg-6 col-md-9 mx-auto mb-3">
 			{% if flags.has_magiclink or flags.has_autorecover %}
-			  <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+				<div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
 			    {% if flags.has_magiclink %}
 				    <a type="button" class="btn btn-primary btn-lg px-4 me-sm-3"
 				       data-bs-toggle="modal" data-bs-target="#UserAutoUnblockDialog">Unblock via Email</a>
 				  {% elseif flags.has_autorecover %}
-					  <a type="button" class="btn btn-primary btn-lg px-4 me-sm-3"
-					     data-bs-toggle="modal" data-bs-target="#AutoRecoverDialog">Unblock My IP</a>
-				  {% endif %}
+				    <a type="button" class="btn btn-primary btn-lg px-4 me-sm-3"
+				       data-bs-toggle="modal" data-bs-target="#AutoRecoverDialog">Unblock My IP</a>
+			    {% endif %}
 			  </div>
 			{% endif %}
     </div>
@@ -38,44 +38,48 @@
 {% endblock %}
 
 {% block pre_body_close %}
-	<div class="modal fade" role="dialog" id="UserAutoUnblockDialog"
-	     aria-labelledby="UserAutoUnblockDialog" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Unblock Your IP</h5>
-				</div>
-				<div class="modal-body">
-					<div class="container-fluid">
-						<div class="row no-gutters row-cols-1">
-							<div class="col">
-								{{ content.email_unblock|raw }}
+
+	{% block modal_email_unblock %}
+		<div class="modal fade" role="dialog" id="UserAutoUnblockDialog"
+		     aria-labelledby="UserAutoUnblockDialog" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Unblock Your IP</h5>
+					</div>
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="row no-gutters row-cols-1">
+								<div class="col">
+									{{ content.email_unblock|raw }}
+								</div>
 							</div>
 						</div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	{% endblock %}
+
+	{% block modal_auto_unblock %}
+		<div class="modal fade" role="dialog" id="AutoRecoverDialog"
+		     aria-labelledby="AutoRecoverDialog" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">Unblock Your IP</h5>
 					</div>
-	        </div>
-	      </div>
-	    </div>
-	</div>
-
-
-	<div class="modal fade" role="dialog" id="AutoRecoverDialog"
-	     aria-labelledby="AutoRecoverDialog" tabindex="-1" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Unblock Your IP</h5>
-				</div>
-				<div class="modal-body">
-					<div class="container-fluid">
-						<div class="row no-gutters row-cols-1">
-							<div class="col">
-								{{ content.auto_unblock|raw }}
+					<div class="modal-body">
+						<div class="container-fluid">
+							<div class="row no-gutters row-cols-1">
+								<div class="col">
+									{{ content.auto_unblock|raw }}
+								</div>
 							</div>
 						</div>
-					</div>
-	        </div>
-	      </div>
-	    </div>
-	</div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	{% endblock %}
 {% endblock %}

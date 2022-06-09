@@ -18,6 +18,12 @@ class Strings extends Base\Strings {
 					__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ),
 				],
 			],
+			'conn_kill_crowdsec'               => [
+				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Visitor found on the CrowdSec IP List and their request was killed.', 'wp-simple-firewall' ),
+				],
+			],
 			'conn_not_kill_high_rep'  => [
 				'name'  => __( 'Connection Not Killed', 'wp-simple-firewall' ),
 				'audit' => [
@@ -249,6 +255,12 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'section_crowdsec':
+				$titleShort = __( 'CrowdSec', 'wp-simple-firewall' );
+				$title = __( 'CrowdSec Community IP Reputation Database', 'wp-simple-firewall' );
+				$summary = [];
+				break;
+
 			default:
 				return parent::getSectionStrings( $section );
 		}
@@ -302,17 +314,6 @@ class Strings extends Base\Strings {
 				$desc = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
 				break;
 
-			case 'cs_enroll_id' :
-				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
-				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
-				$desc = [
-					__( 'CrowdSec Instance Enroll ID.', 'wp-simple-firewall' ),
-					__( 'You can link WordPress site to your CrowdSec console by providing your Enroll ID.', 'wp-simple-firewall' ),
-					sprintf( '%s: <a href="%s" target="_blank">%s</a>', __( 'Login or Signup for your free CrowdSec console', 'wp-simple-firewall' ),
-						'https://shsec.io/crowdsecapp', 'https://app.crowdsec.net' ),
-				];
-				break;
-
 			case 'request_whitelist' :
 				$name = __( 'Request Path Whitelist', 'wp-simple-firewall' );
 				$summary = __( 'Request Path Whitelist', 'wp-simple-firewall' );
@@ -358,6 +359,26 @@ class Strings extends Base\Strings {
 					__( "Turn this option on if you're using an aggressive caching system, to ensure NotBot JS is loaded for all visitors.", 'wp-simple-firewall' ),
 					__( "When this option is disabled we'll automatically optimise loading of the Javascript so it's only loaded where it's required.", 'wp-simple-firewall' )
 					.' '.__( "You should test your site and keep a lookout for user login issues after disabling this option.", 'wp-simple-firewall' )
+				];
+				break;
+
+			case 'cs_block' :
+				$name = __( 'CrowdSec IP Blocking', 'wp-simple-firewall' );
+				$summary = __( 'How To Handle Requests From IPs Found On CrowdSec Blocklist', 'wp-simple-firewall' );
+				$desc = [
+					__( "How should Shield block requests from IP addresses found on CrowdSec's list of malicious IP addresses?", 'wp-simple-firewall' ),
+					__( "To provide the greatest flexibility for your visitors in the case of false positives, select the option to block but with the ability for visitors to automatically unblock themselves.", 'wp-simple-firewall' ),
+				];
+				break;
+
+			case 'cs_enroll_id' :
+				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
+				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
+				$desc = [
+					__( 'CrowdSec Instance Enroll ID.', 'wp-simple-firewall' ),
+					__( 'You can link this WordPress site to your CrowdSec console by providing your Enroll ID.', 'wp-simple-firewall' ),
+					sprintf( '%s: <a href="%s" target="_blank">%s</a>', __( 'Login or Signup for your free CrowdSec console', 'wp-simple-firewall' ),
+						'https://shsec.io/crowdsecapp', 'https://app.crowdsec.net' ),
 				];
 				break;
 
