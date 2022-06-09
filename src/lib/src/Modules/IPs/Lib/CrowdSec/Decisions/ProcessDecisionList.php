@@ -128,7 +128,7 @@ class ProcessDecisionList {
 	 */
 	private function getIpFromDecision( array $decision ) :string {
 		$srvIP = Services::IP();
-		$ip = (string)$decision[ 'start_ip' ] ?? null;
+		$ip = trim( (string)( $decision[ 'start_ip' ] ?? '' ) );
 		if ( empty( $ip ) ) {
 			throw new \Exception( 'Empty start_ip' );
 		}

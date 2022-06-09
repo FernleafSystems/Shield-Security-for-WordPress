@@ -155,6 +155,29 @@ class Strings extends Base\Strings {
 					sprintf( '%s: {{message}}', __( 'Message', 'wp-simple-firewall' ) ),
 				],
 			],
+			'crowdsec_mach_register'  => [
+				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Registered Site', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Registered the website with the CrowdSec service.', 'wp-simple-firewall' ),
+					sprintf( '%s: {{url}}', __( 'Website URL', 'wp-simple-firewall' ) ),
+					sprintf( '%s: {{machine_id}}', __( 'Website ID', 'wp-simple-firewall' ) ),
+				],
+			],
+			'crowdsec_auth_acquire'   => [
+				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Acquired Authentication Token', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Acquired authentication token for use with CrowdSec service.', 'wp-simple-firewall' ),
+					sprintf( '%s: {{expiration}}', __( 'Expiration', 'wp-simple-firewall' ) ),
+				],
+			],
+			'crowdsec_mach_enroll'    => [
+				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Enrolled Site With Console', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Enrolled site with CrowdSec console.', 'wp-simple-firewall' ),
+					sprintf( '%s: {{id}}', __( 'Enrollment ID', 'wp-simple-firewall' ) ),
+					sprintf( '%s: {{name}}', __( 'Enrollment Name', 'wp-simple-firewall' ) ),
+				],
+			],
 		];
 	}
 
@@ -277,6 +300,17 @@ class Strings extends Base\Strings {
 				$name = __( 'User Auto Unblock', 'wp-simple-firewall' );
 				$summary = __( 'Allow Visitors To Unblock Their IP', 'wp-simple-firewall' );
 				$desc = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
+				break;
+
+			case 'cs_enroll_id' :
+				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
+				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
+				$desc = [
+					__( 'CrowdSec Instance Enroll ID.', 'wp-simple-firewall' ),
+					__( 'You can link WordPress site to your CrowdSec console by providing your Enroll ID.', 'wp-simple-firewall' ),
+					sprintf( '%s: <a href="%s" target="_blank">%s</a>', __( 'Login or Signup for your free CrowdSec console', 'wp-simple-firewall' ),
+						'https://shsec.io/crowdsecapp', 'https://app.crowdsec.net' ),
+				];
 				break;
 
 			case 'request_whitelist' :

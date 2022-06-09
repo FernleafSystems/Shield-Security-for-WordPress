@@ -14,8 +14,18 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->cleanoptimisehashes();
+		$this->crowdsec();
 		die( 'finish' );
+	}
+
+	private function crowdsec() {
+		$csCon = $this->getCon()->getModule_IPs()->getCrowdSecCon();
+		try {
+			var_dump( $csCon->getApi()->downloadDecisions() );
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
 	}
 
 	private function cleanoptimisehashes() {

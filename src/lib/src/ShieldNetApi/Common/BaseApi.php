@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
  * @property int         $api_version
  * @property string      $lookup_url_stub
  * @property string      $request_method
+ * @property array       $headers
  * @property int         $timeout
  * @property HttpRequest $last_http_req
  * @property array       $params_body
@@ -28,35 +29,36 @@ abstract class BaseApi extends DynPropertiesClass {
 
 		$reqParams = [
 			'timeout' => $this->timeout,
+			'headers' => $this->headers,
 		];
 
 		switch ( $this->request_method ) {
 
 			case 'post':
 				$reqParams[ 'body' ] = $this->params_body;
-				$bReqSuccess = $httpReq->post( $this->getApiRequestUrl(), $reqParams );
+				$reqSuccess = $httpReq->post( $this->getApiRequestUrl(), $reqParams );
 				break;
 
 			case 'get':
 			default:
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.
 				// if they're not using the newer WP Request() class. WP 4.6+
-				$bReqSuccess = $httpReq->get(
+				$reqSuccess = $httpReq->get(
 					add_query_arg( $this->params_query, $this->getApiRequestUrl() ),
 					$reqParams
 				);
 				break;
 		}
 
-		if ( $bReqSuccess ) {
-			$aResponse = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
+		if ( $reqSuccess ) {
+			$response = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
 		}
 		else {
-			$aResponse = null;
+			$response = null;
 		}
 
 		$this->last_http_req = $httpReq;
-		return $aResponse;
+		return $response;
 	}
 
 	protected function getApiRequestUrl() :string {
@@ -79,10 +81,19 @@ abstract class BaseApi extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'headers':
 			case 'params_query':
+				if ( !is_array( $value ) ) {
+					$value = [];
+				}
+				break;
+
 			case 'params_body':
 				if ( !is_array( $value ) ) {
 					$value = [];
+				}
+				if ( $this->headers[ 'Content-Type' ] ?? '' === 'application/json' ) {
+					$value = json_encode( $value );
 				}
 				break;
 

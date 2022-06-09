@@ -17,18 +17,18 @@ class RunDecisionsUpdate extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		$rawDecisionStream = $this->sendDecisionStreamRequest();
-		if ( !empty( $rawDecisionStream ) ) {
-			$decisionStream = @json_decode( $rawDecisionStream, true );
-			if ( !empty( $decisionStream ) && is_array( $decisionStream ) ) {
-				( new ProcessDecisionList() )
-					->setMod( $this->getMod() )
-					->run( $decisionStream );
-			}
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		try {
+			( new ProcessDecisionList() )
+				->setMod( $this->getMod() )
+				->run(
+					$mod->getCrowdSecCon()
+						->getApi()
+						->downloadDecisions()
+				);
 		}
-	}
-
-	private function sendDecisionStreamRequest() :string {
-		return '';
+		catch ( \Exception $e ) {
+		}
 	}
 }

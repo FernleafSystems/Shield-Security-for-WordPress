@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\RunDecisionsUpdate;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	ModCon,
 	Options
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecController extends ExecOnceModConsumer {
 
@@ -29,6 +29,10 @@ class CrowdSecController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 		$this->cfg = ( new CrowdSecCfg() )->applyFromArray( $opts->getOpt( 'crowdsec_cfg' ) );
 		$this->setupCronHooks();
+	}
+
+	public function getApi() :CrowdSecApi {
+		return ( new CrowdSecApi() )->setMod( $this->getMod() );
 	}
 
 	public function isIpOnCrowdSec( string $ip ) :bool {
