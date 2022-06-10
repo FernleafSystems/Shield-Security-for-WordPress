@@ -30,6 +30,7 @@ class CacheDir {
 				$this->cacheDir = $maybeDir;
 			}
 			catch ( \Exception $e ) {
+				/* error_log( sprintf( 'Exception making the cache dir: %s; Exception: %s', $maybeDir ?? 'emptydir', $e->getMessage() ) ); */
 			}
 		}
 

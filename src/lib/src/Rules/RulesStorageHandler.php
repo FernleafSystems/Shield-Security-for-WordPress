@@ -46,7 +46,7 @@ class RulesStorageHandler {
 			->run();
 	}
 
-	public function store( array $rules ) :bool {
+	public function store( array $rules ) {
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
 
@@ -59,7 +59,10 @@ class RulesStorageHandler {
 		];
 
 		$WP->updateOption( $this->getWpStorageKey(), $data );
-		return Services::WpFs()->putFileContent( $this->getPathToRules(), wp_json_encode( $data ) );
+
+		if ( $this->getRulesCon()->getCon()->cache_dir_handler->dirExists() ) {
+			Services::WpFs()->putFileContent( $this->getPathToRules(), wp_json_encode( $data ) );
+		}
 	}
 
 	private function loadRawFromWP() :array {
