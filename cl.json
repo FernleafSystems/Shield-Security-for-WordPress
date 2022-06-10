@@ -55,6 +55,20 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "3",
+        "released_at": 1654786080,
+        "items":       [
+          {
+            "title": "Restore the event 'Connection Killed' that explicitly states that a request was terminated for a blocked IP.",
+            "type":  "fixed"
+          },
+          {
+            "title": "File diff was broken when comparing modified WordPress Core files with the originals.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "15.0": {
