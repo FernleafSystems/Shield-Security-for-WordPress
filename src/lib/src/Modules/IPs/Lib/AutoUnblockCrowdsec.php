@@ -51,13 +51,7 @@ class AutoUnblockCrowdsec extends ExecOnceModConsumer {
 			{ // first thing is mark IP as having made a request. That way they can't repeatedly request.
 				$existing = $opts->getAutoUnblockIps();
 				$existing[ $ip ] = Services::Request()->ts();
-				$opts->setOpt( 'autounblock_ips',
-					array_filter( $existing, function ( $ts ) {
-						return Services::Request()
-									   ->carbon()
-									   ->subMinute( 1 )->timestamp < $ts;
-					} )
-				);
+				$opts->setOpt( 'autounblock_ips', $existing );
 			}
 
 			if ( wp_verify_nonce( 'uau-cs-'.$ip, 'exec_nonce' ) !== 1 ) {

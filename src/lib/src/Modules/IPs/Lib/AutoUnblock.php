@@ -61,13 +61,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 			{
 				$existing = $opts->getAutoUnblockIps();
 				$existing[ $ip ] = Services::Request()->ts();
-				$opts->setOpt( 'autounblock_ips',
-					array_filter( $existing, function ( $ts ) {
-						return Services::Request()
-									   ->carbon()
-									   ->subHours( 1 )->timestamp < $ts;
-					} )
-				);
+				$opts->setOpt( 'autounblock_ips', $existing );
 			}
 
 			if ( wp_verify_nonce( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
