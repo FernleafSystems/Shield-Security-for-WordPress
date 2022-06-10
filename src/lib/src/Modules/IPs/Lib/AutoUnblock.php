@@ -54,7 +54,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 		if ( $req->post( 'action' ) == $mod->getCon()->prefix()
 			 && $req->post( 'exec' ) == 'uau-'.$ip ) {
 
-			if ( !$opts->getCanIpRequestAutoUnblock( $ip ) ) {
+			if ( !$opts->canIpRequestAutoUnblock( $ip ) ) {
 				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
@@ -123,22 +123,16 @@ class AutoUnblock extends ExecOnceModConsumer {
 			}
 
 			if ( $linkParts[ 1 ] === 'init' ) {
-				if ( !$opts->getCanRequestAutoUnblockEmailLink( $user ) ) {
+				if ( !$opts->canRequestAutoUnblockEmailLink( $user ) ) {
 					throw new \Exception( 'User already processed recently.' );
 				}
 
+				$existing = $opts->getAutoUnblockEmailIDs();
+				$existing[ $user->ID ] = Services::Request()->ts();
+				$opts->setOpt( 'autounblock_emailids', $existing );
+
 				$this->sendMagicLinkEmail();
-				{
-					$existing = $opts->getAutoUnblockEmailIDs();
-					$existing[ $user->ID ] = Services::Request()->ts();
-					$opts->setOpt( 'autounblock_emailids',
-						array_filter( $existing, function ( $ts ) {
-							return Services::Request()
-										   ->carbon()
-										   ->subHours( 1 )->timestamp < $ts;
-						} )
-					);
-				}
+				
 				http_response_code( 200 );
 				die();
 			}

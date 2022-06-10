@@ -45,8 +45,7 @@ class RenderBlockIP extends BaseBlockPage {
 		$opts = $this->getOptions();
 
 		$ip = Services::Request()->ip();
-		$canAutoRecover = $opts->isEnabledAutoVisitorRecover()
-						  && $opts->getCanIpRequestAutoUnblock( $ip );
+		$canAutoRecover = $opts->isEnabledAutoVisitorRecover() && $opts->canIpRequestAutoUnblock( $ip );
 
 		$content = '';
 
@@ -106,7 +105,7 @@ class RenderBlockIP extends BaseBlockPage {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( $user instanceof \WP_User &&
 			 $opts->isEnabledMagicEmailLinkRecover()
-			 && $opts->getCanRequestAutoUnblockEmailLink( $user )
+			 && $opts->canRequestAutoUnblockEmailLink( $user )
 		) {
 
 			if ( apply_filters( $con->prefix( 'can_user_magic_link' ), true ) ) {
