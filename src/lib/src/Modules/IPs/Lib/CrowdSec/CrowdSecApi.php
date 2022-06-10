@@ -111,6 +111,7 @@ class CrowdSecApi {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$mod->getCrowdSecCon()->execute();
+		$crowdSecSpec = $this->getOptions()->getDef( 'crowdsec' );
 
 		$siteURL = Services::WpGeneral()->getWpUrl();
 		$csAuth = $mod->getCrowdSecCon()->cfg->cs_auths[ $siteURL ] ?? [];
@@ -152,7 +153,15 @@ class CrowdSecApi {
 			if ( empty( $csAuth[ 'auth_token' ] ) || empty( $csAuth[ 'auth_expire' ] )
 				 || ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 )
 			) {
-				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
+				$scenarios = $crowdSecSpec[ 'scenarios' ][ 'free' ];
+				if ( $this->getCon()->isPremiumActive() ) {
+					$scenarios = array_merge( $scenarios, $crowdSecSpec[ 'scenarios' ][ 'pro' ] );
+					$filteredScenarios = apply_filters( 'shield/crowdsec_login_scenarios', $scenarios );
+					if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
+						$scenarios = $filteredScenarios;
+					}
+				}
+				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $scenarios );
 				$csAuth[ 'auth_token' ] = $login[ 'token' ];
 				$csAuth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->timestamp;
 

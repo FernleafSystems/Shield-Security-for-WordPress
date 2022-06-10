@@ -626,6 +626,17 @@
     }
   ],
   "definitions":      {
+    "crowdsec":            {
+      "scenarios": {
+        "free": [
+          "crowdsecurity/http-bf-wordpress_bf",
+          "crowdsecurity/http-wordpress_wpconfig",
+          "crowdsecurity/http-wordpress_user-enum"
+        ],
+        "pro":  [
+        ]
+      }
+    },
     "rest_api":            {
       "publish":    true,
       "pro_only":   true,
@@ -790,6 +801,9 @@
       "cols_timestamps": {
         "auto_unblock_at": {
           "comment": "Visitor Requested Unblock"
+        },
+        "expires_at":      {
+          "comment": "Record Expires At"
         }
       }
     },

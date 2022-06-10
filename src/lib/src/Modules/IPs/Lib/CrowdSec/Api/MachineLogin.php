@@ -11,12 +11,14 @@ class MachineLogin extends Base {
 	/**
 	 * @throws FailedToMachineLoginException
 	 */
-	public function run( string $machineID, string $password ) :array {
+	public function run( string $machineID, string $password, array $scenarios = [] ) :array {
 		$this->request_method = 'post';
 		$this->params_body = [
 			'password'   => $password,
 			'machine_id' => $machineID,
+			'scenarios'  => $scenarios
 		];
+
 		$raw = $this->sendReq();
 		if ( !is_array( $raw ) || $raw[ 'code' ] !== 200 ) {
 			throw new FailedToMachineLoginException( sprintf( 'login failed: %s',

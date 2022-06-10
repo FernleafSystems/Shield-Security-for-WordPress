@@ -107,13 +107,16 @@ class ProcessDecisionList {
 		$dbhCS->getQueryInserter()->insert( $record );
 	}
 
+	/**
+	 * TODO: handle when scope isn't "ip"
+	 */
 	private function getIpsFromDecisions( array $decisions ) :array {
 		return array_filter( array_map(
 			function ( $decision ) {
 				$ip = null;
 				if ( is_array( $decision ) ) {
 					try {
-						$ip = $this->getIpFromDecision( $decision );
+						$ip = $this->getValueFromDecision( $decision );
 					}
 					catch ( \Exception $e ) {
 					}
@@ -125,20 +128,25 @@ class ProcessDecisionList {
 	}
 
 	/**
+	 * TODO: handle when scope isn't "ip"
 	 * @throws \Exception
 	 */
-	private function getIpFromDecision( array $decision ) :string {
+	private function getValueFromDecision( array $decision ) :string {
 		$srvIP = Services::IP();
-		$ip = trim( (string)( $decision[ 'start_ip' ] ?? '' ) );
-		if ( empty( $ip ) ) {
-			throw new \Exception( 'Empty start_ip' );
+		if ( empty( $decision[ 'scope' ] ) ) {
+			throw new \Exception( 'Empty decision scope' );
 		}
-		if ( !$srvIP->isValidIp_PublicRemote( $ip ) ) {
-			throw new \Exception( 'Invalid start_ip' );
+		if ( $decision[ 'scope' ] !== 'ip' ) {
+			throw new \Exception( "Unsupported decision scope (i.e. no 'ip'): ".$decision[ 'scope' ] );
 		}
-		if ( !empty( $decision[ 'end_ip' ] ) && !$srvIP->checkIp( $ip, $decision[ 'end_ip' ] ) ) {
-			throw new \Exception( 'Ranges are not supported yet.' );
+		if ( empty( $decision[ 'value' ] ) ) {
+			throw new \Exception( 'Empty decision value' );
 		}
-		return $ip;
+
+		if ( $decision[ 'scope' ] === 'ip' && !$srvIP->isValidIp_PublicRemote( $decision[ 'value' ] ) ) {
+			throw new \Exception( 'Invalid decision value (IP) provided: '.$decision[ 'value' ] );
+		}
+
+		return trim( $decision[ 'value' ] );
 	}
 }
