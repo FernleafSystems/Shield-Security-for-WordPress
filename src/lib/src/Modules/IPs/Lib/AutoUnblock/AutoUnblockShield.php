@@ -1,85 +1,46 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AutoUnblock extends ExecOnceModConsumer {
+class AutoUnblockShield extends BaseAutoUnblock {
 
 	protected function canRun() :bool {
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
-		return $this->getCon()->this_req->is_ip_blocked && $opts->isEnabledAutoVisitorRecover();
+		return parent::canRun() && $this->getCon()->this_req->is_ip_blocked;
 	}
 
 	protected function run() {
+		parent::run();
+
 		try {
-			$unblocked = $this->processAutoUnblockRequest();
+			if ( $this->processUserMagicLink() ) {
+				Services::Response()->redirectToHome();
+			}
 		}
 		catch ( \Exception $e ) {
-			$unblocked = false;
-		}
-		if ( !$unblocked ) {
-			try {
-				$unblocked = $this->processUserMagicLink();
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		if ( $unblocked ) {
-			Services::Response()->redirectToHome();
 		}
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	private function processAutoUnblockRequest() :bool {
+	protected function processAutoUnblockRequest() :bool {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
 		$req = Services::Request();
 
 		$unblocked = false;
 
-		$ip = Services::IP()->getRequestIp();
-		if ( empty( $ip ) ) {
-			throw new \Exception( 'No IP' );
-		}
-
-		if ( $req->post( 'action' ) == $mod->getCon()->prefix()
-			 && $req->post( 'exec' ) == 'uau-'.$ip ) {
-
-			if ( !$opts->canIpRequestAutoUnblock( $ip ) ) {
-				throw new \Exception( 'IP already processed in the last 1hr' );
-			}
-
-			// mark IP as having used up it's autounblock option.
-			$existing = $opts->getAutoUnblockIps();
-			$existing[ $ip ] = Services::Request()->ts();
-			$opts->setOpt( 'autounblock_ips', $existing );
-
-			if ( $req->post( '_confirm' ) !== 'Y' ) {
-				throw new \Exception( 'No confirmation checkbox.' );
-			}
-			if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
-				throw new \Exception( 'Oh so yummy honey.' );
-			}
-			if ( wp_verify_nonce( $req->post( 'exec_nonce' ), 'uau-'.$ip ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
-			}
-
+		if ( $this->canRunUnblock() ) {
 			( new IPs\Lib\Ops\DeleteIp() )
 				->setMod( $mod )
-				->setIP( $ip )
+				->setIP( $req->ip() )
 				->fromBlacklist();
 			( new IPs\Lib\Bots\BotSignalsRecord() )
 				->setMod( $this->getMod() )
-				->setIP( $ip )
+				->setIP( $req->ip() )
 				->delete();
 			$unblocked = true;
 		}
@@ -118,7 +79,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 				throw new \Exception( 'Users do not match.' );
 			}
 
-			if ( $req->query( 'ip' ) !== Services::IP()->getRequestIp() ) {
+			if ( $req->query( 'ip' ) !== $req->ip() ) {
 				throw new \Exception( 'IP does not match.' );
 			}
 
@@ -132,18 +93,18 @@ class AutoUnblock extends ExecOnceModConsumer {
 				$opts->setOpt( 'autounblock_emailids', $existing );
 
 				$this->sendMagicLinkEmail();
-				
+
 				http_response_code( 200 );
 				die();
 			}
 			elseif ( $linkParts[ 1 ] === 'go' ) {
 				( new IPs\Lib\Ops\DeleteIp() )
 					->setMod( $mod )
-					->setIP( Services::IP()->getRequestIp() )
+					->setIP( $req->ip() )
 					->fromBlacklist();
 				( new IPs\Lib\Bots\BotSignalsRecord() )
 					->setMod( $this->getMod() )
-					->setIP( Services::IP()->getRequestIp() )
+					->setIP( $req->ip() )
 					->delete();
 				$unblocked = true;
 			}
@@ -178,7 +139,7 @@ class AutoUnblock extends ExecOnceModConsumer {
 						array_merge(
 							$mod->getNonceActionData( 'uaum-go-'.substr( sha1( $user->user_login ), 0, 6 ) ),
 							[
-								'ip' => Services::IP()->getRequestIp()
+								'ip' => Services::Request()->ip()
 							]
 						),
 						Services::WpGeneral()->getHomeUrl()
@@ -189,13 +150,13 @@ class AutoUnblock extends ExecOnceModConsumer {
 					'please_click'     => __( 'Please click the link provided below to do so.', 'wp-simple-firewall' ),
 					'details'          => __( 'Details', 'wp-simple-firewall' ),
 					'unblock_my_ip'    => sprintf( '%s: %s',
-						__( 'Unblock My IP', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
+						__( 'Unblock My IP', 'wp-simple-firewall' ), Services::Request()->ip() ),
 					'or_copy'          => __( 'Or Copy-Paste', 'wp-simple-firewall' ),
 					'details_url'      => sprintf( '%s: %s',
 						__( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
 					'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-					'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
-																											   ->getRequestIp() ),
+					'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
+						Services::Request()->ip() ),
 					'important'        => __( 'Important', 'wp-simple-firewall' ),
 					'imp_limit'        => __( "You'll need to wait for a further 60 minutes if your IP address gets blocked again.", 'wp-simple-firewall' ),
 					'imp_browser'      => __( "This link will ONLY work if it opens in the same web browser that you used to request this email.", 'wp-simple-firewall' ),

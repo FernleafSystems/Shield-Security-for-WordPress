@@ -4,9 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockShield;
 
 class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
@@ -27,7 +26,7 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		( new ProcessOffenses() )
 			->setMod( $this->getMod() )
 			->execute();
-		( new AutoUnblock() )
+		( new AutoUnblockShield() )
 			->setMod( $this->getMod() )
 			->execute();
 	}

@@ -7,11 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\RunDecisionsUpdate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\CrowdSec\LoadCrowdSecRecords,
-	Lib\AutoUnblockCrowdsec,
+	Lib\AutoUnblock\AutoUnblockCrowdsec,
 	ModCon,
 	Options
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecController extends ExecOnceModConsumer {
 
@@ -50,22 +49,25 @@ class CrowdSecController extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		$dbhCS = $mod->getDbH_CrowdSec();
 
-		$records = ( new LoadCrowdSecRecords() )
-			->setMod( $this->getMod() )
-			->setIP( $ip )
-			->selectAll();
-
 		$onCS = false;
-		if ( count( $records ) > 0 ) {
 
-			$theRecord = $records[ 0 ];
-			unset( $records[ 0 ] );
-			$onCS = !$blockedOnly || $theRecord->auto_unblock_at === 0;
+		if ( !empty( $ip ) ) {
+			$records = ( new LoadCrowdSecRecords() )
+				->setMod( $this->getMod() )
+				->setIP( $ip )
+				->selectAll();
 
-			// Remove any duplicates as we go.
 			if ( count( $records ) > 0 ) {
-				foreach ( $records as $record ) {
-					$dbhCS->getQueryDeleter()->deleteById( $record->id );
+
+				$theRecord = $records[ 0 ];
+				unset( $records[ 0 ] );
+				$onCS = !$blockedOnly || $theRecord->auto_unblock_at === 0;
+
+				// Remove any duplicates as we go.
+				if ( count( $records ) > 0 ) {
+					foreach ( $records as $record ) {
+						$dbhCS->getQueryDeleter()->deleteById( $record->id );
+					}
 				}
 			}
 		}

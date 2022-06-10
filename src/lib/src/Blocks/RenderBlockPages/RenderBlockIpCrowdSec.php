@@ -30,7 +30,7 @@ class RenderBlockIpCrowdSec extends RenderBlockIP {
 
 		$ip = Services::Request()->ip();
 
-		if ( $opts->isEnabledCrowdSecAutoVisitorUnblock() && $opts->getCanIpRequestAutoUnblock( $ip ) ) {
+		if ( $opts->isEnabledCrowdSecAutoVisitorUnblock() && $opts->canIpRequestAutoUnblock( $ip ) ) {
 			$content = $mod->renderTemplate( '/pages/block/autorecover_crowdsec.twig', [
 				'hrefs'   => [
 					'home' => Services::WpGeneral()->getHomeUrl( '/' )
