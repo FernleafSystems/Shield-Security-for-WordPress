@@ -1,12 +1,34 @@
+<style>
+	.address label,
+	.address input {
+	  opacity: 0;
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  height: 0;
+	  width: 0;
+	  z-index: -1;
+  }
+</style>
 <div class="auto-recover">
 	<div class="uaug uau">
 		<p>{{ strings.you_can }}</p>
 		<form method="post" action="{{ hrefs.home }}">
 			<input type="hidden" name="email" value="" />
 			{% for key,val in vars.nonce %}
-				<input type="hidden" name="{{ key }}" value="{{ val }}" />
+				<input type="hidden" name="{{ key }}" value="{{ val }}"  autocomplete="off" />
 			{% endfor %}
-			<p><button type="submit" class="btn btn-warning">{{ strings.button }}</button></p>
+			<fieldset aria-hidden="true" class="address">
+				<label for="firstname">
+		      <input autocomplete="off" type="text" id="firstname" name="firstname" placeholder="Your name here">
+				</label>
+		    <label for="email">
+			    <input autocomplete="off" type="email" id="email" name="email" placeholder="Your e-mail here">
+		    </label>
+			</fieldset>
+			<fieldset aria-hidden="false" class="submit">
+				<button type="submit" class="btn btn-warning">{{ strings.button }}</button>
+			</fieldset>
 		</form>
 	</div>
 </div>
