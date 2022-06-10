@@ -1,12 +1,77 @@
+<style>
+	.address label,
+  .address input {
+	  opacity: 0;
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  height: 0;
+	  width: 0;
+	  z-index: -1;
+  }
+  p#unblock_confirm input[type=checkbox] {
+	  margin-right: 4px;
+  }
+</style>
 <div class="auto-recover">
 	<div class="uaug uau">
 		<p>{{ strings.you_can }}</p>
 		<form method="post" action="{{ hrefs.home }}">
 			<input type="hidden" name="email" value="" />
 			{% for key,val in vars.nonce %}
-				<input type="hidden" name="{{ key }}" value="{{ val }}" />
+				<input type="hidden" name="{{ key }}" value="{{ val }}" autocomplete="off" />
 			{% endfor %}
-			<p><button type="submit" class="btn btn-warning">{{ strings.button }}</button></p>
+			<fieldset aria-hidden="true" class="address">
+				<label for="firstname">
+		      <input autocomplete="off" type="text" id="firstname" name="firstname" placeholder="Your name here">
+				</label>
+		    <label for="email">
+			    <input autocomplete="off" type="email" id="email" name="email" placeholder="Your e-mail here">
+		    </label>
+			</fieldset>
+			<fieldset aria-hidden="false" class="submit">
+				<p id="unblock_confirm"></p>
+				<button type="submit" class="btn btn-warning" id="submitUnblock"
+				        disabled="disabled">{{ strings.button }}</button>
+			</fieldset>
 		</form>
 	</div>
 </div>
+
+<script type="text/javascript">
+
+	var bRun = false;
+
+  window.addEventListener( 'load', function () {
+
+	  let the_p = document.getElementById( "unblock_confirm" );
+	  if ( typeof the_p === 'undefined' ) {
+		  console.log( '[Shield Security] GASP Checkbox: Problem on your page and perhaps Javascript is breaking.' );
+		  return;
+	  }
+	  let thisForm = the_p.form;
+
+	  let the_cb = document.createElement( "input" );
+	  let the_lab = document.createElement( "label" );
+	  let the_txt = document.createTextNode( "I confirm that I'm accessing this site legitimately" );
+	  the_cb.type = "checkbox";
+	  the_cb.id = "_confirm";
+	  the_cb.name = "_confirm";
+	  the_cb.value = "Y";
+	  the_p.appendChild( the_lab );
+	  the_lab.appendChild( the_cb );
+	  the_lab.appendChild( the_txt );
+
+	  the_cb.onchange = function ( evt ) {
+		  const button = document.getElementById( "submitUnblock" );
+		  if ( evt.target.checked ) {
+			  button.removeAttribute( 'disabled' );
+		  }
+		  else {
+			  button.setAttribute( 'disabled', 'disabled' );
+		  }
+	  };
+
+  }, false );
+
+</script>

@@ -58,17 +58,19 @@ class AutoUnblock extends ExecOnceModConsumer {
 				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
-			{
-				$existing = $opts->getAutoUnblockIps();
-				$existing[ $ip ] = Services::Request()->ts();
-				$opts->setOpt( 'autounblock_ips', $existing );
-			}
+			// mark IP as having used up it's autounblock option.
+			$existing = $opts->getAutoUnblockIps();
+			$existing[ $ip ] = Services::Request()->ts();
+			$opts->setOpt( 'autounblock_ips', $existing );
 
-			if ( wp_verify_nonce( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
+			if ( $req->post( '_confirm' ) !== 'Y' ) {
+				throw new \Exception( 'No confirmation checkbox.' );
 			}
-			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
-				throw new \Exception( 'Email should not be provided in honeypot' );
+			if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
+				throw new \Exception( 'Oh so yummy honey.' );
+			}
+			if ( wp_verify_nonce( $req->post( 'exec_nonce' ), 'uau-'.$ip ) !== 1 ) {
+				throw new \Exception( 'Nonce failed' );
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
