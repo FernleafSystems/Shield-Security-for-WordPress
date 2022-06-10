@@ -11,7 +11,8 @@ class AutoUnblockCrowdsec extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		return $this->getCon()->this_req->is_ip_crowdsec_blocked && $opts->isEnabledCrowdSecAutoVisitorUnblock();
+		return Services::Request()->isPost()
+			   && $this->getCon()->this_req->is_ip_crowdsec_blocked && $opts->isEnabledCrowdSecAutoVisitorUnblock();
 	}
 
 	protected function run() {
@@ -48,17 +49,19 @@ class AutoUnblockCrowdsec extends ExecOnceModConsumer {
 				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
 
-			{ // first thing is mark IP as having made a request. That way they can't repeatedly request.
-				$existing = $opts->getAutoUnblockIps();
-				$existing[ $ip ] = Services::Request()->ts();
-				$opts->setOpt( 'autounblock_ips', $existing );
-			}
+			// mark IP as having used up it's autounblock option.
+			$existing = $opts->getAutoUnblockIps();
+			$existing[ $ip ] = Services::Request()->ts();
+			$opts->setOpt( 'autounblock_ips', $existing );
 
-			if ( wp_verify_nonce( 'uau-cs-'.$ip, 'exec_nonce' ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
+			if ( $req->post( '_confirm' ) !== 'Y' ) {
+				throw new \Exception( 'No confirmation checkbox.' );
 			}
 			if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
 				throw new \Exception( 'Oh so yummy honey.' );
+			}
+			if ( wp_verify_nonce( $req->post( 'exec_nonce' ), 'uau-cs-'.$ip ) !== 1 ) {
+				throw new \Exception( 'Nonce failed' );
 			}
 
 			$csRecord = ( new IPs\DB\CrowdSec\LoadCrowdSecRecords() )
