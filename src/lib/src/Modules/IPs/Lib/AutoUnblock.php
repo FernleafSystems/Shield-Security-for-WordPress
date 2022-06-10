@@ -54,13 +54,6 @@ class AutoUnblock extends ExecOnceModConsumer {
 		if ( $req->post( 'action' ) == $mod->getCon()->prefix()
 			 && $req->post( 'exec' ) == 'uau-'.$ip ) {
 
-			if ( check_admin_referer( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
-			}
-			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
-				throw new \Exception( 'Email should not be provided in honeypot' );
-			}
-
 			if ( !$opts->getCanIpRequestAutoUnblock( $ip ) ) {
 				throw new \Exception( 'IP already processed in the last 1hr' );
 			}
@@ -75,6 +68,13 @@ class AutoUnblock extends ExecOnceModConsumer {
 									   ->subHours( 1 )->timestamp < $ts;
 					} )
 				);
+			}
+
+			if ( wp_verify_nonce( 'uau-'.$ip, 'exec_nonce' ) !== 1 ) {
+				throw new \Exception( 'Nonce failed' );
+			}
+			if ( strlen( (string)$req->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
+				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
