@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSec;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -42,7 +42,7 @@ class LoadCrowdSecRecords {
 							%s
 						ORDER BY `cs`.`updated_at` DESC
 						%s;",
-				$mod->getDbH_CrowdSec()->getTableSchema()->table,
+				$mod->getDbH_CrowdSecDecisions()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $ip ) ? '' : sprintf( "AND `ips`.`ip`=INET6_ATON('%s')", $ip ),
 				$limit > 1 ? sprintf( 'LIMIT %s', $limit ) : ''

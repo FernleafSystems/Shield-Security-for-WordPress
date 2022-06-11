@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\RunDecisionsUpdate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	DB\CrowdSec\LoadCrowdSecRecords,
+	DB\CrowdSecDecisions\LoadCrowdSecRecords,
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
 	ModCon,
 	Options
@@ -47,7 +47,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 	public function isIpOnCrowdSec( string $ip, bool $blockedOnly = false ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbhCS = $mod->getDbH_CrowdSec();
+		$dbhCS = $mod->getDbH_CrowdSecDecisions();
 
 		$onCS = false;
 

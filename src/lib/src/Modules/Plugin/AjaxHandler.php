@@ -56,7 +56,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$con->getModule_Data()->getDbH_ReqLogs(),
 				$con->getModule_Data()->getDbH_UserMeta(),
 				$con->getModule_IPs()->getDbH_BotSignal(),
-				$con->getModule_IPs()->getDbH_CrowdSec(),
+				$con->getModule_IPs()->getDbH_CrowdSecDecisions(),
 			];
 			Services::WpDb()->doSql(
 				sprintf( 'DROP TABLE IF EXISTS `%s`', implode( '`,`', array_map(

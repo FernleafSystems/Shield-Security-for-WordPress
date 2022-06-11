@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSec\Ops as CrowdSecDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\Ops as CrowdSecDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -27,7 +27,7 @@ class ProcessDecisionList {
 		if ( !empty( $ipList ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
-			$dbhCS = $mod->getDbH_CrowdSec();
+			$dbhCS = $mod->getDbH_CrowdSecDecisions();
 
 			$existingRecords = Services::WpDb()->selectCustom( sprintf(
 				"SELECT INET6_NTOA(`ips`.`ip`) as ip
@@ -78,7 +78,7 @@ class ProcessDecisionList {
 		if ( !empty( $ipList ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
-			$dbhCS = $mod->getDbH_CrowdSec();
+			$dbhCS = $mod->getDbH_CrowdSecDecisions();
 			Services::WpDb()->doSql( sprintf(
 				"DELETE FROM `%s` as `cs`
 					INNER JOIN `%s` as `ips` ON `ips`.`id` = `cs`.`ip_ref`
@@ -97,7 +97,7 @@ class ProcessDecisionList {
 	private function insertIP( string $ip ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbhCS = $mod->getDbH_CrowdSec();
+		$dbhCS = $mod->getDbH_CrowdSecDecisions();
 		/** @var CrowdSecDB\Record $record */
 		$record = $dbhCS->getRecord();
 		$record->ip_ref = ( new IPRecords() )

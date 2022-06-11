@@ -626,7 +626,7 @@
     }
   ],
   "definitions":      {
-    "crowdsec":            {
+    "crowdsec":                    {
       "scenarios": {
         "free": [
           "crowdsecurity/http-bf-wordpress_bf",
@@ -637,7 +637,7 @@
         ]
       }
     },
-    "rest_api":            {
+    "rest_api":                    {
       "publish":    true,
       "pro_only":   true,
       "route_defs": {
@@ -651,7 +651,7 @@
         }
       }
     },
-    "allowable_ext_404s":  [
+    "allowable_ext_404s":          [
       "js",
       "css",
       "gif",
@@ -663,11 +663,11 @@
       "woff",
       "woff2"
     ],
-    "db_handler_classes":  {
-      "botsignal": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
-      "crowdsec":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSec\\Ops\\Handler"
+    "db_handler_classes":          {
+      "botsignal":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
+      "crowdsec_decisions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecDecisions\\Ops\\Handler"
     },
-    "db_table_botsignal":  {
+    "db_table_botsignal":          {
       "autoexpire":     0,
       "slug":           "botsignal",
       "has_updated_at": true,
@@ -785,9 +785,9 @@
         }
       }
     },
-    "db_table_crowdsec":   {
+    "db_table_crowdsec_decisions": {
       "autoexpire":      0,
-      "slug":            "crowdsec",
+      "slug":            "crowdsec_decisions",
       "has_updated_at":  true,
       "col_older_than":  "updated_at",
       "cols_custom":     {
@@ -807,11 +807,11 @@
         }
       }
     },
-    "db_classes":          {
+    "db_classes":                  {
       "ip_lists": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
-    "ip_lists_table_name": "ip_lists",
-    "db_table_ip_lists":   {
+    "ip_lists_table_name":         "ip_lists",
+    "db_table_ip_lists":           {
       "slug":            "ip_lists",
       "cols_custom":     {
         "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
@@ -826,7 +826,7 @@
         "blocked_at":     "IP Blocked"
       }
     },
-    "events":              {
+    "events":                      {
       "custom_offense":          {
         "audit_params": [
           "message"
