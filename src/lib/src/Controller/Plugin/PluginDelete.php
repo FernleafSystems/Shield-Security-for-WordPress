@@ -18,7 +18,10 @@ class PluginDelete {
 	}
 
 	private function deleteTmpDir() {
-		Services::WpFs()->deleteDir( $this->getCon()->getPluginCachePath() );
+		$path = $this->getCon()->getPluginCachePath();
+		if ( !empty( $path ) ) {
+			Services::WpFs()->deleteDir( $this->getCon()->getPluginCachePath() );
+		}
 	}
 
 	private function deleteDatabases() {
