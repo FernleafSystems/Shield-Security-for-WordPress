@@ -233,7 +233,7 @@ class UI extends BaseShield\UI {
 		switch ( $section ) {
 
 			case 'section_file_guard':
-				if ( !$this->getCon()->cache_dir_handler->dirExists() ) {
+				if ( !$this->getCon()->cache_dir_handler->exists() ) {
 					$warnings[] = __( "Plugin/Theme file scanners are unavailable because we couldn't create a temporary directory to store files.", 'wp-simple-firewall' );
 				}
 

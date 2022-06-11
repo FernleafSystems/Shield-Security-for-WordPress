@@ -41,6 +41,9 @@ class Paths {
 		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'templates' ].'/'.ltrim( $item, '/' ) );
 	}
 
+	/**
+	 * @deprecated 15.1
+	 */
 	public function cacheDir() :string {
 		$FS = Services::WpFs();
 		$wpContent = path_join( ABSPATH, 'wp-content' );
@@ -50,11 +53,10 @@ class Paths {
 		return wp_normalize_path( path_join( $wpContent, $this->getCon()->cfg->paths[ 'cache' ] ) );
 	}
 
+	/**
+	 * @deprecated 15.1
+	 */
 	public function forCacheItem( string $item = '' ) :string {
 		return path_join( $this->cacheDir(), $item );
-	}
-
-	public function forTmpItem( string $item = '' ) :string {
-		return path_join( get_temp_dir(), $item );
 	}
 }

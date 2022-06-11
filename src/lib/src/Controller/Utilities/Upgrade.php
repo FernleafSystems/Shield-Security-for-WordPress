@@ -13,13 +13,12 @@ class Upgrade {
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
-		return $con->cfg->previous_version !== $con->getVersion()
-			   && !$this->isAlreadyUpgrading();
+		return ( $con->cfg->previous_version !== $con->getVersion() ) && !$this->isAlreadyUpgrading();
 	}
 
 	protected function isAlreadyUpgrading() :bool {
 		$FS = Services::WpFs();
-		$upgradeFlag = $this->getCon()->getPluginCachePath( 'upgrading.flag' );
+		$upgradeFlag = $this->getCon()->cache_dir_handler->cacheItemPath( 'upgrading.flag' );
 		return !empty( $upgradeFlag )
 			   && $FS->isFile( $upgradeFlag )
 			   && ( Services::Request()->ts() - 600 ) < $FS->getModifiedTime( $upgradeFlag );
@@ -27,16 +26,28 @@ class Upgrade {
 
 	protected function run() {
 		$con = $this->getCon();
+		$FS = Services::WpFs();
 
-		Services::WpFs()->touch( $con->getPluginCachePath( 'upgrading.flag' ), Services::Request()->ts() );
+		$filePath = method_exists( $con->cache_dir_handler, 'cacheItemPath' ) ?
+			$con->cache_dir_handler->cacheItemPath( 'upgrading.flag' )
+			: $con->getPluginCachePath( 'upgrading.flag' );
+
+		$FS->touch( $filePath, Services::Request()->ts() );
 
 		$this->upgradeModules();
 
 		$con->cfg->previous_version = $con->getVersion();
 
-		add_action( $con->prefix( 'plugin_shutdown' ), function () {
-			Services::WpFs()->deleteFile( $this->getCon()->getPluginCachePath( 'upgrading.flag' ) );
-		} );
+		if ( $FS->isFile( $filePath ) ) {
+			add_action( $con->prefix( 'plugin_shutdown' ), function () {
+				$con = $this->getCon();
+				Services::WpFs()->deleteFile(
+					method_exists( $con->cache_dir_handler, 'cacheItemPath' ) ?
+						$con->cache_dir_handler->cacheItemPath( 'upgrading.flag' )
+						: $con->getPluginCachePath( 'upgrading.flag' )
+				);
+			} );
+		}
 	}
 
 	private function upgradeModules() {
