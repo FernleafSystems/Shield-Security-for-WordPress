@@ -220,7 +220,7 @@ class Collate {
 
 		$data[ 'Ping License Server' ] = ( new Licenses\Keyless\Ping() )->ping() ? 'Yes' : 'No';
 
-		$data[ 'Write TMP/Cache DIR' ] = $con->cache_dir_handler->dirExists() ? 'Yes: '.$con->getPluginCachePath() : 'No';
+		$data[ 'Write TMP/Cache DIR' ] = $con->cache_dir_handler->exists() ? 'Yes: '.$con->cache_dir_handler->dir() : 'No';
 
 		return $data;
 	}
@@ -254,7 +254,8 @@ class Collate {
 		/** @var Options $oOptsIP */
 		$optsPlugin = $modPlugin->getOptions();
 		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
-		$data[ 'Visitor IP Source' ] = $source.': '.var_export( Services::IP()->getRequestIp(), true );
+		$ip = Services::IP()->getRequestIp();
+		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
 
 		return $data;
 	}

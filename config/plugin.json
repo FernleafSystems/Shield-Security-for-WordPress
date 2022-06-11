@@ -542,6 +542,13 @@
       "default":      []
     },
     {
+      "key":          "last_known_cache_basedirs",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
+    },
+    {
       "key":          "ipdetect_at",
       "transferable": false,
       "section":      "section_non_ui",

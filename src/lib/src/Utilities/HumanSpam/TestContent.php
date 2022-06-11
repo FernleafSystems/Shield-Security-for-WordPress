@@ -20,9 +20,8 @@ class TestContent {
 	public function findSpam( array $itemsToTest, bool $finishAfterFirst = true ) :array {
 		$spamFound = [];
 
-		$itemsToTest = array_map( 'strval', array_filter( $itemsToTest ) );
 		foreach ( $this->getSpamList() as $word ) {
-			foreach ( $itemsToTest as $key => $item ) {
+			foreach ( array_map( 'strval', array_filter( $itemsToTest ) ) as $key => $item ) {
 				if ( stripos( $item, $word ) !== false ) {
 
 					if ( !isset( $spamFound[ $word ] ) ) {
@@ -41,33 +40,38 @@ class TestContent {
 	}
 
 	private function getSpamList() :array {
-		if ( empty( $this->list ) ) {
+		if ( !is_array( $this->list ) ) {
 			$FS = Services::WpFs();
 			$file = $this->getFile();
-			if ( !$FS->exists( $file )
-				 || Services::Request()->ts() - $FS->getModifiedTime( $file ) > MONTH_IN_SECONDS ) {
-				$this->importBlacklist();
+			if ( $FS->exists( $file )
+				 && Services::Request()->ts() - $FS->getModifiedTime( $file ) < MONTH_IN_SECONDS ) {
+				$this->list = array_map( 'base64_decode', explode( "\n", (string)$FS->getFileContent( $file, true ) ) );
 			}
-			$this->list = array_map( 'base64_decode', explode( "\n", $FS->getFileContent( $file, true ) ) );
+			else {
+				$this->list = $this->downloadBlacklist();
+				$this->storeList( $this->list );
+			}
 		}
 		return $this->list;
 	}
 
-	private function importBlacklist() :bool {
-		$success = false;
+	private function downloadBlacklist() :array {
 		$mod = $this->getCon()->getModule_Comments();
 		$rawList = Services::HttpRequest()->getContent( $mod->getOptions()->getDef( 'url_spam_blacklist_terms' ) );
-		if ( !empty( $rawList ) && !empty( $this->getFile() ) ) {
-			$success = Services::WpFs()->putFileContent(
+		return array_filter( array_map( 'trim', explode( "\n", $rawList ) ) );
+	}
+
+	private function storeList( array $list ) {
+		if ( !empty( $list ) && !empty( $this->getFile() ) ) {
+			Services::WpFs()->putFileContent(
 				$this->getFile(),
-				implode( "\n", array_map( 'base64_encode', array_filter( array_map( 'trim', explode( "\n", $rawList ) ) ) ) ),
+				implode( "\n", array_map( 'base64_encode', $list ) ),
 				true
 			);
 		}
-		return $success;
 	}
 
 	private function getFile() :string {
-		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
+		return $this->getCon()->paths->forTmpItem( 'spamblacklist.txt' );
 	}
 }

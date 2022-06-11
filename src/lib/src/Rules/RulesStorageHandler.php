@@ -16,10 +16,6 @@ class RulesStorageHandler {
 	public function loadRules( bool $attemptRebuild = true ) :array {
 
 		$rules = $this->loadRawFromWP();
-		if ( empty( $rules ) ) {
-			$rules = $this->loadRawFromFile();
-		}
-
 		if ( $attemptRebuild && ( empty( $rules ) || empty( $rules[ 'rules' ] ) ) ) {
 			$this->buildAndStore();
 			$rules = $this->loadRules( false );
@@ -48,21 +44,13 @@ class RulesStorageHandler {
 
 	public function store( array $rules ) {
 		$WP = Services::WpGeneral();
-		$req = Services::Request();
-
-		$data = [
-			'ts'    => $req->ts(),
-			'time'  => $WP->getTimeStampForDisplay( $req->ts() ),
+		$WP->updateOption( $this->getWpStorageKey(), [
+			'ts'    => Services::Request()->ts(),
+			'time'  => $WP->getTimeStampForDisplay( Services::Request()->ts() ),
 			'rules' => array_map( function ( RuleVO $rule ) {
 				return $rule->getRawData();
 			}, $rules ),
-		];
-
-		$WP->updateOption( $this->getWpStorageKey(), $data );
-
-		if ( $this->getRulesCon()->getCon()->cache_dir_handler->dirExists() ) {
-			Services::WpFs()->putFileContent( $this->getPathToRules(), wp_json_encode( $data ) );
-		}
+		] );
 	}
 
 	private function loadRawFromWP() :array {
@@ -70,28 +58,21 @@ class RulesStorageHandler {
 		return is_array( $raw ) ? $raw : [];
 	}
 
-	private function loadRawFromFile() :array {
-		$rules = [];
-
-		$FS = Services::WpFs();
-		if ( $FS->exists( $this->getPathToRules() ) ) {
-			$content = $FS->getFileContent( $this->getPathToRules() );
-			if ( !empty( $content ) ) {
-				$decoded = @json_decode( $content, true );
-				if ( is_array( $decoded ) ) {
-					$rules = $decoded;
-				}
-			}
-		}
-
-		return $rules;
-	}
-
-	private function getPathToRules() :string {
-		return path_join( $this->getRulesCon()->getCon()->cache_dir_handler->build(), 'rules.json' );
-	}
-
 	private function getWpStorageKey() :string {
 		return $this->getRulesCon()->getCon()->prefix( 'rules' );
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	private function loadRawFromFile() :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 15.1
+	 */
+	private function getPathToRules() :string {
+		return path_join( $this->getRulesCon()->getCon()->cache_dir_handler->build(), 'rules.json' );
 	}
 }
