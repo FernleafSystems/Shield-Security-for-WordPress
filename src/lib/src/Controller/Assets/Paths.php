@@ -53,4 +53,8 @@ class Paths {
 	public function forCacheItem( string $item = '' ) :string {
 		return path_join( $this->cacheDir(), $item );
 	}
+
+	public function forTmpItem( string $item = '' ) :string {
+		return path_join( get_temp_dir(), $item );
+	}
 }
