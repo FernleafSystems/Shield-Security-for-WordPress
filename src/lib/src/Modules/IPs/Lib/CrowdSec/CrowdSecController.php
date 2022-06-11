@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\RunDecisionsUpdate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\CrowdSecDecisions\LoadCrowdSecRecords,
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
@@ -22,7 +21,9 @@ class CrowdSecController extends ExecOnceModConsumer {
 	public $cfg;
 
 	protected function canRun() :bool {
-		return true;
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $opts->isEnabledCrowdSecAutoBlock();
 	}
 
 	protected function run() {
@@ -34,6 +35,15 @@ class CrowdSecController extends ExecOnceModConsumer {
 		( new AutoUnblockCrowdsec() )
 			->setMod( $this->getMod() )
 			->execute();
+
+		new Signals\EventsToSignals( $this->getCon(), true );
+
+		add_action( $this->getCon()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
+			// This cron is initiated from within SignalsBuilder
+			( new Signals\PushSignalsToCS() )
+				->setMod( $this->getMod() )
+				->push();
+		} );
 	}
 
 	public function getApi() :CrowdSecApi {
@@ -76,7 +86,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function runDailyCron() {
-		( new RunDecisionsUpdate() )
+		( new Decisions\DownloadDecisionsUpdate() )
 			->setMod( $this->getMod() )
 			->execute();
 	}

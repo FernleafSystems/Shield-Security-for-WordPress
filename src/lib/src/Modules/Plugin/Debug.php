@@ -21,7 +21,9 @@ class Debug extends Modules\Base\Debug {
 	private function crowdsec() {
 		$csCon = $this->getCon()->getModule_IPs()->getCrowdSecCon();
 		try {
-			var_dump( $csCon->getApi()->downloadDecisions() );
+			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->push();
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );

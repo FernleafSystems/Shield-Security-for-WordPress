@@ -665,7 +665,8 @@
     ],
     "db_handler_classes":          {
       "botsignal":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
-      "crowdsec_decisions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecDecisions\\Ops\\Handler"
+      "crowdsec_decisions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecDecisions\\Ops\\Handler",
+      "crowdsec_signals":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
     },
     "db_table_botsignal":          {
       "autoexpire":     0,
@@ -805,6 +806,33 @@
         "expires_at":      {
           "comment": "Record Expires At"
         }
+      }
+    },
+    "db_table_crowdsec_signals":   {
+      "autoexpire":      0,
+      "slug":            "crowdsec_signals",
+      "has_updated_at":  false,
+      "has_created_at":  true,
+      "has_deleted_at":  false,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "scenario":  {
+          "macro_type": "varchar",
+          "length":     32,
+          "attr":       []
+        },
+        "scope":  {
+          "macro_type": "varchar",
+          "length":     16,
+          "attr":       []
+        },
+        "value":  {
+          "macro_type": "varchar",
+          "length":     256,
+          "attr":       []
+        }
+      },
+      "cols_timestamps": {
       }
     },
     "db_classes":                  {

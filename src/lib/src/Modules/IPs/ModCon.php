@@ -62,7 +62,11 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getDbH_CrowdSecDecisions() :DB\CrowdSecDecisions\Ops\Handler {
 		$this->getCon()->getModule_Data()->getDbH_IPs();
-		return $this->getDbHandler()->loadDbH( 'crowdsec' );
+		return $this->getDbHandler()->loadDbH( 'crowdsec_decisions' );
+	}
+
+	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
 	}
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {

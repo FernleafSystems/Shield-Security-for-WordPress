@@ -26,9 +26,6 @@ class CrowdSecApi {
 	const STATE_MACH_NOT_ENROLLED = 'mach_not_enrolled';
 	const STATE_READY = 'ready';
 
-	/**
-	 * @throws \Exception
-	 */
 	public function isReady() :bool {
 		$this->login();
 		return in_array( $this->getAuthState(), [
@@ -38,27 +35,11 @@ class CrowdSecApi {
 		] );
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	public function getAuthorizationToken() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$this->isReady();
 		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ];
-	}
-
-	/**
-	 * @throws Exceptions\FailedToDownloadDecisionsStreamException
-	 * @throws \Exception
-	 */
-	public function downloadDecisions() :array {
-		return ( new Api\DecisionsDownload( $this->getAuthorizationToken() ) )->run();
-//		return [
-//			'new' => [
-//				[ "start_ip" => '90.250.11.231', ]
-//			]
-//		];
 	}
 
 	public function getAuthState() :string {
