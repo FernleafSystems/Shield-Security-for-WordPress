@@ -18,9 +18,9 @@ class PluginDelete {
 	}
 
 	private function deleteTmpDir() {
-		$path = $this->getCon()->getPluginCachePath();
+		$path = $this->getCon()->cache_dir_handler->dir();
 		if ( !empty( $path ) ) {
-			Services::WpFs()->deleteDir( $this->getCon()->getPluginCachePath() );
+			Services::WpFs()->deleteDir( $path );
 		}
 	}
 

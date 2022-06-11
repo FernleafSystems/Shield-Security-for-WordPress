@@ -70,7 +70,7 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 
-		$cacheDirFinder = ( new Shield\Utilities\CacheDirFinder( $lastKnownDirs[ $url ] ?? '' ) )->setCon( $this->getCon() );
+		$cacheDirFinder = ( new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' ) )->setCon( $this->getCon() );
 		$workableDir = $cacheDirFinder->dir();
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : dirname( $workableDir );
 

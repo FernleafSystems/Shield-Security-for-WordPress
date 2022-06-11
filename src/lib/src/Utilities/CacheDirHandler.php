@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TestCacheDirWrite;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\AssessDirWrite;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CacheDirFinder {
+class CacheDirHandler {
 
 	use PluginControllerConsumer;
 
@@ -33,6 +32,9 @@ class CacheDirFinder {
 			foreach ( $this->getBaseDirCandidates() as $baseDir ) {
 				$maybeDir = path_join( $baseDir, $this->getCon()->cfg->paths[ 'cache' ] );
 				try {
+					if ( $maybeDir === '/' ) {
+						throw new \Exception( 'Should never have the root as the cache dir.' ); // just to be ultra safe.
+					}
 					if ( !$FS->mkdir( $maybeDir ) || !$FS->isDir( $maybeDir ) ) {
 						throw new \Exception( sprintf( 'Failed to mkdir cache dir: %s', $maybeDir ) );
 					}
@@ -47,12 +49,13 @@ class CacheDirFinder {
 								$maybeDir, var_export( $assess, true ) ) );
 						}
 
+						if ( $maybeDir !== '/tmp' ) {
+							$this->addProtections( $maybeDir );
+						}
+
 						$FS->touch( path_join( $maybeDir, 'assessed.flag' ) );
 					}
 
-					if ( $maybeDir !== '/tmp' ) {
-						$this->addProtections( $maybeDir );
-					}
 					$this->cacheDir = $maybeDir;
 					break;
 				}
@@ -77,6 +80,20 @@ class CacheDirFinder {
 			}
 		}
 		return $finalDir;
+	}
+
+	public function cacheItemPath( string $itemPath ) :string {
+		$rootDir = $this->dir();
+		if ( empty( $rootDir ) ) {
+			$path = '';
+		}
+		elseif ( empty( $itemPath ) ) {
+			$path = $rootDir;
+		}
+		else {
+			$path = path_join( $rootDir, $itemPath );
+		}
+		return $path;
 	}
 
 	/**
@@ -104,6 +121,9 @@ class CacheDirFinder {
 		if ( !$FS->exists( $index ) || ( md5_file( $index ) !== md5( $indexContent ) ) ) {
 			$FS->putFileContent( $index, $indexContent );
 		}
+
+		$FS->putFileContent( path_join( $cacheDir, 'README.txt' ),
+			"This is a temporary caching folder used by the Shield Security plugin. You can safely delete it, but it'll be recreated if required.\n" );
 
 		return true;
 	}
@@ -139,17 +159,13 @@ class CacheDirFinder {
 	 * @deprecated 15.1
 	 */
 	public function dirExists() :bool {
-		$dir = $this->dir();
-		return !empty( $dir ) && Services::WpFs()->isDir( $dir );
+		return $this->exists();
 	}
 
 	/**
 	 * @deprecated 15.1
 	 */
 	public function build() :string {
-		if ( !isset( $this->cacheDir ) ) {
-			$this->cacheDir = $this->findWorkableDir();
-		}
-		return $this->cacheDir;
+		return $this->dir();
 	}
 }

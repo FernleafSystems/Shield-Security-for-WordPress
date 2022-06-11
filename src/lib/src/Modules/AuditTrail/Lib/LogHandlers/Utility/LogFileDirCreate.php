@@ -9,16 +9,26 @@ class LogFileDirCreate {
 
 	use ModConsumer;
 
+	/**
+	 * @throws \Exception
+	 */
 	public function run() :string {
 		$FS = Services::WpFs();
-		$baseDir = $this->getCon()->getPluginCachePath();
-		if ( empty( $baseDir ) ) {
+
+		$handler = $this->getCon()->cache_dir_handler;
+		if ( method_exists( $handler, 'dir' ) ) {
+			$cacheDir = $handler->dir();
+		}
+		else {
+			$cacheDir = $this->getCon()->getPluginCachePath();
+		}
+		if ( empty( $cacheDir ) ) {
 			throw new \Exception( "Plugin TMP Dir is unavailable." );
 		}
 
 		$theLogsDir = null;
-		foreach ( $FS->getAllFilesInDir( $baseDir, true ) as $possibleDir ) {
-			$possibleFullPath = path_join( $baseDir, $possibleDir );
+		foreach ( $FS->getAllFilesInDir( $cacheDir, true ) as $possibleDir ) {
+			$possibleFullPath = path_join( $cacheDir, $possibleDir );
 			if ( strpos( basename( $possibleDir ), 'logs-' ) === 0 && $FS->isDir( $possibleDir ) ) {
 				$theLogsDir = $possibleFullPath;
 				break;
@@ -26,7 +36,7 @@ class LogFileDirCreate {
 		}
 
 		if ( empty( $theLogsDir ) ) {
-			$theLogsDir = path_join( $baseDir, str_replace( '.', '', uniqid( 'logs-', true ) ) );
+			$theLogsDir = path_join( $cacheDir, str_replace( '.', '', uniqid( 'logs-', true ) ) );
 			$FS->mkdir( $theLogsDir );
 		}
 

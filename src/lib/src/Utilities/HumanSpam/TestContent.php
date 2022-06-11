@@ -72,6 +72,6 @@ class TestContent {
 	}
 
 	private function getFile() :string {
-		return $this->getCon()->paths->forTmpItem( 'spamblacklist.txt' );
+		return $this->getCon()->cache_dir_handler->cacheItemPath( 'spamblacklist.txt' );
 	}
 }
