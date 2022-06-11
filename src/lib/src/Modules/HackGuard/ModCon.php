@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDir;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -187,9 +186,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getScansTempDir() :string {
-		return ( new CacheDir() )
-			->setCon( $this->getCon() )
-			->buildSubDir( 'scans' );
+		return $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
 	}
 
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {

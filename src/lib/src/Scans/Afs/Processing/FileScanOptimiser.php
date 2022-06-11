@@ -146,6 +146,6 @@ class FileScanOptimiser {
 	}
 
 	public function pathToHashes() :string {
-		return path_join( $this->getCon()->cache_dir_handler->build(), 'file_scan_hashes.txt' );
+		return path_join( $this->getCon()->cache_dir_handler->dir(), 'file_scan_hashes.txt' );
 	}
 }

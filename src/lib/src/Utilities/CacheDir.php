@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TestCacheDirWrite
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 15.1
+ */
 class CacheDir {
 
 	use PluginControllerConsumer;

@@ -58,6 +58,10 @@ class RulesStorageHandler {
 		return is_array( $raw ) ? $raw : [];
 	}
 
+	private function getWpStorageKey() :string {
+		return $this->getRulesCon()->getCon()->prefix( 'rules' );
+	}
+
 	/**
 	 * @deprecated 15.1
 	 */
@@ -70,9 +74,5 @@ class RulesStorageHandler {
 	 */
 	private function getPathToRules() :string {
 		return path_join( $this->getRulesCon()->getCon()->cache_dir_handler->build(), 'rules.json' );
-	}
-
-	private function getWpStorageKey() :string {
-		return $this->getRulesCon()->getCon()->prefix( 'rules' );
 	}
 }
