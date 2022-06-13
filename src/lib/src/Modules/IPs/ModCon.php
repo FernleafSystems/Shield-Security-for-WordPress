@@ -44,7 +44,6 @@ class ModCon extends BaseShield\ModCon {
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
 		if ( !isset( $this->crowdSecCon ) ) {
 			$this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
-			$this->crowdSecCon->execute();
 		}
 		return $this->crowdSecCon;
 	}
@@ -114,6 +113,11 @@ class ModCon extends BaseShield\ModCon {
 		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
+
+		if ( $opts->isOptChanged( 'cs_enroll_id' ) ) {
+			$this->getCrowdSecCon()->getApi()->isReady();
+		}
+
 		$this->cleanPathWhitelist();
 	}
 

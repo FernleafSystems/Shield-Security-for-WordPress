@@ -94,11 +94,9 @@ class CrowdSecApi {
 	}
 
 	public function login() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
+		$csAuth = $this->getCsAuth();
 		$siteURL = Services::WpGeneral()->getWpUrl();
-		$csAuth = $mod->getCrowdSecCon()->cfg->cs_auths[ $siteURL ] ?? [];
 
 		if ( ( $csAuth[ 'url' ] ?? '' ) !== $siteURL ) {
 			$csAuth = [
