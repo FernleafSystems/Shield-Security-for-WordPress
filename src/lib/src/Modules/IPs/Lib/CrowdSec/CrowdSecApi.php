@@ -28,7 +28,7 @@ class CrowdSecApi {
 
 	public function isReady() :bool {
 		$this->login();
-		return in_array( $this->getAuthState(), [
+		return in_array( $this->getAuthStatus(), [
 			self::STATE_NO_ENROLL_ID,
 			self::STATE_MACH_NOT_ENROLLED,
 			self::STATE_READY
@@ -42,7 +42,14 @@ class CrowdSecApi {
 		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ];
 	}
 
-	public function getAuthState() :string {
+	public function getMachineID() :string {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$this->isReady();
+		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'machine_id' ];
+	}
+
+	public function getAuthStatus() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -89,10 +96,6 @@ class CrowdSecApi {
 	public function login() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$mod->getCrowdSecCon()->execute();
-		$crowdSecSpec = $this->getOptions()->getDef( 'crowdsec' );
 
 		$siteURL = Services::WpGeneral()->getWpUrl();
 		$csAuth = $mod->getCrowdSecCon()->cfg->cs_auths[ $siteURL ] ?? [];
@@ -117,97 +120,156 @@ class CrowdSecApi {
 
 		$success = false;
 		try {
-			if ( empty( $csAuth[ 'machine_registered' ] ) ) {
-				( new Api\MachineRegister() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
-				$csAuth[ 'machine_registered' ] = true;
-
-				$this->getCon()->fireEvent( 'crowdsec_mach_register', [
-					'audit_params' => [
-						'machine_id' => $csAuth[ 'machine_id' ],
-						'url'        => $csAuth[ 'url' ],
-					]
-				] );
-			}
-
-			$this->storeCsAuth( $csAuth );
-
-			if ( empty( $csAuth[ 'auth_token' ] ) || empty( $csAuth[ 'auth_expire' ] )
-				 || ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 )
-			) {
-				$scenarios = $crowdSecSpec[ 'scenarios' ][ 'free' ];
-				if ( $this->getCon()->isPremiumActive() ) {
-					$scenarios = array_merge( $scenarios, $crowdSecSpec[ 'scenarios' ][ 'pro' ] );
-					$filteredScenarios = apply_filters( 'shield/crowdsec_login_scenarios', $scenarios );
-					if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
-						$scenarios = $filteredScenarios;
-					}
-				}
-				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $scenarios );
-				$csAuth[ 'auth_token' ] = $login[ 'token' ];
-				$csAuth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->timestamp;
-
-				$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
-					'audit_params' => [
-						'expiration' => $login[ 'expire' ], // format: 2022-06-09T14:15:50Z
-					]
-				] );
-			}
-
-			$this->storeCsAuth( $csAuth );
-
-			// Enroll if we have the ID
-			$enrollID = preg_replace( '#[^a-z\d]#i', '', (string)$opts->getOpt( 'cs_enroll_id' ) );
-			if ( !empty( $enrollID ) && empty( $csAuth[ 'machine_enrolled' ] ) ) {
-
-				$defaultTags = [ 'shield', 'wp', ];
-				$defaultName = preg_replace( '#^http(s)?://#i', '', $siteURL );
-				if ( $this->getCon()->isPremiumActive() ) {
-					$enrollTags = apply_filters( 'shield/crowdsec_enroll_tags', $defaultTags );
-					$enrollName = (string)apply_filters( 'shield/crowdsec_enroll_name', $defaultName );
-					if ( empty( $enrollName ) ) {
-						$enrollName = $defaultName;
-					}
-				}
-				else {
-					$enrollTags = $defaultTags;
-					$enrollName = $defaultName;
-				}
-
-				( new Api\MachineEnroll( $csAuth[ 'auth_token' ] ) )
-					->run(
-						$enrollID,
-						$enrollName,
-						is_array( $enrollTags ) ? $enrollTags : $defaultTags
-					);
-
-				$this->getCon()->fireEvent( 'crowdsec_mach_enroll', [
-					'audit_params' => [
-						'id'   => $enrollID,
-						'name' => $enrollName,
-					]
-				] );
-
-				$csAuth[ 'machine_enrolled' ] = true;
-			}
-
-			$this->storeCsAuth( $csAuth );
-
+			$this->machineRegister();
+			$this->machineLogin();
+			$this->machineEnroll();
 			$success = true;
 		}
-		catch ( Exceptions\FailedToMachineRegisterException $e ) {
+		catch ( Exceptions\MachineRegisterFailedException $e ) {
 			error_log( $e->getMessage() );
 			unset( $csAuth[ 'machine_registered' ], $csAuth[ 'auth_token' ], $csAuth[ 'auth_expire' ] );
 		}
-		catch ( Exceptions\FailedToMachineLoginException $e ) {
+		catch ( Exceptions\MachineLoginFailedException $e ) {
 			error_log( $e->getMessage() );
 			unset( $csAuth[ 'auth_token' ], $csAuth[ 'auth_expire' ] );
 		}
-		catch ( Exceptions\FailedToMachineEnrollException $e ) {
+		catch ( Exceptions\MachinePasswordResetFailedException $e ) {
+			error_log( $e->getMessage() );
+		}
+		catch ( Exceptions\MachineEnrollFailedException $e ) {
 			error_log( $e->getMessage() );
 			unset( $csAuth[ 'machine_enrolled' ] );
 		}
 
 		return $success;
+	}
+
+	/**
+	 * @throws Exceptions\MachineRegisterFailedException
+	 */
+	public function machineRegister( bool $forceRegister = false ) {
+		$csAuth = $this->getCsAuth();
+
+		if ( empty( $csAuth[ 'machine_registered' ] ) ) {
+			( new Api\MachineRegister() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
+			$csAuth[ 'machine_registered' ] = true;
+
+			$this->getCon()->fireEvent( 'crowdsec_mach_register', [
+				'audit_params' => [
+					'machine_id' => $csAuth[ 'machine_id' ],
+					'url'        => $csAuth[ 'url' ],
+				]
+			] );
+
+			$this->storeCsAuth( $csAuth );
+		}
+	}
+
+	/**
+	 * @throws Exceptions\MachineLoginFailedException
+	 * @throws Exceptions\MachinePasswordResetFailedException
+	 */
+	public function machineLogin( bool $forceLogin = false ) {
+		$csAuth = $this->getCsAuth();
+
+		if ( $csAuth[ 'machine_registered' ] &&
+			 ( $forceLogin
+			   || empty( $csAuth[ 'auth_token' ] ) || empty( $csAuth[ 'auth_expire' ] )
+			   || ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 ) )
+		) {
+			try {
+				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
+			}
+			catch ( Exceptions\MachineLoginFailedException $e ) {
+				$newPassword = wp_generate_password( 48, true );
+				$resetSuccess = ( new Api\MachinePasswordReset() )
+					->run( $csAuth[ 'machine_id' ], wp_generate_password( 48, $newPassword ) );
+				if ( $resetSuccess ) {
+					$csAuth[ 'password' ] = $newPassword;
+					$this->storeCsAuth( $csAuth );
+				}
+				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
+			}
+
+			$csAuth[ 'auth_token' ] = $login[ 'token' ];
+			$csAuth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->timestamp;
+
+			$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
+				'audit_params' => [
+					'expiration' => $login[ 'expire' ], // format: 2022-06-09T14:15:50Z
+				]
+			] );
+
+			$this->storeCsAuth( $csAuth );
+		}
+	}
+
+	/**
+	 * @throws Exceptions\MachineEnrollFailedException
+	 */
+	public function machineEnroll( bool $forceEnroll = false ) {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$siteURL = Services::WpGeneral()->getWpUrl();
+		$csAuth = $this->getCsAuth();
+
+		// Enroll if we have the ID
+		$enrollID = preg_replace( '#[^a-z\d]#i', '', (string)$opts->getOpt( 'cs_enroll_id' ) );
+		if ( !empty( $enrollID ) && ( empty( $csAuth[ 'machine_enrolled' ] ) || $forceEnroll ) ) {
+
+			$defaultTags = [ 'shield', 'wp', ];
+			$defaultName = preg_replace( '#^http(s)?://#i', '', $siteURL );
+			if ( $this->getCon()->isPremiumActive() ) {
+				$enrollTags = apply_filters( 'shield/crowdsec_enroll_tags', $defaultTags );
+				$enrollName = (string)apply_filters( 'shield/crowdsec_enroll_name', $defaultName );
+				if ( empty( $enrollName ) ) {
+					$enrollName = $defaultName;
+				}
+			}
+			else {
+				$enrollTags = $defaultTags;
+				$enrollName = $defaultName;
+			}
+
+			( new Api\MachineEnroll( $csAuth[ 'auth_token' ] ) )->run(
+				$enrollID,
+				$enrollName,
+				is_array( $enrollTags ) ? $enrollTags : $defaultTags
+			);
+
+			$this->getCon()->fireEvent( 'crowdsec_mach_enroll', [
+				'audit_params' => [
+					'id'   => $enrollID,
+					'name' => $enrollName,
+				]
+			] );
+
+			$csAuth[ 'machine_enrolled' ] = true;
+
+			$this->storeCsAuth( $csAuth );
+		}
+	}
+
+	private function getScenarios() :array {
+		$crowdSecSpec = $this->getOptions()->getDef( 'crowdsec' );
+
+		$scenarios = $crowdSecSpec[ 'scenarios' ][ 'free' ];
+		if ( $this->getCon()->isPremiumActive() ) {
+			$scenarios = array_merge( $scenarios, $crowdSecSpec[ 'scenarios' ][ 'pro' ] );
+
+			$filteredScenarios = apply_filters( 'shield/crowdsec_login_scenarios', $scenarios );
+			if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
+				$scenarios = $filteredScenarios;
+			}
+		}
+		return $scenarios;
+	}
+
+	private function getCsAuth() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ] ?? [];
 	}
 
 	private function storeCsAuth( array $csAuth ) {
@@ -227,8 +289,7 @@ class CrowdSecApi {
 				}
 			);
 
-			$this->getOptions()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
-			$this->getMod()->saveModOptions();
+			$mod->getCrowdSecCon()->storeCfg();
 		}
 	}
 }

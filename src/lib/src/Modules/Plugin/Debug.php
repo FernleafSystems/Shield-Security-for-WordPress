@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
@@ -19,11 +20,24 @@ class Debug extends Modules\Base\Debug {
 	}
 
 	private function crowdsec() {
-		$csCon = $this->getCon()->getModule_IPs()->getCrowdSecCon();
+		$modIPs = $this->getCon()->getModule_IPs();
+		$csCon = $modIPs->getCrowdSecCon();;
 		try {
+//			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
+//			var_dump( $csCon->getApi()->getAuthStatus() );
+//			var_dump( $csCon->getApi()->getAuthorizationToken() );
+//			$csCon->getApi()->machineEnroll( false );
+//			var_dump( $csCon->getApi()->getAuthStatus() );
+//			var_dump( $modIPs->getCrowdSecCon()->cfg );
+//			var_dump( $csCon->getApi()->getAuthorizationToken() );
 			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
 				->setMod( $this->getCon()->getModule_IPs() )
-				->push();
+				->execute();
+//			( new Modules\IPs\Lib\CrowdSec\Decisions\DownloadDecisionsUpdate() )
+//				->setMod( $modIPs )
+//				->execute();
+//			$dec = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+//			var_dump( $dec );
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );

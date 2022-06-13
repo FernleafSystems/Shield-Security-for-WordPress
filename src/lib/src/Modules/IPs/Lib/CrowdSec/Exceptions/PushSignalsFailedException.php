@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions;
 
-class FailedToPushSignalsException extends \Exception {
+class PushSignalsFailedException extends \Exception {
 
 }

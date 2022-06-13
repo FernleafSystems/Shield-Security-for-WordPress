@@ -12,86 +12,86 @@ class Strings extends Base\Strings {
 	 */
 	public function getEventStrings() :array {
 		return [
-			'conn_kill'               => [
+			'conn_kill'                   => [
 				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ),
 				],
 			],
-			'conn_kill_crowdsec'               => [
+			'conn_kill_crowdsec'          => [
 				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Visitor found on the CrowdSec IP List and their request was killed.', 'wp-simple-firewall' ),
 				],
 			],
-			'conn_not_kill_high_rep'  => [
+			'conn_not_kill_high_rep'      => [
 				'name'  => __( 'Connection Not Killed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'IP address has a high reputation so connection allowed.', 'wp-simple-firewall' ),
 				],
 			],
-			'ip_offense'              => [
+			'ip_offense'                  => [
 				'name'  => __( 'Offense Triggered', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Auto Black List offenses counter was incremented from {{from}} to {{to}}.', 'wp-simple-firewall' ),
 				],
 			],
-			'ip_blocked'              => [
+			'ip_blocked'                  => [
 				'name'  => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'IP blocked after incrementing offenses from {{from}} to {{to}}.', 'wp-simple-firewall' ),
 				],
 			],
-			'ip_unblock'              => [
+			'ip_unblock'                  => [
 				'name'  => __( 'IP Unblocked', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'IP removed from block list.', 'wp-simple-firewall' ),
 				],
 			],
-			'ip_unblock_flag'         => [
+			'ip_unblock_flag'             => [
 				'name'  => __( 'IP Unblocked (Flag File)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "IP address '{{ip}}' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' ),
 				],
 			],
-			'ip_block_auto'           => [
+			'ip_block_auto'               => [
 				'name'  => __( 'IP Block List Add (Auto)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "IP address '{{ip}}' automatically added to block list as an offender.", 'wp-simple-firewall' )
 					.' '.__( "The IP may not be blocked yet.", 'wp-simple-firewall' ),
 				],
 			],
-			'ip_block_manual'         => [
+			'ip_block_manual'             => [
 				'name'  => __( 'IP Block List Add (Manual)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "IP address '{{ip}}' manually added to block list.", 'wp-simple-firewall' ),
 				],
 			],
-			'ip_bypass_add'           => [
+			'ip_bypass_add'               => [
 				'name'  => __( 'IP Bypass List Add (Manual)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "IP address '{{ip}}' manually added to bypass list.", 'wp-simple-firewall' ),
 				],
 			],
-			'ip_bypass_remove'        => [
+			'ip_bypass_remove'            => [
 				'name'  => __( 'IP Bypass List Removed (Manual)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "IP address '{{ip}}' manually removed from the bypass list.", 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_notbot'         => [
+			'bottrack_notbot'             => [
 				'name'  => __( 'NotBot Registration', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Visitor registered using NotBot.', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_404'            => [
+			'bottrack_404'                => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ), '404' ),
 				'audit' => [
 					__( '404 detected at "{{path}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_fakewebcrawler' => [
+			'bottrack_fakewebcrawler'     => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Fake Web Crawler', 'wp-simple-firewall' ) ),
 				'audit' => [
@@ -99,28 +99,28 @@ class Strings extends Base\Strings {
 					__( 'Fake Crawler misrepresented itself as "{{crawler}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_linkcheese'     => [
+			'bottrack_linkcheese'         => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Link Cheese', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Link cheese access detected at "{{path}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_loginfailed'    => [
+			'bottrack_loginfailed'        => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Failed Login', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Attempted login failed by user "{{user_login}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_logininvalid'   => [
+			'bottrack_logininvalid'       => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Invalid Username Login', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Attempted login with invalid user "{{user_login}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_useragent'      => [
+			'bottrack_useragent'          => [
 				/** TODO **/
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Invalid User-Agent', 'wp-simple-firewall' ) ),
@@ -128,40 +128,40 @@ class Strings extends Base\Strings {
 					__( 'Invalid user agent detected at "{{useragent}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_xmlrpc'         => [
+			'bottrack_xmlrpc'             => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'XML-RPC', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Access to XML-RPC detected at "{{path}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'bottrack_invalidscript'  => [
+			'bottrack_invalidscript'      => [
 				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
 					__( 'Invalid Script Load', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Tried to load an invalid WordPress PHP script "{{script}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'comment_markspam'        => [
+			'comment_markspam'            => [
 				'name'  => __( 'Mark Comment SPAM (Manual)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Comment manually marked as SPAM.', 'wp-simple-firewall' ),
 				],
 			],
-			'comment_unmarkspam'      => [
+			'comment_unmarkspam'          => [
 				'name'  => __( 'Mark Comment Not SPAM (Manual)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Comment manually marked as not SPAM.', 'wp-simple-firewall' ),
 				],
 			],
-			'custom_offense'          => [
+			'custom_offense'              => [
 				'name'  => __( 'Mark Comment Not SPAM (Manual)', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'A custom offense was registered on the site.', 'wp-simple-firewall' ),
 					sprintf( '%s: {{message}}', __( 'Message', 'wp-simple-firewall' ) ),
 				],
 			],
-			'crowdsec_mach_register'  => [
+			'crowdsec_mach_register'      => [
 				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Registered Site', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Registered the website with the CrowdSec service.', 'wp-simple-firewall' ),
@@ -169,19 +169,34 @@ class Strings extends Base\Strings {
 					sprintf( '%s: {{machine_id}}', __( 'Website ID', 'wp-simple-firewall' ) ),
 				],
 			],
-			'crowdsec_auth_acquire'   => [
+			'crowdsec_auth_acquire'       => [
 				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Acquired Authentication Token', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Acquired authentication token for use with CrowdSec service.', 'wp-simple-firewall' ),
 					sprintf( '%s: {{expiration}}', __( 'Expiration', 'wp-simple-firewall' ) ),
 				],
 			],
-			'crowdsec_mach_enroll'    => [
+			'crowdsec_mach_enroll'        => [
 				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Enrolled Site With Console', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Enrolled site with CrowdSec console.', 'wp-simple-firewall' ),
 					sprintf( '%s: {{id}}', __( 'Enrollment ID', 'wp-simple-firewall' ) ),
 					sprintf( '%s: {{name}}', __( 'Enrollment Name', 'wp-simple-firewall' ) ),
+				],
+			],
+			'crowdsec_decisions_acquired' => [
+				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'IP Reputation Decisions Acquired', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'Downloaded IP Reputation decisions from CrowdSec.', 'wp-simple-firewall' ),
+					sprintf( '%s: {{count_new}}', __( 'New', 'wp-simple-firewall' ) ),
+					sprintf( '%s: {{count_deleted}}', __( 'Deleted', 'wp-simple-firewall' ) ),
+				],
+			],
+			'crowdsec_signals_pushed'     => [
+				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Signals Pushed', 'wp-simple-firewall' ) ),
+				'audit' => [
+					__( 'IP Reputation signals pushed successfully to CrowdSec.', 'wp-simple-firewall' ),
+					sprintf( '%s: {{count}}', __( 'Total Signals', 'wp-simple-firewall' ) ),
 				],
 			],
 		];

@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions;
 
-class FailedToMachineEnrollException extends \Exception {
+class MachinePasswordResetFailedException extends \Exception {
 
 }

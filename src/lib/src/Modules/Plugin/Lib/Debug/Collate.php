@@ -249,12 +249,16 @@ class Collate {
 			'Security Admin Enabled' => $con->getModule_SecAdmin()
 											->getSecurityAdminController()
 											->isEnabledSecAdmin() ? 'Yes' : 'No',
+			'CrowdSec API Status'    => $con->getModule_IPs()
+											->getCrowdSecCon()
+											->getApi()
+											->getAuthStatus()
 		];
 
 		/** @var Options $oOptsIP */
 		$optsPlugin = $modPlugin->getOptions();
 		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
-		$ip = Services::IP()->getRequestIp();
+		$ip = Services::Request()->ip();
 		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
 
 		return $data;

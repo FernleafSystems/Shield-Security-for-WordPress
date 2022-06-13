@@ -988,6 +988,19 @@
         "offense": false,
         "stat":    false
       },
+      "crowdsec_decisions_acquired":  {
+        "level":        "info",
+        "audit_params": [
+          "count_new",
+          "count_deleted"
+        ]
+      },
+      "crowdsec_signals_pushed":  {
+        "level":        "info",
+        "audit_params": [
+          "count"
+        ]
+      },
       "crowdsec_mach_register":  {
         "level":        "info",
         "audit_params": [

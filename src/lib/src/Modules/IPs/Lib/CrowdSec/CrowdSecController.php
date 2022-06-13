@@ -42,7 +42,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 			// This cron is initiated from within SignalsBuilder
 			( new Signals\PushSignalsToCS() )
 				->setMod( $this->getMod() )
-				->push();
+				->execute();
 		} );
 	}
 
@@ -85,7 +85,12 @@ class CrowdSecController extends ExecOnceModConsumer {
 		return $onCS;
 	}
 
-	public function runDailyCron() {
+	public function storeCfg() {
+		$this->getOptions()->setOpt( 'crowdsec_cfg', $this->cfg->getRawData() );
+		$this->getMod()->saveModOptions();
+	}
+
+	public function runHourlyCron() {
 		( new Decisions\DownloadDecisionsUpdate() )
 			->setMod( $this->getMod() )
 			->execute();

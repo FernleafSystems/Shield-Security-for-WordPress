@@ -2,26 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\FailedToMachineLoginException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\MachineLoginFailedException;
 
 class MachineLogin extends Base {
 
 	const API_ACTION = 'watchers/login';
 
 	/**
-	 * @throws FailedToMachineLoginException
+	 * @throws MachineLoginFailedException
 	 */
 	public function run( string $machineID, string $password, array $scenarios = [] ) :array {
 		$this->request_method = 'post';
 		$this->params_body = [
-			'password'   => $password,
 			'machine_id' => $machineID,
+			'password'   => $password,
 			'scenarios'  => $scenarios
 		];
 
 		$raw = $this->sendReq();
-		if ( !is_array( $raw ) || $raw[ 'code' ] !== 200 ) {
-			throw new FailedToMachineLoginException( sprintf( 'login failed: %s',
+		if ( !is_array( $raw ) || ( $raw[ 'code' ] ?? 0 ) !== 200 ) {
+			throw new MachineLoginFailedException( sprintf( 'login failed: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}
 		return $raw;

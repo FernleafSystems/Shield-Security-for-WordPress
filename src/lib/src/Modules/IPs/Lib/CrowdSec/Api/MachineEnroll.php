@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\FailedToMachineEnrollException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\FailedToMachineRegisterException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\MachineEnrollFailedException;
 
 class MachineEnroll extends BaseAuth {
 
 	const API_ACTION = 'watchers/enroll';
 
 	/**
-	 * @throws FailedToMachineEnrollException
+	 * @throws MachineEnrollFailedException
 	 */
 	public function run( string $enrollID, string $name, array $tags = [] ) :bool {
 		$this->request_method = 'post';
@@ -26,8 +25,8 @@ class MachineEnroll extends BaseAuth {
 			)
 		];
 		$raw = $this->sendReq();
-		if ( !is_array( $raw ) ) {
-			throw new FailedToMachineEnrollException( sprintf( 'Failed to enroll machine: %s',
+		if ( !is_array( $raw ) || ( $raw[ 'message' ] ?? '' ) !== 'OK' ) {
+			throw new MachineEnrollFailedException( sprintf( 'Failed to enroll machine: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}
 		return true;

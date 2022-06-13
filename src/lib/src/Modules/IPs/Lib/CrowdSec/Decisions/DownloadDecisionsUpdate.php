@@ -12,22 +12,29 @@ class DownloadDecisionsUpdate extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$cfg = $mod->getCrowdSecCon()->cfg;
-		return Services::Request()->ts() - $cfg->last_decision_update_at >
-			   ( $this->getCon()->isPremiumActive() ? DAY_IN_SECONDS : WEEK_IN_SECONDS );
+		$hoursInterval = $this->getCon()->isPremiumActive() ?
+			apply_filters( 'shield/crowdsec_decisions_update_hours', 23 ) // ~1 days
+			: 166; // 6.90 days
+		return ( Services::Request()->ts() - $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at )
+			   > HOUR_IN_SECONDS*min( $hoursInterval, 2 );
 	}
 
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$csCon = $mod->getCrowdSecCon();
 		try {
+			$csCon->cfg->decisions_update_attempt_at = Services::Request()->ts();
 			( new ProcessDecisionList() )
 				->setMod( $this->getMod() )
 				->run(
-					( new DecisionsDownload( $mod->getCrowdSecCon()->getApi()->getAuthorizationToken() ) )->run()
+					( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run()
 				);
+			$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
 		}
 		catch ( \Exception $e ) {
+			error_log( $e->getMessage() );
 		}
+		$csCon->storeCfg();
 	}
 }

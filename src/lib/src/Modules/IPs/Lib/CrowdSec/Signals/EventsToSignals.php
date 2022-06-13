@@ -31,7 +31,6 @@ class EventsToSignals extends EventsListener {
 
 	private function storeScenario( string $scenario, string $scope, string $value ) {
 		$dbhSignals = $this->getCon()->getModule_IPs()->getDbH_CrowdSecSignals();
-
 		/** @var CrowdsecSignalsDB\Record $record */
 		$record = $dbhSignals->getRecord();
 		$record->scenario = $scenario;
@@ -69,14 +68,56 @@ class EventsToSignals extends EventsListener {
 
 	private function getEventToSignalMap() :array {
 		return [
-			'bottrack_logininvalid' => [
-				'scenario' => 'invalid-username',
+			'bottrack_404'            => [
+				'scenario' => 'bt404',
 			],
-			'bottrack_xmlrpc'       => [
-				'scenario' => 'xmlrpc',
+			'bottrack_fakewebcrawler' => [
+				'scenario' => 'btfake',
 			],
-			'firewall_block'        => [
-				'scenario' => 'firewall-block',
+			'bottrack_linkcheese'     => [
+				'scenario' => 'btcheese',
+			],
+			'bottrack_loginfailed'    => [
+				'scenario' => 'btloginfail',
+			],
+			'bottrack_invalidscript'  => [
+				'scenario' => 'btlogininvalid',
+			],
+			'bottrack_logininvalid'   => [
+				'scenario' => 'btinvalidscript',
+			],
+			'bottrack_useragent'      => [
+				'scenario' => 'btua',
+			],
+			'bottrack_xmlrpc'         => [
+				'scenario' => 'btxml',
+			],
+			'block_author_fishing'    => [
+				'scenario' => 'btauthorfishing',
+			],
+			'firewall_block'          => [
+				'scenario' => 'firewall',
+			],
+			'ip_offense'              => [
+				'scenario' => 'offense',
+			],
+			'ip_blocked'              => [
+				'scenario' => 'blocked',
+			],
+			'request_limit_exceeded'  => [
+				'scenario' => 'ratelimit',
+			],
+			'spam_block_human'        => [
+				'scenario' => 'humanspam',
+			],
+			'spam_block_recaptcha'    => [
+				'scenario' => 'markspam',
+			],
+			'spam_block_bot'          => [
+				'scenario' => 'markspam',
+			],
+			'spam_block_antibot'      => [
+				'scenario' => 'markspam',
 			],
 		];
 	}

@@ -13,12 +13,45 @@ class ProcessDecisionList {
 	use ModConsumer;
 
 	public function run( array $decisionStream ) {
+		$this->preRun();
+
+		$deletedCount = 0;
 		if ( isset( $decisionStream[ 'deleted' ] ) && is_array( $decisionStream[ 'deleted' ] ) ) {
 			$this->delete( $decisionStream[ 'deleted' ] );
+			$deletedCount = count( $decisionStream[ 'deleted' ] );
 		}
+
+		$newCount = 0;
 		if ( isset( $decisionStream[ 'new' ] ) && is_array( $decisionStream[ 'new' ] ) ) {
 			$this->add( $decisionStream[ 'new' ] );
+			$newCount = count( $decisionStream[ 'new' ] );
 		}
+
+		if ( !empty( $newCount ) || !empty( $deletedCount ) ) {
+			$this->getCon()->fireEvent( 'crowdsec_decisions_acquired', [
+				'audit_params' => [
+					'count_new'     => $newCount,
+					'count_deleted' => $deletedCount,
+				]
+			] );
+		}
+	}
+
+	/**
+	 * Delete "expired" IPs - i.e. those older than 1 week.
+	 */
+	public function preRun() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getDbH_CrowdSecDecisions()
+			->getQueryDeleter()
+			->filterByCreatedAt(
+				Services::Request()
+						->carbon()
+						->subDays( 7 )->timestamp,
+				'<'
+			)
+			->query();
 	}
 
 	public function add( array $decisions ) {

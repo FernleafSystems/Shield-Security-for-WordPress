@@ -44,6 +44,7 @@ class ModCon extends BaseShield\ModCon {
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
 		if ( !isset( $this->crowdSecCon ) ) {
 			$this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
+			$this->crowdSecCon->execute();
 		}
 		return $this->crowdSecCon;
 	}
