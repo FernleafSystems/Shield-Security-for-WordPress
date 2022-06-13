@@ -16,25 +16,33 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getAutoUnblockIps() :array {
-		$ips = $this->getOpt( 'autounblock_ips', [] );
-		return is_array( $ips ) ? $ips : [];
+		$ips = is_array( $this->getOpt( 'autounblock_ips', [] ) ) ? $this->getOpt( 'autounblock_ips', [] ) : [];
+		$ips = array_filter( $ips, function ( $ts ) {
+			return Services::Request()
+						   ->carbon()
+						   ->subHours( 1 )->timestamp < $ts;
+		} );
+		$this->setOpt( 'autounblock_ips', $ips );
+		return $ips;
 	}
 
 	public function getAutoUnblockEmailIDs() :array {
-		$ips = $this->getOpt( 'autounblock_emailids', [] );
-		return is_array( $ips ) ? $ips : [];
+		$ids = is_array( $this->getOpt( 'autounblock_emailids', [] ) ) ? $this->getOpt( 'autounblock_emailids', [] ) : [];
+		$ids = array_filter( $ids, function ( $ts ) {
+			return Services::Request()
+						   ->carbon()
+						   ->subHours( 1 )->timestamp < $ts;
+		} );
+		$this->setOpt( 'autounblock_emailids', $ids );
+		return $ids;
 	}
 
-	public function getCanIpRequestAutoUnblock( string $ip ) :bool {
-		$existing = $this->getAutoUnblockIps();
-		return !array_key_exists( $ip, $existing )
-			   || ( Services::Request()->carbon()->subHours( 1 )->timestamp > $existing[ $ip ] );
+	public function canIpRequestAutoUnblock( string $ip ) :bool {
+		return !array_key_exists( $ip, $this->getAutoUnblockIps() );
 	}
 
-	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) :bool {
-		$existing = $this->getAutoUnblockEmailIDs();
-		return !array_key_exists( $user->ID, $existing )
-			   || ( Services::Request()->carbon()->subHours( 1 )->timestamp > $existing[ $user->ID ] );
+	public function canRequestAutoUnblockEmailLink( \WP_User $user ) :bool {
+		return !array_key_exists( $user->ID, $this->getAutoUnblockEmailIDs() );
 	}
 
 	public function getOffenseLimit() :int {

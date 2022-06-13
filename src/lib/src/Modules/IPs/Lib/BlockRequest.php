@@ -13,6 +13,7 @@ class BlockRequest extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
+		$this->getCon()->fireEvent( 'conn_kill' );
 		( new RenderBlockIP() )
 			->setMod( $this->getMod() )
 			->display();

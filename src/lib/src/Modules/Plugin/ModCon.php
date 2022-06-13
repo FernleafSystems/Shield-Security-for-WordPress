@@ -57,6 +57,25 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
+		$this->setupCacheDir();
+	}
+
+	protected function setupCacheDir() {
+		$opts = $this->getOptions();
+		$url = Services::WpGeneral()->getWpUrl();
+		$lastKnownDirs = $opts->getOpt( 'last_known_cache_basedirs' );
+		if ( empty( $lastKnownDirs ) || !is_array( $lastKnownDirs ) ) {
+			$lastKnownDirs = [
+				$url => ''
+			];
+		}
+
+		$cacheDirFinder = ( new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' ) )->setCon( $this->getCon() );
+		$workableDir = $cacheDirFinder->dir();
+		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : dirname( $workableDir );
+
+		$opts->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+		$this->getCon()->cache_dir_handler = $cacheDirFinder;
 	}
 
 	protected function enumRuleBuilders() :array {

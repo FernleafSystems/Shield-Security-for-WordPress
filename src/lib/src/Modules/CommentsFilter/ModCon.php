@@ -20,8 +20,4 @@ class ModCon extends BaseShield\ModCon {
 			) ) )
 		);
 	}
-
-	public function getSpamBlacklistFile() :string {
-		return $this->getCon()->paths->forCacheItem( 'spamblacklist.txt' );
-	}
 }

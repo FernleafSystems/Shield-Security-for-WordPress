@@ -30,7 +30,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_deactivating
  * @property bool                                                   $plugin_deleting
  * @property bool                                                   $plugin_reset
- * @property Shield\Utilities\CacheDir                              $cache_dir_handler
+ * @property Shield\Utilities\CacheDirHandler                       $cache_dir_handler
  * @property bool                                                   $user_can_base_permissions
  * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
@@ -174,8 +174,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'cache_dir_handler':
 				if ( empty( $val ) ) {
-					$val = ( new Shield\Utilities\CacheDir() )->setCon( $this );
-					$this->cache_dir_handler = $val;
+					throw new \Exception( 'Accessing Cache Dir Handler too early.' );
 				}
 				break;
 
@@ -462,10 +461,16 @@ class Controller extends DynPropertiesClass {
 		do_action( 'shield/plugin_activated' );
 	}
 
+	/**
+	 * @deprecated 15.1
+	 */
 	public function getPluginCachePath( string $subPath = '' ) :string {
-		$path = $this->cache_dir_handler->build();
-		if ( !empty( $path ) && !empty( $subPath ) ) {
-			$path = path_join( $path, $subPath );
+		$handler = $this->cache_dir_handler;
+		if ( method_exists( $handler, 'cacheItemPath' ) ) {
+			$path = $handler->cacheItemPath( $subPath );
+		}
+		else {
+			$path = path_join( $handler->build(), $subPath );
 		}
 		return $path;
 	}

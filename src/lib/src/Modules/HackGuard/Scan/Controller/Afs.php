@@ -216,7 +216,7 @@ class Afs extends BaseForFiles {
 
 	public function isEnabledPluginThemeScan() :bool {
 		return $this->isEnabled() && !$this->isRestrictedPluginThemeScan()
-			   && $this->getCon()->cache_dir_handler->dirExists();
+			   && $this->getCon()->cache_dir_handler->exists();
 	}
 
 	public function isRestrictedMalwareScan() :bool {
