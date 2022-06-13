@@ -57,7 +57,7 @@
     "patches":     [
       {
         "version":     "3",
-        "released_at": 1654786080,
+        "released_at": 1655108600,
         "items":       [
           {
             "title": "Yet another complete rewrite of the Shield Cache Dir builder to work around restrictive web hosts.",
@@ -68,7 +68,7 @@
             "type":  "improved"
           },
           {
-            "title": "File diff was broken when comparing modified WordPress Core files with the originals.",
+            "title": "File diff UI display was broken when comparing modified WordPress Core files with the originals.",
             "type":  "fixed"
           }
         ]

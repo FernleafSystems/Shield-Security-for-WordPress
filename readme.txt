@@ -8,7 +8,7 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.0
-Stable tag: 15.1.2
+Stable tag: 15.1.3
 
 Bad Bots Are Your #1 Security Risk. Malware is a symptom of poor security, not the cause. Discover the advantage of powerful security over marketing.
 
