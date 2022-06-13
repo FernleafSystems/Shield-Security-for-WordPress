@@ -22,6 +22,20 @@ class BotSignalsController extends ExecOnceModConsumer {
 	 */
 	private $eventListener;
 
+	protected function canRun() :bool {
+		return $this->getCon()->this_req->ip_is_public;
+	}
+
+	protected function run() {
+		$this->getEventListener()->execute();
+		add_action( 'init', function () {
+			foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
+				( new $botTrackerClass() )->setMod( $this->getMod() )->execute();
+			}
+		} );
+		$this->getHandlerNotBot()->execute();
+	}
+
 	public function isBot( string $IP = '', bool $allowEventFire = true ) :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -66,16 +80,6 @@ class BotSignalsController extends ExecOnceModConsumer {
 			$this->eventListener = ( new BotEventListener() )->setMod( $this->getMod() );
 		}
 		return $this->eventListener;
-	}
-
-	protected function run() {
-		$this->getEventListener()->execute();
-		add_action( 'init', function () {
-			foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
-				( new $botTrackerClass() )->setMod( $this->getMod() )->execute();
-			}
-		} );
-		$this->getHandlerNotBot()->execute();
 	}
 
 	/**
