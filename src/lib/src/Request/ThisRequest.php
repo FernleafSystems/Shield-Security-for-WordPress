@@ -60,6 +60,7 @@ class ThisRequest extends DynPropertiesClass {
 			case 'request_bypasses_all_restrictions':
 			case 'is_security_admin':
 			case 'is_trusted_bot':
+			case 'ip_is_public':
 				$value = (bool)$value;
 				break;
 
