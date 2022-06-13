@@ -45,7 +45,7 @@ class CacheDirHandler {
 
 						$assess = ( new AssessDirWrite( $maybeDir ) )->test();
 						if ( count( array_filter( $assess ) ) !== 3 ) {
-							throw new \Exception( sprintf( 'Failed to writeable assessment for cache dir: "%s"; Results: %s ',
+							throw new \Exception( sprintf( 'Failed writeable assessment for cache dir: "%s"; Results: %s ',
 								$maybeDir, var_export( $assess, true ) ) );
 						}
 
