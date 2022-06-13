@@ -68,6 +68,19 @@ class EventsToSignals extends EventsListener {
 
 	private function getEventToSignalMap() :array {
 		return [
+			'bottrack_loginfailed'    => [
+				'scenario' => 'btloginfail',
+			],
+			'bottrack_logininvalid'   => [
+				'scenario' => 'btinvalidscript',
+			],
+			'block_lostpassword'   => [
+				'scenario' => 'btlostpassword',
+			],
+			'block_register'   => [
+				'scenario' => 'btregister',
+			],
+
 			'bottrack_404'            => [
 				'scenario' => 'bt404',
 			],
@@ -77,14 +90,8 @@ class EventsToSignals extends EventsListener {
 			'bottrack_linkcheese'     => [
 				'scenario' => 'btcheese',
 			],
-			'bottrack_loginfailed'    => [
-				'scenario' => 'btloginfail',
-			],
 			'bottrack_invalidscript'  => [
 				'scenario' => 'btlogininvalid',
-			],
-			'bottrack_logininvalid'   => [
-				'scenario' => 'btinvalidscript',
 			],
 			'bottrack_useragent'      => [
 				'scenario' => 'btua',
@@ -117,6 +124,9 @@ class EventsToSignals extends EventsListener {
 				'scenario' => 'markspam',
 			],
 			'spam_block_antibot'      => [
+				'scenario' => 'markspam',
+			],
+			'spam_form_fail'          => [
 				'scenario' => 'markspam',
 			],
 		];

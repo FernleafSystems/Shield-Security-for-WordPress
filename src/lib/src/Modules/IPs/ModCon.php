@@ -81,10 +81,10 @@ class ModCon extends BaseShield\ModCon {
 			Rules\Build\IsPathWhitelisted::class,
 			$opts->isEnabledCrowdSecAutoBlock() ? Rules\Build\IpCrowdSec::class : null,
 			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlocked::class : null,
-			$opts->isEnabledTrack404() ? Rules\Build\BotTrack404::class : null,
-			$opts->isEnabledTrackXmlRpc() ? Rules\Build\BotTrackXmlrpc::class : null,
-			$opts->isEnabledTrackFakeWebCrawler() ? Rules\Build\BotTrackFakeWebCrawler::class : null,
-			$opts->isEnabledTrackInvalidScript() ? Rules\Build\BotTrackInvalidScript::class : null,
+			Rules\Build\BotTrack404::class,
+			Rules\Build\BotTrackXmlrpc::class,
+			Rules\Build\BotTrackFakeWebCrawler::class,
+			Rules\Build\BotTrackInvalidScript::class,
 		];
 	}
 
