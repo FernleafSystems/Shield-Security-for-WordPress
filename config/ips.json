@@ -816,23 +816,26 @@
       "has_deleted_at":  false,
       "col_older_than":  "created_at",
       "cols_custom":     {
-        "scenario":  {
+        "scenario": {
           "macro_type": "varchar",
           "length":     32,
           "attr":       []
         },
-        "scope":  {
+        "scope":    {
           "macro_type": "varchar",
           "length":     16,
           "attr":       []
         },
-        "value":  {
+        "value":    {
           "macro_type": "varchar",
           "length":     256,
           "attr":       []
         }
       },
       "cols_timestamps": {
+        "milli_at": {
+          "comment": "Milliseconds"
+        }
       }
     },
     "db_classes":                  {
@@ -855,43 +858,43 @@
       }
     },
     "events":                      {
-      "custom_offense":          {
+      "custom_offense":              {
         "audit_params": [
           "message"
         ],
         "offense":      true
       },
-      "conn_kill":               {
+      "conn_kill":                   {
         "level":           "warning",
         "audit_countable": true
       },
-      "conn_kill_crowdsec":      {
+      "conn_kill_crowdsec":          {
         "level":           "warning",
         "audit_countable": true
       },
-      "conn_not_kill_high_rep":  {
+      "conn_not_kill_high_rep":      {
         "level": "debug"
       },
-      "ip_offense":              {
+      "ip_offense":                  {
         "level":        "warning",
         "audit_params": [
           "from",
           "to"
         ]
       },
-      "ip_blocked":              {
+      "ip_blocked":                  {
         "audit_params": [
           "from",
           "to"
         ],
         "level":        "alert"
       },
-      "ip_unblock":              {
+      "ip_unblock":                  {
         "level":   "notice",
         "offense": false,
         "stat":    false
       },
-      "ip_block_auto":           {
+      "ip_block_auto":               {
         "audit_params": [
           "ip"
         ],
@@ -899,7 +902,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_block_manual":         {
+      "ip_block_manual":             {
         "audit_params": [
           "ip"
         ],
@@ -907,7 +910,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_bypass_add":           {
+      "ip_bypass_add":               {
         "audit_params": [
           "ip"
         ],
@@ -915,7 +918,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_bypass_remove":        {
+      "ip_bypass_remove":            {
         "audit_params": [
           "ip"
         ],
@@ -923,98 +926,98 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_unblock_flag":         {
+      "ip_unblock_flag":             {
         "audit_params": [
           "ip"
         ],
         "level":        "alert"
       },
-      "bottrack_notbot":         {
+      "bottrack_notbot":             {
         "offense": false,
         "stat":    false,
         "level":   "debug"
       },
-      "bottrack_404":            {
+      "bottrack_404":                {
         "audit_params": [
           "path"
         ],
         "offense":      true
       },
-      "bottrack_fakewebcrawler": {
+      "bottrack_fakewebcrawler":     {
         "audit_params": [
           "path",
           "crawler"
         ],
         "offense":      true
       },
-      "bottrack_linkcheese":     {
+      "bottrack_linkcheese":         {
         "audit_params": [
           "path"
         ],
         "offense":      true
       },
-      "bottrack_loginfailed":    {
+      "bottrack_loginfailed":        {
         "audit_params": [
           "user_login"
         ],
         "level":        "alert",
         "offense":      true
       },
-      "bottrack_logininvalid":   {
+      "bottrack_logininvalid":       {
         "audit_params": [
           "user_login"
         ],
         "level":        "alert",
         "offense":      true
       },
-      "bottrack_xmlrpc":         {
+      "bottrack_xmlrpc":             {
         "audit_params": [
           "path"
         ],
         "offense":      true
       },
-      "bottrack_invalidscript":  {
+      "bottrack_invalidscript":      {
         "audit_params": [
           "machine_id"
         ],
         "offense":      true
       },
-      "comment_markspam":        {
+      "comment_markspam":            {
         "level":   "notice",
         "offense": true
       },
-      "comment_unmarkspam":      {
+      "comment_unmarkspam":          {
         "level":   "info",
         "offense": false,
         "stat":    false
       },
-      "crowdsec_decisions_acquired":  {
+      "crowdsec_decisions_acquired": {
         "level":        "info",
         "audit_params": [
           "count_new",
           "count_deleted"
         ]
       },
-      "crowdsec_signals_pushed":  {
+      "crowdsec_signals_pushed":     {
         "level":        "info",
         "audit_params": [
           "count"
         ]
       },
-      "crowdsec_mach_register":  {
+      "crowdsec_mach_register":      {
         "level":        "info",
         "audit_params": [
           "machine_id",
           "url"
         ]
       },
-      "crowdsec_auth_acquire":   {
+      "crowdsec_auth_acquire":       {
         "level":        "info",
         "audit_params": [
           "expiration"
         ]
       },
-      "crowdsec_mach_enroll":    {
+      "crowdsec_mach_enroll":        {
         "level":        "info",
         "audit_params": [
           "id",

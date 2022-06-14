@@ -74,7 +74,8 @@ class PushSignalsToCS extends ExecOnceModConsumer {
 				$carbon = Services::Request()->carbon();
 				$carbon->setTimestamp( $record->created_at );
 				$carbon->setTimezone( 'UTC' );
-				$ts = str_replace( '+00:00', '.000Z', trim( $carbon->toRfc3339String(), 'Z' ) );
+				$ts = str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
+					trim( $carbon->toRfc3339String(), 'Z' ) );
 				return [
 					'machine_id'       => $api->getMachineID(),
 					'scenario'         => 'shield/'.$record->scenario,

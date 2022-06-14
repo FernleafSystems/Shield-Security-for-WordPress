@@ -6,6 +6,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals
  * @property string $scenario
  * @property string $scope
  * @property string $value
+ * @property int    $milli_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

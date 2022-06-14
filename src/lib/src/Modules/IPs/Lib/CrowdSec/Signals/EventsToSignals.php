@@ -46,6 +46,7 @@ class EventsToSignals extends EventsListener {
 						'scenario' => $def[ 'scenario' ],
 						'scope'    => $scope,
 						'value'    => $value,
+						'milli_at' => $this->getMilliseconds(),
 					];
 					// We prevent storing duplicate scenarios using the hash
 					$this->signals[ md5( serialize( $signal ) ) ] = $signal;
@@ -68,6 +69,7 @@ class EventsToSignals extends EventsListener {
 					'scenario' => 'notbotfail',
 					'scope'    => CrowdSecConstants::SCOPE_IP,
 					'value'    => Services::Request()->ip(),
+					'milli_at' => $this->getMilliseconds(),
 				];
 			}
 
@@ -83,6 +85,12 @@ class EventsToSignals extends EventsListener {
 			// and finally, trigger a send to Crowdsec
 			$this->triggerSignalsCron();
 		}
+	}
+
+	private function getMilliseconds() :string {
+		return substr(
+			function_exists( 'microtime' ) ? explode( '.', (string)@microtime( true ) )[ 1 ] : '0', 0, 6
+		);
 	}
 
 	private function triggerSignalsCron() {
