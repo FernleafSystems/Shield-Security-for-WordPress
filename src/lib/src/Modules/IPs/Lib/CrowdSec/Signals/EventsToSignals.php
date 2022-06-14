@@ -126,9 +126,6 @@ class EventsToSignals extends EventsListener {
 
 	private function getEventToSignalMap() :array {
 		return [
-			'antibot_fail'          => [
-				'scenario' => 'notbotcaptchafail',
-			],
 			'bottrack_loginfailed'  => [
 				'scenario' => 'btloginfail',
 			],
