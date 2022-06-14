@@ -535,13 +535,6 @@
       "default":      -1
     },
     {
-      "key":          "cache_dir_write_test",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "array",
-      "default":      []
-    },
-    {
       "key":          "last_known_cache_basedirs",
       "transferable": false,
       "section":      "section_non_ui",

@@ -461,20 +461,6 @@ class Controller extends DynPropertiesClass {
 		do_action( 'shield/plugin_activated' );
 	}
 
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getPluginCachePath( string $subPath = '' ) :string {
-		$handler = $this->cache_dir_handler;
-		if ( method_exists( $handler, 'cacheItemPath' ) ) {
-			$path = $handler->cacheItemPath( $subPath );
-		}
-		else {
-			$path = path_join( $handler->build(), $subPath );
-		}
-		return $path;
-	}
-
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
@@ -876,27 +862,6 @@ class Controller extends DynPropertiesClass {
 		$this->deleteFlags();
 	}
 
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getLabels() :array {
-
-		$labels = array_map(
-			'stripslashes',
-			apply_filters( $this->prefix( 'plugin_labels' ), $this->cfg->labels )
-		);
-
-		$D = Services::Data();
-		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
-			$key = 'icon_url_'.$dimension;
-			if ( !empty( $labels[ $key ] ) && !$D->isValidWebUrl( $labels[ $key ] ) ) {
-				$labels[ $key ] = $this->urls->forImage( $labels[ $key ] );
-			}
-		}
-
-		return $labels;
-	}
-
 	protected function deleteFlags() {
 		$FS = Services::WpFs();
 		foreach ( [ 'rebuild', 'reset' ] as $flag ) {
@@ -1064,16 +1029,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getIsPage_PluginAdmin() :bool {
 		return strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getIsResetPlugin() :bool {
-		if ( !isset( $this->plugin_reset ) ) {
-			$this->plugin_reset = Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );
-		}
-		return $this->plugin_reset;
 	}
 
 	public function getIsWpmsNetworkAdminOnly() :bool {

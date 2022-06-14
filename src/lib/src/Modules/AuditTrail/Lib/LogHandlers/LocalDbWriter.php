@@ -114,7 +114,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	/**
-	 * @return Logs\Ops\Record
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord() :Logs\Ops\Record {

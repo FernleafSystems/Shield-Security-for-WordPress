@@ -28,9 +28,7 @@ class Upgrade {
 		$con = $this->getCon();
 		$FS = Services::WpFs();
 
-		$filePath = method_exists( $con->cache_dir_handler, 'cacheItemPath' ) ?
-			$con->cache_dir_handler->cacheItemPath( 'upgrading.flag' )
-			: $con->getPluginCachePath( 'upgrading.flag' );
+		$filePath = $con->cache_dir_handler->cacheItemPath( 'upgrading.flag' );
 
 		$FS->touch( $filePath, Services::Request()->ts() );
 
@@ -41,11 +39,7 @@ class Upgrade {
 		if ( $FS->isFile( $filePath ) ) {
 			add_action( $con->prefix( 'plugin_shutdown' ), function () {
 				$con = $this->getCon();
-				Services::WpFs()->deleteFile(
-					method_exists( $con->cache_dir_handler, 'cacheItemPath' ) ?
-						$con->cache_dir_handler->cacheItemPath( 'upgrading.flag' )
-						: $con->getPluginCachePath( 'upgrading.flag' )
-				);
+				Services::WpFs()->deleteFile( $con->cache_dir_handler->cacheItemPath( 'upgrading.flag' ) );
 			} );
 		}
 	}

@@ -15,13 +15,7 @@ class LogFileDirCreate {
 	public function run() :string {
 		$FS = Services::WpFs();
 
-		$handler = $this->getCon()->cache_dir_handler;
-		if ( method_exists( $handler, 'dir' ) ) {
-			$cacheDir = $handler->dir();
-		}
-		else {
-			$cacheDir = $this->getCon()->getPluginCachePath();
-		}
+		$cacheDir = $this->getCon()->cache_dir_handler->dir();
 		if ( empty( $cacheDir ) ) {
 			throw new \Exception( "Plugin TMP Dir is unavailable." );
 		}

@@ -14,7 +14,7 @@ class FileScanOptimiser {
 
 	public function addFiles( array $files ) {
 		$FS = Services::WpFs();
-		if ( $this->getCon()->cache_dir_handler->dirExists() && !empty( $files ) ) {
+		if ( $this->getCon()->cache_dir_handler->exists() && !empty( $files ) ) {
 			$pathToHashes = $this->pathToHashes();
 			if ( !$FS->exists( $pathToHashes ) ) {
 				$FS->touch( $pathToHashes );
