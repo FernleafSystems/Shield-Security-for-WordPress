@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ProcessOffenses extends ExecOnceModConsumer {
 
+	protected function canRun() :bool {
+		return $this->getCon()->this_req->ip_is_public;
+	}
+
 	protected function run() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();

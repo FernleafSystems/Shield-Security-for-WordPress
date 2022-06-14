@@ -56,8 +56,8 @@
     ],
     "patches":     [
       {
-        "version":     "3",
-        "released_at": 1655108600,
+        "version":     "4",
+        "released_at": 1655195000,
         "items":       [
           {
             "title": "Yet another complete rewrite of the Shield Cache Dir builder to work around restrictive web hosts.",
