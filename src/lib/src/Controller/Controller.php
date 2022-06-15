@@ -558,6 +558,42 @@ class Controller extends DynPropertiesClass {
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
 	 */
+	public function getInstallationID() :string {
+		$WP = Services::WpGeneral();
+		$urlParts = wp_parse_url( $WP->getWpUrl() );
+		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ], '/' );
+		$optKey = $this->prefixOption( 'shield_site_id' );
+
+		$IDs = $WP->getOption( $optKey );
+		if ( !is_array( $IDs ) ) {
+			$IDs = [
+				$url => ''
+			];
+		}
+
+		$len = 48;
+		if ( empty( $IDs[ $url ] ) || strlen( $IDs[ $url ] ) !== $len ) {
+			try {
+				$uniq = preg_replace( '#[^a-z\d]#', '',
+					\Ramsey\Uuid\Uuid::uuid4()->toString().\Ramsey\Uuid\Uuid::uuid4()->toString() );
+				$uniqID = substr( $uniq, 0, $len );
+			}
+			catch ( \Exception $e ) {
+				$uniqID = substr( hash( 'sha256', uniqid( $url, true ) ), 0, $len );
+			}
+			$IDs[ $url ] = $uniqID;
+
+			$WP->updateOption( $optKey, $IDs );
+		}
+
+		return $IDs[ $url ];
+	}
+
+	/**
+	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
+	 * Certain plugins can modify the ID at different points in the load.
+	 * @return string - the unique, never-changing site install ID.
+	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
 		$optKey = $this->prefixOption( 'install_id' );
