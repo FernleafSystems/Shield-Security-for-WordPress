@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandshakingNonce {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function create() :string {
 		$nonces = $this->getNonces();
