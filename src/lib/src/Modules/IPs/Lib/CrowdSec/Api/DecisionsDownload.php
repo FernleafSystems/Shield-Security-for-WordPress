@@ -13,11 +13,11 @@ class DecisionsDownload extends BaseAuth {
 	 */
 	public function run() :array {
 		$this->request_method = 'get';
-		$raw = $this->sendReq();
-		if ( !is_array( $raw ) ) {
+		$decisions = $this->sendReq();
+		if ( !is_array( $decisions ) || !isset( $decisions[ 'new' ] ) || !isset( $decisions[ 'deleted' ] ) ) {
 			throw new DownloadDecisionsStreamFailedException( sprintf( 'Failed to download decisions: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}
-		return $raw;
+		return $decisions;
 	}
 }

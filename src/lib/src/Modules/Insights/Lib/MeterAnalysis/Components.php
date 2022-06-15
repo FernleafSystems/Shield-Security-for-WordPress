@@ -904,6 +904,21 @@ class Components {
 						'weight'           => 30,
 					];
 				},
+				'ip_autoblock_crowdsec'             => function () {
+					$modIPs = $this->getCon()->getModule_IPs();
+					/** @var IPs\Options $optsIPs */
+					$optsIPs = $modIPs->getOptions();
+					return [
+						'title'            => __( 'CrowdSec Community IP Blocking', 'wp-simple-firewall' ),
+						'desc_protected'   => __( 'Crowd-Sourced IP Blocking with CrowdSec is switched ON.', 'wp-simple-firewall' ),
+						'desc_unprotected'   => __( 'Crowd-Sourced IP Blocking with CrowdSec is switched OFF.', 'wp-simple-firewall' ),
+						'href'             => $modIPs->isModOptEnabled() ?
+							$modIPs->getUrl_DirectLinkToOption( 'cs_block' )
+							: $modIPs->getUrl_DirectLinkToOption( 'enable_ips' ),
+						'protected'        => $modIPs->isModOptEnabled() && $optsIPs->isEnabledCrowdSecAutoBlock(),
+						'weight'           => 50,
+					];
+				},
 				'ade_threshold'            => function () {
 					$modIPs = $this->getCon()->getModule_IPs();
 					/** @var IPs\Options $optsIPs */

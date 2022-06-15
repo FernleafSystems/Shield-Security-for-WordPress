@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decis
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\Ops as CrowdSecDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -12,26 +13,20 @@ class ProcessDecisionList {
 
 	use ModConsumer;
 
-	public function run( array $decisionStream ) {
+	/**
+	 * The stream is provided by Api\DecisionsDownload and ensures keys 'new' and 'deleted' are present.
+	 */
+	public function run( array $stream ) {
 		$this->preRun();
 
-		$deletedCount = 0;
-		if ( isset( $decisionStream[ 'deleted' ] ) && is_array( $decisionStream[ 'deleted' ] ) ) {
-			$this->delete( $decisionStream[ 'deleted' ] );
-			$deletedCount = count( $decisionStream[ 'deleted' ] );
-		}
+		$deleted = is_array( $stream[ 'deleted' ] ) ? $this->delete( $stream[ 'deleted' ] ) : 0;
+		$new = is_array( $stream[ 'new' ] ) ? $this->add( $stream[ 'new' ] ) : 0;
 
-		$newCount = 0;
-		if ( isset( $decisionStream[ 'new' ] ) && is_array( $decisionStream[ 'new' ] ) ) {
-			$this->add( $decisionStream[ 'new' ] );
-			$newCount = count( $decisionStream[ 'new' ] );
-		}
-
-		if ( !empty( $newCount ) || !empty( $deletedCount ) ) {
+		if ( !empty( $new ) || !empty( $deleted ) ) {
 			$this->getCon()->fireEvent( 'crowdsec_decisions_acquired', [
 				'audit_params' => [
-					'count_new'     => $newCount,
-					'count_deleted' => $deletedCount,
+					'count_new'     => $new,
+					'count_deleted' => $deleted,
 				]
 			] );
 		}
@@ -54,9 +49,14 @@ class ProcessDecisionList {
 			->query();
 	}
 
-	public function add( array $decisions ) {
-		$ipList = $this->getIpsFromDecisions( $decisions );
+	private function add( array $decisions ) :int {
+		// We only handle "ip" scope right now, but we can add more as we need to.
+		return $this->addForScope_IP( $this->extractDataFromDecisionsForScope_IP( $decisions ) );
+	}
 
+	public function addForScope_IP( array $ipList ) :int {
+
+		$count = 0;
 		if ( !empty( $ipList ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
@@ -92,27 +92,38 @@ class ProcessDecisionList {
 				);
 			}
 
-			if ( !empty( $toAdd ) ) {
-				foreach ( $toAdd as $ipToAdd ) {
-					try {
-						$this->insertIP( $ipToAdd );
-					}
-					catch ( \Exception $e ) {
-						error_log( $e->getMessage() );
-					}
+			foreach ( $toAdd as $ipToAdd ) {
+				try {
+					/** @var CrowdSecDB\Record $record */
+					$record = $dbhCS->getRecord();
+					$record->ip_ref = ( new IPRecords() )
+						->setMod( $this->getCon()->getModule_Data() )
+						->loadIP( $ipToAdd, true, false )
+						->id;
+					$dbhCS->getQueryInserter()->insert( $record );
+
+					$count++;
+				}
+				catch ( \Exception $e ) {
 				}
 			}
 		}
+
+		return $count;
 	}
 
-	private function delete( array $decisions ) {
-		$ipList = $this->getIpsFromDecisions( $decisions );
+	private function delete( array $decisions ) :int {
+		// We only handle "ip" scopes right now, but we can add more as we need to.
+		return $this->deleteForScope_IP( $this->extractDataFromDecisionsForScope_IP( $decisions ) );
+	}
 
+	private function deleteForScope_IP( array $ipList ) :int {
+		$count = 0;
 		if ( !empty( $ipList ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$dbhCS = $mod->getDbH_CrowdSecDecisions();
-			Services::WpDb()->doSql( sprintf(
+			$count = Services::WpDb()->doSql( sprintf(
 				"DELETE FROM `%s` as `cs`
 					INNER JOIN `%s` as `ips` ON `ips`.`id` = `cs`.`ip_ref`
 					WHERE INET6_NTOA(`ips`.`ip`) IN ('%s')
@@ -122,34 +133,17 @@ class ProcessDecisionList {
 				implode( "','", $ipList )
 			) );
 		}
+
+		return is_numeric( $count ) ? (int)$count : 0;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	private function insertIP( string $ip ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbhCS = $mod->getDbH_CrowdSecDecisions();
-		/** @var CrowdSecDB\Record $record */
-		$record = $dbhCS->getRecord();
-		$record->ip_ref = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $ip, true, false )
-			->id;
-		$dbhCS->getQueryInserter()->insert( $record );
-	}
-
-	/**
-	 * TODO: handle when scope isn't "ip"
-	 */
-	private function getIpsFromDecisions( array $decisions ) :array {
+	private function extractDataFromDecisionsForScope_IP( array $decisions ) :array {
 		return array_filter( array_map(
 			function ( $decision ) {
 				$ip = null;
 				if ( is_array( $decision ) ) {
 					try {
-						$ip = $this->getValueFromDecision( $decision );
+						$ip = $this->getValueFromDecision( $decision, CrowdSecConstants::SCOPE_IP );
 					}
 					catch ( \Exception $e ) {
 					}
@@ -161,25 +155,28 @@ class ProcessDecisionList {
 	}
 
 	/**
-	 * TODO: handle when scope isn't "ip"
 	 * @throws \Exception
 	 */
-	private function getValueFromDecision( array $decision ) :string {
+	private function getValueFromDecision( array $decision, string $scope ) :string {
 		$srvIP = Services::IP();
 		if ( empty( $decision[ 'scope' ] ) ) {
 			throw new \Exception( 'Empty decision scope' );
 		}
-		if ( $decision[ 'scope' ] !== 'ip' ) {
+		if ( $decision[ 'scope' ] !== $scope ) {
 			throw new \Exception( "Unsupported decision scope (i.e. no 'ip'): ".$decision[ 'scope' ] );
 		}
 		if ( empty( $decision[ 'value' ] ) ) {
 			throw new \Exception( 'Empty decision value' );
 		}
 
-		if ( $decision[ 'scope' ] === 'ip' && !$srvIP->isValidIp_PublicRemote( $decision[ 'value' ] ) ) {
-			throw new \Exception( 'Invalid decision value (IP) provided: '.$decision[ 'value' ] );
-		}
+		$value = trim( (string)$decision[ 'value' ] );
 
-		return trim( $decision[ 'value' ] );
+		// simple verification of data we're going to import
+		if ( $scope === CrowdSecConstants::SCOPE_IP && !$srvIP->isValidIp_PublicRemote( $value ) ) {
+			throw new \Exception( 'Invalid decision value for scope (IP) provided: '.$value );
+		}
+		// elseif $scope === another support scope
+
+		return $value;
 	}
 }

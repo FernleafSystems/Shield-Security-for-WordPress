@@ -21,7 +21,7 @@ class Debug extends Modules\Base\Debug {
 
 	private function crowdsec() {
 		$modIPs = $this->getCon()->getModule_IPs();
-		$csCon = $modIPs->getCrowdSecCon();;
+		$csCon = $modIPs->getCrowdSecCon();
 		try {
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
 //			var_dump( $csCon->getApi()->getAuthStatus() );
@@ -30,18 +30,19 @@ class Debug extends Modules\Base\Debug {
 //			var_dump( $csCon->getApi()->getAuthStatus() );
 //			var_dump( $modIPs->getCrowdSecCon()->cfg );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
-			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
-				->setMod( $this->getCon()->getModule_IPs() )
-				->execute();
+//			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
+//				->setMod( $this->getCon()->getModule_IPs() )
+//				->execute();
 //			( new Modules\IPs\Lib\CrowdSec\Decisions\DownloadDecisionsUpdate() )
 //				->setMod( $modIPs )
 //				->execute();
-//			$dec = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
-//			var_dump( $dec );
+			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+//			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );
 		}
+		var_dump( $res ?? 'unset' );
 	}
 
 	private function cleanoptimisehashes() {

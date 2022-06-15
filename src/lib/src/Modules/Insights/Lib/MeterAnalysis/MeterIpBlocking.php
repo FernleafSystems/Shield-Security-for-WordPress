@@ -30,6 +30,7 @@ class MeterIpBlocking extends MeterBase {
 		return [
 			'ip_autoblock',
 			'ip_autoblock_limit',
+			'ip_autoblock_crowdsec',
 			'ade_threshold',
 			'author_discovery',
 			'traffic_rate_limiting',
