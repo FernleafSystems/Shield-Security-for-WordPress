@@ -20,6 +20,7 @@ abstract class BaseApi extends DynPropertiesClass {
 
 	const DEFAULT_URL_STUB = '';
 	const API_ACTION = '';
+	const DEFAULT_API_VERSION = '1';
 
 	/**
 	 * @return array|null
@@ -103,7 +104,7 @@ abstract class BaseApi extends DynPropertiesClass {
 
 			case 'api_version':
 				if ( empty( $value ) ) {
-					$value = 1;
+					$value = static::DEFAULT_API_VERSION;
 				}
 				break;
 

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Crowdsec\RetrieveScenarios;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
@@ -36,7 +37,10 @@ class Debug extends Modules\Base\Debug {
 //			( new Modules\IPs\Lib\CrowdSec\Decisions\DownloadDecisionsUpdate() )
 //				->setMod( $modIPs )
 //				->execute();
-			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+//			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+//			$res = ( new RetrieveScenarios() )
+//				->setMod( $this->getMod() )
+//				->retrieve();
 //			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
 		}
 		catch ( \Exception $e ) {

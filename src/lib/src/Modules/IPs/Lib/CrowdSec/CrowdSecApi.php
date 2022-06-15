@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Crowdsec\RetrieveScenarios;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	ModCon,
 	Options
@@ -250,18 +251,18 @@ class CrowdSecApi {
 	}
 
 	private function getScenarios() :array {
-		$crowdSecSpec = $this->getOptions()->getDef( 'crowdsec' );
+		$scenarios = ( new RetrieveScenarios() )
+			->setMod( $this->getMod() )
+			->retrieve();
 
-		$scenarios = $crowdSecSpec[ 'scenarios' ][ 'free' ];
 		if ( $this->getCon()->isPremiumActive() ) {
-			$scenarios = array_merge( $scenarios, $crowdSecSpec[ 'scenarios' ][ 'pro' ] );
-
 			$filteredScenarios = apply_filters( 'shield/crowdsec_login_scenarios', $scenarios );
 			if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
 				$scenarios = $filteredScenarios;
 			}
 		}
-		return $scenarios;
+
+		return empty( $scenarios ) ? $this->getOptions()->getDef( 'crowdsec' )[ 'scenarios' ][ 'free' ] : $scenarios;
 	}
 
 	private function getCsAuth() :array {
