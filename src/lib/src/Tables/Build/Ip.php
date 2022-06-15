@@ -45,7 +45,7 @@ class Ip extends BaseBuild {
 		$srvIP = Services::IP();
 
 		$nTransLimit = $opts->getOffenseLimit();
-		$you = $srvIP->getRequestIp();
+		$you = $this->getCon()->this_req->ip;
 		$entries = [];
 
 		foreach ( $this->getEntriesRaw() as $key => $entry ) {

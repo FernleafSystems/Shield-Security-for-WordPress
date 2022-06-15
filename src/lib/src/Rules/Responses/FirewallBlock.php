@@ -60,7 +60,7 @@ class FirewallBlock extends Base {
 	}
 
 	private function sendBlockEmail() :bool {
-		$ip = Services::IP()->getRequestIp();
+		$ip = $this->getCon()->this_req->ip;
 
 		$resultData = $this->getConsolidatedConditionMeta();
 		$fwCategory = $resultData[ 'match_category' ] ?? '';

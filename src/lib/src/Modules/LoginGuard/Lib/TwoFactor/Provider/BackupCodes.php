@@ -114,7 +114,7 @@ class BackupCodes extends BaseProvider {
 					 sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
 					 sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
 					 sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-					 sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
+					 sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->getCon()->this_req->ip ),
 					 '',
 					 __( 'Thank You.', 'wp-simple-firewall' ),
 				 ]

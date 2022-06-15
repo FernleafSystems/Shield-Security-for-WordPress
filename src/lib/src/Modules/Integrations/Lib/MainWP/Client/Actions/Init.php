@@ -27,7 +27,7 @@ class Init {
 				try {
 					( new AddIp() )
 						->setMod( $this->getCon()->getModule_IPs() )
-						->setIP( Services::IP()->getRequestIp() )
+						->setIP( $this->getCon()->this_req->ip )
 						->toManualWhitelist( 'MainWP Server (automatically added)' );
 				}
 				catch ( \Exception $e ) {

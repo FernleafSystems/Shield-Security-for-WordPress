@@ -9,8 +9,9 @@ use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 class TestForCloudflareAPO {
 
 	public function run() :bool {
-		$visitorIP = Services::IP()->getRequestIp();
-		$cfIP = (string)Services::Request()->server( 'HTTP_CF_CONNECTING_IP' );
+		$req = Services::Request();
+		$visitorIP = $req->ip();
+		$cfIP = (string)$req->server( 'HTTP_CF_CONNECTING_IP' );
 		return empty( $visitorIP ) && IpID::IsIpInServiceCollection( $cfIP, ServiceProviders::PROVIDER_CLOUDFLARE );
 	}
 }

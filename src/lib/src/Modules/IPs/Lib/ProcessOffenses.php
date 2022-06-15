@@ -33,7 +33,7 @@ class ProcessOffenses extends ExecOnceModConsumer {
 		if ( !$this->getCon()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $mod )
-				->setIp( Services::IP()->getRequestIp() )
+				->setIp( $this->getCon()->this_req->ip )
 				->run();
 		}
 	}

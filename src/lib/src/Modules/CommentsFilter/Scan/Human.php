@@ -30,7 +30,7 @@ class Human {
 				'url'             => $commData[ 'comment_author_url' ],
 				'author_name'     => $commData[ 'comment_author' ],
 				'author_email'    => $commData[ 'comment_author_email' ],
-				'ip_address'      => Services::IP()->getRequestIp(),
+				'ip_address'      => $this->getCon()->this_req->ip,
 				'user_agent'      => substr( Services::Request()->getUserAgent(), 0, 254 )
 			],
 			array_flip( $opts->getHumanSpamFilterItems() )

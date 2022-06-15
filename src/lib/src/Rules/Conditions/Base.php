@@ -69,7 +69,7 @@ abstract class Base extends DynPropertiesClass {
 				break;
 			case 'request_ip':
 				if ( empty( $value ) ) {
-					$value = Services::IP()->getRequestIp();
+					$value = $this->getCon()->this_req->ip;
 				}
 				break;
 			case 'request_useragent':

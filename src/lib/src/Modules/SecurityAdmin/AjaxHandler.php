@@ -44,7 +44,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		else {
 			$remaining = ( new Shield\Modules\IPs\Components\QueryRemainingOffenses() )
 				->setMod( $this->getCon()->getModule_IPs() )
-				->setIP( Services::IP()->getRequestIp() )
+				->setIP( $this->getCon()->this_req->ip )
 				->run();
 			$msg = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
 			if ( $remaining > 0 ) {

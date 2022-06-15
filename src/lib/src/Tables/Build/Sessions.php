@@ -134,7 +134,7 @@ class Sessions extends BaseBuild {
 
 		$srvIP = Services::IP();
 		$WPU = Services::WpUsers();
-		$you = $srvIP->getRequestIp();
+		$you = $this->getCon()->this_req->ip;
 		foreach ( $this->getEntriesRaw() as $key => $e ) {
 
 			try {

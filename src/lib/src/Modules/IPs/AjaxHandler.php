@@ -71,10 +71,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		elseif ( $isBlackList && !$mod->isPremium() ) {
 			$msg = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
-		elseif ( $isBlackList && $srvIP->checkIp( $srvIP->getRequestIp(), $ip ) ) {
+		elseif ( $isBlackList && $srvIP->checkIp( $this->getCon()->this_req->ip, $ip ) ) {
 			$msg = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
-		elseif ( $isBlackList && in_array( $ip, Services::IP()->getServerPublicIPs() ) ) {
+		elseif ( $isBlackList && in_array( $ip, $srvIP->getServerPublicIPs() ) ) {
 			$msg = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {

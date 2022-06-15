@@ -35,7 +35,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				),
 				'your_ip'           => sprintf(
 					__( 'Your IP address is: %s', 'wp-simple-firewall' ),
-					Services::IP()->getRequestIp()
+					$this->getCon()->this_req->ip
 				),
 				'notice_message'    => __( 'Your IP address is whitelisted and NO features you activate apply to you.', 'wp-simple-firewall' ),
 				'including_message' => __( 'Including the hiding the WP Login page.', 'wp-simple-firewall' )

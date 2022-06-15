@@ -41,7 +41,7 @@ class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		}
 
 		try {
-			$myIP = $srvIP->getRequestIp();
+			$myIP = $this->getCon()->this_req->ip;
 			if ( !empty( $IPs ) && !empty( $myIP ) && $srvIP->checkIp( $myIP, $IPs ) ) {
 				Services::Response()->redirectHere();
 			}

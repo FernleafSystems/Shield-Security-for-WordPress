@@ -10,7 +10,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 	/**
 	 * @inheritDoc
 	 */
-	public function __invoke( array $record ) {
+	public function __invoke( array $records ) {
 		$WP = Services::WpGeneral();
 		$isWpCli = $WP->isWpCli();
 
@@ -56,8 +56,8 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		}
 
 		$data = [
-			'ip'   => $isWpCli ? '' : (string)Services::IP()->getRequestIp(),
-			'rid'  => Services::Request()->getID( true ),
+			'ip'   => $isWpCli ? '' : $req->ip(),
+			'rid'  => $req->getID( true ),
 			'ts'   => microtime( true ),
 			'path' => $path,
 			'type' => $type,
@@ -71,8 +71,8 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$data[ 'query' ] = $query;
 		}
 
-		$record[ 'extra' ][ 'meta_request' ] = $data;
+		$records[ 'extra' ][ 'meta_request' ] = $data;
 
-		return $record;
+		return $records;
 	}
 }

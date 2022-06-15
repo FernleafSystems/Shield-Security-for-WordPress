@@ -82,7 +82,7 @@ class BotSignalsRecord {
 			$r->blocked_at = $ipOnList->blocked_at;
 		}
 
-		if ( empty( $r->notbot_at ) && Services::IP()->getRequestIp() === $this->getIP() ) {
+		if ( empty( $r->notbot_at ) && $thisReq->ip === $this->getIP() ) {
 			$r->notbot_at = $mod->getBotSignalsController()
 								->getHandlerNotBot()
 								->hasCookie() ? Services::Request()->ts() : 0;

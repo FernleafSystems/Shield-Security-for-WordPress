@@ -179,9 +179,9 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function sendAdminLoginEmailNotification( \WP_User $user ) {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$con = $this->getCon();
 
 		$aUserCapToRolesMap = [
 			'network_admin' => 'manage_network',
@@ -197,7 +197,7 @@ class Processor extends BaseShield\Processor {
 		if ( !array_key_exists( $roleToCheck, $aUserCapToRolesMap ) ) {
 			$roleToCheck = 'administrator';
 		}
-		$sHumanName = ucwords( str_replace( '_', ' ', $roleToCheck ) ).'+';
+		$pluginName = ucwords( str_replace( '_', ' ', $roleToCheck ) ).'+';
 
 		$isUserSignificantEnough = false;
 		foreach ( $aUserCapToRolesMap as $sRole => $sCap ) {
@@ -210,28 +210,27 @@ class Processor extends BaseShield\Processor {
 		}
 		if ( $isUserSignificantEnough ) {
 
-			$sHomeUrl = Services::WpGeneral()->getHomeUrl();
+			$homeURL = Services::WpGeneral()->getHomeUrl();
 
 			$emailer = $this->getMod()
 							->getEmailProcessor();
 			foreach ( $mod->getAdminLoginNotificationEmails() as $to ) {
 				$emailer->sendEmailWithWrap(
 					$to,
-					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
+					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
 					[
 						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
 							$con->getHumanName(),
-							$sHumanName
+							$pluginName
 						),
 						'',
 						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
 						'',
 						__( 'Details for this user are below:', 'wp-simple-firewall' ),
-						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $sHomeUrl ),
+						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
 						'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
 						'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
-						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
-																								  ->getRequestIp() ),
+						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
 						'',
 						__( 'Thanks.', 'wp-simple-firewall' )
 					]
@@ -254,7 +253,7 @@ class Processor extends BaseShield\Processor {
 					 __( 'Details for this login are below:', 'wp-simple-firewall' ),
 					 '- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $WP->getHomeUrl() ),
 					 '- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-					 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
+					 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->getCon()->this_req->ip ),
 					 '- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
 					 '',
 					 __( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),

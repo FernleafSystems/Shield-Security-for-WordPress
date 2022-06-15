@@ -117,7 +117,7 @@ class RenderBlockIP extends BaseBlockPage {
 							array_merge(
 								$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
 								[
-									'ip' => Services::IP()->getRequestIp()
+									'ip' => $con->this_req->ip
 								]
 							),
 							Services::WpGeneral()->getHomeUrl()

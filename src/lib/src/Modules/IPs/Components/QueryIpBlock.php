@@ -54,7 +54,7 @@ class QueryIpBlock {
 
 				( new IPs\Lib\Ops\DeleteIp() )
 					->setMod( $mod )
-					->setIP( Services::IP()->getRequestIp() )
+					->setIP( $this->getCon()->this_req->ip )
 					->fromBlacklist();
 			}
 			else {

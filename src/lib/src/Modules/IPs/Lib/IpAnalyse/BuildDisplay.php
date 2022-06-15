@@ -176,7 +176,7 @@ class BuildDisplay {
 			'vars'    => [
 				'ip'       => $ip,
 				'status'   => [
-					'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
+					'is_you'                 => Services::IP()->checkIp( $ip, $con->this_req->ip ),
 					'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
 					'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
 					'is_bypass'              => !empty( $bypassIP ),

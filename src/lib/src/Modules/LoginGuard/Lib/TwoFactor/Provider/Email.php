@@ -107,7 +107,7 @@ class Email extends BaseProvider {
 											   Services::WpGeneral()->getHomeUrl() ),
 										   'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
 										   'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
-											   Services::IP()->getRequestIp() ),
+											   $this->getCon()->this_req->ip ),
 									   ]
 								   ]
 							   );

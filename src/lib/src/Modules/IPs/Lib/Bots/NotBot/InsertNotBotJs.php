@@ -15,7 +15,7 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			   || $this->isForcedForOptimisationPlugins()
 			   || ( $req->ts() - ( new BotSignalsRecord() )
 					->setMod( $this->getMod() )
-					->setIP( Services::IP()->getRequestIp() )
+					->setIP( $this->getCon()->this_req->ip )
 					->retrieveNotBotAt() ) > MINUTE_IN_SECONDS*45;
 	}
 

@@ -12,14 +12,14 @@ function get_plugin() :\ICWP_WPSF_Shield_Security {
 function get_visitor_scores( $IP = null ) :array {
 	return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
 		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
-		->setIP( $IP ?? Services::IP()->getRequestIp() )
+		->setIP( $IP ?? Services::Request()->ip() )
 		->scores();
 }
 
 function get_visitor_score( $IP = null ) :int {
 	return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
 		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
-		->setIP( $IP ?? Services::IP()->getRequestIp() )
+		->setIP( $IP ?? Services::Request()->ip() )
 		->probability();
 }
 
@@ -42,7 +42,7 @@ function get_ip_state( string $ip = '' ) :string {
 
 	$ip = ( new IPs\Lib\Ops\LookupIpOnList() )
 		->setDbHandler( $mod->getDbHandler_IPs() )
-		->setIP( empty( $ip ) ? Services::IP()->getRequestIp() : $ip )
+		->setIP( empty( $ip ) ? Services::Request()->ip() : $ip )
 		->lookupIp();
 
 	if ( !empty( $ip ) ) {

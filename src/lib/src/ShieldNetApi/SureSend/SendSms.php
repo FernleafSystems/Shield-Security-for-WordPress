@@ -20,7 +20,7 @@ class SendSms extends BaseShieldNetApi {
 			$meta->sms_registration[ 'phone' ],
 			[
 				'code'     => $code,
-				'ip'       => Services::IP()->getRequestIp(),
+				'ip'       => $this->getCon()->this_req->ip,
 				'username' => sanitize_key( $to->user_login ),
 			]
 		);
