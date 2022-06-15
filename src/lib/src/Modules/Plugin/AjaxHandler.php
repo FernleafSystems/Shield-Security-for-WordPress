@@ -48,6 +48,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$dbMisconfigured = count( $checks[ 'dbs' ] ) !== count( array_filter( $checks[ 'dbs' ] ) );
 
 		if ( $dbMisconfigured ) {
+			$modHG = $con->getModule_HackGuard();
 			/** @var Handler[] $allHandlers */
 			$allHandlers = [
 				$con->getModule_AuditTrail()->getDbH_Logs(),
@@ -57,6 +58,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$con->getModule_Data()->getDbH_UserMeta(),
 				$con->getModule_IPs()->getDbH_BotSignal(),
 				$con->getModule_IPs()->getDbH_CrowdSecDecisions(),
+				$modHG->getDbH_Scans(),
+				$modHG->getDbH_ScanItems(),
+				$modHG->getDbH_ScanResults(),
+				$modHG->getDbH_ResultItems(),
+				$modHG->getDbH_ResultItemMeta()
 			];
 			Services::WpDb()->doSql(
 				sprintf( 'DROP TABLE IF EXISTS `%s`', implode( '`,`', array_map(
