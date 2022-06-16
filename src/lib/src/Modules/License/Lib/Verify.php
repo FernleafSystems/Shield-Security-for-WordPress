@@ -14,6 +14,7 @@ class Verify {
 	 * @throws \Exception
 	 */
 	public function run() {
+		$con = $this->getCon();
 		/** @var License\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var License\Options $opts */
@@ -40,6 +41,12 @@ class Verify {
 			$mod->clearLastErrors();
 			$opts->setOpt( 'license_data', $existing->getRawData() ); // need to do this before event
 			$this->getCon()->fireEvent( 'lic_check_success' );
+
+			// Migrate to newer Site Install ID
+			$newerInstallID = $con->getInstallationID()[ 'id' ];
+			if ( $newerInstallID != $con->getSiteInstallationId() ) {
+				Services::WpGeneral()->updateOption( $con->prefixOption( 'install_id' ), $newerInstallID );
+			}
 		}
 		elseif ( $license->isReady() ) {
 			$isSuccessfulApiRequest = true;

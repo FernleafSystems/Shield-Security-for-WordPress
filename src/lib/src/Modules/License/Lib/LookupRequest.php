@@ -18,7 +18,10 @@ class LookupRequest {
 
 		$lookup = new Lookup();
 		$lookup->item_id = $opts->getDef( 'license_item_id' );
-		$lookup->install_id = $con->getSiteInstallationId();
+		$lookup->install_id = $con->getInstallationID()[ 'id' ];
+		if ( $lookup->install_id !== $con->getSiteInstallationId() ) {
+			$lookup->old_install_id = $con->getSiteInstallationId();
+		}
 		$lookup->url = Services::WpGeneral()->getHomeUrl( '', true );
 		$lookup->nonce = ( new HandshakingNonce() )->setCon( $con )->create();
 		$lookup->meta = [

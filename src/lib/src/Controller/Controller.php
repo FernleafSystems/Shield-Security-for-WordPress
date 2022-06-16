@@ -553,11 +553,6 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
-	 * Certain plugins can modify the ID at different points in the load.
-	 * @return string - the unique, never-changing site install ID.
-	 */
 	public function getInstallationID() :array {
 		$WP = Services::WpGeneral();
 		$urlParts = wp_parse_url( $WP->getWpUrl() );
@@ -606,7 +601,10 @@ class Controller extends DynPropertiesClass {
 		$optKey = $this->prefixOption( 'install_id' );
 
 		$mStoredID = $WP->getOption( $optKey );
-		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
+		if ( !empty( $mStoredID ) && is_string( $mStoredID ) && strlen( $mStoredID ) === 48 ) {
+			return $mStoredID; // It's using the new ID
+		}
+		elseif ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
 			$ID = $mStoredID[ 'id' ];
 			$update = true;
 		}
