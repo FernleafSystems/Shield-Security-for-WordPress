@@ -6,10 +6,10 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @property Config\ConfigVO                                        $cfg
@@ -558,7 +558,7 @@ class Controller extends DynPropertiesClass {
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
 	 */
-	public function getInstallationID() :string {
+	public function getInstallationID() :array {
 		$WP = Services::WpGeneral();
 		$urlParts = wp_parse_url( $WP->getWpUrl() );
 		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ], '/' );
@@ -566,23 +566,30 @@ class Controller extends DynPropertiesClass {
 
 		$IDs = $WP->getOption( $optKey );
 		if ( !is_array( $IDs ) ) {
-			$IDs = [
-				$url => ''
-			];
+			$IDs = [];
+		}
+		if ( empty( $IDs[ $url ] ) || !is_array( $IDs[ $url ] ) ) {
+			$IDs[ $url ] = [];
 		}
 
 		$len = 48;
-		if ( empty( $IDs[ $url ] ) || strlen( $IDs[ $url ] ) !== $len ) {
+		if ( empty( $IDs[ $url ][ 'id' ] ) || strlen( $IDs[ $url ][ 'id' ] ) !== $len ) {
+
 			try {
-				$uniq = preg_replace( '#[^a-z\d]#', '',
-					\Ramsey\Uuid\Uuid::uuid4()->toString().\Ramsey\Uuid\Uuid::uuid4()->toString() );
-				$uniqID = substr( $uniq, 0, $len );
+				$uniqID = substr(
+					preg_replace( '#[^a-z\d]#i', '', Uuid::uuid4()->toString().Uuid::uuid4()->toString() ),
+					0, $len
+				);
 			}
 			catch ( \Exception $e ) {
 				$uniqID = substr( hash( 'sha256', uniqid( $url, true ) ), 0, $len );
 			}
-			$IDs[ $url ] = $uniqID;
 
+			$IDs[ $url ] = [
+				'id'         => strtolower( $uniqID ),
+				'ts'         => Services::Request()->ts(),
+				'install_at' => $this->getModule_Plugin()->storeRealInstallDate(),
+			];
 			$WP->updateOption( $optKey, $IDs );
 		}
 

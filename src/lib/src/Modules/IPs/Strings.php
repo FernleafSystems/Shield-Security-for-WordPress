@@ -19,7 +19,7 @@ class Strings extends Base\Strings {
 				],
 			],
 			'conn_kill_crowdsec'          => [
-				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),
+				'name'  => __( 'CrowdSec: Connection Killed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Visitor found on the CrowdSec IP List and their request was killed.', 'wp-simple-firewall' ),
 				],
