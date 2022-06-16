@@ -892,7 +892,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$plugins[ $this->base_file ] = array_merge( is_array( $plugins[ $this->base_file ] ?? [] ), $this->labels->getRawData() );
+		$plugins[ $this->base_file ] = array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
 		return $plugins;
 	}
 
