@@ -95,6 +95,7 @@ class CrowdSecApi {
 	}
 
 	public function login() :bool {
+		$machineID = $this->getCon()->getInstallationID()[ 'id' ];
 
 		$csAuth = $this->getCsAuth();
 		$siteURL = Services::WpGeneral()->getWpUrl();
@@ -105,14 +106,12 @@ class CrowdSecApi {
 			];
 		}
 
-		if ( empty( $csAuth[ 'machine_id' ] ) ) {
-			$parsed = wp_parse_url( $siteURL );
-			$machBase = preg_replace( '#[^a-z\d]#i', '', $parsed[ 'host' ].$parsed[ 'path' ] );
-			if ( strlen( $machBase ) >= 48 ) {
-				$machBase = substr( $machBase, 0, 48 );
-			}
-			$csAuth[ 'machine_id' ] = $machBase.wp_generate_password( 48 - strlen( $machBase ), false );
-			$csAuth[ 'password' ] = wp_generate_password( 48, true );
+		if ( empty( $csAuth[ 'machine_id' ] ) || $csAuth[ 'machine_id' ] !== $machineID ) {
+			$csAuth = [
+				'url'        => $siteURL,
+				'machine_id' => $machineID,
+				'password'   => wp_generate_password( 48, true ),
+			];
 		}
 
 		$this->storeCsAuth( $csAuth );
