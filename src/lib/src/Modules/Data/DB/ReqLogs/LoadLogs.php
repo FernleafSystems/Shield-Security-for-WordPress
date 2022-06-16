@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 
-use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -14,10 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $wheres
  * @property string   $order_dir
  */
-class LoadLogs extends DynPropertiesClass {
-
-	use ModConsumer;
-	use IpAddressConsumer;
+class LoadLogs extends BaseLoadRecordsForIPJoins {
 
 	/**
 	 * @return LogRecord[]
@@ -29,6 +25,31 @@ class LoadLogs extends DynPropertiesClass {
 			$results[ $raw[ 'id' ] ] = $record;
 		}
 		return $results;
+	}
+
+	protected function getJoinedTableAbbreviation() :string {
+		return 'req';
+	}
+
+	protected function getSelectFieldsForJoinedTable() :array {
+		return [
+			'id',
+			'req_id as rid',
+			'uid',
+			'type',
+			'path',
+			'code',
+			'verb',
+			'meta',
+			'offense',
+			'created_at',
+		];
+	}
+
+	protected function getTableSchemaForJoinedTable() :TableSchema {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return $mod->getDbH_ReqLogs()->getTableSchema();
 	}
 
 	public function countAll() :int {
@@ -46,60 +67,5 @@ class LoadLogs extends DynPropertiesClass {
 				''
 			)
 		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	private function selectRaw() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$selectFields = [
-			'req.id',
-			'req.req_id as rid',
-			'req.uid',
-			'req.type',
-			'req.path',
-			'req.code',
-			'req.verb',
-			'req.meta',
-			'req.offense',
-			'req.created_at',
-			'ips.ip as ip',
-		];
-
-		$wheres = $this->buildWheres();
-
-		return Services::WpDb()->selectCustom(
-			sprintf( $this->getRawQuery(),
-				implode( ', ', $selectFields ),
-				$mod->getDbH_ReqLogs()->getTableSchema()->table,
-				$mod->getDbH_IPs()->getTableSchema()->table,
-				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
-				sprintf( 'ORDER BY `req`.created_at %s', $this->order_dir ?? 'DESC' ),
-				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
-				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
-			)
-		);
-	}
-
-	protected function buildWheres() :array {
-		$wheres = is_array( $this->wheres ) ? $this->wheres : [];
-		if ( !empty( $this->getIP() ) ) {
-			$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", $this->getIP() );
-		}
-		return $wheres;
-	}
-
-	private function getRawQuery() :string {
-		return 'SELECT %s
-					FROM `%s` as `req`
-					INNER JOIN `%s` as `ips`
-						ON req.ip_ref = ips.id
-					%s
-					%s
-					%s
-					%s;';
 	}
 }
