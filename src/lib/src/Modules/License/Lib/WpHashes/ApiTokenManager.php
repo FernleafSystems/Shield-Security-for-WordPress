@@ -50,7 +50,10 @@ class ApiTokenManager {
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$token = $this->loadToken();
 				try {
-					$token = array_merge( $token, $this->solicitApiToken() );
+					$token = array_merge( $token,
+						array_intersect_key( $this->solicitApiToken(),
+							array_flip( [ 'token', 'expires_at', 'valid_license' ] ) )
+					);
 				}
 				catch ( \Exception $e ) {
 				}
