@@ -19,7 +19,7 @@ class MachinePasswordReset extends Base {
 		];
 
 		$raw = $this->sendReq();
-		if ( !is_array( $raw ) || (int)$this->last_http_req->lastResponse->getCode() !== 200 ) {
+		if ( !is_array( $raw ) || $this->last_http_req->lastResponse->getCode() !== 200 ) {
 			throw new MachinePasswordResetFailedException( sprintf( 'machine password reset failed: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}

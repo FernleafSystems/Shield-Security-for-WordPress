@@ -632,8 +632,6 @@
           "crowdsecurity/http-bf-wordpress_bf",
           "crowdsecurity/http-wordpress_wpconfig",
           "crowdsecurity/http-wordpress_user-enum"
-        ],
-        "pro":  [
         ]
       }
     },
@@ -803,8 +801,8 @@
         "auto_unblock_at": {
           "comment": "Visitor Requested Unblock"
         },
-        "expires_at":      {
-          "comment": "Record Expires At"
+        "last_seen_at":      {
+          "comment": "Last Seen At"
         }
       }
     },

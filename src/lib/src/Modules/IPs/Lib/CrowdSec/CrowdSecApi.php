@@ -39,15 +39,15 @@ class CrowdSecApi {
 	public function getAuthorizationToken() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$this->isReady();
-		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ];
+		return $this->isReady() ?
+			$mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ] : '';
 	}
 
 	public function getMachineID() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$this->isReady();
-		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'machine_id' ];
+		return $this->isReady() ?
+			$mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'machine_id' ] : '';
 	}
 
 	public function getAuthStatus() :string {
@@ -125,10 +125,12 @@ class CrowdSecApi {
 		}
 		catch ( Exceptions\MachineRegisterFailedException $e ) {
 			error_log( $e->getMessage() );
+			$csAuth = $this->getCsAuth();
 			unset( $csAuth[ 'machine_registered' ], $csAuth[ 'auth_token' ], $csAuth[ 'auth_expire' ] );
 		}
 		catch ( Exceptions\MachineLoginFailedException $e ) {
 			error_log( $e->getMessage() );
+			$csAuth = $this->getCsAuth();
 			unset( $csAuth[ 'auth_token' ], $csAuth[ 'auth_expire' ] );
 		}
 		catch ( Exceptions\MachinePasswordResetFailedException $e ) {
@@ -136,8 +138,11 @@ class CrowdSecApi {
 		}
 		catch ( Exceptions\MachineEnrollFailedException $e ) {
 			error_log( $e->getMessage() );
+			$csAuth = $this->getCsAuth();
 			unset( $csAuth[ 'machine_enrolled' ] );
 		}
+
+		$this->storeCsAuth( $csAuth );
 
 		return $success;
 	}
@@ -149,15 +154,20 @@ class CrowdSecApi {
 		$csAuth = $this->getCsAuth();
 
 		if ( empty( $csAuth[ 'machine_registered' ] ) ) {
-			( new Api\MachineRegister() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
-			$csAuth[ 'machine_registered' ] = true;
+			try {
+				( new Api\MachineRegister() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
 
-			$this->getCon()->fireEvent( 'crowdsec_mach_register', [
-				'audit_params' => [
-					'machine_id' => $csAuth[ 'machine_id' ],
-					'url'        => $csAuth[ 'url' ],
-				]
-			] );
+				$this->getCon()->fireEvent( 'crowdsec_mach_register', [
+					'audit_params' => [
+						'machine_id' => $csAuth[ 'machine_id' ],
+						'url'        => $csAuth[ 'url' ],
+					]
+				] );
+			}
+			catch ( Exceptions\MachineAlreadyRegisteredException $e ) {
+			}
+
+			$csAuth[ 'machine_registered' ] = true;
 
 			$this->storeCsAuth( $csAuth );
 		}
@@ -180,8 +190,7 @@ class CrowdSecApi {
 			}
 			catch ( Exceptions\MachineLoginFailedException $e ) {
 				$newPassword = wp_generate_password( 48, true );
-				$resetSuccess = ( new Api\MachinePasswordReset() )
-					->run( $csAuth[ 'machine_id' ], wp_generate_password( 48, $newPassword ) );
+				$resetSuccess = ( new Api\MachinePasswordReset() )->run( $csAuth[ 'machine_id' ], $newPassword );
 				if ( $resetSuccess ) {
 					$csAuth[ 'password' ] = $newPassword;
 					$this->storeCsAuth( $csAuth );
