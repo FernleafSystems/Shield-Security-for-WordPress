@@ -38,6 +38,14 @@
 	</div>
 	<div class="tab-content">
 
+		<div class="tab-pane fade show active" id="ipanalysis" role="tabpanel" aria-labelledby="ipanalysis">
+			<div class="row">
+				<div class="col insights_section">
+					{{ content.ip_review|raw }}
+				</div>
+			</div>
+		</div>
+
 		<div class="tab-pane fade" id="allowedlist" role="tabpanel" aria-labelledby="allowedlist">
 			<div class="row">
 				<div class="col insights_section">
@@ -54,15 +62,7 @@
 			</div>
 		</div>
 
-		<div class="tab-pane fade show active" id="ipanalysis" role="tabpanel" aria-labelledby="ipanalysis">
-			<div class="row">
-				<div class="col insights_section">
-					{{ content.ip_review|raw }}
-				</div>
-			</div>
-		</div>
-
-		<div class="tab-pane fade show active" id="crowdsecDecisions" role="tabpanel" aria-labelledby="crowdsecDecisions">
+		<div class="tab-pane fade" id="crowdsecDecisions" role="tabpanel" aria-labelledby="crowdsecDecisions">
 			<div class="row">
 				<div class="col insights_section">
 					{{ content.crowdsec_decisions_table|raw }}

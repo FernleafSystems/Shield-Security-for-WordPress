@@ -48,6 +48,8 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 				$data[ 'ip' ] = $this->record->ip;
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
+				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $this->record->last_access_at );
+				$data[ 'auto_unblock_at' ] = $this->getColumnContent_UnblockedAt( $this->record->auto_unblock_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->record->created_at );
 
 				return $data;
@@ -111,6 +113,26 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
 		return $loader->select();
+	}
+
+	private function getColumnContent_LastSeen( int $ts ) :string {
+		if ( empty( $ts ) ) {
+			$content = __( 'Never Seen', 'wp-simple-firewall' );
+		}
+		else {
+			$content = $this->getColumnContent_Date( $ts );
+		}
+		return $content;
+	}
+
+	private function getColumnContent_UnblockedAt( int $ts ) :string {
+		if ( empty( $ts ) ) {
+			$content = __( 'Never', 'wp-simple-firewall' );
+		}
+		else {
+			$content = $this->getColumnContent_Date( $ts );
+		}
+		return $content;
 	}
 
 	private function getCountryIP( string $ip ) :IPGeoVO {

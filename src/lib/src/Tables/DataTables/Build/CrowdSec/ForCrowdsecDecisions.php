@@ -13,13 +13,16 @@ class ForCrowdsecDecisions extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'ip',
+			'last_seen',
+			'auto_unblock_at',
+			'last_access_at',
 			'date',
 		];
 	}
 
 	protected function getColumnDefs() :array {
 		return [
-			'ip'       => [
+			'ip'        => [
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
 				'className'   => 'ip',
@@ -30,12 +33,48 @@ class ForCrowdsecDecisions extends Base {
 					'show' => true,
 				],
 			],
-			'date'     => [
+			'last_seen' => [
+				'data'        => [
+					'_'    => 'last_seen',
+					'sort' => 'last_access_at',
+				],
+				'title'       => __( 'Last Seen' ),
+				'className'   => 'date',
+				'orderable'   => true,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
+			],
+			'last_access_at' => [
+				'data'        => 'last_access_at',
+				'title'       => __( 'Last Access At' ),
+				'className'   => 'date',
+				'orderable'   => true,
+				'searchable'  => false,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => false
+				],
+			],
+			'auto_unblock_at' => [
+				'data'        => 'auto_unblock_at',
+				'title'       => __( 'Unblocked At' ),
+				'className'   => 'date',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
+			],
+			'date'      => [
 				'data'        => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'       => __( 'Date' ),
+				'title'       => __( 'Date Added' ),
 				'className'   => 'date',
 				'orderable'   => true,
 				'searchable'  => false,

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisio
 /**
  * @property int $ip_ref
  * @property int $auto_unblock_at
+ * @property int $last_access_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
