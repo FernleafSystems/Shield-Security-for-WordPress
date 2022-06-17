@@ -45,11 +45,13 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$token = $this->loadToken();
 				try {
-					$token = array_merge(
-						$token,
-						( new SolicitToken() )
-							->setMod( $this->getCon()->getModule_Plugin() )
-							->send()
+					$token = array_merge( $token,
+						array_intersect_key(
+							( new SolicitToken() )
+								->setMod( $this->getCon()->getModule_Plugin() )
+								->send(),
+							array_flip( [ 'token', 'expires_at', 'valid_license' ] )
+						)
 					);
 				}
 				catch ( \Exception $e ) {
