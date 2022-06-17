@@ -25,14 +25,14 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 		$unblocked = false;
 
 		if ( $this->canRunUnblock() ) {
-			$csRecord = ( new IPs\DB\CrowdSecDecisions\LoadCrowdSecRecords() )
+			$csRecords = ( new IPs\DB\CrowdSecDecisions\LoadCrowdsecDecisions() )
 				->setMod( $mod )
 				->setIP( $req->ip() )
-				->loadRecord();
-			if ( !empty( $csRecord ) ) {
+				->select();
+			if ( !empty( $csRecords ) ) {
 				$mod->getDbH_CrowdSecDecisions()
 					->getQueryUpdater()
-					->updateById( $csRecord->id, [
+					->updateById( $csRecords[ 0 ]->id, [
 						'auto_unblock_at' => $req->ts()
 					] );
 				$unblocked = true;

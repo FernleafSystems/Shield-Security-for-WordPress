@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	DB\CrowdSecDecisions\LoadCrowdSecRecords,
+	DB\CrowdSecDecisions\LoadCrowdsecDecisions,
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
 	ModCon,
 	Options
@@ -62,10 +62,10 @@ class CrowdSecController extends ExecOnceModConsumer {
 		$onCS = false;
 
 		if ( !empty( $ip ) ) {
-			$records = ( new LoadCrowdSecRecords() )
+			$records = ( new LoadCrowdsecDecisions() )
 				->setMod( $this->getMod() )
 				->setIP( $ip )
-				->selectAll();
+				->select();
 
 			if ( count( $records ) > 0 ) {
 

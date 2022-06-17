@@ -21,13 +21,12 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		/** @var CrowdSecRecord[] $records */
 		$records = ( new LoadCrowdsecDecisions() )
 			->setMod( $mod )
 			->setIP( $this->getCon()->this_req->ip )
 			->select();
 		if ( count( $records ) === 1 ) {
-			$theRecord = array_shift( $records );
+			$theRecord = $records[ 0 ];
 			/** @var CrowdsecDecisionsDB\Update $updater */
 			$updater = $mod->getDbH_CrowdSecDecisions()->getQueryUpdater();
 			$updater->setUpdateId( $theRecord->id )
