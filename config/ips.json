@@ -801,8 +801,8 @@
         "auto_unblock_at": {
           "comment": "Visitor Requested Unblock"
         },
-        "last_seen_at":      {
-          "comment": "Last Seen At"
+        "last_access_at":      {
+          "comment": "Last Access At"
         }
       }
     },
