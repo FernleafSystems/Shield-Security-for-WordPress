@@ -1,0 +1,21 @@
+<div class="row insights_widget shield-section-datatable" id="SectionCrowdsecDecisionsTable">
+	<div class="col">
+
+		<table id="table_id-csdecisions"
+			   class="table table-striped table-bordered" style="width: 100%;"></table>
+
+	</div>
+</div>
+
+<script>
+	jQuery( document ).ready( function () {
+		jQuery( '#table_id-csdecisions' ).icwpWpsfCrowdsecDecisionsTableActions(
+			{
+				'ajax': {
+					'table_action':{{ ajax.table_action|raw }},
+				},
+				'datatables_init': {{ vars.datatables_init|raw }}
+			}
+		);
+	} );
+</script>

@@ -4,28 +4,40 @@
 	<div class="row">
 		<div class="col insights-sub-nav insights_section">
 			<ul class="nav nav-tabs" id="TabsIps" role="tablist">
+
 				<li class="nav-item">
 					<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#ipanalysis"
 					   data-bs-toggle="tab">
 						{{ strings.tab_ip_analysis }}
 					</a>
 				</li>
+
 				<li class="nav-item">
 					<a class="nav-link" data-bs-toggle="tab" role="tab" href="#blocklist"
 					   data-bs-toggle="tab">
 						{{ strings.tab_manage_block }}
 					</a>
 				</li>
+
 				<li class="nav-item">
 					<a class="nav-link" data-bs-toggle="tab" role="tab" href="#allowedlist"
 					   data-bs-toggle="tab">
 						{{ strings.tab_manage_bypass }}
 					</a>
 				</li>
+
+				<li class="nav-item">
+					<a class="nav-link" data-bs-toggle="tab" role="tab" href="#crowdsecDecisions"
+					   data-bs-toggle="tab">
+						{{ strings.crowdsec_decisions }}
+					</a>
+				</li>
+
 			</ul>
 		</div>
 	</div>
 	<div class="tab-content">
+
 		<div class="tab-pane fade" id="allowedlist" role="tabpanel" aria-labelledby="allowedlist">
 			<div class="row">
 				<div class="col insights_section">
@@ -33,6 +45,7 @@
 				</div>
 			</div>
 		</div>
+
 		<div class="tab-pane fade" id="blocklist" role="tabpanel" aria-labelledby="blocklist">
 			<div class="row">
 				<div class="col insights_section">
@@ -40,6 +53,7 @@
 				</div>
 			</div>
 		</div>
+
 		<div class="tab-pane fade show active" id="ipanalysis" role="tabpanel" aria-labelledby="ipanalysis">
 			<div class="row">
 				<div class="col insights_section">
@@ -47,5 +61,14 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="tab-pane fade show active" id="crowdsecDecisions" role="tabpanel" aria-labelledby="crowdsecDecisions">
+			<div class="row">
+				<div class="col insights_section">
+					{{ content.crowdsec_decisions_table|raw }}
+				</div>
+			</div>
+		</div>
+
 	</div>
 {% endblock %}

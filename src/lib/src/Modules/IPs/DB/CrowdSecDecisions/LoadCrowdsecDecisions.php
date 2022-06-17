@@ -11,7 +11,7 @@ class LoadCrowdsecDecisions extends BaseLoadRecordsForIPJoins {
 	/**
 	 * @return CrowdSecRecord[]
 	 */
-	public function all() :array {
+	public function select() :array {
 		$results = [];
 		foreach ( $this->selectRaw() as $raw ) {
 			$results[ $raw[ 'id' ] ] = new CrowdSecRecord( $raw );

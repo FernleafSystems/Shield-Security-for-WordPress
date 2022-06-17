@@ -11,7 +11,7 @@ class LoadRequestLogs extends BaseLoadRecordsForIPJoins {
 	/**
 	 * @return LogRecord[]
 	 */
-	public function all() :array {
+	public function select() :array {
 		$results = [];
 		foreach ( $this->selectRaw() as $raw ) {
 			$results[ $raw[ 'id' ] ] = new LogRecord( $raw );

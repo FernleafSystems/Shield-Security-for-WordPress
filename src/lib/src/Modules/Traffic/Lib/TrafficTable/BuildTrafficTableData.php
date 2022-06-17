@@ -154,7 +154,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
-		return $loader->all();
+		return $loader->select();
 	}
 
 	private function getColumnContent_Details() :string {

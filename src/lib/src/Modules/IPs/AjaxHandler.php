@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
@@ -17,13 +17,14 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		] );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'ip_insert'          => [ $this, 'ajaxExec_AddIp' ],
-				'ip_delete'          => [ $this, 'ajaxExec_IpDelete' ],
-				'render_table_ip'    => [ $this, 'ajaxExec_BuildTableIps' ],
-				'ip_analyse_build'   => [ $this, 'ajaxExec_BuildIpAnalyse' ],
-				'ip_analyse_action'  => [ $this, 'ajaxExec_IpAnalyseAction' ],
-				'ip_review_select'   => [ $this, 'ajaxExec_IpReviewSelect' ],
-				'render_ip_analysis' => [ $this, 'ajaxExec_RenderIpAnalysis' ],
+				'ip_insert'               => [ $this, 'ajaxExec_AddIp' ],
+				'ip_delete'               => [ $this, 'ajaxExec_IpDelete' ],
+				'render_table_ip'         => [ $this, 'ajaxExec_BuildTableIps' ],
+				'csdecisionstable_action' => [ $this, 'ajaxExec_CrowdsecDecisionTableAction' ],
+				'ip_analyse_build'        => [ $this, 'ajaxExec_BuildIpAnalyse' ],
+				'ip_analyse_action'       => [ $this, 'ajaxExec_IpAnalyseAction' ],
+				'ip_review_select'        => [ $this, 'ajaxExec_IpReviewSelect' ],
+				'render_ip_analysis'      => [ $this, 'ajaxExec_RenderIpAnalysis' ],
 			] );
 		}
 		return $map;
@@ -326,5 +327,34 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'message' => $msg,
 			'html'    => $response,
 		];
+	}
+
+	public function ajaxExec_CrowdsecDecisionTableAction() :array {
+		try {
+			$action = Services::Request()->post( 'sub_action' );
+			switch ( $action ) {
+
+				case 'retrieve_table_data':
+					$builder = ( new Lib\CrowdSec\Table\BuildCrowdsecTableData() )->setMod( $this->getMod() );
+					$builder->table_data = Services::Request()->post( 'table_data', [] );
+					$response = [
+						'success'        => true,
+						'datatable_data' => $builder->build(),
+					];
+					break;
+
+				default:
+					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
+			}
+		}
+		catch ( \Exception $e ) {
+			$response = [
+				'success'     => false,
+				'page_reload' => true,
+				'message'     => $e->getMessage(),
+			];
+		}
+
+		return $response;
 	}
 }

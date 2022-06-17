@@ -19,7 +19,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	use ModConsumer;
 	use IpAddressConsumer;
 
-	abstract public function all() :array;
+	abstract public function select() :array;
 
 	public function countAll() :int {
 		$wheres = $this->buildWheres();

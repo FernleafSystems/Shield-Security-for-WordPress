@@ -1,10 +1,11 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\CrowdSec\ForCrowdsecDecisions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
@@ -24,18 +25,19 @@ class UI extends BaseShield\UI {
 				'item_delete'     => $mod->getAjaxActionData( 'ip_delete', true ),
 			],
 			'content' => [
-				'ip_review' => $this->renderIpAnalyse()
+				'ip_review'                => $this->renderIpAnalyse(),
+				'crowdsec_decisions_table' => $this->renderTable_CrowdsecDecisions()
 			],
 			'flags'   => [
 				'can_blacklist' => $con->isPremiumActive()
 			],
 			'strings' => [
-				'trans_limit'       => sprintf(
+				'trans_limit'        => sprintf(
 					__( 'Offenses required for IP block: %s', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$mod->getUrl_DirectLinkToOption( 'transgression_limit' ), $opts->getOffenseLimit() )
 				),
-				'auto_expire'       => sprintf(
+				'auto_expire'        => sprintf(
 					__( 'IPs on block list auto-expire after: %s', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$mod->getUrl_DirectLinkToOption( 'auto_expire' ),
@@ -45,20 +47,21 @@ class UI extends BaseShield\UI {
 								->diffForHumans( null, true )
 					)
 				),
-				'title_whitelist'   => __( 'IP Bypass List', 'wp-simple-firewall' ),
-				'title_blacklist'   => __( 'IP Block List', 'wp-simple-firewall' ),
-				'summary_whitelist' => sprintf( __( 'IP addresses that are never blocked and bypass all %s rules.', 'wp-simple-firewall' ), $pluginName ),
-				'summary_blacklist' => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $pluginName ),
-				'enter_ip_block'    => __( 'Enter IP address to block', 'wp-simple-firewall' ),
-				'enter_ip_white'    => __( 'Supply IP address to add to bypass list', 'wp-simple-firewall' ),
-				'enter_ip'          => __( 'Enter IP address', 'wp-simple-firewall' ),
-				'label_for_ip'      => __( 'Label for IP', 'wp-simple-firewall' ),
-				'ip_new'            => __( 'New IP', 'wp-simple-firewall' ),
-				'ip_filter'         => __( 'Filter By IP', 'wp-simple-firewall' ),
-				'ip_block'          => __( 'Block IP', 'wp-simple-firewall' ),
-				'tab_manage_block'  => __( 'Manage Block List', 'wp-simple-firewall' ),
-				'tab_manage_bypass' => __( 'Manage Bypass List', 'wp-simple-firewall' ),
-				'tab_ip_analysis'   => __( 'IP Analysis', 'wp-simple-firewall' ),
+				'crowdsec_decisions' => __( 'CrowdSec Block List', 'wp-simple-firewall' ),
+				'title_whitelist'    => __( 'IP Bypass List', 'wp-simple-firewall' ),
+				'title_blacklist'    => __( 'IP Block List', 'wp-simple-firewall' ),
+				'summary_whitelist'  => sprintf( __( 'IP addresses that are never blocked and bypass all %s rules.', 'wp-simple-firewall' ), $pluginName ),
+				'summary_blacklist'  => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $pluginName ),
+				'enter_ip_block'     => __( 'Enter IP address to block', 'wp-simple-firewall' ),
+				'enter_ip_white'     => __( 'Supply IP address to add to bypass list', 'wp-simple-firewall' ),
+				'enter_ip'           => __( 'Enter IP address', 'wp-simple-firewall' ),
+				'label_for_ip'       => __( 'Label for IP', 'wp-simple-firewall' ),
+				'ip_new'             => __( 'New IP', 'wp-simple-firewall' ),
+				'ip_filter'          => __( 'Filter By IP', 'wp-simple-firewall' ),
+				'ip_block'           => __( 'Block IP', 'wp-simple-firewall' ),
+				'tab_manage_block'   => __( 'Manage Block List', 'wp-simple-firewall' ),
+				'tab_manage_bypass'  => __( 'Manage Bypass List', 'wp-simple-firewall' ),
+				'tab_ip_analysis'    => __( 'IP Analysis', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
@@ -69,6 +72,31 @@ class UI extends BaseShield\UI {
 					->white()
 			],
 		];
+	}
+
+	public function renderTable_CrowdsecDecisions() :string {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $mod->renderTemplate( '/wpadmin_pages/insights/ips/crowdsec/table_decisions.twig', [
+			'ajax'    => [
+				'table_action' => $mod->getAjaxActionData( 'csdecisionstable_action', true ),
+			],
+			'flags'   => [
+				'is_enabled' => $opts->isEnabledCrowdSecAutoBlock(),
+			],
+			'hrefs'   => [
+				'please_enable' => $mod->getUrl_DirectLinkToOption( 'cs_block' ),
+			],
+			'strings' => [
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForCrowdsecDecisions() )
+					->setMod( $this->getMod() )
+					->build()
+			],
+		] );
 	}
 
 	public function getSectionWarnings( string $section ) :array {

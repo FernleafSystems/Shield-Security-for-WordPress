@@ -25,7 +25,7 @@ class ForCrowdsecDecisions extends Base {
 				'className'   => 'ip',
 				'orderable'   => false,
 				'searchable'  => true,
-				'visible'     => false,
+				'visible'     => true,
 				'searchPanes' => [
 					'show' => true,
 				],
