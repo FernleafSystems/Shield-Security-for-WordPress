@@ -29,8 +29,8 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 		if ( count( $records ) === 1 ) {
 			$theRecord = array_shift( $records );
 			/** @var CrowdsecDecisionsDB\Update $updater */
-			$updater = $mod->getDbH_CrowdSecSignals()->getQueryUpdater();
-			$updater->filterByIP( $theRecord->id )
+			$updater = $mod->getDbH_CrowdSecDecisions()->getQueryUpdater();
+			$updater->setUpdateId( $theRecord->id )
 					->updateLastAccessAt();
 		}
 

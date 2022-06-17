@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisio
 
 trait Common {
 
-	public function filterByIP( int $ipRef ) {
+	public function filterByIPRef( int $ipRef ) {
 		return $this->addWhereEquals( 'ip_ref', $ipRef );
 	}
 }

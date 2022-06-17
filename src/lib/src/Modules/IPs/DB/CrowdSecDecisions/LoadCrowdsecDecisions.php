@@ -26,7 +26,9 @@ class LoadCrowdsecDecisions extends BaseLoadRecordsForIPJoins {
 	protected function getSelectFieldsForJoinedTable() :array {
 		return [
 			'id',
+			'ip_ref',
 			'auto_unblock_at',
+			'last_access_at',
 			'created_at',
 		];
 	}
