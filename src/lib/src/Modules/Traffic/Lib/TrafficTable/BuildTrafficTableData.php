@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
@@ -129,8 +129,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		return $wheres;
 	}
 
-	protected function getRecordsLoader() :LoadLogs {
-		return ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
+	protected function getRecordsLoader() :LoadRequestLogs {
+		return ( new LoadRequestLogs() )->setMod( $this->getCon()->getModule_Data() );
 	}
 
 	protected function getSearchableColumns() :array {
@@ -154,7 +154,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
-		return $loader->run();
+		return $loader->all();
 	}
 
 	private function getColumnContent_Details() :string {

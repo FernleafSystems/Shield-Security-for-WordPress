@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -77,36 +78,17 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForIPs() :array {
-		return array_values( array_filter( array_map(
-			function ( $result ) {
-				$ip = $result[ 'ip' ] ?? null;
-				if ( !empty( $ip ) ) {
-					$ip = [
-						'label' => $ip,
-						'value' => $ip,
-					];
-				}
-				return $ip;
+		return array_map(
+			function ( $ip ) {
+				return [
+					'label' => $ip,
+					'value' => $ip,
+				];
 			},
-			$this->runQuery( 'INET6_NTOA(ips.ip) as ip', true )
-		) ) );
-	}
-
-	private function runQuery( string $select, bool $joinWithIPs ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$results = Services::WpDb()->selectCustom(
-			sprintf( 'SELECT DISTINCT %s
-						FROM `%s` as `req`
-						%s;',
-				$select,
-				$mod->getDbH_ReqLogs()->getTableSchema()->table,
-				$joinWithIPs ? sprintf( 'INNER JOIN `%s` as ips ON ips.id = req.ip_ref',
-					$mod->getDbH_IPs()->getTableSchema()->table ) : ''
-
-			)
+			( new LoadRequestLogs() )
+				->setMod( $this->getCon()->getModule_Data() )
+				->getDistinctIPs()
 		);
-		return is_array( $results ) ? $results : [];
 	}
 
 	/**

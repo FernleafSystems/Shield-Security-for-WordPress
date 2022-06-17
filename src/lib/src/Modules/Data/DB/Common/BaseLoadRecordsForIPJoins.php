@@ -19,12 +19,14 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	use ModConsumer;
 	use IpAddressConsumer;
 
+	abstract public function all() :array;
+
 	public function countAll() :int {
 		$wheres = $this->buildWheres();
 		return (int)Services::WpDb()->getVar(
 			sprintf( $this->getRawQuery(),
 				'COUNT(*)',
-				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->getTableSchemaForJoinedTable()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
 				'',
@@ -32,6 +34,26 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 				''
 			)
 		);
+	}
+
+	public function getDistinctIPs() :array {
+		$results = Services::WpDb()->selectCustom(
+			sprintf( 'SELECT DISTINCT INET6_NTOA(ips.ip) as ip
+						FROM `%s` as `%s`
+						INNER JOIN `%s` as `ips` ON `ips`.id = `%s`.ip_ref;',
+				$this->getTableSchemaForJoinedTable()->table,
+				$this->getJoinedTableAbbreviation(),
+				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->getJoinedTableAbbreviation()
+			)
+		);
+
+		return array_values( array_filter( array_map(
+			function ( $result ) {
+				return is_array( $result ) ? ( $result[ 'ip' ] ?? null ) : null;
+			},
+			is_array( $results ) ? $results : []
+		) ) );
 	}
 
 	/**
