@@ -72,6 +72,20 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "5",
+        "released_at": 1655195000,
+        "items":       [
+          {
+            "title": "Log the IP address for informational purposes in the Activity Log when it's been manually unblocked.",
+            "type":  "improved"
+          },
+          {
+            "title": "Address a potential fatal error in the admin area when the web hosting minimum requirement aren't met.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
