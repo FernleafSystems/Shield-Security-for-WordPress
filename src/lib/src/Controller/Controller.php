@@ -273,7 +273,7 @@ class Controller extends DynPropertiesClass {
 
 		$flag = $this->paths->forFlag( 'reqs_met.flag' );
 		if ( !$FS->isFile( $flag )
-			 || Services::Request()->carbon()->subDays( 1 )->timestamp > $FS->getModifiedTime( $flag ) ) {
+			 || Services::Request()->carbon()->subHours( 1 )->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
@@ -339,7 +339,8 @@ class Controller extends DynPropertiesClass {
 					 'strings' => [
 						 'not_met'          => 'Shield Security Plugin - minimum site requirements are not met',
 						 'requirements'     => $this->reqs_not_met,
-						 'summary_title'    => sprintf( 'Web Hosting requirements for Plugin "%s" are not met and you should deactivate the plugin.', $this->getHumanName() ),
+						 'summary_title'    => "Your web hosting doesn't meet the minimum requirements for the Shield Security Plugin.",
+						 'recommend'        => "We highly recommend upgrading your web hosting components as they're probably quite out-of-date.",
 						 'more_information' => 'Click here for more information on requirements'
 					 ],
 					 'hrefs'   => [
@@ -1154,7 +1155,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
+		return $this->modules_loaded && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
 	public function isRelabelled() :bool {
