@@ -1170,7 +1170,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
+		return $this->modules_loaded && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
 	public function isRelabelled() :bool {
