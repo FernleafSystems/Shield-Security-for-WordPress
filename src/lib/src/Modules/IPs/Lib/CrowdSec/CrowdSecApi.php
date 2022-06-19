@@ -121,6 +121,7 @@ class CrowdSecApi {
 			$this->machineRegister();
 			$this->machineLogin();
 			$this->machineEnroll();
+			$csAuth = $this->getCsAuth();
 			$success = true;
 		}
 		catch ( Exceptions\MachineRegisterFailedException $e ) {
@@ -200,14 +201,13 @@ class CrowdSecApi {
 
 			$csAuth[ 'auth_token' ] = $login[ 'token' ];
 			$csAuth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->timestamp;
+			$this->storeCsAuth( $csAuth );
 
 			$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
 				'audit_params' => [
 					'expiration' => $login[ 'expire' ], // format: 2022-06-09T14:15:50Z
 				]
 			] );
-
-			$this->storeCsAuth( $csAuth );
 		}
 	}
 
@@ -244,6 +244,8 @@ class CrowdSecApi {
 				$enrollName,
 				is_array( $enrollTags ) ? $enrollTags : $defaultTags
 			);
+			$csAuth[ 'machine_enrolled' ] = true;
+			$this->storeCsAuth( $csAuth );
 
 			$this->getCon()->fireEvent( 'crowdsec_mach_enroll', [
 				'audit_params' => [
@@ -251,10 +253,6 @@ class CrowdSecApi {
 					'name' => $enrollName,
 				]
 			] );
-
-			$csAuth[ 'machine_enrolled' ] = true;
-
-			$this->storeCsAuth( $csAuth );
 		}
 	}
 
