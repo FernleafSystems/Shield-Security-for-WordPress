@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
  * @property string $order_by
@@ -139,6 +140,32 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					->diffForHumans(),
 			Services::WpGeneral()->getTimeStringForDisplay( $ts )
 		);
+	}
+
+	protected function getColumnContent_LinkedIP( string $ip ) :string {
+		if ( !empty( $ip ) ) {
+			try {
+				$ipID = ( new IpID( $ip ) )->run();
+				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
+					$id = __( 'This Server', 'wp-simple-firewall' );
+				}
+				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
+					$id = __( 'This Is You', 'wp-simple-firewall' );
+				}
+				else {
+					$id = $ipID[ 1 ];
+				}
+			}
+			catch ( \Exception $e ) {
+				$id = '';
+			}
+			$content = sprintf( '<h6>%s%s</h6>', $this->getIpAnalysisLink( $ip ),
+				empty( $id ) ? '' : sprintf( '<br/><small>%s</small>', esc_html( $id ) ) );
+		}
+		else {
+			$content = 'No IP';
+		}
+		return $content;
 	}
 
 	protected function getIpAnalysisLink( string $ip ) :string {

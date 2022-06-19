@@ -46,6 +46,7 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 				$geo = $this->getCountryIP( $this->record->ip );
 
 				$data[ 'ip' ] = $this->record->ip;
+				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $this->record->ip );
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
 				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $this->record->last_access_at );

@@ -13,6 +13,7 @@ class ForCrowdsecDecisions extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'ip',
+			'ip_linked',
 			'last_seen',
 			'auto_unblock_at',
 			'last_access_at',
@@ -28,9 +29,20 @@ class ForCrowdsecDecisions extends Base {
 				'className'   => 'ip',
 				'orderable'   => false,
 				'searchable'  => true,
-				'visible'     => true,
+				'visible'     => false,
 				'searchPanes' => [
 					'show' => true,
+				],
+			],
+			'ip_linked'  => [
+				'data'        => 'ip_linked',
+				'title'       => __( 'IP' ),
+				'className'   => 'ip_linked',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false,
 				],
 			],
 			'last_seen' => [
