@@ -110,6 +110,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
+		$loader->order_by = $this->getOrderBy();
 		return array_filter(
 			$loader->run( true ),
 			function ( $logRecord ) {

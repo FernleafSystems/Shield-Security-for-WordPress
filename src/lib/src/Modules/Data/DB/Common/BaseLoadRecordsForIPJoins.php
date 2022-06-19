@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property int      $limit
  * @property int      $offset
  * @property string[] $wheres
+ * @property string   $order_by
  * @property string   $order_dir
  */
 abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
@@ -89,7 +90,8 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 
 	protected function getOrderByColumn() :string {
 		$sch = $this->getTableSchemaForJoinedTable();
-		return sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $sch->has_created_at ? 'created_at' : 'id' );
+		$col = empty( $this->order_by ) ? ( $sch->has_created_at ? 'created_at' : 'id' ) : $this->order_by;
+		return sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $col );
 	}
 
 	protected function getSelectFieldsForJoinedTable() :array {

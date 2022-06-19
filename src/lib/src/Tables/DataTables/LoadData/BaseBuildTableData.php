@@ -8,9 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
- * @property string $order_by
- * @property string $order_dir
- * @property array  $table_data
+ * @property array $table_data
  */
 abstract class BaseBuildTableData extends DynPropertiesClass {
 
@@ -105,21 +103,25 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
-	protected function getOrderDirection() :string {
-		if ( !isset( $this->order_dir ) ) {
-			$dir = 'DESC';
-			if ( !empty( $this->table_data[ 'order' ] ) ) {
-				$col = $this->table_data[ 'order' ][ 0 ][ 'column' ];
-				$sortCol = $this->table_data[ 'columns' ][ $col ][ 'data' ];
-				$this->order_by = is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
-				$dir = strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
-				if ( !in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
-					$dir = 'DESC';
-				}
-			}
-			$this->order_dir = $dir;
+	protected function getOrderBy() :string {
+		$orderBy = '';
+		if ( !empty( $this->table_data[ 'order' ] ) ) {
+			$col = $this->table_data[ 'order' ][ 0 ][ 'column' ];
+			$sortCol = $this->table_data[ 'columns' ][ $col ][ 'data' ];
+			$orderBy = is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
 		}
-		return $this->order_dir;
+		return $orderBy;
+	}
+
+	protected function getOrderDirection() :string {
+		$dir = 'DESC';
+		if ( !empty( $this->table_data[ 'order' ] ) ) {
+			$dir = strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
+			if ( !in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
+				$dir = 'DESC';
+			}
+		}
+		return $dir;
 	}
 
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {

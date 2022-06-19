@@ -112,6 +112,7 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 		$loader->wheres = $wheres;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
+		$loader->order_by = $this->getOrderBy();
 		$loader->order_dir = $this->getOrderDirection();
 		return $loader->select();
 	}
