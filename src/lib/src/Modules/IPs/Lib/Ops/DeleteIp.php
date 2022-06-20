@@ -12,7 +12,7 @@ class DeleteIp {
 	use IPs\Components\IpAddressConsumer;
 
 	public function fromBlacklist() :bool {
-		$this->getCon()->fireEvent( 'ip_unblock' );
+		$this->getCon()->fireEvent( 'ip_unblock', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return (bool)$this->getDeleter()
 						  ->filterByBlacklist()
 						  ->query();

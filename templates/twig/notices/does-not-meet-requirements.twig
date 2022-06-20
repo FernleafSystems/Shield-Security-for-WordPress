@@ -1,7 +1,8 @@
 {% extends "/notices/base-error.twig" %}
 
 {% block notice_body %}
-	{{ strings.summary_title }}
+	<p>{{ strings.summary_title }}</p>
+	<p>{{ strings.recommend }}</p>
 	<ul style="list-style: inside none disc;">
 		{% for req in strings.requirements %}
 			<li>{{ req }}</li>

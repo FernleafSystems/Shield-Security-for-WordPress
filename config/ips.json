@@ -16,7 +16,7 @@
     "premium":               false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
-    "run_if_wpcli":          false,
+    "run_if_wpcli":          true,
     "order":                 100
   },
   "menus":            {
@@ -767,10 +767,13 @@
         ],
         "level":        "alert"
       },
-      "ip_unblock":              {
-        "level":   "notice",
-        "offense": false,
-        "stat":    false
+      "ip_unblock":                  {
+        "audit_params": [
+          "ip"
+        ],
+        "level":        "notice",
+        "offense":      false,
+        "stat":         false
       },
       "ip_block_auto":           {
         "audit_params": [
