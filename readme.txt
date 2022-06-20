@@ -8,13 +8,15 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.0
-Stable tag: 15.1.4
+Stable tag: 15.1.5
 
 Bad Bots Are Your #1 Security Risk. Malware is a symptom of poor security, not the cause. Discover the advantage of powerful security over marketing.
 
 == Description ==
 
-**No-Nonsense, No-Hype. Just Good Security Protection**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive, *no-need-for-captcha* security technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
+**It's time to stop our obsession with malware**. Malware scanning is important *after* you're hacked. Get a security plugin that [prioritises security *protection* before "malware marketing"](https://shsec.io/ky).
+
+**No-Nonsense, No-Hype. Just Good Security Protection**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive invisble "CAPTCHA" technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
 
 **Performance is critical**. Shield Security automatically blocks bad IP addresses while optimising performance so your WordPress site never slows down because of bloated security, with large IP lookup tables .
 
