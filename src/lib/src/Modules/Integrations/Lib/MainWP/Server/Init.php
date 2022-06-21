@@ -15,16 +15,15 @@ class Init {
 	use ModConsumer;
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	public function run() :string {
 		$con = $this->getCon();
-		/** @var Options $integOpts */
-		$integOpts = $con->getModule_Integrations()->getOptions();
+		/** @var Options $optsInt */
+		$optsInt = $con->getModule_Integrations()->getOptions();
 
 		// TODO: Consider have an "error" screen message to show it's not enabled instead?
-		if ( !$integOpts->isEnabledMainWP() ) {
+		if ( !$optsInt->isEnabledMainWP() ) {
 			throw new \Exception( 'MainWP Extension is not enabled' );
 		}
 

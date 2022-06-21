@@ -16,8 +16,8 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 
 			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
 
-				$enqueues[ Enqueue::JS ][] = 'shield/mainwp';
-				$enqueues[ Enqueue::CSS ][] = 'shield/mainwp';
+				$enqueues[ Enqueue::JS ][] = 'shield/integrations/mainwp-server';
+				$enqueues[ Enqueue::CSS ][] = 'shield/integrations/mainwp-server';
 
 //				$handle = 'semantic-ui-datatables-select';
 //				wp_register_script(

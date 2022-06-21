@@ -34,7 +34,6 @@ class PerformSiteAction {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function activate() :string {
@@ -46,7 +45,6 @@ class PerformSiteAction {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function deactivate() :string {
@@ -58,7 +56,6 @@ class PerformSiteAction {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function install() :string {
@@ -70,7 +67,6 @@ class PerformSiteAction {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function license() :string {
@@ -82,7 +78,6 @@ class PerformSiteAction {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function mwp() :string {
@@ -94,7 +89,6 @@ class PerformSiteAction {
 	}
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function sync() :string {
