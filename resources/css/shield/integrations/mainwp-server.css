@@ -10,3 +10,7 @@ table.mainwp-shield-ext-table td.cell-span-issue {
 	font-size: smaller;
 	text-align: center;
 }
+
+.mainwp-ui-leftmenu .mainwp-content-wrap {
+	/*margin-left: 190px;*/
+}

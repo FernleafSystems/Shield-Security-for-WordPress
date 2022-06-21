@@ -27,17 +27,7 @@ class Init {
 			throw new \Exception( 'MainWP Extension is not enabled' );
 		}
 
-		$extensionsPage = ( new ExtensionSettingsPage() )->setMod( $this->getMod() );
-		add_filter( 'mainwp_getextensions', function ( $exts ) use ( $extensionsPage ) {
-			$con = $this->getCon();
-			$exts[] = [
-				'plugin'   => $this->getCon()->getRootFile(),
-				// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
-				'callback' => [ $extensionsPage, 'render' ],
-				'icon'     => $con->urls->forImage( 'pluginlogo_col_32x32.png' ),
-			];
-			return $exts;
-		}, 10, 1 );
+		$extensionsPage = $this->addOurExtension();
 
 		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', $con->getRootFile() );
 		$key = $childEnabled[ 'key' ] ?? '';
@@ -52,6 +42,7 @@ class Init {
 			( new UI\ManageSites\SitesListTableHandler() )
 				->setMod( $this->getMod() )
 				->execute();
+
 			$extensionsPage->execute();
 
 			if ( $this->getMod()->isModuleRequest() && Services::WpGeneral()->isAjax() ) {
@@ -60,5 +51,23 @@ class Init {
 		}
 
 		return $key;
+	}
+
+	private function addOurExtension() :ExtensionSettingsPage {
+		$con = $this->getCon();
+
+		$extensionsPage = new ExtensionSettingsPage();
+		$extensionParams = [
+			'plugin'   => $con->getRootFile(),
+			// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
+			'callback' => [ $extensionsPage, 'render' ],
+			'icon'     => $con->urls->forImage( 'pluginlogo_col_32x32.png' ),
+		];
+		add_filter( 'mainwp_getextensions', function ( $exts ) use ( $extensionParams ) {
+			return array_merge( $exts, [ $extensionParams ] );
+		} );
+
+		// We add Mod afterwards. It wasn't correctly saving for some reason while with it in the callback.
+		return $extensionsPage->setMod( $this->getMod() );
 	}
 }
