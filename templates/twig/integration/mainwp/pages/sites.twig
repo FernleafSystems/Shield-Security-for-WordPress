@@ -1,23 +1,31 @@
-<div class="ui stackable grid">
 
-	<div class="row">
-		<div class="column one">
-			<div class="ui green inverted center aligned padded segment" style="margin-bottom: 0;">
-				<div class="ui four column grid">
-					<div class="row">
-						{% for head_stat_key,head_stat_val in vars.stats_head %}
-							<div class="column">
-								<div class="ui inverted horizontal statistic">
-									<div class="value">{{ head_stat_val }}</div>
-									<div class="label">{{ attribute(strings, head_stat_key) }}</div>
-								</div>
-							</div>
-						{% endfor %}
-					</div>
+<div class="mainwp_shield_tabs_content" data-tab="dashboard">
+	<div class="mainwp-actions-bar">
+		<div class="ui grid">
+			<div class="ui two column row">
+				<div class="middle aligned column ui mini form">
+					<div class="ui dropdown selection" tabindex="0">
+						<select id="mwp_shield_plugin_action">
+						<option value="-1">Bulk Actions</option>
+						<option value="activate-selected">Activate</option>
+						<option value="update-selected">Update</option>
+						<option value="hide-selected">Hide</option>
+						<option value="show-selected">Unhide</option>
+		</select><i class="dropdown icon"></i><div class="text">Bulk Actions</div><div class="menu" tabindex="-1"><div class="item active selected" data-value="-1" data-text="Bulk Actions">Bulk Actions</div><div class="item" data-value="activate-selected" data-text="Activate">Activate</div><div class="item" data-value="update-selected" data-text="Update">Update</div><div class="item" data-value="hide-selected" data-text="Hide">Hide</div><div class="item" data-value="show-selected" data-text="Unhide">Unhide</div></div></div>
+					<input type="button" value="Apply" class="ui basic mini button action" id="shield_plugin_doaction_btn" name="shield_plugin_doaction_btn">
+										</div>
+				<div class="right aligned middle aligned column">
+					<span id="mainwp_shield_remind_change_status"></span>
+					<a href="#" id="mainwp-shield-kill-scan" class="ui mini button">Stop Scan Process</a>
+					<a href="#" id="mainwp-shield-run-scan" class="ui mini green button shield-run-scan" title="Start a Wordfence Scan">Scan all Child Sites</a>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>
+
+
+<div class="ui stackable grid">
 
 	<div class="row">
 		<div class="sixteen column">

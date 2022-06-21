@@ -89,7 +89,7 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 				'vars'    => [
 					'submenu' => [
 						[
-							'title'  => 'Sites',
+							'title'  => 'Sites Dashboard',
 							'href'   => add_query_arg( [ 'tab' => 'sites' ], $req->getUri() ),
 							'icon'   => 'globe',
 							'active' => $currentTab === 'sites',
