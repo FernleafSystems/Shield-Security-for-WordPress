@@ -205,6 +205,9 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 				$this->scheduleAdHocCheck( rand( MINUTE_IN_SECONDS, MINUTE_IN_SECONDS*30 ) );
 			}
 		}
+		else {
+			throw new \Exception( __( 'Please wait a short while before checking again.', 'wp-simple-firewall' ) );
+		}
 
 		return $this;
 	}

@@ -1028,7 +1028,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isModulePage() :bool {
-		return strpos( Services::Request()->query( 'page' ), $this->prefix() ) === 0;
+		return strpos( (string)Services::Request()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**
