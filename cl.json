@@ -86,6 +86,20 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "6",
+        "released_at": 1658226200,
+        "items":       [
+          {
+            "title": "A rare error involving Composer versions lookup used by other plugins.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Remove some PHP 8.1 deprecated notices.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
