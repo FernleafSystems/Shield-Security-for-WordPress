@@ -12,15 +12,22 @@ class ApiActionInit {
 
 		switch ( $action ) {
 			case 'license_check':
-				$valid = $this->getCon()
-							  ->getModule_License()
-							  ->getLicenseHandler()
-							  ->verify( true )
-							  ->hasValidWorkingLicense();
+				try {
+					$valid = $this->getCon()
+								  ->getModule_License()
+								  ->getLicenseHandler()
+								  ->verify( true )
+								  ->hasValidWorkingLicense();
+					$msg = $valid ? __( 'ShieldPRO license verified', 'wp-simple-firewall' )
+						: __( "ShieldPRO license couldn't be found", 'wp-simple-firewall' );
+				}
+				catch ( \Exception $e ) {
+					$msg = $e->getMessage();
+					$valid = false;
+				}
 				$response = [
 					'success' => $valid,
-					'message' => $valid ? __( 'ShieldPRO license verified', 'wp-simple-firewall' )
-						: __( "ShieldPRO license couldn't be found", 'wp-simple-firewall' )
+					'message' => $msg
 				];
 				break;
 

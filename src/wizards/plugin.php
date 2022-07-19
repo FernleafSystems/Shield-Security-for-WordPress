@@ -484,8 +484,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$msg = __( 'License could not be found.', 'wp-simple-firewall' );
 			}
 		}
-		catch ( Exception $e ) {
-			$msg = __( $e->getMessage(), 'wp-simple-firewall' );
+		catch ( \Exception $e ) {
+			$msg =$e->getMessage() ;
 		}
 
 		return ( new \FernleafSystems\Utilities\Response() )
