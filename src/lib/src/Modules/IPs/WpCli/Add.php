@@ -28,26 +28,24 @@ class Add extends BaseAddRemove {
 	}
 
 	/**
-	 * @param array $null
-	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdIpAdd( array $null, array $args ) {
-
-		$adder = ( new Ops\AddIp() )
-			->setMod( $this->getMod() )
-			->setIP( $args[ 'ip' ] );
 		try {
-			if ( $args[ 'list' ] === 'white' ) {
-				$adder->toManualWhitelist( $args[ 'label' ] ?? '' );
-			}
-			else {
-				$adder->toManualBlacklist( $args[ 'label' ] ?? '' );
-			}
+			$this->checkList( $args[ 'list' ] );
+
+			$adder = ( new Ops\AddIp() )
+				->setMod( $this->getMod() )
+				->setIP( $args[ 'ip' ] );
+
+			in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
+				$adder->toManualWhitelist( $args[ 'label' ] ?? '' )
+				: $adder->toManualBlacklist( $args[ 'label' ] ?? '' );
+
+			WP_CLI::success( __( 'IP address added successfully.', 'wp-simple-firewall' ) );
 		}
 		catch ( \Exception $e ) {
 			WP_CLI::error( $e->getMessage() );
 		}
-		WP_CLI::success( __( 'IP address added successfully.', 'wp-simple-firewall' ) );
 	}
 }

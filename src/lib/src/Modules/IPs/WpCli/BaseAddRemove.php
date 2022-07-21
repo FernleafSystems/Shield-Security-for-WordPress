@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
-
-class BaseAddRemove extends BaseWpCliCmd {
+class BaseAddRemove extends Base {
 
 	/**
 	 * @return array[]
