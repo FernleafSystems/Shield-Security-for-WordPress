@@ -17,7 +17,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	public function build() :array {
 		return [
-			'data'            => $this->loadForLogs(),
+			'data'            => $this->loadForRecords(),
 			'recordsTotal'    => $this->countTotalRecords(),
 			'recordsFiltered' => $this->countTotalRecordsFiltered(),
 			'searchPanes'     => $this->getSearchPanesData(),
@@ -28,22 +28,22 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
-	public function loadForLogs() :array {
+	public function loadForRecords() :array {
 		if ( empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
-			return $this->loadLogsWithDirectQuery();
+			return $this->loadRecordsWithDirectQuery();
 		}
 		else {
-			return $this->loadLogsWithSearch();
+			return $this->loadRecordsWithSearch();
 		}
 	}
 
-	protected function loadLogsWithDirectQuery() :array {
-		return $this->buildTableRowsFromRawLogs(
+	protected function loadRecordsWithDirectQuery() :array {
+		return $this->buildTableRowsFromRawRecords(
 			$this->getRecords( $this->buildWheresFromSearchParams(), (int)$this->table_data[ 'start' ], (int)$this->table_data[ 'length' ] )
 		);
 	}
 
-	protected function loadLogsWithSearch() :array {
+	protected function loadRecordsWithSearch() :array {
 		$start = (int)$this->table_data[ 'start' ];
 		$length = (int)$this->table_data[ 'length' ];
 		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
@@ -57,7 +57,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		$page = 0;
 		$pageLength = 100;
 		do {
-			$interimResults = $this->buildTableRowsFromRawLogs(
+			$interimResults = $this->buildTableRowsFromRawRecords(
 				$this->getRecords( $wheres, $page*$pageLength, $pageLength )
 			);
 			// no more table results to process, so go with what we have.
@@ -129,7 +129,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	abstract protected function countTotalRecordsFiltered() :int;
 
-	abstract protected function buildTableRowsFromRawLogs( array $records ) :array;
+	abstract protected function buildTableRowsFromRawRecords( array $records ) :array;
 
 	protected function getColumnContent_Date( int $ts ) :string {
 		return sprintf( '%s<br /><small>%s</small>',
