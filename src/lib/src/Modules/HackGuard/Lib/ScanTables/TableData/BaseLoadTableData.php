@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -16,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $wheres
  * @property string   $order_by
  * @property string   $order_dir
+ * @property string   $search_text
  */
 abstract class BaseLoadTableData extends DynPropertiesClass {
 
@@ -28,7 +30,11 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 	}
 
 	protected function getRecordRetriever() :Retrieve {
-		$retriever = ( new Retrieve() )->setMod( $this->getMod() );
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$retriever = ( new Retrieve() )
+			->setMod( $this->getMod() )
+			->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
 
@@ -50,6 +56,13 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 				$retriever->order_dir = $this->order_dir;
 			}
 		}
+
+		if ( !empty( $this->search_text ) ) {
+			$wheres = $this->wheres ?? [];
+			$wheres[] = sprintf( "`ri`.`item_id` LIKE '%%%s%%'", $this->search_text );
+			$retriever->wheres = $wheres;
+		}
+
 		return $retriever;
 	}
 

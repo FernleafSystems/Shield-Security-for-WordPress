@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,6 +12,10 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string $file
  */
 class BuildScanTableData extends BaseBuildTableData {
+
+	protected function loadRecordsWithSearch() :array {
+		return $this->loadRecordsWithDirectQuery();
+	}
 
 	/**
 	 * @param LogRecord[] $records
@@ -63,7 +67,7 @@ class BuildScanTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new ForAuditTrail() )
+			( new BaseForScan() )
 				->setMod( $this->getMod() )
 				->buildRaw()[ 'columns' ]
 		) );
@@ -77,8 +81,6 @@ class BuildScanTableData extends BaseBuildTableData {
 		$loader->wheres = $wheres;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
-		$loader->order_dir = $this->getOrderDirection();
-		$loader->order_by = $this->order_by;
 		return $loader->run();
 	}
 
@@ -101,6 +103,11 @@ class BuildScanTableData extends BaseBuildTableData {
 				$loader = new TableData\LoadTableDataWordpress();
 				break;
 		}
+
+		$loader->order_dir = $this->getOrderDirection();
+		$loader->order_by = $this->order_by;
+		$loader->search_text = preg_replace( '#[^/a-z\d_-]#i', '', (string)$this->table_data[ 'search' ][ 'value' ] ?? '' );
+
 		return $loader->setMod( $this->getMod() );
 	}
 }

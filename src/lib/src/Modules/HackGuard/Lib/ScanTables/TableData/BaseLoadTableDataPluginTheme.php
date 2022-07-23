@@ -54,10 +54,4 @@ class BaseLoadTableDataPluginTheme extends BaseLoadTableData {
 
 		return $files;
 	}
-
-	protected function getRecordRetriever() :Retrieve {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return parent::getRecordRetriever()->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
-	}
 }

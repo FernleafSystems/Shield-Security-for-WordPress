@@ -19,10 +19,10 @@ class LoadTableDataTheme extends BaseLoadTableDataPluginTheme {
 
 	protected function getRecordRetriever() :Retrieve {
 		$retriever = parent::getRecordRetriever();
-		$retriever->wheres = [
+		$retriever->wheres = array_merge( [
 			"`rim`.`meta_key`='ptg_slug'",
 			sprintf( "`rim`.`meta_value`='%s'", $this->theme->stylesheet ),
-		];
+		], $retriever->wheres ?? [] );
 		return $retriever;
 	}
 }

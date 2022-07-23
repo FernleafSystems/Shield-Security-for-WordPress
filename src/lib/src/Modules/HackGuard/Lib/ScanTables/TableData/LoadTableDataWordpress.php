@@ -57,14 +57,11 @@ class LoadTableDataWordpress extends BaseLoadTableData {
 	}
 
 	protected function getRecordRetriever() :Retrieve {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$retriever = parent::getRecordRetriever();
-		$retriever->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
-		$retriever->wheres = [
+		$retriever->wheres = array_merge( [
 			"`rim`.`meta_key`='is_in_core'",
 			"`rim`.`meta_value`=1",
-		];
+		], $retriever->wheres ?? [] );
 		return $retriever;
 	}
 }
