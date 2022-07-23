@@ -20,7 +20,7 @@ class LoadTableDataWordpress extends BaseLoadTableData {
 
 					$data[ 'rid' ] = $item->VO->scanresult_id;
 					$data[ 'file' ] = $item->path_fragment;
-					$data[ 'detected_at' ] = $item->VO->created_at;
+					$data[ 'created_at' ] = $item->VO->created_at;
 					$data[ 'detected_since' ] = Services::Request()
 														->carbon( true )
 														->setTimestamp( $item->VO->created_at )

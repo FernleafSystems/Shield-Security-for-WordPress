@@ -66,7 +66,7 @@ class BaseForScan extends Base {
 			'detected'      => [
 				'data'       => [
 					'_'    => 'detected_since',
-					'sort' => 'detected_at',
+					'sort' => 'created_at',
 				],
 				'title'      => __( 'Detected' ),
 				'className'  => 'detected',

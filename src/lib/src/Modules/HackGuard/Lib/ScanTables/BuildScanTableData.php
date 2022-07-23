@@ -13,10 +13,6 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class BuildScanTableData extends BaseBuildTableData {
 
-	protected function loadRecordsWithDirectQuery() :array {
-		return $this->loadRecordsWithSearch();
-	}
-
 	/**
 	 * @param LogRecord[] $records
 	 */
@@ -82,6 +78,7 @@ class BuildScanTableData extends BaseBuildTableData {
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
+		$loader->order_by = $this->order_by;
 		return $loader->run();
 	}
 

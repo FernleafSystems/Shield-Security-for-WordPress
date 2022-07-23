@@ -31,6 +31,22 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		$retriever = ( new Retrieve() )->setMod( $this->getMod() );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
+
+		if ( !empty( $this->order_by ) ) {
+			switch ( $this->order_by ) {
+				case 'created_at':
+					$by = '`ri`.`created_at`';
+					break;
+				default:
+					$by = null;
+					break;
+			}
+
+			$retriever->order_by = $by;
+			if ( !empty( $by ) && in_array( strtoupper( (string)$this->order_dir ), [ 'ASC', 'DESC' ] ) ) {
+				$retriever->order_dir = $this->order_dir;
+			}
+		}
 		return $retriever;
 	}
 

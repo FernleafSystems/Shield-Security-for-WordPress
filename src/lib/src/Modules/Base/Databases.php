@@ -57,9 +57,6 @@ class Databases {
 			$dbDef[ 'table_prefix' ] = $this->getCon()->getPluginPrefix( '_' );
 			/** @var Core\Databases\Base\Handler|mixed $dbh */
 			$dbh = new $dbClass( $dbDef );
-			if ( $this->getCon()->flags[ 'db_bypass_ready_check_cache' ] ?? false ) {
-				$dbh->bypassReadyCheckCache();
-			}
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ] = $dbh;

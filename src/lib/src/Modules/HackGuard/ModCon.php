@@ -35,24 +35,21 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
 		if ( !isset( $this->oFileLocker ) ) {
-			$this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )
-				->setMod( $this );
+			$this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
 		}
 		return $this->oFileLocker;
 	}
 
 	public function getScansCon() :Scan\ScansController {
 		if ( !isset( $this->scanCon ) ) {
-			$this->scanCon = ( new Scan\ScansController() )
-				->setMod( $this );
+			$this->scanCon = ( new Scan\ScansController() )->setMod( $this );
 		}
 		return $this->scanCon;
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
 		if ( !isset( $this->scanQueueCon ) ) {
-			$this->scanQueueCon = ( new Scan\Queue\Controller() )
-				->setMod( $this );
+			$this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
 		}
 		return $this->scanQueueCon;
 	}
