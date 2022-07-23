@@ -75,8 +75,7 @@ class ScansController extends ExecOnceModConsumer {
 
 	public function getScanResultsCount() :Results\Counts {
 		if ( !isset( $this->scanResultsStatus ) ) {
-			$this->scanResultsStatus = ( new Results\Counts() )
-				->setMod( $this->getMod() );
+			$this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->getMod() );
 		}
 		return $this->scanResultsStatus;
 	}

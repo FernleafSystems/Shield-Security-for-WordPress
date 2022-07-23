@@ -121,37 +121,13 @@ class Retrieve extends DynPropertiesClass {
 	/**
 	 * @return Scans\Afs\ResultsSet|Scans\Apc\ResultsSet|Scans\Wpv\ResultsSet
 	 */
-	public function retrieveLatest( bool $includeIgnored = true ) {
+	public function retrieveLatest() {
 
 		$latestID = $this->getLatestScanID();
 		if ( $latestID >= 0 ) {
 			$results = $this
 				->setAdditionalWheres( [
 					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					$includeIgnored ? '' : "`ri`.`ignored_at`=0",
-					"`ri`.`item_repaired_at`=0",
-					"`ri`.`item_deleted_at`=0"
-				] )
-				->retrieve();
-		}
-		else {
-			$results = $this->getScanController()->getNewResultsSet();
-		}
-
-		return $results;
-	}
-
-	/**
-	 * @return Scans\Afs\ResultsSet|Scans\Apc\ResultsSet|Scans\Wpv\ResultsSet
-	 */
-	public function retrieveLatestForDisplay() {
-
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$results = $this
-				->setAdditionalWheres( [
-					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					"`ri`.ignored_at = 0",
 					"`ri`.`item_repaired_at`=0",
 					"`ri`.`item_deleted_at`=0"
 				] )
@@ -312,7 +288,7 @@ class Retrieve extends DynPropertiesClass {
 							ON `sr`.resultitem_ref = `ri`.id
 						%s
 						WHERE %%s
-						ORDER BY `sr`.`id` ASC
+						%s
 						%s
 						%s;",
 			$mod->getDbH_ScanResults()->getTableSchema()->table,
@@ -320,8 +296,9 @@ class Retrieve extends DynPropertiesClass {
 			$mod->getDbH_ResultItems()->getTableSchema()->table,
 			$joinWithResultMeta ? sprintf( 'INNER JOIN `%s` as `rim` ON `rim`.`ri_ref` = `ri`.id',
 				$mod->getDbH_ResultItemMeta()->getTableSchema()->table ) : '',
-			isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
-			isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
+			empty( $this->order_by ) ? 'ORDER BY `sr`.`id` ASC' : sprintf( 'ORDER BY %s %s', $this->order_by, $this->order_dir ),
+			empty( $this->limit ) ? '' : sprintf( 'LIMIT %s', (int)$this->limit ),
+			empty( $this->offset ) ? '' : sprintf( 'OFFSET %s', (int)$this->offset )
 		);
 	}
 

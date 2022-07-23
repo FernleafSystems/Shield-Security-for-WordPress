@@ -20,7 +20,7 @@ class LoadTableDataWordpress extends BaseLoadTableData {
 
 					$data[ 'rid' ] = $item->VO->scanresult_id;
 					$data[ 'file' ] = $item->path_fragment;
-					$data[ 'detected_at' ] = $item->VO->created_at;
+					$data[ 'created_at' ] = $item->VO->created_at;
 					$data[ 'detected_since' ] = Services::Request()
 														->carbon( true )
 														->setTimestamp( $item->VO->created_at )
@@ -57,14 +57,11 @@ class LoadTableDataWordpress extends BaseLoadTableData {
 	}
 
 	protected function getRecordRetriever() :Retrieve {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$retriever = parent::getRecordRetriever();
-		$retriever->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
-		$retriever->wheres = [
+		$retriever->wheres = array_merge( [
 			"`rim`.`meta_key`='is_in_core'",
 			"`rim`.`meta_value`=1",
-		];
+		], $retriever->wheres ?? [] );
 		return $retriever;
 	}
 }
