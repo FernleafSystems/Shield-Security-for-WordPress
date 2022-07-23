@@ -37,6 +37,9 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 				case 'created_at':
 					$by = '`ri`.`created_at`';
 					break;
+				case 'file':
+					$by = '`ri`.`item_id`';
+					break;
 				default:
 					$by = null;
 					break;
