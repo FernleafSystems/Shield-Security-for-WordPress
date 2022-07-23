@@ -2,20 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
+/**
+ * @property string $type
+ * @property string $file
+ */
 class BuildScanTableData extends BaseBuildTableData {
-
-	/**
-	 * @var LogRecord
-	 */
-	private $record;
 
 	protected function loadRecordsWithDirectQuery() :array {
 		return $this->loadRecordsWithSearch();
@@ -25,25 +21,7 @@ class BuildScanTableData extends BaseBuildTableData {
 	 * @param LogRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
-		return array_values( array_map(
-			function ( $record ) {
-				$this->record = $record;
-				$data = $this->record->getRawData();
-				$data[ 'ip' ] = $this->record->ip;
-				$data[ 'rid' ] = $this->record->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();
-				$data[ 'event' ] = $this->getCon()->loadEventsService()->getEventName( $this->record->event_slug );
-				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->record->created_at );
-				$data[ 'message' ] = $this->getColumnContent_Message();
-				$data[ 'user' ] = $this->getColumnContent_User();
-				$data[ 'user_id' ] = $this->getColumnContent_UserID();
-				$data[ 'level' ] = $this->getColumnContent_Level();
-				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
-				$data[ 'meta' ] = $this->getColumnContent_Meta();
-				return $data;
-			},
-			$records
-		) );
+		return array_values( $records );
 	}
 
 	/**
@@ -96,7 +74,7 @@ class BuildScanTableData extends BaseBuildTableData {
 	}
 
 	/**
-	 * @return LogRecord[]
+	 * @return array[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		$loader = $this->getRecordsLoader();
@@ -104,113 +82,28 @@ class BuildScanTableData extends BaseBuildTableData {
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
-		return array_filter(
-			$loader->run( true ),
-			function ( $logRecord ) {
-				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
-			}
-		);
+		return $loader->run();
 	}
 
-	protected function getRecordsLoader() :LoadLogs {
-		return ( new LoadLogs() )->setMod( $this->getMod() );
-	}
-
-	private function getColumnContent_RequestDetails() :string {
-		if ( !empty( $this->record->ip ) ) {
-			try {
-				$ipID = ( new IpID( (string)$this->record->ip ) )->run();
-				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
-					$id = __( 'This Server', 'wp-simple-firewall' );
-				}
-				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
-					$id = __( 'This Is You', 'wp-simple-firewall' );
-				}
-				else {
-					$id = $ipID[ 1 ];
-				}
-			}
-			catch ( \Exception $e ) {
-				$id = '';
-			}
-			$content = sprintf( '<h6>%s%s</h6>', $this->getIpAnalysisLink( (string)$this->record->ip ),
-				empty( $id ) ? '' : sprintf( '<br/><small>%s</small>', esc_html( $id ) ) );
+	/**
+	 * @return TableData\BaseLoadTableData
+	 */
+	protected function getRecordsLoader() {
+		switch ( $this->type ) {
+			case 'plugin':
+				$loader = new TableData\LoadTableDataPlugin( Services::WpPlugins()->getPluginAsVo( $this->file ) );
+				break;
+			case 'theme':
+				$loader = new TableData\LoadTableDataTheme( Services::WpThemes()->getThemeAsVo( $this->file ) );
+				break;
+			case 'malware':
+				$loader = new TableData\LoadTableDataMalware();
+				break;
+			case 'wordpress':
+			default:
+				$loader = new TableData\LoadTableDataWordpress();
+				break;
 		}
-		else {
-			$content = 'No IP';
-		}
-		return $content;
-	}
-
-	private function getColumnContent_UserID() :string {
-		return $this->record->meta_data[ 'uid' ] ?? '-';
-	}
-
-	private function getColumnContent_User() :string {
-		$content = '-';
-		$uid = $this->record->meta_data[ 'uid' ] ?? '';
-		if ( !empty( $uid ) ) {
-			if ( is_numeric( $uid ) ) {
-				$user = Services::WpUsers()->getUserById( $uid );
-				if ( !empty( $user ) ) {
-					$content = sprintf( '<a href="%s" target="_blank">%s</a>',
-						Services::WpUsers()->getAdminUrl_ProfileEdit( $user ),
-						$user->user_login );
-				}
-				else {
-					$content = sprintf( 'Unavailable (ID:%s)', $uid );
-				}
-			}
-			else {
-				$content = $uid === 'cron' ? 'WP Cron' : 'WP-CLI';
-			}
-		}
-		return $content;
-	}
-
-	private function getColumnContent_Message() :string {
-		$msg = AuditMessageBuilder::BuildFromLogRecord( $this->record );
-		return sprintf( '<span class="message-header">%s</span><textarea readonly rows="%s">%s</textarea>',
-			$this->getCon()->loadEventsService()->getEventName( $this->record->event_slug ),
-			count( $msg ) + 1, sanitize_textarea_field( implode( "\n", $msg ) ) );
-	}
-
-	private function getColumnContent_Meta() :string {
-		return sprintf(
-			'<button type="button" class="btn btn-link"'.
-			' data-toggle="popover"'.
-			' data-rid="%s">%s</button>', $this->record->rid,
-			sprintf( '<span class="meta-icon">%s</span>',
-				$this->getCon()->svgs->raw( 'bootstrap/tags.svg' )
-			)
-		);
-	}
-
-	private function getColumnContent_Level() :string {
-		return $this->getCon()->loadEventsService()->getEventDef( $this->record->event_slug )[ 'level' ];
-	}
-
-	private function getColumnContent_SeverityIcon() :string {
-		$level = $this->getColumnContent_Level();
-		$levelDetails = [
-							'alert'   => [
-								'icon' => 'x-octagon',
-							],
-							'warning' => [
-								'icon' => 'exclamation-triangle',
-							],
-							'notice'  => [
-								'icon' => 'info-square',
-							],
-							'info'    => [
-								'icon' => 'info-circle',
-							],
-							'debug'   => [
-								'icon' => 'question-diamond',
-							],
-						][ $level ];
-		return sprintf( '<span class="severity-%s severity-icon">%s</span>', $level,
-			$this->getCon()->svgs->raw( sprintf( 'bootstrap/%s.svg', $levelDetails[ 'icon' ] ) )
-		);
+		return $loader->setMod( $this->getMod() );
 	}
 }
