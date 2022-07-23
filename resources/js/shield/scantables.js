@@ -228,7 +228,7 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'Bfrtip',
+						dom: 'Brptip',
 						buttons: [
 							{
 								text: 'Reload',

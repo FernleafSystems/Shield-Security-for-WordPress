@@ -74,28 +74,28 @@ class BuildInfo {
 		}
 		elseif ( $item->is_in_plugin ) {
 			if ( $item->is_unrecognised ) {
-				$description[] = __( "It's located in a WordPress plugin directory, but it's not recognised as an official file.", 'wp-simple-firewall' );
+				$description[] = __( "It's located inside a WordPress plugin directory, but it's not recognised as an official file for that plugin version.", 'wp-simple-firewall' );
 			}
 			else {
-				$description[] = __( "It's located in a WordPress plugin directory, and is a recognised official file.", 'wp-simple-firewall' );
+				$description[] = __( "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version.", 'wp-simple-firewall' );
 			}
 		}
 		elseif ( $item->is_in_theme ) {
 			if ( $item->is_unrecognised ) {
-				$description[] = __( "It's located in a WordPress theme directory, but it's not recognised as an official file.", 'wp-simple-firewall' );
+				$description[] = __( "It's located in a WordPress theme directory, but it's not recognised as an official file for that theme version.", 'wp-simple-firewall' );
 			}
 			else {
-				$description[] = __( "It's located in a WordPress theme directory, and is a recognised official file.", 'wp-simple-firewall' );
+				$description[] = __( "It's located in a WordPress theme directory, and is a recognised as a valid file for that theme version.", 'wp-simple-firewall' );
 			}
 		}
 		if ( $item->is_checksumfail ) {
-			$description[] = __( 'Contents have been modified from what is expected.', 'wp-simple-firewall' );
+			$description[] = __( 'File contents have been modified when compared against the official release for that version.', 'wp-simple-firewall' );
 		}
 		if ( $item->is_mal ) {
 			$description[] = __( 'Contents could potentially contain malicious PHP malware.', 'wp-simple-firewall' );
 			$description[] = sprintf( __( 'The false positive score of this file is %s.', 'wp-simple-firewall' ),
 				sprintf( '<code>%s</code>', $item->mal_fp_confidence ) );
-			$description[] = __( "The lower the score the less we know about the file and the more likely it contains malicious code.", 'wp-simple-firewall' );
+			$description[] = __( "The lower the score the less we know about the file or the more likely it contains malicious code.", 'wp-simple-firewall' );
 		}
 
 		return $description;
