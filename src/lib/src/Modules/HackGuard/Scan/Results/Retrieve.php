@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
 	ResultItemMeta as ResultItemMetaDB,
@@ -14,7 +15,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Retrieve {
+/**
+ * @property int      $limit
+ * @property int      $offset
+ * @property string[] $wheres
+ * @property string   $order_by
+ * @property string   $order_dir
+ */
+class Retrieve extends DynPropertiesClass {
 
 	use ModConsumer;
 	use ScanControllerConsumer;
@@ -46,14 +54,11 @@ class Retrieve {
 		$this->setScanController( $mod->getScanCon( $scan ) );
 
 		$raw = Services::WpDb()->selectCustom(
-			sprintf( $this->getBaseQuery(),
-				implode( ',', $this->standardSelectFields() ),
-				implode( ' AND ', array_filter( array_merge(
-					[
-						sprintf( "`sr`.`id`=%s", $scanResultID )
-					],
-					$this->getAdditionalWheres()
-				) ) )
+			$this->buildQuery(
+				$this->standardSelectFields(),
+				[
+					sprintf( "`sr`.`id`=%s", $scanResultID )
+				]
 			)
 		);
 		$rawResults = empty( $raw ) ? [] : $raw;
@@ -75,19 +80,14 @@ class Retrieve {
 			$latestID = $this->getLatestScanID();
 			if ( $latestID >= 0 ) {
 				$raw = Services::WpDb()->selectCustom(
-					sprintf( $this->getBaseQuery(),
-						implode( ',', $this->standardSelectFields() ),
-						implode( ' AND ', array_filter( array_merge(
-							[
-								sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
-							],
-							$this->getAdditionalWheres()
-						) ) )
+					$this->buildQuery(
+						$this->standardSelectFields(),
+						[
+							sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
+						]
 					)
 				);
-				if ( !empty( $raw ) ) {
-					$results = $raw;
-				}
+				$results = empty( $raw ) ? [] : $raw;
 			}
 		}
 
@@ -128,7 +128,30 @@ class Retrieve {
 			$results = $this
 				->setAdditionalWheres( [
 					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					$includeIgnored ? '' : "`ri`.ignored_at = 0",
+					$includeIgnored ? '' : "`ri`.`ignored_at`=0",
+					"`ri`.`item_repaired_at`=0",
+					"`ri`.`item_deleted_at`=0"
+				] )
+				->retrieve();
+		}
+		else {
+			$results = $this->getScanController()->getNewResultsSet();
+		}
+
+		return $results;
+	}
+
+	/**
+	 * @return Scans\Afs\ResultsSet|Scans\Apc\ResultsSet|Scans\Wpv\ResultsSet
+	 */
+	public function retrieveLatestForDisplay() {
+
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$results = $this
+				->setAdditionalWheres( [
+					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+					"`ri`.ignored_at = 0",
 					"`ri`.`item_repaired_at`=0",
 					"`ri`.`item_deleted_at`=0"
 				] )
@@ -145,24 +168,38 @@ class Retrieve {
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function retrieve() {
-		$results = [];
 		$raw = Services::WpDb()->selectCustom(
-			sprintf( $this->getBaseQuery(),
-				implode( ',', $this->standardSelectFields() ),
-				implode( ' AND ', array_filter( array_merge(
-					[
-						"`ri`.`auto_filtered_at`=0",
-						"`ri`.`deleted_at`=0"
-					],
-					$this->getAdditionalWheres()
-				) ) )
+			$this->buildQuery(
+				$this->standardSelectFields(),
+				[
+					"`ri`.`auto_filtered_at`=0",
+					"`ri`.`deleted_at`=0"
+				]
 			)
 		);
-		if ( !empty( $raw ) ) {
-			$results = $raw;
-		}
+		return $this->convertToResultsSet( empty( $raw ) ? [] : $raw );
+	}
 
-		return $this->convertToResultsSet( $results );
+	public function buildQuery( array $selectFields, array $wheres ) :string {
+		$hasResultMeta = false;
+
+		$wheres = array_filter( array_merge(
+			$wheres,
+			$this->getAdditionalWheres(),
+			is_array( $this->wheres ) ? $this->wheres : []
+		) );
+
+		foreach ( $wheres as $where ) {
+			if ( strpos( $where, '`rim`' ) !== false ) {
+				$hasResultMeta = true;
+				break;
+			}
+		}
+		return sprintf(
+			$this->getBaseQuery( $hasResultMeta ),
+			implode( ',', $selectFields ),
+			implode( ' AND ', $wheres )
+		);
 	}
 
 	public function count() :int {
@@ -180,7 +217,8 @@ class Retrieve {
 							"`ri`.`item_deleted_at`=0",
 							"`ri`.`deleted_at`=0"
 						],
-						$this->getAdditionalWheres()
+						$this->getAdditionalWheres(),
+						is_array( $this->wheres ) ? $this->wheres : []
 					) ) )
 				)
 			);
@@ -263,7 +301,7 @@ class Retrieve {
 		return empty( $latest ) ? -1 : $latest->id;
 	}
 
-	private function getBaseQuery() :string {
+	private function getBaseQuery( bool $joinWithResultMeta = false ) :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return sprintf( "SELECT %%s
@@ -272,11 +310,18 @@ class Retrieve {
 							ON `sr`.scan_ref = `scans`.id
 						INNER JOIN `%s` as `ri`
 							ON `sr`.resultitem_ref = `ri`.id
+						%s
 						WHERE %%s
-						ORDER BY `sr`.`id` ASC;",
+						ORDER BY `sr`.`id` ASC
+						%s
+						%s;",
 			$mod->getDbH_ScanResults()->getTableSchema()->table,
 			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table
+			$mod->getDbH_ResultItems()->getTableSchema()->table,
+			$joinWithResultMeta ? sprintf( 'INNER JOIN `%s` as `rim` ON `rim`.`ri_ref` = `ri`.id',
+				$mod->getDbH_ResultItemMeta()->getTableSchema()->table ) : '',
+			isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
+			isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
 		);
 	}
 
@@ -325,8 +370,8 @@ class Retrieve {
 		return is_array( $this->additionalWheres ) ? $this->additionalWheres : [];
 	}
 
-	public function setAdditionalWheres( array $wheres ) {
-		$this->additionalWheres = $wheres;
+	public function setAdditionalWheres( array $wheres, bool $merge = false ) {
+		$this->additionalWheres = $merge ? array_merge( $this->getAdditionalWheres(), $wheres ) : $wheres;
 		return $this;
 	}
 }

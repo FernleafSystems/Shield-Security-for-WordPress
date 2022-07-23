@@ -11,7 +11,7 @@ class Processor extends BaseShield\Processor {
 		$mod = $this->getMod();
 		$mod->getLicenseHandler()->execute();
 		( new Lib\PluginNameSuffix() )
-			->setMod( $this->getMod() )
+			->setMod( $mod )
 			->execute();
 	}
 }

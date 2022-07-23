@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render\ScanResults;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadRawTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData\LoadTableDataPlugin;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
@@ -84,9 +84,9 @@ class SectionPlugins extends SectionPluginThemesBase {
 		$carbon = Services::Request()->carbon();
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $plugin->file );
-		$guardFilesData = ( new LoadRawTableData() )
+		$countGuardFiles = ( new LoadTableDataPlugin( $plugin ) )
 			->setMod( $this->getMod() )
-			->loadForPlugin( $plugin );
+			->countAll();
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
 
@@ -95,7 +95,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 
 		$flags = [
 			'has_update'      => $plugin->hasUpdate(),
-			'has_guard_files' => !empty( $guardFilesData ),
+			'has_guard_files' => $countGuardFiles > 0,
 			'is_abandoned'    => !empty( $abandoned ),
 			'is_active'       => $plugin->active,
 			'is_vulnerable'   => !empty( $vulnerabilities ),
@@ -140,7 +140,7 @@ class SectionPlugins extends SectionPluginThemesBase {
 			'flags' => $flags,
 			'vars'  => [
 				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
-				'count_items'   => count( $guardFilesData ) + count( $vulnerabilities )
+				'count_items'   => $countGuardFiles + count( $vulnerabilities )
 								   + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];

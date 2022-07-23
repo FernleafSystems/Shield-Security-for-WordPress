@@ -12,7 +12,7 @@ class AuditTrail {
 	public function render() {
 		$rows = ( new BuildAuditTableData() )
 			->setMod( $this->getMod() )
-			->loadForLogs();
+			->loadForRecords();
 
 		\WP_CLI\Utils\format_items(
 			'table',

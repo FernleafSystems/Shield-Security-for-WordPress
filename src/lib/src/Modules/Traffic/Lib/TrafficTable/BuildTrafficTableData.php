@@ -32,8 +32,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 	private $ipInfo = [];
 
-	protected function loadLogsWithSearch() :array {
-		return $this->loadLogsWithDirectQuery();
+	protected function loadRecordsWithSearch() :array {
+		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
@@ -45,7 +45,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	/**
 	 * @param LogRecord[] $records
 	 */
-	protected function buildTableRowsFromRawLogs( array $records ) :array {
+	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 
 		return array_values( array_filter( array_map(

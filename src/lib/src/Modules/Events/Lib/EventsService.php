@@ -101,10 +101,19 @@ class EventsService {
 	}
 
 	public function getEventStrings( string $eventKey ) :array {
-		return $this->getCon()
-					->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
-					->getStrings()
-					->getEventStrings()[ $eventKey ] ?? [];
+		$eventStrings = [];
+
+		if ( $this->eventExists( $eventKey ) ) {
+			$eventStrings = $this->getCon()
+								 ->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
+								 ->getStrings()
+								 ->getEventStrings()[ $eventKey ] ?? $eventStrings;
+		}
+		else {
+			error_log( sprintf( 'An event %s does not exist.', $eventKey ) );
+		}
+
+		return $eventStrings;
 	}
 
 	/**
