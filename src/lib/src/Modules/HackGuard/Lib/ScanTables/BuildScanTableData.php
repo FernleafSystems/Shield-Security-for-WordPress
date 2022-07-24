@@ -17,6 +17,15 @@ class BuildScanTableData extends BaseBuildTableData {
 		return $this->loadRecordsWithDirectQuery();
 	}
 
+	protected function getSearchPanesData() :array {
+		return [];
+		/*
+		return ( new BuildSearchPanesData() )
+			->setMod( $this->getMod() )
+			->build();
+		*/
+	}
+
 	/**
 	 * @param LogRecord[] $records
 	 */

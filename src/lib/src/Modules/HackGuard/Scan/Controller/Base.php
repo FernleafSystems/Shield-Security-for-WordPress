@@ -131,7 +131,7 @@ abstract class Base extends ExecOnceModConsumer {
 					$this->latestResults = ( new HackGuard\Scan\Results\Retrieve() )
 						->setMod( $this->getMod() )
 						->setScanController( $this )
-						->retrieveLatest( true );
+						->retrieveLatest();
 				}
 				catch ( \Exception $e ) {
 				}
