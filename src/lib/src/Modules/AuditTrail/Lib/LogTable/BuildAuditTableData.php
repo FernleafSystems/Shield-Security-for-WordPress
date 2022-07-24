@@ -17,8 +17,8 @@ class BuildAuditTableData extends BaseBuildTableData {
 	 */
 	private $log;
 
-	protected function loadLogsWithDirectQuery() :array {
-		return $this->loadLogsWithSearch();
+	protected function loadRecordsWithDirectQuery() :array {
+		return $this->loadRecordsWithSearch();
 	}
 
 	protected function getSearchPanesData() :array {
@@ -30,7 +30,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 	/**
 	 * @param LogRecord[] $records
 	 */
-	protected function buildTableRowsFromRawLogs( array $records ) :array {
+	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		return array_values( array_map(
 			function ( $log ) {
 				$this->log = $log;

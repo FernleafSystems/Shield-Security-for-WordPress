@@ -80,7 +80,7 @@ class ModCon extends BaseShield\ModCon {
 				array_filter( // Get all logs entries pertaining to this user:
 					( new Shield\Modules\AuditTrail\Lib\LogTable\BuildAuditTableData() )
 						->setMod( $this )
-						->loadForLogs(),
+						->loadForRecords(),
 					function ( $log ) use ( $user ) {
 						$keep = $log[ 'user_id' ] === $user->ID;
 						if ( !$keep ) {

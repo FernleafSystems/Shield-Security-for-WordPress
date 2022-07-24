@@ -100,6 +100,20 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "7",
+        "released_at": 1658226200,
+        "items":       [
+          {
+            "title": "Eliminate errors and slow processing when displaying scan results pages for large datasets.",
+            "type":  "improved"
+          },
+          {
+            "title": "Bug when specifying a particular list when adding/removing an IP address using WP-CLI.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },

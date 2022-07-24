@@ -64,7 +64,6 @@ class Counts {
 				case 'theme_files':
 					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='is_in_theme'", ] )->count();
 					break;
-
 				case 'abandoned':
 					$count = $resultsRetrieve
 						->setScanController( $mod->getScanCon( Apc::SCAN_SLUG ) )

@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use WP_CLI;
 
-class Enumerate extends BaseWpCliCmd {
+class Enumerate extends Base {
 
 	/**
 	 * @throws \Exception
@@ -32,24 +31,31 @@ class Enumerate extends BaseWpCliCmd {
 		] ) );
 	}
 
-	public function cmdPrint( $null, $aA ) {
+	public function cmdPrint( array $null, array $args ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$oRtr = ( new Ops\RetrieveIpsForLists() )
-			->setDbHandler( $mod->getDbHandler_IPs() );
-		$aIPs = $aA[ 'list' ] === 'white' ? $oRtr->white() : $oRtr->black();
-		$aIPs = array_map(
-			function ( $sIP ) {
-				return [ 'IP' => $sIP, ];
-			},
-			$aIPs
-		);
+		try {
+			$this->checkList( $args[ 'list' ] );
 
-		WP_CLI\Utils\format_items(
-			'table',
-			$aIPs,
-			[ 'IP' ]
-		);
+			$retriever = ( new Ops\RetrieveIpsForLists() )
+				->setDbHandler( $mod->getDbHandler_IPs() );
+
+			$IPs = array_map(
+				function ( $ip ) {
+					return [ 'IP' => $ip, ];
+				},
+				in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ? $retriever->white() : $retriever->black()
+			);
+
+			WP_CLI\Utils\format_items(
+				'table',
+				$IPs,
+				[ 'IP' ]
+			);
+		}
+		catch ( \Exception $e ) {
+			WP_CLI::error( $e->getMessage() );
+		}
 	}
 }

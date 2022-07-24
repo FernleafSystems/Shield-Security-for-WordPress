@@ -140,7 +140,7 @@ class ScanItemView {
 
 		$FS = Services::WpFs();
 		if ( empty( $originalFileDownload ) || !$FS->isFile($originalFileDownload)) {
-			throw new \Exception( 'There is no original file available to create a diff.' );
+			throw new \Exception( "A File Diff can't be created as there is no original/official file available for us to compare with." );
 		}
 
 		$conv = new ConvertLineEndings();

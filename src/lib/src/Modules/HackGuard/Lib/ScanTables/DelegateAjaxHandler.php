@@ -151,13 +151,13 @@ class DelegateAjaxHandler {
 	 */
 	private function retrieveTableData() :array {
 		$req = Services::Request();
+		$builder = ( new BuildScanTableData() )->setMod( $this->getMod() );
+		$builder->table_data = (array)$req->post( 'table_data', [] );
+		$builder->type = (string)$req->post( 'type', '' );
+		$builder->file = (string)$req->post( 'file', '' );
 		return [
-			'success' => true,
-			'vars'    => [
-				'data' => array_values( ( new LoadRawTableData() )
-					->setMod( $this->getMod() )
-					->loadFor( $req->post( 'type' ), $req->post( 'file' ) ) )
-			],
+			'success'        => true,
+			'datatable_data' => $builder->build(),
 		];
 	}
 }

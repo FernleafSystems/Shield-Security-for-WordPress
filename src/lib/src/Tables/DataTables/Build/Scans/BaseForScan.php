@@ -30,6 +30,9 @@ class BaseForScan extends Base {
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => false,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'file'          => [
 				'data'       => 'file',
@@ -38,41 +41,59 @@ class BaseForScan extends Base {
 				'orderable'  => true,
 				'searchable' => true,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'file_as_href'  => [
-				'data'       => 'file_as_href',
+				'data'       => [
+					'_'    => 'file_as_href',
+					'sort' => 'file',
+				],
 				'title'      => __( 'File' ),
 				'className'  => 'file_as_href',
 				'orderable'  => true,
 				'searchable' => true,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'file_type'     => [
 				'data'       => 'file_type',
 				'title'      => __( 'Type' ),
 				'className'  => 'file_type',
-				'orderable'  => true,
-				'searchable' => true,
-				'visible'    => true,
+				'orderable'  => false,
+				'searchable' => false,
+				'visible'    => false,
+				'searchPanes' => [
+					'show' => true
+				],
 			],
 			'status'        => [
 				'data'       => 'status',
 				'title'      => __( 'Status' ),
 				'className'  => 'status',
-				'orderable'  => true,
+				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => true
+				],
 			],
 			'detected'      => [
 				'data'       => [
 					'_'    => 'detected_since',
-					'sort' => 'detected_at',
+					'sort' => 'created_at',
 				],
 				'title'      => __( 'Detected' ),
 				'className'  => 'detected',
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'actions'       => [
 				'data'       => 'actions',
@@ -81,14 +102,20 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'mal_fp_confidence' => [
 				'data'       => 'mal_fp_confidence',
 				'title'      => __( 'False Positive Confidence' ),
 				'className'  => 'mal_fp_confidence',
-				'orderable'  => true,
+				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'line_numbers'  => [
 				'data'       => 'line_numbers',
@@ -97,14 +124,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
-			],
-			'mal_sig'       => [
-				'data'       => 'mal_sig',
-				'title'      => __( 'Pattern Detected' ),
-				'className'  => 'mal_sig',
-				'orderable'  => false,
-				'searchable' => true,
-				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 		];
 	}
