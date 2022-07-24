@@ -30,6 +30,9 @@ class BaseForScan extends Base {
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => false,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'file'          => [
 				'data'       => 'file',
@@ -38,6 +41,9 @@ class BaseForScan extends Base {
 				'orderable'  => true,
 				'searchable' => true,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'file_as_href'  => [
 				'data'       => [
@@ -49,6 +55,9 @@ class BaseForScan extends Base {
 				'orderable'  => true,
 				'searchable' => true,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'file_type'     => [
 				'data'       => 'file_type',
@@ -57,6 +66,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => true,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => true
+				],
 			],
 			'status'        => [
 				'data'       => 'status',
@@ -65,6 +77,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => true
+				],
 			],
 			'detected'      => [
 				'data'       => [
@@ -76,6 +91,9 @@ class BaseForScan extends Base {
 				'orderable'  => true,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'actions'       => [
 				'data'       => 'actions',
@@ -84,6 +102,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'mal_fp_confidence' => [
 				'data'       => 'mal_fp_confidence',
@@ -92,6 +113,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'line_numbers'  => [
 				'data'       => 'line_numbers',
@@ -100,6 +124,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 			'mal_sig'       => [
 				'data'       => 'mal_sig',
@@ -108,6 +135,9 @@ class BaseForScan extends Base {
 				'orderable'  => false,
 				'searchable' => true,
 				'visible'    => true,
+				'searchPanes' => [
+					'show' => false
+				],
 			],
 		];
 	}
