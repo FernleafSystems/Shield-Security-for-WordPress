@@ -1151,6 +1151,10 @@ button.bs-placeholder {
 #ShieldGeneralPurposeDialog .card-header {
 	background: transparent;
 }
-td.status ul {
+td.status {
+	min-width: 150px;
+}
+td.status ul,
+td.mal_details ul {
 	padding-left: 0;
 }

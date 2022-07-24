@@ -128,17 +128,6 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'mal_sig'       => [
-				'data'       => 'mal_sig',
-				'title'      => __( 'Pattern Detected' ),
-				'className'  => 'mal_sig',
-				'orderable'  => false,
-				'searchable' => true,
-				'visible'    => true,
-				'searchPanes' => [
-					'show' => false
-				],
-			],
 		];
 	}
 }
