@@ -78,7 +78,7 @@ class ProcessDecisionList {
 			}
 			else {
 				// Filter out the current records so that we don't "re-add" them
-				$currentIPs = array_map(
+				$existingIPs = array_map(
 					function ( $record ) {
 						return $record[ 'ip' ];
 					},
@@ -86,8 +86,8 @@ class ProcessDecisionList {
 				);
 				$toAdd = array_filter(
 					$ipList,
-					function ( $maybeAddIP ) use ( $currentIPs ) {
-						return !empty( $maybeAddIP ) && !Services::IP()->checkIp( $maybeAddIP, $currentIPs );
+					function ( $maybeAddIP ) use ( $existingIPs ) {
+						return !empty( $maybeAddIP ) && !Services::IP()->checkIp( $maybeAddIP, $existingIPs );
 					}
 				);
 			}
@@ -123,18 +123,17 @@ class ProcessDecisionList {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$dbhCS = $mod->getDbH_CrowdSecDecisions();
-			$count = Services::WpDb()->doSql( sprintf(
-				"DELETE FROM `%s` as `cs`
-					INNER JOIN `%s` as `ips` ON `ips`.`id` = `cs`.`ip_ref`
-					WHERE INET6_NTOA(`ips`.`ip`) IN ('%s')
-				",
+			$count = (int)Services::WpDb()->doSql( sprintf(
+				"DELETE FROM `%s`
+					WHERE `ip_ref` IN ( SELECT `id` FROM `%s` WHERE INET6_NTOA(`ip`) IN ('%s') )
+				;",
 				$dbhCS->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				implode( "','", $ipList )
 			) );
 		}
 
-		return is_numeric( $count ) ? (int)$count : 0;
+		return $count;
 	}
 
 	private function extractDataFromDecisionsForScope_IP( array $decisions ) :array {
