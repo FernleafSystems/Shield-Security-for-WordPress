@@ -135,15 +135,18 @@ class PluginTelemetry extends ExecOnceModConsumer {
 	}
 
 	private function getBaseTrackingData() :array {
+		$con = $this->getCon();
 		$WP = Services::WpGeneral();
 		$WPP = Services::WpPlugins();
 		return [
 			'env' => [
-				'slug'             => $this->getCon()->getPluginSlug(),
+				'slug'             => $con->getPluginSlug(),
+				'installation_id'  => $con->getSiteInstallationId(),
 				'unique_site_hash' => sha1( network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
-				'version'          => $this->getCon()->getVersion(),
+				'version'          => $con->getVersion(),
+				'plugin_version'   => $con->getVersion(),
 				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
 				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,
