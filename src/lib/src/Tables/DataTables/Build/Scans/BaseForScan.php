@@ -64,8 +64,8 @@ class BaseForScan extends Base {
 				'title'      => __( 'Type' ),
 				'className'  => 'file_type',
 				'orderable'  => false,
-				'searchable' => true,
-				'visible'    => true,
+				'searchable' => false,
+				'visible'    => false,
 				'searchPanes' => [
 					'show' => true
 				],

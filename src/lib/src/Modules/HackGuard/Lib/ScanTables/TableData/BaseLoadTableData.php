@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 /**
  * @property int      $limit
@@ -146,7 +147,8 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 					),
 					sprintf( '%s: %s', __( 'Size', 'wp-simple-firewall' ),
 						FormatBytes::Format( $FS->getFileSize( $item->path_full ) )
-					)
+					),
+					sprintf( '%s: %s', __( 'Type', 'wp-simple-firewall' ), strtoupper( Paths::Ext( $item->path_full ) ) )
 				] )
 			);
 		}

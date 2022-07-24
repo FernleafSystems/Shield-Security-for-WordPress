@@ -1151,3 +1151,6 @@ button.bs-placeholder {
 #ShieldGeneralPurposeDialog .card-header {
 	background: transparent;
 }
+td.status ul {
+	padding-left: 0;
+}
