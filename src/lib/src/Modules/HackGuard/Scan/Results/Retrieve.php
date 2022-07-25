@@ -141,6 +141,29 @@ class Retrieve extends DynPropertiesClass {
 	}
 
 	/**
+	 * @return Scans\Afs\ResultsSet|Scans\Apc\ResultsSet|Scans\Wpv\ResultsSet
+	 */
+	public function retrieveForResultsTables() {
+
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$results = $this
+				->setAdditionalWheres( [
+					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+					"`ri`.`item_repaired_at`=0",
+					"`ri`.`item_deleted_at`=0",
+					"`ri`.`ignored_at`=0"
+				] )
+				->retrieve();
+		}
+		else {
+			$results = $this->getScanController()->getNewResultsSet();
+		}
+
+		return $results;
+	}
+
+	/**
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function retrieve() {

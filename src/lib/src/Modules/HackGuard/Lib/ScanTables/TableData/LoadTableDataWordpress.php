@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class LoadTableDataWordpress extends BaseLoadTableData {
 
 	public function run() :array {
-		$RS = $this->getRecordRetriever()->retrieveLatest();
+		$RS = $this->getRecordRetriever()->retrieveForResultsTables();
 		try {
 			$files = array_map(
 				function ( $item ) {
