@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Exceptions\ColumnDoesNotExistException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\Ops as CrowdSecDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
@@ -38,15 +39,20 @@ class ProcessDecisionList {
 	public function preRun() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$mod->getDbH_CrowdSecDecisions()
-			->getQueryDeleter()
-			->filterByCreatedAt(
-				Services::Request()
-						->carbon()
-						->subDays( 7 )->timestamp,
-				'<'
-			)
-			->query();
+		try {
+			$mod->getDbH_CrowdSecDecisions()
+				->getQueryDeleter()
+				->addWhere(
+					'updated_at',
+					Services::Request()
+							->carbon()
+							->subDays( 7 )->timestamp,
+					'<'
+				)
+				->query();
+		}
+		catch ( ColumnDoesNotExistException $e ) {
+		}
 	}
 
 	private function add( array $decisions ) :int {
@@ -162,7 +168,7 @@ class ProcessDecisionList {
 			throw new \Exception( 'Empty decision scope' );
 		}
 		if ( $decision[ 'scope' ] !== $scope ) {
-			throw new \Exception( "Unsupported decision scope (i.e. no 'ip'): ".$decision[ 'scope' ] );
+			throw new \Exception( "Unsupported decision scope (i.e. not 'ip'): ".$decision[ 'scope' ] );
 		}
 		if ( empty( $decision[ 'value' ] ) ) {
 			throw new \Exception( 'Empty decision value' );
