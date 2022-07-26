@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Apc,
 	Wpv
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Counts {
@@ -46,34 +47,34 @@ class Counts {
 		if ( !isset( $counts[ $resultType ] ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
-			$resultsRetrieve = ( new Retrieve() )
+			$resultsCount = ( new RetrieveCount() )
 				->setMod( $this->getMod() )
 				->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
 
 			switch ( $resultType ) {
 
 				case 'malware_files':
-					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='is_mal'", ] )->count();
+					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_mal'", ] )->count();
 					break;
 				case 'wp_files':
-					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='is_in_core'", ] )->count();
+					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_in_core'", ] )->count();
 					break;
 				case 'plugin_files':
-					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='is_in_plugin'", ] )->count();
+					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_in_plugin'", ] )->count();
 					break;
 				case 'theme_files':
-					$count = $resultsRetrieve->setAdditionalWheres( [ "`rim`.`meta_key`='is_in_theme'", ] )->count();
+					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_in_theme'", ] )->count();
 					break;
 				case 'abandoned':
-					$count = $resultsRetrieve
+					$count = $resultsCount
 						->setScanController( $mod->getScanCon( Apc::SCAN_SLUG ) )
-						->setAdditionalWheres( [ "`rim`.`meta_key`='is_abandoned'", ] )
+						->addWheres( [ "`rim`.`meta_key`='is_abandoned'", ] )
 						->count();
 					break;
 				case 'assets_vulnerable':
-					$count = $resultsRetrieve
+					$count = $resultsCount
 						->setScanController( $mod->getScanCon( Wpv::SCAN_SLUG ) )
-						->setAdditionalWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] )
+						->addWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] )
 						->count();
 					break;
 

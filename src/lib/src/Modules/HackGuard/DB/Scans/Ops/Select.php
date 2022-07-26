@@ -9,7 +9,6 @@ class Select extends Base\Select {
 	use Common;
 
 	/**
-	 * @param string $scan
 	 * @return Record|null
 	 */
 	public function getLatestForScan( string $scan ) {
