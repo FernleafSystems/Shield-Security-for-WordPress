@@ -43,10 +43,10 @@ class ScanCounts {
 
 		$counts = [];
 		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
-			$counts[ $scanCon->getSlug() ] = ( new HackGuard\Scan\Results\Retrieve() )
+			$counts[ $scanCon->getSlug() ] = ( new HackGuard\Scan\Results\Retrieve\RetrieveCount() )
 				->setMod( $this->getMod() )
 				->setScanController( $scanCon )
-				->setAdditionalWheres( [
+				->addWheres( [
 					"`ri`.notified_at=0",
 				] )
 				->count();

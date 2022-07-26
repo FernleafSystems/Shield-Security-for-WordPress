@@ -1,8 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanResults\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,7 +16,7 @@ class FileDownloadHandler {
 	 */
 	public function downloadByItemId( int $resultID ) {
 		try {
-			$item = ( new Retrieve() )
+			$item = ( new RetrieveItems() )
 				->setMod( $this->getMod() )
 				->byID( $resultID );
 

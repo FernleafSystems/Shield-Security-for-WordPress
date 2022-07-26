@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -27,13 +28,21 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 	abstract public function run() :array;
 
 	public function countAll() :int {
-		return $this->getRecordRetriever()->count();
+		return $this->getRecordCounter()->count();
 	}
 
-	protected function getRecordRetriever() :Retrieve {
+	protected function getRecordCounter() :RetrieveCount {
+		$retriever = $this->getRecordRetriever();
+		return ( new RetrieveCount() )
+			->setMod( $this->getMod() )
+			->setScanController( $retriever->getScanController() )
+			->addWheres( $retriever->getWheres() );
+	}
+
+	protected function getRecordRetriever() :RetrieveItems {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$retriever = ( new Retrieve() )
+		$retriever = ( new RetrieveItems() )
 			->setMod( $this->getMod() )
 			->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
 		$retriever->limit = $this->limit;
@@ -59,9 +68,9 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		}
 
 		if ( !empty( $this->search_text ) ) {
-			$wheres = $this->wheres ?? [];
-			$wheres[] = sprintf( "`ri`.`item_id` LIKE '%%%s%%'", $this->search_text );
-			$retriever->wheres = $wheres;
+			$retriever->addWheres( [
+				sprintf( "`ri`.`item_id` LIKE '%%%s%%'", $this->search_text )
+			] );
 		}
 
 		return $retriever;
