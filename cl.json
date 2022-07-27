@@ -1,4 +1,31 @@
 {
+  "16.0": {
+    "version":     "16.0",
+    "released_at": 1654522432,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease160",
+      "upgrade": "https://shsec.io/shieldupgradeguide160"
+    },
+    "title":       "CrowdSec",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "CrowdSec Partnership",
+        "description": [
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Custom Activity Log Events",
+        "description": [
+        ]
+      }
+    ]
+  },
   "15.1": {
     "version":     "15.1",
     "released_at": 1654522432,

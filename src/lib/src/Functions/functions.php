@@ -66,3 +66,7 @@ function get_ip_state( string $ip = '' ) :string {
 	}
 	return $state;
 }
+
+function fire_event( string $event ) :string {
+	get_plugin()->getController()->fireEvent( $event );
+}

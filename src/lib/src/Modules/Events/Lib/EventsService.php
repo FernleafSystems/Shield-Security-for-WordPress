@@ -13,6 +13,11 @@ class EventsService {
 	 */
 	private $aEvents;
 
+	/**
+	 * @var array[]
+	 */
+	private $customEvents;
+
 	public function eventExists( string $eventKey ) :bool {
 		return !empty( $this->getEventDef( $eventKey ) );
 	}
@@ -82,7 +87,57 @@ class EventsService {
 				error_log( 'Shield events definitions is empty or not the correct format' );
 			}
 		}
-		return $this->aEvents;
+
+		try {
+			// must come after $aEvents is defined.
+			$custom = $this->buildCustomEvents();
+		}
+		catch ( \Exception $e ) {
+			$custom = [];
+			error_log( $e->getMessage() );
+		}
+
+		return array_merge( $this->aEvents, $custom );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function buildCustomEvents() :array {
+		$this->customEvents = [];
+
+		if ( !$this->getCon()->isPremiumActive() ) {
+			throw new \Exception( "custom events is a premium-only feature." );
+		}
+
+		$events = apply_filters( 'shield/custom_events_definitions', [] );
+		if ( !is_array( $events ) ) {
+			throw new \Exception( "custom events isn't an array. Please ensure to return only an array to this filter." );
+		}
+
+		$events = array_filter( $events );
+		foreach ( $events as $evtKey => $evtDef ) {
+			if ( is_numeric( $evtKey ) || !is_string( $evtKey ) || !preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
+				throw new \Exception( "All Custom Event Keys must be: string; lowercase; length: 10-50; prefixed with 'custom_'; only characters: a-z and underscore (_)" );
+			}
+			if ( !isset( $evtDef[ 'strings' ] ) || !is_array( $evtDef[ 'strings' ] ) ) {
+				throw new \Exception( "All Custom Events must supply an array of strings with key 'strings'." );
+			}
+			if ( empty( $evtDef[ 'strings' ][ 'name' ] ) || !is_string( $evtDef[ 'strings' ][ 'name' ] ) ) {
+				throw new \Exception( "All Custom Events must supply a 'name' as a string within the 'strings' array." );
+			}
+			if ( empty( $evtDef[ 'strings' ][ 'audit' ] ) || !is_array( $evtDef[ 'strings' ][ 'audit' ] ) ) {
+				throw new \Exception( "All Custom Events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event." );
+			}
+
+			// Clean out the audit strings to ensure type consistency later.
+			array_filter( $evtDef[ 'strings' ][ 'audit' ], function ( $auditString ) {
+				return !empty( $auditString ) && is_string( $auditString );
+			} );
+		}
+		$this->customEvents = $this->buildEvents( $events );
+
+		return $this->customEvents;
 	}
 
 	/**
@@ -104,10 +159,12 @@ class EventsService {
 		$eventStrings = [];
 
 		if ( $this->eventExists( $eventKey ) ) {
-			$eventStrings = $this->getCon()
-								 ->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
-								 ->getStrings()
-								 ->getEventStrings()[ $eventKey ] ?? $eventStrings;
+			$eventStrings = ( strpos( $eventKey, 'custom_' ) === 0 ) ?
+				$this->getEventDef( $eventKey )[ 'strings' ]
+				: $this->getCon()
+					   ->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
+					   ->getStrings()
+					   ->getEventStrings()[ $eventKey ] ?? $eventStrings;
 		}
 		else {
 			error_log( sprintf( 'An event %s does not exist.', $eventKey ) );
