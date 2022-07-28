@@ -193,32 +193,77 @@ class UI extends BaseShield\UI {
 		}
 
 		$availablePages = [
-			'stats'         => __( 'Quick Stats', 'wp-simple-firewall' ),
+			'stats' => [
+				__( 'Reporting', 'wp-simple-firewall' ),
+				__( 'Quick Stats', 'wp-simple-firewall' ),
+			],
+			'reports' => [
+				__( 'Reporting', 'wp-simple-firewall' ),
+				__( 'Charts', 'wp-simple-firewall' ),
+			],
 			'settings'      => __( 'Plugin Settings', 'wp-simple-firewall' ),
 			'dashboard'     => __( 'Dashboard', 'wp-simple-firewall' ),
 			'overview'      => __( 'Security Overview', 'wp-simple-firewall' ),
-			'scans_results' => __( 'Scan Results', 'wp-simple-firewall' ),
-			'scans_run'     => __( 'Run Scans', 'wp-simple-firewall' ),
-			'docs'          => __( 'Docs', 'wp-simple-firewall' ),
-			'ips'           => __( 'IP Management and Analysis', 'wp-simple-firewall' ),
+			'scans_results' => [
+				__( 'Scans', 'wp-simple-firewall' ),
+				__( 'Scan Results', 'wp-simple-firewall' ),
+			],
+			'scans_run'     => [
+				__( 'Scans', 'wp-simple-firewall' ),
+				__( 'Run Scans', 'wp-simple-firewall' ),
+			],
+			'ips'           => [
+				__( 'IPs', 'wp-simple-firewall' ),
+				__( 'Management & Analysis', 'wp-simple-firewall' ),
+			],
 			'audit'         => __( 'Activity Log', 'wp-simple-firewall' ),
-			'audit_trail'   => __( 'Activity Log', 'wp-simple-firewall' ),
-			'traffic'       => __( 'Traffic', 'wp-simple-firewall' ),
-			'notes'         => __( 'Admin Notes', 'wp-simple-firewall' ),
-			'users'         => __( 'User Sessions', 'wp-simple-firewall' ),
-			'license'       => __( 'ShieldPRO', 'wp-simple-firewall' ),
-			'importexport'  => sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-			'reports'       => __( 'Reports', 'wp-simple-firewall' ),
-			'debug'         => __( 'Debug', 'wp-simple-firewall' ),
-			'rules'         => __( 'Rules', 'wp-simple-firewall' ),
-			'free_trial'    => __( 'Free Trial', 'wp-simple-firewall' ),
+			'audit_trail'   => [
+				__( 'Logs', 'wp-simple-firewall' ),
+				__( 'View Activity Logs', 'wp-simple-firewall' ),
+			],
+			'traffic'       => [
+				__( 'Logs', 'wp-simple-firewall' ),
+				__( 'View Traffic Logs', 'wp-simple-firewall' ),
+			],
+			'users'         => [
+				__( 'Users', 'wp-simple-firewall' ),
+				__( 'Sessions', 'wp-simple-firewall' ),
+			],
+			'license'       => [
+				__( 'Licensing', 'wp-simple-firewall' ),
+				__( 'ShieldPRO', 'wp-simple-firewall' ),
+			],
+			'free_trial'    => [
+				__( 'Licensing', 'wp-simple-firewall' ),
+				__( 'Free Trial', 'wp-simple-firewall' ),
+			],
+			'importexport'  => [
+				__( 'Tools', 'wp-simple-firewall' ),
+				sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
+			],
+			'notes'  => [
+				__( 'Tools', 'wp-simple-firewall' ),
+				__( 'Admin Notes', 'wp-simple-firewall' ),
+			],
+			'debug'         => [
+				__( 'Tools', 'wp-simple-firewall' ),
+				__( 'Debug', 'wp-simple-firewall' ),
+			],
+			'docs'         => [
+				__( 'Tools', 'wp-simple-firewall' ),
+				__( 'Docs', 'wp-simple-firewall' ),
+			],
+			'rules'         => [
+				__( 'Tools', 'wp-simple-firewall' ),
+				__( 'Rules', 'wp-simple-firewall' ),
+			],
 			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 		];
 
-		$pageTitle = $availablePages[ $inav ];
+		$pageTitle = is_array( $availablePages[ $inav ] ) ? implode( ' > ', $availablePages[ $inav ] ) : $availablePages[ $inav ];
 		if ( $inav === 'settings' && !empty( $subNavSection ) ) {
 			$mod = $con->getModule( $subNavSection );
-			$pageTitle = sprintf( '%s: %s',
+			$pageTitle = sprintf( '%s > %s',
 				__( 'Configuration', 'wp-simple-firewall' ), empty( $mod ) ? 'Unknown Module' : $mod->getMainFeatureName() );
 		}
 

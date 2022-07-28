@@ -3,22 +3,20 @@
 {% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
 
 {% block page_head %}
-	<div class="row">
-
-		<div class="col">
-			<h5 class="mt-3" id="PageTitle">
+	<div class="row row-cols-2 justify-content-between mb-3" id="apto-PageHeader">
+		<div class="col d-flex align-items-center">
+			<h5 class="my-0 ms-3" id="PageTitle">
 				{% block page_head_titlemenu %}
 					{{ strings.page_title }}
 				{% endblock page_head_titlemenu %}
 			</h5>
 		</div>
-
-		<div class="col">
-			<a class="navbar-brand float-end mt-3"
-			   href="{{ hrefs.nav_home }}"
-			   id="navbar-bannerlogo"
-			   style="background-image: url('{{ hrefs.img_banner }}');background-size: auto 40px;"
-			>&nbsp;</a>
+		<div class="col d-flex justify-content-end">
+			<img class="navbar-brand me-3"
+			     src="{{ hrefs.img_banner }}"
+			     id="navbar-bannerlogo"
+			     style=""
+			>
 		</div>
 	</div>
 
