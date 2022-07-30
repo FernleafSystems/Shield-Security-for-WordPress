@@ -1472,6 +1472,9 @@ class Controller extends DynPropertiesClass {
 
 		$labels = ( new Config\Labels() )->applyFromArray( $labels );
 		$labels->url_secadmin_forgotten_key = 'https://shsec.io/gc';
+		$labels->url_helpdesk = 'https://shsec.io/shieldhelpdesk';
+		$labels->is_whitelabelled = false;
+
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 

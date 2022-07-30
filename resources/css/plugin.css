@@ -626,7 +626,7 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SectionIpsWhite .form-inline {
 	background-color: transparent !important;
 }
-a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link):not(.meter-analysis-link)::after {
+a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link):not(.meter-analysis-link):not(.page-header-item)::after {
 	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
 	margin: 0 3px;
 }
@@ -1163,5 +1163,18 @@ td.mal_details ul {
 	border-bottom: 1px solid #008000;
 	padding: 22px 0;
 	margin-left: -20px;
-	background: #fff;
+	background: #ffffff;
+}
+#apto-PageHeader .page-header-item {
+	margin: 0 10px;
+}
+#apto-PageHeader .page-header-icon {
+	border-radius: 50px;
+	background: rgba(0,0,0,0.1);
+}
+#apto-PageHeader .page-header-icon > svg {
+	width: 24px;
+	height: 24px;
+	color: #008000;
+	margin: 6px;
 }

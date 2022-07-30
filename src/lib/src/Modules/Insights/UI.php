@@ -270,17 +270,17 @@ class UI extends BaseShield\UI {
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 
 			if ( !empty( $con->labels ) ) {
-				$dashboardLogo = $con->labels->url_img_pagebanner;
+				$bannerLogo = $con->labels->url_img_pagebanner;
 			}
 			else {
 				/** @deprecated 15.1 */
-				$dashboardLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
+				$bannerLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
 									 ->setMod( $con->getModule_SecAdmin() )
 									 ->build()[ 'url_login2fa_logourl' ];
 			}
 		}
 		else {
-			$dashboardLogo = $con->urls->forImage( 'pluginlogo_banner-170x40.png' );
+			$bannerLogo = $con->urls->forImage( 'pluginlogo_banner-170x40.png' );
 		}
 
 		$DP = Services::DataManipulation();
@@ -296,13 +296,14 @@ class UI extends BaseShield\UI {
 				'hrefs'   => [
 					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'   => $mod->getUrl_AdminPage(),
-					'img_banner' => $dashboardLogo
+				],
+				'imgs' => [
+					'logo_banner' => $bannerLogo,
 				],
 				'strings' => [
 					'page_title' => $pageTitle
 				],
 				'vars'    => [
-					'changelog_id'           => $con->cfg->meta[ 'announcekit_changelog_id' ],
 					'search_select'          => $this->buildSelectData_OptionsSearch(),
 					'active_module_settings' => $subNavSection,
 					'navbar_menu'            => ( new Lib\NavMenuBuilder() )

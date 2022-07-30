@@ -49,6 +49,7 @@ class UI {
 		/** @var Shield\Modules\Plugin\Options $pluginOptions */
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
 
+		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		return [
 			'sTagline'    => $mod->cfg->properties[ 'tagline' ],
 			'nonce_field' => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
@@ -66,10 +67,13 @@ class UI {
 				'show_alt_content'      => false,
 				'has_wizard'            => $mod->hasWizard(),
 				'is_premium'            => $con->isPremiumActive(),
+				'is_whitelablled'       => $isWhitelabelled,
 				'show_transfer_switch'  => $con->isPremiumActive(),
 				'is_wpcli'              => $pluginOptions->isEnabledWpcli(),
 			],
 			'hrefs'      => [
+				'helpdesk'       => $con->labels->url_helpdesk,
+				'plugin_home'    => $con->labels->PluginURI,
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 				'wizard_link'    => $mod->getUrl_WizardLanding(),
@@ -90,9 +94,10 @@ class UI {
 			],
 			'imgs'       => [
 				'svgs'           => [
-					'help'     => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
-					'ignore'   => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
-					'triangle' => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
+					'help'      => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
+					'ignore'    => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
+					'triangle'  => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
+					'megaphone' => $con->svgs->raw( 'bootstrap/megaphone.svg' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),

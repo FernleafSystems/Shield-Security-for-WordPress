@@ -11,16 +11,22 @@
 				{% endblock page_head_titlemenu %}
 			</h5>
 		</div>
-		<div class="col d-flex justify-content-end">
-			<img class="navbar-brand me-3"
-			     src="{{ hrefs.img_banner }}"
-			     id="navbar-bannerlogo"
-			     style=""
-			>
+		<div class="col d-flex justify-content-end align-items-center">
+			{% if not flags.is_whitelabelled %}
+				<a href="#SGBF-open-62e5437476b962001357b06d"
+				   class="page-header-item page-header-icon">{{ imgs.svgs.megaphone|raw }}</a>
+			{% endif %}
+			<a href="{{ hrefs.helpdesk }}" target="_blank"
+			   class="page-header-item page-header-icon">{{ imgs.svgs.help|raw }}</a>
+			<a href="{{ hrefs.plugin_home }}" class="page-header-item" target="_blank">
+				<img class="navbar-brand me-3"
+				     src="{{ imgs.logo_banner }}"
+				     id="navbar-bannerlogo"
+				     style=""
+				>
+			</a>
 		</div>
 	</div>
-
-	<script async src="https://cdn.announcekit.app/widget.js"></script>
 {% endblock %}
 
 {% block page_main %}
@@ -30,4 +36,30 @@
 {% endblock %}
 
 {% block inline_styles %}
+
+	<script>
+        window.SGBFWidgetLoader = window.SGBFWidgetLoader || {
+			ids: [], call: function ( w, d, s, l, id ) {
+				w[ 'sgbf' ] = w[ 'sgbf' ] || function () {
+					(w[ 'sgbf' ].q = w[ 'sgbf' ].q || []).push( arguments[ 0 ] );
+				};
+				var sgbf1 = d.createElement( s ), sgbf0 = d.getElementsByTagName( s )[ 0 ];
+				if ( SGBFWidgetLoader && SGBFWidgetLoader.ids && SGBFWidgetLoader.ids.length > 0 ) {
+					SGBFWidgetLoader.ids.push( id );
+					return;
+				}
+				SGBFWidgetLoader.ids.push( id );
+				sgbf1.onload = function () {
+					var app = new SGBFLoader();
+					app.run();
+				};
+				sgbf1.async = true;
+				sgbf1.src = l;
+				sgbf0.parentNode.insertBefore( sgbf1, sgbf0 );
+				return {};
+			}
+		};
+		SGBFWidgetLoader.call( window, document, "script", "https://leanbe.ai/assets/api/SGBFWidget.min.js", "62e5437476b962001357b06d" );
+	</script>
+
 {% endblock %}

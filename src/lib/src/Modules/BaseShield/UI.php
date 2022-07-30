@@ -14,7 +14,6 @@ class UI extends Base\UI {
 		$mod = $this->getMod();
 
 		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
-		$isPremium = $this->getCon()->isPremiumActive();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getBaseDisplayData(),
