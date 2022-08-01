@@ -6,6 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * There's a bit of timing issue with the order of the available hooks/filters.
+ * The disallowed keywords check is performed AFTER Shield updates the content of the comment to say it's been flagged.
+ * So we must allow that content edit to happen, but if we discover that WP has already flagged a comment for whatever
+ * reason, we should honour it and then remove our edits afterwards.
+ */
 class Scanner extends ExecOnceModConsumer {
 
 	/**
@@ -26,19 +32,41 @@ class Scanner extends ExecOnceModConsumer {
 		if ( Services::WpComments()->isCommentSubmission() ) {
 			add_filter( 'preprocess_comment', [ $this, 'checkComment' ], 5 );
 		}
+		add_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1 );
 		add_filter( 'pre_comment_approved', [ $this, 'setStatus' ], 1 );
-		add_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1, 1 );
 	}
 
 	/**
-	 * @param mixed $mStatus
+	 * @param mixed $status
 	 * @return int|string|null
 	 */
-	public function setStatus( $mStatus ) {
-		if ( !is_null( $this->spamStatus ) && in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
-			$mStatus = $this->spamStatus;
+	public function setStatus( $status ) {
+
+		if ( !is_null( $this->spamStatus ) ) {
+
+			// WP has already rejected the comment.
+			if ( in_array( $status, [ 'spam', 'trash' ] ) ) {
+
+				// We will have already updated the comment text with our spam explanation,
+				// so we need to update the comment content after it's been stored in the DB in order to remove it.
+				add_action( 'comment_post', function ( $commentID ) {
+
+					// Remove this filter as it's called within `wp_update_comment()`
+					remove_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1 );
+					wp_update_comment(
+						[
+							'comment_ID'      => $commentID,
+							'comment_content' => preg_replace( '/## Comment SPAM Protection:.*\s##\s/m', '', get_comment( $commentID )->comment_content ),
+						]
+					);
+				} );
+			}
+			elseif ( in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
+				$status = $this->spamStatus;
+			}
 		}
-		return $mStatus;
+
+		return $status;
 	}
 
 	/**
@@ -53,11 +81,13 @@ class Scanner extends ExecOnceModConsumer {
 				case 'spam':
 					$humanStatus = 'SPAM';
 					break;
+
 				case 'trash':
 					$humanStatus = __( 'Trash' );
 					break;
-				default:
+
 				case '0':
+				default:
 					$humanStatus = __( 'Pending Moderation' );
 					break;
 			}
