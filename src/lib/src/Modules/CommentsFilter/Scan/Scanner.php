@@ -25,99 +25,23 @@ class Scanner extends ExecOnceModConsumer {
 	private $spamReason;
 
 	protected function canRun() :bool {
-		return Services::Request()->isPost();
+		return Services::WpComments()->isCommentSubmission();
 	}
 
 	protected function run() {
-		if ( Services::WpComments()->isCommentSubmission() ) {
-			add_filter( 'preprocess_comment', [ $this, 'checkComment' ], 5 );
-		}
-		add_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1 );
-		add_filter( 'pre_comment_approved', [ $this, 'setStatus' ], 1 );
+		add_filter( 'pre_comment_approved', [ $this, 'checkComment' ], 11, 2 );
 	}
 
 	/**
-	 * @param mixed $status
-	 * @return int|string|null
-	 */
-	public function setStatus( $status ) {
-
-		if ( !is_null( $this->spamStatus ) ) {
-
-			// WP has already rejected the comment.
-			if ( in_array( $status, [ 'spam', 'trash' ] ) ) {
-
-				// We will have already updated the comment text with our spam explanation,
-				// so we need to update the comment content after it's been stored in the DB in order to remove it.
-				add_action( 'comment_post', function ( $commentID ) {
-
-					// Remove this filter as it's called within `wp_update_comment()`
-					remove_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1 );
-					wp_update_comment(
-						[
-							'comment_ID'      => $commentID,
-							'comment_content' => preg_replace( '/## Comment SPAM Protection:.*\s##\s/m', '', get_comment( $commentID )->comment_content ),
-						]
-					);
-				} );
-			}
-			elseif ( in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
-				$status = $this->spamStatus;
-			}
-		}
-
-		return $status;
-	}
-
-	/**
-	 * @param string $content
-	 * @return string
-	 */
-	public function insertStatusExplanation( $content ) {
-
-		if ( !is_null( $this->spamStatus ) && in_array( $this->spamStatus, [ '0', 'spam', 'trash' ] ) ) {
-
-			switch ( $this->spamStatus ) {
-				case 'spam':
-					$humanStatus = 'SPAM';
-					break;
-
-				case 'trash':
-					$humanStatus = __( 'Trash' );
-					break;
-
-				case '0':
-				default:
-					$humanStatus = __( 'Pending Moderation' );
-					break;
-			}
-
-			$additional = (string)apply_filters(
-				'shield/comment_spam_explanation',
-				sprintf(
-					"## Comment SPAM Protection: %s %s ##\n",
-					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName(), $humanStatus ),
-					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
-				),
-				$this->spamStatus,
-				$this->spamReason
-			);
-			$content = $additional.$content;
-		}
-
-		return $content;
-	}
-
-	/**
+	 * @param mixed $approval
 	 * @param array $comm
 	 * @return array
 	 */
-	public function checkComment( $comm ) {
+	public function checkComment( $approval, $comm ) {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
-		if ( Services::WpComments()->isCommentSubmission()
+		if ( !in_array( $approval, [ 'spam', 'trash' ] )
 			 && is_array( $comm ) && is_numeric( $comm[ 'comment_post_ID' ] ?? null ) && is_string( $comm[ 'comment_author_email' ] ?? null )
 			 && $this->isDoCommentsCheck( (int)$comm[ 'comment_post_ID' ], $comm[ 'comment_author_email' ] ) ) {
 
@@ -138,27 +62,31 @@ class Scanner extends ExecOnceModConsumer {
 
 				// if we're configured to actually block...
 				if ( $opts->isEnabledAntiBot() && in_array( 'antibot', $errorCodes ) ) {
-					$status = $opts->getOpt( 'comments_default_action_spam_bot' );
+					$newStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
 				elseif ( $opts->isEnabledHumanCheck() && in_array( 'human', $errorCodes ) ) {
-					$status = $opts->getOpt( 'comments_default_action_human_spam' );
+					$newStatus = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$status = null;
+					$newStatus = null;
 				}
 
-				if ( !is_null( $status ) ) {
-					if ( $status == 'reject' ) {
+				if ( !is_null( $newStatus ) ) {
+					if ( $newStatus == 'reject' ) {
 						Services::Response()->redirectToHome();
 					}
 
-					$this->spamStatus = $status;
+					$approval = $newStatus;
+					$this->spamStatus = $newStatus;
 					$this->spamReason = $spamErrors->get_error_message();
+
+					// We add an explanation to the comment to explain the status assigned to the comment by Shield.
+					add_action( 'comment_post', [ $this, 'insertExplanation' ], 9 );
 				}
 			}
 		}
 
-		return $comm;
+		return $approval;
 	}
 
 	private function runScans( array $commData ) :\WP_Error {
@@ -181,6 +109,49 @@ class Scanner extends ExecOnceModConsumer {
 		}
 
 		return $errors;
+	}
+
+	/**
+	 * @param int $commentID
+	 */
+	public function insertExplanation( $commentID ) {
+
+		$comment = get_comment( $commentID );
+		if ( $comment instanceof \WP_Comment ) {
+
+			switch ( $this->spamStatus ) {
+				case 'spam':
+					$humanStatus = 'SPAM';
+					break;
+
+				case 'trash':
+					$humanStatus = __( 'Trash' );
+					break;
+
+				case 'hold':
+				case '0':
+				default:
+					$humanStatus = __( 'Pending Moderation' );
+					break;
+			}
+
+			$additional = (string)apply_filters(
+				'shield/comment_spam_explanation',
+				sprintf(
+					"## Comment SPAM Protection: %s %s ##\n",
+					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName(), $humanStatus ),
+					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
+				),
+				$this->spamStatus,
+				$this->spamReason
+			);
+
+			wp_update_comment( [
+				'comment_ID'      => $commentID,
+				'comment_content' => $additional.$comment->comment_content,
+			] );
+		}
 	}
 
 	private function isDoCommentsCheck( int $postID, string $commentEmail ) :bool {
