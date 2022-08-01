@@ -83,7 +83,7 @@ class DynamicPageLoader extends DynPropertiesClass {
 
 		switch ( $this->load_type ) {
 			case 'configuration':
-				$title = sprintf( '%s: %s',
+				$title = sprintf( '%s > %s',
 					__( 'Configuration', 'wp-simple-firewall' ),
 					$con->getModule( $this->load_variant )->getMainFeatureName()
 				);

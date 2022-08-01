@@ -434,7 +434,6 @@
   },
   "meta":             {
     "url_repo_home":            "https://shsec.io/eh",
-    "announcekit_changelog_id": "3ObUvS",
     "privacy_policy_href":      "https://shsec.io/shieldprivacypolicy"
   },
   "plugin_meta":      [

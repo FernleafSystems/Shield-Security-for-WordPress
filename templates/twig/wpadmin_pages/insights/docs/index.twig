@@ -27,10 +27,6 @@
 						</a>
 					</li>
 				{% endif %}
-
-				<li class="nav-item">
-					<a class="nav-link announcekit-widget"></a>
-				</li>
 			</ul>
 		</div>
 	</div>
@@ -54,23 +50,4 @@
 		</div>
 
 	</div>
-{% endblock %}
-
-{% block inline_scripts %}
-	{{ parent() }}
-
-	<script type="text/javascript">
-	  window.announcekit = (window.announcekit || {
-		  queue: [], on: function ( n, x ) {
-			  window.announcekit.queue.push( [ n, x ] );
-		  }, push: function ( x ) {
-			  window.announcekit.queue.push( x );
-		  }
-	  });
-	  window.announcekit.push( {
-		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
-		  "selector": ".announcekit-widget",
-		  "version": 2
-	  } )
-	</script>
 {% endblock %}

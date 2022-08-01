@@ -39,11 +39,16 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 				'js_bootstrap'   => $con->urls->forJs( 'bootstrap' ),
 				'shield_logo'    => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
+				'helpdesk'       => 'https://shsec.io/shieldhelpdesk'
 			],
 			'imgs'    => [
 				'about_shield' => $con->urls->forImage( 'pluginlogo_128x128.png' ),
-				'banner'       => $con->labels->url_img_pagebanner,
+				'logo_banner'  => $con->labels->url_img_pagebanner,
 				'favicon'      => $con->urls->forImage( 'pluginlogo_24x24.png' ),
+				'svgs'         => [
+					'megaphone'       => $con->svgs->raw( 'bootstrap/megaphone.svg' ),
+					'question_square' => $con->svgs->raw( 'bootstrap/question-square.svg' ),
+				],
 			],
 			'strings' => [
 			],

@@ -14,10 +14,12 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string $PluginURI
  * @property string $AuthorURI
  * @property string $url_secadmin_forgotten_key
+ * @property string $url_helpdesk
  * @property string $url_img_pagebanner
  * @property string $icon_url_16x16
  * @property string $icon_url_32x32
  * @property string $icon_url_128x128
+ * @property bool   $is_whitelabelled
  */
 class Labels extends DynPropertiesClass {
 
