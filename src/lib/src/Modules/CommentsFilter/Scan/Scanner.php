@@ -17,7 +17,7 @@ class Scanner extends ExecOnceModConsumer {
 	/**
 	 * @var string|int|null
 	 */
-	private $spamStatus;
+	private $spamStatus = null;
 
 	/**
 	 * @var string
@@ -110,18 +110,18 @@ class Scanner extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param array $commData
+	 * @param array $comm
 	 * @return array
 	 */
-	public function checkComment( $commData ) {
+	public function checkComment( $comm ) {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
 		if ( Services::WpComments()->isCommentSubmission()
-			 && is_array( $commData )
-			 && $this->getIfDoCommentsCheck( $commData[ 'comment_post_ID' ], $commData[ 'comment_author_email' ] ) ) {
+			 && is_array( $comm ) && is_numeric( $comm[ 'comment_post_ID' ] ?? null ) && is_string( $comm[ 'comment_author_email' ] ?? null )
+			 && $this->isDoCommentsCheck( (int)$comm[ 'comment_post_ID' ], $comm[ 'comment_author_email' ] ) ) {
 
-			$spamErrors = $this->runScans( $commData );
+			$spamErrors = $this->runScans( $comm );
 
 			$errorCodes = $spamErrors->get_error_codes();
 			if ( count( $errorCodes ) > 0 ) {
@@ -158,7 +158,7 @@ class Scanner extends ExecOnceModConsumer {
 			}
 		}
 
-		return $commData;
+		return $comm;
 	}
 
 	private function runScans( array $commData ) :\WP_Error {
@@ -183,16 +183,11 @@ class Scanner extends ExecOnceModConsumer {
 		return $errors;
 	}
 
-	/**
-	 * @param int    $postID
-	 * @param string $commentEmail
-	 */
-	public function getIfDoCommentsCheck( $postID, $commentEmail ) :bool {
+	private function isDoCommentsCheck( int $postID, string $commentEmail ) :bool {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 		$post = Services::WpPost()->getById( $postID );
-		return $post instanceof \WP_Post
-			   && Services::WpComments()->isCommentsOpen( $post )
+		return $post instanceof \WP_Post && Services::WpComments()->isCommentsOpen( $post )
 			   && !( new IsEmailTrusted() )->trusted( $commentEmail, $opts->getApprovedMinimum(), $opts->getTrustedRoles() );
 	}
 }

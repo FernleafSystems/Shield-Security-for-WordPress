@@ -15,7 +15,7 @@ class Processor extends BaseShield\Processor {
 		$commentsFilterBypass = $this->getCon()->this_req->request_bypasses_all_restrictions ||
 								( $WPU->isUserLoggedIn() &&
 								  ( new Scan\IsEmailTrusted() )->trusted(
-									  $WPU->getCurrentWpUser()->user_email,
+									  (string)$WPU->getCurrentWpUser()->user_email,
 									  $opts->getApprovedMinimum(),
 									  $opts->getTrustedRoles()
 								  ) );
