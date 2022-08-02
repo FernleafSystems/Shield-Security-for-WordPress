@@ -41,7 +41,8 @@ class Scanner extends ExecOnceModConsumer {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
-		if ( !in_array( $approval, [ 'spam', 'trash' ] )
+		// Note: use strict in_array() here because when approval is 0, always returns 'true'
+		if ( !in_array( $approval, [ 'spam', 'trash' ], true )
 			 && is_array( $comm ) && is_numeric( $comm[ 'comment_post_ID' ] ?? null ) && is_string( $comm[ 'comment_author_email' ] ?? null )
 			 && $this->isDoCommentsCheck( (int)$comm[ 'comment_post_ID' ], $comm[ 'comment_author_email' ] ) ) {
 
