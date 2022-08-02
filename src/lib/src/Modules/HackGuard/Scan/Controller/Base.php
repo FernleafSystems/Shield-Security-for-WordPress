@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Retrieve,
+	Retrieve\RetrieveCount,
+	Retrieve\RetrieveItems,
 	Update
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -71,7 +72,7 @@ abstract class Base extends ExecOnceModConsumer {
 				$count = 0;
 			}
 			else {
-				$count = ( new Retrieve() )
+				$count = ( new RetrieveCount() )
 					->setScanController( $this )
 					->setMod( $this->getMod() )
 					->count();
@@ -112,7 +113,7 @@ abstract class Base extends ExecOnceModConsumer {
 			$results = $this->getNewResultsSet();
 		}
 		else {
-			$results = ( new Retrieve() )
+			$results = ( new RetrieveItems() )
 				->setMod( $this->getMod() )
 				->setScanController( $this )
 				->retrieveForAutoRepair();
@@ -128,7 +129,7 @@ abstract class Base extends ExecOnceModConsumer {
 			$this->latestResults = $this->getNewResultsSet();
 			if ( !$this->isRestricted() ) {
 				try {
-					$this->latestResults = ( new HackGuard\Scan\Results\Retrieve() )
+					$this->latestResults = ( new RetrieveItems() )
 						->setMod( $this->getMod() )
 						->setScanController( $this )
 						->retrieveLatest();

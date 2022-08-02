@@ -1,6 +1,6 @@
 <div id="NavSideBar">
 
-<ul class="nav top-level-nav flex-column mt-3 accordion" id="ShieldCollapseNav">
+<ul class="nav top-level-nav flex-column accordion" id="ShieldCollapseNav">
 	{% for mitem in vars.navbar_menu %}
 
 		<li class="nav-item pb-2{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"

@@ -26,8 +26,8 @@ class RenderLoginIntentPage extends RenderBase {
 				'what_is_this'  => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
 			],
 			'imgs'    => [
-				'banner'  => empty( $con->labels ) ? $con->getLabels()[ 'url_login2fa_logourl' ] : $con->labels->url_img_pagebanner,
-				'favicon' => $con->labels->icon_url_32x32,
+				'logo_banner' => $con->labels->url_img_pagebanner,
+				'favicon'     => $con->labels->icon_url_32x32,
 			],
 			'flags'   => [
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),

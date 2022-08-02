@@ -68,6 +68,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		if ( !empty( $homeURL ) ) {
 			$labels->PluginURI = $homeURL;
 			$labels->AuthorURI = $homeURL;
+			$labels->url_helpdesk = $homeURL;
 		}
 
 		$urlIcon = $this->constructImageURL( 'wl_menuiconurl' );

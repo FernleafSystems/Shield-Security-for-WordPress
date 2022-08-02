@@ -1,16 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
-use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	ResultItemMeta as ResultItemMetaDB,
-	Scans as ScansDB
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItemMeta as ResultItemMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,16 +13,57 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @property int      $limit
  * @property int      $offset
- * @property string[] $wheres
+ * @property string[] $selects
  * @property string   $order_by
  * @property string   $order_dir
  */
-class Retrieve extends DynPropertiesClass {
+class RetrieveItems extends RetrieveBase {
 
-	use ModConsumer;
-	use ScanControllerConsumer;
+	const CONTEXT_RESULTS_TABLE = 0;
+	const CONTEXT_AUTOREPAIR = 1;
+	const CONTEXT_LATEST = 2;
 
-	private $additionalWheres = [];
+	public function retrieveResults( int $context ) {
+		$results = null;
+
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+
+			$this->addWheres( [
+				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+				"`ri`.`item_repaired_at`=0",
+				"`ri`.`item_deleted_at`=0",
+				"`ri`.`deleted_at`=0",
+			] );
+
+			switch ( $context ) {
+
+				case self::CONTEXT_RESULTS_TABLE:
+					$specificWheres = [
+						"`ri`.`ignored_at`=0"
+					];
+					break;
+
+				case self::CONTEXT_AUTOREPAIR:
+					$specificWheres = [
+						"`ri`.`attempt_repair_at`=0",
+						"`ri`.`ignored_at`=0"
+					];
+					break;
+
+				case self::CONTEXT_LATEST:
+				default:
+					$specificWheres = [];
+					break;
+			}
+
+			$results = $this
+				->addWheres( $specificWheres )
+				->retrieve();
+		}
+
+		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
+	}
 
 	/**
 	 * @return Scans\Base\ResultItem
@@ -39,8 +75,8 @@ class Retrieve extends DynPropertiesClass {
 		$WPDB = Services::WpDb();
 
 		// Need to determine the scan from the scan result.
-		$scan = $WPDB->getVar( sprintf( "SELECT scans.scan
-					FROM `%s` as scans
+		$scan = $WPDB->getVar( sprintf( "SELECT `scans`.scan
+					FROM `%s` as `scans`
 					INNER JOIN `%s` as `sr`
 						ON `sr`.scan_ref = `scans`.id AND `sr`.id = %s 
 					LIMIT 1;",
@@ -53,14 +89,12 @@ class Retrieve extends DynPropertiesClass {
 		}
 		$this->setScanController( $mod->getScanCon( $scan ) );
 
-		$raw = Services::WpDb()->selectCustom(
-			$this->buildQuery(
-				$this->standardSelectFields(),
-				[
-					sprintf( "`sr`.`id`=%s", $scanResultID )
-				]
-			)
-		);
+		$query = $this
+			->addWheres( [
+				sprintf( "`sr`.`id`=%s", $scanResultID )
+			] )
+			->buildQuery( $this->standardSelectFields() );
+		$raw = Services::WpDb()->selectCustom( $query );
 		$rawResults = empty( $raw ) ? [] : $raw;
 
 		$resultSet = $this->convertToResultsSet( $rawResults );
@@ -79,14 +113,12 @@ class Retrieve extends DynPropertiesClass {
 		if ( !$this->getScanController()->isRestricted() ) {
 			$latestID = $this->getLatestScanID();
 			if ( $latestID >= 0 ) {
-				$raw = Services::WpDb()->selectCustom(
-					$this->buildQuery(
-						$this->standardSelectFields(),
-						[
-							sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
-						]
-					)
-				);
+				$query = $this
+					->addWheres( [
+						sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
+					] )
+					->buildQuery( $this->standardSelectFields() );
+				$raw = Services::WpDb()->selectCustom( $query );
 				$results = empty( $raw ) ? [] : $raw;
 			}
 		}
@@ -98,108 +130,49 @@ class Retrieve extends DynPropertiesClass {
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function retrieveForAutoRepair() {
+		return $this->retrieveResults( self::CONTEXT_AUTOREPAIR );
+	}
 
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$results = $this
-				->setAdditionalWheres( [
-					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					"`ri`.`attempt_repair_at`=0",
-					"`ri`.`item_repaired_at`=0",
-					"`ri`.`item_deleted_at`=0",
-					"`ri`.ignored_at=0"
-				] )
-				->retrieve();
-		}
-		else {
-			$results = $this->getScanController()->getNewResultsSet();
-		}
-
-		return $results;
+	public function retrieveForResultsTables() :Scans\Afs\ResultsSet {
+		return $this->retrieveResults( self::CONTEXT_RESULTS_TABLE );
 	}
 
 	/**
 	 * @return Scans\Afs\ResultsSet|Scans\Apc\ResultsSet|Scans\Wpv\ResultsSet
 	 */
 	public function retrieveLatest() {
-
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$results = $this
-				->setAdditionalWheres( [
-					sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-					"`ri`.`item_repaired_at`=0",
-					"`ri`.`item_deleted_at`=0"
-				] )
-				->retrieve();
-		}
-		else {
-			$results = $this->getScanController()->getNewResultsSet();
-		}
-
-		return $results;
+		return $this->retrieveResults( self::CONTEXT_LATEST );
 	}
 
 	/**
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function retrieve() {
-		$raw = Services::WpDb()->selectCustom(
-			$this->buildQuery(
-				$this->standardSelectFields(),
-				[
-					"`ri`.`auto_filtered_at`=0",
-					"`ri`.`deleted_at`=0"
-				]
-			)
-		);
+		$query = $this
+			->addWheres( [
+				"`ri`.`auto_filtered_at`=0",
+				"`ri`.`deleted_at`=0"
+			] )
+			->buildQuery( $this->standardSelectFields() );
+		$raw = Services::WpDb()->selectCustom( $query );
 		return $this->convertToResultsSet( empty( $raw ) ? [] : $raw );
 	}
 
-	public function buildQuery( array $selectFields, array $wheres ) :string {
+	public function buildQuery( array $selectFields = [] ) :string {
+
 		$hasResultMeta = false;
-
-		$wheres = array_filter( array_merge(
-			$wheres,
-			$this->getAdditionalWheres(),
-			is_array( $this->wheres ) ? $this->wheres : []
-		) );
-
-		foreach ( $wheres as $where ) {
-			if ( strpos( $where, '`rim`' ) !== false ) {
+		foreach ( $this->getWheres() as $where ) {
+			if ( strpos( $where, self::ABBR_RESULTITEMMETA ) !== false ) {
 				$hasResultMeta = true;
 				break;
 			}
 		}
+
 		return sprintf(
 			$this->getBaseQuery( $hasResultMeta ),
 			implode( ',', $selectFields ),
-			implode( ' AND ', $wheres )
+			implode( ' AND ', $this->getWheres() )
 		);
-	}
-
-	public function count() :int {
-		$count = 0;
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$count = (int)Services::WpDb()->getVar(
-				sprintf( $this->getBaseCountQuery(),
-					implode( ' AND ', array_filter( array_merge(
-						[
-							sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-							"`ri`.`auto_filtered_at`=0",
-							"`ri`.`ignored_at` = 0",
-							"`ri`.`item_repaired_at`=0",
-							"`ri`.`item_deleted_at`=0",
-							"`ri`.`deleted_at`=0"
-						],
-						$this->getAdditionalWheres(),
-						is_array( $this->wheres ) ? $this->wheres : []
-					) ) )
-				)
-			);
-		}
-		return $count;
 	}
 
 	/**
@@ -268,16 +241,7 @@ class Retrieve extends DynPropertiesClass {
 		}
 	}
 
-	private function getLatestScanID() :int {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var ScansDB\Ops\Select $scansSelector */
-		$scansSelector = $mod->getDbH_Scans()->getQuerySelector();
-		$latest = $scansSelector->getLatestForScan( $this->getScanController()->getSlug() );
-		return empty( $latest ) ? -1 : $latest->id;
-	}
-
-	private function getBaseQuery( bool $joinWithResultMeta = false ) :string {
+	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return sprintf( "SELECT %%s
@@ -294,47 +258,32 @@ class Retrieve extends DynPropertiesClass {
 			$mod->getDbH_ScanResults()->getTableSchema()->table,
 			$mod->getDbH_Scans()->getTableSchema()->table,
 			$mod->getDbH_ResultItems()->getTableSchema()->table,
-			$joinWithResultMeta ? sprintf( 'INNER JOIN `%s` as `rim` ON `rim`.`ri_ref` = `ri`.id',
-				$mod->getDbH_ResultItemMeta()->getTableSchema()->table ) : '',
+			$joinWithResultMeta ?
+				sprintf( 'INNER JOIN `%s` as %s ON %s.`ri_ref` = `ri`.id',
+					$mod->getDbH_ResultItemMeta()->getTableSchema()->table,
+					self::ABBR_RESULTITEMMETA,
+					self::ABBR_RESULTITEMMETA
+				) : '',
 			empty( $this->order_by ) ? 'ORDER BY `sr`.`id` ASC' : sprintf( 'ORDER BY %s %s', $this->order_by, $this->order_dir ),
 			empty( $this->limit ) ? '' : sprintf( 'LIMIT %s', (int)$this->limit ),
 			empty( $this->offset ) ? '' : sprintf( 'OFFSET %s', (int)$this->offset )
 		);
 	}
 
-	private function getBaseCountQuery() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return sprintf( "SELECT COUNT(*)
-						FROM `%s` as sr
-						INNER JOIN `%s` as `scans`
-							ON `sr`.scan_ref = `scans`.id
-						INNER JOIN `%s` as `ri`
-							ON `sr`.resultitem_ref = `ri`.id
-						INNER JOIN `%s` as `rim`
-							ON `rim`.`ri_ref` = `ri`.id
-						WHERE %%s;",
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ResultItems()->getTableSchema()->table,
-			$mod->getDbH_ResultItemMeta()->getTableSchema()->table
-		);
-	}
-
 	private function standardSelectFields() :array {
 		return [
-			'scans.scan',
-			'scans.id as scan_id',
-			'sr.id as scanresult_id',
-			'ri.id as resultitem_id',
-			'ri.item_type',
-			'ri.item_id',
-			'ri.ignored_at',
-			'ri.notified_at',
-			'ri.attempt_repair_at',
-			'ri.item_repaired_at',
-			'ri.item_deleted_at',
-			'ri.created_at',
+			'`scans`.`scan`',
+			'`scans`.`id` as scan_id',
+			'`sr`.`id` as scanresult_id',
+			'`ri`.`id` as resultitem_id',
+			'`ri`.`item_type`',
+			'`ri`.`item_id`',
+			'`ri`.`ignored_at`',
+			'`ri`.`notified_at`',
+			'`ri`.`attempt_repair_at`',
+			'`ri`.`item_repaired_at`',
+			'`ri`.`item_deleted_at`',
+			'`ri`.`created_at`',
 		];
 	}
 
@@ -343,12 +292,15 @@ class Retrieve extends DynPropertiesClass {
 		return empty( $scanCon ) ? new ResultsSet() : $scanCon->getNewResultsSet();
 	}
 
-	public function getAdditionalWheres() :array {
-		return is_array( $this->additionalWheres ) ? $this->additionalWheres : [];
+	public function getSelects() :array {
+		return array_filter( array_map( 'trim', is_array( $this->selects ) ? $this->selects : [] ) );
 	}
 
-	public function setAdditionalWheres( array $wheres, bool $merge = false ) {
-		$this->additionalWheres = $merge ? array_merge( $this->getAdditionalWheres(), $wheres ) : $wheres;
+	/**
+	 * @return $this
+	 */
+	public function addSelects( array $selects, bool $merge = true ) {
+		$this->selects = $merge ? array_merge( $this->getSelects(), $selects ) : $selects;
 		return $this;
 	}
 }
