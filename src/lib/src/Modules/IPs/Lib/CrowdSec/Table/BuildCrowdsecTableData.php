@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\CrowdSecRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\LoadCrowdsecDecisions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\CrowdSec\ForCrowdsecDecisions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -108,6 +109,11 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 	 * @return CrowdSecRecord[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
+
+		( new CleanDecisions_IPs() )
+			->setMod( $this->getMod() )
+			->execute();
+
 		$loader = $this->getRecordsLoader();
 		$loader->wheres = $wheres;
 		$loader->limit = $limit;

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Exceptions\ColumnDoesNotExistException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\Ops as CrowdSecDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
@@ -31,28 +30,18 @@ class ProcessDecisionList {
 				]
 			] );
 		}
+
+		$this->postRun();
 	}
 
-	/**
-	 * Delete "expired" IPs - i.e. those older than 1 week.
-	 */
 	public function preRun() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		try {
-			$mod->getDbH_CrowdSecDecisions()
-				->getQueryDeleter()
-				->addWhere(
-					'updated_at',
-					Services::Request()
-							->carbon()
-							->subDays( 7 )->timestamp,
-					'<'
-				)
-				->query();
-		}
-		catch ( ColumnDoesNotExistException $e ) {
-		}
+		( new CleanDecisions_IPs() )
+			->setMod( $this->getMod() )
+			->execute();
+	}
+
+	public function postRun() {
+		$this->preRun();
 	}
 
 	private function add( array $decisions ) :int {
@@ -120,26 +109,9 @@ class ProcessDecisionList {
 
 	private function delete( array $decisions ) :int {
 		// We only handle "ip" scopes right now, but we can add more as we need to.
-		return $this->deleteForScope_IP( $this->extractDataFromDecisionsForScope_IP( $decisions ) );
-	}
-
-	private function deleteForScope_IP( array $ipList ) :int {
-		$count = 0;
-		if ( !empty( $ipList ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$dbhCS = $mod->getDbH_CrowdSecDecisions();
-			$count = (int)Services::WpDb()->doSql( sprintf(
-				"DELETE FROM `%s`
-					WHERE `ip_ref` IN ( SELECT `id` FROM `%s` WHERE INET6_NTOA(`ip`) IN ('%s') )
-				;",
-				$dbhCS->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				implode( "','", $ipList )
-			) );
-		}
-
-		return $count;
+		return ( new CleanDecisions_IPs() )
+			->setMod( $this->getMod() )
+			->ipList( $this->extractDataFromDecisionsForScope_IP( $decisions ) );
 	}
 
 	private function extractDataFromDecisionsForScope_IP( array $decisions ) :array {

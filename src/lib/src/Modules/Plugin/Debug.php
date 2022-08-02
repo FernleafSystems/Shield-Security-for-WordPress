@@ -23,7 +23,11 @@ class Debug extends Modules\Base\Debug {
 	private function crowdsec() {
 		$modIPs = $this->getCon()->getModule_IPs();
 		$csCon = $modIPs->getCrowdSecCon();
+
 		try {
+			$res = ( new Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs() )
+				->setMod( $modIPs )
+				->duplicates();
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
 //			var_dump( $csCon->getApi()->getAuthStatus() );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
