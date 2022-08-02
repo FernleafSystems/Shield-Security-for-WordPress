@@ -24,8 +24,8 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 	 */
 	private $geoLookup;
 
-	protected function loadLogsWithSearch() :array {
-		return $this->loadLogsWithDirectQuery();
+	protected function loadRecordsWithSearch() :array {
+		return $this->loadRecordsWithDirectQuery();
 	}
 
 	protected function getSearchPanesData() :array {
@@ -37,7 +37,7 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 	/**
 	 * @param CrowdSecRecord[] $records
 	 */
-	protected function buildTableRowsFromRawLogs( array $records ) :array {
+	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		return array_values( array_filter( array_map(
 			function ( $csRecord ) {
 

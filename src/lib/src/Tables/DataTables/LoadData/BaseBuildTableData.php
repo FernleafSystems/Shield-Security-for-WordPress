@@ -14,6 +14,12 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use ModConsumer;
 
+	abstract protected function countTotalRecords() :int;
+
+	abstract protected function countTotalRecordsFiltered() :int;
+
+	abstract protected function buildTableRowsFromRawRecords( array $records ) :array;
+
 	public function build() :array {
 		return [
 			'data'            => $this->loadForRecords(),
@@ -127,12 +133,6 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		return [];
 	}
-
-	abstract protected function countTotalRecords() :int;
-
-	abstract protected function countTotalRecordsFiltered() :int;
-
-	abstract protected function buildTableRowsFromRawRecords( array $records ) :array;
 
 	protected function getColumnContent_Date( int $ts ) :string {
 		return sprintf( '%s<br /><small>%s</small>',
