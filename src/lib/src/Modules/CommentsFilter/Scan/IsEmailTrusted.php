@@ -6,14 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsEmailTrusted {
 
-	/**
-	 * @param string $email
-	 * @param int    $nMinimumApproved
-	 * @param array  $trustedRoles
-	 * @return bool
-	 */
-	public function trusted( $email, $nMinimumApproved = 1, $trustedRoles = [] ) {
-		$trusted = Services::WpComments()->countApproved( $email ) >= $nMinimumApproved;
+	public function trusted( string $email, int $minimumApproved = 1, array $trustedRoles = [] ) :bool {
+		$trusted = Services::WpComments()->countApproved( $email ) >= $minimumApproved;
 
 		if ( !$trusted && !empty( $trustedRoles ) ) {
 			$user = Services::WpUsers()->getUserByEmail( $email );
