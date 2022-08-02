@@ -103,10 +103,14 @@
       },
       {
         "version":     "8",
-        "released_at": 1658226200,
+        "released_at": 1659440300,
         "items":       [
           {
             "title": "Eliminate errors and slow processing when displaying scan results pages for large datasets.",
+            "type":  "improved"
+          },
+          {
+            "title": "Some Dashboard UI tweaks.",
             "type":  "improved"
           },
           {
