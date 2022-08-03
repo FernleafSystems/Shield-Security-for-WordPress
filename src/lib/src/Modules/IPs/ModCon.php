@@ -60,6 +60,11 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
+	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
+		$this->getCon()->getModule_Data()->getDbH_IPs();
+		return $this->getDbHandler()->loadDbH( 'ip_rules' );
+	}
+
 	public function getDbH_CrowdSecDecisions() :DB\CrowdSecDecisions\Ops\Handler {
 		$this->getCon()->getModule_Data()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'crowdsec_decisions' );

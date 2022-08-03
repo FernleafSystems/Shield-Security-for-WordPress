@@ -129,7 +129,7 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'PBrptip',
+						dom: 'PBrpftip',
 						searchPanes: {
 							cascadePanes: false,
 							viewTotal: false,
