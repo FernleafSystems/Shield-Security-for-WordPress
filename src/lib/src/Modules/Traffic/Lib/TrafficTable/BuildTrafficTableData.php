@@ -16,8 +16,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BuildTrafficTableData extends BaseBuildTableData {
 
-	use ModConsumer;
-
 	/**
 	 * @var LogRecord
 	 */

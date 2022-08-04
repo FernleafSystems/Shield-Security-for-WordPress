@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\CrowdSec\ForCrowdsecDecisions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\IpRules\ForIpRules;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
@@ -26,7 +27,8 @@ class UI extends BaseShield\UI {
 			],
 			'content' => [
 				'ip_review'                => $this->renderIpAnalyse(),
-				'crowdsec_decisions_table' => $this->renderTable_CrowdsecDecisions()
+				'crowdsec_decisions_table' => $this->renderTable_CrowdsecDecisions(),
+				'table_ip_rules' => $this->renderTable_IpRules(),
 			],
 			'flags'   => [
 				'can_blacklist' => $con->isPremiumActive()
@@ -62,6 +64,7 @@ class UI extends BaseShield\UI {
 				'tab_manage_block'   => __( 'Manage Block List', 'wp-simple-firewall' ),
 				'tab_manage_bypass'  => __( 'Manage Bypass List', 'wp-simple-firewall' ),
 				'tab_ip_analysis'    => __( 'IP Analysis', 'wp-simple-firewall' ),
+				'ip_rules'           => __( 'IP Rules', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'unique_ips_black' => ( new RetrieveIpsForLists() )
@@ -93,6 +96,31 @@ class UI extends BaseShield\UI {
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForCrowdsecDecisions() )
+					->setMod( $this->getMod() )
+					->build()
+			],
+		] );
+	}
+
+	public function renderTable_IpRules() :string {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		return $mod->renderTemplate( '/wpadmin_pages/insights/ips/ip_rules.twig', [
+			'ajax'    => [
+				'table_action' => $mod->getAjaxActionData( 'iprulestable_action', true ),
+			],
+			'flags'   => [
+				'is_enabled' => $opts->isEnabledCrowdSecAutoBlock(),
+			],
+			'hrefs'   => [
+				'please_enable' => $mod->getUrl_DirectLinkToOption( 'cs_block' ),
+			],
+			'strings' => [
+			],
+			'vars'    => [
+				'datatables_init' => ( new ForIpRules() )
 					->setMod( $this->getMod() )
 					->build()
 			],

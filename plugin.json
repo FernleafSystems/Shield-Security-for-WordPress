@@ -76,6 +76,7 @@
         "shield/tours",
         "shield/datatables/audit_trail",
         "shield/datatables/cs_decisions",
+        "shield/datatables/ip_rules",
         "shield/datatables/scans",
         "shield/datatables/traffic",
         "tp/circular-progress"
@@ -326,6 +327,11 @@
           ]
         },
         "shield/datatables/cs_decisions":    {
+          "deps": [
+            "shield/datatables/common"
+          ]
+        },
+        "shield/datatables/ip_rules":    {
           "deps": [
             "shield/datatables/common"
           ]

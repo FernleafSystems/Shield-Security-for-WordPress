@@ -21,6 +21,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'ip_delete'               => [ $this, 'ajaxExec_IpDelete' ],
 				'render_table_ip'         => [ $this, 'ajaxExec_BuildTableIps' ],
 				'csdecisionstable_action' => [ $this, 'ajaxExec_CrowdsecDecisionTableAction' ],
+				'iprulestable_action'     => [ $this, 'ajaxExec_IpRulesTableAction' ],
 				'ip_analyse_build'        => [ $this, 'ajaxExec_BuildIpAnalyse' ],
 				'ip_analyse_action'       => [ $this, 'ajaxExec_IpAnalyseAction' ],
 				'ip_review_select'        => [ $this, 'ajaxExec_IpReviewSelect' ],
@@ -327,6 +328,35 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'message' => $msg,
 			'html'    => $response,
 		];
+	}
+
+	public function ajaxExec_IpRulesTableAction() :array {
+		try {
+			$action = Services::Request()->post( 'sub_action' );
+			switch ( $action ) {
+
+				case 'retrieve_table_data':
+					$builder = ( new Lib\Table\BuildIpRulesTableData() )->setMod( $this->getMod() );
+					$builder->table_data = Services::Request()->post( 'table_data', [] );
+					$response = [
+						'success'        => true,
+						'datatable_data' => $builder->build(),
+					];
+					break;
+
+				default:
+					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
+			}
+		}
+		catch ( \Exception $e ) {
+			$response = [
+				'success'     => false,
+				'page_reload' => true,
+				'message'     => $e->getMessage(),
+			];
+		}
+
+		return $response;
 	}
 
 	public function ajaxExec_CrowdsecDecisionTableAction() :array {

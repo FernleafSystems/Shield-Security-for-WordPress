@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Table;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\CrowdSec\ForCrowdsecDecisions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 
-class BuildCrowdsecTableData extends BaseBuildTableData {
+class BuildIpRulesTableData extends BaseBuildTableData {
 
 	/**
 	 * @var CrowdSecRecord
@@ -28,29 +28,25 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 	}
 
 	protected function getSearchPanesData() :array {
+		return [];
 		return ( new BuildSearchPanesData() )
 			->setMod( $this->getMod() )
 			->build();
 	}
 
 	/**
-	 * @param CrowdSecRecord[] $records
+	 * @param array[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		return array_values( array_filter( array_map(
-			function ( $csRecord ) {
-
-				$this->record = $csRecord;
-				$data = $csRecord->getRawData();
-				$geo = $this->getCountryIP( $this->record->ip );
-
-				$data[ 'ip' ] = $this->record->ip;
-				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $this->record->ip );
+			function ( $data ) {
+				$geo = $this->getCountryIP( $data[ 'ip' ] );
+				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $data[ 'ip' ] );
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
-				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $this->record->last_access_at );
-				$data[ 'auto_unblock_at' ] = $this->getColumnContent_UnblockedAt( $this->record->auto_unblock_at );
-				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->record->created_at );
+				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $data[ 'last_access_at' ] );
+				$data[ 'auto_unblock_at' ] = $this->getColumnContent_UnblockedAt( $data[ 'auto_unblock_at'] );
+				$data[ 'created_since' ] = $this->getColumnContent_Date( $data[ 'created_at'] );
 
 				return $data;
 			},
@@ -87,8 +83,8 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 		return $wheres;
 	}
 
-	protected function getRecordsLoader() :LoadCrowdsecDecisions {
-		return ( new LoadCrowdsecDecisions() )->setMod( $this->getMod() );
+	protected function getRecordsLoader() :Records\RecordsLoader {
+		return ( new Records\RecordsLoader() )->setMod( $this->getMod() );
 	}
 
 	protected function getSearchableColumns() :array {
@@ -118,7 +114,7 @@ class BuildCrowdsecTableData extends BaseBuildTableData {
 		$loader->offset = $offset;
 		$loader->order_by = $this->getOrderBy();
 		$loader->order_dir = $this->getOrderDirection();
-		return $loader->select();
+		return $loader->loadRecords();
 	}
 
 	private function getColumnContent_LastSeen( int $ts ) :string {
