@@ -149,6 +149,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "9",
+        "released_at": 1659619000,
+        "items":       [
+          {
+            "title": "Mitigate a fatal error caused by the latest wpForo plugin passing NULL to locale filters.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
