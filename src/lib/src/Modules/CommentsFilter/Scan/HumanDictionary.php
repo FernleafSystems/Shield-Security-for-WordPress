@@ -7,22 +7,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\HumanSpam\TestContent;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Human {
+/**
+ * Does the same as the WordPress blacklist filter, but more intelligently and with a nod towards much higher
+ * performance. It also uses defined options for which fields are checked for SPAM instead of just checking
+ * EVERYTHING!
+ */
+class HumanDictionary {
 
 	use ModConsumer;
 
 	/**
-	 * Does the same as the WordPress blacklist filter, but more intelligently and with a nod towards much higher
-	 * performance. It also uses defined options for which fields are checked for SPAM instead of just checking
-	 * EVERYTHING!
-	 * @param array $commData
 	 * @return \WP_Error|true
 	 */
-	public function scan( $commData ) {
+	public function scan( array $commData ) {
 		/** @var CommentsFilter\Options $opts */
 		$opts = $this->getOptions();
 
-		$mResult = true;
+		$result = true;
 
 		$items = array_intersect_key(
 			[
@@ -44,7 +45,7 @@ class Human {
 			$key = key( reset( $spam ) );
 			$word = key( $spam );
 
-			$mResult = new \WP_Error(
+			$result = new \WP_Error(
 				'human',
 				sprintf( __( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ), $word, $key ),
 				[
@@ -54,6 +55,6 @@ class Human {
 			);
 		}
 
-		return $mResult;
+		return $result;
 	}
 }
