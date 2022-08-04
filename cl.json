@@ -132,6 +132,16 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "10",
+        "released_at": 1659619000,
+        "items":       [
+          {
+            "title": "Shield no longer attempts to mitigate the issue of invalid 'from' email addresses on the WordPress site.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },
