@@ -5,9 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\CrowdSecRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\LoadCrowdsecDecisions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\CrowdSec\ForCrowdsecDecisions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 
@@ -28,7 +26,6 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	}
 
 	protected function getSearchPanesData() :array {
-		return [];
 		return ( new BuildSearchPanesData() )
 			->setMod( $this->getMod() )
 			->build();
@@ -45,8 +42,8 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
 				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $data[ 'last_access_at' ] );
-				$data[ 'auto_unblock_at' ] = $this->getColumnContent_UnblockedAt( $data[ 'auto_unblock_at'] );
-				$data[ 'created_since' ] = $this->getColumnContent_Date( $data[ 'created_at'] );
+				$data[ 'auto_unblock_at' ] = $this->getColumnContent_UnblockedAt( $data[ 'auto_unblock_at' ] );
+				$data[ 'created_since' ] = $this->getColumnContent_Date( $data[ 'created_at' ] );
 
 				return $data;
 			},
@@ -110,7 +107,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 		$loader = $this->getRecordsLoader();
 		$loader->wheres = $wheres;
-		$loader->limit = $limit;
+		$loader->limit = empty( $limit ) ? 10 : $limit;
 		$loader->offset = $offset;
 		$loader->order_by = $this->getOrderBy();
 		$loader->order_dir = $this->getOrderDirection();
