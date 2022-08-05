@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestL
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -225,6 +223,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function getIpInfo( string $ip ) {
+		$dbh = $this->getCon()->getModule_IPs()->getDbH_IPRules();
 
 		if ( !isset( $this->ipInfo[ $ip ] ) ) {
 
@@ -235,28 +234,25 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 				$status = __( 'No Record', 'wp-simple-firewall' );
 
-				$record = ( new LookupIpOnList() )
-					->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
+				$record = ( new LookupIP() )
+					->setMod( $this->getCon()->getModule_IPs() )
 					->setIP( $ip )
 					->lookup();
 
 				if ( empty( $record ) ) {
 					$status = __( 'No Record', 'wp-simple-firewall' );
 				}
-				elseif ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
+				elseif ( $record->blocked_at > 0 || $record->type === $dbh::T_MANUAL_BLACK ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
-				elseif ( $record->list === ModCon::LIST_AUTO_BLACK ) {
+				elseif ( $record->type === $dbh::T_AUTO_BLACK ) {
 					$status = sprintf( $badgeTemplate,
 						'warning',
-						sprintf( _n( '%s offense', '%s offenses', $record->transgressions, 'wp-simple-firewall' ), $record->transgressions )
+						sprintf( _n( '%s offense', '%s offenses', $record->offenses, 'wp-simple-firewall' ), $record->offenses )
 					);
 				}
-				elseif ( $record->list === ModCon::LIST_MANUAL_WHITE ) {
-					$status = sprintf( $badgeTemplate,
-						'success',
-						__( 'Bypass', 'wp-simple-firewall' )
-					);
+				elseif ( $record->type === $dbh::T_MANUAL_WHITE ) {
+					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
 				}
 				$this->ipInfo[ $ip ] = $status;
 			}

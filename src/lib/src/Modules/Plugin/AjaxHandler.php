@@ -57,7 +57,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$con->getModule_Data()->getDbH_ReqLogs(),
 				$con->getModule_Data()->getDbH_UserMeta(),
 				$con->getModule_IPs()->getDbH_BotSignal(),
-				$con->getModule_IPs()->getDbH_CrowdSecDecisions(),
+				$con->getModule_IPs()->getDbH_IPRules(),
 				$modHG->getDbH_Scans(),
 				$modHG->getDbH_ScanItems(),
 				$modHG->getDbH_ScanResults(),

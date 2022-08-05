@@ -16,8 +16,28 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->crowdsec();
+		$this->iputil();
 		die( 'finish' );
+	}
+
+	private function iputil() {
+		$address = \IPLib\Factory::parseAddressString( '90.250.11.231' );
+		var_dump( $address->getRangeType() );
+		$address = \IPLib\Factory::parseAddressString( '10.0.0.1' );
+		var_dump( $address->getRangeType() );
+		$address = \IPLib\Factory::parseAddressString( '127.0.0.1' );
+		var_dump( $address->getRangeType() );
+
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21' );
+		var_dump( $address->asSubnet()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/32' );
+		var_dump( $address->asSubnet()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/24' );
+		var_dump( $address->asPattern()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/27' );
+		var_dump( $address->asSubnet()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/10' );
+		var_dump( $address->asSubnet()->toString() );
 	}
 
 	private function crowdsec() {

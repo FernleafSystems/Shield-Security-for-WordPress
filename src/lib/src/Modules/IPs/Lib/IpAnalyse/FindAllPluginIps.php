@@ -18,21 +18,13 @@ class FindAllPluginIps {
 		$sel = $con->getModule_Data()
 				   ->getDbH_IPs()
 				   ->getQuerySelector();
-		$ips = $sel->getDistinctIps();
 
-		// IP Addresses
-		/** @var Databases\IPs\Select $sel */
-		$sel = $con->getModule_IPs()
-				   ->getDbHandler_IPs()
-				   ->getQuerySelector();
-		$ips = array_merge( $ips, $sel->getDistinctForColumn( 'ip' ) );
-
-		$ips = array_unique( $ips );
-		if ( !empty( $ipFilter ) ) {
-			$ips = array_filter( $ips, function ( $ip ) use ( $ipFilter ) {
-				return is_int( strpos( $ip, $ipFilter ) );
-			} );
-		}
+		$ips = array_filter(
+			array_unique( $sel->getDistinctIps() ),
+			function ( $ip ) use ( $ipFilter ) {
+				return empty( $ipFilter ) || strpos( $ip, $ipFilter ) !== false;
+			}
+		);
 		return IpListSort::Sort( $ips );
 	}
 }

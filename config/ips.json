@@ -626,7 +626,7 @@
     }
   ],
   "definitions":      {
-    "crowdsec":                    {
+    "crowdsec":                  {
       "scenarios": {
         "free": [
           "crowdsecurity/http-bf-wordpress_bf",
@@ -635,7 +635,7 @@
         ]
       }
     },
-    "rest_api":                    {
+    "rest_api":                  {
       "publish":    true,
       "pro_only":   true,
       "route_defs": {
@@ -649,7 +649,7 @@
         }
       }
     },
-    "allowable_ext_404s":          [
+    "allowable_ext_404s":        [
       "js",
       "css",
       "gif",
@@ -661,12 +661,12 @@
       "woff",
       "woff2"
     ],
-    "db_handler_classes":          {
-      "botsignal":          "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
-      "crowdsec_decisions": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecDecisions\\Ops\\Handler",
-      "crowdsec_signals":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
+    "db_handler_classes":        {
+      "botsignal":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
+      "ip_rules":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\IpRules\\Ops\\Handler",
+      "crowdsec_signals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
     },
-    "db_table_botsignal":          {
+    "db_table_botsignal":        {
       "autoexpire":     0,
       "slug":           "botsignal",
       "has_updated_at": true,
@@ -784,29 +784,57 @@
         }
       }
     },
-    "db_table_crowdsec_decisions": {
+    "db_table_ip_rules":         {
       "autoexpire":      0,
-      "slug":            "crowdsec_decisions",
+      "slug":            "ip_rules",
       "has_updated_at":  true,
       "col_older_than":  "updated_at",
       "cols_custom":     {
-        "ip_ref": {
+        "ip_ref":   {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_ips"
           }
+        },
+        "cidr":     {
+          "macro_type": "unsigned_int",
+          "length":     3,
+          "comment":    "CIDR"
+        },
+        "is_range": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Is IP Range"
+        },
+        "offenses": {
+          "macro_type": "unsigned_int",
+          "length":     3,
+          "comment":    "Offenses Count"
+        },
+        "type":     {
+          "macro_type": "char",
+          "length":     2,
+          "comment":    "List"
+        },
+        "label":    {
+          "macro_type": "varchar",
+          "length":     255,
+          "comment":    "IP Description"
         }
       },
       "cols_timestamps": {
-        "auto_unblock_at": {
-          "comment": "Visitor Requested Unblock"
+        "last_access_at": {
+          "comment": "Last Access"
         },
-        "last_access_at":  {
-          "comment": "Last Access At"
+        "blocked_at":     {
+          "comment": "IP Blocked"
+        },
+        "unblocked_at":   {
+          "comment": "Visitor Requested Unblock"
         }
       }
     },
-    "db_table_crowdsec_signals":   {
+    "db_table_crowdsec_signals": {
       "autoexpire":      0,
       "slug":            "crowdsec_signals",
       "has_updated_at":  false,
@@ -836,11 +864,11 @@
         }
       }
     },
-    "db_classes":                  {
+    "db_classes":                {
       "ip_lists": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
-    "ip_lists_table_name":         "ip_lists",
-    "db_table_ip_lists":           {
+    "ip_lists_table_name":       "ip_lists",
+    "db_table_ip_lists":         {
       "slug":            "ip_lists",
       "cols_custom":     {
         "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
@@ -855,13 +883,7 @@
         "blocked_at":     "IP Blocked"
       }
     },
-    "events":                      {
-      "custom_offense":              {
-        "audit_params": [
-          "message"
-        ],
-        "offense":      true
-      },
+    "events":                    {
       "conn_kill":                   {
         "level":           "warning",
         "audit_countable": true

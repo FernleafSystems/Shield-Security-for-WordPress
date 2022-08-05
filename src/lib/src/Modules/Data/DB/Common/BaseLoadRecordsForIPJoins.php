@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string[] $wheres
  * @property string   $order_by
  * @property string   $order_dir
+ * @property string[] $joined_table_select_fields
  */
 abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 
@@ -94,8 +95,14 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		return sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $col );
 	}
 
-	protected function getSelectFieldsForJoinedTable() :array {
+	protected function getDefaultSelectFieldsForJoinedTable() :array {
 		return [];
+	}
+
+	protected function getSelectFieldsForJoinedTable() :array {
+		$fields = is_array( $this->joined_table_select_fields ) ? $this->joined_table_select_fields : $this->getDefaultSelectFieldsForJoinedTable();
+		$fields[] = 'id'; // always include the ID
+		return array_unique( $fields );
 	}
 
 	protected function getSelectFieldsForIPTable() :array {

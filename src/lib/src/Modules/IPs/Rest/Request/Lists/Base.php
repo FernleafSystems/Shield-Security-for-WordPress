@@ -2,29 +2,36 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
 
+use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
 
 abstract class Base extends Process {
 
+	/**
+	 * @throws ApiException
+	 */
 	protected function getIpData( string $ip, string $list ) :array {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon $mod */
 		$mod = $this->getMod();
 
-		$retriever = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+		$retriever = ( new LookupIP() )
+			->setMod( $mod )
 			->setIP( $ip );
 		if ( $list === 'block' ) {
 			$retriever->setListTypeBlock();
 		}
-		else {
+		elseif ( $list === 'bypass' ) {
 			$retriever->setListTypeBypass();
 		}
+		else {
+			$retriever->setListTypeCrowdsec();
+		}
 
-		$IP = $retriever->lookup( true );
+		$IP = $retriever->lookup();
 
 		if ( empty( $IP ) ) {
-			throw new \Exception( 'IP address not found on list' );
+			throw new ApiException( 'IP address not found on list' );
 		}
 
 		return array_intersect_key(

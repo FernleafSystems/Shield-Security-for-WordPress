@@ -34,7 +34,7 @@ class AutoUnblockShield extends BaseAutoUnblock {
 		$unblocked = false;
 
 		if ( $this->canRunUnblock() ) {
-			( new IPs\Lib\Ops\DeleteIp() )
+			( new IPs\Lib\Ops\DeleteIP() )
 				->setMod( $mod )
 				->setIP( $req->ip() )
 				->fromBlacklist();
@@ -98,10 +98,10 @@ class AutoUnblockShield extends BaseAutoUnblock {
 				die();
 			}
 			elseif ( $linkParts[ 1 ] === 'go' ) {
-				( new IPs\Lib\Ops\DeleteIp() )
+				( new IPs\Lib\Ops\UnblockIP() )
 					->setMod( $mod )
 					->setIP( $req->ip() )
-					->fromBlacklist();
+					->run();
 				( new IPs\Lib\Bots\BotSignalsRecord() )
 					->setMod( $this->getMod() )
 					->setIP( $req->ip() )

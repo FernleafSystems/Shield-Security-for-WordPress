@@ -7,16 +7,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Base;
 class ForIpRules extends Base {
 
 	protected function getOrderColumnSlug() :string {
-		return 'date';
+		return 'last_access_at';
 	}
 
 	protected function getColumnsToDisplay() :array {
 		return [
 			'ip',
 			'ip_linked',
+			'status',
 			'type',
 			'last_seen',
-			'auto_unblock_at',
+			'is_blocked',
+			'unblocked_at',
 			'last_access_at',
 			'date',
 		];
@@ -24,7 +26,7 @@ class ForIpRules extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'ip'        => [
+			'ip'              => [
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
 				'className'   => 'ip',
@@ -35,7 +37,7 @@ class ForIpRules extends Base {
 					'show' => true,
 				],
 			],
-			'ip_linked'  => [
+			'ip_linked'       => [
 				'data'        => 'ip_linked',
 				'title'       => __( 'IP' ),
 				'className'   => 'ip_linked',
@@ -46,18 +48,29 @@ class ForIpRules extends Base {
 					'show' => false,
 				],
 			],
-			'type'        => [
+			'status'       => [
+				'data'        => 'status',
+				'title'       => __( 'Status' ),
+				'className'   => 'status',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false,
+				],
+			],
+			'type'            => [
 				'data'        => 'type',
 				'title'       => __( 'Type' ),
 				'className'   => 'type',
 				'orderable'   => false,
-				'searchable'  => true,
-				'visible'     => true,
+				'searchable'  => false,
+				'visible'     => false,
 				'searchPanes' => [
 					'show' => true,
 				],
 			],
-			'last_seen' => [
+			'last_seen'       => [
 				'data'        => [
 					'_'    => 'last_seen',
 					'sort' => 'last_access_at',
@@ -71,7 +84,7 @@ class ForIpRules extends Base {
 					'show' => false
 				],
 			],
-			'last_access_at' => [
+			'last_access_at'  => [
 				'data'        => 'last_access_at',
 				'title'       => __( 'Last Access At' ),
 				'className'   => 'date',
@@ -82,18 +95,29 @@ class ForIpRules extends Base {
 					'show' => false
 				],
 			],
-			'auto_unblock_at' => [
-				'data'        => 'auto_unblock_at',
-				'title'       => __( 'Unblocked At' ),
-				'className'   => 'date',
+			'is_blocked'      => [
+				'data'        => 'is_blocked',
+				'title'       => __( 'IP Block Status' ),
+				'className'   => 'is_blocked',
 				'orderable'   => false,
 				'searchable'  => false,
-				'visible'     => true,
+				'visible'     => false,
+				'searchPanes' => [
+					'show' => true
+				],
+			],
+			'unblocked_at' => [
+				'data'        => 'unblocked_at',
+				'title'       => __( 'Unblocked At' ),
+				'className'   => 'unblocked_at',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => false,
 				'searchPanes' => [
 					'show' => false
 				],
 			],
-			'date'      => [
+			'date'            => [
 				'data'        => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',

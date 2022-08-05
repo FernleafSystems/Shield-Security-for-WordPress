@@ -12,8 +12,7 @@ class GetList extends Base {
 		$mod = $this->getMod();
 		$req = $this->getRequestVO();
 
-		$retriever = ( new RetrieveIpsForLists() )
-			->setDbHandler( $mod->getDbHandler_IPs() );
+		$retriever = ( new RetrieveIpsForLists() )->setMod( $this->getMod() );
 		if ( $req->list === 'block' ) {
 			$list = $retriever->black();
 		}

@@ -27,15 +27,18 @@
 		};
 
 		base.rowSelectionChanged = function () {
-			if ( this.$table.rows( { selected: true } ).count() > 0 ) {
-				this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).enable();
-			}
-			else {
-				this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).disable();
-			}
 		};
 
 		base.bindEvents = function () {
+
+			base.$el.on(
+				'click' + '.' + base._name,
+				'button.action.ignore',
+				function ( evt ) {
+					evt.preventDefault();
+					base.bulkAction.call( base, 'ignore', [ $( this ).data( 'rid' ) ] );
+				}
+			);
 
 			base.$table.on( 'draw',
 				function ( e, dt, type, row_index ) {
@@ -129,7 +132,7 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'PBrptip',
+						dom: 'BPrptip',
 						searchPanes: {
 							cascadePanes: false,
 							viewTotal: false,
@@ -145,6 +148,14 @@
 								action: function ( e, dt, node, config ) {
 									base.tableReload.call( base );
 								}
+							},
+							{
+								text: 'Add New IP',
+								name: 'ip-add',
+								className: 'action ipadd',
+								action: function ( e, dt, node, config ) {
+									base.ipAdd.call( base );
+								}
 							}
 						],
 						language: {
@@ -158,6 +169,11 @@
 		base.tableReload = function ( full = false ) {
 			this.$table.ajax.reload( null, full );
 			this.rowSelectionChanged();
+		};
+
+		base.ipAdd = function () {
+			iCWP_WPSF_Modals.renderModalIpAdd();
+			base.tableReload();
 		};
 
 		// Run initializer

@@ -20,6 +20,7 @@ abstract class ListsBase extends Base {
 					'enum'        => [
 						'bypass',
 						'block',
+						'crowdsec',
 					],
 					'required'    => true,
 				];

@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs as IPsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 
@@ -34,25 +35,30 @@ class RecentStats {
 
 	public function getRecentlyBlockedIPs() :array {
 		if ( !isset( self::$recentlyBlocked ) ) {
-			/** @var IPsDB\Select $sel */
-			$sel = $this->getCon()->getModule_IPs()->getDbHandler_IPs()->getQuerySelector();
-			self::$recentlyBlocked = $sel->filterByBlocked( true )
-										 ->setOrderBy( 'blocked_at' )
-										 ->setLimit( 10 )
-										 ->query();
+			$loader = ( new LoadIpRules() )->setMod( $this->getCon()->getModule_IPs() );
+			$loader->order_by = 'blocked_at';
+			$loader->order_dir = 'DESC';
+			$loader->limit = 10;
+			$loader->wheres = [
+				"`ir`.`blocked_at`>'0'",
+				sprintf( "`ir`.`type`='%s'", Handler::T_AUTO_BLACK ),
+			];
+			self::$recentlyBlocked = $loader->select();
 		}
 		return is_array( self::$recentlyBlocked ) ? self::$recentlyBlocked : [];
 	}
 
 	public function getRecentlyOffendedIPs() :array {
 		if ( !isset( self::$recentlyOffended ) ) {
-			/** @var IPsDB\Select $sel */
-			$sel = $this->getCon()->getModule_IPs()->getDbHandler_IPs()->getQuerySelector();
-			self::$recentlyOffended = $sel->filterByBlocked( false )
-										  ->filterByList( ModCon::LIST_AUTO_BLACK )
-										  ->setOrderBy( 'last_access_at' )
-										  ->setLimit( 10 )
-										  ->query();
+			$loader = ( new LoadIpRules() )->setMod( $this->getCon()->getModule_IPs() );
+			$loader->order_by = 'last_access_at';
+			$loader->order_dir = 'DESC';
+			$loader->limit = 10;
+			$loader->wheres = [
+				"`ir`.`blocked_at`='0'",
+				sprintf( "`ir`.`type`='%s'", Handler::T_AUTO_BLACK ),
+			];
+			self::$recentlyOffended = $loader->select();
 		}
 		return is_array( self::$recentlyOffended ) ? self::$recentlyOffended : [];
 	}

@@ -8,10 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
-	ModCon
-};
+	Lib\Ops\LookupIP,
+	ModCon};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -55,6 +54,7 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$dbh = $mod->getDbH_IPRules();
 		$thisReq = $this->getCon()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
@@ -67,16 +67,16 @@ class BotSignalsRecord {
 			$r->ip_ref = $this->getIPRecord()->id;
 		}
 
-		$ipOnList = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+		$ipOnList = ( new LookupIP() )
+			->setMod( $mod )
 			->setIP( $this->getIP() )
 			->lookupIp();
 
 		if ( !empty( $ipOnList ) ) {
-			if ( empty( $r->bypass_at ) && $ipOnList->list === $mod::LIST_MANUAL_WHITE ) {
+			if ( empty( $r->bypass_at ) && $ipOnList->type === $dbh::T_MANUAL_WHITE ) {
 				$r->bypass_at = $ipOnList->created_at;
 			}
-			if ( empty( $r->offense_at ) && $ipOnList->list === $mod::LIST_AUTO_BLACK ) {
+			if ( empty( $r->offense_at ) && $ipOnList->type === $dbh::T_AUTO_BLACK ) {
 				$r->offense_at = $ipOnList->last_access_at;
 			}
 			$r->blocked_at = $ipOnList->blocked_at;
@@ -91,6 +91,7 @@ class BotSignalsRecord {
 		if ( empty( $r->auth_at ) ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
 			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
 												->setOrderBy( 'last_login_at' )
@@ -172,6 +173,6 @@ class BotSignalsRecord {
 	private function getIPRecord() :IPs\Ops\Record {
 		return ( new IPs\IPRecords() )
 			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP(), true );
+			->loadIP( $this->getIP() );
 	}
 }

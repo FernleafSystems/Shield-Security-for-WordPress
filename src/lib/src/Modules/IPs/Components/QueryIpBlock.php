@@ -1,10 +1,11 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
 class QueryIpBlock {
@@ -17,28 +18,30 @@ class QueryIpBlock {
 
 		$IP = $this->getBlockedIpRecord();
 		if ( !empty( $IP ) ) {
-
 			$isBlocked = true;
 
 			/** @var IPs\ModCon $mod */
 			$mod = $this->getMod();
-			/** @var Databases\IPs\Update $upd */
-			$upd = $mod->getDbHandler_IPs()->getQueryUpdater();
+			/** @var IPs\DB\IpRules\Ops\Update $upd */
+			$upd = $mod->getDbH_IPRules()->getQueryUpdater();
 			$upd->updateLastAccessAt( $IP );
 		}
 		return $isBlocked;
 	}
 
 	/**
-	 * @return Databases\IPs\EntryVO|null
+	 * @return IpRuleRecord|null
 	 */
 	private function getBlockedIpRecord() {
-		$blockIP = null;
-
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		$IP = ( new IPs\Lib\Ops\LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+		$req = Services::Request();
+		$dbh = $mod->getDbH_IPRules();
+
+		$blockIP = null;
+
+		$IP = ( new IPs\Lib\Ops\LookupIP() )
+			->setMod( $mod )
 			->setIP( $this->getIP() )
 			->setListTypeBlock()
 			->setIsIpBlocked( true )
@@ -48,16 +51,16 @@ class QueryIpBlock {
 			/** @var IPs\Options $opts */
 			$opts = $this->getOptions();
 
-			// Clean out old IPs as we go so they don't show up in future queries.
-			if ( $IP->list == $mod::LIST_AUTO_BLACK
-				 && $IP->last_access_at < Services::Request()->ts() - $opts->getAutoExpireTime() ) {
+			// Clean out expired IPs as we go, so they don't show up in future queries.
+			if ( $IP->type == $dbh::T_AUTO_BLACK
+				 && $IP->last_access_at < $req->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp ) {
 
-				( new IPs\Lib\Ops\DeleteIp() )
+				( new IPs\Lib\Ops\DeleteIP() )
 					->setMod( $mod )
-					->setIP( $this->getCon()->this_req->ip )
+					->setIP( $IP->ip )
 					->fromBlacklist();
 			}
-			else {
+			elseif ( $IP->unblocked_at < $IP->blocked_at ) {
 				$blockIP = $IP;
 			}
 		}

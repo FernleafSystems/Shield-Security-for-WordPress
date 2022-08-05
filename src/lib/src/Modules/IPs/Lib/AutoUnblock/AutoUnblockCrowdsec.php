@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockCrowdsec extends BaseAutoUnblock {
@@ -25,17 +26,17 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 		$unblocked = false;
 
 		if ( $this->canRunUnblock() ) {
-			$csRecords = ( new IPs\DB\CrowdSecDecisions\LoadCrowdsecDecisions() )
+			$record = ( new LookupIP() )
 				->setMod( $mod )
-				->setIP( $req->ip() )
-				->select();
-			if ( !empty( $csRecords ) ) {
-				$mod->getDbH_CrowdSecDecisions()
-					->getQueryUpdater()
-					->updateById( $csRecords[ 0 ]->id, [
-						'auto_unblock_at' => $req->ts()
-					] );
-				$unblocked = true;
+				->setIP( $this->getCon()->this_req->ip )
+				->setListTypeCrowdsec()
+				->lookup();
+			if ( !empty( $record ) ) {
+				$unblocked = $mod->getDbH_IPRules()
+								 ->getQueryUpdater()
+								 ->updateById( $record->id, [
+									 'unblocked_at' => $req->ts()
+								 ] );
 			}
 		}
 

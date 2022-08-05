@@ -65,17 +65,27 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'ip_rules' );
 	}
 
-	public function getDbH_CrowdSecDecisions() :DB\CrowdSecDecisions\Ops\Handler {
-		$this->getCon()->getModule_Data()->getDbH_IPs();
-		return $this->getDbHandler()->loadDbH( 'crowdsec_decisions' );
-	}
-
 	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
 	}
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
+	}
+
+	public function onWpInit() {
+		if ( $this->getDbHandler_IPs()
+				  ->getQuerySelector()
+				  ->count() > 0 ) {
+			( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )
+				->setMod( $this )
+				->dispatch();
+		}
+
+		parent::onWpInit();
+		( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )
+			->setMod( $this )
+			->dispatch();
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -97,16 +107,14 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
-			   && $this->getDbHandler_IPs()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'db_ip':
 				( new DbTableExport() )
-					->setDbHandler( $this->getDbHandler_IPs() )
+					->setDbHandler( $this->getDbH_IPRules() )
 					->toCSV();
 				break;
 		}
@@ -177,6 +185,11 @@ class ModCon extends BaseShield\ModCon {
 							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' ),
 						]
 					],
+					'modal_ip_add' => [
+						'ajax' => [
+							'render_ip_add' => $this->getAjaxActionData( 'render_ip_add' ),
+						]
+					],
 					'ip_analysis'       => [
 						'ajax' => [
 							'ip_analyse_build'  => $this->getAjaxActionData( 'ip_analyse_build' ),
@@ -208,14 +221,7 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	/**
-	 * @deprecated 12.1
-	 */
 	protected function cleanupDatabases() {
-		$dbhIPs = $this->getDbHandler_IPs();
-		if ( $dbhIPs->isReady() ) {
-			$dbhIPs->autoCleanDb();
-		}
 		$this->getDbH_BotSignal()
 			 ->getQueryDeleter()
 			 ->addWhereOlderThan(

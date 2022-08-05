@@ -2,39 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
-class LoadIpRules {
+class LoadIpRules extends BaseLoadRecordsForIPJoins {
 
-	use ModConsumer;
-
-	public function loadRecord( string $ip, ) :IpRuleRecord {
-		$raw = $this->selectRaw();
-		if ( empty( $raw ) ) {
-			throw new \Exception( 'No record' );
+	/**
+	 * @return IpRuleRecord[]
+	 */
+	public function select() :array {
+		$results = [];
+		foreach ( $this->selectRaw() as $raw ) {
+			$results[ $raw[ 'id' ] ] = new IpRuleRecord( $raw );
 		}
-		return ( new IpRuleRecord() )->applyFromArray( $raw );
+		return $results;
 	}
 
-	private function selectRaw() :array {
+	protected function getJoinedTableAbbreviation() :string {
+		return 'ir';
+	}
+
+	protected function getDefaultSelectFieldsForJoinedTable() :array {
+		return $this->getTableSchemaForJoinedTable()->getColumnNames();
+	}
+
+	protected function getTableSchemaForJoinedTable() :TableSchema {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$raw = Services::WpDb()->selectRow(
-			sprintf( "SELECT `ips`.`ip` as `ip`, `ir`.*
-						FROM `%s` as `ir`
-						INNER JOIN `%s` as `ips`
-							ON `ips`.id = `ir`.ip_ref 
-							AND `ips`.`ip`=INET6_ATON('%s')
-						ORDER BY `ir`.updated_at DESC
-						LIMIT 1;",
-				$mod->getDbH_IPRules()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				$this->getIP()
-			)
-		);
-		return is_array( $raw ) ? $raw : [];
+		return $mod->getDbH_IPRules()->getTableSchema();
 	}
 }
