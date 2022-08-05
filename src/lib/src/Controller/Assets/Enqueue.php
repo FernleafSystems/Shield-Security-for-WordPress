@@ -65,6 +65,7 @@ class Enqueue {
 				'cerber_css', // Really? on every WP admin page?
 				'bootstrap',
 				'wp-notes',
+				'wpforo',
 			];
 		}
 		else {

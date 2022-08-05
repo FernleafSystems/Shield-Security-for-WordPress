@@ -149,26 +149,12 @@ class Processor extends BaseShield\Processor {
 	public function setMailFrom( $from ) {
 		$DP = Services::Data();
 
-		$proposed = trim( (string)apply_filters(
-			'shield/email_from',
-			apply_filters( 'icwp_shield_from_email', $from )
-		) );
+		$proposed = trim( (string)apply_filters( 'shield/email_from', apply_filters( 'icwp_shield_from_email', $from ) ) );
 
 		if ( $DP->validEmail( $proposed ) ) {
 			$from = $proposed;
 		}
 
-		// We help out by trying to correct any funky "from" addresses
-		// So, at the very least, we don't fail on this for our emails.
-		if ( !$DP->validEmail( $from ) ) {
-			$host = @parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_HOST );
-			if ( !empty( $host ) ) {
-				$proposed = 'wordpress@'.$host;
-				if ( $DP->validEmail( $proposed ) ) {
-					$from = $proposed;
-				}
-			}
-		}
 		return $from;
 	}
 
