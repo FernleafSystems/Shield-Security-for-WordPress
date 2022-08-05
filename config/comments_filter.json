@@ -17,7 +17,7 @@
     "run_if_wpcli":          false,
     "order":                 50
   },
-  "reqs":             {
+  "reqs":          {
     "dbs": [
       "botsignal"
     ]
@@ -237,22 +237,24 @@
   "definitions":   {
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
-      "comment_spam_block":   {
+      "comment_spam_block":        {
         "level":   "notice",
         "stat":    false,
         "offense": true
       },
-      "spam_block_antibot":   {
+      "spam_block_antibot":        {
       },
-      "spam_block_bot":       {
+      "spam_block_bot":            {
       },
-      "spam_block_recaptcha": {
+      "spam_block_recaptcha":      {
       },
-      "spam_block_human":     {
+      "spam_block_human":          {
         "audit_params": [
           "word",
           "key"
         ]
+      },
+      "spam_block_humanrepeated": {
       }
     }
   }
