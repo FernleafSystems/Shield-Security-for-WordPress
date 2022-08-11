@@ -185,9 +185,9 @@ class ModCon extends BaseShield\ModCon {
 							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' ),
 						]
 					],
-					'modal_ip_add' => [
+					'modal_ip_rule_add'      => [
 						'ajax' => [
-							'render_ip_add' => $this->getAjaxActionData( 'render_ip_add' ),
+							'render_ip_rule_add' => $this->getAjaxActionData( 'render_ip_rule_add' ),
 						]
 					],
 					'ip_analysis'       => [
@@ -195,6 +195,11 @@ class ModCon extends BaseShield\ModCon {
 							'ip_analyse_build'  => $this->getAjaxActionData( 'ip_analyse_build' ),
 							'ip_analyse_action' => $this->getAjaxActionData( 'ip_analyse_action' ),
 							'ip_review_select'  => $this->getAjaxActionData( 'ip_review_select' ),
+						]
+					],
+					'ip_rule_add_form'  => [
+						'ajax' => [
+							'ip_rule_add_form' => $this->getAjaxActionData( 'ip_rule_add_form' ),
 						]
 					],
 				],

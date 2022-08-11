@@ -4,10 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use IPLib\Factory;
+use IPLib\Range\Type;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
@@ -25,7 +28,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'ip_analyse_action'   => [ $this, 'ajaxExec_IpAnalyseAction' ],
 				'ip_review_select'    => [ $this, 'ajaxExec_IpReviewSelect' ],
 				'render_ip_analysis'  => [ $this, 'ajaxExec_RenderIpAnalysis' ],
-				'render_ip_add'       => [ $this, 'ajaxExec_RenderIpAdd' ],
+				'render_ip_rule_add'  => [ $this, 'ajaxExec_RenderIpRuleAdd' ],
+				'ip_rule_add_form'    => [ $this, 'ajaxExec_ProcessIpRuleAdd' ],
 			] );
 		}
 		return $map;
@@ -182,15 +186,82 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	public function ajaxExec_RenderIpAdd() :array {
+	public function ajaxExec_RenderIpRuleAdd() :array {
 		/** @var UI $UI */
 		$UI = $this->getMod()->getUIHandler();
 		return [
-			'success'     => true,
-			'title'       => __( "Add New IP Rule", 'wp-simple-firewall' ),
-			'body'        => $UI->renderForm_IpAdd(),
-			'modal_class' => ' ',
+			'success'      => true,
+			'title'        => __( "Add New IP Rule", 'wp-simple-firewall' ),
+			'body'         => $UI->renderForm_IpAdd(),
+			'modal_class'  => ' ',
 			'modal_static' => true,
+		];
+	}
+
+	public function ajaxExec_ProcessIpRuleAdd() :array {
+		$con = $this->getCon();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbH_IPRules();
+		$form = Services::Request()->post( 'form_data' );
+		try {
+			if ( empty( $form ) || !is_array( $form ) ) {
+				throw new \Exception( 'No data. Please retry' );
+			}
+			$label = trim( $form[ 'label' ] ?? '' );
+			if ( !empty( $label ) && preg_match( '#[^a-z\d\s_-]#i', $label ) ) {
+				throw new \Exception( 'The label must be alphanumeric with no special characters' );
+			}
+			if ( empty( $form[ 'type' ] ) ) {
+				throw new \Exception( 'Please select one of the IP Rule Types - Block or Bypass' );
+			}
+			if ( ( $form[ 'confirm' ] ?? '' ) !== 'Y' ) {
+				throw new \Exception( 'Please check the box to confirm this action' );
+			}
+			if ( empty( $form[ 'ip' ] ) ) {
+				throw new \Exception( 'Please provide an IP Address' );
+			}
+
+			$range = Factory::parseRangeString( trim( $form[ 'ip' ] ) );
+
+			if ( $form[ 'type' ] === $dbh::T_MANUAL_BLACK
+				 && !empty( $range )
+				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
+				throw new \Exception( "Manually blocking your own IP address isn't supported." );
+			}
+
+			$ipAdder = ( new Lib\Ops\AddIP() )
+				->setMod( $mod )
+				->setIP( $form[ 'ip' ] );
+			switch ( $form[ 'type' ] ) {
+				case $dbh::T_MANUAL_WHITE:
+					$IP = $ipAdder->toManualWhitelist( $label );
+					break;
+
+				case $dbh::T_MANUAL_BLACK:
+					$IP = $ipAdder->toManualBlacklist( $label );
+					break;
+
+				default:
+					throw new \Exception( 'Please select one of the IP Rule Types - Block or Bypass' );
+			}
+
+			if ( empty( $IP ) ) {
+				throw new \Exception( 'There appears to have been a problem adding the IP rule' );
+			}
+
+			$msg = __( 'IP address added successfully', 'wp-simple-firewall' );
+			$success = true;
+		}
+		catch ( \Exception $e ) {
+			$success = false;
+			$msg = $e->getMessage();
+		}
+
+		return [
+			'success'     => $success,
+			'page_reload' => $success,
+			'message'     => $msg,
 		];
 	}
 

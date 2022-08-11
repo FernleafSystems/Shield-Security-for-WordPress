@@ -49,7 +49,7 @@ let iCWP_WPSF_Modals = new function () {
 		jQuery.ajax( {
 			type: "POST",
 			url: ajaxurl,
-			data: workingData.modal_ip_add.ajax.render_ip_add,
+			data: workingData.modal_ip_rule_add.ajax.render_ip_rule_add,
 			dataType: "json",
 			success: function ( raw ) {
 				iCWP_WPSF_Modals.display( raw.data );
@@ -464,10 +464,13 @@ jQueryDoc.ready( function () {
 	iCWP_WPSF_Modals.initialise();
 	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
 		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
-		iCWP_WPSF_Modals.setData( 'modal_ip_add', icwp_wpsf_vars_ips.components.modal_ip_add );
+		iCWP_WPSF_Modals.setData( 'modal_ip_rule_add', icwp_wpsf_vars_ips.components.modal_ip_rule_add );
 
 		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
 			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
+		}
+		if ( typeof jQueryDoc.icwpWpsfIpRuleAddForm !== 'undefined' ) {
+			jQueryDoc.icwpWpsfIpRuleAddForm( icwp_wpsf_vars_ips.components.ip_rule_add_form.ajax );
 		}
 	}
 

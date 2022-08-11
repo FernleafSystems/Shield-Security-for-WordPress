@@ -15,7 +15,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 	};
 
-	var clearAnalyseIpParam = function () {
+	let clearAnalyseIpParam = function () {
 		window.history.replaceState(
 			{},
 			document.title,
@@ -23,7 +23,7 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 		);
 	};
 
-	var sendReq = function ( params ) {
+	let sendReq = function ( params ) {
 		iCWP_WPSF_BodyOverlay.show();
 
 		jQuery( '#IpReviewContent' ).html( 'loading IP info ...' );
@@ -101,6 +101,55 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
 	let opts = jQuery.extend( {}, options );
 	let ipReviewSelector = '#IpReviewSelect';
+	initialise();
+
+	return this;
+};
+
+jQuery.fn.icwpWpsfIpRuleAddForm = function ( options ) {
+
+	let initialise = function () {
+		document.addEventListener( 'submit', function ( event ) {
+			event.preventDefault();
+			if ( typeof event.target.id !== 'undefined' && event.target.id === ipRuleAddFormSelector ) {
+
+				let reqData = jQuery.extend(
+					opts[ 'ip_rule_add_form' ],
+					{
+						'form_data': Object.fromEntries( new FormData( event.target ) )
+					}
+				);
+				jQuery.post( ajaxurl, reqData,
+					function ( response ) {
+
+						let msg = 'Communications error with site.';
+						if ( response.success ) {
+							msg = response.data.message;
+							alert( msg );
+							if ( response.data.page_reload ) {
+								location.reload();
+							}
+						}
+						else {
+							if ( response.data.message !== undefined ) {
+								msg = response.data.message;
+							}
+							alert( msg );
+						}
+
+					}
+				).always( function () {
+						iCWP_WPSF_BodyOverlay.hide();
+					}
+				);
+			}
+
+			return false;
+		} );
+	};
+
+	let opts = jQuery.extend( {}, options );
+	let ipRuleAddFormSelector = 'IpRuleAddForm';
 	initialise();
 
 	return this;

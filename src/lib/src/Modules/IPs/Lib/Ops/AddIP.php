@@ -120,8 +120,8 @@ class AddIP {
 		if ( in_array( $listType, [ $dbh::T_AUTO_BLACK, $dbh::T_MANUAL_BLACK, $dbh::T_CROWDSEC ] ) ) {
 			foreach ( Services::IP()->getServerPublicIPs() as $serverPublicIP ) {
 				$serverAddress = \IPLib\Factory::parseAddressString( $serverPublicIP );
-				if ( $parsedRange->contains( $serverAddress ) ) {
-					throw new \Exception( "Forbidden to blacklist server's public IP." );
+				if ( !empty( $serverAddress ) && $parsedRange->contains( $serverAddress ) ) {
+					throw new \Exception( "Blocking the webserver's public IP address is currently prohibited." );
 				}
 			}
 		}
