@@ -604,20 +604,6 @@
       "description":   "Identify a request as a bot if the user agent is not provided."
     },
     {
-      "key":          "autounblock_ips",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
-    },
-    {
-      "key":          "autounblock_emailids",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
-    },
-    {
       "key":          "crowdsec_cfg",
       "section":      "section_non_ui",
       "transferable": false,
@@ -831,6 +817,9 @@
         },
         "unblocked_at":   {
           "comment": "Visitor Requested Unblock"
+        },
+        "last_unblock_attempt_at":   {
+          "comment": "Last Time An Auto-Unblock Attempt Was Made"
         }
       }
     },

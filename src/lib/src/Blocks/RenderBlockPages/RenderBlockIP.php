@@ -44,18 +44,13 @@ class RenderBlockIP extends BaseBlockPage {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		$ip = Services::Request()->ip();
-		$canAutoRecover = $opts->isEnabledAutoVisitorRecover() && $opts->canIpRequestAutoUnblock( $ip );
-
-		$content = '';
-
-		if ( $canAutoRecover ) {
+		if ( $opts->isEnabledAutoVisitorRecover() ) {
 			$content = $mod->renderTemplate( '/pages/block/autorecover.twig', [
 				'hrefs'   => [
 					'home' => Services::WpGeneral()->getHomeUrl( '/' )
 				],
 				'vars'    => [
-					'nonce' => $mod->getNonceActionData( 'uau-'.$ip ),
+					'nonce' => $mod->getNonceActionData( 'uau-'.$this->getCon()->this_req->ip ),
 				],
 				'strings' => [
 					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
@@ -63,6 +58,9 @@ class RenderBlockIP extends BaseBlockPage {
 					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
 				],
 			] );
+		}
+		else {
+			$content = '';
 		}
 
 		return $content;
@@ -103,40 +101,42 @@ class RenderBlockIP extends BaseBlockPage {
 		$content = '';
 
 		$user = Services::WpUsers()->getCurrentWpUser();
-		if ( $user instanceof \WP_User &&
-			 $opts->isEnabledMagicEmailLinkRecover()
-			 && $opts->canRequestAutoUnblockEmailLink( $user )
-		) {
+		if ( $user instanceof \WP_User && $opts->isEnabledMagicEmailLinkRecover()
+			 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $user ) ) {
 
-			if ( apply_filters( $con->prefix( 'can_user_magic_link' ), true ) ) {
-				$content = $mod->renderTemplate( '/pages/block/magic_link.twig', [
-					'flags'   => [
-					],
-					'hrefs'   => [
-						'unblock' => add_query_arg(
-							array_merge(
-								$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
-								[
-									'ip' => $con->this_req->ip
-								]
-							),
-							Services::WpGeneral()->getHomeUrl()
-						)
-					],
-					'vars'    => [
-						'email' => Obfuscate::Email( $user->user_email )
-					],
-					'strings' => [
-						'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
-						'this_will_send' => __( 'Clicking the button will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
-						'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - many are not.', 'wp-simple-firewall' ),
-						'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
-						'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the Activity Log to determine the cause.", 'wp-simple-firewall' ),
-						'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
-						'click_to_send'  => __( 'Send Auto-Unblock Link To My Email', 'wp-simple-firewall' )
-					],
-				] );
-			}
+			$content = $mod->renderTemplate( '/pages/block/magic_link.twig', [
+				'flags'   => [],
+				'hrefs'   => [
+					'ajaxurl' => admin_url( 'admin-ajax.php' ),
+					'unblock' => add_query_arg(
+						array_merge(
+							$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
+							[
+								'ip' => $con->this_req->ip
+							]
+						),
+						Services::WpGeneral()->getHomeUrl()
+					)
+				],
+				'vars'    => [
+					'email'   => Obfuscate::Email( $user->user_email ),
+					'unblock' => json_encode( (object)array_merge(
+						$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
+						[
+							'ip' => $con->this_req->ip
+						]
+					) ),
+				],
+				'strings' => [
+					'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
+					'this_will_send' => __( 'Clicking the button will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
+					'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - many are not.', 'wp-simple-firewall' ),
+					'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
+					'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the Activity Log to determine the cause.", 'wp-simple-firewall' ),
+					'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
+					'click_to_send'  => __( 'Send Auto-Unblock Link To My Email', 'wp-simple-firewall' )
+				],
+			] );
 		}
 
 		return $content;

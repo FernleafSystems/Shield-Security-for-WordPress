@@ -31,7 +31,7 @@ class ProcessOffense {
 			$offenseTracker = $mod->loadOffenseTracker();
 			$newCount = $IP->offenses + $offenseTracker->getOffenseCount();
 			$toBlock = $offenseTracker->isBlocked() ||
-					   ( $IP->blocked_at == 0 && ( $newCount >= $opts->getOffenseLimit() ) );
+					   ( $newCount >= $opts->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
 
 			if ( $toBlock ) {
 				$newCount = (int)max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
@@ -72,6 +72,5 @@ class ProcessOffense {
 		}
 		catch ( \Exception $e ) {
 		}
-
 	}
 }

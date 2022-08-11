@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
  * @property int    $last_access_at
  * @property int    $blocked_at
  * @property int    $unblocked_at
+ * @property int    $last_unblock_attempt_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

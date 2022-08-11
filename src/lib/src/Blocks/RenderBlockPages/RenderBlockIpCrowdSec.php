@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class RenderBlockIpCrowdSec extends RenderBlockIP {
 
@@ -26,17 +25,13 @@ class RenderBlockIpCrowdSec extends RenderBlockIP {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		$content = '';
-
-		$ip = Services::Request()->ip();
-
-		if ( $opts->isEnabledCrowdSecAutoVisitorUnblock() && $opts->canIpRequestAutoUnblock( $ip ) ) {
+		if ( $opts->isEnabledCrowdSecAutoVisitorUnblock() ) {
 			$content = $mod->renderTemplate( '/pages/block/autorecover_crowdsec.twig', [
 				'hrefs'   => [
 					'home' => Services::WpGeneral()->getHomeUrl( '/' )
 				],
 				'vars'    => [
-					'nonce' => $mod->getNonceActionData( 'uau-cs-'.$ip ),
+					'nonce' => $mod->getNonceActionData( 'uau-cs-'.$this->getCon()->this_req->ip ),
 				],
 				'strings' => [
 					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
@@ -44,6 +39,9 @@ class RenderBlockIpCrowdSec extends RenderBlockIP {
 					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
 				],
 			] );
+		}
+		else {
+			$content = '';
 		}
 
 		return $content;
