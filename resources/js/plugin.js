@@ -469,8 +469,8 @@ jQueryDoc.ready( function () {
 		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
 			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
 		}
-		if ( typeof jQueryDoc.icwpWpsfIpRuleAddForm !== 'undefined' ) {
-			jQueryDoc.icwpWpsfIpRuleAddForm( icwp_wpsf_vars_ips.components.ip_rule_add_form.ajax );
+		if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
+			jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
 		}
 	}
 

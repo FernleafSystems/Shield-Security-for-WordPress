@@ -166,9 +166,10 @@ class AddIP {
 		$tmp = $dbh->getRecord();
 		$tmp->applyFromArray( $data );
 		$tmp->ip_ref = $ipRecord->id;
+		$tmp->cidr = explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
+		$tmp->is_range = $parsedRange->getSize() > 1;
 		$tmp->type = $listType;
 		$tmp->label = preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
-		$tmp->cidr = explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
 
 		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
 			/** @var IpRulesDB\Record $ipRuleRecord */

@@ -185,7 +185,7 @@ class ModCon extends BaseShield\ModCon {
 							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' ),
 						]
 					],
-					'modal_ip_rule_add'      => [
+					'modal_ip_rule_add' => [
 						'ajax' => [
 							'render_ip_rule_add' => $this->getAjaxActionData( 'render_ip_rule_add' ),
 						]
@@ -197,10 +197,14 @@ class ModCon extends BaseShield\ModCon {
 							'ip_review_select'  => $this->getAjaxActionData( 'ip_review_select' ),
 						]
 					],
-					'ip_rule_add_form'  => [
-						'ajax' => [
+					'ip_rules'          => [
+						'ajax'    => [
 							'ip_rule_add_form' => $this->getAjaxActionData( 'ip_rule_add_form' ),
-						]
+							'ip_rule_delete'   => $this->getAjaxActionData( 'ip_rule_delete' ),
+						],
+						'strings' => [
+							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
+						],
 					],
 				],
 			]

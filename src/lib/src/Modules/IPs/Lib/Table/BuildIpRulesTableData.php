@@ -38,7 +38,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 			function ( $record ) {
 				$data = $record->getRawData();
 				$geo = $this->getCountryIP( $record->ip );
-				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $record->ip );
+				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( $record->ipAsSubnetRange(), $record->id );
 				$data[ 'is_blocked' ] = $record->ip > 0;
 				$data[ 'status' ] = $this->getColumnContent_Status( $record );
 				$data[ 'type' ] = Handler::GetTypeName( $data[ 'type' ] );
@@ -173,7 +173,6 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 						$remaining,
 						'wp-simple-firewall'
 					), $remaining );
-
 			}
 
 			$content[] = sprintf( '%s: <span class="badge text-bg-%s">%s</span>', __( 'IP Block Status', 'wp-simple-firewall' ), $color, $blockedStatus );

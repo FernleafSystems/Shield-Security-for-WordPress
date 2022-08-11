@@ -106,17 +106,53 @@ jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 	return this;
 };
 
-jQuery.fn.icwpWpsfIpRuleAddForm = function ( options ) {
+jQuery.fn.icwpWpsfIpRules = function ( options ) {
 
 	let initialise = function () {
-		document.addEventListener( 'submit', function ( event ) {
-			event.preventDefault();
-			if ( typeof event.target.id !== 'undefined' && event.target.id === ipRuleAddFormSelector ) {
+
+		jQuery( document ).on( 'click', 'td.ip_linked a.ip_delete', function ( evt ) {
+
+			if ( confirm( opts[ 'strings' ][ 'are_you_sure' ] ) ) {
+				let reqData = jQuery.extend(
+					opts[ 'ajax' ][ 'ip_rule_delete' ],
+					{
+						'rid': jQuery( evt.currentTarget ).data( 'rid' )
+					}
+				);
+				jQuery.post( ajaxurl, reqData,
+					function ( response ) {
+
+						let msg = 'Communications error with site.';
+						if ( response.success ) {
+							msg = response.data.message;
+							alert( msg );
+							if ( response.data.page_reload ) {
+								location.reload();
+							}
+						}
+						else {
+							if ( response.data.message !== undefined ) {
+								msg = response.data.message;
+							}
+							alert( msg );
+						}
+
+					}
+				).always( function () {
+						iCWP_WPSF_BodyOverlay.hide();
+					}
+				);
+			}
+		} );
+
+		document.addEventListener( 'submit', function ( evt ) {
+			evt.preventDefault();
+			if ( typeof evt.target.id !== 'undefined' && evt.target.id === ipRuleAddFormSelector ) {
 
 				let reqData = jQuery.extend(
-					opts[ 'ip_rule_add_form' ],
+					opts[ 'ajax' ][ 'ip_rule_add_form' ],
 					{
-						'form_data': Object.fromEntries( new FormData( event.target ) )
+						'form_data': Object.fromEntries( new FormData( evt.target ) )
 					}
 				);
 				jQuery.post( ajaxurl, reqData,

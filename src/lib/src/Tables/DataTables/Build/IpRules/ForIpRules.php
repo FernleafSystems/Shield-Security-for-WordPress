@@ -39,7 +39,7 @@ class ForIpRules extends Base {
 			],
 			'ip_linked'       => [
 				'data'        => 'ip_linked',
-				'title'       => __( 'IP' ),
+				'title'       => __( 'IP Address or Range' ),
 				'className'   => 'ip_linked',
 				'orderable'   => false,
 				'searchable'  => false,

@@ -36,7 +36,7 @@ class LookupIP {
 		if ( !empty( $parsedIP ) ) {
 			if ( $includeRanges ) {
 				foreach ( $this->selectRanges() as $maybe ) {
-					$maybeParsed = Factory::parseRangeString( $maybe->ipAsSubnetRange() );
+					$maybeParsed = Factory::parseRangeString( $maybe->ipAsSubnetRange( true ) );
 					if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
 						$record = $maybe;
 						break;

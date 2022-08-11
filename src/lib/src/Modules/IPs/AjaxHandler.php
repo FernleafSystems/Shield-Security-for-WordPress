@@ -4,13 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
-use IPLib\Range\Type;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
@@ -21,7 +19,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
 				'ip_insert'           => [ $this, 'ajaxExec_AddIp' ],
-				'ip_delete'           => [ $this, 'ajaxExec_IpDelete' ],
 				'render_table_ip'     => [ $this, 'ajaxExec_BuildTableIps' ],
 				'iprulestable_action' => [ $this, 'ajaxExec_IpRulesTableAction' ],
 				'ip_analyse_build'    => [ $this, 'ajaxExec_BuildIpAnalyse' ],
@@ -30,6 +27,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'render_ip_analysis'  => [ $this, 'ajaxExec_RenderIpAnalysis' ],
 				'render_ip_rule_add'  => [ $this, 'ajaxExec_RenderIpRuleAdd' ],
 				'ip_rule_add_form'    => [ $this, 'ajaxExec_ProcessIpRuleAdd' ],
+				'ip_rule_delete'      => [ $this, 'ajaxExec_ProcessIpRuleDelete' ],
 			] );
 		}
 		return $map;
@@ -127,7 +125,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	public function ajaxExec_IpDelete() :array {
+	public function ajaxExec_ProcessIpRuleDelete() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$ID = (int)Services::Request()->post( 'rid', -1 );
@@ -144,8 +142,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return [
-			'success' => $success,
-			'message' => $msg,
+			'success'     => $success,
+			'page_reload' => $success,
+			'message'     => $msg,
 		];
 	}
 
