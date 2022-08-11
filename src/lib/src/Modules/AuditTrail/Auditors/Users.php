@@ -30,6 +30,22 @@ class Users extends Base {
 				}
 			} );
 		}
+
+		add_action( 'wp_create_application_password', [ $this, 'auditAppPasswordNew' ], 30, 2 );
+	}
+
+	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {
+		if ( is_numeric( $userID ) && !empty( $appPassItem ) && !empty( $appPassItem[ 'name' ] ) ) {
+			$this->getCon()->fireEvent(
+				'app_pass_created',
+				[
+					'audit_params' => [
+						'user_login'    => Services::WpUsers()->getUserById( $userID )->user_login,
+						'app_pass_name' => $appPassItem[ 'name' ],
+					]
+				]
+			);
+		}
 	}
 
 	protected function captureLogin( \WP_User $user ) {

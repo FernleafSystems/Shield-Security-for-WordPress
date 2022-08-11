@@ -1001,7 +1001,7 @@
       },
       "bottrack_invalidscript":      {
         "audit_params": [
-          "machine_id"
+          "script"
         ],
         "offense":      true
       },

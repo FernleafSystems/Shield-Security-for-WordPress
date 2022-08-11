@@ -160,6 +160,12 @@ class Strings extends Base\Strings {
 					__( 'Attempted login by "{{user_login}}" using application password was successful.', 'wp-simple-firewall' ),
 				],
 			],
+			'app_pass_created'            => [
+				'name'  => __( 'APP Password Created', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'A new application password ({{app_pass_name}}) was created for user {{user_login}}.', 'wp-simple-firewall' ),
+				],
+			],
 			'app_invalid_email'           => [
 				'name'  => __( 'APP Password Auth - Invalid Email', 'wp-simple-firewall' ),
 				'audit' => [

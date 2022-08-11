@@ -413,9 +413,10 @@
         ],
         "level":        "notice"
       },
-      "app_pass_success":            {
+      "app_pass_created":            {
         "audit_params": [
-          "user_login"
+          "user_login",
+          "app_pass_name"
         ],
         "level":        "notice"
       },

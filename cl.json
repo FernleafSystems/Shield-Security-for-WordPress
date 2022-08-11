@@ -23,6 +23,13 @@
         "title":       "Custom Activity Log Events",
         "description": [
         ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Log App Password Creation",
+        "description": [
+        ]
       }
     ]
   },
