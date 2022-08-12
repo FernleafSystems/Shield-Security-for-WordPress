@@ -133,7 +133,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		$opts = $this->getOptions();
 
 		$content = [
-			sprintf( '%s: <code>%s</code>', __( 'Type', 'wp-simple-firewall' ), Handler::GetTypeName( $record->type ) )
+			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), Handler::GetTypeName( $record->type ) )
 		];
 
 		if ( $record->type === Handler::T_AUTO_BLACK ) {
@@ -141,7 +141,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		}
 
 		if ( $record->type === Handler::T_MANUAL_WHITE ) {
-			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label ?? 'No Label' );
+			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
 		}
 
 		if ( in_array( $record->type, [ Handler::T_AUTO_BLACK, Handler::T_MANUAL_BLACK, Handler::T_CROWDSEC ] ) ) {
@@ -150,13 +150,27 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 				if ( $record->blocked_at > $record->unblocked_at ) {
 					$color = 'danger';
 					$blockedStatus = __( 'Blocked', 'wp-simple-firewall' );
-					if ( $record->type === Handler::T_AUTO_BLACK ) {
-						$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'until', 'wp-simple-firewall' ),
-							Services::Request()
-									->carbon()
-									->timestamp( $record->last_access_at )
-									->addSeconds( $opts->getAutoExpireTime() )
-									->diffForHumans() );
+
+					switch ( $record->type ) {
+						case Handler::T_AUTO_BLACK:
+							$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),
+								Services::Request()
+										->carbon()
+										->timestamp( $record->last_access_at )
+										->addSeconds( $opts->getAutoExpireTime() )
+										->diffForHumans() );
+							break;
+						case Handler::T_CROWDSEC:
+							$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),
+								Services::Request()
+										->carbon()
+										->timestamp( $record->updated_at )
+										->addDays( 7 )
+										->diffForHumans() );
+							break;
+						case Handler::T_MANUAL_BLACK:
+							$blockedStatus = sprintf( '%s (%s)', $blockedStatus, __( 'permanently', 'wp-simple-firewall' ) );
+							break;
 					}
 				}
 				else {

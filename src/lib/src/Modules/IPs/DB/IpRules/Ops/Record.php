@@ -13,6 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
  * @property int    $blocked_at
  * @property int    $unblocked_at
  * @property int    $last_unblock_attempt_at
+ * @property int    $updated_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
@@ -27,6 +28,10 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		}
 		elseif ( $key === 'is_range' ) {
 			$value = (bool)$value;
+		}
+
+		if ( $key === 'label' && empty( $value ) ) {
+			$value = '-no label-';
 		}
 
 		return $value;

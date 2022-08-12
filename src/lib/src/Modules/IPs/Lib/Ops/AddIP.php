@@ -112,9 +112,6 @@ class AddIP {
 				if ( !empty( $IP ) ) {
 					throw new \Exception( sprintf( 'Crowdsec IP (%s) already present.', $ip ) );
 				}
-				if ( empty( $data[ 'blocked_at' ] ) ) {
-					$data[ 'blocked_at' ] = Services::Request()->ts();
-				}
 				break;
 
 			case $dbh::T_MANUAL_WHITE:
