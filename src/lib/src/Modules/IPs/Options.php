@@ -8,22 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
 
-	/**
-	 * @return int
-	 */
-	public function getAutoExpireTime() {
-		return constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
-	}
-
-	public function getAutoUnblockIps() :array {
-		$ips = is_array( $this->getOpt( 'autounblock_ips', [] ) ) ? $this->getOpt( 'autounblock_ips', [] ) : [];
-		$ips = array_filter( $ips, function ( $ts ) {
-			return Services::Request()
-						   ->carbon()
-						   ->subHours( 1 )->timestamp < $ts;
-		} );
-		$this->setOpt( 'autounblock_ips', $ips );
-		return $ips;
+	public function getAutoExpireTime() :int {
+		return (int)constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
 	public function getAutoUnblockEmailIDs() :array {
@@ -35,14 +21,6 @@ class Options extends BaseShield\Options {
 		} );
 		$this->setOpt( 'autounblock_emailids', $ids );
 		return $ids;
-	}
-
-	public function canIpRequestAutoUnblock( string $ip ) :bool {
-		return !array_key_exists( $ip, $this->getAutoUnblockIps() );
-	}
-
-	public function canRequestAutoUnblockEmailLink( \WP_User $user ) :bool {
-		return !array_key_exists( $user->ID, $this->getAutoUnblockEmailIDs() );
 	}
 
 	public function getOffenseLimit() :int {

@@ -1,10 +1,11 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
 class ProcessOffense {
 
@@ -15,33 +16,29 @@ class ProcessOffense {
 		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
+		$dbh = $mod->getDbH_IPRules();
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
 		try {
-			$IP = ( new IPs\Lib\Ops\AddIp() )
+			$IP = ( new IPs\Lib\Ops\AddIP() )
 				->setMod( $mod )
 				->setIP( $this->getIP() )
 				->toAutoBlacklist();
-		}
-		catch ( \Exception $e ) {
-			$IP = null;
-		}
 
-		if ( !empty( $IP ) ) {
-			$currentCount = $IP->transgressions;
+			$currentCount = $IP->offenses;
 
 			$offenseTracker = $mod->loadOffenseTracker();
-			$newCount = $IP->transgressions + $offenseTracker->getOffenseCount();
+			$newCount = $IP->offenses + $offenseTracker->getOffenseCount();
 			$toBlock = $offenseTracker->isBlocked() ||
-					   ( $IP->blocked_at == 0 && ( $newCount >= $opts->getOffenseLimit() ) );
+					   ( $newCount >= $opts->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
 
 			if ( $toBlock ) {
 				$newCount = (int)max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
 			}
 
-			/** @var Databases\IPs\Update $updater */
-			$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
+			/** @var IpRulesDB\Update $updater */
+			$updater = $dbh->getQueryUpdater();
 			$updater->updateTransgressions( $IP, $newCount );
 
 			$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
@@ -59,8 +56,8 @@ class ProcessOffense {
 			 * so we fire ip_offense but suppress the audit
 			 */
 			if ( $toBlock ) {
-				/** @var Databases\IPs\Update $updater */
-				$updater = $mod->getDbHandler_IPs()->getQueryUpdater();
+				/** @var IpRulesDB\Update $updater */
+				$updater = $dbh->getQueryUpdater();
 				$updater->setBlocked( $IP );
 				$con->fireEvent( 'ip_offense',
 					[
@@ -72,6 +69,8 @@ class ProcessOffense {
 					]
 				);
 			}
+		}
+		catch ( \Exception $e ) {
 		}
 	}
 }

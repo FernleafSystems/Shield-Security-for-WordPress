@@ -12,8 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIp;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -67,33 +67,33 @@ class BuildDisplay {
 		$mod = $this->getMod();
 		$ip = $this->getIP();
 
-		$blockIP = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+		$blockIP = ( new LookupIP() )
+			->setMod( $mod )
 			->setListTypeBlock()
 			->setIP( $ip )
-			->lookup( true );
+			->lookup();
 
-		$bypassIP = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+		$bypassIP = ( new LookupIP() )
+			->setMod( $mod )
 			->setListTypeBypass()
 			->setIP( $ip )
-			->lookup( true );
+			->lookup();
 
 		$geo = ( new Lookup() )
 			->setCon( $con )
 			->setIP( $ip )
 			->lookupIp();
 
-		$sRDNS = gethostbyaddr( $ip );
+		$rDNS = gethostbyaddr( $ip );
 
 		try {
 			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
-				->setIgnoreUserAgent( true )
+				->setIgnoreUserAgent()
 				->run();
+
 			// We do a "repair" and unblock previously blocked search providers:
-			if ( $blockIP instanceof Databases\IPs\EntryVO
-				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
-				( new DeleteIp() )
+			if ( !empty( $blockIP ) && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+				( new DeleteIP() )
 					->setMod( $mod )
 					->setIP( $ip )
 					->fromBlacklist();
@@ -105,15 +105,8 @@ class BuildDisplay {
 			$ipName = 'Unknown';
 		}
 
-		if ( $ipKey === IpID::UNKNOWN ) {
-			$ipEntry = ( new LookupIpOnList() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
-				->setIP( $ip )
-				->setListTypeBypass()
-				->lookup();
-			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
-				$ipName = $ipEntry->label;
-			}
+		if ( $ipKey === IpID::UNKNOWN && !empty( $bypassIP ) ) {
+			$ipName = $bypassIP->label ?? '';
 		}
 
 		$botScore = ( new CalculateVisitorBotScores() )
@@ -177,7 +170,7 @@ class BuildDisplay {
 				'ip'       => $ip,
 				'status'   => [
 					'is_you'                 => Services::IP()->checkIp( $ip, $con->this_req->ip ),
-					'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
+					'offenses'               => !empty( $blockIP ) ? $blockIP->offenses : 0,
 					'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
 					'is_bypass'              => !empty( $bypassIP ),
 					'ip_reputation_score'    => $botScore,
@@ -186,7 +179,7 @@ class BuildDisplay {
 				],
 				'identity' => [
 					'who_is_it'    => $ipName,
-					'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
+					'rdns'         => $rDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $rDNS,
 					'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
 					'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
 					'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',

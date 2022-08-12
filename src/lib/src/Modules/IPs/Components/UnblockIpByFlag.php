@@ -27,7 +27,7 @@ class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
-					$removed = ( new IPs\Lib\Ops\DeleteIp() )
+					$removed = ( new IPs\Lib\Ops\DeleteIP() )
 						->setMod( $mod )
 						->setIP( $ip )
 						->fromBlacklist();

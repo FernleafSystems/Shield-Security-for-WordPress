@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	DB\CrowdSecDecisions\LoadCrowdsecDecisions,
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
+	Lib\Ops\LookupIP,
 	ModCon,
 	Options
 };
@@ -51,34 +51,23 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function isIpBlockedOnCrowdSec( string $ip ) :bool {
-		return $this->isIpOnCrowdSec( $ip, true );
+		return $this->isIpOnCrowdSec( $ip, false );
 	}
 
-	public function isIpOnCrowdSec( string $ip, bool $blockedOnly = false ) :bool {
+	public function isIpOnCrowdSec( string $ip, bool $includeUnblocked = true ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbhCS = $mod->getDbH_CrowdSecDecisions();
 
 		$onCS = false;
 
 		if ( !empty( $ip ) ) {
-			$records = ( new LoadCrowdsecDecisions() )
-				->setMod( $this->getMod() )
+			$record = ( new LookupIP() )
+				->setMod( $mod )
 				->setIP( $ip )
-				->select();
-
-			if ( count( $records ) > 0 ) {
-
-				$theRecord = $records[ 0 ];
-				unset( $records[ 0 ] );
-				$onCS = !$blockedOnly || $theRecord->auto_unblock_at === 0;
-
-				// Remove any duplicates as we go.
-				if ( count( $records ) > 0 ) {
-					foreach ( $records as $record ) {
-						$dbhCS->getQueryDeleter()->deleteById( $record->id );
-					}
-				}
+				->setListTypeCrowdsec()
+				->lookup();
+			if ( !empty( $record ) ) {
+				$onCS = $includeUnblocked || $record->unblocked_at === 0;
 			}
 		}
 

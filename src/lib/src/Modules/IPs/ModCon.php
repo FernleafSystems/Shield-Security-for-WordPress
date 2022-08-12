@@ -60,9 +60,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
-	public function getDbH_CrowdSecDecisions() :DB\CrowdSecDecisions\Ops\Handler {
+	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
 		$this->getCon()->getModule_Data()->getDbH_IPs();
-		return $this->getDbHandler()->loadDbH( 'crowdsec_decisions' );
+		return $this->getDbHandler()->loadDbH( 'ip_rules' );
 	}
 
 	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
@@ -71,6 +71,21 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
+	}
+
+	public function onWpInit() {
+		if ( $this->getDbHandler_IPs()
+				  ->getQuerySelector()
+				  ->count() > 0 ) {
+			( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )
+				->setMod( $this )
+				->dispatch();
+		}
+
+		parent::onWpInit();
+		( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )
+			->setMod( $this )
+			->dispatch();
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -92,16 +107,14 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
-			   && $this->getDbHandler_IPs()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'db_ip':
 				( new DbTableExport() )
-					->setDbHandler( $this->getDbHandler_IPs() )
+					->setDbHandler( $this->getDbH_IPRules() )
 					->toCSV();
 				break;
 		}
@@ -172,12 +185,26 @@ class ModCon extends BaseShield\ModCon {
 							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' ),
 						]
 					],
+					'modal_ip_rule_add' => [
+						'ajax' => [
+							'render_ip_rule_add' => $this->getAjaxActionData( 'render_ip_rule_add' ),
+						]
+					],
 					'ip_analysis'       => [
 						'ajax' => [
 							'ip_analyse_build'  => $this->getAjaxActionData( 'ip_analyse_build' ),
 							'ip_analyse_action' => $this->getAjaxActionData( 'ip_analyse_action' ),
 							'ip_review_select'  => $this->getAjaxActionData( 'ip_review_select' ),
 						]
+					],
+					'ip_rules'          => [
+						'ajax'    => [
+							'ip_rule_add_form' => $this->getAjaxActionData( 'ip_rule_add_form' ),
+							'ip_rule_delete'   => $this->getAjaxActionData( 'ip_rule_delete' ),
+						],
+						'strings' => [
+							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
+						],
 					],
 				],
 			]
@@ -203,14 +230,7 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	/**
-	 * @deprecated 12.1
-	 */
 	protected function cleanupDatabases() {
-		$dbhIPs = $this->getDbHandler_IPs();
-		if ( $dbhIPs->isReady() ) {
-			$dbhIPs->autoCleanDb();
-		}
 		$this->getDbH_BotSignal()
 			 ->getQueryDeleter()
 			 ->addWhereOlderThan(

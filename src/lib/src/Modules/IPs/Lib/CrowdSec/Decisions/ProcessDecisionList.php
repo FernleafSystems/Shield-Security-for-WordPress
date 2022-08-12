@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\Ops as CrowdSecDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -35,7 +34,7 @@ class ProcessDecisionList {
 	}
 
 	public function preRun() {
-		( new CleanDecisions_IPs() )
+		( new CleanIpRules() )
 			->setMod( $this->getMod() )
 			->execute();
 	}
@@ -50,66 +49,24 @@ class ProcessDecisionList {
 	}
 
 	public function addForScope_IP( array $ipList ) :int {
-
 		$count = 0;
-		if ( !empty( $ipList ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$dbhCS = $mod->getDbH_CrowdSecDecisions();
-
-			$existingRecords = Services::WpDb()->selectCustom( sprintf(
-				"SELECT INET6_NTOA(`ips`.`ip`) as ip
-					FROM `%s` as `ips`
-					INNER JOIN `%s` as `cs` ON `ips`.`id` = `cs`.`ip_ref`
-					WHERE INET6_NTOA(`ips`.`ip`) IN ('%s')
-				",
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				$dbhCS->getTableSchema()->table,
-				implode( "','", $ipList )
-			) );
-
-			if ( empty( $existingRecords ) || !is_array( $existingRecords ) ) {
-				$toAdd = $ipList;
+		foreach ( $ipList as $ipToAdd ) {
+			try {
+				( new AddIP() )
+					->setMod( $this->getMod() )
+					->setIP( $ipToAdd )
+					->toCrowdsecBlocklist();
+				$count++;
 			}
-			else {
-				// Filter out the current records so that we don't "re-add" them
-				$existingIPs = array_map(
-					function ( $record ) {
-						return $record[ 'ip' ];
-					},
-					$existingRecords
-				);
-				$toAdd = array_filter(
-					$ipList,
-					function ( $maybeAddIP ) use ( $existingIPs ) {
-						return !empty( $maybeAddIP ) && !Services::IP()->checkIp( $maybeAddIP, $existingIPs );
-					}
-				);
-			}
-
-			foreach ( $toAdd as $ipToAdd ) {
-				try {
-					/** @var CrowdSecDB\Record $record */
-					$record = $dbhCS->getRecord();
-					$record->ip_ref = ( new IPRecords() )
-						->setMod( $this->getCon()->getModule_Data() )
-						->loadIP( $ipToAdd, true, false )
-						->id;
-					$dbhCS->getQueryInserter()->insert( $record );
-
-					$count++;
-				}
-				catch ( \Exception $e ) {
-				}
+			catch ( \Exception $e ) {
 			}
 		}
-
 		return $count;
 	}
 
 	private function delete( array $decisions ) :int {
 		// We only handle "ip" scopes right now, but we can add more as we need to.
-		return ( new CleanDecisions_IPs() )
+		return ( new CleanIpRules() )
 			->setMod( $this->getMod() )
 			->ipList( $this->extractDataFromDecisionsForScope_IP( $decisions ) );
 	}

@@ -23,7 +23,7 @@ class LoadRequestLogs extends BaseLoadRecordsForIPJoins {
 		return 'req';
 	}
 
-	protected function getSelectFieldsForJoinedTable() :array {
+	protected function getDefaultSelectFieldsForJoinedTable() :array {
 		return [
 			'id',
 			'req_id as rid',

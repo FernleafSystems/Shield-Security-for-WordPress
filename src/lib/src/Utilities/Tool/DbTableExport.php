@@ -2,19 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\HandlerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+// TODO: BROKEN
 class DbTableExport {
 
 	use HandlerConsumer;
 
 	public function toCSV() {
 		$content = [];
-		/** @var EntryVO $entryVO */
-		foreach ( $this->getDbHandler()->getIterator() as $entryVO ) {
-			$content[] = $this->implodeForCSV( $this->getEntryAsRawArray( $entryVO ) );
+		/** @var Record $record */
+		foreach ( $this->getDbHandler()->getIterator() as $record ) {
+			if ( !empty( $record ) ) {
+				$content[] = $this->implodeForCSV( $this->getEntryAsRawArray( $record ) );
+			}
 		}
 		array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
 		Services::Response()->downloadStringAsFile( implode( "\n", $content ), $this->getFileName() );
@@ -25,17 +28,16 @@ class DbTableExport {
 	}
 
 	/**
-	 * @param EntryVO $entryVO
-	 * @return array
+	 * @param Record $record
 	 */
-	protected function getEntryAsRawArray( $entryVO ) :array {
-		$entry = $entryVO->getRawData();
+	protected function getEntryAsRawArray( $record ) :array {
+		$entry = $record->getRawData();
 		$schema = $this->getDbHandler()->getTableSchema();
-		if ( $schema->is_ip_binary ) {
-			$entry[ 'ip' ] = $entryVO->ip;
+		if ( $schema->hasColumn( 'ip' ) && $schema->is_ip_binary ) {
+			$entry[ 'ip' ] = $record->ip;
 		}
 		if ( $schema->hasColumn( 'meta' ) ) {
-			$entry[ 'meta' ] = serialize( $entryVO->meta );
+			$entry[ 'meta' ] = serialize( $record->meta );
 		}
 		return $entry;
 	}

@@ -1,0 +1,45 @@
+<form class="form" id="IpRuleAddForm" autocomplete="off">
+
+	<div class="mb-3">
+    <label for="ipAddress" class="form-label">{{ strings.ip_address }}</label>
+    <input name="ip" type="text" class="form-control" id="ipAddress"
+           aria-describedby="ipAddressHelp"
+           placeholder="e.g. 1.2.3.4">
+    <div id="ipAddressHelp" class="form-text">{{ strings.ip_address_help }}</div>
+  </div>
+
+	<div class="mb-3">
+    <label for="ipLabel" class="form-label">{{ strings.label }}</label>
+    <input name="label" type="text" class="form-control" id="ipLabel" aria-describedby="ipLabelHelp"
+           placeholder="Something descriptive to remember this IP Rule">
+    <div id="ipLabelHelp" class="form-text">{{ strings.label_help }}<br />({{ strings.label_help_max }})</div>
+  </div>
+
+	<div class="form-check mb-3">
+	  <input class="form-check-input" type="radio"
+	         name="type" value="{{ vars.blacklist }}" id="ipTypeBlock">
+	  <label class="form-check-label" for="ipTypeBlock">
+		  {{ strings.add_to_list_block }}
+	  </label>
+		<div class="form-text">{{ strings.add_to_list_block_help }}</div>
+	</div>
+
+	<div class="form-check mb-3">
+	  <input class="form-check-input" type="radio" name="type" value="{{ vars.whitelist }}" id="ipTypeBypass">
+	  <label class="form-check-label" for="ipTypeBypass">
+		  {{ strings.add_to_list_bypass }}
+	  </label>
+		<div class="form-text">{{ strings.add_to_list_bypass_help }}</div>
+	</div>
+
+	<div class="form-check mb-3">
+	  <input name="confirm" value="Y" class="form-check-input" type="checkbox" id="checkConfirm">
+	  <label class="form-check-label" for="checkConfirm">
+	    {{ strings.confirm }}
+	  </label>
+	</div>
+
+
+  <button type="submit" class="btn btn-primary mb-3">{{ strings.add_rule }}</button>
+
+</form>

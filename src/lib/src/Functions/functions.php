@@ -37,27 +37,32 @@ function test_ip_is_bot( $IP = null ) :bool {
 
 function get_ip_state( string $ip = '' ) :string {
 	$mod = get_plugin()->getController()->getModule_IPs();
+	$dbh = $mod->getDbH_IPRules();
 
 	$state = 'none';
 
-	$ip = ( new IPs\Lib\Ops\LookupIpOnList() )
-		->setDbHandler( $mod->getDbHandler_IPs() )
+	$ip = ( new IPs\Lib\Ops\LookupIP() )
+		->setMod( $mod )
 		->setIP( empty( $ip ) ? Services::Request()->ip() : $ip )
 		->lookupIp();
 
 	if ( !empty( $ip ) ) {
-		switch ( $ip->list ) {
+		switch ( $ip->type ) {
 
-			case $mod::LIST_MANUAL_WHITE:
+			case $dbh::T_MANUAL_WHITE:
 				$state = 'bypass';
 				break;
 
-			case $mod::LIST_MANUAL_BLACK:
+			case $dbh::T_MANUAL_BLACK:
 				$state = 'blocked';
 				break;
 
-			case $mod::LIST_AUTO_BLACK:
+			case $dbh::T_AUTO_BLACK:
 				$state = $ip->blocked_at ? 'blocked' : 'offense';
+				break;
+
+			case $dbh::T_CROWDSEC:
+				$state = 'crowdsec';
 				break;
 
 			default:
@@ -67,6 +72,6 @@ function get_ip_state( string $ip = '' ) :string {
 	return $state;
 }
 
-function fire_event( string $event ) :string {
+function fire_event( string $event ) {
 	get_plugin()->getController()->fireEvent( $event );
 }

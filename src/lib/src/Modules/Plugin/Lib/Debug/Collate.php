@@ -169,13 +169,8 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
-		$data[ 'DB Table: IP Lists' ] = $dbh->isReady() ?
-			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
-			: 'Missing';
-
-		$dbh = $con->getModule_IPs()->getDbH_CrowdSecDecisions();
-		$data[ 'DB Table: CrowdSec Decisions' ] = $dbh->isReady() ?
+		$dbh = $con->getModule_IPs()->getDbH_IPRules();
+		$data[ 'DB Table: IP Rules' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 

@@ -154,13 +154,6 @@ class Strings extends Base\Strings {
 					__( 'Comment manually marked as not SPAM.', 'wp-simple-firewall' ),
 				],
 			],
-			'custom_offense'              => [
-				'name'  => __( 'Mark Comment Not SPAM (Manual)', 'wp-simple-firewall' ),
-				'audit' => [
-					__( 'A custom offense was registered on the site.', 'wp-simple-firewall' ),
-					sprintf( '%s: {{message}}', __( 'Message', 'wp-simple-firewall' ) ),
-				],
-			],
 			'crowdsec_mach_register'      => [
 				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Registered Site', 'wp-simple-firewall' ) ),
 				'audit' => [

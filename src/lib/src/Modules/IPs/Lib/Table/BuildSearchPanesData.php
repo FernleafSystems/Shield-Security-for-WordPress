@@ -2,9 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use IPLib\Factory;
 
 class BuildSearchPanesData {
 
@@ -13,63 +16,71 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
-				'type' => $this->buildForIpType(),
-				'ip' => $this->buildForIp(),
-				//				'status'    => $this->buildForFileStatus(),
+				'type'       => $this->buildForIpType(),
+				'ip'         => $this->buildForIp(),
+				'is_blocked' => $this->buildForIsBlocked(),
 			]
 		];
 	}
 
+	private function buildForIsBlocked() :array {
+		return [
+			[
+				'label' => 'Blocked',
+				'value' => 1,
+			],
+			[
+				'label' => 'Not Blocked',
+				'value' => 0,
+			],
+		];
+	}
+
 	private function buildForIpType() :array {
-		return [
-			[
-				'label' => 'Bypass / Whitelist',
-				'value' => 'bypass',
-			],
-			[
-				'label' => 'Block / Blacklist',
-				'value' => 'block',
-			],
-			[
-				'label' => 'CrowdSec',
-				'value' => 'crowdsec',
-			],
-		];
-	}
-
-	private function buildForIp() :array {
-		return [
-			[
-				'label' => '1.1.1.1',
-				'value' => 'bypass',
-			],
-			[
-				'label' => 'Block / Blacklist',
-				'value' => 'block',
-			],
-			[
-				'label' => 'CrowdSec',
-				'value' => 'crowdsec',
-			],
-		];
-	}
-
-	private function runQueryForFileTypes() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
 		$results = Services::WpDb()->selectCustom(
-			sprintf( "SELECT DISTINCT `ri`.`item_id`
-						FROM `%s` as `ri`
-						WHERE `ri`.`item_type`='f'
-							AND `ri`.`ignored_at`=0
-							AND `ri`.`auto_filtered_at`!=0
-							AND `ri`.`item_repaired_at`=0
-							AND `ri`.`item_deleted_at`=0
-							AND `ri`.`deleted_at`=0
-				",
-				$mod->getDbH_ResultItems()->getTableSchema()->table
-			)
+			sprintf( "SELECT DISTINCT `ir`.`type` FROM `%s` as `ir`;", $mod->getDbH_IPRules()->getTableSchema()->table )
 		);
-		return is_array( $results ) ? $results : [];
+		return array_filter( array_map(
+			function ( $result ) {
+				$type = null;
+				if ( is_array( $result ) && !empty( $result[ 'type' ] ) ) {
+					$type = [
+						'label' => Handler::GetTypeName( $result[ 'type' ] ),
+						'value' => $result[ 'type' ],
+					];
+				}
+				return $type;
+			},
+			is_array( $results ) ? $results : []
+		) );
+	}
+
+	// TODO: ITERATOR
+	private function buildForIp() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$results = ( new LoadIpRules() )->setMod( $mod );
+		$results->joined_table_select_fields = [ 'cidr' ];
+		return array_values( array_filter( array_map(
+			function ( $result ) {
+				$range = Factory::parseRangeString( sprintf( '%s/%s', $result->ip, $result->cidr ) );
+				if ( empty( $range ) ) {
+					$IP = null;
+				}
+				else {
+					$IP = [
+						'label' => $range->getSize() === 1 ? $result->ip : $range->asSubnet()->toString(),
+						'value' => $result->id,
+					];
+				}
+
+				return $IP;
+			},
+			$results->select()
+		) ) );
 	}
 }

@@ -44,9 +44,36 @@ let iCWP_WPSF_Modals = new function () {
 		} );
 	};
 
+	this.renderModalIpAdd = function ( params = [] ) {
+		iCWP_WPSF_BodyOverlay.show();
+		jQuery.ajax( {
+			type: "POST",
+			url: ajaxurl,
+			data: workingData.modal_ip_rule_add.ajax.render_ip_rule_add,
+			dataType: "json",
+			success: function ( raw ) {
+				iCWP_WPSF_Modals.display( raw.data );
+			},
+		} )
+			  .fail( function () {
+			  } )
+			  .always( function () {
+				  iCWP_WPSF_BodyOverlay.hide();
+			  } );
+	};
+
 	this.display = function ( params ) {
 		let modal = document.getElementById( 'ShieldGeneralPurposeDialog' );
-		jQuery( '.modal-dialog', modal ).addClass( 'modal-xl' );
+		if ( typeof params.modal_class === typeof undefined ) {
+			params.modal_class = 'modal-xl';
+		}
+		if ( params.modal_static ) {
+			modal.setAttribute( 'data-bs-backdrop', 'static' );
+		}
+		else {
+			modal.removeAttribute( 'data-bs-backdrop' );
+		}
+		jQuery( '.modal-dialog', modal ).addClass( params.modal_class );
 		jQuery( '.modal-title', modal ).html( params.title );
 		jQuery( '.modal-body .col', modal ).html( params.body );
 		(new bootstrap.Modal( modal )).show();
@@ -437,9 +464,13 @@ jQueryDoc.ready( function () {
 	iCWP_WPSF_Modals.initialise();
 	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
 		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
+		iCWP_WPSF_Modals.setData( 'modal_ip_rule_add', icwp_wpsf_vars_ips.components.modal_ip_rule_add );
 
 		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
 			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
+		}
+		if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
+			jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
 		}
 	}
 

@@ -144,7 +144,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		);
 	}
 
-	protected function getColumnContent_LinkedIP( string $ip ) :string {
+	protected function getColumnContent_LinkedIP( string $ip, int $recordDeleteID = -1 ) :string {
 		if ( !empty( $ip ) ) {
 			try {
 				$ipID = ( new IpID( $ip ) )->run();
@@ -161,8 +161,19 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			catch ( \Exception $e ) {
 				$id = '';
 			}
-			$content = sprintf( '<h6>%s%s</h6>', $this->getIpAnalysisLink( $ip ),
-				empty( $id ) ? '' : sprintf( '<br/><small>%s</small>', esc_html( $id ) ) );
+
+			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger" title="%s">%s</a>',
+				$recordDeleteID,
+				__( 'Delete IP', 'wp-simple-firewall' ),
+				$this->getCon()->svgs->raw( 'bootstrap/trash3-fill.svg' )
+			);
+
+			$content = implode( '', array_filter( [
+				sprintf( '<h6 class="text-nowrap mb-0"><span class="me-1">%s</span>%s</h6>', $this->getIpAnalysisLink( $ip ),
+					$recordDeleteID >= 0 ? $deleteLink : ''
+				),
+				sprintf( '<small>%s</small>', esc_html( $id ) )
+			] ) );
 		}
 		else {
 			$content = 'No IP';

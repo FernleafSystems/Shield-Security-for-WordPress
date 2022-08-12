@@ -123,6 +123,14 @@ class LookupIpOnList {
 	/**
 	 * @return $this
 	 */
+	public function setListTypeCrowdsec() {
+		$this->listType = 'crowdsec';
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
 	public function setListTypeBypass() {
 		$this->listType = 'white';
 		return $this;

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
@@ -81,23 +81,24 @@ class GetIP extends Base {
 	private function getIpListInfo() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$dbh = $mod->getDbH_IPRules();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
-		$ip = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
+		$ip = ( new LookupIP() )
+			->setMod( $mod )
 			->setIP( $req->ip )
 			->lookup();
 
 		$info = [];
 		if ( !empty( $ip ) ) {
 			$info = [
-				'list'           => $ip->list === 'AB' ? 'auto-block' :
-					( $ip->list === 'MB' ? 'manual-block' : 'bypass' ),
-				'offenses'       => (int)$ip->transgressions,
+				'type'           => $dbh::GetTypeName( $ip->type ),
+				'offenses'       => $ip->offenses,
 				'label'          => $ip->label,
 				'blocked_at'     => $ip->blocked_at,
 				'last_access_at' => $ip->blocked_at,
+				'list'           => $dbh::GetTypeName( $ip->type ),
 			];
 		}
 

@@ -4,10 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockIpCrowdSec;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecDecisions\{
-	CrowdSecRecord,
-	LoadCrowdsecDecisions,
-	Ops as CrowdsecDecisionsDB
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
+	LoadIpRules,
+	Ops as IpRulesDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
@@ -21,16 +21,15 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$records = ( new LoadCrowdsecDecisions() )
+		$record = ( new LookupIP() )
 			->setMod( $mod )
 			->setIP( $this->getCon()->this_req->ip )
-			->select();
-		if ( count( $records ) === 1 ) {
-			$theRecord = $records[ 0 ];
-			/** @var CrowdsecDecisionsDB\Update $updater */
-			$updater = $mod->getDbH_CrowdSecDecisions()->getQueryUpdater();
-			$updater->setUpdateId( $theRecord->id )
-					->updateLastAccessAt();
+			->setListTypeCrowdsec()
+			->lookup( false ); // TODO: When CS supports ranges?
+		if ( !empty( $record ) ) {
+			/** @var IpRulesDB\Update $updater */
+			$updater = $mod->getDbH_IPRules()->getQueryUpdater();
+			$updater->updateLastAccessAt( $record );
 		}
 
 		$this->getCon()->fireEvent( 'conn_kill_crowdsec' );
