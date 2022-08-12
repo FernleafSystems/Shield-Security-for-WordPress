@@ -149,8 +149,20 @@ class AddIP {
 			case $dbh::T_AUTO_BLACK:
 			case $dbh::T_MANUAL_BLACK:
 				$IP = $ipLookerUpper->setListTypeBlock()->lookup();
-				if ( !empty( $IP ) && $IP->type === $listType ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on that block list.', $ip ) );
+				if ( !empty( $IP ) ) {
+					// 1. You can manually block an IP on the Auto list (it'll be replaced)
+					// 2. If you're manually adding a range and an existing single entry is covered by that range, it is replaced.
+					// 3. But you can't add a manually blocked IP to the auto list.
+					if ( $listType === $dbh::T_MANUAL_BLACK && $IP->type === $dbh::T_AUTO_BLACK
+						 || ( !$IP->is_range && $parsedRange->getSize() > 1 ) ) {
+						( new DeleteIP() )
+							->setMod( $mod )
+							->setIP( $this->getIP() )
+							->fromBlacklist();
+					}
+					else {
+						throw new \Exception( sprintf( 'IP (%s) is already blocked.', $ip ) );
+					}
 				}
 				break;
 
