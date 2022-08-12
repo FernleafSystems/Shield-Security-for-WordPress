@@ -118,6 +118,13 @@ class AddIP {
 				break;
 
 			case $dbh::T_MANUAL_WHITE:
+				$theBlockedIP = $ipLookerUpper->setListTypeBlock()->lookup();
+				if ( !empty( $theBlockedIP ) ) {
+					( new DeleteIP() )
+						->setMod( $mod )
+						->setIP( $this->getIP() )
+						->fromBlacklist();
+				}
 				$IP = $ipLookerUpper->setListTypeBypass()->lookup();
 				if ( !empty( $IP ) ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on bypass list.', $ip ) );
