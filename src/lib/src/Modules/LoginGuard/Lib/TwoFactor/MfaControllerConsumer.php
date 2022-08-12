@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-/**
- * Trait MfaControllerConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor
- */
 trait MfaControllerConsumer {
 
 	/**

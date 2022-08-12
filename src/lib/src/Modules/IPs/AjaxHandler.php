@@ -18,8 +18,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		] );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'ip_insert'           => [ $this, 'ajaxExec_AddIp' ],
-				'render_table_ip'     => [ $this, 'ajaxExec_BuildTableIps' ],
 				'iprulestable_action' => [ $this, 'ajaxExec_IpRulesTableAction' ],
 				'ip_analyse_build'    => [ $this, 'ajaxExec_BuildIpAnalyse' ],
 				'ip_analyse_action'   => [ $this, 'ajaxExec_IpAnalyseAction' ],
@@ -145,22 +143,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success'     => $success,
 			'page_reload' => $success,
 			'message'     => $msg,
-		];
-	}
-
-	public function ajaxExec_BuildTableIps() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$dbh = $mod->getDbHandler_IPs();
-		$dbh->autoCleanDb();
-
-		return [
-			'success' => true,
-			'html'    => ( new Shield\Tables\Build\Ip() )
-				->setMod( $mod )
-				->setDbHandler( $dbh )
-				->render()
 		];
 	}
 

@@ -162,15 +162,16 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$id = '';
 			}
 
-			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger" title="%s">%s</a>',
+			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
 				$recordDeleteID,
 				__( 'Delete IP', 'wp-simple-firewall' ),
 				$this->getCon()->svgs->raw( 'bootstrap/trash3-fill.svg' )
 			);
 
 			$content = implode( '', array_filter( [
-				sprintf( '<h6 class="text-nowrap mb-0"><span class="me-1">%s</span>%s</h6>', $this->getIpAnalysisLink( $ip ),
-					$recordDeleteID >= 0 ? $deleteLink : ''
+				sprintf( '<h6 class="text-nowrap mb-0"><span class="me-1">%s</span>%s</h6>',
+					$recordDeleteID >= 0 ? $deleteLink : '',
+					$this->getIpAnalysisLink( $ip )
 				),
 				sprintf( '<small>%s</small>', esc_html( $id ) )
 			] ) );

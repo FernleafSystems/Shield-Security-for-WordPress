@@ -25,7 +25,7 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 			->setMod( $mod )
 			->setIP( $this->getCon()->this_req->ip )
 			->setListTypeCrowdsec()
-			->lookup( false ); // TODO: When CS supports ranges?
+			->lookup();
 		if ( !empty( $record ) ) {
 			/** @var IpRulesDB\Update $updater */
 			$updater = $mod->getDbH_IPRules()->getQueryUpdater();

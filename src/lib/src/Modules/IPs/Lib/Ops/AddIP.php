@@ -20,21 +20,16 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	public function toAutoBlacklist() :IpRulesDB\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-		$req = Services::Request();
-
 		try {
-			$IP = $this->add( $dbh::T_AUTO_BLACK, [
+			$IP = $this->add( IpRulesDB\Handler::T_AUTO_BLACK, [
 				'label'          => 'auto',
-				'last_access_at' => $req->ts(),
+				'last_access_at' => Services::Request()->ts(),
 			] );
 			$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		}
 		catch ( \Exception $e ) {
 			$IP = ( new LookupIP() )
-				->setMod( $mod )
+				->setMod( $this->getMod() )
 				->setIP( $this->getIP() )
 				->setListTypeBlock()
 				->lookup( false );
@@ -51,20 +46,10 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	public function toManualBlacklist( string $label = '' ) :IpRulesDB\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-
-		if ( !$this->getCon()->isPremiumActive() ) {
-			throw new \Exception( __( 'Sorry, this is a PRO-only feature.', 'wp-simple-firewall' ) );
-		}
-
-		$IP = $this->add( $dbh::T_MANUAL_BLACK, [
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLACK, [
 			'label'      => $label,
-			'blocked_at' => Services::Request()->ts(),
 		] );
 		$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
-
 		return $IP;
 	}
 
@@ -72,15 +57,10 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	public function toManualWhitelist( string $label = '' ) :IpRulesDB\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-
-		$IP = $this->add( $dbh::T_MANUAL_WHITE, [
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_WHITE, [
 			'label' => $label
 		] );
 		$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
-
 		return $IP;
 	}
 
@@ -88,12 +68,7 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	public function toCrowdsecBlocklist() :IpRulesDB\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-		return $this->add( $dbh::T_CROWDSEC, [
-			'blocked_at' => Services::Request()->ts(),
-		] );
+		return $this->add( IpRulesDB\Handler::T_CROWDSEC );
 	}
 
 	/**
@@ -136,6 +111,9 @@ class AddIP {
 				$IP = $ipLookerUpper->setListTypeCrowdsec()->lookup();
 				if ( !empty( $IP ) ) {
 					throw new \Exception( sprintf( 'Crowdsec IP (%s) already present.', $ip ) );
+				}
+				if ( empty( $data[ 'blocked_at' ] ) ) {
+					$data[ 'blocked_at' ] = Services::Request()->ts();
 				}
 				break;
 
@@ -182,6 +160,9 @@ class AddIP {
 		$tmp->is_range = $parsedRange->getSize() > 1;
 		$tmp->type = $listType;
 		$tmp->label = preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
+		if ( $tmp->blocked_at == 0 && in_array( $listType, [ $dbh::T_MANUAL_BLACK, $dbh::T_CROWDSEC ] ) ) {
+			$tmp->blocked_at = Services::Request()->ts();
+		}
 
 		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
 			/** @var IpRulesDB\Record $ipRuleRecord */

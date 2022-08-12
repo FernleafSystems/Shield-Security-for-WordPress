@@ -69,6 +69,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
 	}
 
+	/**
+	 * @deprecated 16.0
+	 */
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
 	}
@@ -83,9 +86,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		parent::onWpInit();
-		( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )
-			->setMod( $this )
-			->dispatch();
 	}
 
 	protected function enumRuleBuilders() :array {

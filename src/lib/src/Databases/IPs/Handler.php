@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Ips\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,16 +20,5 @@ class Handler extends Base\Handler {
 
 	public function cleanLabel( string $label ) :string {
 		return trim( empty( $label ) ? '' : preg_replace( '#[^\s\da-z_-]#i', '', $label ) );
-	}
-
-	/**
-	 * @param int $timestamp
-	 * @return bool
-	 */
-	public function deleteRowsOlderThan( $timestamp ) :bool {
-		return $this->getQueryDeleter()
-					->addWhereOlderThan( $timestamp, 'last_access_at' )
-					->addWhere( 'list', ModCon::LIST_MANUAL_WHITE, '!=' )
-					->query();
 	}
 }

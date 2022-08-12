@@ -91,18 +91,18 @@ class NavMenuBuilder {
 		$subItems = [
 			[
 				'slug'   => $slug.'-manage',
-				'title'  => __( 'Manage IPs', 'wp-simple-firewall' ),
+				'title'  => __( 'IP Rules', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( 'ips' ),
 				'active' => $this->getInav() === $slug,
 			],
 			[
 				'slug'  => $slug.'-blocksettings',
-				'title' => __( 'Blocking Rules', 'wp-simple-firewall' ),
+				'title' => __( 'IP Block Config', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_IPs()->getUrl_AdminPage(),
 			],
 			[
 				'slug'  => $slug.'-antibotsettings',
-				'title' => __( 'AntiBot Rules', 'wp-simple-firewall' ),
+				'title' => __( 'AntiBot Config', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
 //			[ TODO

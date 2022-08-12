@@ -1,10 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
@@ -29,12 +28,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'             => sprintf(
-					__( '%s is ignoring you', 'wp-simple-firewall' ),
+				'title'             => sprintf( __( '%s is ignoring you', 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName()
 				),
-				'your_ip'           => sprintf(
-					__( 'Your IP address is: %s', 'wp-simple-firewall' ),
+				'your_ip'           => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ),#
 					$this->getCon()->this_req->ip
 				),
 				'notice_message'    => __( 'Your IP address is whitelisted and NO features you activate apply to you.', 'wp-simple-firewall' ),
