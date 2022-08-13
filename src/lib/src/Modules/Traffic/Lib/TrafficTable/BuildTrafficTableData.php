@@ -242,7 +242,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				if ( empty( $record ) ) {
 					$status = __( 'No Record', 'wp-simple-firewall' );
 				}
-				elseif ( $record->blocked_at > 0 || $record->type === $dbh::T_MANUAL_BLACK ) {
+				elseif ( $record->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
 				elseif ( $record->type === $dbh::T_AUTO_BLACK ) {

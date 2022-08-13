@@ -17,4 +17,8 @@ class IpRuleRecord extends Ops\Record {
 				   ->toString()
 			: $this->ip;
 	}
+
+	public function isBlocked() :bool {
+		return $this->blocked_at > $this->unblocked_at;
+	}
 }

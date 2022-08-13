@@ -80,6 +80,7 @@ class BotSignalsRecord {
 				$r->offense_at = $ipOnList->last_access_at;
 			}
 			$r->blocked_at = $ipOnList->blocked_at;
+			$r->unblocked_at = $ipOnList->unblocked_at;
 		}
 
 		if ( empty( $r->notbot_at ) && $thisReq->ip === $this->getIP() ) {

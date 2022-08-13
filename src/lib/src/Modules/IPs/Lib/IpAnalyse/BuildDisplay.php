@@ -171,7 +171,7 @@ class BuildDisplay {
 				'status'   => [
 					'is_you'                 => Services::IP()->checkIp( $ip, $con->this_req->ip ),
 					'offenses'               => !empty( $blockIP ) ? $blockIP->offenses : 0,
-					'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
+					'is_blocked'             => !empty( $blockIP ) && $blockIP->isBlocked(),
 					'is_bypass'              => !empty( $bypassIP ),
 					'ip_reputation_score'    => $botScore,
 					'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',

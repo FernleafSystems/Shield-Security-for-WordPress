@@ -60,7 +60,7 @@ class QueryIpBlock {
 					->setIP( $IP->ip )
 					->fromBlacklist();
 			}
-			elseif ( $IP->unblocked_at < $IP->blocked_at ) {
+			elseif ( $IP->isBlocked() ) {
 				$blockIP = $IP;
 			}
 		}

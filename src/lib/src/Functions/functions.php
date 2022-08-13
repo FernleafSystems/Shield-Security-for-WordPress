@@ -58,7 +58,7 @@ function get_ip_state( string $ip = '' ) :string {
 				break;
 
 			case $dbh::T_AUTO_BLACK:
-				$state = $ip->blocked_at ? 'blocked' : 'offense';
+				$state = $ip->isBlocked() ? 'blocked' : 'offense';
 				break;
 
 			case $dbh::T_CROWDSEC:

@@ -97,7 +97,8 @@ class GetIP extends Base {
 				'offenses'       => $ip->offenses,
 				'label'          => $ip->label,
 				'blocked_at'     => $ip->blocked_at,
-				'last_access_at' => $ip->blocked_at,
+				'unblocked_at'   => $ip->unblocked_at,
+				'last_access_at' => $ip->last_access_at,
 				'list'           => $dbh::GetTypeName( $ip->type ),
 			];
 		}
