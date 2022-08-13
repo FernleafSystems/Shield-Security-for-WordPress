@@ -11,10 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Range\Type;
 
-/**
- * @deprecated 16.0
- */
-class AddIP {
+class AddRule {
 
 	use Modules\ModConsumer;
 	use Modules\IPs\Components\IpAddressConsumer;
@@ -34,8 +31,8 @@ class AddIP {
 			$IP = ( new FindIpRuleRecords() )
 				->setMod( $this->getMod() )
 				->setIP( $this->getIP() )
-				->setListTypeBlock()
-				->lookup( false );
+				->setListTypeAutoBlock()
+				->firstSingle();
 		}
 
 		if ( empty( $IP ) ) {

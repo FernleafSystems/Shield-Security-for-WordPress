@@ -18,7 +18,7 @@ class UnblockIP {
 		/** @var IpRulesDB\Update $updater */
 		$updater = $mod->getDbH_IPRules()->getQueryUpdater();
 
-		$ipRecord = ( new LookupIP() )
+		$ipRecord = ( new FindIpRuleRecords() )
 			->setMod( $mod )
 			->setIP( $this->getIP() )
 			->setIsIpBlocked( true )

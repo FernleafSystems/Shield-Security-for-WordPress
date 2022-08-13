@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decis
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -52,7 +52,7 @@ class ProcessDecisionList {
 		$count = 0;
 		foreach ( $ipList as $ipToAdd ) {
 			try {
-				( new AddIP() )
+				( new AddRule() )
 					->setMod( $this->getMod() )
 					->setIP( $ipToAdd )
 					->toCrowdsecBlocklist();

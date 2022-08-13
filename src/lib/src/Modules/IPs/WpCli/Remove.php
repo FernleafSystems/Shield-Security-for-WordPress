@@ -26,7 +26,7 @@ class Remove extends BaseAddRemove {
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			$del = ( new IPs\Lib\Ops\DeleteIP() )
+			$del = ( new IPs\Lib\Ops\DeleteRule() )
 				->setMod( $this->getMod() )
 				->setIP( $args[ 'ip' ] );
 

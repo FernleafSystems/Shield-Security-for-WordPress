@@ -34,7 +34,7 @@ class Add extends BaseAddRemove {
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			$adder = ( new Ops\AddIP() )
+			$adder = ( new Ops\AddRule() )
 				->setMod( $this->getMod() )
 				->setIP( $args[ 'ip' ] );
 

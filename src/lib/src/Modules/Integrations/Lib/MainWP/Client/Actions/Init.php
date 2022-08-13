@@ -6,9 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Client\Auth\ReproduceClientAuthByKey,
 	Controller
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Init {
 
@@ -25,7 +24,7 @@ class Init {
 			// Whitelist the MainWP Server IP
 			add_action( 'mainwp_child_site_stats', function () {
 				try {
-					( new AddIP() )
+					( new AddRule() )
 						->setMod( $this->getCon()->getModule_IPs() )
 						->setIP( $this->getCon()->this_req->ip )
 						->toManualWhitelist( 'MainWP Server (automatically added)' );

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
@@ -27,7 +27,7 @@ class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
-					$removed = ( new IPs\Lib\Ops\DeleteIP() )
+					$removed = ( new IPs\Lib\Ops\DeleteRule() )
 						->setMod( $mod )
 						->setIP( $ip )
 						->fromBlacklist();

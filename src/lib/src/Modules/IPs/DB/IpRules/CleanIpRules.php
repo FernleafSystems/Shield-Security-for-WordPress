@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Delete;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
@@ -65,7 +65,7 @@ class CleanIpRules extends ExecOnceModConsumer {
 
 		$count = 0;
 		foreach ( $ipList as $ipRange ) {
-			$ipRecord = ( new LookupIP() )
+			$ipRecord = ( new FindIpRuleRecords() )
 				->setMod( $mod )
 				->setListTypeCrowdsec()
 				->setIP( $ipRange->asSubnet()->toString() )

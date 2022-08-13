@@ -41,88 +41,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	public function ajaxExec_AddIp() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-		$srvIP = Services::IP();
-
-		$formParams = FormParams::Retrieve();
-
-		$success = false;
-		$msg = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
-
-		$ip = preg_replace( '#[^/:.a-f\d]#i', '', ( $formParams[ 'ip' ] ?? '' ) );
-		$list = $formParams[ 'list' ] ?? '';
-
-		$acceptableIP = $srvIP->isValidIp( $ip )
-						|| $srvIP->isValidIp4Range( $ip )
-						|| $srvIP->isValidIp6Range( $ip );
-
-		$isBlackList = $list != $dbh::T_MANUAL_WHITE;
-
-		// TODO: Bring this IP verification out of here and make it more accessible
-		if ( empty( $ip ) ) {
-			$msg = __( "IP address not provided", 'wp-simple-firewall' );
-		}
-		elseif ( empty( $list ) ) {
-			$msg = __( "IP list not provided", 'wp-simple-firewall' );
-		}
-		elseif ( !$acceptableIP ) {
-			$msg = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
-		}
-		elseif ( $isBlackList && !$mod->isPremium() ) {
-			$msg = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
-		}
-		elseif ( $isBlackList && $srvIP->checkIp( $this->getCon()->this_req->ip, $ip ) ) {
-			$msg = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
-		}
-		elseif ( $isBlackList && in_array( $ip, $srvIP->getServerPublicIPs() ) ) {
-			$msg = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
-		}
-		else {
-			$label = (string)$formParams[ 'label' ] ?? '';
-			$IP = null;
-			switch ( $list ) {
-				case $dbh::T_MANUAL_WHITE:
-					try {
-						$IP = ( new Shield\Modules\IPs\Lib\Ops\AddIP() )
-							->setMod( $mod )
-							->setIP( $ip )
-							->toManualWhitelist( $label );
-					}
-					catch ( \Exception $e ) {
-					}
-					break;
-
-				case $dbh::T_MANUAL_BLACK:
-					try {
-						$IP = ( new Shield\Modules\IPs\Lib\Ops\AddIP() )
-							->setMod( $mod )
-							->setIP( $ip )
-							->toManualBlacklist( $label );
-					}
-					catch ( \Exception $e ) {
-						$msg = $e->getMessage();
-					}
-					break;
-
-				default:
-					break;
-			}
-
-			if ( !empty( $IP ) ) {
-				$msg = __( 'IP address added successfully', 'wp-simple-firewall' );
-				$success = true;
-			}
-		}
-
-		return [
-			'success' => $success,
-			'message' => $msg,
-		];
-	}
-
 	public function ajaxExec_ProcessIpRuleDelete() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -211,7 +129,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				throw new \Exception( "Manually blocking your own IP address isn't supported." );
 			}
 
-			$ipAdder = ( new Lib\Ops\AddIP() )
+			$ipAdder = ( new Lib\Ops\AddRule() )
 				->setMod( $mod )
 				->setIP( $form[ 'ip' ] );
 			switch ( $form[ 'type' ] ) {
@@ -296,7 +214,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						if ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
 							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
 						}
-						( new Ops\AddIP() )
+						( new Ops\AddRule() )
 							->setMod( $this->getMod() )
 							->setIP( $ip )
 							->toManualBlacklist();
@@ -309,7 +227,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'unblock':
-					$success = ( new Ops\DeleteIP() )
+					$success = ( new Ops\DeleteRule() )
 						->setMod( $this->getMod() )
 						->setIP( $ip )
 						->fromBlacklist();
@@ -319,7 +237,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 				case 'bypass':
 					try {
-						( new Ops\AddIP() )
+						( new Ops\AddRule() )
 							->setMod( $this->getMod() )
 							->setIP( $ip )
 							->toManualWhitelist();
@@ -332,7 +250,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'unbypass':
-					$success = ( new Ops\DeleteIP() )
+					$success = ( new Ops\DeleteRule() )
 						->setMod( $this->getMod() )
 						->setIP( $ip )
 						->fromWhiteList();
@@ -341,7 +259,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'delete_notbot':
-					( new Ops\DeleteIP() )
+					( new Ops\DeleteRule() )
 						->setMod( $this->getMod() )
 						->setIP( $ip )
 						->fromBlacklist();

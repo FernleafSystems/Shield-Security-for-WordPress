@@ -13,7 +13,7 @@ class AddIP extends Base {
 		$mod = $this->getMod();
 		$req = $this->getRequestVO();
 
-		$adder = ( new Lib\Ops\AddIP() )
+		$adder = ( new Lib\Ops\AddRule() )
 			->setMod( $mod )
 			->setIP( $req->ip );
 

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockCrowdsec extends BaseAutoUnblock {
@@ -18,13 +18,13 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 	}
 
 	protected function getIpRecord() :IpRuleRecord {
-		$record = ( new LookupIP() )
+		$record = ( new FindIpRuleRecords() )
 			->setMod( $this->getMod() )
 			->setIP( $this->getCon()->this_req->ip )
 			->setListTypeCrowdsec()
-			->lookup();
+			->firstSingle();
 		if ( empty( $record ) ) {
-			throw new \Exception( "IP isn't on the appropriate block list." );
+			throw new \Exception( "IP isn't on the CrowdSec block list." );
 		}
 		return $record;
 	}

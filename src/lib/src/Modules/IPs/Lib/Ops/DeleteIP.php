@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 
+/**
+ * @deprecated 16.0
+ */
 class DeleteIP {
 
 	use Shield\Modules\ModConsumer;

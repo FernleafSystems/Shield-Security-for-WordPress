@@ -8,8 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
-	Lib\Ops\LookupIP,
-	ModCon};
+	Lib\Ops\FindIpRuleRecords,
+	ModCon
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -67,10 +68,10 @@ class BotSignalsRecord {
 			$r->ip_ref = $this->getIPRecord()->id;
 		}
 
-		$ipOnList = ( new LookupIP() )
+		$ipOnList = ( new FindIpRuleRecords() )
 			->setMod( $mod )
 			->setIP( $this->getIP() )
-			->lookupIp();
+			->firstSingle();
 
 		if ( !empty( $ipOnList ) ) {
 			if ( empty( $r->bypass_at ) && $ipOnList->type === $dbh::T_MANUAL_WHITE ) {

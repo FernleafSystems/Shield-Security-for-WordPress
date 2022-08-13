@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	Ops\Handler
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockMagicLink extends BaseAutoUnblock {
@@ -69,16 +69,13 @@ class AutoUnblockMagicLink extends BaseAutoUnblock {
 	}
 
 	protected function getIpRecord() :IpRuleRecord {
-		$record = ( new LookupIP() )
+		$record = ( new FindIpRuleRecords() )
 			->setMod( $this->getMod() )
 			->setIP( $this->getCon()->this_req->ip )
-			->setListTypeBlock()
-			->lookup();
-		if ( !empty( $record ) && $record->type !== Handler::T_AUTO_BLACK ) {
-			$record = null;
-		}
+			->setListTypeAutoBlock()
+			->firstSingle();
 		if ( empty( $record ) ) {
-			throw new \Exception( "IP isn't on the appropriate block list." );
+			throw new \Exception( "IP isn't on the automatic block list." );
 		}
 		return $record;
 	}

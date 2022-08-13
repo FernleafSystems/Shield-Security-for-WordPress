@@ -41,7 +41,7 @@ function get_ip_state( string $ip = '' ) :string {
 
 	$state = 'none';
 
-	$ip = ( new IPs\Lib\Ops\LookupIP() )
+	$ip = ( new IPs\Lib\Ops\FindIpRuleRecords() )
 		->setMod( $mod )
 		->setIP( empty( $ip ) ? Services::Request()->ip() : $ip )
 		->lookupIp();

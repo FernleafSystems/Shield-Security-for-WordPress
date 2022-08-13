@@ -10,8 +10,8 @@ use IPLib\Factory;
  */
 class IpRuleRecord extends Ops\Record {
 
-	public function ipAsSubnetRange( bool $includeCidrForSingleRanges = false ) :string {
-		return ( $includeCidrForSingleRanges || $this->is_range ) ?
+	public function ipAsSubnetRange( bool $includeCidrForSingles = false ) :string {
+		return ( $includeCidrForSingles || $this->is_range ) ?
 			Factory::parseRangeString( $this->is_range ? sprintf( '%s/%s', $this->ip, $this->cidr ) : $this->ip )
 				   ->asSubnet()
 				   ->toString()

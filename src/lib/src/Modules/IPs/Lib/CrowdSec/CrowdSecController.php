@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
-	Lib\Ops\LookupIP,
+	Lib\Ops\FindIpRuleRecords,
 	ModCon,
 	Options
 };
@@ -61,11 +61,11 @@ class CrowdSecController extends ExecOnceModConsumer {
 		$onCS = false;
 
 		if ( !empty( $ip ) ) {
-			$record = ( new LookupIP() )
+			$record = ( new FindIpRuleRecords() )
 				->setMod( $mod )
 				->setIP( $ip )
 				->setListTypeCrowdsec()
-				->lookup();
+				->firstAll();
 			if ( !empty( $record ) ) {
 				$onCS = $includeUnblocked || $record->unblocked_at === 0;
 			}

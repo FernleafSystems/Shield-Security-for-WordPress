@@ -21,7 +21,7 @@ class ProcessOffense {
 		$opts = $this->getOptions();
 
 		try {
-			$IP = ( new IPs\Lib\Ops\AddIP() )
+			$IP = ( new IPs\Lib\Ops\AddRule() )
 				->setMod( $mod )
 				->setIP( $this->getIP() )
 				->toAutoBlacklist();

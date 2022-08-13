@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists
 
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
 
 abstract class Base extends Process {
 
@@ -15,7 +15,7 @@ abstract class Base extends Process {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon $mod */
 		$mod = $this->getMod();
 
-		$retriever = ( new LookupIP() )
+		$retriever = ( new FindIpRuleRecords() )
 			->setMod( $mod )
 			->setIP( $ip );
 		if ( $list === 'block' ) {
@@ -28,8 +28,7 @@ abstract class Base extends Process {
 			$retriever->setListTypeCrowdsec();
 		}
 
-		$IP = $retriever->lookup();
-
+		$IP = $retriever->firstSingle();
 		if ( empty( $IP ) ) {
 			throw new ApiException( 'IP address not found on list' );
 		}

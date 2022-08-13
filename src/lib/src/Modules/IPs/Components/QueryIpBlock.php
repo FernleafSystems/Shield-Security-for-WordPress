@@ -40,28 +40,26 @@ class QueryIpBlock {
 
 		$blockIP = null;
 
-		$IP = ( new IPs\Lib\Ops\LookupIP() )
+		$allIPs = ( new IPs\Lib\Ops\FindIpRuleRecords() )
 			->setMod( $mod )
 			->setIP( $this->getIP() )
-			->setListTypeBlock()
 			->setIsIpBlocked( true )
-			->lookup();
+			->all();
 
-		if ( !empty( $IP ) ) {
+		foreach ( $allIPs as $ipRule ) {
 			/** @var IPs\Options $opts */
 			$opts = $this->getOptions();
 
-			// Clean out expired IPs as we go, so they don't show up in future queries.
-			if ( $IP->type == $dbh::T_AUTO_BLACK
-				 && $IP->last_access_at < $req->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp ) {
+			// Clean out expired auto IPs as we go, so they don't show up in future queries.
+			if ( $ipRule->type == $dbh::T_AUTO_BLACK
+				 && $ipRule->last_access_at < $req->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp ) {
 
-				( new IPs\Lib\Ops\DeleteIP() )
+				( new IPs\Lib\Ops\DeleteRule() )
 					->setMod( $mod )
-					->setIP( $IP->ip )
-					->fromBlacklist();
+					->byRecord( $ipRule );
 			}
-			elseif ( $IP->isBlocked() ) {
-				$blockIP = $IP;
+			elseif ( empty( $blockIP ) ) {
+				$blockIP = $ipRule;
 			}
 		}
 

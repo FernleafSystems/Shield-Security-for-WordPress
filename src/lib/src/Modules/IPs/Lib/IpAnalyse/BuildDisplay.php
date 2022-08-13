@@ -10,10 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIP;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIP;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -67,17 +68,28 @@ class BuildDisplay {
 		$mod = $this->getMod();
 		$ip = $this->getIP();
 
-		$blockIP = ( new LookupIP() )
-			->setMod( $mod )
-			->setListTypeBlock()
-			->setIP( $ip )
-			->lookup();
-
-		$bypassIP = ( new LookupIP() )
+		$rulesFinder = ( new FindIpRuleRecords() )
 			->setMod( $mod )
 			->setListTypeBypass()
-			->setIP( $ip )
-			->lookup();
+			->setIP( $ip );
+		$isBypass = false;
+		$isBlocked = false;
+		$isCrowdsec = false;
+		$offenses = 0;
+		foreach ( $rulesFinder->all() as $ruleRecord ) {
+			if ( $ruleRecord->isBlocked() ) {
+				$isBlocked = true;
+			}
+			if ( $ruleRecord->type === Handler::T_AUTO_BLACK ) {
+				$offenses = $ruleRecord->offenses;
+			}
+			if ( $ruleRecord->type === Handler::T_CROWDSEC ) {
+				$isCrowdsec = true;
+			}
+			if ( $ruleRecord->type === Handler::T_MANUAL_WHITE ) {
+				$isBypass = true;
+			}
+		}
 
 		$geo = ( new Lookup() )
 			->setCon( $con )
@@ -93,7 +105,7 @@ class BuildDisplay {
 
 			// We do a "repair" and unblock previously blocked search providers:
 			if ( !empty( $blockIP ) && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
-				( new DeleteIP() )
+				( new DeleteRule() )
 					->setMod( $mod )
 					->setIP( $ip )
 					->fromBlacklist();
@@ -170,9 +182,10 @@ class BuildDisplay {
 				'ip'       => $ip,
 				'status'   => [
 					'is_you'                 => Services::IP()->checkIp( $ip, $con->this_req->ip ),
-					'offenses'               => !empty( $blockIP ) ? $blockIP->offenses : 0,
-					'is_blocked'             => !empty( $blockIP ) && $blockIP->isBlocked(),
-					'is_bypass'              => !empty( $bypassIP ),
+					'offenses'               => $offenses,
+					'is_blocked'             => $isBlocked,
+					'is_bypass'              => $isBypass,
+					'is_crowdsec'            => $isCrowdsec,
 					'ip_reputation_score'    => $botScore,
 					'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
 					'is_bot'                 => $isBot,
