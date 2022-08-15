@@ -136,15 +136,15 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), Handler::GetTypeName( $record->type ) )
 		];
 
-		if ( $record->type === Handler::T_AUTO_BLACK ) {
+		if ( $record->type === Handler::T_AUTO_BLOCK ) {
 			$content[] = sprintf( '%s: <span class="badge text-bg-warning">%s</span>', __( 'Offenses', 'wp-simple-firewall' ), $record->offenses );
 		}
 
-		if ( $record->type === Handler::T_MANUAL_WHITE ) {
+		if ( $record->type === Handler::T_MANUAL_BYPASS ) {
 			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
 		}
 
-		if ( in_array( $record->type, [ Handler::T_AUTO_BLACK, Handler::T_MANUAL_BLACK, Handler::T_CROWDSEC ] ) ) {
+		if ( in_array( $record->type, [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK, Handler::T_CROWDSEC ] ) ) {
 
 			if ( $record->blocked_at > 0 ) {
 				if ( $record->blocked_at > $record->unblocked_at ) {
@@ -152,7 +152,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 					$blockedStatus = __( 'Blocked', 'wp-simple-firewall' );
 
 					switch ( $record->type ) {
-						case Handler::T_AUTO_BLACK:
+						case Handler::T_AUTO_BLOCK:
 							$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),
 								Services::Request()
 										->carbon()
@@ -168,7 +168,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 										->addDays( 7 )
 										->diffForHumans() );
 							break;
-						case Handler::T_MANUAL_BLACK:
+						case Handler::T_MANUAL_BLOCK:
 							$blockedStatus = sprintf( '%s (%s)', $blockedStatus, __( 'permanently', 'wp-simple-firewall' ) );
 							break;
 					}

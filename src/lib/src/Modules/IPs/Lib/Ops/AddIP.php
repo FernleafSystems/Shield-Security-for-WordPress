@@ -20,7 +20,7 @@ class AddIP {
 	 */
 	public function toAutoBlacklist() :IpRulesDB\Record {
 		try {
-			$IP = $this->add( IpRulesDB\Handler::T_AUTO_BLACK, [
+			$IP = $this->add( IpRulesDB\Handler::T_AUTO_BLOCK, [
 				'label'          => 'auto',
 				'last_access_at' => Services::Request()->ts(),
 			] );
@@ -40,7 +40,7 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	public function toManualBlacklist( string $label = '' ) :IpRulesDB\Record {
-		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLACK, [
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLOCK, [
 			'label' => $label,
 		] );
 		$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
@@ -51,7 +51,7 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	public function toManualWhitelist( string $label = '' ) :IpRulesDB\Record {
-		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_WHITE, [
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BYPASS, [
 			'label' => $label
 		] );
 		$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );

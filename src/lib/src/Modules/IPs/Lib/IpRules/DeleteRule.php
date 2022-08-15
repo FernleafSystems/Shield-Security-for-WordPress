@@ -21,12 +21,12 @@ class DeleteRule {
 		$mod = $this->getMod();
 		switch ( $record->type ) {
 
-			case Handler::T_AUTO_BLACK:
-			case Handler::T_MANUAL_BLACK:
+			case Handler::T_AUTO_BLOCK:
+			case Handler::T_MANUAL_BLOCK:
 				$con->fireEvent( 'ip_unblock', [ 'audit_params' => [ 'ip' => $record->ipAsSubnetRange() ] ] );
 				break;
 
-			case Handler::T_MANUAL_WHITE:
+			case Handler::T_MANUAL_BYPASS:
 				$con->fireEvent( 'ip_bypass_remove', [ 'audit_params' => [ 'ip' => $record->ipAsSubnetRange() ] ] );
 				break;
 		}

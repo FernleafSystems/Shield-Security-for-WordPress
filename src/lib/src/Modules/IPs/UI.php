@@ -46,8 +46,8 @@ class UI extends BaseShield\UI {
 				'confirm'                 => __( "I fully understand the significance of this action", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'blacklist' => Handler::T_MANUAL_BLACK,
-				'whitelist' => Handler::T_MANUAL_WHITE,
+				'blacklist' => Handler::T_MANUAL_BLOCK,
+				'whitelist' => Handler::T_MANUAL_BYPASS,
 			],
 		] );
 	}

@@ -23,7 +23,7 @@ class CleanIpRules extends ExecOnceModConsumer {
 		/** @var Ops\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
 		$deleter
-			->filterByType( Ops\Handler::T_AUTO_BLACK )
+			->filterByType( Ops\Handler::T_AUTO_BLOCK )
 			->addWhereOlderThan(
 				Services::Request()
 						->carbon()

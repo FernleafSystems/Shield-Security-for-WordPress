@@ -16,11 +16,11 @@ class GetList extends Base {
 				break;
 			case 'bypass':
 			case 'white':
-				$types = [ Handler::T_MANUAL_WHITE ];
+				$types = [ Handler::T_MANUAL_BYPASS ];
 				break;
 			case 'black':
 			case 'block':
-				$types = [ Handler::T_AUTO_BLACK, Handler::T_MANUAL_BLACK ];
+				$types = [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK ];
 			default:
 				break;
 		}

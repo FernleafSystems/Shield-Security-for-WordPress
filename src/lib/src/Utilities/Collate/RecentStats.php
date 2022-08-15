@@ -41,7 +41,7 @@ class RecentStats {
 			$loader->limit = 10;
 			$loader->wheres = [
 				"`ir`.`blocked_at`>'0'",
-				sprintf( "`ir`.`type`='%s'", Handler::T_AUTO_BLACK ),
+				sprintf( "`ir`.`type`='%s'", Handler::T_AUTO_BLOCK ),
 			];
 			self::$recentlyBlocked = $loader->select();
 		}
@@ -56,7 +56,7 @@ class RecentStats {
 			$loader->limit = 10;
 			$loader->wheres = [
 				"`ir`.`blocked_at`='0'",
-				sprintf( "`ir`.`type`='%s'", Handler::T_AUTO_BLACK ),
+				sprintf( "`ir`.`type`='%s'", Handler::T_AUTO_BLOCK ),
 			];
 			self::$recentlyOffended = $loader->select();
 		}

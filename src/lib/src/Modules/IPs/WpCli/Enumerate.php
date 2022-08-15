@@ -38,10 +38,10 @@ class Enumerate extends Base {
 			$this->checkList( $args[ 'list' ] );
 
 			if ( in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ) {
-				$lists = [ $dbh::T_MANUAL_WHITE ];
+				$lists = [ $dbh::T_MANUAL_BYPASS ];
 			}
 			elseif ( in_array( $args[ 'list' ], [ 'black', 'block' ] ) ) {
-				$lists = [ $dbh::T_AUTO_BLACK, $dbh::T_MANUAL_BLACK ];
+				$lists = [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK ];
 			}
 			else {
 				$lists = [ $dbh::T_CROWDSEC ];

@@ -18,14 +18,14 @@ class DeleteIP {
 	public function fromBlacklist() :bool {
 		$this->getCon()->fireEvent( 'ip_unblock', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $this->getDeleter()
-					->filterByTypes( [ Handler::T_AUTO_BLACK, Handler::T_MANUAL_BLACK ] )
+					->filterByTypes( [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK ] )
 					->query();
 	}
 
 	public function fromWhiteList() :bool {
 		$this->getCon()->fireEvent( 'ip_bypass_remove', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $this->getDeleter()
-					->filterByType( Handler::T_MANUAL_WHITE )
+					->filterByType( Handler::T_MANUAL_BYPASS )
 					->query();
 	}
 

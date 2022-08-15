@@ -71,14 +71,14 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForBypass() :array {
-		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_WHITE ] ) );
+		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BYPASS ] ) );
 	}
 
 	private function getRulesForAutoBlock() :array {
 		/** @var Modules\IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		$rules = $this->getRules( [ Handler::T_AUTO_BLACK ] );
+		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
 		$toDelete = [];
 		if ( count( $rules ) === 1 ) {
@@ -124,7 +124,7 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForManualBlock() :array {
-		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BLACK ] ) );
+		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BLOCK ] ) );
 	}
 
 	/**

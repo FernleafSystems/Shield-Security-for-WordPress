@@ -25,28 +25,28 @@ class RetrieveIpsForLists {
 	 * @return string[]
 	 */
 	public function white() :array {
-		return $this->forLists( [ Handler::T_MANUAL_WHITE ] );
+		return $this->forLists( [ Handler::T_MANUAL_BYPASS ] );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function black() :array {
-		return $this->forLists( [ Handler::T_AUTO_BLACK, Handler::T_MANUAL_BLACK ] );
+		return $this->forLists( [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK ] );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function blackAuto() :array {
-		return $this->forLists( [ Handler::T_AUTO_BLACK ] );
+		return $this->forLists( [ Handler::T_AUTO_BLOCK ] );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function blackManual() :array {
-		return $this->forLists( [ Handler::T_MANUAL_BLACK ] );
+		return $this->forLists( [ Handler::T_MANUAL_BLOCK ] );
 	}
 
 	/**

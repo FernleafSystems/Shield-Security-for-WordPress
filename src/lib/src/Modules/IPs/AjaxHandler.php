@@ -125,7 +125,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				->isBypass();
 
 			// You can't manually block your own IP if your IP isn't whitelisted.
-			if ( $form[ 'type' ] === $dbh::T_MANUAL_BLACK
+			if ( $form[ 'type' ] === $dbh::T_MANUAL_BLOCK
 				 && !empty( $range )
 				 && !$iBypass
 				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
@@ -136,11 +136,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				->setMod( $mod )
 				->setIP( $form[ 'ip' ] );
 			switch ( $form[ 'type' ] ) {
-				case $dbh::T_MANUAL_WHITE:
+				case $dbh::T_MANUAL_BYPASS:
 					$IP = $ipAdder->toManualWhitelist( $label );
 					break;
 
-				case $dbh::T_MANUAL_BLACK:
+				case $dbh::T_MANUAL_BLOCK:
 					$IP = $ipAdder->toManualBlacklist( $label );
 					break;
 

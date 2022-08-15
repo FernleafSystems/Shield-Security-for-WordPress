@@ -22,7 +22,7 @@ class AddRule {
 	 */
 	public function toAutoBlacklist() :IpRulesDB\Record {
 		try {
-			$IP = $this->add( IpRulesDB\Handler::T_AUTO_BLACK, [
+			$IP = $this->add( IpRulesDB\Handler::T_AUTO_BLOCK, [
 				'label'          => 'auto',
 				'last_access_at' => Services::Request()->ts(),
 			] );
@@ -45,7 +45,7 @@ class AddRule {
 	 * @throws \Exception
 	 */
 	public function toManualBlacklist( string $label = '' ) :IpRulesDB\Record {
-		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLACK, [
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLOCK, [
 			'label' => $label,
 		] );
 		$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
@@ -56,7 +56,7 @@ class AddRule {
 	 * @throws \Exception
 	 */
 	public function toManualWhitelist( string $label = '' ) :IpRulesDB\Record {
-		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_WHITE, [
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BYPASS, [
 			'label' => $label
 		] );
 		$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
@@ -86,12 +86,12 @@ class AddRule {
 		if ( !in_array( $parsedRange->getRangeType(), [ Type::T_PUBLIC, Type::T_PRIVATENETWORK ] ) ) {
 			throw new \Exception( sprintf( "A non-public/private IP address provided: %s", $ip ) );
 		}
-		if ( $parsedRange->getSize() > 1 && $listType === $dbh::T_AUTO_BLACK ) {
+		if ( $parsedRange->getSize() > 1 && $listType === $dbh::T_AUTO_BLOCK ) {
 			throw new \Exception( "Automatic blocking of IP ranges isn't supported at this time." );
 		}
 
 		// Never block our own server IP
-		if ( in_array( $listType, [ $dbh::T_AUTO_BLACK, $dbh::T_MANUAL_BLACK, $dbh::T_CROWDSEC ] ) ) {
+		if ( in_array( $listType, [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
 			foreach ( Services::IP()->getServerPublicIPs() as $serverPublicIP ) {
 				$serverAddress = Factory::parseAddressString( $serverPublicIP );
 				if ( !empty( $serverAddress ) && $parsedRange->contains( $serverAddress ) ) {
@@ -104,7 +104,7 @@ class AddRule {
 
 		switch ( $listType ) {
 
-			case $dbh::T_MANUAL_WHITE:
+			case $dbh::T_MANUAL_BYPASS:
 				if ( $ruleStatus->isBypass() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
 				}
@@ -143,7 +143,7 @@ class AddRule {
 				break;
 
 			// An IP can never be added unless it doesn't exist on any other list.
-			case $dbh::T_AUTO_BLACK:
+			case $dbh::T_AUTO_BLOCK:
 				if ( $ruleStatus->isBypass() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
 				}
@@ -158,7 +158,7 @@ class AddRule {
 				}
 				break;
 
-			case $dbh::T_MANUAL_BLACK:
+			case $dbh::T_MANUAL_BLOCK:
 				if ( $ruleStatus->isBypass() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
 				}
@@ -209,7 +209,7 @@ class AddRule {
 		$tmp->is_range = $parsedRange->getSize() > 1;
 		$tmp->type = $listType;
 		$tmp->label = preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
-		if ( $tmp->blocked_at == 0 && in_array( $listType, [ $dbh::T_MANUAL_BLACK, $dbh::T_CROWDSEC ] ) ) {
+		if ( $tmp->blocked_at == 0 && in_array( $listType, [ $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
 			$tmp->blocked_at = Services::Request()->ts();
 		}
 
