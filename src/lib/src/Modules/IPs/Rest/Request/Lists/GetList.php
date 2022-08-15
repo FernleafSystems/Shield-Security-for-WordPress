@@ -2,21 +2,39 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 
 class GetList extends Base {
 
 	protected function process() :array {
 		$req = $this->getRequestVO();
 
-		$retriever = ( new RetrieveIpsForLists() )->setMod( $this->getMod() );
-		if ( $req->list === 'block' ) {
-			$list = $retriever->black();
-		}
-		else {
-			$list = $retriever->white();
+		switch ( $req->list ) {
+			case 'crowdsec':
+				$types = [ Handler::T_CROWDSEC ];
+				break;
+			case 'bypass':
+			case 'white':
+				$types = [ Handler::T_MANUAL_WHITE ];
+				break;
+			case 'black':
+			case 'block':
+				$types = [ Handler::T_AUTO_BLACK, Handler::T_MANUAL_BLACK ];
+			default:
+				break;
 		}
 
-		return $list;
+		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
+		$loader->wheres = [
+			sprintf( "`ir`.`type` IN ('%s')", implode( "','", $types ) )
+		];
+
+		return array_map(
+			function ( $record ) {
+				return $this->convertIpRuleToArray( $record );
+			},
+			$loader->select()
+		);
 	}
 }

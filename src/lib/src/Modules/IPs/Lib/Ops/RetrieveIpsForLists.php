@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 
+/**
+ * @deprecated 16.0
+ */
 class RetrieveIpsForLists {
 
 	use ModConsumer;
@@ -56,12 +59,12 @@ class RetrieveIpsForLists {
 			sprintf( "`ir`.`type` IN ('%s')", implode( "','", $lists ) )
 		];
 
-		$ips = array_unique(array_map(
+		$ips = array_unique( array_map(
 			function ( $record ) {
 				return $record->ip;
 			},
 			$loader->select()
-		));
+		) );
 
 		return IpListSort::Sort( $ips );
 	}
