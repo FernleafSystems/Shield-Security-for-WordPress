@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 
 class IsIpBlacklisted extends Base {
@@ -14,11 +14,8 @@ class IsIpBlacklisted extends Base {
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;
 		if ( !isset( $thisReq->is_ip_blacklisted ) ) {
-			$thisReq->is_ip_blacklisted = !empty( ( new FindIpRuleRecords() )
-				->setMod( $this->getCon()->getModule_IPs() )
-				->setIP( $this->getRequestIP() )
-				->setListTypeBlock()
-				->all() );
+			$status = ( new IpRuleStatus( $this->getRequestIP() ) )->setMod( $this->getCon()->getModule_IPs() );
+			$thisReq->is_ip_blacklisted = $status->isBlockedByShield() || $status->isAutoBlacklisted();
 		}
 		return $thisReq->is_ip_blacklisted;
 	}

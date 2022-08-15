@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use WP_CLI;
 
 class Add extends BaseAddRemove {
@@ -34,7 +34,7 @@ class Add extends BaseAddRemove {
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			$adder = ( new Ops\AddRule() )
+			$adder = ( new AddRule() )
 				->setMod( $this->getMod() )
 				->setIP( $args[ 'ip' ] );
 

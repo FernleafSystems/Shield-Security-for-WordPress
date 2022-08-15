@@ -7,8 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestL
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -233,39 +232,23 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			else {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 
-				$records = ( new FindIpRuleRecords() )
-					->setMod( $this->getCon()->getModule_IPs() )
-					->setIP( $ip )
-					->all();
+				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
 
-				$status = __( 'No Record', 'wp-simple-firewall' );
-				$isBlocked = false;
-				$isAutoBlock = false;
-				$offenses = 0;
-				foreach ( $records as $record ) {
-					if ( $record->type === IpRulesDB\Handler::T_MANUAL_WHITE ) {
-						$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
-						$isBlocked = false;
-						$isAutoBlock = false;
-						break;
-					}
-					if ( $record->type === IpRulesDB\Handler::T_AUTO_BLACK ) {
-						$offenses = $record->offenses;
-						$isAutoBlock = true;
-					}
-					if ( $record->isBlocked() ) {
-						$isBlocked = true;
-					}
+				if ( $ipRuleStatus->isBypass() ) {
+					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
 				}
-
-				if ( $isBlocked ) {
+				elseif ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
-				elseif ( $isAutoBlock ) {
+				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
+					$offenses = $ipRuleStatus->getOffenses();
 					$status = sprintf( $badgeTemplate,
 						'warning',
 						sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses )
 					);
+				}
+				else {
+					$status = __( 'No Record', 'wp-simple-firewall' );
 				}
 
 				$this->ipInfo[ $ip ] = $status;

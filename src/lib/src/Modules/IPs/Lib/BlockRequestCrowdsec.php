@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockIpCrowdSec;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
 class BlockRequestCrowdsec extends ExecOnceModConsumer {
@@ -18,12 +18,10 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$records = ( new FindIpRuleRecords() )
-			->setMod( $mod )
-			->setIP( $this->getCon()->this_req->ip )
-			->setListTypeCrowdsec()
-			->all();
-		foreach ( $records as $record ) {
+		$csRecords = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )
+			->setMod( $this->getMod() )
+			->getRulesForCrowdsec();
+		foreach ( $csRecords as $record ) {
 			/** @var IpRulesDB\Update $updater */
 			$updater = $mod->getDbH_IPRules()->getQueryUpdater();
 			$updater->updateLastAccessAt( $record );

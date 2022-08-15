@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use IPLib\Factory;
 
 class IPRecords {
 
@@ -17,6 +18,12 @@ class IPRecords {
 			$record = self::$ips[ $ip ];
 		}
 		else {
+			$parsedRange = Factory::parseRangeString( $ip );
+			if ( empty( $parsedRange ) ) {
+				throw new \Exception( 'Not a valid IP range' );
+			}
+			$ip = explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
+
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$dbh = $mod->getDbH_IPs();

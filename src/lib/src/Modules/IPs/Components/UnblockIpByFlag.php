@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
@@ -26,14 +27,17 @@ class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		if ( !empty( $path ) && $FS->isFile( $path ) ) {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
+
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
-					$removed = ( new IPs\Lib\Ops\DeleteRule() )
-						->setMod( $mod )
-						->setIP( $ip )
-						->fromBlacklist();
-					if ( $removed ) {
-						$IPs[] = $ip;
-						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+					$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
+					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+						$removed = ( new IPs\Lib\IpRules\DeleteRule() )
+							->setMod( $mod )
+							->byRecord( $record );
+						if ( $removed ) {
+							$IPs[] = $ip;
+							$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+						}
 					}
 				}
 			}

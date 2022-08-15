@@ -3,11 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
-	IpRuleRecord,
-	Ops\Handler
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockMagicLink extends BaseAutoUnblock {
@@ -69,15 +66,14 @@ class AutoUnblockMagicLink extends BaseAutoUnblock {
 	}
 
 	protected function getIpRecord() :IpRuleRecord {
-		$record = ( new FindIpRuleRecords() )
+		$theRecord = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )
 			->setMod( $this->getMod() )
-			->setIP( $this->getCon()->this_req->ip )
-			->setListTypeAutoBlock()
-			->firstSingle();
-		if ( empty( $record ) ) {
+			->getRuleForAutoBlock();
+
+		if ( empty( $theRecord ) ) {
 			throw new \Exception( "IP isn't on the automatic block list." );
 		}
-		return $record;
+		return $theRecord;
 	}
 
 	/**

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Update;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 class SetIpWhitelisted extends Base {
 
@@ -14,11 +14,9 @@ class SetIpWhitelisted extends Base {
 		$con = $this->getCon();
 		$modIP = $con->getModule_IPs();
 
-		$ipRecord = ( new FindIpRuleRecords() )
-			->setMod( $modIP )
-			->setIP( $con->this_req->ip )
-			->setListTypeBypass()
-			->firstSingle();
+		$ruleStatus = ( new IpRuleStatus( $con->this_req->ip ) )->setMod( $modIP );
+		/** @var IpRuleRecord $ipRecord */
+		$ipRecord = current( $ruleStatus->getRulesForBypass() );
 		if ( !empty( $ipRecord ) ) {
 			/** @var Update $updater */
 			$updater = $modIP->getDbH_IPRules()->getQueryUpdater();

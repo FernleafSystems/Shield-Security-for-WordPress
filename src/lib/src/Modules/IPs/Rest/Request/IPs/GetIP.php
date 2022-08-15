@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\FindIpRuleRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
@@ -85,16 +85,22 @@ class GetIP extends Base {
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
-		$ip = ( new FindIpRuleRecords() )
-			->setMod( $mod )
-			->setIP( $req->ip )
-			->lookup();
+		$ruleStatus = ( new IpRuleStatus( $req->ip ) )->setMod( $this->getMod() );
+		if ( $ruleStatus->isBypass() ) {
+			$ip = current( $ruleStatus->getRulesForBypass() );
+		}
+		elseif ( $ruleStatus->isBlocked() ) {
+			$ip = current( $ruleStatus->getRulesForBlock() );
+		}
+		elseif ( $ruleStatus->isAutoBlacklisted() ) {
+			$ip = $ruleStatus->getRuleForAutoBlock();
+		}
 
 		$info = [];
 		if ( !empty( $ip ) ) {
 			$info = [
 				'type'           => $dbh::GetTypeName( $ip->type ),
-				'offenses'       => $ip->offenses,
+				'offenses'       => $ruleStatus->getOffenses(),
 				'label'          => $ip->label,
 				'blocked_at'     => $ip->blocked_at,
 				'unblocked_at'   => $ip->unblocked_at,

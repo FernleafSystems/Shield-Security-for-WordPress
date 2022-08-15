@@ -6,8 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
-	Lib\Ops\FindIpRuleRecords,
-	ModCon,
+	Lib\IpRules\IpRuleStatus,
 	Options
 };
 
@@ -51,27 +50,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function isIpBlockedOnCrowdSec( string $ip ) :bool {
-		return $this->isIpOnCrowdSec( $ip, false );
-	}
-
-	public function isIpOnCrowdSec( string $ip, bool $includeUnblocked = true ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$onCS = false;
-
-		if ( !empty( $ip ) ) {
-			$record = ( new FindIpRuleRecords() )
-				->setMod( $mod )
-				->setIP( $ip )
-				->setListTypeCrowdsec()
-				->firstAll();
-			if ( !empty( $record ) ) {
-				$onCS = $includeUnblocked || $record->unblocked_at === 0;
-			}
-		}
-
-		return $onCS;
+		return ( new IpRuleStatus( $ip ) )->isBlockedByCrowdsec();
 	}
 
 	public function storeCfg() {

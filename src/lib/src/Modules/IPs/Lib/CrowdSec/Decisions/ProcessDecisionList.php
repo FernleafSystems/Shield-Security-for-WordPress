@@ -3,10 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\DeleteRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use IPLib\Factory;
+use IPLib\Range\RangeInterface;
 
 class ProcessDecisionList {
 
@@ -65,10 +70,36 @@ class ProcessDecisionList {
 	}
 
 	private function delete( array $decisions ) :int {
-		// We only handle "ip" scopes right now, but we can add more as we need to.
-		return ( new CleanIpRules() )
-			->setMod( $this->getMod() )
-			->ipList( $this->extractDataFromDecisionsForScope_IP( $decisions ) );
+		return $this->delete_IPs( $decisions );
+	}
+
+	private function delete_IPs( array $decisions ) :int {
+		$count = 0;
+
+		$ipsToDelete = $this->extractDataFromDecisionsForScope_IP( $decisions );
+
+		/** @var RangeInterface[] $ipsToDelete */
+		$ipsToDelete = array_filter( array_map( 'trim', array_filter( $ipsToDelete ) ), function ( $ip ) {
+			return Factory::parseRangeString( $ip );
+		} );
+
+		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
+		$loader->wheres = [
+			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+		];
+
+		foreach ( $loader->select() as $record ) {
+			$recordAsRange = Factory::parseRangeString( $record->ipAsSubnetRange() );
+			foreach ( $ipsToDelete as $ipRange ) {
+				if ( $ipRange->containsRange( $recordAsRange ) ) {
+					( new DeleteRule() )
+						->setMod( $this->getMod() )
+						->byRecord( $record );
+					$count++;
+				}
+			}
+		}
+		return $count;
 	}
 
 	private function extractDataFromDecisionsForScope_IP( array $decisions ) :array {

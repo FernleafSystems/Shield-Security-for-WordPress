@@ -26,11 +26,18 @@ class Remove extends BaseAddRemove {
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			$del = ( new IPs\Lib\Ops\DeleteRule() )
-				->setMod( $this->getMod() )
-				->setIP( $args[ 'ip' ] );
+			$ruleStatus = ( new IPs\Lib\IpRules\IpRuleStatus( $args[ 'ip' ] ) )->setMod( $this->getMod() );
+			$records = in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
+				$ruleStatus->getRulesForBypass() : $ruleStatus->getRulesForShieldBlock();
 
-			( in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ? $del->fromWhiteList() : $del->fromBlacklist() ) ?
+			$success = false;
+			foreach ( $records as $record ) {
+				$success = ( new IPs\Lib\IpRules\DeleteRule() )
+					->setMod( $this->getMod() )
+					->byRecord( $record );
+			}
+
+			$success ?
 				WP_CLI::success( __( 'IP address removed successfully.', 'wp-simple-firewall' ) )
 				: WP_CLI::error( __( "IP address couldn't be removed. (It may not be on this list)", 'wp-simple-firewall' ) );
 		}

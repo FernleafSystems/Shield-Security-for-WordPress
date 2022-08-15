@@ -25,7 +25,7 @@ class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		if ( $FS->isFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {
-				$add = ( new IPs\Lib\Ops\AddRule() )->setMod( $this->getMod() );
+				$add = ( new IPs\Lib\IpRules\AddRule() )->setMod( $this->getMod() );
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
 					$add->setIP( $ip );
 					try {

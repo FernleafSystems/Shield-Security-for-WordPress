@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
-	Lib\Ops\FindIpRuleRecords,
+	DB\IpRules\IpRuleRecord,
+	Lib\IpRules\IpRuleStatus,
 	ModCon
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
@@ -55,7 +56,6 @@ class BotSignalsRecord {
 	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
 		$thisReq = $this->getCon()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
@@ -68,20 +68,25 @@ class BotSignalsRecord {
 			$r->ip_ref = $this->getIPRecord()->id;
 		}
 
-		$ipOnList = ( new FindIpRuleRecords() )
-			->setMod( $mod )
-			->setIP( $this->getIP() )
-			->firstSingle();
-
-		if ( !empty( $ipOnList ) ) {
-			if ( empty( $r->bypass_at ) && $ipOnList->type === $dbh::T_MANUAL_WHITE ) {
-				$r->bypass_at = $ipOnList->created_at;
+		$ruleStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $this->getMod() );
+		if ( $ruleStatus->hasRules() ) {
+			if ( empty( $r->bypass_at ) && $ruleStatus->isBypass() ) {
+				/** @var IpRuleRecord $ruleRecord */
+				$ruleRecord = current( $ruleStatus->getRulesForBypass() );
+				$r->bypass_at = $ruleRecord->created_at;
 			}
-			if ( empty( $r->offense_at ) && $ipOnList->type === $dbh::T_AUTO_BLACK ) {
-				$r->offense_at = $ipOnList->last_access_at;
+			if ( empty( $r->offense_at ) && $ruleStatus->isAutoBlacklisted() ) {
+				$r->offense_at = $ruleStatus->getRuleForAutoBlock()->last_access_at;
 			}
-			$r->blocked_at = $ipOnList->blocked_at;
-			$r->unblocked_at = $ipOnList->unblocked_at;
+			if ( $ruleStatus->isBlocked() ) {
+				/** @var IpRuleRecord $ruleRecord */
+				$ruleRecord = current( $ruleStatus->getRulesForBlock() );
+				$r->blocked_at = $ruleRecord->blocked_at;
+				$r->unblocked_at = 0;
+			}
+			else {
+				// TODO: $r->unblocked_at = 0;
+			}
 		}
 
 		if ( empty( $r->notbot_at ) && $thisReq->ip === $this->getIP() ) {

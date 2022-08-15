@@ -4,12 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
-	Ops as IpRulesDB
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Services\Services;
-use IPLib\Range\Type;
 
 /**
  * @deprecated 16.0
@@ -31,11 +27,6 @@ class AddIP {
 			$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		}
 		catch ( \Exception $e ) {
-			$IP = ( new FindIpRuleRecords() )
-				->setMod( $this->getMod() )
-				->setIP( $this->getIP() )
-				->setListTypeBlock()
-				->lookup( false );
 		}
 
 		if ( empty( $IP ) ) {
@@ -78,132 +69,6 @@ class AddIP {
 	 * @throws \Exception
 	 */
 	private function add( string $listType, array $data = [] ) :IpRulesDB\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-
-		$ip = $this->getIP();
-		$parsedRange = \IPLib\Factory::parseRangeString( $ip );
-		if ( empty( $parsedRange ) ) {
-			throw new \Exception( sprintf( "Invalid IP address or IP Range: %s", $ip ) );
-		}
-		if ( !in_array( $parsedRange->getRangeType(), [ Type::T_PUBLIC, Type::T_PRIVATENETWORK ] ) ) {
-			throw new \Exception( sprintf( "A non-public/private IP address provided: %s", $ip ) );
-		}
-		if ( $parsedRange->getSize() > 1 && $listType === $dbh::T_AUTO_BLACK ) {
-			throw new \Exception( "Automatic blocking of IP ranges isn't supported at this time." );
-		}
-
-		// Never block our own server IP
-		if ( in_array( $listType, [ $dbh::T_AUTO_BLACK, $dbh::T_MANUAL_BLACK, $dbh::T_CROWDSEC ] ) ) {
-			foreach ( Services::IP()->getServerPublicIPs() as $serverPublicIP ) {
-				$serverAddress = \IPLib\Factory::parseAddressString( $serverPublicIP );
-				if ( !empty( $serverAddress ) && $parsedRange->contains( $serverAddress ) ) {
-					throw new \Exception( "Blocking the webserver's public IP address is currently prohibited." );
-				}
-			}
-		}
-
-		$ruleFinder = ( new FindIpRuleRecords() )
-			->setMod( $mod )
-			->setIP( $this->getIP() );
-
-		switch ( $listType ) {
-
-			case $dbh::T_CROWDSEC:
-				foreach ( $ruleFinder->all() as $rule ) {
-					if ( $rule->type === $dbh::T_CROWDSEC ) {
-						throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) );
-					}
-					if ( $rule->type === $dbh::T_MANUAL_WHITE ) {
-						throw new \Exception( sprintf( "Not allowed to add a bypass IP (%s) to the CrowdSec list.", $ip ) );
-					}
-				}
-				break;
-
-			case $dbh::T_MANUAL_WHITE:
-				foreach ( $ruleFinder->all() as $rule ) {
-					if ( $rule->type === $dbh::T_MANUAL_WHITE ) {
-						throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
-					}
-					if ( $rule->type === $dbh::T_AUTO_BLACK ) {
-						( new DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $rule );
-					}
-					// Delete manually blacklisted, single IPs
-					if ( $rule->type === $dbh::T_MANUAL_BLACK && !$rule->is_range ) {
-						( new DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $rule );
-					}
-				}
-				break;
-
-			// An IP can never be added unless it doesn't exist on any other list.
-			case $dbh::T_AUTO_BLACK:
-				foreach ( $ruleFinder->all() as $rule ) {
-					// You can never block a whitelisted IP
-					if ( $rule->type === $dbh::T_MANUAL_WHITE ) {
-						throw new \Exception( sprintf( 'IP (%s) is currently on the bypass list.', $ip ) );
-					}
-					if ( $rule->type === $dbh::T_CROWDSEC ) {
-						throw new \Exception( sprintf( 'IP (%s) is currently on the crowdsec list.', $ip ) );
-					}
-					throw new \Exception( sprintf( 'IP (%s) is already on block list.', $ip ) );
-				}
-				break;
-
-			case $dbh::T_MANUAL_BLACK:
-				foreach ( $ruleFinder->all() as $rule ) {
-					// You can never block a whitelisted IP
-					if ( $rule->type === $dbh::T_MANUAL_WHITE ) {
-						throw new \Exception( sprintf( 'IP (%s) is currently on the bypass list.', $ip ) );
-					}
-					if ( $rule->type === $dbh::T_MANUAL_BLACK ) {
-						throw new \Exception( sprintf( 'IP (%s) is already blocked.', $ip ) );
-					}
-
-					// 1. You can manually block an IP on the Auto list (it'll be replaced)
-					// 2. If you're manually adding a range and an existing single entry is covered by that range, it is replaced.
-					if ( $rule->type === $dbh::T_AUTO_BLACK || ( !$rule->is_range && $parsedRange->getSize() > 1 ) ) {
-						( new DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $rule );
-					}
-				}
-				break;
-
-			default:
-				throw new \Exception( sprintf( "An invalid list type provided: %s", $listType ) );
-		}
-
-		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP() );
-
-		/** @var IpRulesDB\Record $tmp */
-		$tmp = $dbh->getRecord();
-		$tmp->applyFromArray( $data );
-		$tmp->ip_ref = $ipRecord->id;
-		$tmp->cidr = explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
-		$tmp->is_range = $parsedRange->getSize() > 1;
-		$tmp->type = $listType;
-		$tmp->label = preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
-		if ( $tmp->blocked_at == 0 && in_array( $listType, [ $dbh::T_MANUAL_BLACK, $dbh::T_CROWDSEC ] ) ) {
-			$tmp->blocked_at = Services::Request()->ts();
-		}
-
-		if ( $dbh->getQueryInserter()->insert( $tmp ) ) {
-			/** @var IpRulesDB\Record $ipRuleRecord */
-			$ipRuleRecord = $dbh->getQuerySelector()
-								->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
-		}
-
-		if ( empty( $ipRuleRecord ) ) {
-			throw new \Exception( "IP Rule couldn't be added to the database." );
-		}
-
-		return $ipRuleRecord;
+		throw new \Exception( "Deprecated." );
 	}
 }

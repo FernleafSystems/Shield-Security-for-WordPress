@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 class QueryIpBlock {
 
@@ -33,34 +33,15 @@ class QueryIpBlock {
 	 * @return IpRuleRecord|null
 	 */
 	private function getBlockedIpRecord() {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-		$req = Services::Request();
-		$dbh = $mod->getDbH_IPRules();
-
 		$blockIP = null;
 
-		$allIPs = ( new IPs\Lib\Ops\FindIpRuleRecords() )
-			->setMod( $mod )
-			->setIP( $this->getIP() )
-			->setIsIpBlocked( true )
-			->all();
+		$ruleStatus = ( new IpRuleStatus( $this->getIP() ) )->setMod( $this->getMod() );
 
-		foreach ( $allIPs as $ipRule ) {
-			/** @var IPs\Options $opts */
-			$opts = $this->getOptions();
-
-			// Clean out expired auto IPs as we go, so they don't show up in future queries.
-			if ( $ipRule->type == $dbh::T_AUTO_BLACK
-				 && $ipRule->last_access_at < $req->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp ) {
-
-				( new IPs\Lib\Ops\DeleteRule() )
-					->setMod( $mod )
-					->byRecord( $ipRule );
-			}
-			elseif ( empty( $blockIP ) ) {
-				$blockIP = $ipRule;
-			}
+		foreach ( $ruleStatus->getRulesForManualBlock() as $ipRule ) {
+			$blockIP = $ipRule;
+		}
+		if ( empty( $blockIP ) ) {
+			$blockIP = $ruleStatus->getRuleForAutoBlock();
 		}
 
 		return $blockIP;

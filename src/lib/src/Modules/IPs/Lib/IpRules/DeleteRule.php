@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
@@ -34,31 +34,5 @@ class DeleteRule {
 		/** @var IpRulesDB\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
 		return $deleter->deleteById( $record->id );
-	}
-
-	public function fromBlacklist() :bool {
-		$finder = ( new FindIpRuleRecords() )
-			->setMod( $this->getMod() )
-			->setListTypeBlock()
-			->setIP( $this->getIP() );
-
-		$success = true;
-		foreach ( $finder->all() as $ipRule ) {
-			$success = $this->byRecord( $ipRule ) && $success;
-		}
-		return $success;
-	}
-
-	public function fromWhiteList() :bool {
-		$finder = ( new FindIpRuleRecords() )
-			->setMod( $this->getMod() )
-			->setListTypeBypass()
-			->setIP( $this->getIP() );
-
-		$success = true;
-		foreach ( $finder->all() as $ipRule ) {
-			$success = $this->byRecord( $ipRule ) && $success;
-		}
-		return $success;
 	}
 }

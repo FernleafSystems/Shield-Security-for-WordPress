@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 class QueryRemainingOffenses {
 
@@ -13,14 +14,13 @@ class QueryRemainingOffenses {
 	public function run() :int {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		$blackIP = ( new IPs\Lib\Ops\FindIpRuleRecords() )
+
+		$offenses = ( new IpRuleStatus( $this->getIP() ) )
 			->setMod( $mod )
-			->setListTypeAutoBlock()
-			->setIP( $this->getIP() )
-			->firstSingle();
+			->getOffenses();
 
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		return $opts->getOffenseLimit() - ( empty( $blackIP ) ? 0 : $blackIP->offenses ) - 1;
+		return $opts->getOffenseLimit() - $offenses - 1;
 	}
 }

@@ -3,9 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
@@ -122,14 +120,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			}
 
 			$range = Factory::parseRangeString( trim( $form[ 'ip' ] ) );
+			$iBypass = ( new Lib\IpRules\IpRuleStatus( $con->this_req->ip ) )
+				->setMod( $this->getMod() )
+				->isBypass();
 
+			// You can't manually block your own IP if your IP isn't whitelisted.
 			if ( $form[ 'type' ] === $dbh::T_MANUAL_BLACK
 				 && !empty( $range )
+				 && !$iBypass
 				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
 				throw new \Exception( "Manually blocking your own IP address isn't supported." );
 			}
 
-			$ipAdder = ( new Lib\Ops\AddRule() )
+			$ipAdder = ( new Lib\IpRules\AddRule() )
 				->setMod( $mod )
 				->setIP( $form[ 'ip' ] );
 			switch ( $form[ 'type' ] ) {
@@ -207,6 +210,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$msg = __( "IP provided was invalid.", 'wp-simple-firewall' );
 		}
 		else {
+			$ruleStatus = ( new Lib\IpRules\IpRuleStatus( $ip ) )->setMod( $this->getMod() );
+
 			switch ( $req->post( 'ip_action' ) ) {
 
 				case 'block':
@@ -214,7 +219,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 						if ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
 							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
 						}
-						( new Ops\AddRule() )
+						( new Lib\IpRules\AddRule() )
 							->setMod( $this->getMod() )
 							->setIP( $ip )
 							->toManualBlacklist();
@@ -227,17 +232,19 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'unblock':
-					$success = ( new Ops\DeleteRule() )
-						->setMod( $this->getMod() )
-						->setIP( $ip )
-						->fromBlacklist();
+					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+						$success = ( new Lib\IpRules\DeleteRule() )
+									   ->setMod( $this->getMod() )
+									   ->byRecord( $record )
+								   && $success;
+					}
 					$msg = $success ? __( 'IP address unblocked.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be unblocked at this time.", 'wp-simple-firewall' );
 					break;
 
 				case 'bypass':
 					try {
-						( new Ops\AddRule() )
+						( new Lib\IpRules\AddRule() )
 							->setMod( $this->getMod() )
 							->setIP( $ip )
 							->toManualWhitelist();
@@ -250,19 +257,22 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'unbypass':
-					$success = ( new Ops\DeleteRule() )
-						->setMod( $this->getMod() )
-						->setIP( $ip )
-						->fromWhiteList();
+					foreach ( $ruleStatus->getRulesForBypass() as $record ) {
+						$success = ( new Lib\IpRules\DeleteRule() )
+									   ->setMod( $this->getMod() )
+									   ->byRecord( $record )
+								   && $success;
+					}
 					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be removed from Bypass list at this time.", 'wp-simple-firewall' );
 					break;
 
 				case 'delete_notbot':
-					( new Ops\DeleteRule() )
-						->setMod( $this->getMod() )
-						->setIP( $ip )
-						->fromBlacklist();
+					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+						( new Lib\IpRules\DeleteRule() )
+							->setMod( $this->getMod() )
+							->byRecord( $record );
+					}
 					$success = ( new Lib\Bots\BotSignalsRecord() )
 						->setMod( $this->getMod() )
 						->setIP( $ip )

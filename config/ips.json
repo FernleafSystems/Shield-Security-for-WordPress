@@ -49,6 +49,7 @@
     "visitor-whitelisted": {
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
+      "can_dismiss":      false,
       "plugin_page_only": true,
       "per_user":         true,
       "type":             "info"
@@ -809,16 +810,16 @@
         }
       },
       "cols_timestamps": {
-        "last_access_at": {
+        "last_access_at":          {
           "comment": "Last Access"
         },
-        "blocked_at":     {
+        "blocked_at":              {
           "comment": "IP Blocked"
         },
-        "unblocked_at":   {
+        "unblocked_at":            {
           "comment": "Visitor Requested Unblock"
         },
-        "last_unblock_attempt_at":   {
+        "last_unblock_attempt_at": {
           "comment": "Last Time An Auto-Unblock Attempt Was Made"
         }
       }
