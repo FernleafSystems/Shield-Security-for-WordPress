@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
+/**
+ * @deprecated 16.0
+ */
 class QueryIpBlock {
 
 	use Shield\Modules\ModConsumer;
