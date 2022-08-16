@@ -43,7 +43,7 @@ class BuildScanTableData extends BaseBuildTableData {
 				switch ( $column ) {
 					case 'event':
 						if ( count( $selected ) > 1 ) {
-							$wheres[] = sprintf( 'log.event_slug IN (`%s`)', implode( '`,`', $selected ) );
+							$wheres[] = sprintf( "log.event_slug IN ('%s')", implode( '`,`', $selected ) );
 						}
 						else {
 							$wheres[] = sprintf( "log.event_slug='%s'", array_pop( $selected ) );

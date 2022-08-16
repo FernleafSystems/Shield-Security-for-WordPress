@@ -865,15 +865,6 @@ body.folded #FooterBannerGoPro {
 	border-left: 3px solid rgba(0, 128, 0, 0.7);
 	padding-left: 20px;
 }
-#SearchDialog .modal-body {
-	min-height: 450px;
-}
-#SearchDialog .bootstrap-select {
-	width: 100%;
-}
-#SearchDialog .bootstrap-select > .dropdown-toggle.bs-placeholder {
-	color: #333333;
-}
 #StatsNav {
 	background-color: #f1f1f1;
 	display: inline-block;
@@ -1002,15 +993,29 @@ td.mal_details ul {
 	background: #ffffff;
 }
 #apto-PageHeader .page-header-item {
-	margin: 0 10px;
+	margin: 0 6px;
 }
 #apto-PageHeader .page-header-icon {
 	border-radius: 50px;
-	background: rgba(0,0,0,0.1);
 }
 #apto-PageHeader .page-header-icon > svg {
 	width: 24px;
 	height: 24px;
 	color: #008000;
-	margin: 6px;
+	margin: 3px;
+}
+#SearchBox .select2-selection {
+	background: rgba(0,0,0,0.04);
+	border: 1px solid #008000;
+}
+#SearchBox:hover .select2-selection {
+	box-shadow: 1px 1px 3px rgba(0, 128, 0, 0.4);
+}
+
+.select2-results__option--selected,
+.select2-results__option--highlighted,
+.select2-results ul li ul li:active,
+.select2-results ul li ul li:focus,
+.select2-results ul li ul li:hover {
+	background: green !important;
 }

@@ -32,6 +32,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
 				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
+				'select_search'           => [ $this, 'ajaxExec_SelectSearch' ],
 			] );
 		}
 		return $map;
@@ -110,6 +111,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'html'    => ( new Components\DashboardWidget() )
 				->setMod( $this->getMod() )
 				->render( (bool)Services::Request()->post( 'refresh' ) )
+		];
+	}
+
+	public function ajaxExec_SelectSearch() :array {
+		return [
+			'success' => true,
+			'results' => ( new Lib\SelectSearchData() )
+				->setCon( $this->getCon() )
+				->build( Services::Request()->request( 'search' ) ),
 		];
 	}
 

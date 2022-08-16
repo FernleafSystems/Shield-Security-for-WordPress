@@ -433,13 +433,18 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_plugin',
 			[
 				'components' => [
-					'helpscout'   => [
+					'helpscout'     => [
 						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
 						'visible'   => $con->isModulePage()
 					],
-					'mod_options' => [
+					'mod_options'   => [
 						'ajax' => [
 							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
+						]
+					],
+					'select_search' => [
+						'ajax' => [
+							'select_search' => $this->getAjaxActionData( 'select_search' )
 						]
 					],
 				],

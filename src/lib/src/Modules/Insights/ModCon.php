@@ -36,6 +36,10 @@ class ModCon extends BaseShield\ModCon {
 		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_IPs() );
 	}
 
+	public function getUrl_ActivityLog() :string {
+		return $this->getUrl_SubInsightsPage( 'audit_trail' );
+	}
+
 	public function getUrl_IPs() :string {
 		return $this->getUrl_SubInsightsPage( 'ips' );
 	}

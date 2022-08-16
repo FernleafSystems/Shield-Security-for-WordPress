@@ -17,28 +17,7 @@ class UI {
 			->standard();
 	}
 
-	public function buildSelectData_OptionsSearch() :array {
-		$searchSelect = [];
-		foreach ( $this->getCon()->modules as $module ) {
-			$cfg = $module->cfg;
-			if ( $cfg->properties[ 'show_module_options' ] ) {
-				$options = [];
-				foreach ( $module->getOptions()->getVisibleOptionsKeys() as $optKey ) {
-					try {
-						$options[ $optKey ] = array_merge(
-							$module->getStrings()->getOptionStrings( $optKey ),
-							[
-								'href' => $module->getUrl_DirectLinkToOption( $optKey )
-							]
-						);
-					}
-					catch ( \Exception $e ) {
-					}
-				}
-				$searchSelect[ $module->getMainFeatureName() ] = $options;
-			}
-		}
-		return $searchSelect;
+	protected function buildSearchSelectData() :array {
 	}
 
 	public function getBaseDisplayData() :array {
@@ -95,6 +74,7 @@ class UI {
 			],
 			'imgs'       => [
 				'svgs'           => [
+					'search'    => $con->svgs->raw( 'bootstrap/search.svg' ),
 					'help'      => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
 					'ignore'    => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle'  => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),

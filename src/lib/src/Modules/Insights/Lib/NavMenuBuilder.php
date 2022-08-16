@@ -12,7 +12,6 @@ class NavMenuBuilder {
 
 	public function build() :array {
 		$menu = [
-			$this->search(),
 			$this->overview(),
 			$this->configuration(),
 			$this->scans(),
@@ -211,25 +210,6 @@ class NavMenuBuilder {
 					$this->getCon()->getHumanName() ),
 			],
 			'sub_items' => $subItems,
-		];
-	}
-
-	private function search() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return [
-			'slug'    => 'search',
-			'title'   => __( 'Search', 'wp-simple-firewall' ),
-			'img'     => $this->getCon()->svgs->raw( 'bootstrap/search.svg' ),
-			'id'      => 'NavMenuSearch',
-			'href'    => $mod->getUrl_SubInsightsPage( 'overview' ),
-			'introjs' => [
-				'body' => __( 'Use Search to find any option within the entire plugin' ),
-			],
-			'data'    => [
-				'bs-toggle' => 'modal',
-				'bs-target' => '#SearchDialog',
-			],
 		];
 	}
 

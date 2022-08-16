@@ -491,8 +491,32 @@ jQueryDoc.ready( function () {
 	jQuery( '.select2picker.static' ).select2( {
 		width: 'resolve'
 	} );
-	jQuery( '#SearchDialog select' ).select2( {
-		dropdownParent: jQuery( "#SearchDialog" )
+	jQuery( '#SearchBox select' ).select2( {
+		minimumInputLength: 3,
+		placeholder: "Search For Plugin Option or Section",
+		ajax: {
+			delay: 750,
+			url: icwp_wpsf_vars_plugin.components.select_search.ajax.select_search.ajaxurl,
+			contentType: "application/json; charset=utf-8",
+			dataType: 'json',
+			data: function ( params ) {
+				let query = icwp_wpsf_vars_plugin.components.select_search.ajax.select_search;
+				query.search = params.term;
+				return query;
+			},
+			processResults: function ( response ) {
+				return {
+					results: response.data.results
+				};
+			},
+		}
+	} );
+	jQuery( document ).on( 'select2:open', () => {
+		document.querySelector( '.select2-search__field' ).focus();
+	} );
+	jQuery( document ).on( 'select2:select', ( evt ) => {
+		let data = evt.params.data;
+		window.location.href = evt.params.data.href;
 	} );
 	jQuery( '#IpReviewSelect' ).select2( {
 		minimumInputLength: 2,

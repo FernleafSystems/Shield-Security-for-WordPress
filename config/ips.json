@@ -278,16 +278,16 @@
       "type":          "select",
       "value_options": [
         {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
           "value_key": "block_with_unblock",
           "text":      "Block Request With Ability To Auto-Unblock"
         },
         {
           "value_key": "block",
           "text":      "Block Request"
+        },
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
         }
       ],
       "link_info":     "",

@@ -36,9 +36,9 @@ class Strings extends Base\Strings {
 
 			case 'section_traffic_options' :
 				$short = __( 'Traffic Logging Options', 'wp-simple-firewall' );
-				$title = __( 'Traffic Watch Options', 'wp-simple-firewall' );
+				$title = __( 'Traffic Logging Options', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Traffic Watch system.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Traffic Logging system.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
 				];
 				break;

@@ -3,8 +3,9 @@
 {% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
 
 {% block page_head %}
-	<div class="row row-cols-2 justify-content-between mb-3 {% if not flags.is_mode_live %}bg-warning{% endif %}"
+	<div class="row justify-content-between mb-3 {% if not flags.is_mode_live %}bg-warning{% endif %}"
 	     id="apto-PageHeader">
+
 		<div class="col d-flex align-items-center">
 			<h5 class="my-0 ms-3" id="PageTitle">
 				{% block page_head_titlemenu %}
@@ -13,6 +14,12 @@
 				{% endblock page_head_titlemenu %}
 			</h5>
 		</div>
+
+		<div class="col-auto d-flex align-items-center" id="SearchBox">
+			<select class="select2picker static" style="max-width: 100%; width: 100%" id="SearchBoxSelect"></select>
+			<span class="page-header-icon ms-1" for="SearchBoxSelect">{{ imgs.svgs.search|raw }}</span>
+		</div>
+
 		<div class="col d-flex justify-content-end align-items-center">
 			{% if not flags.is_whitelabelled %}
 				<a href="#SGBF-open-62e5437476b962001357b06d"
@@ -20,6 +27,7 @@
 			{% endif %}
 			<a href="{{ hrefs.helpdesk }}" target="_blank"
 			   class="page-header-item page-header-icon">{{ imgs.svgs.help|raw }}</a>
+
 			<a href="{{ hrefs.plugin_home }}" class="page-header-item" target="_blank">
 				<img class="navbar-brand me-3"
 				     src="{{ imgs.logo_banner }}"
@@ -28,6 +36,7 @@
 				>
 			</a>
 		</div>
+
 	</div>
 {% endblock %}
 
@@ -40,13 +49,28 @@
 {% block inline_styles %}
 
 	<script>
-    window.SGBFWidgetLoader = window.SGBFWidgetLoader || {ids:[],call:function(w,d,s,l,id) {
-		w['sgbf']=w['sgbf']||function(){(w['sgbf'].q=w['sgbf'].q||[]).push(arguments[0]);};
-		var sgbf1=d.createElement(s),sgbf0=d.getElementsByTagName(s)[0];
-		if (SGBFWidgetLoader && SGBFWidgetLoader.ids && SGBFWidgetLoader.ids.length > 0) {SGBFWidgetLoader.ids.push(id);return;}
-		SGBFWidgetLoader.ids.push(id);sgbf1.onload = function() {var app = new SGBFLoader();app.run();};
-		sgbf1.async=true;sgbf1.src=l;sgbf0.parentNode.insertBefore(sgbf1,sgbf0);return{};
-	}};SGBFWidgetLoader.call(window,document, "script", "https://leanbe.ai/assets/api/SGBFWidget.min.js", "62e5437476b962001357b06d");
+    window.SGBFWidgetLoader = window.SGBFWidgetLoader || {
+		ids: [], call: function ( w, d, s, l, id ) {
+			w[ 'sgbf' ] = w[ 'sgbf' ] || function () {
+				(w[ 'sgbf' ].q = w[ 'sgbf' ].q || []).push( arguments[ 0 ] );
+			};
+			var sgbf1 = d.createElement( s ), sgbf0 = d.getElementsByTagName( s )[ 0 ];
+			if ( SGBFWidgetLoader && SGBFWidgetLoader.ids && SGBFWidgetLoader.ids.length > 0 ) {
+				SGBFWidgetLoader.ids.push( id );
+				return;
+			}
+			SGBFWidgetLoader.ids.push( id );
+			sgbf1.onload = function () {
+				var app = new SGBFLoader();
+				app.run();
+			};
+			sgbf1.async = true;
+			sgbf1.src = l;
+			sgbf0.parentNode.insertBefore( sgbf1, sgbf0 );
+			return {};
+		}
+	};
+	SGBFWidgetLoader.call( window, document, "script", "https://leanbe.ai/assets/api/SGBFWidget.min.js", "62e5437476b962001357b06d" );
   </script>
 
 {% endblock %}
