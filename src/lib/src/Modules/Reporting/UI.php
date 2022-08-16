@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
 class UI extends BaseShield\UI {
 
@@ -56,10 +56,10 @@ class UI extends BaseShield\UI {
 							 ->getDbHandler_Events()
 							 ->getQuerySelector();
 
-		/** @var Databases\IPs\Select $oSelectIp */
-		$oSelectIp = $con->getModule_IPs()
-						 ->getDbHandler_IPs()
-						 ->getQuerySelector();
+		/** @var IpRulesDB\Select $ipRuleSelect */
+		$ipRuleSelect = $con->getModule_IPs()
+							->getDbH_IPRules()
+							->getQuerySelector();
 
 		$statsData = [
 			'login'          => [
@@ -105,7 +105,10 @@ class UI extends BaseShield\UI {
 				'id'        => 'ip_blocked',
 				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Now' ),
-					number_format( $oSelectIp->filterByBlacklist()->count() )
+					number_format( $ipRuleSelect->filterByTypes( [
+						IpRulesDB\Handler::T_AUTO_BLOCK,
+						IpRulesDB\Handler::T_MANUAL_BLOCK
+					] )->count() )
 				),
 				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
 			],

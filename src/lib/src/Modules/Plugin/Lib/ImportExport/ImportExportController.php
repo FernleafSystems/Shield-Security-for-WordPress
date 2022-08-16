@@ -104,7 +104,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		$opts = $this->getOptions();
 		$ID = $opts->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = sha1( $this->getCon()->getSiteInstallationId().wp_rand( 0, PHP_INT_MAX ) );
+			$ID = sha1( $this->getCon()->getInstallationID()[ ''].wp_rand( 0, PHP_INT_MAX ) );
 			$opts->setOpt( 'importexport_secretkey', $ID )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
 		}

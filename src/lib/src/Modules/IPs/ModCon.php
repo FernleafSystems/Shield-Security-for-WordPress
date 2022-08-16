@@ -77,12 +77,16 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onWpInit() {
-		if ( $this->getDbHandler_IPs()
-				  ->getQuerySelector()
-				  ->count() > 0 ) {
-			( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )
-				->setMod( $this )
-				->dispatch();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		$migrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
+		if ( ( Services::Request()->ts() - (int)$opts->getOpt( 'tmp_ips_started_at' ) ) > HOUR_IN_SECONDS ) {
+			$opts->setOpt( 'tmp_ips_started_at', Services::Request()->ts() );
+			$this->saveModOptions();
+			if ( $this->getDbHandler_IPs()->getQuerySelector()->count() > 0 ) {
+				$migrator->dispatch();
+			}
 		}
 
 		parent::onWpInit();
@@ -231,6 +235,9 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function cleanupDatabases() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$this->getDbH_BotSignal()
 			 ->getQueryDeleter()
 			 ->addWhereOlderThan(
@@ -238,5 +245,15 @@ class ModCon extends BaseShield\ModCon {
 				 'updated_at'
 			 )
 			 ->query();
+
+		/** @var DB\IpRules\Ops\Delete $ipRulesDeleter */
+		$ipRulesDeleter = $this->getDbH_IPRules()->getQueryDeleter();
+		$ipRulesDeleter
+			->filterByType( DB\IpRules\Ops\Handler::T_AUTO_BLOCK )
+			->addWhereOlderThan(
+				Services::Request()->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp,
+				'last_access_at'
+			)
+			->query();
 	}
 }
