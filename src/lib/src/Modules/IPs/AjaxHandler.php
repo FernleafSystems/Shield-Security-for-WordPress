@@ -235,8 +235,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
 						$success = ( new Lib\IpRules\DeleteRule() )
 									   ->setMod( $this->getMod() )
-									   ->byRecord( $record )
-								   && $success;
+									   ->byRecord( $record );
 					}
 					$msg = $success ? __( 'IP address unblocked.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be unblocked at this time.", 'wp-simple-firewall' );
@@ -260,8 +259,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					foreach ( $ruleStatus->getRulesForBypass() as $record ) {
 						$success = ( new Lib\IpRules\DeleteRule() )
 									   ->setMod( $this->getMod() )
-									   ->byRecord( $record )
-								   && $success;
+									   ->byRecord( $record );
 					}
 					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be removed from Bypass list at this time.", 'wp-simple-firewall' );

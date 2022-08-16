@@ -225,17 +225,6 @@ td.column-message textarea {
 	border-color: transparent;
 	font-family: monospace;
 }
-.table-side-filter {
-	position: sticky;
-	top: 126px;
-}
-/** TABLE: TRAFFIC **/
-th.column-code {
-	width: 84px;
-}
-th.column-trans {
-	width: 114px;
-}
 /** INSIGHTS **/
 /* TABLES */
 #odp-PageContainer .card {
@@ -291,11 +280,6 @@ th.column-trans {
 #odp-PageMain .card.config {
 	margin-top: 20px;
 }
-#SectionModuleSummaries .card-body table {
-	margin-bottom: 0;
-}
-#SectionModuleSummaries table tr.row-key_opt {
-}
 /** TABLES **/
 .icwpAjaxTableContainer .tablenav {
 	height: auto;
@@ -325,12 +309,6 @@ th.column-is_secadmin {
 }
 /** End Sessions Table **/
 /** IPS Insights **/
-form.add-ip button.add {
-	vertical-align: text-bottom;
-}
-form.add-ip button.add .dashicons {
-	vertical-align: middle;
-}
 .odp-table .actions-block {
 	font-size: 0.75rem;
 	opacity: 0.6;
@@ -355,8 +333,6 @@ form.add-ip button.add .dashicons {
 }
 table.scan-table.wp-list-table button.toggle-row {
 	display: none;
-}
-#ScanResultsTabs {
 }
 .insights-sub-nav ul.nav.nav-tabs a.nav-link {
 	color: #2b2b2b;
@@ -386,15 +362,6 @@ table.scan-table.wp-list-table button.toggle-row {
 .insights-sub-nav nav > a.nav-link .badge {
 	font-size: 12px;
 }
-/**
-PTG SCAN TABLES
- */
-.scan-table-for-slug {
-	margin-top: 15px;
-}
-.scan-table-for-slug .tablenav.top {
-	display: none;
-}
 .card.card-scan_results {
 	background-color: transparent;
 	border: 0 none;
@@ -415,32 +382,14 @@ table.odp-table.scan-table td.column-path code {
 	font-size: 0.7rem;
 	padding: 0;
 }
-.tablenav.top, .tablenav.bottom {
-	/*display: none;*/
-}
-.container-scantable {
-	max-height: 650px;
-	overflow: auto;
-}
-.container-scantable .tablenav.top,
-.container-scantable .tablenav.top {
-	/*display: none;*/
-}
 #TableAdminNotes .tablenav.bottom,
 #TableSessions .tablenav.bottom,
 .container-scantable .tablenav.bottom {
 	display: none;
 }
-#SectionScanResultsPtg .card-scan_results table.table td {
-	padding: 2px 0.75rem;
-}
 /** END TABLES SCANS **/
 .insights_section.keys .alert {
 	margin-bottom: 0;
-}
-#BackToInsights a {
-	border-radius: 0;
-	border-width: 2px 0;
 }
 #navbar-bannerlogo {
 	height: 40px;
@@ -535,16 +484,6 @@ table.odp-table.scan-table td.column-path code {
 .tooltip .arrow {
 	display: none !important;
 }
-.row-sticky td {
-	background-color: #5a5a5a;
-	position: sticky;
-	top: 0;
-	z-index: 1;
-}
-.row-sticky td h5 {
-	margin: 0;
-	color: #ffffff;
-}
 .introjs-helperLayer {
 	background-color: rgba(91, 228, 56, 0.34);
 }
@@ -590,22 +529,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SessionsFilter .btn-link {
 	color: #008000;
 }
-#FilterIpWhite #SubmitForm,
-#FilterIpBlack #SubmitForm {
-	color: #ffffff;
-	background-color: #008000;
-	border-color: #008000;
-}
-#SectionIpsWhite #SubmitForm {
-	color: #ffffff;
-	background-color: #008000;
-	border-color: #008000;
-}
-#NewWhiteIp button {
-	color: #ffffff;
-	background-color: #008000;
-	border-color: #008000;
-}
 .btn-outline-dark:hover {
 	color: #ffffff;
 	background-color: #008000;
@@ -613,18 +536,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 }
 .table-success, .table-success > td, .table-success > th {
 	background-color: rgba(0, 128, 0, 0.20);
-}
-#SectionIpsBlack .alert {
-	border-radius: 0;
-}
-#SectionIpsWhite .alert {
-	border-radius: 0;
-}
-#SectionIpsBlack .input-group-text {
-	background-color: transparent !important;
-}
-#SectionIpsWhite .form-inline {
-	background-color: transparent !important;
 }
 a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link):not(.meter-analysis-link):not(.page-header-item)::after {
 	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
@@ -804,26 +715,6 @@ dl.pro-features dd {
 .overview.card.state-ok > .card-footer > a {
 	color: #007ba2;
 }
-.filter-states .state-danger:not(:disabled).active,
-.filter-states .state-danger:not(:disabled):active,
-.filter-states .state-danger:hover {
-	background-color: #cf0000;
-}
-.filter-states .state-warning:not(:disabled).active,
-.filter-states .state-warning:not(:disabled):active,
-.filter-states .state-warning:hover {
-	background-color: rgb(248, 134, 59);
-}
-.filter-states .state-info:not(:disabled).active,
-.filter-states .state-info:not(:disabled):active,
-.filter-states .state-info:hover {
-	background-color: #007ba2;
-}
-.filter-states .state-good:not(:disabled).active,
-.filter-states .state-good:not(:disabled):active,
-.filter-states .state-good:hover {
-	background-color: #008000;
-}
 a.card_help {
 	text-decoration: none !important;
 }
@@ -844,61 +735,6 @@ a.card_help {
 }
 #DynamicChangelog dd p {
 	margin-bottom: 5px;
-}
-#DashboardFeatureCards .card-footer {
-	background-color: transparent;
-}
-#DashboardFeatureCards .list-group-item {
-	border: 0 none;
-	padding: .3rem 0.2rem;
-}
-#DashboardFeatureCards .card.highlighted img {
-	filter: invert(100%);
-}
-#DashboardFeatureCards .card.highlighted .list-group-item {
-	background-color: transparent;
-}
-#DashboardFeatureCards .card.highlighted .list-group-item a {
-	color: white;
-}
-#DashboardFeatureCards .img-holder {
-	text-align: center;
-}
-#DashboardFeatureCards .img-holder .card-img-top {
-	width: 16%;
-}
-#DashboardFeatureCards .card-title img {
-	vertical-align: text-bottom;
-}
-#Dashboard_ModSettingsSelect .select2picker,
-#Dashboard_ModSettingsSelect > select {
-	width: 100%;
-}
-#ModuleSettingsJump .select2picker button {
-	padding: 0;
-	line-height: 15px;
-	background: transparent !important;
-	border: 0 none !important;
-	outline: 0 none !important;
-	box-shadow: 0 0 transparent !important;
-}
-#ModuleSettingsJump .select2picker button::after {
-	content: none !important;
-}
-#ModuleSettingsJump .select2picker button .filter-option-inner-inner {
-	font-size: 13px;
-	line-height: 20px;
-	color: #008000 !important;
-	font-weight: 500;
-}
-#ModuleSettingsJump .select2picker,
-#ModuleSettingsJump select,
-#ModuleSettingsJump select:focus,
-#ModuleSettingsJump select:active {
-	background: transparent;
-	border: 0 none !important;
-	color: #008000;
-	vertical-align: inherit;
 }
 #wpfooter {
 	display: none;
