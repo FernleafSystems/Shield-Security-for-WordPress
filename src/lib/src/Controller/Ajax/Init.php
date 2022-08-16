@@ -50,14 +50,11 @@ class Init {
 			$noise = [];
 		}
 
-		( new Response() )->issue(
-			[
-				'success' => $response[ 'success' ] ?? false,
-				'data'    => $response,
-				'noise'   => $noise
-			],
-			false
-		);
+		( new Response() )->issue( [
+			'success' => $response[ 'success' ] ?? false,
+			'data'    => $response,
+			'noise'   => $noise
+		] );
 	}
 
 	/**

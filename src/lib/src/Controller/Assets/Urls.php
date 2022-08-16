@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 class Urls {
 
@@ -11,9 +12,7 @@ class Urls {
 
 	public function forCss( string $asset ) :string {
 		$url = $this->lookupAssetUrlInSpec( $asset, 'css' );
-		return empty( $url ) ?
-			$this->forAsset( 'css/'.Services::Data()->addExtensionToFilePath( $asset, 'css' ) )
-			: $url;
+		return empty( $url ) ? $this->forAsset( 'css/'.Paths::AddExt( $asset, 'css' ) ) : $url;
 	}
 
 	public function forImage( string $asset ) :string {
@@ -23,7 +22,7 @@ class Urls {
 	public function forJs( string $asset ) :string {
 		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
 		if ( empty( $url ) ) {
-			$url = $this->forAsset( 'js/'.Services::Data()->addExtensionToFilePath( $asset, 'js' ) );
+			$url = $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) );
 		}
 		return $url;
 	}

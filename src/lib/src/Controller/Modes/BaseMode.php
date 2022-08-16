@@ -45,7 +45,7 @@ abstract class BaseMode {
 		$baseFile = basename( $correctPath );
 
 		// We first look for the presence of the file (which may not be named in all lower-case)
-		$foundFile = $FS->findFileInDir( $baseFile, $con->paths->forFlag(), false, false );
+		$foundFile = $FS->findFileInDir( $baseFile, $con->paths->forFlag(), false );
 		if ( !empty( $foundFile )
 			 && $FS->isFile( $foundFile ) && !$FS->isFile( $correctPath )
 			 && basename( $correctPath ) !== basename( $foundFile ) ) {

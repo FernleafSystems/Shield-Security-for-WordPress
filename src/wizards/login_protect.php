@@ -6,43 +6,36 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
-	/**
-	 * @return string
-	 */
 	protected function getPageTitle() :string {
 		return sprintf( __( '%s Multi-Factor Authentication Wizard', 'wp-simple-firewall' ), $this->getCon()
 																								  ->getHumanName() );
 	}
 
 	/**
-	 * @param string $step
 	 * @return \FernleafSystems\Utilities\Response|null
 	 */
 	protected function processWizardStep( string $step ) {
 		switch ( $step ) {
 			case 'authemail':
-				$oResponse = $this->processAuthEmail();
+				$response = $this->processAuthEmail();
 				break;
 
 			default:
-				$oResponse = parent::processWizardStep( $step );
+				$response = parent::processWizardStep( $step );
 				break;
 		}
-		return $oResponse;
+		return $response;
 	}
 
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function processAuthEmail() {
+	private function processAuthEmail() :\FernleafSystems\Utilities\Response{
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$req = Services::Request();
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		$oResponse->setSuccessful( false );
+		$response = new \FernleafSystems\Utilities\Response();
+		$response->setSuccessful( false );
 
 		$email = $req->post( 'email' );
 		$code = $req->post( 'code' );
@@ -54,7 +47,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		elseif ( empty( $code ) ) {
 			if ( $mod->sendEmailVerifyCanSend( $email, false ) ) {
 				$mod->setIfCanSendEmail( false );
-				$oResponse->setSuccessful( true );
+				$response->setSuccessful( true );
 				$msg = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
 					   .' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
 			}
@@ -63,7 +56,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 		elseif ( $code == $mod->getCanEmailVerifyCode() ) {
-			$oResponse->setSuccessful( true );
+			$response->setSuccessful( true );
 			$msg = 'Email sending has been verified successfully.';
 
 			$mod->setIfCanSendEmail( true );
@@ -81,7 +74,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				   .'Email-based two factor authentication option has not been updated.';
 		}
 
-		return $oResponse->setMessageText( $msg );
+		return $response->setMessageText( $msg );
 	}
 
 	/**
@@ -123,18 +116,13 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $step ) {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-
-		$aAdditional = [];
+		$additional = [];
 
 		switch ( $step ) {
 
 			case 'authemail':
 				$user = Services::WpUsers()->getCurrentWpUser();
-				$aAdditional = [
+				$additional = [
 					'data' => [
 						'name'       => $user->first_name,
 						'user_email' => $user->user_email
@@ -146,9 +134,9 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				break;
 		}
 
-		if ( empty( $aAdditional ) ) {
-			$aAdditional = parent::getRenderData_SlideExtra( $step );
+		if ( empty( $additional ) ) {
+			$additional = parent::getRenderData_SlideExtra( $step );
 		}
-		return $aAdditional;
+		return $additional;
 	}
 }

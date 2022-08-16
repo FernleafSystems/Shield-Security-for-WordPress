@@ -13,7 +13,6 @@ class IsIpBlocked extends Base {
 	const SLUG = 'is_ip_blocked';
 
 	/**
-	 * TODO: $con->fireEvent( 'not_conn_kill_high_rep' );
 	 * @inheritDoc
 	 */
 	protected function execConditionCheck() :bool {

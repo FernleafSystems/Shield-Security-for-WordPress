@@ -18,8 +18,7 @@ class Enqueue {
 
 	protected function canRun() :bool {
 		$WP = Services::WpGeneral();
-		return !$WP->isAjax() && !$WP->isCron()
-			   && !empty( $this->getCon()->cfg->includes[ 'register' ] );
+		return !$WP->isAjax() && !$WP->isCron() && !empty( $this->getCon()->cfg->includes[ 'register' ] );
 	}
 
 	protected function run() {

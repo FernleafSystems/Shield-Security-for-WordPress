@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 class Read {
 
@@ -12,7 +13,7 @@ class Read {
 	public static function FromFile( string $path ) :array {
 		$FS = Services::WpFs();
 		foreach ( [ 'json', 'php' ] as $ext ) {
-			$cfgFile = Services::Data()->addExtensionToFilePath( $path, $ext );
+			$cfgFile = Paths::AddExt( $path, $ext );
 			if ( $FS->isFile( $cfgFile ) ) {
 				$content = $FS->getFileContent( $cfgFile );
 				if ( empty( $content ) ) {
