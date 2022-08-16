@@ -56,7 +56,7 @@ class EventsToSignals extends EventsListener {
 	}
 
 	protected function onShutdown() {
-		if ( !empty( $this->signals ) ) {
+		if ( $this->isCommit() && !empty( $this->signals ) ) {
 			$modIPs = $this->getCon()->getModule_IPs();
 
 			$notBotFail = ( new BotSignalsRecord() )

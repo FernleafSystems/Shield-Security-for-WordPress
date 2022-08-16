@@ -35,7 +35,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 			->setMod( $this->getMod() )
 			->execute();
 
-		new Signals\EventsToSignals( $this->getCon(), true );
+		new Signals\EventsToSignals( $this->getCon(), $this->getCon()->is_mode_live );
 
 		add_action( $this->getCon()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
 			// This cron is initiated from within SignalsBuilder

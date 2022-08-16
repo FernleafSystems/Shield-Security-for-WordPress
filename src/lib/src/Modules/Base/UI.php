@@ -59,6 +59,7 @@ class UI {
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
+				'is_mode_live'          => $con->is_mode_live,
 				'access_restricted'     => method_exists( $mod, 'isAccessRestricted' ) && $mod->isAccessRestricted(),
 				'show_ads'              => $mod->getIsShowMarketing(),
 				'wrap_page_content'     => true,

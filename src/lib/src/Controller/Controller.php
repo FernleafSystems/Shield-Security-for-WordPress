@@ -189,7 +189,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'is_mode_live':
 				if ( is_null( $val ) ) {
-					$val = $this->is_mode_live = !$this->is_mode_staging && $this->is_mode_debug;
+					$val = $this->is_mode_live = !$this->is_mode_staging && !$this->is_mode_debug;
 				}
 				break;
 

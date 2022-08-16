@@ -3,11 +3,13 @@
 {% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
 
 {% block page_head %}
-	<div class="row row-cols-2 justify-content-between mb-3" id="apto-PageHeader">
+	<div class="row row-cols-2 justify-content-between mb-3 {% if not flags.is_mode_live %}bg-warning{% endif %}"
+	     id="apto-PageHeader">
 		<div class="col d-flex align-items-center">
 			<h5 class="my-0 ms-3" id="PageTitle">
 				{% block page_head_titlemenu %}
 					{{ strings.page_title }}
+					{% if not flags.is_mode_live %}<small class="text-white fs-6">(Staging or Debug Mode)</small>{% endif %}
 				{% endblock page_head_titlemenu %}
 			</h5>
 		</div>

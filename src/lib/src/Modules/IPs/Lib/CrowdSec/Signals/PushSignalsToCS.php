@@ -26,7 +26,7 @@ class PushSignalsToCS extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $mod->getCrowdSecCon()->getApi()->isReady();
+		return $mod->getCrowdSecCon()->getApi()->isReady() && $this->getCon()->is_mode_live;
 	}
 
 	protected function run() {
