@@ -19,16 +19,74 @@
       },
       {
         "type":        "new",
-        "pro_only":    true,
-        "title":       "Custom Activity Log Events",
+        "pro_only":    false,
+        "title":       "Complete Rewrite of IP Rules System",
         "description": [
+          "The existing system for black/block and bypass/white lists was quite aged and needed completely upgraded to handle the CrowdSec integration.",
+          "The new system is much faster (DB queries) and smarter with a much-improved table display."
         ]
       },
       {
         "type":        "new",
         "pro_only":    true,
+        "title":       "Custom Activity Log Events",
+        "description": [
+          "There is now the option to log custom events to Shield's Activity Log.",
+          "It's impossible that Shield can log every possibly event for every plugin and scenario, so you can now add logging for all your desired site events.",
+          "This is an advanced option and will require professional software development experience to implement."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "New Plugin Search Box",
+        "description": [
+          "The new search box is accessible and visible from every page inside the plugin and will also search for tools and sections, not just plugin options."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Improved Scan Results Display",
+        "description": [
+          "Eliminated errors and slow processing when displaying scan results pages for large datasets.",
+          "Shield now uses highly optimised queries to request only the records required to display the current table page."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Improved Human Comments SPAM Detection",
+        "description": [
+          "Based on some customer feedback we'd improved Human Comment SPAM detection.",
+          "Shield will now also look at recently posted comments by the same IP addresses when deciding whether a comment is SPAM."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Shield Nav Bar",
+        "description": [
+          "Shield displays a slightly better navbar on the dashboard with built-in search, helpdesk links and updates."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
         "title":       "Log App Password Creation",
         "description": [
+          "Shield now logs the creation of new Application Passwords in the Activity Log."
+        ]
+      },
+      {
+        "type":     "fixed",
+        "pro_only": false,
+        "title":    "Various Fixes",
+        "list":     [
+          "Mitigate a fatal error caused by the latest wpForo plugin passing NULL to locale filters.",
+          "Bug when specifying a particular list when adding/removing an IP address using WP-CLI.",
+          "Shield now correctly honours WordPress' built-in 'disallowed keywords' feature when flagging comments for spam.",
+          "Shield no longer attempts to solve the issue of invalid 'from' email addresses on a WordPress site."
         ]
       }
     ]
@@ -131,48 +189,6 @@
           },
           {
             "title": "Remove some PHP 8.1 deprecated notices.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "8",
-        "released_at": 1659440300,
-        "items":       [
-          {
-            "title": "Eliminate errors and slow processing when displaying scan results pages for large datasets.",
-            "type":  "improved"
-          },
-          {
-            "title": "Some Dashboard UI tweaks.",
-            "type":  "improved"
-          },
-          {
-            "title": "Now honours the WordPress 'disallowed keywords' option when flagging comments for spam.",
-            "type":  "fixed"
-          },
-          {
-            "title": "Bug when specifying a particular list when adding/removing an IP address using WP-CLI.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "9",
-        "released_at": 1659619000,
-        "items":       [
-          {
-            "title": "Mitigate a fatal error caused by the latest wpForo plugin passing NULL to locale filters.",
-            "type":  "fixed"
-          }
-        ]
-      },
-      {
-        "version":     "10",
-        "released_at": 1659619000,
-        "items":       [
-          {
-            "title": "Shield no longer attempts to mitigate the issue of invalid 'from' email addresses on the WordPress site.",
             "type":  "fixed"
           }
         ]

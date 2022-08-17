@@ -27,11 +27,7 @@ class SelectSearchData {
 		foreach ( $optionGroups as $optGroupKey => $optionGroup ) {
 			foreach ( $optionGroup[ 'children' ] as $optKey => $option ) {
 
-				$count = 0;
-				foreach ( $terms as $term ) {
-					$count += substr_count( strtolower( $option[ 'tokens' ].' '.$optionGroup[ 'text' ] ), $term );
-				}
-
+				$count = $this->searchString( $option[ 'tokens' ].' '.$optionGroup[ 'text' ], $terms );
 				if ( $count > 0 ) {
 					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'count' ] = $count;
 					// Remove unnecessary 'tokens' from data sent back to select2
@@ -55,6 +51,10 @@ class SelectSearchData {
 		}
 
 		return array_values( $optionGroups );
+	}
+
+	private function searchString( string $haystack, array $needles ) :int {
+		return count( array_intersect( $needles, array_map( 'trim', explode( ' ', strtolower( $haystack ) ) ) ) );
 	}
 
 	private function getAllSearchGroups() :array {
@@ -82,21 +82,21 @@ class SelectSearchData {
 						'text'       => __( 'Shield Security Home Page', 'wp-simple-firewall' ),
 						'href'       => 'https://getshieldsecurity.com',
 						'new_window' => true,
-						'tokens'     => 'getshield security homepage'
+						'tokens'     => 'shield security homepage home website site'
 					],
 					[
 						'id'         => 'external_gopro',
 						'text'       => __( 'Get ShieldPRO!', 'wp-simple-firewall' ),
 						'href'       => 'https://getshieldsecurity.com/pricing/',
 						'new_window' => true,
-						'tokens'     => 'getshield security gopro premium upgrade'
+						'tokens'     => 'security pro premium security upgrade'
 					],
 					[
 						'id'         => 'external_trial',
 						'text'       => __( 'ShieldPRO Free Trial', 'wp-simple-firewall' ),
 						'href'       => 'https://getshieldsecurity.com/free-trial/',
 						'new_window' => true,
-						'tokens'     => 'security gopro free trial'
+						'tokens'     => 'security pro premium free trial'
 					],
 				],
 			]
@@ -113,67 +113,67 @@ class SelectSearchData {
 						'id'     => 'tool_ip_manager',
 						'text'   => __( 'IP Rules Manager', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_IPs(),
-						'tokens' => 'ips manager block black white list bypass crowdsec table'
+						'tokens' => 'tool ips manager block black white list lists bypass crowdsec table'
 					],
 					[
 						'id'     => 'tool_scan_results',
 						'text'   => __( 'Scan Results', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ScansResults(),
-						'tokens' => 'filelocker wp-config scans results files modified hacked missing core wordpress plugins themes malware guard repair ignore'
+						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore'
 					],
 					[
 						'id'     => 'tool_scan_run',
 						'text'   => __( 'Scan Results', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ScansResults(),
-						'tokens' => 'scans run files modified hacked missing core wordpress plugins themes malware'
+						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware'
 					],
 					[
 						'id'     => 'tool_activity_log',
 						'text'   => __( 'Activity Log', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ActivityLog(),
-						'tokens' => 'audit trail activity log table traffic requests bots review'
+						'tokens' => 'tool audit trail activity log table traffic requests bots review'
 					],
 					[
 						'id'     => 'tool_traffic_log',
 						'text'   => __( 'Traffic Log', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ActivityLog(),
-						'tokens' => 'activity log table traffic requests bots review'
+						'tokens' => 'tool activity log table traffic requests bots review'
 					],
 					[
 						'id'     => 'tool_sessions',
 						'text'   => __( 'User Sessions', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_Sessions(),
-						'tokens' => 'users sessions expire discard logout'
+						'tokens' => 'tool users sessions expire discard logout'
 					],
 					[
 						'id'     => 'tool_license',
 						'text'   => __( 'ShieldPRO', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_Sessions(),
-						'tokens' => 'pro license shieldpro upgrade buy purchase pricing'
+						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing'
 					],
 					[
 						'id'     => 'tool_notes',
 						'text'   => __( 'Admin Notes', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'notes' ),
-						'tokens' => 'admin notes'
+						'tokens' => 'tool admin notes note'
 					],
 					[
 						'id'     => 'tool_importexport',
 						'text'   => __( 'Import / Export', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
-						'tokens' => 'import export transfer download settings configuration options slave master network'
+						'tokens' => 'tool sync import export transfer download settings configuration options slave master network'
 					],
 					[
 						'id'     => 'tool_overview',
 						'text'   => __( 'Overview', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'overview' ),
-						'tokens' => 'overview grade grading charts performance dashboard summary'
+						'tokens' => 'tool overview grade grading charts performance dashboard summary'
 					],
 					[
 						'id'     => 'tool_debug',
 						'text'   => __( 'Debug Info', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'debug' ),
-						'tokens' => 'debug info help'
+						'tokens' => 'tool debug info help'
 					],
 				],
 			]
