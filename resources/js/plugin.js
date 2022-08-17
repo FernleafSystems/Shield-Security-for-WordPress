@@ -515,8 +515,14 @@ jQueryDoc.ready( function () {
 		document.querySelector( '.select2-search__field' ).focus();
 	} );
 	jQuery( document ).on( 'select2:select', ( evt ) => {
-		let data = evt.params.data;
-		window.location.href = evt.params.data.href;
+		let optResultData = evt.params.data;
+		console.log( optResultData );
+		if ( optResultData.new_window ) {
+			window.open( evt.params.data.href );
+		}
+		else {
+			window.location.href = evt.params.data.href;
+		}
 	} );
 	jQuery( '#IpReviewSelect' ).select2( {
 		minimumInputLength: 2,

@@ -16,31 +16,29 @@ class SelectSearchData {
 		// Terms must all be at least 3 characters.
 		$terms = array_filter( array_unique( array_map(
 			function ( $term ) {
-				$term = trim( $term );
+				$term = strtolower( trim( $term ) );
 				return strlen( $term ) > 2 ? $term : '';
 			},
 			explode( ' ', $search )
 		) ) );
 
-		$optionGroups = array_merge(
-			$this->getToolsSearch(),
-			$this->getConfigSearch()
-		);
+		$optionGroups = $this->getAllSearchGroups();
 
 		foreach ( $optionGroups as $optGroupKey => $optionGroup ) {
 			foreach ( $optionGroup[ 'children' ] as $optKey => $option ) {
 
-				$found = false;
+				$count = 0;
 				foreach ( $terms as $term ) {
-					if ( stripos( $option[ 'tokens' ].' '.$optionGroup[ 'text' ], $term ) !== false ) {
-						$found = true;
-						break;
-					}
+					$count += substr_count( strtolower( $option[ 'tokens' ].' '.$optionGroup[ 'text' ] ), $term );
 				}
 
-				if ( $found ) {
+				if ( $count > 0 ) {
+					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'count' ] = $count;
 					// Remove unnecessary 'tokens' from data sent back to select2
 					unset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'tokens' ] );
+					if ( !isset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'new_window' ] ) ) {
+						$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'new_window' ] = false;
+					}
 				}
 				else {
 					unset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] );
@@ -57,6 +55,52 @@ class SelectSearchData {
 		}
 
 		return array_values( $optionGroups );
+	}
+
+	private function getAllSearchGroups() :array {
+		return array_merge(
+			$this->getExternalSearch(),
+			$this->getToolsSearch(),
+			$this->getConfigSearch()
+		);
+	}
+
+	private function getExternalSearch() :array {
+		return [
+			[
+				'text'     => __( 'External Links', 'wp-simple-firewall' ),
+				'children' => [
+					[
+						'id'         => 'external_helpdesk',
+						'text'       => __( 'Helpdesk', 'wp-simple-firewall' ),
+						'href'       => $this->getCon()->labels->url_helpdesk,
+						'new_window' => true,
+						'tokens'     => 'help docs helpdesk support'
+					],
+					[
+						'id'         => 'external_getshieldhome',
+						'text'       => __( 'Shield Security Home Page', 'wp-simple-firewall' ),
+						'href'       => 'https://getshieldsecurity.com',
+						'new_window' => true,
+						'tokens'     => 'getshield security homepage'
+					],
+					[
+						'id'         => 'external_gopro',
+						'text'       => __( 'Get ShieldPRO!', 'wp-simple-firewall' ),
+						'href'       => 'https://getshieldsecurity.com/pricing/',
+						'new_window' => true,
+						'tokens'     => 'getshield security gopro premium upgrade'
+					],
+					[
+						'id'         => 'external_trial',
+						'text'       => __( 'ShieldPRO Free Trial', 'wp-simple-firewall' ),
+						'href'       => 'https://getshieldsecurity.com/free-trial/',
+						'new_window' => true,
+						'tokens'     => 'security gopro free trial'
+					],
+				],
+			]
+		];
 	}
 
 	private function getToolsSearch() :array {
