@@ -32,7 +32,7 @@ class SelectSearchData {
 
 				$found = false;
 				foreach ( $terms as $term ) {
-					if ( stripos( $option[ 'tokens' ], $term ) !== false ) {
+					if ( stripos( $option[ 'tokens' ].' '.$optionGroup[ 'text' ], $term ) !== false ) {
 						$found = true;
 						break;
 					}
@@ -152,7 +152,7 @@ class SelectSearchData {
 							'href'   => $module->getUrl_DirectLinkToOption( $optKey ),
 							'tokens' => implode( ' ',
 								array_filter(
-									array_map( 'trim', explode( ' ', $description.' '.$st[ 'summary' ] ) ),
+									array_map( 'trim', explode( ' ', $description.' '.$st[ 'summary' ].' '.$st[ 'name' ] ) ),
 									function ( $word ) {
 										return strlen( $word ) > 3;
 									}

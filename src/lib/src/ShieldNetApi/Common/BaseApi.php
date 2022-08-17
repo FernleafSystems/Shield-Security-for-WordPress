@@ -69,7 +69,7 @@ abstract class BaseApi extends DynPropertiesClass {
 	/**
 	 * @return string[]
 	 */
-	protected function getRequestParamKeys() {
+	protected function getRequestParamKeys() :array {
 		return [];
 	}
 

@@ -104,15 +104,17 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$data[ 'vars' ][ 'file_modified_ago' ] =
 				$carb->setTimestamp( $FS->getModifiedTime( $lock->file ) )->diffForHumans();
 			$data[ 'vars' ][ 'change_detected_at' ] = $carb->setTimestamp( $lock->detected_at )->diffForHumans();
-			$data[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
-				( new FileLocker\Ops\ReadOriginalFileContent() )
-					->setMod( $mod )
-					->run( $lock )
-			), 3 );
 			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->file ) ?
 				Shield\Utilities\Tool\FormatBytes::Format( $FS->getFileSize( $lock->file ), 3 )
 				: 0;
 			$data[ 'vars' ][ 'file_name' ] = basename( $lock->file );
+
+			$data[ 'vars' ][ 'file_size_locked' ] = Shield\Utilities\Tool\FormatBytes::Format( strlen(
+				( new FileLocker\Ops\ReadOriginalFileContent() )
+					->setMod( $mod )
+					->run( $lock ) // potential exception
+			), 3 );
+
 			$data[ 'success' ] = true;
 		}
 		catch ( \Exception $e ) {
