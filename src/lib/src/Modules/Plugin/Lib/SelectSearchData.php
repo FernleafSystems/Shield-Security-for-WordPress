@@ -2,17 +2,62 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use IPLib\Address\AddressInterface;
+use IPLib\Factory;
 
 class SelectSearchData {
 
 	use PluginControllerConsumer;
 
+	public function build( string $terms ) :array {
+		$terms = strtolower( trim( $terms ) );
+
+		$ip = Factory::parseAddressString( $terms );
+		if ( is_null( $ip ) ) {
+			$data = $this->textSearch( $terms );
+		}
+		else {
+			$data = $this->ipSearch( $ip );
+		}
+
+		return $data;
+	}
+
 	/**
 	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
-	public function build( string $search ) :array {
+	protected function ipSearch( AddressInterface $ip ) :array {
+		$ipStatus = ( new IpRuleStatus( $ip->toString() ) )->setMod( $this->getCon()->getModule_IPs() );
+		if ( $ipStatus->hasRules() ) {
+			$data = [
+				[
+					'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
+					'children' => [
+						[
+							'id'         => 'ip_'.$ip->toString(),
+							'text'       => $ip->toString(),
+							'href'       => '',
+							'ip'         => $ip->toString(),
+							'new_window' => false,
+						],
+					],
+				]
+			];
+		}
+		else {
+			$data = [];
+		}
+		return $data;
+	}
+
+	/**
+	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
+	 * All arrays must have simple numeric keys starting from 0.
+	 */
+	protected function textSearch( string $search ) :array {
 		// Terms must all be at least 3 characters.
 		$terms = array_filter( array_unique( array_map(
 			function ( $term ) {
@@ -32,9 +77,11 @@ class SelectSearchData {
 					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'count' ] = $count;
 					// Remove unnecessary 'tokens' from data sent back to select2
 					unset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'tokens' ] );
-					if ( !isset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'new_window' ] ) ) {
-						$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'new_window' ] = false;
-					}
+
+					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] = array_merge( [
+						'new_window' => false,
+						'ip'         => false,
+					], $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] );
 				}
 				else {
 					unset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] );
@@ -143,7 +190,7 @@ class SelectSearchData {
 						'id'     => 'tool_sessions',
 						'text'   => __( 'User Sessions', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_Sessions(),
-						'tokens' => 'tool users sessions expire discard logout'
+						'tokens' => 'tool user users session sessions expire discard logout'
 					],
 					[
 						'id'     => 'tool_license',

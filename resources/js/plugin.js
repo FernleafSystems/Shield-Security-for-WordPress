@@ -24,7 +24,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 let iCWP_WPSF_Modals = new function () {
 	let workingData = {};
 
-	let renderModalIpAnalysis = function ( ip ) {
+	this.renderModalIpAnalysis = function ( ip ) {
 		iCWP_WPSF_BodyOverlay.show();
 		let reqData = workingData.modal_ip_analysis.ajax.render_ip_analysis;
 		reqData.ip = ip;
@@ -86,7 +86,7 @@ let iCWP_WPSF_Modals = new function () {
 	this.initialise = function () {
 		jQuery( document ).on( 'click', '.modal_ip_analysis', function ( evt ) {
 			evt.preventDefault();
-			renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+			iCWP_WPSF_Modals.renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
 			return false;
 		} );
 	};
@@ -489,11 +489,10 @@ jQueryDoc.ready( function () {
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '.select2picker.static' ).select2( {
-		width: 'resolve'
 	} );
 	jQuery( '#SearchBox select' ).select2( {
 		minimumInputLength: 3,
-		placeholder: "Search For Plugin Option or Section",
+		placeholder: icwp_wpsf_vars_plugin.components.select_search.strings.placeholder,
 		ajax: {
 			delay: 750,
 			url: icwp_wpsf_vars_plugin.components.select_search.ajax.select_search.ajaxurl,
@@ -516,8 +515,11 @@ jQueryDoc.ready( function () {
 	} );
 	jQuery( document ).on( 'select2:select', ( evt ) => {
 		let optResultData = evt.params.data;
-		console.log( optResultData );
-		if ( optResultData.new_window ) {
+
+		if ( optResultData.ip ) {
+			iCWP_WPSF_Modals.renderModalIpAnalysis( optResultData.ip );
+		}
+		else if ( optResultData.new_window ) {
 			window.open( evt.params.data.href );
 		}
 		else {

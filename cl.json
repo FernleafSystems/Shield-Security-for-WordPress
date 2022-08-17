@@ -6,7 +6,7 @@
       "release": "https://shsec.io/shieldrelease160",
       "upgrade": "https://shsec.io/shieldupgradeguide160"
     },
-    "title":       "CrowdSec",
+    "title":       "CrowdSec + All-new IP Address Management",
     "description": [
     ],
     "items":       [
@@ -22,8 +22,8 @@
         "pro_only":    false,
         "title":       "Complete Rewrite of IP Rules System",
         "description": [
-          "The existing system for black/block and bypass/white lists was quite aged and needed completely upgraded to handle the CrowdSec integration.",
-          "The new system is much faster (DB queries) and smarter with a much-improved table display."
+          "The previous system for block/black and bypass/white lists was quite old and needed completely upgraded to handle the CrowdSec integration.",
+          "The new system is far faster and smarter with a much-improved table display."
         ]
       },
       {

@@ -443,8 +443,11 @@ class ModCon extends BaseShield\ModCon {
 						]
 					],
 					'select_search' => [
-						'ajax' => [
+						'ajax'    => [
 							'select_search' => $this->getAjaxActionData( 'select_search' )
+						],
+						'strings' => [
+							'placeholder' => __( 'Search IPs, Options and Tools', 'wp-simple-firewall' ),
 						]
 					],
 				],
