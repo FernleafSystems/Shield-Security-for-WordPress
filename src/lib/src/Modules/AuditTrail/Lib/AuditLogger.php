@@ -103,7 +103,7 @@ class AuditLogger extends EventsListener {
 
 	protected function onShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
-			foreach ( $this->auditLogs as $auditLog ) {
+			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
 				$this->getLogger()->log(
 					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
 					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),

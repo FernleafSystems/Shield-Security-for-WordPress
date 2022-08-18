@@ -642,8 +642,9 @@
         "level": "debug"
       },
       "recaptcha_fail":         {
-        "level": "warning",
-        "audit": true
+        "level":   "warning",
+        "audit":   true,
+        "offense": true
       },
       "antibot_pass":           {
         "audit_params": [

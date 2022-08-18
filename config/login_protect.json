@@ -18,7 +18,7 @@
     "run_if_wpcli":          false,
     "order":                 40
   },
-  "reqs":             {
+  "reqs":          {
     "dbs": [
       "botsignal"
     ]
@@ -552,7 +552,8 @@
         "offense":      true
       },
       "cooldown_fail":      {
-        "level": "warning"
+        "level":   "warning",
+        "offense": true
       },
       "honeypot_fail":      {
         "audit_params": [
@@ -566,7 +567,8 @@
           "user_login",
           "action"
         ],
-        "level":        "warning"
+        "level":        "warning",
+        "offense":      true
       },
       "login_block":        {
         "level": "warning"
@@ -577,7 +579,7 @@
       "block_lostpassword": {
         "level": "warning"
       },
-      "block_checkout": {
+      "block_checkout":     {
         "level": "warning"
       },
       "hide_login_url":     {
