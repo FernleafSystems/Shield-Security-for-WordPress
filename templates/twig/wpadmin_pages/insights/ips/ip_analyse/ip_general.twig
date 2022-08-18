@@ -8,8 +8,14 @@
 
 			<dt class="mb-1">{{ strings.status.offenses }}</dt>
 			<dd>
-				<p class="bigger-badge badge bg-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
-					{{ vars.status.offenses }}
+				<p>
+					<span class="bigger-badge badge bg-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
+						{{ vars.status.offenses }}
+					</span>
+					{% if vars.status.offenses > 0 %}
+						<a href="#" class="ms-2 text-primary ip_analyse_action"
+						   data-ip_action="reset_offenses" data-ip="{{ vars.ip }}">{{ strings.reset_offenses }}</a>
+					{% endif %}
 				</p>
 			</dd>
 

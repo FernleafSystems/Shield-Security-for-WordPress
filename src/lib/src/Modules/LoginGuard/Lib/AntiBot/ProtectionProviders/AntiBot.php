@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class AntiBot extends BaseProtectionProvider {
 
 	/**

@@ -80,7 +80,8 @@ class BuildDisplay {
 				->run();
 
 			// We do a "repair" and unblock previously blocked search providers:
-			if ( $ruleStatus->isBlockedByShield() && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+			if ( $ruleStatus->isBlockedByShield()
+				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
 				foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
 					( new DeleteRule() )
 						->setMod( $this->getMod() )
@@ -121,12 +122,13 @@ class BuildDisplay {
 				'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
 				'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
-				'block_ip'      => __( 'Block IP', 'wp-simple-firewall' ),
-				'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
-				'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
-				'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
-				'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
-				'see_details'   => __( 'See Details', 'wp-simple-firewall' ),
+				'reset_offenses' => __( 'Reset', 'wp-simple-firewall' ),
+				'block_ip'       => __( 'Block IP', 'wp-simple-firewall' ),
+				'unblock_ip'     => __( 'Unblock IP', 'wp-simple-firewall' ),
+				'bypass_ip'      => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+				'unbypass_ip'    => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+				'delete_notbot'  => __( 'Reset For This IP', 'wp-simple-firewall' ),
+				'see_details'    => __( 'See Details', 'wp-simple-firewall' ),
 
 				'status' => [
 					'is_you'              => __( 'Is It You?', 'wp-simple-firewall' ),

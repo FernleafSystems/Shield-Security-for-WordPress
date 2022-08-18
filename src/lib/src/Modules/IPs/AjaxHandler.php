@@ -190,6 +190,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	public function ajaxExec_IpAnalyseAction() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$req = Services::Request();
 
 		$ip = $req->post( 'ip' );
@@ -214,6 +216,23 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 			switch ( $req->post( 'ip_action' ) ) {
 
+				case 'reset_offenses':
+					try {
+						$autoBlockIP = $ruleStatus->getRuleForAutoBlock();
+						if ( empty( $autoBlockIP ) ) {
+							throw new Exception( "IP isn't on the auto block list." );
+						}
+						$success = ( new Lib\IpRules\DeleteRule() )
+							->setMod( $this->getMod() )
+							->byRecord( $autoBlockIP );
+						$msg = $success ? __( 'Offenses reset to zero.', 'wp-simple-firewall' )
+							: __( "Offenses couldn't be reset at this time.", 'wp-simple-firewall' );
+					}
+					catch ( \Exception $e ) {
+						$msg = $e->getMessage();
+					}
+					break;
+
 				case 'block':
 					try {
 						if ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
@@ -234,8 +253,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				case 'unblock':
 					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
 						$success = ( new Lib\IpRules\DeleteRule() )
-									   ->setMod( $this->getMod() )
-									   ->byRecord( $record );
+							->setMod( $this->getMod() )
+							->byRecord( $record );
 					}
 					$msg = $success ? __( 'IP address unblocked.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be unblocked at this time.", 'wp-simple-firewall' );
@@ -258,8 +277,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				case 'unbypass':
 					foreach ( $ruleStatus->getRulesForBypass() as $record ) {
 						$success = ( new Lib\IpRules\DeleteRule() )
-									   ->setMod( $this->getMod() )
-									   ->byRecord( $record );
+							->setMod( $this->getMod() )
+							->byRecord( $record );
 					}
 					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be removed from Bypass list at this time.", 'wp-simple-firewall' );
