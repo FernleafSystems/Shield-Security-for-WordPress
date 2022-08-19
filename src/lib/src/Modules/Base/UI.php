@@ -75,7 +75,7 @@ class UI {
 			'imgs'       => [
 				'svgs'           => [
 					'search'    => $con->svgs->raw( 'bootstrap/search.svg' ),
-					'help'      => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
+					'help'      => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
 					'ignore'    => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle'  => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
 					'megaphone' => $con->svgs->raw( 'bootstrap/megaphone.svg' ),

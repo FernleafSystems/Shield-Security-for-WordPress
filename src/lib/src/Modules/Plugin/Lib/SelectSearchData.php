@@ -42,6 +42,7 @@ class SelectSearchData {
 							'href'       => '',
 							'ip'         => $ip->toString(),
 							'new_window' => false,
+							'icon'   => $this->getCon()->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
 						],
 					],
 				]
@@ -119,31 +120,35 @@ class SelectSearchData {
 				'children' => [
 					[
 						'id'         => 'external_helpdesk',
-						'text'       => __( 'Helpdesk', 'wp-simple-firewall' ),
+						'text'       => __( 'Helpdesk and Knowledge Base', 'wp-simple-firewall' ),
 						'href'       => $this->getCon()->labels->url_helpdesk,
 						'new_window' => true,
-						'tokens'     => 'help docs helpdesk support'
+						'tokens'     => 'help docs helpdesk support knowledge base doc',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/life-preserver.svg' ),
 					],
 					[
 						'id'         => 'external_getshieldhome',
 						'text'       => __( 'Shield Security Home Page', 'wp-simple-firewall' ),
 						'href'       => 'https://getshieldsecurity.com',
 						'new_window' => true,
-						'tokens'     => 'shield security homepage home website site'
+						'tokens'     => 'shield security homepage home website site',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/house-fill.svg' ),
 					],
 					[
 						'id'         => 'external_gopro',
 						'text'       => __( 'Get ShieldPRO!', 'wp-simple-firewall' ),
 						'href'       => 'https://getshieldsecurity.com/pricing/',
 						'new_window' => true,
-						'tokens'     => 'security pro premium security upgrade'
+						'tokens'     => 'security pro premium security upgrade',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
 					],
 					[
 						'id'         => 'external_trial',
 						'text'       => __( 'ShieldPRO Free Trial', 'wp-simple-firewall' ),
 						'href'       => 'https://getshieldsecurity.com/free-trial/',
 						'new_window' => true,
-						'tokens'     => 'security pro premium free trial'
+						'tokens'     => 'security pro premium free trial',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
 					],
 				],
 			]
@@ -154,73 +159,84 @@ class SelectSearchData {
 		$modInsights = $this->getCon()->getModule_Insights();
 		return [
 			[
-				'text'     => __( 'Tools', 'wp-simple-firewall' ),
+				'text'     => __( 'Security Tools', 'wp-simple-firewall' ),
 				'children' => [
 					[
 						'id'     => 'tool_ip_manager',
-						'text'   => __( 'IP Rules Manager', 'wp-simple-firewall' ),
+						'text'   => __( 'Manage IP Rules', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_IPs(),
-						'tokens' => 'tool ips manager block black white list lists bypass crowdsec table'
-					],
-					[
-						'id'     => 'tool_scan_results',
-						'text'   => __( 'Scan Results', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_ScansResults(),
-						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore'
+						'tokens' => 'tool ips ip address analyse analysis rules rule manager block black white list lists bypass crowdsec table',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/diagram-3-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_scan_run',
-						'text'   => __( 'Scan Results', 'wp-simple-firewall' ),
+						'text'   => __( 'Run A File Scan', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ScansResults(),
-						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware'
+						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/shield-shaded.svg' ),
+					],
+					[
+						'id'     => 'tool_scan_results',
+						'text'   => __( 'View Scan Results', 'wp-simple-firewall' ),
+						'href'   => $modInsights->getUrl_ScansResults(),
+						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/shield-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_activity_log',
-						'text'   => __( 'Activity Log', 'wp-simple-firewall' ),
+						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ActivityLog(),
-						'tokens' => 'tool audit trail activity log table traffic requests bots review'
+						'tokens' => 'tool audit trail activity log table traffic requests bots review',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_traffic_log',
-						'text'   => __( 'Traffic Log', 'wp-simple-firewall' ),
+						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ActivityLog(),
-						'tokens' => 'tool activity log table traffic requests bots review'
+						'tokens' => 'tool activity log table traffic requests bots review',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
 						'id'     => 'tool_sessions',
-						'text'   => __( 'User Sessions', 'wp-simple-firewall' ),
+						'text'   => __( 'View User Sessions', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_Sessions(),
-						'tokens' => 'tool user users session sessions expire discard logout'
+						'tokens' => 'tool user users session sessions expire discard logout',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/person-badge.svg' ),
 					],
 					[
 						'id'     => 'tool_license',
-						'text'   => __( 'ShieldPRO', 'wp-simple-firewall' ),
+						'text'   => __( 'Activate ShieldPRO License', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_Sessions(),
-						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing'
+						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/award.svg' ),
 					],
 					[
 						'id'     => 'tool_notes',
-						'text'   => __( 'Admin Notes', 'wp-simple-firewall' ),
+						'text'   => __( 'Review Admin Notes', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'notes' ),
-						'tokens' => 'tool admin notes note'
+						'tokens' => 'tool admin notes note',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/pencil-square.svg' ),
 					],
 					[
 						'id'     => 'tool_importexport',
-						'text'   => __( 'Import / Export', 'wp-simple-firewall' ),
+						'text'   => __( 'Import / Export Settings', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
-						'tokens' => 'tool sync import export transfer download settings configuration options slave master network'
+						'tokens' => 'tool sync import export transfer download settings configuration options slave master network',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/arrows-expand.svg' ),
 					],
 					[
 						'id'     => 'tool_overview',
-						'text'   => __( 'Overview', 'wp-simple-firewall' ),
+						'text'   => __( 'My Security Overview', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'overview' ),
-						'tokens' => 'tool overview grade grading charts performance dashboard summary'
+						'tokens' => 'tool overview grade grading charts performance dashboard summary',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
 					[
 						'id'     => 'tool_debug',
-						'text'   => __( 'Debug Info', 'wp-simple-firewall' ),
+						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'debug' ),
-						'tokens' => 'tool debug info help'
+						'tokens' => 'tool debug info help',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/tools.svg' ),
 					],
 				],
 			]
@@ -241,6 +257,7 @@ class SelectSearchData {
 							'id'     => 'config_'.$optKey,
 							'text'   => $st[ 'name' ],
 							'href'   => $module->getUrl_DirectLinkToOption( $optKey ),
+							'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
 							'tokens' => implode( ' ',
 								array_filter(
 									array_map( 'trim', explode( ' ', $description.' '.$st[ 'summary' ].' '.$st[ 'name' ] ) ),

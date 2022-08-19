@@ -447,7 +447,15 @@ class ModCon extends BaseShield\ModCon {
 							'select_search' => $this->getAjaxActionData( 'select_search' )
 						],
 						'strings' => [
-							'placeholder' => __( 'Search IPs, Options and Tools', 'wp-simple-firewall' ),
+							'placeholder' => sprintf( '%s (%s)',
+								__( 'Search for anything', 'wp-simple-firewall' ),
+								'e.g. '.implode( ', ', [
+									__( 'IPs', 'wp-simple-firewall' ),
+									__( 'options', 'wp-simple-firewall' ),
+									__( 'tools', 'wp-simple-firewall' ),
+									__( 'help', 'wp-simple-firewall' ),
+								] )
+							),
 						]
 					],
 				],

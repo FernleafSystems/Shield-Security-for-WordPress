@@ -488,11 +488,16 @@ jQueryDoc.ready( function () {
 
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
-	jQuery( '.select2picker.static' ).select2( {
-	} );
-	jQuery( '#SearchBox select' ).select2( {
+	jQuery( '#SuperSearchBox select' ).select2( {
 		minimumInputLength: 3,
 		placeholder: icwp_wpsf_vars_plugin.components.select_search.strings.placeholder,
+		templateResult: function ( val ) {
+			return (typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2">' + val.icon + '</span>')
+				+ val.text;
+		},
+		escapeMarkup: function ( content ) {
+			return content;
+		},
 		ajax: {
 			delay: 750,
 			url: icwp_wpsf_vars_plugin.components.select_search.ajax.select_search.ajaxurl,
@@ -513,7 +518,7 @@ jQueryDoc.ready( function () {
 	jQuery( document ).on( 'select2:open', () => {
 		document.querySelector( '.select2-search__field' ).focus();
 	} );
-	jQuery( document ).on( 'select2:select', ( evt ) => {
+	jQuery( document ).on( '#SuperSearchBox select2:select', ( evt ) => {
 		let optResultData = evt.params.data;
 
 		if ( optResultData.ip ) {

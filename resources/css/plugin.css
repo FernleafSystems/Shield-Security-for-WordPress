@@ -1004,7 +1004,7 @@ td.mal_details ul {
 	color: #008000;
 	margin: 3px;
 }
-#SearchBox .select2-selection,
+#SuperSearchBox .select2-selection,
 .select2-dropdown {
 	background: rgb(244, 248, 244) !important;
 	border: 1px solid #008000 !important;
@@ -1014,7 +1014,7 @@ td.mal_details ul {
 .select2-search__field:hover {
 	box-shadow: 0 0 0 1px #008000 !important;
 }
-#SearchBox:hover .select2-selection,
+#SuperSearchBox:hover .select2-selection,
 .select2-dropdown {
 	box-shadow: 1px 1px 3px rgba(0, 128, 0, 0.4);
 }

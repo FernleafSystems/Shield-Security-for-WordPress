@@ -1,6 +1,22 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
+
+{#	<div class="row mb-3">#}
+{#		<div class="col-auto" id="ShieldSearchIWant">#}
+{#			<p>I want to...</p>#}
+{#		</div>#}
+{#		<div class="col" id="ShieldSearchIWant">#}
+{#			<select class="" style="max-width: 100%; width: 100%">#}
+{#				<option></option>#}
+{#				{% for want in vars.select_i_want %}#}
+{#					<option value="{{ want.href }}">{{ want.name }}</option>#}
+{#				{% endfor %}#}
+{#			</select>#}
+{#			<span class="page-header-icon ms-1" for="ShieldSearchIWant"></span>#}
+{#		</div>#}
+{#	</div>#}
+
 	<div class="row">
 		<div class="col insights_section" id="TabDashboardMeters">
 			{{ content.progress_meters|raw }}

@@ -32,6 +32,9 @@ class UI extends BaseShield\UI {
 	}
 
 	private function buildInsightsVars_Overview() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
 		return [
 			'content' => [
 				'progress_meters' => ( new Lib\MeterAnalysis\Handler() )
@@ -45,6 +48,22 @@ class UI extends BaseShield\UI {
 					__( 'Go To %s', 'wp-simple-firewall' ),
 					__( 'Options' )
 				),
+			],
+			'vars'    => [
+//				'select_i_want' => [
+//					[
+//						'href' => $mod->getUrl_SubInsightsPage( 'ips' ),
+//						'name' => __( 'investigate the IP addresses on the block and bypass lists', 'wp-simple-firewall' ),
+//					],
+//					[
+//						'href' => $mod->getUrl_SubInsightsPage( 'audit' ),
+//						'name' => __( 'review user activity logs', 'wp-simple-firewall' ),
+//					],
+//					[
+//						'href' => $mod->getUrl_SubInsightsPage( 'traffic' ),
+//						'name' => __( 'review traffic and requests to my site', 'wp-simple-firewall' ),
+//					],
+//				]
 			],
 		];
 	}
@@ -193,11 +212,11 @@ class UI extends BaseShield\UI {
 		}
 
 		$availablePages = [
-			'stats' => [
+			'stats'         => [
 				__( 'Reporting', 'wp-simple-firewall' ),
 				__( 'Quick Stats', 'wp-simple-firewall' ),
 			],
-			'reports' => [
+			'reports'       => [
 				__( 'Reporting', 'wp-simple-firewall' ),
 				__( 'Charts', 'wp-simple-firewall' ),
 			],
@@ -241,7 +260,7 @@ class UI extends BaseShield\UI {
 				__( 'Tools', 'wp-simple-firewall' ),
 				sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 			],
-			'notes'  => [
+			'notes'         => [
 				__( 'Tools', 'wp-simple-firewall' ),
 				__( 'Admin Notes', 'wp-simple-firewall' ),
 			],
@@ -249,7 +268,7 @@ class UI extends BaseShield\UI {
 				__( 'Tools', 'wp-simple-firewall' ),
 				__( 'Debug', 'wp-simple-firewall' ),
 			],
-			'docs'         => [
+			'docs'          => [
 				__( 'Tools', 'wp-simple-firewall' ),
 				__( 'Docs', 'wp-simple-firewall' ),
 			],
@@ -275,8 +294,8 @@ class UI extends BaseShield\UI {
 			else {
 				/** @deprecated 15.1 */
 				$bannerLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
-									 ->setMod( $con->getModule_SecAdmin() )
-									 ->build()[ 'url_login2fa_logourl' ];
+								  ->setMod( $con->getModule_SecAdmin() )
+								  ->build()[ 'url_login2fa_logourl' ];
 			}
 		}
 		else {
@@ -294,10 +313,10 @@ class UI extends BaseShield\UI {
 					'is_advanced' => $modPlugin->isShowAdvanced()
 				],
 				'hrefs'   => [
-					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
-					'nav_home'   => $mod->getUrl_AdminPage(),
+					'go_pro'   => 'https://shsec.io/shieldgoprofeature',
+					'nav_home' => $mod->getUrl_AdminPage(),
 				],
-				'imgs' => [
+				'imgs'    => [
 					'logo_banner' => $bannerLogo,
 				],
 				'strings' => [
