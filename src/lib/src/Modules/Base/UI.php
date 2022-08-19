@@ -17,9 +17,6 @@ class UI {
 			->standard();
 	}
 
-	protected function buildSearchSelectData() :array {
-	}
-
 	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();
@@ -75,7 +72,8 @@ class UI {
 			'imgs'       => [
 				'svgs'           => [
 					'search'    => $con->svgs->raw( 'bootstrap/search.svg' ),
-					'help'      => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
+					'help'      => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
+					'helpdesk'  => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
 					'ignore'    => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle'  => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
 					'megaphone' => $con->svgs->raw( 'bootstrap/megaphone.svg' ),

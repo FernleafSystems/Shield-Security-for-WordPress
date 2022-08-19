@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use IPLib\Address\AddressInterface;
@@ -42,7 +43,7 @@ class SelectSearchData {
 							'href'       => '',
 							'ip'         => $ip->toString(),
 							'new_window' => false,
-							'icon'   => $this->getCon()->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
+							'icon'       => $this->getCon()->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
 						],
 					],
 				]
@@ -246,26 +247,16 @@ class SelectSearchData {
 	private function getConfigSearch() :array {
 		$search = [];
 		foreach ( $this->getCon()->modules as $module ) {
-			$cfg = $module->cfg;
-			if ( $cfg->properties[ 'show_module_options' ] ) {
+			if ( $module->cfg->properties[ 'show_module_options' ] ) {
 				$config = [];
 				foreach ( $module->getOptions()->getVisibleOptionsKeys() as $optKey ) {
 					try {
-						$st = $module->getStrings()->getOptionStrings( $optKey );
-						$description = strip_tags( is_array( $st[ 'description' ] ) ? implode( ' ', $st[ 'description' ] ) : $st[ 'description' ] );
 						$config[] = [
 							'id'     => 'config_'.$optKey,
-							'text'   => $st[ 'name' ],
+							'text'   => $module->getStrings()->getOptionStrings( $optKey )[ 'name' ],
 							'href'   => $module->getUrl_DirectLinkToOption( $optKey ),
 							'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
-							'tokens' => implode( ' ',
-								array_filter(
-									array_map( 'trim', explode( ' ', $description.' '.$st[ 'summary' ].' '.$st[ 'name' ] ) ),
-									function ( $word ) {
-										return strlen( $word ) > 3;
-									}
-								)
-							),
+							'tokens' => $this->getSearchableTextForModuleOption( $module, $optKey ),
 						];
 					}
 					catch ( \Exception $e ) {
@@ -281,5 +272,34 @@ class SelectSearchData {
 			}
 		}
 		return $search;
+	}
+
+	/**
+	 * @param ModCon|mixed $mod
+	 * @throws \Exception
+	 */
+	private function getSearchableTextForModuleOption( $mod, string $optKey ) :string {
+		$modOpts = $mod->getOptions();
+		$modStrings = $mod->getStrings();
+
+		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
+		$strOpts = $modStrings->getOptionStrings( $optKey );
+		return implode( ' ',
+			array_unique( array_filter(
+				array_map( 'trim', explode( ' ', preg_replace( '#:-#', ' ', strip_tags( implode( ' ', array_merge(
+					[
+						$strOpts[ 'name' ],
+						$strOpts[ 'summary' ],
+						( is_array( $strOpts[ 'description' ] ) ? implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
+						$strSection[ 'title' ],
+						$strSection[ 'title_short' ],
+					],
+					$strSection[ 'summary' ]
+				) ) ) ) ) ),
+				function ( $word ) {
+					return strlen( $word ) > 2;
+				}
+			) )
+		);
 	}
 }
