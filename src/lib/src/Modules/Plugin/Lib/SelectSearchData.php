@@ -69,7 +69,12 @@ class SelectSearchData {
 			explode( ' ', $search )
 		) ) );
 
-		$optionGroups = $this->getAllSearchGroups();
+		$optionGroups = array_merge(
+			$this->getExternalSearch(),
+			$this->getToolsSearch(),
+			$this->getIntegrationsSearch(),
+			$this->getConfigSearch()
+		);
 
 		foreach ( $optionGroups as $optGroupKey => $optionGroup ) {
 			foreach ( $optionGroup[ 'children' ] as $optKey => $option ) {
@@ -104,14 +109,6 @@ class SelectSearchData {
 
 	private function searchString( string $haystack, array $needles ) :int {
 		return count( array_intersect( $needles, array_map( 'trim', explode( ' ', strtolower( $haystack ) ) ) ) );
-	}
-
-	private function getAllSearchGroups() :array {
-		return array_merge(
-			$this->getExternalSearch(),
-			$this->getToolsSearch(),
-			$this->getConfigSearch()
-		);
 	}
 
 	private function getExternalSearch() :array {
@@ -244,6 +241,48 @@ class SelectSearchData {
 		];
 	}
 
+	private function getIntegrationsSearch() :array {
+		$modInt = $this->getCon()->getModule_Integrations();
+		$optsInt = $modInt->getOptions();
+
+		$integrations = [
+			[
+				'id'     => 'integration_mainwp',
+				'text'   => 'Integration with MainWP',
+				'href'   => $modInt->getUrl_DirectLinkToOption( 'enable_mainwp' ),
+				'tokens' => 'integration main mainwp',
+				'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+			]
+		];
+
+		foreach ( $optsInt->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item ) {
+			$integrations[] = [
+				'id'     => 'integration_'.$item[ 'value_key' ],
+				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
+				'href'   => $modInt->getUrl_DirectLinkToOption( 'user_form_providers' ),
+				'tokens' => 'integration login form '.$item[ 'text' ],
+				'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+			];
+		}
+
+		foreach ( $optsInt->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item ) {
+			$integrations[] = [
+				'id'     => 'integration_'.$item[ 'value_key' ],
+				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
+				'href'   => $modInt->getUrl_DirectLinkToOption( 'form_spam_providers' ),
+				'tokens' => 'contact integration form forms '.$item[ 'text' ],
+				'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+			];
+		}
+
+		return [
+			[
+				'text'     => __( '3rd Party Integrations', 'wp-simple-firewall' ),
+				'children' => $integrations
+			]
+		];
+	}
+
 	private function getConfigSearch() :array {
 		$search = [];
 		foreach ( $this->getCon()->modules as $module ) {
@@ -286,7 +325,7 @@ class SelectSearchData {
 		$strOpts = $modStrings->getOptionStrings( $optKey );
 		return implode( ' ',
 			array_unique( array_filter(
-				array_map( 'trim', explode( ' ', preg_replace( '#:-#', ' ', strip_tags( implode( ' ', array_merge(
+				array_map( 'trim', explode( ' ', preg_replace( '#\(\):-#', ' ', strip_tags( implode( ' ', array_merge(
 					[
 						$strOpts[ 'name' ],
 						$strOpts[ 'summary' ],
