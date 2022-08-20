@@ -184,14 +184,14 @@ class SelectSearchData {
 						'id'     => 'tool_activity_log',
 						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ActivityLog(),
-						'tokens' => 'tool audit trail activity log table traffic requests bots review',
+						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
 						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_traffic_log',
 						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_ActivityLog(),
-						'tokens' => 'tool activity log table traffic requests bots review',
+						'tokens' => 'tool activity log table traffic request requests bots review',
 						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
