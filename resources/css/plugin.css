@@ -1004,6 +1004,9 @@ td.mal_details ul {
 	color: #008000;
 	margin: 3px;
 }
+#SuperSearchBox > div {
+	width: 100%;
+}
 #SuperSearchBox .select2-selection,
 .select2-dropdown {
 	background: rgb(244, 248, 244) !important;

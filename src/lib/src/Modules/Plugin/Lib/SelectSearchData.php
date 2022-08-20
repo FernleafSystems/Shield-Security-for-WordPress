@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use IPLib\Address\AddressInterface;
 use IPLib\Factory;
@@ -31,8 +31,10 @@ class SelectSearchData {
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function ipSearch( AddressInterface $ip ) :array {
-		$ipStatus = ( new IpRuleStatus( $ip->toString() ) )->setMod( $this->getCon()->getModule_IPs() );
-		if ( $ipStatus->hasRules() ) {
+		try {
+			( new IPRecords() )
+				->setMod( $this->getCon()->getModule_Data() )
+				->loadIP( $ip->toString(), false );
 			$data = [
 				[
 					'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
@@ -49,9 +51,10 @@ class SelectSearchData {
 				]
 			];
 		}
-		else {
+		catch ( \Exception $e ) {
 			$data = [];
 		}
+
 		return $data;
 	}
 
