@@ -325,7 +325,7 @@
             "shield/datatables/common"
           ]
         },
-        "shield/datatables/ip_rules":    {
+        "shield/datatables/ip_rules":        {
           "deps": [
             "shield/datatables/common"
           ]
@@ -439,8 +439,8 @@
     "icon_url_128x128":   "pluginlogo_128x128.png"
   },
   "meta":             {
-    "url_repo_home":            "https://shsec.io/eh",
-    "privacy_policy_href":      "https://shsec.io/shieldprivacypolicy"
+    "url_repo_home":       "https://shsec.io/eh",
+    "privacy_policy_href": "https://shsec.io/shieldprivacypolicy"
   },
   "plugin_meta":      [
     {
@@ -449,12 +449,12 @@
     }
   ],
   "version_upgrades": [
+    "16.0.0",
     "14.1.4",
     "14.1.1",
     "11.2.0",
     "12.0.0",
-    "12.0.1",
-    "13.0.0"
+    "12.0.1"
   ],
   "action_links":     {
     "remove": null,

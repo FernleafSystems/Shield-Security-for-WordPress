@@ -25,18 +25,6 @@ class QueueReqDbRecordMigrator extends Shield\Databases\Utility\QueueDbRecordsMi
 	}
 
 	/**
-	 * Dispatch
-	 *
-	 * @access public
-	 * @return void
-	 */
-	public function dispatch() {
-		return;
-		parent::dispatch();
-		error_log( 'dispatch' );
-	}
-
-	/**
 	 * @return Select
 	 */
 	protected function getDbSelector() {

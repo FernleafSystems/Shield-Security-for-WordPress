@@ -33,6 +33,11 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $crowdSecCon;
 
+	/**
+	 * @var
+	 */
+	private $ipMigrator;
+
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
 		if ( !isset( $this->botSignalsCon ) ) {
 			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
@@ -77,19 +82,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onWpInit() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$migrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
-		if ( ( Services::Request()->ts() - (int)$opts->getOpt( 'tmp_ips_started_at' ) ) > HOUR_IN_SECONDS ) {
-			$opts->setOpt( 'tmp_ips_started_at', Services::Request()->ts() );
-			$this->saveModOptions();
-			if ( $this->getDbHandler_IPs()->getQuerySelector()->count() > 0 ) {
-				$migrator->dispatch();
-			}
-		}
-
 		parent::onWpInit();
+		if ( method_exists( $this, 'runIpMigrator' ) ) {
+			$this->ipMigrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
+		}
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -255,5 +251,29 @@ class ModCon extends BaseShield\ModCon {
 				'last_access_at'
 			)
 			->query();
+	}
+
+	/**
+	 * @deprecated 16.0
+	 */
+	public function runIpMigrator() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		if ( !isset( $this->ipMigrator ) ) {
+			$this->ipMigrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
+		}
+
+		if ( ( Services::Request()->ts() - (int)$opts->getOpt( 'tmp_ips_started_at' ) ) > HOUR_IN_SECONDS ) {
+			$opts->setOpt( 'tmp_ips_started_at', Services::Request()->ts() );
+			$this->saveModOptions();
+			if ( $this->getDbHandler_IPs()->getQuerySelector()->count() > 0 ) {
+				$this->ipMigrator->dispatch();
+			}
+		}
+	}
+
+	public function runHourlyCron() {
+		$this->runIpMigrator();
 	}
 }
