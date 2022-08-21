@@ -1,19 +1,9 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
-
-{#		<div class="tab-pane fade" id="ipanalysis" role="tabpanel" aria-labelledby="ipanalysis">#}
-{#			<div class="row">#}
-{#				<div class="col insights_section">#}
-{#					{{ content.ip_review|raw }}#}
-{#				</div>#}
-{#			</div>#}
-{#		</div>#}
-
 	<div class="row">
 		<div class="col insights_section">
 			{{ content.table_ip_rules|raw }}
 		</div>
 	</div>
-
 {% endblock %}

@@ -937,14 +937,16 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		try {
-			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( true ), $this->getConfigStoreKey() ) )
+			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
 				->setCon( $this )
 				->run();
+			$this->cfg->load_source = 'json';
 		}
 		catch ( \Exception $e ) {
 			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( false ), $this->getConfigStoreKey() ) )
 				->setCon( $this )
 				->run();
+			$this->cfg->load_source = 'php';
 		}
 		$this->loadModConfigs();
 		$this->saveCurrentPluginControllerOptions();

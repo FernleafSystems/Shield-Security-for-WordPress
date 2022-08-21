@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
@@ -32,7 +32,7 @@ class Add extends BaseAddRemove {
 	 */
 	public function cmdIpAdd( array $null, array $args ) {
 		try {
-			$this->checkList( $args[ 'list' ] );
+			$this->checkList( $args[ 'list' ] ?? '' );
 
 			$adder = ( new AddRule() )
 				->setMod( $this->getMod() )

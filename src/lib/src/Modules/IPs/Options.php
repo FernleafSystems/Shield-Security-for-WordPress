@@ -12,6 +12,9 @@ class Options extends BaseShield\Options {
 		return (int)constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
+	/**
+	 * @deprecated 16.0
+	 */
 	public function getAutoUnblockEmailIDs() :array {
 		$ids = is_array( $this->getOpt( 'autounblock_emailids', [] ) ) ? $this->getOpt( 'autounblock_emailids', [] ) : [];
 		$ids = array_filter( $ids, function ( $ts ) {

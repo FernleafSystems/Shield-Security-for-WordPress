@@ -40,7 +40,7 @@ class UI extends BaseShield\UI {
 		$warning = [];
 
 		if ( !$con->this_req->ip_is_public ) {
-			$warning[] = __( 'Traffic Loggger will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
+			$warning[] = __( 'Traffic Logger wont run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 		}
 
 		switch ( $section ) {

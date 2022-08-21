@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\FindAllPluginIps;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
@@ -17,9 +16,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
 				'iprulestable_action' => [ $this, 'ajaxExec_IpRulesTableAction' ],
-				'ip_analyse_build'    => [ $this, 'ajaxExec_BuildIpAnalyse' ],
 				'ip_analyse_action'   => [ $this, 'ajaxExec_IpAnalyseAction' ],
-				'ip_review_select'    => [ $this, 'ajaxExec_IpReviewSelect' ],
 				'render_ip_analysis'  => [ $this, 'ajaxExec_RenderIpAnalysis' ],
 				'render_ip_rule_add'  => [ $this, 'ajaxExec_RenderIpRuleAdd' ],
 				'ip_rule_add_form'    => [ $this, 'ajaxExec_ProcessIpRuleAdd' ],
@@ -59,27 +56,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success'     => $success,
 			'page_reload' => $success,
 			'message'     => $msg,
-		];
-	}
-
-	public function ajaxExec_IpReviewSelect() :array {
-		$req = Services::Request();
-
-		$filter = preg_replace( '#[^\da-f:.]#', '', strtolower( (string)$req->post( 'search' ) ) );
-		$ips = ( new FindAllPluginIps() )
-			->setCon( $this->getCon() )
-			->run( $filter );
-
-		return [
-			'success'     => true,
-			'ips'         => array_map( function ( $ip ) {
-				return [
-					'id'   => $ip,
-					'text' => $ip
-				];
-			}, $ips ),
-			'message'     => '',
-			'page_reload' => false,
 		];
 	}
 
@@ -190,8 +166,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	}
 
 	public function ajaxExec_IpAnalyseAction() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$req = Services::Request();
 
 		$ip = $req->post( 'ip' );
@@ -220,7 +194,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					try {
 						$autoBlockIP = $ruleStatus->getRuleForAutoBlock();
 						if ( empty( $autoBlockIP ) ) {
-							throw new Exception( "IP isn't on the auto block list." );
+							throw new \Exception( "IP isn't on the auto block list." );
 						}
 						$success = ( new Lib\IpRules\DeleteRule() )
 							->setMod( $this->getMod() )
@@ -308,30 +282,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'success'     => $success,
 			'message'     => $msg,
 			'page_reload' => true,
-		];
-	}
-
-	public function ajaxExec_BuildIpAnalyse() :array {
-		try {
-			$ip = Services::Request()->post( 'fIp', '' );
-			$response = ( new Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay() )
-				->setMod( $this->getMod() )
-				->setIP( $ip )
-				->run();
-
-			$msg = '';
-			$success = true;
-		}
-		catch ( \Exception $e ) {
-			$msg = $e->getMessage();
-			$success = false;
-			$response = $msg;
-		}
-
-		return [
-			'success' => $success,
-			'message' => $msg,
-			'html'    => $response,
 		];
 	}
 

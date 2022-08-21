@@ -192,9 +192,7 @@ class ModCon extends BaseShield\ModCon {
 					],
 					'ip_analysis'       => [
 						'ajax' => [
-							'ip_analyse_build'  => $this->getAjaxActionData( 'ip_analyse_build' ),
 							'ip_analyse_action' => $this->getAjaxActionData( 'ip_analyse_action' ),
-							'ip_review_select'  => $this->getAjaxActionData( 'ip_review_select' ),
 						]
 					],
 					'ip_rules'          => [
@@ -275,5 +273,8 @@ class ModCon extends BaseShield\ModCon {
 
 	public function runHourlyCron() {
 		$this->runIpMigrator();
+		( new DB\IpRules\CleanIpRules() )
+			->setMod( $this )
+			->execute();
 	}
 }

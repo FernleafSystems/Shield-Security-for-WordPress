@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\ModConfigVO;
  * @property string        $hash
  * @property string        $previous_version
  * @property array         $update_first_detected
+ * @property string        $load_source
  * @property ModConfigVO[] $mods_cfg
  */
 class ConfigVO extends DynPropertiesClass {
