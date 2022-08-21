@@ -232,6 +232,15 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'enable_beta' :
+				$name = __( 'Beta Access', 'wp-simple-firewall' );
+				$summary = __( 'Enable Access To Beta Versions', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Enable this option to allow shield to upgrade to beta and pre-release versions.', 'wp-simple-firewall' ),
+					__( "Please only enable this on non-critical sites, and if you're comfortable with bugs arising.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'enable_shieldnet' :
 				$name = __( 'Enable ShieldNET', 'wp-simple-firewall' );
 				$summary = __( 'Enhanced Website Security Through Network Intelligence', 'wp-simple-firewall' );

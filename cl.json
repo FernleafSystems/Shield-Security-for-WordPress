@@ -63,11 +63,20 @@
         ]
       },
       {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Beta Access Option",
+        "description": [
+          "A new option is provided to allow easy access to beta version of the Shield Security plugin."
+        ],
+        "href":        "https://help.getshieldsecurity.com/article/472--"
+      },
+      {
         "type":        "improved",
         "pro_only":    false,
         "title":       "Shield Nav Bar",
         "description": [
-          "Shield displays a slightly better navbar on the dashboard with built-in search, helpdesk links and updates."
+          "Shield offer a much better navbar on the dashboard with built-in search, helpdesk links and updates."
         ]
       },
       {

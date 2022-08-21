@@ -15,13 +15,13 @@ class Strings extends Base\Strings {
 			'conn_kill'                   => [
 				'name'  => __( 'Connection Killed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ),
+					__( 'Visitor found on the Block List and their connection was killed.', 'wp-simple-firewall' ),
 				],
 			],
 			'conn_kill_crowdsec'          => [
 				'name'  => __( 'CrowdSec: Connection Killed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Visitor found on the CrowdSec IP List and their request was killed.', 'wp-simple-firewall' ),
+					__( 'Visitor found on the CrowdSec Block List and their request was killed.', 'wp-simple-firewall' ),
 				],
 			],
 			'conn_not_kill_high_rep'      => [

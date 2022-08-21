@@ -78,6 +78,13 @@ class ModCon extends BaseShield\ModCon {
 		$this->getCon()->cache_dir_handler = $cacheDirFinder;
 	}
 
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+
+		add_filter( 'shield/enable_beta',
+			$this->getOptions()->isOpt( 'enabled_beta', 'Y' ) ? '__return_true' : '__return_false' );
+	}
+
 	protected function enumRuleBuilders() :array {
 		return [
 			Rules\Build\RequestStatusIsAdmin::class,
