@@ -14,8 +14,8 @@ class NavMenuBuilder {
 		$menu = [
 			$this->overview(),
 			$this->configuration(),
-			$this->scans(),
 			$this->ips(),
+			$this->scans(),
 			$this->audit(),
 			$this->traffic(),
 			$this->users(),

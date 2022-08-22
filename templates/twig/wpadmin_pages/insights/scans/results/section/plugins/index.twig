@@ -1,19 +1,25 @@
-<div class="row mt-3 nav-vertical" id="ScanResultsPlugins">
+<div class="row mt-3 nav-vertical scan-results-section" id="ScanResultsPlugins">
 
 	<div class="col-2">
 		<ul class="nav nav-tabs flex-column">
 			{% for plugin_key,plugin in vars.plugins %}
-				<li class="nav-item mb-2">
-					<a class="nav-link {% if plugin_key < 1 %}active{% endif %}"
+				<li class="nav-item mb-3">
+					<a class="nav-link {% if plugin_key < 1 %}active{% endif %} position-relative"
 					   href="#plugin-tab-{{ plugin.info.slug }}"
 					   data-bs-toggle="tab"
 					>
 						{% if plugin.vars.count_items > 0 %}
-							<span class="badge bg-danger float-right">{{ plugin.vars.count_items }}</span>
+							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+								{{ plugin.vars.count_items }}
+							</span>
 						{% elseif plugin.flags.has_warning %}
-							<span class="badge bg-warning float-right">&excl;</span>
+							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-warning border border-light rounded-circle">
+{#								&excl;#}
+							</span>
 						{% else %}
-							<span class="badge bg-success float-right">&check;</span>
+							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle">
+{#								&check;#}
+							</span>
 						{% endif %}
 						{{ plugin.info.name }}
 					</a>

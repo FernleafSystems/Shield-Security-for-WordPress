@@ -6,8 +6,8 @@
 >
 	<input type="hidden" name="working_mod" value="{{ vars.working_mod }}" />
 
-	<div id="ModuleOptionsNav" class="insights-sub-nav" aria-orientation="horizontal">
-		<ul class="nav nav-tabs" role="tablist">
+	<div id="ModuleOptionsNav" aria-orientation="horizontal">
+		<ul class="nav nav-tabs insights-sub-nav" role="tablist">
 		{% for opt_sect_key,opt_section in vars.all_options %}
 			<li class="nav-item">
 				<a href="#tab-{{ opt_section.slug }}"

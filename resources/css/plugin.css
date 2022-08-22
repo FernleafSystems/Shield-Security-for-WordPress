@@ -334,32 +334,48 @@ th.column-is_secadmin {
 table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
-.insights-sub-nav ul.nav.nav-tabs a.nav-link {
+ul.nav.nav-tabs.insights-sub-nav a.nav-link {
 	color: #2b2b2b;
 	font-size: 0.9rem;
-	background-color: rgba(0, 0, 0, 0.05);
 	border-color: rgba(0, 0, 0, 0.1);
-	border-bottom-color: transparent;
+	background-color: rgba(0, 0, 0, 0.05);
+	/*border-bottom-color: transparent;*/
 	box-shadow: 0 -2px 3px rgba(0, 0, 0, 0.03) inset;
 	opacity: 0.9;
 	border-radius: 0;
 	padding: 4px 12px;
 	margin: 0 0 -1px -1px;
 }
-.insights-sub-nav ul.nav.nav-tabs a.nav-link:hover {
+ul.nav.nav-tabs.insights-sub-nav a.nav-link:hover {
 	opacity: 1;
 }
-.insights-sub-nav ul.nav.nav-tabs a.nav-link.active {
+ul.nav.nav-tabs.insights-sub-nav a.nav-link.active {
 	color: #008000;
 	background-color: transparent;
 	border-bottom-color: #f1f1f1;
 	opacity: 1;
 	box-shadow: none;
 }
-.insights-sub-nav .card.card-scan_results {
+.scan-results-section ul.nav.nav-tabs {
+	border-bottom: transparent;
+}
+.scan-results-section a.nav-link {
+	background: transparent;
+	border: 1px solid #c2c2c2 !important;
+	border-radius: 3px;
+	margin-right: 0;
+}
+.scan-results-section a.nav-link:hover {
+	background: rgba(255, 255, 255, 0.50);
+}
+.scan-results-section a.nav-link.active {
+	background-color: white;
+	border: 1px solid #c2c2c2;
+}
+.scan-results-section .card.card-scan_results {
 	margin-top: 0;
 }
-.insights-sub-nav nav > a.nav-link .badge {
+.scan-results-section nav > a.nav-link .badge {
 	font-size: 12px;
 }
 .card.card-scan_results {
@@ -905,13 +921,6 @@ body.folded #FooterBannerGoPro {
 	font-size: 5rem;
 	margin: -10px auto 0;
 	text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
-}
-
-#ScanResultsPlugins li.nav-item a.nav-link {
-	/*background-color: white;*/
-	border: 1px solid #c2c2c2;
-	border-radius: 3px;
-	margin-right: 0;
 }
 #ScanResultsTabs table td.actions {
 	white-space: nowrap;

@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
+<ul class="nav nav-tabs insights-sub-nav" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
 		<a class="nav-link active" id="h-tabs-wordpress-tab" data-bs-toggle="tab" href="#h-tabs-wordpress"
@@ -17,7 +17,7 @@
 		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
 			{% if vars.sections.plugins.count > 0 %}
-				<span class="badge bg-danger">{{ vars.sections.plugins.count }}</span>
+				<span class="badge bg-danger ">{{ vars.sections.plugins.count }}</span>
 			{% else %}
 				<span class="badge bg-success">&check;</span>
 			{% endif %}
