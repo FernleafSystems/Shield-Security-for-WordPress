@@ -37,15 +37,15 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	public function ajaxExec_DynamicLoad() :array {
 		try {
-			$pageData = ( new Lib\Requests\DynamicPageLoader() )
+			$pageData = ( new Lib\Requests\DynamicContentLoader() )
 				->setMod( $this->getMod() )
 				->build( Shield\Modules\Base\Lib\Request\FormParams::Retrieve() );
 			$success = true;
 		}
 		catch ( \Exception $e ) {
 			$pageData = [
-				'message' => $e->getMessage(),
 				'success' => false,
+				'message' => $e->getMessage(),
 			];
 			$success = false;
 		}

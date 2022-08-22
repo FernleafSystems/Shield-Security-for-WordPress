@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
  * @property string $load_type
  * @property string $load_variant
  */
-class DynamicPageLoader extends DynPropertiesClass {
+class DynamicContentLoader extends DynPropertiesClass {
 
 	use ModConsumer;
 

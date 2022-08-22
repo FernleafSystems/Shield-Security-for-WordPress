@@ -81,7 +81,6 @@ class NavMenuBuilder {
 	}
 
 	private function ips() :array {
-		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -97,12 +96,13 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-blocksettings',
 				'title' => __( 'IP Block Config', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_IPs()->getUrl_AdminPage(),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('ips')}",
 			],
 			[
 				'slug'  => $slug.'-antibotsettings',
 				'title' => __( 'AntiBot Config', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('ips')}",
+				//				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
 			//			[ TODO
 			//				'slug'    => 'ips-download',
@@ -140,7 +140,8 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('audit_trail')}",
+//				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
 			],
 			//			[
 			//				'slug'    => 'audit-download',
@@ -190,7 +191,8 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('hack_protect')}",
+				//				'href'  => $con->getModule_HackGuard()->getUrl_AdminPage(),
 			],
 			[
 				'slug'   => $slug.'-guide',
@@ -315,12 +317,14 @@ class NavMenuBuilder {
 				[
 					'slug'  => 'integrations-contact',
 					'title' => __( 'Contact Form SPAM', 'wp-simple-firewall' ),
-					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_spam' ),
+					'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('integrations')}",
+					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_spam' ),
 				],
 				[
 					'slug'  => 'integrations-login',
 					'title' => __( 'Custom Login Forms', 'wp-simple-firewall' ),
-					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_user_forms' ),
+					'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('integrations')}",
+					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_user_forms' ),
 				],
 			],
 		];
@@ -395,7 +399,8 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-whitelabel',
 				'title' => __( 'White Label', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_whitelabel' ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('admin_access_restriction')}",
+				//				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_whitelabel' ),
 			],
 			[
 				'slug'   => $slug.'-notes',
@@ -444,7 +449,8 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_options' ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('traffic')}",
+				//				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_options' ),
 			],
 		];
 
@@ -472,24 +478,27 @@ class NavMenuBuilder {
 			],
 			[
 				'slug'  => 'users-secadmin',
-				'title' => sprintf( '%s: %s', __( 'Configure', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
-				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_security_admin_settings' ),
+				'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('admin_access_restriction')}",
+				//				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_security_admin_settings' ),
 			],
 			[
 				'slug'  => 'users-settings',
 				'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
-				'href'  => $con->getModule_UserManagement()
-							   ->getUrl_DirectLinkToSection( 'section_user_session_management' ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('user_management')}",
+				//				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_user_session_management' ),
 			],
 			[
 				'slug'  => 'users-passwords',
 				'title' => __( 'Password Policies', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_passwords' ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('user_management')}",
+				//				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_passwords' ),
 			],
 			[
 				'slug'  => 'users-suspend',
 				'title' => __( 'User Suspension', 'wp-simple-firewall' ),
-				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_suspend' ),
+				'href'  => "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('user_management')}",
+				//				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_suspend' ),
 			],
 		];
 

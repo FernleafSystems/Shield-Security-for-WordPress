@@ -560,6 +560,7 @@ a[target="_blank"]:not(.option_link_info):not(.card-link):not(.table-link):not(.
 #footer-thankyou {
 	display: none;
 }
+.force-cursor-pointer,
 a.beacon-article,
 a.section_title_info {
 	cursor: pointer;
@@ -1037,4 +1038,10 @@ td.mal_details ul {
 .select2-results ul li ul li:focus,
 .select2-results ul li ul li:hover {
 	background: green !important;
+}
+#ShieldOffcanvas {
+	width: auto;
+}
+#ShieldOffcanvas .offcanvas-header{
+	background-color: rgba(0,0,0,0.05);
 }

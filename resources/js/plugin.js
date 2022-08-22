@@ -11,11 +11,11 @@ var iCWP_WPSF_OptionsPages = new function () {
 			/** Track active tab */
 			jQuery( document ).on( 'click', '#ModuleOptionsNav a.nav-link', function ( e ) {
 				e.preventDefault();
-				jQuery( this ).tab( 'show' );
 				jQuery( 'html,body' ).scrollTop( 0 );
 			} );
 			jQuery( document ).on( 'shown.bs.tab', '#ModuleOptionsNav a.nav-link', function ( e ) {
-				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
+				window.location.hash = jQuery( e.target ).data( 'bs-target' ).substr( 1 );
+				jQuery( '.offcanvas-body' ).scrollTop( 0 );
 			} );
 		} );
 	};
@@ -410,6 +410,48 @@ let iCWP_WPSF_ProgressMeters = new function () {
 	};
 }();
 
+let iCWP_WPSF_ConfigCanvas = new function () {
+
+	let data;
+	let $offCanvas;
+	let configContainer;
+
+	this.renderConfig = function ( module ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let reqData = data.ajax.render_mod_config;
+		reqData.module = module;
+
+		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		configContainer.show();
+
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				dataType: "text",
+				success: function ( raw ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+					$offCanvas.html( response.data.html );
+					$offCanvas.css( 'width', '1000px' );
+				}
+			}
+		).always(
+			function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	this.initialise = function ( workingData ) {
+		data = workingData;
+		$offCanvas = jQuery( '#ShieldOffcanvas' );
+		if ( $offCanvas.length > 0 ) {
+			configContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldOffcanvas' ) );
+		}
+	};
+}();
+
 let iCWP_WPSF_Helpscout = new function () {
 	this.initialise = function ( workingData ) {
 		beaconInit();
@@ -453,6 +495,10 @@ jQueryDoc.ready( function () {
 
 	if ( typeof icwp_wpsf_vars_insights.components.meters !== 'undefined' ) {
 		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.components.meters );
+	}
+
+	if ( typeof icwp_wpsf_vars_plugin.components.mod_config !== 'undefined' ) {
+		iCWP_WPSF_ConfigCanvas.initialise( icwp_wpsf_vars_plugin.components.mod_config );
 	}
 
 	if ( typeof icwp_wpsf_vars_plugin.components.mod_options !== 'undefined' ) {

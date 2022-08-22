@@ -31,6 +31,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
 				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
+				'render_mod_config'       => [ $this, 'ajaxExec_RenderModConfig' ],
 				'select_search'           => [ $this, 'ajaxExec_SelectSearch' ],
 				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 			] );
@@ -111,6 +112,23 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'html'    => ( new Components\DashboardWidget() )
 				->setMod( $this->getMod() )
 				->render( (bool)Services::Request()->post( 'refresh' ) )
+		];
+	}
+
+	public function ajaxExec_RenderModConfig() :array {
+		try {
+			$html = ( new Shield\Modules\Insights\Lib\Requests\OffCanvas() )
+				->setMod( $this->getCon()->getModule_Insights() )
+				->modConfig( Services::Request()->post( 'module' ) );
+			$success = true;
+		}
+		catch ( \Exception $e ) {
+			$html = 'error rendering';
+			$success = false;
+		}
+		return [
+			'success' => $success,
+			'html'    => $html
 		];
 	}
 
