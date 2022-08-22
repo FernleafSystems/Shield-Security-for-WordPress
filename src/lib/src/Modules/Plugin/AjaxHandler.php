@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
@@ -31,8 +30,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'render_table_adminnotes' => [ $this, 'ajaxExec_RenderTableAdminNotes' ],
 				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
-				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
+				'render_mod_config'       => [ $this, 'ajaxExec_RenderModConfig' ],
+				'select_search'           => [ $this, 'ajaxExec_SelectSearch' ],
+				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 			] );
 		}
 		return $map;
@@ -57,6 +58,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				$con->getModule_Data()->getDbH_ReqLogs(),
 				$con->getModule_Data()->getDbH_UserMeta(),
 				$con->getModule_IPs()->getDbH_BotSignal(),
+				$con->getModule_IPs()->getDbH_IPRules(),
 				$modHG->getDbH_Scans(),
 				$modHG->getDbH_ScanItems(),
 				$modHG->getDbH_ScanResults(),
@@ -110,6 +112,32 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'html'    => ( new Components\DashboardWidget() )
 				->setMod( $this->getMod() )
 				->render( (bool)Services::Request()->post( 'refresh' ) )
+		];
+	}
+
+	public function ajaxExec_RenderModConfig() :array {
+		try {
+			$html = ( new Shield\Modules\Insights\Lib\Requests\OffCanvas() )
+				->setMod( $this->getCon()->getModule_Insights() )
+				->modConfig( Services::Request()->post( 'module' ) );
+			$success = true;
+		}
+		catch ( \Exception $e ) {
+			$html = 'error rendering';
+			$success = false;
+		}
+		return [
+			'success' => $success,
+			'html'    => $html
+		];
+	}
+
+	public function ajaxExec_SelectSearch() :array {
+		return [
+			'success' => true,
+			'results' => ( new Lib\SelectSearchData() )
+				->setCon( $this->getCon() )
+				->build( Services::Request()->request( 'search' ) ),
 		];
 	}
 

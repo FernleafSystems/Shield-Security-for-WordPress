@@ -1,37 +1,37 @@
 {% set wp = vars.wordpress %}
-<div class="row mt-3" id="ScanResultsWordpress">
+<div class="row mt-3 scan-results-section" id="ScanResultsWordpress">
 	<div class="col-12">
 
 		<ul class="list-group">
 			{% if wp.flags.is_vulnerable %}
 				<li class="list-group-item list-group-item-danger">
-					<span class="font-weight-bold">{{ strings.vulnerable }}</span>:
+					<span class="fw-bold">{{ strings.vulnerable }}</span>:
 					{{ strings.vulnerable_known }}
 					{{ strings.vulnerable_update }}
 				</li>
 			{% endif %}
 			{% if wp.flags.has_update %}
 				<li class="list-group-item list-group-item-warning">
-					<span class="font-weight-bold">
+					<span class="fw-bold">
 						<a href="{{ hrefs.upgrade }}" target="_blank">{{ strings.update_available }}</a>
 					</span>
 				</li>
 			{% endif %}
 			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.version }}</span>: {{ wp.info.version }}
+				<span class="fw-bold">{{ strings.version }}</span>: {{ wp.info.version }}
 			</li>
 			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.install_dir }}</span>:
+				<span class="fw-bold">{{ strings.install_dir }}</span>:
 				<code>{{ wp.info.dir }}</code>
 			</li>
 			{% if wp.flags.has_core_files %}
 				<li class="list-group-item list-group-item-danger">
-					<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
+					<span class="fw-bold">{{ strings.file_integrity }}</span>:
 					<span>{{ strings.files_found }}</span>
 				</li>
 			{% else %}
 				<li class="list-group-item list-group-item-success">
-					<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
+					<span class="fw-bold">{{ strings.file_integrity }}</span>:
 					<span>{{ strings.no_files }}</span>
 				</li>
 			{% endif %}

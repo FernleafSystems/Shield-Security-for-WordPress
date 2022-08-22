@@ -11,11 +11,11 @@ var iCWP_WPSF_OptionsPages = new function () {
 			/** Track active tab */
 			jQuery( document ).on( 'click', '#ModuleOptionsNav a.nav-link', function ( e ) {
 				e.preventDefault();
-				jQuery( this ).tab( 'show' );
 				jQuery( 'html,body' ).scrollTop( 0 );
 			} );
 			jQuery( document ).on( 'shown.bs.tab', '#ModuleOptionsNav a.nav-link', function ( e ) {
-				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
+				window.location.hash = jQuery( e.target ).data( 'bs-target' ).substr( 1 );
+				jQuery( '.offcanvas-body' ).scrollTop( 0 );
 			} );
 		} );
 	};
@@ -24,7 +24,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 let iCWP_WPSF_Modals = new function () {
 	let workingData = {};
 
-	let renderModalIpAnalysis = function ( ip ) {
+	this.renderModalIpAnalysis = function ( ip ) {
 		iCWP_WPSF_BodyOverlay.show();
 		let reqData = workingData.modal_ip_analysis.ajax.render_ip_analysis;
 		reqData.ip = ip;
@@ -44,9 +44,36 @@ let iCWP_WPSF_Modals = new function () {
 		} );
 	};
 
+	this.renderModalIpAdd = function ( params = [] ) {
+		iCWP_WPSF_BodyOverlay.show();
+		jQuery.ajax( {
+			type: "POST",
+			url: ajaxurl,
+			data: workingData.modal_ip_rule_add.ajax.render_ip_rule_add,
+			dataType: "json",
+			success: function ( raw ) {
+				iCWP_WPSF_Modals.display( raw.data );
+			},
+		} )
+			  .fail( function () {
+			  } )
+			  .always( function () {
+				  iCWP_WPSF_BodyOverlay.hide();
+			  } );
+	};
+
 	this.display = function ( params ) {
 		let modal = document.getElementById( 'ShieldGeneralPurposeDialog' );
-		jQuery( '.modal-dialog', modal ).addClass( 'modal-xl' );
+		if ( typeof params.modal_class === typeof undefined ) {
+			params.modal_class = 'modal-xl';
+		}
+		if ( params.modal_static ) {
+			modal.setAttribute( 'data-bs-backdrop', 'static' );
+		}
+		else {
+			modal.removeAttribute( 'data-bs-backdrop' );
+		}
+		jQuery( '.modal-dialog', modal ).addClass( params.modal_class );
 		jQuery( '.modal-title', modal ).html( params.title );
 		jQuery( '.modal-body .col', modal ).html( params.body );
 		(new bootstrap.Modal( modal )).show();
@@ -59,7 +86,7 @@ let iCWP_WPSF_Modals = new function () {
 	this.initialise = function () {
 		jQuery( document ).on( 'click', '.modal_ip_analysis', function ( evt ) {
 			evt.preventDefault();
-			renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+			iCWP_WPSF_Modals.renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
 			return false;
 		} );
 	};
@@ -374,10 +401,54 @@ let iCWP_WPSF_ProgressMeters = new function () {
 	this.initialise = function ( workingData ) {
 		data = workingData;
 		$canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
-		analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+		if ( $canvas.length > 0 ) {
+			analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+		}
 
-		const circle = new CircularProgressBar( 'pie' );
-		circle.initial();
+		/** Progress Meters: */
+		(new CircularProgressBar( 'pie' )).initial();
+	};
+}();
+
+let iCWP_WPSF_ConfigCanvas = new function () {
+
+	let data;
+	let $offCanvas;
+	let configContainer;
+
+	this.renderConfig = function ( module ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let reqData = data.ajax.render_mod_config;
+		reqData.module = module;
+
+		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		configContainer.show();
+
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				dataType: "text",
+				success: function ( raw ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+					$offCanvas.html( response.data.html );
+					$offCanvas.css( 'width', '80%' );
+				}
+			}
+		).always(
+			function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+
+	this.initialise = function ( workingData ) {
+		data = workingData;
+		$offCanvas = jQuery( '#ShieldOffcanvas' );
+		if ( $offCanvas.length > 0 ) {
+			configContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldOffcanvas' ) );
+		}
 	};
 }();
 
@@ -422,8 +493,12 @@ let jQueryDoc = jQuery( 'document' );
 
 jQueryDoc.ready( function () {
 
-	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
-		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
+	if ( typeof icwp_wpsf_vars_insights.components.meters !== 'undefined' ) {
+		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.components.meters );
+	}
+
+	if ( typeof icwp_wpsf_vars_plugin.components.mod_config !== 'undefined' ) {
+		iCWP_WPSF_ConfigCanvas.initialise( icwp_wpsf_vars_plugin.components.mod_config );
 	}
 
 	if ( typeof icwp_wpsf_vars_plugin.components.mod_options !== 'undefined' ) {
@@ -437,9 +512,13 @@ jQueryDoc.ready( function () {
 	iCWP_WPSF_Modals.initialise();
 	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
 		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
+		iCWP_WPSF_Modals.setData( 'modal_ip_rule_add', icwp_wpsf_vars_ips.components.modal_ip_rule_add );
 
 		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
 			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
+		}
+		if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
+			jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
 		}
 	}
 
@@ -457,11 +536,48 @@ jQueryDoc.ready( function () {
 
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
-	jQuery( '.select2picker.static' ).select2( {
-		width: 'resolve'
+	jQuery( '#SuperSearchBox select' ).select2( {
+		minimumInputLength: 3,
+		placeholder: icwp_wpsf_vars_plugin.components.select_search.strings.placeholder,
+		templateResult: function ( val ) {
+			return (typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2">' + val.icon + '</span>')
+				+ val.text;
+		},
+		escapeMarkup: function ( content ) {
+			return content;
+		},
+		ajax: {
+			delay: 750,
+			url: icwp_wpsf_vars_plugin.components.select_search.ajax.select_search.ajaxurl,
+			contentType: "application/json; charset=utf-8",
+			dataType: 'json',
+			data: function ( params ) {
+				let query = icwp_wpsf_vars_plugin.components.select_search.ajax.select_search;
+				query.search = params.term;
+				return query;
+			},
+			processResults: function ( response ) {
+				return {
+					results: response.data.results
+				};
+			},
+		}
 	} );
-	jQuery( '#SearchDialog select' ).select2( {
-		dropdownParent: jQuery( "#SearchDialog" )
+	jQuery( document ).on( 'select2:open', () => {
+		document.querySelector( '.select2-search__field' ).focus();
+	} );
+	jQuery( document ).on( '#SuperSearchBox select2:select', ( evt ) => {
+		let optResultData = evt.params.data;
+
+		if ( optResultData.ip ) {
+			iCWP_WPSF_Modals.renderModalIpAnalysis( optResultData.ip );
+		}
+		else if ( optResultData.new_window ) {
+			window.open( evt.params.data.href );
+		}
+		else {
+			window.location.href = evt.params.data.href;
+		}
 	} );
 	jQuery( '#IpReviewSelect' ).select2( {
 		minimumInputLength: 2,

@@ -39,7 +39,7 @@ class AuditLogger extends EventsListener {
 			$con->getModule_Traffic()->getRequestLogger()->execute();
 		}
 
-		if ( $con->cache_dir_handler->dirExists() && $opts->isLogToFile() ) {
+		if ( $con->cache_dir_handler->exists() && $opts->isLogToFile() ) {
 			try {
 				$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
 				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
@@ -103,7 +103,7 @@ class AuditLogger extends EventsListener {
 
 	protected function onShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
-			foreach ( $this->auditLogs as $auditLog ) {
+			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
 				$this->getLogger()->log(
 					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
 					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),

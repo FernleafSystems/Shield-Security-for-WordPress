@@ -1,12 +1,16 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
+/**
+ * @deprecated 16.0
+ */
 class QueryIpBlock {
 
 	use Shield\Modules\ModConsumer;
@@ -17,49 +21,30 @@ class QueryIpBlock {
 
 		$IP = $this->getBlockedIpRecord();
 		if ( !empty( $IP ) ) {
-
 			$isBlocked = true;
 
 			/** @var IPs\ModCon $mod */
 			$mod = $this->getMod();
-			/** @var Databases\IPs\Update $upd */
-			$upd = $mod->getDbHandler_IPs()->getQueryUpdater();
+			/** @var IPs\DB\IpRules\Ops\Update $upd */
+			$upd = $mod->getDbH_IPRules()->getQueryUpdater();
 			$upd->updateLastAccessAt( $IP );
 		}
 		return $isBlocked;
 	}
 
 	/**
-	 * @return Databases\IPs\EntryVO|null
+	 * @return IpRuleRecord|null
 	 */
 	private function getBlockedIpRecord() {
 		$blockIP = null;
 
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-		$IP = ( new IPs\Lib\Ops\LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setIP( $this->getIP() )
-			->setListTypeBlock()
-			->setIsIpBlocked( true )
-			->lookup();
+		$ruleStatus = ( new IpRuleStatus( $this->getIP() ) )->setMod( $this->getMod() );
 
-		if ( !empty( $IP ) ) {
-			/** @var IPs\Options $opts */
-			$opts = $this->getOptions();
-
-			// Clean out old IPs as we go so they don't show up in future queries.
-			if ( $IP->list == $mod::LIST_AUTO_BLACK
-				 && $IP->last_access_at < Services::Request()->ts() - $opts->getAutoExpireTime() ) {
-
-				( new IPs\Lib\Ops\DeleteIp() )
-					->setMod( $mod )
-					->setIP( Services::IP()->getRequestIp() )
-					->fromBlacklist();
-			}
-			else {
-				$blockIP = $IP;
-			}
+		foreach ( $ruleStatus->getRulesForManualBlock() as $ipRule ) {
+			$blockIP = $ipRule;
+		}
+		if ( empty( $blockIP ) ) {
+			$blockIP = $ruleStatus->getRuleForAutoBlock();
 		}
 
 		return $blockIP;

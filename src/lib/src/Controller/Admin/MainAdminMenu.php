@@ -30,27 +30,14 @@ class MainAdminMenu {
 		$menu = $con->cfg->menu;
 		if ( $menu[ 'top_level' ] ) {
 
-			if ( empty( $con->labels ) ) {
-				$labels = $con->getLabels();
-				$menuTitle = empty( $labels[ 'MenuTitle' ] ) ? $menu[ 'title' ] : $labels[ 'MenuTitle' ];
-				if ( is_null( $menuTitle ) ) {
-					$menuTitle = $con->getHumanName();
-				}
-				$iconUrl = $labels[ 'icon_url_16x16' ];
-			}
-			else {
-				$menuTitle = $con->labels->MenuTitle;
-				$iconUrl = $con->labels->icon_url_16x16;
-			}
-
 			$parentMenuID = $con->getPluginPrefix();
 			add_menu_page(
 				$con->getHumanName(),
-				$menuTitle,
+				$con->labels->MenuTitle,
 				'read',
 				$parentMenuID,
 				[ $this, 'onDisplayTopMenu' ],
-				$iconUrl
+				$con->labels->icon_url_16x16
 			);
 
 			if ( $menu[ 'has_submenu' ] ) {

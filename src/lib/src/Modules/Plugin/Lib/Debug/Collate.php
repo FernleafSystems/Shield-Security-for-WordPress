@@ -169,8 +169,13 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_IPs()->getDbHandler_IPs();
-		$data[ 'DB Table: IP Lists' ] = $dbh->isReady() ?
+		$dbh = $con->getModule_IPs()->getDbH_IPRules();
+		$data[ 'DB Table: IP Rules' ] = $dbh->isReady() ?
+			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
+			: 'Missing';
+
+		$dbh = $con->getModule_IPs()->getDbH_CrowdSecSignals();
+		$data[ 'DB Table: CrowdSec Signals' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
@@ -249,12 +254,16 @@ class Collate {
 			'Security Admin Enabled' => $con->getModule_SecAdmin()
 											->getSecurityAdminController()
 											->isEnabledSecAdmin() ? 'Yes' : 'No',
+			'CrowdSec API Status'    => $con->getModule_IPs()
+											->getCrowdSecCon()
+											->getApi()
+											->getAuthStatus()
 		];
 
 		/** @var Options $oOptsIP */
 		$optsPlugin = $modPlugin->getOptions();
 		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
-		$ip = Services::IP()->getRequestIp();
+		$ip = Services::Request()->ip();
 		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
 
 		return $data;

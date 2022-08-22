@@ -32,7 +32,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$srvIP = Services::IP();
 
 		try {
-			if ( !empty( $srvIP->isValidIp( $srvIP->getRequestIp() ) ) && !$srvIP->isLoopback() ) {
+			if ( !empty( $srvIP->isValidIp( $con->this_req->ip ) ) && !$srvIP->isLoopback() ) {
 				$this->assessSession();
 			}
 		}
@@ -84,7 +84,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->checkIp( $srvIP->getRequestIp(), $sess->ip ) ) {
+		if ( $opts->isLockToIp() && !$srvIP->checkIp( $this->getCon()->this_req->ip, $sess->ip ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}

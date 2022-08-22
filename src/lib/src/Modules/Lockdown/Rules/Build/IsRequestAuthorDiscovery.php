@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 
 class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 
@@ -46,12 +47,14 @@ class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,
 				'params'   => [
 					'event'         => 'block_author_fishing',
-					'offense_count' => 1,
+					'offense_count' => $opts->isBlockAuthorDiscovery() ? 1 : 0,
 					'block'         => false,
 				],
 			],

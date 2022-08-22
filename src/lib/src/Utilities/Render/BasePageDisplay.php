@@ -53,7 +53,7 @@ abstract class BasePageDisplay extends BaseTemplateRenderer {
 			'strings' => [
 			],
 			'vars'    => [
-				'visitor_ip' => Services::IP()->getRequestIp(),
+				'visitor_ip' => $con->this_req->ip,
 				'time_now'   => $WP->getTimeStringForDisplay(),
 				'home_url'   => $WP->getHomeUrl(),
 			],

@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 
 	public function getEventStrings() :array {
 		return [
-			'spam_block_antibot'   => [
+			'spam_block_antibot'        => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'AntiBot System', 'wp-simple-firewall' )
@@ -18,7 +18,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
 				],
 			],
-			'spam_block_human'     => [
+			'spam_block_human'          => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'Human', 'wp-simple-firewall' )
@@ -28,7 +28,16 @@ class Strings extends Base\Strings {
 					__( 'Human SPAM filter found "{{word}}" in "{{key}}"', 'wp-simple-firewall' ),
 				],
 			],
-			'spam_block_bot'       => [
+			'spam_block_humanrepeated' => [
+				'name'  => sprintf( '%s: %s',
+					__( 'SPAM Blocked', 'wp-simple-firewall' ),
+					__( 'Repeated Human SPAM', 'wp-simple-firewall' )
+				),
+				'audit' => [
+					__( 'Blocked repeated attempts by the same visitor to post multiple SPAM comments.', 'wp-simple-firewall' ),
+				],
+			],
+			'spam_block_bot'            => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'Bot', 'wp-simple-firewall' )
@@ -37,7 +46,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' ),
 				],
 			],
-			'spam_block_recaptcha' => [
+			'spam_block_recaptcha'      => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'CAPTCHA', 'wp-simple-firewall' )
@@ -46,7 +55,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' ),
 				],
 			],
-			'comment_spam_block'   => [
+			'comment_spam_block'        => [
 				'name'  => __( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),

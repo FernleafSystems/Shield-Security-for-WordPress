@@ -41,7 +41,7 @@ class TestRequest {
 		}
 		else {
 			$response = ( new ReCaptcha( $mod->getCaptchaCfg()->secret, new WordpressPost() ) )
-				->verify( $captchaResponse, Services::IP()->getRequestIp() );
+				->verify( $captchaResponse, $this->getCon()->this_req->ip );
 			if ( empty( $response ) || !$response->isSuccess() ) {
 				$aMsg = [
 					__( 'Whoops.', 'wp-simple-firewall' ),

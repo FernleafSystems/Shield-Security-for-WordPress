@@ -192,11 +192,12 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$plugName = $this->getCon()->getHumanName();
+		$plugName = $con->getHumanName();
 
 		switch ( $key ) {
 
@@ -231,6 +232,15 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'enable_beta' :
+				$name = __( 'Beta Access', 'wp-simple-firewall' );
+				$summary = __( 'Enable Access To Beta Versions', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Enable this option to allow shield to upgrade to beta and pre-release versions.', 'wp-simple-firewall' ),
+					__( "Please only enable this on non-critical sites, and if you're comfortable with bugs arising.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'enable_shieldnet' :
 				$name = __( 'Enable ShieldNET', 'wp-simple-firewall' );
 				$summary = __( 'Enhanced Website Security Through Network Intelligence', 'wp-simple-firewall' );
@@ -254,7 +264,7 @@ class Strings extends Base\Strings {
 					sprintf(
 						__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
 						'<strong>'.$opts->getIpSource().'</strong>',
-						Services::IP()->getRequestIp()
+						$con->this_req->ip
 					),
 					__( 'If the option you select becomes unavailable at some point, we will revert to auto detection.', 'wp-simple-firewall' ),
 				];

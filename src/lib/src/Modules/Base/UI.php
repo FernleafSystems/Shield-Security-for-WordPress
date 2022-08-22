@@ -17,30 +17,6 @@ class UI {
 			->standard();
 	}
 
-	public function buildSelectData_OptionsSearch() :array {
-		$searchSelect = [];
-		foreach ( $this->getCon()->modules as $module ) {
-			$cfg = $module->cfg;
-			if ( $cfg->properties[ 'show_module_options' ] ) {
-				$options = [];
-				foreach ( $module->getOptions()->getVisibleOptionsKeys() as $optKey ) {
-					try {
-						$options[ $optKey ] = array_merge(
-							$module->getStrings()->getOptionStrings( $optKey ),
-							[
-								'href' => $module->getUrl_DirectLinkToOption( $optKey )
-							]
-						);
-					}
-					catch ( \Exception $e ) {
-					}
-				}
-				$searchSelect[ $module->getMainFeatureName() ] = $options;
-			}
-		}
-		return $searchSelect;
-	}
-
 	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();
@@ -59,6 +35,7 @@ class UI {
 			],
 			'strings'    => $mod->getStrings()->getDisplayStrings(),
 			'flags'      => [
+				'is_mode_live'          => $con->is_mode_live,
 				'access_restricted'     => method_exists( $mod, 'isAccessRestricted' ) && $mod->isAccessRestricted(),
 				'show_ads'              => $mod->getIsShowMarketing(),
 				'wrap_page_content'     => true,
@@ -94,7 +71,9 @@ class UI {
 			],
 			'imgs'       => [
 				'svgs'           => [
+					'search'    => $con->svgs->raw( 'bootstrap/search.svg' ),
 					'help'      => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
+					'helpdesk'  => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
 					'ignore'    => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle'  => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
 					'megaphone' => $con->svgs->raw( 'bootstrap/megaphone.svg' ),

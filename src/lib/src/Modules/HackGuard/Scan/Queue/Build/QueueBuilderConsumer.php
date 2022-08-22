@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
-/**
- * Trait QueueBuilderConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build
- */
 trait QueueBuilderConsumer {
 
 	/**

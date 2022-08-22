@@ -17,7 +17,7 @@ trait RequestIP {
 	protected function getRequestIP() :string {
 		$value = $this->request_ip;
 		if ( empty( $value ) ) {
-			$value = Services::IP()->getRequestIp();
+			$value = Services::Request()->ip();
 		}
 		if ( empty( $value ) ) {
 			throw new RequestIpUnavailableException();

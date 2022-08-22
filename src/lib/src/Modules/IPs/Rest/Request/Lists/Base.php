@@ -2,40 +2,51 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
 
+use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 abstract class Base extends Process {
 
+	/**
+	 * @throws ApiException
+	 */
 	protected function getIpData( string $ip, string $list ) :array {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon $mod */
-		$mod = $this->getMod();
+		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 
-		$retriever = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setIP( $ip );
 		if ( $list === 'block' ) {
-			$retriever->setListTypeBlock();
+			$IP = $ruleStatus->getRuleForAutoBlock();
+			if ( empty( $IP ) ) {
+				$IP = current( $ruleStatus->getRulesForManualBlock() );
+			}
+		}
+		elseif ( $list === 'bypass' ) {
+			$IP = current( $ruleStatus->getRulesForBypass() );
 		}
 		else {
-			$retriever->setListTypeBypass();
+			$IP = current( $ruleStatus->getRulesForCrowdsec() );
 		}
-
-		$IP = $retriever->lookup( true );
 
 		if ( empty( $IP ) ) {
-			throw new \Exception( 'IP address not found on list' );
+			throw new ApiException( 'IP address not found on list' );
 		}
 
-		return array_intersect_key(
-			$IP->getRawData(),
+		return $this->convertIpRuleToArray($IP);
+	}
+
+	protected function convertIpRuleToArray( IpRuleRecord $record ) :array {
+		$data = array_intersect_key(
+			$record->getRawData(),
 			array_flip( [
-				'ip',
 				'label',
-				'list',
-				'transgressions',
+				'type',
+				'offenses',
 				'blocked_at',
+				'unblocked_at',
 			] )
 		);
+		$data[ 'ip' ] = $record->ipAsSubnetRange();
+		return $data;
 	}
 }

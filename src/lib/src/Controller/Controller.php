@@ -6,10 +6,10 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @property Config\ConfigVO                                        $cfg
@@ -189,7 +189,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'is_mode_live':
 				if ( is_null( $val ) ) {
-					$val = $this->is_mode_live = !$this->is_mode_staging && $this->is_mode_debug;
+					$val = $this->is_mode_live = !$this->is_mode_staging && !$this->is_mode_debug;
 				}
 				break;
 
@@ -462,20 +462,6 @@ class Controller extends DynPropertiesClass {
 		do_action( 'shield/plugin_activated' );
 	}
 
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getPluginCachePath( string $subPath = '' ) :string {
-		$handler = $this->cache_dir_handler;
-		if ( method_exists( $handler, 'cacheItemPath' ) ) {
-			$path = $handler->cacheItemPath( $subPath );
-		}
-		else {
-			$path = path_join( $handler->build(), $subPath );
-		}
-		return $path;
-	}
-
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
@@ -569,15 +555,61 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
+	 * @return array{id: string, ts: int, install_at: int}
+	 */
+	public function getInstallationID() :array {
+		$WP = Services::WpGeneral();
+		$urlParts = wp_parse_url( $WP->getWpUrl() );
+		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ], '/' );
+		$optKey = $this->prefixOption( 'shield_site_id' );
+
+		$IDs = $WP->getOption( $optKey );
+		if ( !is_array( $IDs ) ) {
+			$IDs = [];
+		}
+		if ( empty( $IDs[ $url ] ) || !is_array( $IDs[ $url ] ) ) {
+			$IDs[ $url ] = [];
+		}
+
+		$len = 48;
+		if ( empty( $IDs[ $url ][ 'id' ] ) || strlen( $IDs[ $url ][ 'id' ] ) !== $len ) {
+
+			try {
+				$uniqID = substr(
+					preg_replace( '#[^a-z\d]#i', '', Uuid::uuid4()->toString().Uuid::uuid4()->toString() ),
+					0, $len
+				);
+			}
+			catch ( \Exception $e ) {
+				$uniqID = substr( hash( 'sha256', uniqid( $url, true ) ), 0, $len );
+			}
+
+			$IDs[ $url ] = [
+				'id'         => strtolower( $uniqID ),
+				'ts'         => Services::Request()->ts(),
+				'install_at' => $this->getModule_Plugin()->storeRealInstallDate(),
+			];
+			$WP->updateOption( $optKey, $IDs );
+		}
+
+		return $IDs[ $url ];
+	}
+
+	/**
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
+	 * @deprecated 16.0
 	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
 		$optKey = $this->prefixOption( 'install_id' );
 
 		$mStoredID = $WP->getOption( $optKey );
+		if ( !empty( $mStoredID ) && is_string( $mStoredID ) && strlen( $mStoredID ) === 48 ) {
+			return $mStoredID; // It's using the new ID
+		}
+
 		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
 			$ID = $mStoredID[ 'id' ];
 			$update = true;
@@ -866,13 +898,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$file = $this->base_file;
-		if ( is_array( $plugins[ $file ] ?? null ) ) {
-			$plugins[ $file ] = array_merge(
-				$plugins[ $file ],
-				empty( $this->labels ) ? $this->getLabels() : $this->labels->getRawData()
-			);
-		}
+		$plugins[ $this->base_file ] = array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
 		return $plugins;
 	}
 
@@ -881,33 +907,6 @@ class Controller extends DynPropertiesClass {
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getLabels() :array {
-
-		$labels = array_map(
-			'stripslashes',
-			apply_filters( $this->prefix( 'plugin_labels' ), $this->cfg->labels )
-		);
-
-		$D = Services::Data();
-		foreach ( [ '16x16', '32x32', '128x128' ] as $dimension ) {
-			$key = 'icon_url_'.$dimension;
-			if ( !empty( $labels[ $key ] ) && !$D->isValidWebUrl( $labels[ $key ] ) ) {
-				$labels[ $key ] = $this->urls->forImage( $labels[ $key ] );
-			}
-		}
-
-		return $labels;
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function onWpLogout() {
 	}
 
 	protected function deleteFlags() {
@@ -938,14 +937,16 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		try {
-			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( true ), $this->getConfigStoreKey() ) )
+			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
 				->setCon( $this )
 				->run();
+			$this->cfg->load_source = 'json';
 		}
 		catch ( \Exception $e ) {
 			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( false ), $this->getConfigStoreKey() ) )
 				->setCon( $this )
 				->run();
+			$this->cfg->load_source = 'php';
 		}
 		$this->loadModConfigs();
 		$this->saveCurrentPluginControllerOptions();
@@ -1072,21 +1073,11 @@ class Controller extends DynPropertiesClass {
 	 * @return string
 	 */
 	public function getHumanName() {
-		return empty( $this->labels ) ? $this->getLabels()[ 'Name' ] : $this->labels->Name;
+		return $this->labels->Name;
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
 		return strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getIsResetPlugin() :bool {
-		if ( !isset( $this->plugin_reset ) ) {
-			$this->plugin_reset = Services::WpFs()->isFile( $this->paths->forFlag( 'reset' ) );
-		}
-		return $this->plugin_reset;
 	}
 
 	public function getIsWpmsNetworkAdminOnly() :bool {
@@ -1486,65 +1477,5 @@ class Controller extends DynPropertiesClass {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function clearSession() {
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	private function getSessionCookieID() :string {
-		return 'wp-null';
-	}
-
-	/**
-	 * @param bool $setIfNeeded
-	 * @return string
-	 * @deprecated 15.1
-	 */
-	public function getSessionId() {
-		return '';
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function hasSessionId() :bool {
-		return false;
-	}
-
-	protected function setSessionCookie() {
-	}
-
-	/**
-	 * Added to the WordPress filter ('site_transient_update_plugins') in order to remove visibility of updates
-	 * from the WordPress Admin UI.
-	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
-	 * the list of plugins if DOING_CRON is set to true.
-	 * @param \stdClass $plugins
-	 * @return \stdClass
-	 * @deprecated 15.1
-	 */
-	public function filter_hidePluginUpdatesFromUI( $plugins ) {
-		return $plugins;
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	public function filter_hidePluginFromTableList( $plugins ) {
-		return $plugins;
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 15.0
-	 */
-	public function loadAllFeatures() :bool {
-		return true;
 	}
 }

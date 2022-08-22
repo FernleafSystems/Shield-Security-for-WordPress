@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 16.0
+ */
 class LookupIpOnList {
 
 	use Databases\Base\HandlerConsumer;
@@ -117,6 +120,14 @@ class LookupIpOnList {
 	 */
 	public function setListTypeBlock() {
 		$this->listType = 'black';
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setListTypeCrowdsec() {
+		$this->listType = 'crowdsec';
 		return $this;
 	}
 

@@ -4,66 +4,81 @@
 		<ul class="list-group">
 			{% if plugin.flags.is_vulnerable %}
 				<li class="list-group-item list-group-item-danger">
-					<span class="font-weight-bold">{{ strings.vulnerable }}</span>:
+					<span class="fw-bold">{{ strings.vulnerable }}</span>:
 					{{ strings.vulnerable_known }}
 					{{ strings.vulnerable_update }}
 					<a href="{{ plugin.hrefs.vul_info }}" target="_blank">{{ strings.more_info }}</a>
 				</li>
 			{% endif %}
+
 			{% if plugin.flags.is_abandoned %}
 				<li class="list-group-item list-group-item-danger">
-					<span class="font-weight-bold">{{ strings.abandoned }}</span>:
+					<span class="fw-bold">{{ strings.abandoned }}</span>:
 					{{ plugin.info.abandoned_at }}
 					<button class="btn btn-light action standalone-action ignore"
-							title="Ignore"
-							data-rid="{{ plugin.vars.abandoned_rid }}">
+					        title="Ignore"
+					        data-rid="{{ plugin.vars.abandoned_rid }}">
 						{{ imgs.svgs.ignore|raw }}</button>
 				</li>
 			{% endif %}
+
 			{% if plugin.flags.has_update %}
 				<li class="list-group-item list-group-item-warning">
-					<span class="font-weight-bold">
+					<span class="fw-bold">
 						<a href="{{ hrefs.upgrade }}" target="_blank">{{ strings.update_available }}</a>
 					</span>
 				</li>
 			{% endif %}
+
 			{% if not plugin.flags.is_active %}
 				<li class="list-group-item list-group-item-warning">
 					{{ strings.not_active }}
 					<a href="{{ hrefs.page_plugins }}" target="_blank">{{ strings.go_to_plugins }}</a>
 				</li>
 			{% endif %}
+
+			{% if not plugin.flags.is_wporg %}
+				<li class="list-group-item list-group-item-dark">
+					<span class="">{{ strings.not_wporg }}</span>
+				</li>
+			{% elseif not plugin.flags.has_tag %}
+				<li class="list-group-item list-group-item-dark">
+					<span class="">{{ strings.no_tags }}</span>
+				</li>
+			{% else %}
+				<li class="list-group-item list-group-item-info">
+					<span class="">{{ strings.wporg_ok }}</span>
+				</li>
+			{% endif %}
+
 			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.name }}</span>: {{ plugin.info.name }};
-				<span class="font-weight-bold">{{ strings.version }}</span>: {{ plugin.info.version }};
-				<span class="font-weight-bold">{{ strings.installed_at }}</span>:
-				{{ plugin.info.installed_at }} <small>({{ strings.estimated }})</small>
-			</li>
-			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.author }}</span>:
+				<span class="fw-bold">{{ strings.name }}</span>: {{ plugin.info.name }};
+				<span class="fw-bold">{{ strings.version }}</span>: {{ plugin.info.version }};
+				<span class="fw-bold">{{ strings.author }}</span>:
 					<a href="{{ plugin.info.author_url }}" target="_blank">{{ plugin.info.author }}</a>;
-				<span class="font-weight-bold">WordPress.org</span>: {{ plugin.flags.is_wporg ? 'Yes' : 'No' }}
 			</li>
+
 			<li class="list-group-item">
-				<span class="font-weight-bold">{{ strings.install_dir }}</span>:
+				<span class="fw-bold">{{ strings.install_dir }}</span>:
 				<code>{{ plugin.info.dir }}</code>
-				<small>({{ strings.rel_to_abspath }})</small>
+				<span class="fw-bold">{{ strings.installed_at }}</span>:
+				{{ plugin.info.installed_at }} <small>({{ strings.estimated }})</small>
 			</li>
 
 			{% if flags.ptg_is_restricted %}
 				<li class="list-group-item list-group-item-warning">
-					<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
+					<span class="fw-bold">{{ strings.file_integrity }}</span>:
 					<span>{{ strings.ptg_not_available }}</span>
 				</li>
 			{% else %}
 				{% if plugin.flags.has_guard_files %}
 					<li class="list-group-item list-group-item-danger">
-						<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
+						<span class="fw-bold">{{ strings.file_integrity }}</span>:
 						<span>{{ strings.files_found }}</span>
 					</li>
 				{% else %}
 					<li class="list-group-item list-group-item-success">
-						<span class="font-weight-bold">{{ strings.file_integrity }}</span>:
+						<span class="fw-bold">{{ strings.file_integrity }}</span>:
 						<span>{{ strings.no_files }}</span>
 					</li>
 				{% endif %}
@@ -77,7 +92,7 @@
 	<div class="row mt-3">
 		<div class="col">
 			<table id="table_id-{{ plugin.info.slug }}"
-				   class="table table-striped table-bordered" style="width: 100%;"></table>
+			       class="table table-striped table-bordered" style="width: 100%;"></table>
 		</div>
 	</div>
 </div>
@@ -85,25 +100,25 @@
 <script>
 	jQuery( document ).ready( function () {
 		{% if plugin.flags.is_abandoned %}
-		jQuery( '#PluginSection-{{ plugin.info.slug }}' ).icwpWpsfScanResultsActions(
-			{
-				'ajax': {
-					'scanresults_action':{{ ajax.scanresults_action|raw }},
-				}
-			}
-		);
+		  jQuery( '#PluginSection-{{ plugin.info.slug }}' ).icwpWpsfScanResultsActions(
+			  {
+				  'ajax': {
+					  'scanresults_action':{{ ajax.scanresults_action|raw }},
+				  }
+			  }
+		  );
 		{% endif %}
 		{% if plugin.flags.has_guard_files %}
-		jQuery( '#table_id-{{ plugin.info.slug }}' ).icwpWpsfScanTableActions(
-			{
-				'type': '{{ plugin.info.type }}',
-				'file': '{{ plugin.info.file }}',
-				'ajax': {
-					'scanresults_action':{{ ajax.scanresults_action|raw }},
-				},
-				'datatables_init': {{ vars.datatables_init|raw }}
-			}
-		);
+	  jQuery( '#table_id-{{ plugin.info.slug }}' ).icwpWpsfScanTableActions(
+		  {
+			  'type': '{{ plugin.info.type }}',
+			  'file': '{{ plugin.info.file }}',
+			  'ajax': {
+				  'scanresults_action':{{ ajax.scanresults_action|raw }},
+			  },
+			  'datatables_init': {{ vars.datatables_init|raw }}
+		  }
+	  );
 		{% endif %}
-	} );
+  } );
 </script>

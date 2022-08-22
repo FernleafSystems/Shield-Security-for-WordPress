@@ -46,6 +46,10 @@ class ModCon extends BaseShield\ModCon {
 					 $con->getModule_IPs()
 						 ->getDbH_BotSignal()
 						 ->getQuerySelector()
+						 ->getDistinctForColumn( 'ip_ref' ),
+					 $con->getModule_IPs()
+						 ->getDbH_IPRules()
+						 ->getQuerySelector()
 						 ->getDistinctForColumn( 'ip_ref' )
 				 ) )
 			 )

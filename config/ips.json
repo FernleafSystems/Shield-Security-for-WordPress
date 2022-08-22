@@ -49,6 +49,7 @@
     "visitor-whitelisted": {
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
+      "can_dismiss":      false,
       "plugin_page_only": true,
       "per_user":         true,
       "type":             "info"
@@ -70,6 +71,11 @@
       "slug":        "section_antibot",
       "title":       "AntiBot System",
       "title_short": "AntiBot System"
+    },
+    {
+      "slug":        "section_crowdsec",
+      "title":       "CrowdSec",
+      "title_short": "CrowdSec"
     },
     {
       "slug":        "section_logins",
@@ -263,6 +269,47 @@
       "name":        "Request Path Whitelist",
       "summary":     "Request Path Whitelist",
       "description": "Request Path Whitelist."
+    },
+    {
+      "key":           "cs_block",
+      "section":       "section_crowdsec",
+      "advanced":      true,
+      "default":       "block_with_unblock",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "block_with_unblock",
+          "text":      "Block Request With Ability To Auto-Unblock"
+        },
+        {
+          "value_key": "block",
+          "text":      "Block Request"
+        },
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "beacon_id":     0,
+      "name":          "CrowdSec IP Blocking",
+      "summary":       "How To Handle Requests From IPs Found On CrowdSec Blocklist",
+      "description":   "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
+    },
+    {
+      "key":         "cs_enroll_id",
+      "section":     "section_crowdsec",
+      "sensitive":   true,
+      "premium":     false,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "",
+      "link_blog":   "",
+      "beacon_id":   0,
+      "name":        "Enroll ID",
+      "summary":     "CrowdSec Enroll ID",
+      "description": "CrowdSec Enroll ID."
     },
     {
       "key":         "text_loginfailed",
@@ -558,22 +605,32 @@
       "description":   "Identify a request as a bot if the user agent is not provided."
     },
     {
-      "key":          "autounblock_ips",
+      "key":          "crowdsec_cfg",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "array",
       "default":      []
     },
     {
-      "key":          "autounblock_emailids",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
+      "key":              "tmp_ips_started_at",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "integer",
+      "default":          0
     }
   ],
   "definitions":      {
-    "rest_api":            {
+    "crowdsec":                  {
+      "scenarios": {
+        "free": [
+          "crowdsecurity/http-bf-wordpress_bf",
+          "crowdsecurity/http-wordpress_wpconfig",
+          "crowdsecurity/http-wordpress_user-enum"
+        ]
+      }
+    },
+    "rest_api":                  {
       "publish":    true,
       "pro_only":   true,
       "route_defs": {
@@ -587,7 +644,7 @@
         }
       }
     },
-    "allowable_ext_404s":  [
+    "allowable_ext_404s":        [
       "js",
       "css",
       "gif",
@@ -599,10 +656,12 @@
       "woff",
       "woff2"
     ],
-    "db_handler_classes":  {
-      "botsignal": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler"
+    "db_handler_classes":        {
+      "botsignal":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
+      "ip_rules":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\IpRules\\Ops\\Handler",
+      "crowdsec_signals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
     },
-    "db_table_botsignal":  {
+    "db_table_botsignal":        {
       "autoexpire":     0,
       "slug":           "botsignal",
       "has_updated_at": true,
@@ -720,11 +779,94 @@
         }
       }
     },
-    "db_classes":          {
+    "db_table_ip_rules":         {
+      "autoexpire":      0,
+      "slug":            "ip_rules",
+      "has_updated_at":  true,
+      "col_older_than":  "updated_at",
+      "cols_custom":     {
+        "ip_ref":   {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
+        },
+        "cidr":     {
+          "macro_type": "unsigned_int",
+          "length":     3,
+          "comment":    "CIDR"
+        },
+        "is_range": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Is IP Range"
+        },
+        "offenses": {
+          "macro_type": "unsigned_int",
+          "length":     3,
+          "comment":    "Offenses Count"
+        },
+        "type":     {
+          "macro_type": "char",
+          "length":     2,
+          "comment":    "List"
+        },
+        "label":    {
+          "macro_type": "varchar",
+          "length":     255,
+          "comment":    "IP Description"
+        }
+      },
+      "cols_timestamps": {
+        "last_access_at":          {
+          "comment": "Last Access"
+        },
+        "blocked_at":              {
+          "comment": "IP Blocked"
+        },
+        "unblocked_at":            {
+          "comment": "Visitor Requested Unblock"
+        },
+        "last_unblock_attempt_at": {
+          "comment": "Last Time An Auto-Unblock Attempt Was Made"
+        }
+      }
+    },
+    "db_table_crowdsec_signals": {
+      "autoexpire":      0,
+      "slug":            "crowdsec_signals",
+      "has_updated_at":  false,
+      "has_created_at":  true,
+      "has_deleted_at":  false,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "scenario": {
+          "macro_type": "varchar",
+          "length":     32,
+          "attr":       []
+        },
+        "scope":    {
+          "macro_type": "varchar",
+          "length":     16,
+          "attr":       []
+        },
+        "value":    {
+          "macro_type": "varchar",
+          "length":     256,
+          "attr":       []
+        }
+      },
+      "cols_timestamps": {
+        "milli_at": {
+          "comment": "Milliseconds"
+        }
+      }
+    },
+    "db_classes":                {
       "ip_lists": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
-    "ip_lists_table_name": "ip_lists",
-    "db_table_ip_lists":   {
+    "ip_lists_table_name":       "ip_lists",
+    "db_table_ip_lists":         {
       "slug":            "ip_lists",
       "cols_custom":     {
         "ip":             "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
@@ -739,28 +881,26 @@
         "blocked_at":     "IP Blocked"
       }
     },
-    "events":              {
-      "custom_offense":          {
-        "audit_params": [
-          "message"
-        ],
-        "offense":      true
-      },
-      "conn_kill":               {
+    "events":                    {
+      "conn_kill":                   {
         "level":           "warning",
         "audit_countable": true
       },
-      "conn_not_kill_high_rep":  {
+      "conn_kill_crowdsec":          {
+        "level":           "warning",
+        "audit_countable": true
+      },
+      "conn_not_kill_high_rep":      {
         "level": "debug"
       },
-      "ip_offense":              {
+      "ip_offense":                  {
         "level":        "warning",
         "audit_params": [
           "from",
           "to"
         ]
       },
-      "ip_blocked":              {
+      "ip_blocked":                  {
         "audit_params": [
           "from",
           "to"
@@ -775,7 +915,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_block_auto":           {
+      "ip_block_auto":               {
         "audit_params": [
           "ip"
         ],
@@ -783,7 +923,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_block_manual":         {
+      "ip_block_manual":             {
         "audit_params": [
           "ip"
         ],
@@ -791,7 +931,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_bypass_add":           {
+      "ip_bypass_add":               {
         "audit_params": [
           "ip"
         ],
@@ -799,7 +939,7 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_bypass_remove":        {
+      "ip_bypass_remove":            {
         "audit_params": [
           "ip"
         ],
@@ -807,70 +947,103 @@
         "offense":      false,
         "stat":         false
       },
-      "ip_unblock_flag":         {
+      "ip_unblock_flag":             {
         "audit_params": [
           "ip"
         ],
         "level":        "alert"
       },
-      "bottrack_notbot":         {
+      "bottrack_notbot":             {
         "offense": false,
         "stat":    false,
         "level":   "debug"
       },
-      "bottrack_404":            {
+      "bottrack_404":                {
         "audit_params": [
           "path"
         ],
         "offense":      true
       },
-      "bottrack_fakewebcrawler": {
+      "bottrack_fakewebcrawler":     {
         "audit_params": [
           "path",
           "crawler"
         ],
         "offense":      true
       },
-      "bottrack_linkcheese":     {
+      "bottrack_linkcheese":         {
         "audit_params": [
           "path"
         ],
         "offense":      true
       },
-      "bottrack_loginfailed":    {
+      "bottrack_loginfailed":        {
         "audit_params": [
           "user_login"
         ],
         "level":        "alert",
         "offense":      true
       },
-      "bottrack_logininvalid":   {
+      "bottrack_logininvalid":       {
         "audit_params": [
           "user_login"
         ],
         "level":        "alert",
         "offense":      true
       },
-      "bottrack_xmlrpc":         {
+      "bottrack_xmlrpc":             {
         "audit_params": [
           "path"
         ],
         "offense":      true
       },
-      "bottrack_invalidscript":  {
+      "bottrack_invalidscript":      {
         "audit_params": [
           "script"
         ],
         "offense":      true
       },
-      "comment_markspam":        {
+      "comment_markspam":            {
         "level":   "notice",
         "offense": true
       },
-      "comment_unmarkspam":      {
+      "comment_unmarkspam":          {
         "level":   "info",
         "offense": false,
         "stat":    false
+      },
+      "crowdsec_decisions_acquired": {
+        "level":        "info",
+        "audit_params": [
+          "count_new",
+          "count_deleted"
+        ]
+      },
+      "crowdsec_signals_pushed":     {
+        "level":        "info",
+        "audit_params": [
+          "count"
+        ]
+      },
+      "crowdsec_mach_register":      {
+        "level":        "info",
+        "audit_params": [
+          "machine_id",
+          "url"
+        ]
+      },
+      "crowdsec_auth_acquire":       {
+        "level":        "info",
+        "audit_params": [
+          "expiration"
+        ]
+      },
+      "crowdsec_mach_enroll":        {
+        "level":        "info",
+        "audit_params": [
+          "id",
+          "name"
+        ]
       }
     }
   }

@@ -28,12 +28,29 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $botSignalsCon;
 
+	/**
+	 * @var Lib\CrowdSec\CrowdSecController
+	 */
+	private $crowdSecCon;
+
+	/**
+	 * @var
+	 */
+	private $ipMigrator;
+
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
 		if ( !isset( $this->botSignalsCon ) ) {
 			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
 				->setMod( $this );
 		}
 		return $this->botSignalsCon;
+	}
+
+	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
+		if ( !isset( $this->crowdSecCon ) ) {
+			$this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
+		}
+		return $this->crowdSecCon;
 	}
 
 	public function getBlacklistHandler() :Lib\BlacklistHandler {
@@ -48,8 +65,27 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
+	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
+		$this->getCon()->getModule_Data()->getDbH_IPs();
+		return $this->getDbHandler()->loadDbH( 'ip_rules' );
+	}
+
+	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
+	}
+
+	/**
+	 * @deprecated 16.0
+	 */
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
+	}
+
+	public function onWpInit() {
+		parent::onWpInit();
+		if ( method_exists( $this, 'runIpMigrator' ) ) {
+			$this->ipMigrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
+		}
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -58,11 +94,12 @@ class ModCon extends BaseShield\ModCon {
 		return [
 			Rules\Build\IpWhitelisted::class,
 			Rules\Build\IsPathWhitelisted::class,
+			$opts->isEnabledCrowdSecAutoBlock() ? Rules\Build\IpCrowdSec::class : null,
 			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlocked::class : null,
-			$opts->isEnabledTrack404() ? Rules\Build\BotTrack404::class : null,
-			$opts->isEnabledTrackXmlRpc() ? Rules\Build\BotTrackXmlrpc::class : null,
-			$opts->isEnabledTrackFakeWebCrawler() ? Rules\Build\BotTrackFakeWebCrawler::class : null,
-			$opts->isEnabledTrackInvalidScript() ? Rules\Build\BotTrackInvalidScript::class : null,
+			Rules\Build\BotTrack404::class,
+			Rules\Build\BotTrackXmlrpc::class,
+			Rules\Build\BotTrackFakeWebCrawler::class,
+			Rules\Build\BotTrackInvalidScript::class,
 		];
 	}
 
@@ -70,16 +107,14 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
-			   && $this->getDbHandler_IPs()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
 	protected function handleFileDownload( string $downloadID ) {
 		switch ( $downloadID ) {
 			case 'db_ip':
 				( new DbTableExport() )
-					->setDbHandler( $this->getDbHandler_IPs() )
+					->setDbHandler( $this->getDbH_IPRules() )
 					->toCSV();
 				break;
 		}
@@ -91,6 +126,11 @@ class ModCon extends BaseShield\ModCon {
 		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
+
+		if ( $opts->isOptChanged( 'cs_enroll_id' ) ) {
+			$this->getCrowdSecCon()->getApi()->isReady();
+		}
+
 		$this->cleanPathWhitelist();
 	}
 
@@ -145,12 +185,24 @@ class ModCon extends BaseShield\ModCon {
 							'render_ip_analysis' => $this->getAjaxActionData( 'render_ip_analysis' ),
 						]
 					],
+					'modal_ip_rule_add' => [
+						'ajax' => [
+							'render_ip_rule_add' => $this->getAjaxActionData( 'render_ip_rule_add' ),
+						]
+					],
 					'ip_analysis'       => [
 						'ajax' => [
-							'ip_analyse_build'  => $this->getAjaxActionData( 'ip_analyse_build' ),
 							'ip_analyse_action' => $this->getAjaxActionData( 'ip_analyse_action' ),
-							'ip_review_select'  => $this->getAjaxActionData( 'ip_review_select' ),
 						]
+					],
+					'ip_rules'          => [
+						'ajax'    => [
+							'ip_rule_add_form' => $this->getAjaxActionData( 'ip_rule_add_form' ),
+							'ip_rule_delete'   => $this->getAjaxActionData( 'ip_rule_delete' ),
+						],
+						'strings' => [
+							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
+						],
 					],
 				],
 			]
@@ -176,14 +228,10 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	/**
-	 * @deprecated 12.1
-	 */
 	protected function cleanupDatabases() {
-		$dbhIPs = $this->getDbHandler_IPs();
-		if ( $dbhIPs->isReady() ) {
-			$dbhIPs->autoCleanDb();
-		}
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
 		$this->getDbH_BotSignal()
 			 ->getQueryDeleter()
 			 ->addWhereOlderThan(
@@ -191,5 +239,42 @@ class ModCon extends BaseShield\ModCon {
 				 'updated_at'
 			 )
 			 ->query();
+
+		/** @var DB\IpRules\Ops\Delete $ipRulesDeleter */
+		$ipRulesDeleter = $this->getDbH_IPRules()->getQueryDeleter();
+		$ipRulesDeleter
+			->filterByType( DB\IpRules\Ops\Handler::T_AUTO_BLOCK )
+			->addWhereOlderThan(
+				Services::Request()->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp,
+				'last_access_at'
+			)
+			->query();
+	}
+
+	/**
+	 * @deprecated 16.0
+	 */
+	public function runIpMigrator() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+
+		if ( !isset( $this->ipMigrator ) ) {
+			$this->ipMigrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
+		}
+
+		if ( ( Services::Request()->ts() - (int)$opts->getOpt( 'tmp_ips_started_at' ) ) > HOUR_IN_SECONDS ) {
+			$opts->setOpt( 'tmp_ips_started_at', Services::Request()->ts() );
+			$this->saveModOptions();
+			if ( $this->getDbHandler_IPs()->getQuerySelector()->count() > 0 ) {
+				$this->ipMigrator->dispatch();
+			}
+		}
+	}
+
+	public function runHourlyCron() {
+		$this->runIpMigrator();
+		( new DB\IpRules\CleanIpRules() )
+			->setMod( $this )
+			->execute();
 	}
 }

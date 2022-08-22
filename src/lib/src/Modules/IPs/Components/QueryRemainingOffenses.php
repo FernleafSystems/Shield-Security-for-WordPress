@@ -1,32 +1,23 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
 class QueryRemainingOffenses {
 
 	use Shield\Modules\ModConsumer;
 	use IpAddressConsumer;
 
-	/**
-	 * @return int
-	 */
-	public function run() {
+	public function run() :int {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		$blackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlock()
-			->setIP( $this->getIP() )
-			->lookup( false );
 
-		$offenses = 0;
-		if ( $blackIp instanceof Databases\IPs\EntryVO ) {
-			$offenses = (int)$blackIp->transgressions;
-		}
+		$offenses = ( new IpRuleStatus( $this->getIP() ) )
+			->setMod( $mod )
+			->getOffenses();
 
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Functions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
 function get_plugin() :\ICWP_WPSF_Shield_Security {
@@ -12,14 +13,14 @@ function get_plugin() :\ICWP_WPSF_Shield_Security {
 function get_visitor_scores( $IP = null ) :array {
 	return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
 		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
-		->setIP( $IP ?? Services::IP()->getRequestIp() )
+		->setIP( $IP ?? Services::Request()->ip() )
 		->scores();
 }
 
 function get_visitor_score( $IP = null ) :int {
 	return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
 		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
-		->setIP( $IP ?? Services::IP()->getRequestIp() )
+		->setIP( $IP ?? Services::Request()->ip() )
 		->probability();
 }
 
@@ -36,33 +37,28 @@ function test_ip_is_bot( $IP = null ) :bool {
 }
 
 function get_ip_state( string $ip = '' ) :string {
-	$mod = get_plugin()->getController()->getModule_IPs();
-
 	$state = 'none';
-
-	$ip = ( new IPs\Lib\Ops\LookupIpOnList() )
-		->setDbHandler( $mod->getDbHandler_IPs() )
-		->setIP( empty( $ip ) ? Services::IP()->getRequestIp() : $ip )
-		->lookupIp();
-
-	if ( !empty( $ip ) ) {
-		switch ( $ip->list ) {
-
-			case $mod::LIST_MANUAL_WHITE:
-				$state = 'bypass';
-				break;
-
-			case $mod::LIST_MANUAL_BLACK:
-				$state = 'blocked';
-				break;
-
-			case $mod::LIST_AUTO_BLACK:
-				$state = $ip->blocked_at ? 'blocked' : 'offense';
-				break;
-
-			default:
-				throw new \Exception( 'unknown state:'.$state );
+	try {
+		$ipRuleStatus = ( new IpRuleStatus( empty( $ip ) ? Services::Request()->ip() : $ip ) )
+			->setMod( get_plugin()->getController()->getModule_IPs() );
+		if ( $ipRuleStatus->isBypass() ) {
+			$state = 'bypass';
+		}
+		elseif ( $ipRuleStatus->isBlockedByCrowdsec() ) {
+			$state = 'crowdsec';
+		}
+		elseif ( $ipRuleStatus->isBlocked() ) {
+			$state = 'blocked';
+		}
+		elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
+			$state = 'offense';
 		}
 	}
+	catch ( \Exception $e ) {
+	}
 	return $state;
+}
+
+function fire_event( string $event ) {
+	get_plugin()->getController()->fireEvent( $event );
 }

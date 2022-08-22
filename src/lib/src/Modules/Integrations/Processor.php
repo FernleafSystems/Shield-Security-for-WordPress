@@ -10,6 +10,7 @@ class Processor extends BaseShield\Processor {
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
 		$mod->getControllerMWP()->execute();
 
 		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {

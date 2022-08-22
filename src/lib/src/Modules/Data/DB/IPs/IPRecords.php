@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use IPLib\Factory;
 
 class IPRecords {
 
@@ -11,12 +12,18 @@ class IPRecords {
 
 	private static $ips = [];
 
-	public function loadIP( string $ip, bool $autoCreate = true ) :Ops\Record {
+	public function loadIP( string $ip, bool $autoCreate = true, bool $cacheRecord = true ) :Ops\Record {
 
 		if ( !empty( self::$ips[ $ip ] ) ) {
 			$record = self::$ips[ $ip ];
 		}
 		else {
+			$parsedRange = Factory::parseRangeString( $ip );
+			if ( empty( $parsedRange ) ) {
+				throw new \Exception( 'Not a valid IP range' );
+			}
+			$ip = explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
+
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$dbh = $mod->getDbH_IPs();
@@ -33,7 +40,9 @@ class IPRecords {
 				throw new \Exception( 'IP Record unavailable: '.$ip );
 			}
 
-			self::$ips[ $ip ] = $record;
+			if ( $cacheRecord ) {
+				self::$ips[ $ip ] = $record;
+			}
 		}
 
 		return $record;

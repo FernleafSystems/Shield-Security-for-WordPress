@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 
 class IsIpWhitelisted extends Base {
@@ -14,13 +14,10 @@ class IsIpWhitelisted extends Base {
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;
 		if ( !isset( $thisReq->is_ip_whitelisted ) ) {
-			$thisReq->is_ip_whitelisted = !empty( ( new LookupIpOnList() )
-				->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-				->setIP( $this->getRequestIP() )
-				->setListTypeBypass()
-				->lookup() );
+			$thisReq->is_ip_whitelisted = ( new IpRuleStatus( $this->getRequestIP() ) )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->isBypass();
 		}
 		return $thisReq->is_ip_whitelisted;
-
 	}
 }

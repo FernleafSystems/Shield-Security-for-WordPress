@@ -29,7 +29,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 					'body' => [
 						'secret'   => $mod->getCaptchaCfg()->secret,
 						'response' => $sCaptchaResponse,
-						'remoteip' => Services::IP()->getRequestIp(),
+						'remoteip' => $this->getCon()->this_req->ip,
 					]
 				] )
 							  && !empty( $HTTPReq->lastResponse->body );

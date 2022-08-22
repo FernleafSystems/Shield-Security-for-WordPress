@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 
-/**
- * Trait Filters
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker
- */
 trait Common {
 
 	/**

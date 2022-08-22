@@ -4,7 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Crowdsec\RetrieveScenarios;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
@@ -14,8 +16,61 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->cleanoptimisehashes();
+		$this->iputil();
 		die( 'finish' );
+	}
+
+	private function iputil() {
+		$address = \IPLib\Factory::parseAddressString( '90.250.11.231' );
+		var_dump( $address->getRangeType() );
+		$address = \IPLib\Factory::parseAddressString( '10.0.0.1' );
+		var_dump( $address->getRangeType() );
+		$address = \IPLib\Factory::parseAddressString( '127.0.0.1' );
+		var_dump( $address->getRangeType() );
+
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21' );
+		var_dump( $address->asSubnet()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/32' );
+		var_dump( $address->asSubnet()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/24' );
+		var_dump( $address->asPattern()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/27' );
+		var_dump( $address->asSubnet()->toString() );
+		$address = \IPLib\Factory::parseRangeString( '90.250.11.21/10' );
+		var_dump( $address->asSubnet()->toString() );
+	}
+
+	private function crowdsec() {
+		$modIPs = $this->getCon()->getModule_IPs();
+		$csCon = $modIPs->getCrowdSecCon();
+
+		try {
+			$res = ( new Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs() )
+				->setMod( $modIPs )
+				->duplicates();
+//			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
+//			var_dump( $csCon->getApi()->getAuthStatus() );
+//			var_dump( $csCon->getApi()->getAuthorizationToken() );
+//			$csCon->getApi()->machineEnroll( false );
+//			var_dump( $csCon->getApi()->getAuthStatus() );
+//			var_dump( $modIPs->getCrowdSecCon()->cfg );
+//			var_dump( $csCon->getApi()->getAuthorizationToken() );
+//			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
+//				->setMod( $this->getCon()->getModule_IPs() )
+//				->execute();
+//			( new Modules\IPs\Lib\CrowdSec\Decisions\DownloadDecisionsUpdate() )
+//				->setMod( $modIPs )
+//				->execute();
+//			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+//			$res = ( new RetrieveScenarios() )
+//				->setMod( $this->getMod() )
+//				->retrieve();
+//			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
+		var_dump( $res ?? 'unset' );
 	}
 
 	private function cleanoptimisehashes() {

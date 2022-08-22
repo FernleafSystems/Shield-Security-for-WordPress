@@ -46,7 +46,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 				$mod = $this->getMod();
 				$mod->getBotSignalsController()
 					->getEventListener()
-					->fireEventForIP( Services::IP()->getRequestIp(), 'frontpage_load' );
+					->fireEventForIP( $this->getCon()->this_req->ip, 'frontpage_load' );
 			}
 		} );
 	}
@@ -59,7 +59,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 				$mod = $this->getMod();
 				$mod->getBotSignalsController()
 					->getEventListener()
-					->fireEventForIP( Services::IP()->getRequestIp(), 'loginpage_load' );
+					->fireEventForIP( $this->getCon()->this_req->ip, 'loginpage_load' );
 			}
 		} );
 	}
@@ -96,7 +96,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 
 	protected function getHashForVisitorTS( int $timestamp ) {
 		return hash_hmac( 'sha1',
-			$timestamp.Services::IP()->getRequestIp(),
+			$timestamp.$this->getCon()->this_req->ip,
 			$this->getCon()->getSiteInstallationId()
 		);
 	}

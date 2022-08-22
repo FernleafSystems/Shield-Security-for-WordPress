@@ -20,7 +20,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 					if ( !empty( $nonce ) ) {
 						die( json_encode( [
 							'success' => ( new HandshakingNonce() )
-								->setMod( $this->getMod() )
+								->setCon( $this->getCon() )
 								->verify( $nonce )
 						] ) );
 					}

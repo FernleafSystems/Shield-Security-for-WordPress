@@ -12,8 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\DeleteIp;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\DeleteRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -67,37 +67,26 @@ class BuildDisplay {
 		$mod = $this->getMod();
 		$ip = $this->getIP();
 
-		$blockIP = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBlock()
-			->setIP( $ip )
-			->lookup( true );
-
-		$bypassIP = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setListTypeBypass()
-			->setIP( $ip )
-			->lookup( true );
-
 		$geo = ( new Lookup() )
 			->setCon( $con )
 			->setIP( $ip )
 			->lookupIp();
 
-		$sRDNS = gethostbyaddr( $ip );
-
+		$rDNS = gethostbyaddr( $ip );
+		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 		try {
 			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
-				->setIgnoreUserAgent( true )
+				->setIgnoreUserAgent()
 				->run();
+
 			// We do a "repair" and unblock previously blocked search providers:
-			if ( $blockIP instanceof Databases\IPs\EntryVO
+			if ( $ruleStatus->isBlockedByShield()
 				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
-				( new DeleteIp() )
-					->setMod( $mod )
-					->setIP( $ip )
-					->fromBlacklist();
-				unset( $blockIP );
+				foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+					( new DeleteRule() )
+						->setMod( $this->getMod() )
+						->byRecord( $record );
+				}
 			}
 		}
 		catch ( \Exception $e ) {
@@ -105,15 +94,8 @@ class BuildDisplay {
 			$ipName = 'Unknown';
 		}
 
-		if ( $ipKey === IpID::UNKNOWN ) {
-			$ipEntry = ( new LookupIpOnList() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
-				->setIP( $ip )
-				->setListTypeBypass()
-				->lookup();
-			if ( $ipEntry instanceof Databases\IPs\EntryVO ) {
-				$ipName = $ipEntry->label;
-			}
+		if ( $ipKey === IpID::UNKNOWN && !empty( $bypassIP ) ) {
+			$ipName = $bypassIP->label ?? '';
 		}
 
 		$botScore = ( new CalculateVisitorBotScores() )
@@ -140,12 +122,13 @@ class BuildDisplay {
 				'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),
 				'title_status'  => __( 'IP Status', 'wp-simple-firewall' ),
 
-				'block_ip'      => __( 'Block IP', 'wp-simple-firewall' ),
-				'unblock_ip'    => __( 'Unblock IP', 'wp-simple-firewall' ),
-				'bypass_ip'     => __( 'Add IP Bypass', 'wp-simple-firewall' ),
-				'unbypass_ip'   => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
-				'delete_notbot' => __( 'Reset For This IP', 'wp-simple-firewall' ),
-				'see_details'   => __( 'See Details', 'wp-simple-firewall' ),
+				'reset_offenses' => __( 'Reset', 'wp-simple-firewall' ),
+				'block_ip'       => __( 'Block IP', 'wp-simple-firewall' ),
+				'unblock_ip'     => __( 'Unblock IP', 'wp-simple-firewall' ),
+				'bypass_ip'      => __( 'Add IP Bypass', 'wp-simple-firewall' ),
+				'unbypass_ip'    => __( 'Remove IP Bypass', 'wp-simple-firewall' ),
+				'delete_notbot'  => __( 'Reset For This IP', 'wp-simple-firewall' ),
+				'see_details'    => __( 'See Details', 'wp-simple-firewall' ),
 
 				'status' => [
 					'is_you'              => __( 'Is It You?', 'wp-simple-firewall' ),
@@ -176,17 +159,18 @@ class BuildDisplay {
 			'vars'    => [
 				'ip'       => $ip,
 				'status'   => [
-					'is_you'                 => Services::IP()->checkIp( $ip, Services::IP()->getRequestIp() ),
-					'offenses'               => !empty( $blockIP ) ? $blockIP->transgressions : 0,
-					'is_blocked'             => !empty( $blockIP ) && $blockIP->blocked_at > 0,
-					'is_bypass'              => !empty( $bypassIP ),
+					'is_you'                 => Services::IP()->checkIp( $ip, $con->this_req->ip ),
+					'offenses'               => $ruleStatus->getOffenses(),
+					'is_blocked'             => $ruleStatus->isBlocked(),
+					'is_bypass'              => $ruleStatus->isBypass(),
+					'is_crowdsec'            => $ruleStatus->isBlockedByCrowdsec(),
 					'ip_reputation_score'    => $botScore,
 					'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
 					'is_bot'                 => $isBot,
 				],
 				'identity' => [
 					'who_is_it'    => $ipName,
-					'rdns'         => $sRDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $sRDNS,
+					'rdns'         => $rDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $rDNS,
 					'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
 					'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
 					'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
@@ -374,7 +358,6 @@ class BuildDisplay {
 
 	private function renderForAuditTrail() :string {
 		$WP = Services::WpGeneral();
-		// TODO: IP Filtering at the SQL query level
 		$logRecords = ( new LoadLogs() )
 			->setMod( $this->getCon()->getModule_AuditTrail() )
 			->setIP( $this->getIP() )

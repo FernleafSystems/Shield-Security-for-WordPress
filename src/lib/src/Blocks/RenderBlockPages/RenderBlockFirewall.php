@@ -36,7 +36,7 @@ class RenderBlockFirewall extends BaseBlockPage {
 
 		$remainingOffenses = max( 0, ( new QueryRemainingOffenses() )
 			->setMod( $this->getCon()->getModule_IPs() )
-			->setIP( Services::IP()->getRequestIp() )
+			->setIP( $this->getCon()->this_req->ip )
 			->run() );
 
 		return array_merge(

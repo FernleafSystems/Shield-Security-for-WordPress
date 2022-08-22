@@ -3,20 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildTrafficTableData extends BaseBuildTableData {
-
-	use ModConsumer;
 
 	/**
 	 * @var LogRecord
@@ -129,8 +126,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		return $wheres;
 	}
 
-	protected function getRecordsLoader() :LoadLogs {
-		return ( new LoadLogs() )->setMod( $this->getCon()->getModule_Data() );
+	protected function getRecordsLoader() :LoadRequestLogs {
+		return ( new LoadRequestLogs() )->setMod( $this->getCon()->getModule_Data() );
 	}
 
 	protected function getSearchableColumns() :array {
@@ -153,8 +150,9 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		$loader->wheres = $wheres;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
+		$loader->order_by = $this->getOrderBy();
 		$loader->order_dir = $this->getOrderDirection();
-		return $loader->run();
+		return $loader->select();
 	}
 
 	private function getColumnContent_Details() :string {
@@ -175,6 +173,13 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			$content = 'WP-CLI';
 		}
 		else {
+			try {
+				$identity = ( new IpID( $this->log->ip ) )->run()[ 1 ];
+			}
+			catch ( \Exception $e ) {
+				$identity = __( 'Unknown', 'wp-simple-firewall' );
+			}
+
 			$content = sprintf( '<div>%s</div>', implode( '</div><div>', [
 				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpAnalysisLink( $this->log->ip ) ),
 				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $this->getIpInfo( $this->log->ip ) ),
@@ -233,32 +238,40 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$this->ipInfo[ '' ] = 'n/a';
 			}
 			else {
-				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
-				$status = __( 'No Record', 'wp-simple-firewall' );
+				try {
+					$ipID = ( new IpID( $this->log->ip ) )->run();
+				}
+				catch ( \Exception $e ) {
+					$ipID = [ IpID::UNKNOWN, 'Unknown' ];
+				}
+				$identity = $ipID[ 0 ];
 
-				$record = ( new LookupIpOnList() )
-					->setDbHandler( $this->getCon()->getModule_IPs()->getDbHandler_IPs() )
-					->setIP( $ip )
-					->lookup();
+				if ( $identity === IpID::UNKNOWN ) {
+					$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 
-				if ( empty( $record ) ) {
-					$status = __( 'No Record', 'wp-simple-firewall' );
+					$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
+
+					if ( $ipRuleStatus->isBypass() ) {
+						$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
+					}
+					elseif ( $ipRuleStatus->isBlocked() ) {
+						$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
+					}
+					elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
+						$offenses = $ipRuleStatus->getOffenses();
+						$status = sprintf( $badgeTemplate,
+							'warning',
+							sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses )
+						);
+					}
+					else {
+						$status = __( 'No Record', 'wp-simple-firewall' );
+					}
 				}
-				elseif ( $record->blocked_at > 0 || $record->list === ModCon::LIST_MANUAL_BLACK ) {
-					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
+				else {
+					$status = $ipID[ 1 ];
 				}
-				elseif ( $record->list === ModCon::LIST_AUTO_BLACK ) {
-					$status = sprintf( $badgeTemplate,
-						'warning',
-						sprintf( _n( '%s offense', '%s offenses', $record->transgressions, 'wp-simple-firewall' ), $record->transgressions )
-					);
-				}
-				elseif ( $record->list === ModCon::LIST_MANUAL_WHITE ) {
-					$status = sprintf( $badgeTemplate,
-						'success',
-						__( 'Bypass', 'wp-simple-firewall' )
-					);
-				}
+
 				$this->ipInfo[ $ip ] = $status;
 			}
 		}

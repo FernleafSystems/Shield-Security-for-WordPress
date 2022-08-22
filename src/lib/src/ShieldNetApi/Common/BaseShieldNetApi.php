@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
@@ -17,7 +17,6 @@ class BaseShieldNetApi extends BaseApi {
 	const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi';
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {
@@ -40,8 +39,7 @@ class BaseShieldNetApi extends BaseApi {
 
 			case 'shield_net_params':
 				if ( !is_array( $value ) ) {
-					$value = $this->shield_net_params_required ? $this->getShieldNetApiParams() : [];
-					$this->shield_net_params = $value;
+					$value = $this->getShieldNetApiParams();
 				}
 				break;
 
@@ -60,10 +58,11 @@ class BaseShieldNetApi extends BaseApi {
 	 * @return string[]
 	 */
 	protected function getShieldNetApiParams() :array {
-		return [
+		$con = $this->getCon();
+		return $this->shield_net_params_required ? [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
-			'install_id' => $this->getCon()->getSiteInstallationId(),
-			'nonce'      => ( new HandshakingNonce() )->setMod( $this->getMod() )->create(),
-		];
+			'install_id' => $con->getSiteInstallationId(),
+			'nonce'      => ( new HandshakingNonce() )->setCon( $con )->create(),
+		] : [];
 	}
 }

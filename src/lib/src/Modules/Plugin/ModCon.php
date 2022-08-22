@@ -78,6 +78,13 @@ class ModCon extends BaseShield\ModCon {
 		$this->getCon()->cache_dir_handler = $cacheDirFinder;
 	}
 
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+
+		add_filter( 'shield/enable_beta',
+			$this->getOptions()->isOpt( 'enabled_beta', 'Y' ) ? '__return_true' : '__return_false' );
+	}
+
 	protected function enumRuleBuilders() :array {
 		return [
 			Rules\Build\RequestStatusIsAdmin::class,
@@ -433,13 +440,34 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_plugin',
 			[
 				'components' => [
-					'helpscout'   => [
+					'helpscout'     => [
 						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
 						'visible'   => $con->isModulePage()
 					],
-					'mod_options' => [
+					'mod_config'    => [
+						'ajax' => [
+							'render_mod_config' => $this->getAjaxActionData( 'render_mod_config' ),
+						]
+					],
+					'mod_options'   => [
 						'ajax' => [
 							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
+						]
+					],
+					'select_search' => [
+						'ajax'    => [
+							'select_search' => $this->getAjaxActionData( 'select_search' )
+						],
+						'strings' => [
+							'placeholder' => sprintf( '%s (%s)',
+								__( 'Search for anything', 'wp-simple-firewall' ),
+								'e.g. '.implode( ', ', [
+									__( 'IPs', 'wp-simple-firewall' ),
+									__( 'options', 'wp-simple-firewall' ),
+									__( 'tools', 'wp-simple-firewall' ),
+									__( 'help', 'wp-simple-firewall' ),
+								] )
+							),
 						]
 					],
 				],

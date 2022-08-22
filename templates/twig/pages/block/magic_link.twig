@@ -14,14 +14,30 @@
 </div>
 <script>
 	let sendEmail = function () {
-	  let xmlHttp = new XMLHttpRequest();
-	  xmlHttp.open( "GET", '{{ hrefs.unblock|raw }}', false ); // false for synchronous request
-	  xmlHttp.send( null );
-	  if ( xmlHttp.status === 200 ) {
-		  alert( 'Please check your email for a link to confirm.' );
+
+	  try {
+		  fetch( '{{ hrefs.ajaxurl|raw }}', {
+			  method: 'POST',
+			  body: (new URLSearchParams( {{ vars.unblock|raw }} )).toString(),
+			  headers: {
+				  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				  'X-Requested-With': 'XMLHttpRequest',
+			  }
+		  } )
+		  .then( function ( response ) {
+			  if ( !response.ok ) {
+				  throw Error( 'request appeared to fail.' );
+			  }
+			  alert( 'Please check your email for a link to confirm.' );
+			  return response;
+		  } )
+		  .catch( function ( error ) {
+			  alert( "Request Failed. Perhaps you've tried to request an email too soon after the previous attempt." );
+			  console.log( error );
+		  } );
 	  }
-	  else {
-		  alert( 'Request Failed. Likely you have tried to request an email too soon after the previous attempt.' );
+	  catch ( error ) {
+		  console.log( error );
 	  }
   };
 </script>

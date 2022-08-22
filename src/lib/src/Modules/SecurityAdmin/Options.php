@@ -11,23 +11,6 @@ class Options extends BaseShield\Options {
 		return $this->setOpt( 'admin_access_key', '' );
 	}
 
-	/**
-	 * @deprecated 15.1
-	 */
-	public function getAdminAccessArea_Options() :bool {
-		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
-	}
-
-	/**
-	 * @since      11.1
-	 * @param string $area one of plugins, themes
-	 * @deprecated 15.1
-	 */
-	public function getSecAdminAreaCaps( $area = 'plugins' ) :array {
-		$d = $this->getOpt( 'admin_access_restrict_'.$area, [] );
-		return is_array( $d ) ? $d : [];
-	}
-
 	private function getRestrictedOptions() :array {
 		$options = $this->getDef( 'options_to_restrict' );
 		return is_array( $options ) ? $options : [];

@@ -61,18 +61,4 @@ class RulesStorageHandler {
 	private function getWpStorageKey() :string {
 		return $this->getRulesCon()->getCon()->prefix( 'rules' );
 	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	private function loadRawFromFile() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 15.1
-	 */
-	private function getPathToRules() :string {
-		return path_join( $this->getRulesCon()->getCon()->cache_dir_handler->build(), 'rules.json' );
-	}
 }

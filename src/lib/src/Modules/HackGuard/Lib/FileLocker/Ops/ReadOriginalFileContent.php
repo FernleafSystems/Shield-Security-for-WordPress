@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 class ReadOriginalFileContent extends BaseOps {
 
 	/**
-	 * @return string
+	 * @throws \Exception
 	 */
-	public function run( Databases\FileLocker\EntryVO $lock ) {
+	public function run( Databases\FileLocker\EntryVO $lock ) :string {
 		try {
 			$content = $this->useOriginalFile( $lock );
 		}
@@ -35,18 +35,21 @@ class ReadOriginalFileContent extends BaseOps {
 	}
 
 	/**
-	 * @return string|null
+	 * @throws \Exception
 	 */
-	private function useCacheAndApi( Databases\FileLocker\EntryVO $lock ) {
+	private function useCacheAndApi( Databases\FileLocker\EntryVO $lock ) :string {
 		$cacheKey = 'file-content-'.$lock->id;
 		$content = wp_cache_get( $cacheKey, $this->getCon()->prefix( 'filelocker' ) );
-		if ( $content === false ) {
+		if ( !is_string( $content ) ) {
 			$decoded = json_decode( $lock->content, true );
 			$VO = ( new OpenSslEncryptVo() )->applyFromArray( is_array( $decoded ) ? $decoded : [] );
 			$content = ( new DecryptFile() )
 				->setMod( $this->getMod() )
-				->retrieve( $VO, $lock->public_key_id );
-			wp_cache_set( $cacheKey, $content, $this->getCon()->prefix( 'filelocker' ), 3 );
+				->retrieve( $VO, (int)$lock->public_key_id );
+			if ( is_null( $content ) ) {
+				throw new \Exception( 'There was a problem decrypting the file contents.' );
+			}
+			wp_cache_set( $cacheKey, $content, $this->getCon()->prefix( 'filelocker' ), 5 );
 		}
 		return $content;
 	}

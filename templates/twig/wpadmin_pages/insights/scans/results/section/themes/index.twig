@@ -1,19 +1,25 @@
-<div class="row mt-3 nav-vertical" id="ScanResultsThemes">
+<div class="row mt-3 nav-vertical scan-results-section" id="ScanResultsThemes">
 
 	<div class="col-2">
 		<ul class="nav nav-tabs flex-column">
 			{% for theme_key,theme in vars.themes %}
 				<li class="nav-item mb-2">
-					<a class="nav-link {% if theme_key < 1 %}active{% endif %}"
+					<a class="nav-link {% if theme_key < 1 %}active{% endif %} position-relative"
 					   href="#theme-tab-{{ theme.info.slug }}"
 					   data-bs-toggle="tab"
 					>
 						{% if theme.vars.count_items > 0 %}
-							<span class="badge bg-danger float-right">{{ theme.vars.count_items }}</span>
+							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+								{{ theme.vars.count_items }}
+							</span>
 						{% elseif theme.flags.has_warning %}
-							<span class="badge bg-warning float-right">&excl;</span>
+							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-warning border border-light rounded-circle">
+{#								&excl;#}
+							</span>
 						{% else %}
-							<span class="badge bg-success float-right">&check;</span>
+							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle">
+{#								&check;#}
+							</span>
 						{% endif %}
 						{{ theme.info.name }}
 					</a>

@@ -104,6 +104,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 			$mod = $this->getMod();
 			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $mod->getPluginInstallationId();
 			$data[ 'plugin' ][ 'options' ][ 'new_unique_installation_id' ] = $con->getSiteInstallationId();
+			$data[ 'plugin' ][ 'options' ][ 'newer_unique_installation_id' ] = $con->getInstallationID()[ 'id' ];
 		}
 
 		return $data;
@@ -141,8 +142,9 @@ class PluginTelemetry extends ExecOnceModConsumer {
 		return [
 			'env' => [
 				'slug'             => $con->getPluginSlug(),
-				'installation_id'  => $con->getSiteInstallationId(),
+				'installation_id'  => $con->getInstallationID()[ 'id' ],
 				'unique_site_hash' => sha1( network_home_url( '/' ) ),
+				'cfg_load_source'  => $con->cfg->load_source,
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
 				'version'          => $con->getVersion(),

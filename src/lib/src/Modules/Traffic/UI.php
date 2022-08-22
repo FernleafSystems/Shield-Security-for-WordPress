@@ -1,10 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Traffic\ForTraffic;
-use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
 
@@ -41,7 +40,7 @@ class UI extends BaseShield\UI {
 		$warning = [];
 
 		if ( !$con->this_req->ip_is_public ) {
-			$warning[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
+			$warning[] = __( 'Traffic Logger wont run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 		}
 
 		switch ( $section ) {

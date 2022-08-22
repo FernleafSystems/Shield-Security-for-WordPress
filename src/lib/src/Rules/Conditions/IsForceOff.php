@@ -26,7 +26,7 @@ class IsForceOff extends Base {
 		$con = $this->getCon();
 		if ( !isset( $con->file_forceoff ) ) {
 			$FS = Services::WpFs();
-			$file = $FS->findFileInDir( 'forceoff', $con->getRootDir(), false, false );
+			$file = $FS->findFileInDir( 'forceoff', $con->getRootDir(), false );
 			$con->file_forceoff = empty( $file ) ? false : $file;
 		}
 		return $con->file_forceoff;

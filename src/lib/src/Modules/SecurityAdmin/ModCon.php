@@ -160,10 +160,12 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$posts = $opts->getOpt( 'admin_access_restrict_posts', [] );
-		if ( in_array( 'edit', is_array( $posts ) ? $posts : [] ) ) {
-			$opts->setOpt( 'admin_access_restrict_posts',
-				array_unique( array_merge( $posts, [ 'create', 'publish', 'delete' ] ) )
-			);
+		if ( !is_array( $posts ) ) {
+			$posts = [];
+		}
+		if ( in_array( 'edit', $posts ) ) {
+			$posts = array_unique( array_merge( $posts, [ 'publish', 'delete' ] ) );
+			$opts->setOpt( 'admin_access_restrict_posts', $posts );
 		}
 	}
 

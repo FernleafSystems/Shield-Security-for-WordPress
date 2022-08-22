@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use WP_CLI;
@@ -21,10 +22,7 @@ class Enumerate extends Base {
 					'type'        => 'assoc',
 					'name'        => 'list',
 					'optional'    => false,
-					'options'     => [
-						'white',
-						'black',
-					],
+					'options'     => [ 'white', 'bypass', 'black', 'block', 'crowdsec' ],
 					'description' => 'The IP list to enumerate.',
 				],
 			],
@@ -34,18 +32,31 @@ class Enumerate extends Base {
 	public function cmdPrint( array $null, array $args ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		$dbh = $mod->getDbH_IPRules();
 
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			$retriever = ( new Ops\RetrieveIpsForLists() )
-				->setDbHandler( $mod->getDbHandler_IPs() );
+			if ( in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ) {
+				$lists = [ $dbh::T_MANUAL_BYPASS ];
+			}
+			elseif ( in_array( $args[ 'list' ], [ 'black', 'block' ] ) ) {
+				$lists = [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK ];
+			}
+			else {
+				$lists = [ $dbh::T_CROWDSEC ];
+			}
+
+			$loader = ( new LoadIpRules() )->setMod( $mod );
+			$loader->wheres = [
+				sprintf( "`ir`.`type` IN ('%s')", implode( "','", $lists ) )
+			];
 
 			$IPs = array_map(
-				function ( $ip ) {
-					return [ 'IP' => $ip, ];
+				function ( $record ) {
+					return [ 'IP' => $record->ip, ];
 				},
-				in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ? $retriever->white() : $retriever->black()
+				$loader->select()
 			);
 
 			WP_CLI\Utils\format_items(

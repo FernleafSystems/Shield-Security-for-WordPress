@@ -6,12 +6,12 @@
 >
 	<input type="hidden" name="working_mod" value="{{ vars.working_mod }}" />
 
-	<div id="ModuleOptionsNav" class="insights-sub-nav" aria-orientation="horizontal">
-		<ul class="nav nav-tabs" role="tablist">
+	<div id="ModuleOptionsNav" aria-orientation="horizontal">
+		<ul class="nav nav-tabs insights-sub-nav" role="tablist">
 		{% for opt_sect_key,opt_section in vars.all_options %}
 			<li class="nav-item">
-				<a href="#tab-{{ opt_section.slug }}"
-				   class="nav-link {{ opt_section.primary ? 'active' : '' }}"
+				<a data-bs-target="#tab-{{ opt_section.slug }}"
+				   class="force-cursor-pointer nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
 				   id="tab-navlink-{{ opt_section.slug }}"
 				   data-bs-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">

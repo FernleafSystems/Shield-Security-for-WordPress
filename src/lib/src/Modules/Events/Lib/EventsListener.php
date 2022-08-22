@@ -15,25 +15,13 @@ abstract class EventsListener {
 	 */
 	private $commit;
 
-	/**
-	 * @param Controller\Controller $con
-	 * @throws \Exception
-	 */
-	public function __construct( $con = null, bool $commit = false ) {
-		if ( !$con instanceof Controller\Controller ) {
-			$con = Functions\get_plugin()->getController();
-		}
+	public function __construct( Controller\Controller $con, bool $commit = false ) {
 		$this->setCon( $con );
 		$this->commit = $commit;
 
-		add_action( 'shield/event',
-			function ( $event, $meta = [], $def = [] ) {
-				$this->captureEvent(
-					(string)$event,
-					is_array( $meta ) ? $meta : [],
-					is_array( $def ) ? $def : []
-				);
-			}, 10, 3 );
+		add_action( 'shield/event', function ( $event, $meta = [], $def = [] ) {
+			$this->captureEvent( (string)$event, is_array( $meta ) ? $meta : [], is_array( $def ) ? $def : [] );
+		}, 10, 3 );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), function () {
 			$this->onShutdown();

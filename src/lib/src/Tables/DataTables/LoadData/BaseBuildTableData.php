@@ -5,15 +5,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
- * @property string $order_by
- * @property string $order_dir
- * @property array  $table_data
+ * @property array $table_data
  */
 abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use ModConsumer;
+
+	abstract protected function countTotalRecords() :int;
+
+	abstract protected function countTotalRecordsFiltered() :int;
+
+	abstract protected function buildTableRowsFromRawRecords( array $records ) :array;
 
 	public function build() :array {
 		return [
@@ -104,32 +109,30 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
-	protected function getOrderDirection() :string {
-		if ( !isset( $this->order_dir ) ) {
-			$dir = 'DESC';
-			if ( !empty( $this->table_data[ 'order' ] ) ) {
-				$col = $this->table_data[ 'order' ][ 0 ][ 'column' ];
-				$sortCol = $this->table_data[ 'columns' ][ $col ][ 'data' ];
-				$this->order_by = is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
-				$dir = strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
-				if ( !in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
-					$dir = 'DESC';
-				}
-			}
-			$this->order_dir = $dir;
+	protected function getOrderBy() :string {
+		$orderBy = '';
+		if ( !empty( $this->table_data[ 'order' ] ) ) {
+			$col = $this->table_data[ 'order' ][ 0 ][ 'column' ];
+			$sortCol = $this->table_data[ 'columns' ][ $col ][ 'data' ];
+			$orderBy = is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
 		}
-		return $this->order_dir;
+		return $orderBy;
+	}
+
+	protected function getOrderDirection() :string {
+		$dir = 'DESC';
+		if ( !empty( $this->table_data[ 'order' ] ) ) {
+			$dir = strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
+			if ( !in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
+				$dir = 'DESC';
+			}
+		}
+		return $dir;
 	}
 
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		return [];
 	}
-
-	abstract protected function countTotalRecords() :int;
-
-	abstract protected function countTotalRecordsFiltered() :int;
-
-	abstract protected function buildTableRowsFromRawRecords( array $records ) :array;
 
 	protected function getColumnContent_Date( int $ts ) :string {
 		return sprintf( '%s<br /><small>%s</small>',
@@ -139,6 +142,44 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					->diffForHumans(),
 			Services::WpGeneral()->getTimeStringForDisplay( $ts )
 		);
+	}
+
+	protected function getColumnContent_LinkedIP( string $ip, int $recordDeleteID = -1 ) :string {
+		if ( !empty( $ip ) ) {
+			try {
+				$ipID = ( new IpID( $ip ) )->run();
+				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
+					$id = __( 'This Server', 'wp-simple-firewall' );
+				}
+				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
+					$id = __( 'This Is You', 'wp-simple-firewall' );
+				}
+				else {
+					$id = $ipID[ 1 ];
+				}
+			}
+			catch ( \Exception $e ) {
+				$id = '';
+			}
+
+			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
+				$recordDeleteID,
+				__( 'Delete IP', 'wp-simple-firewall' ),
+				$this->getCon()->svgs->raw( 'bootstrap/trash3-fill.svg' )
+			);
+
+			$content = implode( '', array_filter( [
+				sprintf( '<h6 class="text-nowrap mb-0"><span class="me-1">%s</span>%s</h6>',
+					$recordDeleteID >= 0 ? $deleteLink : '',
+					$this->getIpAnalysisLink( $ip )
+				),
+				sprintf( '<small>%s</small>', esc_html( $id ) )
+			] ) );
+		}
+		else {
+			$content = 'No IP';
+		}
+		return $content;
 	}
 
 	protected function getIpAnalysisLink( string $ip ) :string {

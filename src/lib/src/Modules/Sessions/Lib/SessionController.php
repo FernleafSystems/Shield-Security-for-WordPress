@@ -70,7 +70,7 @@ class SessionController extends ExecOnceModConsumer {
 
 						// Ensure the correct IP is stored
 						$srvIP = Services::IP();
-						$ip = $srvIP->getRequestIp();
+						$ip = $this->getCon()->this_req->ip;
 						if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->checkIp( $ip, $session[ 'ip' ] ) ) ) {
 							$session[ 'ip' ] = $ip;
 						}

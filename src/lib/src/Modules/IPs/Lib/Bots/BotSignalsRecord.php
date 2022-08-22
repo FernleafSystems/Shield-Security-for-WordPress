@@ -8,10 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
+	DB\IpRules\IpRuleRecord,
+	Lib\IpRules\IpRuleStatus,
 	ModCon
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops\LookupIpOnList;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -67,22 +68,28 @@ class BotSignalsRecord {
 			$r->ip_ref = $this->getIPRecord()->id;
 		}
 
-		$ipOnList = ( new LookupIpOnList() )
-			->setDbHandler( $mod->getDbHandler_IPs() )
-			->setIP( $this->getIP() )
-			->lookupIp();
-
-		if ( !empty( $ipOnList ) ) {
-			if ( empty( $r->bypass_at ) && $ipOnList->list === $mod::LIST_MANUAL_WHITE ) {
-				$r->bypass_at = $ipOnList->created_at;
+		$ruleStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $this->getMod() );
+		if ( $ruleStatus->hasRules() ) {
+			if ( empty( $r->bypass_at ) && $ruleStatus->isBypass() ) {
+				/** @var IpRuleRecord $ruleRecord */
+				$ruleRecord = current( $ruleStatus->getRulesForBypass() );
+				$r->bypass_at = $ruleRecord->created_at;
 			}
-			if ( empty( $r->offense_at ) && $ipOnList->list === $mod::LIST_AUTO_BLACK ) {
-				$r->offense_at = $ipOnList->last_access_at;
+			if ( empty( $r->offense_at ) && $ruleStatus->isAutoBlacklisted() ) {
+				$r->offense_at = $ruleStatus->getRuleForAutoBlock()->last_access_at;
 			}
-			$r->blocked_at = $ipOnList->blocked_at;
+			if ( $ruleStatus->isBlocked() ) {
+				/** @var IpRuleRecord $ruleRecord */
+				$ruleRecord = current( $ruleStatus->getRulesForBlock() );
+				$r->blocked_at = $ruleRecord->blocked_at;
+				$r->unblocked_at = 0;
+			}
+			else {
+				// TODO: $r->unblocked_at = 0;
+			}
 		}
 
-		if ( empty( $r->notbot_at ) && Services::IP()->getRequestIp() === $this->getIP() ) {
+		if ( empty( $r->notbot_at ) && $thisReq->ip === $this->getIP() ) {
 			$r->notbot_at = $mod->getBotSignalsController()
 								->getHandlerNotBot()
 								->hasCookie() ? Services::Request()->ts() : 0;
@@ -91,6 +98,7 @@ class BotSignalsRecord {
 		if ( empty( $r->auth_at ) ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
 			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
 												->setOrderBy( 'last_login_at' )
@@ -172,6 +180,6 @@ class BotSignalsRecord {
 	private function getIPRecord() :IPs\Ops\Record {
 		return ( new IPs\IPRecords() )
 			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP(), true );
+			->loadIP( $this->getIP() );
 	}
 }

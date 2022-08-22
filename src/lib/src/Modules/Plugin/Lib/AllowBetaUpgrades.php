@@ -17,7 +17,7 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		$con = $this->getCon();
-		return $con->isPremiumActive() && apply_filters( 'shield/allow_beta_upgrades', $con->is_mode_debug );
+		return $con->isPremiumActive() && apply_filters( 'shield/enable_beta', false );
 	}
 
 	protected function run() {

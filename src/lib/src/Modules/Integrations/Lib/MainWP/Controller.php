@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Controller extends ExecOnceModConsumer {
 
@@ -16,11 +17,13 @@ class Controller extends ExecOnceModConsumer {
 			$this->runServerSide();
 		}
 		catch ( \Exception $e ) {
+//			error_log( 'server side exception: '.$e->getMessage() );
 		}
 		try {
 			$this->runClientSide();
 		}
 		catch ( \Exception $e ) {
+//			error_log( 'client side exception: '.$e->getMessage() );
 		}
 	}
 

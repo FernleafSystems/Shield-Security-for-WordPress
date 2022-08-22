@@ -78,6 +78,10 @@
       "default":       [],
       "value_options": [
         {
+          "value_key": "calderaforms",
+          "text":      "Caldera Forms (beta)"
+        },
+        {
           "value_key": "contactform7",
           "text":      "Contact Form 7"
         },

@@ -45,7 +45,7 @@ abstract class BaseBlockPage extends BasePageDisplay {
 	protected function getRestrictionDetailsPoints() :array {
 		$WP = Services::WpGeneral();
 		return [
-			__( 'Your IP Address', 'wp-simple-firewall' ) => Services::IP()->getRequestIp(),
+			__( 'Your IP Address', 'wp-simple-firewall' ) => $this->getCon()->this_req->ip,
 			__( 'Time Now', 'wp-simple-firewall' )        => $WP->getTimeStringForDisplay(),
 			__( 'Homepage', 'wp-simple-firewall' )        => $WP->getHomeUrl(),
 		];

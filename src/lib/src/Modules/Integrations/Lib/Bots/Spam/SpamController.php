@@ -15,6 +15,7 @@ class SpamController extends BaseBotDetectionController {
 	 */
 	public function enumProviders() :array {
 		return [
+			'calderaforms'    => Handlers\CalderaForms::class,
 			'contactform7'    => Handlers\ContactForm7::class,
 			'elementorpro'    => Handlers\ElementorPro::class,
 			'fluentforms'     => Handlers\FluentForms::class,

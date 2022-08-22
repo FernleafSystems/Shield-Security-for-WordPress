@@ -81,7 +81,7 @@ class Strings extends Base\Strings {
 					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()
 																				  ->getPluginReportEmail().'</code>' )
 					.' '.
-					sprintf( '<br/><a href="%s" class="font-weight-bolder">%s</a>',
+					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
 						$this->getCon()->getModule_Plugin()
 							 ->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )

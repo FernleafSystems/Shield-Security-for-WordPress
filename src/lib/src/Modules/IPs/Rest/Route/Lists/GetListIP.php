@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
 class GetListIP extends ListsBase {
 
 	public function getRoutePath() :string {
-		return '/(?P<list>bypass|block)/(?P<ip>[0-9a-f\.:]{3,})';
+		return '/(?P<list>bypass|block|crowdsec)/(?P<ip>[0-9a-f\.:]{3,})';
 	}
 
 	protected function getRouteArgsCustom() :array {

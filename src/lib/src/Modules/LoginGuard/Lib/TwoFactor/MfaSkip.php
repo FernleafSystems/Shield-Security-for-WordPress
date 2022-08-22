@@ -55,7 +55,7 @@ class MfaSkip {
 
 	private function getDefaultHashParams() :array {
 		return [
-			'ip'         => Services::IP()->getRequestIp(),
+			'ip'         => $this->getCon()->this_req->ip,
 			'user_agent' => Services::Request()->getUserAgent()
 		];
 	}

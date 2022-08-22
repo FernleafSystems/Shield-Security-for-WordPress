@@ -156,14 +156,14 @@ class CacheDirHandler {
 	}
 
 	/**
-	 * @deprecated 15.1
+	 * @deprecated 16.0
 	 */
 	public function dirExists() :bool {
 		return $this->exists();
 	}
 
 	/**
-	 * @deprecated 15.1
+	 * @deprecated 16.0
 	 */
 	public function build() :string {
 		return $this->dir();

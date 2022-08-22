@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-/**
- * Trait EntryVoConsumer
- * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
- */
 trait EntryVoConsumer {
 
 	/**

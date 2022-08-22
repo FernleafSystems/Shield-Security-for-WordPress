@@ -29,3 +29,7 @@ function shield_test_ip_is_bot( $IP = null ) :bool {
 function shield_get_ip_state( string $ip = '' ) :string {
 	return Functions\get_ip_state( $ip );
 }
+
+function shield_fire_event( string $event ) {
+	Functions\fire_event( $event );
+}

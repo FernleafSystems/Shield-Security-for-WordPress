@@ -37,7 +37,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 				$data = $this->log->getRawData();
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'ip_linked' ] = $this->getColumnContent_RequestDetails();
+				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( (string)$this->log->ip );
 				$data[ 'event' ] = $this->getCon()->loadEventsService()->getEventName( $this->log->event_slug );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
@@ -62,7 +62,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 				switch ( $column ) {
 					case 'event':
 						if ( count( $selected ) > 1 ) {
-							$wheres[] = sprintf( 'log.event_slug IN (`%s`)', implode( '`,`', $selected ) );
+							$wheres[] = sprintf( "log.event_slug IN ('%s')", implode( '`,`', $selected ) );
 						}
 						else {
 							$wheres[] = sprintf( "log.event_slug='%s'", array_pop( $selected ) );
@@ -110,6 +110,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 		$loader->limit = $limit;
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
+		$loader->order_by = $this->getOrderBy();
 		return array_filter(
 			$loader->run( true ),
 			function ( $logRecord ) {
@@ -120,32 +121,6 @@ class BuildAuditTableData extends BaseBuildTableData {
 
 	protected function getRecordsLoader() :LoadLogs {
 		return ( new LoadLogs() )->setMod( $this->getMod() );
-	}
-
-	private function getColumnContent_RequestDetails() :string {
-		if ( !empty( $this->log->ip ) ) {
-			try {
-				$ipID = ( new IpID( (string)$this->log->ip ) )->run();
-				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
-					$id = __( 'This Server', 'wp-simple-firewall' );
-				}
-				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
-					$id = __( 'This Is You', 'wp-simple-firewall' );
-				}
-				else {
-					$id = $ipID[ 1 ];
-				}
-			}
-			catch ( \Exception $e ) {
-				$id = '';
-			}
-			$content = sprintf( '<h6>%s%s</h6>', $this->getIpAnalysisLink( (string)$this->log->ip ),
-				empty( $id ) ? '' : sprintf( '<br/><small>%s</small>', esc_html( $id ) ) );
-		}
-		else {
-			$content = 'No IP';
-		}
-		return $content;
 	}
 
 	private function getColumnContent_UserID() :string {

@@ -15,7 +15,7 @@ class SendEmail extends BaseShieldNetApi {
 			$to->user_email,
 			[
 				'code' => $code,
-				'ip'   => Services::IP()->getRequestIp(),
+				'ip'   => $this->getCon()->this_req->ip,
 			]
 		);
 	}
