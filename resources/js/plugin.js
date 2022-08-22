@@ -433,7 +433,7 @@ let iCWP_WPSF_ConfigCanvas = new function () {
 				success: function ( raw ) {
 					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 					$offCanvas.html( response.data.html );
-					$offCanvas.css( 'width', '1000px' );
+					$offCanvas.css( 'width', '80%' );
 				}
 			}
 		).always(

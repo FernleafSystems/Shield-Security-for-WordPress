@@ -38,11 +38,11 @@
 			{% endif %}
 
 			{% if not plugin.flags.is_wporg %}
-				<li class="list-group-item list-group-item-info">
+				<li class="list-group-item list-group-item-dark">
 					<span class="">{{ strings.not_wporg }}</span>
 				</li>
 			{% elseif not plugin.flags.has_tag %}
-				<li class="list-group-item list-group-item-info">
+				<li class="list-group-item list-group-item-dark">
 					<span class="">{{ strings.no_tags }}</span>
 				</li>
 			{% else %}

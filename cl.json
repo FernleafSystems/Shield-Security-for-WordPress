@@ -1,12 +1,12 @@
 {
   "16.0": {
     "version":     "16.0",
-    "released_at": 1654522432,
+    "released_at": 1661774400,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease160",
       "upgrade": "https://shsec.io/shieldupgradeguide160"
     },
-    "title":       "CrowdSec + All-new IP Address Management",
+    "title":       "CrowdSec Partnership + All-new IP Address Management",
     "description": [
     ],
     "items":       [
@@ -15,7 +15,9 @@
         "pro_only":    false,
         "title":       "CrowdSec Partnership",
         "description": [
-        ]
+          "Shield Security and CrowdSec are now in partnership to deliver powerful IP block lists to WordPress sites."
+        ],
+        "href":        "https://shsec.io/l0"
       },
       {
         "type":        "new",
@@ -39,9 +41,10 @@
       {
         "type":        "new",
         "pro_only":    true,
-        "title":       "New Plugin Search Box",
+        "title":       "Super Search Box",
         "description": [
-          "The new search box is accessible and visible from every page inside the plugin and will also search for tools and sections, not just plugin options."
+          "The Super Search Box is accessible and visible from every page inside the plugin.",
+          "You're currently able to search for configuration options, tools and IP addresses."
         ]
       },
       {
@@ -82,9 +85,9 @@
       {
         "type":        "new",
         "pro_only":    false,
-        "title":       "Log App Password Creation",
+        "title":       "Logging: App Password Creation",
         "description": [
-          "Shield now logs the creation of new Application Passwords in the Activity Log."
+          "Shield now captures creation of new Application Passwords in the Activity Log."
         ]
       },
       {

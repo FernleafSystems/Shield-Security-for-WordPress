@@ -103,6 +103,6 @@ class BuildSearchPanesData {
 						$col, $mod->getDbH_ReqLogs()->getTableSchema()->table, $col );
 				}, $columns ) ) )
 		);
-		return empty( $results ) ? [] : $results[ 0 ];
+		return empty( $results ) ? [] : array_filter( $results[ 0 ] );
 	}
 }

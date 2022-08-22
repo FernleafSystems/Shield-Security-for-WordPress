@@ -59,8 +59,8 @@ class SectionPlugins extends SectionPluginThemesBase {
 							   'files_found'   => __( "Previous scans detected 1 or more modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
 							   'not_active'    => __( "This plugin isn't active and should be uninstalled.", 'wp-simple-firewall' ),
 							   'wporg_ok'      => __( "This plugin is installed from WordPress.org so actions such as file repair and file diff are available.", 'wp-simple-firewall' ),
-							   'not_wporg'     => __( "This plugin isn't installed from WordPress.org so certain actions such as file repair and diff aren't available.", 'wp-simple-firewall' ),
-							   'no_tags'       => __( "The plugin developer chose not to use SVN tags for this version, so certain actions such as file repair and diff aren't available.", 'wp-simple-firewall' ),
+							   'not_wporg'     => __( "This plugin isn't installed from WordPress.org so actions such as file repair and file diff aren't available.", 'wp-simple-firewall' ),
+							   'no_tags'       => __( "The plugin developer chose not to use SVN tags for this version, so actions such as file repair and file diff aren't available.", 'wp-simple-firewall' ),
 							   'go_to_plugins' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Plugins' ) ),
 						   ],
 						   'hrefs'   => [
