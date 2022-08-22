@@ -3,7 +3,7 @@
 	<div class="col-2">
 		<ul class="nav nav-tabs flex-column">
 			{% for plugin_key,plugin in vars.plugins %}
-				<li class="nav-item mb-3">
+				<li class="nav-item mb-2">
 					<a class="nav-link {% if plugin_key < 1 %}active{% endif %} position-relative"
 					   href="#plugin-tab-{{ plugin.info.slug }}"
 					   data-bs-toggle="tab"

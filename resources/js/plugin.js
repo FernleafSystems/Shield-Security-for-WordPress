@@ -401,10 +401,12 @@ let iCWP_WPSF_ProgressMeters = new function () {
 	this.initialise = function ( workingData ) {
 		data = workingData;
 		$canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
-		analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+		if ( $canvas.length > 0 ) {
+			analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
+		}
 
-		const circle = new CircularProgressBar( 'pie' );
-		circle.initial();
+		/** Progress Meters: */
+		(new CircularProgressBar( 'pie' )).initial();
 	};
 }();
 
@@ -449,8 +451,8 @@ let jQueryDoc = jQuery( 'document' );
 
 jQueryDoc.ready( function () {
 
-	if ( typeof icwp_wpsf_vars_insights.vars.meters !== 'undefined' ) {
-		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.vars.meters );
+	if ( typeof icwp_wpsf_vars_insights.components.meters !== 'undefined' ) {
+		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.components.meters );
 	}
 
 	if ( typeof icwp_wpsf_vars_plugin.components.mod_options !== 'undefined' ) {

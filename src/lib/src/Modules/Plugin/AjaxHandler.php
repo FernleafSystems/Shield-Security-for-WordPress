@@ -30,9 +30,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'render_table_adminnotes' => [ $this, 'ajaxExec_RenderTableAdminNotes' ],
 				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
-				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
 				'select_search'           => [ $this, 'ajaxExec_SelectSearch' ],
+				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 			] );
 		}
 		return $map;

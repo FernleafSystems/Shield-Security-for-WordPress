@@ -64,8 +64,7 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "shield/datatables",
-        "shield/scanners"
+        "shield/datatables"
       ],
       "js":  [
         "select2",
@@ -73,6 +72,7 @@
         "jquery/featherlight",
         "jquery/fileDownload",
         "shield/ipanalyse",
+        "shield/scanners",
         "shield/tours",
         "shield/datatables/audit_trail",
         "shield/datatables/ip_rules",
@@ -178,14 +178,6 @@
           ]
         },
         "shield/login2fa":                   {
-        },
-        "shield/scanners":                   {
-          "deps": [
-            "datatables-select",
-            "datatables-buttons",
-            "datatables-bootstrap",
-            "tp/highlightjs"
-          ]
         },
         "shield/integrations/mainwp-server": {},
         "tp/highlightjs":                    {
@@ -305,6 +297,11 @@
         },
         "shield/navigation":                 {},
         "shield/secadmin":                   {
+          "deps": [
+            "wp-jquery"
+          ]
+        },
+        "shield/scanners":                   {
           "deps": [
             "wp-jquery"
           ]

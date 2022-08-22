@@ -25,6 +25,7 @@ class DynamicPageLoader extends DynPropertiesClass {
 		if ( empty( $params ) || empty( $params[ 'load_params' ] ) ) {
 			throw new \Exception( 'No dynamic page loading params' );
 		}
+
 		$this->applyFromArray( $params[ 'load_params' ] );
 
 		$this->verifyLoadParams();
@@ -41,7 +42,7 @@ class DynamicPageLoader extends DynPropertiesClass {
 	 */
 	private function verifyLoadParams() {
 		if ( !in_array( $this->load_type, [ 'configuration' ] ) ) {
-			throw new \Exception( 'Unsupported dynamic page load type' );
+			throw new \Exception( 'Unsupported dynamic page load type: '.$this->load_type );
 		}
 	}
 
@@ -63,7 +64,6 @@ class DynamicPageLoader extends DynPropertiesClass {
 	 * this is messy! Need to build this properly.
 	 */
 	private function getPageUrl() :string {
-		$con = $this->getCon();
 		/** @var Insights\ModCon $mod */
 		$mod = $this->getMod();
 

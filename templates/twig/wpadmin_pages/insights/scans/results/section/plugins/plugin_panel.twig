@@ -100,13 +100,13 @@
 <script>
 	jQuery( document ).ready( function () {
 		{% if plugin.flags.is_abandoned %}
-	  jQuery( '#PluginSection-{{ plugin.info.slug }}' ).icwpWpsfScanResultsActions(
-		  {
-			  'ajax': {
-				  'scanresults_action':{{ ajax.scanresults_action|raw }},
+		  jQuery( '#PluginSection-{{ plugin.info.slug }}' ).icwpWpsfScanResultsActions(
+			  {
+				  'ajax': {
+					  'scanresults_action':{{ ajax.scanresults_action|raw }},
+				  }
 			  }
-		  }
-	  );
+		  );
 		{% endif %}
 		{% if plugin.flags.has_guard_files %}
 	  jQuery( '#table_id-{{ plugin.info.slug }}' ).icwpWpsfScanTableActions(

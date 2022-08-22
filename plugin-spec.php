@@ -65,7 +65,6 @@
         "jquery/featherlight",
         "introjs",
         "shield/datatables",
-        "shield/scanners"
       ],
       "js":  [
         "select2",
@@ -73,6 +72,7 @@
         "jquery/featherlight",
         "jquery/fileDownload",
         "shield/ipanalyse",
+        "shield/scanners",
         "shield/tours",
         "shield/datatables/audit_trail",
         "shield/datatables/ip_rules",
@@ -178,14 +178,6 @@
           ]
         },
         "shield/login2fa":                   {
-        },
-        "shield/scanners":                   {
-          "deps": [
-            "datatables-select",
-            "datatables-buttons",
-            "datatables-bootstrap",
-            "tp/highlightjs"
-          ]
         },
         "shield/integrations/mainwp-server": {},
         "tp/highlightjs":                    {
@@ -309,6 +301,11 @@
             "wp-jquery"
           ]
         },
+        "shield/scanners":                   {
+          "deps": [
+            "wp-jquery"
+          ]
+        },
         "shield/tables":                     {
           "deps": [
             "wp-jquery"
@@ -325,7 +322,7 @@
             "shield/datatables/common"
           ]
         },
-        "shield/datatables/ip_rules":    {
+        "shield/datatables/ip_rules":        {
           "deps": [
             "shield/datatables/common"
           ]
@@ -439,8 +436,8 @@
     "icon_url_128x128":   "pluginlogo_128x128.png"
   },
   "meta":             {
-    "url_repo_home":            "https://shsec.io/eh",
-    "privacy_policy_href":      "https://shsec.io/shieldprivacypolicy"
+    "url_repo_home":       "https://shsec.io/eh",
+    "privacy_policy_href": "https://shsec.io/shieldprivacypolicy"
   },
   "plugin_meta":      [
     {
@@ -449,12 +446,12 @@
     }
   ],
   "version_upgrades": [
+    "16.0.0",
     "14.1.4",
     "14.1.1",
     "11.2.0",
     "12.0.0",
-    "12.0.1",
-    "13.0.0"
+    "12.0.1"
   ],
   "action_links":     {
     "remove": null,

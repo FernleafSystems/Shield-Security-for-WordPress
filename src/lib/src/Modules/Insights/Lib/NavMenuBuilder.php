@@ -104,12 +104,12 @@ class NavMenuBuilder {
 				'title' => __( 'AntiBot Config', 'wp-simple-firewall' ),
 				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
-//			[ TODO
-//				'slug'    => 'ips-download',
-//				'href'    => $con->getModule_IPs()->createFileDownloadLink( 'db_ip' ),
-//				'classes' => [ 'shield_file_download' ],
-//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
-//			],
+			//			[ TODO
+			//				'slug'    => 'ips-download',
+			//				'href'    => $con->getModule_IPs()->createFileDownloadLink( 'db_ip' ),
+			//				'classes' => [ 'shield_file_download' ],
+			//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
+			//			],
 		];
 
 		return [

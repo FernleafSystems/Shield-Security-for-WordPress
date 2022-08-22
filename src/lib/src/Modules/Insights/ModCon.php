@@ -73,26 +73,24 @@ class ModCon extends BaseShield\ModCon {
 	public function getScriptLocalisations() :array {
 		$locals = parent::getScriptLocalisations();
 
-		$insightsData = [
-			'strings' => [
-				'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-				'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
-				'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-			],
+		$locals[] = [
+			'plugin',
+			'icwp_wpsf_vars_insights',
+			[
+				'strings' => [
+					'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
+					'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
+				],
+				'components'    => [
+					'meters' => [
+						'ajax' => [
+							'render_meter_analysis' => $this->getAjaxActionData( 'render_meter_analysis' ),
+						]
+					]
+				],
+			]
 		];
-
-		if ( $this->getCurrentInsightsPage() === 'overview' ) {
-			// Supply data for the progress meters
-			$insightsData[ 'vars' ][ 'meters' ] = [
-				'ajax' => [
-					'render_meter_analysis' => $this->getAjaxActionData( 'render_meter_analysis' ),
-				]
-			];
-		}
-
-		$locals[] = [ 'plugin', 'icwp_wpsf_vars_insights', $insightsData ];
 
 		$locals[] = [
 			'shield/navigation',
