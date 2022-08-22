@@ -2,7 +2,7 @@
 	<div class="col scan-item-history">
 		{% if flags.has_history %}
 			{% for ts,ts_history in vars.history %}
-				<p class="font-weight-bold">{{ ts }}</p>
+				<p class="fw-bold">{{ ts }}</p>
 				<ul>
 					{% for line in ts_history %}
 						<li>{{ line|raw }}</li>
