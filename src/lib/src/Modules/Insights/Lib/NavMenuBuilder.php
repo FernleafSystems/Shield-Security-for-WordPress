@@ -97,12 +97,12 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-blocksettings',
 				'title' => __( 'IP Block Config', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_IPs() ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( $con->getModule_IPs()->getSlug() ),
 			],
 			[
 				'slug'  => $slug.'-antibotsettings',
 				'title' => __( 'AntiBot Config', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_IPs() ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_antibot' ),
 				//				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
 			//			[ TODO
@@ -141,7 +141,7 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_AuditTrail() ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( $con->getModule_AuditTrail()->getSlug() ),
 				//				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
 			],
 			//			[
@@ -192,7 +192,7 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_HackGuard() ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( $con->getModule_HackGuard()->getSlug() ),
 			],
 			[
 				'slug'   => $slug.'-guide',
@@ -318,13 +318,13 @@ class NavMenuBuilder {
 				[
 					'slug'  => 'integrations-contact',
 					'title' => __( 'Contact Form SPAM', 'wp-simple-firewall' ),
-					'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_Integrations() ),
-					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_spam' ),
+					'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_spam' ),
+					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( '' ),
 				],
 				[
 					'slug'  => 'integrations-login',
 					'title' => __( 'Custom Login Forms', 'wp-simple-firewall' ),
-					'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_Integrations() ),
+					'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_user_forms' ),
 					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_user_forms' ),
 				],
 			],
@@ -400,8 +400,7 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-whitelabel',
 				'title' => __( 'White Label', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_SecAdmin() ),
-				//				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_whitelabel' ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_whitelabel' ),
 			],
 			[
 				'slug'   => $slug.'-notes',
@@ -450,8 +449,7 @@ class NavMenuBuilder {
 			[
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_Traffic() ),
-				//				'href'  => $con->getModule_Traffic()->getUrl_DirectLinkToSection( 'section_traffic_options' ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_traffic_options' ),
 			],
 		];
 
@@ -480,26 +478,22 @@ class NavMenuBuilder {
 			[
 				'slug'  => 'users-secadmin',
 				'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_SecAdmin() ),
-				//				'href'  => $con->getModule_SecAdmin()->getUrl_DirectLinkToSection( 'section_security_admin_settings' ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_security_admin_settings' ),
 			],
 			[
 				'slug'  => 'users-settings',
 				'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_UserManagement() ),
-				//				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_user_session_management' ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_user_session_management' ),
 			],
 			[
 				'slug'  => 'users-passwords',
 				'title' => __( 'Password Policies', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_UserManagement() ),
-				//				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_passwords' ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_passwords' ),
 			],
 			[
 				'slug'  => 'users-suspend',
 				'title' => __( 'User Suspension', 'wp-simple-firewall' ),
-				'href'  => $this->getOffCanvasJavascriptLinkForModule( $con->getModule_UserManagement() ),
-				//				'href'  => $con->getModule_UserManagement()->getUrl_DirectLinkToSection( 'section_suspend' ),
+				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_suspend' ),
 			],
 		];
 
@@ -522,11 +516,7 @@ class NavMenuBuilder {
 		return (string)Services::Request()->query( 'inav' );
 	}
 
-	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon|mixed $mod
-	 * @return void
-	 */
-	private function getOffCanvasJavascriptLinkForModule( $mod ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('%s')}", $mod->getSlug() );
+	private function getOffCanvasJavascriptLinkFor( string $for ) :string {
+		return sprintf( "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('%s')}", $for );
 	}
 }

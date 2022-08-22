@@ -10,13 +10,6 @@ class UI {
 
 	use ModConsumer;
 
-	public function buildOptionsForStandardUI() :array {
-		return ( new Options\BuildForDisplay() )
-			->setMod( $this->getMod() )
-			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
-			->standard();
-	}
-
 	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();

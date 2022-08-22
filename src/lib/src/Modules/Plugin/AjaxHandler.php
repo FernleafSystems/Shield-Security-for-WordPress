@@ -119,7 +119,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		try {
 			$html = ( new Shield\Modules\Insights\Lib\Requests\OffCanvas() )
 				->setMod( $this->getCon()->getModule_Insights() )
-				->modConfig( Services::Request()->post( 'module' ) );
+				->modConfig( Services::Request()->post( 'config_item' ) );
 			$success = true;
 		}
 		catch ( \Exception $e ) {
