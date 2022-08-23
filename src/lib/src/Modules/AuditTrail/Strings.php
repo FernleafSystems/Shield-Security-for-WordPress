@@ -272,7 +272,7 @@ class Strings extends Base\Strings {
 			case 'enable_audit_trail' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
+				$description = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 
 			case 'log_level_db' :

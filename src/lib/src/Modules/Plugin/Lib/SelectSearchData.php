@@ -73,9 +73,9 @@ class SelectSearchData {
 		) ) );
 
 		$optionGroups = array_merge(
-			$this->getExternalSearch(),
 			$this->getToolsSearch(),
 			$this->getIntegrationsSearch(),
+			$this->getExternalSearch(),
 			$this->getConfigSearch()
 		);
 
@@ -149,6 +149,30 @@ class SelectSearchData {
 						'href'       => 'https://getshieldsecurity.com/free-trial/',
 						'new_window' => true,
 						'tokens'     => 'security pro premium free trial',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+					],
+					[
+						'id'         => 'external_review',
+						'text'       => __( 'Leave A Review', 'wp-simple-firewall' ),
+						'href'       => 'https://shsec.io/l1',
+						'new_window' => true,
+						'tokens'     => 'review reviews stars',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/pencil-square.svg' ),
+					],
+					[
+						'id'         => 'external_testimonials',
+						'text'       => __( 'Read Customer Testimonials', 'wp-simple-firewall' ),
+						'href'       => 'https://shsec.io/l2',
+						'new_window' => true,
+						'tokens'     => 'review reviews testimonial testimonials',
+						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/book-half.svg' ),
+					],
+					[
+						'id'         => 'external_crowdsec',
+						'text'       => __( 'CrowdSec Home', 'wp-simple-firewall' ),
+						'href'       => 'https://crowdsec.net/',
+						'new_window' => true,
+						'tokens'     => 'crowdsec',
 						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
 					],
 				],

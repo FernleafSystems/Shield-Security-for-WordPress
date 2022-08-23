@@ -74,9 +74,9 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_timings' :
-				$sTitle = __( 'Report Frequencies', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Report Frequencies', 'wp-simple-firewall' );
-				$aSummary = [
+				$title = __( 'Report Frequencies', 'wp-simple-firewall' );
+				$titleShort = __( 'Report Frequencies', 'wp-simple-firewall' );
+				$summary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
 					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()
 																				  ->getPluginReportEmail().'</code>' )
@@ -95,9 +95,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'title'       => $title,
+			'title_short' => $titleShort,
+			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
 		];
 	}
 }

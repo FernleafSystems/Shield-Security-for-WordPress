@@ -9,7 +9,7 @@ class Strings extends Base\Strings {
 
 	public function getEventStrings() :array {
 		return [
-			'spam_block_antibot'        => [
+			'spam_block_antibot'       => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'AntiBot System', 'wp-simple-firewall' )
@@ -18,7 +18,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
 				],
 			],
-			'spam_block_human'          => [
+			'spam_block_human'         => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'Human', 'wp-simple-firewall' )
@@ -37,7 +37,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked repeated attempts by the same visitor to post multiple SPAM comments.', 'wp-simple-firewall' ),
 				],
 			],
-			'spam_block_bot'            => [
+			'spam_block_bot'           => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'Bot', 'wp-simple-firewall' )
@@ -46,7 +46,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' ),
 				],
 			],
-			'spam_block_recaptcha'      => [
+			'spam_block_recaptcha'     => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),
 					__( 'CAPTCHA', 'wp-simple-firewall' )
@@ -55,7 +55,7 @@ class Strings extends Base\Strings {
 					__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' ),
 				],
 			],
-			'comment_spam_block'        => [
+			'comment_spam_block'       => [
 				'name'  => __( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Comment SPAM Blocked.', 'wp-simple-firewall' ),
@@ -123,14 +123,16 @@ class Strings extends Base\Strings {
 			case 'enable_comments_filter' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = __( 'Enable (or Disable) The Comment SPAM Protection Feature', 'wp-simple-firewall' );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) );
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) ) ];
 				break;
 
 			case 'trusted_commenter_minimum' :
 				$name = __( 'Trusted Commenter Minimum', 'wp-simple-firewall' );
 				$summary = __( 'Minimum Number Of Approved Comments Before Commenter Is Trusted', 'wp-simple-firewall' );
-				$desc = __( 'Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned.', 'wp-simple-firewall' )
-						.'<br />'.__( 'Normally WordPress will trust after 1 comment.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned.', 'wp-simple-firewall' ),
+					__( 'Normally WordPress will trust after 1 comment.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'trusted_user_roles' :
@@ -167,14 +169,16 @@ class Strings extends Base\Strings {
 			case 'comments_default_action_human_spam' :
 				$name = __( 'SPAM Action', 'wp-simple-firewall' );
 				$summary = __( 'How To Categorise Comments When Identified To Be SPAM', 'wp-simple-firewall' );
-				$desc = sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' );
+				$desc = [ sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' ) ];
 				break;
 
 			case 'comments_default_action_spam_bot' :
 				$name = __( 'SPAM Action', 'wp-simple-firewall' );
 				$summary = __( 'Where To Put SPAM Comments', 'wp-simple-firewall' );
-				$desc = sprintf( __( 'When a comment is detected as being SPAM, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() );
+				$desc = [
+					sprintf( __( 'When a comment is detected as being SPAM, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() )
+				];
 				break;
 
 			default:

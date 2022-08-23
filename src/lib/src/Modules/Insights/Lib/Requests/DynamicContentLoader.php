@@ -11,12 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 /**
  * @property string $load_type
  * @property string $load_variant
+ * @property array  $aux_params
  */
 class DynamicContentLoader extends DynPropertiesClass {
 
 	use ModConsumer;
-
-	private $params = [];
 
 	/**
 	 * @throws \Exception
@@ -105,6 +104,6 @@ class DynamicContentLoader extends DynPropertiesClass {
 		}
 		return ( new RenderOptionsForm() )
 			->setMod( $mod )
-			->render();
+			->render( is_array( $this->aux_params ) ? $this->aux_params : [] );
 	}
 }

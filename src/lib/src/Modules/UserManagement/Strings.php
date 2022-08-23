@@ -174,13 +174,13 @@ class Strings extends Base\Strings {
 			case 'enable_user_management' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $name );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $name );
-				$description = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $name );
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $name ) ];
 				break;
 
 			case 'enable_admin_login_email_notification' :
 				$name = __( 'Admin Login Notification Email', 'wp-simple-firewall' );
 				$summary = __( 'Send An Notification Email When Administrator Logs In', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' ),
 					__( 'No email address - No Notification.', 'wp-simple-firewall' ),
 					__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' )
@@ -190,13 +190,13 @@ class Strings extends Base\Strings {
 			case 'enable_user_login_email_notification' :
 				$name = __( 'User Login Notification Email', 'wp-simple-firewall' );
 				$summary = __( 'Send Email Notification To Each User Upon Successful Login', 'wp-simple-firewall' );
-				$description = __( 'A notification is sent to each user when a successful login occurs for their account.', 'wp-simple-firewall' );
+				$desc = [ __( 'A notification is sent to each user when a successful login occurs for their account.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'session_timeout_interval' :
 				$name = __( 'Session Timeout', 'wp-simple-firewall' );
 				$summary = __( 'Specify How Many Days After Login To Automatically Force Re-Login', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' ),
 					__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' ),
 					sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' ),
@@ -207,7 +207,7 @@ class Strings extends Base\Strings {
 			case 'session_idle_timeout_interval' :
 				$name = __( 'Idle Timeout', 'wp-simple-firewall' );
 				$summary = __( 'Specify How Many Hours After Inactivity To Automatically Logout User', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return.', 'wp-simple-firewall' ),
 					sprintf( __( 'Set to %s to turn off this option.', 'wp-simple-firewall' ), '"<strong>0</strong>"' )
 				];
@@ -216,14 +216,16 @@ class Strings extends Base\Strings {
 			case 'session_lock_location' :
 				$name = __( 'Lock To Location', 'wp-simple-firewall' );
 				$summary = __( 'Locks A User Session To IP address', 'wp-simple-firewall' );
-				$description = __( 'When selected, a session is restricted to the same IP address as when the user logged in.', 'wp-simple-firewall' )
-							   .' '.__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress.", 'wp-simple-firewall' );
+				$desc = [
+					__( 'When selected, a session is restricted to the same IP address as when the user logged in.', 'wp-simple-firewall' ),
+					__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress.", 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'session_username_concurrent_limit' :
 				$name = __( 'Max Simultaneous Sessions', 'wp-simple-firewall' );
 				$summary = __( 'Limit Simultaneous Sessions For The Same Username', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.', 'wp-simple-firewall' ),
 					__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' )
 				];
@@ -232,7 +234,7 @@ class Strings extends Base\Strings {
 			case 'reg_email_validate' :
 				$name = __( 'Validate Email Addresses', 'wp-simple-firewall' );
 				$summary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' ),
 					__( 'To validate an email your site sends a request to the ShieldNET API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
 				];
@@ -241,81 +243,93 @@ class Strings extends Base\Strings {
 			case 'email_checks' :
 				$name = __( 'Email Validation Checks', 'wp-simple-firewall' );
 				$summary = __( 'The Email Address Properties That Will Be Tested', 'wp-simple-firewall' );
-				$description = __( 'Select the properties that should be tested during email address validation.', 'wp-simple-firewall' );
+				$desc = [ __( 'Select the properties that should be tested during email address validation.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'enable_password_policies' :
 				$name = __( 'Enable Password Policies', 'wp-simple-firewall' );
 				$summary = __( 'Enable The Password Policies Detailed Below', 'wp-simple-firewall' );
-				$description = __( 'Turn on/off all password policy settings.', 'wp-simple-firewall' );
+				$desc = [ __( 'Turn on/off all password policy settings.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'pass_prevent_pwned' :
 				$name = __( 'Prevent Pwned Passwords', 'wp-simple-firewall' );
 				$summary = __( 'Prevent Use Of "Pwned" Passwords', 'wp-simple-firewall' );
-				$description = __( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.', 'wp-simple-firewall' );
+				$desc = [ __( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'pass_min_length' :
 				$name = __( 'Minimum Length', 'wp-simple-firewall' );
 				$summary = __( 'Minimum Password Length', 'wp-simple-firewall' );
-				$description = __( 'All passwords that a user sets must be at least this many characters in length.', 'wp-simple-firewall' )
-							   .'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'All passwords that a user sets must be at least this many characters in length.', 'wp-simple-firewall' ),
+					__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'pass_min_strength' :
 				$name = __( 'Minimum Strength', 'wp-simple-firewall' );
 				$summary = __( 'Minimum Password Strength', 'wp-simple-firewall' );
-				$description = __( 'All passwords that a user sets must meet this minimum strength.', 'wp-simple-firewall' );
+				$desc = [ __( 'All passwords that a user sets must meet this minimum strength.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'pass_force_existing' :
 				$name = __( 'Apply To Existing Users', 'wp-simple-firewall' );
 				$summary = __( 'Apply Password Policies To Existing Users and Their Passwords', 'wp-simple-firewall' );
-				$description = __( "Forces existing users to update their passwords if they don't meet requirements, after they next login.", 'wp-simple-firewall' )
-							   .'<br/>'.__( 'Note: You may want to warn users prior to enabling this option.', 'wp-simple-firewall' );
+				$desc = [
+					__( "Forces existing users to update their passwords if they don't meet requirements, after they next login.", 'wp-simple-firewall' ),
+					__( 'Note: You may want to warn users prior to enabling this option.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'pass_expire' :
 				$name = __( 'Password Expiration', 'wp-simple-firewall' );
 				$summary = __( 'Passwords Expire After This Many Days', 'wp-simple-firewall' );
-				$description = __( 'Users will be forced to reset their passwords after the number of days specified.', 'wp-simple-firewall' )
-							   .'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Users will be forced to reset their passwords after the number of days specified.', 'wp-simple-firewall' ),
+					__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'manual_suspend' :
 				$name = __( 'Allow Manual User Suspension', 'wp-simple-firewall' );
 				$summary = __( 'Manually Suspend User Accounts To Prevent Login', 'wp-simple-firewall' );
-				$description = __( 'Users may be suspended by administrators to prevent future login.', 'wp-simple-firewall' );
+				$desc = [ __( 'Users may be suspended by administrators to prevent future login.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'auto_password' :
 				$name = __( 'Auto-Suspend Expired Passwords', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Suspend Users With Expired Passwords', 'wp-simple-firewall' );
-				$description = __( 'Automatically suspends login by users and requires password reset to unsuspend.', 'wp-simple-firewall' )
-							   .'<br/>'.sprintf(
-								   '<strong>%s</strong> - %s',
-								   __( 'Important', 'wp-simple-firewall' ),
-								   __( 'Requires password expiration policy to be set.', 'wp-simple-firewall' )
-							   );
+				$desc = [
+					__( 'Automatically suspends login by users and requires password reset to unsuspend.', 'wp-simple-firewall' ),
+					sprintf(
+						'<strong>%s</strong> - %s',
+						__( 'Important', 'wp-simple-firewall' ),
+						__( 'Requires password expiration policy to be set.', 'wp-simple-firewall' )
+					)
+				];
 				break;
 
 			case 'auto_idle_days' :
 				$name = __( 'Auto-Suspend Idle Users', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Suspend Idle User Accounts', 'wp-simple-firewall' );
-				$description = __( 'Automatically suspends login for idle accounts and requires password reset to unsuspend.', 'wp-simple-firewall' )
-							   .'<br/>'.__( 'Specify the number of days since last login to consider a user as idle.', 'wp-simple-firewall' )
-							   .'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Automatically suspends login for idle accounts and requires password reset to unsuspend.', 'wp-simple-firewall' ),
+					__( 'Specify the number of days since last login to consider a user as idle.', 'wp-simple-firewall' ),
+					__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'auto_idle_roles' :
 				$name = __( 'Auto-Suspend Idle User Roles', 'wp-simple-firewall' );
 				$summary = __( 'Apply Automatic Suspension To Accounts With These Roles', 'wp-simple-firewall' );
-				$description = __( 'Automatic suspension for idle accounts applies only to the roles you specify.', 'wp-simple-firewall' )
-							   .'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
-							   .'<br/>'.sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ), implode( ', ', Services::WpUsers()
-																																 ->getAvailableUserRoles() ) )
-							   .'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) );
+				$desc = [
+					__( 'Automatic suspension for idle accounts applies only to the roles you specify.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
+						implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) )
+				];
 				break;
 
 			default:
@@ -325,7 +339,7 @@ class Strings extends Base\Strings {
 		return [
 			'name'        => $name,
 			'summary'     => $summary,
-			'description' => $description,
+			'description' => $desc,
 		];
 	}
 }

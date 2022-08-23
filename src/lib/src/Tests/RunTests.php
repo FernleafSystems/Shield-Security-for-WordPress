@@ -22,6 +22,7 @@ class RunTests {
 		return [
 			new VerifyEvents(),
 			new VerifyUniqueEvents(),
+			new VerifyStrings(),
 		];
 	}
 }

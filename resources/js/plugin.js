@@ -416,10 +416,10 @@ let iCWP_WPSF_ConfigCanvas = new function () {
 	let $offCanvas;
 	let configContainer;
 
-	this.renderConfig = function ( module ) {
+	this.renderConfig = function ( config_item ) {
 		iCWP_WPSF_BodyOverlay.show();
 		let reqData = data.ajax.render_mod_config;
-		reqData.module = module;
+		reqData.config_item = config_item;
 
 		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
 		configContainer.show();
@@ -434,6 +434,7 @@ let iCWP_WPSF_ConfigCanvas = new function () {
 					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 					$offCanvas.html( response.data.html );
 					$offCanvas.css( 'width', '80%' );
+					$offCanvas.addClass( 'module-config' );
 				}
 			}
 		).always(

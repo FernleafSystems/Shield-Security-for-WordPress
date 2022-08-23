@@ -205,10 +205,6 @@
       "type":          "select",
       "value_options": [
         {
-          "value_key": "minute",
-          "text":      "Minute"
-        },
-        {
           "value_key": "hour",
           "text":      "Hour"
         },

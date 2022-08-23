@@ -51,11 +51,6 @@ body.rtl {
 	margin-left: 0;
 	padding-bottom: 24px;
 }
-.row.option_section_row.primary_section {
-	border: 1px solid transparent;
-	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-	padding-bottom: 30px;
-}
 .submit span {
 	font-size: smaller;
 	font-style: italic;
@@ -1039,9 +1034,10 @@ td.mal_details ul {
 .select2-results ul li ul li:hover {
 	background: green !important;
 }
-#ShieldOffcanvas {
-	width: auto;
+#ShieldOffcanvas .offcanvas-header {
+	background-color: white;
+	box-shadow: 1px 1px 2px rgba(0,0,0,0.05);
 }
-#ShieldOffcanvas .offcanvas-header{
-	background-color: rgba(0,0,0,0.05);
+#ShieldOffcanvas.module-config {
+	background-color: #f1f1f1;
 }

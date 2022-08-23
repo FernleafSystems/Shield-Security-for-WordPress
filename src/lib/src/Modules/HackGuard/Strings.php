@@ -172,7 +172,7 @@ class Strings extends Base\Strings {
 			case 'enable_hack_protect' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 
 			case 'scan_frequency' :
@@ -187,19 +187,19 @@ class Strings extends Base\Strings {
 			case 'enable_plugin_vulnerabilities_scan' :
 				$name = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$summary = sprintf( __( 'Daily Cron - %s', 'wp-simple-firewall' ), __( 'Scans Plugins For Known Vulnerabilities', 'wp-simple-firewall' ) );
-				$desc = __( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.', 'wp-simple-firewall' );
+				$desc = [ __( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'enable_wpvuln_scan' :
 				$name = __( 'Vulnerability Scanner', 'wp-simple-firewall' );
 				$summary = __( 'Enable The Vulnerability Scanner', 'wp-simple-firewall' );
-				$desc = __( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.', 'wp-simple-firewall' );
+				$desc = [ __( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'wpvuln_scan_autoupdate' :
 				$name = __( 'Automatic Updates', 'wp-simple-firewall' );
 				$summary = __( 'Apply Updates Automatically To Vulnerable Plugins', 'wp-simple-firewall' );
-				$desc = __( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.', 'wp-simple-firewall' );
+				$desc = [ __( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'enable_core_file_integrity_scan' :
@@ -261,7 +261,7 @@ class Strings extends Base\Strings {
 			case 'ptg_reinstall_links':
 				$name = __( 'Show Re-Install Links', 'wp-simple-firewall' );
 				$summary = __( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' );
-				$desc = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
+				$desc = [ __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'optimise_scan_speed':
@@ -292,15 +292,17 @@ class Strings extends Base\Strings {
 			case 'enabled_scan_apc' :
 				$name = __( 'Abandoned Plugin Scanner', 'wp-simple-firewall' );
 				$summary = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
-				$desc = __( "Scan your WordPress.org assets for whether they've been abandoned.", 'wp-simple-firewall' );
+				$desc = [ __( "Scan your WordPress.org assets for whether they've been abandoned.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'mal_autorepair_surgical' :
 				$name = __( 'Surgical Auto-Repair', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Attempt To Surgically Remove Malware Code', 'wp-simple-firewall' );
-				$desc = __( "Attempts to automatically remove code from infected files.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This could break your site if code removal leaves remaining code in an inconsistent state.', 'wp-simple-firewall' ) )
-						.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Only applies to files that don't fall under the other categories for automatic repair.", 'wp-simple-firewall' ) );
+				$desc = [
+					__( "Attempts to automatically remove code from infected files.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This could break your site if code removal leaves remaining code in an inconsistent state.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Only applies to files that don't fall under the other categories for automatic repair.", 'wp-simple-firewall' ) )
+				];
 				break;
 
 			default:

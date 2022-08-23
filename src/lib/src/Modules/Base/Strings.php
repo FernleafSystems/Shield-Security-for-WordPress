@@ -157,6 +157,7 @@ class Strings {
 	}
 
 	/**
+	 * @return array{name: string, summary: string, description: array}
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
@@ -165,7 +166,7 @@ class Strings {
 			return [
 				'name'        => __( $opt[ 'name' ], 'wp-simple-firewall' ),
 				'summary'     => __( $opt[ 'summary' ], 'wp-simple-firewall' ),
-				'description' => __( $opt[ 'description' ], 'wp-simple-firewall' ),
+				'description' => [ __( $opt[ 'description' ], 'wp-simple-firewall' ) ],
 			];
 		}
 		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $key ) );
