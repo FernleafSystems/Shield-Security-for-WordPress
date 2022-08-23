@@ -61,45 +61,44 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-
-		$sModName = $this->getMod()->getMainFeatureName();
+		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_firewall' :
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 
 			case 'include_cookie_checks' :
 				$name = __( 'Include Cookies', 'wp-simple-firewall' );
 				$summary = __( 'Also Test Cookie Values In Firewall Tests', 'wp-simple-firewall' );
-				$desc = __( 'The firewall tests GET and POST, but with this option checked it will also check COOKIE values.', 'wp-simple-firewall' );
+				$desc = [ __( 'The firewall tests GET and POST, but with this option checked it will also check COOKIE values.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'block_dir_traversal' :
 				$name = __( 'Directory Traversals', 'wp-simple-firewall' );
 				$summary = __( 'Block Directory Traversals', 'wp-simple-firewall' );
-				$desc = sprintf( __( 'This will block directory traversal paths in in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), base64_decode( 'Li4vLCAuLi8uLi9ldGMvcGFzc3dk' ) );
+				$desc = [ sprintf( __( 'This will block directory traversal paths in in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), base64_decode( 'Li4vLCAuLi8uLi9ldGMvcGFzc3dk' ) ) ];
 				break;
 
 			case 'block_sql_queries' :
 				$name = __( 'SQL Queries', 'wp-simple-firewall' );
 				$summary = __( 'Block SQL Queries', 'wp-simple-firewall' );
-				$desc = sprintf( __( 'This will block sql in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), base64_decode( 'dW5pb24gc2VsZWN0LCBjb25jYXQoLCAvKiovLCAuLik=' ) );
+				$desc = [ sprintf( __( 'This will block sql in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), base64_decode( 'dW5pb24gc2VsZWN0LCBjb25jYXQoLCAvKiovLCAuLik=' ) ) ];
 				break;
 
 			case 'block_wordpress_terms' :
 				$name = __( 'WordPress Terms', 'wp-simple-firewall' );
 				$summary = __( 'Block WordPress Specific Terms', 'wp-simple-firewall' );
-				$desc = __( 'This will block WordPress specific terms in application parameters (wp_, user_login, etc.).', 'wp-simple-firewall' );
+				$desc = [ __( 'This will block WordPress specific terms in application parameters (wp_, user_login, etc.).', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'block_field_truncation' :
 				$name = __( 'Field Truncation', 'wp-simple-firewall' );
 				$summary = __( 'Block Field Truncation Attacks', 'wp-simple-firewall' );
-				$desc = __( 'This will block field truncation attacks in application parameters.', 'wp-simple-firewall' );
+				$desc = [ __( 'This will block field truncation attacks in application parameters.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'block_php_code' :
@@ -114,13 +113,13 @@ class Strings extends Base\Strings {
 			case 'block_exe_file_uploads' :
 				$name = __( 'Exe File Uploads', 'wp-simple-firewall' );
 				$summary = __( 'Block Executable File Uploads', 'wp-simple-firewall' );
-				$desc = __( 'This will block executable file uploads (.php, .exe, etc.).', 'wp-simple-firewall' );
+				$desc = [ __( 'This will block executable file uploads (.php, .exe, etc.).', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'block_leading_schema' :
 				$name = __( 'Leading Schemas', 'wp-simple-firewall' );
 				$summary = __( 'Block Leading Schemas (HTTPS / HTTP)', 'wp-simple-firewall' );
-				$desc = __( 'This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins).', 'wp-simple-firewall' );
+				$desc = [ __( 'This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins).', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'block_aggressive' :
@@ -135,31 +134,31 @@ class Strings extends Base\Strings {
 			case 'block_response' :
 				$name = __( 'Block Response', 'wp-simple-firewall' );
 				$summary = __( 'Choose how the firewall responds when it blocks a request', 'wp-simple-firewall' );
-				$desc = __( 'We recommend dying with a message so you know what might have occurred when the firewall blocks you', 'wp-simple-firewall' );
+				$desc = [ __( 'We recommend dying with a message so you know what might have occurred when the firewall blocks you', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'block_send_email' :
 				$name = __( 'Send Email Report', 'wp-simple-firewall' );
 				$summary = __( 'When a visitor is blocked the firewall will send an email to the configured email address', 'wp-simple-firewall' );
-				$desc = __( 'Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host', 'wp-simple-firewall' );
+				$desc = [ __( 'Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'page_params_whitelist' :
 				$name = __( 'Whitelist Parameters', 'wp-simple-firewall' );
 				$summary = __( 'Detail pages and parameters that are whitelisted (ignored by the firewall)', 'wp-simple-firewall' );
-				$desc = __( 'This should be used with caution and you should only provide parameter names that you must have excluded', 'wp-simple-firewall' );
+				$desc = [ __( 'This should be used with caution and you should only provide parameter names that you must have excluded', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'whitelist_admins' :
 				$name = sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'Administrators', 'wp-simple-firewall' ) );
 				$summary = sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'Administrators', 'wp-simple-firewall' ) );
-				$desc = __( 'Authenticated administrator users will not be processed by the firewall rules.', 'wp-simple-firewall' );
+				$desc = [ __( 'Authenticated administrator users will not be processed by the firewall rules.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'text_firewalldie' :
 				$name = __( 'Firewall Block Message', 'wp-simple-firewall' );
 				$summary = __( 'Message Displayed To Visitor When A Firewall Block Is Triggered', 'wp-simple-firewall' );
-				$desc = __( 'This is the message displayed to visitors that trigger the firewall.', 'wp-simple-firewall' );
+				$desc = [ __( 'This is the message displayed to visitors that trigger the firewall.', 'wp-simple-firewall' ) ];
 				break;
 
 			default:
