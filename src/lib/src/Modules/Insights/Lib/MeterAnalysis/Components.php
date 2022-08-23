@@ -432,7 +432,7 @@ class Components {
 						'title'            => __( 'Traffic Logging', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Traffic requests are being logged, making it easier to track issues.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Traffic requests aren't being logged, making it harder to track issues.", 'wp-simple-firewall' ),
-						'href'             => $modTraffic->isModOptEnabled() ? $this->getJumpLink( 'enable_limiter' ) : $this->getJumpLink( 'enable_traffic' ),
+						'href'             => $modTraffic->isModOptEnabled() ? $this->getJumpLink( 'enable_logger' ) : $this->getJumpLink( 'enable_traffic' ),
 						'protected'        => $modTraffic->isModOptEnabled() && $optsTraffic->isTrafficLoggerEnabled(),
 						'weight'           => 25,
 					];
@@ -1004,7 +1004,7 @@ class Components {
 						'title'            => __( 'WordPress Core Automatic Updates', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'WordPress Core is automatically updated when minor upgrades are released.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "WordPress Core isn't automatically updated when minor upgrades are released.", 'wp-simple-firewall' ),
-						'href'             => $this->getCon()->getModule_Autoupdates()->getSlug(),
+						'href'             => $this->getJumpLink( $this->getCon()->getModule_Autoupdates()->getSlug() ),
 						'protected'        => Services::WpGeneral()->canCoreUpdateAutomatically(),
 						'weight'           => 50,
 					];

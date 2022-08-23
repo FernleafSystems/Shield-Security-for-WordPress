@@ -158,7 +158,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	private function getColumnContent_Details() :string {
 		$geo = $this->getCountryIP( $this->log->ip );
 		if ( empty( $geo->countryCode ) ) {
-			$country = __( 'Unknown', 'wp-simple-firewall' );
+			$country = '';//__( 'Unknown', 'wp-simple-firewall' );
 		}
 		else {
 			$country = sprintf(
@@ -174,19 +174,33 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		}
 		else {
 			try {
-				$identity = ( new IpID( $this->log->ip ) )->run()[ 1 ];
+				$identity = ( new IpID( $this->log->ip ) )->run();
 			}
 			catch ( \Exception $e ) {
-				$identity = __( 'Unknown', 'wp-simple-firewall' );
+				$identity = IpID::UNKNOWN;
 			}
 
-			$content = sprintf( '<div>%s</div>', implode( '</div><div>', [
-				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpAnalysisLink( $this->log->ip ) ),
-				sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $this->getIpInfo( $this->log->ip ) ),
-				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->uid ] ),
-				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country ),
-				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) ),
-			] ) );
+			$components = [
+				sprintf( '<div class="text-nowrap">%s: %s%s</div>',
+					__( 'IP', 'wp-simple-firewall' ),
+					$this->getIpAnalysisLink( $this->log->ip ),
+					$identity[ 0 ] === IpID::UNKNOWN ? '' : sprintf( ' (%s)', $identity[ 1 ] )
+				),
+			];
+
+			$info = $this->getIpInfo( $this->log->ip );
+			if ( !empty( $info ) ) {
+				$components[] = sprintf( '%s: %s', __( 'IP Status', 'wp-simple-firewall' ), $info );
+			}
+			$components[] = sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $this->users[ $this->log->uid ] );
+			if ( !empty( $country ) ) {
+				$components[] = sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $country );
+			}
+			if ( !empty( $this->log->meta[ 'ua' ] ) ) {
+				$components[] = esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) );
+			}
+
+			$content = sprintf( '<div>%s</div>', implode( '</div><div>', $components ) );
 		}
 
 		return $content;
@@ -235,41 +249,26 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		if ( !isset( $this->ipInfo[ $ip ] ) ) {
 
 			if ( empty( $ip ) ) {
-				$this->ipInfo[ '' ] = 'n/a';
+				$this->ipInfo[ '' ] = '';
 			}
 			else {
-				try {
-					$ipID = ( new IpID( $this->log->ip ) )->run();
+				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
+				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
+				if ( $ipRuleStatus->isBypass() ) {
+					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
 				}
-				catch ( \Exception $e ) {
-					$ipID = [ IpID::UNKNOWN, 'Unknown' ];
+				elseif ( $ipRuleStatus->isBlocked() ) {
+					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
-				$identity = $ipID[ 0 ];
-
-				if ( $identity === IpID::UNKNOWN ) {
-					$badgeTemplate = '<span class="badge bg-%s">%s</span>';
-
-					$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
-
-					if ( $ipRuleStatus->isBypass() ) {
-						$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
-					}
-					elseif ( $ipRuleStatus->isBlocked() ) {
-						$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
-					}
-					elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
-						$offenses = $ipRuleStatus->getOffenses();
-						$status = sprintf( $badgeTemplate,
-							'warning',
-							sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses )
-						);
-					}
-					else {
-						$status = __( 'No Record', 'wp-simple-firewall' );
-					}
+				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
+					$offenses = $ipRuleStatus->getOffenses();
+					$status = sprintf( $badgeTemplate,
+						'warning',
+						sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses )
+					);
 				}
 				else {
-					$status = $ipID[ 1 ];
+					$status = '';
 				}
 
 				$this->ipInfo[ $ip ] = $status;

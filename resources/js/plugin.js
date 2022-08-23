@@ -539,6 +539,11 @@ jQueryDoc.ready( function () {
 	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '#SuperSearchBox select' ).select2( {
 		minimumInputLength: 3,
+		language: {
+			inputTooShort: function () {
+				return icwp_wpsf_vars_plugin.components.select_search.strings.enter_at_least_3_chars;
+			}
+		},
 		placeholder: icwp_wpsf_vars_plugin.components.select_search.strings.placeholder,
 		templateResult: function ( val ) {
 			return (typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2">' + val.icon + '</span>')
