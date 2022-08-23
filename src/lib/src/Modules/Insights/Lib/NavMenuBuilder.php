@@ -465,7 +465,6 @@ class NavMenuBuilder {
 	}
 
 	private function users() :array {
-		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -517,6 +516,6 @@ class NavMenuBuilder {
 	}
 
 	private function getOffCanvasJavascriptLinkFor( string $for ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('%s')}", $for );
+		return $this->getMod()->getUIHandler()->getOffCanvasJavascriptLinkFor( $for );
 	}
 }
