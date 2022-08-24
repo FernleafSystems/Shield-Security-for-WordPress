@@ -446,7 +446,12 @@ class ModCon extends BaseShield\ModCon {
 					],
 					'mod_config'    => [
 						'ajax' => [
-							'render_mod_config' => $this->getAjaxActionData( 'render_mod_config' ),
+							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
+						]
+					],
+					'offcanvas'     => [
+						'ajax' => [
+							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
 						]
 					],
 					'mod_options'   => [

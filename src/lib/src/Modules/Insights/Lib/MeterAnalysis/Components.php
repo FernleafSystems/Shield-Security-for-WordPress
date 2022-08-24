@@ -44,7 +44,7 @@ class Components {
 	}
 
 	private function postBuildComponent( array $component ) :array {
-		$component[ 'new_window' ] = !strpos( $component[ 'href' ] ?? '', 'iCWP_WPSF_ConfigCanvas' );
+		$component[ 'new_window' ] = !strpos( $component[ 'href' ] ?? '', 'iCWP_WPSF_OffCanvas' );
 		return $component;
 	}
 

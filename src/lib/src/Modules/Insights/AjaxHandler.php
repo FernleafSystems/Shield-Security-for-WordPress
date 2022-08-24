@@ -11,28 +11,10 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$map = parent::getAjaxActionCallbackMap( $isAuth );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'dynamic_load'          => [ $this, 'ajaxExec_DynamicLoad' ],
-				'render_meter_analysis' => [ $this, 'ajaxExec_RenderMeterAnalysis' ],
+				'dynamic_load' => [ $this, 'ajaxExec_DynamicLoad' ],
 			] );
 		}
 		return $map;
-	}
-
-	public function ajaxExec_RenderMeterAnalysis() :array {
-		try {
-			$html = ( new Lib\MeterAnalysis\Handler() )
-				->setMod( $this->getMod() )
-				->renderAnalysis( Services::Request()->post( 'meter' ) );
-			$success = true;
-		}
-		catch ( \Exception $e ) {
-			$html = $e->getMessage();
-			$success = false;
-		}
-		return [
-			'success' => $success,
-			'html'    => $html,
-		];
 	}
 
 	public function ajaxExec_DynamicLoad() :array {

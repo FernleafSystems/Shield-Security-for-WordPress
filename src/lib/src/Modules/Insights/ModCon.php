@@ -82,13 +82,6 @@ class ModCon extends BaseShield\ModCon {
 					'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
 					'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
 				],
-				'components'    => [
-					'meters' => [
-						'ajax' => [
-							'render_meter_analysis' => $this->getAjaxActionData( 'render_meter_analysis' ),
-						]
-					]
-				],
 			]
 		];
 
