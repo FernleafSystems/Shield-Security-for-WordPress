@@ -31,7 +31,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'set_plugin_tracking'     => [ $this, 'ajaxExec_SetPluginTrackingPerm' ],
 				'sgoptimizer_turnoff'     => [ $this, 'ajaxExec_TurnOffSiteGroundOptions' ],
 				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
-				'render_mod_config'       => [ $this, 'ajaxExec_RenderModConfig' ],
+				'render_offcanvas'        => [ $this, 'ajaxExec_RenderOffCanvas' ],
 				'select_search'           => [ $this, 'ajaxExec_SelectSearch' ],
 				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 			] );
@@ -115,17 +115,38 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	public function ajaxExec_RenderModConfig() :array {
-		try {
-			$html = ( new Shield\Modules\Insights\Lib\Requests\OffCanvas() )
-				->setMod( $this->getCon()->getModule_Insights() )
-				->modConfig( Services::Request()->post( 'config_item' ) );
-			$success = true;
+	public function ajaxExec_RenderOffCanvas() :array {
+		$req = Services::Request();
+		switch ( $req->post( 'offcanvas_type' ) ) {
+
+			case 'mod_config':
+				try {
+					$html = ( new Shield\Modules\Insights\Lib\Requests\OffCanvas() )
+						->setMod( $this->getCon()->getModule_Insights() )
+						->modConfig( $req->post( 'config_item' ) );
+					$success = true;
+				}
+				catch ( \Exception $e ) {
+					$html = 'error rendering';
+					$success = false;
+				}
+				break;
+
+			case 'meter_analysis':
+				try {
+					$html = ( new Shield\Modules\Insights\Lib\MeterAnalysis\Handler() )
+						->setMod( $this->getMod() )
+						->renderAnalysis( $req->post( 'meter' ) );
+					$success = true;
+				}
+				catch ( \Exception $e ) {
+					$html = $e->getMessage();
+					$success = false;
+				}
+				break;
+
 		}
-		catch ( \Exception $e ) {
-			$html = 'error rendering';
-			$success = false;
-		}
+
 		return [
 			'success' => $success,
 			'html'    => $html

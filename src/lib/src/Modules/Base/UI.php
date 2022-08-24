@@ -93,7 +93,7 @@ class UI {
 	 * @param string $for - option, section, module
 	 */
 	public function getOffCanvasJavascriptLinkFor( string $for ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_ConfigCanvas.renderConfig('%s')}", $for );
+		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
 	}
 
 	protected function getHelpVideoUrl( string $id ) :string {

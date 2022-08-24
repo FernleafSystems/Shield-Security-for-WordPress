@@ -470,9 +470,8 @@ table.odp-table.scan-table td.column-path code {
 	padding-top: 14px;
 }
 .icwpOptionsForm .option_form_row.row {
-	/*margin-bottom: 20px;*/
-	padding: 15px 0 25px;
-	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+	margin-bottom: 10px;
+	padding: 10px 0;
 }
 .icwpOptionsForm .option-description {
 	border-left: 1px solid rgba(0, 0, 0, 0.1);
@@ -1036,8 +1035,19 @@ td.mal_details ul {
 }
 #ShieldOffcanvas .offcanvas-header {
 	background-color: white;
-	box-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
 }
-#ShieldOffcanvas.module-config {
+#ShieldOffcanvas.mod_config {
 	background-color: #f1f1f1;
+	width: 80%;
+}
+#ShieldOffcanvas.meter_analysis {
+	background-color: #fff;
+	width: 600px;
+}
+.row.option_form_row.focus_option {
+	background-color: #e1ffdebb;
+	border: 1px solid #00800044;
+	border-radius: 5px;
+	box-shadow: 2px 2px 2px rgb(0 0 0 / 10%);
 }

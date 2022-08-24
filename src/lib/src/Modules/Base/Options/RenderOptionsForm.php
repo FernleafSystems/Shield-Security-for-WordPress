@@ -9,13 +9,12 @@ class RenderOptionsForm {
 
 	use ModConsumer;
 
+	private $focusOption = '';
+
+	private $focusSection = '';
+
 	public function render( array $auxParams ) :string {
 		$mod = $this->getMod();
-
-		$options = ( new BuildForDisplay() )
-			->setMod( $mod )
-			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
-			->standard();
 
 		$focusOption = '';
 		$focusSection = $mod->getOptions()->getPrimarySection()[ 'slug' ];
@@ -28,6 +27,11 @@ class RenderOptionsForm {
 				$focusSection = $auxParams[ 'focus_item' ];
 			}
 		}
+
+		$options = ( new BuildForDisplay( $focusSection, $focusOption ) )
+			->setMod( $mod )
+			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
+			->standard();
 
 		try {
 			return $mod->getRenderer()
