@@ -10,13 +10,6 @@ class UI {
 
 	use ModConsumer;
 
-	public function buildOptionsForStandardUI() :array {
-		return ( new Options\BuildForDisplay() )
-			->setMod( $this->getMod() )
-			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
-			->standard();
-	}
-
 	public function getBaseDisplayData() :array {
 		$mod = $this->getMod();
 		$con = $this->getCon();
@@ -94,6 +87,13 @@ class UI {
 				'unique_render_id' => uniqid(),
 			],
 		];
+	}
+
+	/**
+	 * @param string $for - option, section, module
+	 */
+	public function getOffCanvasJavascriptLinkFor( string $for ) :string {
+		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
 	}
 
 	protected function getHelpVideoUrl( string $id ) :string {

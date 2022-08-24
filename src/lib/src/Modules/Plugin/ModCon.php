@@ -446,7 +446,12 @@ class ModCon extends BaseShield\ModCon {
 					],
 					'mod_config'    => [
 						'ajax' => [
-							'render_mod_config' => $this->getAjaxActionData( 'render_mod_config' ),
+							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
+						]
+					],
+					'offcanvas'     => [
+						'ajax' => [
+							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
 						]
 					],
 					'mod_options'   => [
@@ -459,7 +464,8 @@ class ModCon extends BaseShield\ModCon {
 							'select_search' => $this->getAjaxActionData( 'select_search' )
 						],
 						'strings' => [
-							'placeholder' => sprintf( '%s (%s)',
+							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
+							'placeholder'            => sprintf( '%s (%s)',
 								__( 'Search for anything', 'wp-simple-firewall' ),
 								'e.g. '.implode( ', ', [
 									__( 'IPs', 'wp-simple-firewall' ),

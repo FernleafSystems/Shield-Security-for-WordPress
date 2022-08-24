@@ -366,74 +366,41 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 	} );
 }
 
-let iCWP_WPSF_ProgressMeters = new function () {
+let iCWP_WPSF_OffCanvas = new function () {
 
 	let data;
-	let $canvas;
-	let analysisContainer;
-
-	this.renderAnalysis = function ( meter ) {
-		iCWP_WPSF_BodyOverlay.show();
-		let reqData = data.ajax.render_meter_analysis;
-		reqData.meter = meter;
-
-		$canvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
-		analysisContainer.show();
-
-		jQuery.ajax(
-			{
-				type: "POST",
-				url: ajaxurl,
-				data: reqData,
-				dataType: "text",
-				success: function ( raw ) {
-					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
-					$canvas.html( response.data.html );
-				}
-			}
-		).always(
-			function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-	};
-
-	this.initialise = function ( workingData ) {
-		data = workingData;
-		$canvas = jQuery( '#ShieldProgressMeterOffcanvas' );
-		if ( $canvas.length > 0 ) {
-			analysisContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldProgressMeterOffcanvas' ) );
-		}
-
-		/** Progress Meters: */
-		(new CircularProgressBar( 'pie' )).initial();
-	};
-}();
-
-let iCWP_WPSF_ConfigCanvas = new function () {
-
-	let data;
+	let offCanvas;
 	let $offCanvas;
-	let configContainer;
+	let bsCanvas;
+	let allTypes = [
+		'meter_analysis',
+		'mod_config'
+	];
+	let canvasTracker = [];
 
-	this.renderConfig = function ( module ) {
+	this.renderCanvas = function ( canvasProperties ) {
 		iCWP_WPSF_BodyOverlay.show();
-		let reqData = data.ajax.render_mod_config;
-		reqData.module = module;
+
+		canvasTracker.push( canvasProperties );
 
 		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
-		configContainer.show();
+		bsCanvas.show();
+
+		$offCanvas.removeClass( allTypes );
 
 		jQuery.ajax(
 			{
 				type: "POST",
 				url: ajaxurl,
-				data: reqData,
+				data: jQuery.extend(
+					data.ajax.render_offcanvas,
+					canvasProperties
+				),
 				dataType: "text",
 				success: function ( raw ) {
 					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+					$offCanvas.addClass( canvasProperties.offcanvas_type );
 					$offCanvas.html( response.data.html );
-					$offCanvas.css( 'width', '80%' );
 				}
 			}
 		).always(
@@ -443,11 +410,32 @@ let iCWP_WPSF_ConfigCanvas = new function () {
 		);
 	};
 
+	this.renderConfig = function ( config_item ) {
+		this.renderCanvas( {
+			offcanvas_type: 'mod_config',
+			config_item: config_item
+		} );
+	};
+
+	this.renderMeterAnalysis = function ( meter ) {
+		this.renderCanvas( {
+			offcanvas_type: 'meter_analysis',
+			meter: meter
+		} );
+	};
+
 	this.initialise = function ( workingData ) {
 		data = workingData;
-		$offCanvas = jQuery( '#ShieldOffcanvas' );
+		offCanvas = document.getElementById( 'ShieldOffcanvas' );
+		$offCanvas = jQuery( offCanvas );
 		if ( $offCanvas.length > 0 ) {
-			configContainer = new bootstrap.Offcanvas( document.getElementById( 'ShieldOffcanvas' ) );
+			bsCanvas = new bootstrap.Offcanvas( document.getElementById( 'ShieldOffcanvas' ) );
+			offCanvas.addEventListener( 'hidden.bs.offcanvas', event => {
+				canvasTracker.pop(); // remove the one we just closed.
+				if ( canvasTracker.length > 0 ) {
+					this.renderCanvas( canvasTracker.pop() ); // re-open the latest.
+				}
+			} );
 		}
 	};
 }();
@@ -493,12 +481,11 @@ let jQueryDoc = jQuery( 'document' );
 
 jQueryDoc.ready( function () {
 
-	if ( typeof icwp_wpsf_vars_insights.components.meters !== 'undefined' ) {
-		iCWP_WPSF_ProgressMeters.initialise( icwp_wpsf_vars_insights.components.meters );
-	}
+	/** Progress Meters: */
+	(new CircularProgressBar( 'pie' )).initial();
 
-	if ( typeof icwp_wpsf_vars_plugin.components.mod_config !== 'undefined' ) {
-		iCWP_WPSF_ConfigCanvas.initialise( icwp_wpsf_vars_plugin.components.mod_config );
+	if ( typeof icwp_wpsf_vars_plugin.components.offcanvas !== 'undefined' ) {
+		iCWP_WPSF_OffCanvas.initialise( icwp_wpsf_vars_plugin.components.offcanvas );
 	}
 
 	if ( typeof icwp_wpsf_vars_plugin.components.mod_options !== 'undefined' ) {
@@ -538,6 +525,11 @@ jQueryDoc.ready( function () {
 	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '#SuperSearchBox select' ).select2( {
 		minimumInputLength: 3,
+		language: {
+			inputTooShort: function () {
+				return icwp_wpsf_vars_plugin.components.select_search.strings.enter_at_least_3_chars;
+			}
+		},
 		placeholder: icwp_wpsf_vars_plugin.components.select_search.strings.placeholder,
 		templateResult: function ( val ) {
 			return (typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2">' + val.icon + '</span>')

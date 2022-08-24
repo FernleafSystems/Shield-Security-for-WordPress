@@ -292,7 +292,7 @@ class Strings extends Base\Strings {
 			case 'enable_ips' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 
 			case 'transgression_limit' :
@@ -319,18 +319,20 @@ class Strings extends Base\Strings {
 			case 'user_auto_recover' :
 				$name = __( 'User Auto Unblock', 'wp-simple-firewall' );
 				$summary = __( 'Allow Visitors To Unblock Their IP', 'wp-simple-firewall' );
-				$desc = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
+				$desc = [ __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'request_whitelist' :
 				$name = __( 'Request Path Whitelist', 'wp-simple-firewall' );
 				$summary = __( 'Request Path Whitelist', 'wp-simple-firewall' );
-				$desc = __( 'A list of request paths that will never trigger an offense.', 'wp-simple-firewall' )
-						.'<br />- '.__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' )
-						.'<br />- '.__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' )
-						.'<br />- '.__( "All characters will be treated as case-insensitive.", 'wp-simple-firewall' )
-						.'<br />- '.__( "The paths are compared against only the request path, not the query portion.", 'wp-simple-firewall' )
-						.'<br />- '.__( "If a path you add matches your website root (/), it'll be removed automatically.", 'wp-simple-firewall' );
+				$desc = [
+					__( 'A list of request paths that will never trigger an offense.', 'wp-simple-firewall' ),
+					__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' )
+					.'<br />- '.__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' )
+					.'<br />- '.__( "All characters will be treated as case-insensitive.", 'wp-simple-firewall' )
+					.'<br />- '.__( "The paths are compared against only the request path, not the query portion.", 'wp-simple-firewall' )
+					.'<br />- '.__( "If a path you add matches your website root (/), it'll be removed automatically.", 'wp-simple-firewall' )
+				];
 
 				break;
 
@@ -393,7 +395,7 @@ class Strings extends Base\Strings {
 			case 'text_loginfailed' :
 				$name = __( 'Login Failed', 'wp-simple-firewall' );
 				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
-				$desc = __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' );
+				$desc = [ __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'track_404' :
@@ -440,7 +442,7 @@ class Strings extends Base\Strings {
 			case 'track_loginfailed' :
 				$name = __( 'Failed Login', 'wp-simple-firewall' );
 				$summary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
-				$desc = __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' );
+				$desc = [ __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'track_invalidscript' :

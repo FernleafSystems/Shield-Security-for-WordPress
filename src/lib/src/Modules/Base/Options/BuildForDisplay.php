@@ -11,6 +11,15 @@ class BuildForDisplay {
 
 	private $isWhitelabelled = false;
 
+	private $focusOption;
+
+	private $focusSection;
+
+	public function __construct( string $focusSection = '', string $focusOption = '' ) {
+		$this->focusSection = $focusSection;
+		$this->focusOption = $focusOption;
+	}
+
 	/**
 	 * Will initiate the plugin options structure for use by the UI builder.
 	 * It doesn't set any values, just populates the array created in buildOptions()
@@ -38,6 +47,7 @@ class BuildForDisplay {
 					$bIsAdv = $option[ 'advanced' ] ?? false;
 					if ( ( !$isOptPremium || $isPremium ) && ( !$bIsAdv || $showAdvanced ) ) {
 						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $option );
+						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $option[ 'key' ] === $this->focusOption;
 					}
 					else {
 						unset( $sect[ 'options' ][ $optKey ] );
@@ -60,6 +70,8 @@ class BuildForDisplay {
 					}
 					$sections[ $sectionKey ] = $sect;
 				}
+
+				$sections[ $sectionKey ][ 'is_focus' ] = $sect[ 'slug' ] === $this->focusSection;
 
 				if ( isset( $sections[ $sectionKey ] ) ) {
 					$warning = [];

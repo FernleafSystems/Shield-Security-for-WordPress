@@ -75,13 +75,13 @@ class Strings extends Base\Strings {
 			case 'enable_traffic' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
+				$desc = [sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName )];
 				break;
 
 			case 'enable_logger' :
 				$name = __( 'Enable Traffic Logger', 'wp-simple-firewall' );
 				$summary = __( 'Turn On The Traffic Logging Feature', 'wp-simple-firewall' );
-				$desc = __( 'Enable or disable the ability to log and monitor requests to your site', 'wp-simple-firewall' );
+				$desc = [__( 'Enable or disable the ability to log and monitor requests to your site', 'wp-simple-firewall' )];
 				break;
 
 			case 'type_exclusions' :
@@ -107,13 +107,13 @@ class Strings extends Base\Strings {
 			case 'auto_clean' :
 				$name = __( 'Auto Expiry Cleaning', 'wp-simple-firewall' );
 				$summary = __( 'Enable Traffic Log Auto Expiry', 'wp-simple-firewall' );
-				$desc = __( 'DB cleanup will delete logs older than this maximum value (in days).', 'wp-simple-firewall' );
+				$desc = [__( 'DB cleanup will delete logs older than this maximum value (in days).', 'wp-simple-firewall' )];
 				break;
 
 			case 'enable_limiter' :
 				$name = __( 'Enable Rate Limiting', 'wp-simple-firewall' );
 				$summary = __( 'Turn On The Rate Limiting Feature', 'wp-simple-firewall' );
-				$desc = __( 'Enable or disable the rate limiting feature according to your rate limiting parameters.', 'wp-simple-firewall' );
+				$desc = [__( 'Enable or disable the rate limiting feature according to your rate limiting parameters.', 'wp-simple-firewall' )];
 				break;
 
 			case 'limit_requests' :

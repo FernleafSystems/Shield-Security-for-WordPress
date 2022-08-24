@@ -67,7 +67,7 @@ class Strings extends Base\Strings {
 					__( 'User lost password request blocked.', 'wp-simple-firewall' ),
 				],
 			],
-			'block_checkout' => [
+			'block_checkout'     => [
 				'name'  => __( 'Checkout Blocked', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'User attempting checkout request blocked.', 'wp-simple-firewall' ),
@@ -173,7 +173,7 @@ class Strings extends Base\Strings {
 			case 'enable_login_protect' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName );
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 
 			case 'rename_wplogin_path' :
@@ -205,7 +205,7 @@ class Strings extends Base\Strings {
 			case 'enable_chained_authentication' :
 				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Multi-Factor Authentication', 'wp-simple-firewall' ) );
 				$summary = __( 'Require All Active Authentication Factors', 'wp-simple-firewall' );
-				$desc = __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' );
+				$desc = [ __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'mfa_verify_page' :
@@ -232,7 +232,7 @@ class Strings extends Base\Strings {
 			case 'mfa_skip' :
 				$name = __( '2FA Remember Me', 'wp-simple-firewall' );
 				$summary = __( 'A User Can Bypass 2FA For The Set Number Of Days', 'wp-simple-firewall' );
-				$desc = __( 'The number of days a user can bypass 2FA after a successful 2FA. 0 to disable.', 'wp-simple-firewall' );
+				$desc = [ __( 'The number of days a user can bypass 2FA after a successful 2FA. 0 to disable.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'allow_backupcodes' :
@@ -247,19 +247,19 @@ class Strings extends Base\Strings {
 			case 'enable_google_authenticator' :
 				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) );
 				$summary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
-				$desc = __( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' );
+				$desc = [ __( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'enable_email_authentication' :
 				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
 				$summary = sprintf( __( 'Two-Factor Login Authentication By %s', 'wp-simple-firewall' ), __( 'Email', 'wp-simple-firewall' ) );
-				$desc = __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' );
+				$desc = [ __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'email_any_user_set' :
 				$name = __( 'Allow Any User', 'wp-simple-firewall' );
 				$summary = __( 'Allow Any User To Turn-On Two-Factor Authentication By Email.', 'wp-simple-firewall' );
-				$desc = __( 'Any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' );
+				$desc = [ __( 'Any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'two_factor_auth_user_roles' :
@@ -280,10 +280,12 @@ class Strings extends Base\Strings {
 					'Please use the newer AntiBot setting above',
 					__( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' )
 				);
-				$desc = __( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
-						.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
-						.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
-						.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
+				$desc = [
+					__( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ),
+					sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) ),
+					sprintf( '<strong>%s - %s</strong>', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'enable_antibot_check' :
@@ -339,16 +341,18 @@ class Strings extends Base\Strings {
 			case 'login_limit_interval' :
 				$name = __( 'Cooldown Period', 'wp-simple-firewall' );
 				$summary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
-				$desc = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
-						.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
-						.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getOptions()
-																							->getOptDefault( 'login_limit_interval' ) );
+				$desc = [
+					__( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' ),
+					__( 'Zero (0) turns this off.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),
+						$this->getOptions()->getOptDefault( 'login_limit_interval' ) )
+				];
 				break;
 
 			case 'enable_user_register_checking' :
 				$name = __( 'User Registration', 'wp-simple-firewall' );
 				$summary = __( 'Apply Brute Force Protection To User Registration And Lost Passwords', 'wp-simple-firewall' );
-				$desc = __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' );
+				$desc = [ __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'enable_u2f' :
@@ -363,7 +367,7 @@ class Strings extends Base\Strings {
 			case 'enable_yubikey' :
 				$name = __( 'Allow Yubikey OTP', 'wp-simple-firewall' );
 				$summary = __( 'Allow Yubikey Registration For One Time Passwords', 'wp-simple-firewall' );
-				$desc = __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' );
+				$desc = [ __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'yubikey_app_id' :
@@ -378,38 +382,39 @@ class Strings extends Base\Strings {
 			case 'yubikey_api_key' :
 				$name = __( 'Yubikey API Key', 'wp-simple-firewall' );
 				$summary = __( 'Your Unique Yubikey App API Key', 'wp-simple-firewall' );
-				$desc = __( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.', 'wp-simple-firewall' )
-						.'<br />'.__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.', 'wp-simple-firewall' ),
+					__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'yubikey_unique_keys' :
 				$name = __( 'Yubikey Unique Keys', 'wp-simple-firewall' );
 				$summary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
-				$desc = '<strong>'.sprintf( '%s: %s', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ).'</strong>'
-						.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
-						.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
-						.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' );
+				$desc = [
+					sprintf( '<strong>%s: %s</strong>', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' )
+					.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
+					.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
+					.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'text_imahuman' :
 				$name = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
 				$summary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
-				$desc = __( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_imahuman' ) );
+				$desc = [
+					__( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_imahuman' ) )
+				];
 				break;
 
 			case 'text_pleasecheckbox' :
 				$name = __( 'GASP Alert Text', 'wp-simple-firewall' );
 				$summary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
-				$desc = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
-						.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_pleasecheckbox' ) );
-				break;
-
-			// removed 9.0
-			case 'enable_antibot_js' :
-				$name = __( 'AntiBot JS', 'wp-simple-firewall' );
-				$summary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
-				$desc = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
+				$desc = [
+					__( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $mod->getTextOptDefault( 'text_pleasecheckbox' ) )
+				];
 				break;
 
 			default:

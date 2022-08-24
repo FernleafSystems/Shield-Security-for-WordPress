@@ -23,7 +23,7 @@
 				  {% if component.href is empty %}
 					  <span
 				  {% else %}
-					  <a href="{{ component.href }}" target="_blank"
+					  <a href="{{ component.href }}" {% if component.new_window %}target="_blank"{% endif %}
 				  {% endif %}
 				  class="meter-analysis-link list-group-item list-group-item-action
 					     {{ component.is_critical|default(false) ? 'list-group-item-danger' : (component.protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
@@ -42,7 +42,8 @@
 									  </span>
 								  {% else %}
 									  <span class="badge bg-secondary text-white ">
-										 &plus;{{ component.score_as_percent }}/{{ component.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
+										 &plus;{{ component.score_as_percent }}/{{ component.weight_as_percent|default(0) }}<small
+												  style="font-size: xx-small;">pts</small>
 									  </span>
 								  {% endif %}
 							  </div>

@@ -11,7 +11,7 @@
 		{% for opt_sect_key,opt_section in vars.all_options %}
 			<li class="nav-item">
 				<a data-bs-target="#tab-{{ opt_section.slug }}"
-				   class="force-cursor-pointer nav-link {{ opt_section.primary ? 'active' : '' }}"
+				   class="force-cursor-pointer nav-link {{ opt_section.is_focus ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
 				   id="tab-navlink-{{ opt_section.slug }}"
 				   data-bs-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
@@ -24,7 +24,8 @@
 
 	<div class="tab-content container-fluid">
 		{% for opt_section in vars.all_options %}
-			<div class="tab-pane {{ opt_section.primary ? 'active show primary_section' : 'non_primary_section' }}"
+			<div class="tab-pane {% if opt_section.slug == vars.focus_section %}active show{% endif %}
+"
 			     role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">

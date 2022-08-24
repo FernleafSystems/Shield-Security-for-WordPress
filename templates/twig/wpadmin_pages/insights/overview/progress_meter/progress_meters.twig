@@ -48,7 +48,7 @@
 			      </div>
 			      <div class="card-footer">
 				      <a class="btn {% if meter.has_critical|default(false) %}btn-danger{% elseif meter.totals.percentage > 50 %}btn-success{% else %}btn-warning{% endif %}"
-				         href="javascript:{iCWP_WPSF_ProgressMeters.renderAnalysis('{{ meter_slug }}')}"
+				         href="javascript:{iCWP_WPSF_OffCanvas.renderMeterAnalysis('{{ meter_slug }}')}"
 				         aria-controls="ShieldProgressMeterOffcanvas">
 								<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
 					      {{ strings.analysis }}
@@ -60,12 +60,4 @@
       </div>
     </div>
 	{% endfor %}
-</div>
-
-<div class="offcanvas offcanvas-end meter-analysis"
-     id="ShieldProgressMeterOffcanvas"
-     data-bs-scroll="true" data-bs-backdrop="true"
-     tabindex="-1"
-     aria-labelledby="offcanvasExampleLabel"
-     style="z-index: 1000000000">
 </div>

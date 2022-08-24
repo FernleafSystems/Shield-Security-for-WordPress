@@ -306,13 +306,13 @@ class Strings extends Base\Strings {
 			case 'enable_wpcli' :
 				$name = __( 'Allow WP-CLI', 'wp-simple-firewall' );
 				$summary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
-				$desc = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
+				$desc = [ __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'delete_on_deactivate' :
 				$name = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
 				$summary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );
-				$desc = __( 'Careful: Removes all plugin options when you deactivate the plugin', 'wp-simple-firewall' );
+				$desc = [ __( 'Careful: Removes all plugin options when you deactivate the plugin', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'locale_override' :
@@ -359,19 +359,19 @@ class Strings extends Base\Strings {
 			case 'importexport_whitelist_notify' :
 				$name = __( 'Notify Whitelist', 'wp-simple-firewall' );
 				$summary = __( 'Notify Sites On The Whitelist To Update Options From Master', 'wp-simple-firewall' );
-				$desc = __( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site.", 'wp-simple-firewall' );
+				$desc = [ __( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'importexport_secretkey' :
 				$name = __( 'Secret Key', 'wp-simple-firewall' );
 				$summary = __( 'Import/Export Secret Key', 'wp-simple-firewall' );
-				$desc = __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' );
+				$desc = [ __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'unique_installation_id' :
 				$name = __( 'Installation ID', 'wp-simple-firewall' );
 				$summary = __( 'Unique Plugin Installation ID', 'wp-simple-firewall' );
-				$desc = __( 'Keep this ID private.', 'wp-simple-firewall' );
+				$desc = [ __( 'Keep this ID private.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'captcha_provider' :
@@ -408,7 +408,7 @@ class Strings extends Base\Strings {
 			case 'google_recaptcha_style' :
 				$name = __( 'CAPTCHA Style', 'wp-simple-firewall' );
 				$summary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
-				$desc = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
+				$desc = [ __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' ) ];
 				break;
 
 			default:

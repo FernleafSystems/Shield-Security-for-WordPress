@@ -16,7 +16,7 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->iputil();
+		$this->tests();
 		die( 'finish' );
 	}
 

@@ -64,14 +64,14 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$sModName = $this->getMod()->getMainFeatureName();
+		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $key ) {
 
 			case 'enable_sessions' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
+				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
+				$desc = [sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName )];
 				break;
 
 			default:
@@ -79,9 +79,9 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'name'        => $sName,
-			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'name'        => $name,
+			'summary'     => $summary,
+			'description' => $desc,
 		];
 	}
 }
