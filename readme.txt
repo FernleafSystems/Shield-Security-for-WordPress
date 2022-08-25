@@ -8,19 +8,23 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.0
-Stable tag: 16.0.1
+Stable tag: 16.0.2
 
-Bad Bots Are Your #1 Security Risk. Malware is a symptom of poor security, not the cause. Discover the advantage of powerful security over marketing.
+Bad Bots Are Your #1 Security Risk. If you have malware your security plugin isn't working. Discover the security-before-marketing advantage.
 
 == Description ==
 
-**It's time to stop our obsession with malware**. Malware scanning is important *after* you're hacked. Get a security plugin that [prioritises security *protection* before "malware marketing"](https://shsec.io/ky).
+Shield is [now partnered with CrowdSec](https://shsec.io/l5) for global, crowd-sourced IP reputation data. You literally can't get this level of protection anywhere else.
 
-**No-Nonsense, No-Hype. Just Good Security Protection**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive invisble "CAPTCHA" technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
+**We need to stop our obsession with malware**. Malware scanning is important *after* your site is hacked. Get a security plugin that [prioritises security *protection* before the worst happens](https://shsec.io/ky).
 
-**Performance is critical**. Shield Security automatically blocks bad IP addresses while optimising performance so your WordPress site never slows down because of bloated security, with large IP lookup tables .
+Shield is the only security plugin for WordPress that fully prioritises protection over repair. Who cares about malware when you can stop it before it even happens?
 
-**Use the power of the network**. ShieldNET is our new and exclusive network-based intelligence platform that draws-in information from all around the globe to help Shield Security plugins be smarter when assessing security threats and taking appropriate action.
+**No-Hype. No Scary Marketing. Just Great Security**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive invisible "CAPTCHA"-replacement technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
+
+Our mission is to block bad IPs and requests before they can do any damage. Shield will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current solution, give Shield a try - we promise that you won't be disappointed.
+
+**Use the power of the network**. ShieldNET is our new and exclusive network-based intelligence platform that draws-in information from all around the globe to help Shield Security plugins be smarter when assessing security threats and taking appropriate action. And with our new [Crowdsec partnership](https://shsec.io/l5) you've got even more data.
 
 #### Get the highest rated 5* Security Plugin for WordPress
 
