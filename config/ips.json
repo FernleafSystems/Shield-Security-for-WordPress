@@ -288,7 +288,7 @@
       ],
       "link_info":     "",
       "link_blog":     "",
-      "beacon_id":     0,
+      "beacon_id":     471,
       "name":          "CrowdSec IP Blocking",
       "summary":       "How To Handle Requests From IPs Found On CrowdSec Blocklist",
       "description":   "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
@@ -302,7 +302,7 @@
       "type":        "text",
       "link_info":   "",
       "link_blog":   "",
-      "beacon_id":   0,
+      "beacon_id":   471,
       "name":        "Enroll ID",
       "summary":     "CrowdSec Enroll ID",
       "description": "CrowdSec Enroll ID."
