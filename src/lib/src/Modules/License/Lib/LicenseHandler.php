@@ -200,7 +200,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public function verify( bool $onDemand = false ) {
+	public function verify( bool $onDemand = false, bool $scheduleAnyway = false ) {
 		if ( $this->canCheck() ) {
 			if ( $onDemand ) {
 				Services::WpCron()->deleteCronJob( $this->getCon()->prefix( 'adhoc_cron_license_check' ) );
@@ -208,7 +208,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 					->setMod( $this->getMod() )
 					->run();
 			}
-			elseif ( $this->isVerifyRequired() ) {
+			elseif ( $scheduleAnyway || $this->isVerifyRequired() ) {
 				$this->scheduleAdHocCheck( rand( MINUTE_IN_SECONDS, MINUTE_IN_SECONDS*30 ) );
 			}
 		}
