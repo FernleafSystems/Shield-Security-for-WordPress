@@ -26,7 +26,9 @@ class Upgrade extends ExecOnceModConsumer {
 	protected function upgradeModule() {
 		$con = $this->getCon();
 		$previous = $con->cfg->previous_version;
-		foreach ( $con->cfg->version_upgrades as $version ) {
+		$upgrades = $con->cfg->version_upgrades;
+		asort( $upgrades );
+		foreach ( $upgrades as $version ) {
 			$upgradeMethod = 'upgrade_'.str_replace( '.', '', $version );
 			if ( version_compare( $previous, $version, '<' ) && method_exists( $this, $upgradeMethod ) ) {
 				$this->{$upgradeMethod}();
