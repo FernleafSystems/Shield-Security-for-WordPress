@@ -48,6 +48,7 @@ class RenderOptionsForm {
 								   ->build(),
 							   'focus_option'  => $focusOption,
 							   'focus_section' => $focusSection,
+							   'form_context'  => $auxParams[ 'context' ] ?? 'normal'
 						   ],
 						   'flags' => [
 						   ],

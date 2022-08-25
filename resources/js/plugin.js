@@ -126,6 +126,7 @@ iCWP_WPSF_Toaster.initialise();
 
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
+	let $form;
 	let workingData;
 	let requestRunning = false;
 
@@ -143,7 +144,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	 * This works around mod_security rules that even unpack b64 encoded params and look
 	 * for patterns within them.
 	 */
-	var sendForm = function ( $form, useCompression = false ) {
+	var sendForm = function ( useCompression = false ) {
 
 		let formData = $form.serialize();
 		if ( useCompression ) {
@@ -165,6 +166,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 		);
 
+		iCWP_WPSF_BodyOverlay.show();
 		jQuery.ajax(
 			{
 				type: "POST",
@@ -181,11 +183,12 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			}
 			else {
 				iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
-				sendForm( $form, true );
+				sendForm( true );
 			}
 
 		} ).always( function () {
 			requestRunning = false;
+			iCWP_WPSF_BodyOverlay.hide();
 		} );
 	};
 
@@ -202,13 +205,16 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
 
 		setTimeout( function () {
-			// window.location.replace( response.data.redirect_to );
-			window.location.reload();
+			if ( $form.data('context') === 'offcanvas' ) {
+				iCWP_WPSF_OffCanvas.closeCanvas();
+			}
+			else {
+				window.location.reload();
+			}
 		}, 1000 );
 	};
 
 	let submitOptionsForm = function ( event ) {
-		iCWP_WPSF_BodyOverlay.show();
 
 		if ( requestRunning ) {
 			return false;
@@ -216,9 +222,9 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		requestRunning = true;
 		event.preventDefault();
 
-		let $form = jQuery( this );
+		$form = jQuery( this );
 
-		var $passwordsReady = true;
+		let $passwordsReady = true;
 		jQuery( 'input[type=password]', $form ).each( function () {
 			let $pass = jQuery( this );
 			let $confirm = jQuery( '#' + $pass.attr( 'id' ) + '_confirm', $form );
@@ -232,7 +238,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		} );
 
 		if ( $passwordsReady ) {
-			sendForm( $form, false );
+			sendForm( false );
 		}
 	};
 
@@ -422,6 +428,10 @@ let iCWP_WPSF_OffCanvas = new function () {
 			offcanvas_type: 'meter_analysis',
 			meter: meter
 		} );
+	};
+
+	this.closeCanvas = function () {
+		bsCanvas.hide();
 	};
 
 	this.initialise = function ( workingData ) {
