@@ -53,6 +53,7 @@ class OffCanvas extends DynPropertiesClass {
 					'aux_params'   => [
 						'focus_item'      => $configItem,
 						'focus_item_type' => $itemType,
+						'context'         => 'offcanvas',
 					],
 				]
 			] );

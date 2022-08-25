@@ -15,7 +15,7 @@
         "pro_only":    false,
         "title":       "CrowdSec Partnership",
         "description": [
-          "Shield Security and CrowdSec are now in partnership to deliver powerful IP block lists to WordPress sites."
+          "Shield Security and CrowdSec are now partnered to deliver powerful IP block lists to WordPress sites."
         ],
         "href":        "https://shsec.io/l0"
       },
@@ -36,7 +36,8 @@
           "There is now the option to log custom events to Shield's Activity Log.",
           "It's impossible that Shield can log every possibly event for every plugin and scenario, so you can now add logging for all your desired site events.",
           "This is an advanced option and will require professional software development experience to implement."
-        ]
+        ],
+        "href":        "https://shsec.io/l3"
       },
       {
         "type":        "new",
@@ -72,7 +73,7 @@
         "description": [
           "A new option is provided to allow easy access to beta version of the Shield Security plugin."
         ],
-        "href":        "https://help.getshieldsecurity.com/article/472--"
+        "href":        "https://shsec.io/l4"
       },
       {
         "type":        "improved",

@@ -16,7 +16,7 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->tests();
+		$this->crowdsec();
 		die( 'finish' );
 	}
 
@@ -45,6 +45,10 @@ class Debug extends Modules\Base\Debug {
 		$csCon = $modIPs->getCrowdSecCon();
 
 		try {
+			$res = $this->getCon()
+						 ->getModule_License()
+						 ->getLicenseHandler()
+						 ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 			$res = ( new Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs() )
 				->setMod( $modIPs )
 				->duplicates();
