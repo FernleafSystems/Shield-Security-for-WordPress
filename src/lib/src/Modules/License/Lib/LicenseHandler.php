@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Plugin\Shield\License\{
+	EddLicenseVO,
+	ShieldLicense
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
@@ -112,9 +115,13 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		return (int)$this->getOptions()->getOpt( 'license_deactivated_at' );
 	}
 
-	public function getLicense() :EddLicenseVO {
+	/**
+	 * @return EddLicenseVO|ShieldLicense
+	 */
+	public function getLicense() {
 		$data = $this->getOptions()->getOpt( 'license_data', [] );
-		return ( new EddLicenseVO() )->applyFromArray( is_array( $data ) ? $data : [] );
+		$lic = class_exists( 'ShieldLicense' ) ? new ShieldLicense() : new EddLicenseVO();
+		return $lic->applyFromArray( is_array( $data ) ? $data : [] );
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {

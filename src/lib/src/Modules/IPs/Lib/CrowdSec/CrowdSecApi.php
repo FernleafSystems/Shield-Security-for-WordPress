@@ -110,7 +110,7 @@ class CrowdSecApi {
 			$csAuth = [
 				'url'        => $siteURL,
 				'machine_id' => $machineID,
-				'password'   => wp_generate_password( 48, true ),
+				'password'   => wp_generate_password( 48 ),
 			];
 		}
 
@@ -190,7 +190,7 @@ class CrowdSecApi {
 				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
 			}
 			catch ( Exceptions\MachineLoginFailedException $e ) {
-				$newPassword = wp_generate_password( 48, true );
+				$newPassword = wp_generate_password( 48 );
 				$resetSuccess = ( new Api\MachinePasswordReset() )->run( $csAuth[ 'machine_id' ], $newPassword );
 				if ( $resetSuccess ) {
 					$csAuth[ 'password' ] = $newPassword;
@@ -257,10 +257,10 @@ class CrowdSecApi {
 	}
 
 	private function getScenarios() :array {
-		$scenarios = ( new RetrieveScenarios() )
-			->setMod( $this->getMod() )
-			->retrieve();
-
+		$scenarios = $this->getCon()
+						  ->getModule_License()
+						  ->getLicenseHandler()
+						  ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 		if ( $this->getCon()->isPremiumActive() ) {
 			$filteredScenarios = apply_filters( 'shield/crowdsec_login_scenarios', $scenarios );
 			if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {

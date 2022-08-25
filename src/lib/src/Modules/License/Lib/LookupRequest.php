@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
@@ -12,7 +12,7 @@ class LookupRequest {
 
 	use ModConsumer;
 
-	public function lookup() :EddLicenseVO {
+	public function lookup() :ShieldLicense {
 		$con = $this->getCon();
 		$opts = $this->getOptions();
 
@@ -30,6 +30,6 @@ class LookupRequest {
 		];
 		$license = $lookup->lookup();
 
-		return ( new EddLicenseVO() )->applyFromArray( $license->getRawData() );
+		return ( new ShieldLicense() )->applyFromArray( $license->getRawData() );
 	}
 }
