@@ -127,7 +127,20 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					$success = true;
 				}
 				catch ( \Exception $e ) {
-					$html = 'error rendering';
+					$html = 'error rendering: '.$e->getMessage();
+					$success = false;
+				}
+				break;
+
+			case 'ip_analysis':
+				try {
+					$html = ( new Shield\Modules\Insights\Lib\Requests\OffCanvas() )
+						->setMod( $this->getCon()->getModule_Insights() )
+						->ipAnalysis( $req->post( 'ip' ) );
+					$success = true;
+				}
+				catch ( \Exception $e ) {
+					$html = $e->getMessage();
 					$success = false;
 				}
 				break;

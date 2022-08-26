@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Requests;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class OffCanvas extends DynPropertiesClass {
@@ -10,6 +11,32 @@ class OffCanvas extends DynPropertiesClass {
 	use ModConsumer;
 
 	private $params = [];
+
+	private function renderOffCanvas( string $title, string $body ) :string {
+		return $this->getMod()
+					->getRenderer()
+					->setTemplate( '/components/html/offcanvas_content.twig' )
+					->setRenderData( [
+						'content' => [
+							'canvas_title' => $title,
+							'canvas_body'  => $body,
+						]
+					] )
+					->render();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function ipAnalysis( string $ip ) :string {
+		return $this->renderOffCanvas(
+			sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $ip ),
+			( new BuildDisplay() )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->setIP( $ip )
+				->run()
+		);
+	}
 
 	/**
 	 * @throws \Exception
@@ -58,15 +85,6 @@ class OffCanvas extends DynPropertiesClass {
 				]
 			] );
 
-		return $this->getMod()
-					->getRenderer()
-					->setTemplate( '/components/html/offcanvas_content.twig' )
-					->setRenderData( [
-						'content' => [
-							'canvas_title' => $content[ 'page_title' ],
-							'canvas_body'  => $content[ 'html' ],
-						]
-					] )
-					->render();
+		return $this->renderOffCanvas( $content[ 'page_title' ], $content[ 'html' ] );
 	}
 }

@@ -24,26 +24,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 let iCWP_WPSF_Modals = new function () {
 	let workingData = {};
 
-	this.renderModalIpAnalysis = function ( ip ) {
-		iCWP_WPSF_BodyOverlay.show();
-		let reqData = workingData.modal_ip_analysis.ajax.render_ip_analysis;
-		reqData.ip = ip;
-		jQuery.ajax(
-			{
-				type: "POST",
-				url: ajaxurl,
-				data: reqData,
-				dataType: "json",
-				success: function ( raw ) {
-					iCWP_WPSF_Modals.display( raw.data );
-				},
-			}
-		).fail( function () {
-		} ).always( function () {
-			iCWP_WPSF_BodyOverlay.hide();
-		} );
-	};
-
 	this.renderModalIpAdd = function ( params = [] ) {
 		iCWP_WPSF_BodyOverlay.show();
 		jQuery.ajax( {
@@ -84,9 +64,9 @@ let iCWP_WPSF_Modals = new function () {
 	};
 
 	this.initialise = function () {
-		jQuery( document ).on( 'click', '.modal_ip_analysis', function ( evt ) {
+		jQuery( document ).on( 'click', '.render_ip_analysis', function ( evt ) {
 			evt.preventDefault();
-			iCWP_WPSF_Modals.renderModalIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+			iCWP_WPSF_OffCanvas.renderIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
 			return false;
 		} );
 	};
@@ -205,7 +185,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
 
 		setTimeout( function () {
-			if ( $form.data('context') === 'offcanvas' ) {
+			if ( $form.data( 'context' ) === 'offcanvas' ) {
 				iCWP_WPSF_OffCanvas.closeCanvas();
 			}
 			else {
@@ -379,10 +359,32 @@ let iCWP_WPSF_OffCanvas = new function () {
 	let $offCanvas;
 	let bsCanvas;
 	let allTypes = [
+		'ip_analysis',
 		'meter_analysis',
 		'mod_config'
 	];
 	let canvasTracker = [];
+
+	this.renderConfig = function ( config_item ) {
+		this.renderCanvas( {
+			offcanvas_type: 'mod_config',
+			config_item: config_item
+		} );
+	};
+
+	this.renderIpAnalysis = function ( ip ) {
+		this.renderCanvas( {
+			offcanvas_type: 'ip_analysis',
+			ip: ip
+		} );
+	};
+
+	this.renderMeterAnalysis = function ( meter ) {
+		this.renderCanvas( {
+			offcanvas_type: 'meter_analysis',
+			meter: meter
+		} );
+	};
 
 	this.renderCanvas = function ( canvasProperties ) {
 		iCWP_WPSF_BodyOverlay.show();
@@ -414,20 +416,6 @@ let iCWP_WPSF_OffCanvas = new function () {
 				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
-	};
-
-	this.renderConfig = function ( config_item ) {
-		this.renderCanvas( {
-			offcanvas_type: 'mod_config',
-			config_item: config_item
-		} );
-	};
-
-	this.renderMeterAnalysis = function ( meter ) {
-		this.renderCanvas( {
-			offcanvas_type: 'meter_analysis',
-			meter: meter
-		} );
 	};
 
 	this.closeCanvas = function () {
@@ -507,8 +495,7 @@ jQueryDoc.ready( function () {
 	}
 
 	iCWP_WPSF_Modals.initialise();
-	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_analysis !== 'undefined' ) {
-		iCWP_WPSF_Modals.setData( 'modal_ip_analysis', icwp_wpsf_vars_ips.components.modal_ip_analysis );
+	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_rule_add !== 'undefined' ) {
 		iCWP_WPSF_Modals.setData( 'modal_ip_rule_add', icwp_wpsf_vars_ips.components.modal_ip_rule_add );
 
 		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
@@ -572,7 +559,7 @@ jQueryDoc.ready( function () {
 		let optResultData = evt.params.data;
 
 		if ( optResultData.ip ) {
-			iCWP_WPSF_Modals.renderModalIpAnalysis( optResultData.ip );
+			iCWP_WPSF_OffCanvas.renderIpAnalysis( optResultData.ip );
 		}
 		else if ( optResultData.new_window ) {
 			window.open( evt.params.data.href );

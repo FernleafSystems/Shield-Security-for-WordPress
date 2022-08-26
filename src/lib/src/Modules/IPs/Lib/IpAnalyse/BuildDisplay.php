@@ -382,7 +382,7 @@ class BuildDisplay {
 
 		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig', [
 			'strings' => [
-				'title'      => __( 'Audit Log Entries', 'wp-simple-firewall' ),
+				'title'      => __( 'Recent Activity Log', 'wp-simple-firewall' ),
 				'no_logs'    => __( 'No logs at this IP', 'wp-simple-firewall' ),
 				'username'   => __( 'Username', 'wp-simple-firewall' ),
 				'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),

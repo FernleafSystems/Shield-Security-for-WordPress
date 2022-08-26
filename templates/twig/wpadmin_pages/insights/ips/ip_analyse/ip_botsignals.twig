@@ -1,18 +1,21 @@
-<h6 class="card-title">
+<h5 class="card-title">
 	{{ strings.title }}
 	<span class="badge bg-info">{{ vars.total_signals }}</span>
-</h6>
+</h5>
+
 {% if not flags.has_signals %}
-	<div class="alert-info alert">{{ strings.no_signals }}</div>
+	<div class="alert-secondary alert">{{ strings.no_signals }}</div>
 {% else %}
-	<div class="overflow_container">
-		<p>
+	<div class="">
+
+		<p class="my-2">
 		{{ strings.total_score }}:
 			<span class="badge bg-{{ vars.total_score > 0 ? 'success':'danger' }}">
 				{{ vars.total_score }}
 			</span>
 			/ {{ strings.bot_probability }}: {{ vars.probability }}&percnt;
 		</p>
+
 		<table class="table">
 			<thead class="thead-light">
 			<tr>
