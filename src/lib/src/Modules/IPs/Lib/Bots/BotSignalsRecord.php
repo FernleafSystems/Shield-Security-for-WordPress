@@ -32,7 +32,12 @@ class BotSignalsRecord {
 			unset( $thisReq->botsignal_record );
 		}
 
-		return $select->filterByIP( $this->getIPRecord()->id )->query();
+		try {
+			return $select->filterByIP( $this->getIPRecord()->id )->query();
+		}
+		catch ( \Exception $e ) {
+			return false;
+		}
 	}
 
 	public function retrieveNotBotAt() :int {
@@ -65,37 +70,40 @@ class BotSignalsRecord {
 		$r = $this->dbLoad();
 		if ( empty( $r ) ) {
 			$r = new BotSignalRecord();
-			$r->ip_ref = $this->getIPRecord()->id;
+			try {
+				$r->ip_ref = $this->getIPRecord()->id;
+			}
+			catch ( \Exception $e ) {
+				$r->ip_ref = -1;
+			}
 		}
 
 		$ruleStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $this->getMod() );
 		if ( $ruleStatus->hasRules() ) {
-			if ( empty( $r->bypass_at ) && $ruleStatus->isBypass() ) {
+			if ( $r->bypass_at === 0 && $ruleStatus->isBypass() ) {
 				/** @var IpRuleRecord $ruleRecord */
 				$ruleRecord = current( $ruleStatus->getRulesForBypass() );
 				$r->bypass_at = $ruleRecord->created_at;
 			}
-			if ( empty( $r->offense_at ) && $ruleStatus->isAutoBlacklisted() ) {
+			if ( $r->offense_at === 0 && $ruleStatus->isAutoBlacklisted() ) {
 				$r->offense_at = $ruleStatus->getRuleForAutoBlock()->last_access_at;
 			}
-			if ( $ruleStatus->isBlocked() ) {
-				/** @var IpRuleRecord $ruleRecord */
-				$ruleRecord = current( $ruleStatus->getRulesForBlock() );
-				$r->blocked_at = $ruleRecord->blocked_at;
-				$r->unblocked_at = 0;
-			}
-			else {
-				// TODO: $r->unblocked_at = 0;
+
+			/** @var IpRuleRecord $blockedRuleRecord */
+			$blockedRuleRecord = current( $ruleStatus->getRulesForBlock() );
+			if ( !empty( $blockedRuleRecord ) ) {
+				$r->blocked_at = $ruleStatus->isBlocked();
+				$r->unblocked_at = $blockedRuleRecord->unblocked_at;
 			}
 		}
 
-		if ( empty( $r->notbot_at ) && $thisReq->ip === $this->getIP() ) {
+		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
 			$r->notbot_at = $mod->getBotSignalsController()
 								->getHandlerNotBot()
 								->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
-		if ( empty( $r->auth_at ) ) {
+		if ( $r->auth_at === 0 && $r->ip_ref > 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
 			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
@@ -108,7 +116,7 @@ class BotSignalsRecord {
 			}
 		}
 
-		if ( $storeOnLoad ) {
+		if ( $storeOnLoad && $r->ip_ref > 0 ) {
 			$this->store( $r );
 		}
 
@@ -136,7 +144,7 @@ class BotSignalsRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		if ( empty( $record->id ) ) {
+		if ( !isset( $record->id ) ) {
 			$success = $mod->getDbH_BotSignal()
 						   ->getQueryInserter()
 						   ->insert( $record );
@@ -177,9 +185,12 @@ class BotSignalsRecord {
 		return $record;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function getIPRecord() :IPs\Ops\Record {
 		return ( new IPs\IPRecords() )
 			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP() );
+			->loadIP( $this->getIP(), false );
 	}
 }

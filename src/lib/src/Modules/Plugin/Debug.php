@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -47,9 +48,6 @@ class Debug extends Modules\Base\Debug {
 						->getModule_License()
 						->getLicenseHandler()
 						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
-			$res = ( new Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs() )
-				->setMod( $modIPs )
-				->duplicates();
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
 //			var_dump( $csCon->getApi()->getAuthStatus() );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
