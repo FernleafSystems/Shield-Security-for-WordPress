@@ -70,7 +70,7 @@ class BuildDisplay {
 		$geo = ( new Lookup() )
 			->setCon( $con )
 			->setIP( $ip )
-			->lookupIp();
+			->lookup();
 
 		$rDNS = gethostbyaddr( $ip );
 		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
@@ -308,21 +308,23 @@ class BuildDisplay {
 			$record = null;
 		}
 
-		foreach ( $scores as $scoreKey => $scoreValue ) {
-			$column = $scoreKey.'_at';
-			if ( $scoreValue !== 0 ) {
-				if ( empty( $record ) || empty( $record->{$column} ) ) {
-					if ( in_array( $scoreKey, [ 'known', 'created' ] ) ) {
-						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
+		if ( !empty( $record ) && $record->ip_ref >= 0 ) {
+			foreach ( $scores as $scoreKey => $scoreValue ) {
+				$column = $scoreKey.'_at';
+				if ( $scoreValue !== 0 ) {
+					if ( empty( $record ) || empty( $record->{$column} ) ) {
+						if ( in_array( $scoreKey, [ 'known', 'created' ] ) ) {
+							$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
+						}
+						else {
+							$signals[ $scoreKey ] = __( 'Never Recorded', 'wp-simple-firewall' );
+						}
 					}
 					else {
-						$signals[ $scoreKey ] = __( 'Never Recorded', 'wp-simple-firewall' );
+						$signals[ $scoreKey ] = Services::Request()
+														->carbon()
+														->setTimestamp( $record->{$column} )->diffForHumans();
 					}
-				}
-				else {
-					$signals[ $scoreKey ] = Services::Request()
-													->carbon()
-													->setTimestamp( $record->{$column} )->diffForHumans();
 				}
 			}
 		}
@@ -382,7 +384,7 @@ class BuildDisplay {
 
 		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig', [
 			'strings' => [
-				'title'      => __( 'Audit Log Entries', 'wp-simple-firewall' ),
+				'title'      => __( 'Recent Activity Log', 'wp-simple-firewall' ),
 				'no_logs'    => __( 'No logs at this IP', 'wp-simple-firewall' ),
 				'username'   => __( 'Username', 'wp-simple-firewall' ),
 				'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),

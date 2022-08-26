@@ -28,10 +28,7 @@ abstract class BaseApi extends DynPropertiesClass {
 	protected function sendReq() {
 		$httpReq = Services::HttpRequest();
 
-		$reqParams = [
-			'timeout' => $this->timeout,
-			'headers' => $this->headers,
-		];
+		$reqParams = $this->getRequestParams();
 
 		switch ( $this->request_method ) {
 
@@ -64,6 +61,13 @@ abstract class BaseApi extends DynPropertiesClass {
 
 	protected function getApiRequestUrl() :string {
 		return sprintf( '%s/v%s/%s', $this->lookup_url_stub, $this->api_version, static::API_ACTION );
+	}
+
+	protected function getRequestParams() :array {
+		return [
+			'timeout' => $this->timeout,
+			'headers' => $this->headers,
+		];
 	}
 
 	/**

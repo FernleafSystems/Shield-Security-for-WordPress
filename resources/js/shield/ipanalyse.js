@@ -1,6 +1,16 @@
 jQuery.fn.icwpWpsfIpAnalyse = function ( options ) {
 
+	let runAnalysisOnLoad = function () {
+		let theIP = (new URLSearchParams( window.location.search )).get( 'analyse_ip' );
+		if ( theIP ) {
+			iCWP_WPSF_OffCanvas.renderIpAnalysis( theIP );
+		}
+	};
+
 	let initialise = function () {
+
+		runAnalysisOnLoad();
+
 		jQuery( document ).on( 'click', 'a.ip_analyse_action', function ( evt ) {
 			evt.preventDefault();
 			if ( confirm( 'Are you sure?' ) ) {

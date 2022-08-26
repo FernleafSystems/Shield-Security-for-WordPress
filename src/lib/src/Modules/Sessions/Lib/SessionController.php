@@ -98,7 +98,7 @@ class SessionController extends ExecOnceModConsumer {
 							if ( !empty( $userMeta ) ) {
 								$userMeta->record->ip_ref = ( new IPRecords() )
 									->setMod( $this->getCon()->getModule_Data() )
-									->loadIP( $session[ 'ip' ], true )
+									->loadIP( $session[ 'ip' ] )
 									->id;
 							}
 						}

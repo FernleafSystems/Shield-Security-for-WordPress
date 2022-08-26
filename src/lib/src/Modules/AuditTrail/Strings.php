@@ -290,7 +290,7 @@ class Strings extends Base\Strings {
 
 			case 'audit_trail_auto_clean' :
 				$name = __( 'Auto Clean', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Purge Activity Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
 				$description = [
 					__( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' )
 				];

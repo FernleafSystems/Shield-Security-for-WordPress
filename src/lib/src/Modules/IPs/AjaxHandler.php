@@ -17,7 +17,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$map = array_merge( $map, [
 				'iprulestable_action' => [ $this, 'ajaxExec_IpRulesTableAction' ],
 				'ip_analyse_action'   => [ $this, 'ajaxExec_IpAnalyseAction' ],
-				'render_ip_analysis'  => [ $this, 'ajaxExec_RenderIpAnalysis' ],
 				'render_ip_rule_add'  => [ $this, 'ajaxExec_RenderIpRuleAdd' ],
 				'ip_rule_add_form'    => [ $this, 'ajaxExec_ProcessIpRuleAdd' ],
 				'ip_rule_delete'      => [ $this, 'ajaxExec_ProcessIpRuleDelete' ],

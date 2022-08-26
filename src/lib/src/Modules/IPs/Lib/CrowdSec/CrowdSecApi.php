@@ -228,8 +228,8 @@ class CrowdSecApi {
 			$defaultTags = [ 'shield', 'wp', ];
 			$defaultName = preg_replace( '#^http(s)?://#i', '', $siteURL );
 			if ( $this->getCon()->isPremiumActive() ) {
-				$enrollTags = apply_filters( 'shield/crowdsec_enroll_tags', $defaultTags );
-				$enrollName = (string)apply_filters( 'shield/crowdsec_enroll_name', $defaultName );
+				$enrollTags = apply_filters( 'shield/crowdsec/enroll_tags', $defaultTags );
+				$enrollName = (string)apply_filters( 'shield/crowdsec/enroll_name', $defaultName );
 				if ( empty( $enrollName ) ) {
 					$enrollName = $defaultName;
 				}
@@ -262,7 +262,7 @@ class CrowdSecApi {
 						  ->getLicenseHandler()
 						  ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 		if ( $this->getCon()->isPremiumActive() ) {
-			$filteredScenarios = apply_filters( 'shield/crowdsec_login_scenarios', $scenarios );
+			$filteredScenarios = apply_filters( 'shield/crowdsec/login_scenarios', $scenarios );
 			if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
 				$scenarios = $filteredScenarios;
 			}
