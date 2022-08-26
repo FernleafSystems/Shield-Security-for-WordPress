@@ -10,7 +10,7 @@ class Handler {
 	use PluginControllerConsumer;
 
 	public function create( string $action, int $ttl = 0 ) :string {
-		$nonce = hash_hmac( 'sha1', $action, $this->getCon()->getSiteInstallationId() );
+		$nonce = hash_hmac( 'sha1', $action, $this->getCon()->getInstallationID()[ 'id' ] );
 		Transient::Set( 'apto-nonce-'.$action, $nonce, $ttl );
 		return $nonce;
 	}
@@ -18,7 +18,7 @@ class Handler {
 	public function verify( string $action, string $nonce ) :bool {
 		$valid = hash_equals(
 			(string)Transient::Get( 'apto-nonce-'.$action, '' ),
-			hash_hmac( 'sha1', $action, $this->getCon()->getSiteInstallationId() )
+			hash_hmac( 'sha1', $action, $this->getCon()->getInstallationID()[ 'id' ] )
 		);
 		Transient::Delete( 'apto-nonce-'.$action );
 		return $valid;

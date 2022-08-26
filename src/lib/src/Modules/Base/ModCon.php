@@ -432,7 +432,7 @@ abstract class ModCon extends DynPropertiesClass {
 			'mod_slug'   => $this->getModSlug(),
 			'ts'         => Services::Request()->ts(),
 			'exec_nonce' => substr(
-				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getSiteInstallationId() ), 0, 6
+				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getInstallationID()[ 'id' ] ), 0, 6
 			)
 		];
 	}
@@ -455,7 +455,7 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 			else {
 				$valid = $req->request( 'exec_nonce' ) ===
-						 substr( hash_hmac( 'md5', $exec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
+						 substr( hash_hmac( 'md5', $exec.$req->request( 'ts' ), $con->getInstallationID()[ 'id' ] ), 0, 6 );
 			}
 			if ( !$valid ) {
 				throw new \Exception( 'Invalid request' );

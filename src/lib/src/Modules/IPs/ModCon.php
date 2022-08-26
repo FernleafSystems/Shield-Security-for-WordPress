@@ -33,11 +33,6 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $crowdSecCon;
 
-	/**
-	 * @var
-	 */
-	private $ipMigrator;
-
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
 		if ( !isset( $this->botSignalsCon ) ) {
 			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
@@ -75,17 +70,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.0
+	 * @deprecated 16.1
 	 */
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
-	}
-
-	public function onWpInit() {
-		parent::onWpInit();
-		if ( method_exists( $this, 'runIpMigrator' ) ) {
-			$this->ipMigrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
-		}
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -252,27 +240,12 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.0
+	 * @deprecated 16.1
 	 */
 	public function runIpMigrator() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		if ( !isset( $this->ipMigrator ) ) {
-			$this->ipMigrator = ( new Shield\Databases\IPs\QueueReqDbRecordMigrator() )->setMod( $this );
-		}
-
-		if ( ( Services::Request()->ts() - (int)$opts->getOpt( 'tmp_ips_started_at' ) ) > HOUR_IN_SECONDS ) {
-			$opts->setOpt( 'tmp_ips_started_at', Services::Request()->ts() );
-			$this->saveModOptions();
-			if ( $this->getDbHandler_IPs()->getQuerySelector()->count() > 0 ) {
-				$this->ipMigrator->dispatch();
-			}
-		}
 	}
 
 	public function runHourlyCron() {
-		$this->runIpMigrator();
 		( new DB\IpRules\CleanIpRules() )
 			->setMod( $this )
 			->execute();

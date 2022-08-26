@@ -186,7 +186,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return string
 	 */
 	public function getCanEmailVerifyCode() {
-		return strtoupper( substr( $this->getCon()->getSiteInstallationId(), 10, 6 ) );
+		return strtoupper( substr( $this->getCon()->getInstallationID()[ 'id' ], 10, 6 ) );
 	}
 
 	public function isEnabledCaptcha() :bool {

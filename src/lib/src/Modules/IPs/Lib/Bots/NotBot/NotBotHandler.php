@@ -94,11 +94,8 @@ class NotBotHandler extends ExecOnceModConsumer {
 			   && hash_equals( $this->getHashForVisitorTS( (int)$cookie[ 'ts' ] ), $cookie[ 'hash' ] );
 	}
 
-	protected function getHashForVisitorTS( int $timestamp ) {
-		return hash_hmac( 'sha1',
-			$timestamp.$this->getCon()->this_req->ip,
-			$this->getCon()->getSiteInstallationId()
-		);
+	protected function getHashForVisitorTS( int $ts ) {
+		return hash_hmac( 'sha1', $ts.$this->getCon()->this_req->ip, $this->getCon()->getInstallationID()[ 'id' ] );
 	}
 
 	private function getCookieParts() :array {
