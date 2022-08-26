@@ -4,9 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Crowdsec\RetrieveScenarios;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
@@ -46,9 +44,9 @@ class Debug extends Modules\Base\Debug {
 
 		try {
 			$res = $this->getCon()
-						 ->getModule_License()
-						 ->getLicenseHandler()
-						 ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+						->getModule_License()
+						->getLicenseHandler()
+						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 			$res = ( new Modules\IPs\Lib\CrowdSec\Decisions\CleanDecisions_IPs() )
 				->setMod( $modIPs )
 				->duplicates();
