@@ -10,6 +10,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $description
  * @property string   $wp_hook
  * @property int      $wp_hook_level
+ * @property int      $wp_hook_priority
  * @property bool     $result
  * @property bool     $immediate_exec_response
  * @property string[] $flags
@@ -28,6 +29,10 @@ class RuleVO extends DynPropertiesClass {
 					$value = $this->determineWpHook();
 					$this->wp_hook = $value;
 				}
+				break;
+
+			case 'wp_hook_priority':
+				$value = is_numeric( $value ) ? (int)$value : 0;
 				break;
 
 			case 'immediate_exec_response':

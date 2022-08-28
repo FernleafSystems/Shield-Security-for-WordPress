@@ -88,15 +88,21 @@ class RulesController {
 				$this->processRule( $rule );
 			}
 
-			$allHooks = array_unique( array_filter( array_map( function ( $rule ) {
-				return $rule->wp_hook;
-			}, $this->getRules() ) ) );
-			foreach ( $allHooks as $wpHook ) {
+			$hooks = [];
+			foreach ( $this->getRules() as $rule ) {
+				$hook = $rule->wp_hook;
+				if ( !empty( $hook ) ) {
+					$priority = $rule->wp_hook_priority;
+					$hooks[ $hook ] = isset( $hooks[ $hook ] ) ? min( $priority, $hooks[ $hook ] ) : $priority;
+				}
+			}
+
+			foreach ( $hooks as $wpHook => $priority ) {
 				add_action( $wpHook, function () use ( $wpHook ) {
 					foreach ( $this->getRulesForHook( $wpHook ) as $rule ) {
 						$this->processRule( $rule );
 					}
-				}, PHP_INT_MIN );
+				}, $priority );
 			}
 
 			$this->processComplete = true;
