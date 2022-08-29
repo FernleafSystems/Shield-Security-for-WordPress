@@ -308,7 +308,7 @@ class BuildDisplay {
 			$record = null;
 		}
 
-		if ( !empty( $record ) && $record->ip_ref >= 0 ) {
+		if ( !empty( $record ) ) {
 			foreach ( $scores as $scoreKey => $scoreValue ) {
 				$column = $scoreKey.'_at';
 				if ( $scoreValue !== 0 ) {

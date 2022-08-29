@@ -1012,7 +1012,8 @@
         "level":        "info",
         "audit_params": [
           "count_new",
-          "count_deleted"
+          "count_deleted",
+          "scope"
         ]
       },
       "crowdsec_signals_pushed":     {
