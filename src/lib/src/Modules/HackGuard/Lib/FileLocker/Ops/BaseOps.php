@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
 
@@ -47,31 +48,27 @@ class BaseOps {
 	}
 
 	/**
-	 * @return array
-	 * @throws \ErrorException
+	 * @throws \Exception
 	 */
 	protected function getPublicKey() :array {
-		$key = ( new GetPublicKey() )
-			->setMod( $this->getMod() )
-			->retrieve();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$getter = ( new GetPublicKey() )->setMod( $this->getMod() );
+		$getter->last_error = $mod->getFileLocker()->getState()[ 'last_error' ] ?? '';
+		$key = $getter->retrieve();
 		if ( empty( $key ) || !is_array( $key ) ) {
-			throw new \ErrorException( 'Cannot encrypt without a public key' );
+			throw new \Exception( 'Failed to obtain public key from API.' );
 		}
 		return $key;
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function clearFileLocksCache() {
 		( new LoadFileLocks() )
 			->setMod( $this->getMod() )
 			->clearLocksCache();
-		return $this;
 	}
 
 	/**
-	 * @param FileLocker\File $file
 	 * @return $this
 	 */
 	public function setWorkingFile( FileLocker\File $file ) {

@@ -9,15 +9,18 @@ class BuildEncryptedFilePayload extends BaseOps {
 	/**
 	 * @param string $path
 	 * @param string $publicKey
-	 * @return string
-	 * @throws \ErrorException
+	 * @throws \Exception
 	 */
-	public function build( $path, $publicKey ) {
+	public function build( $path, $publicKey ) :string {
 		$srvEnc = Services::Encrypt();
 		$payload = $srvEnc->sealData( Services::WpFs()->getFileContent( $path ), $publicKey );
 		if ( !$payload->success ) {
-			throw new \ErrorException( 'File contents could not be encrypted' );
+			throw new \Exception( 'File contents could not be encrypted' );
 		}
-		return json_encode( $payload->getRawData() );
+		$encoded = wp_json_encode( $payload->getRawData() );
+		if ( empty( $encoded ) || !is_string( $encoded ) ) {
+			throw new \Exception( 'File contents could not be wp_json_encode after encryption.' );
+		}
+		return $encoded;
 	}
 }

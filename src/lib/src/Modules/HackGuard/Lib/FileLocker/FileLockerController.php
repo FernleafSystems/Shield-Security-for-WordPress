@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Services\Services;
 
-class FileLockerController {
-
-	use Modules\ModConsumer;
-	use ExecOnce;
+class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		/** @var HackGuard\ModCon $mod */
@@ -21,13 +16,14 @@ class FileLockerController {
 	}
 
 	public function isEnabled() :bool {
+		$con = $this->getCon();
 		/** @var HackGuard\Options $opts */
 		$opts = $this->getOptions();
-		return ( count( $opts->getFilesToLock() ) > 0 )
-			   && $this->getCon()
-					   ->getModule_Plugin()
-					   ->getShieldNetApiController()
-					   ->canHandshake();
+		return $con->isPremiumActive()
+			   && ( count( $opts->getFilesToLock() ) > 0 )
+			   && $con->getModule_Plugin()
+					  ->getShieldNetApiController()
+					  ->canHandshake();
 	}
 
 	protected function run() {
@@ -95,7 +91,7 @@ class FileLockerController {
 				$content = Services::WpFs()->getFileContent( $lock->file );
 			}
 			elseif ( $type == 'original' ) {
-				$content = ( new Lib\FileLocker\Ops\ReadOriginalFileContent() )
+				$content = ( new Ops\ReadOriginalFileContent() )
 					->setMod( $this->getMod() )
 					->run( $lock );
 			}
@@ -132,7 +128,7 @@ class FileLockerController {
 	 * @throws \Exception
 	 */
 	public function getFileLock( int $ID ) :FileLocker\EntryVO {
-		$lock = ( new Lib\FileLocker\Ops\LoadFileLocks() )
+		$lock = ( new Ops\LoadFileLocks() )
 					->setMod( $this->getMod() )
 					->loadLocks()[ $ID ] ?? null;
 		if ( empty( $lock ) ) {
@@ -154,15 +150,12 @@ class FileLockerController {
 	}
 
 	private function maybeRunLocksCreation() {
-		if ( ( new Lib\FileLocker\Ops\HasFileLocksToCreate() )->setMod( $this->getMod() )->run() ) {
+		if ( !empty( ( new Ops\GetFileLocksToCreate() )->setMod( $this->getMod() )->run() ) ) {
 			$con = $this->getCon();
 
 			if ( !Services::WpGeneral()->isCron() ) {
 				if ( !wp_next_scheduled( $con->prefix( 'create_file_locks' ) ) ) {
-					wp_schedule_single_event(
-						Services::Request()->ts() + 60,
-						$con->prefix( 'create_file_locks' )
-					);
+					wp_schedule_single_event( Services::Request()->ts() + 60, $con->prefix( 'create_file_locks' ) );
 				}
 			}
 
@@ -173,33 +166,34 @@ class FileLockerController {
 	}
 
 	/**
-	 * There's at least 15 seconds between each attempt to create a file lock.
+	 * There's at least 60 seconds between each attempt to create a file lock.
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
 	 */
 	private function runLocksCreation() {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		$filesToLock = $opts->getFilesToLock();
+		$now = Services::Request()->ts();
+		$filesToLock = ( new Ops\GetFileLocksToCreate() )->setMod( $this->getMod() )->run();
 
 		$state = $this->getState();
-		if ( !empty( $filesToLock ) && Services::Request()->ts() - $state[ 'last_locks_created_at' ] > 60 ) {
+		if ( !empty( $filesToLock )
+			 && $now - $state[ 'last_locks_created_at' ] > 60
+			 && $now - $state[ 'last_locks_created_failed_at' ] > 600
+		) {
 
-			$lockCreated = false;
-			foreach ( $opts->getFilesToLock() as $fileKey ) {
+			foreach ( $filesToLock as $fileKey ) {
 				try {
-					$lockCreated = ( new Ops\CreateFileLocks() )
+					( new Ops\CreateFileLocks() )
 						->setMod( $this->getMod() )
-						->setWorkingFile(
-							( new Lib\FileLocker\Ops\BuildFileFromFileKey() )->build( $fileKey )
-						)
+						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $fileKey ) )
 						->create();
+					$state[ 'last_locks_created_at' ] = $now;
+					$state[ 'last_error' ] = '';
 				}
 				catch ( \Exception $e ) {
+					$state[ 'last_error' ] = $e->getMessage();
+					$state[ 'last_locks_created_failed_at' ] = $now;
 					error_log( $e->getMessage() );
+					break;
 				}
-			}
-			if ( $lockCreated ) {
-				$state[ 'last_locks_created_at' ] = Services::Request()->ts();
 			}
 
 			$state[ 'abspath' ] = ABSPATH;
@@ -207,19 +201,21 @@ class FileLockerController {
 		}
 	}
 
-	protected function getState() :array {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
+	public function getState() :array {
+		$state = $this->getOptions()->getOpt( 'filelocker_state' );
 		return array_merge(
 			[
-				'abspath'               => ABSPATH,
-				'last_locks_created_at' => 0,
+				'abspath'                      => ABSPATH,
+				'last_locks_created_at'        => 0,
+				'last_locks_created_failed_at' => 0,
+				'last_error'                   => '',
 			],
-			is_array( $opts->getOpt( 'filelocker_state' ) ) ? $opts->getOpt( 'filelocker_state' ) : []
+			is_array( $state ) ? $state : []
 		);
 	}
 
 	protected function setState( array $state ) {
 		$this->getOptions()->setOpt( 'filelocker_state', $state );
+		$this->getMod()->saveModOptions();
 	}
 }

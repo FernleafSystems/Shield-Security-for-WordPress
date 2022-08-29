@@ -9,8 +9,10 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends BaseShield\Options {
 
 	public function getFilesToLock() :array {
-		$locks = $this->getOpt( 'file_locker', [] );
-		return is_array( $locks ) ? $locks : [];
+		if ( !is_array( $this->getOpt( 'file_locker', [] ) ) ) {
+			$this->setOpt( 'file_locker', [] );
+		}
+		return $this->getOpt( 'file_locker', [] );
 	}
 
 	public function getRepairAreas() :array {
