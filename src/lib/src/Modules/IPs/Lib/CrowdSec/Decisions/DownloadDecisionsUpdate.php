@@ -27,9 +27,7 @@ class DownloadDecisionsUpdate extends ExecOnceModConsumer {
 			$csCon->cfg->decisions_update_attempt_at = Services::Request()->ts();
 			( new ProcessDecisionList() )
 				->setMod( $this->getMod() )
-				->run(
-					( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run()
-				);
+				->run( ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run() );
 			$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
 		}
 		catch ( \Exception $e ) {
