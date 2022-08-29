@@ -3,7 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
@@ -17,6 +18,31 @@ class Debug extends Modules\Base\Debug {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
 		$this->crowdsec();
 		die( 'finish' );
+	}
+
+	private function pagedIpRules() {
+		$modIPs = $this->getCon()->getModule_IPs();
+
+		$loader = ( new LoadIpRules() )->setMod( $modIPs );
+		$loader->wheres = [
+			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+		];
+		$loader->ip_table_select_fields = [
+			'INET6_NTOA(`ips`.`ip`) as `ip`',
+		];
+		$loader->joined_table_select_fields = [
+			'ip_ref',
+			'cidr',
+		];
+		$loader->limit = 10;
+
+		$page = 0;
+		do {
+			$loader->offset = $page*$loader->limit;
+			$records = $loader->select();
+			var_dump( $loader->select() );
+			$page++;
+		} while ( !empty( $records ) );
 	}
 
 	private function iputil() {
@@ -48,6 +74,8 @@ class Debug extends Modules\Base\Debug {
 						->getModule_License()
 						->getLicenseHandler()
 						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+
+
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
 //			var_dump( $csCon->getApi()->getAuthStatus() );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
@@ -58,10 +86,10 @@ class Debug extends Modules\Base\Debug {
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
 //				->setMod( $this->getCon()->getModule_IPs() )
 //				->execute();
-//			( new Modules\IPs\Lib\CrowdSec\Decisions\DownloadDecisionsUpdate() )
-//				->setMod( $modIPs )
-//				->execute();
-//			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
+				->setMod( $modIPs )
+				->runImport();
+//			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
 //			$res = ( new RetrieveScenarios() )
 //				->setMod( $this->getMod() )
 //				->retrieve();
@@ -70,7 +98,7 @@ class Debug extends Modules\Base\Debug {
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );
 		}
-		var_dump( $res ?? 'unset' );
+//		var_dump( $res ?? 'unset' );
 	}
 
 	private function cleanoptimisehashes() {

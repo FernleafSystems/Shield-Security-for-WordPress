@@ -32,17 +32,14 @@ class PushSignalsToCS extends ExecOnceModConsumer {
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$authToken = $mod->getCrowdSecCon()->getApi()->getAuthorizationToken();
-		$count = 0;
+		$api = $mod->getCrowdSecCon()->getApi();
+
 		$recordsCount = 0;
 		do {
-			if ( $count++ > 2 ) {
-				break;
-			}
 			$records = $this->getNextRecordSet();
 			if ( !empty( $records ) ) {
 				try {
-					( new PushSignals( $authToken ) )->run( $this->convertRecordsToPayload( $records ) );
+					( new PushSignals( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run( $this->convertRecordsToPayload( $records ) );
 				}
 				catch ( PushSignalsFailedException $e ) {
 				}

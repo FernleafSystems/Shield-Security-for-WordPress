@@ -16,8 +16,8 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		$con = $this->getCon();
-		return $con->isPremiumActive() && apply_filters( 'shield/enable_beta', false );
+		return $this->getCon()->isPremiumActive()
+			   && apply_filters( 'shield/enable_beta', $this->getOptions()->isOpt( 'enable_beta', 'Y' ) );
 	}
 
 	protected function run() {

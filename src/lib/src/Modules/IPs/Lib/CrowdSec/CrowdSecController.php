@@ -49,6 +49,8 @@ class CrowdSecController extends ExecOnceModConsumer {
 		return ( new CrowdSecApi() )->setMod( $this->getMod() );
 	}
 
+
+
 	public function isIpBlockedOnCrowdSec( string $ip ) :bool {
 		return ( new IpRuleStatus( $ip ) )->isBlockedByCrowdsec();
 	}
@@ -59,7 +61,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new Decisions\DownloadDecisionsUpdate() )
+		( new Decisions\ImportDecisions() )
 			->setMod( $this->getMod() )
 			->execute();
 	}

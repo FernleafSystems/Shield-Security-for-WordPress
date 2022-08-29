@@ -156,7 +156,8 @@ class CrowdSecApi {
 
 		if ( empty( $csAuth[ 'machine_registered' ] ) ) {
 			try {
-				( new Api\MachineRegister() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
+				( new Api\MachineRegister( $this->getApiUserAgent() ) )
+					->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
 
 				$this->getCon()->fireEvent( 'crowdsec_mach_register', [
 					'audit_params' => [
@@ -187,16 +188,19 @@ class CrowdSecApi {
 			   || ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 ) )
 		) {
 			try {
-				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
+				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
+					->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
 			}
 			catch ( Exceptions\MachineLoginFailedException $e ) {
 				$newPassword = wp_generate_password( 48 );
-				$resetSuccess = ( new Api\MachinePasswordReset() )->run( $csAuth[ 'machine_id' ], $newPassword );
+				$resetSuccess = ( new Api\MachinePasswordReset( $this->getApiUserAgent() ) )
+					->run( $csAuth[ 'machine_id' ], $newPassword );
 				if ( $resetSuccess ) {
 					$csAuth[ 'password' ] = $newPassword;
 					$this->storeCsAuth( $csAuth );
 				}
-				$login = ( new Api\MachineLogin() )->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
+				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
+					->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
 			}
 
 			$csAuth[ 'auth_token' ] = $login[ 'token' ];
@@ -239,7 +243,7 @@ class CrowdSecApi {
 				$enrollName = $defaultName;
 			}
 
-			( new Api\MachineEnroll( $csAuth[ 'auth_token' ] ) )->run(
+			( new Api\MachineEnroll( $csAuth[ 'auth_token' ], $this->getApiUserAgent() ) )->run(
 				$enrollID,
 				$enrollName,
 				is_array( $enrollTags ) ? $enrollTags : $defaultTags
@@ -296,5 +300,10 @@ class CrowdSecApi {
 
 			$mod->getCrowdSecCon()->storeCfg();
 		}
+	}
+
+	public function getApiUserAgent() :string {
+		$con = $this->getCon();
+		return sprintf( '%s/%s', $con->isPremiumActive() ? 'ShieldSecurityPro' : 'ShieldSecurity', $con->getVersion() );
 	}
 }
