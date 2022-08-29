@@ -65,7 +65,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 	private function downloadDecisions() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$csCon = $mod->getCrowdSecCon();
-		return ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+		$api = $mod->getCrowdSecCon()->getApi();
+		return ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
 	}
 }

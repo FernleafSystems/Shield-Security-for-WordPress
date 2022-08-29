@@ -49,6 +49,8 @@ class CrowdSecController extends ExecOnceModConsumer {
 		return ( new CrowdSecApi() )->setMod( $this->getMod() );
 	}
 
+
+
 	public function isIpBlockedOnCrowdSec( string $ip ) :bool {
 		return ( new IpRuleStatus( $ip ) )->isBlockedByCrowdsec();
 	}
