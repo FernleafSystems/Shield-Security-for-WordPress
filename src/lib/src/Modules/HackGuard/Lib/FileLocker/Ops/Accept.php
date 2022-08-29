@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Accept extends BaseOps {
 
 	/**
-	 * @throws \ErrorException
+	 * @throws \Exception
 	 */
 	public function run( FileLocker\EntryVO $lock ) :bool {
 		/** @var ModCon $mod */

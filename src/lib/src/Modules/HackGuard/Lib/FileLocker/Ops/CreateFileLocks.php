@@ -11,19 +11,15 @@ class CreateFileLocks extends BaseOps {
 	/**
 	 * @throws \Exception
 	 */
-	public function create() :bool {
-		$pathsProcessed = false;
+	public function create() {
 		foreach ( $this->file->getExistingPossiblePaths() as $path ) {
 			if ( empty( $this->findLockRecordForFile() ) ) {
 				$this->processPath( $path );
-				$pathsProcessed = true;
 			}
 		}
-		return $pathsProcessed;
 	}
 
 	/**
-	 * @param string $path
 	 * @throws \Exception
 	 */
 	private function processPath( string $path ) {
@@ -43,7 +39,9 @@ class CreateFileLocks extends BaseOps {
 
 			/** @var FileLocker\Insert $inserter */
 			$inserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
-			$success = $inserter->insert( $entry );
+			if ( !$inserter->insert( $entry ) ) {
+				throw new \Exception( 'Failed to insert file locker record.' );
+			}
 
 			$this->clearFileLocksCache();
 		}

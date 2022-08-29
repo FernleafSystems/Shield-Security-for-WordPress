@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class WorldTimeApi {
 
 	/**
-	 * @return int
 	 * @throws \Exception
 	 */
 	public function current() :int {
@@ -24,7 +23,6 @@ class WorldTimeApi {
 	}
 
 	/**
-	 * @return int
 	 * @throws \Exception
 	 */
 	public function diffServerWithReal() :int {
