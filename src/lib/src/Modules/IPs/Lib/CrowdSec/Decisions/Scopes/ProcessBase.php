@@ -88,7 +88,7 @@ abstract class ProcessBase {
 		$value = $this->normaliseDecisionValue( $decision[ 'value' ] );
 
 		// simple verification of data we're going to import
-		if ( $this->verifyDecisionValue( $value ) ) {
+		if ( $this->validateDecisionValue( $value ) ) {
 			throw new \Exception( sprintf( 'Invalid decision value for scope (%s) provided: %s', static::SCOPE, $value ) );
 		}
 
@@ -105,5 +105,5 @@ abstract class ProcessBase {
 	 * @param mixed $value
 	 * @return bool
 	 */
-	abstract protected function verifyDecisionValue( $value ) :bool;
+	abstract protected function validateDecisionValue( $value ) :bool;
 }

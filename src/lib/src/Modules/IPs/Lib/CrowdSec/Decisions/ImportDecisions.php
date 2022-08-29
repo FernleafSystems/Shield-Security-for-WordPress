@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ImportDecisions extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
+		return true;
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$hoursInterval = $this->getCon()->isPremiumActive() ?
@@ -25,24 +26,28 @@ class ImportDecisions extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		$csCon = $mod->getCrowdSecCon();
 
+		$csCon->cfg->decisions_update_attempt_at = Services::Request()->ts();
+		$this->runImport();
+		$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
+
+		$csCon->storeCfg();
+	}
+
+	public function runImport() {
 		try {
-			$csCon->cfg->decisions_update_attempt_at = Services::Request()->ts();
 			$decisionStream = $this->downloadDecisions();
 			foreach ( $this->enumSupportedScopeProcessors() as $supportedScopeProcessor ) {
 				try {
 					$processor = new $supportedScopeProcessor( $decisionStream );
-					$processor->run();
+					$processor->setMod( $this->getMod() )->run();
 				}
 				catch ( \Exception $e ) {
 				}
 			}
-			$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
-
-		$csCon->storeCfg();
 	}
 
 	/**
