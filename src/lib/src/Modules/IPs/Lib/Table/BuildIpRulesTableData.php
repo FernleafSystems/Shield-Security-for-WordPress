@@ -221,6 +221,6 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		}
 		return $this->geoLookup
 			->setIP( $ip )
-			->lookupIp();
+			->lookup();
 	}
 }

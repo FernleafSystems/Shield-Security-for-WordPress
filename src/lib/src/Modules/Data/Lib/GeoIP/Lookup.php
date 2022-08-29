@@ -22,7 +22,7 @@ class Lookup {
 
 	private $reqCount = 0;
 
-	public function lookupIp() :IPGeoVO {
+	public function lookup() :IPGeoVO {
 		$ip = $this->getIP();
 		// Small optimization so we don't SQL it every time.
 		if ( isset( $this->ips[ $ip ] ) ) {
@@ -36,7 +36,7 @@ class Lookup {
 
 			$ipRecord = ( new IPRecords() )
 				->setMod( $this->getCon()->getModule_Data() )
-				->loadIP( $this->getIP(), true );
+				->loadIP( $this->getIP(), false );
 
 			if ( is_null( $ipRecord->geo )
 				 || Services::Request()->carbon()->subMonth()->timestamp > ( $ipRecord->geo[ 'ts' ] ?? 0 ) ) {

@@ -1,9 +1,10 @@
-<h6 class="card-title">
+<h5 class="mb-3">
 	{{ strings.title }}
 	<span class="badge bg-info">{{ vars.total_sessions }}</span>
-</h6>
+</h5>
+
 {% if vars.total_sessions < 1 %}
-	<div class="alert-info alert">{{ strings.no_sessions }}</div>
+	<div class="alert-secondary alert">{{ strings.no_sessions }}</div>
 {% else %}
 	<table class="table">
 		<thead class="thead-light">

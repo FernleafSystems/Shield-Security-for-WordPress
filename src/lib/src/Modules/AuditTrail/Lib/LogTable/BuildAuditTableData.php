@@ -39,6 +39,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( (string)$this->log->ip );
 				$data[ 'event' ] = $this->getCon()->loadEventsService()->getEventName( $this->log->event_slug );
+				$this->log->created_at = max( $this->log->updated_at, $this->log->created_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();

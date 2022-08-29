@@ -1,32 +1,28 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
-/**
- * @deprecated 16.0
- */
-class HasFileLocksToCreate extends BaseOps {
+class GetFileLocksToCreate extends BaseOps {
 
-	public function run() :bool {
+	public function run() :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$hasLockToCreate = false;
+		$locksToCreate = [];
 		foreach ( $opts->getFilesToLock() as $fileKey ) {
 			try {
 				$file = ( new BuildFileFromFileKey() )->build( $fileKey );
 				$lock = $this->setWorkingFile( $file )->findLockRecordForFile();
 				if ( empty( $lock ) ) {
-					$hasLockToCreate = true;
-					break;
+					$locksToCreate[] = $fileKey;
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		return $hasLockToCreate;
+		return $locksToCreate;
 	}
 }

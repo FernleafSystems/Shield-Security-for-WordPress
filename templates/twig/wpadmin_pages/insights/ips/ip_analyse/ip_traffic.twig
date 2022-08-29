@@ -1,11 +1,12 @@
-<h6 class="card-title">
+<h5 class="mb-3">
 	{{ strings.title }}
 	<span class="badge bg-info">{{ vars.total_requests }}</span>
-</h6>
+</h5>
+
 {% if vars.total_requests < 1 %}
-	<div class="alert-info alert">{{ strings.no_requests }}</div>
+	<div class="alert-secondary alert">{{ strings.no_requests }}</div>
 {% else %}
-	<div class="overflow_container">
+	<div class="">
 		<table class="table">
 			<thead class="thead-light">
 			<tr>

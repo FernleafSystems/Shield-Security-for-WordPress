@@ -284,7 +284,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		}
 		return $this->geoLookup
 			->setIP( $ip )
-			->lookupIp();
+			->lookup();
 	}
 
 	private function isWpCli() :bool {

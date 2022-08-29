@@ -79,6 +79,7 @@ class LoadLogs extends DynPropertiesClass {
 			'log.id',
 			'log.site_id',
 			'log.event_slug',
+			'log.updated_at',
 			'log.created_at',
 			'ips.ip',
 			'req.req_id as rid',

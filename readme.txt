@@ -8,7 +8,7 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.0
-Stable tag: 16.0.2
+Stable tag: 16.0.3
 
 Bad Bots Are Your #1 Security Risk. If you have malware your security plugin isn't working. Discover the security-before-marketing advantage.
 

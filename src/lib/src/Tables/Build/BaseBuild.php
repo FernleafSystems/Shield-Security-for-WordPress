@@ -206,7 +206,7 @@ class BaseBuild {
 			'<a href="%s" target="_blank" title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
 			$href,
 			__( 'IP Analysis' ),
-			$srvIP->isValidIpRange( $ip ) ? '' : 'modal_ip_analysis',
+			$srvIP->isValidIpRange( $ip ) ? '' : 'render_ip_analysis',
 			$ip,
 			$ip
 		);

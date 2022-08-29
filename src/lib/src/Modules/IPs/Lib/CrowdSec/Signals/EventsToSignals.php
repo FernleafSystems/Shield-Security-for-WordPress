@@ -97,7 +97,7 @@ class EventsToSignals extends EventsListener {
 		$con = $this->getCon();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
 			wp_schedule_single_event(
-				Services::Request()->ts() + MINUTE_IN_SECONDS*15,
+				Services::Request()->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', MINUTE_IN_SECONDS*5 ),
 				$con->prefix( 'adhoc_cron_crowdsec_signals' )
 			);
 		}

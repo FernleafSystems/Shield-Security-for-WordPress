@@ -13,7 +13,7 @@ class DownloadDecisionsUpdate extends ExecOnceModConsumer {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$hoursInterval = $this->getCon()->isPremiumActive() ?
-			apply_filters( 'shield/crowdsec_decisions_update_hours', 23 ) // ~1 day
+			apply_filters( 'shield/crowdsec/decisions_update_interval', 23 ) // ~1 day
 			: 166; // 6.90 days
 		return ( Services::Request()->ts() - $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at )
 			   > HOUR_IN_SECONDS*min( $hoursInterval, 2 );
