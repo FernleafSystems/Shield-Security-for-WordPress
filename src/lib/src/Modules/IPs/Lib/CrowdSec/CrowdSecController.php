@@ -59,7 +59,7 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new Decisions\DownloadDecisionsUpdate() )
+		( new Decisions\ImportDecisions() )
 			->setMod( $this->getMod() )
 			->execute();
 	}
