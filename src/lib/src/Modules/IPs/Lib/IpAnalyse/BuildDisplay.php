@@ -360,14 +360,14 @@ class BuildDisplay {
 
 	private function renderForAuditTrail() :string {
 		$WP = Services::WpGeneral();
-		$logRecords = ( new LoadLogs() )
+		$logLoader = ( new LoadLogs() )
 			->setMod( $this->getCon()->getModule_AuditTrail() )
-			->setIP( $this->getIP() )
-			->run();
+			->setIP( $this->getIP() );
+		$logLoader->limit = 100;
 
 		$logs = [];
 		$srvEvents = $this->getCon()->loadEventsService();
-		foreach ( $logRecords as $key => $record ) {
+		foreach ( $logLoader->run() as $key => $record ) {
 			if ( $srvEvents->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();
 

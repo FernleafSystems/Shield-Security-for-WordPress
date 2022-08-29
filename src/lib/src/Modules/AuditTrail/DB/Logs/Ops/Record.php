@@ -7,6 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops
  * @property int    $site_id
  * @property string $event_slug
  * @property string $ip
+ * @property int    $updated_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
