@@ -16,13 +16,13 @@ class ProcessIPs extends ProcessBase {
 
 	const SCOPE = CrowdSecConstants::SCOPE_IP;
 
-	public function preRun() {
+	protected function preRun() {
 		( new CleanIpRules() )
 			->setMod( $this->getMod() )
 			->execute();
 	}
 
-	public function postRun() {
+	protected function postRun() {
 		$this->preRun();
 	}
 
@@ -34,13 +34,96 @@ class ProcessIPs extends ProcessBase {
 	 * 3. Selects all the IP table records required to support all the new CS IP Rules
 	 * 4. Create new IP Rules records.
 	 */
-	protected function runForNew() :int {
+	protected function processNew() :int {
 		$DB = Services::WpDb();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$now = Services::Request()->ts();
 
-		// 1: Remove potential duplicate CS IP Rules
+		$this->removeDuplicatesFromNewStream();
+
+		$total = 0;
+
+		$ipTableName = $this->getCon()
+							->getModule_Data()
+							->getDbH_IPs()
+							->getTableSchema()->table;
+		$page = 0;
+		$pageSize = 100;
+		do {
+			$slice = array_splice( $this->newDecisions, 0, $pageSize );
+			$hasRecords = !empty( $slice );
+			if ( $hasRecords ) {
+
+				// 2. Insert all new IP addresses into the IP table that don't already exist.
+				$DB->doSql( sprintf( 'INSERT IGNORE INTO `%s` (`ip`, `created_at`) VALUES %s;',
+					$ipTableName,
+					implode( ', ', array_map( function ( $ip ) use ( $now ) {
+						return sprintf( "( INET6_ATON('%s'), %s )", $ip, $now );
+					}, array_keys( $slice ) ) )
+				) );
+
+				// 3. Select the IP records required to insert the new CS records.
+				$ipRecords = $DB->selectCustom( sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
+					$ipTableName,
+					implode( ', ', array_map( function ( $ip ) {
+						return sprintf( "INET6_ATON('%s')", $ip );
+					}, array_keys( $slice ) ) )
+				) );
+
+				$insertValues = [];
+				foreach ( $ipRecords as $ipRecord ) {
+					$recordIP = $ipRecord[ 'ip' ];
+
+					/**
+					 * PIA!
+					 * IPv6 IPs can't be compared with simple string comparison, and we've no way to know what format
+					 * the IPs will be in from CrowdSec vs from the MySQL DB.  E.g.
+					 * 2400:8100:ffff::117:120:13:52  ===  2400:8100:ffff:0:117:120:13:52
+					 *
+					 * So we have to search for it using the "long"/verbose IP address format.
+					 */
+					if ( !isset( $slice[ $recordIP ] ) ) {
+						$found = false;
+						foreach ( array_keys( $slice ) as $sliceIP ) {
+							if ( Factory::parseAddressString( $sliceIP )->toString( true )
+								 === Factory::parseAddressString( $recordIP )->toString( true ) ) {
+								$slice[ $recordIP ] = $slice[ $sliceIP ];
+								unset( $slice[ $sliceIP ] );
+								$found = true;
+								break;
+							}
+						}
+						if ( !$found ) {
+							//weird! We couldn't find an IP address that we had earlier inserted?
+							continue;
+						}
+					}
+
+					$insertValues[] = sprintf( "( %s, %s, '%s', %s, %s, %s, %s )",
+						$ipRecord[ 'id' ], 32, Handler::T_CROWDSEC, $now, $slice[ $recordIP ][ 'expires_at' ], $now, $now );
+					unset( $slice[ $recordIP ] );
+				}
+
+				// 4. Insert the new IP Rules records.
+				$DB->doSql( sprintf( 'INSERT INTO `%s` (`ip_ref`, `cidr`, `type`, `blocked_at`, `expires_at`, `updated_at`, `created_at`) VALUES %s;',
+					$mod->getDbH_IPRules()->getTableSchema()->table,
+					implode( ', ', $insertValues )
+				) );
+
+				$total += count( $insertValues );
+			}
+
+			$page++;
+		} while ( $hasRecords );
+
+		return $total;
+	}
+
+	protected function removeDuplicatesFromNewStreamLegacy() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
 		$loader = ( new LoadIpRules() )->setMod( $mod );
 		$loader->wheres = [
 			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
@@ -48,7 +131,7 @@ class ProcessIPs extends ProcessBase {
 		$loader->joined_table_select_fields = [
 			'cidr',
 		];
-		$loader->limit = 150;
+		$loader->limit = 250;
 
 		$page = 0;
 		do {
@@ -59,9 +142,9 @@ class ProcessIPs extends ProcessBase {
 			}, $loader->select() );
 
 			foreach ( $existingRanges as $range ) {
-				foreach ( $this->newDecisions as $key => $decision ) {
-					if ( $range->containsRange( Factory::parseRangeString( $decision ) ) ) {
-						unset( $this->newDecisions[ $key ] );
+				foreach ( $this->newDecisions as $ip => $decision ) {
+					if ( $range->containsRange( $decision[ 'parsed' ] ) ) {
+						unset( $this->newDecisions[ $ip ] );
 						break;
 					}
 				}
@@ -69,50 +152,75 @@ class ProcessIPs extends ProcessBase {
 
 			$page++;
 		} while ( !empty( $existingRanges ) );
+	}
 
-		$ipTableName = $this->getCon()
-							->getModule_Data()
-							->getDbH_IPs()
-							->getTableSchema()->table;
+	/**
+	 * Loop through all existing CS rules and if a new rule/decision already exists, remove it from the new stream.
+	 */
+	protected function removeDuplicatesFromNewStream() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$preExisting = [];
+
 		$page = 0;
-		$pageSize = 100;
+		$pageSize = 250;
 		do {
 			$slice = array_slice( $this->newDecisions, $page*$pageSize, $pageSize );
 			if ( !empty( $slice ) ) {
 
-				// 2. Insert all new IP addresses into the IP table that don't already exist.
-				$DB->doSql( sprintf( 'INSERT IGNORE INTO `%s` (`ip`, `created_at`) VALUES %s;',
-					$ipTableName,
-					implode( ', ', array_map( function ( $ip ) use ( $now ) {
-						return sprintf( "( INET6_ATON('%s'), %s )", $ip, $now );
-					}, $slice ) )
-				) );
+				$singles = array_keys( array_filter( $slice, function ( array $dec ) {
+					/** @var RangeInterface $range */
+					$range = $dec[ 'parsed' ];
+					return $range->getSize() === 1;
+				} ) );
 
-				// 3. Select the IP records required to insert the new CS records.
-//				$ipRecords = $DB->selectCustom( sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
-				$ipRecords = $DB->selectCustom( sprintf( "SELECT `id` FROM `%s` WHERE `ip` IN (%s);",
-					$ipTableName,
-					implode( ', ', array_map( function ( $ip ) {
-						return sprintf( "INET6_ATON('%s')", $ip );
-					}, $slice ) )
-				) );
+				if ( !empty( $singles ) ) {
+					$loader = ( new LoadIpRules() )->setMod( $mod );
+					$loader->wheres = [
+						sprintf( "`ips`.`ip` IN (%s)",
+							implode( ', ', array_map( function ( $ip ) {
+								return sprintf( "INET6_ATON('%s')", $ip );
+							}, $singles ) )
+						),
+						sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+					];
 
-				// 4. Insert the new IP Rules records.
-				$DB->doSql( sprintf( 'INSERT INTO `%s` (`ip_ref`, `cidr`, `type`, `blocked_at`, `updated_at`, `created_at`) VALUES %s;',
-					$mod->getDbH_IPRules()->getTableSchema()->table,
-					implode( ', ', array_map( function ( $result ) use ( $now ) {
-						return sprintf( "( %s, %s, '%s', %s, %s, %s )", $result[ 'id' ], 32, Handler::T_CROWDSEC, $now, $now, $now );
-					}, $ipRecords ) )
-				) );
+					foreach ( $loader->select() as $preExistingRule ) {
+						if ( isset( $slice[ $preExistingRule->ip ] ) ) {
+							$preExisting[] = $preExistingRule->ip;
+						}
+						elseif ( strpos( $preExistingRule->ip, ':' ) !== false ) {
+							$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
+							// handle variance of IPv6 notation.
+							foreach ( array_keys( $slice ) as $sliceIP ) {
+								if ( strpos( $sliceIP, ':' ) !== false &&
+									 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
+									$preExisting[] = $sliceIP;
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				$ranges = array_filter( $slice, function ( array $dec ) {
+					/** @var RangeInterface $range */
+					$range = $dec[ 'parsed' ];
+					return $range->getSize() > 1;
+				} );
+				if ( !empty( $ranges ) ) {
+					// TODO.
+				}
 			}
 
 			$page++;
 		} while ( !empty( $slice ) );
 
-		return count( $this->newDecisions );
+		$this->newDecisions = array_diff_key( $this->newDecisions, array_flip( $preExisting ) );
 	}
 
-	protected function runForDeleted() :int {
+	protected function processDeleted() :int {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -158,13 +266,35 @@ class ProcessIPs extends ProcessBase {
 		return count( $idsToDelete );
 	}
 
-	protected function extractScopeDecisionData( array $decisions ) :array {
+	protected function extractScopeDecisionData_New( array $decisions ) :array {
+		$extracted = [];
+		foreach ( $decisions as $decision ) {
+			if ( is_array( $decision ) ) {
+				try {
+					$ip = $this->getDecisionValue( $decision );
+					$extracted[ $ip ] = [
+						'expires_at' => $this->getDecisionExpiresAt( $decision ),
+						'parsed'     => Factory::parseRangeString( $ip ),
+					];
+				}
+				catch ( \Exception $e ) {
+//					error_log( $e->getMessage() );
+				}
+			}
+		}
+		return $extracted;
+	}
+
+	/**
+	 * We only require the IP addresses for the deleted stream in order to remove our decisions.
+	 */
+	protected function extractScopeDecisionData_Deleted( array $decisions ) :array {
 		return array_filter( array_map(
 			function ( $decision ) {
 				$ip = null;
 				if ( is_array( $decision ) ) {
 					try {
-						$ip = $this->getValueFromDecision( $decision );
+						$ip = $this->getDecisionValue( $decision );
 					}
 					catch ( \Exception $e ) {
 					}
@@ -176,8 +306,7 @@ class ProcessIPs extends ProcessBase {
 	}
 
 	/**
-	 * @param mixed $value
-	 * @return mixed
+	 * @return string
 	 */
 	protected function normaliseDecisionValue( $value ) {
 		return trim( (string)$value );
@@ -190,6 +319,6 @@ class ProcessIPs extends ProcessBase {
 	 */
 	protected function validateDecisionValue( $value ) :bool {
 		$ip = Factory::parseRangeString( $value );
-		return !empty( $ip ) && $ip->getRangeType() === Type::T_PUBLIC && $ip->getSize() === 0;
+		return !empty( $ip ) && $ip->getRangeType() === Type::T_PUBLIC && $ip->getSize() === 1;
 	}
 }
