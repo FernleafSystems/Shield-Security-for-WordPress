@@ -13,9 +13,8 @@ class ImportDecisions extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$interval = $this->getCon()->isPremiumActive() ?
-			apply_filters( 'shield/crowdsec/decisions_update_interval', HOUR_IN_SECONDS*2 ) : DAY_IN_SECONDS*2;
-		return ( Services::Request()->ts() - $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at ) > $interval;
+		return ( Services::Request()->ts() - $this->getImportInterval() )
+			   > $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at;
 	}
 
 	protected function run() {
@@ -36,7 +35,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 		// We currently only import decisions that have a TTL of at least 5 days.
 		$minimumExpiresAt = Services::Request()
 									->carbon()
-									->addDays( 5 )->timestamp;
+									->addDays( 3 )->timestamp;
 		try {
 			$decisionStream = $this->downloadDecisions();
 			foreach ( $this->enumSupportedScopeProcessors() as $supportedScopeProcessor ) {
@@ -71,5 +70,30 @@ class ImportDecisions extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		$api = $mod->getCrowdSecCon()->getApi();
 		return ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
+	}
+
+	/**
+	 * @throws DownloadDecisionsStreamFailedException
+	 */
+	private function testDownloadDecisionsViaFile() :array {
+		$FS = Services::WpFs();
+		$file = ABSPATH.'csDec.txt';
+		if ( $FS->exists( $file ) ) {
+			error_log( 'csDec from file' );
+			$csDec = json_decode( $FS->getFileContent( $file ), true );
+		}
+		else {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			$api = $mod->getCrowdSecCon()->getApi();
+			$csDec = ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
+			$FS->putFileContent( $file, json_encode( $csDec ) );
+		}
+		return $csDec;
+	}
+
+	private function getImportInterval() {
+		return $this->getCon()->isPremiumActive() ?
+			apply_filters( 'shield/crowdsec/decisions_update_interval', HOUR_IN_SECONDS*2 ) : WEEK_IN_SECONDS;
 	}
 }
