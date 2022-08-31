@@ -33,13 +33,9 @@ class ImportDecisions extends ExecOnceModConsumer {
 	}
 
 	public function runImport() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$csCon = $mod->getCrowdSecCon();
-
+		// We currently only import decisions that have a TTL of at least 5 days.
 		$minimumExpiresAt = Services::Request()
 									->carbon()
-									->setTimestamp( $csCon->cfg->decisions_updated_at )
 									->addDays( 5 )->timestamp;
 		try {
 			$decisionStream = $this->downloadDecisions();
