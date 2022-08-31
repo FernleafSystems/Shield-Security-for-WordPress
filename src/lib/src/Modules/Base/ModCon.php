@@ -382,14 +382,8 @@ abstract class ModCon extends DynPropertiesClass {
 		);
 	}
 
-	/**
-	 * Hooked to the plugin's main plugin_shutdown action
-	 */
 	public function onPluginShutdown() {
 		if ( !$this->getCon()->plugin_deleting ) {
-			if ( rand( 1, 100 ) === 2 ) {
-				$this->cleanupDatabases(); // cleanup databases randomly just in-case cron doesn't run.
-			}
 			$this->saveModOptions();
 		}
 	}

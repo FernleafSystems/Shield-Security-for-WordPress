@@ -10,16 +10,26 @@ use FernleafSystems\Wordpress\Services\Services;
 class CleanIpRules extends ExecOnceModConsumer {
 
 	protected function run() {
-		$this->old();
-		$this->expiredAutoBlock();
+		$this->expired();
 //		$this->duplicates();
 	}
 
-	public function expiredAutoBlock() {
+	public function expired() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
+
+		// Expired CrowdSec
+		/** @var Ops\Delete $deleter */
+		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
+		$deleter
+			->filterByType( Ops\Handler::T_CROWDSEC )
+			->addWhereNewerThan( 0, 'expires_at' )
+			->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
+			->query();
+
+		// Expired AutoBlock
 		/** @var Ops\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
 		$deleter
@@ -29,22 +39,6 @@ class CleanIpRules extends ExecOnceModConsumer {
 						->carbon()
 						->subSeconds( $opts->getAutoExpireTime() )->timestamp,
 				'last_access_at'
-			)
-			->query();
-	}
-
-	public function old( int $days = 7 ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Ops\Delete $deleter */
-		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
-		$deleter
-			->filterByType( Ops\Handler::T_CROWDSEC )
-			->addWhereOlderThan(
-				Services::Request()
-						->carbon()
-						->subDays( $days )->timestamp,
-				'updated_at'
 			)
 			->query();
 	}
@@ -59,7 +53,7 @@ class CleanIpRules extends ExecOnceModConsumer {
 		$dbh = $mod->getDbH_IPRules();
 		$WPDB = Services::WpDb();
 		$raw = $WPDB->selectCustom( sprintf(
-			'SELECT `ir`.`ip_ref` as `ip_ref`,COUNT(*) as `count`
+			'SELECT `ir`.`ip_ref` as `ip_ref`, COUNT(*) as `count`
 			FROM `%s` as `ir`
 			INNER JOIN `%s` as `ips` ON `ips`.`id` = `ir`.`ip_ref`
 			GROUP BY `ir`.`ip_ref`;',

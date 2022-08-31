@@ -33,7 +33,11 @@ class BotSignalsRecord {
 		}
 
 		try {
-			return $select->filterByIP( $this->getIPRecord()->id )->query();
+			return $select->filterByIP(
+				( new IPs\IPRecords() )
+					->setMod( $this->getCon()->getModule_Data() )
+					->loadIP( $this->getIP() )->id
+			)->query();
 		}
 		catch ( \Exception $e ) {
 			return false;
@@ -44,12 +48,12 @@ class BotSignalsRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return (int)Services::WpDb()->getVar(
-			sprintf( "SELECT bs.notbot_at
-						FROM `%s` as bs
-						INNER JOIN `%s` as ips
-							ON `ips`.id = `bs`.ip_ref 
+			sprintf( "SELECT `bs`.`notbot_at`
+						FROM `%s` as `bs`
+						INNER JOIN `%s` as `ips`
+							ON `ips`.id = `bs`.`ip_ref` 
 							AND `ips`.`ip`=INET6_ATON('%s')
-						ORDER BY `bs`.updated_at DESC
+						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
 				$mod->getDbH_BotSignal()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
@@ -58,7 +62,7 @@ class BotSignalsRecord {
 		);
 	}
 
-	public function retrieve( bool $storeOnLoad = true ) :BotSignalRecord {
+	public function retrieve( bool $createNew = true ) :BotSignalRecord {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$thisReq = $this->getCon()->this_req;
@@ -69,16 +73,23 @@ class BotSignalsRecord {
 
 		$r = $this->dbLoad();
 		if ( empty( $r ) ) {
-			$r = new BotSignalRecord();
-			try {
-				$r->ip_ref = $this->getIPRecord()->id;
+			if ( $createNew ) {
+				$r = new BotSignalRecord();
+				try {
+					$r->ip_ref = ( new IPs\IPRecords() )
+						->setMod( $this->getCon()->getModule_Data() )
+						->loadIP( $this->getIP() )->id;
+				}
+				catch ( \Exception $e ) {
+					$r->ip_ref = -1;
+				}
 			}
-			catch ( \Exception $e ) {
-				$r->ip_ref = -1;
+			else {
+				throw new \Exception( 'No BotSignals record exists' );
 			}
 		}
 
-		$ruleStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $this->getMod() );
+		$ruleStatus = ( new IpRuleStatus( $this->getIP() ) )->setMod( $this->getMod() );
 		if ( $ruleStatus->hasRules() ) {
 			if ( $r->bypass_at === 0 && $ruleStatus->isBypass() ) {
 				/** @var IpRuleRecord $ruleRecord */
@@ -92,7 +103,7 @@ class BotSignalsRecord {
 			/** @var IpRuleRecord $blockedRuleRecord */
 			$blockedRuleRecord = current( $ruleStatus->getRulesForBlock() );
 			if ( !empty( $blockedRuleRecord ) ) {
-				$r->blocked_at = $ruleStatus->isBlocked();
+				$r->blocked_at = $blockedRuleRecord->blocked_at;
 				$r->unblocked_at = $blockedRuleRecord->unblocked_at;
 			}
 		}
@@ -103,7 +114,7 @@ class BotSignalsRecord {
 								->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
-		if ( $r->auth_at === 0 && $r->ip_ref > 0 ) {
+		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
 			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
@@ -116,9 +127,7 @@ class BotSignalsRecord {
 			}
 		}
 
-		if ( $storeOnLoad && $r->ip_ref > 0 ) {
-			$this->store( $r );
-		}
+		$this->store( $r );
 
 		return $r;
 	}
@@ -145,6 +154,9 @@ class BotSignalsRecord {
 		$mod = $this->getMod();
 
 		if ( !isset( $record->id ) ) {
+			if ( $record->ip_ref == -1 ) {
+				unset( $record->ip_ref );
+			}
 			$success = $mod->getDbH_BotSignal()
 						   ->getQueryInserter()
 						   ->insert( $record );
@@ -177,7 +189,7 @@ class BotSignalsRecord {
 			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
 		}
 
-		$record = $this->retrieve( false ); // false as we're going to store it anyway
+		$record = $this->retrieve(); // false as we're going to store it anyway
 		$record->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
 
 		$this->store( $record );
@@ -187,6 +199,7 @@ class BotSignalsRecord {
 
 	/**
 	 * @throws \Exception
+	 * @deprecated 16.0
 	 */
 	private function getIPRecord() :IPs\Ops\Record {
 		return ( new IPs\IPRecords() )

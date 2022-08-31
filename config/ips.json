@@ -825,6 +825,9 @@
         },
         "last_unblock_attempt_at": {
           "comment": "Last Time An Auto-Unblock Attempt Was Made"
+        },
+        "expires_at":              {
+          "comment": "The IP Rule on this lists expires at this time."
         }
       }
     },
@@ -1012,7 +1015,9 @@
         "level":        "info",
         "audit_params": [
           "count_new",
-          "count_deleted"
+          "count_deleted",
+          "scope",
+          "time_taken"
         ]
       },
       "crowdsec_signals_pushed":     {

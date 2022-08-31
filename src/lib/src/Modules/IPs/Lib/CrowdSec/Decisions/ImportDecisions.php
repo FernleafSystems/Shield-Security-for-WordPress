@@ -11,14 +11,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class ImportDecisions extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return true;
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$hoursInterval = $this->getCon()->isPremiumActive() ?
-			apply_filters( 'shield/crowdsec/decisions_update_interval', 23 ) // ~1 day
-			: 166; // 6.90 days
-		return ( Services::Request()->ts() - $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at )
-			   > HOUR_IN_SECONDS*min( $hoursInterval, 2 );
+		$interval = $this->getCon()->isPremiumActive() ?
+			apply_filters( 'shield/crowdsec/decisions_update_interval', HOUR_IN_SECONDS*2 ) : DAY_IN_SECONDS*2;
+		return ( Services::Request()->ts() - $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at ) > $interval;
 	}
 
 	protected function run() {
@@ -27,19 +24,30 @@ class ImportDecisions extends ExecOnceModConsumer {
 		$csCon = $mod->getCrowdSecCon();
 
 		$csCon->cfg->decisions_update_attempt_at = Services::Request()->ts();
-		$this->runImport();
-		$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
+		$csCon->storeCfg();
 
+		$this->runImport();
+
+		$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
 		$csCon->storeCfg();
 	}
 
 	public function runImport() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$csCon = $mod->getCrowdSecCon();
+
+		$minimumExpiresAt = Services::Request()
+									->carbon()
+									->setTimestamp( $csCon->cfg->decisions_updated_at )
+									->addDays( 5 )->timestamp;
 		try {
 			$decisionStream = $this->downloadDecisions();
 			foreach ( $this->enumSupportedScopeProcessors() as $supportedScopeProcessor ) {
 				try {
-					$processor = new $supportedScopeProcessor( $decisionStream );
-					$processor->setMod( $this->getMod() )->run();
+					$processor = new $supportedScopeProcessor();
+					$processor->minimum_expires_at = $minimumExpiresAt;
+					$processor->setMod( $this->getMod() )->run( $decisionStream );
 				}
 				catch ( \Exception $e ) {
 				}

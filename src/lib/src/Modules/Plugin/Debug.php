@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
@@ -18,6 +19,15 @@ class Debug extends Modules\Base\Debug {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
 		$this->crowdsec();
 		die( 'finish' );
+	}
+
+	private function cleanIPs() {
+		( new Modules\IPs\DB\IpRules\CleanIpRules() )
+			->setMod( $this->getCon()->getModule_IPs() )
+			->execute();
+		( new Modules\Data\Lib\CleanDatabases() )
+			->setMod( $this->getCon()->getModule_Data() )
+			->execute();
 	}
 
 	private function pagedIpRules() {
@@ -70,11 +80,14 @@ class Debug extends Modules\Base\Debug {
 		$csCon = $modIPs->getCrowdSecCon();
 
 		try {
-			$res = $this->getCon()
-						->getModule_License()
-						->getLicenseHandler()
-						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+//			$res = $this->getCon()
+//						->getModule_License()
+//						->getLicenseHandler()
+//						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 
+			error_log( 'memory: '.round( memory_get_usage()/1024/1024 ) );
+			$api = $modIPs->getCrowdSecCon()->getApi();
+//			$res = ( new DecisionsDownload( $api->getAuthorizationToken(), 'crowdsec/1.2.1' ) )->run();
 
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
 //			var_dump( $csCon->getApi()->getAuthStatus() );
@@ -98,7 +111,7 @@ class Debug extends Modules\Base\Debug {
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );
 		}
-//		var_dump( $res ?? 'unset' );
+		var_dump( $res ?? 'unset' );
 	}
 
 	private function cleanoptimisehashes() {

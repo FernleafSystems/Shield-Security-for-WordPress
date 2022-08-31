@@ -24,36 +24,8 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function cleanupDatabases() {
-		$con = $this->getCon();
-
-		// 1. Clean Requests & Audit Trail
-		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
-		/** @var AuditTrail\Options $optsAudit */
-		$optsAudit = $con->getModule_AuditTrail()->getOptions();
-		/** @var Traffic\Options $optsTraffic */
-		$optsTraffic = $con->getModule_Traffic()->getOptions();
-		$this->getDbH_ReqLogs()
-			 ->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
-
-		// 2. Clean Unused IPs.
-		$this->getDbH_IPs()
-			 ->getQueryDeleter()
-			 ->addWhereNotIn( 'id',
-				 array_unique( array_merge(
-					 $this->getDbH_ReqLogs()
-						  ->getQuerySelector()
-						  ->getDistinctForColumn( 'ip_ref' ),
-					 $con->getModule_IPs()
-						 ->getDbH_BotSignal()
-						 ->getQuerySelector()
-						 ->getDistinctForColumn( 'ip_ref' ),
-					 $con->getModule_IPs()
-						 ->getDbH_IPRules()
-						 ->getQuerySelector()
-						 ->getDistinctForColumn( 'ip_ref' )
-				 ) )
-			 )
-			 ->query();
-		// TODO 3. Clean User Meta.
+		( new Lib\CleanDatabases() )
+			->setMod( $this )
+			->execute();
 	}
 }
