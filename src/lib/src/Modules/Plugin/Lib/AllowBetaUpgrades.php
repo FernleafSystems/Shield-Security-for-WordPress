@@ -29,12 +29,12 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 
 				$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
 				$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
-				$versions = $versionsLookup->all();
 				$betas = array_filter(
-					is_array( $versions ) ? $versions : [],
-					function ( $beta ) {
-						return preg_match( '#\d\.#', (string)$beta )
-							   && version_compare( (string)$beta, $this->getCon()->getVersion(), '>=' );
+					$versionsLookup->all(),
+					function ( $betaVersion ) {
+						return is_string( $betaVersion )
+							   && preg_match( '#^\d(\.\d)+$#', $betaVersion )
+							   && version_compare( $betaVersion, $this->getCon()->getVersion(), '>' );
 					}
 				);
 				if ( !empty( $betas ) ) {

@@ -69,7 +69,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			$this->getSelectFieldsForIPTable(),
 			array_map(
 				function ( string $field ) {
-					return sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $field );
+					return sprintf( '`%s`.%s', $this->getJoinedTableAbbreviation(), $field );
 				},
 				$this->getSelectFieldsForJoinedTable()
 			)

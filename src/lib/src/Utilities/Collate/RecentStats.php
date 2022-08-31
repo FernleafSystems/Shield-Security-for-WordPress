@@ -45,7 +45,7 @@ class RecentStats {
 			];
 			self::$recentlyBlocked = $loader->select();
 		}
-		return is_array( self::$recentlyBlocked ) ? self::$recentlyBlocked : [];
+		return self::$recentlyBlocked;
 	}
 
 	public function getRecentlyOffendedIPs() :array {
@@ -60,7 +60,7 @@ class RecentStats {
 			];
 			self::$recentlyOffended = $loader->select();
 		}
-		return is_array( self::$recentlyOffended ) ? self::$recentlyOffended : [];
+		return self::$recentlyOffended;
 	}
 
 	public function getRecentUserSessions() :array {
@@ -69,7 +69,7 @@ class RecentStats {
 				->setMod( $this->getCon()->getModule_UserManagement() )
 				->mostRecent();
 		}
-		return is_array( self::$recentUserSessions ) ? self::$recentUserSessions : [];
+		return self::$recentUserSessions;
 	}
 
 	public function getRecentEvents() :array {
