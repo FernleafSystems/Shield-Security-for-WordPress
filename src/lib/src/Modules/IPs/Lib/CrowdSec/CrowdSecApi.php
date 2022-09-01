@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Crowdsec\RetrieveScenarios;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	ModCon,
 	Options
@@ -40,14 +39,14 @@ class CrowdSecApi {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $this->isReady() ?
-			$mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ] : '';
+			$mod->getCrowdSecCon()->cfg()->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ] : '';
 	}
 
 	public function getMachineID() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $this->isReady() ?
-			$mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'machine_id' ] : '';
+			$mod->getCrowdSecCon()->cfg()->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'machine_id' ] : '';
 	}
 
 	public function getAuthStatus() :string {
@@ -55,7 +54,7 @@ class CrowdSecApi {
 		$mod = $this->getMod();
 
 		$siteURL = Services::WpGeneral()->getWpUrl();
-		$csAuth = $mod->getCrowdSecCon()->cfg->cs_auths[ $siteURL ] ?? [];
+		$csAuth = $mod->getCrowdSecCon()->cfg()->cs_auths[ $siteURL ] ?? [];
 
 		if ( empty( $csAuth[ 'url' ] ) ) {
 			$state = self::STATE_NO_URL;
@@ -95,7 +94,6 @@ class CrowdSecApi {
 	}
 
 	public function login() :bool {
-		$machineID = $this->getCon()->getInstallationID()[ 'id' ];
 
 		$csAuth = $this->getCsAuth();
 		$siteURL = Services::WpGeneral()->getWpUrl();
@@ -105,7 +103,9 @@ class CrowdSecApi {
 				'url' => $siteURL,
 			];
 		}
+		$this->storeCsAuth( $csAuth );
 
+		$machineID = $this->getCon()->getInstallationID()[ 'id' ];
 		if ( empty( $csAuth[ 'machine_id' ] ) || $csAuth[ 'machine_id' ] !== $machineID ) {
 			$csAuth = [
 				'url'        => $siteURL,
@@ -113,7 +113,6 @@ class CrowdSecApi {
 				'password'   => wp_generate_password( 48 ),
 			];
 		}
-
 		$this->storeCsAuth( $csAuth );
 
 		$success = false;
@@ -185,7 +184,7 @@ class CrowdSecApi {
 		if ( $csAuth[ 'machine_registered' ] &&
 			 ( $forceLogin
 			   || empty( $csAuth[ 'auth_token' ] ) || empty( $csAuth[ 'auth_expire' ] )
-			   || ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 ) )
+			   || ( $csAuth[ 'auth_expire' ] < Services::Request()->ts() ) )
 		) {
 			try {
 				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
@@ -222,7 +221,6 @@ class CrowdSecApi {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$siteURL = Services::WpGeneral()->getWpUrl();
 		$csAuth = $this->getCsAuth();
 
 		// Enroll if we have the ID
@@ -230,7 +228,7 @@ class CrowdSecApi {
 		if ( !empty( $enrollID ) && ( empty( $csAuth[ 'machine_enrolled' ] ) || $forceEnroll ) ) {
 
 			$defaultTags = [ 'shield', 'wp', ];
-			$defaultName = preg_replace( '#^http(s)?://#i', '', $siteURL );
+			$defaultName = preg_replace( '#^http(s)?://#i', '', Services::WpGeneral()->getWpUrl() );
 			if ( $this->getCon()->isPremiumActive() ) {
 				$enrollTags = apply_filters( 'shield/crowdsec/enroll_tags', $defaultTags );
 				$enrollName = (string)apply_filters( 'shield/crowdsec/enroll_name', $defaultName );
@@ -278,27 +276,19 @@ class CrowdSecApi {
 	private function getCsAuth() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return $mod->getCrowdSecCon()->cfg->cs_auths[ Services::WpGeneral()->getWpUrl() ] ?? [];
+		return $mod->getCrowdSecCon()->cfg()->cs_auths[ Services::WpGeneral()->getWpUrl() ] ?? [];
 	}
 
 	private function storeCsAuth( array $csAuth ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$cfg = $mod->getCrowdSecCon()->cfg;
+		if ( !empty( $csAuth[ 'url' ] ) ) {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			$cfg = $mod->getCrowdSecCon()->cfg();
 
-		$url = $csAuth[ 'url' ];
-		if ( ( $cfg->cs_auths[ $url ] ?? [] ) !== $csAuth ) {
 			$auths = $cfg->cs_auths;
-			$auths[ $url ] = $csAuth;
-			$cfg->cs_auths = array_filter(
-				$auths,
-				function ( $auth ) {
-					return empty( $auth[ 'auth_expire' ] )
-						   || ( Services::Request()->ts() - $auth[ 'auth_expire' ] < WEEK_IN_SECONDS*4 );
-				}
-			);
-
-			$mod->getCrowdSecCon()->storeCfg();
+			$auths[ $csAuth[ 'url' ] ] = $csAuth;
+			$cfg->cs_auths = $auths;
+			$mod->getCrowdSecCon()->storeCfg( $cfg );
 		}
 	}
 

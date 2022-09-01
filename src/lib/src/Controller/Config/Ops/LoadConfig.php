@@ -77,9 +77,11 @@ class LoadConfig {
 	}
 
 	/**
+	 * @deprecated 16.0 - remove the empty()?
 	 * @return array|null
 	 */
 	public function fromWp() {
-		return Transient::Get( $this->store_key );
+		$def = Services::WpGeneral()->getOption( $this->store_key );
+		return empty( $def ) ? Transient::Get( $this->store_key ) : $def;
 	}
 }
