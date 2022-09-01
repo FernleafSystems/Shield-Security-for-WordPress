@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgrade_1600() {
+	protected function upgrade_1604() {
 		$con = $this->getCon();
 		if ( $con->isPremiumActive() ) {
 			try {
