@@ -44,11 +44,13 @@ class CleanDatabases extends ExecOnceModConsumer {
 				   ->query();
 		}
 		else {
-			// This method is likely going to send much fewer IDs, but requires 2 queries.
-			$allIDs = $dbhIPs->getQuerySelector()->getDistinctForColumn( 'id' );
-			$dbhIPs->getQueryDeleter()
-				   ->addWhereIn( 'id', array_diff( $allIDs, $ipIDsInUse ) )
-				   ->query();
+			// This method is likely going to send far fewer IDs into the delete query, but requires 2 queries.
+			$idsToDelete = array_diff( $dbhIPs->getQuerySelector()->getDistinctForColumn( 'id' ), $ipIDsInUse );
+			if ( !empty( $idsToDelete ) ) {
+				$dbhIPs->getQueryDeleter()
+					   ->addWhereIn( 'id', array_map( 'intval', $idsToDelete ) )
+					   ->query();
+			}
 		}
 	}
 
