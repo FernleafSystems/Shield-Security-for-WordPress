@@ -19,11 +19,13 @@ class ProcessIPs extends ProcessBase {
 	protected function preRun() {
 		( new CleanIpRules() )
 			->setMod( $this->getMod() )
-			->execute();
+			->expired_Crowdsec();
 	}
 
 	protected function postRun() {
-		$this->preRun();
+		( new CleanIpRules() )
+			->setMod( $this->getMod() )
+			->duplicates_Crowdsec();
 	}
 
 	/**

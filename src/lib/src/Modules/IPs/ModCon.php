@@ -268,6 +268,13 @@ class ModCon extends BaseShield\ModCon {
 
 	public function runHourlyCron() {
 		$this->runIpMigrator();
+
+		( new DB\IpRules\CleanIpRules() )
+			->setMod( $this )
+			->cleanAutoBlocks();
+	}
+
+	public function runDailyCron() {
 		( new DB\IpRules\CleanIpRules() )
 			->setMod( $this )
 			->execute();

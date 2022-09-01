@@ -17,17 +17,43 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->crowdsec();
+		$this->cleanIPs();
 		die( 'finish' );
 	}
 
 	private function cleanIPs() {
+		$ip = '150.95.219.153';
+		$mod = $this->getCon()->getModule_IPs();
+
+		$rule = ( new Modules\IPs\Lib\IpRules\IpRuleStatus( $ip ) )
+			->setMod( $mod )
+			->getRuleForAutoBlock();
+		var_dump( $rule );
+		die();
+
+		try {
+			( new Modules\IPs\DB\IpRules\MergeAutoBlockRules() )
+				->setMod( $mod )
+				->byIP( $ip );
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
+		die();
+
+		$rule = ( new Modules\IPs\Lib\IpRules\IpRuleStatus() )
+			->setMod( $mod )
+			->getRuleForAutoBlock();
+		var_dump( $rule );
 		( new Modules\IPs\DB\IpRules\CleanIpRules() )
 			->setMod( $this->getCon()->getModule_IPs() )
-			->execute();
-		( new Modules\Data\Lib\CleanDatabases() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->execute();
+			->duplicates_AutoBlock();
+//		( new Modules\IPs\DB\IpRules\CleanIpRules() )
+//			->setMod( $this->getCon()->getModule_IPs() )
+//			->execute();
+//		( new Modules\Data\Lib\CleanDatabases() )
+//			->setMod( $this->getCon()->getModule_Data() )
+//			->execute();
 	}
 
 	private function pagedIpRules() {

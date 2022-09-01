@@ -9,6 +9,7 @@ use IPLib\Factory;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
+	MergeAutoBlockRules,
 	Ops\Handler
 };
 
@@ -80,44 +81,25 @@ class IpRuleStatus {
 
 		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
-		$toDelete = [];
 		if ( count( $rules ) === 1 ) {
 			$record = current( $rules );
 			if ( $record->last_access_at < ( Services::Request()->ts() - $opts->getAutoExpireTime() ) ) {
-				$toDelete[ key( $rules ) ] = $record;
+				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
 		elseif ( count( $rules ) > 1 ) {
-			// Should only have 1 auto-block rule. So we delete all the older rules.
-			$ruleToKeep = null;
-			$ruleToKeepKey = null;
-			foreach ( $rules as $key => $record ) {
-				if ( empty( $ruleToKeep ) ) {
-					$ruleToKeep = $record;
-					$ruleToKeepKey = $key;
-				}
-				elseif ( $ruleToKeep->last_access_at < $record->last_access_at ) {
-
-					$toDelete[ $ruleToKeepKey ] = $ruleToKeep;
-
-					$ruleToKeep = $record;
-					$ruleToKeepKey = $key;
-				}
-				else {
-					$toDelete[ $key ] = $record;
-				}
+			// Should only have 1 auto-block rule. So we merge & delete all the older rules.
+			try {
+				( new MergeAutoBlockRules() )
+					->setMod( $this->getMod() )
+					->byRecords( $rules );
 			}
+			catch ( \Exception $e ) {
+			}
+			self::ClearStatusForIP( $this->getIP() );
 		}
 
-		foreach ( $toDelete as $deleteKey => $deleteRecord ) {
-			( new DeleteRule() )
-				->setMod( $this->getMod() )
-				->byRecord( $deleteRecord );
-			$this->removeRecordFromCache( $deleteRecord );
-			unset( $rules[ $deleteKey ] );
-		}
-
-		return array_values( $rules );
+		return $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 	}
 
 	/**
@@ -260,7 +242,6 @@ class IpRuleStatus {
 		$loader = ( new LoadIpRules() )
 			->setMod( $this->getMod() )
 			->setIP( $this->getIP() );
-		$loader->limit = 1;
 		$loader->wheres = [
 			"`ir`.`is_range`='0'"
 		];
