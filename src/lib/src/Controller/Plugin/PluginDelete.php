@@ -55,13 +55,16 @@ class PluginDelete {
 						// Order is critical
 						$con->getModule_AuditTrail()->getDbH_Meta(),
 						$con->getModule_AuditTrail()->getDbH_Logs(),
-						$con->getModule_Data()->getDbH_ReqLogs(),
 						$con->getModule_HackGuard()->getDbH_ScanResults(),
 						$con->getModule_HackGuard()->getDbH_ResultItemMeta(),
 						$con->getModule_HackGuard()->getDbH_ResultItems(),
 						$con->getModule_HackGuard()->getDbH_ScanItems(),
 						$con->getModule_HackGuard()->getDbH_Scans(),
+						$con->getModule_IPs()->getDbH_CrowdSecSignals(),
 						$con->getModule_IPs()->getDbH_BotSignal(),
+						$con->getModule_IPs()->getDbH_IPRules(),
+						$con->getModule_Data()->getDbH_ReqLogs(),
+						$con->getModule_Data()->getDbH_UserMeta(),
 						$con->getModule_Data()->getDbH_IPs(),
 					]
 				)
