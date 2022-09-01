@@ -114,10 +114,9 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	 * @return IpRuleRecord[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
-
-		( new CleanIpRules() )
-			->setMod( $this->getMod() )
-			->execute();
+		$cleaner = ( new CleanIpRules() )->setMod( $this->getMod() );
+		$cleaner->expired();
+		$cleaner->duplicates_AutoBlock();
 
 		$loader = $this->getRecordsLoader();
 		$loader->wheres = $wheres;

@@ -3,16 +3,25 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
-class ProcessOffense {
+class ProcessOffense extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
-	use Shield\Modules\ModConsumer;
 	use IpAddressConsumer;
 
-	public function run() {
+	protected function run() {
+		/** @var IPs\ModCon $mod */
+		$mod = $this->getMod();
+		try {
+			$offenseTracker = $mod->loadOffenseTracker();
+			$this->incrementOffenses( $offenseTracker->getOffenseCount(), $offenseTracker->isBlocked() );
+		}
+		catch ( \Exception $e ) {
+		}
+	}
+
+	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) {
 		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
@@ -28,10 +37,8 @@ class ProcessOffense {
 
 			$currentCount = $IP->offenses;
 
-			$offenseTracker = $mod->loadOffenseTracker();
-			$newCount = $IP->offenses + $offenseTracker->getOffenseCount();
-			$toBlock = $offenseTracker->isBlocked() ||
-					   ( $newCount >= $opts->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
+			$newCount = $IP->offenses + $incrementBy;
+			$toBlock = $blockIP || ( $newCount >= $opts->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
 
 			if ( $toBlock ) {
 				$newCount = (int)max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
@@ -41,14 +48,16 @@ class ProcessOffense {
 			$updater = $dbh->getQueryUpdater();
 			$updater->updateTransgressions( $IP, $newCount );
 
-			$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
-				[
-					'audit_params' => [
-						'from' => $currentCount,
-						'to'   => $newCount,
+			if ( $fireEvents ) {
+				$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
+					[
+						'audit_params' => [
+							'from' => $currentCount,
+							'to'   => $newCount,
+						]
 					]
-				]
-			);
+				);
+			}
 
 			/**
 			 * When we block, we also want to increment offense stat, but we don't
@@ -59,15 +68,18 @@ class ProcessOffense {
 				/** @var IpRulesDB\Update $updater */
 				$updater = $dbh->getQueryUpdater();
 				$updater->setBlocked( $IP );
-				$con->fireEvent( 'ip_offense',
-					[
-						'suppress_audit' => true,
-						'audit_params'   => [
-							'from' => $currentCount,
-							'to'   => $newCount,
+
+				if ( $fireEvents ) {
+					$con->fireEvent( 'ip_offense',
+						[
+							'suppress_audit' => true,
+							'audit_params'   => [
+								'from' => $currentCount,
+								'to'   => $newCount,
+							]
 						]
-					]
-				);
+					);
+				}
 			}
 		}
 		catch ( \Exception $e ) {
