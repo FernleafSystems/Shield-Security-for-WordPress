@@ -26,9 +26,6 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$this->cfg = ( new CrowdSecCfg() )->applyFromArray( $opts->getOpt( 'crowdsec_cfg' ) );
 		$this->setupCronHooks();
 
 		( new AutoUnblockCrowdsec() )
@@ -45,6 +42,10 @@ class CrowdSecController extends ExecOnceModConsumer {
 		} );
 	}
 
+	public function cfg() :CrowdSecCfg {
+		return ( new CrowdSecCfg() )->applyFromArray( $this->getOptions()->getOpt( 'crowdsec_cfg' ) );
+	}
+
 	public function getApi() :CrowdSecApi {
 		return ( new CrowdSecApi() )->setMod( $this->getMod() );
 	}
@@ -53,8 +54,8 @@ class CrowdSecController extends ExecOnceModConsumer {
 		return ( new IpRuleStatus( $ip ) )->isBlockedByCrowdsec();
 	}
 
-	public function storeCfg() {
-		$this->getOptions()->setOpt( 'crowdsec_cfg', $this->cfg->getRawData() );
+	public function storeCfg( CrowdSecCfg $cfg ) {
+		$this->getOptions()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
 		$this->getMod()->saveModOptions();
 	}
 

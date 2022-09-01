@@ -14,7 +14,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return ( Services::Request()->ts() - $this->getImportInterval() )
-			   > $mod->getCrowdSecCon()->cfg->decisions_update_attempt_at;
+			   > $mod->getCrowdSecCon()->cfg()->decisions_update_attempt_at;
 	}
 
 	protected function run() {
@@ -22,13 +22,15 @@ class ImportDecisions extends ExecOnceModConsumer {
 		$mod = $this->getMod();
 		$csCon = $mod->getCrowdSecCon();
 
-		$csCon->cfg->decisions_update_attempt_at = Services::Request()->ts();
-		$csCon->storeCfg();
+		$cfg = $csCon->cfg();
+		$cfg->decisions_update_attempt_at = Services::Request()->ts();
+		$csCon->storeCfg( $cfg );
 
 		$this->runImport();
 
-		$csCon->cfg->decisions_updated_at = $csCon->cfg->decisions_update_attempt_at;
-		$csCon->storeCfg();
+		$cfg = $csCon->cfg();
+		$cfg->decisions_updated_at = Services::Request()->ts();
+		$csCon->storeCfg( $cfg );
 	}
 
 	public function runImport() {
