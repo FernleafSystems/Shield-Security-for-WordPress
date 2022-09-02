@@ -224,7 +224,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'unblock':
-					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+					foreach ( $ruleStatus->getRulesForBlock() as $record ) {
 						$success = ( new Lib\IpRules\DeleteRule() )
 							->setMod( $this->getMod() )
 							->byRecord( $record );
@@ -258,10 +258,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					break;
 
 				case 'delete_notbot':
-					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+					$abRule = $ruleStatus->getRuleForAutoBlock();
+					if ( !empty( $abRule ) ) {
 						( new Lib\IpRules\DeleteRule() )
 							->setMod( $this->getMod() )
-							->byRecord( $record );
+							->byRecord( $abRule );
 					}
 					$success = ( new Lib\Bots\BotSignalsRecord() )
 						->setMod( $this->getMod() )

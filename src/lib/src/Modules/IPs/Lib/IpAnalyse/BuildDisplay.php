@@ -80,9 +80,9 @@ class BuildDisplay {
 				->run();
 
 			// We do a "repair" and unblock previously blocked search providers:
-			if ( $ruleStatus->isBlockedByShield()
+			if ( $ruleStatus->isBlocked()
 				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
-				foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+				foreach ( $ruleStatus->getRulesForBlock() as $record ) {
 					( new DeleteRule() )
 						->setMod( $this->getMod() )
 						->byRecord( $record );

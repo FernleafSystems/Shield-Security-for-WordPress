@@ -19,20 +19,31 @@ class DeleteRule {
 		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		switch ( $record->type ) {
-
-			case Handler::T_AUTO_BLOCK:
-			case Handler::T_MANUAL_BLOCK:
-				$con->fireEvent( 'ip_unblock', [ 'audit_params' => [ 'ip' => $record->ipAsSubnetRange() ] ] );
-				break;
-
-			case Handler::T_MANUAL_BYPASS:
-				$con->fireEvent( 'ip_bypass_remove', [ 'audit_params' => [ 'ip' => $record->ipAsSubnetRange() ] ] );
-				break;
-		}
 
 		/** @var IpRulesDB\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
-		return $deleter->deleteById( $record->id );
+		$deleted = $deleter->deleteById( $record->id );
+
+		if ( $deleted ) {
+			switch ( $record->type ) {
+
+				case Handler::T_AUTO_BLOCK:
+				case Handler::T_MANUAL_BLOCK:
+				case Handler::T_CROWDSEC:
+					$con->fireEvent( 'ip_unblock', [
+						'audit_params' => [
+							'ip'   => $record->ipAsSubnetRange(),
+							'type' => Handler::GetTypeName( $record->type ),
+						]
+					] );
+					break;
+
+				case Handler::T_MANUAL_BYPASS:
+					$con->fireEvent( 'ip_bypass_remove', [ 'audit_params' => [ 'ip' => $record->ipAsSubnetRange() ] ] );
+					break;
+			}
+		}
+
+		return $deleted;
 	}
 }
