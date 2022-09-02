@@ -33,6 +33,10 @@ class IpRuleStatus {
 		$this->ipOrRange = $ipOrRange;
 	}
 
+	public function getBlockType() :string {
+		return $this->isBlocked() ? current( $this->getRulesForBlock() )->type : '';
+	}
+
 	public function getOffenses() :int {
 		$rule = $this->getRuleForAutoBlock();
 		return empty( $rule ) ? 0 : $rule->offenses;
@@ -138,6 +142,10 @@ class IpRuleStatus {
 		return $has;
 	}
 
+	public function hasAutoBlock() :bool {
+		return !empty( $this->getRuleForAutoBlock() );
+	}
+
 	public function hasManualBlock() :bool {
 		return !empty( $this->getRulesForManualBlock() );
 	}
@@ -227,35 +235,27 @@ class IpRuleStatus {
 	private function loadRecordsForIP() :array {
 		$records = [];
 
+		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
+		$loader->wheres = [
+			sprintf( '(%s) OR (%s)',
+				sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
+				"`ir`.`is_range`='1'"
+			)
+		];
+
 		$parsedIP = Factory::parseRangeString( $this->getIP() );
-		foreach ( $this->loadRanges() as $maybe ) {
-			$maybeParsed = Factory::parseRangeString( $maybe->ipAsSubnetRange( true ) );
-			if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
-				$records[] = $maybe;
+		foreach ( $loader->select() as $record ) {
+			if ( $record->is_range ) {
+				$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
+				if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
+					$records[] = $record;
+				}
+			}
+			else {
+				$records[] = $record;
 			}
 		}
 
-		return array_merge( $records, $this->loadSingles() );
-	}
-
-	private function loadSingles() :array {
-		$loader = ( new LoadIpRules() )
-			->setMod( $this->getMod() )
-			->setIP( $this->getIP() );
-		$loader->wheres = [
-			"`ir`.`is_range`='0'"
-		];
-		return $loader->select();
-	}
-
-	private function loadRanges() :array {
-		if ( !isset( $this->rangeRecords ) ) {
-			$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
-			$loader->wheres = [
-				"`ir`.`is_range`='1'"
-			];
-			$this->rangeRecords = $loader->select();
-		}
-		return $this->rangeRecords;
+		return $records;
 	}
 }

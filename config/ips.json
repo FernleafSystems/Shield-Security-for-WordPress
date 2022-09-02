@@ -908,7 +908,8 @@
       },
       "ip_unblock":                  {
         "audit_params": [
-          "ip"
+          "ip",
+          "type"
         ],
         "level":        "notice",
         "offense":      false,

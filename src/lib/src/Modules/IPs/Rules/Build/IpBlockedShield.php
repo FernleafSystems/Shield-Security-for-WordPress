@@ -10,16 +10,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
-class IpBlocked extends BuildRuleCoreShieldBase {
+class IpBlockedShield extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_ip_blocked';
+	const SLUG = 'shield/is_ip_blocked_shield';
 
 	protected function getName() :string {
-		return 'Is IP Blocked';
+		return 'Is IP Shield Blocked';
 	}
 
 	protected function getDescription() :string {
-		return 'Test whether the current Request IP is Blocked.';
+		return 'Test whether the current Request IP is Blocked by Shield.';
 	}
 
 	protected function getConditions() :array {
@@ -31,12 +31,25 @@ class IpBlocked extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'condition' => Conditions\IsIpBlocked::SLUG,
-				],
-				[
-					'condition'    => Conditions\IsIpHighReputation::SLUG,
-					'invert_match' => true
-				],
+					'logic' => static::LOGIC_OR,
+					'group' => [
+						[
+							'condition' => Conditions\IsIpBlockedManual::SLUG,
+						],
+						[
+							'logic' => static::LOGIC_AND,
+							'group' => [
+								[
+									'condition' => Conditions\IsIpBlockedAuto::SLUG,
+								],
+								[
+									'condition'    => Conditions\IsIpHighReputation::SLUG,
+									'invert_match' => true
+								],
+							]
+						]
+					]
+				]
 			]
 		];
 	}

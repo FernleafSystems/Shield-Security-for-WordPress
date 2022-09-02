@@ -2,14 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 use FernleafSystems\Wordpress\Services\Services;
 
-class IsIpCrowdsec extends Base {
+class IsIpBlockedCrowdsec extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_crowdsec';
+	const SLUG = 'is_ip_blocked_crowdsec';
 
 	/**
 	 * @inheritDoc
@@ -21,7 +22,9 @@ class IsIpCrowdsec extends Base {
 			$srvIP = Services::IP();
 			$thisReq->is_ip_crowdsec_blocked =
 				!$srvIP->checkIp( $this->getRequestIP(), $srvIP->getServerPublicIPs() )
-				&& $con->getModule_IPs()->getCrowdSecCon()->isIpBlockedOnCrowdSec( $this->getRequestIP() );
+				&& ( new IpRuleStatus( $this->getRequestIP() ) )
+					->setMod( $this->getCon()->getModule_IPs() )
+					->hasCrowdsecBlock();
 		}
 		return $thisReq->is_ip_crowdsec_blocked;
 	}
