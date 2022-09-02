@@ -1,0 +1,38 @@
+<div id="ShieldMainwpExtension">
+	{% block body_header %}
+
+		{% block menu_topnav %}
+			<div class="row">
+				<div class="column one">
+					<div class="ui labeled icon inverted menu mainwp-sub-submenu" id="mainwp-shield-menu">
+						{% for menu_topnav_item in vars.menu_topnav %}
+							<a href="{{ menu_topnav_item.href }}"
+							   class="item {% if menu_topnav_item.active %}active{% endif %}">
+								<i class="{{ menu_topnav_item.icon }} icon"></i>{{ menu_topnav_item.title }}</a>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		{% endblock %}
+
+		{% block actions_bar %}
+		{% endblock %}
+
+	{% endblock %}
+
+	{% block body_main %}
+	{% endblock %}
+
+	{% block body_footer %}
+	{% endblock %}
+
+	{% block inline_js %}
+		<script type="text/javascript">
+			jQuery( document ).ready( function () {
+		  jQuery( '#ShieldMainwpExtension' ).icwpWpsfMainwpExt( {
+			  'ajax_actions':{{ ajax.actions|raw }}
+		  } );
+	  } );
+		</script>
+	{% endblock %}
+</div>

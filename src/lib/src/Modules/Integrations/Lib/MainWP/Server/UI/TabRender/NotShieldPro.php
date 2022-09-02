@@ -1,12 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
+class NotShieldPro extends BaseTab {
 
-class NotShieldPro extends BaseRender {
-
-	protected function getData() :array {
+	protected function getPageSpecificData() :array {
 		return [
 			'strings' => [
 				'not_pro' => __( "Sorry, the MainWP server integration is available only for ShieldPRO clients." ),
