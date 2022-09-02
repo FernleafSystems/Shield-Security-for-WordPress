@@ -142,6 +142,10 @@ class IpRuleStatus {
 		return $has;
 	}
 
+	public function hasAutoBlock() :bool {
+		return !empty( $this->getRuleForAutoBlock() );
+	}
+
 	public function hasManualBlock() :bool {
 		return !empty( $this->getRulesForManualBlock() );
 	}

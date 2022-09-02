@@ -50,10 +50,6 @@ class CrowdSecController extends ExecOnceModConsumer {
 		return ( new CrowdSecApi() )->setMod( $this->getMod() );
 	}
 
-	public function isIpBlockedOnCrowdSec( string $ip ) :bool {
-		return ( new IpRuleStatus( $ip ) )->isBlockedByCrowdsec();
-	}
-
 	public function storeCfg( CrowdSecCfg $cfg ) {
 		$this->getOptions()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
 		$this->getMod()->saveModOptions();

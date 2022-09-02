@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
-class IpCrowdSec extends BuildRuleCoreShieldBase {
+class IpBlockedCrowdsec extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_ip_crowdsec_blocked';
+	const SLUG = 'shield/is_ip_blocked_crowdsec';
 
 	protected function getName() :string {
 		return 'Is IP CrowdSec Blocked';
@@ -31,7 +31,7 @@ class IpCrowdSec extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'condition'    => Conditions\IsIpBlocked::SLUG,
+					'rule'         => IpBlockedShield::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -39,7 +39,7 @@ class IpCrowdSec extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'condition' => Conditions\IsIpCrowdsec::SLUG,
+					'condition' => Conditions\IsIpBlockedCrowdsec::SLUG,
 				],
 			]
 		];
