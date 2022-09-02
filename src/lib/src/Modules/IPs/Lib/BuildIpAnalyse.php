@@ -79,16 +79,6 @@ class BuildIpAnalyse {
 			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
 				->setIgnoreUserAgent()
 				->run();
-
-			// We do a "repair" and unblock previously blocked search providers:
-			if ( $ruleStatus->isBlocked()
-				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
-				foreach ( $ruleStatus->getRulesForBlock() as $record ) {
-					( new DeleteRule() )
-						->setMod( $this->getMod() )
-						->byRecord( $record );
-				}
-			}
 		}
 		catch ( \Exception $e ) {
 			$ipKey = IpID::UNKNOWN;

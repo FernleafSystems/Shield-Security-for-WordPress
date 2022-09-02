@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
@@ -103,7 +104,29 @@ class IpRuleStatus {
 			self::ClearStatusForIP( $this->getIP() );
 		}
 
-		return $this->getRules( [ Handler::T_AUTO_BLOCK ] );
+		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
+
+		// Just in case we've previously blocked a Search Provider - perhaps a failed rDNS at the time.
+		if ( !empty( $rules ) ) {
+			try {
+				list( $ipKey, $ipName ) = ( new IpID( $this->getIP() ) )
+					->setIgnoreUserAgent()
+					->run();
+				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+					foreach ( $rules as $rule ) {
+						( new DeleteRule() )
+							->setMod( $this->getMod() )
+							->byRecord( $rule );
+					}
+					self::ClearStatusForIP( $this->getIP() );
+					$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
+				}
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+
+		return $rules;
 	}
 
 	/**
