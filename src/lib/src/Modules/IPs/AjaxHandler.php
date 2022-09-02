@@ -148,7 +148,7 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			$data = [
 				'success' => true,
 				'title'   => sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $ip ),
-				'body'    => ( new Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay() )
+				'body'    => ( new Lib\BuildIpAnalyse() )
 					->setMod( $this->getMod() )
 					->setIP( $ip )
 					->run(),

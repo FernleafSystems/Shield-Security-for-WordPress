@@ -33,6 +33,10 @@ class IpRuleStatus {
 		$this->ipOrRange = $ipOrRange;
 	}
 
+	public function getBlockType() :string {
+		return $this->isBlocked() ? current( $this->getRulesForBlock() )->type : '';
+	}
+
 	public function getOffenses() :int {
 		$rule = $this->getRuleForAutoBlock();
 		return empty( $rule ) ? 0 : $rule->offenses;
