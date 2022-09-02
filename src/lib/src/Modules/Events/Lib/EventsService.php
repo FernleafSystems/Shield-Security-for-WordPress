@@ -77,7 +77,7 @@ class EventsService {
 					)
 				);
 			}
-			$this->aEvents = (array)apply_filters( 'shield/events_definitions', $this->buildEvents( $events ) );
+			$this->aEvents = (array)apply_filters( 'shield/events/definitions', $this->buildEvents( $events ) );
 			if ( empty( $this->aEvents ) ) {
 				error_log( 'Shield events definitions is empty or not the correct format' );
 			}
@@ -102,7 +102,7 @@ class EventsService {
 
 		if ( $this->getCon()->isPremiumActive() ) {
 
-			$events = apply_filters( 'shield/custom_events_definitions', [] );
+			$events = apply_filters( 'shield/events/custom_definitions', [] );
 			if ( !is_array( $events ) ) {
 				throw new \Exception( "custom events isn't an array. Please ensure to return only an array to this filter." );
 			}

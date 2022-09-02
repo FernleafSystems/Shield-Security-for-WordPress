@@ -1173,10 +1173,12 @@ class Controller extends DynPropertiesClass {
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 
 		if ( $this->plugin_deleting ) {
+			Services::WpGeneral()->deleteOption( $this->getConfigStoreKey() );
 			Transient::Delete( $this->getConfigStoreKey() );
 		}
 		elseif ( isset( $this->cfg ) ) {
-			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() );
+			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $this->cfg->getRawData() );
+			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() ); /* @deprecated 16.0 */
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}

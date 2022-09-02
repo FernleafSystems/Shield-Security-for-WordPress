@@ -45,7 +45,7 @@ class Strings extends Base\Strings {
 			'ip_unblock'                  => [
 				'name'  => __( 'IP Unblocked', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'IP removed from block list.', 'wp-simple-firewall' ),
+					__( '{{ip}} removed from block list ({{type}}).', 'wp-simple-firewall' ),
 				],
 			],
 			'ip_unblock_flag'             => [
@@ -178,11 +178,12 @@ class Strings extends Base\Strings {
 				],
 			],
 			'crowdsec_decisions_acquired' => [
-				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'IP Reputation Decisions Acquired', 'wp-simple-firewall' ) ),
+				'name'  => sprintf( '%s: %s', __( 'CrowdSec', 'wp-simple-firewall' ), __( 'Reputation Decisions Acquired', 'wp-simple-firewall' ) ),
 				'audit' => [
-					__( 'Downloaded IP Reputation decisions from CrowdSec.', 'wp-simple-firewall' ),
+					__( 'Downloaded reputation decisions from CrowdSec for scope: {{scope}}.', 'wp-simple-firewall' ),
 					sprintf( '%s: {{count_new}}', __( 'New', 'wp-simple-firewall' ) ),
 					sprintf( '%s: {{count_deleted}}', __( 'Deleted', 'wp-simple-firewall' ) ),
+					sprintf( '%s: {{time_taken}}s', __( 'Time Taken', 'wp-simple-firewall' ) ),
 				],
 			],
 			'crowdsec_signals_pushed'     => [

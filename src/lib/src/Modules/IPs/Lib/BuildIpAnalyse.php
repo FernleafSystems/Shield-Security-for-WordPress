@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
@@ -22,7 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputat
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-class BuildDisplay {
+class BuildIpAnalyse {
 
 	use IpAddressConsumer;
 	use ModConsumer;
@@ -78,16 +79,6 @@ class BuildDisplay {
 			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
 				->setIgnoreUserAgent()
 				->run();
-
-			// We do a "repair" and unblock previously blocked search providers:
-			if ( $ruleStatus->isBlockedByShield()
-				 && in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
-				foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
-					( new DeleteRule() )
-						->setMod( $this->getMod() )
-						->byRecord( $record );
-				}
-			}
 		}
 		catch ( \Exception $e ) {
 			$ipKey = IpID::UNKNOWN;
@@ -133,10 +124,11 @@ class BuildDisplay {
 				'status' => [
 					'is_you'              => __( 'Is It You?', 'wp-simple-firewall' ),
 					'offenses'            => __( 'Number of offenses', 'wp-simple-firewall' ),
-					'is_blocked'          => __( 'Is Blocked', 'wp-simple-firewall' ),
-					'is_bypass'           => __( 'Is Bypass IP', 'wp-simple-firewall' ),
+					'is_blocked'          => __( 'IP Blocked', 'wp-simple-firewall' ),
+					'is_bypass'           => __( 'Bypass IP', 'wp-simple-firewall' ),
 					'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
 					'snapi_ip_reputation' => __( 'ShieldNET IP Reputation Score', 'wp-simple-firewall' ),
+					'block_type'          => $ruleStatus->isBlocked() ? Handler::GetTypeName( $ruleStatus->getBlockType() ) : ''
 				],
 
 				'yes' => __( 'Yes', 'wp-simple-firewall' ),
@@ -308,7 +300,7 @@ class BuildDisplay {
 			$record = null;
 		}
 
-		if ( !empty( $record ) && $record->ip_ref >= 0 ) {
+		if ( !empty( $record ) ) {
 			foreach ( $scores as $scoreKey => $scoreValue ) {
 				$column = $scoreKey.'_at';
 				if ( $scoreValue !== 0 ) {

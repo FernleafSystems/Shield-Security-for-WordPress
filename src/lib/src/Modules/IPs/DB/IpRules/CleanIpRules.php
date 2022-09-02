@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
@@ -10,20 +11,36 @@ use FernleafSystems\Wordpress\Services\Services;
 class CleanIpRules extends ExecOnceModConsumer {
 
 	protected function run() {
-		$this->old();
-		$this->expiredAutoBlock();
-//		$this->duplicates();
+		$this->expired();
+		$this->duplicates();
 	}
 
-	public function expiredAutoBlock() {
+	public function duplicates() {
+		$this->duplicates_AutoBlock();
+		$this->duplicates_Crowdsec();
+	}
+
+	public function expired() {
+		$this->expired_AutoBlock();
+		$this->expired_Crowdsec();
+	}
+
+	public function cleanAutoBlocks() {
+		$this->expired_AutoBlock();
+		$this->duplicates_AutoBlock();
+	}
+
+	public function expired_AutoBlock() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
+
+		// Expired AutoBlock
 		/** @var Ops\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
 		$deleter
-			->filterByType( Ops\Handler::T_AUTO_BLOCK )
+			->filterByType( Handler::T_AUTO_BLOCK )
 			->addWhereOlderThan(
 				Services::Request()
 						->carbon()
@@ -33,52 +50,95 @@ class CleanIpRules extends ExecOnceModConsumer {
 			->query();
 	}
 
-	public function old( int $days = 7 ) {
+	public function expired_Crowdsec() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+
+		// Expired CrowdSec
 		/** @var Ops\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
 		$deleter
-			->filterByType( Ops\Handler::T_CROWDSEC )
-			->addWhereOlderThan(
-				Services::Request()
-						->carbon()
-						->subDays( $days )->timestamp,
-				'updated_at'
-			)
+			->filterByType( Handler::T_CROWDSEC )
+			->addWhereNewerThan( 0, 'expires_at' )
+			->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 			->query();
+	}
+
+	public function duplicates_AutoBlock() {
+		array_map(
+			function ( $ip ) {
+				try {
+					( new MergeAutoBlockRules() )
+						->setMod( $this->getMod() )
+						->byIP( $ip );
+				}
+				catch ( \Exception $e ) {
+					error_log( 'clean duplicate IPs for: '.$ip );
+				}
+			},
+			array_keys( array_filter( $this->getIpCountsForType( Handler::T_AUTO_BLOCK ), function ( $IDs ) {
+				return count( $IDs ) > 1;
+			} ) )
+		);
 	}
 
 	/**
 	 * TODO: update for newer IPRules
 	 * Find all records that reference duplicate IP addresses and delete surplus.
 	 */
-	public function duplicates() {
+	public function duplicates_Crowdsec() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-		$WPDB = Services::WpDb();
-		$raw = $WPDB->selectCustom( sprintf(
-			'SELECT `ir`.`ip_ref` as `ip_ref`,COUNT(*) as `count`
-			FROM `%s` as `ir`
-			INNER JOIN `%s` as `ips` ON `ips`.`id` = `ir`.`ip_ref`
-			GROUP BY `ir`.`ip_ref`;',
-			$dbh->getTableSchema()->table,
-			$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
-		) );
 
-		if ( is_array( $raw ) ) {
-			foreach ( $raw as $record ) {
-				if ( is_array( $record ) && !empty( $record[ 'ip_ref' ] ) && $record[ 'count' ] > 1 ) {
-					$WPDB->doSql( sprintf( "DELETE FROM `%s` WHERE `ip_ref`='%s' LIMIT %s;",
-						$dbh->getTableSchema()->table,
-						(int)$record[ 'ip_ref' ],
-						$record[ 'count' ] - 1
-					) );
-				}
-			}
+		$allCounts = array_filter( $this->getIpCountsForType( Handler::T_CROWDSEC ), function ( $IDs ) {
+			return count( $IDs ) > 1;
+		} );
+
+		$deleteIDs = [];
+		foreach ( $allCounts as $ipIDs ) {
+			array_pop( $ipIDs );
+			$deleteIDs = array_merge( $deleteIDs, $ipIDs );
 		}
 
-		return $raw;
+		if ( !empty( $deleteIDs ) ) {
+			/** @var Ops\Delete $deleter */
+			$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
+			$deleter
+				->filterByType( Handler::T_AUTO_BLOCK )
+				->addWhereIn( 'id', $deleteIDs )
+				->query();
+		}
+	}
+
+	private function getIpCountsForType( string $type ) :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+
+		$ipCounts = [];
+
+		$page = 0;
+		$pageSize = 250;
+		do {
+			$loader = ( new LoadIpRules() )->setMod( $mod );
+			$loader->wheres = [
+				sprintf( "`ir`.`type`='%s'", $type )
+			];
+			$loader->limit = $pageSize;
+			$loader->offset = $page*$pageSize;
+
+			$hasRecords = false;
+			foreach ( $loader->select() as $record ) {
+				$hasRecords = true;
+				$ip = $record->ipAsSubnetRange();
+				if ( !isset( $ipCounts[ $ip ] ) ) {
+					$ipCounts[ $ip ] = [];
+				}
+				$ipCounts[ $ip ][] = $record->id;
+			}
+
+			$page++;
+		} while ( $hasRecords );
+
+		return $ipCounts;
 	}
 }

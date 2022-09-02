@@ -129,10 +129,10 @@ class LoadLogs extends DynPropertiesClass {
 	private function getRawQuery( bool $includeMeta = true ) :string {
 		return sprintf( 'SELECT %%s
 					FROM `%%s` as log
-					INNER JOIN `%%s` as req
-						ON log.req_ref = req.id
-					INNER JOIN `%%s` as ips
-						ON ips.id = req.ip_ref 
+					INNER JOIN `%%s` as `req`
+						ON log.req_ref = `req`.id
+					INNER JOIN `%%s` as `ips`
+						ON `ips`.id = `req`.ip_ref 
 						%%s
 					%s
 					%%s

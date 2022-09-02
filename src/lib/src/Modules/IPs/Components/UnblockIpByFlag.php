@@ -30,7 +30,7 @@ class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
 					$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
-					foreach ( $ruleStatus->getRulesForShieldBlock() as $record ) {
+					foreach ( $ruleStatus->getRulesForBlock() as $record ) {
 						$removed = ( new IPs\Lib\IpRules\DeleteRule() )
 							->setMod( $mod )
 							->byRecord( $record );

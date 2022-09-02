@@ -94,8 +94,8 @@ class ModCon extends BaseShield\ModCon {
 		return [
 			Rules\Build\IpWhitelisted::class,
 			Rules\Build\IsPathWhitelisted::class,
-			$opts->isEnabledCrowdSecAutoBlock() ? Rules\Build\IpCrowdSec::class : null,
-			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlocked::class : null,
+			$opts->isEnabledCrowdSecAutoBlock() ? Rules\Build\IpBlockedCrowdsec::class : null,
+			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlockedShield::class : null,
 			Rules\Build\BotTrack404::class,
 			Rules\Build\BotTrackXmlrpc::class,
 			Rules\Build\BotTrackFakeWebCrawler::class,
@@ -268,6 +268,13 @@ class ModCon extends BaseShield\ModCon {
 
 	public function runHourlyCron() {
 		$this->runIpMigrator();
+
+		( new DB\IpRules\CleanIpRules() )
+			->setMod( $this )
+			->cleanAutoBlocks();
+	}
+
+	public function runDailyCron() {
 		( new DB\IpRules\CleanIpRules() )
 			->setMod( $this )
 			->execute();

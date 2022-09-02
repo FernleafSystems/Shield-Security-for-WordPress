@@ -28,7 +28,7 @@ class Remove extends BaseAddRemove {
 
 			$ruleStatus = ( new IPs\Lib\IpRules\IpRuleStatus( $args[ 'ip' ] ) )->setMod( $this->getMod() );
 			$records = in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
-				$ruleStatus->getRulesForBypass() : $ruleStatus->getRulesForShieldBlock();
+				$ruleStatus->getRulesForBypass() : $ruleStatus->getRulesForBlock();
 
 			$success = false;
 			foreach ( $records as $record ) {

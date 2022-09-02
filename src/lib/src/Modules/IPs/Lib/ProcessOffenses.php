@@ -32,7 +32,7 @@ class ProcessOffenses extends ExecOnceModConsumer {
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $mod )
 				->setIp( $this->getCon()->this_req->ip )
-				->run();
+				->execute();
 		}
 	}
 }

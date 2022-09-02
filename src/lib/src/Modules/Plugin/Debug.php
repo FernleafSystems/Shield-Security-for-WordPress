@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
@@ -15,8 +17,68 @@ class Debug extends Modules\Base\Debug {
 
 	public function run() {
 //		$this->testAAAA( 'fwdproxy-odn-017.fbsv.net' );
-		$this->crowdsec();
+		$this->cleanIPs();
 		die( 'finish' );
+	}
+
+	private function cleanIPs() {
+		$ip = '150.95.219.153';
+		$mod = $this->getCon()->getModule_IPs();
+
+		$rule = ( new Modules\IPs\Lib\IpRules\IpRuleStatus( $ip ) )
+			->setMod( $mod )
+			->getRuleForAutoBlock();
+		var_dump( $rule );
+		die();
+
+		try {
+			( new Modules\IPs\DB\IpRules\MergeAutoBlockRules() )
+				->setMod( $mod )
+				->byIP( $ip );
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
+		die();
+
+		$rule = ( new Modules\IPs\Lib\IpRules\IpRuleStatus() )
+			->setMod( $mod )
+			->getRuleForAutoBlock();
+		var_dump( $rule );
+		( new Modules\IPs\DB\IpRules\CleanIpRules() )
+			->setMod( $this->getCon()->getModule_IPs() )
+			->duplicates_AutoBlock();
+//		( new Modules\IPs\DB\IpRules\CleanIpRules() )
+//			->setMod( $this->getCon()->getModule_IPs() )
+//			->execute();
+//		( new Modules\Data\Lib\CleanDatabases() )
+//			->setMod( $this->getCon()->getModule_Data() )
+//			->execute();
+	}
+
+	private function pagedIpRules() {
+		$modIPs = $this->getCon()->getModule_IPs();
+
+		$loader = ( new LoadIpRules() )->setMod( $modIPs );
+		$loader->wheres = [
+			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
+		];
+		$loader->ip_table_select_fields = [
+			'INET6_NTOA(`ips`.`ip`) as `ip`',
+		];
+		$loader->joined_table_select_fields = [
+			'ip_ref',
+			'cidr',
+		];
+		$loader->limit = 10;
+
+		$page = 0;
+		do {
+			$loader->offset = $page*$loader->limit;
+			$records = $loader->select();
+			var_dump( $loader->select() );
+			$page++;
+		} while ( !empty( $records ) );
 	}
 
 	private function iputil() {
@@ -44,10 +106,15 @@ class Debug extends Modules\Base\Debug {
 		$csCon = $modIPs->getCrowdSecCon();
 
 		try {
-			$res = $this->getCon()
-						->getModule_License()
-						->getLicenseHandler()
-						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+//			$res = $this->getCon()
+//						->getModule_License()
+//						->getLicenseHandler()
+//						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
+
+			error_log( 'memory: '.round( memory_get_usage()/1024/1024 ) );
+			$api = $modIPs->getCrowdSecCon()->getApi();
+//			$res = ( new DecisionsDownload( $api->getAuthorizationToken(), 'crowdsec/1.2.1' ) )->run();
+
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
 //			var_dump( $csCon->getApi()->getAuthStatus() );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
@@ -58,10 +125,10 @@ class Debug extends Modules\Base\Debug {
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
 //				->setMod( $this->getCon()->getModule_IPs() )
 //				->execute();
-//			( new Modules\IPs\Lib\CrowdSec\Decisions\DownloadDecisionsUpdate() )
-//				->setMod( $modIPs )
-//				->execute();
-//			$res = ( new DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
+				->setMod( $modIPs )
+				->runImport();
+//			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
 //			$res = ( new RetrieveScenarios() )
 //				->setMod( $this->getMod() )
 //				->retrieve();

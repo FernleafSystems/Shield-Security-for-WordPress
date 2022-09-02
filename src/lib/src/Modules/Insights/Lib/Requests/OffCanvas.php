@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Requests;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalyse\BuildDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BuildIpAnalyse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class OffCanvas extends DynPropertiesClass {
@@ -31,7 +31,7 @@ class OffCanvas extends DynPropertiesClass {
 	public function ipAnalysis( string $ip ) :string {
 		return $this->renderOffCanvas(
 			sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $ip ),
-			( new BuildDisplay() )
+			( new BuildIpAnalyse() )
 				->setMod( $this->getCon()->getModule_IPs() )
 				->setIP( $ip )
 				->run()

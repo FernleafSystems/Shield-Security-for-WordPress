@@ -9,10 +9,21 @@ class Base extends BaseApi {
 
 	const DEFAULT_URL_STUB = CrowdSecConstants::API_BASE_URL;
 
-	public function __construct() {
+	private $userAgent;
+
+	public function __construct( string $userAgent = '' ) {
 		$this->api_version = 2;
 		$this->headers = [
 			'Content-Type' => 'application/json',
 		];
+		$this->userAgent = $userAgent;
+	}
+
+	protected function getRequestParams() :array {
+		$params = parent::getRequestParams();
+		if ( !empty( $this->userAgent ) ) {
+			$params[ 'user-agent' ] = $this->userAgent;
+		}
+		return $params;
 	}
 }

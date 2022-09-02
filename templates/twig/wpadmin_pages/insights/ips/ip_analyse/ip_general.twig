@@ -21,7 +21,7 @@
 			<dd>
 				<p>
 					<span class="bigger-badge badge bg-{{ vars.status.is_blocked ? 'danger' : 'success' }}">
-						{{ vars.status.is_blocked ? strings.yes : strings.no }}
+						{{ vars.status.is_blocked ? strings.status.block_type : strings.no }}
 					</span>
 					{% if vars.status.is_blocked %}
 						<a href="#" class="ms-2 text-primary ip_analyse_action"

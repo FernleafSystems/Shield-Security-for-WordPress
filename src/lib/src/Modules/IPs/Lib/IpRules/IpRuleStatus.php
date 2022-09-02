@@ -5,10 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
+	MergeAutoBlockRules,
 	Ops\Handler
 };
 
@@ -30,6 +32,10 @@ class IpRuleStatus {
 
 	public function __construct( string $ipOrRange ) {
 		$this->ipOrRange = $ipOrRange;
+	}
+
+	public function getBlockType() :string {
+		return $this->isBlocked() ? current( $this->getRulesForBlock() )->type : '';
 	}
 
 	public function getOffenses() :int {
@@ -80,44 +86,47 @@ class IpRuleStatus {
 
 		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
-		$toDelete = [];
 		if ( count( $rules ) === 1 ) {
 			$record = current( $rules );
 			if ( $record->last_access_at < ( Services::Request()->ts() - $opts->getAutoExpireTime() ) ) {
-				$toDelete[ key( $rules ) ] = $record;
+				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
 		elseif ( count( $rules ) > 1 ) {
-			// Should only have 1 auto-block rule. So we delete all the older rules.
-			$ruleToKeep = null;
-			$ruleToKeepKey = null;
-			foreach ( $rules as $key => $record ) {
-				if ( empty( $ruleToKeep ) ) {
-					$ruleToKeep = $record;
-					$ruleToKeepKey = $key;
-				}
-				elseif ( $ruleToKeep->last_access_at < $record->last_access_at ) {
+			// Should only have 1 auto-block rule. So we merge & delete all the older rules.
+			try {
+				( new MergeAutoBlockRules() )
+					->setMod( $this->getMod() )
+					->byRecords( $rules );
+			}
+			catch ( \Exception $e ) {
+			}
+			self::ClearStatusForIP( $this->getIP() );
+		}
 
-					$toDelete[ $ruleToKeepKey ] = $ruleToKeep;
+		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
-					$ruleToKeep = $record;
-					$ruleToKeepKey = $key;
+		// Just in case we've previously blocked a Search Provider - perhaps a failed rDNS at the time.
+		if ( !empty( $rules ) ) {
+			try {
+				list( $ipKey, $ipName ) = ( new IpID( $this->getIP() ) )
+					->setIgnoreUserAgent()
+					->run();
+				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+					foreach ( $rules as $rule ) {
+						( new DeleteRule() )
+							->setMod( $this->getMod() )
+							->byRecord( $rule );
+					}
+					self::ClearStatusForIP( $this->getIP() );
+					$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 				}
-				else {
-					$toDelete[ $key ] = $record;
-				}
+			}
+			catch ( \Exception $e ) {
 			}
 		}
 
-		foreach ( $toDelete as $deleteKey => $deleteRecord ) {
-			( new DeleteRule() )
-				->setMod( $this->getMod() )
-				->byRecord( $deleteRecord );
-			$this->removeRecordFromCache( $deleteRecord );
-			unset( $rules[ $deleteKey ] );
-		}
-
-		return array_values( $rules );
+		return $rules;
 	}
 
 	/**
@@ -154,6 +163,10 @@ class IpRuleStatus {
 			}
 		}
 		return $has;
+	}
+
+	public function hasAutoBlock() :bool {
+		return !empty( $this->getRuleForAutoBlock() );
 	}
 
 	public function hasManualBlock() :bool {
@@ -245,36 +258,27 @@ class IpRuleStatus {
 	private function loadRecordsForIP() :array {
 		$records = [];
 
+		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
+		$loader->wheres = [
+			sprintf( '(%s) OR (%s)',
+				sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
+				"`ir`.`is_range`='1'"
+			)
+		];
+
 		$parsedIP = Factory::parseRangeString( $this->getIP() );
-		foreach ( $this->loadRanges() as $maybe ) {
-			$maybeParsed = Factory::parseRangeString( $maybe->ipAsSubnetRange( true ) );
-			if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
-				$records[] = $maybe;
+		foreach ( $loader->select() as $record ) {
+			if ( $record->is_range ) {
+				$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
+				if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
+					$records[] = $record;
+				}
+			}
+			else {
+				$records[] = $record;
 			}
 		}
 
-		return array_merge( $records, $this->loadSingles() );
-	}
-
-	private function loadSingles() :array {
-		$loader = ( new LoadIpRules() )
-			->setMod( $this->getMod() )
-			->setIP( $this->getIP() );
-		$loader->limit = 1;
-		$loader->wheres = [
-			"`ir`.`is_range`='0'"
-		];
-		return $loader->select();
-	}
-
-	private function loadRanges() :array {
-		if ( !isset( $this->rangeRecords ) ) {
-			$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
-			$loader->wheres = [
-				"`ir`.`is_range`='1'"
-			];
-			$this->rangeRecords = $loader->select();
-		}
-		return $this->rangeRecords;
+		return $records;
 	}
 }
