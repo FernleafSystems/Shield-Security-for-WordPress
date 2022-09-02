@@ -1,13 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginOutOfDate extends BaseRender {
+class PluginOutOfDate extends BaseTab {
 
-	protected function getData() :array {
+	protected function getPageSpecificData() :array {
 		return [
 			'strings' => [
 				'update'  => __( 'The Shield Security plugin on this site needs to be upgraded.' ),

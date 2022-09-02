@@ -1,21 +1,23 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SitesList extends BaseRender {
+class SiteManageFrame extends BaseTab {
 
-	protected function getData() :array {
+	const TAB_SLUG = 'site_manage';
+
+	protected function getPageSpecificData() :array {
 		$mod = $this->getMod();
 		$mwp = $this->getCon()->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
 
+//		var_dump( $this->getSiteByID( (int)$req->query( 'site_id' ) ) );
 		$statsHead = [
 			'connected'    => 0,
 			'disconnected' => 0,
@@ -66,15 +68,6 @@ class SitesList extends BaseRender {
 					$shd[ 'issues' ] = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 					$statsHead[ 'with_issues' ]++;
 				}
-
-				$shd[ 'issues_href' ] = add_query_arg(
-					[
-						'newWindow' => 'yes',
-						'websiteid' => $site[ 'id' ],
-						'location'  => base64_encode( $this->getScanPageUrlPart() )
-					],
-					Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' )
-				);
 			}
 			else {
 				$statsHead[ 'disconnected' ]++;
@@ -89,10 +82,6 @@ class SitesList extends BaseRender {
 			'vars'    => [
 				'sites'      => $sites,
 				'stats_head' => $statsHead,
-			],
-			'ajax'    => [
-				'mwp_sh_site_action' => $mod->getAjaxActionData( 'mwp_sh_site_action', true ),
-				'mwp_sh_ext_table'   => $mod->getAjaxActionData( 'mwp_sh_ext_table', true ),
 			],
 			'strings' => [
 				'actions'             => __( 'Actions', 'wp-simple-firewall' ),
@@ -127,16 +116,31 @@ class SitesList extends BaseRender {
 		];
 	}
 
-	private function getScanPageUrlPart() :string {
-		$WP = Services::WpGeneral();
-		return str_replace(
-			$WP->getAdminUrl(),
-			'',
-			$this->getCon()->getModule_Insights()->getUrl_ScansResults()
-		);
+	protected function getAjaxActionsData() :array {
+		$renderManageSiteAjax = $this->getMod()->getAjaxActionData( 'render_manage_site' );
+		$renderManageSiteAjax[ 'site_id' ] = Services::Request()->query( 'site_id' );
+
+		$data = parent::getAjaxActionsData();
+		$data[ 'render_manage_site' ] = $renderManageSiteAjax;
+		return $data;
+	}
+
+	protected function getMenuTopNavItems() :array {
+		$req = Services::Request();
+		$items = parent::getMenuTopNavItems();
+		$items[] = [
+			'title'  => 'www.google.com',
+			'href'   => add_query_arg( [
+				'tab'     => 'site',
+				'site_id' => 123,
+			], $req->getUri() ),
+			'icon'   => 'globe',
+			'active' => true
+		];
+		return $items;
 	}
 
 	protected function getTemplateSlug() :string {
-		return 'pages/sites';
+		return 'pages/site.twig';
 	}
 }
