@@ -94,7 +94,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				throw new \Exception( 'Please provide an IP Address' );
 			}
 
-			$range = Factory::parseRangeString( trim( $form[ 'ip' ] ) );
+			$formIP = preg_replace( '#[^a-f\d:./]#i', '', $form[ 'ip' ] );
+			$range = Factory::parseRangeString( $formIP );
 			$iBypass = ( new Lib\IpRules\IpRuleStatus( $con->this_req->ip ) )
 				->setMod( $this->getMod() )
 				->isBypass();
@@ -104,12 +105,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				 && !empty( $range )
 				 && !$iBypass
 				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
-				throw new \Exception( "Manually blocking your own IP address isn't supported." );
+//				throw new \Exception( "Manually blocking your own IP address isn't supported." );
 			}
 
 			$ipAdder = ( new Lib\IpRules\AddRule() )
 				->setMod( $mod )
-				->setIP( $form[ 'ip' ] );
+				->setIP( $formIP );
 			switch ( $form[ 'type' ] ) {
 				case $dbh::T_MANUAL_BYPASS:
 					$IP = $ipAdder->toManualWhitelist( $label );
