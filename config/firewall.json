@@ -17,7 +17,7 @@
     "run_if_wpcli":          false,
     "order":                 30
   },
-  "menus":         {
+  "menus":       {
     "config_menu_priority": 44
   },
   "wpcli":       {
@@ -271,17 +271,17 @@
       "/wp-admin/page-new.php":        [],
       "/wp-admin/link-add.php":        [],
       "/wp-admin/media-upload.php":    [],
-      "/wp-admin/admin.php":         {
+      "/wp-admin/admin.php":           {
         "simple": [
           "page"
         ]
       },
-      "/wp-admin/post.php":         {
+      "/wp-admin/post.php":            {
         "simple": [
           "content"
         ]
       },
-      "/wp-admin/plugin-editor.php":         {
+      "/wp-admin/plugin-editor.php":   {
         "simple": [
           "newcontent"
         ]
@@ -330,7 +330,8 @@
           "aioseo-post-settings",
           "joe-chnlcustid",
           "spd-custhash",
-          "joe-custinfo"
+          "joe-custinfo",
+          "_wpcf7cf_hidden_group_fields"
         ]
       }
     },
