@@ -143,28 +143,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		];
 	}
 
-	public function ajaxExec_RenderIpAnalysis() :array {
-		try {
-			$ip = Services::Request()->post( 'ip', '' );
-			$data = [
-				'success' => true,
-				'title'   => sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $ip ),
-				'body'    => ( new Lib\BuildIpAnalyse() )
-					->setMod( $this->getMod() )
-					->setIP( $ip )
-					->run(),
-			];
-		}
-		catch ( \Exception $e ) {
-			$data = [
-				'success' => false,
-				'title'   => __( "Couldn't Build IP Analysis", 'wp-simple-firewall' ),
-				'body'    => $e->getMessage(),
-			];
-		}
-		return $data;
-	}
-
 	public function ajaxExec_IpAnalyseAction() :array {
 		$req = Services::Request();
 

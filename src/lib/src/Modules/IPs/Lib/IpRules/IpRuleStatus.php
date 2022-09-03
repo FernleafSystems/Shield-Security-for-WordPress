@@ -166,7 +166,8 @@ class IpRuleStatus {
 	}
 
 	public function hasAutoBlock() :bool {
-		return !empty( $this->getRuleForAutoBlock() );
+		$rule = $this->getRuleForAutoBlock();
+		return !empty( $rule ) && $rule->blocked_at > 0 && ( $rule->blocked_at >= $rule->unblocked_at );
 	}
 
 	public function hasManualBlock() :bool {
@@ -184,13 +185,8 @@ class IpRuleStatus {
 		return !empty( $this->getRuleForAutoBlock() );
 	}
 
-	public function isAutoBlacklistedAndBlocked() :bool {
-		$rule = $this->getRuleForAutoBlock();
-		return !empty( $rule ) && ( $rule->blocked_at > $rule->unblocked_at );
-	}
-
 	public function isBlockedByShield() :bool {
-		return !$this->isBypass() && ( $this->hasManualBlock() || $this->isAutoBlacklistedAndBlocked() );
+		return !$this->isBypass() && ( $this->hasManualBlock() || $this->hasAutoBlock() );
 	}
 
 	public function isBlockedByCrowdsec() :bool {

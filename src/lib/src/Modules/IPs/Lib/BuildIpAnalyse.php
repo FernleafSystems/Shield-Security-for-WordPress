@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\DeleteRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -74,7 +73,6 @@ class BuildIpAnalyse {
 			->lookup();
 
 		$rDNS = gethostbyaddr( $ip );
-		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 		try {
 			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
 				->setIgnoreUserAgent()
@@ -100,6 +98,7 @@ class BuildIpAnalyse {
 							  ->setIP( $ip )
 							  ->retrieve()[ 'reputation_score' ] ?? '-';
 
+		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig', [
 			'flags'   => [
 				'has_geo' => !empty( $geo->getRawData() ),
