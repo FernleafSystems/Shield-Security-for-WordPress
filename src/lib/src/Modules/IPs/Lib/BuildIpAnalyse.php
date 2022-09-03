@@ -102,7 +102,7 @@ class BuildIpAnalyse {
 			->setMod( $con->getModule_Plugin() )
 			->setIP( $ip )
 			->retrieve();
-		error_log( var_export( $info, true ) );
+
 		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig', [
 			'flags'   => [

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-class GetIPReputation extends Common\BaseShieldNetApi {
+class GetIPReputation extends Common\BaseShieldNetApiV2 {
 
 	const API_ACTION = 'ip/reputation';
 	use IpAddressConsumer;
@@ -13,7 +13,7 @@ class GetIPReputation extends Common\BaseShieldNetApi {
 	public function retrieve() :array {
 		$this->shield_net_params_required = false;
 		$raw = $this->sendReq();
-		return ( is_array( $raw ) && empty( $raw[ 'error' ] ) ) ? $raw[ 'data' ] : [];
+		return ( is_array( $raw ) && $raw[ 'error_code' ] === 0 ) ? $raw : [];
 	}
 
 	protected function getApiRequestUrl() :string {
