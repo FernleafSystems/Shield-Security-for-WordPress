@@ -14,11 +14,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\DeleteRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPInfo;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -73,11 +73,10 @@ class BuildIpAnalyse {
 			->setIP( $ip )
 			->lookup();
 
-		$rDNS = gethostbyaddr( $ip );
-		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 		try {
 			list( $ipKey, $ipName ) = ( new IpID( $ip ) )
 				->setIgnoreUserAgent()
+				->setVerifyDNS( false )
 				->run();
 		}
 		catch ( \Exception $e ) {
@@ -99,7 +98,12 @@ class BuildIpAnalyse {
 							  ->setMod( $con->getModule_Plugin() )
 							  ->setIP( $ip )
 							  ->retrieve()[ 'reputation_score' ] ?? '-';
+		$info = ( new GetIPInfo() )
+			->setMod( $con->getModule_Plugin() )
+			->setIP( $ip )
+			->retrieve();
 
+		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
 		return $this->getMod()->renderTemplate( '/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig', [
 			'flags'   => [
 				'has_geo' => !empty( $geo->getRawData() ),
@@ -162,7 +166,7 @@ class BuildIpAnalyse {
 				],
 				'identity' => [
 					'who_is_it'    => $ipName,
-					'rdns'         => $rDNS === $ip ? __( 'Unavailable', 'wp-simple-firewall' ) : $rDNS,
+					'rdns'         => empty( $info[ 'rdns' ][ 'hostname' ] ) ? __( 'Unavailable', 'wp-simple-firewall' ) : $info[ 'rdns' ][ 'hostname' ],
 					'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
 					'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
 					'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',

@@ -6,9 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BlockRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
-class SetIpBlocked extends Base {
+class SetIpBlockedShield extends Base {
 
-	const SLUG = 'set_ip_blocked';
+	const SLUG = 'set_ip_blocked_shield';
 
 	protected function execResponse() :bool {
 		$con = $this->getCon();
@@ -20,11 +20,11 @@ class SetIpBlocked extends Base {
 		if ( $ipStatus->hasManualBlock() ) {
 			$IP = current( $ipStatus->getRulesForManualBlock() );
 		}
-		elseif ( $ipStatus->isAutoBlacklistedAndBlocked() ) {
+		elseif ( $ipStatus->hasAutoBlock() ) {
 			$IP = $ipStatus->getRuleForAutoBlock();
 		}
 		if ( empty( $IP ) ) {
-			error_log( 'SetIpBlocked: should never get here' );
+			error_log( 'SetIpBlocked: should never get here: '.var_export( $con->this_req->ip, true ) );
 			throw new \Exception( 'SetIpBlocked: should never get here' );
 		}
 		/** @var Update $upd */

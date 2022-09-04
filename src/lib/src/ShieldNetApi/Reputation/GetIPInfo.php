@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-class GetIPReputation extends Common\BaseShieldNetApiV2 {
+class GetIPInfo extends Common\BaseShieldNetApiV2 {
 
-	const API_ACTION = 'ip/reputation';
+	const API_ACTION = 'ip/info';
 	use IpAddressConsumer;
 
 	public function retrieve() :array {
