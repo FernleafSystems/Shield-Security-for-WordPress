@@ -137,8 +137,16 @@ class AddRule {
 				if ( $ruleStatus->isBypass() ) {
 					throw new \Exception( sprintf( "Not allowed to add CrowdSec rule for IP (%s) when it's whitelisted.", $ip ) );
 				}
+				if ( $ruleStatus->hasManualBlock() ) {
+					throw new \Exception( sprintf( "IP (%s) is already manually blocked so we don't duplicate.", $ip ) );
+				}
 				if ( $ruleStatus->hasCrowdsecBlock() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) );
+				}
+				if ( $ruleStatus->isAutoBlacklisted() ) {
+					( new DeleteRule() )
+						->setMod( $mod )
+						->byRecord( $ruleStatus->getRuleForAutoBlock() );
 				}
 				break;
 
@@ -164,6 +172,11 @@ class AddRule {
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );
+				}
+				if ( $ruleStatus->hasCrowdsecBlock() ) {
+					( new DeleteRule() )
+						->setMod( $mod )
+						->byRecords( $ruleStatus->getRulesForCrowdsec() );
 				}
 
 				// 1. You can manually block an IP on the Auto list (it'll be replaced)
