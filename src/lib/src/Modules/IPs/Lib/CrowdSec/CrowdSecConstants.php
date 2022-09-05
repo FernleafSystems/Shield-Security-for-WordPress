@@ -6,4 +6,5 @@ class CrowdSecConstants {
 
 	const API_BASE_URL = 'https://api.crowdsec.net';
 	const SCOPE_IP = 'ip';
+	const MACHINE_ID_LENGTH = 48;
 }

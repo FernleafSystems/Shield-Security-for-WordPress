@@ -36,30 +36,20 @@ class CrowdSecApi {
 	}
 
 	public function getAuthorizationToken() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $this->isReady() ?
-			$mod->getCrowdSecCon()->cfg()->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'auth_token' ] : '';
+		return $this->getCsAuth()[ 'auth_token' ] ?? '';
 	}
 
 	public function getMachineID() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $this->isReady() ?
-			$mod->getCrowdSecCon()->cfg()->cs_auths[ Services::WpGeneral()->getWpUrl() ][ 'machine_id' ] : '';
+		return $this->getCsAuth()[ 'machine_id' ] ?? '';
 	}
 
 	public function getAuthStatus() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$siteURL = Services::WpGeneral()->getWpUrl();
-		$csAuth = $mod->getCrowdSecCon()->cfg()->cs_auths[ $siteURL ] ?? [];
+		$csAuth = $this->getCsAuth();
 
 		if ( empty( $csAuth[ 'url' ] ) ) {
 			$state = self::STATE_NO_URL;
 		}
-		elseif ( $csAuth[ 'url' ] !== $siteURL ) {
+		elseif ( $csAuth[ 'url' ] !== Services::WpGeneral()->getWpUrl() ) {
 			$state = self::STATE_INVALID_URL;
 		}
 		elseif ( empty( $csAuth[ 'machine_id' ] ) ) {
@@ -94,117 +84,153 @@ class CrowdSecApi {
 	}
 
 	public function login() :bool {
-
-		$csAuth = $this->getCsAuth();
-		$siteURL = Services::WpGeneral()->getWpUrl();
-
-		if ( ( $csAuth[ 'url' ] ?? '' ) !== $siteURL ) {
-			$csAuth = [
-				'url' => $siteURL,
-			];
-		}
-		$this->storeCsAuth( $csAuth );
-
-		$machineID = $this->getCon()->getInstallationID()[ 'id' ];
-		if ( empty( $csAuth[ 'machine_id' ] ) || $csAuth[ 'machine_id' ] !== $machineID ) {
-			$csAuth = [
-				'url'        => $siteURL,
-				'machine_id' => $machineID,
-				'password'   => wp_generate_password( 48 ),
-			];
-		}
-		$this->storeCsAuth( $csAuth );
-
 		$success = false;
+		$clearAuthStartAt = true;
+
 		try {
+			$this->authStart();
 			$this->machineRegister();
 			$this->machineLogin();
 			$this->machineEnroll();
-			$csAuth = $this->getCsAuth();
 			$success = true;
 		}
+		catch ( Exceptions\AuthenticationInProgressException $e ) {
+			$clearAuthStartAt = false;
+		}
 		catch ( Exceptions\MachineRegisterFailedException $e ) {
-			error_log( $e->getMessage() );
-			$csAuth = $this->getCsAuth();
-			unset( $csAuth[ 'machine_registered' ], $csAuth[ 'auth_token' ], $csAuth[ 'auth_expire' ] );
+			$fieldsToClear = [
+				'machine_registered',
+				'auth_token',
+				'auth_expire',
+			];
 		}
 		catch ( Exceptions\MachineLoginFailedException $e ) {
-			error_log( $e->getMessage() );
-			$csAuth = $this->getCsAuth();
-			unset( $csAuth[ 'auth_token' ], $csAuth[ 'auth_expire' ] );
+			$fieldsToClear = [
+				'auth_token',
+				'auth_expire',
+			];
 		}
 		catch ( Exceptions\MachinePasswordResetFailedException $e ) {
-			error_log( $e->getMessage() );
 		}
 		catch ( Exceptions\MachineEnrollFailedException $e ) {
-			error_log( $e->getMessage() );
-			$csAuth = $this->getCsAuth();
-			unset( $csAuth[ 'machine_enrolled' ] );
+			$fieldsToClear = [
+				'machine_enrolled',
+			];
 		}
+		catch ( \Exception $e ) {
+		}
+		finally {
+			if ( !empty( $e ) ) {
+				error_log( $e->getMessage() );
+			}
+			if ( empty( $auth ) ) {
+				$auth = $this->getCsAuth();
+			}
+			if ( $clearAuthStartAt ) {
+				$fieldsToClear[] = 'auth_start_at';
+			}
 
-		$this->storeCsAuth( $csAuth );
+			if ( !empty( $fieldsToClear ) ) {
+				foreach ( $fieldsToClear as $field ) {
+					unset( $auth[ $field ] );
+				}
+			}
+
+			$this->storeCsAuth( $auth );
+		}
 
 		return $success;
 	}
 
 	/**
+	 * @throws Exceptions\AuthenticationInProgressException
+	 */
+	public function authStart() {
+		$now = Services::Request()->ts();
+		$auth = $this->getCsAuth();
+		if ( !empty( $auth[ 'auth_start_at' ] ) && $now - 30 < $auth[ 'auth_start_at' ] ) {
+			throw new Exceptions\AuthenticationInProgressException( 'Authentication has started and is already in progress' );
+		}
+
+		$auth[ 'auth_start_at' ] = $now;
+		$this->storeCsAuth( $auth );
+
+		$siteURL = Services::WpGeneral()->getWpUrl();
+		if ( ( $auth[ 'url' ] ?? '' ) !== $siteURL ) {
+			$auth = [
+				'auth_start_at' => $now,
+				'url'           => $siteURL,
+			];
+		}
+		$this->storeCsAuth( $auth );
+
+		$machStartID = str_replace( '-', '', $this->getCon()->getInstallationID()[ 'id' ] );
+		if ( empty( $auth[ 'machine_id' ] ) || strpos( $auth[ 'machine_id' ], $machStartID ) !== 0 ) {
+			$auth = [
+				'auth_start_at' => $now,
+				'url'           => $siteURL,
+				'machine_id'    => $machStartID.strtolower( wp_generate_password( CrowdSecConstants::MACHINE_ID_LENGTH - strlen( $machStartID ), false ) ),
+				'password'      => $this->generateCrowdsecPassword(),
+			];
+		}
+
+		$this->storeCsAuth( $auth );
+	}
+
+	/**
 	 * @throws Exceptions\MachineRegisterFailedException
 	 */
-	public function machineRegister( bool $forceRegister = false ) {
-		$csAuth = $this->getCsAuth();
+	public function machineRegister() {
+		$auth = $this->getCsAuth();
 
-		if ( empty( $csAuth[ 'machine_registered' ] ) ) {
+		if ( empty( $auth[ 'machine_registered' ] ) ) {
 			try {
-				( new Api\MachineRegister( $this->getApiUserAgent() ) )
-					->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ] );
-
+				( new Api\MachineRegister( $this->getApiUserAgent() ) )->run( $auth[ 'machine_id' ], $auth[ 'password' ] );
+				$auth[ 'machine_registered' ] = true;
 				$this->getCon()->fireEvent( 'crowdsec_mach_register', [
 					'audit_params' => [
-						'machine_id' => $csAuth[ 'machine_id' ],
-						'url'        => $csAuth[ 'url' ],
+						'machine_id' => $auth[ 'machine_id' ],
+						'url'        => $auth[ 'url' ],
 					]
 				] );
 			}
 			catch ( Exceptions\MachineAlreadyRegisteredException $e ) {
+				$auth[ 'machine_registered' ] = true;
 			}
-
-			$csAuth[ 'machine_registered' ] = true;
-
-			$this->storeCsAuth( $csAuth );
 		}
+		$this->storeCsAuth( $auth );
 	}
 
 	/**
 	 * @throws Exceptions\MachineLoginFailedException
 	 * @throws Exceptions\MachinePasswordResetFailedException
 	 */
-	public function machineLogin( bool $forceLogin = false ) {
-		$csAuth = $this->getCsAuth();
+	public function machineLogin() {
+		$auth = $this->getCsAuth();
 
-		if ( $csAuth[ 'machine_registered' ] &&
-			 ( $forceLogin
-			   || empty( $csAuth[ 'auth_token' ] ) || empty( $csAuth[ 'auth_expire' ] )
-			   || ( $csAuth[ 'auth_expire' ] < Services::Request()->ts() ) )
+		if ( !empty( $auth[ 'machine_registered' ] ) &&
+			 ( empty( $auth[ 'auth_token' ] ) || empty( $auth[ 'auth_expire' ] )
+			   || ( $auth[ 'auth_expire' ] < Services::Request()->ts() ) )
 		) {
 			try {
 				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
-					->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
+					->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
 			}
 			catch ( Exceptions\MachineLoginFailedException $e ) {
-				$newPassword = wp_generate_password( 48 );
+				$password = $this->generateCrowdsecPassword();
 				$resetSuccess = ( new Api\MachinePasswordReset( $this->getApiUserAgent() ) )
-					->run( $csAuth[ 'machine_id' ], $newPassword );
+					->run( $auth[ 'machine_id' ], $password );
 				if ( $resetSuccess ) {
-					$csAuth[ 'password' ] = $newPassword;
-					$this->storeCsAuth( $csAuth );
+					$auth[ 'password' ] = $password;
+					$this->storeCsAuth( $auth );
 				}
 				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
-					->run( $csAuth[ 'machine_id' ], $csAuth[ 'password' ], $this->getScenarios() );
+					->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
 			}
 
-			$csAuth[ 'auth_token' ] = $login[ 'token' ];
-			$csAuth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->timestamp;
-			$this->storeCsAuth( $csAuth );
+			$auth[ 'auth_token' ] = $login[ 'token' ];
+			$auth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->subMinute()->timestamp;
+			$this->storeCsAuth( $auth );
 
 			$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
 				'audit_params' => [
@@ -217,15 +243,15 @@ class CrowdSecApi {
 	/**
 	 * @throws Exceptions\MachineEnrollFailedException
 	 */
-	public function machineEnroll( bool $forceEnroll = false ) {
+	public function machineEnroll() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$csAuth = $this->getCsAuth();
+		$auth = $this->getCsAuth();
 
 		// Enroll if we have the ID
 		$enrollID = preg_replace( '#[^a-z\d]#i', '', (string)$opts->getOpt( 'cs_enroll_id' ) );
-		if ( !empty( $enrollID ) && ( empty( $csAuth[ 'machine_enrolled' ] ) || $forceEnroll ) ) {
+		if ( !empty( $enrollID ) && empty( $auth[ 'machine_enrolled' ] ) ) {
 
 			$defaultTags = [ 'shield', 'wp', ];
 			$defaultName = preg_replace( '#^http(s)?://#i', '', Services::WpGeneral()->getWpUrl() );
@@ -241,13 +267,13 @@ class CrowdSecApi {
 				$enrollName = $defaultName;
 			}
 
-			( new Api\MachineEnroll( $csAuth[ 'auth_token' ], $this->getApiUserAgent() ) )->run(
+			( new Api\MachineEnroll( $auth[ 'auth_token' ], $this->getApiUserAgent() ) )->run(
 				$enrollID,
 				$enrollName,
 				is_array( $enrollTags ) ? $enrollTags : $defaultTags
 			);
-			$csAuth[ 'machine_enrolled' ] = true;
-			$this->storeCsAuth( $csAuth );
+			$auth[ 'machine_enrolled' ] = true;
+			$this->storeCsAuth( $auth );
 
 			$this->getCon()->fireEvent( 'crowdsec_mach_enroll', [
 				'audit_params' => [
@@ -274,19 +300,28 @@ class CrowdSecApi {
 	}
 
 	private function getCsAuth() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getCrowdSecCon()->cfg()->cs_auths[ Services::WpGeneral()->getWpUrl() ] ?? [];
+		return $this->getCsAuths()[ Services::WpGeneral()->getWpUrl() ] ?? [];
+	}
+
+	private function getCsAuths() :array {
+		$auths = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'cs_auths' ) );
+		return is_array( $auths ) ? $auths : [];
 	}
 
 	private function storeCsAuth( array $csAuth ) {
 		if ( !empty( $csAuth[ 'url' ] ) ) {
+
+			$auths = $this->getCsAuths();
+			$auths[ $csAuth[ 'url' ] ] = $csAuth;
+			$auths = array_filter( $auths, function ( $auth ) {
+				return empty( $auth[ 'auth_expire' ] )
+					   || Services::Request()->ts() - $auth[ 'auth_expire' ] < WEEK_IN_SECONDS*12;
+			} );
+			Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'cs_auths' ), $auths );
+
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$cfg = $mod->getCrowdSecCon()->cfg();
-
-			$auths = $cfg->cs_auths;
-			$auths[ $csAuth[ 'url' ] ] = $csAuth;
 			$cfg->cs_auths = $auths;
 			$mod->getCrowdSecCon()->storeCfg( $cfg );
 		}
@@ -295,5 +330,24 @@ class CrowdSecApi {
 	public function getApiUserAgent() :string {
 		$con = $this->getCon();
 		return sprintf( '%s/v%s', $con->isPremiumActive() ? 'ShieldSecurityPro' : 'ShieldSecurity', $con->getVersion() );
+	}
+
+	/**
+	 * Length: 32; At least 1 lower, 1 upper, 1 digit.
+	 */
+	private function generateCrowdsecPassword() :string {
+		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+		$pass = wp_generate_password( rand( 10, 20 ), false );
+		if ( !preg_match( '#[a-z]#', $pass ) ) {
+			$pass .= substr( $chars, wp_rand( 0, 25 ), 1 );
+		}
+		if ( !preg_match( '#[A-Z]#', $pass ) ) {
+			$pass .= substr( $chars, wp_rand( 26, 51 ), 1 );
+		}
+		if ( !preg_match( '#\d#', $pass ) ) {
+			$pass .= substr( $chars, wp_rand( 52, 63 ), 1 );
+		}
+		return substr( $pass.wp_generate_password( 22, false ), 0, 32 );
 	}
 }
