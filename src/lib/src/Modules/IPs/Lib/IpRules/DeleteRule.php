@@ -15,6 +15,12 @@ class DeleteRule {
 	use Shield\Modules\ModConsumer;
 	use IPs\Components\IpAddressConsumer;
 
+	public function byRecords( array $records ) {
+		foreach ( $records as $record ) {
+			$this->byRecord( $record );
+		}
+	}
+
 	public function byRecord( IpRuleRecord $record ) :bool {
 		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */

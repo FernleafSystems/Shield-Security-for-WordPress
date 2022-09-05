@@ -126,11 +126,6 @@ class ModCon extends BaseShield\ModCon {
 		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
-
-		if ( $opts->isOptChanged( 'cs_enroll_id' ) ) {
-			$this->getCrowdSecCon()->getApi()->isReady();
-		}
-
 		$this->cleanPathWhitelist();
 	}
 
