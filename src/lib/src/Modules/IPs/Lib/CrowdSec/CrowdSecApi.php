@@ -97,20 +97,25 @@ class CrowdSecApi {
 		catch ( Exceptions\AuthenticationInProgressException $e ) {
 			$clearAuthStartAt = false;
 		}
-		catch ( Exceptions\MachineRegisterFailedException $e ) {
+		catch ( Exceptions\MachineRegisterFailedException  $e ) {
 			$fieldsToClear = [
+				'machine_id',
 				'machine_registered',
+				'password',
+				'machine_enrolled',
 				'auth_token',
 				'auth_expire',
 			];
 		}
-		catch ( Exceptions\MachineLoginFailedException $e ) {
+		catch ( Exceptions\MachineLoginFailedException  $e ) {
 			$fieldsToClear = [
+				'machine_id',
+				'machine_registered',
+				'password',
+				'machine_enrolled',
 				'auth_token',
 				'auth_expire',
 			];
-		}
-		catch ( Exceptions\MachinePasswordResetFailedException $e ) {
 		}
 		catch ( Exceptions\MachineEnrollFailedException $e ) {
 			$fieldsToClear = [
@@ -149,7 +154,7 @@ class CrowdSecApi {
 		$now = Services::Request()->ts();
 		$auth = $this->getCsAuth();
 		if ( !empty( $auth[ 'auth_start_at' ] ) && $now - 30 < $auth[ 'auth_start_at' ] ) {
-			throw new Exceptions\AuthenticationInProgressException( 'Authentication has started and is already in progress' );
+			throw new Exceptions\AuthenticationInProgressException( 'Authentication is already in progress' );
 		}
 
 		$auth[ 'auth_start_at' ] = $now;
@@ -203,7 +208,6 @@ class CrowdSecApi {
 
 	/**
 	 * @throws Exceptions\MachineLoginFailedException
-	 * @throws Exceptions\MachinePasswordResetFailedException
 	 */
 	public function machineLogin() {
 		$auth = $this->getCsAuth();
@@ -212,21 +216,8 @@ class CrowdSecApi {
 			 ( empty( $auth[ 'auth_token' ] ) || empty( $auth[ 'auth_expire' ] )
 			   || ( $auth[ 'auth_expire' ] < Services::Request()->ts() ) )
 		) {
-			try {
-				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
-					->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
-			}
-			catch ( Exceptions\MachineLoginFailedException $e ) {
-				$password = $this->generateCrowdsecPassword();
-				$resetSuccess = ( new Api\MachinePasswordReset( $this->getApiUserAgent() ) )
-					->run( $auth[ 'machine_id' ], $password );
-				if ( $resetSuccess ) {
-					$auth[ 'password' ] = $password;
-					$this->storeCsAuth( $auth );
-				}
-				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
-					->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
-			}
+			$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
+				->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
 
 			$auth[ 'auth_token' ] = $login[ 'token' ];
 			$auth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->subMinute()->timestamp;

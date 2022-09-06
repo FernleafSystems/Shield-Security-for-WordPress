@@ -25,7 +25,6 @@
     "fernleafsystems/zxcvbn-php":            "^1.0",
     "nesbot/carbon":                         "^1.39",
     "nullpunkt/lz-string-php":               "^1.2.0",
-    "ramsey/uuid":                           "^3.9",
     "symfony/polyfill-iconv":                "^1.18",
     "ext-json":                              "*"
   },
