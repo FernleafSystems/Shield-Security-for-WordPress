@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
-use Ramsey\Uuid\Uuid;
 
 /**
  * @property Config\ConfigVO                                        $cfg
@@ -571,21 +570,13 @@ class Controller extends DynPropertiesClass {
 			$IDs[ $url ] = [];
 		}
 
-		$len = 48;
-		if ( empty( $IDs[ $url ][ 'id' ] ) || strlen( $IDs[ $url ][ 'id' ] ) !== $len ) {
-
-			try {
-				$uniqID = substr(
-					preg_replace( '#[^a-z\d]#i', '', Uuid::uuid4()->toString().Uuid::uuid4()->toString() ),
-					0, $len
-				);
+		if ( empty( $IDs[ $url ][ 'id' ] ) || !\Ramsey\Uuid\Uuid::isValid( $IDs[ $url ][ 'id' ] ) ) {
+			$id = $this->getSiteInstallationId();
+			if ( strlen( $id ) !== 36 || !\Ramsey\Uuid\Uuid::isValid( $id ) ) {
+				$id = ( new \FernleafSystems\Wordpress\Services\Utilities\Uuid() )->V4();
 			}
-			catch ( \Exception $e ) {
-				$uniqID = substr( hash( 'sha256', uniqid( $url, true ) ), 0, $len );
-			}
-
 			$IDs[ $url ] = [
-				'id'         => strtolower( $uniqID ),
+				'id'         => strtolower( $id ),
 				'ts'         => Services::Request()->ts(),
 				'install_at' => $this->getModule_Plugin()->storeRealInstallDate(),
 			];
@@ -606,7 +597,7 @@ class Controller extends DynPropertiesClass {
 		$optKey = $this->prefixOption( 'install_id' );
 
 		$mStoredID = $WP->getOption( $optKey );
-		if ( !empty( $mStoredID ) && is_string( $mStoredID ) && strlen( $mStoredID ) === 48 ) {
+		if ( !empty( $mStoredID ) && is_string( $mStoredID ) && strlen( $mStoredID ) === 36 ) {
 			return $mStoredID; // It's using the new ID
 		}
 
@@ -1178,7 +1169,8 @@ class Controller extends DynPropertiesClass {
 		}
 		elseif ( isset( $this->cfg ) ) {
 			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $this->cfg->getRawData() );
-			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() ); /* @deprecated 16.0 */
+			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() );
+			/* @deprecated 16.0 */
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
