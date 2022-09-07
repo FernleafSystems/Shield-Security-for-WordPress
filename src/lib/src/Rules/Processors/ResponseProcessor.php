@@ -23,9 +23,9 @@ class ResponseProcessor extends BaseProcessor {
 		foreach ( $this->rule->responses as $response ) {
 			try {
 				$this->rulesCon->getResponseHandler( $response )
-								 ->setConditionTriggerMeta( $this->triggerMetaData )
-								 ->setRule( $this->rule )
-								 ->run();
+							   ->setConditionTriggerMeta( $this->triggerMetaData )
+							   ->setRule( $this->rule )
+							   ->run();
 				if ( $response[ 'response' ] === 'event_fire' ) {
 					$eventFireResponseProcessed = true;
 				}
@@ -41,9 +41,9 @@ class ResponseProcessor extends BaseProcessor {
 		// We always fire the default event if an event wasn't fired already
 		if ( !$eventFireResponseProcessed ) {
 			$this->rulesCon->getDefaultEventFireResponseHandler()
-							 ->setConditionTriggerMeta( $this->triggerMetaData )
-							 ->setRule( $this->rule )
-							 ->run();
+						   ->setConditionTriggerMeta( $this->triggerMetaData )
+						   ->setRule( $this->rule )
+						   ->run();
 		}
 	}
 }

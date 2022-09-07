@@ -82,8 +82,8 @@ class ModCon extends BaseShield\ModCon {
 		return [
 			Rules\Build\IpWhitelisted::class,
 			Rules\Build\IsPathWhitelisted::class,
+			Rules\Build\IpBlockedShield::class,
 			$opts->isEnabledCrowdSecAutoBlock() ? Rules\Build\IpBlockedCrowdsec::class : null,
-			$opts->isEnabledAutoBlackList() ? Rules\Build\IpBlockedShield::class : null,
 			Rules\Build\BotTrack404::class,
 			Rules\Build\BotTrackXmlrpc::class,
 			Rules\Build\BotTrackFakeWebCrawler::class,

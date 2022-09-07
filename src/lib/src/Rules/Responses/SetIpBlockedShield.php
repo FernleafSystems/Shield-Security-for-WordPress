@@ -14,13 +14,15 @@ class SetIpBlockedShield extends Base {
 		$con = $this->getCon();
 		$modIP = $this->getCon()->getModule_IPs();
 
-		$con->this_req->is_ip_blocked = true;
+		$con->this_req->is_ip_blocked_shield = true;
 
 		$ipStatus = ( new IpRuleStatus( $con->this_req->ip ) )->setMod( $modIP );
 		if ( $ipStatus->hasManualBlock() ) {
+			$con->this_req->is_ip_blocked_shield_manual = true;
 			$IP = current( $ipStatus->getRulesForManualBlock() );
 		}
 		elseif ( $ipStatus->hasAutoBlock() ) {
+			$con->this_req->is_ip_blocked_shield_auto = true;
 			$IP = $ipStatus->getRuleForAutoBlock();
 		}
 		if ( empty( $IP ) ) {

@@ -9,7 +9,7 @@ class SetIpCrowdsecBlocked extends Base {
 	const SLUG = 'set_ip_crowdsec_blocked';
 
 	protected function execResponse() :bool {
-		$this->getCon()->this_req->is_ip_crowdsec_blocked = true;
+		$this->getCon()->this_req->is_ip_blocked_crowdsec = true;
 
 		add_action( 'init', function () {
 			( new BlockRequestCrowdsec() )
