@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRulesIterator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecConstants;
@@ -231,32 +232,25 @@ class ProcessIPs extends ProcessBase {
 			return Factory::parseRangeString( $ip );
 		}, $this->deletedDecisions );
 
-		$loader = ( new LoadIpRules() )->setMod( $mod );
+		$rulesIterator = new IpRulesIterator();
+		$loader = $rulesIterator->setMod( $mod )->getLoader();
 		$loader->wheres = [
 			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
 		];
 		$loader->joined_table_select_fields = [
 			'ip_ref',
 		];
-		$loader->limit = 100;
 
 		$idsToDelete = [];
-		$page = 0;
-		do {
-			$loader->offset = $loader->limit*$page;
-			$records = $loader->select();
-			foreach ( $records as $record ) {
-				$recordAsRange = Factory::parseRangeString( $record->ipAsSubnetRange() );
-				foreach ( $ipsToDelete as $ipRange ) {
-					if ( $ipRange->containsRange( $recordAsRange ) ) {
-						$idsToDelete[] = $record->id;
-						break;
-					}
+		foreach ( $rulesIterator as $record ) {
+			$recordAsRange = Factory::parseRangeString( $record->ipAsSubnetRange() );
+			foreach ( $ipsToDelete as $toDeleteRange ) {
+				if ( $toDeleteRange->containsRange( $recordAsRange ) ) {
+					$idsToDelete[] = $record->id;
+					break;
 				}
 			}
-
-			$page++;
-		} while ( !empty( $records ) );
+		}
 
 		if ( !empty( $idsToDelete ) ) {
 			$mod->getDbH_IPRules()

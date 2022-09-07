@@ -1,10 +1,10 @@
 {
   "16.0": {
-    "version":     "16.0",
+    "version":     "16.1",
     "released_at": 1662379200,
     "hrefs":       {
-      "release": "https://shsec.io/shieldrelease160",
-      "upgrade": "https://shsec.io/shieldupgradeguide160"
+      "release": "https://shsec.io/shieldrelease161",
+      "upgrade": "https://shsec.io/shieldupgradeguide161"
     },
     "title":       "CrowdSec Partnership + All-new IP Address Management",
     "description": [
