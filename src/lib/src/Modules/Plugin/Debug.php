@@ -103,6 +103,10 @@ class Debug extends Modules\Base\Debug {
 	private function crowdsec() {
 		$modIPs = $this->getCon()->getModule_IPs();
 		$csCon = $modIPs->getCrowdSecCon();
+		$API = $csCon->getApi();
+
+//		$auth = $API->getCsAuth();
+//		var_dump($auth);
 
 		try {
 //			$res = $this->getCon()
@@ -111,8 +115,7 @@ class Debug extends Modules\Base\Debug {
 //						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 
 			error_log( 'memory: '.round( memory_get_usage()/1024/1024 ) );
-			$api = $modIPs->getCrowdSecCon()->getApi();
-			var_dump( 'ready: '.var_export( $api->isReady(), true ) );
+			var_dump( 'ready: '.var_export( $API->isReady(), true ) );
 //			$res = ( new DecisionsDownload( $api->getAuthorizationToken(), 'crowdsec/1.2.1' ) )->run();
 
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
@@ -125,11 +128,14 @@ class Debug extends Modules\Base\Debug {
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
 //				->setMod( $this->getCon()->getModule_IPs() )
 //				->execute();
-//			$d = ( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
+//			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
 //				->setMod( $modIPs )
-//				->downloadDecisions();
+//				->execute();
 //			var_dump( $d );
-//			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload( $csCon->getApi()->getAuthorizationToken() ) )->run();
+//			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload(
+//				$csCon->getApi()->getAuthorizationToken(),
+//				$csCon->getApi()->getApiUserAgent()
+//			) )->run();
 //			$res = ( new RetrieveScenarios() )
 //				->setMod( $this->getMod() )
 //				->retrieve();
@@ -139,6 +145,7 @@ class Debug extends Modules\Base\Debug {
 			var_dump( $e->getMessage() );
 		}
 		var_dump( $res ?? 'unset' );
+		var_dump( 'ready: '.var_export( $API->isReady(), true ) );
 	}
 
 	private function cleanoptimisehashes() {

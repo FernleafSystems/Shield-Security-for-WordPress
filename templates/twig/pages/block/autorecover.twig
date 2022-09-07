@@ -17,7 +17,7 @@
 	<div class="uaug uau">
 		<p>{{ strings.you_can }}</p>
 		<form method="post" action="{{ hrefs.home }}">
-			<input type="hidden" name="email" value="" />
+			<input type="hidden" name="email_address" value="" />
 			{% for key,val in vars.nonce %}
 				<input type="hidden" name="{{ key }}" value="{{ val }}" autocomplete="off" />
 			{% endfor %}

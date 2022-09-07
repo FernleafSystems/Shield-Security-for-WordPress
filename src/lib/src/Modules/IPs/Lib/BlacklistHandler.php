@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\{
-	AutoUnblockShield,
+	AutoUnblockVisitor,
 	AutoUnblockMagicLink
 };
 
@@ -17,18 +17,17 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isEnabledAutoBlackList();
+		return $opts->isEnabledAutoBlackList() || $opts->isEnabledCrowdSecAutoBlock();
 	}
 
 	protected function run() {
-
 		( new IPs\Components\UnblockIpByFlag() )
 			->setMod( $this->getMod() )
 			->execute();
 		( new ProcessOffenses() )
 			->setMod( $this->getMod() )
 			->execute();
-		( new AutoUnblockShield() )
+		( new AutoUnblockVisitor() )
 			->setMod( $this->getMod() )
 			->execute();
 		( new AutoUnblockMagicLink() )

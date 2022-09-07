@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseAutoUnblock extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return !empty( $this->getCon()->this_req->ip );
+		return $this->isUnblockAvailable();
 	}
 
 	protected function run() {
@@ -36,6 +36,21 @@ abstract class BaseAutoUnblock extends ExecOnceModConsumer {
 			$unblocked = false;
 		}
 		return $unblocked;
+	}
+
+	public function isUnblockAvailable() :bool {
+		$thisReq = $this->getCon()->this_req;
+		try {
+			$available = !empty( $thisReq->ip )
+						 && ( $thisReq->is_ip_blocked_crowdsec || $thisReq->is_ip_blocked_shield_auto );
+			if ( $available ) {
+				$this->timingChecks();
+			}
+		}
+		catch ( \Exception $e ) {
+			$available = false;
+		}
+		return $available;
 	}
 
 	/**

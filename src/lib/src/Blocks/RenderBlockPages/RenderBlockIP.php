@@ -44,7 +44,7 @@ class RenderBlockIP extends BaseBlockPage {
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
-		if ( $opts->isEnabledAutoVisitorRecover() ) {
+		if ( ( new IPs\Lib\AutoUnblock\AutoUnblockVisitor() )->setMod( $mod )->isUnblockAvailable() ) {
 			$content = $mod->renderTemplate( '/pages/block/autorecover.twig', [
 				'hrefs'   => [
 					'home' => Services::WpGeneral()->getHomeUrl( '/' )

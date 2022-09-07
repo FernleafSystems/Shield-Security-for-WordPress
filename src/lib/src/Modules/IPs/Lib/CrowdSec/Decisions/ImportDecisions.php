@@ -13,8 +13,9 @@ class ImportDecisions extends ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		return ( Services::Request()->ts() - $this->getImportInterval() )
-			   > $mod->getCrowdSecCon()->cfg()->decisions_update_attempt_at;
+		$csCon = $mod->getCrowdSecCon();
+		return ( Services::Request()->ts() - $this->getImportInterval() > $csCon->cfg()->decisions_update_attempt_at )
+			   && $csCon->getApi()->isReady();
 	}
 
 	protected function run() {

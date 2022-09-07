@@ -5,11 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
+	Build\RuleTraits,
 	Conditions,
 	Responses
 };
 
 class IpWhitelisted extends BuildRuleCoreShieldBase {
+
+	use RuleTraits\InstantExec;
 
 	const SLUG = 'shield/is_ip_whitelisted';
 

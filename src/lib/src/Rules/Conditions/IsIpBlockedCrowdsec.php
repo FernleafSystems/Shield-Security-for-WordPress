@@ -16,16 +16,14 @@ class IsIpBlockedCrowdsec extends Base {
 	 * @inheritDoc
 	 */
 	protected function execConditionCheck() :bool {
-		$con = $this->getCon();
-		$thisReq = $con->this_req;
-		if ( !isset( $thisReq->is_ip_crowdsec_blocked ) && !empty( $this->getRequestIP() ) ) {
-			$srvIP = Services::IP();
-			$thisReq->is_ip_crowdsec_blocked =
-				!$srvIP->checkIp( $this->getRequestIP(), $srvIP->getServerPublicIPs() )
-				&& ( new IpRuleStatus( $this->getRequestIP() ) )
-					->setMod( $this->getCon()->getModule_IPs() )
-					->hasCrowdsecBlock();
-		}
-		return $thisReq->is_ip_crowdsec_blocked;
+		$thisReq = $this->getCon()->this_req;
+		$srvIP = Services::IP();
+
+		$thisReq->is_ip_blocked_crowdsec =
+			!$srvIP->checkIp( $this->getRequestIP(), $srvIP->getServerPublicIPs() )
+			&& ( new IpRuleStatus( $this->getRequestIP() ) )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->hasCrowdsecBlock();
+		return $thisReq->is_ip_blocked_crowdsec;
 	}
 }
