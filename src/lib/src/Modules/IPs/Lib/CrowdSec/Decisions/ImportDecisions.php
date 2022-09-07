@@ -86,10 +86,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 			$csDec = json_decode( $FS->getFileContent( $file ), true );
 		}
 		else {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$api = $mod->getCrowdSecCon()->getApi();
-			$csDec = ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
+			$csDec = $this->downloadDecisions();
 			$FS->putFileContent( $file, json_encode( $csDec ) );
 		}
 		return $csDec;

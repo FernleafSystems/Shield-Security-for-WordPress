@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Lib\AutoUnblock\AutoUnblockCrowdsec,
-	Lib\IpRules\IpRuleStatus,
 	Options
 };
 
