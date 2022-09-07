@@ -63,14 +63,14 @@ abstract class ProcessBase extends DynPropertiesClass {
 		$this->newDecisions = $this->extractScopeDecisionData_New( $stream[ 'new' ] ?? [] );
 		unset( $stream );
 
-		$deleted = $this->processDeleted();
-		$new = $this->processNew();
+		$deletedCount = empty( $this->deletedDecisions ) ? 0 : $this->processDeleted();
+		$newCount = empty( $this->newDecisions ) ? 0 : $this->processNew();
 
-		if ( !empty( $new ) || !empty( $deleted ) ) {
+		if ( $newCount > 0 || $deletedCount > 0 ) {
 			$this->getCon()->fireEvent( 'crowdsec_decisions_acquired', [
 				'audit_params' => [
-					'count_new'     => $new,
-					'count_deleted' => $deleted,
+					'count_new'     => $newCount,
+					'count_deleted' => $deletedCount,
 					'scope'         => static::SCOPE,
 					'time_taken'    => round( microtime( true ) - $this->timer_start ),
 				]
