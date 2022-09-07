@@ -6,11 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
+	Build\RuleTraits,
 	Conditions
 };
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsPathWhitelisted extends BuildRuleCoreShieldBase {
+
+	use RuleTraits\InstantExec;
 
 	const SLUG = 'shield/is_path_whitelisted';
 

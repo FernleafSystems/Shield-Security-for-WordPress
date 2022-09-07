@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 class BlockRequestCrowdsec extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return $this->getCon()->this_req->is_ip_crowdsec_blocked;
+		return $this->getCon()->this_req->is_ip_blocked_crowdsec;
 	}
 
 	protected function run() {

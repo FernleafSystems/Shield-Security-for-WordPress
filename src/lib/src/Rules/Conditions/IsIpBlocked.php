@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 16.0
+ */
 class IsIpBlocked extends Base {
 
 	use RequestIP;

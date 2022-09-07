@@ -38,7 +38,7 @@ class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 					'params'    => [
 						'match_param'    => 'author',
 						'match_patterns' => [
-							'^\d+$'
+							'\d'
 						],
 					],
 				],

@@ -5,12 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
+	Build\RuleTraits,
 	Conditions,
 	Responses
 };
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class IsTrustedBot extends BuildRuleCoreShieldBase {
+
+	use RuleTraits\InstantExec;
 
 	const SLUG = 'shield/is_trusted_bot';
 

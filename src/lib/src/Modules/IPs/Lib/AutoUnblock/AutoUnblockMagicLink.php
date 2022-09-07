@@ -3,18 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AutoUnblockMagicLink extends BaseAutoUnblock {
+class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 
-	protected function canRun() :bool {
-		/** @var IPs\Options $opts */
+	public function isUnblockAvailable() :bool {
+		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return parent::canRun()
-			   && $this->getCon()->this_req->is_ip_blocked
-			   && $opts->isEnabledMagicEmailLinkRecover();
+		return $opts->isEnabledMagicEmailLinkRecover() && parent::isUnblockAvailable();
 	}
 
 	protected function run() {
@@ -63,17 +60,6 @@ class AutoUnblockMagicLink extends BaseAutoUnblock {
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
-	}
-
-	protected function getIpRecord() :IpRuleRecord {
-		$theRecord = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )
-			->setMod( $this->getMod() )
-			->getRuleForAutoBlock();
-
-		if ( empty( $theRecord ) ) {
-			throw new \Exception( "IP isn't on the automatic block list." );
-		}
-		return $theRecord;
 	}
 
 	/**
