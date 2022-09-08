@@ -49,10 +49,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_PluginMailingListSignup( $notice );
 				break;
 
-			case 'wizard_welcome':
-				$this->buildNotice_WelcomeWizard( $notice );
-				break;
-
 			case 'allow-tracking':
 				$this->buildNotice_AllowTracking( $notice );
 				break;
@@ -230,25 +226,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	private function buildNotice_WelcomeWizard( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-		$insideWizard = Services::Request()->query( 'wizard', false ) === 'welcome';
-		$notice->render_data = [
-			'notice_attributes' => [
-				'insideWizard' => $insideWizard ? 1 : 0,
-			],
-			'strings'           => [
-				'dismiss' => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
-				'title'   => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $name ),
-				'setup'   => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $name ),
-				'launch'  => sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $name ),
-			],
-			'hrefs'             => [
-				'wizard' => $this->getMod()->getUrl_Wizard( 'welcome' ),
-			],
-		];
-	}
-
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -304,10 +281,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'databases-not-ready':
 				$needed = $this->isNeeded_DatabasesNotReady();
-				break;
-
-			case 'wizard_welcome':
-				$needed = false;
 				break;
 
 			case 'rules-not-running':

@@ -143,12 +143,6 @@
             "jquery/smartwizard"
           ]
         },
-        "shield/wizard":                     {
-          "deps": [
-            "bootstrap",
-            "global-plugin"
-          ]
-        },
         "jquery/featherlight":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.css"
         },
@@ -402,13 +396,6 @@
             "bootstrap",
             "global-plugin",
             "jquery/smartwizard"
-          ]
-        },
-        "shield/wizard":                     {
-          "deps": [
-            "bootstrap",
-            "global-plugin",
-            "jquery/steps"
           ]
         },
         "shield/login2fa":                   {

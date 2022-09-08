@@ -35,7 +35,6 @@ class UI {
 				'show_standard_options' => true,
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
-				'has_wizard'            => $mod->hasWizard(),
 				'is_premium'            => $con->isPremiumActive(),
 				'is_whitelablled'       => $isWhitelabelled,
 				'show_transfer_switch'  => $con->isPremiumActive(),
@@ -46,8 +45,6 @@ class UI {
 				'plugin_home'    => $con->labels->PluginURI,
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
-				'wizard_link'    => $mod->getUrl_WizardLanding(),
-				'wizard_landing' => $mod->getUrl_WizardLanding(),
 
 				'form_action'      => Services::Request()->getUri(),
 				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap' ),

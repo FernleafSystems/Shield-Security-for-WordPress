@@ -23,3 +23,9 @@
 .sw .list-group{
 	--bs-list-group-bg: transparent;
 }
+.sw h4 {
+}
+.sw li,
+.sw p {
+	font-size: 14px;
+}

@@ -24,7 +24,7 @@
 
 				    <div class="tab-content">
 					    {% for step in content.steps %}
-						    <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1">
+						    <div id="step-{{ step.step_slug }}" class="tab-pane" role="tabpanel" aria-labelledby="step-{{ step.step_slug }}">
 					        {{ step.step_body|raw }}
 				        </div>
 					    {% endfor %}

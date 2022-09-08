@@ -193,27 +193,15 @@ class UI extends BaseShield\UI {
 				$data = $this->buildInsightsVars_Overview();
 				break;
 
-			case 'wizard':
-				$wiz = $con->getModule_Plugin()->getWizardHandler();
-				if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
-					$data = [
-						'content' => [
-							'wizard' => $wiz->setCurrentWizard( $req->query( 'wizard' ) )
-											->renderWizard()
-						],
-						'flags'   => [
-							'show_sidebar_nav' => 0
-						],
-					];
-				}
-				break;
-
 			case 'merlin':
 				$data = [
 					'content' => [
 						'page_main' => ( new Lib\Merlin\MerlinController() )
 							->setMod( $mod )
 							->render( empty( $subNavSection ) ? 'guided_setup_wizard' : $subNavSection )
+					],
+					'flags'   => [
+						'show_sidebar_nav' => 0
 					],
 				];
 				break;
@@ -286,7 +274,6 @@ class UI extends BaseShield\UI {
 				__( 'Tools', 'wp-simple-firewall' ),
 				__( 'Rules', 'wp-simple-firewall' ),
 			],
-			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
 			'merlin'        => [
 				__( 'Wizard', 'wp-simple-firewall' ),
 				__( 'Guided Setup', 'wp-simple-firewall' ),
@@ -427,7 +414,7 @@ class UI extends BaseShield\UI {
 			'flags' => [
 				'show_promo' => $con->isModulePage()
 								&& !$con->isPremiumActive()
-								&& ( !in_array( $nav, [ 'scans_results', 'scans_run', 'wizard' ] ) ),
+								&& ( !in_array( $nav, [ 'scans_results', 'scans_run' ] ) ),
 			],
 			'hrefs' => [
 				'go_pro' => 'https://shsec.io/shieldgoprofeature',

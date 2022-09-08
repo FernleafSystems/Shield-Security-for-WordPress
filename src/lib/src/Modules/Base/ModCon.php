@@ -31,11 +31,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $oProcessor;
 
 	/**
-	 * @var \ICWP_WPSF_Wizard_Base
-	 */
-	private $oWizard;
-
-	/**
 	 * @var Shield\Modules\Base\Reporting
 	 */
 	private $reporting;
@@ -318,8 +313,6 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		}
 
-		$this->runWizards();
-
 		// GDPR
 		if ( $this->isPremium() ) {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
@@ -366,20 +359,6 @@ abstract class ModCon extends DynPropertiesClass {
 			$this->oProcessor = new $class( $this );
 		}
 		return $this->oProcessor;
-	}
-
-	/**
-	 * Override this and adapt per feature
-	 * @return string
-	 */
-	protected function getWizardClassName() {
-		return implode( '_',
-			[
-				strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
-				'Wizard',
-				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
-			]
-		);
 	}
 
 	public function onPluginShutdown() {
@@ -668,21 +647,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Wizard_Base|null
-	 */
-	public function getWizardHandler() {
-		if ( !isset( $this->oWizard ) ) {
-			$class = $this->getWizardClassName();
-			if ( !class_exists( $class ) ) {
-				return null;
-			}
-			$this->oWizard = new $class();
-			$this->oWizard->setMod( $this );
-		}
-		return $this->oWizard;
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function saveModOptions( bool $preProcessOptions = false ) {
@@ -778,15 +742,6 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->getCon()->isPremiumActive();
 	}
 
-	protected function runWizards() {
-		if ( $this->isWizardPage() && $this->hasWizard() ) {
-			$wiz = $this->getWizardHandler();
-			if ( $wiz instanceof \ICWP_WPSF_Wizard_Base ) {
-				$wiz->init();
-			}
-		}
-	}
-
 	public function isThisModulePage() :bool {
 		return $this->getCon()->isModulePage()
 			   && Services::Request()->query( 'page' ) == $this->getModSlug();
@@ -794,15 +749,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function isPage_Insights() :bool {
 		return Services::Request()->query( 'page' ) == $this->getCon()->getModule_Insights()->getModSlug();
-	}
-
-	public function isPage_InsightsThisModule() :bool {
-		return $this->isPage_Insights()
-			   && Services::Request()->query( 'inav' ) == $this->getSlug();
-	}
-
-	protected function isWizardPage() :bool {
-		return $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage();
 	}
 
 	protected function buildContextualHelp() {
@@ -823,62 +769,6 @@ abstract class ModCon extends DynPropertiesClass {
 			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
 			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
 		);
-	}
-
-	/**
-	 * @uses nonce
-	 */
-	public function getUrl_Wizard( string $wizardSlug ) :string {
-		$def = $this->getWizardDefinition( $wizardSlug );
-		if ( empty( $def[ 'min_user_permissions' ] ) ) { // i.e. no login/minimum perms
-			$url = Services::WpGeneral()->getHomeUrl();
-		}
-		else {
-			$url = Services::WpGeneral()->getAdminUrl( 'admin.php' );
-		}
-
-		return add_query_arg(
-			[
-				'page'          => $this->getCon()->getModule_Insights()->getModSlug(),
-				'inav'          => 'wizard',
-				'shield_action' => 'wizard',
-				'wizard'        => $wizardSlug,
-				'nonwizard'     => wp_create_nonce( 'wizard'.$wizardSlug )
-			],
-			$url
-		);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUrl_WizardLanding() {
-		return $this->getUrl_Wizard( 'landing' );
-	}
-
-	/**
-	 * @param string $wizardSlug
-	 * @return array
-	 */
-	public function getWizardDefinition( string $wizardSlug ) {
-		$def = null;
-		if ( $this->hasWizardDefinition( $wizardSlug ) ) {
-			$def = $this->getWizardDefinitions()[ $wizardSlug ];
-		}
-		return $def;
-	}
-
-	public function getWizardDefinitions() :array {
-		$wiz = $this->getOptions()->getDef( 'wizards' );
-		return is_array( $wiz ) ? $wiz : [];
-	}
-
-	public function hasWizard() :bool {
-		return count( $this->getWizardDefinitions() ) > 0;
-	}
-
-	public function hasWizardDefinition( string $wizardSlug ) :bool {
-		return !empty( $this->getWizardDefinitions()[ $wizardSlug ] );
 	}
 
 	public function getIsShowMarketing() :bool {
@@ -1117,5 +1007,53 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * @deprecated 16.0
+	 * @var \ICWP_WPSF_Wizard_Base
+	 */
+	private $oWizard;
+
+	/**
+	 * @deprecated 16.0
+	 */
+	public function hasWizard() :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 16.0
+	 */
+	public function hasWizardDefinition( string $wizardSlug ) :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 16.0
+	 * @return \ICWP_WPSF_Wizard_Base|null
+	 */
+	public function getWizardHandler() {
+		return null;
+	}
+
+	/**
+	 * @deprecated 16.0
+	 */
+	public function getWizardDefinitions() :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 16.1
+	 */
+	protected function runWizards() {
+	}
+
+	/**
+	 * @deprecated 16.0
+	 */
+	protected function isWizardPage() :bool {
+		return false;
 	}
 }
