@@ -11,7 +11,8 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		$map = parent::getAjaxActionCallbackMap( $isAuth );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'dynamic_load' => [ $this, 'ajaxExec_DynamicLoad' ],
+				'dynamic_load'  => [ $this, 'ajaxExec_DynamicLoad' ],
+				'merlin_action' => [ $this, 'ajaxExec_MerlinAction' ],
 			] );
 		}
 		return $map;
@@ -41,5 +42,24 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			],
 			$pageData
 		);
+	}
+
+	public function ajaxExec_MerlinAction() :array {
+		try {
+			( new Shield\Modules\Insights\Lib\Merlin\MerlinController() )
+				->setMod( $this->getMod() )
+				->processFormSubmit( Shield\Modules\Base\Lib\Request\FormParams::Retrieve() );
+			$success = true;
+			$msg = __( 'Option updated successfully.' );
+		}
+		catch ( \Exception $e ) {
+			$success = false;
+			$msg = $e->getMessage();
+		}
+
+		return [
+			'success' => $success,
+			'message' => $msg,
+		];
 	}
 }

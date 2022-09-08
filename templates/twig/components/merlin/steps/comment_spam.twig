@@ -1,0 +1,35 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section_blurb %}
+	<h5>Watch the Comment SPAM Video</h5>
+	<p>Nearly 100% of comments SPAM is by automated BOTS.</p>
+	<p>Shield Security provides exclusive, highly effective technology to block BOT SPAM. But unlike Akismet,
+	   your private comment data is never sent offsite to 3rd parties, so you can remain as privacy compliant as you need.</p>
+	<p>The technology used to block comment SPAM is the same as that for login protection... so there's no CAPTCHAs
+	   or any other annoying extras added to your forms.</p>
+{% endblock %}
+
+{% block slide_body_action_area %}
+
+	<form class="form-horizontal icwp-wizard-form">
+
+		<div class="row">
+			<div class="col-4">
+				Comment SPAM Blocking
+			</div>
+			<div class="col-8">
+				  {{ icwp_macros.formInput_Radio_Wizard(
+					  'CommentsFilterOption',
+					  {
+						  'Y': '<span>Turn On</span> - Block automated comments SPAM by bots',
+						  'N': '<span>Turn Off</span> - Do not block automated comments SPAM'
+					  },
+					  'Comment SPAM Blocking'
+				  ) }}
+			</div>
+		</div>
+
+		{{ icwp_macros.formInput_Submit2( 'Set Comment SPAM Protection', null, null, false ) }}
+	</form>
+
+{% endblock %}

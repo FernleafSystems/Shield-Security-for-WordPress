@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
-use FernleafSystems\Wordpress\Services\Services;
-
 class RenderBlockAuthorFishing extends BaseBlockPage {
 
 	protected function getPageSpecificData() :array {

@@ -207,6 +207,16 @@ class UI extends BaseShield\UI {
 					];
 				}
 				break;
+
+			case 'merlin':
+				$data = [
+					'content' => [
+						'page_main' => ( new Lib\Merlin\MerlinController() )
+							->setMod( $mod )
+							->render( empty( $subNavSection ) ? 'guided_setup_wizard' : $subNavSection )
+					],
+				];
+				break;
 			default:
 				throw new \Exception( 'Not available' );
 		}
@@ -277,6 +287,10 @@ class UI extends BaseShield\UI {
 				__( 'Rules', 'wp-simple-firewall' ),
 			],
 			'wizard'        => __( 'Wizard', 'wp-simple-firewall' ),
+			'merlin'        => [
+				__( 'Wizard', 'wp-simple-firewall' ),
+				__( 'Guided Setup', 'wp-simple-firewall' ),
+			],
 		];
 
 		$pageTitle = is_array( $availablePages[ $inav ] ) ? implode( ' > ', $availablePages[ $inav ] ) : $availablePages[ $inav ];
@@ -286,24 +300,7 @@ class UI extends BaseShield\UI {
 				__( 'Configuration', 'wp-simple-firewall' ), empty( $mod ) ? 'Unknown Module' : $mod->getMainFeatureName() );
 		}
 
-		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-
-			if ( !empty( $con->labels ) ) {
-				$bannerLogo = $con->labels->url_img_pagebanner;
-			}
-			else {
-				/** @deprecated 15.1 */
-				$bannerLogo = ( new Shield\Modules\SecurityAdmin\Lib\WhiteLabel\BuildOptions() )
-								  ->setMod( $con->getModule_SecAdmin() )
-								  ->build()[ 'url_login2fa_logourl' ];
-			}
-		}
-		else {
-			$bannerLogo = $con->urls->forImage( 'pluginlogo_banner-170x40.png' );
-		}
-
-		$DP = Services::DataManipulation();
-		$data = $DP->mergeArraysRecursive(
+		$data = Services::DataManipulation()->mergeArraysRecursive(
 			$this->getBaseDisplayData(),
 			[
 				'classes' => [
@@ -317,7 +314,7 @@ class UI extends BaseShield\UI {
 					'nav_home' => $mod->getUrl_AdminPage(),
 				],
 				'imgs'    => [
-					'logo_banner' => $bannerLogo,
+					'logo_banner' => $con->labels->url_img_pagebanner,
 				],
 				'strings' => [
 					'page_title' => $pageTitle
@@ -332,7 +329,7 @@ class UI extends BaseShield\UI {
 			$data
 		);
 
-		$templateDir = $inav;
+		$templateDir = in_array( $inav, [ 'merlin' ] ) ? 'default' : $inav;
 		if ( strpos( $inav, 'scans_' ) === 0 ) {
 			$templateDir = implode( '/', explode( '_', $inav, 2 ) );
 		}
