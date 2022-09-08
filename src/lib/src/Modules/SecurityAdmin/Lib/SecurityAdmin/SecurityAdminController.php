@@ -35,6 +35,33 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			if ( !$this->getCon()->isThisPluginModuleRequest() ) {
 				add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
 			}
+
+			add_action( 'pre_uninstall_plugin', function ( $pluginFile ) {
+				// This can only protect against rogue, programmatic uninstalls, not when Shield is inactive.
+				if ( $pluginFile === $this->getCon()->base_file ) {
+					$this->blockRemoval();
+				}
+			} );
+			add_action( $this->getCon()->prefix( 'pre_deactivate_plugin' ), [ $this, 'blockRemoval' ] );
+		}
+	}
+
+	public function blockRemoval() {
+		if ( !$this->getCon()->isPluginAdmin() ) {
+			if ( !Services::WpUsers()->isUserAdmin() ) {
+				$this->getCon()->fireEvent( 'attempt_deactivation' );
+			}
+			Services::WpGeneral()->wpDie(
+				sprintf(
+					'<p>%s</p><p>%s</p>',
+					__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
+					sprintf( '<a href="%s">%s</a>',
+						$this->getMod()->getUrl_AdminPage(),
+						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ),
+							$this->getCon()->getHumanName() )
+					)
+				)
+			);
 		}
 	}
 
@@ -54,8 +81,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	public function isEnabledSecAdmin() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $this->getMod()->isModOptEnabled() &&
-			   $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
+		return $this->getMod()->isModOptEnabled() && $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
 	}
 
 	private function enqueueJS() {

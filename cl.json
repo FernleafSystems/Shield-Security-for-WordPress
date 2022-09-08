@@ -84,6 +84,14 @@
         ]
       },
       {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Protection Against Unauthorised Deactivation",
+        "description": [
+          "The Security Admin feature that protects against unauthorised deactivation has been further strengthened with offenses."
+        ]
+      },
+      {
         "type":        "new",
         "pro_only":    false,
         "title":       "Logging: App Password Creation",

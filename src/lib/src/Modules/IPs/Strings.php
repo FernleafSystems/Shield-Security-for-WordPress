@@ -48,6 +48,12 @@ class Strings extends Base\Strings {
 					__( '{{ip}} removed from block list ({{type}}).', 'wp-simple-firewall' ),
 				],
 			],
+			'ip_unblock_auto'             => [
+				'name'  => __( 'IP Unblocked By Visitor', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method.", 'wp-simple-firewall' ),
+				],
+			],
 			'ip_unblock_flag'             => [
 				'name'  => __( 'IP Unblocked (Flag File)', 'wp-simple-firewall' ),
 				'audit' => [

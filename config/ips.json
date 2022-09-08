@@ -947,6 +947,13 @@
         "offense":      false,
         "stat":         false
       },
+      "ip_unblock_auto":             {
+        "audit_params": [
+          "ip",
+          "method"
+        ],
+        "level":        "alert"
+      },
       "ip_unblock_flag":             {
         "audit_params": [
           "ip"
@@ -1028,20 +1035,20 @@
         ]
       },
       "crowdsec_mach_register":      {
-        "level":        "info",
+        "level":        "notice",
         "audit_params": [
           "machine_id",
           "url"
         ]
       },
       "crowdsec_auth_acquire":       {
-        "level":        "info",
+        "level":        "notice",
         "audit_params": [
           "expiration"
         ]
       },
       "crowdsec_mach_enroll":        {
-        "level":        "info",
+        "level":        "notice",
         "audit_params": [
           "id",
           "name"
