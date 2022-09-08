@@ -1,8 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail;
-
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Base;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
 class ForAuditTrail extends Base {
 

@@ -115,7 +115,7 @@ class Debug extends Modules\Base\Debug {
 //						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 
 			error_log( 'memory: '.round( memory_get_usage()/1024/1024 ) );
-			var_dump( 'ready: '.var_export( $API->isReady(), true ) );
+			var_dump( 'api ready: '.var_export( $API->isReady(), true ) );
 //			$res = ( new DecisionsDownload( $api->getAuthorizationToken(), 'crowdsec/1.2.1' ) )->run();
 
 //			var_dump( $modIPs->getOptions()->getOpt('crowdsec_cfg') );
@@ -128,9 +128,9 @@ class Debug extends Modules\Base\Debug {
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
 //				->setMod( $this->getCon()->getModule_IPs() )
 //				->execute();
-//			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
-//				->setMod( $modIPs )
-//				->execute();
+			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
+				->setMod( $modIPs )
+				->runImport();
 //			var_dump( $d );
 //			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload(
 //				$csCon->getApi()->getAuthorizationToken(),
