@@ -11,6 +11,10 @@ class AutoUnblockVisitor extends BaseAutoUnblockShield {
 		return parent::canRun() && Services::Request()->isPost();
 	}
 
+	protected function getUnblockMethodName() :string {
+		return 'Visitor Auto-Unblock';
+	}
+
 	public function isUnblockAvailable() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

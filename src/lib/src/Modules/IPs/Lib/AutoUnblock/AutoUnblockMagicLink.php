@@ -14,6 +14,10 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 		return $opts->isEnabledMagicEmailLinkRecover() && parent::isUnblockAvailable();
 	}
 
+	protected function getUnblockMethodName() :string {
+		return 'Magic Link';
+	}
+
 	protected function run() {
 		$req = Services::Request();
 		try {
