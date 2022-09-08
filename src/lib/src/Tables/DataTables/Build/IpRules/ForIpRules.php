@@ -26,7 +26,7 @@ class ForIpRules extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'ip'              => [
+			'ip'             => [
 				'data'        => 'ip',
 				'title'       => __( 'IP Address' ),
 				'className'   => 'ip',
@@ -37,7 +37,7 @@ class ForIpRules extends Base {
 					'show' => true,
 				],
 			],
-			'ip_linked'       => [
+			'ip_linked'      => [
 				'data'        => 'ip_linked',
 				'title'       => __( 'IP Address or Range' ),
 				'className'   => 'ip_linked',
@@ -48,7 +48,7 @@ class ForIpRules extends Base {
 					'show' => false,
 				],
 			],
-			'status'       => [
+			'status'         => [
 				'data'        => 'status',
 				'title'       => __( 'Status' ),
 				'className'   => 'status',
@@ -59,7 +59,7 @@ class ForIpRules extends Base {
 					'show' => false,
 				],
 			],
-			'type'            => [
+			'type'           => [
 				'data'        => 'type',
 				'title'       => __( 'Type' ),
 				'className'   => 'type',
@@ -70,32 +70,34 @@ class ForIpRules extends Base {
 					'show' => true,
 				],
 			],
-			'last_seen'       => [
-				'data'        => [
+			'last_seen'      => [
+				'data'          => [
 					'_'    => 'last_seen',
 					'sort' => 'last_access_at',
 				],
-				'title'       => __( 'Last Seen' ),
-				'className'   => 'date',
-				'orderable'   => true,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
+				'title'         => __( 'Last Seen' ),
+				'className'     => 'date',
+				'orderable'     => true,
+				'orderSequence' => [ 'desc', 'asc' ],
+				'searchable'    => false,
+				'visible'       => true,
+				'searchPanes'   => [
 					'show' => false
 				],
 			],
-			'last_access_at'  => [
-				'data'        => 'last_access_at',
-				'title'       => __( 'Last Access At' ),
-				'className'   => 'date',
-				'orderable'   => true,
-				'searchable'  => false,
-				'visible'     => false,
-				'searchPanes' => [
+			'last_access_at' => [
+				'data'          => 'last_access_at',
+				'title'         => __( 'Last Access At' ),
+				'className'     => 'date',
+				'orderable'     => true,
+				'orderSequence' => [ 'desc', 'asc' ],
+				'searchable'    => false,
+				'visible'       => false,
+				'searchPanes'   => [
 					'show' => false
 				],
 			],
-			'is_blocked'      => [
+			'is_blocked'     => [
 				'data'        => 'is_blocked',
 				'title'       => __( 'IP Block Status' ),
 				'className'   => 'is_blocked',
@@ -106,7 +108,7 @@ class ForIpRules extends Base {
 					'show' => true
 				],
 			],
-			'unblocked_at' => [
+			'unblocked_at'   => [
 				'data'        => 'unblocked_at',
 				'title'       => __( 'Unblocked At' ),
 				'className'   => 'unblocked_at',
@@ -117,17 +119,18 @@ class ForIpRules extends Base {
 					'show' => false
 				],
 			],
-			'date'            => [
-				'data'        => [
+			'date'           => [
+				'data'          => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'       => __( 'Date Added' ),
-				'className'   => 'date',
-				'orderable'   => true,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
+				'title'         => __( 'Date Added' ),
+				'className'     => 'date',
+				'orderable'     => true,
+				'orderSequence' => [ 'desc', 'asc' ],
+				'searchable'    => false,
+				'visible'       => true,
+				'searchPanes'   => [
 					'show' => false
 				],
 			],

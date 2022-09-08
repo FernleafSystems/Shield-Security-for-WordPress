@@ -142,27 +142,28 @@ class ForAuditTrail extends Base {
 				],
 			],
 			'date'       => [
-				'data'        => [
+				'data'          => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'       => __( 'Date' ),
-				'className'   => 'date',
-				'orderable'   => true,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
+				'title'         => __( 'Date' ),
+				'className'     => 'date',
+				'orderable'     => true,
+				'orderSequence' => [ 'desc', 'asc' ],
+				'searchable'    => false,
+				'visible'       => true,
+				'searchPanes'   => [
 					'show' => false
 				],
 			],
 			'meta'       => [
-				'data'          => 'meta',
-				'title'         => __( 'Meta' ),
-				'className'     => 'meta',
-				'orderable'     => false,
-				'searchable'    => false,
-				'visible'       => true,
-				'searchPanes'   => [
+				'data'        => 'meta',
+				'title'       => __( 'Meta' ),
+				'className'   => 'meta',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
 					'show' => false
 				],
 			],

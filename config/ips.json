@@ -1035,20 +1035,20 @@
         ]
       },
       "crowdsec_mach_register":      {
-        "level":        "info",
+        "level":        "notice",
         "audit_params": [
           "machine_id",
           "url"
         ]
       },
       "crowdsec_auth_acquire":       {
-        "level":        "info",
+        "level":        "notice",
         "audit_params": [
           "expiration"
         ]
       },
       "crowdsec_mach_enroll":        {
-        "level":        "info",
+        "level":        "notice",
         "audit_params": [
           "id",
           "name"

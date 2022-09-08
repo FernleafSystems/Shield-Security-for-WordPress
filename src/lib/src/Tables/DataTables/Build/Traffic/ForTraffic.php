@@ -146,16 +146,17 @@ class ForTraffic extends Base {
 				'visible'    => false,
 			],
 			'date'     => [
-				'data'        => [
+				'data'          => [
 					'_'    => 'created_since',
 					'sort' => 'created_at',
 				],
-				'title'       => __( 'Date' ),
-				'className'   => 'date',
-				'orderable'   => true,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
+				'title'         => __( 'Date' ),
+				'className'     => 'date',
+				'orderable'     => true,
+				'orderSequence' => [ 'desc', 'asc' ],
+				'searchable'    => false,
+				'visible'       => true,
+				'searchPanes'   => [
 					'show' => false
 				],
 			],
