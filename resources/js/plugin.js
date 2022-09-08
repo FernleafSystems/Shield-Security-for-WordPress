@@ -200,7 +200,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			return false;
 		}
 		requestRunning = true;
-		event.preventDefault();
 
 		$form = jQuery( this );
 
@@ -338,7 +337,7 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 	jQuery( document ).ready( function () {
-		jQuery( document ).on( 'click', 'a.shield_file_download, a.shield_file_download ', function ( evt ) {
+		jQuery( document ).on( 'click', 'a.shield_file_download', function ( evt ) {
 			evt.preventDefault();
 			/** Cache busting **/
 			let url = jQuery( this ).attr( 'href' ) + '&rand='

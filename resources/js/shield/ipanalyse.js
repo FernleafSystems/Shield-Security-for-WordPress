@@ -70,8 +70,8 @@ jQuery.fn.icwpWpsfIpRules = function ( options ) {
 		} );
 
 		document.addEventListener( 'submit', function ( evt ) {
-			evt.preventDefault();
 			if ( typeof evt.target.id !== 'undefined' && evt.target.id === ipRuleAddFormSelector ) {
+				evt.preventDefault();
 
 				let reqData = jQuery.extend(
 					opts[ 'ajax' ][ 'ip_rule_add_form' ],
@@ -102,9 +102,8 @@ jQuery.fn.icwpWpsfIpRules = function ( options ) {
 						iCWP_WPSF_BodyOverlay.hide();
 					}
 				);
+				return false;
 			}
-
-			return false;
 		} );
 	};
 
