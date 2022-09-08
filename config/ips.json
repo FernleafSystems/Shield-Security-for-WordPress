@@ -947,6 +947,13 @@
         "offense":      false,
         "stat":         false
       },
+      "ip_unblock_auto":             {
+        "audit_params": [
+          "ip",
+          "method"
+        ],
+        "level":        "alert"
+      },
       "ip_unblock_flag":             {
         "audit_params": [
           "ip"

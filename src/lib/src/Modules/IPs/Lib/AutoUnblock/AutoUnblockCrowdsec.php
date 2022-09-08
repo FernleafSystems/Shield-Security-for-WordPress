@@ -17,6 +17,10 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 			   && $this->getCon()->this_req->is_ip_blocked_crowdsec && $opts->isEnabledCrowdSecAutoVisitorUnblock();
 	}
 
+	protected function getUnblockMethodName() :string {
+		return 'CrowdSec Auto-Unblock';
+	}
+
 	protected function getIpRecord() :IpRuleRecord {
 		$theRecord = null;
 		$status = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )->setMod( $this->getMod() );
