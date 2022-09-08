@@ -24,7 +24,8 @@
 
 				    <div class="tab-content">
 					    {% for step in content.steps %}
-						    <div id="step-{{ step.step_slug }}" class="tab-pane" role="tabpanel" aria-labelledby="step-{{ step.step_slug }}">
+						    <div id="step-{{ step.step_slug }}" class="tab-pane" role="tabpanel"
+						         aria-labelledby="step-{{ step.step_slug }}">
 					        {{ step.step_body|raw }}
 				        </div>
 					    {% endfor %}
@@ -42,8 +43,10 @@
 		{% endblock %}
 
 		{% block body_content_footer %}
-			<div class="row">
-				<div class="col-4 offset-4"></div>
+			<div class="row justify-content-center mt-4">
+				<div class="col-6 text-center">
+					<a href="{{ hrefs.dashboard_home }}">{{ imgs.svgs.exit|raw }} Exit Wizard</a>
+				</div>
 			</div>
 		{% endblock %}
 	</div>

@@ -391,16 +391,16 @@ class NavMenuBuilder {
 				'active' => $this->getInav() === 'notes'
 			],
 			[
-				'slug'   => $slug.'-rules',
-				'title'  => __( 'Rules', 'wp-simple-firewall' ),
-				'href'   => $mod->getUrl_SubInsightsPage( 'rules' ),
-				'active' => $this->getInav() === 'rules'
-			],
-			[
 				'slug'   => $slug.'-merlin',
 				'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( 'merlin' ),
 				'active' => $this->getInav() === 'merlin'
+			],
+			[
+				'slug'   => $slug.'-rules',
+				'title'  => __( 'Rules', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'rules' ),
+				'active' => $this->getInav() === 'rules'
 			],
 			[
 				'slug'   => $slug.'-debug',
