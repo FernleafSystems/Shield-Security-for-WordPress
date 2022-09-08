@@ -26,10 +26,6 @@ class ModCon extends BaseShield\ModCon {
 		];
 	}
 
-	protected function setupCustomHooks() {
-		add_action( $this->getCon()->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
-	}
-
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
 		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
 			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )
@@ -169,15 +165,9 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
+	/**
+	 * @deprecated 16.1
+	 */
 	public function preDeactivatePlugin() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
-			Services::WpGeneral()->wpDie(
-				__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' )
-				.'<br />'.sprintf( '<a href="%s">%s</a>',
-					$this->getUrl_AdminPage(),
-					__( "You'll just need to authenticate first and try again.", 'wp-simple-firewall' )
-				)
-			);
-		}
 	}
 }
