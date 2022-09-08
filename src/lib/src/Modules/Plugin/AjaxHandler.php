@@ -33,7 +33,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				'render_dashboard_widget' => [ $this, 'ajaxExec_RenderDashboardWidget' ],
 				'render_offcanvas'        => [ $this, 'ajaxExec_RenderOffCanvas' ],
 				'select_search'           => [ $this, 'ajaxExec_SelectSearch' ],
-				'wizard_step'             => [ $this, 'ajaxExec_Wizard' ],
 			] );
 		}
 		return $map;
@@ -172,18 +171,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 			'results' => ( new Lib\SelectSearchData() )
 				->setCon( $this->getCon() )
 				->build( Services::Request()->request( 'search' ) ),
-		];
-	}
-
-	public function ajaxExec_Wizard() :array {
-		$params = FormParams::Retrieve();
-		// step will be step1, step2 etc.
-		$currentStep = intval( str_replace( 'step', '', $params[ 'step' ] ) );
-		$data = $params[ $params[ 'step' ] ];
-		return [
-			'success' => true,
-			'message' => $currentStep < 3 ? $data : 'done done done',
-			'next'    => $currentStep < 3 ? 'step'.++$currentStep : 'done',
 		];
 	}
 

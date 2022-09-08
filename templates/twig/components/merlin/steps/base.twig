@@ -1,0 +1,40 @@
+{% import '/common/macros.twig' as icwp_macros %}
+
+{% block step_header %}
+
+	{% block slide_body_title %}
+		{{ icwp_macros.slideTitle( strings.step_title|default('NO TITLE') ) }}
+	{% endblock %}
+
+{% endblock %}
+
+{% block step_body %}
+
+	<div class="row row-cols-1 justify-content-center mt-4">
+		<div class="col-12 col-xl-10 col-lg-12 col-md-12">
+
+			{% block slide_body_video_section %}
+				<div class="row">
+					<div class="col col-6">
+						{% block slide_body_video_section_blurb %}
+						{% endblock %}
+					</div>
+					<div class="col col-6">
+						{% block slide_body_video_section_video %}
+              {{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
+						{% endblock %}
+					</div>
+				</div>
+			{% endblock %}
+
+			<div class="mt-5">
+				{% block slide_body_action_area %}{% endblock %}
+			</div>
+
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block step_footer %}
+{% endblock %}

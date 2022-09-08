@@ -40,7 +40,6 @@ class Strings {
 				'btn_save'          => __( 'Save Options' ),
 				'btn_options'       => __( 'Options' ),
 				'btn_help'          => __( 'Help' ),
-				'btn_wizards'       => $this->getMod()->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
 				'go_to_settings'    => __( 'Configuration', 'wp-simple-firewall' ),
 				'on'                => __( 'On', 'wp-simple-firewall' ),
 				'off'               => __( 'Off', 'wp-simple-firewall' ),

@@ -82,11 +82,6 @@
       "can_dismiss":      false,
       "type":             "warning"
     },
-    "wizard_welcome":             {
-      "id":       "wizard_welcome",
-      "per_user": false,
-      "type":     "info"
-    },
     "plugin-mailing-list-signup": {
       "id":               "plugin-mailing-list-signup",
       "min_install_days": 5,
@@ -684,53 +679,6 @@
         "level":   "debug",
         "offense": false,
         "stat":    false
-      }
-    },
-    "wizards":             {
-      "welcome": {
-        "title":                "Getting Started Setup Wizard",
-        "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "welcome":                  {
-            "security_admin": false,
-            "title":          "Welcome"
-          },
-          "ip_detect":                {
-            "title": "IP Detection"
-          },
-          "admin_access_restriction": {
-            "title": "Security Admin"
-          },
-          "audit_trail":              {
-            "title": "Activity Log"
-          },
-          "ips":                      {
-            "title": "IP Blacklist"
-          },
-          "login_protect":            {
-            "title": "Login Protection"
-          },
-          "comments_filter":          {
-            "title": "Comment SPAM"
-          },
-          "plugin_badge":             {
-            "title": "Security Badge"
-          },
-          "plugin_telemetry":         {
-            "title": "Plugin Telemetry"
-          },
-          "free_trial":               {
-            "title": "Free Trial"
-          },
-          "optin":                    {
-            "title": "Join Us!"
-          },
-          "thankyou":                 {
-            "security_admin": false,
-            "title":          "Thank You!"
-          }
-        }
       }
     }
   }

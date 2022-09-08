@@ -24,7 +24,7 @@ class ModCon extends BaseShield\ModCon {
 		$con = $this->getCon();
 		if ( !Services::WpGeneral()->isAjax() && is_admin() ) {
 			if ( !$con->isModulePage() && $con->getModule_Plugin()->getActivateLength() < 5 ) {
-				Services::Response()->redirect( $con->getModule_Plugin()->getUrl_Wizard( 'welcome' ) );
+				Services::Response()->redirect( $this->getUrl_SubInsightsPage( 'merlin' ) );
 			}
 			elseif ( $this->getAdminPage()->isCurrentPage() && empty( $this->getCurrentInsightsPage() ) ) {
 				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
@@ -84,6 +84,15 @@ class ModCon extends BaseShield\ModCon {
 				],
 			]
 		];
+		$locals[] = [
+			'shield/merlin',
+			'merlin',
+			[
+				'ajax' => [
+					'merlin_action' => $this->getAjaxActionData( 'merlin_action' )
+				]
+			]
+		];
 
 		$locals[] = [
 			'shield/navigation',
@@ -134,6 +143,11 @@ class ModCon extends BaseShield\ModCon {
 						'chartist-plugin-legend',
 						'shield/charts'
 					];
+					break;
+
+				case 'merlin':
+					$enq[ Enqueue::JS ][] = 'shield/merlin';
+					$enq[ Enqueue::CSS ][] = 'shield/merlin';
 					break;
 
 				case 'wizard':

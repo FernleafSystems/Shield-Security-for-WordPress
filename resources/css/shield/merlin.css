@@ -1,0 +1,31 @@
+﻿:root {
+	--sw-border-color:  #eeeeee;
+	--sw-toolbar-btn-color:  #ffffff;
+	--sw-toolbar-btn-background-color: #57a64b;
+	--sw-anchor-default-primary-color:  #f8f9fa;
+	--sw-anchor-default-secondary-color:  #b0b0b1;
+	--sw-anchor-active-primary-color: #5aaf51;
+	--sw-anchor-active-secondary-color:  #ffffff;
+	--sw-anchor-done-primary-color: #95b98e;
+	--sw-anchor-done-secondary-color:  #fefefe;
+	--sw-anchor-disabled-primary-color:  #f8f9fa;
+	--sw-anchor-disabled-secondary-color:  #dbe0e5;
+	--sw-anchor-error-primary-color:  #dc3545;
+	--sw-anchor-error-secondary-color:  #ffffff;
+	--sw-anchor-warning-primary-color:  #ffc107;
+	--sw-anchor-warning-secondary-color:  #ffffff;
+	--sw-progress-color: #3fad41;
+	--sw-progress-background-color:  #f8f9fa;
+	--sw-loader-color: #59a84d;
+	--sw-loader-background-color:  #f8f9fa;
+	--sw-loader-background-wrapper-color:  rgba(255, 255, 255, 0.7);
+}
+.sw .list-group{
+	--bs-list-group-bg: transparent;
+}
+.sw h4 {
+}
+.sw li,
+.sw p {
+	font-size: 14px;
+}

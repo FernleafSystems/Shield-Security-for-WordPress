@@ -126,11 +126,21 @@
             "datatables-bootstrap"
           ]
         },
+        "jquery/smartwizard":                {
+          "url": "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/css/smart_wizard_all.min.css"
+        },
         "global-plugin":                     {},
         "plugin":                            {
           "deps": [
             "bootstrap",
             "global-plugin"
+          ]
+        },
+        "shield/merlin":                     {
+          "deps": [
+            "bootstrap",
+            "global-plugin",
+            "jquery/smartwizard"
           ]
         },
         "shield/wizard":                     {
@@ -264,6 +274,12 @@
         "jquery/steps":                      {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
         },
+        "jquery/smartwizard":                {
+          "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",
+          "deps": [
+            "wp-jquery"
+          ]
+        },
         "jquery/featherlight":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
         },
@@ -380,6 +396,13 @@
             "shield/dialog"
           ],
           "footer": true
+        },
+        "shield/merlin":                     {
+          "deps": [
+            "bootstrap",
+            "global-plugin",
+            "jquery/smartwizard"
+          ]
         },
         "shield/wizard":                     {
           "deps": [

@@ -5,14 +5,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
-class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
-
-	/**
-	 * @return string
-	 */
-	protected function getPageTitle() :string {
-		return sprintf( __( '%s Welcome Wizard', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
-	}
+class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 
 	/**
 	 * @param string $step
@@ -20,10 +13,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	protected function processWizardStep( string $step ) {
 		switch ( $step ) {
-
-			case 'ip_detect':
-				$response = $this->wizardIpDetect();
-				break;
 
 			case 'license':
 				$response = $this->wizardLicense();
@@ -75,93 +64,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	}
 
 	/**
-	 * @return string[]
-	 * @throws Exception
-	 */
-	protected function determineWizardSteps() :array {
-		switch ( $this->getWizardSlug() ) {
-			case 'welcome':
-				$aSteps = $this->determineWizardSteps_Welcome();
-				break;
-			case 'gdpr':
-				$aSteps = $this->determineWizardSteps_Gdpr();
-				break;
-			case 'importexport':
-				$aSteps = $this->determineWizardSteps_Import();
-				break;
-			default:
-				parent::determineWizardSteps();
-				break;
-		}
-		return array_values( array_intersect( array_keys( $this->getAllDefinedSteps() ), $aSteps ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function determineWizardSteps_Gdpr() {
-		return [
-			'start',
-			'search',
-			'results',
-			'finished',
-		];
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function determineWizardSteps_Import() {
-		return [
-			'start',
-			'import',
-			'finished',
-		];
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function determineWizardSteps_Welcome() {
-		$con = $this->getCon();
-
-		$stepsSlugs = [
-			'welcome',
-		];
-
-		if ( $con->isPremiumActive() ) {
-			$stepsSlugs[] = 'import';
-		}
-
-		if ( !$con->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
-			$stepsSlugs[] = 'admin_access_restriction';
-		}
-
-		$mod = $con->getModule_AuditTrail();
-		if ( !$mod->isModuleEnabled() ) {
-			$stepsSlugs[] = 'audit_trail';
-		}
-
-		if ( !$con->getModule_IPs()->isModuleEnabled() ) {
-//			$stepsSlugs[] = 'ips';
-		}
-
-		$stepsSlugs[] = 'login_protect';
-		$stepsSlugs[] = 'comments_filter';
-		$stepsSlugs[] = 'plugin_badge';
-//		$stepsSlugs[] = 'plugin_telemetry';
-		$stepsSlugs[] = 'free_trial';
-		$stepsSlugs[] = 'optin';
-
-		if ( !$con->isPremiumActive() ) {
-			$stepsSlugs[] = 'import';
-		}
-
-		$stepsSlugs[] = 'thankyou';
-		return $stepsSlugs;
-	}
-
-	/**
 	 * @param string $step
 	 * @return array
 	 */
@@ -169,28 +71,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$con = $this->getCon();
 
 		$additional = [];
-
-		$sCurrentWiz = $this->getWizardSlug();
-
 		if ( $sCurrentWiz == 'welcome' ) {
 
 			switch ( $step ) {
-				case 'welcome':
-					$urlBuilder = $con->urls;
-					$additional = [
-						'imgs'    => [
-							'plugin_banner' => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
-						],
-						'vars'    => [
-							'video_id' => '267962208'
-						],
-						'strings' => [
-							'slide_title' => 'Welcome To Shield Security for WordPress',
-							'next_button' => 'Start',
-						],
-					];
-					break;
-
 				case 'ip_detect':
 					$additional = [
 						'hrefs'   => [
@@ -201,39 +84,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						],
 						'strings' => [
 							'slide_title' => 'Accurate Visitor IP Detection',
-						],
-					];
-					break;
-
-				case 'login_protect':
-					$additional = [
-						'vars'    => [
-							'video_id' => '269191603'
-						],
-						'strings' => [
-							'slide_title' => 'Brute Force Login Protection',
-						],
-					];
-					break;
-
-				case 'comments_filter':
-					$additional = [
-						'vars'    => [
-							'video_id' => '269193270'
-						],
-						'strings' => [
-							'slide_title' => 'Block 100% Comment SPAM by Bots - no CAPTCHAs (really!)',
-						],
-					];
-					break;
-
-				case 'plugin_badge':
-					$additional = [
-						'vars'    => [
-							'video_id' => '552430272'
-						],
-						'strings' => [
-							'slide_title' => 'Demonstrate To Visitors That You Take Security Seriously',
 						],
 					];
 					break;
@@ -252,21 +102,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					];
 					break;
 
-				case 'free_trial':
-					$additional = [
-						'hrefs'   => [
-							'free_trial' => 'https://shsec.io/freetrialwizard',
-							'features'   => 'https://getshieldsecurity.com/features/',
-						],
-						'imgs'    => [
-							'free_trial' => $con->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
-						],
-						'strings' => [
-							'slide_title' => 'Try ShieldPRO For Free',
-						],
-					];
-					break;
-
 				case 'import':
 					$additional = [
 						'hrefs' => [
@@ -275,40 +110,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						'imgs'  => [
 							'shieldnetworkmini' => $con->urls->forImage( 'shield/shieldnetworkmini.png' ),
 						]
-					];
-					break;
-
-				case 'optin':
-					$users = Services::WpUsers()->getCurrentWpUser();
-					$additional = [
-						'hrefs'   => [
-							'facebook' => 'https://shsec.io/pluginshieldsecuritygroupfb',
-							'twitter'  => 'https://shsec.io/pluginshieldsecuritytwitter',
-							'email'    => 'https://shsec.io/pluginshieldsecuritynewsletter',
-						],
-						'imgs'    => [
-							'facebook' => $con->svgs->raw( 'bootstrap/facebook.svg' ),
-							'twitter'  => $con->svgs->raw( 'bootstrap/twitter.svg' ),
-							'email'    => $con->svgs->raw( 'bootstrap/envelope-fill.svg' ),
-						],
-						'vars'    => [
-							'name'  => $users->first_name,
-							'email' => $users->user_email
-						],
-						'strings' => [
-							'slide_title' => 'Come Join Us!',
-						],
-					];
-					break;
-
-				case 'thankyou':
-					$additional = [
-						'vars'    => [
-							'video_id' => '269364269'
-						],
-						'strings' => [
-							'slide_title' => 'Thank You For Choosing Shield Security',
-						],
 					];
 					break;
 
@@ -374,95 +175,12 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
-		elseif ( $sCurrentWiz == 'gdpr' ) {
-			switch ( $step ) {
-
-				case 'results':
-					$aItems = $this->getGdprSearchItems();
-					$bHasSearchItems = !empty( $aItems );
-					$aResults = $this->runGdprSearch();
-
-					$nTotal = 0;
-					foreach ( $aResults as $aResult ) {
-						$nTotal += $aResult[ 'count' ];
-					}
-
-					$additional = [
-						'flags' => [
-							'has_search_items' => $bHasSearchItems
-						],
-						'data'  => [
-							'result'      => $this->runGdprSearch(),
-							'count_total' => $nTotal,
-							'has_results' => $nTotal > 0,
-						]
-					];
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		if ( empty( $additional ) ) {
-			$additional = parent::getRenderData_SlideExtra( $step );
-		}
-
-		if ( !empty( $additional[ 'vars' ][ 'video_id' ] ) ) {
-			$additional[ 'imgs' ][ 'video_thumb' ] = $this->getVideoThumbnailUrl( $additional[ 'vars' ][ 'video_id' ] );
-		}
 
 		if ( empty( $additional[ 'vars' ][ 'step_slug' ] ) ) {
 			$additional[ 'vars' ][ 'step' ] = $step;
 		}
 
 		return $additional;
-	}
-
-	/**
-	 * @see https://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
-	 * @param string $videoID
-	 */
-	private function getVideoThumbnailUrl( $videoID ) {
-		$raw = Services::HttpRequest()
-					   ->getContent( sprintf( 'https://vimeo.com/api/v2/video/%s.json', $videoID ) );
-		return empty( $raw ) ? '' : json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ];
-	}
-
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function wizardIpDetect() {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
-		$srvIP = Services::IP();
-		$ip = trim( Services::Request()->post( 'ip', '' ) );
-		$success = false;
-
-		$response = new \FernleafSystems\Utilities\Response();
-		if ( empty( $ip ) ) {
-			$msg = __( 'IP address was empty.', 'wp-simple-firewall' );
-		}
-		elseif ( !$srvIP->isValidIp_PublicRemote( $ip ) ) {
-			$msg = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
-		}
-		else {
-			$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
-			if ( empty( $source ) ) {
-				$msg = __( "Sorry, we couldn't find an address source from this IP.", 'wp-simple-firewall' );
-			}
-			else {
-				$success = true;
-				$opts->setVisitorAddressSource( $source );
-				$msg = __( 'Success!', 'wp-simple-firewall' ).' '
-					   .sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $source );
-			}
-		}
-
-		$this->getCon()->getModule_Plugin()->saveModOptions();
-		$response->setSuccessful( $success );
-
-		return $response->setMessageText( $msg );
 	}
 
 	/**

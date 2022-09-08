@@ -151,8 +151,6 @@ class WhitelabelController extends ExecOnceModConsumer {
 	 * Full URL
 	 * Relative path URL: i.e. starts with /
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
-	 * @param string $key
-	 * @return string
 	 */
 	private function constructImageURL( string $key ) :string {
 		$opts = $this->getOptions();
