@@ -106,4 +106,8 @@ class UI {
 	public function getSectionWarnings( string $section ) :array {
 		return [];
 	}
+
+	public function getSectionCriticalWarnings( string $section ) :array {
+		return [];
+	}
 }

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -64,8 +65,7 @@ class UI extends BaseShield\UI {
 				);
 			}
 		}
-
-		if ( $section == 'section_2fa_ga' ) {
+		elseif ( $section == 'section_2fa_ga' ) {
 			try {
 				$diff = ( new WorldTimeApi() )->diffServerWithReal();
 				if ( $diff > 10 ) {
@@ -87,6 +87,20 @@ class UI extends BaseShield\UI {
 			}
 		}
 
+		return $warnings;
+	}
+
+	public function getSectionCriticalWarnings( string $section ) :array {
+		$warnings = [];
+		if ( $section == 'section_rename_wplogin' ) {
+			$isBypass = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )
+				->setMod( $this->getMod() )
+				->isBypass();
+			if ( $isBypass ) {
+				$warnings[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s" ),
+					basename( Services::WpGeneral()->getLoginUrl() ) );
+			}
+		}
 		return $warnings;
 	}
 }
