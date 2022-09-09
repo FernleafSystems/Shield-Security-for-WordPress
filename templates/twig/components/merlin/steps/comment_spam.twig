@@ -17,14 +17,15 @@
 				Comment SPAM Blocking
 			</div>
 			<div class="col-8">
-				  {{ icwp_macros.formInput_Radio_Wizard(
-					  'CommentsFilterOption',
-					  {
-						  'Y': '<span>Turn On</span> - Block automated comments SPAM by bots',
-						  'N': '<span>Turn Off</span> - Do not block automated comments SPAM'
-					  },
-					  'Comment SPAM Blocking'
-				  ) }}
+				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+			  {{ icwp_macros.formInput_Radio_Wizard(
+				  'CommentsFilterOption',
+				  {
+					  'Y': '<span>Turn On</span> - Block automated bot SPAM comments',
+					  'N': "<span>Turn Off</span> - Don't block automated comment SPAM"
+				  },
+				  'Comment SPAM Blocking'
+			  ) }}
 			</div>
 		</div>
 

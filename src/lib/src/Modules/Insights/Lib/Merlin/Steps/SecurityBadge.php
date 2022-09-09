@@ -22,4 +22,21 @@ class SecurityBadge extends Base {
 			],
 		];
 	}
+
+	public function processStepFormSubmit( array $form ) :bool {
+		$value = $form[ 'SecurityPluginBadge' ] ?? '';
+		if ( empty( $value ) ) {
+			throw new \Exception( 'No option setting provided.' );
+		}
+		$mod = $this->getCon()->getModule_Plugin();
+
+		$toEnable = $value === 'Y';
+		if ( $toEnable ) { // we don't disable the whole module
+			$mod->setIsMainFeatureEnabled( true );
+		}
+		$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
+
+		$mod->saveModOptions();
+		return true;
+	}
 }

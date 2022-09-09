@@ -24,6 +24,7 @@ class ToggleSecAdminStatus {
 				 ->getModule_Sessions()
 				 ->getSessionCon()
 				 ->updateSessionParameter( 'secadmin_at', $onOrOff ? Services::Request()->ts() : 0 );
+			$this->getCon()->this_req->is_security_admin = $onOrOff;
 		}
 		return (bool)$session->valid;
 	}

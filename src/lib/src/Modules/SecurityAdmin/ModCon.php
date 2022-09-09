@@ -103,28 +103,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * Used by Wizard. TODO: sort out the wizard requests!
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function setNewPinManually( string $pin ) {
-		if ( empty( $pin ) ) {
-			throw new \Exception( 'Attempting to set an empty Security PIN.' );
-		}
-		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( 'User does not have permission to update the Security PIN.' );
-		}
-
-		$this->setIsMainFeatureEnabled( true );
-		$this->getOptions()->setOpt( 'admin_access_key', md5( $pin ) );
-		( new Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
-			->setMod( $this )
-			->turnOn();
-
-		return $this->saveModOptions();
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {

@@ -19,6 +19,10 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 		return 'Title Unset';
 	}
 
+	public function skipStep() :bool {
+		return false;
+	}
+
 	protected function getTemplateBaseDir() :string {
 		return '/components/merlin/steps/';
 	}
@@ -41,6 +45,13 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
+	public function processStepFormSubmit( array $form ) :bool {
+		return false;
+	}
+
 	protected function getCommonStepRenderData() :array {
 		return [
 			'hrefs' => [
@@ -49,6 +60,9 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 			],
 			'imgs'  => [
 				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-circle.svg' )
+			],
+			'vars'  => [
+				'step_slug' => static::SLUG
 			],
 		];
 	}

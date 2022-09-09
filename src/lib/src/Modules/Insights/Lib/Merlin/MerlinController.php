@@ -29,49 +29,7 @@ class MerlinController {
 	 * @throws \Exception
 	 */
 	public function processFormSubmit( array $form ) :bool {
-
-		$con = $this->getCon();
-		foreach ( $form as $key => $value ) {
-
-			$toEnable = $value === 'Y';
-
-			switch ( $key ) {
-
-				case 'LoginProtectOption':
-					$mod = $con->getModule_LoginGuard();
-					if ( $toEnable ) { // we don't disable the whole module
-						$mod->setIsMainFeatureEnabled( true );
-					}
-					$mod->getOptions()->setOpt( 'enable_antibot_check', $toEnable ? 'Y' : 'N' );
-					break;
-
-				case 'CommentsFilterOption':
-					$mod = $this->getCon()->getModule_Comments();
-					/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
-					$optsComm = $mod->getOptions();
-					if ( $toEnable ) { // we don't disable the whole module
-						$mod->setIsMainFeatureEnabled( true );
-					}
-					$optsComm->setEnabledAntiBot( $toEnable );
-					break;
-
-				case 'SecurityPluginBadge':
-					$mod = $this->getCon()->getModule_Plugin();
-					if ( $toEnable ) { // we don't disable the whole module
-						$mod->setIsMainFeatureEnabled( true );
-					}
-					$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
-					$mod->saveModOptions();
-					break;
-
-				default:
-					throw new \Exception( 'Not a supported option.' );
-			}
-
-			$mod->saveModOptions();
-		}
-
-		return true;
+		return $this->getStepBuilders( false )[ $form[ 'step_slug' ] ]->processStepFormSubmit( $form );
 	}
 
 	private function buildSteps() :array {
@@ -83,7 +41,9 @@ class MerlinController {
 					'step_body' => $builder->render(),
 				];
 			},
-			$this->getStepBuilders()
+			array_filter( $this->getStepBuilders( true ), function ( $builder ) {
+				return !$builder->skipStep();
+			} )
 		);
 	}
 
@@ -93,6 +53,7 @@ class MerlinController {
 			default:
 				$steps = [
 					'guided_setup_welcome',
+					'security_admin',
 					'login_protection',
 					'comment_spam',
 					'security_badge',
@@ -108,11 +69,7 @@ class MerlinController {
 	/**
 	 * @return Steps\Base[]
 	 */
-	private function getStepBuilders() :array {
-		$builders = [];
-		foreach ( $this->enumStepBuilders() as $builder ) {
-			$builders[ $builder::SLUG ] = $builder;
-		}
+	private function getStepBuilders( bool $filterByStepKeys ) :array {
 		$stepKeys = $this->getStepKeys();
 		// Extracts and ORDERS all the required Step Builders
 		return array_map(
@@ -121,7 +78,9 @@ class MerlinController {
 				$builder = new $builderClass();
 				return $builder->setMod( $this->getMod() );
 			},
-			array_merge( array_flip( $stepKeys ), array_intersect_key( $builders, array_flip( $stepKeys ) ) )
+			$filterByStepKeys ?
+				array_merge( array_flip( $stepKeys ), array_intersect_key( $this->enumStepBuilders(), array_flip( $stepKeys ) ) )
+				: $this->enumStepBuilders()
 		);
 	}
 
@@ -129,7 +88,7 @@ class MerlinController {
 	 * @return Steps\Base[]
 	 */
 	private function enumStepBuilders() :array {
-		return [
+		$classes = [
 			Steps\GuidedSetupWelcome::class,
 			Steps\LoginProtection::class,
 			Steps\CommentSpam::class,
@@ -139,5 +98,12 @@ class MerlinController {
 			Steps\OptIn::class,
 			Steps\ThankYou::class,
 		];
+
+		$builders = [];
+		foreach ( $classes as $class ) {
+			$builders[ $class::SLUG ] = $class;
+		}
+
+		return $builders;
 	}
 }

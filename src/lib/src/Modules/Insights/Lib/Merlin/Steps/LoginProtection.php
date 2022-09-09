@@ -22,4 +22,22 @@ class LoginProtection extends Base {
 			],
 		];
 	}
+
+	public function processStepFormSubmit( array $form ) :bool {
+		$value = $form[ 'LoginProtectOption' ] ?? '';
+		if ( empty( $value ) ) {
+			throw new \Exception( 'No option setting provided.' );
+		}
+
+		$mod = $this->getCon()->getModule_LoginGuard();
+
+		$toEnable = $value === 'Y';
+		if ( $toEnable ) { // we don't disable the whole module
+			$mod->setIsMainFeatureEnabled( true );
+		}
+		$mod->getOptions()->setOpt( 'enable_antibot_check', $toEnable ? 'Y' : 'N' );
+
+		$mod->saveModOptions();
+		return true;
+	}
 }

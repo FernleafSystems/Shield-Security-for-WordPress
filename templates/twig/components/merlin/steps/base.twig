@@ -18,13 +18,15 @@
 						{% block slide_body_video_section_blurb %}
 						{% endblock %}
 
-						<div class="mt-5">
+						<div class="mt-4">
 							{% block slide_body_action_area %}{% endblock %}
 						</div>
 					</div>
 					<div class="col col-4">
 						{% block slide_body_video_section_video %}
-              {{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
+							{% if vars.video_id|default('') is not empty %}
+								{{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
+							{% endif %}
 						{% endblock %}
 					</div>
 				</div>
