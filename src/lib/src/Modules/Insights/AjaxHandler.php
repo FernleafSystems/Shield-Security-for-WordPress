@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
@@ -24,23 +23,21 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 				->setMod( $this->getMod() )
 				->build( Shield\Modules\Base\Lib\Request\FormParams::Retrieve() );
 			$success = true;
+			$msg = 'render success';
 		}
 		catch ( \Exception $e ) {
-			$pageData = [
-				'success' => false,
-				'message' => $e->getMessage(),
-			];
+			$msg = $e->getMessage();
 			$success = false;
 		}
 
 		return array_merge(
 			[
-				'success'    => false,
-				'message'    => 'no msg',
+				'success'    => $success,
+				'message'    => $msg,
 				'html'       => 'no html',
 				'show_toast' => !$success,
 			],
-			$pageData
+			$pageData ?? []
 		);
 	}
 

@@ -124,7 +124,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 	 * This works around mod_security rules that even unpack b64 encoded params and look
 	 * for patterns within them.
 	 */
-	var sendForm = function ( useCompression = false ) {
+	let sendForm = function ( useCompression = false ) {
 
 		let formData = $form.serialize();
 		if ( useCompression ) {
@@ -137,7 +137,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			return false;
 		}
 
-		let reqs = jQuery.extend(
+		let reqData = jQuery.extend(
 			workingData.ajax.mod_options_save,
 			{
 				'form_params': Base64.encode( formData ),
@@ -149,15 +149,15 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 		jQuery.ajax(
 			{
-				type: "POST",
+				type: 'POST',
 				url: ajaxurl,
-				data: reqs,
-				dataType: "text",
+				data: reqData,
+				dataType: 'text',
 				success: function ( raw ) {
 					handleResponse( raw );
 				},
 			}
-		).fail( function () {
+		).fail( function ( jqXHR, textStatus ) {
 			if ( useCompression ) {
 				handleResponse( raw );
 			}
@@ -194,7 +194,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		}, 1000 );
 	};
 
-	let submitOptionsForm = function ( event ) {
+	let submitOptionsForm = function ( evt ) {
+		evt.preventDefault();
 
 		if ( requestRunning ) {
 			return false;
@@ -219,6 +220,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		if ( $passwordsReady ) {
 			sendForm( false );
 		}
+
+		return false;
 	};
 
 	this.initialise = function ( data ) {

@@ -156,7 +156,6 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 					$success = false;
 				}
 				break;
-
 		}
 
 		return [
