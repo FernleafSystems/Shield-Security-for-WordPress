@@ -28,21 +28,29 @@ class MerlinController {
 	/**
 	 * @throws \Exception
 	 */
-	public function processFormSubmit( array $form ) :bool {
-		return $this->getStepBuilders( false )[ $form[ 'step_slug' ] ]->processStepFormSubmit( $form );
+	public function processFormSubmit( array $form ) :Shield\Utilities\Response {
+		$step = $form[ 'step_slug' ] ?? '';
+		if ( empty( $step ) ) {
+			throw new \Exception( 'No step configured for this form' );
+		}
+		$handlers = $this->getStepHandlers( false );
+		if ( !isset( $handlers[ $step ] ) ) {
+			throw new \Exception( 'Invalid Step.' );
+		}
+		return $handlers[ $step ]->processStepFormSubmit( $form );
 	}
 
 	private function buildSteps() :array {
 		return array_map(
-			function ( $builder ) {
+			function ( $handler ) {
 				return [
-					'step_slug' => $builder::SLUG,
-					'step_name' => $builder->getName(),
-					'step_body' => $builder->render(),
+					'step_slug' => $handler::SLUG,
+					'step_name' => $handler->getName(),
+					'step_body' => $handler->render(),
 				];
 			},
-			array_filter( $this->getStepBuilders( true ), function ( $builder ) {
-				return !$builder->skipStep();
+			array_filter( $this->getStepHandlers( true ), function ( $handler ) {
+				return !$handler->skipStep();
 			} )
 		);
 	}
@@ -53,6 +61,7 @@ class MerlinController {
 			default:
 				$steps = [
 					'guided_setup_welcome',
+					'license',
 					'security_admin',
 					'login_protection',
 					'comment_spam',
@@ -69,25 +78,25 @@ class MerlinController {
 	/**
 	 * @return Steps\Base[]
 	 */
-	private function getStepBuilders( bool $filterByStepKeys ) :array {
+	private function getStepHandlers( bool $filterByStepKeys ) :array {
 		$stepKeys = $this->getStepKeys();
-		// Extracts and ORDERS all the required Step Builders
+		// Extracts and ORDERS all the required Step Handlers
 		return array_map(
-			function ( string $builderClass ) {
-				/** @var Steps\Base $builder */
-				$builder = new $builderClass();
-				return $builder->setMod( $this->getMod() );
+			function ( string $handlerClass ) {
+				/** @var Steps\Base $handler */
+				$handler = new $handlerClass();
+				return $handler->setMod( $this->getMod() );
 			},
 			$filterByStepKeys ?
-				array_merge( array_flip( $stepKeys ), array_intersect_key( $this->enumStepBuilders(), array_flip( $stepKeys ) ) )
-				: $this->enumStepBuilders()
+				array_merge( array_flip( $stepKeys ), array_intersect_key( $this->enumStepHandlers(), array_flip( $stepKeys ) ) )
+				: $this->enumStepHandlers()
 		);
 	}
 
 	/**
 	 * @return Steps\Base[]
 	 */
-	private function enumStepBuilders() :array {
+	private function enumStepHandlers() :array {
 		$classes = [
 			Steps\GuidedSetupWelcome::class,
 			Steps\LoginProtection::class,
@@ -95,15 +104,16 @@ class MerlinController {
 			Steps\SecurityAdmin::class,
 			Steps\SecurityBadge::class,
 			Steps\FreeTrial::class,
+			Steps\License::class,
 			Steps\OptIn::class,
 			Steps\ThankYou::class,
 		];
 
-		$builders = [];
+		$handlers = [];
 		foreach ( $classes as $class ) {
-			$builders[ $class::SLUG ] = $class;
+			$handlers[ $class::SLUG ] = $class;
 		}
 
-		return $builders;
+		return $handlers;
 	}
 }

@@ -43,11 +43,11 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 	public function ajaxExec_MerlinAction() :array {
 		try {
-			( new Shield\Modules\Insights\Lib\Merlin\MerlinController() )
+			$response = ( new Shield\Modules\Insights\Lib\Merlin\MerlinController() )
 				->setMod( $this->getMod() )
 				->processFormSubmit( Shield\Modules\Base\Lib\Request\FormParams::Retrieve() );
-			$success = true;
-			$msg = __( 'Option updated successfully.' );
+			$success = $response->success;
+			$msg = $response->getRelevantMsg();
 		}
 		catch ( \Exception $e ) {
 			$success = false;
@@ -55,8 +55,9 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 		}
 
 		return [
-			'success' => $success,
-			'message' => $msg,
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => $response->data[ 'page_reload' ] ?? false,
 		];
 	}
 }

@@ -23,10 +23,10 @@ class LoginProtection extends Base {
 		];
 	}
 
-	public function processStepFormSubmit( array $form ) :bool {
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$value = $form[ 'LoginProtectOption' ] ?? '';
 		if ( empty( $value ) ) {
-			throw new \Exception( 'No option setting provided.' );
+			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
 		$mod = $this->getCon()->getModule_LoginGuard();
@@ -36,8 +36,12 @@ class LoginProtection extends Base {
 			$mod->setIsMainFeatureEnabled( true );
 		}
 		$mod->getOptions()->setOpt( 'enable_antibot_check', $toEnable ? 'Y' : 'N' );
-
 		$mod->saveModOptions();
-		return true;
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
+			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
+		return $resp;
 	}
 }

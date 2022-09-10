@@ -23,11 +23,12 @@ class SecurityBadge extends Base {
 		];
 	}
 
-	public function processStepFormSubmit( array $form ) :bool {
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$value = $form[ 'SecurityPluginBadge' ] ?? '';
 		if ( empty( $value ) ) {
-			throw new \Exception( 'No option setting provided.' );
+			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
+
 		$mod = $this->getCon()->getModule_Plugin();
 
 		$toEnable = $value === 'Y';
@@ -35,8 +36,12 @@ class SecurityBadge extends Base {
 			$mod->setIsMainFeatureEnabled( true );
 		}
 		$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
-
 		$mod->saveModOptions();
-		return true;
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = $toEnable ? __( 'The Security Badge will be displayed to your visitors', 'wp-simple-firewall' )
+			: __( "The Security Badge won't be displayed to your visitors", 'wp-simple-firewall' );
+		return $resp;
 	}
 }

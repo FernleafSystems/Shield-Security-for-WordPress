@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus;
 
 class CommentSpam extends Base {
 
@@ -24,10 +23,10 @@ class CommentSpam extends Base {
 		];
 	}
 
-	public function processStepFormSubmit( array $form ) :bool {
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$value = $form[ 'CommentsFilterOption' ] ?? '';
 		if ( empty( $value ) ) {
-			throw new \Exception( 'No option setting provided.' );
+			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
 		$mod = $this->getCon()->getModule_Comments();
@@ -36,11 +35,15 @@ class CommentSpam extends Base {
 		if ( $toEnable ) { // we don't disable the whole module
 			$mod->setIsMainFeatureEnabled( true );
 		}
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
-		$optsComm = $mod->getOptions();
-		$optsComm->setEnabledAntiBot( $toEnable );
-
+		/** @var Shield\Modules\CommentsFilter\Options $opts */
+		$opts = $mod->getOptions();
+		$opts->setEnabledAntiBot( $toEnable );
 		$mod->saveModOptions();
-		return true;
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
+			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
+		return $resp;
 	}
 }

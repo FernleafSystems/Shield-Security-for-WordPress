@@ -8,11 +8,11 @@ class SecurityAdmin extends Base {
 
 	const SLUG = 'security_admin';
 
-	public function processStepFormSubmit( array $form ) :bool {
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 
 		$pin = $form[ 'SecAdminPIN' ] ?? '';
 		if ( empty( $pin ) ) {
-			throw new \Exception( 'No Security PIN provided.' );
+			throw new \Exception( 'Please provide a Security PIN, or proceed to the next step.' );
 		}
 		if ( $pin !== ( $form[ 'SecAdminPINConfirm' ] ?? '' ) ) {
 			throw new \Exception( 'The Security PINs provided do not match.' );
@@ -29,7 +29,10 @@ class SecurityAdmin extends Base {
 			->turnOn();
 		$mod->saveModOptions();
 
-		return $mod->getSecurityAdminController()->isCurrentlySecAdmin();
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = __( 'Security Admin is now active', 'wp-simple-firewall' );
+		return $resp;
 	}
 
 	public function getName() :string {
