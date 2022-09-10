@@ -1,63 +1,13 @@
 {# https://github.com/tomik23/circular-progress-bar #}
+<div class="row row-cols-1 justify-content-center">
+	<div class="col mb-4">
+		{{ content.primary_meter|raw }}
+  </div>
+</div>
 <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-1 row-cols-xl-2 justify-content-start">
-
-	{% for meter_slug,meter in vars.progress_meters %}
+	{% for meter in content.meters %}
 		<div class="col mb-4">
-
-			<div class="card d-flex flex-column progress-meter h-100
-			{% if meter.has_critical|default(false) %}
-				border-danger
-			{% elseif meter.totals.percentage > 50 %}
-				border-success
-			{% else %}
-				border-warning
-			{% endif %}
-			">
-				<div class="row g-0">
-			    <div class="col-md-4 col-lg-5 col-xl-5 d-flex justify-content-center align-items-center py-lg-4">
-
-						<div class="pie d-flex align-items-center justify-content-center" data-pie='{
-						  "number": false,
-						  "colorCircle": "rgba( {{ meter.rgbs|join(',') }},0.08 )",
-						  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )",
-						  "percent": {{ meter.totals.percentage }}
-						}'>
-							<div class="letter-score" style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div>
-						</div>
-
-			    </div>
-
-			    <div class="col-md-8 col-lg-7 col-xl-7 d-flex flex-column">
-
-			      <div class="card-body">
-				      <h6 class="card-title">
-					      {{ meter.title }}
-					      <br /><small class="text-muted">{{ meter.subtitle }}</small>
-				      </h6>
-				      {% if meter.warning|default([]) is not empty %}
-					      <div class="alert alert-danger">
-						      {{ meter.warning.text }}
-						      <a href="{{ meter.warning.href }}" class="alert-link" target="_blank">
-							      {{ strings.view_details }}</a>
-					      </div>
-				      {% endif %}
-				      {% for desc in meter.description %}
-					      <p class="card-text">{{ desc }}</p>
-				      {% endfor %}
-
-			      </div>
-			      <div class="card-footer">
-				      <a class="btn {% if meter.has_critical|default(false) %}btn-danger{% elseif meter.totals.percentage > 50 %}btn-success{% else %}btn-warning{% endif %}"
-				         href="javascript:{iCWP_WPSF_OffCanvas.renderMeterAnalysis('{{ meter_slug }}')}"
-				         aria-controls="ShieldProgressMeterOffcanvas">
-								<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
-					      {{ strings.analysis }}
-							</a>
-			      </div>
-
-			    </div>
-				</div>
-      </div>
+			{{ meter|raw }}
     </div>
 	{% endfor %}
 </div>
