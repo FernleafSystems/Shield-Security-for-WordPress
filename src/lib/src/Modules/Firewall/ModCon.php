@@ -18,7 +18,6 @@ class ModCon extends BaseShield\ModCon {
 				Rules\Build\FirewallFieldTruncation::class,
 				Rules\Build\FirewallWordpressTerms::class,
 				Rules\Build\FirewallPhpCode::class,
-				Rules\Build\FirewallLeadingSchema::class,
 				Rules\Build\FirewallAggressive::class,
 				Rules\Build\FirewallExeFileUploads::class,
 			],
