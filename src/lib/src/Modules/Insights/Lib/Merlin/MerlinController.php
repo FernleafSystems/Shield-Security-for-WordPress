@@ -63,6 +63,7 @@ class MerlinController {
 					'guided_setup_welcome',
 					'license',
 					'security_admin',
+					'ip_blocking',
 					'login_protection',
 					'comment_spam',
 					'security_badge',
@@ -99,6 +100,7 @@ class MerlinController {
 	private function enumStepHandlers() :array {
 		$classes = [
 			Steps\GuidedSetupWelcome::class,
+			Steps\IpBlocking::class,
 			Steps\LoginProtection::class,
 			Steps\CommentSpam::class,
 			Steps\SecurityAdmin::class,
