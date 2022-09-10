@@ -22,12 +22,16 @@
 		$merlinContainer.on( 'click', 'a.skip-step', function () {
 			$merlin.smartWizard( 'next' );
 		} );
+		$( document ).on( 'shield-merlin_save', function () {
+			$merlin.smartWizard( 'next' );
+			iCWP_WPSF_BodyOverlay.hide();
+		} );
 	}
 
 	let runSettingUpdate = function ( evt ) {
 		evt.preventDefault();
 		merlin.ajax.merlin_action.form_params = $( evt.target ).serialize();
-		iCWP_WPSF_StandardAjax.send_ajax_req( merlin.ajax.merlin_action );
+		iCWP_WPSF_StandardAjax.send_ajax_req( merlin.ajax.merlin_action, false, 'merlin_save' );
 		return false;
 	};
 
