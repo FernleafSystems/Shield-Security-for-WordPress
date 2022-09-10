@@ -896,8 +896,23 @@ body.folded #FooterBannerGoPro {
 #odp-PageContainer .card.progress-meter {
 	box-shadow: 1px 1px 2px rgb(0 0 0 / 20%);
 	background: rgb(253 253 253 / 45%);
-	border-radius: 24px;
-	border: 1px solid rgb(177 216 178);
+	border-radius: 6px;
+	border: 1px solid white;
+}
+#odp-PageContainer .card.progress-meter.progress-meter-integrity {
+	box-shadow: none;
+	background: transparent !important;
+	border-radius: 0;
+	border: 1px solid transparent !important;
+}
+#odp-PageContainer .card.progress-meter.meter-success {
+	background: rgba(249, 255, 246, 0.2);
+}
+#odp-PageContainer .card.progress-meter.meter-warning {
+	background: rgba(255, 247, 240, 0.4);
+}
+#odp-PageContainer .card.progress-meter.meter-critical {
+	background: rgba(255, 246, 246, 0.4);
 }
 .card.progress-meter .card-header {
 	text-align: center;

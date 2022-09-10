@@ -40,6 +40,9 @@ class AssessDirWrite {
 		if ( $FS->isFile( $testDir ) ) {
 			$FS->deleteFile( $testDir );
 		}
+		if ( $FS->isDir( $testDir ) ) {
+			$FS->deleteDir( $testDir );
+		}
 
 		$FS->mkdir( $testDir );
 		if ( $FS->isDir( $testDir ) ) {

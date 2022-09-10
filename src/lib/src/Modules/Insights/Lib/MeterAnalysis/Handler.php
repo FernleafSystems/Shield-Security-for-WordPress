@@ -17,24 +17,48 @@ class Handler {
 	}
 
 	public function renderDashboardMeters() :string {
+		$meters = $this->renderMeters();
+		$primary = $meters[ MeterIntegrity::SLUG ];
+		unset( $meters[ MeterIntegrity::SLUG ] );
+		return $this->getMod()
+					->getRenderer()
+					->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' )
+					->setRenderData( [
+						'content' => [
+							'primary_meter' => $primary,
+							'meters'        => $meters
+						],
+					] )
+					->render();
+	}
+
+	private function renderMeters() :array {
 		$con = $this->getCon();
-		$mod = $this->getMod();
-		return $mod->getRenderer()
-				   ->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' )
-				   ->setRenderData( [
-					   'strings' => [
-						   'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
-					   ],
-					   'imgs'     => [
-						   'svgs'           => [
-							   'analysis'   => $con->svgs->raw( 'bootstrap/clipboard2-data-fill.svg' ),
-						   ],
-					   ],
-					   'vars'    => [
-						   'progress_meters' => $this->buildAllMeterComponents()
-					   ],
-				   ] )
-				   ->render();
+		$renderer = $this->getMod()
+						 ->getRenderer()
+						 ->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/meter_card.twig' );
+		$renderData = [
+			'strings' => [
+				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
+			],
+			'imgs'    => [
+				'svgs' => [
+					'analysis' => $con->svgs->raw( 'bootstrap/clipboard2-data-fill.svg' ),
+				],
+			],
+		];
+
+		$meters = [];
+		foreach ( $this->buildAllMeterComponents() as $meterSlug => $meter ) {
+			$renderData[ 'vars' ] = [
+				'meter_slug' => $meterSlug,
+				'meter'      => $meter,
+			];
+			$meters[ $meterSlug ] = $renderer
+				->setRenderData( $renderData )
+				->render();
+		}
+		return $meters;
 	}
 
 	private function buildAllMeterComponents() :array {
@@ -71,10 +95,9 @@ class Handler {
 
 	public function enumMeters() :array {
 		$meters = [
-//			MeterAll::class,
 			MeterIntegrity::class,
-			MeterAssets::class,
 			MeterIpBlocking::class,
+			MeterAssets::class,
 			MeterScans::class,
 			MeterFirewall::class,
 			MeterLockdown::class,
