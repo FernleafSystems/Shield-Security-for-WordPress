@@ -28,62 +28,30 @@ class MerlinController {
 	/**
 	 * @throws \Exception
 	 */
-	public function processFormSubmit( array $form ) :bool {
-
-		$con = $this->getCon();
-		foreach ( $form as $key => $value ) {
-
-			$toEnable = $value === 'Y';
-
-			switch ( $key ) {
-
-				case 'LoginProtectOption':
-					$mod = $con->getModule_LoginGuard();
-					if ( $toEnable ) { // we don't disable the whole module
-						$mod->setIsMainFeatureEnabled( true );
-					}
-					$mod->getOptions()->setOpt( 'enable_antibot_check', $toEnable ? 'Y' : 'N' );
-					break;
-
-				case 'CommentsFilterOption':
-					$mod = $this->getCon()->getModule_Comments();
-					/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
-					$optsComm = $mod->getOptions();
-					if ( $toEnable ) { // we don't disable the whole module
-						$mod->setIsMainFeatureEnabled( true );
-					}
-					$optsComm->setEnabledAntiBot( $toEnable );
-					break;
-
-				case 'SecurityPluginBadge':
-					$mod = $this->getCon()->getModule_Plugin();
-					if ( $toEnable ) { // we don't disable the whole module
-						$mod->setIsMainFeatureEnabled( true );
-					}
-					$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
-					$mod->saveModOptions();
-					break;
-
-				default:
-					throw new \Exception( 'Not a supported option.' );
-			}
-
-			$mod->saveModOptions();
+	public function processFormSubmit( array $form ) :Shield\Utilities\Response {
+		$step = $form[ 'step_slug' ] ?? '';
+		if ( empty( $step ) ) {
+			throw new \Exception( 'No step configured for this form' );
 		}
-
-		return true;
+		$handlers = $this->getStepHandlers( false );
+		if ( !isset( $handlers[ $step ] ) ) {
+			throw new \Exception( 'Invalid Step.' );
+		}
+		return $handlers[ $step ]->processStepFormSubmit( $form );
 	}
 
 	private function buildSteps() :array {
 		return array_map(
-			function ( $builder ) {
+			function ( $handler ) {
 				return [
-					'step_slug' => $builder::SLUG,
-					'step_name' => $builder->getName(),
-					'step_body' => $builder->render(),
+					'step_slug' => $handler::SLUG,
+					'step_name' => $handler->getName(),
+					'step_body' => $handler->render(),
 				];
 			},
-			$this->getStepBuilders()
+			array_filter( $this->getStepHandlers( true ), function ( $handler ) {
+				return !$handler->skipStep();
+			} )
 		);
 	}
 
@@ -93,6 +61,9 @@ class MerlinController {
 			default:
 				$steps = [
 					'guided_setup_welcome',
+					'license',
+					'security_admin',
+					'ip_blocking',
 					'login_protection',
 					'comment_spam',
 					'security_badge',
@@ -108,36 +79,44 @@ class MerlinController {
 	/**
 	 * @return Steps\Base[]
 	 */
-	private function getStepBuilders() :array {
-		$builders = [];
-		foreach ( $this->enumStepBuilders() as $builder ) {
-			$builders[ $builder::SLUG ] = $builder;
-		}
+	private function getStepHandlers( bool $filterByStepKeys ) :array {
 		$stepKeys = $this->getStepKeys();
-		// Extracts and ORDERS all the required Step Builders
+		// Extracts and ORDERS all the required Step Handlers
 		return array_map(
-			function ( string $builderClass ) {
-				/** @var Steps\Base $builder */
-				$builder = new $builderClass();
-				return $builder->setMod( $this->getMod() );
+			function ( string $handlerClass ) {
+				/** @var Steps\Base $handler */
+				$handler = new $handlerClass();
+				return $handler->setMod( $this->getMod() );
 			},
-			array_merge( array_flip( $stepKeys ), array_intersect_key( $builders, array_flip( $stepKeys ) ) )
+			$filterByStepKeys ?
+				array_merge( array_flip( $stepKeys ), array_intersect_key( $this->enumStepHandlers(), array_flip( $stepKeys ) ) )
+				: $this->enumStepHandlers()
 		);
 	}
 
 	/**
 	 * @return Steps\Base[]
 	 */
-	private function enumStepBuilders() :array {
-		return [
+	private function enumStepHandlers() :array {
+		$classes = [
 			Steps\GuidedSetupWelcome::class,
+			Steps\Import::class,
+			Steps\IpBlocking::class,
 			Steps\LoginProtection::class,
 			Steps\CommentSpam::class,
 			Steps\SecurityAdmin::class,
 			Steps\SecurityBadge::class,
 			Steps\FreeTrial::class,
+			Steps\License::class,
 			Steps\OptIn::class,
 			Steps\ThankYou::class,
 		];
+
+		$handlers = [];
+		foreach ( $classes as $class ) {
+			$handlers[ $class::SLUG ] = $class;
+		}
+
+		return $handlers;
 	}
 }

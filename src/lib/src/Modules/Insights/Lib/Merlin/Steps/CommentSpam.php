@@ -22,4 +22,28 @@ class CommentSpam extends Base {
 			],
 		];
 	}
+
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+		$value = $form[ 'CommentsFilterOption' ] ?? '';
+		if ( empty( $value ) ) {
+			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
+		}
+
+		$mod = $this->getCon()->getModule_Comments();
+
+		$toEnable = $value === 'Y';
+		if ( $toEnable ) { // we don't disable the whole module
+			$mod->setIsMainFeatureEnabled( true );
+		}
+		/** @var Shield\Modules\CommentsFilter\Options $opts */
+		$opts = $mod->getOptions();
+		$opts->setEnabledAntiBot( $toEnable );
+		$mod->saveModOptions();
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
+			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
+		return $resp;
+	}
 }

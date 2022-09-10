@@ -1,11 +1,6 @@
 {% import '/common/macros.twig' as icwp_macros %}
 
 {% block step_header %}
-
-	{% block slide_body_title %}
-		{{ icwp_macros.slideTitle( strings.step_title|default('NO TITLE') ) }}
-	{% endblock %}
-
 {% endblock %}
 
 {% block step_body %}
@@ -13,27 +8,32 @@
 	<div class="row row-cols-1 justify-content-center mt-4">
 		<div class="col-12 col-xl-10 col-lg-12 col-md-12">
 
+			{% block slide_body_title %}
+				<h4 class="mb-3">{{ strings.step_title|default('NO TITLE') }}</h4>
+			{% endblock %}
+
 			{% block slide_body_video_section %}
 				<div class="row">
-					<div class="col col-6">
+					<div class="col col-8">
 						{% block slide_body_video_section_blurb %}
 						{% endblock %}
+
+						<div class="mt-4">
+							{% block slide_body_action_area %}{% endblock %}
+						</div>
 					</div>
-					<div class="col col-6">
+					<div class="col col-4">
 						{% block slide_body_video_section_video %}
-              {{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
+							{% if vars.video_id|default('') is not empty %}
+								{{ icwp_macros.embedVimeoFeather( vars.video_id, imgs.video_thumb, imgs.play_button ) }}
+							{% endif %}
 						{% endblock %}
 					</div>
 				</div>
 			{% endblock %}
 
-			<div class="mt-5">
-				{% block slide_body_action_area %}{% endblock %}
-			</div>
-
 		</div>
 	</div>
-
 {% endblock %}
 
 {% block step_footer %}

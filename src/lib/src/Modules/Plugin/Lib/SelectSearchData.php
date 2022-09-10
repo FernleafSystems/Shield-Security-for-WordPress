@@ -257,6 +257,13 @@ class SelectSearchData {
 						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
 					[
+						'id'     => 'tool_guidedsetup',
+						'text'   => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
+						'href'   => $modInsights->getUrl_SubInsightsPage( 'merlin' ),
+						'tokens' => 'tool setup guide guided wizard',
+						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/magic.svg' ),
+					],
+					[
 						'id'     => 'tool_debug',
 						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
 						'href'   => $modInsights->getUrl_SubInsightsPage( 'debug' ),

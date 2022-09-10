@@ -9,7 +9,7 @@ class LoginProtection extends Base {
 	const SLUG = 'login_protection';
 
 	public function getName() :string {
-		return 'Login Protection';
+		return 'Login';
 	}
 
 	protected function getStepRenderData() :array {
@@ -21,5 +21,27 @@ class LoginProtection extends Base {
 				'video_id' => '269191603'
 			],
 		];
+	}
+
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+		$value = $form[ 'LoginProtectOption' ] ?? '';
+		if ( empty( $value ) ) {
+			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
+		}
+
+		$mod = $this->getCon()->getModule_LoginGuard();
+
+		$toEnable = $value === 'Y';
+		if ( $toEnable ) { // we don't disable the whole module
+			$mod->setIsMainFeatureEnabled( true );
+		}
+		$mod->getOptions()->setOpt( 'enable_antibot_check', $toEnable ? 'Y' : 'N' );
+		$mod->saveModOptions();
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
+			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
+		return $resp;
 	}
 }

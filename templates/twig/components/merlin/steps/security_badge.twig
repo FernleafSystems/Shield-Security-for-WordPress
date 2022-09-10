@@ -1,7 +1,6 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<h5>Watch the Security Badge Video:</h5>
 	<p>Shield's Security Badge demonstrates clearly that you take security seriously,
 	   both for yourself and also that of your customers.</p>
 	<p>Enabling this option adds a translucent badge to the footer of your site.</p>
@@ -9,13 +8,14 @@
 
 {% block slide_body_action_area %}
 
-	<form class="form-horizontal icwp-wizard-form">
+	<form class="form-horizontal merlin-form ajax-form">
 
 		<div class="row">
 			<div class="col-4">
 				Enable Security Badge
 			</div>
 			<div class="col-8">
+				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 				{{ icwp_macros.formInput_Radio_Wizard(
 					'SecurityPluginBadge',
 					{

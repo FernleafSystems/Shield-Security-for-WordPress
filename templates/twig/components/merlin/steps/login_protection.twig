@@ -1,7 +1,6 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<h5>Watch the Login Protection Video:</h5>
 	<p>Shield is designed to protect your WP Login against automated, brute force login attacks from bots.</p>
 	<p>Shield brings its exclusive AntiBot Detection Engine to your login pages to detect bots
 	   without the need for any CAPTCHAs, or any other UX-destructive additions to your forms whatsoever.</p>
@@ -9,13 +8,14 @@
 
 {% block slide_body_action_area %}
 
-	<form class="form-horizontal icwp-wizard-form">
+	<form class="form-horizontal merlin-form ajax-form">
 
 		<div class="row">
 			<div class="col-4">
 				Brute Force Login Protection
 			</div>
 			<div class="col-8">
+				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 				{{ icwp_macros.formInput_Radio_Wizard(
 					'LoginProtectOption',
 					{

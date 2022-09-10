@@ -162,18 +162,6 @@
       "description": "This will block executable file uploads (.php, .exe, etc.)."
     },
     {
-      "key":         "block_leading_schema",
-      "section":     "section_firewall_blocking_options",
-      "advanced":    true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Leading Schemas",
-      "summary":     "Block Leading Schemas (HTTPS / HTTP)",
-      "description": "This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins)."
-    },
-    {
       "key":         "block_aggressive",
       "section":     "section_firewall_blocking_options",
       "advanced":    true,
@@ -331,7 +319,8 @@
           "joe-chnlcustid",
           "spd-custhash",
           "joe-custinfo",
-          "_wpcf7cf_hidden_group_fields"
+          "_wpcf7cf_hidden_group_fields",
+          "wl_homeurl"
         ]
       }
     },

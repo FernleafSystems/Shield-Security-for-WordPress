@@ -11,12 +11,12 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 
 	const SLUG = '';
 
-	public function render() :string {
-		return parent::render();
-	}
-
 	public function getName() :string {
 		return 'Title Unset';
+	}
+
+	public function skipStep() :bool {
+		return false;
 	}
 
 	protected function getTemplateBaseDir() :string {
@@ -41,6 +41,17 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+		$resp = new Shield\Utilities\Response();
+		$resp->success = false;
+		$resp->error = 'No form processing has been configured for this step';
+		$resp->addData( 'page_reload', false );
+		return $resp;
+	}
+
 	protected function getCommonStepRenderData() :array {
 		return [
 			'hrefs' => [
@@ -49,6 +60,9 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 			],
 			'imgs'  => [
 				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-circle.svg' )
+			],
+			'vars'  => [
+				'step_slug' => static::SLUG
 			],
 		];
 	}
@@ -59,7 +73,6 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 
 	/**
 	 * @see https://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
-	 * @param string $videoID
 	 */
 	private function getVideoThumbnailUrl( string $videoID ) :string {
 		$raw = Services::HttpRequest()

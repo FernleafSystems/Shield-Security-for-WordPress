@@ -35,6 +35,9 @@ class ImportDecisions extends ExecOnceModConsumer {
 	}
 
 	public function runImport() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$api = $mod->getCrowdSecCon()->getApi();
 		// We currently only import decisions that have a TTL of at least 5 days.
 		$minimumExpiresAt = Services::Request()
 									->carbon()
@@ -52,6 +55,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 			}
 		}
 		catch ( \Exception $e ) {
+			error_log( 'Auth token: '.$api->getAuthorizationToken() );
 			error_log( $e->getMessage() );
 		}
 	}

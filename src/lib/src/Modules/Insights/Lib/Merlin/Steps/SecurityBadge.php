@@ -9,7 +9,7 @@ class SecurityBadge extends Base {
 	const SLUG = 'security_badge';
 
 	public function getName() :string {
-		return 'Security Badge';
+		return 'Badge';
 	}
 
 	protected function getStepRenderData() :array {
@@ -21,5 +21,27 @@ class SecurityBadge extends Base {
 				'video_id' => '552430272'
 			],
 		];
+	}
+
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+		$value = $form[ 'SecurityPluginBadge' ] ?? '';
+		if ( empty( $value ) ) {
+			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
+		}
+
+		$mod = $this->getCon()->getModule_Plugin();
+
+		$toEnable = $value === 'Y';
+		if ( $toEnable ) { // we don't disable the whole module
+			$mod->setIsMainFeatureEnabled( true );
+		}
+		$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
+		$mod->saveModOptions();
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = $toEnable ? __( 'The Security Badge will be displayed to your visitors', 'wp-simple-firewall' )
+			: __( "The Security Badge won't be displayed to your visitors", 'wp-simple-firewall' );
+		return $resp;
 	}
 }

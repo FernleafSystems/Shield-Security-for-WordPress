@@ -10,12 +10,11 @@ class ThankYou extends Base {
 	const SLUG = 'thank_you';
 
 	public function getName() :string {
-		return 'Thank You';
+		return 'Thanks';
 	}
 
 	protected function getStepRenderData() :array {
 		$con = $this->getCon();
-		$user = Services::WpUsers()->getCurrentWpUser();
 		return [
 			'hrefs'   => [
 				'facebook' => 'https://shsec.io/pluginshieldsecuritygroupfb',

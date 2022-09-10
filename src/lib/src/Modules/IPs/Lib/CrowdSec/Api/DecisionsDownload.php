@@ -15,6 +15,11 @@ class DecisionsDownload extends BaseAuth {
 		$this->request_method = 'get';
 		$decisions = $this->sendReq();
 		if ( !is_array( $decisions ) || !isset( $decisions[ 'new' ] ) || !isset( $decisions[ 'deleted' ] ) ) {
+			error_log( var_export( $this->getApiRequestUrl(), true ) );
+			error_log( var_export( $this->getRequestParams(), true ) );
+			error_log( var_export( $this->params_body, true ) );
+			error_log( var_export( $this->params_query, true ) );
+			error_log( var_export( $this->headers, true ) );
 			throw new DownloadDecisionsStreamFailedException( sprintf( 'Failed to download decisions: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}

@@ -22,10 +22,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 				$response = $this->wizardImportOptions();
 				break;
 
-			case 'admin_access_restriction':
-				$response = $this->wizardSecurityAdmin();
-				break;
-
 			case 'audit_trail':
 				$response = $this->wizardAuditTrail();
 				break;
@@ -244,38 +240,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 		return ( new \FernleafSystems\Utilities\Response() )
 			->setSuccessful( $code === 0 )
 			->setMessageText( $sMessage );
-	}
-
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function wizardSecurityAdmin() {
-		$req = Services::Request();
-		$pin = $req->post( 'sec_admin_key' );
-		$confirm = $req->post( 'AccessKeyConfirm' );
-
-		$success = false;
-		if ( empty( $pin ) ) {
-			$msg = __( "Security Admin PIN was empty.", 'wp-simple-firewall' );
-		}
-		elseif ( $pin != $confirm ) {
-			$msg = __( "Security PINs don't match.", 'wp-simple-firewall' );
-		}
-		else {
-			$mod = $this->getCon()->getModule_SecAdmin();
-			try {
-				$mod->setNewPinManually( $pin );
-				$success = true;
-				$msg = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );
-			}
-			catch ( \Exception $e ) {
-				$msg = __( $e->getMessage(), 'wp-simple-firewall' );
-			}
-		}
-
-		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $success )
-			->setMessageText( $msg );
 	}
 
 	/**
