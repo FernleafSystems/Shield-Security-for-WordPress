@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "16.0.9",
+    "version":                 "16.1.0",
     "release_timestamp":       1662984000,
-    "build":                   "202209.0702",
+    "build":                   "202209.1001",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -141,12 +141,6 @@
             "bootstrap",
             "global-plugin",
             "jquery/smartwizard"
-          ]
-        },
-        "shield/wizard":                     {
-          "deps": [
-            "bootstrap",
-            "global-plugin"
           ]
         },
         "jquery/featherlight":               {
@@ -402,13 +396,6 @@
             "bootstrap",
             "global-plugin",
             "jquery/smartwizard"
-          ]
-        },
-        "shield/wizard":                     {
-          "deps": [
-            "bootstrap",
-            "global-plugin",
-            "jquery/steps"
           ]
         },
         "shield/login2fa":                   {
