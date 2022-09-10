@@ -18,7 +18,7 @@
   },
   "requirements":     {
     "php":       "7.0",
-    "wordpress": "3.7",
+    "wordpress": "4.7",
     "mysql":     "5.6"
   },
   "reqs_rest":        {
