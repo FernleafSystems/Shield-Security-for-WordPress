@@ -9,7 +9,7 @@ class SecurityBadge extends Base {
 	const SLUG = 'security_badge';
 
 	public function getName() :string {
-		return 'Security Badge';
+		return 'Badge';
 	}
 
 	protected function getStepRenderData() :array {

@@ -9,7 +9,7 @@ class LoginProtection extends Base {
 	const SLUG = 'login_protection';
 
 	public function getName() :string {
-		return 'Login Protection';
+		return 'Login';
 	}
 
 	protected function getStepRenderData() :array {

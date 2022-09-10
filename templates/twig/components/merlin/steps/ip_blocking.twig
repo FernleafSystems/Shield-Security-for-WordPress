@@ -29,7 +29,7 @@
 
 {% block slide_body_action_area %}
 
-	<form class="form-horizontal icwp-wizard-form">
+	<form class="form-horizontal merlin-form ajax-form">
 
 		<div class="row">
 			<div class="col-4">
@@ -37,7 +37,7 @@
 			</div>
 			<div class="col-8">
 				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
-				{{ icwp_macros.formInput_Number( 'offenses', '10', 'Offense Limit', null,
+				{{ icwp_macros.formInput_Number( 'offenses', vars.offense_limit, 'Offense Limit', null,
 					'We recommend somewhere between 5 and 10. The smaller the limit, the stricter Shield will be.',null
 				) }}
 

@@ -100,6 +100,7 @@ class MerlinController {
 	private function enumStepHandlers() :array {
 		$classes = [
 			Steps\GuidedSetupWelcome::class,
+			Steps\Import::class,
 			Steps\IpBlocking::class,
 			Steps\LoginProtection::class,
 			Steps\CommentSpam::class,

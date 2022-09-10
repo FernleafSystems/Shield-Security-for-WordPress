@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\St
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class IpBlocking extends Base {
+class Import extends Base {
 
-	const SLUG = 'ip_blocking';
+	const SLUG = 'import';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$mod = $this->getCon()->getModule_IPs();
@@ -50,19 +50,18 @@ class IpBlocking extends Base {
 	}
 
 	public function getName() :string {
-		return 'IP Block';
+		return 'Import';
 	}
 
 	protected function getStepRenderData() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->getCon()->getModule_IPs()->getOptions();
 		return [
 			'strings' => [
-				'step_title' => __( 'Automatically Block Malicious IP Addresses', 'wp-simple-firewall' ),
+				'step_title' => __( 'Import Settings From Another Site', 'wp-simple-firewall' ),
 			],
-			'vars'    => [
-				'offense_limit' => $opts->getOffenseLimit()
-			]
 		];
+	}
+
+	public function skipStep() :bool {
+		return !$this->getCon()->isPremiumActive();
 	}
 }

@@ -17,7 +17,7 @@
 			enableUrlHash: true, // Enable selection of the step based on url hash
 		} );
 
-		$( 'form', $merlinContainer ).on( 'submit', runSettingUpdate );
+		$( 'form.merlin-form.ajax-form', $merlinContainer ).on( 'submit', runSettingUpdate );
 
 		$merlinContainer.on( 'click', 'a.skip-step', function () {
 			$merlin.smartWizard( 'next' );
