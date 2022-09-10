@@ -2,15 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
-
 class ThankYou extends Base {
 
 	const SLUG = 'thank_you';
 
 	public function getName() :string {
-		return 'Thanks';
+		return 'Thanks!';
 	}
 
 	protected function getStepRenderData() :array {

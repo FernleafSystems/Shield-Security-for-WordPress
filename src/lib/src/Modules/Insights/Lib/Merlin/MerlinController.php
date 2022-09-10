@@ -18,9 +18,6 @@ class MerlinController {
 				'content' => [
 					'steps' => $this->buildSteps()
 				],
-				'vars'    => [
-					'step_keys' => $this->getStepKeys()
-				],
 			]
 		);
 	}

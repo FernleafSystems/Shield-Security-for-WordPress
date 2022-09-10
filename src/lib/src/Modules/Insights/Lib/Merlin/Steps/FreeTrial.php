@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-
 class FreeTrial extends Base {
 
 	const SLUG = 'free_trial';
