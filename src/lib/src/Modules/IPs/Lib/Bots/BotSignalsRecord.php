@@ -196,14 +196,4 @@ class BotSignalsRecord {
 
 		return $record;
 	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 16.0
-	 */
-	private function getIPRecord() :IPs\Ops\Record {
-		return ( new IPs\IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP(), false );
-	}
 }

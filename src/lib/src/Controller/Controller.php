@@ -590,7 +590,7 @@ class Controller extends DynPropertiesClass {
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
-	 * @deprecated 16.0
+	 * @deprecated 16.2
 	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
@@ -1169,8 +1169,6 @@ class Controller extends DynPropertiesClass {
 		}
 		elseif ( isset( $this->cfg ) ) {
 			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $this->cfg->getRawData() );
-			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() );
-			/* @deprecated 16.0 */
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}

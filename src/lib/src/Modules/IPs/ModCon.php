@@ -70,7 +70,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.1
+	 * @deprecated 16.2
 	 */
 	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
 		return $this->getDbH( 'ip_lists' );
@@ -230,7 +230,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.1
+	 * @deprecated 16.2
 	 */
 	public function runIpMigrator() {
 	}

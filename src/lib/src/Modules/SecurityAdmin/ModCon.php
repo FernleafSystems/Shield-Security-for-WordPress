@@ -144,7 +144,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.1
+	 * @deprecated 16.2
 	 */
 	public function preDeactivatePlugin() {
 	}
