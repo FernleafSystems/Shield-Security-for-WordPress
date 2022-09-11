@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "16.0.9",
+    "version":                 "16.1.0",
     "release_timestamp":       1662984000,
-    "build":                   "202209.0702",
+    "build":                   "202209.1001",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -18,7 +18,7 @@
   },
   "requirements":     {
     "php":       "7.0",
-    "wordpress": "3.7",
+    "wordpress": "4.7",
     "mysql":     "5.6"
   },
   "reqs_rest":        {
@@ -34,6 +34,11 @@
     "12.0": {
       "php":   "7.0",
       "wp":    "3.7",
+      "mysql": "5.6"
+    },
+    "16.0": {
+      "php":   "7.0",
+      "wp":    "4.7",
       "mysql": "5.6"
     }
   },
@@ -126,6 +131,9 @@
             "datatables-bootstrap"
           ]
         },
+        "jquery/smartwizard":                {
+          "url": "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/css/smart_wizard_all.min.css"
+        },
         "global-plugin":                     {},
         "plugin":                            {
           "deps": [
@@ -133,10 +141,11 @@
             "global-plugin"
           ]
         },
-        "shield/wizard":                     {
+        "shield/merlin":                     {
           "deps": [
             "bootstrap",
-            "global-plugin"
+            "global-plugin",
+            "jquery/smartwizard"
           ]
         },
         "jquery/featherlight":               {
@@ -261,8 +270,11 @@
         },
         "lz-string.min":                     {},
         "jquery/fileDownload":               {},
-        "jquery/steps":                      {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
+        "jquery/smartwizard":                {
+          "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",
+          "deps": [
+            "wp-jquery"
+          ]
         },
         "jquery/featherlight":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
@@ -381,11 +393,11 @@
           ],
           "footer": true
         },
-        "shield/wizard":                     {
+        "shield/merlin":                     {
           "deps": [
             "bootstrap",
             "global-plugin",
-            "jquery/steps"
+            "jquery/smartwizard"
           ]
         },
         "shield/login2fa":                   {

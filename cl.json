@@ -1,7 +1,7 @@
 {
   "16.0": {
     "version":     "16.1",
-    "released_at": 1662379200,
+    "released_at": 1662984000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease161",
       "upgrade": "https://shsec.io/shieldupgradeguide161"
@@ -84,11 +84,34 @@
         ]
       },
       {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Protection Against Unauthorised Deactivation",
+        "description": [
+          "The Security Admin feature that protects against unauthorised deactivation has been further strengthened with offenses."
+        ]
+      },
+      {
         "type":        "new",
         "pro_only":    false,
         "title":       "Logging: App Password Creation",
         "description": [
           "Shield now captures creation of new Application Passwords in the Activity Log."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Removed: Leading Schema Firewall Rule",
+        "description": [
+          "This rules flags too many false positives for members."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Minimum WordPress Version: 4.7",
+        "description": [
+          "Based on Shield telemetry data, we're pushing our minimum supported WordPress version up to 4.7.",
+          "We'll continue to push this upwards as usage data suggests it make sense to do so."
         ]
       },
       {

@@ -145,9 +145,23 @@ abstract class BaseAutoUnblock extends ExecOnceModConsumer {
 								 'unblocked_at'   => Services::Request()->ts(),
 								 'last_access_at' => Services::Request()->ts(),
 							 ] );
+			$this->fireEvent();
 		}
 
 		return $unblocked;
+	}
+
+	protected function fireEvent() {
+		$this->getCon()->fireEvent( 'ip_unblock_auto', [
+			'audit_params' => [
+				'ip'     => $this->getCon()->this_req->ip,
+				'method' => $this->getUnblockMethodName()
+			]
+		] );
+	}
+
+	protected function getUnblockMethodName() :string {
+		return '';
 	}
 
 	/**

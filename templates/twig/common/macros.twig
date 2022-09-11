@@ -3,14 +3,14 @@
 {% endmacro %}
 
 {% macro slideTitle(content) %}
-	<h4>{{ content }}</h4>
+	<h4 class="my-3">{{ content }}</h4>
 {% endmacro %}
 
 {% macro formInput_Hidden(name,value) %}
 	<input name="{{ name }}" value="{{ value }}" type="hidden" />
 {% endmacro %}
 
-{% macro formInput_Checkbox(name,value,toplabel,label,help,id) %}
+{% macro formInput_Checkbox(name,value,toplabel,label,help,id, checked=false) %}
 
 	{% if id is not defined or id|length < 1 %}
 		{% set id='_'~name %}
@@ -21,8 +21,10 @@
 		<div class="col-8">
 			<div class="form-check">
 				<input type="checkbox" name="{{ name }}"
-					   class="form-check-input"
-					   id="{{ id }}" value="{{ value }}" />
+				       class="form-check-input"
+				       id="{{ id }}" value="{{ value }}"
+						{{ checked ? 'checked checked="checked"' : '' }}
+				/>
 				<label class="form-check-label" for="{{ id }}">
 					{{ label|raw }}
 				</label>
@@ -44,9 +46,14 @@
 	{{ icwp_macros.formInput_Base('password',name,value,label,placeholder,help,id) }}
 {% endmacro %}
 
-{% macro formInput_Text(name,value,label,placeholder,help,id) %}
+{% macro formInput_Number(name,value,label,placeholder,help,id,classes='') %}
 	{% import _self as icwp_macros %}
-	{{ icwp_macros.formInput_Base('text',name,value,label,placeholder,help,id) }}
+	{{ icwp_macros.formInput_Base('number',name,value,label,placeholder,help,id,classes) }}
+{% endmacro %}
+
+{% macro formInput_Text(name,value,label,placeholder,help,id,type='text') %}
+	{% import _self as icwp_macros %}
+	{{ icwp_macros.formInput_Base(type,name,value,label,placeholder,help,id) }}
 {% endmacro %}
 
 {% macro formInput_Radio(name,values,toplabel,id) %}
@@ -57,8 +64,8 @@
 				{% for value,label in values %}
 					<label class="form-check-label">
 						<input type="radio" name="{{ name }}"
-							   class="form-check-input"
-							   id="{{ name~value }}" value="{{ value }}">
+						       class="form-check-input"
+						       id="{{ name~value }}" value="{{ value }}">
 						{{ label|raw }}
 					</label>
 				{% endfor %}
@@ -76,13 +83,11 @@
 	{% endfor %}
 {% endmacro %}
 
-
-{% macro formInput_Submit2(label,name,btn,large=false) %}
+{% macro formInput_Submit2(label,name,btn,large=false,classes='') %}
 	<div class="row">
-		<div class="col-4"></div>
-		<div class="col-8">
+		<div class="col-8 offset-4">
 			<button type="submit"
-					class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %}"
+			        class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %} {{ classes }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
@@ -94,14 +99,14 @@
 		<div class="col-6"></div>
 		<div class="col-6">
 			<button type="submit"
-					class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
+			        class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
 	</div>
 {% endmacro %}
 
-{% macro formInput_Base(type,name,value,label,placeholder,help,id) %}
+{% macro formInput_Base(type,name,value,label,placeholder,help,id,classes='') %}
 	{% if id is not defined or id|length < 1 %}
 		{% set id='_'~name %}
 	{% endif %}
@@ -110,7 +115,9 @@
 		<label class="col-4 col-form-label" for="{{ id }}">{{ label }}</label>
 		<div class="col-8">
 			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
-				   class="form-control" id="{{ id }}" placeholder="{{ placeholder|default('') }}">
+			       class="form-control {{ classes }}" id="{{ id }}" placeholder="{{ placeholder|default('') }}"
+			       {% if type is not empty %}type="{{ type }}"{% endif %}
+			>
 			{% if help is defined and help|length > 0 %}
 				<small class="form-text text-muted">{{ help|raw }}</small>
 			{% endif %}
@@ -120,18 +127,18 @@
 
 {% macro embedVimeo( video_id, width, height, class, id ) %}
 	<div class="embed-vimeo embed-responsive {{ class|default('embed-responsive-16by9') }}"
-		 id="{{ id|default('') }}">
+	     id="{{ id|default('') }}">
 		<iframe src="https://player.vimeo.com/video/{{ video_id }}"
-				width="{{ width|default(640) }}" height="{{ height|default(480) }}"
-				frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+		        width="{{ width|default(640) }}" height="{{ height|default(480) }}"
+		        frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 	</div>
 {% endmacro %}
 
 {% macro embedVimeoFeather( video_id, img_url, img_play, id ) %}
 	<style>
 		.vimeo-feather a {
-			background-image: url({{ img_play }});
-		}
+		background-image: url({{ img_play }});
+	}
 	</style>
 	<div class="d-flex justify-content-center">
 		<div class="vimeo-feather">

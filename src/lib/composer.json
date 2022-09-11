@@ -38,7 +38,6 @@
     },
     "classmap": [
       "../processors/",
-      "../wizards/",
       "../lib/custom/"
     ],
     "files":    [

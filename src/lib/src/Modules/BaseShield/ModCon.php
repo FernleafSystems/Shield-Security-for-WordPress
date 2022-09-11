@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities;
 
 class ModCon extends Base\ModCon {
 
@@ -19,7 +18,7 @@ class ModCon extends Base\ModCon {
 
 	public function onWpInit() {
 		parent::onWpInit();
-		if ( $this->isThisModulePage() && !$this->isWizardPage() && ( $this->getSlug() != 'insights' ) ) {
+		if ( $this->isThisModulePage() && ( $this->getSlug() != 'insights' ) ) {
 			$this->redirectToInsightsSubPage();
 		}
 	}

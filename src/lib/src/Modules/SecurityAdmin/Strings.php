@@ -11,16 +11,23 @@ class Strings extends Base\Strings {
 	 */
 	public function getEventStrings() :array {
 		return [
-			'key_success' => [
+			'key_success'          => [
 				'name'  => __( 'Security PIN Pass', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Security PIN authentication successful.', 'wp-simple-firewall' ),
 				],
 			],
-			'key_fail'    => [
+			'key_fail'             => [
 				'name'  => __( 'Security PIN Fail', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Security PIN authentication failed.', 'wp-simple-firewall' ),
+				],
+			],
+			'attempt_deactivation' => [
+				'name'  => __( 'Unauthorized Deactivation Attempt', 'wp-simple-firewall' ),
+				'audit' => [
+					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
 				],
 			],
 		];

@@ -427,13 +427,17 @@
       "users.php"
     ],
     "events":                 {
-      "key_success": {
+      "key_success":          {
         "level":  "debug",
         "recent": true
       },
-      "key_fail":    {
+      "key_fail":             {
         "level":   "warning",
         "recent":  true,
+        "offense": true
+      },
+      "attempt_deactivation": {
+        "level":   "warning",
         "offense": true
       }
     },

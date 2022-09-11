@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrail;
 
 class UI extends BaseShield\UI {
 

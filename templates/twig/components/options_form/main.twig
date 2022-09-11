@@ -76,6 +76,19 @@
 					{% endfor %}
 				{% endif %}
 
+				{% if opt_section.critical_warnings|length %}
+					{% for section_warning in opt_section.critical_warnings %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-danger">
+									<h4 class="alert-heading">Important!</h4>
+									{{ section_warning|raw }}
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
 				{% if opt_section.notices|length %}
 					{% for section_notice in opt_section.notices %}
 						<div class="row">

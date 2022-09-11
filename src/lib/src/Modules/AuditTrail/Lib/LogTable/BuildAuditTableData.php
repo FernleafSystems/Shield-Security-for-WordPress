@@ -5,10 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\AuditTrail\ForAuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildAuditTableData extends BaseBuildTableData {
 
@@ -113,7 +112,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->getOrderBy();
 		return array_filter(
-			$loader->run( true ),
+			$loader->run(),
 			function ( $logRecord ) {
 				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}

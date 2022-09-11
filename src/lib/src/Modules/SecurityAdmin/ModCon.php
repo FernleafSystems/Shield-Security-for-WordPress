@@ -26,10 +26,6 @@ class ModCon extends BaseShield\ModCon {
 		];
 	}
 
-	protected function setupCustomHooks() {
-		add_action( $this->getCon()->prefix( 'pre_deactivate_plugin' ), [ $this, 'preDeactivatePlugin' ] );
-	}
-
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
 		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
 			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )
@@ -107,28 +103,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * Used by Wizard. TODO: sort out the wizard requests!
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function setNewPinManually( string $pin ) {
-		if ( empty( $pin ) ) {
-			throw new \Exception( 'Attempting to set an empty Security PIN.' );
-		}
-		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( 'User does not have permission to update the Security PIN.' );
-		}
-
-		$this->setIsMainFeatureEnabled( true );
-		$this->getOptions()->setOpt( 'admin_access_key', md5( $pin ) );
-		( new Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
-			->setMod( $this )
-			->turnOn();
-
-		return $this->saveModOptions();
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
@@ -169,15 +143,9 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
+	/**
+	 * @deprecated 16.1
+	 */
 	public function preDeactivatePlugin() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
-			Services::WpGeneral()->wpDie(
-				__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' )
-				.'<br />'.sprintf( '<a href="%s">%s</a>',
-					$this->getUrl_AdminPage(),
-					__( "You'll just need to authenticate first and try again.", 'wp-simple-firewall' )
-				)
-			);
-		}
 	}
 }

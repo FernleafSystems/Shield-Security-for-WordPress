@@ -48,6 +48,12 @@ class Strings extends Base\Strings {
 					__( '{{ip}} removed from block list ({{type}}).', 'wp-simple-firewall' ),
 				],
 			],
+			'ip_unblock_auto'             => [
+				'name'  => __( 'IP Unblocked By Visitor', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Visitor unblocked their IP address '{{ip}}' using the '{{method}}' method.", 'wp-simple-firewall' ),
+				],
+			],
 			'ip_unblock_flag'             => [
 				'name'  => __( 'IP Unblocked (Flag File)', 'wp-simple-firewall' ),
 				'audit' => [
@@ -285,8 +291,10 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 		$pluginName = $this->getCon()->getHumanName();
-		$modName = $this->getMod()->getMainFeatureName();
+		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
 
@@ -383,6 +391,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'cs_enroll_id' :
+				$machID = $mod->getCrowdSecCon()->getApi()->getMachineID();
 				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
 				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
 				$desc = [
@@ -390,6 +399,8 @@ class Strings extends Base\Strings {
 					__( 'You can link this WordPress site to your CrowdSec console by providing your Enroll ID.', 'wp-simple-firewall' ),
 					sprintf( '%s: <a href="%s" target="_blank">%s</a>', __( 'Login or Signup for your free CrowdSec console', 'wp-simple-firewall' ),
 						'https://shsec.io/crowdsecapp', 'https://app.crowdsec.net' ),
+					empty( $machID ) ? __( "Your site isn't registered with CrowdSec yet.", 'wp-simple-firewall' )
+						: sprintf( __( "Your registered machine ID with CrowdSec is: %s", 'wp-simple-firewall' ), '<code>'.$machID.'</code>' ),
 				];
 				break;
 

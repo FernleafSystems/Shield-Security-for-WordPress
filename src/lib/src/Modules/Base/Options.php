@@ -421,6 +421,14 @@ class Options {
 		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
 	}
 
+	public function getSelectOptionValueKeys( string $key ) :array {
+		$keys = [];
+		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
+			$keys[] = $opt[ 'value_key' ];
+		}
+		return $keys;
+	}
+
 	public function getSelectOptionValueText( string $key ) :string {
 		$text = '';
 		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
