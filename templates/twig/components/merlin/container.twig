@@ -14,10 +14,7 @@
 				    <ul class="nav">
 					    {% for num,step in content.steps %}
 						    <li class="nav-item">
-				          <a class="nav-link" href="#step-{{ step.step_slug }}">
-{#                    <div class="num">{{ num }}</div> #}
-					          {{ step.step_name }}
-				          </a>
+				          <a class="nav-link" href="#step-{{ step.step_slug }}">{{ step.step_name }}</a>
 				        </li>
 					    {% endfor %}
 				    </ul>
@@ -31,9 +28,8 @@
 					    {% endfor %}
 				    </div>
 
-						<!-- Include optional progressbar HTML -->
 				    <div class="progress">
-				      <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0"
+				      <div class="progress-bar" role="progressbar" style="width: 0" aria-valuenow="0" aria-valuemin="0"
 				           aria-valuemax="100"></div>
 				    </div>
 					</div>

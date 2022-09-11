@@ -1,12 +1,12 @@
 ﻿:root {
 	--sw-border-color:  #eeeeee;
 	--sw-toolbar-btn-color:  #ffffff;
-	--sw-toolbar-btn-background-color: #57a64b;
+	--sw-toolbar-btn-background-color: #4aa938;
 	--sw-anchor-default-primary-color:  #f8f9fa;
-	--sw-anchor-default-secondary-color:  #b0b0b1;
+	--sw-anchor-default-secondary-color: #e7e7e7;
 	--sw-anchor-active-primary-color: #5aaf51;
 	--sw-anchor-active-secondary-color:  #ffffff;
-	--sw-anchor-done-primary-color: #95b98e;
+	--sw-anchor-done-primary-color: #abc0ab;
 	--sw-anchor-done-secondary-color:  #fefefe;
 	--sw-anchor-disabled-primary-color:  #f8f9fa;
 	--sw-anchor-disabled-secondary-color:  #dbe0e5;
@@ -32,4 +32,7 @@
 
 .sw .vimeo-feather {
 	box-shadow: 2px 2px 5px rgb(0 0 0 / 20%);
+}
+.sw input[name=offenses] {
+	width: 60px;
 }

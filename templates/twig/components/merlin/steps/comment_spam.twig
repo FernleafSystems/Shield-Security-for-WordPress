@@ -10,14 +10,13 @@
 
 {% block slide_body_action_area %}
 
-	<form class="form-horizontal merlin-form">
+	<form class="form-horizontal merlin-form ajax-form">
 
 		<div class="row">
 			<div class="col-4">
 				Comment SPAM Blocking
 			</div>
 			<div class="col-8">
-				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 			  {{ icwp_macros.formInput_Radio_Wizard(
 				  'CommentsFilterOption',
 				  {
@@ -29,6 +28,7 @@
 			</div>
 		</div>
 
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 		{{ icwp_macros.formInput_Submit2( 'Set Comment SPAM Protection', null, null, false ) }}
 	</form>
 

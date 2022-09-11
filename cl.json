@@ -107,6 +107,14 @@
         ]
       },
       {
+        "type":        "changed",
+        "title":       "Minimum WordPress Version: 4.7",
+        "description": [
+          "Based on Shield telemetry data, we're pushing our minimum supported WordPress version up to 4.7.",
+          "We'll continue to push this upwards as usage data suggests it make sense to do so."
+        ]
+      },
+      {
         "type":     "fixed",
         "pro_only": false,
         "title":    "Various Fixes",

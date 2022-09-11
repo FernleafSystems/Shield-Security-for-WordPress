@@ -18,9 +18,6 @@ class MerlinController {
 				'content' => [
 					'steps' => $this->buildSteps()
 				],
-				'vars'    => [
-					'step_keys' => $this->getStepKeys()
-				],
 			]
 		);
 	}
@@ -62,6 +59,7 @@ class MerlinController {
 				$steps = [
 					'guided_setup_welcome',
 					'license',
+					'ip_detect',
 					'security_admin',
 					'ip_blocking',
 					'login_protection',
@@ -80,17 +78,26 @@ class MerlinController {
 	 * @return Steps\Base[]
 	 */
 	private function getStepHandlers( bool $filterByStepKeys ) :array {
-		$stepKeys = $this->getStepKeys();
+		$stepKeys = array_flip( $this->getStepKeys() );
+
 		// Extracts and ORDERS all the required Step Handlers
+		$handlers = $this->enumStepHandlers();
+		if ( $filterByStepKeys ) {
+			$handlers = array_filter(
+				array_merge( $stepKeys, array_intersect_key( $handlers, $stepKeys ) ),
+				function ( $handler ) {
+					return !is_numeric( $handler );
+				}
+			);
+		}
+
 		return array_map(
 			function ( string $handlerClass ) {
 				/** @var Steps\Base $handler */
 				$handler = new $handlerClass();
 				return $handler->setMod( $this->getMod() );
 			},
-			$filterByStepKeys ?
-				array_merge( array_flip( $stepKeys ), array_intersect_key( $this->enumStepHandlers(), array_flip( $stepKeys ) ) )
-				: $this->enumStepHandlers()
+			$handlers
 		);
 	}
 
@@ -101,6 +108,7 @@ class MerlinController {
 		$classes = [
 			Steps\GuidedSetupWelcome::class,
 			Steps\Import::class,
+			Steps\IpDetect::class,
 			Steps\IpBlocking::class,
 			Steps\LoginProtection::class,
 			Steps\CommentSpam::class,
