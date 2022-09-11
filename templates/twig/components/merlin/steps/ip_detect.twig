@@ -1,0 +1,52 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section_blurb %}
+	<p>Being able to detect the correct visitor IP address is critical for any security system.</p>
+	<p>This step in the wizard might be your most important as it will help ensure Shield can always find the Visitor IP.</p>
+	<p>Shield tries to do this automatically, of course, and though it works 99% of the time, sometimes a funky webhost
+	   might mix things up a little.</p>
+	<p>To solve this, you can tell Shield what your IP address is right now,
+	   and this will help us configure the best visitor IP source going forward.</p>
+
+	{% if flags.has_none %}
+		<div class="alert alert-warning">Shield couldn't detect any IP addresses. This represents a critical webhosting configuration problem.</div>
+
+	{% elseif flags.has_only_1 %}
+		<div class="alert alert-info">Configuration isn't required as Shield could only detect 1 distinct IP address:
+		<code>{{ vars.the_ip }}</code></div>
+
+	{% elseif flags.has_multiple %}
+		<form class="form-horizontal merlin-form ajax-form mt-4">
+
+			<div class="row my-3">
+				<label class="col-4 col-form-label">
+					Step 1: What Is <em>Your</em> IP?
+				</label>
+				<div class="col-8">
+					<a href="{{ hrefs.visitor_ip }}" target="_blank">Click here to discover your current IP Address</a>
+				</div>
+			</div>
+
+			<div class="form-group row mt-3">
+				<label class="col-4 col-form-label" for="_ip_source">
+					Step 2: Select Your IP
+				</label>
+				<div class="col-8">
+					<select name="ip_source" id="_ip_source">
+						{% for ip_source,ip in vars.all_ips %}
+							<option value="{{ ip_source }}">{{ ip }}</option>
+						{% endfor %}
+					</select>
+					<small class="form-text text-muted d-block">
+						Is your IP address on this list?
+					</small>
+				</div>
+			</div>
+
+			<div class="mt-3"></div>
+			{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+			{{ icwp_macros.formInput_Submit2( 'Confirm My IP Address', null, null, false ) }}
+		</form>
+	{% endif %}
+
+{% endblock %}

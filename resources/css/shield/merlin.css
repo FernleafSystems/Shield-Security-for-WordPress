@@ -33,3 +33,6 @@
 .sw .vimeo-feather {
 	box-shadow: 2px 2px 5px rgb(0 0 0 / 20%);
 }
+.sw input[name=offenses] {
+	width: 60px;
+}

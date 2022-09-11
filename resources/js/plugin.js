@@ -77,12 +77,15 @@ var iCWP_WPSF_Toaster = new function () {
 	let toasterContainer;
 
 	this.showMessage = function ( msg, success ) {
-		let $toaster = jQuery( toasterContainer )
+		let $toaster = jQuery( toasterContainer );
+
+		$toaster.removeClass( 'text-bg-success text-bg-warning' );
+		$toaster.addClass( success ? 'text-bg-success' : 'text-bg-warning' );
+
 		let $toastBody = jQuery( '.toast-body', $toaster );
 		$toastBody.html( '' );
 
 		jQuery( '<span></span>' ).html( msg )
-								 .addClass( success ? 'text-dark' : 'text-danger' )
 								 .appendTo( $toastBody );
 
 		$toaster.css( 'z-index', 100000000 );

@@ -8,6 +8,8 @@
  * Domain Path: /languages
  * Author: Shield Security
  * Author URI: https://shsec.io/bv
+ * Requires at least: 4.7
+ * Requires PHP: 7.0
  */
 
 /**

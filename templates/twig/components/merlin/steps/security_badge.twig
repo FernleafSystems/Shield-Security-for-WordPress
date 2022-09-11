@@ -15,7 +15,6 @@
 				Enable Security Badge
 			</div>
 			<div class="col-8">
-				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 				{{ icwp_macros.formInput_Radio_Wizard(
 					'SecurityPluginBadge',
 					{
@@ -27,6 +26,7 @@
 			</div>
 		</div>
 
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 		{{ icwp_macros.formInput_Submit2( 'Set Security Badge', null, null, false ) }}
 	</form>
 {% endblock %}

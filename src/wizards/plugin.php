@@ -70,19 +70,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 		if ( $sCurrentWiz == 'welcome' ) {
 
 			switch ( $step ) {
-				case 'ip_detect':
-					$additional = [
-						'hrefs'   => [
-							'visitor_ip' => 'https://shsec.io/visitorip',
-						],
-						'vars'    => [
-							'video_id' => '269189603'
-						],
-						'strings' => [
-							'slide_title' => 'Accurate Visitor IP Detection',
-						],
-					];
-					break;
 
 				case 'plugin_telemetry':
 					$additional = [

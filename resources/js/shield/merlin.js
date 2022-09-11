@@ -15,8 +15,10 @@
 		$merlinContainer.on( 'click', 'a.skip-step', function () {
 			$merlin.smartWizard( 'next' );
 		} );
-		$( document ).on( 'shield-merlin_save', function () {
-			$merlin.smartWizard( 'next' );
+		$( document ).on( 'shield-merlin_save', function ( evt, resp ) {
+			if ( resp.success ) {
+				$merlin.smartWizard( 'next' );
+			}
 			iCWP_WPSF_BodyOverlay.hide();
 		} );
 	}

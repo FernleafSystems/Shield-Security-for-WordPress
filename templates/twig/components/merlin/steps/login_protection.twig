@@ -15,7 +15,6 @@
 				Brute Force Login Protection
 			</div>
 			<div class="col-8">
-				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 				{{ icwp_macros.formInput_Radio_Wizard(
 					'LoginProtectOption',
 					{
@@ -27,6 +26,7 @@
 			</div>
 		</div>
 
+		{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 		{{ icwp_macros.formInput_Submit2( 'Set Login Protection', null, null, false ) }}
 	</form>
 {% endblock %}

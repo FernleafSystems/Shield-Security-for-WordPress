@@ -265,9 +265,6 @@
         },
         "lz-string.min":                     {},
         "jquery/fileDownload":               {},
-        "jquery/steps":                      {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
-        },
         "jquery/smartwizard":                {
           "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",
           "deps": [

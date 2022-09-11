@@ -25,9 +25,10 @@
 				Supply A Security Access PIN
 			</div>
 			<div class="col-8">
-				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 				{{ icwp_macros.formInput_Password( 'SecAdminPIN', '', 'Access PIN', '', 'Do not forget this key' ) }}
 				{{ icwp_macros.formInput_Password( 'SecAdminPINConfirm', '', 'Confirm PIN', 'Confirm PIN' ) }}
+
+				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
 				{{ icwp_macros.formInput_Submit2( 'Turn On Security Admin', null, null, false, 'mt-2' ) }}
 			</div>
 		</div>
