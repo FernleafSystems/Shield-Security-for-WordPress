@@ -937,10 +937,6 @@ body.folded #FooterBannerGoPro {
 }
 #ScanResultsTabs table td.file {
 }
-button.btn.action {
-	padding: 3px 6px;
-	line-height: 16px;
-}
 
 #ShieldModalContainer pre.icwp-code-render {
 	counter-reset: line;
