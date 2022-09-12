@@ -24,4 +24,8 @@ class FreeTrial extends Base {
 			],
 		];
 	}
+
+	public function skipStep() :bool {
+		return $this->getCon()->isPremiumActive();
+	}
 }

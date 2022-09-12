@@ -125,6 +125,22 @@
           "Shield no longer attempts to solve the issue of invalid 'from' email addresses on a WordPress site."
         ]
       }
+    ],
+    "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1662985000,
+        "items":       [
+          {
+            "title": "Fix DB creation error on initialisation on a new website.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Fix error with Overview page when analysing the firewall grade, after removing Leading Schemas.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "15.1": {

@@ -47,8 +47,15 @@ td.severity .severity-icon > svg {
 .shield-section-datatable .dtsp-title {
 	font-weight: bolder;
 }
-.shield-section-datatable div.dtsp-topRow.dtsp-bordered {
-	border: 1px solid black;
+.shield-section-datatable div.dtsp-topRow.dtsp-bordered:hover {
+}
+.shield-section-datatable table.dataTable.table-striped>tbody>tr.selected>* {
+	background-color: #bad3ba;
+	box-shadow: none;
+	color: inherit;
+}
+.shield-section-datatable table.dataTable.table-striped>tbody>tr.odd.selected>* {
+	background-color: #9db69d;
 }
 
 td.page code {

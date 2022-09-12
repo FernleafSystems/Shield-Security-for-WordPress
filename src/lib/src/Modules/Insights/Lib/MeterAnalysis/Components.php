@@ -93,7 +93,6 @@ class Components {
 				'field_truncation',
 				'php_code',
 				'exe_file_uploads',
-				'leading_schema',
 				'aggressive'
 			] as $firewallBlockKey
 		) {
