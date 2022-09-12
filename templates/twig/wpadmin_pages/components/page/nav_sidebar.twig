@@ -1,6 +1,7 @@
 <div id="NavSideBar">
 
 <ul class="nav top-level-nav flex-column accordion" id="ShieldCollapseNav">
+
 	{% for mitem in vars.navbar_menu %}
 
 		<li class="nav-item pb-2{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
@@ -42,7 +43,8 @@
 			</a>
 
 			{% if mitem.sub_items|default([]) is not empty %}
-				<div class="subnava-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}" id="subnav-{{ mitem.slug }}"
+				<div class="subnava-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}"
+				     id="subnav-{{ mitem.slug }}"
 				     data-bs-parent="#ShieldCollapseNav"
 				>
 					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
@@ -64,4 +66,11 @@
 
 	{% endfor %}
 </ul>
+
+	{% if not flags.is_whitelabelled %}
+		<div class="text-muted py-1 px-2"
+		     style="position:fixed; bottom:10px;background: #e9e9e9;">
+			{{ strings.running_version|raw }}
+		</div>
+	{% endif %}
 </div>
