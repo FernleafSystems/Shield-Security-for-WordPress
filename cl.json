@@ -128,15 +128,19 @@
     ],
     "patches":     [
       {
-        "version":     "1",
+        "version":     "2",
         "released_at": 1662985000,
         "items":       [
           {
-            "title": "Fix DB creation error on initialisation on a new website.",
+            "title": "Bug fix unable to start scans.",
             "type":  "fixed"
           },
           {
-            "title": "Fix error with Overview page when analysing the firewall grade, after removing Leading Schemas.",
+            "title": "Bug fix DB creation error on initialisation on a new website.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug fix error with Overview page when analysing the firewall grade, after removing Leading Schemas.",
             "type":  "fixed"
           }
         ]

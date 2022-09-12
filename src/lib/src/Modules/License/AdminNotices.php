@@ -28,10 +28,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'title'           => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
 					sprintf( __( '%s API Token Missing', 'wp-simple-firewall' ), 'WPHashes.com' ) ),
 				'messages'        => [
-					__( "This site appears to be activated for PRO, but there's been a problem obtaining an API token for WPHashes.com.", 'wp-simple-firewall' ),
+					__( "This site appears to be activated for PRO, but there's been a problem obtaining an API token.", 'wp-simple-firewall' ),
 					implode( ' ', [
-						__( 'The WPHashes API is used for many premium features including Malware scanning.', 'wp-simple-firewall' ),
-						__( 'Without a valid API Token, certain Premium features wont work as expected.', 'wp-simple-firewall' ),
+						__( 'The API is used for many premium features including Malware scanning.', 'wp-simple-firewall' ),
+						__( 'To try and resolve this, please go to the ShieldPRO section and click to Check License manually.', 'wp-simple-firewall' ),
 					] ),
 					__( "Please contact us in our support channel if this doesn't sound right, or upgrade to PRO.", 'wp-simple-firewall' ),
 				],

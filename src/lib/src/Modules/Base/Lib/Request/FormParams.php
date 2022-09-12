@@ -35,7 +35,9 @@ class FormParams {
 
 				case 'none':
 				default:
-					$raw = '';
+					if ( empty( $raw ) ) {
+						$raw = '';
+					}
 					break;
 			}
 
