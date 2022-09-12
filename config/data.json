@@ -54,7 +54,7 @@
       "has_deleted_at": false,
       "cols_custom":    {
         "req_id":  {
-          "macro_type": "scenario",
+          "macro_type": "varchar",
           "length":     10,
           "attr":       [
             "UNIQUE"

@@ -129,8 +129,12 @@
     "patches":     [
       {
         "version":     "1",
-        "released_at": 1655195000,
+        "released_at": 1662985000,
         "items":       [
+          {
+            "title": "Fix DB creation error on initialisation on a new website.",
+            "type":  "fixed"
+          },
           {
             "title": "Fix error with Overview page when analysing the firewall grade, after removing Leading Schemas.",
             "type":  "fixed"
