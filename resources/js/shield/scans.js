@@ -2,18 +2,18 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 
 	let startScans = function ( evt ) {
 		evt.preventDefault();
-		sendReq( { 'form_params': $oThis.serialize() } );
+		sendReq( { 'form_params': $thisForm.serialize() } );
 		return false;
 	};
 
 	let loadResultsPage = function ( evt ) {
-		window.location.href = aOpts[ 'href_scans_results' ];
+		window.location.href = opts[ 'href_scans_results' ];
 	};
 
 	let sendReq = function ( param ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_scans_start' ], param ),
+		jQuery.post( ajaxurl, jQuery.extend( opts[ 'ajax_scans_start' ], param ),
 			function ( response ) {
 
 				if ( response.success ) {
@@ -23,7 +23,7 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 					}
 					else if ( response.data.scans_running ) {
 						setTimeout( function () {
-							jQuery( document ).icwpWpsfScansCheck( aOpts );
+							jQuery( document ).icwpWpsfScansCheck( opts );
 						}, 1000 );
 					}
 					else {
@@ -53,12 +53,12 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 
 	let initialise = function () {
 		jQuery( document ).ready( function () {
-			$oThis.on( 'submit', startScans );
+			$thisForm.on( 'submit', startScans );
 		} );
 	};
 
-	let $oThis = this;
-	let aOpts = jQuery.extend( {}, aOptions );
+	let $thisForm = this;
+	let opts = jQuery.extend( {}, aOptions );
 	initialise();
 
 	return this;

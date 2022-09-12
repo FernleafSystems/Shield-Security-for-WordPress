@@ -123,7 +123,7 @@ class Strings {
 				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
-				'wphashes_token'      => 'WPHashes.com API Token',
+				'wphashes_token'      => 'ShieldPRO API Token',
 				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
 
 				'search_select' => [
