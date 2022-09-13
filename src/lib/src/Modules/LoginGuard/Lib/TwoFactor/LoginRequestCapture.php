@@ -27,17 +27,17 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 							 ->captureLoginAttempt();
 				}
 
-				// login nonce
-				$randStart = rand( 0, 10 );
-				$loginNonce = substr( hash( 'sha256', uniqid( '', true ) ), $randStart, 10 );
+				$loginNonce = bin2hex( random_bytes( 32 ) );
+				$loginNonceHashed = wp_hash_password( $loginNonce.$user->ID );
 
-				$meta = $this->getCon()->getUserMeta( $user );
 				$intents = $mfaCon->getActiveLoginIntents( $user );
-				$intents[ $loginNonce ] = [
+				$intents[ $loginNonceHashed ] = [
+					'hash'     => $loginNonceHashed,
 					'start'    => Services::Request()->ts(),
 					'attempts' => 0,
 				];
-				$meta->login_intents = $intents;
+
+				$this->getCon()->getUserMeta( $user )->login_intents = $intents;
 
 				$loggedInCookie = $this->getLoggedInCookie();
 				if ( !empty( $loggedInCookie ) ) {

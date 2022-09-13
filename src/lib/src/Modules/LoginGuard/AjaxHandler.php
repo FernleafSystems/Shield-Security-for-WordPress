@@ -232,19 +232,18 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 	public function ajaxExec_IntentEmailSend() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$mfaCon = $mod->getMfaController();
+		$req = Services::Request();
 
 		$success = false;
-		$userID = Services::Request()->post( 'wp_user_id' );
-		$loginNonce = Services::Request()->post( 'login_nonce' );
-		if ( !empty( $userID ) && !empty( $loginNonce ) ) {
+		$userID = $req->post( 'wp_user_id' );
+		$plainNonce = $req->post( 'login_nonce' );
+		if ( !empty( $userID ) && !empty( $plainNonce ) ) {
 			$user = Services::WpUsers()->getUserById( $userID );
-			$nonces = array_keys( $mfaCon->getActiveLoginIntents( $user ) );
-			if ( $user instanceof \WP_User && in_array( $loginNonce, $nonces ) ) {
-				/** @var TwoFactor\Provider\Email $provider */
-				$provider = $mod->getMfaController()
-								->getProvidersForUser( $user, true )[ TwoFactor\Provider\Email::SLUG ] ?? null;
-				$success = !empty( $provider ) && $provider->sendEmailTwoFactorVerify( $loginNonce );
+			if ( $user instanceof \WP_User ) {
+				/** @var TwoFactor\Provider\Email $p */
+				$p = $mod->getMfaController()
+						 ->getProvidersForUser( $user, true )[ TwoFactor\Provider\Email::SLUG ] ?? null;
+				$success = !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce );
 			}
 		}
 

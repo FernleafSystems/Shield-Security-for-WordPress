@@ -66,11 +66,6 @@ class MergeAutoBlockRules extends ExecOnceModConsumer {
 		}
 
 		if ( !empty( $toKeep ) && !empty( $idsToDelete ) ) {
-			error_log( var_export( $toKeep->ip, true ) );
-			error_log( var_export( $workingIP, true ) );
-			error_log( var_export( $idsToDelete, true ) );
-			error_log( var_export( $extraOffenses, true ) );
-
 			$mod->getDbH_IPRules()
 				->getQueryDeleter()
 				->addWhereIn( 'id', $idsToDelete )
@@ -88,7 +83,6 @@ class MergeAutoBlockRules extends ExecOnceModConsumer {
 			$updater->updateRecord( $toKeep, $updateData );
 
 			$toKeep = $mod->getDbH_IPRules()->getQuerySelector()->byId( $toKeep->id );
-			error_log( var_export( $toKeep, true ) );
 		}
 
 		return $toKeep;

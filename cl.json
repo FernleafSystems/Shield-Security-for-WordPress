@@ -128,6 +128,28 @@
     ],
     "patches":     [
       {
+        "version":     "3",
+        "released_at": 1663061215,
+        "items":       [
+          {
+            "title":       "Security fix for reported 2FA vulnerability. More info will be released after allowing time for client upgrades.",
+            "type":        "fixed",
+            "description": [
+              "Note: sites are only vulnerable to this particular exploit IF it has an SQL-injection vulnerability caused by another plugin/theme.",
+              "As we always say, please ensure you keep ALL your plugins, themes and WordPress core up-to-date, particularly if they have known vulnerabilities!"
+            ]
+          },
+          {
+            "title": "Reverted minimum WP version to 3.7 to allow for security patching.",
+            "type":  "changes"
+          },
+          {
+            "title": "Bug: an error was generated when assessing some IP addresses.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "2",
         "released_at": 1662985000,
         "items":       [
