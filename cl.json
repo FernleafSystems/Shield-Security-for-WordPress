@@ -128,8 +128,8 @@
     ],
     "patches":     [
       {
-        "version":     "3",
-        "released_at": 1663061215,
+        "version":     "4",
+        "released_at": 1663064000,
         "items":       [
           {
             "title":       "Security fix for reported 2FA vulnerability. More info will be released after allowing time for client upgrades.",

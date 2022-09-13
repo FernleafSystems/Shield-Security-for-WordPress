@@ -188,6 +188,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return $result;
 	}
 
+	/**
+	 * @return array[]
+	 */
 	public function getActiveLoginIntents( \WP_User $user ) :array {
 		$meta = $this->getCon()->getUserMeta( $user );
 		return array_filter(

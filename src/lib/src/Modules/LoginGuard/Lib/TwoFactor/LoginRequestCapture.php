@@ -53,7 +53,7 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 				$pageRender = $mfaCon->useLoginIntentPage() ? new Render\RenderLoginIntentPage() : new Render\RenderWpLoginReplica();
 				$pageRender->setMod( $mod )
 						   ->setWpUser( $user );
-				$pageRender->login_nonce = $loginNonce;
+				$pageRender->plain_login_nonce = $loginNonce;
 				$pageRender->interim_login = $req->request( 'interim-login' );
 				$pageRender->redirect_to = $req->request( 'redirect_to', false, '' );
 				$pageRender->rememberme = $req->request( 'rememberme' );
