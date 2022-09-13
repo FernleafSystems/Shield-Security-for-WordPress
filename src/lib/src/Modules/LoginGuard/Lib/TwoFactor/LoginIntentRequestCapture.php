@@ -79,7 +79,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 			$pageRender = $mfaCon->useLoginIntentPage() ? new Render\RenderLoginIntentPage() : new Render\RenderWpLoginReplica();
 			$pageRender->setMod( $mod )
 					   ->setWpUser( $this->user );
-			$pageRender->login_nonce = $req->request( 'login_nonce', false, '' );
+			$pageRender->plain_login_nonce = $req->request( 'login_nonce', false, '' );
 			$pageRender->redirect_to = $req->request( 'redirect_to', false, '' );
 			$pageRender->rememberme = $req->request( 'rememberme' );
 			$pageRender->msg_error = __( 'Could not verify your 2FA codes', 'wp-simple-firewall' );
@@ -105,11 +105,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		$valid = ( new LoginIntentRequestValidate() )
 			->setMod( $mod )
 			->setWpUser( $this->user )
-			->run( (string)$req->post( 'login_nonce' ) );
-
-		if ( $req->post( 'cancel' ) ) {
-			throw new LoginCancelException();
-		}
+			->run( (string)$req->post( 'login_nonce' ), $req->post( 'cancel' ) == '1' );
 
 		if ( $valid ) {
 			wp_set_auth_cookie( $this->user->ID, (bool)$req->post( 'rememberme' ) );

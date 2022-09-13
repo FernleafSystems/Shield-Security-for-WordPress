@@ -2,24 +2,37 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Render;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string $login_nonce
+ * @property string $plain_login_nonce
  * @property string $interim_login
  * @property string $rememberme
  * @property string $redirect_to
  * @property string $msg_error
  * @property string $interim_message
  */
-abstract class RenderBase {
+abstract class RenderBase extends DynPropertiesClass {
 
 	use Shield\Modules\ModConsumer;
 	use Shield\Utilities\Consumer\WpUserConsumer;
-	use DynProperties;
+
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+			case 'plain_login_nonce':
+			case 'msg_error':
+			case 'interim_message':
+				$value = (string)$value;
+				break;
+			default:
+				break;
+		}
+		return $value;
+	}
 
 	public function render() {
 		echo $this->buildPage();
@@ -114,7 +127,7 @@ abstract class RenderBase {
 
 		$fields = array_filter( [
 			'interim-login' => ( $interim_login || $this->interim_login ) ? '1' : false,
-			'login_nonce'   => $this->login_nonce,
+			'login_nonce'   => $this->plain_login_nonce,
 			'rememberme'    => esc_attr( $this->rememberme ),
 			'redirect_to'   => esc_attr( esc_url( $redirectTo ) ),
 			'cancel_href'   => esc_attr( esc_url( $cancelHref ) ),
@@ -134,7 +147,9 @@ abstract class RenderBase {
 		$mfaCon = $mod->getMfaController();
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
-		$intentAt = $mfaCon->getActiveLoginIntents( $this->getWpUser() )[ $this->login_nonce ][ 'start' ] ?? 0;
+
+		$intentAt = $mfaCon->getActiveLoginIntents( $this->getWpUser() )
+					[ $mfaCon->findHashedNonce( $this->getWpUser(), $this->plain_login_nonce ) ][ 'start' ] ?? 0;
 		return Services::Request()
 					   ->carbon()
 					   ->setTimestamp( $intentAt )
