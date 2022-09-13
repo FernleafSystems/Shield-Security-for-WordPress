@@ -146,6 +146,10 @@
           {
             "title": "Bug: an error was generated when assessing some IP addresses.",
             "type":  "fixed"
+          },
+          {
+            "title": "Bug: API requests for certain types of options were appearing to fail (they weren't) and generating an error.",
+            "type":  "fixed"
           }
         ]
       },
