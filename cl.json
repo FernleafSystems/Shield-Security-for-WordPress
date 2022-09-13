@@ -132,8 +132,12 @@
         "released_at": 1663060000,
         "items":       [
           {
-            "title": "Security fix for reported 2FA vulnerability. More info will be forthcoming after allowing time for updates.",
+            "title": "Security fix for reported 2FA vulnerability. More info will be forthcoming after allowing time for client upgrades.",
             "type":  "fixed"
+          },
+          {
+            "title": "Reverted minimum WP version to 3.7 to allow for security patching.",
+            "type":  "changes"
           }
         ]
       },
