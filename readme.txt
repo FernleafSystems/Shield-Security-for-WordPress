@@ -4,11 +4,11 @@ Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: limit login, malware scan, firewall, two factor authentication, login protection
-Requires at least: 4.7
+Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.0
-Stable tag: 16.1.2
+Stable tag: 16.1.3
 
 Bad Bots Are Your #1 Security Risk. Stop playing whack-a-mole with malware and vulnerabilities. Discover the advantage of putting real security before marketing.
 

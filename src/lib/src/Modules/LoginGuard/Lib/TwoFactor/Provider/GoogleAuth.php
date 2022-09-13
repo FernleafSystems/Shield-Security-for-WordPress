@@ -115,7 +115,7 @@ class GoogleAuth extends BaseProvider {
 
 	public function activateGA( string $otp ) :StdResponse {
 		$r = new StdResponse();
-		$r->success = $this->processOtp( $otp, '' );
+		$r->success = $this->processOtp( $otp );
 		if ( $r->success ) {
 			$this->setProfileValidated( true );
 			$r->msg_text = sprintf(
@@ -147,7 +147,7 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
+	protected function processOtp( string $otp ) :bool {
 		$valid = false;
 		try {
 			$valid = preg_match( '#^\d{6}$#', $otp )

@@ -73,7 +73,7 @@ class BackupCodes extends BaseProvider {
 		return $this;
 	}
 
-	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
+	protected function processOtp( string $otp ) :bool {
 		return (bool)wp_check_password( str_replace( '-', '', $otp ), $this->getSecret() );
 	}
 

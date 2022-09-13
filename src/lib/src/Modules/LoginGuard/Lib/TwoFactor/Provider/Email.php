@@ -22,10 +22,17 @@ class Email extends BaseProvider {
 	 * If login nonce is provided, the OTP check is stricter and must be the same as that assigned to the nonce.
 	 * Otherwise, we just check whether the OTP exists.
 	 */
-	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
-		return empty( $loginNonce ) ?
-			in_array( $otp, $this->getAllCodes() )
-			: ( $this->getAllCodes()[ $loginNonce ] ?? '' ) === $otp;
+	protected function processOtp( string $otp ) :bool {
+		$secret = $this->getSecret()[ $this->workingHashedLoginNonce ] ?? '';
+		return !empty( $secret ) && wp_check_password( $otp, $secret );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function postSuccessActions() {
+		parent::postSuccessActions();
+		return $this->setSecret( [] );
 	}
 
 	public function getFormField() :array {
@@ -71,16 +78,30 @@ class Email extends BaseProvider {
 		return true;
 	}
 
-	public function sendEmailTwoFactorVerify( string $loginNonce ) :bool {
+	public function sendEmailTwoFactorVerify( string $plainNonce ) :bool {
+		$con = $this->getCon();
+		/** @var LoginGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$mfaCon = $mod->getMfaController();
 		$user = $this->getUser();
-		$sureCon = $this->getCon()->getModule_Comms()->getSureSendController();
+		$userMeta = $con->getUserMeta( $user );
+		$sureCon = $con->getModule_Comms()->getSureSendController();
 		$useSureSend = $sureCon->isEnabled2Fa() && $sureCon->canUserSend( $user );
 
 		$success = false;
 		try {
-			$code = $this->get2faCode( $loginNonce );
+			if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {
+				throw new \Exception( 'No such login intent' );
+			}
 
-			$success = ( $useSureSend && $this->send2faEmailSureSend( $code ) )
+			$hashedNonce = $mfaCon->findHashedNonce( $user, $plainNonce );
+			$intents = $mfaCon->getActiveLoginIntents( $user );
+			$intents[ $hashedNonce ][ 'auto_email_sent' ] = true;
+			$userMeta->login_intents = $intents;
+
+			$otp = $this->generate2faCode( $hashedNonce );
+
+			$success = ( $useSureSend && $this->send2faEmailSureSend( $otp ) )
 					   || $this->getMod()
 							   ->getEmailProcessor()
 							   ->sendEmailWithTemplate(
@@ -92,7 +113,7 @@ class Email extends BaseProvider {
 										   'show_login_link' => !$this->getCon()->isRelabelled()
 									   ],
 									   'vars'    => [
-										   'code' => $code
+										   'code' => $otp
 									   ],
 									   'hrefs'   => [
 										   'login_link' => 'https://shsec.io/96',
@@ -149,32 +170,24 @@ class Email extends BaseProvider {
 			   && ( $this->isEnforced() || $opts->isEnabledEmailAuthAnyUserSet() );
 	}
 
-	private function get2faCode( string $loginNonce ) :string {
-		$secrets = $this->getAllCodes();
-		if ( !isset( $secrets[ $loginNonce ] ) ) {
-			$secrets[ $loginNonce ] = $this->generateSimpleOTP();
-			$this->storeCodes( $secrets );
-		}
-		return $secrets[ $loginNonce ];
-	}
-
-	public function hasOtpForNonce( string $loginNonce ) :bool {
-		return isset( $this->getAllCodes()[ $loginNonce ] );
-	}
-
-	private function getAllCodes() :array {
+	private function generate2faCode( string $hashedLoginNonce ) :string {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$mfaCon = $mod->getMfaController();
-		$secrets = $this->getSecret();
-		return array_intersect_key(
-			is_array( $secrets ) ? $secrets : [],
-			$mfaCon->getActiveLoginIntents( $this->getUser() )
-		);
-	}
 
-	private function storeCodes( array $codes ) {
-		$this->setSecret( $codes );
+		$secrets = $this->getSecret();
+		if ( !is_array( $secrets ) ) {
+			$secrets = [];
+		}
+
+		$otp = $this->generateSimpleOTP();
+		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
+
+		// Clean old secrets linked to expired login intents
+		$this->setSecret( array_intersect_key(
+			$secrets,
+			$mod->getMfaController()->getActiveLoginIntents( $this->getUser() )
+		) );
+		return $otp;
 	}
 
 	public function getProviderName() :string {

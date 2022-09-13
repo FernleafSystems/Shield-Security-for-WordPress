@@ -84,6 +84,7 @@ class UI {
 			'vars'       => [
 				'mod_slug'         => $mod->getModSlug(),
 				'unique_render_id' => uniqid(),
+				'plugin_version'   => $con->getVersion(),
 			],
 		];
 	}
