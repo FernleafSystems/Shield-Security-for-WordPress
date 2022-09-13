@@ -196,6 +196,8 @@
             "wp-jquery"
           ]
         },
+        "tp/qrcode.min":                     {
+        },
         "plugin":                            {
           "deps": [
             "bootstrap",
@@ -329,6 +331,7 @@
         "shield/userprofile":                {
           "deps":   [
             "u2f-bundle",
+            "tp/qrcode.min",
             "shield/dialog"
           ],
           "footer": true
