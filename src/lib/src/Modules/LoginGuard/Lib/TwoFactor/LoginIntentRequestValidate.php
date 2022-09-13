@@ -5,8 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
-	NoActiveProvidersForUserException,
 	InvalidLoginIntentException,
+	LoginCancelException,
+	NoActiveProvidersForUserException,
 	TooManyAttemptsException
 };
 
@@ -17,11 +18,12 @@ class LoginIntentRequestValidate {
 
 	/**
 	 * @throws CouldNotValidate2FA
-	 * @throws NoActiveProvidersForUserException
+	 * @throws LoginCancelException
 	 * @throws InvalidLoginIntentException
+	 * @throws NoActiveProvidersForUserException
 	 * @throws TooManyAttemptsException
 	 */
-	public function run( string $plainNonce ) :bool {
+	public function run( string $plainNonce, bool $isCancel = false ) :bool {
 		/** @var Shield\Modules\LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
@@ -29,6 +31,11 @@ class LoginIntentRequestValidate {
 
 		if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {
 			throw new InvalidLoginIntentException();
+		}
+
+		if ( $isCancel ) {
+			// only allowed to cancel if the intent is verified.
+			throw new LoginCancelException();
 		}
 
 		$providers = $mfaCon->getProvidersForUser( $user, true );

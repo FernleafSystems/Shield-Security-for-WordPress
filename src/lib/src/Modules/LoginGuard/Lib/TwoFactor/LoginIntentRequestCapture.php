@@ -105,11 +105,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		$valid = ( new LoginIntentRequestValidate() )
 			->setMod( $mod )
 			->setWpUser( $this->user )
-			->run( (string)$req->post( 'login_nonce' ) );
-
-		if ( $req->post( 'cancel' ) ) {
-			throw new LoginCancelException();
-		}
+			->run( (string)$req->post( 'login_nonce' ), $req->post( 'cancel' ) == '1' );
 
 		if ( $valid ) {
 			wp_set_auth_cookie( $this->user->ID, (bool)$req->post( 'rememberme' ) );
