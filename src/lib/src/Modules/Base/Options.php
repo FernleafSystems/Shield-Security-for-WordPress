@@ -502,7 +502,7 @@ class Options {
 
 		if ( $verified ) {
 			// Here we try to ensure that values that are repeatedly changed properly reflect their changed
-			// states, as they may be reverted back to their original state and we "think" it's been changed.
+			// states, as they may be reverted to their original state and we "think" it's been changed.
 			$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $newValue );
 			// basically if we're actually resetting back to the original value
 			$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $key )

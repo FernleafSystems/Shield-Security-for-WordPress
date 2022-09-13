@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options;
 
+use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
+
 class SetBulk extends Base {
 
 	/**
@@ -24,7 +26,7 @@ class SetBulk extends Base {
 				else {
 					$opts->setOpt( $opt[ 'key' ], $opt[ 'value' ] );
 					if ( serialize( $opt[ 'value' ] ) !== serialize( $opts->getOpt( $opt[ 'key' ] ) ) ) {
-						throw new \Exception( sprintf( 'Failed to update option (%s). Value may be of an incorrect type.', $opt[ 'key' ] ) );
+						throw new ApiException( sprintf( 'Failed to update option (%s). Value may be of an incorrect type.', $opt[ 'key' ] ) );
 					}
 				}
 			}
