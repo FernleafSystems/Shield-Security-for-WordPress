@@ -8,13 +8,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	CouldNotValidate2FA,
 	LoginCancelException,
 	NoActiveProvidersForUserException,
-	NoLoginIntentForUserException,
+	InvalidLoginIntentException,
 	NotValidUserException,
 	TooManyAttemptsException
 };
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+
+	/**
+	 * @var \WP_User
+	 */
+	private $user;
 
 	protected function canRun() :bool {
 		return Services::Request()->isPost()
@@ -32,34 +37,39 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		$mfaCon = $mod->getMfaController();
 		$req = Services::Request();
 
-		$user = $req->post( 'wp_user_id' ) ? Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) ) : null;
-
 		try {
+			$user = $req->post( 'wp_user_id' ) ? Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) ) : null;
+			if ( empty( $user ) ) {
+				throw new NotValidUserException();
+			}
+			$this->user = $user;
 			$this->capture();
 		}
+		catch ( NotValidUserException $e ) {
+			// output error about no login intent so there's no way to discern externally whether such a user exists
+			Services::Response()->redirectToLogin( [
+				'shield_msg' => 'no_user_login_intent'
+			] );
+		}
+		catch ( InvalidLoginIntentException $e ) {
+			Services::Response()->redirectToLogin( [
+				'shield_msg' => 'no_user_login_intent'
+			] );
+		}
 		catch ( LoginCancelException $e ) {
+			// This should always be a user since we can only throw this exception after loading the user
+			$this->getCon()->getUserMeta( $this->user )->login_intents = [];
 			$redirect = $req->post( 'cancel_href' );
 			empty( $redirect ) ? Services::Response()->redirectToLogin() : Services::Response()->redirect( $redirect );
 		}
-		catch ( NotValidUserException $e ) {
-			// put error about no login intent
-			Services::Response()->redirectToLogin( [
-				'shield_msg' => 'no_user_login_intent'
-			] );
-		}
-		catch ( NoLoginIntentForUserException $e ) {
-			// put error about no login intent
-			Services::Response()->redirectToLogin( [
-				'shield_msg' => 'no_user_login_intent'
-			] );
-		}
 		catch ( TooManyAttemptsException $e ) {
-			// put error about no login intent
+			$this->getCon()->getUserMeta( $this->user )->login_intents = [];
 			Services::Response()->redirectToLogin( [
 				'shield_msg' => 'too_many_attempts'
 			] );
 		}
 		catch ( NoActiveProvidersForUserException $e ) {
+			$this->getCon()->getUserMeta( $this->user )->login_intents = [];
 			Services::Response()->redirectToLogin( [
 				'shield_msg' => 'no_providers'
 			] );
@@ -68,7 +78,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 			// Allow a further attempt to 2FA
 			$pageRender = $mfaCon->useLoginIntentPage() ? new Render\RenderLoginIntentPage() : new Render\RenderWpLoginReplica();
 			$pageRender->setMod( $mod )
-					   ->setWpUser( $user );
+					   ->setWpUser( $this->user );
 			$pageRender->login_nonce = $req->request( 'login_nonce', false, '' );
 			$pageRender->redirect_to = $req->request( 'redirect_to', false, '' );
 			$pageRender->rememberme = $req->request( 'rememberme' );
@@ -82,8 +92,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 	 * @throws Exceptions\TooManyAttemptsException
 	 * @throws LoginCancelException
 	 * @throws NoActiveProvidersForUserException
-	 * @throws NoLoginIntentForUserException
-	 * @throws NotValidUserException
+	 * @throws InvalidLoginIntentException
 	 */
 	private function capture() {
 		$con = $this->getCon();
@@ -93,32 +102,22 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		$opts = $this->getOptions();
 		$req = Services::Request();
 
+		$valid = ( new LoginIntentRequestValidate() )
+			->setMod( $mod )
+			->setWpUser( $this->user )
+			->run( (string)$req->post( 'login_nonce' ) );
+
 		if ( $req->post( 'cancel' ) ) {
 			throw new LoginCancelException();
 		}
 
-		$user = Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) );
-		if ( empty( $user ) ) {
-			throw new NotValidUserException();
-		}
-
-		$nonce = (string)$req->post( 'login_nonce' );
-		if ( !preg_match( '#^[\da-z]{10}$#i', $nonce ) ) {
-			throw new NoLoginIntentForUserException();
-		}
-
-		$valid = ( new LoginIntentRequestValidate() )
-			->setMod( $mod )
-			->setWpUser( $user )
-			->run( $nonce );
-
 		if ( $valid ) {
-			wp_set_auth_cookie( $user->ID, (bool)$req->post( 'rememberme' ) );
+			wp_set_auth_cookie( $this->user->ID, (bool)$req->post( 'rememberme' ) );
 
 			if ( $req->post( 'skip_mfa' ) === 'Y' ) {
 				( new MfaSkip() )
 					->setMod( $this->getMod() )
-					->addMfaSkip( $user );
+					->addMfaSkip( $this->user );
 			}
 
 			$con->fireEvent( '2fa_success' );
@@ -131,7 +130,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				}, 100, 0 );
 				$renderer = ( new Render\RenderWpLoginReplica() )
 					->setMod( $mod )
-					->setWpUser( $user );
+					->setWpUser( $this->user );
 				$renderer->interim_message = __( '2FA authentication verified successfully.', 'wp-simple-firewall' );
 				$renderer->include_body = false;
 				$renderer->render();
@@ -141,12 +140,12 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				if ( $opts->isEnabledBackupCodes() ) {
 					$flash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' );
 				}
-				$this->getMod()->setFlashAdminNotice( $flash, $user );
+				$this->getMod()->setFlashAdminNotice( $flash, $this->user );
 			}
 
 			$redirect = $req->request( 'redirect_to', false, $req->getPath() );
 			Services::Response()->redirect(
-				apply_filters( 'login_redirect', $redirect, $redirect, $user ),
+				apply_filters( 'login_redirect', $redirect, $redirect, $this->user ),
 				[], true, false
 			);
 		}

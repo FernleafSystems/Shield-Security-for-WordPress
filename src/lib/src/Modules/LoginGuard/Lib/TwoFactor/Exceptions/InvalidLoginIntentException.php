@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions;
 
-class NoLoginIntentForUserException extends \Exception {
+class InvalidLoginIntentException extends \Exception {
 
 }

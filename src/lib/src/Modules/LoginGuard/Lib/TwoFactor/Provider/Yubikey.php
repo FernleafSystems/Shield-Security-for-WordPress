@@ -55,7 +55,7 @@ class Yubikey extends BaseProvider {
 		return count( $this->getYubiIds() ) > 0;
 	}
 
-	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
+	protected function processOtp( string $otp ) :bool {
 		$valid = false;
 
 		foreach ( $this->getYubiIds() as $key ) {

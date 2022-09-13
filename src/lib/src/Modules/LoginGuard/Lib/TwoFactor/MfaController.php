@@ -60,9 +60,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		/** @var Provider\Email|null $emailProvider */
 		$emailProvider = $providers[ Provider\Email::SLUG ] ?? null;
 		if ( count( $providers ) === 1 && !empty( $emailProvider ) ) {
-			$nonces = array_keys( $this->getActiveLoginIntents( $user ) );
-			$latestNonce = (string)array_pop( $nonces );
-			$auto = !$emailProvider->hasOtpForNonce( $latestNonce );
+			$intents = $this->getActiveLoginIntents( $user );
+			$latest = array_pop( $intents );
+			$auto = !empty( $latest ) && empty( $latest[ 'auto_email_sent' ] );
 		}
 		return $auto;
 	}
@@ -206,5 +206,28 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				return $active;
 			}
 		);
+	}
+
+	public function findHashedNonce( \WP_User $user, string $plainNonce ) :string {
+		$hashedNonce = '';
+		foreach ( array_keys( $this->getActiveLoginIntents( $user ) ) as $maybeHash ) {
+			if ( wp_check_password( $plainNonce.$user->ID, $maybeHash ) ) {
+				$hashedNonce = $maybeHash;
+				break;
+			}
+		}
+		return $hashedNonce;
+	}
+
+	public function verifyLoginNonce( \WP_User $user, string $plainNonce ) :bool {
+		$valid = !empty( $this->findHashedNonce( $user, $plainNonce ) );
+		if ( !$valid ) {
+			$this->getCon()->fireEvent( '2fa_nonce_verify_fail', [
+				'audit_params' => [
+					'user_login' => $user->user_login,
+				]
+			] );
+		}
+		return $valid;
 	}
 }

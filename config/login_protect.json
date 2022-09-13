@@ -536,14 +536,14 @@
     "login_intent_timeout":      5,
     "login_intent_max_attempts": 5,
     "events":                    {
-      "2fa_verify_success": {
+      "2fa_verify_success":    {
         "audit_params": [
           "user_login",
           "method"
         ],
         "level":        "notice"
       },
-      "2fa_verify_fail":    {
+      "2fa_verify_fail":       {
         "audit_params": [
           "user_login",
           "method"
@@ -551,18 +551,25 @@
         "level":        "warning",
         "offense":      true
       },
-      "cooldown_fail":      {
+      "2fa_nonce_verify_fail": {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "alert",
+        "offense":      true
+      },
+      "cooldown_fail":         {
         "level":   "warning",
         "offense": true
       },
-      "honeypot_fail":      {
+      "honeypot_fail":         {
         "audit_params": [
           "user_login",
           "action"
         ],
         "level":        "warning"
       },
-      "botbox_fail":        {
+      "botbox_fail":           {
         "audit_params": [
           "user_login",
           "action"
@@ -570,22 +577,22 @@
         "level":        "warning",
         "offense":      true
       },
-      "login_block":        {
+      "login_block":           {
         "level": "warning"
       },
-      "block_register":     {
+      "block_register":        {
         "level": "warning"
       },
-      "block_lostpassword": {
+      "block_lostpassword":    {
         "level": "warning"
       },
-      "block_checkout":     {
+      "block_checkout":        {
         "level": "warning"
       },
-      "hide_login_url":     {
+      "hide_login_url":        {
         "level": "notice"
       },
-      "2fa_success":        {
+      "2fa_success":           {
         "level":  "info",
         "recent": true
       }
