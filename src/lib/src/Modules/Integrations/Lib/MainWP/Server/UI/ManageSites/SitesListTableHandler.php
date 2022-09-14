@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class SitesListTableHandler extends BaseRender {
 
-	use ModConsumer;
 	use ExecOnce;
 
 	/**

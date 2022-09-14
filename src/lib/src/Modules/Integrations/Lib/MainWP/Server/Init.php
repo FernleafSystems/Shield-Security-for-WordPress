@@ -54,20 +54,37 @@ class Init {
 	}
 
 	private function addOurExtension() :ExtensionSettingsPage {
-		$con = $this->getCon();
 
-		$extensionsPage = new ExtensionSettingsPage();
-		$extensionParams = [
-			'plugin'   => $con->getRootFile(),
-			// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
-			'callback' => [ $extensionsPage, 'render' ],
-			'icon'     => $con->urls->forImage( 'pluginlogo_col_32x32.png' ),
-		];
-		add_filter( 'mainwp_getextensions', function ( $exts ) use ( $extensionParams ) {
-			return array_merge( $exts, [ $extensionParams ] );
+		// We must create a simple class (MwpExtensionLoader) without any ModConsumer so that it can be reliably stored
+		// in the MainWP extensions option. Previously the saving wasn't working and the extension wouldn't appear.
+		add_filter( 'mainwp_getextensions', function ( $extensions ) {
+			$con = $this->getCon();
+			$extensions[] = [
+				'plugin'   => $con->getRootFile(),
+				// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
+				'callback' => [ new MwpExtensionLoader(), 'run' ],
+				'icon'     => $con->urls->forImage( 'pluginlogo_col_32x32.png' ),
+			];
+			return $extensions;
 		} );
 
-		// We add Mod afterwards. It wasn't correctly saving for some reason while with it in the callback.
-		return $extensionsPage->setMod( $this->getMod() );
+		// Here we add extra data to our extension that can't be added through the normal channel due to the way they've coded it.
+		add_filter( "pre_update_option_mainwp_extensions", function ( $value ) {
+			if ( is_array( $value ) ) {
+				$con = $this->getCon();
+				foreach ( $value as $key => $ext ) {
+					if ( ( $ext[ 'plugin' ] ?? '' ) === $con->getRootFile() ) {
+						$value[ $key ][ 'description' ] = implode( ' ', [
+							'Shield Security for MainWP builds upon the already powerful security platform,',
+							'helping you extend security management across your entire portfolio with ease.'
+						] );
+						$value[ $key ][ 'DocumentationURI' ] = $con->labels->url_helpdesk;
+					}
+				}
+			}
+			return $value;
+		} );
+
+		return ( new ExtensionSettingsPage() )->setMod( $this->getMod() );
 	}
 }
