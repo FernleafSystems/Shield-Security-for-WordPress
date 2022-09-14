@@ -1,14 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MwpOutOfDate extends BaseRender {
+class MwpOutOfDate extends BaseTab {
 
-	protected function getData() :array {
+	protected function getPageSpecificData() :array {
 		return [
 			'strings' => [
 				'update'      => __( "The MainWP Security plugin doesn't meet Shield's minimum requirements." ),

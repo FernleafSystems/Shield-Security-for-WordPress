@@ -12,8 +12,8 @@ class AjaxHandlerMainwp extends Shield\Modules\BaseShield\AjaxHandler {
 		$map = parent::getAjaxActionCallbackMap( $isAuth );
 		if ( $isAuth ) {
 			$map = array_merge( $map, [
-				'mwp_sh_ext_table'   => [ $this, 'ajaxExec_ExtensionTableSites' ],
-				'mwp_sh_site_action' => [ $this, 'ajaxExec_SiteAction' ],
+				'ext_table'   => [ $this, 'ajaxExec_ExtensionTableSites' ],
+				'site_action' => [ $this, 'ajaxExec_SiteAction' ],
 			] );
 		}
 		return $map;

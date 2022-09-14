@@ -1,6 +1,7 @@
 (function ( $, window, document, undefined ) {
 
-	var pluginName = 'icwpWpsfMainwpExtension';
+	let pluginName = 'icwpWpsfMainwpExtension';
+	let siteFrame;
 
 	function Ob_TableActions( element, options ) {
 		this.element = element;
@@ -43,7 +44,7 @@
 						evt.preventDefault();
 
 						plugin.options[ 'req_params' ] = $.extend(
-							plugin.options[ 'ajax_sh_site_action' ],
+							plugin.options.ajax_actions[ 'site_action' ],
 							{
 								'sid': $( this ).parent().data( 'sid' ),
 								'saction': $( this ).data( 'saction' )
@@ -69,23 +70,23 @@
 					'.tablenav.top input[type=submit].button.action',
 					function ( evt ) {
 						evt.preventDefault();
-						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
+						let action = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
-						if ( sAction === "-1" ) {
+						if ( action === "-1" ) {
 							alert( icwp_wpsf_vars_insights.strings.select_action );
 						}
 						else {
-							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
+							let checkedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
 								function () {
 									return $( this ).val()
 								} ).get();
 
-							if ( aCheckedIds.length < 1 ) {
+							if ( checkedIds.length < 1 ) {
 								alert( 'No rows currently selected' );
 							}
 							else {
-								plugin.options[ 'req_params' ][ 'bulk_action' ] = sAction;
-								plugin.options[ 'req_params' ][ 'ids' ] = aCheckedIds;
+								plugin.options[ 'req_params' ][ 'bulk_action' ] = action;
+								plugin.options[ 'req_params' ][ 'ids' ] = checkedIds;
 								plugin.bulkAction.call( plugin );
 							}
 						}
@@ -98,16 +99,16 @@
 					'button.action.custom-action',
 					function ( evt ) {
 						evt.preventDefault();
-						var $oButt = $( this );
-						var sCustomAction = $oButt.data( 'custom-action' );
-						if ( sCustomAction in plugin.options[ 'custom_actions_ajax' ] ) {
-							plugin.options[ 'working_custom_action' ] = plugin.options[ 'custom_actions_ajax' ][ sCustomAction ];
-							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
+						let $button = $( this );
+						let customAction = $button.data( 'custom-action' );
+						if ( customAction in plugin.options[ 'custom_actions_ajax' ] ) {
+							plugin.options[ 'working_custom_action' ] = plugin.options[ 'custom_actions_ajax' ][ customAction ];
+							plugin.options[ 'working_custom_action' ][ 'rid' ] = $button.data( 'rid' );
 							plugin.customAction.call( plugin );
 						}
 						else {
 							/** This should never be reached live: **/
-							alert( 'custom action not supported: ' + sCustomAction );
+							alert( 'custom action not supported: ' + customAction );
 						}
 					}
 				);
@@ -184,7 +185,7 @@
 				"url": ajaxurl,
 				"type": "POST",
 				"data": function ( d ) {
-					return $.extend( {}, d, this.options[ 'ajax_sh_site_action' ] );
+					return $.extend( {}, d, this.options.ajax_actions[ 'site_action' ] );
 				},
 				"dataSrc": function ( json ) {
 					for ( var i = 0, ien = json.data.length; i < ien; i++ ) {
@@ -198,6 +199,11 @@
 			},
 		} );
 */
+		siteFrame = $( "iframe#SiteContent" );
+		if ( siteFrame.length === 1 ) {
+			siteFrame.attr( "srcdoc", "<p>This content was updated dynamically!</p>" );
+		}
+
 		return this.each(
 			function () {
 				if ( !$.data( this, "plugin_" + pluginName ) ) {
