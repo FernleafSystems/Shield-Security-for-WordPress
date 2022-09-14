@@ -19,7 +19,6 @@ class SyncHandler extends ExecOnceModConsumer {
 
 	/**
 	 * @param object $website
-	 * @param array  $info
 	 */
 	private function syncSite( $website, array $info ) {
 		$con = $this->getCon();
