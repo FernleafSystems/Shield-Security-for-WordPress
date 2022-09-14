@@ -128,6 +128,35 @@
     ],
     "patches":     [
       {
+        "version":     "5",
+        "released_at": 1663160795,
+        "items":       [
+          {
+            "title":       "Improvements to MainWP Extension",
+            "type":        "improved",
+            "description": [
+              "As part of our direction to enhance our MainWP extension we've made a number of small fixes and tweaks."
+            ]
+          },
+          {
+            "title":       "Obscure Access To Local Plugin/Theme Hashes",
+            "type":        "security",
+            "description": [
+              "It was pointed out that the storage of plugin/theme hashes locally were accessible on nginx servers.",
+              "It made info about which plugins/themes were installed publicly available for some. Not a security problem in itself, but not ideal either."
+            ]
+          },
+          {
+            "title": "QR Code Rendered Locally.",
+            "type":  "security",
+            "description": [
+              "It was pointed out that there are other means of generated QR code images rather than sending the data to Google's API.",
+              "QR Code images are now rendered locally on the browser using Javascript."
+            ]
+          }
+        ]
+      },
+      {
         "version":     "4",
         "released_at": 1663064000,
         "items":       [
