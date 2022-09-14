@@ -35,14 +35,16 @@
 	<tr>
 		<th><label for="shield_gacode" class="form-label">{{ strings.title }}</label></th>
 		<td>
-			<div style="width: 350px; margin-bottom: 15px; text-align: center">
-				<img src="{{ hrefs.src_chart_url }}" alt="{{ strings.description_chart_url }}"
-				     title="{{ strings.description_chart_url }}"
-				     class="shield-mfa-googleauth"
-				     style="display:block;margin:0 auto 10px" />
+			<div style="width: 350px; margin-bottom: 15px; text-align: center" id="SvgQrCode">
 				<div style="margin: auto;width: fit-content;text-align: center;"
 				     id="shield_ga_secret">{{ vars.ga_secret }}</div>
 			</div>
+
+			<script>
+				/** https://github.com/datalog/qrcode-svg */
+		svgNode = QRCode( '{{ hrefs.qr_code_auth|raw }}' );
+		document.getElementById( "SvgQrCode" ).prepend( svgNode );
+			</script>
 
 			<input class="regular-text"
 			       type="text"
