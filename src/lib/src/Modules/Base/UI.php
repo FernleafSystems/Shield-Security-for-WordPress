@@ -35,20 +35,18 @@ class UI {
 				'show_standard_options' => true,
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
-				'has_wizard'            => $mod->hasWizard(),
 				'is_premium'            => $con->isPremiumActive(),
 				'is_whitelablled'       => $isWhitelabelled,
 				'show_transfer_switch'  => $con->isPremiumActive(),
 				'is_wpcli'              => $pluginOptions->isEnabledWpcli(),
 			],
 			'hrefs'      => [
-				'helpdesk'       => $con->labels->url_helpdesk,
-				'plugin_home'    => $con->labels->PluginURI,
-				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
-				'goprofooter'    => 'https://shsec.io/goprofooter',
-				'wizard_link'    => $mod->getUrl_WizardLanding(),
-				'wizard_landing' => $mod->getUrl_WizardLanding(),
+				'helpdesk'    => $con->labels->url_helpdesk,
+				'plugin_home' => $con->labels->PluginURI,
+				'go_pro'      => 'https://shsec.io/shieldgoprofeature',
+				'goprofooter' => 'https://shsec.io/goprofooter',
 
+				'dashboard_home'   => $con->getPluginUrl_DashboardHome(),
 				'form_action'      => Services::Request()->getUri(),
 				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap' ),
 				'css_pages'        => $urlBuilder->forCss( 'shield/pages' ),
@@ -70,6 +68,7 @@ class UI {
 					'ignore'    => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
 					'triangle'  => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
 					'megaphone' => $con->svgs->raw( 'bootstrap/megaphone.svg' ),
+					'exit'      => $con->svgs->raw( 'bootstrap/box-arrow-left.svg' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
@@ -85,6 +84,7 @@ class UI {
 			'vars'       => [
 				'mod_slug'         => $mod->getModSlug(),
 				'unique_render_id' => uniqid(),
+				'plugin_version'   => $con->getVersion(),
 			],
 		];
 	}
@@ -105,6 +105,10 @@ class UI {
 	}
 
 	public function getSectionWarnings( string $section ) :array {
+		return [];
+	}
+
+	public function getSectionCriticalWarnings( string $section ) :array {
 		return [];
 	}
 }

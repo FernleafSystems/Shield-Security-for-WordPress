@@ -421,6 +421,14 @@ class Options {
 		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
 	}
 
+	public function getSelectOptionValueKeys( string $key ) :array {
+		$keys = [];
+		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
+			$keys[] = $opt[ 'value_key' ];
+		}
+		return $keys;
+	}
+
 	public function getSelectOptionValueText( string $key ) :string {
 		$text = '';
 		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
@@ -494,13 +502,13 @@ class Options {
 
 		if ( $verified ) {
 			// Here we try to ensure that values that are repeatedly changed properly reflect their changed
-			// states, as they may be reverted back to their original state and we "think" it's been changed.
-			$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $newValue );
+			// states, as they may be reverted to their original state and we "think" it's been changed.
+			$valueIsDifferent = serialize( $mCurrent ) !== serialize( $newValue );
 			// basically if we're actually resetting back to the original value
-			$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $key )
-							&& ( serialize( $this->getOldValue( $key ) ) === serialize( $newValue ) );
+			$isResetting = $valueIsDifferent && $this->isOptChanged( $key )
+						   && ( serialize( $this->getOldValue( $key ) ) === serialize( $newValue ) );
 
-			if ( $bValueIsDifferent && $this->verifyCanSet( $key, $newValue ) ) {
+			if ( $valueIsDifferent && $this->verifyCanSet( $key, $newValue ) ) {
 				$this->setNeedSave( true );
 
 				//Load the config and do some pre-set verification where possible. This will slowly grow.
@@ -511,7 +519,7 @@ class Options {
 					 ->setOptValue( $key, $newValue );
 			}
 
-			if ( $bIsResetting ) {
+			if ( $isResetting ) {
 				unset( $this->aOld[ $key ] );
 			}
 		}

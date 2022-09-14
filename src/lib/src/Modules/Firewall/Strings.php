@@ -116,12 +116,6 @@ class Strings extends Base\Strings {
 				$desc = [ __( 'This will block executable file uploads (.php, .exe, etc.).', 'wp-simple-firewall' ) ];
 				break;
 
-			case 'block_leading_schema' :
-				$name = __( 'Leading Schemas', 'wp-simple-firewall' );
-				$summary = __( 'Block Leading Schemas (HTTPS / HTTP)', 'wp-simple-firewall' );
-				$desc = [ __( 'This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins).', 'wp-simple-firewall' ) ];
-				break;
-
 			case 'block_aggressive' :
 				$name = __( 'Aggressive Scan', 'wp-simple-firewall' );
 				$summary = __( 'Aggressively Block Data', 'wp-simple-firewall' );

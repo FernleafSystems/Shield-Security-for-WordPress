@@ -1,0 +1,27 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section %}
+	<div class="row">
+		<div class="col-12">
+			<p>Upgrade your WordPress security to professional-grade protection to add extra features such as:</p>
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item">Malware scanning and repair</li>
+				<li class="list-group-item"><code>wp-config.php</code> protection and repair</li>
+				<li class="list-group-item">Plugin/Theme file protection and repair</li>
+				<li class="list-group-item">User Security Policies such as Password and Auto-Suspend Idle Users</li>
+				<li class="list-group-item">Contact Form SPAM protection for Ninja Forms, WPForms, Gravity Forms and more</li>
+				<li class="list-group-item">Many, <a href="{{ hrefs.features }}" target="_blank">many more features</a></li>
+			</ul>
+			<p class="mt-3">Get the risk-free, no obligation free trial of ShieldPRO today.</p>
+				<a href="{{ hrefs.free_trial }}"
+				   class="button text-center p-3"
+				   target="_blank"
+				>
+					{{ imgs.free_trial|raw }}
+					Get The Free Trial!
+				</a>
+		</div>
+		<div class="col-4">
+		</div>
+	</div>
+{% endblock %}

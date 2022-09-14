@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "16.0.9",
-    "release_timestamp":       1662984000,
-    "build":                   "202209.0702",
+    "version":                 "16.1.4",
+    "release_timestamp":       1663064000,
+    "build":                   "202209.1302",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -34,6 +34,11 @@
     "12.0": {
       "php":   "7.0",
       "wp":    "3.7",
+      "mysql": "5.6"
+    },
+    "16.2": {
+      "php":   "7.0",
+      "wp":    "4.7",
       "mysql": "5.6"
     }
   },
@@ -88,13 +93,7 @@
     "register":     {
       "css": {
         "bootstrap":                         {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css"
-        },
-        "bootstrap-datepicker":              {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css",
-          "deps": [
-            "bootstrap"
-          ]
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.1/css/bootstrap.min.css"
         },
         "select2":                           {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css",
@@ -102,29 +101,14 @@
             "plugin"
           ]
         },
-        "datatables-bootstrap":              {
-          "url":  "https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css",
+        "datatables":              {
+          "url":  "https://cdn.datatables.net/v/bs5/dt-1.12.1/b-2.2.3/sp-2.0.2/sl-1.4.0/datatables.min.css",
           "deps": [
             "bootstrap"
           ]
         },
-        "datatables-searchpanes":            {
-          "url":  "https://cdn.datatables.net/searchpanes/2.0.0/css/searchPanes.dataTables.min.css",
-          "deps": [
-            "datatables-bootstrap"
-          ]
-        },
-        "datatables-select":                 {
-          "url":  "https://cdn.datatables.net/select/1.3.4/css/select.dataTables.min.css",
-          "deps": [
-            "datatables-bootstrap"
-          ]
-        },
-        "datatables-buttons":                {
-          "url":  "https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css",
-          "deps": [
-            "datatables-bootstrap"
-          ]
+        "jquery/smartwizard":                {
+          "url": "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/css/smart_wizard_all.min.css"
         },
         "global-plugin":                     {},
         "plugin":                            {
@@ -133,10 +117,11 @@
             "global-plugin"
           ]
         },
-        "shield/wizard":                     {
+        "shield/merlin":                     {
           "deps": [
             "bootstrap",
-            "global-plugin"
+            "global-plugin",
+            "jquery/smartwizard"
           ]
         },
         "jquery/featherlight":               {
@@ -170,10 +155,7 @@
         },
         "shield/datatables":                 {
           "deps": [
-            "datatables-select",
-            "datatables-buttons",
-            "datatables-bootstrap",
-            "datatables-searchpanes",
+            "datatables",
             "tp/highlightjs"
           ]
         },
@@ -186,7 +168,7 @@
       },
       "js":  {
         "bootstrap":                         {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/js/bootstrap.bundle.min.js",
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.1/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
@@ -202,41 +184,11 @@
             "plugin"
           ]
         },
-        "bootstrap-datepicker":              {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js",
-          "deps": [
-            "bootstrap"
-          ]
-        },
         "datatables":                        {
-          "url":  "https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js",
+          "url":  "https://cdn.datatables.net/v/bs5/dt-1.12.1/b-2.2.3/sp-2.0.2/sl-1.4.0/datatables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
-          ]
-        },
-        "datatables-bootstrap":              {
-          "url":  "https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js",
-          "deps": [
-            "datatables"
-          ]
-        },
-        "datatables-searchpanes":            {
-          "url":  "https://cdn.datatables.net/searchpanes/2.0.0/js/dataTables.searchPanes.min.js",
-          "deps": [
-            "datatables-bootstrap"
-          ]
-        },
-        "datatables-select":                 {
-          "url":  "https://cdn.datatables.net/select/1.3.4/js/dataTables.select.min.js",
-          "deps": [
-            "datatables-bootstrap"
-          ]
-        },
-        "datatables-buttons":                {
-          "url":  "https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js",
-          "deps": [
-            "datatables-bootstrap"
           ]
         },
         "global-plugin":                     {
@@ -247,7 +199,7 @@
         "plugin":                            {
           "deps": [
             "bootstrap",
-            "datatables-bootstrap",
+            "datatables",
             "global-plugin",
             "shield/navigation",
             "shield/ipanalyse",
@@ -261,8 +213,11 @@
         },
         "lz-string.min":                     {},
         "jquery/fileDownload":               {},
-        "jquery/steps":                      {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"
+        "jquery/smartwizard":                {
+          "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",
+          "deps": [
+            "wp-jquery"
+          ]
         },
         "jquery/featherlight":               {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
@@ -339,10 +294,7 @@
         },
         "shield/datatables/common":          {
           "deps": [
-            "datatables-select",
-            "datatables-buttons",
-            "datatables-bootstrap",
-            "datatables-searchpanes",
+            "datatables",
             "tp/highlightjs"
           ]
         },
@@ -381,11 +333,11 @@
           ],
           "footer": true
         },
-        "shield/wizard":                     {
+        "shield/merlin":                     {
           "deps": [
             "bootstrap",
             "global-plugin",
-            "jquery/steps"
+            "jquery/smartwizard"
           ]
         },
         "shield/login2fa":                   {
@@ -448,8 +400,7 @@
   "version_upgrades": [
     "14.1.1",
     "14.1.4",
-    "16.0.0",
-    "16.0.4"
+    "16.1.2"
   ],
   "action_links":     {
     "remove": null,

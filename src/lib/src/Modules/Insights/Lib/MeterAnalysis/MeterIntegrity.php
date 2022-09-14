@@ -17,7 +17,7 @@ class MeterIntegrity extends MeterBase {
 	}
 
 	protected function title() :string {
-		return __( 'Site Security Integrity', 'wp-simple-firewall' );
+		return __( 'Overall Site Security Integrity', 'wp-simple-firewall' );
 	}
 
 	protected function subtitle() :string {
@@ -26,9 +26,11 @@ class MeterIntegrity extends MeterBase {
 
 	protected function description() :array {
 		return [
-			__( "There are many components to a well-protected WordPress site.", 'wp-simple-firewall' ),
-			__( "This section assesses from an overall perspective and will assist you in managing your WordPress security in the most effective way possible.", 'wp-simple-firewall' ),
-			__( "There is an overall score included here that incorporates all other security overview scores.", 'wp-simple-firewall' ),
+			__( "There are many aspects and considerations that affect the security of a WordPress website.", 'wp-simple-firewall' ),
+			__( "This section assesses your security from an high-level perspective so you can see, at a glance, how you're progressing.", 'wp-simple-firewall' )
+			.' '.__( "It uses a simple grading system from A - F, where A is best, and F is worst.", 'wp-simple-firewall' ),
+			__( "Your overall grade in this section incorporates all other security scores.", 'wp-simple-firewall' )
+			.' '.__( "Use the 'Analysis' buttons in each section to review the areas that might need improvement.", 'wp-simple-firewall' ),
 		];
 	}
 

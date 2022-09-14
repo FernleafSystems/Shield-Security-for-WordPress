@@ -1,7 +1,7 @@
 {
   "16.0": {
     "version":     "16.1",
-    "released_at": 1662379200,
+    "released_at": 1662984000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease161",
       "upgrade": "https://shsec.io/shieldupgradeguide161"
@@ -100,6 +100,21 @@
         ]
       },
       {
+        "type":        "new",
+        "title":       "Removed: Leading Schema Firewall Rule",
+        "description": [
+          "This rules flags too many false positives for members."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Minimum WordPress Version: 4.7",
+        "description": [
+          "Based on Shield telemetry data, we're pushing our minimum supported WordPress version up to 4.7.",
+          "We'll continue to push this upwards as usage data suggests it make sense to do so."
+        ]
+      },
+      {
         "type":     "fixed",
         "pro_only": false,
         "title":    "Various Fixes",
@@ -108,6 +123,52 @@
           "Bug when specifying a particular list when adding/removing an IP address using WP-CLI.",
           "Shield now correctly honours WordPress' built-in 'disallowed keywords' feature when flagging comments for spam.",
           "Shield no longer attempts to solve the issue of invalid 'from' email addresses on a WordPress site."
+        ]
+      }
+    ],
+    "patches":     [
+      {
+        "version":     "4",
+        "released_at": 1663064000,
+        "items":       [
+          {
+            "title":       "Security fix for reported 2FA vulnerability. More info will be released after allowing time for client upgrades.",
+            "type":        "fixed",
+            "description": [
+              "Note: sites are only vulnerable to this particular exploit IF it has an SQL-injection vulnerability caused by another plugin/theme.",
+              "As we always say, please ensure you keep ALL your plugins, themes and WordPress core up-to-date, particularly if they have known vulnerabilities!"
+            ]
+          },
+          {
+            "title": "Reverted minimum WP version to 3.7 to allow for security patching.",
+            "type":  "changes"
+          },
+          {
+            "title": "Bug: an error was generated when assessing some IP addresses.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug: API requests for certain types of options were appearing to fail (they weren't) and generating an error.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
+        "version":     "2",
+        "released_at": 1662985000,
+        "items":       [
+          {
+            "title": "Bug fix unable to start scans.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug fix DB creation error on initialisation on a new website.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug fix error with Overview page when analysing the firewall grade, after removing Leading Schemas.",
+            "type":  "fixed"
+          }
         ]
       }
     ]

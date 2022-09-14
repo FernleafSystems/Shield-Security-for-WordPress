@@ -1,0 +1,72 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section_blurb %}
+	<p>
+		Automatically blocking malicious IP addresses is Shield's most important security feature.
+		All other Shield features link back to this.
+	</p>
+	<p>The reason is simple - when you block malicious IP addresses,
+	   you prevent all security problems associated with those bad bots and their automated hacking attempts, such as:</p>
+	<ul class="list-group list-group-flush mb-3">
+		<li class="list-group-item">brute force login attacks</li>
+		<li class="list-group-item">exploitation of current and future vulnerabilities within plugins/themes on your site</li>
+		<li class="list-group-item">malware injection and exploitation</li>
+		<li class="list-group-item">automated comment SPAM</li>
+		<li class="list-group-item">resource depletion through DoS attacks, excessive probing and any forceful hacking attempts</li>
+	</ul>
+	<p>Shield monitors every IP address that connects to your site.
+	   When they do something bad, such as a failed login or comment SPAM attempt, it starts an "offense counter".</p>
+	<p>When the offense counter hits your limit (default: 10),
+	   the IP address is completely blocked from further site access.
+	   Then, once the IP has stopped accessing your site, to keep the list optimised for performance, the IP is automatically removed from the list.
+	</p>
+	<p><span class="badge text-bg-success">NEW</span>
+		In close partnership with CrowdSec, Shield offers crowd-sourced IP block-lists.
+		This means you can take advantage of knowledge gained by other WordPress sites
+		and instantly block IP addresses when they access your site.
+		[<a href="https://shsec.io/l7" target="_blank">more info</a>]
+	</p>
+{% endblock %}
+
+{% block slide_body_action_area %}
+
+	<form class="form-horizontal merlin-form ajax-form">
+
+		<div class="row">
+			<div class="col-4">
+				Configure IP Blocking
+			</div>
+			<div class="col-8">
+				{{ icwp_macros.formInput_Number( 'offenses', vars.offense_limit, 'Offense Limit', null,
+					'We recommend somewhere between 5 and 10. The smaller the limit, the stricter Shield will be.',null
+				) }}
+
+				<div class="form-group row mt-3">
+					<label class="col-4 col-form-label" for="_block_length">Block Length</label>
+					<div class="col-8">
+						<select name="block_length" id="_block_length">
+							<option value="day">1 Day</option>
+							<option value="week">1 Week</option>
+							<option value="month">1 Month</option>
+						</select>
+						<small class="form-text text-muted d-block">
+							Malicious IPs should be blocked for at least a day.
+						</small>
+					</div>
+				</div>
+
+				<div class="mt-3"></div>
+				{{ icwp_macros.formInput_Checkbox(
+					'cs_block', 'Y', 'Crowd-Sourced IPs', 'Use Crowd-Sourced IP Blocklist',
+					"Crowd-sourced IP block-lists involves sharing your IP block-list with others, and they share them with you.",
+					null, true
+				) }}
+
+				<div class="mt-3"></div>
+				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+				{{ icwp_macros.formInput_Submit2( 'Set IP Blocking Options', null, null, false, 'mt-2' ) }}
+			</div>
+		</div>
+
+	</form>
+{% endblock %}

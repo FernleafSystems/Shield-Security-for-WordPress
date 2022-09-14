@@ -103,14 +103,7 @@ class NavMenuBuilder {
 				'slug'  => $slug.'-antibotsettings',
 				'title' => __( 'AntiBot Config', 'wp-simple-firewall' ),
 				'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_antibot' ),
-				//				'href'  => $con->getModule_IPs()->getUrl_DirectLinkToSection( 'section_antibot' ),
 			],
-			//			[ TODO
-			//				'slug'    => 'ips-download',
-			//				'href'    => $con->getModule_IPs()->createFileDownloadLink( 'db_ip' ),
-			//				'classes' => [ 'shield_file_download' ],
-			//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'CSV' ),
-			//			],
 		];
 
 		return [
@@ -142,14 +135,7 @@ class NavMenuBuilder {
 				'slug'  => $slug.'-settings',
 				'title' => __( 'Configure', 'wp-simple-firewall' ),
 				'href'  => $this->getOffCanvasJavascriptLinkFor( $con->getModule_AuditTrail()->getSlug() ),
-				//				'href'  => $con->getModule_AuditTrail()->getUrl_AdminPage(),
 			],
-			//			[
-			//				'slug'    => 'audit-download',
-			//				'title'   => sprintf( __( 'Download (%s)', 'wp-simple-firewall' ), 'JSON' ),
-			//				'href'    => $con->getModule_AuditTrail()->createFileDownloadLink( 'db_log' ),
-			//				'classes' => [ 'shield_file_download' ],
-			//			],
 			[
 				'slug'   => 'audit-glossary',
 				'title'  => __( 'Glossary', 'wp-simple-firewall' ),
@@ -305,7 +291,6 @@ class NavMenuBuilder {
 	}
 
 	private function integrations() :array {
-		$con = $this->getCon();
 		return [
 			'slug'      => 'integrations',
 			'img'       => $this->getCon()->svgs->raw( 'bootstrap/puzzle.svg' ),
@@ -319,13 +304,11 @@ class NavMenuBuilder {
 					'slug'  => 'integrations-contact',
 					'title' => __( 'Contact Form SPAM', 'wp-simple-firewall' ),
 					'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_spam' ),
-					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( '' ),
 				],
 				[
 					'slug'  => 'integrations-login',
 					'title' => __( 'Custom Login Forms', 'wp-simple-firewall' ),
 					'href'  => $this->getOffCanvasJavascriptLinkFor( 'section_user_forms' ),
-					//					'href'  => $con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_user_forms' ),
 				],
 			],
 		];
@@ -385,7 +368,6 @@ class NavMenuBuilder {
 	}
 
 	private function tools() :array {
-		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
@@ -407,6 +389,12 @@ class NavMenuBuilder {
 				'title'  => __( 'Admin Notes', 'wp-simple-firewall' ),
 				'href'   => $mod->getUrl_SubInsightsPage( 'notes' ),
 				'active' => $this->getInav() === 'notes'
+			],
+			[
+				'slug'   => $slug.'-merlin',
+				'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
+				'href'   => $mod->getUrl_SubInsightsPage( 'merlin' ),
+				'active' => $this->getInav() === 'merlin'
 			],
 			[
 				'slug'   => $slug.'-rules',
@@ -434,7 +422,6 @@ class NavMenuBuilder {
 	}
 
 	private function traffic() :array {
-		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

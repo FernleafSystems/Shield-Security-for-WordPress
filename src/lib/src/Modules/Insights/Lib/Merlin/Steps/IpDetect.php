@@ -1,0 +1,71 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
+
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
+
+class IpDetect extends Base {
+
+	const SLUG = 'ip_detect';
+
+	public function getName() :string {
+		return 'IP Detect';
+	}
+
+	protected function getStepRenderData() :array {
+		$allIPs = $this->gatherUniqueIpSources();
+		return [
+			'hrefs'   => [
+				'visitor_ip' => 'https://shsec.io/visitorip',
+			],
+			'flags'   => [
+				'has_none'     => count( $allIPs ) === 0,
+				'has_only_1'   => count( $allIPs ) === 1, // step is skipped
+				'has_multiple' => count( $allIPs ) > 1,
+			],
+			'vars'    => [
+				'video_id' => '269189603',
+				'the_ip'   => $this->getCon()->this_req->ip,
+				'all_ips'  => $allIPs,
+			],
+			'strings' => [
+				'step_title' => 'Setup Correct IP Address Detection',
+			],
+		];
+	}
+
+	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+		$mod = $this->getCon()->getModule_Plugin();
+		/** @var Shield\Modules\Plugin\Options $opts */
+		$opts = $mod->getOptions();
+
+		$source = $form[ 'ip_source' ] ?? '';
+		if ( empty( $source ) ) {
+			throw new \Exception( 'Not a valid request' );
+		}
+		if ( !in_array( $source, $opts->getSelectOptionValueKeys( 'visitor_address_source' ) ) ) {
+			throw new \Exception( 'Not a valid visitor IP Source' );
+		}
+
+		$opts->setVisitorAddressSource( $source );
+		$mod->saveModOptions();
+
+		$resp = parent::processStepFormSubmit( $form );
+		$resp->success = true;
+		$resp->msg = __( 'Visitor IP address source set', 'wp-simple-firewall' );
+		return $resp;
+	}
+
+	private function gatherUniqueIpSources() :array {
+		$allIPs = [];
+		foreach ( ( new RequestIpDetect() )->getPublicRequestIPData()[ 'all_ips' ] as $source => $ips ) {
+			$allIPs[ $source ] = current( $ips );
+		}
+		return array_unique( $allIPs );
+	}
+
+	public function skipStep() :bool {
+		return count( $this->gatherUniqueIpSources() ) === 1;
+	}
+}

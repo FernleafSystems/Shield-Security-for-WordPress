@@ -83,6 +83,7 @@ class BuildForDisplay {
 						$UI->getSectionWarnings( $sect[ 'slug' ] )
 					);
 					$sections[ $sectionKey ][ 'notices' ] = $UI->getSectionNotices( $sect[ 'slug' ] );
+					$sections[ $sectionKey ][ 'critical_warnings' ] = $UI->getSectionCriticalWarnings( $sect[ 'slug' ] );
 				}
 			}
 		}

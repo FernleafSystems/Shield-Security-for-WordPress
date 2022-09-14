@@ -36,7 +36,7 @@ class LoadConfig {
 		$con = $this->getCon();
 		$WPP = Services::WpPlugins();
 
-		$def = $this->fromWp();
+		$def = Services::WpGeneral()->getOption( $this->store_key );
 		$rebuild = empty( $def ) || !is_array( $def );
 
 		$specHash = sha1_file( $this->path );
@@ -77,11 +77,10 @@ class LoadConfig {
 	}
 
 	/**
-	 * @deprecated 16.0 - remove the empty()?
+	 * @deprecated 16.2
 	 * @return array|null
 	 */
 	public function fromWp() {
-		$def = Services::WpGeneral()->getOption( $this->store_key );
-		return empty( $def ) ? Transient::Get( $this->store_key ) : $def;
+		return Services::WpGeneral()->getOption( $this->store_key );
 	}
 }

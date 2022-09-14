@@ -15,7 +15,7 @@ class BuildEncryptedFilePayload extends BaseOps {
 		$srvEnc = Services::Encrypt();
 		$payload = $srvEnc->sealData( Services::WpFs()->getFileContent( $path ), $publicKey );
 		if ( !$payload->success ) {
-			throw new \Exception( 'File contents could not be encrypted' );
+			throw new \Exception( 'File contents could not be encrypted with message: '.$payload->message );
 		}
 		$encoded = wp_json_encode( $payload->getRawData() );
 		if ( empty( $encoded ) || !is_string( $encoded ) ) {

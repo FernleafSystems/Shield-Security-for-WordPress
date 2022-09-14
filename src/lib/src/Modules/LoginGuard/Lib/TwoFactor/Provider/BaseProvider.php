@@ -22,6 +22,11 @@ abstract class BaseProvider {
 	 */
 	private $user;
 
+	/**
+	 * @var string
+	 */
+	protected $workingHashedLoginNonce;
+
 	public function __construct() {
 	}
 
@@ -34,11 +39,12 @@ abstract class BaseProvider {
 	/**
 	 * Assumes this is only called on active profiles
 	 */
-	public function validateLoginIntent( string $loginNonce ) :bool {
+	public function validateLoginIntent( string $hashedNonce ) :bool {
 		$otpSuccess = false;
 		$otp = $this->fetchCodeFromRequest();
 		if ( !empty( $otp ) ) {
-			$otpSuccess = $this->processOtp( $otp, $loginNonce );
+			$this->workingHashedLoginNonce = $hashedNonce;
+			$otpSuccess = $this->processOtp( $otp );
 			$this->auditLogin( $otpSuccess );
 		}
 		return $otpSuccess;
@@ -115,7 +121,7 @@ abstract class BaseProvider {
 		return '';
 	}
 
-	abstract protected function processOtp( string $otp, string $loginNonce = '' ) :bool;
+	abstract protected function processOtp( string $otp ) :bool;
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.

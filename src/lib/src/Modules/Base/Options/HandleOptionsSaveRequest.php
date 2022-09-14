@@ -14,10 +14,13 @@ class HandleOptionsSaveRequest {
 	private $form;
 
 	public function handleSave() :bool {
-		$form = $this->getForm();
-		$this->setMod( $this->getCon()->getModule( $form[ 'working_mod' ] ) );
-
 		try {
+			$form = $this->getForm();
+			if ( empty( $form ) ) {
+				throw new \Exception( 'options form parameters were empty.' );
+			}
+
+			$this->setMod( $this->getCon()->getModule( $form[ 'working_mod' ] ) );
 			$con = $this->getCon();
 			if ( !$con->isPluginAdmin() ) {
 				throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );

@@ -40,7 +40,6 @@ class Strings {
 				'btn_save'          => __( 'Save Options' ),
 				'btn_options'       => __( 'Options' ),
 				'btn_help'          => __( 'Help' ),
-				'btn_wizards'       => $this->getMod()->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
 				'go_to_settings'    => __( 'Configuration', 'wp-simple-firewall' ),
 				'on'                => __( 'On', 'wp-simple-firewall' ),
 				'off'               => __( 'Off', 'wp-simple-firewall' ),
@@ -124,12 +123,18 @@ class Strings {
 				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
-				'wphashes_token'      => 'WPHashes.com API Token',
+				'wphashes_token'      => 'ShieldPRO API Token',
 				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
 
-				'search_select' => [
+				'search_select'   => [
 					'title' => ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
-				]
+				],
+				'running_version' => sprintf( '%s %s', $con->getHumanName(),
+					Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
+						sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
+							Services::WpGeneral()->getAdminUrl_Updates(), $con->getVersion() )
+						: $con->getVersion()
+				),
 			],
 			$this->getAdditionalDisplayStrings()
 		);

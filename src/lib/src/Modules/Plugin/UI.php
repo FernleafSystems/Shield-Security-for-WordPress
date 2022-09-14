@@ -30,33 +30,6 @@ class UI extends BaseShield\UI {
 		];
 	}
 
-	public function buildInsightsVars_Wizard( $wizard, $step ) :array {
-		$data = [];
-		switch ( $wizard ) {
-			case 'welcome':
-				$data = [
-					'steps'       => [
-						'step1' => 'content for step1',
-						'step2' => 'content for step2',
-						'step3' => 'content for step3',
-					],
-					'currentStep' => 'step'.$step,
-					'ajax'        => [
-						'wizard_step' => $this->getMod()->getAjaxActionData( 'wizard_step', true ),
-					],
-					'strings'     => [
-						'hohoho' => sprintf( __( '%s %s Page' ), $wizard, $this->getCon()->getHumanName() ),
-					],
-					'showSideNav' => 0,
-				];
-				break;
-			default:
-				break;
-		}
-
-		return $data;
-	}
-
 	public function getSectionWarnings( string $section ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();

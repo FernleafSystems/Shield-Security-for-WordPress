@@ -2,8 +2,6 @@ jQuery( document ).ready( function () {
 
 	let $body = jQuery( 'body' );
 	let $theForm = jQuery( 'form#loginform' );
-	let userID = jQuery( 'input[type=hidden]#wp_user_id' ).val();
-	let loginNonce = jQuery( 'input[type=hidden]#login_nonce' ).val();
 	let $u2fStart = jQuery( 'input#btn_u2f_start' );
 
 	jQuery( 'input[type=text]:first', $theForm ).focus();
@@ -57,8 +55,8 @@ jQuery( document ).ready( function () {
 		$this.attr( 'disabled', true );
 
 		let reqParams = $emailInput.data( 'ajax_intent_email_send' );
-		reqParams.wp_user_id = userID;
-		reqParams.login_nonce = loginNonce;
+		reqParams.wp_user_id = jQuery( 'input[type=hidden]#wp_user_id' ).val();
+		reqParams.login_nonce = jQuery( 'input[type=hidden]#login_nonce' ).val();
 		$body.addClass( 'shield-busy' );
 		jQuery.post( reqParams.ajaxurl, reqParams, function ( response ) {
 				let msg = 'Communications error with site.';
@@ -141,5 +139,4 @@ jQuery( document ).ready( function () {
 			  } )
 			  .catch();
 	}
-
 } );

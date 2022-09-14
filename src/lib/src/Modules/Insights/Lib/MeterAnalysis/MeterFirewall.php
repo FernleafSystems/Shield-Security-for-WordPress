@@ -41,7 +41,6 @@ class MeterFirewall extends MeterBase {
 				'field_truncation',
 				'php_code',
 				'exe_file_uploads',
-				'leading_schema',
 				'aggressive'
 			]
 		);

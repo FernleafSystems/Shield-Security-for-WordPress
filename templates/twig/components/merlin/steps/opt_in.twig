@@ -1,0 +1,49 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section %}
+	<div class="row">
+		<div class="col-8">
+			<p>Jump into our Shield Security Facebook group where you can ask questions
+			   from our active Shield community and keep up-to-date on our latest news.</p>
+		</div>
+		<div class="col-4">
+			<a href="{{ hrefs.facebook }}"
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.facebook|raw }}
+				Join FB Group!
+			</a>
+		</div>
+	</div>
+
+	<div class="row mt-4">
+		<div class="col-8">
+			<p>Follow us on Twitter for news, updates, and promotions.</p>
+		</div>
+		<div class="col-4">
+			<a href="{{ hrefs.twitter }}"
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.twitter|raw }}
+				Follow On Twitter!
+			</a>
+		</div>
+	</div>
+
+	<div class="row mt-4">
+		<div class="col-8">
+			<p>Join our newsletter to get alerted when we have new blog posts and announcements.</p>
+		</div>
+		<div class="col-4">
+			<a href="{{ hrefs.email }}"
+			   class="button d-block w-100 text-center p-3"
+			   target="_blank"
+			>
+				{{ imgs.email|raw }}
+				Join Our Newsletter!
+			</a>
+		</div>
+	</div>
+{% endblock %}

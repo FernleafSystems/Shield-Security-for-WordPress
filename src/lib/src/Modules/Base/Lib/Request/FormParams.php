@@ -35,10 +35,13 @@ class FormParams {
 
 				case 'none':
 				default:
+					if ( empty( $raw ) ) {
+						$raw = '';
+					}
 					break;
 			}
 
-			parse_str( $raw, $formParams );
+			parse_str( (string)$raw, $formParams );
 		}
 
 		return is_array( $formParams ) ? $formParams : [];

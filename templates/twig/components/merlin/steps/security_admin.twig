@@ -1,0 +1,37 @@
+{% extends '/components/merlin/steps/base.twig' %}
+
+{% block slide_body_video_section_blurb %}
+	<p>When the Security Admin feature is switched-on, only administrators that know the Security PIN will have
+	access to the Shield Security plugin.</p>
+	<p>This is particularly useful for websites with multiple admins, but where not all of them are familiar
+	with how to manage the site's security.</p>
+	<p>With the Security Admin enabled, you'll be able to restrict:</p>
+	<ul class="list-group list-group-flush mb-3">
+		<li class="list-group-item">who can view/change Shield Security settings</li>
+		<li class="list-group-item">who can deactivate and uninstall the Shield Security plugin</li>
+		<li class="list-group-item">who can modify key WordPress settings such as the home URL, permalinks, and others</li>
+		<li class="list-group-item">who can create or delete other admin users</li>
+	</ul>
+	<p>It's also a great extra layer of security in-case someone gets unauthorized access to your WordPress admin dashboard.</p>
+	<p>To turn this option on, please supply a password below (aka 'Security PIN').</p>
+{% endblock %}
+
+{% block slide_body_action_area %}
+
+	<form class="form-horizontal merlin-form ajax-form">
+
+		<div class="row">
+			<div class="col-4">
+				Supply A Security Access PIN
+			</div>
+			<div class="col-8">
+				{{ icwp_macros.formInput_Password( 'SecAdminPIN', '', 'Access PIN', '', 'Do not forget this key' ) }}
+				{{ icwp_macros.formInput_Password( 'SecAdminPINConfirm', '', 'Confirm PIN', 'Confirm PIN' ) }}
+
+				{{ icwp_macros.formInput_Hidden( 'step_slug', vars.step_slug ) }}
+				{{ icwp_macros.formInput_Submit2( 'Turn On Security Admin', null, null, false, 'mt-2' ) }}
+			</div>
+		</div>
+
+	</form>
+{% endblock %}

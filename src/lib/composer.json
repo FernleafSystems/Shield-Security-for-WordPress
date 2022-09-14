@@ -20,7 +20,7 @@
   },
   "require":           {
     "php":                                   ">=7.0",
-    "dolondro/google-authenticator":         "^2.1",
+    "dolondro/google-authenticator":         "^2.2",
     "fernleafsystems/wordpress-plugin-core": "^1.1",
     "fernleafsystems/zxcvbn-php":            "^1.0",
     "nesbot/carbon":                         "^1.39",
@@ -38,7 +38,6 @@
     },
     "classmap": [
       "../processors/",
-      "../wizards/",
       "../lib/custom/"
     ],
     "files":    [

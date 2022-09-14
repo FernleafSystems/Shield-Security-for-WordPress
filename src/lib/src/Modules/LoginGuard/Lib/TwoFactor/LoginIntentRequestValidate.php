@@ -5,8 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
+	InvalidLoginIntentException,
+	LoginCancelException,
 	NoActiveProvidersForUserException,
-	NoLoginIntentForUserException,
 	TooManyAttemptsException
 };
 
@@ -17,18 +18,24 @@ class LoginIntentRequestValidate {
 
 	/**
 	 * @throws CouldNotValidate2FA
+	 * @throws LoginCancelException
+	 * @throws InvalidLoginIntentException
 	 * @throws NoActiveProvidersForUserException
-	 * @throws NoLoginIntentForUserException
 	 * @throws TooManyAttemptsException
 	 */
-	public function run( string $loginNonce ) :bool {
+	public function run( string $plainNonce, bool $isCancel = false ) :bool {
 		/** @var Shield\Modules\LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
 		$user = $this->getWpUser();
 
-		if ( empty( $mfaCon->getActiveLoginIntents( $user )[ $loginNonce ] ) ) {
-			throw new NoLoginIntentForUserException();
+		if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {
+			throw new InvalidLoginIntentException();
+		}
+
+		if ( $isCancel ) {
+			// only allowed to cancel if the intent is verified.
+			throw new LoginCancelException();
 		}
 
 		$providers = $mfaCon->getProvidersForUser( $user, true );
@@ -39,29 +46,22 @@ class LoginIntentRequestValidate {
 		$validated = false;
 		foreach ( $providers as $provider ) {
 			$provider->setUser( $user );
-			if ( $provider->validateLoginIntent( $loginNonce ) ) {
+			if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
 				$provider->postSuccessActions();
 				$validated = true;
 				break;
 			}
 		}
 
-		// Always remove intent after success, otherwise increment attempts.
-		$intents = $mfaCon->getActiveLoginIntents( $user );
-		if ( $validated ) {
-			unset( $intents[ $loginNonce ] );
-		}
-		else {
-			$intents[ $loginNonce ][ 'attempts' ]++;
-		}
-		$this->getCon()->getUserMeta( $user )->login_intents = $intents;
-
 		if ( !$validated ) {
-			if ( empty( $mfaCon->getActiveLoginIntents( $user )[ $loginNonce ] ) ) {
+			throw new CouldNotValidate2FA();
+			if ( empty( $mfaCon->getActiveLoginIntents( $user )[ $plainNonce ] ) ) {
 				throw new TooManyAttemptsException();
 			}
-			throw new CouldNotValidate2FA();
 		}
+
+		// Always remove intents after success.
+		$this->getCon()->getUserMeta( $user )->login_intents = [];
 
 		return true;
 	}

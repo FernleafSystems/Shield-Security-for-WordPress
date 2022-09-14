@@ -116,7 +116,7 @@ class Sms extends BaseProvider {
 		return $this;
 	}
 
-	protected function processOtp( string $otp, string $loginNonce = '' ) :bool {
+	protected function processOtp( string $otp ) :bool {
 		$meta = $this->getCon()->getUserMeta( $this->getUser() );
 		return !empty( $meta->sms_registration[ 'code' ] )
 			   && $meta->sms_registration[ 'code' ] === strtoupper( $otp );
