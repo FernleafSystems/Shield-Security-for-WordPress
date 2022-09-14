@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -30,6 +31,16 @@ class ModCon extends BaseShield\ModCon {
 				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
 			}
 		}
+	}
+
+	public function getMainWpData() :array {
+		return array_merge( parent::getMainWpData(), [
+			'grades' => [
+				'integrity' => ( new Components() )
+					->setCon( $this->getCon() )
+					->getComponent( 'all' )
+			]
+		] );
 	}
 
 	public function getUrl_IpAnalysis( string $ip ) :string {

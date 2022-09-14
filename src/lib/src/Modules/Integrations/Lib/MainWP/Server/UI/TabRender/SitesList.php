@@ -12,7 +12,7 @@ class SitesList extends BaseTab {
 	const TAB_SLUG = 'sites_list';
 
 	protected function getPageSpecificData() :array {
-		$mod = $this->getMod();
+		$modInsights = $this->getCon()->getModule_Insights();
 		$mwp = $this->getCon()->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
@@ -68,14 +68,14 @@ class SitesList extends BaseTab {
 					$statsHead[ 'with_issues' ]++;
 				}
 
-				$shd[ 'href_issues' ] = add_query_arg(
-					[
-						'newWindow' => 'yes',
-						'websiteid' => $site[ 'id' ],
-						'location'  => base64_encode( $this->getScanPageUrlPart() )
-					],
-					Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' )
-				);
+				$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_ScansResults() );
+				$gradeLetter = $sync->modules[ 'insights' ][ 'grades' ][ 'integrity' ][ 'letter_score' ] ?? '-';
+				$shd[ 'grades' ] = [
+					'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_SubInsightsPage( 'overview' ) ),
+					'integrity' => $gradeLetter,
+					'good'      => in_array( $gradeLetter, [ 'A', 'B' ] ),
+				];
+
 				$shd[ 'href_manage' ] = $this->createInternalExtensionHref( [
 					'tab'     => 'site_manage',
 					'site_id' => $site[ 'id' ],
@@ -125,6 +125,7 @@ class SitesList extends BaseTab {
 				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
 				'act_license'         => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
 				'act_mwp'             => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
+				'overall_grade'       => __( 'Grade', 'wp-simple-firewall' ),
 			]
 		];
 	}
@@ -135,6 +136,18 @@ class SitesList extends BaseTab {
 			$WP->getAdminUrl(),
 			'',
 			$this->getCon()->getModule_Insights()->getUrl_ScansResults()
+		);
+	}
+
+	private function getJumpUrlFor( string $siteID, string $page ) :string {
+		return add_query_arg(
+			[
+				'newWindow'  => 'yes',
+				'websiteid'  => $siteID,
+				'_opennonce' => wp_create_nonce( 'mainwp-admin-nonce' ),
+				'location'   => base64_encode( str_replace( Services::WpGeneral()->getAdminUrl(), '', $page ) )
+			],
+			Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' )
 		);
 	}
 

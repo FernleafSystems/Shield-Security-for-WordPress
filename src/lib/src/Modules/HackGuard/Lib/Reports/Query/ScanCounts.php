@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
+/**
+ * TODO: FIX!
+ */
 class ScanCounts {
 
 	use ModConsumer;
