@@ -19,7 +19,7 @@ class Counts {
 
 	public function all() :array {
 		array_map( function ( string $type ) {
-			error_log( var_export( $this->getCount( $type ), true ) );
+			$this->getCount( $type );
 		}, [
 			'malware_files',
 			'abandoned',
