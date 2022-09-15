@@ -128,6 +128,16 @@
     ],
     "patches":     [
       {
+        "version":     "6",
+        "released_at": 1663240500,
+        "items":       [
+          {
+            "title": "Bug Fix: for Rate Limiting Rule failing to build",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "5",
         "released_at": 1663236000,
         "items":       [
@@ -147,16 +157,16 @@
             ]
           },
           {
-            "title": "QR Code Rendered Locally.",
-            "type":  "security",
+            "title":       "QR Code Rendered Locally.",
+            "type":        "security",
             "description": [
               "It was pointed out that there are other means of generating QR codes that are preferrable to sending data to Google's API.",
               "QR Code images are now rendered locally on the browser using Javascript."
             ]
           },
           {
-            "title": "Logged-In User Won't Be Rated Limited.",
-            "type":  "change",
+            "title":       "Logged-In User Won't Be Rated Limited.",
+            "type":        "change",
             "description": [
               "If you're logged-into a site, and you trigger the rate limiter, you won't be limited.",
               "You may still trigger the rate limiter if you issue non-authenticated requests, such a REST API requests."
