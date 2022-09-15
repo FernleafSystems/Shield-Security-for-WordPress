@@ -129,13 +129,13 @@
     "patches":     [
       {
         "version":     "5",
-        "released_at": 1663160795,
+        "released_at": 1663236000,
         "items":       [
           {
             "title":       "Improvements to MainWP Extension",
             "type":        "improved",
             "description": [
-              "As part of our direction to enhance our MainWP extension we've made a number of small fixes and tweaks."
+              "As part of our plans to enhance our MainWP extension we've made a number of fixes and tweaks."
             ]
           },
           {
@@ -143,14 +143,14 @@
             "type":        "security",
             "description": [
               "It was pointed out that the storage of plugin/theme hashes locally were accessible on nginx servers.",
-              "It made info about which plugins/themes were installed publicly available for some. Not a security problem in itself, but not ideal either."
+              "It made info publicly available about which plugins/themes were installed, for some sites. Not a security problem in itself, but not ideal either."
             ]
           },
           {
             "title": "QR Code Rendered Locally.",
             "type":  "security",
             "description": [
-              "It was pointed out that there are other means of generated QR code images rather than sending the data to Google's API.",
+              "It was pointed out that there are other means of generating QR codes that are preferrable to sending data to Google's API.",
               "QR Code images are now rendered locally on the browser using Javascript."
             ]
           },
@@ -158,7 +158,8 @@
             "title": "Logged-In User Won't Be Rated Limited.",
             "type":  "change",
             "description": [
-              "If you're logged-into a site, and you trigger the rate limiter, you won't be limited."
+              "If you're logged-into a site, and you trigger the rate limiter, you won't be limited.",
+              "You may still trigger the rate limiter if you issue non-authenticated requests, such a REST API requests."
             ]
           }
         ]
