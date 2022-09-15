@@ -26,6 +26,11 @@ class Controller extends ExecOnceModConsumer {
 		}
 	}
 
+	public function isServerExtensionLoaded() :bool {
+		$extData = $this->getCon()->mwpVO->official_extension_data;
+		return !empty( $extData );
+	}
+
 	/**
 	 * @throws \Exception
 	 */
@@ -65,7 +70,6 @@ class Controller extends ExecOnceModConsumer {
 		$mwpVO->child_file = $con->getRootFile();
 
 		$mwpVO->is_server = true;
-
 	}
 
 	private function isMainWPChildActive() :bool {

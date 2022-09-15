@@ -23,8 +23,7 @@ class SitesListTableHandler extends BaseRender {
 
 			// We double-check to ensure that our extension has been successfully registered by this stage.
 			// Prevents a fatal error that can be caused if we can't get our extension data when the extension reg has failed.
-			$extData = $this->getCon()->mwpVO->official_extension_data;
-			if ( !empty( $extData ) ) {
+			if ( $this->getCon()->getModule_Integrations()->getControllerMWP()->isServerExtensionLoaded() ) {
 				$columns[ 'shield' ] = 'Shield';
 
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
