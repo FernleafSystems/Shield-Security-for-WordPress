@@ -13,8 +13,9 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 	protected function run() {
 
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
-
-			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
+			$con = $this->getCon();
+			if ( $con->getModule_Integrations()->getControllerMWP()->isServerExtensionLoaded()
+				 && 'mainwp_page_'.$con->mwpVO->extension->page === $hook ) {
 
 				$enqueues[ Enqueue::JS ][] = 'shield/integrations/mainwp-server';
 				$enqueues[ Enqueue::CSS ][] = 'shield/integrations/mainwp-server';

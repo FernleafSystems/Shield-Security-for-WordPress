@@ -94,6 +94,7 @@ class MalFalsePositiveReporter {
 		/** @var Modules\HackGuard\Options $opts */
 		$opts = $this->getOptions();
 		return $this->getCon()->is_mode_live
+			   && version_compare( $this->getCon()->getVersion(), '16.2', '>=' )
 			   && $opts->isMalUseNetworkIntelligence()
 			   && !$this->getReportCache()
 						->setReportHash( $reportHash )
