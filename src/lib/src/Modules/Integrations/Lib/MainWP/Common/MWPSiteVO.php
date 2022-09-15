@@ -14,8 +14,6 @@ use MainWP\Dashboard\MainWP_DB;
 class MWPSiteVO extends DynPropertiesClass {
 
 	/**
-	 * @param int $siteID
-	 * @return MWPSiteVO
 	 * @throws \Exception
 	 */
 	public static function LoadByID( int $siteID ) :MWPSiteVO {

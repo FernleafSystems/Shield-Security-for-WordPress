@@ -17,6 +17,20 @@ class Counts {
 
 	private $counts;
 
+	public function all() :array {
+		array_map( function ( string $type ) {
+			$this->getCount( $type );
+		}, [
+			'malware_files',
+			'abandoned',
+			'plugin_files',
+			'theme_files',
+			'assets_vulnerable',
+			'wp_files',
+		] );
+		return $this->getCounts();
+	}
+
 	public function countMalware() :int {
 		return $this->getCount( 'malware_files' );
 	}

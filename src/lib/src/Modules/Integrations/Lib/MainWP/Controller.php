@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Controller extends ExecOnceModConsumer {
 
@@ -25,6 +24,11 @@ class Controller extends ExecOnceModConsumer {
 		catch ( \Exception $e ) {
 //			error_log( 'client side exception: '.$e->getMessage() );
 		}
+	}
+
+	public function isServerExtensionLoaded() :bool {
+		$extData = $this->getCon()->mwpVO->official_extension_data;
+		return !empty( $extData );
 	}
 
 	/**
@@ -52,6 +56,8 @@ class Controller extends ExecOnceModConsumer {
 	private function runServerSide() {
 		$con = $this->getCon();
 		$mwpVO = $con->mwpVO ?? new MainWPVO();
+		$con->mwpVO = $mwpVO;
+
 		$mwpVO->is_server = false;
 
 		if ( !$this->isMainWPServerActive() ) {
@@ -64,8 +70,6 @@ class Controller extends ExecOnceModConsumer {
 		$mwpVO->child_file = $con->getRootFile();
 
 		$mwpVO->is_server = true;
-
-		$con->mwpVO = $mwpVO;
 	}
 
 	private function isMainWPChildActive() :bool {

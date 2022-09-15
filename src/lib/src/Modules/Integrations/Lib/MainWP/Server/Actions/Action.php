@@ -12,9 +12,6 @@ class Action {
 	use MainWP\Common\Consumers\MWPSiteConsumer;
 
 	/**
-	 * @param string $actionToExecute
-	 * @param array  $params
-	 * @return array
 	 * @throws \Exception
 	 */
 	public function run( string $actionToExecute, array $params = [] ) :array {

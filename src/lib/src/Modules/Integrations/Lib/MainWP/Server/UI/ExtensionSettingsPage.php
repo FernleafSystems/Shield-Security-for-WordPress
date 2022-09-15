@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\PageRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ExtensionSettingsPage extends ExecOnceModConsumer {
@@ -13,8 +13,9 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 	protected function run() {
 
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
-
-			if ( 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
+			$con = $this->getCon();
+			if ( $con->getModule_Integrations()->getControllerMWP()->isServerExtensionLoaded()
+				 && 'mainwp_page_'.$con->mwpVO->extension->page === $hook ) {
 
 				$enqueues[ Enqueue::JS ][] = 'shield/integrations/mainwp-server';
 				$enqueues[ Enqueue::CSS ][] = 'shield/integrations/mainwp-server';
@@ -59,23 +60,32 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 		do_action( 'mainwp_pagefooter_extensions', $this->getCon()->getRootFile() );
 		$mainwpFooter = ob_get_clean();
 
-		$currentTab = empty( $req->query( 'tab' ) ) ? 'sites' : $req->query( 'tab' );
+		$currentTab = empty( $req->query( 'tab' ) ) ? 'sites_list' : $req->query( 'tab' );
 		if ( !$con->isPremiumActive() ) {
-			$pageRenderer = new PageRender\NotShieldPro();
+			$pageRenderer = new TabRender\NotShieldPro();
 		}
 		elseif ( $this->serverPluginNeedsUpdate() ) {
-			$pageRenderer = new PageRender\PluginOutOfDate();
+			$pageRenderer = new TabRender\PluginOutOfDate();
 		}
 		elseif ( !Controller::isMainWPServerVersionSupported() ) {
-			$pageRenderer = new PageRender\MwpOutOfDate();
+			$pageRenderer = new TabRender\MwpOutOfDate();
 		}
 		else {
-			switch ( $currentTab ) {
-				case 'sites':
-					$pageRenderer = new PageRender\SitesList();
+			/** @var TabRender\BaseTab[] $pages */
+			$pages = [
+				TabRender\SitesList::class,
+				TabRender\SiteManageFrame::class,
+			];
+
+			foreach ( $pages as $page ) {
+				if ( $currentTab == $page::TAB_SLUG ) {
+					$pageRenderer = new $page();
 					break;
-				default:
-					throw new \Exception( 'Not a supported tab' );
+				}
+			}
+
+			if ( empty( $pageRenderer ) ) {
+				throw new \Exception( 'Not a supported tab: '.$currentTab );
 			}
 		}
 
@@ -86,16 +96,6 @@ class ExtensionSettingsPage extends ExecOnceModConsumer {
 					'mainwp_footer' => $mainwpFooter,
 					'page_inner'    => $pageRenderer->setMod( $this->getMod() )->render(),
 				],
-				'vars'    => [
-					'submenu' => [
-						[
-							'title'  => 'Sites Dashboard',
-							'href'   => add_query_arg( [ 'tab' => 'sites' ], $req->getUri() ),
-							'icon'   => 'globe',
-							'active' => $currentTab === 'sites',
-						]
-					],
-				]
 			] );
 		}
 		catch ( \Exception $e ) {

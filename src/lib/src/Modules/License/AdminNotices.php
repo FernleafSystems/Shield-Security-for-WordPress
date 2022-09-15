@@ -26,7 +26,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'notice_attributes' => [],
 			'strings'           => [
 				'title'           => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( '%s API Token Missing', 'wp-simple-firewall' ), 'WPHashes.com' ) ),
+					sprintf( __( '%s API Token Missing', 'wp-simple-firewall' ), 'ShieldPRO' ) ),
 				'messages'        => [
 					__( "This site appears to be activated for PRO, but there's been a problem obtaining an API token.", 'wp-simple-firewall' ),
 					implode( ' ', [

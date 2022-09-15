@@ -34,6 +34,10 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
+					'rule'         => Conditions\IsLoggedInNormal::SLUG,
+					'invert_match' => true
+				],
+				[
 					'condition' => Conditions\IsRateLimitExceeded::SLUG,
 					'params'    => [
 						'limit_count'     => $opts->getLimitRequestCount(),

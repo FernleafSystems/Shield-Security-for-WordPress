@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use Dolondro\GoogleAuthenticator\{
 	GoogleAuthenticator,
-	QrImageGenerator\GoogleQrImageGenerator,
 	Secret,
 	SecretFactory
 };
@@ -40,7 +39,8 @@ class GoogleAuth extends BaseProvider {
 		$validatedProfile = $this->hasValidatedProfile();
 		return [
 			'hrefs'   => [
-				'src_chart_url' => $validatedProfile ? '' : $this->getQrImage(),
+				'qr_code_auth' => $validatedProfile ? '' : $this->getQrUrl(),
+				//				'src_chart_url' => $validatedProfile ? '' : $this->getQrImage(), // opt now for JS-based render
 			],
 			'vars'    => [
 				'ga_secret' => $validatedProfile ? $this->getSecret() : $this->resetSecret(),
@@ -65,20 +65,18 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	private function getQrImage() :string {
+	private function getQrUrl() :string {
 		$secret = $this->getGaSecret();
-		try {
-			$qrImage = $this->getGaRegisterChartUrl( $secret );
-		}
-		catch ( \Exception $e ) {
-			$qrImage = $this->getGaRegisterChartUrlShieldNet( $secret );
-		}
+		return sprintf( 'otpauth://totp/test?secret=%s&issuer=%s&label=%s', $secret->getSecretKey(), $secret->getIssuer(), $secret->getLabel() );
+	}
 
-		return 'data:image/png;base64, '.$qrImage;
+	private function getQrImage() :string {
+		return 'data:image/png;base64, '.$this->getGaRegisterChartUrlShieldNet();
 	}
 
 	/**
 	 * @throws \Exception
+	 * @deprecated 16.2
 	 */
 	private function getGaRegisterChartUrl( Secret $secret ) :string {
 		$rawImage = Services::HttpRequest()
@@ -92,7 +90,8 @@ class GoogleAuth extends BaseProvider {
 		return base64_encode( $rawImage );
 	}
 
-	private function getGaRegisterChartUrlShieldNet( Secret $secret ) :string {
+	private function getGaRegisterChartUrlShieldNet() :string {
+		$secret = $this->getGaSecret();
 		return ( new GenerateGoogleAuthQrCode() )
 			->setMod( $this->getCon()->getModule_Plugin() )
 			->getCode(

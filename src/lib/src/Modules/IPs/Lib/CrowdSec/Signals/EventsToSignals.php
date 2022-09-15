@@ -82,22 +82,31 @@ class EventsToSignals extends EventsListener {
 						   );
 			}
 
-			// and finally, trigger a send to Crowdsec
+			// and finally, trigger send to Crowdsec
 			$this->triggerSignalsCron();
 		}
 	}
 
 	private function getMilliseconds() :string {
-		return substr(
-			function_exists( 'microtime' ) ? explode( '.', (string)@microtime( true ) )[ 1 ] : '0', 0, 6
-		);
+		$milli = '0';
+		if ( function_exists( 'microtime' ) ) {
+			$ts = microtime();
+			if ( !empty( $ts ) && strpos( $ts, ' ' ) ) {
+				$ts = explode( ' ', $ts )[ 0 ];
+				if ( strpos( $ts, '.' ) ) {
+					$milli = rtrim( substr( explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
+				}
+			}
+		}
+		return strlen( $milli ) > 0 ? $milli : '0';
 	}
 
 	private function triggerSignalsCron() {
 		$con = $this->getCon();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
 			wp_schedule_single_event(
-				Services::Request()->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', MINUTE_IN_SECONDS*5 ),
+				Services::Request()
+						->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', MINUTE_IN_SECONDS*5 ),
 				$con->prefix( 'adhoc_cron_crowdsec_signals' )
 			);
 		}
