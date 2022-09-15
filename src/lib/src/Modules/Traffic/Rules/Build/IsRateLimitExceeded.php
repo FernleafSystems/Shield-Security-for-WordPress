@@ -34,8 +34,7 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 					'invert_match' => true
 				],
 				[
-					'rule'         => Conditions\IsLoggedInNormal::SLUG,
-					'invert_match' => true
+					'condition' => Conditions\IsNotLoggedInNormal::SLUG,
 				],
 				[
 					'condition' => Conditions\IsRateLimitExceeded::SLUG,
