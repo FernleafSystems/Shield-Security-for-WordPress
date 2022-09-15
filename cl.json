@@ -153,6 +153,13 @@
               "It was pointed out that there are other means of generated QR code images rather than sending the data to Google's API.",
               "QR Code images are now rendered locally on the browser using Javascript."
             ]
+          },
+          {
+            "title": "Logged-In User Won't Be Rated Limited.",
+            "type":  "change",
+            "description": [
+              "If you're logged-into a site, and you trigger the rate limiter, you won't be limited."
+            ]
           }
         ]
       },
