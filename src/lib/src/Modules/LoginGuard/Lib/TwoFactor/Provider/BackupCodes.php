@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaBackupCodeAdd;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaBackupCodeDelete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,8 +20,8 @@ class BackupCodes extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_backup_codes_gen' => $this->getMod()->getAjaxActionData( 'profile_backup_codes_gen' ),
-				'profile_backup_codes_del' => $this->getMod()->getAjaxActionData( 'profile_backup_codes_del' ),
+				'profile_backup_codes_gen' => ActionData::Build( MfaBackupCodeAdd::SLUG ),
+				'profile_backup_codes_del' => ActionData::Build( MfaBackupCodeDelete::SLUG ),
 			],
 		];
 	}

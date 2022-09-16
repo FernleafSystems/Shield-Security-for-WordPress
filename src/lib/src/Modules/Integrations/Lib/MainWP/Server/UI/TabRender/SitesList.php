@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
@@ -71,7 +72,7 @@ class SitesList extends BaseTab {
 				$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_ScansResults() );
 				$gradeLetter = $sync->modules[ 'insights' ][ 'grades' ][ 'integrity' ][ 'letter_score' ] ?? '-';
 				$shd[ 'grades' ] = [
-					'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_SubInsightsPage( 'overview' ) ),
+					'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ) ),
 					'integrity' => $gradeLetter,
 					'good'      => in_array( $gradeLetter, [ 'A', 'B' ] ),
 				];

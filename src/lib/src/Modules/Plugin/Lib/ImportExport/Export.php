@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -98,14 +99,14 @@ class Export {
 		];
 	}
 
-	public function toFile() {
-		Services::Response()->downloadStringAsFile(
-			implode( "\n", $this->toStandardArray() ),
-			sprintf( 'shieldexport-%s-%s.json',
+	public function toFile() :array {
+		return [
+			'name'    => sprintf( 'shieldexport-%s-%s.json',
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
 				date( 'Ymd_His' )
-			)
-		);
+			),
+			'content' => implode( "\n", $this->toStandardArray() )
+		];
 	}
 
 	public function getExportData() :array {
@@ -147,14 +148,14 @@ class Export {
 	 * @return bool
 	 */
 	private function verifyUrlWithHandshake( $url ) :bool {
-		$bVerified = false;
+		$verified = false;
 
 		if ( !empty( $url ) ) {
-			$sReqUrl = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $url );
-			$aResp = @json_decode( Services::HttpRequest()->getContent( $sReqUrl ), true );
-			$bVerified = is_array( $aResp ) && isset( $aResp[ 'success' ] ) && ( $aResp[ 'success' ] === true );
+			$url = $this->getCon()->getShieldActionNoncedUrl( PluginImportExport_HandshakeConfirm::SLUG );
+			$aResp = @json_decode( Services::HttpRequest()->getContent( $url ), true );
+			$verified = is_array( $aResp ) && isset( $aResp[ 'success' ] ) && ( $aResp[ 'success' ] === true );
 		}
 
-		return $bVerified;
+		return $verified;
 	}
 }

@@ -65,10 +65,10 @@ var iCWP_WPSF_StandardAjax = new function () {
 
 					if ( typeof resp.data.message === typeof undefined ) {
 						resp.data.message = resp.success ?
-							'The request succeeded' : 'The request failed';
+							'' : 'The request failed';
 					}
 
-					if ( !quiet ) {
+					if ( !quiet && resp.data.message.length > 0 ) {
 						if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
 							iCWP_WPSF_Toaster.showMessage( resp.data.message, resp.success );
 						}

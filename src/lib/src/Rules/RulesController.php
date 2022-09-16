@@ -57,13 +57,6 @@ class RulesController {
 		$this->setupCronHooks();
 	}
 
-	public function renderSummary() :string {
-		return ( new Render\RenderSummary() )
-			->setCon( $this->getCon() )
-			->setRulesCon( $this )
-			->render();
-	}
-
 	public function runHourlyCron() {
 		$this->storageHandler->buildAndStore();
 	}

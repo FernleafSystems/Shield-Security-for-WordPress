@@ -3,20 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
-
-	public function buildInsightsVars() :array {
-		return [
-			'content' => [
-				'table_ip_rules' => $this->renderTable_IpRules(),
-			],
-		];
-	}
 
 	public function renderForm_IpAdd() :string {
 		$con = $this->getCon();
@@ -24,7 +19,7 @@ class UI extends BaseShield\UI {
 		$mod = $this->getMod();
 		return $mod->renderTemplate( '/components/forms/ip_rule_add.twig', [
 			'ajax'    => [
-				'table_action' => $mod->getAjaxActionData( 'iprulestable_action', true ),
+				'table_action' => ActionData::BuildJson( Actions\IpRulesTableAction::SLUG ),
 			],
 			'flags'   => [
 				'is_blacklist_allowed' => $con->isPremiumActive(),
@@ -48,21 +43,6 @@ class UI extends BaseShield\UI {
 			'vars'    => [
 				'blacklist' => Handler::T_MANUAL_BLOCK,
 				'whitelist' => Handler::T_MANUAL_BYPASS,
-			],
-		] );
-	}
-
-	private function renderTable_IpRules() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->renderTemplate( '/wpadmin_pages/insights/ips/ip_rules.twig', [
-			'ajax' => [
-				'table_action' => $mod->getAjaxActionData( 'iprulestable_action', true ),
-			],
-			'vars' => [
-				'datatables_init' => ( new ForIpRules() )
-					->setMod( $this->getMod() )
-					->build()
 			],
 		] );
 	}

@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use Dolondro\GoogleAuthenticator\{
 	GoogleAuthenticator,
 	Secret,
 	SecretFactory
 };
 use FernleafSystems\Utilities\Data\Response\StdResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaGoogleAuthToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\GenerateGoogleAuthQrCode;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,7 +30,7 @@ class GoogleAuth extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_ga_toggle' => $this->getMod()->getAjaxActionData( 'profile_ga_toggle' ),
+				'profile_ga_toggle' => ActionData::Build( MfaGoogleAuthToggle::SLUG ),
 			],
 		];
 	}

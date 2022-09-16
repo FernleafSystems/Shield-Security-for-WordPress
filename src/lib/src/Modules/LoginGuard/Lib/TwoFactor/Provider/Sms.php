@@ -2,6 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	MfaSmsAdd,
+	MfaSmsIntentSend,
+	MfaSmsRemove,
+	MfaSmsVerify};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendSms;
@@ -13,9 +19,9 @@ class Sms extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'profile_sms2fa_add' ),
-				'profile_sms2fa_remove' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_remove' ),
-				'profile_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_verify' ),
+				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::SLUG ),
+				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::SLUG ),
+				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::SLUG ),
 			],
 		];
 	}
@@ -133,7 +139,7 @@ class Sms extends BaseProvider {
 			'classes'     => [ 'btn', 'btn-light' ],
 			'help_link'   => '',
 			'datas'       => [
-				'ajax_intent_sms_send' => $this->getMod()->getAjaxActionData( 'intent_sms_send', true ),
+				'ajax_intent_sms_send' => ActionData::BuildJson( MfaSmsIntentSend::SLUG ),
 				'input_otp'            => $this->getLoginFormParameter(),
 			]
 		];

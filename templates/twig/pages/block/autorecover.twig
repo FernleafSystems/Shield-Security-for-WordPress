@@ -18,7 +18,7 @@
 		<p>{{ strings.you_can }}</p>
 		<form method="post" action="{{ hrefs.home }}">
 			<input type="hidden" name="email_address" value="" />
-			{% for key,val in vars.nonce %}
+			{% for key,val in vars.unblock_nonce %}
 				<input type="hidden" name="{{ key }}" value="{{ val }}" autocomplete="off" />
 			{% endfor %}
 			<fieldset aria-hidden="true" class="address">

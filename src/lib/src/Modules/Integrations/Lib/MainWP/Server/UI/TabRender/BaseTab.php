@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MainwpExtensionTableSites;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MainwpSiteAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\BaseRender;
 use FernleafSystems\Wordpress\Services\Services;
@@ -41,10 +44,9 @@ abstract class BaseTab extends BaseRender {
 	}
 
 	protected function getAjaxActionsData() :array {
-		$mod = $this->getMod();
 		return [
-			'site_action' => $mod->getAjaxActionData( 'site_action' ),
-			'ext_table'   => $mod->getAjaxActionData( 'ext_table' ),
+			'site_action' => ActionData::Build( MainwpSiteAction::SLUG ),
+			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::SLUG ),
 		];
 	}
 

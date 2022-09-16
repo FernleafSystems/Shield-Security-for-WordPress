@@ -18,7 +18,7 @@
 	  try {
 		  fetch( '{{ hrefs.ajaxurl|raw }}', {
 			  method: 'POST',
-			  body: (new URLSearchParams( {{ vars.unblock|raw }} )).toString(),
+			  body: (new URLSearchParams( {{ vars.nonce_unblock|raw }} )).toString(),
 			  headers: {
 				  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
 				  'X-Requested-With': 'XMLHttpRequest',

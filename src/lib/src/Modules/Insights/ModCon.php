@@ -4,10 +4,36 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	DynamicLoad,
+	MerlinAction
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
+
+	/**
+	 * @var ActionRouter\ActionRoutingController
+	 */
+	private $router;
+
+	protected function onModulesLoaded() {
+		// Before IP Block
+		add_action( 'init', function () {
+			$this->getActionRouter()->execute();
+		}, -1 );
+	}
+
+	public function getActionRouter() :ActionRouter\ActionRoutingController {
+		if ( !isset( $this->router ) ) {
+			$this->router = ( new ActionRouter\ActionRoutingController() )->setMod( $this );
+		}
+		return $this->router;
+	}
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
@@ -15,22 +41,6 @@ class ModCon extends BaseShield\ModCon {
 			$UI = $this->getUIHandler();
 			$UI->printAdminFooterItems();
 		}, 100, 0 );
-	}
-
-	protected function onModulesLoaded() {
-		$this->handleCustomRedirection();
-	}
-
-	private function handleCustomRedirection() {
-		$con = $this->getCon();
-		if ( !Services::WpGeneral()->isAjax() && is_admin() ) {
-			if ( !$con->isModulePage() && $con->getModule_Plugin()->getActivateLength() < 5 ) {
-				Services::Response()->redirect( $this->getUrl_SubInsightsPage( 'merlin' ) );
-			}
-			elseif ( $this->getAdminPage()->isCurrentPage() && empty( $this->getCurrentInsightsPage() ) ) {
-				Services::Response()->redirect( $con->getPluginUrl_DashboardHome() );
-			}
-		}
 	}
 
 	public function getMainWpData() :array {
@@ -70,15 +80,32 @@ class ModCon extends BaseShield\ModCon {
 	public function getUrl_SubInsightsPage( string $inavPage, string $subNav = '' ) :string {
 		return add_query_arg(
 			array_filter( [
-				'inav'   => sanitize_key( $inavPage ),
-				'subnav' => sanitize_key( $subNav ),
+				ActionRoutingController::NAV_ID     => sanitize_key( $inavPage ),
+				ActionRoutingController::NAV_SUB_ID => sanitize_key( $subNav ),
 			] ),
 			$this->getUrl_AdminPage()
 		);
 	}
 
+	public function getUrl_AdminPage() :string {
+		return Services::WpGeneral()->getUrl_AdminPage(
+			$this->getModSlug(),
+			$this->getCon()->getIsWpmsNetworkAdminOnly()
+		);
+	}
+
+	/**
+	 * @return AdminPage
+	 */
+	public function getAdminPage() {
+		if ( !isset( $this->adminPage ) ) {
+			$this->adminPage = ( new AdminPage() )->setMod( $this );
+		}
+		return $this->adminPage;
+	}
+
 	public function getCurrentInsightsPage() :string {
-		return (string)Services::Request()->query( 'inav' );
+		return (string)Services::Request()->query( ActionRoutingController::NAV_ID );
 	}
 
 	public function getScriptLocalisations() :array {
@@ -100,7 +127,7 @@ class ModCon extends BaseShield\ModCon {
 			'merlin',
 			[
 				'ajax' => [
-					'merlin_action' => $this->getAjaxActionData( 'merlin_action' )
+					'merlin_action' => ActionData::Build( MerlinAction::SLUG )
 				],
 				'vars' => [
 					/** http://techlaboratory.net/jquery-smartwizard#advanced-options */
@@ -133,7 +160,7 @@ class ModCon extends BaseShield\ModCon {
 			'shield_vars_navigation',
 			[
 				'ajax' => [
-					'dynamic_load' => $this->getAjaxActionData( 'dynamic_load' )
+					'dynamic_load' => ActionData::Build( DynamicLoad::SLUG )
 				]
 			]
 		];
@@ -148,19 +175,19 @@ class ModCon extends BaseShield\ModCon {
 		];
 
 		$con = $this->getCon();
-		$inav = $this->getCurrentInsightsPage();
-		if ( empty( $inav ) ) {
-			$inav = 'overview';
+		$nav = $this->getCurrentInsightsPage();
+		if ( empty( $nav ) ) {
+			$nav = Constants::ADMIN_PAGE_OVERVIEW;
 		}
 
 		if ( $con->getIsPage_PluginAdmin() ) {
-			switch ( $inav ) {
+			switch ( $nav ) {
 
 				case 'importexport':
 					$enq[ Enqueue::JS ][] = 'shield/import';
 					break;
 
-				case 'overview':
+				case Constants::ADMIN_PAGE_OVERVIEW:
 					$enq[ Enqueue::JS ] = [
 						'ip_detect'
 					];
@@ -201,7 +228,7 @@ class ModCon extends BaseShield\ModCon {
 				case 'stats':
 
 					$enq[ Enqueue::JS ][] = 'shield/tables';
-					if ( in_array( $inav, [ 'scans_results', 'scans_run' ] ) ) {
+					if ( in_array( $nav, [ 'scans_results', 'scans_run' ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					break;
@@ -209,5 +236,12 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		return $enq;
+	}
+
+	/**
+	 * @deprecated 16.2
+	 */
+	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
+		return '';
 	}
 }

@@ -98,9 +98,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		( new LoginRequestCapture() )
 			->setMod( $this->getMod() )
 			->execute();
-		( new LoginIntentRequestCapture() )
-			->setMod( $this->getMod() )
-			->execute();
 	}
 
 	public function useLoginIntentPage() :bool {

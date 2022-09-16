@@ -12,6 +12,8 @@ class BlockRequest extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
+		do_action( 'shield/maybe_intercept_block_shield' );
+
 		$this->getCon()->fireEvent( 'conn_kill' );
 		( new RenderBlockIP() )
 			->setMod( $this->getMod() )

@@ -27,6 +27,8 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 			$updater->updateLastAccessAt( $record );
 		}
 
+		do_action( 'shield/maybe_intercept_block_crowdsec' );
+
 		$this->getCon()->fireEvent( 'conn_kill_crowdsec' );
 
 		( new RenderBlockIpCrowdSec() )

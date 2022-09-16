@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
@@ -98,16 +101,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'db_ip':
-				( new DbTableExport() )
-					->setDbHandler( $this->getDbH_IPRules() )
-					->toCSV();
-				break;
-		}
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -165,18 +158,18 @@ class ModCon extends BaseShield\ModCon {
 				'components' => [
 					'modal_ip_rule_add' => [
 						'ajax' => [
-							'render_ip_rule_add' => $this->getAjaxActionData( 'render_ip_rule_add' ),
+							'ip_rule_add_render' => ActionData::Build( Actions\IpRuleAddRender::SLUG ),
 						]
 					],
 					'ip_analysis'       => [
 						'ajax' => [
-							'ip_analyse_action' => $this->getAjaxActionData( 'ip_analyse_action' ),
+							'ip_analyse_action' => ActionData::Build( Actions\IpAnalyseAction::SLUG ),
 						]
 					],
 					'ip_rules'          => [
 						'ajax'    => [
-							'ip_rule_add_form' => $this->getAjaxActionData( 'ip_rule_add_form' ),
-							'ip_rule_delete'   => $this->getAjaxActionData( 'ip_rule_delete' ),
+							'ip_rule_add_submit' => ActionData::Build( Actions\IpRuleAddSubmit::SLUG ),
+							'ip_rule_delete'     => ActionData::Build( Actions\IpRuleDelete::SLUG ),
 						],
 						'strings' => [
 							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),

@@ -91,19 +91,6 @@ class ModCon extends BaseShield\ModCon {
 		] );
 	}
 
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'filelocker':
-				$this->getFileLocker()->handleFileDownloadRequest();
-				break;
-			case 'scan_file':
-				( new Lib\Utility\FileDownloadHandler() )
-					->setMod( $this )
-					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
-				break;
-		}
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

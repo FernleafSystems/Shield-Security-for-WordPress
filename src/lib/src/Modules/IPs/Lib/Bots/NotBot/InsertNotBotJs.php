@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -64,7 +66,7 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 				'shield_vars_notbotjs',
 				apply_filters( 'shield/notbot_data_js', [
 					'ajax'  => [
-						'not_bot' => $this->getMod()->getAjaxActionData( 'not_bot' )
+						'not_bot' => ActionData::Build( CaptureNotBot::SLUG ),
 					],
 					'flags' => [
 						'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),

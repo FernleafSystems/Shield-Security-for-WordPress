@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
@@ -87,8 +88,7 @@ class ScanItemView {
 					'has_history'  => $hasHistory,
 				],
 				'hrefs'   => [
-					'file_download' => $mod->getScanCon( $item->VO->scan )
-										   ->createFileDownloadLink( $item->VO->scanresult_id ),
+					'file_download' => ActionData::FileDownloadHref( 'scan_file', [ 'rid' => $item->VO->scanresult_id ] ),
 					'has_content'   => $hasContent,
 					'has_diff'      => $hasDiff,
 					'has_history'   => $hasHistory,
@@ -139,7 +139,7 @@ class ScanItemView {
 		}
 
 		$FS = Services::WpFs();
-		if ( empty( $originalFileDownload ) || !$FS->isFile($originalFileDownload)) {
+		if ( empty( $originalFileDownload ) || !$FS->isFile( $originalFileDownload ) ) {
 			throw new \Exception( "A File Diff can't be created as there is no original/official file available for us to compare with." );
 		}
 

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DismissAdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
@@ -18,7 +20,7 @@ class Controller {
 
 	/**
 	 * TODO doesn't handle error message highlighting
-	 * @param string $msg
+	 * @param string $loginMsg
 	 * @return string
 	 */
 	public function onLoginMessage( $loginMsg ) {
@@ -31,13 +33,12 @@ class Controller {
 	}
 
 	/**
-	 * @param string        $msg
 	 * @param \WP_User|null $user
 	 * @param bool          $isError
 	 * @param bool          $bShowOnLoginPage
 	 * @return $this
 	 */
-	public function addFlash( $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
+	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
 		$con = $this->getCon();
 		$meta = $user instanceof \WP_User ? $con->getUserMeta( $user ) : $con->getCurrentUserMeta();
 		if ( $meta instanceof UserMeta ) {
@@ -148,12 +149,10 @@ class Controller {
 		$data[ 'unique_render_id' ] = uniqid( $notice->id );
 		$data[ 'notice_id' ] = $notice->id;
 
-		$ajaxData = $this->getCon()
-						 ->getModule( $notice->mod ?? 'plugin' )
-						 ->getNonceActionData( 'dismiss_admin_notice' );
-		$ajaxData[ 'hide' ] = 1;
-		$ajaxData[ 'notice_id' ] = $notice->id;
-		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $ajaxData );
+		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = ActionData::BuildJson( DismissAdminNotice::SLUG, true, [
+			'notice_id' => $notice->id,
+			'hide'      => 1,
+		] );
 
 		return $this->getCon()
 					->getRenderer()

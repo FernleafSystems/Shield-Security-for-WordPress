@@ -5,40 +5,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'shield_action' ), function ( $action ) {
-			switch ( $action ) {
-
-				case 'keyless_handshake':
-				case 'snapi_handshake':
-					$nonce = Services::Request()->query( 'nonce' );
-					if ( !empty( $nonce ) ) {
-						die( json_encode( [
-							'success' => ( new HandshakingNonce() )
-								->setCon( $this->getCon() )
-								->verify( $nonce )
-						] ) );
-					}
-					break;
-
-				case 'license_check':
-					$this->scheduleAdHocCheck();
-					break;
-			}
-		} );
-
-		// performs the license check on-demand
 		add_action( $this->getCon()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );
 	}
 
-	private function scheduleAdHocCheck( int $delay = 20 ) {
+	public function scheduleAdHocCheck( int $delay = 20 ) {
 		$con = $this->getCon();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 			wp_schedule_single_event(

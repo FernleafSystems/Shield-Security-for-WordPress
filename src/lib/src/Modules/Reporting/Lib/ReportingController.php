@@ -147,8 +147,8 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 							 ],
 							 'hrefs'   => [
 								 'click_adjust' => $this->getCon()
-														->getModule_Reporting()
-														->getUrl_AdminPage()
+														->getModule_Insights()
+														->getUrl_SubInsightsPage( 'reports' )
 							 ],
 							 'strings' => [
 								 'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),

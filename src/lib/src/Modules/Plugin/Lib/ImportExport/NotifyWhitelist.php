@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\PluginImportExport_UpdateNotified;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,7 +16,7 @@ class NotifyWhitelist extends ExecOnceModConsumer {
 
 			foreach ( $opts->getImportExportWhitelist() as $url ) {
 				Services::HttpRequest()->get(
-					add_query_arg( [ 'shield_action' => 'importexport_updatenotified' ], $url ),
+					$this->getCon()->getShieldActionNoncedUrl( PluginImportExport_UpdateNotified::SLUG, $url ),
 					[ 'blocking' => false ]
 				);
 			}

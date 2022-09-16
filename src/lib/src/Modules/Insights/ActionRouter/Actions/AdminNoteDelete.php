@@ -1,0 +1,38 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Services\Services;
+
+class AdminNoteDelete extends PluginBase {
+
+	const SLUG = 'admin_note_delete';
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function exec() {
+		/** @var ModCon $mod */
+		$mod = $this->primary_mod;
+		$resp = $this->response();
+
+		$noteID = Services::Request()->post( 'rid' );
+		if ( empty( $noteID ) ) {
+			$resp->msg = __( 'Note not found.', 'wp-simple-firewall' );
+		}
+		else {
+			try {
+				$resp->success = $mod->getDbHandler_Notes()
+										 ->getQueryDeleter()
+										 ->deleteById( $noteID );
+				$resp->msg = $resp->success ?
+					__( 'Note deleted', 'wp-simple-firewall' )
+					: __( "Note couldn't be deleted", 'wp-simple-firewall' );
+			}
+			catch ( \Exception $e ) {
+				$resp->msg = $e->getMessage();
+			}
+		}
+	}
+}

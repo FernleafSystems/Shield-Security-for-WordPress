@@ -3,6 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	MfaU2fAdd,
+	MfaU2fRemove
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
@@ -23,8 +28,8 @@ class U2F extends BaseProvider {
 			'reg_request' => $reg,
 			'signs'       => $signs,
 			'ajax'        => [
-				'profile_u2f_add'    => $this->getMod()->getAjaxActionData( 'profile_u2f_add' ),
-				'profile_u2f_remove' => $this->getMod()->getAjaxActionData( 'profile_u2f_remove' ),
+				'profile_u2f_add'    => ActionData::Build( MfaU2fAdd::SLUG ),
+				'profile_u2f_remove' => ActionData::Build( MfaU2fRemove::SLUG ),
 			],
 			'flags'       => [
 				'has_validated' => $this->hasValidatedProfile()

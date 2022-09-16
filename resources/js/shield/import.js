@@ -6,11 +6,10 @@ jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 		return false;
 	};
 
-	var sendReq = function ( aParams ) {
+	var sendReq = function ( params ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		var aReqData = aOpts[ 'ajax_import_from_site' ];
-		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
+		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_import_from_site' ], params ),
 			function ( oResponse ) {
 
 				if ( oResponse.success ) {

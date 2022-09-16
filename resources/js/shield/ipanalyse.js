@@ -74,7 +74,7 @@ jQuery.fn.icwpWpsfIpRules = function ( options ) {
 				evt.preventDefault();
 
 				let reqData = jQuery.extend(
-					opts[ 'ajax' ][ 'ip_rule_add_form' ],
+					opts[ 'ajax' ][ 'ip_rule_add_submit' ],
 					{
 						'form_data': Object.fromEntries( new FormData( evt.target ) )
 					}

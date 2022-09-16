@@ -10,18 +10,6 @@ class MerlinController {
 
 	private $workingKey;
 
-	public function render( string $key ) :string {
-		$this->workingKey = $key;
-		return $this->getMod()->renderTemplate(
-			'/components/merlin/container.twig',
-			[
-				'content' => [
-					'steps' => $this->buildSteps()
-				],
-			]
-		);
-	}
-
 	/**
 	 * @throws \Exception
 	 */
@@ -37,7 +25,8 @@ class MerlinController {
 		return $handlers[ $step ]->processStepFormSubmit( $form );
 	}
 
-	private function buildSteps() :array {
+	public function buildSteps( string $key ) :array {
+		$this->workingKey = $key;
 		return array_map(
 			function ( $handler ) {
 				return [

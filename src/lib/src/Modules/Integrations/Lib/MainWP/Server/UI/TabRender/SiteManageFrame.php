@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\TabRender;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
@@ -117,8 +118,9 @@ class SiteManageFrame extends BaseTab {
 	}
 
 	protected function getAjaxActionsData() :array {
-		$renderManageSiteAjax = $this->getMod()->getAjaxActionData( 'render_manage_site' );
-		$renderManageSiteAjax[ 'site_id' ] = Services::Request()->query( 'site_id' );
+		$renderManageSiteAjax = ActionData::Build( 'render_manage_site', true, [
+			'site_id' => Services::Request()->query( 'site_id' )
+		] );
 
 		$data = parent::getAjaxActionsData();
 		$data[ 'render_manage_site' ] = $renderManageSiteAjax;

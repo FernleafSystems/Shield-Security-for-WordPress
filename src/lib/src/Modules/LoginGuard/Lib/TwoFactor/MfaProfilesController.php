@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -116,7 +120,7 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 						'shield_vars_userprofile',
 						[
 							'ajax'    => [
-								'mfa_remove_all' => $mfaCon->getMod()->getAjaxActionData( 'mfa_remove_all' )
+								'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::SLUG ),
 							],
 							'vars'    => [
 								'providers' => array_map( function ( $provider ) {

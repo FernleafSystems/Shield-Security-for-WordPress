@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use IPLib\Address\AddressInterface;
 use IPLib\Factory;
@@ -252,7 +253,7 @@ class SelectSearchData {
 					[
 						'id'     => 'tool_overview',
 						'text'   => __( 'My Security Overview', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_SubInsightsPage( 'overview' ),
+						'href'   => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
 						'tokens' => 'tool overview grade grading charts performance dashboard summary',
 						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],

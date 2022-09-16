@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\IpAutoUnblockShieldUserLinkVerify;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,57 +20,49 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 		return 'Magic Link';
 	}
 
-	protected function run() {
+	/**
+	 * @throws \Exception
+	 */
+	public function processEmailSend() {
 		$req = Services::Request();
+		$user = Services::WpUsers()->getCurrentWpUser();
+		if ( !$user instanceof \WP_User ) {
+			throw new \Exception( 'There is no user currently logged-in.' );
+		}
+		$reqIP = $req->request( 'ip' );
+		if ( empty( $reqIP ) || !Services::IP()->IpIn( $reqIP, [ $this->getCon()->this_req->ip ] ) ) {
+			throw new \Exception( 'IP does not match.' );
+		}
+
+		$this->sendMagicLinkEmail();
+	}
+
+	public function processUnblockLink() :bool {
+		$req = Services::Request();
+		$success = false;
 		try {
-			if ( $req->request( 'action' ) == $this->getCon()->prefix()
-				 && strpos( $req->request( 'exec' ), 'uaum-' ) === 0 ) {
+			$user = Services::WpUsers()->getCurrentWpUser();
+			if ( !$user instanceof \WP_User ) {
+				throw new \Exception( 'There is no user currently logged-in.' );
+			}
+			// Then verify that the part of the nonce action linked to the user login is valid
+			$this->timingChecks();
 
-				if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $req->request( 'exec' ) ) !== 1 ) {
-					throw new \Exception( 'Nonce failed' );
-				}
-				$user = Services::WpUsers()->getCurrentWpUser();
-				if ( !$user instanceof \WP_User ) {
-					throw new \Exception( 'There is no user currently logged-in.' );
-				}
-				// Then verify that the part of the nonce action linked to the user login is valid
-				$linkParts = explode( '-', $req->request( 'exec' ), 3 );
-				if ( !hash_equals( substr( sha1( $user->user_login ), 0, 6 ), $linkParts[ 2 ] ) ) {
-					throw new \Exception( 'Users do not match.' );
-				}
-				$reqIP = $req->request( 'ip' );
-				if ( empty( $reqIP ) || !Services::IP()->checkIp( $reqIP, $this->getCon()->this_req->ip ) ) {
-					throw new \Exception( 'IP does not match.' );
-				}
-
-				$this->timingChecks();
-
-				if ( $req->isPost() && $linkParts[ 1 ] === 'init' ) {
-
-					$this->sendMagicLinkEmail();
-					http_response_code( 200 );
-					die();
-				}
-				elseif ( $req->isGet() && $linkParts[ 1 ] === 'go' ) {
-
-					$this->updateLastAttemptAt();
-					if ( $this->unblockIP() ) {
-						Services::Response()->redirectToHome();
-					}
-				}
-				else {
-					throw new \Exception( 'Not a supported UAUM action.' );
-				}
+			if ( $req->isGet() ) {
+				$this->updateLastAttemptAt();
+				$success = $this->unblockIP();
+			}
+			else {
+				throw new \Exception( 'Not a supported UAUM action.' );
 			}
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
+
+		return $success;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	private function sendMagicLinkEmail() {
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
@@ -85,18 +79,14 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 				'flags'   => [
 					'show_login_link' => !$this->getCon()->isRelabelled()
 				],
-				'vars'    => [
-				],
 				'hrefs'   => [
-					'unblock' => add_query_arg(
-						array_merge(
-							$mod->getNonceActionData( 'uaum-go-'.substr( sha1( $user->user_login ), 0, 6 ) ),
-							[
-								'ip' => $ip
-							]
-						),
-						$homeURL
-					)
+					'unblock' => ActionData::BuildURL(
+						IpAutoUnblockShieldUserLinkVerify::SLUG.'-'.$ip,
+						$homeURL,
+						[
+							'ip' => $ip
+						]
+					),
 				],
 				'strings' => [
 					'looks_like'       => __( "It looks like you've been blocked and have clicked to have your IP address removed from the blocklist.", 'wp-simple-firewall' ),

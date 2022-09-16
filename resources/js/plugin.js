@@ -29,7 +29,7 @@ let iCWP_WPSF_Modals = new function () {
 		jQuery.ajax( {
 			type: "POST",
 			url: ajaxurl,
-			data: workingData.modal_ip_rule_add.ajax.render_ip_rule_add,
+			data: workingData.modal_ip_rule_add.ajax.ip_rule_add_render,
 			dataType: "json",
 			success: function ( raw ) {
 				iCWP_WPSF_Modals.display( raw.data );
@@ -406,7 +406,7 @@ let iCWP_WPSF_OffCanvas = new function () {
 				type: "POST",
 				url: ajaxurl,
 				data: jQuery.extend(
-					data.ajax.render_offcanvas,
+					data.ajax.offcanvas_render,
 					canvasProperties
 				),
 				dataType: "text",
@@ -521,6 +521,11 @@ jQueryDoc.ready( function () {
 		tooltipTriggerList.map( function ( tooltipTriggerEl ) {
 			return new bootstrap.Tooltip( tooltipTriggerEl );
 		} );
+	} );
+
+	/** TODO: test this fully */
+	jQuery( document ).on( "submit", 'form.icwp-form-dynamic-action', function ( evt ) {
+		evt.currentTarget.action = window.location.href;
 	} );
 
 	jQuery( document ).icwpWpsfTours();

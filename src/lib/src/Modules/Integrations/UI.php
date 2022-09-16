@@ -37,7 +37,7 @@ class UI extends Modules\BaseShield\UI {
 							$locations
 						),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$this->getCon()->getModule_LoginGuard()->getUrl_AdminPage(),
+							$this->getCon()->getModule_LoginGuard()->getUrl_OptionsConfigPage(),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}
@@ -61,7 +61,7 @@ class UI extends Modules\BaseShield\UI {
 					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->getModule_LoginGuard()->getUrl_AdminPage(),
+							$con->getModule_LoginGuard()->getUrl_OptionsConfigPage(),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}

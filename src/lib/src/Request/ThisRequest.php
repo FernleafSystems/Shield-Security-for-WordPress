@@ -65,6 +65,9 @@ class ThisRequest extends DynPropertiesClass {
 			case 'is_security_admin':
 			case 'is_trusted_bot':
 			case 'ip_is_public':
+			case 'wp_is_ajax':
+			case 'wp_is_wpcli':
+			case 'wp_is_xmlrpc':
 				$value = (bool)$value;
 				break;
 

@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	IpAutoUnblockShieldUserLinkRequest,
+	IpAutoUnblockShieldVisitor
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
@@ -39,10 +44,9 @@ class RenderBlockIP extends BaseBlockPage {
 	}
 
 	protected function renderAutoUnblock() :string {
+		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
 
 		if ( ( new IPs\Lib\AutoUnblock\AutoUnblockVisitor() )->setMod( $mod )->isUnblockAvailable() ) {
 			$content = $mod->renderTemplate( '/pages/block/autorecover.twig', [
@@ -50,7 +54,7 @@ class RenderBlockIP extends BaseBlockPage {
 					'home' => Services::WpGeneral()->getHomeUrl( '/' )
 				],
 				'vars'    => [
-					'nonce' => $mod->getNonceActionData( 'uau-'.$this->getCon()->this_req->ip ),
+					'unblock_nonce' => $con->getShieldActionNonceData( IpAutoUnblockShieldVisitor::SLUG.'-'.$con->this_req->ip ),
 				],
 				'strings' => [
 					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
@@ -108,24 +112,12 @@ class RenderBlockIP extends BaseBlockPage {
 				'flags'   => [],
 				'hrefs'   => [
 					'ajaxurl' => admin_url( 'admin-ajax.php' ),
-					'unblock' => add_query_arg(
-						array_merge(
-							$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
-							[
-								'ip' => $con->this_req->ip
-							]
-						),
-						Services::WpGeneral()->getHomeUrl()
-					)
 				],
 				'vars'    => [
-					'email'   => Obfuscate::Email( $user->user_email ),
-					'unblock' => json_encode( (object)array_merge(
-						$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
-						[
-							'ip' => $con->this_req->ip
-						]
-					) ),
+					'email'         => Obfuscate::Email( $user->user_email ),
+					'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::SLUG, true, [
+						'ip' => $con->this_req->ip
+					] ),
 				],
 				'strings' => [
 					'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),

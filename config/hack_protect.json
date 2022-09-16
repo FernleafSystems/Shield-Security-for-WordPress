@@ -35,12 +35,6 @@
     "enabled": true,
     "root":    "hack_guard"
   },
-  "menu_items":       [
-    {
-      "title": "Scans",
-      "slug":  "scans-redirect"
-    }
-  ],
   "custom_redirects": [
     {
       "source_mod_page": "scans-redirect",

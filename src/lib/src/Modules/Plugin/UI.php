@@ -4,31 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CheckCaptchaSettings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
 
 class UI extends BaseShield\UI {
-
-	public function buildInsightsVars_Debug() :array {
-		return [
-			'strings' => [
-				'page_title' => sprintf( __( '%s Debug Page' ), $this->getCon()->getHumanName() )
-			],
-			'hrefs'   => [
-				'check_visitor_ip_source' => add_query_arg( [ 'shield_check_ip_source' => '1' ] ),
-			],
-			'vars'    => [
-				'debug_data' => ( new Collate() )
-					->setMod( $this->getMod() )
-					->run()
-			],
-			'content' => [
-				'recent_events' => ( new RecentEvents() )
-					->setMod( $this->getMod() )
-					->build(),
-			]
-		];
-	}
 
 	public function getSectionWarnings( string $section ) :array {
 		/** @var ModCon $mod */

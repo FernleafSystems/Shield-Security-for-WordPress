@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\IpAutoUnblockCrowdsecVisitor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,6 +21,7 @@ class RenderBlockIpCrowdSec extends RenderBlockIP {
 	}
 
 	protected function renderAutoUnblock() :string {
+		$con = $this->getCon();
 		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var IPs\Options $opts */
@@ -31,7 +33,7 @@ class RenderBlockIpCrowdSec extends RenderBlockIP {
 					'home' => Services::WpGeneral()->getHomeUrl( '/' )
 				],
 				'vars'    => [
-					'nonce' => $mod->getNonceActionData( 'uau-cs-'.$this->getCon()->this_req->ip ),
+					'unblock_nonce' => $con->getShieldActionNonceData( IpAutoUnblockCrowdsecVisitor::SLUG.'-'.$con->this_req->ip ),
 				],
 				'strings' => [
 					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),

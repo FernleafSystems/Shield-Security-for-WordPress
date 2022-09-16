@@ -18,10 +18,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 				$response = $this->wizardLicense();
 				break;
 
-			case 'import':
-				$response = $this->wizardImportOptions();
-				break;
-
 			case 'audit_trail':
 				$response = $this->wizardAuditTrail();
 				break;
@@ -192,41 +188,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_Base {
 		return ( new \FernleafSystems\Utilities\Response() )
 			->setSuccessful( $success )
 			->setMessageText( $msg );
-	}
-
-	/**
-	 * @return \FernleafSystems\Utilities\Response
-	 */
-	private function wizardImportOptions() {
-		$req = Services::Request();
-		try {
-			$code = ( new Plugin\Lib\ImportExport\Import() )
-				->setMod( $this->getMod() )
-				->fromSite( (string)$req->post( 'MasterSiteUrl' ), (string)$req->post( 'MasterSiteSecretKey' ), $req->post( 'ShieldNetworkCheck' ) === 'Y' );
-		}
-		catch ( Exception $e ) {
-			$sSiteResponse = $e->getMessage();
-			$code = $e->getCode();
-		}
-
-		$errors = [
-			__( 'Options imported successfully to your site.', 'wp-simple-firewall' ), // success
-			__( 'Secret key was empty.', 'wp-simple-firewall' ),
-			__( 'Secret key was not 40 characters long.', 'wp-simple-firewall' ),
-			__( 'Secret key contains invalid characters - it should be letters and numbers only.', 'wp-simple-firewall' ),
-			__( 'Source site URL could not be parsed correctly.', 'wp-simple-firewall' ),
-			__( 'Could not parse the response from the site.', 'wp-simple-firewall' )
-			.' '.__( 'Check the secret key is correct for the remote site.', 'wp-simple-firewall' ),
-			__( 'Failure response returned from the site.', 'wp-simple-firewall' ),
-			sprintf( __( 'Remote site responded with - %s', 'wp-simple-firewall' ), $sSiteResponse ),
-			__( 'Data returned from the site was empty.', 'wp-simple-firewall' )
-		];
-
-		$sMessage = isset( $errors[ $code ] ) ? $errors[ $code ] : 'Unknown Error';
-
-		return ( new \FernleafSystems\Utilities\Response() )
-			->setSuccessful( $code === 0 )
-			->setMessageText( $sMessage );
 	}
 
 	/**

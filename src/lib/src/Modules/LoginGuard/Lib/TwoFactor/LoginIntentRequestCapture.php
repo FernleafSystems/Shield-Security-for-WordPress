@@ -6,9 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
+	InvalidLoginIntentException,
 	LoginCancelException,
 	NoActiveProvidersForUserException,
-	InvalidLoginIntentException,
 	NotValidUserException,
 	TooManyAttemptsException
 };
@@ -22,16 +22,10 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 	private $user;
 
 	protected function canRun() :bool {
-		return Services::Request()->isPost()
-			   && $this->getCon()->getShieldAction() === 'wp_login_2fa_verify'
-			   && !Services::WpUsers()->isUserLoggedIn();
+		return false;
 	}
 
-	protected function run() {
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 8 ); // before rename login render
-	}
-
-	public function onWpLoaded() {
+	public function runCapture() {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();

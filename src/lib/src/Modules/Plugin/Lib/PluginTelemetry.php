@@ -21,21 +21,6 @@ class PluginTelemetry extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		$con = $this->getCon();
-		switch ( $con->getShieldAction() ) {
-			case 'dump_tracking_data':
-				add_action( 'wp_loaded', function () {
-					if ( $this->getCon()->isPluginAdmin() ) {
-						echo sprintf( '<pre><code>%s</code></pre>',
-							print_r( $this->collectTrackingData(), true ) );
-						die();
-					}
-				} );
-				break;
-			default:
-				break;
-		}
-
 		$this->setupCronHooks();
 	}
 

@@ -35,13 +35,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->wpHashesTokenManager;
 	}
 
-	protected function redirectToInsightsSubPage() {
-		Services::Response()->redirect(
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
-			[ 'inav' => 'license' ]
-		);
-	}
-
 	public function runHourlyCron() {
 		$this->getWpHashesTokenManager()->getToken();
 	}

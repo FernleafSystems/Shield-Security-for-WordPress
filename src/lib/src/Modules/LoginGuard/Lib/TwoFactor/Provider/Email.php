@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaEmailSendIntent;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,7 +16,7 @@ class Email extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_email2fa_toggle' => $this->getMod()->getAjaxActionData( 'profile_email2fa_toggle' ),
+				'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::SLUG ),
 			],
 		];
 	}
@@ -50,7 +53,7 @@ class Email extends BaseProvider {
 			'size'        => 6,
 			'datas'       => [
 				'auto_send'              => $mod->getMfaController()->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
-				'ajax_intent_email_send' => $mod->getAjaxActionData( 'intent_email_send', true ),
+				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::SLUG ),
 			],
 			'supp'        => [
 				'send_email' => __( 'Send OTP Code', 'wp-simple-firewall' ),

@@ -3,6 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -33,8 +37,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		if ( !isset( $this->importExportCon ) ) {
-			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )
-				->setMod( $this );
+			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )->setMod( $this );
 		}
 		return $this->importExportCon;
 	}
@@ -136,45 +139,6 @@ class ModCon extends BaseShield\ModCon {
 									   && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
 	}
 
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'plugin_export':
-				( new Lib\ImportExport\Export() )
-					->setMod( $this )
-					->toFile();
-				break;
-			default:
-				break;
-		}
-	}
-
-	protected function handleModAction( string $action ) {
-
-		switch ( $action ) {
-			case 'import_file_upload':
-				try {
-					( new Lib\ImportExport\Import() )
-						->setMod( $this )
-						->fromFileUpload();
-					$success = true;
-					$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
-				}
-				catch ( \Exception $e ) {
-					$success = false;
-					$msg = $e->getMessage();
-				}
-				$this->setFlashAdminNotice( $msg, null, !$success );
-				Services::Response()->redirect(
-					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
-				);
-				break;
-
-			default:
-				parent::handleModAction( $action );
-				break;
-		}
-	}
-
 	/**
 	 * @throws \Exception
 	 */
@@ -192,7 +156,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return add_query_arg( [ 'shield_action' => 'dump_tracking_data' ], Services::WpGeneral()->getAdminUrl() );
+		return $this->getCon()->getShieldActionNoncedUrl(
+			Actions\PluginDumpTelemetry::SLUG,
+			Services::WpGeneral()->getHomeUrl()
+		);
 	}
 
 	public function getPluginReportEmail() :string {
@@ -422,7 +389,7 @@ class ModCon extends BaseShield\ModCon {
 			'shield/tours',
 			'shield_vars_tourmanager',
 			[
-				'ajax'        => $this->getAjaxActionData( 'mark_tour_finished' ),
+				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::SLUG ),
 				'tour_states' => $tourManager->getUserTourStates(),
 				'tours'       => $tourManager->getAllTours(),
 			]
@@ -439,22 +406,22 @@ class ModCon extends BaseShield\ModCon {
 					],
 					'mod_config'    => [
 						'ajax' => [
-							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
+							'offcanvas_render' => ActionData::Build( Actions\PluginOffCanvasRender::SLUG ),
 						]
 					],
 					'offcanvas'     => [
 						'ajax' => [
-							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
+							'offcanvas_render' => ActionData::Build( Actions\PluginOffCanvasRender::SLUG ),
 						]
 					],
 					'mod_options'   => [
 						'ajax' => [
-							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
+							'mod_options_save' => ActionData::Build( Actions\ModuleOptionsSave::SLUG )
 						]
 					],
 					'select_search' => [
 						'ajax'    => [
-							'select_search' => $this->getAjaxActionData( 'select_search' )
+							'select_search' => ActionData::Build( Actions\PluginSuperSearch::SLUG )
 						],
 						'strings' => [
 							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
@@ -484,13 +451,13 @@ class ModCon extends BaseShield\ModCon {
 				'vars' => [
 					'dashboard_widget' => [
 						'ajax' => [
-							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )
+							'render_dashboard_widget' => ActionData::Build( Actions\PluginDashboardWidgetRender::SLUG )
 						]
 					],
 					'notices'          => [
 						'ajax' => [
-							'auto_db_repair'  => $this->getAjaxActionData( 'auto_db_repair' ),
-							'delete_forceoff' => $this->getAjaxActionData( 'delete_forceoff' ),
+							'auto_db_repair'  => ActionData::Build( Actions\PluginAutoDbRepair::SLUG ),
+							'delete_forceoff' => ActionData::Build( Actions\PluginDeleteForceOff::SLUG ),
 						]
 					]
 				],
@@ -508,7 +475,7 @@ class ModCon extends BaseShield\ModCon {
 				'icwp_wpsf_vars_ipdetect',
 				[
 					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
-					'ajax'    => $this->getAjaxActionData( 'ipdetect' ),
+					'ajax'    => ActionData::Build( Actions\PluginIpDetect::SLUG ),
 					'strings' => [
 						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
 						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),

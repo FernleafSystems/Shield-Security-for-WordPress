@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
@@ -27,7 +28,7 @@ class DashboardWidget {
 					->setTemplate( '/admin/admin_dashboard_widget.twig' )
 					->setRenderData( [
 						'hrefs'   => [
-							'overview'    => $modInsights->getUrl_SubInsightsPage( 'overview' ),
+							'overview'    => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
 							'logo'        => $con->labels->PluginURI,
 							'audit_trail' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
 							'sessions'    => $modInsights->getUrl_SubInsightsPage( 'users' ),
@@ -80,7 +81,7 @@ class DashboardWidget {
 					->getComponent( 'all' ),
 				'jump_links'         => [
 					[
-						'href' => $modInsights->getUrl_SubInsightsPage( 'overview' ),
+						'href' => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
 						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
@@ -100,7 +101,7 @@ class DashboardWidget {
 						'svg'  => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
-						'href' => $con->getModule_Plugin()->getUrl_AdminPage(),
+						'href' => $con->getModule_Plugin()->getUrl_OptionsConfigPage(),
 						'text' => __( 'Config', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 					],

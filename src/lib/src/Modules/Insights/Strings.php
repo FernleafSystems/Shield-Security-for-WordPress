@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function getAdditionalDisplayStrings() :array {
 		$name = $this->getCon()->getHumanName();
 		return [

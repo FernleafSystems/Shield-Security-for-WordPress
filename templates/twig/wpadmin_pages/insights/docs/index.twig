@@ -1,53 +1,48 @@
-{% extends '/wpadmin_pages/insights/base.twig' %}
+<div class="row">
+	<div class="col insights_section">
+		<ul class="nav nav-tabs insights-sub-nav">
 
-{% block page_main %}
+			<li class="nav-item">
+				<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#tabUpdates"
+				   data-bs-toggle="tab">
+					{{ strings.tab_updates }}
+				</a>
+			</li>
 
-	<div class="row">
-		<div class="col insights_section">
-			<ul class="nav nav-tabs insights-sub-nav">
+			<li class="nav-item">
+				<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabEvents"
+				   data-bs-toggle="tab">
+					{{ strings.tab_events }}
+				</a>
+			</li>
 
+			{% if not flags.is_pro %}
 				<li class="nav-item">
-					<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#tabUpdates"
-					   data-bs-toggle="tab">
-						{{ strings.tab_updates }}
+					<a class="nav-link" role="tab" href="{{ hrefs.free_trial }}" target="_blank">
+						{{ strings.tab_freetrial }}
 					</a>
 				</li>
+			{% endif %}
+		</ul>
+	</div>
+</div>
 
-				<li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabEvents"
-					   data-bs-toggle="tab">
-						{{ strings.tab_events }}
-					</a>
-				</li>
+<div class="tab-content">
 
-				{% if not flags.is_pro %}
-					<li class="nav-item">
-						<a class="nav-link" role="tab" href="{{ hrefs.free_trial }}" target="_blank">
-							{{ strings.tab_freetrial }}
-						</a>
-					</li>
-				{% endif %}
-			</ul>
+	<div class="tab-pane show active" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
+		<div class="row">
+			<div class="col pt-3" id="TabUpdates">
+				{{ content.tab_updates|raw }}
+			</div>
 		</div>
 	</div>
 
-	<div class="tab-content">
-
-		<div class="tab-pane show active" id="tabUpdates" role="tabpanel" aria-labelledby="tabUpdates">
-			<div class="row">
-				<div class="col pt-3" id="TabUpdates">
-					{{ content.tab_updates|raw }}
-				</div>
+	<div class="tab-pane" id="tabEvents" role="tabpanel" aria-labelledby="tabEvents">
+		<div class="row">
+			<div class="col pt-3" id="tabEvents">
+				{{ content.tab_events|raw }}
 			</div>
 		</div>
-
-		<div class="tab-pane" id="tabEvents" role="tabpanel" aria-labelledby="tabEvents">
-			<div class="row">
-				<div class="col pt-3" id="tabEvents">
-					{{ content.tab_events|raw }}
-				</div>
-			</div>
-		</div>
-
 	</div>
-{% endblock %}
+
+</div>

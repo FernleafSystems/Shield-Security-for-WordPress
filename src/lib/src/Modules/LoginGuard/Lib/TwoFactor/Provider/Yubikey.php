@@ -3,6 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,7 +19,7 @@ class Yubikey extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_yubikey_toggle' => $this->getMod()->getAjaxActionData( 'profile_yubikey_toggle' ),
+				'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::SLUG ),
 			],
 		];
 	}

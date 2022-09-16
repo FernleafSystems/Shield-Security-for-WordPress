@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\HackGuardPluginReinstall;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PtgAddReinstallLinks {
@@ -36,8 +38,7 @@ class PtgAddReinstallLinks {
 					'global-plugin',
 					'icwp_wpsf_vars_hp',
 					[
-						'ajax_plugin_reinstall' => $this->getScanController()->getMod()
-														->getAjaxActionData( 'plugin_reinstall' ),
+						'ajax_plugin_reinstall' => ActionData::Build( HackGuardPluginReinstall::SLUG ),
 						'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
 						'strings'               => [
 							'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )

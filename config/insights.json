@@ -19,6 +19,33 @@
     "skip_processor":        true,
     "tracking_exclude":      true
   },
+  "menu_items": [
+    {
+      "title": "Configuration",
+      "slug":  "redirect-settings"
+    },
+    {
+      "title": "IP Manager",
+      "slug":  "redirect-ips"
+    },
+    {
+      "title": "Scans",
+      "slug":  "redirect-scans_results"
+    },
+    {
+      "title": "Activity Log",
+      "slug":  "redirect-audit_trail"
+    },
+    {
+      "title": "Traffic Log",
+      "slug":  "redirect-traffic"
+    },
+    {
+      "title":     "Go PRO!",
+      "slug":      "redirect-license",
+      "highlight": true
+    }
+  ],
   "wpcli":      {
     "enabled": false
   },

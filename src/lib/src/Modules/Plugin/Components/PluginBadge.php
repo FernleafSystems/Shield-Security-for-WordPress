@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -96,7 +98,7 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 
 		return $mod->renderTemplate( 'snippets/plugin_badge_widget.twig', [
 			'ajax'    => [
-				'plugin_badge_close' => $mod->getAjaxActionData( 'plugin_badge_close', true ),
+				'plugin_badge_close' => ActionData::BuildJson( Actions\PluginBadgeClose::SLUG ),
 			],
 			'content' => [
 				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),

@@ -19,6 +19,7 @@ class Response extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'data':
+			case 'aux_data':
 				$value = is_array( $value ) ? $value : [];
 				break;
 

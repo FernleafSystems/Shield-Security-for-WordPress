@@ -3,7 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -41,10 +42,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_UpdateAvailable( $notice );
 				break;
 
-			case 'compat-sgoptimize':
-				$this->buildNotice_CompatSgOptimize( $notice );
-				break;
-
 			case 'plugin-mailing-list-signup':
 				$this->buildNotice_PluginMailingListSignup( $notice );
 				break;
@@ -79,7 +76,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'click_repair' => __( 'Click here to repair the database tables', 'wp-simple-firewall' )
 			],
 			'ajax'              => [
-				'auto_db_repair' => $this->getMod()->getAjaxActionData( 'auto_db_repair', true )
+				'auto_db_repair' => ActionData::BuildJson( Actions\PluginAutoDbRepair::SLUG )
 			]
 		];
 	}
@@ -163,28 +160,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	private function buildNotice_CompatSgOptimize( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'               => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( 'Site Ground Optimizer plugin has a conflict', 'wp-simple-firewall' ), $name ) ),
-				'message'             => sprintf(
-											 __( 'The SG Optimizer plugin has 2 settings which are breaking your site and certain %s features.', 'wp-simple-firewall' ),
-											 $name
-										 )
-										 .' '.'The problematic options are: "Defer Render-blocking JS" and "Remove Query Strings From Static Resources".',
-				'learn_more'          => 'Click here to learn more',
-				'sgoptimizer_turnoff' => __( 'Click here to automatically turn off those options.', 'wp-simple-firewall' )
-			],
-			'ajax'              => [
-				'sgoptimizer_turnoff' => $this->getMod()->getAjaxActionData( 'sgoptimizer_turnoff', true )
-			]
-		];
-	}
-
 	private function buildNotice_PluginMailingListSignup( NoticeVO $notice ) {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -248,7 +223,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'set_plugin_tracking' => $mod->getAjaxActionData( 'set_plugin_tracking', true ),
+				'set_plugin_tracking' => ActionData::BuildJson( Actions\PluginSetTracking::SLUG ),
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
@@ -301,10 +276,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'update-available':
 				$needed = Services::WpPlugins()->isUpdateAvailable( $con->base_file );
-				break;
-
-			case 'compat-sgoptimize':
-				$needed = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
 				break;
 
 			case 'allow-tracking':

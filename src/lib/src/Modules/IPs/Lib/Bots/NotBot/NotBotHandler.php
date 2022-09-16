@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,7 +35,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 	protected function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet(
 			'shield-notbot-nonce',
-			$this->getMod()->getAjaxActionData( 'not_bot' )[ 'exec_nonce' ],
+			ActionData::Build( CaptureNotBot::SLUG )[ ActionData::FIELD_NONCE ],
 			15
 		);
 	}

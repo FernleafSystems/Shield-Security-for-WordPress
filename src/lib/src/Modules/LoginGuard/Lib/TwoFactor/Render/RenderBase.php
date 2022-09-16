@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -42,12 +43,12 @@ abstract class RenderBase extends DynPropertiesClass {
 	abstract protected function buildPage() :string;
 
 	protected function getCommonFormData() :array {
+		$con = $this->getCon();
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
 		/** @var LoginGuard\Options $opts */
 		$opts = $mfaCon->getOptions();
-		$con = $mfaCon->getCon();
 		$req = Services::Request();
 		$user = $this->getWpUser();
 		$WP = Services::WpGeneral();
@@ -56,10 +57,9 @@ abstract class RenderBase extends DynPropertiesClass {
 
 		return [
 			'hrefs'   => [
-				'form_action' => add_query_arg( array_filter( [
-					'shield_action' => 'wp_login_2fa_verify',
-					'wpe-login'     => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
-				] ), $WP->getLoginUrl() ),
+				'form_action' => $con->getShieldActionNoncedUrl( MfaLoginVerifyStep::SLUG, $WP->getLoginUrl(), [
+					'wpe-login' => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
+				] ),
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),

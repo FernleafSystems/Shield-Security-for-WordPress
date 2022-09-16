@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -531,9 +532,6 @@ class Controller extends DynPropertiesClass {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 		$this->processShieldNonceActions();
-		( new Ajax\Init() )
-			->setCon( $this )
-			->execute();
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
@@ -671,13 +669,12 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
-	public function getNonceActionData( string $action ) :array {
-		return [
-			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $action,
-			'exec_nonce' => wp_create_nonce( $action ),
-			//			'rand'       => wp_rand( 10000, 99999 )
-		];
+	public function getShieldActionNonceData( string $shieldAction, array $aux = [] ) :array {
+		return Shield\Modules\Insights\ActionRouter\ActionData::Build( $shieldAction, true, $aux );
+	}
+
+	public function getShieldActionNoncedUrl( string $shieldAction, string $url = null, array $aux = [] ) :string {
+		return Shield\Modules\Insights\ActionRouter\ActionData::BuildURL( $shieldAction, $url, $aux );
 	}
 
 	/**
@@ -1088,11 +1085,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getPluginUrl_DashboardHome() :string {
-		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
-	}
-
-	public function getPluginUrl_AdminMainPage() :string {
-		return $this->getModule_Plugin()->getUrl_AdminPage();
+		return $this->getModule_Insights()->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW );
 	}
 
 	public function getPath_Languages() :string {
@@ -1138,6 +1131,9 @@ class Controller extends DynPropertiesClass {
 		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
 		return empty( $action ) ? '' : $action;
@@ -1459,6 +1455,17 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
+	/**
+	 * @deprecated 16.2
+	 */
+	public function getNonceActionData( string $action ) :array {
+		return [
+			'action'     => $this->prefix(), //wp ajax doesn't work without this.
+			'exec'       => $action,
+			'exec_nonce' => wp_create_nonce( $action ),
+		];
 	}
 
 	private function runTests() {

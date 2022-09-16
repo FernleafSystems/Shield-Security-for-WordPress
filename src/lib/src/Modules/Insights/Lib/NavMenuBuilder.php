@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -238,7 +240,7 @@ class NavMenuBuilder {
 			'slug'    => 'overview',
 			'title'   => __( 'Overview', 'wp-simple-firewall' ),
 			'img'     => $this->getCon()->svgs->raw( 'bootstrap/speedometer.svg' ),
-			'href'    => $mod->getUrl_SubInsightsPage( 'overview' ),
+			'href'    => $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
 			'introjs' => [
 				'body' => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
@@ -265,7 +267,7 @@ class NavMenuBuilder {
 						'load_variant' => $cfg->slug,
 						'target_href'  => $module->getUrl_OptionsConfigPage(),
 					],
-					'active'        => Services::Request()->query( 'subnav' ) === $cfg->slug,
+					'active'        => Services::Request()->query( ActionRoutingController::NAV_SUB_ID ) === $cfg->slug,
 					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],
 				];
 			}
@@ -499,7 +501,7 @@ class NavMenuBuilder {
 	}
 
 	private function getInav() :string {
-		return (string)Services::Request()->query( 'inav' );
+		return (string)Services::Request()->query( ActionRoutingController::NAV_ID );
 	}
 
 	private function getOffCanvasJavascriptLinkFor( string $for ) :string {
