@@ -21,6 +21,13 @@ class Debug extends Modules\Base\Debug {
 	}
 
 	private function cleanIPs() {
+
+		( new Modules\IPs\DB\IpRules\CleanIpRules() )
+			->setMod( $this->getCon()->getModule_IPs() )
+			->expired_Crowdsec();
+		return;
+
+
 		$ip = '150.95.219.153';
 		$mod = $this->getCon()->getModule_IPs();
 
