@@ -57,9 +57,13 @@ class CleanIpRules extends ExecOnceModConsumer {
 		// Expired CrowdSec
 		/** @var Ops\Delete $deleter */
 		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
+		// 1st ensure we have no "never expiring" IPs. They should always be added with an expiry.
 		$deleter
 			->filterByType( Handler::T_CROWDSEC )
-			->addWhereNewerThan( 0, 'expires_at' )
+			->addWhereEquals( 'expires_at', 0 )
+			->query();
+		$deleter
+			->filterByType( Handler::T_CROWDSEC )
 			->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 			->query();
 	}
