@@ -1,0 +1,31 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\AdminPages;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\ActivityLogTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrail;
+
+class UserMfaConfigPage extends BaseRender {
+
+	use SecurityAdminNotRequired;
+
+	const SLUG = 'page_user_mfa_config';
+	const PRIMARY_MOD = 'login_protect';
+	const TEMPLATE = '/wpadmin_pages/my_login_security/index.twig';
+
+	protected function getRenderData() :array {
+		/** @var ModCon $mod */
+		$mod = $this->primary_mod;
+		return [
+			'content' => [
+				'mfa_setup' => $mod->getMfaController()
+								   ->getMfaProfilesCon()
+								   ->renderUserProfileMFA()
+			]
+		];
+	}
+}

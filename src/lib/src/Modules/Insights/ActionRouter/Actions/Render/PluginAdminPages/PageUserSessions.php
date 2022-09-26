@@ -11,13 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModCon;
 class PageUserSessions extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_user_sessions';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'user_management',
-			'template'         => '/wpadmin_pages/insights/plugin_admin/table_sessions.twig',
-		];
-	}
+	const PRIMARY_MOD = 'user_management';
+	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/table_sessions.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

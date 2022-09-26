@@ -4,9 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class LicenseBase extends BaseAction {
 
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'license',
-		];
-	}
+	const PRIMARY_MOD = 'license';
 }

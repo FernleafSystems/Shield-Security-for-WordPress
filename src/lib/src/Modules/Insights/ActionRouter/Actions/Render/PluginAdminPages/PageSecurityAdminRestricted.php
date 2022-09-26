@@ -11,13 +11,8 @@ class PageSecurityAdminRestricted extends Actions\Render\BaseRender {
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	const SLUG = 'admin_plugin_page_security_admin_restricted';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'admin_access_restriction',
-			'template'         => '/wpadmin_pages/security_admin/index.twig',
-		];
-	}
+	const PRIMARY_MOD = 'admin_access_restriction';
+	const TEMPLATE = '/wpadmin_pages/security_admin/index.twig';
 
 	protected function getRenderData() :array {
 		/** @var Options $secOpts */

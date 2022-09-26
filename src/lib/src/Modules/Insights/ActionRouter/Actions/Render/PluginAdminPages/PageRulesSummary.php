@@ -5,13 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 class PageRulesSummary extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_rules_summary';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'plugin',
-			'template'         => '/wpadmin_pages/insights/plugin_admin/rules_summary.twig',
-		];
-	}
+	const PRIMARY_MOD = 'plugin';
+	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/rules_summary.twig';
 
 	protected function getRenderData() :array {
 		$rules = $this->getCon()->rules->getRules();

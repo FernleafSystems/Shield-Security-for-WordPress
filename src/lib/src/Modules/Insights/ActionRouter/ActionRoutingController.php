@@ -65,9 +65,6 @@ class ActionRoutingController extends ExecOnceModConsumer {
 		catch ( Exceptions\InvalidActionNonceException $e ) {
 			wp_die( 'Unexpected data. Please try again.' );
 		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
-		}
 
 		$adapter->setMod( $this->getMod() )->adapt( $actionResponse );
 		return $actionResponse;

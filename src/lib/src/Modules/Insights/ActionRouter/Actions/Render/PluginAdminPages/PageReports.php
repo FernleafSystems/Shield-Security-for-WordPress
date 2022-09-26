@@ -12,13 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRule
 class PageReports extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_reports';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'reporting',
-			'template'         => '/wpadmin_pages/insights/reports/index.twig',
-		];
-	}
+	const PRIMARY_MOD = 'reporting';
+	const TEMPLATE = '/wpadmin_pages/insights/reports/index.twig';
 
 	protected function getRenderData() :array {
 		return [

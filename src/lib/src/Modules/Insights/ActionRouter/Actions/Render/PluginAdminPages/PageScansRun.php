@@ -12,13 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 class PageScansRun extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_scans_run';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'hack_protect',
-			'template'         => '/wpadmin_pages/insights/scans/run/index.twig',
-		];
-	}
+	const PRIMARY_MOD = 'hack_protect';
+	const TEMPLATE = '/wpadmin_pages/insights/scans/run/index.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

@@ -9,12 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ActivityLogTableAction extends BaseAction {
 
 	const SLUG = 'logtable_action';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'audit_trail',
-		];
-	}
+	const PRIMARY_MOD = 'audit_trail';
 
 	/**
 	 * @inheritDoc
@@ -44,7 +39,7 @@ class ActivityLogTableAction extends BaseAction {
 			];
 		}
 
-		$this->response->action_response_data = $response;
+		$this->response()->action_response_data = $response;
 	}
 
 	private function retrieveTableData() :array {

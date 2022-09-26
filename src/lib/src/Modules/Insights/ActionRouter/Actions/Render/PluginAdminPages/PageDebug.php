@@ -8,13 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvent
 class PageDebug extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_debug';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'plugin',
-			'template'         => '/wpadmin_pages/insights/plugin_admin/debug.twig',
-		];
-	}
+	const PRIMARY_MOD = 'plugin';
+	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/debug.twig';
 
 	protected function getRenderData() :array {
 		return [

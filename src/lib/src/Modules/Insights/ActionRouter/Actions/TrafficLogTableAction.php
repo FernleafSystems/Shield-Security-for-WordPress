@@ -8,12 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class TrafficLogTableAction extends BaseAction {
 
 	const SLUG = 'traffictable_action';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'traffic',
-		];
-	}
+	const PRIMARY_MOD = 'traffic';
 
 	/**
 	 * @inheritDoc

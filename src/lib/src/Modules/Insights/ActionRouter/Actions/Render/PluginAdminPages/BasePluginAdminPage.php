@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\BaseRender;
 
-/**
- * @property string $nav
- * @property string $nav_sub
- */
 abstract class BasePluginAdminPage extends BaseRender {
 
 }

@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaRemoveAll extends MfaBase {
 
+	/** Attempting to remove MFA settings on another user account. */
+	use Traits\SecurityAdminRequired;
+
 	const SLUG = 'mfa_profile_remove_all';
 
 	protected function exec() {

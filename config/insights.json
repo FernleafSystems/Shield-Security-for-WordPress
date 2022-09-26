@@ -22,7 +22,7 @@
   "menu_items": [
     {
       "title": "Configuration",
-      "slug":  "redirect-settings"
+      "slug":  "redirect-config"
     },
     {
       "title": "IP Manager",

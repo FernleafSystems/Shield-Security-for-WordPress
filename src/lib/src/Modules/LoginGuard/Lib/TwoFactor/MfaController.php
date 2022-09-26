@@ -15,6 +15,8 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 */
 	private $providers;
 
+	private $mfaProfilesCon;
+
 	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], 9 ); // Login Intent handling
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling
@@ -104,11 +106,24 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return $this->getOptions()->isOpt( 'mfa_verify_page', 'custom_shield' );
 	}
 
+	public function getMfaProfilesCon() :MfaProfilesController {
+		if ( !isset( $this->mfaProfilesCon ) ) {
+			$this->mfaProfilesCon = ( new MfaProfilesController() )->setMod( $this->getMod() );
+		}
+		return $this->mfaProfilesCon;
+	}
+
 	public function onWpLoaded() {
-		( new MfaProfilesController() )
-			->setMod( $this->getMod() )
-			->setMfaController( $this ) // TODO: remove
-			->execute();
+		if ( method_exists( $this, 'getMfaProfilesCon' ) ) {
+			$this->getMfaProfilesCon()->execute();
+		}
+		else {
+			/** @deprecated 16.2 */
+			( new MfaProfilesController() )
+				->setMod( $this->getMod() )
+				->setMfaController( $this )
+				->execute();
+		}
 		$this->addToUserStatusColumn();
 	}
 

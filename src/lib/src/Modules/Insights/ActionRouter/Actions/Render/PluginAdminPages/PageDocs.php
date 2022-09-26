@@ -10,13 +10,8 @@ class PageDocs extends BasePluginAdminPage {
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	const SLUG = 'admin_plugin_page_docs';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'insights',
-			'template'         => '/wpadmin_pages/insights/docs/index.twig',
-		];
-	}
+	const PRIMARY_MOD = 'insights';
+	const TEMPLATE = '/wpadmin_pages/insights/docs/index.twig';
 
 	protected function getRenderData() :array {
 		return [

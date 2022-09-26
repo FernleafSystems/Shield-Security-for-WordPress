@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+
 abstract class MfaBase extends BaseAction {
 
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'login_protect',
-		];
-	}
+	use SecurityAdminNotRequired;
+
+	const PRIMARY_MOD = 'login_protect';
 }

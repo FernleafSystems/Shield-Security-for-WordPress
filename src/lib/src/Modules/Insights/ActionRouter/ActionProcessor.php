@@ -59,7 +59,7 @@ class ActionProcessor {
 	public function findActionFromSlug( string $slug ) :string {
 		$theAction = '';
 		foreach ( $this->enum() as $action ) {
-			if ( preg_match( $action::GetPattern(), $slug ) ) {
+			if ( preg_match( $action::Pattern(), $slug ) ) {
 				$theAction = $action;
 				break;
 			}
@@ -159,6 +159,9 @@ class ActionProcessor {
 			Actions\UserSessionsTableRender::class,
 			Actions\UserSessionsTableBulkAction::class,
 
+			Actions\Render\AdminPages\UserMfaConfigPage::class,
+			Actions\Render\Components\UserMfaConfigEdit::class,
+			Actions\Render\Components\UserMfaConfigForm::class,
 			Actions\Render\PageAdminPlugin::class,
 			Actions\Render\PluginAdminPages\ActivityLogTable::class,
 			Actions\Render\PluginAdminPages\PageDebug::class,

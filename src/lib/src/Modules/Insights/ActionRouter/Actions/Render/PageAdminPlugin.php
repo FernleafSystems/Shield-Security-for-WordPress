@@ -15,13 +15,8 @@ class PageAdminPlugin extends BaseRender {
 	use SecurityAdminNotRequired;
 
 	const SLUG = 'page_admin_plugin';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'insights',
-			'template'         => '/wpadmin_pages/insights/index.twig',
-		];
-	}
+	const PRIMARY_MOD = 'insights';
+	const TEMPLATE = '/wpadmin_pages/insights/index.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

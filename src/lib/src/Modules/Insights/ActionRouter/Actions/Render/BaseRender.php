@@ -11,6 +11,26 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 abstract class BaseRender extends BaseAction {
 
+	const TEMPLATE = 'insights';
+
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+
+		switch ( $key ) {
+
+			case 'template':
+				if ( empty( $value ) ) {
+					$value = static::TEMPLATE;
+				}
+				break;
+
+			default:
+				break;
+		}
+
+		return $value;
+	}
+
 	/**
 	 * @inheritDoc
 	 */

@@ -4,9 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class IpsBase extends BaseAction {
 
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'ips',
-		];
-	}
+	const PRIMARY_MOD = 'ips';
 }

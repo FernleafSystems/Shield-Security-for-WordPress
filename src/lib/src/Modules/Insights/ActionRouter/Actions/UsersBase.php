@@ -4,9 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class UsersBase extends BaseAction {
 
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'user_management',
-		];
-	}
+	const PRIMARY_MOD = 'user_management';
 }

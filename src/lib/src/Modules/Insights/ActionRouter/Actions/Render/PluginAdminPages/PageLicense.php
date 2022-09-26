@@ -14,13 +14,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class PageLicense extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_license';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'license',
-			'template'         => '/wpadmin_pages/insights/plugin_admin/license.twig',
-		];
-	}
+	const PRIMARY_MOD = 'license';
+	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/license.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

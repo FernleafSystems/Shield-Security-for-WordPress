@@ -9,13 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrai
 class ActivityLogTable extends BasePluginAdminPage {
 
 	const SLUG = 'page_admin_plugin_activity_log_table';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'audit_trail',
-			'template'         => '/wpadmin_pages/insights/plugin_admin/table_activity.twig',
-		];
-	}
+	const PRIMARY_MOD = 'audit_trail';
+	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/table_activity.twig';
 
 	protected function getRenderData() :array {
 		return [

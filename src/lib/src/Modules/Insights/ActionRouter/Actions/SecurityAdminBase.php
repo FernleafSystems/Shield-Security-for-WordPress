@@ -8,9 +8,5 @@ abstract class SecurityAdminBase extends BaseAction {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'admin_access_restriction',
-		];
-	}
+	const PRIMARY_MOD = 'admin_access_restriction';
 }

@@ -7,13 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\MerlinCo
 class PageMerlin extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_merlin';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'insights',
-			'template'         => '/components/merlin/container.twig',
-		];
-	}
+	const PRIMARY_MOD = 'insights';
+	const TEMPLATE = '/components/merlin/container.twig';
 
 	/**
 	 * TODO: Fix 1: show_sidebar_nav

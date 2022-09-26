@@ -11,13 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 class PageAdminNotes extends BasePluginAdminPage {
 
 	const SLUG = 'admin_plugin_page_admin_notes';
-
-	protected function getDefaults() :array {
-		return [
-			'primary_mod_slug' => 'plugin',
-			'template'         => '/wpadmin_pages/insights/plugin_admin/notes.twig',
-		];
-	}
+	const PRIMARY_MOD = 'plugin';
+	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/notes.twig';
 
 	protected function getRenderData() :array {
 		return [
