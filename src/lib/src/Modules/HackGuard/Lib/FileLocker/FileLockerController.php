@@ -26,6 +26,11 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 					  ->canHandshake();
 	}
 
+	public function canSslEncryption() :bool {
+		$enc = Services::Encrypt();
+		return $enc->isSupportedOpenSslDataEncryption() && $enc->hasCipherAlgo( 'rc4' );
+	}
+
 	protected function run() {
 		$con = $this->getCon();
 		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
@@ -34,7 +39,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function checkLockConfig() {
-		if ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) {
+		if ( ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) || !$this->canSslEncryption() ) {
 			$this->deleteAllLocks();
 			$this->setState( [] );
 		}
