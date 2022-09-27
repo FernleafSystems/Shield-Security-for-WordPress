@@ -128,6 +128,24 @@
     ],
     "patches":     [
       {
+        "version":     "7",
+        "released_at": 1663240500,
+        "items":       [
+          {
+            "title": "Bug Fix: ensure expired crowdsec IPs are always cleaned.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Optimise the checking and building of file hashes.",
+            "type":  "improved"
+          },
+          {
+            "title": "Update Swedish translations file.",
+            "type":  "improved"
+          }
+        ]
+      },
+      {
         "version":     "6",
         "released_at": 1663240500,
         "items":       [

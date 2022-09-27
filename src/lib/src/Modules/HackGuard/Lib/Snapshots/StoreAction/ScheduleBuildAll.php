@@ -73,16 +73,16 @@ class ScheduleBuildAll extends Base {
 
 			function ( $asset ) {
 				try {
-					$meta = ( new Load() )
+					( new Load() )
 						->setMod( $this->getMod() )
 						->setAsset( $asset )
-						->run()
-						->getSnapMeta();
+						->run();
+					$needBuilt = false;
 				}
 				catch ( \Exception $e ) {
-					$meta = null;
+					$needBuilt = true;
 				}
-				return ( empty( $meta ) || $asset->version !== $meta[ 'version' ] );
+				return $needBuilt;
 			}
 		);
 	}
