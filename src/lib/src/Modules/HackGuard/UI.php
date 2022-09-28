@@ -245,6 +245,15 @@ class UI extends BaseShield\UI {
 						$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
 					}
 				}
+
+				$enc = Services::Encrypt();
+				if ( !$enc->isSupportedOpenSslDataEncryption() ) {
+					$warnings[] = sprintf( __( "FileLocker can't be used because the PHP %s extension isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
+				}
+				elseif ( !$enc->hasCipherAlgo( 'rc4' ) ) {
+					$warnings[] = sprintf( __( "FileLocker can't be used because the RC4 encryption cipher isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
+				}
+
 //				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 //					$warnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
 //				}

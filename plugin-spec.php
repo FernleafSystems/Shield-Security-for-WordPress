@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "16.1.6",
-    "release_timestamp":       1663240500,
-    "build":                   "202209.1502",
+    "version":                 "16.1.7",
+    "release_timestamp":       1664351900,
+    "build":                   "202209.2801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",

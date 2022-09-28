@@ -33,10 +33,16 @@ class Store {
 	protected $workingDir;
 
 	/**
+	 * @var bool
+	 */
+	private $includeVersion;
+
+	/**
 	 * @param WpPluginVo|WpThemeVo $asset
 	 */
-	public function __construct( $asset ) {
+	public function __construct( $asset, bool $includeVersion = true ) {
 		$this->asset = $asset;
+		$this->includeVersion = $includeVersion;
 	}
 
 	/**
@@ -58,8 +64,15 @@ class Store {
 		return $this->getBaseSnapPath().'_meta'.'.txt';
 	}
 
-	private function getBaseSnapPath() :string {
-		return path_join( $this->getWorkingDir(), path_join( $this->getContext(), $this->getSlug() ) );
+	public function getBaseSnapPath() :string {
+		$path = path_join( $this->getWorkingDir(), path_join( $this->getContext(), $this->getSlug() ) );
+		if ( !empty( $path ) && $this->includeVersion ) {
+			$version = $this->asset->Version;
+			if ( !empty( $version ) ) {
+				$path .= '-'.$version;
+			}
+		}
+		return $path;
 	}
 
 	public function getWorkingDir() :string {
@@ -201,7 +214,6 @@ class Store {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	public function saveMeta() :bool {
@@ -217,7 +229,6 @@ class Store {
 	}
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
 	protected function isReady() :bool {
@@ -242,7 +253,6 @@ class Store {
 
 	/**
 	 * We try to capture periods wherein which the plugin may have been deactivated and tracking has paused.
-	 * @return bool
 	 */
 	private function isSnapStoreRelevant() :bool {
 		$relevant = true;
@@ -258,7 +268,6 @@ class Store {
 	}
 
 	/**
-	 * @param array $data
 	 * @return $this
 	 */
 	public function setSnapData( array $data ) {
@@ -267,7 +276,6 @@ class Store {
 	}
 
 	/**
-	 * @param array $meta
 	 * @return $this
 	 */
 	public function setSnapMeta( array $meta ) {
@@ -276,7 +284,6 @@ class Store {
 	}
 
 	/**
-	 * @param string $dir
 	 * @return $this
 	 */
 	public function setWorkingDir( string $dir ) {

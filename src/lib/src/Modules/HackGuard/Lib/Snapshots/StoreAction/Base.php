@@ -9,27 +9,32 @@ class Base {
 
 	use ModConsumer;
 
+	private static $tempDir;
+
 	protected function isTempDirAvailable() :bool {
 		return !empty( $this->getTempDir() );
 	}
 
 	protected function getTempDir() :string {
-		$FS = Services::WpFs();
-		try {
-			$dir = $this->findTempDir();
-			if ( basename( $dir ) === 'ptguard' ) {
-				$oldDir = $dir;
-				$dir = $this->generateNewDirName();
-				foreach ( [ 'plugins', 'themes' ] as $type ) {
-					$FS->moveDirContents( path_join( $oldDir, $type ), path_join( $dir, $type ) );
+		if ( empty( self::$tempDir ) ) {
+			$FS = Services::WpFs();
+			try {
+				$dir = $this->findTempDir();
+				if ( basename( $dir ) === 'ptguard' ) {
+					$oldDir = $dir;
+					$dir = $this->generateNewDirName();
+					foreach ( [ 'plugins', 'themes' ] as $type ) {
+						$FS->moveDirContents( path_join( $oldDir, $type ), path_join( $dir, $type ) );
+					}
+					$FS->deleteDir( $oldDir );
 				}
-				$FS->deleteDir( $oldDir );
 			}
+			catch ( \Exception $e ) {
+				$dir = $this->generateNewDirName();
+			}
+			self::$tempDir = $dir;
 		}
-		catch ( \Exception $e ) {
-			$dir = $this->generateNewDirName();
-		}
-		return $dir;
+		return self::$tempDir;
 	}
 
 	private function generateNewDirName() :string {
