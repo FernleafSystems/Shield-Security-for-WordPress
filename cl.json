@@ -140,6 +140,10 @@
             "type":  "improved"
           },
           {
+            "title": "Improvements to requirements checking for the File Locker feature.",
+            "type":  "improved"
+          },
+          {
             "title": "Update Swedish translations file.",
             "type":  "improved"
           }

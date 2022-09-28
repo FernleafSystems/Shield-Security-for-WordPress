@@ -186,7 +186,6 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 			 && $now - $state[ 'last_locks_created_at' ] > 60
 			 && $now - $state[ 'last_locks_created_failed_at' ] > 600
 		) {
-
 			foreach ( $filesToLock as $fileKey ) {
 				try {
 					( new Ops\CreateFileLocks() )
@@ -195,6 +194,10 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 						->create();
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';
+				}
+				catch ( Exceptions\NoFileLockPathsExistException $e ) {
+					// Remove the key if there are no files on-disk to lock
+					$opts->setOpt( 'file_locker', array_diff( $opts->getFilesToLock(), [ $fileKey ] ) );
 				}
 				catch ( \Exception $e ) {
 					$state[ 'last_error' ] = $e->getMessage();
