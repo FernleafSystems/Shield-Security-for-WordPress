@@ -3,16 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\NoFileLockPathsExistException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateFileLocks extends BaseOps {
 
 	/**
+	 * @throws NoFileLockPathsExistException
 	 * @throws \Exception
 	 */
 	public function create() {
-		foreach ( $this->file->getExistingPossiblePaths() as $path ) {
+		$possiblePaths = $this->file->getExistingPossiblePaths();
+		if ( empty( $possiblePaths ) ) {
+			throw new NoFileLockPathsExistException();
+		}
+
+		foreach ( $possiblePaths as $path ) {
 			if ( empty( $this->findLockRecordForFile() ) ) {
 				$this->processPath( $path );
 			}

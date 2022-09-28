@@ -26,6 +26,11 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 					  ->canHandshake();
 	}
 
+	public function canSslEncryption() :bool {
+		$enc = Services::Encrypt();
+		return $enc->isSupportedOpenSslDataEncryption() && $enc->hasCipherAlgo( 'rc4' );
+	}
+
 	protected function run() {
 		$con = $this->getCon();
 		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
@@ -34,7 +39,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function checkLockConfig() {
-		if ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) {
+		if ( ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) || !$this->canSslEncryption() ) {
 			$this->deleteAllLocks();
 			$this->setState( [] );
 		}
@@ -170,6 +175,9 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
 	 */
 	private function runLocksCreation() {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+
 		$now = Services::Request()->ts();
 		$filesToLock = ( new Ops\GetFileLocksToCreate() )->setMod( $this->getMod() )->run();
 
@@ -178,7 +186,6 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 			 && $now - $state[ 'last_locks_created_at' ] > 60
 			 && $now - $state[ 'last_locks_created_failed_at' ] > 600
 		) {
-
 			foreach ( $filesToLock as $fileKey ) {
 				try {
 					( new Ops\CreateFileLocks() )
@@ -187,6 +194,10 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 						->create();
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';
+				}
+				catch ( Exceptions\NoFileLockPathsExistException $e ) {
+					// Remove the key if there are no files on-disk to lock
+					$opts->setOpt( 'file_locker', array_diff( $opts->getFilesToLock(), [ $fileKey ] ) );
 				}
 				catch ( \Exception $e ) {
 					$state[ 'last_error' ] = $e->getMessage();
