@@ -27,7 +27,6 @@ class Debug extends Modules\Base\Debug {
 			->expired_Crowdsec();
 		return;
 
-
 		$ip = '150.95.219.153';
 		$mod = $this->getCon()->getModule_IPs();
 

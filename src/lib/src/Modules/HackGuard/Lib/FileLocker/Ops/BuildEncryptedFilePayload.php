@@ -13,7 +13,13 @@ class BuildEncryptedFilePayload extends BaseOps {
 	 */
 	public function build( $path, $publicKey ) :string {
 		$srvEnc = Services::Encrypt();
-		$payload = $srvEnc->sealData( Services::WpFs()->getFileContent( $path ), $publicKey );
+
+		// Ensure the contents are never empty,
+		$contents = Services::WpFs()->getFileContent( $path );
+		if ( empty( $contents ) ) {
+			$contents = ' ';
+		}
+		$payload = $srvEnc->sealData( $contents, $publicKey );
 		if ( !$payload->success ) {
 			throw new \Exception( 'File contents could not be encrypted with message: '.$payload->message );
 		}
