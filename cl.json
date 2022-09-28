@@ -128,11 +128,11 @@
     ],
     "patches":     [
       {
-        "version":     "7",
-        "released_at": 1664351900,
+        "version":     "8",
+        "released_at": 1664360000,
         "items":       [
           {
-            "title": "Bug Fix: ensure expired crowdsec IPs are always cleaned.",
+            "title": "Bug Fix: ensure expired crowdsec IPs are always purged.",
             "type":  "fixed"
           },
           {
