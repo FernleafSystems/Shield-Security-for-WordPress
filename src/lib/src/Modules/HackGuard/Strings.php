@@ -244,7 +244,8 @@ class Strings extends Base\Strings {
 					__( 'Detects changes to the files, then lets you examine contents and revert as required.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Web.Config is only available for Windows/IIS.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'After saving, it may take up to 60 seconds before a new lock is stored.', 'wp-simple-firewall' ) )
-					.' '.__( "It will be displayed below when it's ready.", 'wp-simple-firewall' )
+					.' '.__( "It will be displayed below when it's ready.", 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "The PHP OpenSSL Extension is required, along with the RC4 Cipher.", 'wp-simple-firewall' ) ),
 				];
 
 				$locks = ( new LoadFileLocks() )

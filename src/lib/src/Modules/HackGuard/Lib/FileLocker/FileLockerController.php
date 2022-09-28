@@ -175,6 +175,9 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
 	 */
 	private function runLocksCreation() {
+		/** @var HackGuard\Options $opts */
+		$opts = $this->getOptions();
+
 		$now = Services::Request()->ts();
 		$filesToLock = ( new Ops\GetFileLocksToCreate() )->setMod( $this->getMod() )->run();
 
