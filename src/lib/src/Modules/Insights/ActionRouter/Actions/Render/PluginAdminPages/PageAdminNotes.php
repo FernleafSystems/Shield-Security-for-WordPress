@@ -6,21 +6,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\AdminNoteBulkAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\AdminNoteDelete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\AdminNoteInsert;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\AdminNotesRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\AdminNotes;
 
 class PageAdminNotes extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_admin_notes';
 	const PRIMARY_MOD = 'plugin';
+	const SLUG = 'admin_plugin_page_admin_notes';
 	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/notes.twig';
 
 	protected function getRenderData() :array {
 		return [
 			'ajax'    => [
-				'render_table_adminnotes' => ActionData::BuildJson( AdminNotesRender::SLUG ),
-				'item_delete'             => ActionData::BuildJson( AdminNoteDelete::SLUG ),
-				'item_insert'             => ActionData::BuildJson( AdminNoteInsert::SLUG ),
-				'bulk_action'             => ActionData::BuildJson( AdminNoteBulkAction::SLUG ),
+				'render_adminnotes' => ActionData::BuildJson( AdminNotes::SLUG ),
+				'item_delete'       => ActionData::BuildJson( AdminNoteDelete::SLUG ),
+				'item_insert'       => ActionData::BuildJson( AdminNoteInsert::SLUG ),
+				'bulk_action'       => ActionData::BuildJson( AdminNoteBulkAction::SLUG ),
 			],
 			'strings' => [
 				'note_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),

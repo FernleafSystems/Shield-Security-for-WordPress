@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Reporting;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\ReportsBuilderInfo;
 
 class BuilderInfo extends BaseBuilder {
 
@@ -26,17 +27,19 @@ class BuilderInfo extends BaseBuilder {
 	}
 
 	protected function render( array $gathered ) :string {
-		return $this->getMod()->renderTemplate( '/components/reports/info_body.twig', [
-			'strings' => [
-				'title'            => __( 'Site Information Report', 'wp-simple-firewall' ),
-				'subtitle'         => __( 'The following is a collection of the latest information based on your reporting settings.', 'wp-simple-firewall' ),
-				'dates_below'      => __( 'Information is for the following time period.', 'wp-simple-firewall' ),
-				'reporting_period' => __( 'Reporting Period', 'wp-simple-firewall' ),
-				'time_interval'    => $this->getTimeIntervalForDisplay(),
-			],
-			'vars'    => [
-				'alerts' => $gathered
-			],
-		] );
+		return $this->getCon()
+					->getModule_Insights()
+					->getActionRouter()
+					->render(
+						ReportsBuilderInfo::SLUG,
+						[
+							'strings' => [
+								'time_interval' => $this->getTimeIntervalForDisplay(),
+							],
+							'vars'    => [
+								'alerts' => $gathered
+							],
+						]
+					);
 	}
 }

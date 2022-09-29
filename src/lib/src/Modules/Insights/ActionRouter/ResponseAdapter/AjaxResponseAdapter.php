@@ -11,10 +11,10 @@ class AjaxResponseAdapter extends BaseAdapter {
 	 * @inheritDoc
 	 */
 	public function adapt( ActionResponse $response ) {
-		$ajax_data = array_merge(
+		$responseData = array_merge(
 			[
 				'success'    => false,
-				'message'    => $response->msg ?? '',
+				'message'    => $response->message ?? '',
 				'error'      => $response->error ?? '',
 				'html'       => '-',
 				'page_title' => '-',
@@ -30,11 +30,11 @@ class AjaxResponseAdapter extends BaseAdapter {
 		 * This approach is a bit of a hack. Is there a better way to standardise moving render data to ajax?
 		 */
 		if ( $response->action_slug === PageSecurityAdminRestricted::SLUG ) {
-			$ajax_data = [
+			$responseData = [
 				'html' => $response->action_response_data[ 'render_output' ]
 			];
 		}
 
-		$response->ajax_data = $ajax_data;
+		$response->action_response_data = $responseData;
 	}
 }

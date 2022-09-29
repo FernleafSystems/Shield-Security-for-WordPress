@@ -11,9 +11,6 @@ class LicenseScheduleCheck extends LicenseBase {
 
 	const SLUG = 'license_check';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

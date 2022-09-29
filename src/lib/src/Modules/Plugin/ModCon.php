@@ -44,8 +44,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getPluginBadgeCon() :Components\PluginBadge {
 		if ( !isset( $this->pluginBadgeCon ) ) {
-			$this->pluginBadgeCon = ( new Components\PluginBadge() )
-				->setMod( $this );
+			$this->pluginBadgeCon = ( new Components\PluginBadge() )->setMod( $this );
 		}
 		return $this->pluginBadgeCon;
 	}
@@ -406,13 +405,14 @@ class ModCon extends BaseShield\ModCon {
 					],
 					'mod_config'    => [
 						'ajax' => [
-							'offcanvas_render' => ActionData::Build( Actions\PluginOffCanvasRender::SLUG ),
+							'offcanvas_render' => ActionData::Build( Actions\Render\Components\OffCanvas\OffCanvasBase::SLUG ),
 						]
 					],
 					'offcanvas'     => [
-						'ajax' => [
-							'offcanvas_render' => ActionData::Build( Actions\PluginOffCanvasRender::SLUG ),
-						]
+						'ip_analysis'      => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
+						'ip_rule_add_form' => Actions\Render\Components\OffCanvas\IpRuleAddForm::SLUG,
+						'meter_analysis'   => Actions\Render\Components\OffCanvas\MeterAnalysis::SLUG,
+						'mod_config'       => Actions\Render\Components\OffCanvas\ModConfig::SLUG,
 					],
 					'mod_options'   => [
 						'ajax' => [
@@ -449,9 +449,10 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_globalplugin',
 			[
 				'vars' => [
+					'ajax_render'      => ActionData::Build( Actions\AjaxRender::SLUG ),
 					'dashboard_widget' => [
 						'ajax' => [
-							'render_dashboard_widget' => ActionData::Build( Actions\PluginDashboardWidgetRender::SLUG )
+							'render_dashboard_widget' => Actions\Render\Components\DashboardWidget::SLUG
 						]
 					],
 					'notices'          => [

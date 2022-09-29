@@ -157,9 +157,7 @@ class ModCon extends BaseShield\ModCon {
 			[
 				'components' => [
 					'modal_ip_rule_add' => [
-						'ajax' => [
-							'ip_rule_add_render' => ActionData::Build( Actions\IpRuleAddRender::SLUG ),
-						]
+						'render_slug' => Actions\Render\Components\IPs\FormIpRuleAdd::SLUG
 					],
 					'ip_analysis'       => [
 						'ajax' => [

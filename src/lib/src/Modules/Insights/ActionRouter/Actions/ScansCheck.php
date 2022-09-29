@@ -5,14 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 
 class ScansCheck extends ScansBase {
 
 	const SLUG = 'scans_check';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
@@ -44,15 +42,14 @@ class ScansCheck extends ScansBase {
 			'success' => true,
 			'running' => $queueCon->getScansRunningStates(),
 			'vars'    => [
-				'progress_html' => $mod->renderTemplate( '/wpadmin_pages/insights/scans/modal/progress_snippet.twig', [
-					'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
-					'scan'            => $currentScan,
-					'remaining_scans' => $remainingScans,
-					'progress'        => 100*$queueCon->getScanJobProgress(),
-					'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
-					'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
-					'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
-				] ),
+				'progress_html' => $this->getCon()
+										->getModule_Insights()
+										->getActionRouter()
+										->render( ScansProgress::SLUG, [
+											'current_scan'    => $currentScan,
+											'remaining_scans' => $remainingScans,
+											'progress'        => 100*$queueCon->getScanJobProgress(),
+										] ),
 			]
 		];
 	}

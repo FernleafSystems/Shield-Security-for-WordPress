@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
@@ -24,13 +23,13 @@ class PageAdminPlugin extends BaseRender {
 		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$nav = $this->primary_mod->isAccessRestricted() ? 'restricted' : $req->query( ActionRoutingController::NAV_ID, Constants::ADMIN_PAGE_OVERVIEW );
-		$subNav = (string)$req->query( ActionRoutingController::NAV_SUB_ID );
+		$nav = $this->primary_mod->isAccessRestricted() ? 'restricted' : $req->query( Constants::NAV_ID, Constants::ADMIN_PAGE_OVERVIEW );
+		$subNav = (string)$req->query( Constants::NAV_SUB_ID );
 
 		// The particular renderer for the main page body area, based on navigation
 		$delegateAction = $this->getDelegateActionRenderer()[ $nav ] ?? null;
 		if ( empty( $delegateAction ) ) {
-			throw new ActionException( 'Unavailable inav handling: '.$nav );
+			throw new ActionException( 'Unavailable nav handling: '.$nav );
 		}
 
 		$pageTitleData = $this->getPageTitles()[ $nav ];
@@ -41,41 +40,38 @@ class PageAdminPlugin extends BaseRender {
 				__( 'Configuration', 'wp-simple-firewall' ), empty( $activeMod ) ? 'Unknown Module' : $activeMod->getMainFeatureName() );
 		}
 
-		return Services::DataManipulation()->mergeArraysRecursive(
-			$mod->getUIHandler()->getBaseDisplayData(),
-			[
-				'classes' => [
-					'page_container' => 'page-insights page-'.$nav
-				],
-				'content' => [
-					'rendered_page_body' => $this->getCon()
-												 ->getModule_Insights()
-												 ->getActionRouter()
-												 ->render( $delegateAction::SLUG, [
-													 ActionRoutingController::NAV_ID     => $nav,
-													 ActionRoutingController::NAV_SUB_ID => $subNav,
-												 ] )->render_data[ 'output' ],
-				],
-				'flags'   => [
-					'is_advanced' => $con->getModule_Plugin()->isShowAdvanced()
-				],
-				'hrefs'   => [
-					'go_pro' => 'https://shsec.io/shieldgoprofeature',
-				],
-				'imgs'    => [
-					'logo_banner' => $con->labels->url_img_pagebanner,
-				],
-				'strings' => [
-					'page_title' => $pageTitle
-				],
-				'vars'    => [
-					'active_module_settings' => $subNav,
-					'navbar_menu'            => ( new NavMenuBuilder() )
-						->setMod( $mod )
-						->build()
-				],
-			]
-		);
+		return [
+			'classes' => [
+				'page_container' => 'page-insights page-'.$nav
+			],
+			'content' => [
+				'rendered_page_body' => $this->getCon()
+											 ->getModule_Insights()
+											 ->getActionRouter()
+											 ->render( $delegateAction::SLUG, [
+												 Constants::NAV_ID     => $nav,
+												 Constants::NAV_SUB_ID => $subNav,
+											 ] ),
+			],
+			'flags'   => [
+				'is_advanced' => $con->getModule_Plugin()->isShowAdvanced()
+			],
+			'hrefs'   => [
+				'go_pro' => 'https://shsec.io/shieldgoprofeature',
+			],
+			'imgs'    => [
+				'logo_banner' => $con->labels->url_img_pagebanner,
+			],
+			'strings' => [
+				'page_title' => $pageTitle
+			],
+			'vars'    => [
+				'active_module_settings' => $subNav,
+				'navbar_menu'            => ( new NavMenuBuilder() )
+					->setMod( $mod )
+					->build()
+			],
+		];
 	}
 
 	/**

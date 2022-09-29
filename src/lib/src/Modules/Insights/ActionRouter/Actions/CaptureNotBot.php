@@ -10,9 +10,6 @@ class CaptureNotBot extends IpsBase {
 
 	const SLUG = 'not_bot';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

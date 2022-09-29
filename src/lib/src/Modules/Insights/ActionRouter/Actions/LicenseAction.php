@@ -9,9 +9,6 @@ class LicenseAction extends LicenseBase {
 
 	const SLUG = 'license_action';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

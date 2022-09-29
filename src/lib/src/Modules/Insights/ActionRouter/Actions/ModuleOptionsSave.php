@@ -8,9 +8,6 @@ class ModuleOptionsSave extends BaseAction {
 
 	const SLUG = 'mod_options_save';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$name = $this->getCon()->getHumanName();
 		$saver = ( new HandleOptionsSaveRequest() )

@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\MainWP\SitesListTableColumn;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\UI\ExtensionSettingsPage;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\ExtensionSettingsPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -37,14 +38,33 @@ class Init {
 			( new SyncHandler() )
 				->setMod( $this->getMod() )
 				->execute();
-			( new UI\ManageSites\SitesListTableHandler() )
-				->setMod( $this->getMod() )
-				->execute();
-
+			$this->attachSitesListingShieldColumn();
 			$extensionsPage->execute();
 		}
 
 		return $key;
+	}
+
+	private function attachSitesListingShieldColumn() {
+		add_filter( 'mainwp_sitestable_getcolumns', function ( $columns ) {
+
+			// We double-check to ensure that our extension has been successfully registered by this stage.
+			// Prevents a fatal error that can be caused if we can't get our extension data when the extension reg has failed.
+			if ( $this->getCon()->getModule_Integrations()->getControllerMWP()->isServerExtensionLoaded() ) {
+				$columns[ 'shield' ] = 'Shield';
+				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
+					$item[ 'shield' ] = $this->getCon()
+											 ->getModule_Insights()
+											 ->getActionRouter()
+											 ->render( SitesListTableColumn::SLUG, [
+												 'raw_mainwp_site_data' => $item
+											 ] );
+					return $item;
+				} );
+			}
+
+			return $columns;
+		} );
 	}
 
 	private function addOurExtension() :ExtensionSettingsPage {

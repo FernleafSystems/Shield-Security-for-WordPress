@@ -10,7 +10,7 @@ class MeterSpam extends MeterBase {
 		return [ $this->getCon()->getModule_Comments() ];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Comment & Contact Form SPAM Protection', 'wp-simple-firewall' );
 	}
 

@@ -10,9 +10,6 @@ class LicenseCheckDebug extends LicenseBase {
 
 	const SLUG = 'license_debug';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$success = ( new Ping() )->ping();
 		$host = wp_parse_url( Keyless\Base::DEFAULT_URL_STUB, PHP_URL_HOST );

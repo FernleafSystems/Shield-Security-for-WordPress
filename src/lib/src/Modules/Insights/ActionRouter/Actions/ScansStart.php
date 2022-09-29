@@ -10,9 +10,6 @@ class ScansStart extends ScansBase {
 
 	const SLUG = 'scans_start';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

@@ -9,9 +9,6 @@ class IpAutoUnblockShieldUserLinkRequest extends IpsBase {
 
 	const SLUG = 'ip_auto_unblock_shield_user_link_request';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod );
 		if ( $unBlocker->canRunAutoUnblockProcess() ) {

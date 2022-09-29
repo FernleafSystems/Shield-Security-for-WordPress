@@ -9,9 +9,6 @@ class UserSessionsTableRender extends SecurityAdminBase {
 
 	const SLUG = 'render_table_sessions';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var Options $optsSecAdmin */
 		$optsSecAdmin = $this->getCon()->getModule_SecAdmin()->getOptions();

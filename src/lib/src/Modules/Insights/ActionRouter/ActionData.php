@@ -8,9 +8,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class ActionData {
 
 	const FIELD_ACTION = 'action';
+	const FIELD_AJAXURL = 'ajaxurl';
 	const FIELD_SHIELD = 'shield_action';
 	const FIELD_EXECUTE = 'ex';
 	const FIELD_NONCE = 'exnonce';
+	const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
 	public static function Build( string $action, bool $isAjax = true, array $aux = [] ) :array {
 		$data = array_merge( [
@@ -19,7 +21,7 @@ class ActionData {
 			self::FIELD_NONCE   => wp_create_nonce( self::FIELD_SHIELD.'-'.$action ),
 		], $aux );
 		if ( $isAjax ) {
-			$data[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
+			$data[ self::FIELD_AJAXURL ] = admin_url( 'admin-ajax.php' );
 		}
 		return $data;
 	}

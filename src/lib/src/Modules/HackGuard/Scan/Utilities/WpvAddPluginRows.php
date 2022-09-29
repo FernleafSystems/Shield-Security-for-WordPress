@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\PluginVulnerabilityWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -49,9 +50,20 @@ class WpvAddPluginRows {
 		add_filter( 'all_plugins', [ $this, 'filterPluginsToView' ], 1000 );
 		add_filter( 'views_plugins', [ $this, 'addPluginsStatusViewLink' ], 1000 );
 		add_filter( 'manage_plugins_columns', [ $this, 'fCountColumns' ], 1000 );
+
 		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
-			add_action( "after_plugin_row_$file", [ $this, 'attachVulnerabilityWarning' ], 100, 2 );
+			add_action( "after_plugin_row_$file", function ( $pluginFile ) {
+				echo $this->getScanController()
+						  ->getCon()
+						  ->getModule_Insights()
+						  ->getActionRouter()
+						  ->render( PluginVulnerabilityWarning::SLUG, [
+							  'plugin_file'   => $pluginFile,
+							  'columns_count' => $this->nColumnsCount
+						  ] );
+			}, 100 );
 		}
+
 	}
 
 	public function addVulnerablePluginStatusView() {
@@ -101,38 +113,9 @@ class WpvAddPluginRows {
 	}
 
 	/**
-	 * @param string $pluginFile
-	 * @param array  $pData
+	 * @deprecated 16.2
 	 */
 	public function attachVulnerabilityWarning( $pluginFile, $pData ) {
-		/** @var Controller\Wpv $scanCon */
-		$scanCon = $this->getScanController();
-
-		if ( $scanCon->hasVulnerabilities( $pluginFile ) ) {
-			$name = $scanCon->getCon()->getHumanName();
-			$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
-			echo $scanCon->getMod()->renderTemplate( '/snippets/plugin_vulnerability.twig', [
-				'strings' => [
-					'known_vuln' => sprintf(
-						__( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.', 'wp-simple-firewall' ),
-						$name, '<strong>'.$pData[ 'Name' ].'</strong>' ),
-					'more_info'  => __( 'More Info', 'wp-simple-firewall' ),
-				],
-				'hrefs'   => [
-					'vuln_lookup' => add_query_arg(
-						[
-							'type'    => $plugin->asset_type,
-							'slug'    => $plugin->slug,
-							'version' => $plugin->Version,
-						],
-						'https://shsec.io/shieldvulnerabilitylookup'
-					)
-				],
-				'vars'    => [
-					'colspan' => $this->nColumnsCount
-				],
-			] );
-		}
 	}
 
 	/**

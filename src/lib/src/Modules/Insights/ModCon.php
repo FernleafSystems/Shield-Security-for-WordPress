@@ -6,11 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
 	DynamicLoad,
-	MerlinAction
+	MerlinAction,
+	Render\Components\BannerGoPro,
+	Render\Components\ToastPlaceholder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionRoutingController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	ActionRoutingController,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -37,9 +41,13 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			/** @var UI $UI */
-			$UI = $this->getUIHandler();
-			$UI->printAdminFooterItems();
+			if ( method_exists( $this, 'getActionRouter' ) ) {
+				$AR = $this->getActionRouter();
+				echo $AR->render( BannerGoPro::SLUG );
+				if ( $this->getCon()->isModulePage() ) {
+					echo $AR->render( ToastPlaceholder::SLUG );
+				}
+			}
 		}, 100, 0 );
 	}
 
@@ -80,8 +88,8 @@ class ModCon extends BaseShield\ModCon {
 	public function getUrl_SubInsightsPage( string $inavPage, string $subNav = '' ) :string {
 		return add_query_arg(
 			array_filter( [
-				ActionRoutingController::NAV_ID     => sanitize_key( $inavPage ),
-				ActionRoutingController::NAV_SUB_ID => sanitize_key( $subNav ),
+				Constants::NAV_ID     => sanitize_key( $inavPage ),
+				Constants::NAV_SUB_ID => sanitize_key( $subNav ),
 			] ),
 			$this->getUrl_AdminPage()
 		);
@@ -105,7 +113,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCurrentInsightsPage() :string {
-		return (string)Services::Request()->query( ActionRoutingController::NAV_ID );
+		return (string)Services::Request()->query( Constants::NAV_ID );
 	}
 
 	public function getScriptLocalisations() :array {

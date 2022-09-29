@@ -4,36 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\UI;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
-/**
- * @property string $template
- */
 abstract class BaseRender extends BaseAction {
 
-	const TEMPLATE = 'insights';
+	const PRIMARY_MOD = 'insights';
+	const TEMPLATE = '';
 
-	public function __get( string $key ) {
-		$value = parent::__get( $key );
-
-		switch ( $key ) {
-
-			case 'template':
-				if ( empty( $value ) ) {
-					$value = static::TEMPLATE;
-				}
-				break;
-
-			default:
-				break;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		return $this->render()->response();
 	}
@@ -42,17 +21,16 @@ abstract class BaseRender extends BaseAction {
 	 * @return $this
 	 * @throws ActionException
 	 */
-	protected function render() {
+	private function render() {
 		$response = $this->response();
 		$respData = $response->action_response_data;
-		$respData[ 'render_template' ] = $this->template;
+		$respData[ 'render_template' ] = $this->getRenderTemplate();
 		$respData[ 'render_data' ] = $this->buildRenderData();
-		$respData[ 'render_output' ] = $this->getMod()
-											->getRenderer()
-											->setMod( $this->primary_mod )
-											->setTemplate( $respData[ 'render_template' ] )
-											->setRenderData( $respData[ 'render_data' ] )
-											->render();
+		$respData[ 'render_output' ] = $this->buildRenderOutput( $respData[ 'render_data' ] );
+
+		$respData[ 'html' ] = $respData[ 'render_output' ]; // TODO: This is a hack to get the data into the AJAX response
+
+		$response->success = $respData[ 'success' ] ?? true;
 		$response->action_response_data = $respData;
 		return $this;
 	}
@@ -60,11 +38,55 @@ abstract class BaseRender extends BaseAction {
 	/**
 	 * @throws ActionException
 	 */
+	protected function buildRenderOutput( array $renderData = [] ) :string {
+		$con = $this->getCon();
+		$template = $this->getRenderTemplate();
+		if ( empty( $template ) ) {
+			throw new ActionException( 'No template provided for render' );
+		}
+
+		try {
+			$renderer = $con->getRenderer();
+
+			$ext = Paths::Ext( $template );
+			if ( empty( $ext ) || strtolower( $ext ) === 'twig' ) {
+				$renderer->setTemplateEngineTwig();
+			}
+			else {
+				$renderer->setTemplateEnginePhp();
+			}
+
+			$output = $renderer->setTemplate( $template )
+							   ->setRenderVars( $renderData )
+							   ->render();
+		}
+		catch ( \Exception $e ) {
+			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, $e->getMessage() );
+		}
+		return $output;
+	}
+
+	/**
+	 * @throws ActionException
+	 */
 	protected function buildRenderData() :array {
-		return Services::DataManipulation()->mergeArraysRecursive(
-			$this->getMod()->getUIHandler()->getBaseDisplayData(),
-			$this->getRenderData()
+		return call_user_func_array(
+			[ Services::DataManipulation(), 'mergeArraysRecursive' ],
+			$this->getAllRenderDataArrays()
 		);
+	}
+
+	/**
+	 * @throws ActionException
+	 */
+	protected function getAllRenderDataArrays() :array {
+		/** @var UI $UI */
+		$UI = $this->getMod()->getUIHandler();
+		return [
+			0  => $UI->getCommonDisplayData(),
+			10 => $this->action_data,
+			50 => $this->getRenderData(),
+		];
 	}
 
 	/**
@@ -72,5 +94,19 @@ abstract class BaseRender extends BaseAction {
 	 */
 	protected function getRenderData() :array {
 		return [];
+	}
+
+	/**
+	 * @throws ActionException
+	 */
+	protected function getRenderTemplate() :string {
+		$t = static::TEMPLATE;
+		if ( empty( $t ) ) {
+			$t = $this->action_data[ 'render_action_template' ];
+		}
+		if ( empty( $t ) ) {
+			throw new ActionException( sprintf( 'Render action %s has no render template provided', static::class ) );
+		}
+		return $t;
 	}
 }

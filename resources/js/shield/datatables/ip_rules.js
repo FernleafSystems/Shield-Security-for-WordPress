@@ -172,8 +172,7 @@
 		};
 
 		base.ipAdd = function () {
-			iCWP_WPSF_Modals.renderModalIpAdd();
-			base.tableReload();
+			iCWP_WPSF_OffCanvas.renderIpRuleAddForm();
 		};
 
 		// Run initializer

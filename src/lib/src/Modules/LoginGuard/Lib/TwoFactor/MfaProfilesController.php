@@ -6,8 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 	ActionData,
-	Actions,
-	Exceptions\ActionException
+	Actions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -61,17 +60,10 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 				'read',
 				'shield-login-security',
 				function () {
-					try {
-						$output = $this->getCon()
-									   ->getModule_Insights()
-									   ->getActionRouter()
-									   ->render( Actions\Render\AdminPages\UserMfaConfigPage::SLUG )
-									  ->render_data[ 'output' ];
-					}
-					catch ( ActionException $e ) {
-						$output = $e->getMessage();
-					}
-					echo $output;
+					echo $this->getCon()
+							  ->getModule_Insights()
+							  ->getActionRouter()
+							  ->render( Actions\Render\Components\UserMfa\ConfigPage::SLUG );
 				},
 				4
 			);
@@ -88,19 +80,12 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 		add_action( 'edit_user_profile', function ( $user ) {
 			if ( $user instanceof \WP_User ) {
 				$this->rendered = true;
-				try {
-					$output = $this->getCon()
-								   ->getModule_Insights()
-								   ->getActionRouter()
-								   ->render( Actions\Render\Components\UserMfaConfigEdit::SLUG, [
-									   'user_id' => $user->ID
-								   ] )
-								  ->render_data[ 'output' ];
-				}
-				catch ( ActionException $e ) {
-					$output = $e->getMessage();
-				}
-				echo $output;
+				echo $this->getCon()
+						  ->getModule_Insights()
+						  ->getActionRouter()
+						  ->render( Actions\Render\Components\UserMfa\ConfigEdit::SLUG, [
+							  'user_id' => $user->ID
+						  ] );
 			}
 		} );
 	}
@@ -157,25 +142,18 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 
 	public function renderUserProfileMFA( array $attributes = [] ) :string {
 		$this->rendered = true;
-		try {
-			$output = $this->getCon()
-						   ->getModule_Insights()
-						   ->getActionRouter()
-						   ->render( Actions\Render\Components\UserMfaConfigForm::SLUG,
-							   array_merge(
-								   [
-									   'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-									   'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-										   $this->getCon()->getHumanName() )
-								   ],
-								   $attributes
-							   )
-						   )
-						  ->render_data[ 'output' ];
-		}
-		catch ( ActionException $e ) {
-			$output = $e->getMessage();
-		}
-		return $output;
+		return $this->getCon()
+					->getModule_Insights()
+					->getActionRouter()
+					->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
+						array_merge(
+							[
+								'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
+								'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
+									$this->getCon()->getHumanName() )
+							],
+							$attributes
+						)
+					);
 	}
 }

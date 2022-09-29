@@ -10,9 +10,6 @@ class PluginDumpTelemetry extends PluginBase {
 
 	const SLUG = 'dump_telemetry_data';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$tel = ( new PluginTelemetry() )
 			->setMod( $this->primary_mod )

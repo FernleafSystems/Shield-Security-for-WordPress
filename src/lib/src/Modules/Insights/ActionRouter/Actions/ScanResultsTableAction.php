@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildScanTableData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Modals\ScanItemView;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Services\Services;
@@ -12,9 +11,6 @@ class ScanResultsTableAction extends ScansBase {
 
 	const SLUG = 'scanresults_action';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		try {
 			$response =	$this->delegate( Services::Request()->post( 'sub_action' ) );
@@ -45,10 +41,6 @@ class ScanResultsTableAction extends ScansBase {
 			case 'repair':
 			case 'repair-delete':
 				$response = $this->doAction( $action );
-				break;
-
-			case 'view_file':
-				$response = $this->viewFile();
 				break;
 
 			default:
@@ -144,24 +136,6 @@ class ScanResultsTableAction extends ScansBase {
 				return !is_null( $rid );
 			}
 		);
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function viewFile() :array {
-		$req = Services::Request();
-		$rid = $req->post( 'rid' );
-		if ( !is_numeric( $rid ) ) {
-			throw new \Exception( 'Not a valid file to view' );
-		}
-
-		return [
-			'success' => true,
-			'vars'    => ( new ScanItemView() )
-				->setMod( $this->primary_mod )
-				->run( (int)$rid ),
-		];
 	}
 
 	/**

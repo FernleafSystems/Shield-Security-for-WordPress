@@ -13,7 +13,7 @@ class MeterUsers extends MeterBase {
 		];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Customer And Visitor Protection', 'wp-simple-firewall' );
 	}
 

@@ -16,7 +16,7 @@ class MeterIntegrity extends MeterBase {
 		);
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Overall Site Security Integrity', 'wp-simple-firewall' );
 	}
 

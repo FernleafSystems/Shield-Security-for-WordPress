@@ -40,7 +40,7 @@ class SecurityBadge extends Base {
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->msg = $toEnable ? __( 'The Security Badge will be displayed to your visitors', 'wp-simple-firewall' )
+		$resp->message = $toEnable ? __( 'The Security Badge will be displayed to your visitors', 'wp-simple-firewall' )
 			: __( "The Security Badge won't be displayed to your visitors", 'wp-simple-firewall' );
 		return $resp;
 	}

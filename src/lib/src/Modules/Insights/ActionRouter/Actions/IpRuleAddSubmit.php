@@ -11,9 +11,6 @@ class IpRuleAddSubmit extends IpsBase {
 
 	const SLUG = 'ip_rule_add_submit';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$con = $this->getCon();
 		/** @var ModCon $mod */

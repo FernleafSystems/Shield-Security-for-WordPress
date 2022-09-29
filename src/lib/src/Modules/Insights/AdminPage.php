@@ -57,17 +57,10 @@ class AdminPage extends ExecOnceModConsumer {
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
-		try {
-			$output = $this->getCon()
-						   ->getModule_Insights()
-						   ->getActionRouter()
-						   ->render( PageAdminPlugin::SLUG, [] )
-						  ->render_data[ 'output' ];
-		}
-		catch ( ActionException $e ) {
-			$output = $e->getMessage();
-		}
-		echo $output;
+		echo $this->getCon()
+				  ->getModule_Insights()
+				  ->getActionRouter()
+				  ->render( PageAdminPlugin::SLUG, [] );
 	}
 
 	public function getScreenID() :string {

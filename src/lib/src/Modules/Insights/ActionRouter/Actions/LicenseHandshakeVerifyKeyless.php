@@ -12,9 +12,6 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 
 	const SLUG = 'keyless_handshake';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$nonce = Services::Request()->query( 'nonce' );
 		if ( !empty( $nonce ) ) {

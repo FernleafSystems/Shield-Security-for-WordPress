@@ -2,8 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockIpCrowdSec;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	Actions,
+	Exceptions\ActionException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
@@ -31,8 +34,16 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 
 		$this->getCon()->fireEvent( 'conn_kill_crowdsec' );
 
-		( new RenderBlockIpCrowdSec() )
-			->setMod( $this->getMod() )
-			->display();
+		try {
+			$this->getCon()
+				 ->getModule_Insights()
+				 ->getActionRouter()
+				 ->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+					 'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressCrowdsec::SLUG
+				 ] );
+		}
+		catch ( ActionException $e ) {
+			error_log( __CLASS__.': '.$e->getMessage() );
+		}
 	}
 }

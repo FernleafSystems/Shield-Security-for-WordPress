@@ -9,9 +9,6 @@ class PluginSuperSearch extends PluginBase {
 
 	const SLUG = 'super_search_select';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$this->response()->action_response_data = [
 			'success' => true,

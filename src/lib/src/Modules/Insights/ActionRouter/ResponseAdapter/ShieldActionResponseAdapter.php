@@ -13,7 +13,7 @@ class ShieldActionResponseAdapter extends BaseAdapter {
 			case 'wp_admin_notice':
 				$con->getAdminNotices()
 					->addFlash(
-						sprintf( '[%s] %s', $con->getHumanName(), $response->action_response_data[ 'msg' ] ),
+						sprintf( '[%s] %s', $con->getHumanName(), $response->action_response_data[ 'message' ] ),
 						null,
 						!$response->action_response_data[ 'success' ]
 					);

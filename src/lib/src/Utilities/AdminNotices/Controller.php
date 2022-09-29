@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DismissAdminNotice;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
@@ -62,7 +61,12 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->collectAllPluginNotices() as $notice ) {
-			echo $this->renderNotice( $notice );
+			echo $this->getCon()
+					  ->getModule_Insights()
+					  ->getActionRouter()
+					  ->render( AdminNotice::SLUG, [
+						  'raw_notice_data' => $notice->getRawData()
+					  ] );
 		}
 	}
 
@@ -133,32 +137,10 @@ class Controller {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	protected function renderNotice( NoticeVO $notice ) :string {
-		$data = $notice->render_data;
-
-		if ( empty( $data[ 'notice_classes' ] ) || !is_array( $data[ 'notice_classes' ] ) ) {
-			$data[ 'notice_classes' ] = [];
-		}
-		$data[ 'notice_classes' ][] = $notice->type;
-		if ( !in_array( 'error', $data[ 'notice_classes' ] ) ) {
-			$data[ 'notice_classes' ][] = 'updated';
-		}
-		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
-		$data[ 'notice_classes' ] = implode( ' ', array_unique( $data[ 'notice_classes' ] ) );
-
-		$data[ 'unique_render_id' ] = uniqid( $notice->id );
-		$data[ 'notice_id' ] = $notice->id;
-
-		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = ActionData::BuildJson( DismissAdminNotice::SLUG, true, [
-			'notice_id' => $notice->id,
-			'hide'      => 1,
-		] );
-
-		return $this->getCon()
-					->getRenderer()
-					->setTemplate( $notice->template )
-					->setRenderVars( $data )
-					->setTemplateEngineTwig()
-					->render();
+		return '';
 	}
 }

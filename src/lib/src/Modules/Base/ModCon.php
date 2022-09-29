@@ -352,7 +352,8 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, $this->getSlug() );
+		return $this->getCon()->getModule_Insights()
+					->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, $this->getSlug() );
 	}
 
 	/**
@@ -674,7 +675,21 @@ abstract class ModCon extends DynPropertiesClass {
 		return [];
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function renderTemplate( string $template, array $data = [] ) :string {
+		$ins = $this->getCon()->getModule_Insights();
+
+		if ( method_exists( $ins, 'getActionRouter' ) ) {
+			$data[ 'render_action_template' ] = $template;
+			return $ins->getActionRouter()
+					   ->render(
+						   Actions\Render\GenericRender::SLUG,
+						   $data
+					   );
+		}
+
 		return $this->getRenderer()
 					->setTemplate( $template )
 					->setRenderData( $data )
@@ -748,6 +763,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return mixed|Shield\Modules\Base\Renderer
+	 * @deprecated 16.2
 	 */
 	public function getRenderer() {
 		/** @var Renderer $r */

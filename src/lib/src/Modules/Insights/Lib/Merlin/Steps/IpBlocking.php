@@ -45,7 +45,7 @@ class IpBlocking extends Base {
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->msg = __( 'IP blocking options have been applied', 'wp-simple-firewall' );
+		$resp->message = __( 'IP blocking options have been applied', 'wp-simple-firewall' );
 		return $resp;
 	}
 

@@ -9,9 +9,6 @@ class PluginMarkTourFinished extends PluginBase {
 
 	const SLUG = 'mark_tour_finished';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

@@ -10,9 +10,6 @@ class PluginAutoDbRepair extends PluginBase {
 
 	const SLUG = 'auto_db_repair';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$con = $this->getCon();
 

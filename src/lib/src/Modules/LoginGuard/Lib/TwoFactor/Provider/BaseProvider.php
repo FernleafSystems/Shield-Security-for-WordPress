@@ -133,30 +133,24 @@ abstract class BaseProvider {
 		return $this;
 	}
 
-	public function renderUserProfileCustomForm() :string {
-		$user = $this->getUser();
-		$data = Services::DataManipulation()->mergeArraysRecursive(
-			[
-				'flags'   => [
-					'has_validated_profile' => $this->hasValidatedProfile(),
-					'is_enforced'           => $this->isEnforced(),
-					'is_profile_active'     => $this->isProfileActive(),
-					'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $user ),
-					'show_explanatory_text' => true
-				],
-				'vars'    => [
-					'otp_field_name' => $this->getLoginFormParameter(),
-				],
-				'strings' => [
-					'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
-					'provider_name' => $this->getProviderName()
-				],
+	public function getUserProfileFormRenderData() :array {
+		return [
+			'flags'   => [
+				'has_validated_profile' => $this->hasValidatedProfile(),
+				'is_enforced'           => $this->isEnforced(),
+				'is_profile_active'     => $this->isProfileActive(),
+				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $this->getUser() ),
+				'show_explanatory_text' => false
 			],
-			$this->getProviderSpecificRenderData()
-		);
-		$data[ 'flags' ][ 'show_explanatory_text' ] = false;
-
-		return $this->getMod()->renderTemplate( sprintf( '/user/profile/mfa/provider_%s.twig', static::SLUG ), $data );
+			'vars'    => [
+				'otp_field_name' => $this->getLoginFormParameter(),
+				'provider_slug'  => static::SLUG,
+			],
+			'strings' => [
+				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
+				'provider_name' => $this->getProviderName()
+			],
+		];
 	}
 
 	protected function getProviderSpecificRenderData() :array {
@@ -168,15 +162,6 @@ abstract class BaseProvider {
 
 	public function getFormField() :array {
 		return [];
-	}
-
-	public function renderFormFieldForWpLogin() :string {
-		return $this->getMod()->renderTemplate(
-			sprintf( '/components/wplogin_replica/login_field_%s.twig', static::SLUG ),
-			[
-				'field' => $this->getFormField()
-			]
-		);
 	}
 
 	protected function auditLogin( bool $success ) {
@@ -191,32 +176,12 @@ abstract class BaseProvider {
 		);
 	}
 
-	protected function getLoginFormParameter() :string {
+	public function getLoginFormParameter() :string {
 		return $this->getCon()->prefixOption( static::SLUG.'_otp' );
 	}
 
 	protected function fetchCodeFromRequest() :string {
 		return trim( (string)Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
-	}
-
-	protected function getCommonData() :array {
-		$user = $this->getUser();
-		return [
-			'flags'   => [
-				'has_validated_profile' => $this->hasValidatedProfile(),
-				'is_enforced'           => $this->isEnforced(),
-				'is_profile_active'     => $this->isProfileActive(),
-				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $user ),
-				'show_explanatory_text' => true
-			],
-			'vars'    => [
-				'otp_field_name' => $this->getLoginFormParameter(),
-			],
-			'strings' => [
-				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
-				'provider_name' => $this->getProviderName()
-			],
-		];
 	}
 
 	protected function generateSimpleOTP( int $length = 6 ) :string {

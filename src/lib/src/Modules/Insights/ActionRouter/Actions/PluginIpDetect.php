@@ -10,9 +10,6 @@ class PluginIpDetect extends PluginBase {
 
 	const SLUG = 'ipdetect';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var Options $opts */
 		$opts = $this->primary_mod->getOptions();

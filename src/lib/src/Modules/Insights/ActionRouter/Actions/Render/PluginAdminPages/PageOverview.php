@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Meters\ProgressMeters;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Handler;
 
 class PageOverview extends BasePluginAdminPage {
@@ -13,9 +14,10 @@ class PageOverview extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'content' => [
-				'progress_meters' => ( new Handler() )
-					->setMod( $this->getMod() )
-					->renderDashboardMeters(),
+				'progress_meters' => $this->getCon()
+										  ->getModule_Insights()
+										  ->getActionRouter()
+										  ->render( ProgressMeters::SLUG ),
 			],
 			'strings' => [
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),

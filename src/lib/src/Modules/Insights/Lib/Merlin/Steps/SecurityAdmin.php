@@ -31,7 +31,7 @@ class SecurityAdmin extends Base {
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->msg = __( 'Security Admin is now active', 'wp-simple-firewall' );
+		$resp->message = __( 'Security Admin is now active', 'wp-simple-firewall' );
 		return $resp;
 	}
 

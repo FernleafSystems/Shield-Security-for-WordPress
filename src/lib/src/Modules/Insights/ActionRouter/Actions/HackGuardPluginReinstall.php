@@ -10,9 +10,6 @@ class HackGuardPluginReinstall extends ScansBase {
 
 	const SLUG = 'plugin_reinstall';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$req = Services::Request();
 

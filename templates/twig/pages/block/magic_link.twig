@@ -1,4 +1,5 @@
-<div>
+{% if flags.is_available %}
+	<div>
 	<p>{{ strings.you_may }}</p>
 	<ul>
 		<li>{{ strings.this_will_send }}</li>
@@ -12,7 +13,7 @@
 			{{ strings.click_to_send }} <code>{{ vars.email }}</code></a>
 	</p>
 </div>
-<script>
+	<script>
 	let sendEmail = function () {
 
 	  try {
@@ -41,3 +42,4 @@
 	  }
   };
 </script>
+{% endif %}

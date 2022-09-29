@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts\FileLockerAlert;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
 class FileLockerAlerts extends BaseReporter {
@@ -11,28 +12,18 @@ class FileLockerAlerts extends BaseReporter {
 	public function build() :array {
 		$alerts = [];
 
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-
 		$lockOps = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )
 			->setMod( $this->getMod() );
 		$notNotified = $lockOps->withProblemsNotNotified();
 
 		if ( count( $notNotified ) > 0 ) {
-			$alerts[] = $this->getMod()->renderTemplate( '/components/reports/mod/hack_protect/alert_filelocker.twig', [
-				'hrefs'   => [
-					'view_results' => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
-				],
-				'strings' => [
-					'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
-					'file_changed' => __( 'Changes have been detected in the contents of critical files.', 'wp-simple-firewall' ),
-					'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $notNotified ) ),
-					'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'count' => $mod->getFileLocker()->countProblems()
-				],
-			] );
+			$alerts[] = $this->getCon()
+							 ->getModule_Insights()
+							 ->getActionRouter()
+							 ->render( FileLockerAlert::SLUG, [
+								 'count_not_notified'  => count( $notNotified ),
+								 'count_with_problems' => count( $lockOps->withProblems() ),
+							 ] );
 			$this->markAlertsAsNotified( $notNotified );
 			$lockOps->clearLocksCache();
 		}
@@ -43,7 +34,7 @@ class FileLockerAlerts extends BaseReporter {
 	/**
 	 * @param FileLocker\EntryVO[] $setNotified
 	 */
-	private function markAlertsAsNotified( $setNotified ) {
+	private function markAlertsAsNotified( array $setNotified ) {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var FileLocker\Update $updater */

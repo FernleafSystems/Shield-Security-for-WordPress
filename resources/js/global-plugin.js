@@ -259,17 +259,23 @@ let Shield_WP_Dashboard_Widget = new function () {
 
 		if ( widgetContainer.length === 1 ) {
 			widgetContainer.text( 'loading ...' );
-			data.ajax.render_dashboard_widget.refresh = refresh;
-			jQuery.ajax( {
-				type: "POST",
-				url: ajaxurl,
-				data: data.ajax.render_dashboard_widget,
-				dataType: "json",
-				success: function ( raw ) {
-					widgetContainer.html( raw.data.html );
+
+			Shield_AjaxRender
+			.send_ajax_req( {
+				render_slug: data.ajax.render_dashboard_widget,
+				refresh: refresh
+			} )
+			.then( ( response ) => {
+				if ( response.success ) {
+					widgetContainer.html( response.data.html );
 				}
-			} ).fail( function () {
+				else {
+					widgetContainer.text( 'There was a problem loading the content.' )
+				}
+			} )
+			.catch( ( error ) => {
 				widgetContainer.text( 'There was a problem loading the content.' )
+				console.log( error );
 			} );
 		}
 	};
@@ -279,20 +285,54 @@ let Shield_WP_Dashboard_Widget = new function () {
 	};
 }();
 
+let Shield_AjaxRender = new function () {
+
+	let ajax_req_vars;
+
+	this.send_ajax_req = function ( reqData ) {
+		return new Promise(
+			( resolve, reject ) => {
+				iCWP_WPSF_BodyOverlay.show();
+
+				reqData.apto_wrap_response = 1;
+
+				jQuery.ajax( {
+					type: 'POST',
+					url: ajaxurl,
+					data: jQuery.extend( ajax_req_vars, reqData ),
+					dataType: "text",
+					success: function ( data ) {
+						iCWP_WPSF_BodyOverlay.hide();
+						resolve( iCWP_WPSF_ParseAjaxResponse.parseIt( data ) );
+					},
+					error: function ( data ) {
+						iCWP_WPSF_BodyOverlay.hide();
+						reject( data )
+					},
+				} );
+			}
+		)
+	};
+
+	this.initialise = function ( params ) {
+		ajax_req_vars = params;
+	};
+}();
+
 var iCWP_WPSF_BodyOverlay = new function () {
 
-	var nOverlays = 0;
+	let overlays = 0;
 
 	this.show = function () {
-		nOverlays++;
+		overlays++;
 		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 1000 );
 		jQuery( 'body' ).addClass( 'shield-busy' );
 	};
 
 	this.hide = function () {
-		nOverlays--;
-		if ( nOverlays < 1 ) {
-			nOverlays = 0;
+		overlays--;
+		if ( overlays < 1 ) {
+			overlays = 0;
 			jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
 		}
 		jQuery( 'body' ).removeClass( 'shield-busy' );
@@ -333,6 +373,10 @@ var iCWP_WPSF_BodyOverlay = new function () {
 		if ( typeof icwp_wpsf_vars_globalplugin !== 'undefined' ) {
 
 			let globalVars = icwp_wpsf_vars_globalplugin;
+
+			if ( typeof globalVars.vars.ajax_render !== 'undefined' ) {
+				Shield_AjaxRender.initialise( globalVars.vars.ajax_render );
+			}
 
 			/** Dashboard Widget **/
 			if ( typeof globalVars.vars.dashboard_widget !== 'undefined' ) {

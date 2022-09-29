@@ -82,17 +82,10 @@ class Strings extends Base\Strings {
 
 	/**
 	 * @inheritDoc
+	 * @deprecated 16.2
 	 */
 	protected function getAdditionalDisplayStrings() :array {
-		return [
-			'um_current_user_settings'          => __( 'Current User Sessions', 'wp-simple-firewall' ),
-			'um_username'                       => __( 'Username', 'wp-simple-firewall' ),
-			'um_logged_in_at'                   => __( 'Logged In At', 'wp-simple-firewall' ),
-			'um_last_activity_at'               => __( 'Last Activity At', 'wp-simple-firewall' ),
-			'um_last_activity_uri'              => __( 'Last Activity URI', 'wp-simple-firewall' ),
-			'um_login_ip'                       => __( 'Login IP', 'wp-simple-firewall' ),
-			'um_need_to_enable_user_management' => __( 'You need to enable the User Management feature to view and manage user sessions.', 'wp-simple-firewall' ),
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {

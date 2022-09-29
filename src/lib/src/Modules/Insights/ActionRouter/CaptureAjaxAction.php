@@ -36,7 +36,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 			ob_start();
 			$response = $router
 				->action( $this->extractActionSlug(), $req->post, $router::ACTION_AJAX )
-				->ajax_data;
+				->action_response_data;
 			$noise = ob_get_clean();
 			$response = $this->normaliseAjaxResponse( $response );
 		}

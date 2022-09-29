@@ -144,34 +144,37 @@ class U2F extends BaseProvider {
 		return sprintf( 'https://%s%s', $p[ 'host' ], $port );
 	}
 
-	protected function getProviderSpecificRenderData() :array {
-		return [
-			'strings' => [
-				'title'          => __( 'U2F', 'wp-simple-firewall' ),
-				'button_reg_key' => __( 'Register A New U2F Security Key', 'wp-simple-firewall' ),
-				'prompt'         => __( 'Click To Register A U2F Device.', 'wp-simple-firewall' ),
-			],
-			'flags'   => [
-				'is_validated' => $this->hasValidatedProfile()
-			],
-			'vars'    => [
-				'registrations' => array_map(
-					function ( $reg ) {
-						$reg->used_at = sprintf( '(%s: %s)',
-							__( 'Used', 'wp-simple-firewall' ),
-							empty( $reg->used_at ) ?
-								__( 'Never', 'wp-simple-firewall' )
-								: Services::Request()
-										  ->carbon()
-										  ->setTimestamp( $reg->used_at )
-										  ->diffForHumans()
-						);
-						return $reg;
-					},
-					$this->getRegistrations()
-				)
-			],
-		];
+	public function getUserProfileFormRenderData() :array {
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getUserProfileFormRenderData(),
+			[
+				'strings' => [
+					'title'          => __( 'U2F', 'wp-simple-firewall' ),
+					'button_reg_key' => __( 'Register A New U2F Security Key', 'wp-simple-firewall' ),
+					'prompt'         => __( 'Click To Register A U2F Device.', 'wp-simple-firewall' ),
+				],
+				'flags'   => [
+					'is_validated' => $this->hasValidatedProfile()
+				],
+				'vars'    => [
+					'registrations' => array_map(
+						function ( $reg ) {
+							$reg->used_at = sprintf( '(%s: %s)',
+								__( 'Used', 'wp-simple-firewall' ),
+								empty( $reg->used_at ) ?
+									__( 'Never', 'wp-simple-firewall' )
+									: Services::Request()
+											  ->carbon()
+											  ->setTimestamp( $reg->used_at )
+											  ->diffForHumans()
+							);
+							return $reg;
+						},
+						$this->getRegistrations()
+					)
+				],
+			]
+		);
 	}
 
 	public function addNewRegistration( array $u2fResponse ) :StdResponse {

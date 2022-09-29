@@ -22,8 +22,4 @@ class PageConfig extends BasePluginAdminPage {
 
 		return $value;
 	}
-
-	protected function getRenderData() :array {
-		return $this->primary_mod->getUIHandler()->getBaseDisplayData();
-	}
 }

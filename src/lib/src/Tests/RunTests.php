@@ -12,7 +12,6 @@ class RunTests {
 		array_map(
 			fn( $test ) => $test->setCon( $this->getCon() )->run(), $this->enumPluginTests()
 		);
-		die( 'end test' );
 	}
 
 	/**
@@ -20,6 +19,7 @@ class RunTests {
 	 */
 	private function enumPluginTests() :array {
 		return [
+			new VerifyActions(),
 			new VerifyEvents(),
 			new VerifyUniqueEvents(),
 			new VerifyStrings(),

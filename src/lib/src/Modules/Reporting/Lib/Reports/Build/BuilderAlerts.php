@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Reporting;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\ReportsBuilderAlerts;
 
 class BuilderAlerts extends BaseBuilder {
 
@@ -27,14 +28,16 @@ class BuilderAlerts extends BaseBuilder {
 	}
 
 	protected function render( array $gathered ) :string {
-		return $this->getMod()->renderTemplate( '/components/reports/alert_body.twig', [
-			'vars'    => [
-				'alerts' => $gathered
-			],
-			'strings' => [
-				'title'    => __( 'Important Alerts', 'wp-simple-firewall' ),
-				'subtitle' => __( 'The following is a collection of the latest alerts since your previous report.', 'wp-simple-firewall' ),
-			],
-		] );
+		return $this->getCon()
+					->getModule_Insights()
+					->getActionRouter()
+					->render(
+						ReportsBuilderAlerts::SLUG,
+						[
+							'vars'    => [
+								'alerts' => $gathered
+							],
+						]
+					);
 	}
 }

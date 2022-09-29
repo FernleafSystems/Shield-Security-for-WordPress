@@ -9,9 +9,6 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 
 	const SLUG = 'user_sessions_bulk_action';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

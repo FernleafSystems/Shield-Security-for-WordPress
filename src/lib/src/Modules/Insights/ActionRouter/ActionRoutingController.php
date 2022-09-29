@@ -9,11 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ActionRoutingController extends ExecOnceModConsumer {
 
-	const ACTION_RENDER = 0;
 	const ACTION_AJAX = 1;
 	const ACTION_SHIELD = 2;
-	const NAV_ID = 'nav';
-	const NAV_SUB_ID = 'nav_sub';
 
 	protected function canRun() :bool {
 		return true;
@@ -47,9 +44,6 @@ class ActionRoutingController extends ExecOnceModConsumer {
 			case self::ACTION_AJAX:
 				$adapter = new ResponseAdapter\AjaxResponseAdapter();
 				break;
-			case self::ACTION_RENDER:
-				$adapter = new ResponseAdapter\RenderResponseAdapter();
-				break;
 			case self::ACTION_SHIELD:
 				$adapter = new ResponseAdapter\ShieldActionResponseAdapter();
 				break;
@@ -71,12 +65,24 @@ class ActionRoutingController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @throws Exceptions\ActionDoesNotExistException
-	 * @throws Exceptions\ActionException
-	 * @throws Exceptions\ActionTypeDoesNotExistException
+	 * This is an alias for calling the Render action directly
 	 */
-	public function render( string $slug, array $data = [] ) :ActionResponse {
-		return $this->action( $slug, $data, self::ACTION_RENDER );
+	public function render( string $slug, array $data = [] ) :string {
+//		error_log( 'render: '.$slug );
+		try {
+			$output = $this->action(
+				Actions\Render::SLUG,
+				[
+					'render_action_slug' => $slug,
+					'render_action_data' => $data,
+				]
+			)->action_response_data[ 'render_output' ];
+		}
+		catch ( Exceptions\ActionException $e ) {
+			$output = $e->getMessage();
+		}
+
+		return $output;
 	}
 
 	private function redirects() {
@@ -100,10 +106,10 @@ class ActionRoutingController extends ExecOnceModConsumer {
 
 				// 'insights'
 				if ( $reqPage === $mod->getModSlug() ) {
-					if ( empty($req->query( self::NAV_ID )) ) {
+					if ( empty($req->query( Constants::NAV_ID )) ) {
 						$redirectTo = $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW );
 					}
-					elseif ( $req->query( self::NAV_ID ) === Constants::ADMIN_PAGE_CONFIG && empty( $req->query( self::NAV_SUB_ID ) ) ) {
+					elseif ( $req->query( Constants::NAV_ID ) === Constants::ADMIN_PAGE_CONFIG && empty( $req->query( Constants::NAV_SUB_ID ) ) ) {
 						$redirectTo = $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, 'plugin' );
 					}
 				}

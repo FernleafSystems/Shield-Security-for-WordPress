@@ -8,9 +8,6 @@ class SecurityAdminCheck extends SecurityAdminBase {
 
 	const SLUG = 'sec_admin_check';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

@@ -9,9 +9,6 @@ class DynamicLoad extends BaseAction {
 
 	const SLUG = 'dynamic_load';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$resp = $this->response();
 		try {
@@ -22,7 +19,7 @@ class DynamicLoad extends BaseAction {
 		}
 		catch ( \Exception $e ) {
 			$resp->success = false;
-			$resp->msg = $e->getMessage();
+			$resp->message = $e->getMessage();
 		}
 	}
 }

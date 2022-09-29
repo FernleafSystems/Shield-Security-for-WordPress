@@ -5,13 +5,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\ScansCheck;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\ScansFileLockerAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\ScansFileLockerDiff;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\ScansStart;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\Results\{
+	Malware,
+	Plugins,
+	Themes,
+	Wordpress
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	ScansCheck,
+	ScansFileLockerAction,
+	Render\Components\Scans\ScansFileLockerDiff,
+	ScansStart
+};
 
 class PageScansResults extends BasePluginAdminPage {
 
@@ -32,10 +39,10 @@ class PageScansResults extends BasePluginAdminPage {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
 
-		$sectionBuilderPlugins = ( new Render\ScanResults\SectionPlugins() )->setMod( $this->primary_mod );
-		$sectionBuilderThemes = ( new Render\ScanResults\SectionThemes() )->setMod( $this->primary_mod );
-		$sectionBuilderWordpress = ( new Render\ScanResults\SectionWordpress() )->setMod( $this->primary_mod );
-		$sectionBuilderMalware = ( new Render\ScanResults\SectionMalware() )->setMod( $this->primary_mod );
+		$actionRouter = $this->getCon()
+							 ->getModule_Insights()
+							 ->getActionRouter();
+		$counter = $mod->getScansCon()->getScanResultsCount();
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
@@ -74,16 +81,16 @@ class PageScansResults extends BasePluginAdminPage {
 				'cannot_scan_reasons' => $reasonsCantScan,
 				'sections'            => [
 					'plugins'   => [
-						'count' => $sectionBuilderPlugins->getRenderData()[ 'vars' ][ 'count_items' ]
+						'count' => $counter->countPluginFiles()
 					],
 					'themes'    => [
-						'count' => $sectionBuilderThemes->getRenderData()[ 'vars' ][ 'count_items' ]
+						'count' => $counter->countThemeFiles()
 					],
 					'wordpress' => [
-						'count' => $sectionBuilderWordpress->getRenderData()[ 'vars' ][ 'count_items' ]
+						'count' => $counter->countWPFiles()
 					],
 					'malware'   => [
-						'count' => $sectionBuilderMalware->getRenderData()[ 'vars' ][ 'count_items' ]
+						'count' => $counter->countMalware()
 					],
 				]
 			],
@@ -95,10 +102,10 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			'content'     => [
 				'section' => [
-					'plugins'   => $sectionBuilderPlugins->render(),
-					'themes'    => $sectionBuilderThemes->render(),
-					'wordpress' => $sectionBuilderWordpress->render(),
-					'malware'   => $sectionBuilderMalware->render(),
+					'plugins'   => $actionRouter->render( Plugins::SLUG ),
+					'themes'    => $actionRouter->render( Themes::SLUG ),
+					'wordpress' => $actionRouter->render( Wordpress::SLUG ),
+					'malware'   => $actionRouter->render( Malware::SLUG ),
 					'logs'      => 'logs todo',
 				]
 			],
@@ -117,7 +124,7 @@ class PageScansResults extends BasePluginAdminPage {
 
 		return [
 			'ajax'    => [
-				'filelocker_showdiff'   => ActionData::BuildJson( ScansFileLockerDiff::SLUG ),
+				'filelocker_showdiff'   => ScansFileLockerDiff::SLUG,
 				'filelocker_fileaction' => ActionData::BuildJson( ScansFileLockerAction::SLUG ),
 			],
 			'flags'   => [

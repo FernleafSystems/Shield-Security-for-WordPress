@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaEmailSendIntent;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaEmailToggle;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
@@ -107,33 +108,18 @@ class Email extends BaseProvider {
 			$success = ( $useSureSend && $this->send2faEmailSureSend( $otp ) )
 					   || $this->getMod()
 							   ->getEmailProcessor()
-							   ->sendEmailWithTemplate(
-								   '/email/lp_2fa_email_code.twig',
+							   ->send(
 								   $user->user_email,
 								   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-								   [
-									   'flags'   => [
-										   'show_login_link' => !$this->getCon()->isRelabelled()
-									   ],
-									   'vars'    => [
-										   'code' => $otp
-									   ],
-									   'hrefs'   => [
-										   'login_link' => 'https://shsec.io/96',
-									   ],
-									   'strings' => [
-										   'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-										   'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-										   'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
-										   'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
-										   'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-										   'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
-											   Services::WpGeneral()->getHomeUrl() ),
-										   'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-										   'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
-											   $this->getCon()->this_req->ip ),
-									   ]
-								   ]
+								   $this->getCon()
+										->getModule_Insights()
+										->getActionRouter()
+										->render( MfaLoginCode::SLUG, [
+											'home_url' => Services::WpGeneral()->getHomeUrl(),
+											'ip'       => $con->this_req->ip,
+											'user_id'  => $user->ID,
+											'otp'      => $otp,
+										] )
 							   );
 		}
 		catch ( \Exception $e ) {
@@ -148,16 +134,19 @@ class Email extends BaseProvider {
 			->send2FA( $this->getUser(), $code );
 	}
 
-	protected function getProviderSpecificRenderData() :array {
-		return [
-			'strings' => [
-				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
-				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() )
+	public function getUserProfileFormRenderData() :array {
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getUserProfileFormRenderData(),
+			[
+				'strings' => [
+					'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
+					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
+					'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
+					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() )
+				]
 			]
-		];
+		);
 	}
 
 	public function isProviderEnabled() :bool {

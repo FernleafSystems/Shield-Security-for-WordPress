@@ -10,9 +10,6 @@ class PluginBadgeClose extends PluginBase {
 
 	const SLUG = 'plugin_badge_close';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

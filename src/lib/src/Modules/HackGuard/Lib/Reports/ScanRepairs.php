@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts\ScanRepairsAlert;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
 class ScanRepairs extends BaseReporter {
@@ -71,23 +72,13 @@ class ScanRepairs extends BaseReporter {
 		}
 
 		if ( !empty( $repairs ) ) {
-			$alerts[] = $this->getMod()->renderTemplate( '/components/reports/mod/hack_protect/alert_scanrepairs.twig',
-				[
-					'vars'    => [
-						'total'   => $total,
-						'repairs' => $repairs,
-					],
-					'strings' => [
-						'title'       => \__( 'Scanner Repairs', 'wp-simple-firewall' ),
-						'audit_trail' => \__( 'View all repairs and file deletions in the Activity Log', 'wp-simple-firewall' ),
-					],
-					'hrefs'   => [
-						'audit_trail' => $this->getCon()
-											  ->getModule_Insights()
-											  ->getUrl_SubInsightsPage( 'audit_trail' ),
-					],
-				]
-			);
+			$alerts[] = $this->getCon()
+							 ->getModule_Insights()
+							 ->getActionRouter()
+							 ->render( ScanRepairsAlert::SLUG, [
+								 'total'   => $total,
+								 'repairs' => $repairs,
+							 ] );
 		}
 
 		return $alerts;

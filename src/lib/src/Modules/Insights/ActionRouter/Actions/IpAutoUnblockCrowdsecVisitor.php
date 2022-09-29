@@ -10,9 +10,6 @@ class IpAutoUnblockCrowdsecVisitor extends IpAutoUnblockShieldVisitor {
 	const SLUG = 'ip_auto_unblock_crowdsec_visitor';
 	const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockCrowdsec() )->setMod( $this->primary_mod );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {

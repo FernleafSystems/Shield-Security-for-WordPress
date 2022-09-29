@@ -6,7 +6,7 @@ class MeterAll extends MeterBase {
 
 	const SLUG = 'all';
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'All', 'wp-simple-firewall' );
 	}
 

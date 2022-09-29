@@ -4,9 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionRoutingController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions,
+	Constants
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends Base\UI {
@@ -68,7 +70,7 @@ class UI extends Base\UI {
 						'odp-outercontainer',
 						$this->getCon()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 						$mod->getModSlug(),
-						Services::Request()->query( ActionRoutingController::NAV_ID, '' )
+						Services::Request()->query( Constants::NAV_ID, '' )
 					] ) )
 				],
 			]

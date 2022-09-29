@@ -10,9 +10,6 @@ class TrafficLogTableAction extends BaseAction {
 	const SLUG = 'traffictable_action';
 	const PRIMARY_MOD = 'traffic';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		try {
 			$action = Services::Request()->post( 'sub_action' );

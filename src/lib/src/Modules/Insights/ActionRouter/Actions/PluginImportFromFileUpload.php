@@ -22,7 +22,7 @@ class PluginImportFromFileUpload extends PluginBase {
 		}
 		$this->response()->action_response_data = [
 			'success' => $success,
-			'msg'     => $msg
+			'message' => $msg
 		];
 	}
 }

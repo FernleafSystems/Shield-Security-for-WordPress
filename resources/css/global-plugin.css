@@ -3,54 +3,6 @@
 	color: #dd3333;
 	font-weight: bolder;
 }
-.notice-icon {
-	display: none;
-	float: left;
-	height: 43px;
-	line-height: 176px;
-	min-width: 64px;
-	padding: 10px 0;
-}
-.notice-title {
-	padding: 0;
-}
-.notice-content {
-	margin: 10px;
-}
-.notice-content p {
-	margin-left: 0;
-}
-@media (min-width: 884px) {
-	.notice-icon {
-		display: block;
-	}
-
-	.notice-content {
-		margin-left: 62px;
-	}
-}
-.notice-icon-right {
-	float: right;
-	width: 74px;
-}
-.notice-content p {
-	margin-left: 62px;
-}
-.notice-icon .dashicons {
-	display: inline-block;
-	font-size: 48px;
-}
-.flash .notice-icon {
-	height: 26px;
-}
-.flash .notice-icon .dashicons {
-	font-size: 24px;
-	height: 26px;
-}
-.notice-content p a {
-	text-shadow: none;
-	font-weight: bold;
-}
 ul.nav-tabs li a {
 	color: #008000;
 }

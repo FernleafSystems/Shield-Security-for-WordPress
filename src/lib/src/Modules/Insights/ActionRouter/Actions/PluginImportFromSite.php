@@ -9,9 +9,6 @@ class PluginImportFromSite extends PluginBase {
 
 	const SLUG = 'import_from_site';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$success = false;
 		$formParams = array_merge( [

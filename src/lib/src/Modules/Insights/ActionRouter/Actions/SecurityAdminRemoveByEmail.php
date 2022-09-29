@@ -8,9 +8,6 @@ class SecurityAdminRemoveByEmail extends SecurityAdminBase {
 
 	const SLUG = 'secadmin_remove_confirm';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		( new RemoveSecAdmin() )
 			->setMod( $this->primary_mod )

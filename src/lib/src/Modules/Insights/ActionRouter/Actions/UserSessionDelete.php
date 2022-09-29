@@ -9,9 +9,6 @@ class UserSessionDelete extends SecurityAdminBase {
 
 	const SLUG = 'user_session_delete';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$con = $this->getCon();
 		/** @var ModCon $mod */

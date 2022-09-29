@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Debug\SimplePluginTests;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\RecentEvents;
 
 class PageDebug extends BasePluginAdminPage {
 
@@ -12,22 +14,38 @@ class PageDebug extends BasePluginAdminPage {
 	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/debug.twig';
 
 	protected function getRenderData() :array {
+		$con = $this->getCon();
+		if ( !empty( $this->action_data[ Constants::NAV_SUB_ID ] ) ) {
+			$debugExec = implode( "\n", $con->getModule_Insights()
+											->getActionRouter()
+											->action( SimplePluginTests::SLUG, [
+												'test' => $this->action_data[ Constants::NAV_SUB_ID ]
+											] )->action_response_data );
+		}
+		else {
+			$debugExec = '';
+		}
+
 		return [
-			'strings' => [
-				'page_title' => sprintf( __( '%s Debug Page' ), $this->getCon()->getHumanName() )
+			'flags'   => [
+				'has_debug_exec' => !empty( $debugExec ),
 			],
 			'hrefs'   => [
 				'check_visitor_ip_source' => add_query_arg( [ 'shield_check_ip_source' => '1' ] ),
 			],
+			'strings' => [
+				'page_title' => sprintf( __( '%s Debug Page' ), $con->getHumanName() )
+			],
 			'vars'    => [
 				'debug_data' => ( new Collate() )
 					->setMod( $this->getMod() )
-					->run()
+					->run(),
+				'debug_exec' => $debugExec,
 			],
 			'content' => [
-				'recent_events' => ( new RecentEvents() )
-					->setMod( $this->getMod() )
-					->build(),
+				'recent_events' => $con->getModule_Insights()
+									   ->getActionRouter()
+									   ->render( DebugRecentEvents::SLUG ),
 			]
 		];
 	}

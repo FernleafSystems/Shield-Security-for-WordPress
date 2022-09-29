@@ -10,7 +10,7 @@ class MeterIpBlocking extends MeterBase {
 		return [ $this->getCon()->getModule_IPs() ];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'IP Blocking and Bot Detection', 'wp-simple-firewall' );
 	}
 

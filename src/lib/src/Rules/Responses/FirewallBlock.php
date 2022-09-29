@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockFirewall;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallBlock extends Base {
@@ -15,6 +15,9 @@ class FirewallBlock extends Base {
 		return true;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function runBlock() {
 		$mod = $this->getCon()->getModule_Firewall();
 
@@ -30,10 +33,15 @@ class FirewallBlock extends Base {
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
 			case 'redirect_die_message':
-				( new RenderBlockFirewall() )
-					->setMod( $mod )
-					->setAuxData( $this->getConsolidatedConditionMeta() )
-					->display();
+				$this->getCon()
+					 ->getModule_Insights()
+					 ->getActionRouter()
+					 ->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+						 'render_slug'     => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
+						 'render_data'     => [
+							 'block_meta_data' => $this->getConsolidatedConditionMeta()
+						 ],
+					 ] );
 				break;
 			case 'redirect_home':
 				Services::Response()->redirectToHome();
@@ -60,50 +68,30 @@ class FirewallBlock extends Base {
 	}
 
 	private function sendBlockEmail() :bool {
-		$ip = $this->getCon()->this_req->ip;
+		$con = $this->getCon();
 
-		$resultData = $this->getConsolidatedConditionMeta();
-		$fwCategory = $resultData[ 'match_category' ] ?? '';
+		$blockMeta = $this->getConsolidatedConditionMeta();
+		$fwCategory = $blockMeta[ 'match_category' ] ?? '';
 		try {
-			$firewallRule = $this->getCon()
-								 ->getModule_Firewall()
-								 ->getStrings()
-								 ->getOptionStrings( 'block_'.$fwCategory )[ 'name' ] ?? 'Unknown';
+			$ruleName = $con->getModule_Firewall()
+							->getStrings()
+							->getOptionStrings( 'block_'.$fwCategory )[ 'name' ] ?? 'Unknown';
 		}
 		catch ( \Exception $e ) {
-			$firewallRule = 'Unknown';
+			$ruleName = 'Unknown';
 		}
+		$blockMeta[ 'firewall_rule_name' ] = $ruleName;
 
-		$mod = $this->getCon()->getModule_Firewall();
-		return $mod->getEmailProcessor()->sendEmailWithTemplate(
-			'/email/firewall_block.twig',
-			$mod->getPluginReportEmail(),
-			__( 'Firewall Block Alert', 'wp-simple-firewall' ),
-			[
-				'strings' => [
-					'shield_blocked'  => sprintf( __( '%s Firewall has blocked a request to your WordPress site.', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
-					'details_below'   => __( 'Details for the request are given below:', 'wp-simple-firewall' ),
-					'details'         => __( 'Request Details', 'wp-simple-firewall' ),
-					'ip_lookup'       => __( 'IP Address Lookup' ),
-					'this_is_info'    => __( 'This is for informational purposes only.' ),
-					'already_blocked' => sprintf( __( '%s has already taken the necessary action of blocking the request.' ),
-						$this->getCon()->getHumanName() ),
-				],
-				'hrefs'   => [
-					'ip_lookup' => add_query_arg( [ 'ip' => $ip ], 'https://shsec.io/botornot' )
-				],
-				'vars'    => [
-					'req_details' => [
-						__( 'Visitor IP Address', 'wp-simple-firewall' ) => $ip,
-						__( 'Firewall Rule', 'wp-simple-firewall' )      => $firewallRule,
-						__( 'Firewall Pattern', 'wp-simple-firewall' )   => $resultData[ 'match_pattern' ] ?? 'Unavailable',
-						__( 'Request Path', 'wp-simple-firewall' )       => Services::Request()->getPath(),
-						__( 'Parameter Name', 'wp-simple-firewall' )     => $resultData[ 'match_request_param' ] ?? 'Unavailable',
-						__( 'Parameter Value', 'wp-simple-firewall' )    => $resultData[ 'match_request_value' ] ?? 'Unavailable',
-					]
-				]
-			]
-		);
+		$mod = $con->getModule_Insights();
+		return $mod->getEmailProcessor()
+				   ->send(
+					   $mod->getPluginReportEmail(),
+					   __( 'Firewall Block Alert', 'wp-simple-firewall' ),
+					   $mod->getActionRouter()
+						   ->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
+							   'ip'         => $con->this_req->ip,
+							   'block_meta' => $blockMeta
+						   ] )
+				   );
 	}
 }

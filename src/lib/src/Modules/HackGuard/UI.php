@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class UI extends BaseShield\UI {
 
@@ -34,12 +35,6 @@ class UI extends BaseShield\UI {
 					$warnings[] = sprintf( __( "FileLocker can't be used because the RC4 encryption cipher isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 
-//				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-//					$warnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
-//				}
-//				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
-//					$warnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
-//				}
 				break;
 		}
 

@@ -21,57 +21,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 	};
 }();
 
-let iCWP_WPSF_Modals = new function () {
-	let workingData = {};
-
-	this.renderModalIpAdd = function ( params = [] ) {
-		iCWP_WPSF_BodyOverlay.show();
-		jQuery.ajax( {
-			type: "POST",
-			url: ajaxurl,
-			data: workingData.modal_ip_rule_add.ajax.ip_rule_add_render,
-			dataType: "json",
-			success: function ( raw ) {
-				iCWP_WPSF_Modals.display( raw.data );
-			},
-		} )
-			  .fail( function () {
-			  } )
-			  .always( function () {
-				  iCWP_WPSF_BodyOverlay.hide();
-			  } );
-	};
-
-	this.display = function ( params ) {
-		let modal = document.getElementById( 'ShieldGeneralPurposeDialog' );
-		if ( typeof params.modal_class === typeof undefined ) {
-			params.modal_class = 'modal-xl';
-		}
-		if ( params.modal_static ) {
-			modal.setAttribute( 'data-bs-backdrop', 'static' );
-		}
-		else {
-			modal.removeAttribute( 'data-bs-backdrop' );
-		}
-		jQuery( '.modal-dialog', modal ).addClass( params.modal_class );
-		jQuery( '.modal-title', modal ).html( params.title );
-		jQuery( '.modal-body .col', modal ).html( params.body );
-		(new bootstrap.Modal( modal )).show();
-	};
-
-	this.setData = function ( key, data ) {
-		workingData[ key ] = data;
-	};
-
-	this.initialise = function () {
-		jQuery( document ).on( 'click', '.render_ip_analysis', function ( evt ) {
-			evt.preventDefault();
-			iCWP_WPSF_OffCanvas.renderIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
-			return false;
-		} );
-	};
-}();
-
 var iCWP_WPSF_Toaster = new function () {
 
 	let toasterContainer;
@@ -363,64 +312,62 @@ let iCWP_WPSF_OffCanvas = new function () {
 	let offCanvas;
 	let $offCanvas;
 	let bsCanvas;
-	let allTypes = [
-		'ip_analysis',
-		'meter_analysis',
-		'mod_config'
-	];
 	let canvasTracker = [];
 
 	this.renderConfig = function ( config_item ) {
 		this.renderCanvas( {
-			offcanvas_type: 'mod_config',
+			render_slug: data.mod_config,
 			config_item: config_item
 		} );
 	};
 
 	this.renderIpAnalysis = function ( ip ) {
 		this.renderCanvas( {
-			offcanvas_type: 'ip_analysis',
+			render_slug: data.ip_analysis,
 			ip: ip
+		} );
+	};
+
+	this.renderIpRuleAddForm = function ( ip ) {
+		this.renderCanvas( {
+			render_slug: data.ip_rule_add_form
 		} );
 	};
 
 	this.renderMeterAnalysis = function ( meter ) {
 		this.renderCanvas( {
-			offcanvas_type: 'meter_analysis',
+			render_slug: data.meter_analysis,
 			meter: meter
 		} );
 	};
 
-	this.renderCanvas = function ( canvasProperties ) {
+	this.renderCanvas = function ( canvasProperties, params = {} ) {
 		iCWP_WPSF_BodyOverlay.show();
 
 		canvasTracker.push( canvasProperties );
 
 		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		$offCanvas.removeClass( Object.values( data ) );
 		bsCanvas.show();
 
-		$offCanvas.removeClass( allTypes );
-
-		jQuery.ajax(
-			{
-				type: "POST",
-				url: ajaxurl,
-				data: jQuery.extend(
-					data.ajax.offcanvas_render,
-					canvasProperties
-				),
-				dataType: "text",
-				success: function ( raw ) {
-					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
-					$offCanvas.addClass( canvasProperties.offcanvas_type );
-					$offCanvas.html( response.data.html );
-				}
+		Shield_AjaxRender
+		.send_ajax_req( canvasProperties )
+		.then( ( response ) => {
+			if ( response.success ) {
+				$offCanvas.addClass( canvasProperties.render_slug );
+				$offCanvas.html( response.data.html );
 			}
-		).always(
-			function () {
-				iCWP_WPSF_BodyOverlay.hide();
+			else {
+				alert( 'There was a problem displaying the page.' );
+				console.log( response );
 			}
-		);
+		} )
+		.catch( ( error ) => {
+			console.log( error );
+		} )
+		.finally( ( response ) => {
+			iCWP_WPSF_BodyOverlay.hide();
+		} );
 	};
 
 	this.closeCanvas = function () {
@@ -499,9 +446,7 @@ jQueryDoc.ready( function () {
 		iCWP_WPSF_Helpscout.initialise( icwp_wpsf_vars_plugin.components.helpscout );
 	}
 
-	iCWP_WPSF_Modals.initialise();
 	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_rule_add !== 'undefined' ) {
-		iCWP_WPSF_Modals.setData( 'modal_ip_rule_add', icwp_wpsf_vars_ips.components.modal_ip_rule_add );
 
 		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
 			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
@@ -510,6 +455,12 @@ jQueryDoc.ready( function () {
 			jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
 		}
 	}
+
+	jQuery( document ).on( 'click', '.render_ip_analysis', function ( evt ) {
+		evt.preventDefault();
+		iCWP_WPSF_OffCanvas.renderIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+		return false;
+	} );
 
 	jQuery( document ).ajaxComplete( function () {
 		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -267,7 +266,7 @@ class NavMenuBuilder {
 						'load_variant' => $cfg->slug,
 						'target_href'  => $module->getUrl_OptionsConfigPage(),
 					],
-					'active'        => Services::Request()->query( ActionRoutingController::NAV_SUB_ID ) === $cfg->slug,
+					'active'        => Services::Request()->query( Constants::NAV_SUB_ID ) === $cfg->slug,
 					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],
 				];
 			}
@@ -501,7 +500,7 @@ class NavMenuBuilder {
 	}
 
 	private function getInav() :string {
-		return (string)Services::Request()->query( ActionRoutingController::NAV_ID );
+		return (string)Services::Request()->query( Constants::NAV_ID );
 	}
 
 	private function getOffCanvasJavascriptLinkFor( string $for ) :string {

@@ -10,9 +10,6 @@ class AdminNoteInsert extends PluginBase {
 
 	const SLUG = 'admin_note_insert';
 
-	/**
-	 * @inheritDoc
-	 */
 	public function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
@@ -20,16 +17,16 @@ class AdminNoteInsert extends PluginBase {
 
 		$note = trim( FormParams::Retrieve()[ 'admin_note' ] ?? '' );
 		if ( !$mod->getCanAdminNotes() ) {
-			$resp->msg = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
+			$resp->message = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $note ) ) {
-			$resp->msg = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
+			$resp->message = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var Insert $inserter */
 			$inserter = $mod->getDbHandler_Notes()->getQueryInserter();
 			$resp->success = $inserter->create( $note );
-			$resp->msg = $resp->success ? __( 'Note created successfully.', 'wp-simple-firewall' )
+			$resp->message = $resp->success ? __( 'Note created successfully.', 'wp-simple-firewall' )
 				: __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 	}

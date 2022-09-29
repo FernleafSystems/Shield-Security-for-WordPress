@@ -9,9 +9,6 @@ class IpRulesTableAction extends IpsBase {
 
 	const SLUG = 'iprulestable_action';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$resp = $this->response();
 		try {

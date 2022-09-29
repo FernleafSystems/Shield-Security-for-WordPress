@@ -9,9 +9,6 @@ class PluginSetTracking extends PluginBase {
 
 	const SLUG = 'set_plugin_tracking';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var Options $opts */
 		$opts = $this->primary_mod->getOptions();

@@ -51,7 +51,7 @@ class LoadFileLocks {
 	/**
 	 * @return FileLocker\EntryVO[]
 	 */
-	public function withProblemsNotNotified() {
+	public function withProblemsNotNotified() :array {
 		return array_filter(
 			$this->withProblems(),
 			function ( $lock ) {
@@ -63,7 +63,7 @@ class LoadFileLocks {
 	/**
 	 * @return FileLocker\EntryVO[]
 	 */
-	public function withoutProblems() {
+	public function withoutProblems() :array {
 		return array_filter(
 			$this->loadLocks(),
 			function ( $lock ) {

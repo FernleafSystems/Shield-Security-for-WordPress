@@ -7,7 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions,
+	Constants
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -333,7 +337,7 @@ class Controller extends DynPropertiesClass {
 	public function adminNoticeDoesNotMeetRequirements() {
 		if ( !empty( $this->reqs_not_met ) ) {
 			$this->getRenderer()
-				 ->setTemplate( 'notices/does-not-meet-requirements.twig' )
+				 ->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				 ->setTemplateEngineTwig()
 				 ->setRenderVars( [
 					 'strings' => [
@@ -670,11 +674,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getShieldActionNonceData( string $shieldAction, array $aux = [] ) :array {
-		return Shield\Modules\Insights\ActionRouter\ActionData::Build( $shieldAction, true, $aux );
+		return ActionData::Build( $shieldAction, true, $aux );
 	}
 
 	public function getShieldActionNoncedUrl( string $shieldAction, string $url = null, array $aux = [] ) :string {
-		return Shield\Modules\Insights\ActionRouter\ActionData::BuildURL( $shieldAction, $url, $aux );
+		return ActionData::BuildURL( $shieldAction, $url, $aux );
 	}
 
 	/**
@@ -1322,10 +1326,7 @@ class Controller extends DynPropertiesClass {
 		return $user instanceof \WP_User ? $this->user_metas->forUser( $user ) : null;
 	}
 
-	/**
-	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
-	 */
-	public function getRenderer() {
+	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();
 		$locator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
 		foreach ( $locator->run() as $dir ) {
@@ -1405,39 +1406,13 @@ class Controller extends DynPropertiesClass {
 		return $result;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function buildPrivacyPolicyContent() {
-		try {
-			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-				$name = $this->getHumanName();
-				$href = $this->labels->PluginURI;
-			}
-			else {
-				$name = $this->cfg->menu[ 'title' ];
-				$href = $this->cfg->meta[ 'privacy_policy_href' ];
-			}
-
-			/** @var Shield\Modules\AuditTrail\Options $opts */
-			$opts = $this->getModule_AuditTrail()->getOptions();
-
-			$content = $this->getRenderer()
-							->setTemplate( 'snippets/privacy_policy' )
-							->setTemplateEngineTwig()
-							->setRenderVars(
-								[
-									'name'             => $name,
-									'href'             => $href,
-									'audit_trail_days' => $opts->getAutoCleanDays()
-								]
-							)
-							->render();
-		}
-		catch ( \Exception $e ) {
-			$content = '';
-		}
-		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
+	private function buildPrivacyPolicyContent() :string {
+		return wp_kses_post( wpautop(
+			$this->getModule_Insights()
+				 ->getActionRouter()
+				 ->render( Actions\Render\Components\PrivacyPolicy::SLUG ),
+			false
+		) );
 	}
 
 	private function labels() :Config\Labels {

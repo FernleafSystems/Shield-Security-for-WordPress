@@ -10,9 +10,6 @@ class IpAutoUnblockShieldVisitor extends IpsBase {
 	const SLUG = 'ip_auto_unblock_shield_visitor';
 	const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockVisitor() )->setMod( $this->primary_mod );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {

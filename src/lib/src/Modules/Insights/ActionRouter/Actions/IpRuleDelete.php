@@ -9,9 +9,6 @@ class IpRuleDelete extends IpsBase {
 
 	const SLUG = 'ip_rule_delete';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

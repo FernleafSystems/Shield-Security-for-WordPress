@@ -4,29 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render\BaseTemplateRenderer;
-use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 16.2
+ */
 class Renderer extends BaseTemplateRenderer {
 
 	use ModConsumer;
 
 	public function getRenderData() :array {
-		$data = parent::getRenderData();
-
-		if ( empty( $data[ 'unique_render_id' ] ) ) {
-			$data[ 'unique_render_id' ] = 'noticeid-'.uniqid();
-		}
-
-		$data = Services::DataManipulation()->mergeArraysRecursive(
-			$this->getMod()->getUIHandler()->getBaseDisplayData(),
-			$data
-		);
-
-		$data[ 'strings' ] = Services::DataManipulation()->mergeArraysRecursive(
-			$this->getMod()->getStrings()->getDisplayStrings(),
-			$data[ 'strings' ] ?? []
-		);
-
-		return $data;
+		return parent::getRenderData();
 	}
 }

@@ -12,9 +12,6 @@ class IpAnalyseAction extends IpsBase {
 
 	const SLUG = 'ip_analyse_action';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

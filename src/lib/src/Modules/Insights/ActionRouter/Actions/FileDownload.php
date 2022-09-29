@@ -12,9 +12,6 @@ class FileDownload extends BaseAction {
 
 	const SLUG = 'file_download';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		try {
 			$id = Services::Request()->query( 'download_category' );
@@ -33,7 +30,7 @@ class FileDownload extends BaseAction {
 			error_log( $e->getMessage() );
 			$resp = $this->response();
 			$resp->success = false;
-			$resp->msg = $e->getMessage();
+			$resp->message = $e->getMessage();
 		}
 	}
 

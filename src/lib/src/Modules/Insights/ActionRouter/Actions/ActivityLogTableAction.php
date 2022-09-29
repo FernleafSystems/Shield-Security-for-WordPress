@@ -11,9 +11,6 @@ class ActivityLogTableAction extends BaseAction {
 	const SLUG = 'logtable_action';
 	const PRIMARY_MOD = 'audit_trail';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		try {
 			$action = Services::Request()->post( 'sub_action' );

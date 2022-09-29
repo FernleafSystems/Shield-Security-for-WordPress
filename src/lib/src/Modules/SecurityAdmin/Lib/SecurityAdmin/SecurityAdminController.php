@@ -6,14 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
 	SecurityAdminLogin,
 	SecurityAdminRequestRemoveByEmail
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\{
-	ModCon,
-	Options
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityAdminController extends ExecOnceModConsumer {
@@ -98,8 +96,6 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				/** @var ModCon $mod */
-				$mod = $this->getMod();
 				/** @var Options $opts */
 				$opts = $this->getOptions();
 
@@ -192,27 +188,19 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			   ( $this->getCon()->this_req->is_security_admin || $this->verifyPinRequest() );
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function renderPinLoginForm() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $mod->renderTemplate( '/components/security_admin/login_box.twig', [
-			'flags'   => [
-				'restrict_options' => $opts->isRestrictWpOptions()
-			],
-			'strings' => [
-				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
-			],
-			'ajax'    => [
-				'sec_admin_login' => ActionData::BuildJson( SecurityAdminLogin::SLUG ),
-			]
-		] );
+		return '';
 	}
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo $this->renderPinLoginForm();
+		echo $this->getCon()
+			 ->getModule_Insights()
+			 ->getActionRouter()
+			 ->render( FormSecurityAdminLoginBox::SLUG );
 	}
 
 	public function verifyPinRequest() :bool {

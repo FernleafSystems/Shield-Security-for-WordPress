@@ -10,9 +10,6 @@ class AdminNoteBulkAction extends PluginBase {
 
 	const SLUG = 'admin_note_bulk_action';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

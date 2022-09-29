@@ -8,9 +8,6 @@ class ReportingChartCustom extends ReportingBase {
 
 	const SLUG = 'render_chart_custom';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		$this->renderChart( FormParams::Retrieve() );
 	}

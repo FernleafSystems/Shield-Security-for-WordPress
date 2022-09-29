@@ -10,9 +10,6 @@ class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 
 	const SLUG = 'req_email_remove';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		( new RemoveSecAdmin() )
 			->setMod( $this->primary_mod )

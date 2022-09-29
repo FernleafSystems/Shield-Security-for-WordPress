@@ -1,4 +1,5 @@
-<style>
+{% if flags.is_available %}
+	<style>
 	.address label,
   .address input {
 	  opacity: 0;
@@ -13,7 +14,7 @@
 	  margin-right: 4px;
   }
 </style>
-<div class="auto-recover">
+	<div class="auto-recover">
 	<div class="uaug uau">
 		<p>{{ strings.you_can }}</p>
 		<form method="post" action="{{ hrefs.home }}">
@@ -38,7 +39,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+	<script type="text/javascript">
 
   window.addEventListener( 'load', function () {
 
@@ -73,3 +74,4 @@
   }, false );
 
 </script>
+{% endif %}

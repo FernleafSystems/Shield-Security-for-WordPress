@@ -10,9 +10,6 @@ class ScansFileLockerAction extends ScansBase {
 
 	const SLUG = 'filelocker_fileaction';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;

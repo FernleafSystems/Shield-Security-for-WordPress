@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property ModCon $primary_mod
@@ -97,6 +96,10 @@ abstract class BaseAction extends DynPropertiesClass {
 		return $this->response;
 	}
 
+	public function setResponse( ActionResponse $response ) {
+		$this->response = $response;
+	}
+
 	protected function getDefaults() :array {
 		return [];
 	}
@@ -117,9 +120,9 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @throws ActionException
 	 */
 	protected function checkAvailableData() {
-		$missing = array_diff( $this->getRequiredDataKeys(), array_keys( $this->action_data ) );
+		$missing = array_diff( array_unique( $this->getRequiredDataKeys() ), array_keys( $this->action_data ) );
 		if ( !empty( $missing ) ) {
-			throw new ActionException( sprintf( 'Missing action data for the following keys: %s', implode( ', ', $missing ) ) );
+			throw new ActionException( sprintf( 'Missing action (%s) data for the following keys: %s', static::SLUG, implode( ', ', $missing ) ) );
 		}
 	}
 

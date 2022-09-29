@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Sus
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -182,25 +183,12 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
-		$con = $this->getCon();
-		$meta = $con->getUserMeta( $user );
-		echo $this->getMod()->renderTemplate( '/admin/user/profile/suspend.twig', [
-			'strings' => [
-				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
-				'label'       => __( 'Check to un/suspend user account', 'wp-simple-firewall' ),
-				'description' => __( 'The user can never login while their account is suspended.', 'wp-simple-firewall' ),
-				'cant_manage' => __( 'Sorry, suspension for this account may only be managed by a security administrator.', 'wp-simple-firewall' ),
-				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ),
-					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
-			],
-			'flags'   => [
-				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $user ) || $con->isPluginAdmin(),
-				'is_suspended'          => $meta->record->hard_suspended_at > 0
-			],
-			'vars'    => [
-				'form_field' => 'shield_suspend_user',
-			]
-		] );
+		echo $this->getCon()
+				  ->getModule_Insights()
+				  ->getActionRouter()
+				  ->render( ProfileSuspend::SLUG, [
+					  'user_id' => $user->ID
+				  ] );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {
