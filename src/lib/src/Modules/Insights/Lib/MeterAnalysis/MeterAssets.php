@@ -6,7 +6,7 @@ class MeterAssets extends MeterBase {
 
 	const SLUG = 'assets';
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Plugins, Themes, WordPress Core', 'wp-simple-firewall' );
 	}
 

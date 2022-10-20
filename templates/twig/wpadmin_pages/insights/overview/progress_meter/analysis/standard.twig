@@ -1,71 +1,62 @@
-<div class="offcanvas-header">
-  <h5 class="offcanvas-title">
-	  {% block title %}{{ strings.title|default('provide title') }}{% endblock %}
-  </h5>
-  <button type="button" class="btn-close text-reset"
-          data-bs-dismiss="offcanvas" aria-label="Close"></button>
-</div>
-<div class="offcanvas-body">
-  {% block body %}
-	  {% block body_components %}
+{% block body %}
+  {% block body_components %}
 
-		  <div class="alert alert-secondary mb-4">
-			  <h3 class="m-0">{{ strings.total_score }}:
-				  <span class="badge bg-dark text-white float-end">
-					 {{ vars.total_percentage_score }}/100
+	  <div class="alert alert-secondary mb-4">
+		  <h3 class="m-0">{{ strings.total_score }}:
+			  <span class="badge bg-dark text-white float-end">
+				 {{ vars.total_percentage_score }}/100
+			  </span>
+		  </h3>
+	  </div>
+	  <ul class="list-group">
+
+		  {% for component in vars.components %}
+
+			  {% if component.href is empty %}
+				  <span
+			  {% else %}
+				  <a href="{{ component.href }}" {% if component.new_window %}target="_blank"{% endif %}
+			  {% endif %}
+			  class="meter-analysis-link list-group-item list-group-item-action
+				     {{ component.is_critical|default(false) ? 'list-group-item-danger' : (component.protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
+			  aria-current="true">
+
+			  <div class="w-100">
+					  <h5 class="mb-1">{{ component.title|default('NO Title') }}
+						  <div class="float-end">
+							  {% if component.score == 0 %}
+								  <span class="badge bg-dark text-white opacity-25">
+									 0/{{ component.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
+								  </span>
+							  {% elseif component.score == component.weight %}
+								  <span class="badge bg-dark text-white">
+									 &plus;{{ component.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
+								  </span>
+							  {% else %}
+								  <span class="badge bg-secondary text-white ">
+									 &plus;{{ component.score_as_percent }}/{{ component.weight_as_percent|default(0) }}<small
+											  style="font-size: xx-small;">pts</small>
+								  </span>
+							  {% endif %}
+						  </div>
+					  </h5>
+				  </div>
+
+			  <p class="mb-1">
+				  {{ component.protected ? component.desc_protected|default('NO DESCRIPTION') : component.desc_unprotected|default('NO DESCRIPTION') }}
+			  </p>
+
+			  {% if component.href is empty %}
 				  </span>
-			  </h3>
-		  </div>
-		  <ul class="list-group">
+			  {% else %}
+				  </a>
+			  {% endif %}
 
-			  {% for component in vars.components %}
-
-				  {% if component.href is empty %}
-					  <span
-				  {% else %}
-					  <a href="{{ component.href }}" {% if component.new_window %}target="_blank"{% endif %}
-				  {% endif %}
-				  class="meter-analysis-link list-group-item list-group-item-action
-					     {{ component.is_critical|default(false) ? 'list-group-item-danger' : (component.protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
-				  aria-current="true">
-
-				  <div class="w-100">
-						  <h5 class="mb-1">{{ component.title|default('NO Title') }}
-							  <div class="float-end">
-								  {% if component.score == 0 %}
-									  <span class="badge bg-dark text-white opacity-25">
-										 0/{{ component.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
-									  </span>
-								  {% elseif component.score == component.weight %}
-									  <span class="badge bg-dark text-white">
-										 &plus;{{ component.weight_as_percent|default(0) }}<small style="font-size: xx-small;">pts</small>
-									  </span>
-								  {% else %}
-									  <span class="badge bg-secondary text-white ">
-										 &plus;{{ component.score_as_percent }}/{{ component.weight_as_percent|default(0) }}<small
-												  style="font-size: xx-small;">pts</small>
-									  </span>
-								  {% endif %}
-							  </div>
-						  </h5>
-					  </div>
-
-				  <p class="mb-1">
-						  {{ component.protected ? component.desc_protected|default('NO DESCRIPTION') : component.desc_unprotected|default('NO DESCRIPTION') }}
-					  </p>
-
-				  {% if component.href is empty %}
-					  </span>
-				  {% else %}
-					  </a>
-				  {% endif %}
-
-			  {% endfor %}
-		  </ul>
-	  {% endblock %}
-
-	  <p class="mt-4">
-	  * {{ strings.scores_footnote1 }} {{ strings.scores_footnote2 }}
-	  </p>
+		  {% endfor %}
+	  </ul>
   {% endblock %}
-</div>
+
+  <p class="mt-4">
+  * {{ strings.scores_footnote1 }} {{ strings.scores_footnote2 }}
+  </p>
+{% endblock %}

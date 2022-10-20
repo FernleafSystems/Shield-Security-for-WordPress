@@ -1,0 +1,143 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\MainWP\ExtPage;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
+use FernleafSystems\Wordpress\Services\Services;
+
+class SiteManageFrame extends BaseMWP {
+
+	const SLUG = 'mainwp_page_site_manage_frame';
+	const TEMPLATE = '/integration/mainwp/pages/site.twig';
+
+	protected function getRenderData() :array {
+		$mwp = $this->getCon()->mwpVO;
+		$WP = Services::WpGeneral();
+		$req = Services::Request();
+
+//		var_dump( $this->getSiteByID( (int)$req->query( 'site_id' ) ) );
+		$statsHead = [
+			'connected'    => 0,
+			'disconnected' => 0,
+			'with_issues'  => 0,
+			'needs_update' => 0,
+		];
+		$sites = apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
+		foreach ( $sites as &$site ) {
+			$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
+			$sync = LoadShieldSyncData::Load( $mwpSite );
+			$meta = $sync->meta;
+
+			$shd = $sync->getRawData();
+			$status = ( new ClientPluginStatus() )
+				->setMod( $this->getMod() )
+				->setMwpSite( $mwpSite )
+				->detect();
+			$shd[ 'status_key' ] = key( $status );
+			$shd[ 'status' ] = current( $status );
+
+			$shd[ 'is_active' ] = $shd[ 'status_key' ] === ClientPluginStatus::ACTIVE;
+			$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === ClientPluginStatus::INACTIVE;
+			$shd[ 'is_notinstalled' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_INSTALLED;
+			$shd[ 'is_notpro' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_PRO;
+			$shd[ 'is_mwpnoton' ] = $shd[ 'status_key' ] === ClientPluginStatus::MWP_NOT_ON;
+			$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === ClientPluginStatus::NEED_SYNC;
+			$shd[ 'is_version_mismatch' ] = in_array( $shd[ 'status_key' ], [
+				ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
+				ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
+			] );
+			$shd[ 'can_sync' ] = in_array( $shd[ 'status_key' ], [
+				ClientPluginStatus::ACTIVE,
+				ClientPluginStatus::NEED_SYNC,
+			] );
+
+			if ( $shd[ 'is_active' ] ) {
+
+				$statsHead[ 'connected' ]++;
+				$shd[ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
+				$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
+
+				if ( empty( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) ) {
+					$shd[ 'issues' ] = __( 'No Issues', 'wp-simple-firewall' );
+					$shd[ 'has_issues' ] = false;
+				}
+				else {
+					$shd[ 'has_issues' ] = true;
+					$shd[ 'issues' ] = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
+					$statsHead[ 'with_issues' ]++;
+				}
+			}
+			else {
+				$statsHead[ 'disconnected' ]++;
+			}
+
+			$statsHead[ 'needs_update' ] += $meta->has_update ? 1 : 0;
+
+			$site[ 'shield' ] = $shd;
+		}
+
+		return [
+			'vars'    => [
+				'sites'      => $sites,
+				'stats_head' => $statsHead,
+			],
+			'strings' => [
+				'actions'             => __( 'Actions', 'wp-simple-firewall' ),
+				'site'                => __( 'Site', 'wp-simple-firewall' ),
+				'url'                 => __( 'URL', 'wp-simple-firewall' ),
+				'issues'              => __( 'Issues', 'wp-simple-firewall' ),
+				'status'              => __( 'Status', 'wp-simple-firewall' ),
+				'last_sync'           => __( 'Last Sync', 'wp-simple-firewall' ),
+				'last_scan'           => __( 'Last Scan', 'wp-simple-firewall' ),
+				'version'             => __( 'Version', 'wp-simple-firewall' ),
+				'connected'           => __( 'Connected', 'wp-simple-firewall' ),
+				'disconnected'        => __( 'Disconnected', 'wp-simple-firewall' ),
+				'with_issues'         => __( 'With Issues', 'wp-simple-firewall' ),
+				'needs_update'        => __( 'Needs Update', 'wp-simple-firewall' ),
+				'st_inactive'         => __( 'Shield Security plugin is installed but not activated.', 'wp-simple-firewall' ),
+				'st_notinstalled'     => __( "Shield Security plugin not detected in last sync.", 'wp-simple-firewall' ),
+				'st_notpro'           => __( "ShieldPRO isn't activated on this site.", 'wp-simple-firewall' ),
+				'st_mwpnoton'         => __( "Shield's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ),
+				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
+				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
+				'st_unknown'          => __( "Couldn't determine Shield plugin status.", 'wp-simple-firewall' ),
+				'act_sync'            => __( 'Sync Shield', 'wp-simple-firewall' ),
+				'act_activate'        => __( 'Activate Shield', 'wp-simple-firewall' ),
+				'act_align'           => __( 'Align Shield', 'wp-simple-firewall' ),
+				'act_deactivate'      => __( 'Deactivate Shield', 'wp-simple-firewall' ),
+				'act_install'         => __( 'Install Shield', 'wp-simple-firewall' ),
+				'act_upgrade'         => __( 'Upgrade Shield', 'wp-simple-firewall' ),
+				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
+				'act_license'         => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
+				'act_mwp'             => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
+			]
+		];
+	}
+
+	protected function getAjaxActionsData() :array {
+		$renderManageSiteAjax = ActionData::Build( 'render_manage_site', true, [
+			'site_id' => Services::Request()->query( 'site_id' )
+		] );
+
+		$data = parent::getAjaxActionsData();
+		$data[ 'render_manage_site' ] = $renderManageSiteAjax;
+		return $data;
+	}
+
+	protected function getMenuTopNavItems() :array {
+		$req = Services::Request();
+		$items = parent::getMenuTopNavItems();
+		$items[] = [
+			'title'  => 'www.google.com',
+			'href'   => add_query_arg( [
+				'tab'     => 'site',
+				'site_id' => 123,
+			], $req->getUri() ),
+			'icon'   => 'globe',
+			'active' => true
+		];
+		return $items;
+	}
+}

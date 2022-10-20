@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Retrieve\RetrieveCount,
 	Retrieve\RetrieveItems,
@@ -60,10 +61,6 @@ abstract class Base extends ExecOnceModConsumer {
 		foreach ( $this->getAllResults()->getItems() as $item ) {
 			$this->cleanStaleResultItem( $item );
 		}
-	}
-
-	public function createFileDownloadLink( int $recordID ) :string {
-		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $recordID ] );
 	}
 
 	public function countScanProblems() :int {

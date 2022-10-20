@@ -10,7 +10,7 @@ class MeterScans extends MeterBase {
 		return [ $this->getCon()->getModule_HackGuard() ];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Site Scanning', 'wp-simple-firewall' );
 	}
 

@@ -2,6 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	MfaSmsAdd,
+	MfaSmsIntentSend,
+	MfaSmsRemove,
+	MfaSmsVerify};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendSms;
@@ -13,9 +20,9 @@ class Sms extends BaseProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'profile_sms2fa_add' ),
-				'profile_sms2fa_remove' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_remove' ),
-				'profile_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_verify' ),
+				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::SLUG ),
+				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::SLUG ),
+				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::SLUG ),
 			],
 		];
 	}
@@ -133,7 +140,7 @@ class Sms extends BaseProvider {
 			'classes'     => [ 'btn', 'btn-light' ],
 			'help_link'   => '',
 			'datas'       => [
-				'ajax_intent_sms_send' => $this->getMod()->getAjaxActionData( 'intent_sms_send', true ),
+				'ajax_intent_sms_send' => ActionData::BuildJson( MfaSmsIntentSend::SLUG ),
 				'input_otp'            => $this->getLoginFormParameter(),
 			]
 		];
@@ -148,7 +155,7 @@ class Sms extends BaseProvider {
 		parent::remove();
 	}
 
-	protected function getProviderSpecificRenderData() :array {
+	public function getUserProfileFormRenderData() :array {
 		$user = $this->getUser();
 		$countries = ( new GetAvailableCountries() )
 			->setMod( $this->getMod() )
@@ -161,26 +168,29 @@ class Sms extends BaseProvider {
 				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
 		}
 
-		return [
-			'flags'   => [
-				'has_countries' => !empty( $countries ),
-				'is_validated'  => $this->isProfileActive()
-			],
-			'strings' => [
-				'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
-				'title'                       => __( 'SMS Authentication', 'wp-simple-firewall' ),
-				'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
-				'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
-												 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
-				'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
-				'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'countries'        => $countries,
-				'validated_number' => $validatedNumber,
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getUserProfileFormRenderData(),
+			[
+				'flags'   => [
+					'has_countries' => !empty( $countries ),
+					'is_validated'  => $this->isProfileActive()
+				],
+				'strings' => [
+					'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
+					'title'                       => __( 'SMS Authentication', 'wp-simple-firewall' ),
+					'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
+					'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
+													 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
+					'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
+					'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'countries'        => $countries,
+					'validated_number' => $validatedNumber,
+				]
 			]
-		];
+		);
 	}
 
 	public function isProviderEnabled() :bool {

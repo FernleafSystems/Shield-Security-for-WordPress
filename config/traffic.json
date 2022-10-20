@@ -30,12 +30,6 @@
   "wpcli":            {
     "enabled": true
   },
-  "menu_items":       [
-    {
-      "title": "Traffic Log",
-      "slug":  "traffic-redirect"
-    }
-  ],
   "custom_redirects": [
     {
       "source_mod_page": "traffic-redirect",

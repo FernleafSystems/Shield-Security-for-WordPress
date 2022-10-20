@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -84,32 +85,32 @@ class Import {
 		}
 
 		$FS = Services::WpFs();
-		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
-			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
+		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] ) || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
 		}
-		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
-			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
-			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
-			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
-		) {
+
+		if ( isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
+			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
+		}
+
+		if ( $_FILES[ 'import_file' ][ 'size' ] == 0 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0 ) {
+			throw new \Exception( __( "The file appears to be empty or couldn't be uploaded properly", 'wp-simple-firewall' ) );
 		}
 
 		$this->fromFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
 	/**
-	 * @param bool|null $isEnableNetwork
+	 * @param bool|null $enableNetwork
 	 * @return int
 	 * @throws \Exception
 	 */
-	public function fromSite( string $masterURL = '', string $secretKey = '', $isEnableNetwork = null ) {
+	public function fromSite( string $masterURL = '', string $secretKey = '', $enableNetwork = null ) {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
-		$DP = Services::Data();
 
 		if ( empty( $masterURL ) ) {
 			$masterURL = $opts->getImportExportMasterImportUrl();
@@ -131,16 +132,16 @@ class Import {
 		// Ensure we have entries for 'scheme' and 'host'
 		$urlParts = wp_parse_url( $masterURL );
 		$hasParts = !empty( $urlParts )
-					 && count(
-							array_filter( array_intersect_key(
-								$urlParts,
-								array_flip( [ 'scheme', 'host' ] )
-							) )
-						) === 2;
+					&& count(
+						   array_filter( array_intersect_key(
+							   $urlParts,
+							   array_flip( [ 'scheme', 'host' ] )
+						   ) )
+					   ) === 2;
 		if ( !$hasParts ) {
 			throw new \Exception( "Couldn't parse the URL.", 4 );
 		}
-		$masterURL = $DP->validateSimpleHttpUrl( $masterURL ); // final clean
+		$masterURL = Services::Data()->validateSimpleHttpUrl( $masterURL ); // final clean
 		if ( empty( $masterURL ) ) {
 			throw new \Exception( "Couldn't validate the URL.", 4 );
 		}
@@ -149,18 +150,22 @@ class Import {
 		$opts->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
 		$mod->saveModOptions();
 
-		$data = [
-			'shield_action' => 'importexport_export',
-			'secret'        => $secretKey,
-			'url'           => Services::WpGeneral()->getHomeUrl()
-		];
 		// Don't send the network setup request if it's the cron.
-		if ( !is_null( $isEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
-			$data[ 'network' ] = $isEnableNetwork ? 'Y' : 'N';
+		$data = [
+			'secret' => $secretKey,
+			'url'    => Services::WpGeneral()->getHomeUrl()
+		];
+		if ( !is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
+			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
 		}
 
 		{ // Make the request
-			$response = @json_decode( Services::HttpRequest()->getContent( add_query_arg( $data, $masterURL ) ), true );
+			$targetExportURL = $this->getCon()->getShieldActionNoncedUrl(
+				PluginImportExport_Export::SLUG,
+				$masterURL,
+				$data
+			);
+			$response = @json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}
@@ -184,19 +189,19 @@ class Import {
 
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
-		if ( is_null( $isEnableNetwork ) ) {
+		if ( is_null( $enableNetwork ) ) {
 			if ( $hadMasterSiteUrl && !$opts->hasImportExportMasterImportUrl() ) {
 				$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
 			}
 		}
-		elseif ( $isEnableNetwork === true ) {
+		elseif ( $enableNetwork === true ) {
 			$opts->setOpt( 'importexport_masterurl', $masterURL );
 			$this->getCon()->fireEvent(
 				'master_url_set',
 				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
 		}
-		elseif ( $isEnableNetwork === false ) {
+		elseif ( $enableNetwork === false ) {
 			$opts->setOpt( 'importexport_masterurl', '' );
 		}
 		// store & clean the master URL

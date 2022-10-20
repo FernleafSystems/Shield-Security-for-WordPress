@@ -28,13 +28,13 @@
 								<label class="input-group-text" for="FileLockerFileSelect">
 									 Select File To Review</label>
 								<select class="form-select mw-100" id="FileLockerFileSelect">
-									<option selected value="-" disabled="disabled">--</option>
+									<option selected value="-">--</option>
 									{% for lock_key, file_lock in scan.vars.file_locks.bad %}
 										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.file }}</option>
 									{% endfor %}
 									{% for lock_key, file_lock in scan.vars.file_locks.good %}
 										<option value="{{ lock_key }}"
-												class="text-success">{{ file_lock.file }}</option>
+										        class="text-success">{{ file_lock.file }}</option>
 									{% endfor %}
 								</select>
 							 </div>
@@ -79,55 +79,64 @@
 {% if not scan.flags.is_restricted %}
 	<script type="text/javascript">
 	jQuery( '#FileLockerFileSelect' ).on( 'change', function ( e ) {
-		iCWP_WPSF_BodyOverlay.show();
-		let ajax_vars ={{ scan.ajax.filelocker_showdiff|raw }};
-		ajax_vars.rid = jQuery( this ).val();
-		jQuery.post( ajaxurl, ajax_vars,
-			function ( oResponse ) {
-				jQuery( '#FileLockerDiffContents' ).html( oResponse.data.html );
-			}
-		).fail(
-			function () {
-			}
-		).always( function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-	} );
-	jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
-		evt.preventDefault();
-		iCWP_WPSF_BodyOverlay.show();
-		let ajax_vars ={{ scan.ajax.filelocker_fileaction|raw }};
-		let $oButton = jQuery( 'input[type=submit]', this );
-		ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
-		ajax_vars.rid = $oButton.data( 'rid' );
-		ajax_vars.file_action = $oButton.data( 'action' );
+	  let $this = jQuery( this );
+	  let current = $this.find( ":selected" ).val();
+	  if ( current !== '-' ) {
+		  Shield_AjaxRender
+		  .send_ajax_req( {
+			  render_slug: '{{ scan.ajax.filelocker_showdiff }}',
+			  rid: jQuery( this ).val()
+		  } )
+		  .then( ( response ) => {
+			  if ( response.success ) {
+				  jQuery( '#FileLockerDiffContents' ).html( response.data.html );
+			  }
+			  else {
+				  alert( response.data.error );
+			  }
+		  } )
+		  .catch( ( error ) => {
+			  alert( 'Sorry, something went wrong with the request.' );
+			  console.log( error );
+		  } );
+		  jQuery( 'option[value="-"]', $this ).prop( 'selected', true );
+	  }
+  } );
 
-		jQuery.post( ajaxurl, ajax_vars,
-			function ( oResponse ) {
-				let sMessage = '';
-				if ( oResponse === null || typeof oResponse.data === 'undefined'
-					|| typeof oResponse.data.message === 'undefined' ) {
-					sMessage = oResponse.success ? 'Success' : 'Failure';
-				}
-				else {
-					sMessage = oResponse.data.message;
-				}
-				iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
-				if ( oResponse.success ) {
-					setTimeout( function () {
-						location.reload();
-					}, 500 );
-				}
-			}
-		).fail(
-			function () {
-			}
-		).always( function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-		return false;
-	} );
+  jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
+	  evt.preventDefault();
+	  iCWP_WPSF_BodyOverlay.show();
+	  let ajax_vars ={{ scan.ajax.filelocker_fileaction|raw }};
+	  let $oButton = jQuery( 'input[type=submit]', this );
+	  ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
+	  ajax_vars.rid = $oButton.data( 'rid' );
+	  ajax_vars.file_action = $oButton.data( 'action' );
+
+	  jQuery.post( ajaxurl, ajax_vars,
+		  function ( oResponse ) {
+			  let sMessage = '';
+			  if ( oResponse === null || typeof oResponse.data === 'undefined'
+				  || typeof oResponse.data.message === 'undefined' ) {
+				  sMessage = oResponse.success ? 'Success' : 'Failure';
+			  }
+			  else {
+				  sMessage = oResponse.data.message;
+			  }
+			  iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+			  if ( oResponse.success ) {
+				  setTimeout( function () {
+					  location.reload();
+				  }, 500 );
+			  }
+		  }
+	  ).fail(
+		  function () {
+		  }
+	  ).always( function () {
+			  iCWP_WPSF_BodyOverlay.hide();
+		  }
+	  );
+	  return false;
+  } );
 </script>
 {% endif %}

@@ -16,7 +16,7 @@ class License extends Base {
 							  ->verify( true )
 							  ->hasValidWorkingLicense();
 		if ( $resp->success ) {
-			$resp->msg = 'License found and installed successfully';
+			$resp->message = 'License found and installed successfully';
 		}
 		else {
 			$resp->error = "There doesn't appear to be a active ShieldPRO license available for this site.";

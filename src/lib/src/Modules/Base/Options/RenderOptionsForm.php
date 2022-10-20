@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions;
 
 class RenderOptionsForm {
 
@@ -28,32 +28,20 @@ class RenderOptionsForm {
 			}
 		}
 
-		$options = ( new BuildForDisplay( $focusSection, $focusOption ) )
-			->setMod( $mod )
-			->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
-			->standard();
-
 		try {
-			return $mod->getRenderer()
-					   ->setTemplate( '/components/options_form/main.twig' )
-					   ->setRenderData( [
-						   'hrefs' => [
-							   'form_action' => 'admin.php?page='.$mod->getModSlug(),
-						   ],
-						   'vars'  => [
-							   'working_mod'   => $mod->getSlug(),
-							   'all_options'   => $options,
-							   'xferable_opts' => ( new BuildTransferableOptions() )
-								   ->setMod( $mod )
-								   ->build(),
-							   'focus_option'  => $focusOption,
-							   'focus_section' => $focusSection,
-							   'form_context'  => $auxParams[ 'context' ] ?? 'normal'
-						   ],
-						   'flags' => [
-						   ],
-					   ] )
-					   ->render();
+			return $this->getCon()
+						->getModule_Insights()
+						->getActionRouter()
+						->render( OptionsForm::SLUG, [
+							'primary_mod_slug' => $mod->getSlug(),
+							'all_options'      => ( new BuildForDisplay( $focusSection, $focusOption ) )
+								->setMod( $mod )
+								->setIsWhitelabelled( $this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() )
+								->standard(),
+							'focus_option'     => $focusOption,
+							'focus_section'    => $focusSection,
+							'form_context'     => $auxParams[ 'context' ] ?? 'normal',
+						] );
 		}
 		catch ( \Exception $e ) {
 			return 'Error rendering options form: '.$e->getMessage();

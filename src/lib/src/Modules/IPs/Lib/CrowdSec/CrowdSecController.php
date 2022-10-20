@@ -4,10 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	Lib\AutoUnblock\AutoUnblockCrowdsec,
-	Options
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 
 class CrowdSecController extends ExecOnceModConsumer {
 
@@ -26,10 +23,6 @@ class CrowdSecController extends ExecOnceModConsumer {
 
 	protected function run() {
 		$this->setupCronHooks();
-
-		( new AutoUnblockCrowdsec() )
-			->setMod( $this->getMod() )
-			->execute();
 
 		new Signals\EventsToSignals( $this->getCon(), $this->getCon()->is_mode_live );
 

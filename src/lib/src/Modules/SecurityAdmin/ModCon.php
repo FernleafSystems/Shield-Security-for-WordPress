@@ -3,8 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
@@ -60,8 +61,11 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function getSecAdminLoginAjaxData() :array {
-		return $this->getAjaxActionData( 'sec_admin_login' );
+		return ActionData::Build( Actions\SecurityAdminLogin::SLUG );
 	}
 
 	protected function preProcessOptions() {
@@ -87,19 +91,6 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$this->runMuHandler();
-	}
-
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case  'remove_secadmin_confirm':
-				( new Lib\SecurityAdmin\Ops\RemoveSecAdmin() )
-					->setMod( $this )
-					->remove();
-				break;
-			default:
-				parent::handleModAction( $action );
-				break;
-		}
 	}
 
 	/**

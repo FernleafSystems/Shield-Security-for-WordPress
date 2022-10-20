@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -56,64 +57,12 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function render( bool $isFloating = false ) :string {
-		$con = $this->getCon();
-		$mod = $this->getMod();
-		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
-
-		if ( $wlCon->isEnabled() && $wlCon->isReplacePluginBadge() ) {
-			/** @var Modules\SecurityAdmin\Options $secAdminOpts */
-			$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
-			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );
-			$name = $secAdminOpts->getOpt( 'wl_pluginnamemain' );
-			$logo = $secAdminOpts->getOpt( 'wl_dashboardlogourl' );
-		}
-		else {
-			$badgeUrl = 'https://shsec.io/wpsecurityfirewall';
-			$name = $con->getHumanName();
-			$logo = $con->urls->forImage( 'shield/shield-security-logo-colour-32px.png' );
-
-			$lic = $con->getModule_License()
-					   ->getLicenseHandler()
-					   ->getLicense();
-			if ( !empty( $lic->aff_ref ) ) {
-				$badgeUrl = add_query_arg( [ 'ref' => $lic->aff_ref ], $badgeUrl );
-			}
-		}
-
-		$badgeAttrs = [
-			'name'         => $name,
-			'url'          => $badgeUrl,
-			'logo'         => $logo,
-			'protected_by' => apply_filters( 'icwp_shield_plugin_badge_text',
-				sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-					'<br/><span class="plugin-badge-name">'.$name.'</span>' )
-			),
-			'custom_css'   => '',
-		];
-		if ( $con->isPremiumActive() ) {
-			$badgeAttrs = apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $isFloating );
-		}
-
-		return $mod->renderTemplate( 'snippets/plugin_badge_widget.twig', [
-			'ajax'    => [
-				'plugin_badge_close' => $mod->getAjaxActionData( 'plugin_badge_close', true ),
-			],
-			'content' => [
-				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
-			],
-			'flags'   => [
-				'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-				'is_floating' => $isFloating
-			],
-			'hrefs'   => [
-				'badge' => $badgeAttrs[ 'url' ],
-				'logo'  => $badgeAttrs[ 'logo' ],
-			],
-			'strings' => [
-				'protected' => $badgeAttrs[ 'protected_by' ],
-				'name'      => $badgeAttrs[ 'name' ],
-			],
-		] );
+		return $this->getCon()
+					->getModule_Insights()
+					->getActionRouter()
+					->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
+						'is_floating' => $isFloating,
+					] );
 	}
 
 	public function setBadgeStateClosed() :bool {

@@ -13,7 +13,7 @@ class MeterLoginProtection extends MeterBase {
 		];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Login Protection', 'wp-simple-firewall' );
 	}
 

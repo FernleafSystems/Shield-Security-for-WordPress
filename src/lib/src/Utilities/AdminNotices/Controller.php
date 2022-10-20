@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
@@ -18,7 +19,7 @@ class Controller {
 
 	/**
 	 * TODO doesn't handle error message highlighting
-	 * @param string $msg
+	 * @param string $loginMsg
 	 * @return string
 	 */
 	public function onLoginMessage( $loginMsg ) {
@@ -31,13 +32,12 @@ class Controller {
 	}
 
 	/**
-	 * @param string        $msg
 	 * @param \WP_User|null $user
 	 * @param bool          $isError
 	 * @param bool          $bShowOnLoginPage
 	 * @return $this
 	 */
-	public function addFlash( $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
+	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
 		$con = $this->getCon();
 		$meta = $user instanceof \WP_User ? $con->getUserMeta( $user ) : $con->getCurrentUserMeta();
 		if ( $meta instanceof UserMeta ) {
@@ -61,7 +61,12 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->collectAllPluginNotices() as $notice ) {
-			echo $this->renderNotice( $notice );
+			echo $this->getCon()
+					  ->getModule_Insights()
+					  ->getActionRouter()
+					  ->render( AdminNotice::SLUG, [
+						  'raw_notice_data' => $notice->getRawData()
+					  ] );
 		}
 	}
 
@@ -132,34 +137,10 @@ class Controller {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	protected function renderNotice( NoticeVO $notice ) :string {
-		$data = $notice->render_data;
-
-		if ( empty( $data[ 'notice_classes' ] ) || !is_array( $data[ 'notice_classes' ] ) ) {
-			$data[ 'notice_classes' ] = [];
-		}
-		$data[ 'notice_classes' ][] = $notice->type;
-		if ( !in_array( 'error', $data[ 'notice_classes' ] ) ) {
-			$data[ 'notice_classes' ][] = 'updated';
-		}
-		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
-		$data[ 'notice_classes' ] = implode( ' ', array_unique( $data[ 'notice_classes' ] ) );
-
-		$data[ 'unique_render_id' ] = uniqid( $notice->id );
-		$data[ 'notice_id' ] = $notice->id;
-
-		$ajaxData = $this->getCon()
-						 ->getModule( $notice->mod ?? 'plugin' )
-						 ->getNonceActionData( 'dismiss_admin_notice' );
-		$ajaxData[ 'hide' ] = 1;
-		$ajaxData[ 'notice_id' ] = $notice->id;
-		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $ajaxData );
-
-		return $this->getCon()
-					->getRenderer()
-					->setTemplate( $notice->template )
-					->setRenderVars( $data )
-					->setTemplateEngineTwig()
-					->render();
+		return '';
 	}
 }

@@ -16,24 +16,6 @@ class ModCon extends Base\ModCon {
 					->getCurrentWP();
 	}
 
-	public function onWpInit() {
-		parent::onWpInit();
-		if ( $this->isThisModulePage() && ( $this->getSlug() != 'insights' ) ) {
-			$this->redirectToInsightsSubPage();
-		}
-	}
-
-	protected function redirectToInsightsSubPage() {
-		Services::Response()->redirect(
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
-			[
-				'inav'   => 'settings',
-				'subnav' => $this->getSlug()
-			],
-			true, false
-		);
-	}
-
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
 		$plugMod = $this->getCon()->getModule_Plugin();
 		/** @var Shield\Modules\Plugin\Options $plugOpts */

@@ -7,6 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+	ActionData,
+	Actions,
+	Constants
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -332,7 +337,7 @@ class Controller extends DynPropertiesClass {
 	public function adminNoticeDoesNotMeetRequirements() {
 		if ( !empty( $this->reqs_not_met ) ) {
 			$this->getRenderer()
-				 ->setTemplate( 'notices/does-not-meet-requirements.twig' )
+				 ->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				 ->setTemplateEngineTwig()
 				 ->setRenderVars( [
 					 'strings' => [
@@ -531,9 +536,6 @@ class Controller extends DynPropertiesClass {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 		$this->processShieldNonceActions();
-		( new Ajax\Init() )
-			->setCon( $this )
-			->execute();
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
@@ -671,13 +673,12 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
-	public function getNonceActionData( string $action ) :array {
-		return [
-			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $action,
-			'exec_nonce' => wp_create_nonce( $action ),
-			//			'rand'       => wp_rand( 10000, 99999 )
-		];
+	public function getShieldActionNonceData( string $shieldAction, array $aux = [] ) :array {
+		return ActionData::Build( $shieldAction, true, $aux );
+	}
+
+	public function getShieldActionNoncedUrl( string $shieldAction, string $url = null, array $aux = [] ) :string {
+		return ActionData::BuildURL( $shieldAction, $url, $aux );
 	}
 
 	/**
@@ -1088,11 +1089,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getPluginUrl_DashboardHome() :string {
-		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
-	}
-
-	public function getPluginUrl_AdminMainPage() :string {
-		return $this->getModule_Plugin()->getUrl_AdminPage();
+		return $this->getModule_Insights()->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW );
 	}
 
 	public function getPath_Languages() :string {
@@ -1138,6 +1135,9 @@ class Controller extends DynPropertiesClass {
 		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
 		return empty( $action ) ? '' : $action;
@@ -1326,10 +1326,7 @@ class Controller extends DynPropertiesClass {
 		return $user instanceof \WP_User ? $this->user_metas->forUser( $user ) : null;
 	}
 
-	/**
-	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
-	 */
-	public function getRenderer() {
+	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();
 		$locator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
 		foreach ( $locator->run() as $dir ) {
@@ -1409,39 +1406,13 @@ class Controller extends DynPropertiesClass {
 		return $result;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function buildPrivacyPolicyContent() {
-		try {
-			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-				$name = $this->getHumanName();
-				$href = $this->labels->PluginURI;
-			}
-			else {
-				$name = $this->cfg->menu[ 'title' ];
-				$href = $this->cfg->meta[ 'privacy_policy_href' ];
-			}
-
-			/** @var Shield\Modules\AuditTrail\Options $opts */
-			$opts = $this->getModule_AuditTrail()->getOptions();
-
-			$content = $this->getRenderer()
-							->setTemplate( 'snippets/privacy_policy' )
-							->setTemplateEngineTwig()
-							->setRenderVars(
-								[
-									'name'             => $name,
-									'href'             => $href,
-									'audit_trail_days' => $opts->getAutoCleanDays()
-								]
-							)
-							->render();
-		}
-		catch ( \Exception $e ) {
-			$content = '';
-		}
-		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
+	private function buildPrivacyPolicyContent() :string {
+		return wp_kses_post( wpautop(
+			$this->getModule_Insights()
+				 ->getActionRouter()
+				 ->render( Actions\Render\Components\PrivacyPolicy::SLUG ),
+			false
+		) );
 	}
 
 	private function labels() :Config\Labels {
@@ -1459,6 +1430,17 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
+	/**
+	 * @deprecated 16.2
+	 */
+	public function getNonceActionData( string $action ) :array {
+		return [
+			'action'     => $this->prefix(), //wp ajax doesn't work without this.
+			'exec'       => $action,
+			'exec_nonce' => wp_create_nonce( $action ),
+		];
 	}
 
 	private function runTests() {

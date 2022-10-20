@@ -2,15 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseAutoUnblock extends ExecOnceModConsumer {
+abstract class BaseAutoUnblock {
 
-	protected function canRun() :bool {
+	use ModConsumer;
+
+	public function canRunAutoUnblockProcess() :bool {
 		return $this->isUnblockAvailable();
 	}
 
@@ -25,10 +27,7 @@ abstract class BaseAutoUnblock extends ExecOnceModConsumer {
 		}
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	protected function processAutoUnblockRequest() :bool {
+	public function processAutoUnblockRequest() :bool {
 		try {
 			$unblocked = $this->canRunUnblock() && $this->unblockIP();
 		}
@@ -57,32 +56,19 @@ abstract class BaseAutoUnblock extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	protected function canRunUnblock() :bool {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
 		$req = Services::Request();
 
-		$canRunUnblock = false;
+		$this->timingChecks();
+		$this->updateLastAttemptAt();
 
-		$nonceActionID = $this->getNonceAction();
-		if ( $req->post( 'action' ) == $mod->getCon()->prefix() && $req->post( 'exec' ) == $nonceActionID ) {
-
-			$this->timingChecks();
-			$this->updateLastAttemptAt();
-
-			if ( wp_verify_nonce( $req->post( 'exec_nonce' ), $nonceActionID ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
-			}
-			if ( $req->post( '_confirm' ) !== 'Y' ) {
-				throw new \Exception( 'No confirmation checkbox.' );
-			}
-			if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
-				throw new \Exception( 'Oh so yummy.' );
-			}
-
-			$canRunUnblock = true;
+		if ( $req->post( '_confirm' ) !== 'Y' ) {
+			throw new \Exception( 'No confirmation checkbox.' );
+		}
+		if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
+			throw new \Exception( 'Oh so yummy.' );
 		}
 
-		return $canRunUnblock;
+		return true;
 	}
 
 	/**
@@ -168,8 +154,4 @@ abstract class BaseAutoUnblock extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	abstract protected function getIpRecord() :IpRuleRecord;
-
-	protected function getNonceAction() :string {
-		return 'uau-'.$this->getCon()->this_req->ip;
-	}
 }

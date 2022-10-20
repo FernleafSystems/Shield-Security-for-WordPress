@@ -51,7 +51,7 @@ class IpBlockedCrowdsec extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpCrowdsecBlocked::SLUG,
+				'response' => Responses\SetIpBlockedCrowdsec::SLUG,
 			],
 		];
 	}

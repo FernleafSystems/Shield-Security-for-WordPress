@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
@@ -43,9 +45,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'resend_verification_email' => $mod->getAjaxActionData( 'resend_verification_email', true ),
-				'profile_email2fa_disable'  => $mod->getAjaxActionData( 'profile_email2fa_disable', true ),
-			]
+				'resend_verification_email' => ActionData::BuildJson( Actions\MfaEmailSendVerification::SLUG ),
+				'profile_email2fa_disable'  => ActionData::BuildJson( Actions\MfaEmailDisable::SLUG ),
+			],
 		];
 	}
 

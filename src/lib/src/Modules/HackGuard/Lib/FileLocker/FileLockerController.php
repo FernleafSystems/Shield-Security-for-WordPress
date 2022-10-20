@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
@@ -70,11 +71,9 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function createFileDownloadLinks( FileLocker\EntryVO $lock ) :array {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
-			$links[ $type ] = $mod->createFileDownloadLink( 'filelocker', [
+			$links[ $type ] = ActionData::FileDownloadHref( 'filelocker', [
 				'type' => $type,
 				'rid'  => $lock->id,
 				'rand' => uniqid(),
@@ -83,38 +82,36 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 		return $links;
 	}
 
-	public function handleFileDownloadRequest() {
+	/**
+	 * @throws \Exception
+	 */
+	public function handleFileDownloadRequest() :array {
 		$req = Services::Request();
 
-		$dieMsg = "Something about this request wasn't right";
-		try {
-			$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
-			$type = $req->query( 'type' );
+		$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
+		$type = $req->query( 'type' );
 
-			// Note: Download what's on the disk if nothing is changed.
-			if ( $type == 'current' ) {
-				$content = Services::WpFs()->getFileContent( $lock->file );
-			}
-			elseif ( $type == 'original' ) {
-				$content = ( new Ops\ReadOriginalFileContent() )
-					->setMod( $this->getMod() )
-					->run( $lock );
-			}
-			else {
-				throw new \Exception( 'Invalid file locker type download' );
-			}
-
-			if ( !empty( $content ) ) {
-				header( 'Set-Cookie: fileDownload=true; path=/' );
-				Services::Response()
-						->downloadStringAsFile( $content, strtoupper( $type ).'-'.basename( $lock->file ) );
-			}
+		// Note: Download what's on the disk if nothing is changed.
+		if ( $type == 'current' ) {
+			$content = Services::WpFs()->getFileContent( $lock->file );
 		}
-		catch ( \Exception $e ) {
-			$dieMsg = $e->getMessage();
+		elseif ( $type == 'original' ) {
+			$content = ( new Ops\ReadOriginalFileContent() )
+				->setMod( $this->getMod() )
+				->run( $lock );
+		}
+		else {
+			throw new \Exception( 'Invalid file locker type download' );
 		}
 
-		wp_die( $dieMsg );
+		if ( empty( $content ) ) {
+			throw new \Exception( 'File contents are empty.' );
+		}
+
+		return [
+			'name'    => strtoupper( $type ).'-'.basename( $lock->file ),
+			'content' => $content,
+		];
 	}
 
 	public function deleteAllLocks() {

@@ -323,6 +323,9 @@ class Options {
 		}, $this->getVisibleOptions() );
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function getAdditionalMenuItems() :array {
 		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
 	}

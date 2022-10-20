@@ -37,7 +37,7 @@ class SetIpBlockedShield extends Base {
 			( new BlockRequest() )
 				->setMod( $this->getCon()->getModule_IPs() )
 				->execute();
-		}, -100000 );
+		}, 0 );
 
 		return true;
 	}

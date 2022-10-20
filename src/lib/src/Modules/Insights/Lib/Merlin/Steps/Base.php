@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
-class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
+abstract class Base {
 
 	use Shield\Modules\ModConsumer;
 
@@ -19,26 +19,16 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 		return false;
 	}
 
-	protected function getTemplateBaseDir() :string {
-		return '/components/merlin/steps/';
-	}
-
-	protected function getTemplateStub() :string {
-		return static::SLUG;
-	}
-
-	protected function getRenderData() :array {
-		$step = $this->getStepRenderData();
-
-		if ( !empty( $step[ 'vars' ][ 'video_id' ] ) ) {
-			$step[ 'imgs' ][ 'video_thumb' ] = $this->getVideoThumbnailUrl( $step[ 'vars' ][ 'video_id' ] );
+	public function render() :string {
+		$stepData = $this->getStepRenderData();
+		if ( !isset( $stepData[ 'vars' ] ) ) {
+			$stepData[ 'vars' ] = [];
 		}
-
-		return Services::DataManipulation()->mergeArraysRecursive(
-			$this->getCon()->getModule_Plugin()->getUIHandler()->getBaseDisplayData(),
-			$this->getCommonStepRenderData(),
-			$step
-		);
+		$stepData[ 'vars' ][ 'step_slug' ] = static::SLUG;
+		return $this->getCon()
+					->getModule_Insights()
+					->getActionRouter()
+					->render( Actions\Render\Components\Merlin\MerlinStep::SLUG, $stepData );
 	}
 
 	/**
@@ -52,31 +42,7 @@ class Base extends Shield\Utilities\Render\BaseTemplateRenderer {
 		return $resp;
 	}
 
-	protected function getCommonStepRenderData() :array {
-		return [
-			'hrefs' => [
-				'dashboard' => $this->getCon()->getPluginUrl_DashboardHome(),
-				'gopro'     => 'https://shsec.io/ap',
-			],
-			'imgs'  => [
-				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-circle.svg' )
-			],
-			'vars'  => [
-				'step_slug' => static::SLUG
-			],
-		];
-	}
-
 	protected function getStepRenderData() :array {
 		return [];
-	}
-
-	/**
-	 * @see https://stackoverflow.com/questions/1361149/get-img-thumbnails-from-vimeo
-	 */
-	private function getVideoThumbnailUrl( string $videoID ) :string {
-		$raw = Services::HttpRequest()
-					   ->getContent( sprintf( 'https://vimeo.com/api/v2/video/%s.json', $videoID ) );
-		return empty( $raw ) ? '' : json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ];
 	}
 }

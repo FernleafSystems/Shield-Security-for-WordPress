@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -84,7 +86,6 @@ abstract class ModCon extends DynPropertiesClass {
 	public function boot() {
 		if ( !$this->is_booted ) {
 			$this->is_booted = true;
-			$this->handleAutoPageRedirects();
 			$this->doPostConstruction();
 			$this->setupHooks();
 		}
@@ -253,9 +254,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() || is_network_admin() ) {
-			$this->getAdminPage()->execute();
-		}
 		if ( $this->getCon()->is_rest_enabled ) {
 			$this->initRestApi();
 		}
@@ -282,12 +280,6 @@ abstract class ModCon extends DynPropertiesClass {
 	public function onWpInit() {
 		$con = $this->getCon();
 
-		$shieldAction = $con->getShieldAction();
-		if ( !empty( $shieldAction ) ) {
-			do_action( $con->prefix( 'shield_action' ), $shieldAction );
-			$this->handleShieldAction( $shieldAction );
-		}
-
 		add_action( 'cli_init', function () {
 			try {
 				$this->getWpCli()->execute();
@@ -295,23 +287,6 @@ abstract class ModCon extends DynPropertiesClass {
 			catch ( \Exception $e ) {
 			}
 		} );
-
-		if ( $this->isModuleRequest() ) {
-
-			if ( Services::WpGeneral()->isAjax() ) {
-				$this->loadAjaxHandler();
-			}
-			else {
-				try {
-					if ( $this->verifyModActionRequest() ) {
-						$this->handleModAction( Services::Request()->request( 'exec' ) );
-					}
-				}
-				catch ( \Exception $e ) {
-					wp_nonce_ays( '' );
-				}
-			}
-		}
 
 		// GDPR
 		if ( $this->isPremium() ) {
@@ -324,9 +299,6 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 
 		$this->loadDebug();
-	}
-
-	protected function handleShieldAction( string $action ) {
 	}
 
 	/**
@@ -380,62 +352,23 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'settings', $this->getSlug() );
-	}
-
-	public function getUrl_AdminPage() :string {
-		return Services::WpGeneral()
-					   ->getUrl_AdminPage(
-						   $this->getModSlug(),
-						   $this->getCon()->getIsWpmsNetworkAdminOnly()
-					   );
-	}
-
-	public function buildAdminActionNonceUrl( string $action ) :string {
-		$nonce = $this->getNonceActionData( $action );
-		$nonce[ 'ts' ] = Services::Request()->ts();
-		return add_query_arg( $nonce, $this->getUrl_AdminPage() );
-	}
-
-	protected function getModActionParams( string $action ) :array {
-		$con = $this->getCon();
-		return [
-			'action'     => $con->prefix(),
-			'exec'       => $action,
-			'mod_slug'   => $this->getModSlug(),
-			'ts'         => Services::Request()->ts(),
-			'exec_nonce' => substr(
-				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getInstallationID()[ 'id' ] ), 0, 6
-			)
-		];
+		return $this->getCon()->getModule_Insights()
+					->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, $this->getSlug() );
 	}
 
 	/**
-	 * @return bool
+	 * @deprecated 16.2 - only on the base modcon
+	 */
+	public function getUrl_AdminPage() :string {
+		return $this->getUrl_OptionsConfigPage();
+	}
+
+	/**
 	 * @throws \Exception
+	 * @deprecated 16.2
 	 */
 	protected function verifyModActionRequest() :bool {
-		$valid = false;
-
-		$con = $this->getCon();
-		$req = Services::Request();
-
-		$exec = $req->request( 'exec' );
-		if ( !empty( $exec ) && $req->request( 'action' ) == $con->prefix() ) {
-
-			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $exec ) && $con->getMeetsBasePermissions() ) {
-				$valid = true;
-			}
-			else {
-				$valid = $req->request( 'exec_nonce' ) ===
-						 substr( hash_hmac( 'md5', $exec.$req->request( 'ts' ), $con->getInstallationID()[ 'id' ] ), 0, 6 );
-			}
-			if ( !$valid ) {
-				throw new \Exception( 'Invalid request' );
-			}
-		}
-
-		return $valid;
+		return false;
 	}
 
 	public function getUrl_DirectLinkToOption( string $key ) :string {
@@ -527,28 +460,6 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->sModSlug ?? $this->cfg->slug;
 	}
 
-	/**
-	 * Handles the case where we want to redirect certain menu requests to other pages
-	 * of the plugin automatically. It lets us create custom menu items.
-	 * This can of course be extended for any other types of redirect.
-	 */
-	public function handleAutoPageRedirects() {
-		$cfg = $this->getOptions()->getRawData_FullFeatureConfig();
-		if ( !empty( $cfg[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
-			foreach ( $cfg[ 'custom_redirects' ] as $redirect ) {
-				if ( Services::Request()->query( 'page' )
-					 == $this->getCon()->prefix( $redirect[ 'source_mod_page' ] ) ) {
-					Services::Response()->redirect(
-						$this->getCon()->getModule( $redirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
-						$redirect[ 'query_args' ],
-						true,
-						false
-					);
-				}
-			}
-		}
-	}
-
 	public function getIfShowModuleMenuItem() :bool {
 		return $this->cfg->properties[ 'show_module_menu_item' ];
 	}
@@ -604,6 +515,9 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function isModuleRequest() :bool {
 		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
 	}
@@ -612,15 +526,10 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return array|string
 	 */
 	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
-		$data = $this->getNonceActionData( $action );
-		$data[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
+		$data = Modules\Insights\ActionRouter\ActionData::Build( $action, true, [
+			'mod_slug' => $this->getModSlug()
+		] );
 		return $asJson ? json_encode( (object)$data ) : $data;
-	}
-
-	public function getNonceActionData( string $action = '' ) :array {
-		$data = $this->getCon()->getNonceActionData( $action );
-		$data[ 'mod_slug' ] = $this->getModSlug();
-		return $data;
 	}
 
 	/**
@@ -692,31 +601,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function onPluginDelete() {
 		$this->getOptions()->deleteStorage();
-	}
-
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case 'file_download':
-				$id = Services::Request()->query( 'download_id', '' );
-				if ( !empty( $id ) ) {
-					header( 'Set-Cookie: fileDownload=true; path=/' );
-					$this->handleFileDownload( $id );
-				}
-				break;
-			default:
-				break;
-		}
-	}
-
-	protected function handleFileDownload( string $downloadID ) {
-	}
-
-	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
-		$additionalParams[ 'download_id' ] = $downloadID;
-		return add_query_arg(
-			array_merge( $this->getNonceActionData( 'file_download' ), $additionalParams ),
-			$this->getUrl_AdminPage()
-		);
 	}
 
 	/**
@@ -791,7 +675,21 @@ abstract class ModCon extends DynPropertiesClass {
 		return [];
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function renderTemplate( string $template, array $data = [] ) :string {
+		$ins = $this->getCon()->getModule_Insights();
+
+		if ( method_exists( $ins, 'getActionRouter' ) ) {
+			$data[ 'render_action_template' ] = $template;
+			return $ins->getActionRouter()
+					   ->render(
+						   Actions\Render\GenericRender::SLUG,
+						   $data
+					   );
+		}
+
 		return $this->getRenderer()
 					->setTemplate( $template )
 					->setRenderData( $data )
@@ -865,6 +763,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return mixed|Shield\Modules\Base\Renderer
+	 * @deprecated 16.2
 	 */
 	public function getRenderer() {
 		/** @var Renderer $r */
@@ -899,6 +798,9 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->adminNotices;
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	protected function loadAjaxHandler() {
 		try {
 			$class = $this->findElementClass( 'AjaxHandler', true );
@@ -998,6 +900,20 @@ abstract class ModCon extends DynPropertiesClass {
 			$this->getNamespace(),
 			$this->getBaseNamespace()
 		];
+	}
+
+	/**
+	 * @deprecated 16.2
+	 */
+	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
+		return '';
+	}
+
+	/**
+	 * @deprecated 16.2
+	 */
+	public function getNonceActionData( string $action = '' ) :array {
+		return [];
 	}
 
 	/**

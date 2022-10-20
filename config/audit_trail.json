@@ -32,12 +32,6 @@
   "wpcli":            {
     "enabled": true
   },
-  "menu_items":       [
-    {
-      "title": "Activity Log",
-      "slug":  "audit-redirect"
-    }
-  ],
   "custom_redirects": [
     {
       "source_mod_page": "audit-redirect",

@@ -201,24 +201,10 @@ class Strings extends Base\Strings {
 
 	/**
 	 * @inheritDoc
+	 * @deprecated 16.2
 	 */
 	protected function getAdditionalDisplayStrings() :array {
-		return [
-			'at_users'            => __( 'Users', 'wp-simple-firewall' ),
-			'at_plugins'          => __( 'Plugins', 'wp-simple-firewall' ),
-			'at_themes'           => __( 'Themes', 'wp-simple-firewall' ),
-			'at_wordpress'        => __( 'WordPress', 'wp-simple-firewall' ),
-			'at_posts'            => __( 'Posts', 'wp-simple-firewall' ),
-			'at_emails'           => __( 'Emails', 'wp-simple-firewall' ),
-			'at_time'             => __( 'Time', 'wp-simple-firewall' ),
-			'at_event'            => __( 'Event', 'wp-simple-firewall' ),
-			'at_message'          => __( 'Message', 'wp-simple-firewall' ),
-			'at_username'         => __( 'Username', 'wp-simple-firewall' ),
-			'at_category'         => __( 'Category', 'wp-simple-firewall' ),
-			'at_ipaddress'        => __( 'IP Address', 'wp-simple-firewall' ),
-			'at_you'              => __( 'You', 'wp-simple-firewall' ),
-			'at_no_audit_entries' => __( 'There are currently no audit entries in this section.', 'wp-simple-firewall' ),
-		];
+		return [];
 	}
 
 	/**

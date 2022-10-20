@@ -723,13 +723,26 @@ class Components {
 					/** @var SecurityAdmin\Options $optsSecAdmin */
 					$optsSecAdmin = $modSA->getOptions();
 					$secAdminCon = $modSA->getSecurityAdminController();
+					if ( !$modSA->isModOptEnabled() ) {
+						$href = $this->getJumpLink( 'enable_admin_access_restriction' );
+					}
+					elseif ( !$optsSecAdmin->hasSecurityPIN() ) {
+						$href = $this->getJumpLink( 'admin_access_key' );
+					}
+					elseif ( !$optsSecAdmin->hasSecurityPIN() ) {
+						$href = $this->getJumpLink( 'admin_access_timeout' );
+					}
+					else {
+						$href = $this->getJumpLink( 'admin_access_restrict_admin_users' );
+					}
+
 					return [
 						'title'            => __( 'WordPress Admins Protection', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'WordPress admin accounts are protected against tampering from other WordPress admins.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "WordPress admin accounts aren't protected against tampering from other WordPress admins.", 'wp-simple-firewall' ),
-						'href'             => $modSA->isModOptEnabled() ? $this->getJumpLink( 'admin_access_restrict_admin_users' ) : $this->getJumpLink( 'enable_admin_access_restriction' ),
-						'protected'        => $modSA->isModOptEnabled()
-											  && $secAdminCon->isEnabledSecAdmin() && $optsSecAdmin->isSecAdminRestrictUsersEnabled(),
+						'href'             => $href,
+						'protected'        => $modSA->isModOptEnabled() && $secAdminCon->isEnabledSecAdmin()
+											  && $optsSecAdmin->isSecAdminRestrictUsersEnabled(),
 						'weight'           => 20,
 					];
 				},

@@ -40,7 +40,7 @@ class LoginProtection extends Base {
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->msg = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
+		$resp->message = $toEnable ? __( 'Bot comment SPAM will now be blocked', 'wp-simple-firewall' )
 			: __( 'Bot comment SPAM will not be blocked', 'wp-simple-firewall' );
 		return $resp;
 	}

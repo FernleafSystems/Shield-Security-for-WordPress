@@ -30,12 +30,6 @@
   "wpcli":            {
     "enabled": true
   },
-  "menu_items":       [
-    {
-      "title": "IP Manager",
-      "slug":  "ips-redirect"
-    }
-  ],
   "custom_redirects": [
     {
       "source_mod_page": "ips-redirect",

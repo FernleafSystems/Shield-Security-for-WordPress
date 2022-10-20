@@ -11,7 +11,7 @@ class DbTableExport {
 
 	use HandlerConsumer;
 
-	public function toCSV() {
+	public function toCSV() :array {
 		$content = [];
 		/** @var Record $record */
 		foreach ( $this->getDbHandler()->getIterator() as $record ) {
@@ -20,7 +20,10 @@ class DbTableExport {
 			}
 		}
 		array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
-		Services::Response()->downloadStringAsFile( implode( "\n", $content ), $this->getFileName() );
+		return [
+			'name'    => $this->getFileName(),
+			'content' => implode( "\n", $content )
+		];
 	}
 
 	protected function implodeForCSV( array $line ) :string {

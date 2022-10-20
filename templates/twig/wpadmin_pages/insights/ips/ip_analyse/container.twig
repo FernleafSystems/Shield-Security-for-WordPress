@@ -1,0 +1,50 @@
+<ul class="nav nav-pills nav-fill card-header-pills me-auto mb-4">
+	<li class="nav-item">
+		<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#tabIpInfoGeneral"
+		   data-bs-toggle="pill">
+			{{ strings.nav_general }}
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabIpInfoBotSignals"
+		   data-bs-toggle="pill">
+			{{ strings.nav_signals }}
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabIpInfoSessions"
+		   data-bs-toggle="pill">
+			{{ strings.nav_sessions }}
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabIpInfoAudit"
+		   data-bs-toggle="pill">
+			{{ strings.nav_audit }}
+		</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabIpInfoTraffic"
+		   data-bs-toggle="pill">
+			{{ strings.nav_traffic }}
+		</a>
+	</li>
+</ul>
+
+<div class="tab-content">
+	<div class="tab-pane show active" id="tabIpInfoGeneral" role="tabpanel" aria-labelledby="tabIpInfoGeneral">
+		{{ content.general|default('no content')|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoBotSignals" role="tabpanel" aria-labelledby="tabIpInfoBotSignals">
+		{{ content.signals|default('no content')|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoSessions" role="tabpanel" aria-labelledby="tabIpInfoSessions">
+		{{ content.sessions|default('no content')|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoAudit" role="tabpanel" aria-labelledby="tabIpInfoAudit">
+		{{ content.activity|default('no content')|raw }}
+	</div>
+	<div class="tab-pane" id="tabIpInfoTraffic" role="tabpanel" aria-labelledby="tabIpInfoTraffic">
+		{{ content.traffic|default('no content')|raw }}
+	</div>
+</div>

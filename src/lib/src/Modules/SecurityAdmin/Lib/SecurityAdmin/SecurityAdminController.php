@@ -4,7 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+	Render\Components\FormSecurityAdminLoginBox,
+	SecurityAdminCheck,
+	SecurityAdminLogin,
+	SecurityAdminRequestRemoveByEmail
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -47,16 +53,17 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	}
 
 	public function blockRemoval() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
+		$con = $this->getCon();
+		if ( !$con->isPluginAdmin() ) {
 			if ( !Services::WpUsers()->isUserAdmin() ) {
-				$this->getCon()->fireEvent( 'attempt_deactivation' );
+				$con->fireEvent( 'attempt_deactivation' );
 			}
 			Services::WpGeneral()->wpDie(
 				sprintf(
 					'<p>%s</p><p>%s</p>',
 					__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s</a>',
-						$this->getMod()->getUrl_AdminPage(),
+						$con->getPluginUrl_DashboardHome(),
 						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ),
 							$this->getCon()->getHumanName() )
 					)
@@ -89,8 +96,6 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				/** @var ModCon $mod */
-				$mod = $this->getMod();
 				/** @var Options $opts */
 				$opts = $this->getOptions();
 
@@ -100,13 +105,14 @@ class SecurityAdminController extends ExecOnceModConsumer {
 					'shield_vars_secadmin',
 					[
 						'ajax'    => [
-							'sec_admin_check'  => $mod->getAjaxActionData( 'sec_admin_check' ),
-							'sec_admin_login'  => $mod->getAjaxActionData( 'sec_admin_login' ),
-							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
+							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::SLUG ),
+							'sec_admin_login'  => ActionData::Build( SecurityAdminLogin::SLUG ),
+							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::SLUG ),
 						],
 						'flags'   => [
 							'restrict_options' => !$isSecAdmin && $opts->isRestrictWpOptions(),
-							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isSecAdmin
+							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin()
+												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
@@ -182,27 +188,19 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			   ( $this->getCon()->this_req->is_security_admin || $this->verifyPinRequest() );
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function renderPinLoginForm() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $mod->renderTemplate( '/components/security_admin/login_box.twig', [
-			'flags'   => [
-				'restrict_options' => $opts->isRestrictWpOptions()
-			],
-			'strings' => [
-				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
-			],
-			'ajax'    => [
-				'sec_admin_login' => $mod->getAjaxActionData( 'sec_admin_login', true ),
-			]
-		] );
+		return '';
 	}
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo $this->renderPinLoginForm();
+		echo $this->getCon()
+			 ->getModule_Insights()
+			 ->getActionRouter()
+			 ->render( FormSecurityAdminLoginBox::SLUG );
 	}
 
 	public function verifyPinRequest() :bool {

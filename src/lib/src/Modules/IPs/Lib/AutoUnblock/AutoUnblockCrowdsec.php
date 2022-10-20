@@ -2,19 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockCrowdsec extends BaseAutoUnblock {
 
-	protected function canRun() :bool {
-		/** @var IPs\Options $opts */
+	public function canRunAutoUnblockProcess() :bool {
+		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return parent::canRun()
+		return parent::canRunAutoUnblockProcess()
 			   && Services::Request()->isPost()
-			   && $this->getCon()->this_req->is_ip_blocked_crowdsec && $opts->isEnabledCrowdSecAutoVisitorUnblock();
+			   && $this->getCon()->this_req->is_ip_blocked_crowdsec
+			   && $opts->isEnabledCrowdSecAutoVisitorUnblock();
 	}
 
 	protected function getUnblockMethodName() :string {
@@ -34,9 +35,5 @@ class AutoUnblockCrowdsec extends BaseAutoUnblock {
 			throw new \Exception( "IP isn't on the CrowdSec block list." );
 		}
 		return $theRecord;
-	}
-
-	protected function getNonceAction() :string {
-		return 'uau-cs-'.$this->getCon()->this_req->ip;
 	}
 }

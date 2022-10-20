@@ -129,36 +129,19 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 		) );
 
 		if ( !empty( $reports ) ) {
-			$WP = Services::WpGeneral();
 			try {
 				$this->getMod()
 					 ->getEmailProcessor()
-					 ->sendEmailWithTemplate(
-						 '/email/reports/cron_alert_info_report.twig',
+					 ->send(
 						 $this->getMod()->getPluginReportEmail(),
 						 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
-						 [
-							 'content' => [
-								 'reports' => $reports
-							 ],
-							 'vars'    => [
-								 'site_url'    => $WP->getHomeUrl(),
-								 'report_date' => $WP->getTimeStampForDisplay(),
-							 ],
-							 'hrefs'   => [
-								 'click_adjust' => $this->getCon()
-														->getModule_Reporting()
-														->getUrl_AdminPage()
-							 ],
-							 'strings' => [
-								 'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),
-								 'depending'    => __( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
-								 'site_url'     => __( 'Site URL', 'wp-simple-firewall' ),
-								 'report_date'  => __( 'Report Generation Date', 'wp-simple-firewall' ),
-								 'use_links'    => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
-								 'click_adjust' => __( 'Click here to adjust your reporting settings', 'wp-simple-firewall' ),
-							 ]
-						 ]
+						 $this->getCon()
+							  ->getModule_Insights()
+							  ->getActionRouter()
+							  ->render( Modules\Insights\ActionRouter\Actions\Render\Components\Email\PluginReport::SLUG, [
+								  'home_url' => Services::WpGeneral()->getHomeUrl(),
+								  'reports'  => $reports
+							  ] )
 					 );
 
 				$this->getCon()->fireEvent( 'report_sent', [

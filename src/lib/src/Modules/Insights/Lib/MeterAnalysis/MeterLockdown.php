@@ -10,7 +10,7 @@ class MeterLockdown extends MeterBase {
 		return [ $this->getCon()->getModule_Lockdown() ];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Site Lockdown', 'wp-simple-firewall' );
 	}
 

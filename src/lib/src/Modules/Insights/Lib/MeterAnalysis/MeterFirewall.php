@@ -10,7 +10,7 @@ class MeterFirewall extends MeterBase {
 		return [ $this->getCon()->getModule_Firewall() ];
 	}
 
-	protected function title() :string {
+	public function title() :string {
 		return __( 'Powerful WordPress Firewall', 'wp-simple-firewall' );
 	}
 
@@ -24,10 +24,6 @@ class MeterFirewall extends MeterBase {
 			.' '.__( "If malicious data is detected, the request will be quickly terminated before it can be misused.", 'wp-simple-firewall' ),
 			__( "The more rules you employ, the better, but you should always monitor your Activity Log for false positives.", 'wp-simple-firewall' ),
 		];
-	}
-
-	protected function getMeterRenderData() :array {
-		return [];
 	}
 
 	protected function getComponentSlugs() :array {

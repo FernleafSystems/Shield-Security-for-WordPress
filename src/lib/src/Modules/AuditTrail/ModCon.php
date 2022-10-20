@@ -37,19 +37,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->auditLogger;
 	}
 
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'db_log':
-				Services::Response()->downloadStringAsFile(
-					( new Lib\Utility\GetLogFileContent() )
-						->setMod( $this )
-						->run(),
-					sprintf( 'log_file-%s.json', date( 'Ymd_His' ) )
-				);
-				break;
-		}
-	}
-
 	/**
 	 * @throws \Exception
 	 */

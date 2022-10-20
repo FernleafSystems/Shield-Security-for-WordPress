@@ -8,60 +8,7 @@ class Handler {
 
 	use ModConsumer;
 
-	/**
-	 * @throws \Exception
-	 */
-	public function renderAnalysis( string $meter ) :string {
-		$this->exists( $meter );
-		return $this->getMeter( $meter )->render();
-	}
-
-	public function renderDashboardMeters() :string {
-		$meters = $this->renderMeters();
-		$primary = $meters[ MeterIntegrity::SLUG ];
-		unset( $meters[ MeterIntegrity::SLUG ] );
-		return $this->getMod()
-					->getRenderer()
-					->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig' )
-					->setRenderData( [
-						'content' => [
-							'primary_meter' => $primary,
-							'meters'        => $meters
-						],
-					] )
-					->render();
-	}
-
-	private function renderMeters() :array {
-		$con = $this->getCon();
-		$renderer = $this->getMod()
-						 ->getRenderer()
-						 ->setTemplate( '/wpadmin_pages/insights/overview/progress_meter/meter_card.twig' );
-		$renderData = [
-			'strings' => [
-				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
-			],
-			'imgs'    => [
-				'svgs' => [
-					'analysis' => $con->svgs->raw( 'bootstrap/clipboard2-data-fill.svg' ),
-				],
-			],
-		];
-
-		$meters = [];
-		foreach ( $this->buildAllMeterComponents() as $meterSlug => $meter ) {
-			$renderData[ 'vars' ] = [
-				'meter_slug' => $meterSlug,
-				'meter'      => $meter,
-			];
-			$meters[ $meterSlug ] = $renderer
-				->setRenderData( $renderData )
-				->render();
-		}
-		return $meters;
-	}
-
-	private function buildAllMeterComponents() :array {
+	public function buildAllMeterComponents() :array {
 		return array_map(
 			function ( string $class ) {
 				/** @var MeterBase $class */
@@ -87,7 +34,7 @@ class Handler {
 	 * @return MeterBase|mixed
 	 * @throws \Exception
 	 */
-	protected function getMeter( string $meter ) {
+	public function getMeter( string $meter ) {
 		$this->exists( $meter );
 		$class = $this->enumMeters()[ $meter ];
 		return ( new $class() )->setCon( $this->getCon() );

@@ -1,4 +1,5 @@
-<div>
+{% if flags.is_available %}
+	<div>
 	<p>{{ strings.you_may }}</p>
 	<ul>
 		<li>{{ strings.this_will_send }}</li>
@@ -12,13 +13,13 @@
 			{{ strings.click_to_send }} <code>{{ vars.email }}</code></a>
 	</p>
 </div>
-<script>
+	<script>
 	let sendEmail = function () {
 
 	  try {
 		  fetch( '{{ hrefs.ajaxurl|raw }}', {
 			  method: 'POST',
-			  body: (new URLSearchParams( {{ vars.unblock|raw }} )).toString(),
+			  body: (new URLSearchParams( {{ vars.nonce_unblock|raw }} )).toString(),
 			  headers: {
 				  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
 				  'X-Requested-With': 'XMLHttpRequest',
@@ -41,3 +42,4 @@
 	  }
   };
 </script>
+{% endif %}

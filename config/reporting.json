@@ -18,10 +18,6 @@
   "wpcli":            {
     "enabled": true
   },
-  "menu_items":       [
-  ],
-  "custom_redirects": [
-  ],
   "sections":         [
     {
       "slug":        "section_timings",

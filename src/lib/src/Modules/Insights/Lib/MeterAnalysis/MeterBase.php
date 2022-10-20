@@ -2,14 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render\BaseTemplateRenderer;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	BaseShield,
-	Plugin
+	Plugin,
+	PluginControllerConsumer
 };
 
-abstract class MeterBase extends BaseTemplateRenderer {
+abstract class MeterBase {
+
+	use PluginControllerConsumer;
 
 	const SLUG = '';
 
@@ -126,31 +127,7 @@ abstract class MeterBase extends BaseTemplateRenderer {
 		return [];
 	}
 
-	protected function getRenderData() :array {
-		$components = $this->buildMeterComponents();
-		return Services::DataManipulation()->mergeArraysRecursive(
-			$this->getCon()->getModule_Plugin()->getUIHandler()->getBaseDisplayData(),
-			[
-				'strings' => [
-					'title'            => sprintf( '%s: %s', __( 'Analysis', 'wp-simple-firewall' ), $this->title() ),
-					'total_score'      => __( 'Total Score', 'wp-simple-firewall' ),
-					'scores_footnote1' => __( 'Scores are an approximate weighting for each component.', 'wp-simple-firewall' ),
-					'scores_footnote2' => __( 'As each issue is resolved the overall score will improve, up to 100%.', 'wp-simple-firewall' ),
-				],
-				'vars'    => [
-					'total_percentage_score' => $components[ 'totals' ][ 'percentage' ],
-					'components'             => $components[ 'components' ],
-				]
-			],
-			$this->getMeterRenderData()
-		);
-	}
-
-	protected function getMeterRenderData() :array {
-		return [];
-	}
-
-	protected function title() :string {
+	public function title() :string {
 		return 'no title';
 	}
 
@@ -160,13 +137,5 @@ abstract class MeterBase extends BaseTemplateRenderer {
 
 	protected function description() :array {
 		return [ 'no description' ];
-	}
-
-	protected function getTemplateBaseDir() :string {
-		return '/wpadmin_pages/insights/overview/progress_meter/analysis';
-	}
-
-	protected function getTemplateStub() :string {
-		return 'standard';
 	}
 }

@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\RenderOptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
@@ -68,7 +69,7 @@ class DynamicContentLoader extends DynPropertiesClass {
 
 		switch ( $this->load_type ) {
 			case 'configuration':
-				$url = $mod->getUrl_SubInsightsPage( 'settings', $this->load_variant );
+				$url = $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, $this->load_variant );
 				break;
 
 			default:

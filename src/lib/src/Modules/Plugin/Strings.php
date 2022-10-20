@@ -111,22 +111,20 @@ class Strings extends Base\Strings {
 
 	/**
 	 * @inheritDoc
+	 * @deprecated 16.2
 	 */
 	protected function getAdditionalDisplayStrings() :array {
-		return [
-			'actions_title'   => __( 'Plugin Actions', 'wp-simple-firewall' ),
-			'actions_summary' => __( 'E.g. Import/Export', 'wp-simple-firewall' ),
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$sPlugName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 
 		switch ( $section ) {
 
 			case 'section_global_security_options' :
 				$title = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
-				$titleShort = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $sPlugName );
+				$titleShort = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $name );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Use this option to completely disable all active Shield Protection.', 'wp-simple-firewall' ) ),
 				];
@@ -163,7 +161,7 @@ class Strings extends Base\Strings {
 				$title = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$titleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup CAPTCHA for use across %s.', 'wp-simple-firewall' ), $sPlugName ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup CAPTCHA for use across %s.', 'wp-simple-firewall' ), $name ) ),
 					sprintf( '%s - %s',
 						__( 'Recommendation', 'wp-simple-firewall' ),
 						__( 'Use of this feature is highly recommend.', 'wp-simple-firewall' )
@@ -171,7 +169,7 @@ class Strings extends Base\Strings {
 						.'<ul class="mt-1"><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', __( 'Google reCAPTCHA Keys', 'wp-simple-firewall' ) )
 						.'</li><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://dashboard.hcaptcha.com/', __( 'hCaptcha Keys', 'wp-simple-firewall' ) ).'</li></ul>'
 					),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Invisible CAPTCHA is available with %s Pro.', 'wp-simple-firewall' ), $sPlugName ) )
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Invisible CAPTCHA is available with %s Pro.', 'wp-simple-firewall' ), $name ) )
 				];
 				break;
 

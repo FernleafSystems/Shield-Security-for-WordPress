@@ -1,0 +1,26 @@
+{% if flags.has_stats %}
+	<div id="StatsNav">
+		<ul class="nav nav-pills">
+			{% for stat_interval_key, stat_interval_name in vars.stat_intervals %}
+				<li class="nav-item">
+					<a class="nav-link {% if stat_interval_key == 'days_1' %}active{% endif %}"
+					   data-bs-toggle="pill"
+					   href="#statsTab-{{ stat_interval_key }}">
+						{{ stat_interval_name }}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	<div class="tab-content mt-3" id="statsTabs">
+		{% for stat_interval_key, stat_interval_name in vars.stat_intervals %}
+			<div class="tab-pane {% if stat_interval_key == 'days_1' %}active{% endif %}" id="statsTab-{{ stat_interval_key }}" role="tabpanel" aria-labelledby="home-tab">
+				{% set stat_to_show = stat_interval_key %}
+				{% include '/components/events/stats/stats_collection.twig' %}
+			</div>
+		{% endfor %}
+	</div>
+
+{% else %}
+	<div class="alert alert-info">{{ strings.no_stats }}</div>
+{% endif %}

@@ -53,7 +53,7 @@ class IpDetect extends Base {
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;
-		$resp->msg = __( 'Visitor IP address source set', 'wp-simple-firewall' );
+		$resp->message = __( 'Visitor IP address source set', 'wp-simple-firewall' );
 		return $resp;
 	}
 
