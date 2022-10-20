@@ -9,8 +9,6 @@ class BuildForDisplay {
 
 	use ModConsumer;
 
-	private $isWhitelabelled = false;
-
 	private $focusOption;
 
 	private $focusSection;
@@ -109,7 +107,7 @@ class BuildForDisplay {
 
 			if ( !empty( $section[ 'options' ] ) ) {
 
-				if ( $this->isWhitelabelled ) {
+				if ( $this->getCon()->labels->is_whitelabelled ) {
 					$section[ 'beacon_id' ] = false;
 				}
 
@@ -151,7 +149,7 @@ class BuildForDisplay {
 				$optDef[ 'value_options' ] = $convertedOptions;
 			}
 
-			if ( $this->isWhitelabelled ) {
+			if ( $this->getCon()->labels->is_whitelabelled ) {
 				$optDef[ 'beacon_id' ] = false;
 			}
 
@@ -260,8 +258,10 @@ class BuildForDisplay {
 		return $option;
 	}
 
+	/**
+	 * @deprecated 16.2
+	 */
 	public function setIsWhitelabelled( bool $isOrNot ) :self {
-		$this->isWhitelabelled = $isOrNot;
 		return $this;
 	}
 }

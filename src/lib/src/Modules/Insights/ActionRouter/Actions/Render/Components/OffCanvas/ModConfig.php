@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\OffCanvas;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Requests\DynamicContentLoader;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DynamicLoad\Config;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DynamicPageLoad;
 
 class ModConfig extends OffCanvasBase {
 
@@ -40,19 +41,19 @@ class ModConfig extends OffCanvasBase {
 			throw new \Exception( "Couldn't determine the module config to load." );
 		}
 
-		$content = ( new DynamicContentLoader() )
-			->setMod( $this->getMod() )
-			->build( [
-				'load_params' => [
-					'load_type'    => 'configuration',
-					'load_variant' => $module->getSlug(),
-					'aux_params'   => [
-						'focus_item'      => $configItem,
-						'focus_item_type' => $itemType,
-						'context'         => 'offcanvas',
-					],
-				]
-			] );
+		$content = $con->getModule_Insights()
+					   ->getActionRouter()
+					   ->action( DynamicPageLoad::SLUG, [
+						   'dynamic_load_params' => [
+							   'dynamic_load_slug' => Config::SLUG,
+							   'dynamic_load_data' => [
+								   'primary_mod_slug' => $module->getSlug(),
+								   'focus_item'       => $configItem,
+								   'focus_item_type'  => $itemType,
+								   'form_context'     => 'offcanvas',
+							   ],
+						   ]
+					   ] )->action_response_data;
 
 		return [
 			'content' => [

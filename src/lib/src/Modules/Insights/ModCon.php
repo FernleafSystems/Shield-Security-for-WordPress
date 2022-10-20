@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
-	DynamicLoad,
+	DynamicPageLoad,
 	MerlinAction,
 	Render\Components\BannerGoPro,
 	Render\Components\ToastPlaceholder
@@ -168,7 +168,7 @@ class ModCon extends BaseShield\ModCon {
 			'shield_vars_navigation',
 			[
 				'ajax' => [
-					'dynamic_load' => ActionData::Build( DynamicLoad::SLUG )
+					'dynamic_load' => ActionData::Build( DynamicPageLoad::SLUG )
 				]
 			]
 		];

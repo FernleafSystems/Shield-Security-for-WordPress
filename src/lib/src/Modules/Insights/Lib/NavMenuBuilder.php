@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -262,9 +263,12 @@ class NavMenuBuilder {
 					// 'href'          => $this->getOffCanvasJavascriptLinkForModule( $module ),
 					'classes'       => [ 'dynamic_body_load', 'body_content_link' ],
 					'data'          => [
-						'load_type'    => $slug,
-						'load_variant' => $cfg->slug,
-						'target_href'  => $module->getUrl_OptionsConfigPage(),
+						'dynamic_page_load' => json_encode( [
+							'dynamic_load_slug' => Config::SLUG,
+							'dynamic_load_data' => [
+								'primary_mod_slug' => $cfg->slug,
+							],
+						] ),
 					],
 					'active'        => Services::Request()->query( Constants::NAV_SUB_ID ) === $cfg->slug,
 					'menu_priority' => $cfg->menus[ 'config_menu_priority' ],

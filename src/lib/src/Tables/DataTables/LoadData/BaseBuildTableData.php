@@ -80,7 +80,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					foreach ( $searchable as $value ) {
 						$value = wp_strip_all_tags( $value );
 						if ( !is_string( $search ) ) {
-							error_log( var_export( $search, true ) );
+//							error_log( var_export( $search, true ) );
 							continue;
 						}
 						if ( stripos( $value, $search ) !== false ) {

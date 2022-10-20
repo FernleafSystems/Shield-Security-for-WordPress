@@ -352,7 +352,8 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()->getModule_Insights()
+		return $this->getCon()
+					->getModule_Insights()
 					->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, $this->getSlug() );
 	}
 

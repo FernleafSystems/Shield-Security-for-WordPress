@@ -87,7 +87,7 @@ class ActionProcessor {
 			Actions\AdminNoteDelete::class,
 			Actions\AdminNoteInsert::class,
 			Actions\DismissAdminNotice::class,
-			Actions\DynamicLoad::class,
+			Actions\DynamicPageLoad::class,
 			Actions\FileDownload::class,
 			Actions\HackGuardPluginReinstall::class,
 			Actions\IpAnalyseAction::class,
@@ -159,6 +159,8 @@ class ActionProcessor {
 			Actions\FullPageDisplay\StandardFullPageDisplay::class,
 
 			Actions\AjaxRender::class,
+
+			Actions\DynamicLoad\Config::class,
 
 			Actions\Render::class,
 			Actions\Render\GenericRender::class,
