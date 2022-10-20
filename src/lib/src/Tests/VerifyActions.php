@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class VerifyActions {
@@ -16,8 +17,7 @@ class VerifyActions {
 	private function checkUnique() {
 		$slugs = [];
 		$duplicates = [];
-		$processor = ( new ActionProcessor() )->setMod( $this->getCon()->getModule_Insights() );
-		foreach ( $processor->enum() as $actionClass ) {
+		foreach ( Constants::ACTIONS as $actionClass ) {
 			if ( !in_array( $actionClass::SLUG, $slugs ) ) {
 				$slugs[] = $actionClass::SLUG;
 			}

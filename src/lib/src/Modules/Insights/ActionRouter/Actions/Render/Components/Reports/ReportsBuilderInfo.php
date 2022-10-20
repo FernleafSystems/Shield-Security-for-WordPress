@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render;
-
-class ReportsBuilderInfo extends Render\BaseRender {
+class ReportsBuilderInfo extends ReportsBuilderBase {
 
 	const SLUG = 'reports_builder_info';
 	const TEMPLATE = '/components/reports/info_body.twig';

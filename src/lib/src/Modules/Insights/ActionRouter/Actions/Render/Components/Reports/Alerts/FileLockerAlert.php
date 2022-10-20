@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
-class FileLockerAlert extends BaseRender {
+class FileLockerAlert extends Actions\Render\Components\Reports\ReportsBuilderBase {
 
-	use Traits\AuthNotRequired;
+	use Actions\Traits\AuthNotRequired;
 
 	const PRIMARY_MOD = 'hack_protect';
 	const SLUG = 'alert_file_locker';

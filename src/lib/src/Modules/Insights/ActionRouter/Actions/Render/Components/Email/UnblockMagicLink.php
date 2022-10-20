@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\IpAutoUnblockShieldUserLinkVerify;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UnblockMagicLink extends Base {
+class UnblockMagicLink extends EmailBase {
 
 	const SLUG = 'email_unblock_magic_link';
 	const TEMPLATE = '/email/uaum_init.twig';

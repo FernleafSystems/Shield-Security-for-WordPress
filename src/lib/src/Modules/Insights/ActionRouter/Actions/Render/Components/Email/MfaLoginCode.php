@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaLoginCode extends Base {
+class MfaLoginCode extends EmailBase {
 
 	const SLUG = 'email_mfa_login_code';
 	const TEMPLATE = '/email/lp_2fa_email_code.twig';

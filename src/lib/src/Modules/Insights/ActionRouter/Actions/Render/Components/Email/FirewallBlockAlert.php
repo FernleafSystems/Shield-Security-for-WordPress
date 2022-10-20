@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class FirewallBlockAlert extends Base {
+class FirewallBlockAlert extends EmailBase {
 
 	const SLUG = 'email_firewall_block_alert';
 	const TEMPLATE = '/email/firewall_block.twig';

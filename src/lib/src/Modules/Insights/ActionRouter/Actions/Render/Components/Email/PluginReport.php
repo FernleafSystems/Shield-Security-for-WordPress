@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginReport extends Base {
+class PluginReport extends EmailBase {
 
 	const SLUG = 'email_report';
 	const TEMPLATE = '/email/reports/cron_alert_info_report.twig';

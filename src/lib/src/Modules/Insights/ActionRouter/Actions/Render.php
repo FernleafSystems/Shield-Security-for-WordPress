@@ -37,9 +37,9 @@ class Render extends BaseAction {
 	}
 
 	protected function getRequiredDataKeys() :array {
-		return array_merge( parent::getRequiredDataKeys(), [
+		return [
 			'render_action_slug',
 			'render_action_data'
-		] );
+		];
 	}
 }

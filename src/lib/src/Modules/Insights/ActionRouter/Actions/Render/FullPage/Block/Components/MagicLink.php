@@ -18,16 +18,17 @@ class MagicLink extends Base {
 		/** @var Options $opts */
 		$opts = $this->primary_mod->getOptions();
 		$user = Services::WpUsers()->getCurrentWpUser();
+		$available = $user instanceof \WP_User;
 		return [
 			'flags'   => [
-				'is_available' => $user instanceof \WP_User && $opts->isEnabledMagicEmailLinkRecover()
+				'is_available' => $available && $opts->isEnabledMagicEmailLinkRecover()
 								  && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $user ),
 			],
 			'hrefs'   => [
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			],
 			'vars'    => [
-				'email'         => Obfuscate::Email( $user->user_email ),
+				'email'         => $available ? Obfuscate::Email( $user->user_email ) : '',
 				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::SLUG, true, [
 					'ip' => $con->this_req->ip
 				] ),

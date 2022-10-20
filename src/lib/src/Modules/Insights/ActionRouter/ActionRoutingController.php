@@ -68,7 +68,6 @@ class ActionRoutingController extends ExecOnceModConsumer {
 	 * This is an alias for calling the Render action directly
 	 */
 	public function render( string $slug, array $data = [] ) :string {
-//		error_log( 'render: '.$slug );
 		try {
 			$output = $this->action(
 				Actions\Render::SLUG,

@@ -2,12 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Footer extends Actions\Render\BaseRender {
-
-	use Actions\Traits\SecurityAdminNotRequired;
+class Footer extends Base {
 
 	const SLUG = 'render_email_footer';
 	const TEMPLATE = '/email/footer.twig';
