@@ -72,7 +72,11 @@ class GoogleAuth extends BaseProvider {
 
 	private function getQrUrl() :string {
 		$secret = $this->getGaSecret();
-		return sprintf( 'otpauth://totp/test?secret=%s&issuer=%s&label=%s', $secret->getSecretKey(), $secret->getIssuer(), $secret->getLabel() );
+		return add_query_arg( [
+			'secret' => $secret->getSecretKey(),
+			'issuer' => $secret->getIssuer(),
+			'label'  => $secret->getLabel(),
+		], sprintf( 'otpauth://totp/%s', urlencode( $secret->getIssuer().':'.$secret->getAccountName() ) ) );
 	}
 
 	private function getQrImage() :string {
@@ -180,8 +184,8 @@ class GoogleAuth extends BaseProvider {
 		if ( !isset( $this->oWorkingSecret ) ) {
 			$this->oWorkingSecret = ( new SecretFactory() )
 				->create(
-					sanitize_user( $this->getUser()->user_login ),
-					preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() )
+					preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
+					sanitize_user( $this->getUser()->user_login )
 				);
 		}
 		return $this->oWorkingSecret;
