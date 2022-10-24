@@ -128,6 +128,24 @@
     ],
     "patches":     [
       {
+        "version":     "10",
+        "released_at": 1666622000,
+        "items":       [
+          {
+            "title": "Accessibility of user 2FA setup form has been improved for screen readers.",
+            "type":  "improved"
+          },
+          {
+            "title": "Improved the data used to construct the QR codes for Google Authenticator setup.",
+            "type":  "improved"
+          },
+          {
+            "title": "Bug where Import/Export would fail where certain restrictions existed on site hosting.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "9",
         "released_at": 1664366000,
         "items":       [

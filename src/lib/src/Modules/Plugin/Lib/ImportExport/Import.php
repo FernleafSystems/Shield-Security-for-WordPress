@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Import {
 
@@ -131,12 +132,12 @@ class Import {
 		// Ensure we have entries for 'scheme' and 'host'
 		$urlParts = wp_parse_url( $masterURL );
 		$hasParts = !empty( $urlParts )
-					 && count(
-							array_filter( array_intersect_key(
-								$urlParts,
-								array_flip( [ 'scheme', 'host' ] )
-							) )
-						) === 2;
+					&& count(
+						   array_filter( array_intersect_key(
+							   $urlParts,
+							   array_flip( [ 'scheme', 'host' ] )
+						   ) )
+					   ) === 2;
 		if ( !$hasParts ) {
 			throw new \Exception( "Couldn't parse the URL.", 4 );
 		}
@@ -160,7 +161,7 @@ class Import {
 		}
 
 		{ // Make the request
-			$response = @json_decode( Services::HttpRequest()->getContent( add_query_arg( $data, $masterURL ) ), true );
+			$response = @json_decode( Services::HttpRequest()->getContent( URL::Build( $masterURL, $data ) ), true );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}

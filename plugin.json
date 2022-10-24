@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "16.1.9",
-    "release_timestamp":       1664366000,
-    "build":                   "202209.2803",
+    "version":                 "16.1.10",
+    "release_timestamp":       1666622000,
+    "build":                   "202210.2401",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -196,8 +196,6 @@
             "wp-jquery"
           ]
         },
-        "tp/qrcode.min":                     {
-        },
         "plugin":                            {
           "deps": [
             "bootstrap",
@@ -215,6 +213,11 @@
         },
         "lz-string.min":                     {},
         "jquery/fileDownload":               {},
+        "jquery/jquery.qrcode":                     {
+          "deps": [
+            "wp-jquery"
+          ]
+        },
         "jquery/smartwizard":                {
           "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",
           "deps": [
@@ -331,7 +334,7 @@
         "shield/userprofile":                {
           "deps":   [
             "u2f-bundle",
-            "tp/qrcode.min",
+            "jquery/jquery.qrcode",
             "shield/dialog"
           ],
           "footer": true

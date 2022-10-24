@@ -559,7 +559,7 @@ class Controller extends DynPropertiesClass {
 	public function getInstallationID() :array {
 		$WP = Services::WpGeneral();
 		$urlParts = wp_parse_url( $WP->getWpUrl() );
-		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ], '/' );
+		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ] ?? '', '/' );
 		$optKey = $this->prefixOption( 'shield_site_id' );
 
 		$IDs = $WP->getOption( $optKey );

@@ -35,15 +35,11 @@
 	<tr>
 		<th><label for="shield_gacode" class="form-label">{{ strings.title }}</label></th>
 		<td>
-			<div style="width: 350px; margin-bottom: 15px; text-align: center" id="SvgQrCode">
-				<div style="margin: auto;width: fit-content;text-align: center;"
-				     id="shield_ga_secret">{{ vars.ga_secret }}</div>
-			</div>
-
+			<div style="width: 350px; margin-bottom: 8px; text-align: center" id="SvgQrCode"></div>
+			<div style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;" id="shield_ga_secret">{{ vars.ga_secret }}</div>
 			<script>
-				/** https://github.com/datalog/qrcode-svg */
-		svgNode = QRCode( '{{ hrefs.qr_code_auth|raw }}' );
-		document.getElementById( "SvgQrCode" ).prepend( svgNode );
+				/** https://github.com/jeromeetienne/jquery-qrcode **/
+				jQuery( '#SvgQrCode' ).qrcode( '{{ hrefs.qr_code_auth|raw }}' );
 			</script>
 
 			<input class="regular-text"
