@@ -34,17 +34,13 @@ class Export {
 		$ieCon = $mod->getImpExpController();
 		$req = Services::Request();
 
-		$url = Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
-		if ( !$ieCon->verifySecretKey( (string)$req->query( 'secret', '' ) ) && !$this->isUrlOnWhitelist( $url ) ) {
-			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
-		}
-
 		$success = false;
 		$data = [];
 
-		if ( !$this->verifyUrlWithHandshake( $url ) ) {
+		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
+		if ( !$this->verifyUrl( $url, (string)$req->query( 'id', '' ), (string)$req->query( 'secret', '' ) ) ) {
 			$code = 3;
-			$msg = __( 'Handshake verification failed.', 'wp-simple-firewall' );
+			$msg = __( 'Verification failed.', 'wp-simple-firewall' );
 		}
 		else {
 			$code = 0;
@@ -134,27 +130,51 @@ class Export {
 	}
 
 	/**
-	 * @param string $url
+	 * 2022-10-27:
+	 * There is real issue with some sites being able to perform automated import and export. So we want to simplify
+	 * this so that if the URL handshake doesn't work, we can fallback to an ID lookup. The one issue here is that we
+	 * accept the ID if it's the first time see this URL. However, at this stage, the requesting URL has either already
+	 * been added to the "whitelist" or they're sending the correct secret key.
+	 *
+	 * So you're verified if:
+	 * - You're on the whitelist and your ID is valid, OR you can handshake
+	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
 	 */
-	private function isUrlOnWhitelist( $url ) :bool {
+	private function verifyUrl( string $url, string $id, string $secret ) :bool {
+		/** @var Plugin\ModCon $mod */
+		$mod = $this->getMod();
+
+		$urlIDs = $this->getOptions()->getOpt( 'import_url_ids' );
+		if ( !is_array( $urlIDs ) ) {
+			$urlIDs = [];
+		}
+
+		$verified = !empty( $url ) &&
+					(
+						$mod->getImpExpController()->verifySecretKey( $secret )
+						|| ( !empty( $id ) && ( $urlIDs[ md5( $url ) ] ?? '' ) === $id )
+						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
+					);
+
+		// Update the stored ID, so it can be used at a later date.
+		if ( $verified && !empty( $id ) ) {
+			$urlIDs[ md5( $url ) ] = $id;
+			$this->getOptions()->setOpt( 'import_url_ids', $urlIDs );
+			$this->getMod()->saveModOptions();
+		}
+
+		return $verified;
+	}
+
+	private function isUrlOnWhitelist( string $url ) :bool {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		return !empty( $url ) && in_array( $url, $opts->getImportExportWhitelist() );
 	}
 
-	/**
-	 * @param string $url
-	 * @return bool
-	 */
-	private function verifyUrlWithHandshake( $url ) :bool {
-		$bVerified = false;
-
-		if ( !empty( $url ) ) {
-			$sReqUrl = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $url );
-			$aResp = @json_decode( Services::HttpRequest()->getContent( $sReqUrl ), true );
-			$bVerified = is_array( $aResp ) && isset( $aResp[ 'success' ] ) && ( $aResp[ 'success' ] === true );
-		}
-
-		return $bVerified;
+	private function handshake( string $url ) :bool {
+		$reqURL = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $url );
+		$dec = @json_decode( Services::HttpRequest()->getContent( $reqURL ), true );
+		return is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}
 }

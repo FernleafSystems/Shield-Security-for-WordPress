@@ -555,6 +555,20 @@
       "section":      "section_non_ui",
       "type":         "integer",
       "default":      0
+    },
+    {
+      "key":          "import_id",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "text",
+      "default":      ""
+    },
+    {
+      "key":          "import_url_ids",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
