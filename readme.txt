@@ -7,10 +7,10 @@ Tags: limit login, malware scan, firewall, two factor authentication, login prot
 Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
-Tested up to: 6.0
-Stable tag: 16.1.10
+Tested up to: 6.1
+Stable tag: 16.1.11
 
-Bad Bots Are Your #1 Security Risk. Stop playing whack-a-mole with malware and vulnerabilities. Discover the advantage of putting real security before marketing.
+Bad Bots Are Your #1 Security Risk. Are you playing whack-a-mole with malware & vulnerabilities? Discover the real security before marketing hype.
 
 == Description ==
 

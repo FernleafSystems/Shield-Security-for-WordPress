@@ -4,16 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	ModCon,
-	Options
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecApi {
 
 	use ModConsumer;
 
+	const MAX_FAILED_LOGINS = 5;
 	const STATE_NO_URL = 'no_url';
 	const STATE_INVALID_URL = 'invalid_url';
 	const STATE_NO_MACHINE_ID = 'no_mach_id';
@@ -22,16 +20,16 @@ class CrowdSecApi {
 	const STATE_NO_AUTH_TOKEN = 'no_auth_token';
 	const STATE_NO_AUTH_EXPIRE = 'no_auth_expire';
 	const STATE_AUTH_EXPIRED = 'auth_expired';
-	const STATE_NO_ENROLL_ID = 'no_enroll_id';
-	const STATE_MACH_NOT_ENROLLED = 'mach_not_enrolled';
-	const STATE_READY = 'ready';
+	const STATE_READY_NO_ENROLL_ID = 'ready_no_enroll_id';
+	const STATE_READY_MACH_NOT_ENROLLED = 'ready_mach_not_enrolled';
+	const STATE_READY_COMPLETE = 'ready_complete';
 
 	public function isReady() :bool {
 		$this->login();
 		return in_array( $this->getAuthStatus(), [
-			self::STATE_NO_ENROLL_ID,
-			self::STATE_MACH_NOT_ENROLLED,
-			self::STATE_READY
+			self::STATE_READY_NO_ENROLL_ID,
+			self::STATE_READY_MACH_NOT_ENROLLED,
+			self::STATE_READY_COMPLETE
 		] );
 	}
 
@@ -71,13 +69,13 @@ class CrowdSecApi {
 			$state = self::STATE_AUTH_EXPIRED;
 		}
 		elseif ( empty( $this->getOptions()->getOpt( 'cs_enroll_id' ) ) ) {
-			$state = self::STATE_NO_ENROLL_ID;
+			$state = self::STATE_READY_NO_ENROLL_ID;
 		}
 		elseif ( empty( $csAuth[ 'machine_enrolled' ] ) ) {
-			$state = self::STATE_MACH_NOT_ENROLLED;
+			$state = self::STATE_READY_MACH_NOT_ENROLLED;
 		}
 		else {
-			$state = self::STATE_READY;
+			$state = self::STATE_READY_COMPLETE;
 		}
 
 		return $state;
@@ -97,7 +95,7 @@ class CrowdSecApi {
 		catch ( Exceptions\AuthenticationInProgressException $e ) {
 			$clearAuthStartAt = false;
 		}
-		catch ( Exceptions\MachineRegisterFailedException  $e ) {
+		catch ( Exceptions\MachineRegisterFailedException $e ) {
 			$fieldsToClear = [
 				'machine_id',
 				'machine_registered',
@@ -109,6 +107,7 @@ class CrowdSecApi {
 		}
 		catch ( Exceptions\MachineLoginFailedException  $e ) {
 			$fieldsToClear = [
+				'failed_login_count',
 				'machine_id',
 				'machine_registered',
 				'password',
@@ -126,7 +125,7 @@ class CrowdSecApi {
 		}
 		finally {
 			if ( !empty( $e ) ) {
-				error_log( $e->getMessage() );
+				error_log( '[CROWDSEC EXCEPTION] '.$e->getMessage() );
 			}
 			if ( empty( $auth ) ) {
 				$auth = $this->getCsAuth();
@@ -216,18 +215,33 @@ class CrowdSecApi {
 			 ( empty( $auth[ 'auth_token' ] ) || empty( $auth[ 'auth_expire' ] )
 			   || ( $auth[ 'auth_expire' ] < Services::Request()->ts() ) )
 		) {
-			$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
-				->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
 
-			$auth[ 'auth_token' ] = $login[ 'token' ];
-			$auth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->subMinute()->timestamp;
-			$this->storeCsAuth( $auth );
+			if ( !isset( $auth[ 'failed_login_count' ] ) ) {
+				$auth[ 'failed_login_count' ] = 0;
+			}
 
-			$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
-				'audit_params' => [
-					'expiration' => $login[ 'expire' ], // format: 2022-06-09T14:15:50Z
-				]
-			] );
+			try {
+				$login = ( new Api\MachineLogin( $this->getApiUserAgent() ) )
+					->run( $auth[ 'machine_id' ], $auth[ 'password' ], $this->getScenarios() );
+
+				$auth[ 'auth_token' ] = $login[ 'token' ];
+				$auth[ 'auth_expire' ] = ( new Carbon( $login[ 'expire' ] ) )->subMinute()->timestamp;
+				$auth[ 'failed_login_count' ] = 0;
+				$this->storeCsAuth( $auth );
+
+				$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
+					'audit_params' => [
+						'expiration' => $login[ 'expire' ], // format: 2022-06-09T14:15:50Z
+					]
+				] );
+			}
+			catch ( Exceptions\MachineLoginFailedException $e ) {
+				$auth[ 'failed_login_count' ]++;
+				if ( $auth[ 'failed_login_count' ] >= self::MAX_FAILED_LOGINS ) {
+					throw $e;
+				}
+				$this->storeCsAuth( $auth );
+			}
 		}
 	}
 
@@ -235,7 +249,7 @@ class CrowdSecApi {
 	 * @throws Exceptions\MachineEnrollFailedException
 	 */
 	public function machineEnroll() {
-		/** @var Options $opts */
+		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
 		$auth = $this->getCsAuth();
@@ -310,7 +324,7 @@ class CrowdSecApi {
 			} );
 			Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'cs_auths' ), $auths );
 
-			/** @var ModCon $mod */
+			/** @var IPs\ModCon $mod */
 			$mod = $this->getMod();
 			$cfg = $mod->getCrowdSecCon()->cfg();
 			$cfg->cs_auths = $auths;
@@ -337,7 +351,7 @@ class CrowdSecApi {
 			$pass .= substr( $chars, wp_rand( 26, 51 ), 1 );
 		}
 		if ( !preg_match( '#\d#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 52, 63 ), 1 );
+			$pass .= substr( $chars, wp_rand( 52, 61 ), 1 );
 		}
 		return substr( $pass.wp_generate_password( 22, false ), 0, 32 );
 	}

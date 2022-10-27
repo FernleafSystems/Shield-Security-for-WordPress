@@ -154,7 +154,8 @@ class Import {
 		// Don't send the network setup request if it's the cron.
 		$data = [
 			'secret' => $secretKey,
-			'url'    => Services::WpGeneral()->getHomeUrl()
+			'url'    => Services::WpGeneral()->getHomeUrl(),
+			'id'     => $this->getImportID(),
 		];
 		if ( !is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
 			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
@@ -235,5 +236,16 @@ class Import {
 				[ 'audit_params' => [ 'site' => $source ] ]
 			);
 		}
+	}
+
+	private function getImportID() :string {
+		$opts = $this->getOptions();
+		$id = $opts->getOpt( 'import_id' );
+		if ( empty( $id ) ) {
+			$id = bin2hex( random_bytes( 8 ) );
+			$opts->setOpt( 'import_id', $id );
+			$this->getMod()->saveModOptions();
+		}
+		return $id;
 	}
 }
