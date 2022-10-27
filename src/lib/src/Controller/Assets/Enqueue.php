@@ -65,6 +65,9 @@ class Enqueue {
 				'bootstrap',
 				'wp-notes',
 				'wpforo',
+				'mo_oauth_admin_settings_style',
+				'mo_oauth_admin_settings_phone_style',
+				'mo_oauth_admin_settings_datatable',
 			];
 		}
 		else {
