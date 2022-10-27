@@ -167,7 +167,9 @@ class Import {
 				$masterURL,
 				$data
 			);
+			add_filter( 'http_request_host_is_external', '__return_true', 11 );
 			$response = @json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
+			remove_filter( 'http_request_host_is_external', '__return_true', 11 );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}

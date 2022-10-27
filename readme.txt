@@ -8,7 +8,7 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.1
-Stable tag: 16.1.11
+Stable tag: 16.1.12
 
 Bad Bots Are Your #1 Security Risk. Are you playing whack-a-mole with malware & vulnerabilities? Discover the real security before marketing hype.
 
