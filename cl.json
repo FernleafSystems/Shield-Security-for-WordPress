@@ -129,10 +129,14 @@
     "patches":     [
       {
         "version":     "11",
-        "released_at": 1666622000,
+        "released_at": 1666868000,
         "items":       [
           {
             "title": "Attempt to eliminate CrowdSec API issues with repeated logins.",
+            "type":  "improved"
+          },
+          {
+            "title": "Attempt to mitigate import/export errors for certain configurations.",
             "type":  "improved"
           },
           {
