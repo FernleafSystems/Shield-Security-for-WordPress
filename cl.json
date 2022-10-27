@@ -128,8 +128,8 @@
     ],
     "patches":     [
       {
-        "version":     "11",
-        "released_at": 1666868000,
+        "version":     "12",
+        "released_at": 1666880000,
         "items":       [
           {
             "title": "Attempt to eliminate CrowdSec API issues with repeated logins.",
@@ -146,10 +146,6 @@
           {
             "title": "Improved the data used to construct the QR codes for Google Authenticator setup.",
             "type":  "improved"
-          },
-          {
-            "title": "Bug where Import/Export would fail where certain restrictions existed on site hosting.",
-            "type":  "fixed"
           }
         ]
       },
