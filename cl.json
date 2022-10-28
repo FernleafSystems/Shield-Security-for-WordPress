@@ -132,7 +132,7 @@
         "released_at": 1666880000,
         "items":       [
           {
-            "title": "Attempt to eliminate CrowdSec API issues with repeated logins.",
+            "title": "Attempt to eliminate CrowdSec API issues.",
             "type":  "improved"
           },
           {
@@ -146,6 +146,10 @@
           {
             "title": "Improved the data used to construct the QR codes for Google Authenticator setup.",
             "type":  "improved"
+          },
+          {
+            "title": "Minor bug fixes.",
+            "type":  "fixed"
           }
         ]
       },
