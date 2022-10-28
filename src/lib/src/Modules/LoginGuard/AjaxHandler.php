@@ -249,7 +249,12 @@ class AjaxHandler extends Shield\Modules\BaseShield\AjaxHandler {
 
 		return [
 			'success'     => $success,
-			'message'     => $success ? __( 'One-Time Password was sent to your registered email address.', 'wp-simple-firewall' )
+			'message'     => $success ?
+				implode( " \n", [
+					__( 'A new One-Time Password was sent to your email address.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+						__( 'Previously created One-Time Passwords are invalid.', 'wp-simple-firewall' ) )
+				] )
 				: __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];
