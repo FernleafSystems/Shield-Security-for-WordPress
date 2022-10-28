@@ -75,11 +75,12 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 		$ts = Services::Request()->ts();
 
-		/** @var Select $metaSelect */
-		$metaSelect = $this->getCon()
+		$userMetaDB = $this->getCon()
 						   ->getModule_Data()
-						   ->getDbH_UserMeta()
-						   ->getQuerySelector();
+						   ->getDbH_UserMeta();
+
+		/** @var Select $metaSelect */
+		$metaSelect = $userMetaDB->getQuerySelector();
 
 		if ( $opts->isSuspendManualEnabled() ) {
 			$manual = array_map(
@@ -129,14 +130,21 @@ class UserSuspendController extends ExecOnceModConsumer {
 			$idle = [];
 		}
 
+		$cleaned = $this->cleanNonExistentUsers( array_merge( $manual, $passwords, $idle ) );
+		if ( !empty( $cleaned ) ) {
+			$manual = array_diff( $manual, $cleaned );
+			$passwords = array_diff( $passwords, $cleaned );
+			$idle = array_diff( $idle, $cleaned );
+		}
+
 		// Provide the links above the table.
 		add_filter( 'views_users', function ( $views ) use ( $manual, $idle, $passwords ) {
 
 			if ( !empty( $manual ) ) {
 				$views[ 'shield_users_suspended' ] = sprintf(
 					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					add_query_arg( [ 'shield_users_suspended' => 1 ], Services::WpGeneral()
-																			  ->getUrl_CurrentAdminPage() ),
+					add_query_arg( [ 'shield_users_suspended' => 1 ],
+						Services::WpGeneral()->getUrl_CurrentAdminPage() ),
 					__( 'Manually Suspended', 'wp-simple-firewall' ), count( $manual )
 				);
 
@@ -179,6 +187,26 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 			return $views;
 		} );
+	}
+
+	private function cleanNonExistentUsers( array $IDs ) :array {
+		$toClean =  array_filter(
+			array_unique( $IDs ),
+			function ( $userID ) {
+				return empty( Services::WpUsers()->getUserById( (int)$userID ) );
+			}
+		);
+
+		if ( !empty( $toClean ) ) {
+			$this->getCon()
+				 ->getModule_Data()
+				 ->getDbH_UserMeta()
+				 ->getQueryDeleter()
+				 ->addWhereIn( 'user_id', $toClean )
+				 ->query();
+		}
+
+		return $toClean;
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
