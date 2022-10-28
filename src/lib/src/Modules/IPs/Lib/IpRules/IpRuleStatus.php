@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
@@ -168,6 +169,14 @@ class IpRuleStatus {
 	public function hasAutoBlock() :bool {
 		$rule = $this->getRuleForAutoBlock();
 		return !empty( $rule ) && $rule->blocked_at > 0 && ( $rule->blocked_at >= $rule->unblocked_at );
+	}
+
+	public function hasHighReputation() :bool {
+		return $this->hasAutoBlock()
+			   && ( new IsHighReputationIP() )
+				   ->setMod( $this->getMod() )
+				   ->setIP( $this->getRuleForAutoBlock()->ip )
+				   ->query();
 	}
 
 	public function hasManualBlock() :bool {
