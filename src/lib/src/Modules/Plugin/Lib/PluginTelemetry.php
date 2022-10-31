@@ -31,7 +31,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 		$canSend = $opts->isTrackingEnabled()
 				   && Services::Request()
 							  ->carbon()
-							  ->subWeek()->timestamp > (int)$opts->getOpt( 'tracking_last_sent_at', 0 );
+							  ->subDay()->timestamp > (int)$opts->getOpt( 'tracking_last_sent_at', 0 );
 		if ( $canSend ) {
 			$this->collectAndSend();
 		}
