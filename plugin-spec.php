@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "16.1.12",
-    "release_timestamp":       1666880000,
-    "build":                   "202210.2702",
+    "version":                 "16.1.13",
+    "release_timestamp":       1667217770,
+    "build":                   "202210.3101",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -36,8 +36,8 @@
       "wp":    "3.7",
       "mysql": "5.6"
     },
-    "16.2": {
-      "php":   "7.0",
+    "17.0": {
+      "php":   "7.2",
       "wp":    "4.7",
       "mysql": "5.6"
     }
@@ -93,7 +93,7 @@
     "register":     {
       "css": {
         "bootstrap":                         {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.1/css/bootstrap.min.css"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.2/css/bootstrap.min.css"
         },
         "select2":                           {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css",
@@ -101,7 +101,7 @@
             "plugin"
           ]
         },
-        "datatables":              {
+        "datatables":                        {
           "url":  "https://cdn.datatables.net/v/bs5/dt-1.12.1/b-2.2.3/sp-2.0.2/sl-1.4.0/datatables.min.css",
           "deps": [
             "bootstrap"
@@ -168,7 +168,7 @@
       },
       "js":  {
         "bootstrap":                         {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.1/js/bootstrap.bundle.min.js",
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.2/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]
@@ -213,7 +213,7 @@
         },
         "lz-string.min":                     {},
         "jquery/fileDownload":               {},
-        "jquery/jquery.qrcode":                     {
+        "jquery/jquery.qrcode":              {
           "deps": [
             "wp-jquery"
           ]

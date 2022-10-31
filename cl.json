@@ -128,9 +128,13 @@
     ],
     "patches":     [
       {
-        "version":     "12",
-        "released_at": 1666880000,
+        "version":     "13",
+        "released_at": 1667217770,
         "items":       [
+          {
+            "title": "Marks Shield 16.x as the final series supporting PHP 7.0 and 7.1. Shield 17 will require PHP 7.2.",
+            "type":  "changed"
+          },
           {
             "title": "Attempt to eliminate CrowdSec API issues.",
             "type":  "improved"
