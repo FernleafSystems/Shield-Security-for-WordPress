@@ -37,10 +37,9 @@ if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 }
 elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
-	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
-
 	add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 	function icwp_wpsf_init() {
+		require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 		$rootFile = __FILE__;
 		require_once( dirname( __FILE__ ).'/init.php' );
 	}
