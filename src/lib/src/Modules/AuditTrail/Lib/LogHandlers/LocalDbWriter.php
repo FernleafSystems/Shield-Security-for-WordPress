@@ -20,10 +20,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 */
 	private $log;
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function write( array $record ) {
+	protected function write( array $record ) :void {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
