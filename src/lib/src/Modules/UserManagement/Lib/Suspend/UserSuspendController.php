@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class UserSuspendController extends ExecOnceModConsumer {
 
@@ -137,52 +138,48 @@ class UserSuspendController extends ExecOnceModConsumer {
 			$idle = array_diff( $idle, $cleaned );
 		}
 
+		// Filter the user list database query
+		add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual, $idle, $passwords ) {
+			$req = Services::Request();
+			if ( is_array( $args ) ) {
+				if ( !empty( $manual ) && $req->query( 'shield_users_suspended' ) ) {
+					$args[ 'include' ] = $manual;
+				}
+				elseif ( !empty( $idle ) && $req->query( 'shield_users_idle' ) ) {
+					$args[ 'include' ] = $idle;
+				}
+				elseif ( !empty( $passwords ) && $req->query( 'shield_users_pass' ) ) {
+					$args[ 'include' ] = $passwords;
+				}
+			}
+			return $args;
+		} );
+
 		// Provide the links above the table.
 		add_filter( 'views_users', function ( $views ) use ( $manual, $idle, $passwords ) {
-
+			$WP = Services::WpGeneral();
 			if ( !empty( $manual ) ) {
 				$views[ 'shield_users_suspended' ] = sprintf(
 					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					add_query_arg( [ 'shield_users_suspended' => 1 ],
-						Services::WpGeneral()->getUrl_CurrentAdminPage() ),
+					URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_suspended' => 1 ] ),
 					__( 'Manually Suspended', 'wp-simple-firewall' ), count( $manual )
 				);
-
-				// Filter the database query
-				add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual ) {
-					if ( is_array( $args ) && Services::Request()->query( 'shield_users_suspended' ) ) {
-						$args[ 'include' ] = $manual;
-					}
-					return $args;
-				} );
 			}
 
 			if ( !empty( $idle ) ) {
 				$views[ 'shield_idle_users' ] = sprintf(
 					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					add_query_arg( [ 'shield_users_idle' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
+					URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_idle' => 1 ] ),
 					__( 'Idle', 'wp-simple-firewall' ), count( $idle )
 				);
-				add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual ) {
-					if ( is_array( $args ) && Services::Request()->query( 'shield_users_idle' ) ) {
-						$args[ 'include' ] = $manual;
-					}
-					return $args;
-				} );
 			}
 
 			if ( !empty( $passwords ) ) {
 				$views[ 'shield_users_pass' ] = sprintf(
 					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					add_query_arg( [ 'shield_users_pass' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
+					URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_pass' => 1 ] ),
 					__( 'Password Expired', 'wp-simple-firewall' ), count( $passwords )
 				);
-				add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual ) {
-					if ( is_array( $args ) && Services::Request()->query( 'shield_users_pass' ) ) {
-						$args[ 'include' ] = $manual;
-					}
-					return $args;
-				} );
 			}
 
 			return $views;
@@ -190,7 +187,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	private function cleanNonExistentUsers( array $IDs ) :array {
-		$toClean =  array_filter(
+		$toClean = array_filter(
 			array_unique( $IDs ),
 			function ( $userID ) {
 				return empty( Services::WpUsers()->getUserById( (int)$userID ) );
