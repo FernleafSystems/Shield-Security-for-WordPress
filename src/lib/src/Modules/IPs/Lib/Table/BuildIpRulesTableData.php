@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -152,12 +153,25 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 					switch ( $record->type ) {
 						case Handler::T_AUTO_BLOCK:
-							$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),
-								Services::Request()
-										->carbon()
-										->timestamp( $record->last_access_at )
-										->addSeconds( $opts->getAutoExpireTime() )
-										->diffForHumans() );
+							$ipStatus = ( new IpRuleStatus( $record->ip ) )->setMod( $this->getMod() );
+							if ( $ipStatus->hasHighReputation() ) {
+								$color = 'warning';
+								$blockedStatus = sprintf( '%s (%s: %s)',
+									__( 'Blocked/High Reputation', 'wp-simple-firewall' ), __( 'expires', 'wp-simple-firewall' ),
+									Services::Request()
+											->carbon()
+											->timestamp( $record->last_access_at )
+											->addSeconds( $opts->getAutoExpireTime() )
+											->diffForHumans() );
+							}
+							else {
+								$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),
+									Services::Request()
+											->carbon()
+											->timestamp( $record->last_access_at )
+											->addSeconds( $opts->getAutoExpireTime() )
+											->diffForHumans() );
+							}
 							break;
 						case Handler::T_CROWDSEC:
 							$blockedStatus = sprintf( '%s (%s: %s)', $blockedStatus, __( 'expires', 'wp-simple-firewall' ),

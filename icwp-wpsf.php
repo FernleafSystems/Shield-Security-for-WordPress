@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: https://shsec.io/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 16.1.12
+ * Version: 16.1.13
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
  * Author: Shield Security
@@ -37,10 +37,9 @@ if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 }
 elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
-	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
-
 	add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 	function icwp_wpsf_init() {
+		require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 		$rootFile = __FILE__;
 		require_once( dirname( __FILE__ ).'/init.php' );
 	}

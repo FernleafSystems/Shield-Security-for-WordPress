@@ -128,11 +128,16 @@
     ],
     "patches":     [
       {
-        "version":     "12",
-        "released_at": 1666880000,
+        "version":     "13",
+        "released_at": 1667298000,
         "items":       [
           {
-            "title": "Attempt to eliminate CrowdSec API issues with repeated logins.",
+            "title": "Marks Shield 16.x as the final series supporting PHP 7.0 and 7.1. Shield 17 will require PHP 7.2.",
+            "type":  "changed",
+            "href":  "https://shsec.io/l8"
+          },
+          {
+            "title": "Attempt to eliminate CrowdSec API issues.",
             "type":  "improved"
           },
           {
@@ -146,6 +151,10 @@
           {
             "title": "Improved the data used to construct the QR codes for Google Authenticator setup.",
             "type":  "improved"
+          },
+          {
+            "title": "Minor bug fixes.",
+            "type":  "fixed"
           }
         ]
       },
