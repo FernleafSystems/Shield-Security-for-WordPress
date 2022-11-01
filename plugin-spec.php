@@ -2,7 +2,7 @@
   "properties":       {
     "version":                 "16.1.13",
     "release_timestamp":       1667298000,
-    "build":                   "202211.0101",
+    "build":                   "202211.0102",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -17,8 +17,8 @@
     "enable_premium":          true
   },
   "requirements":     {
-    "php":       "7.0",
-    "wordpress": "3.7",
+    "php":       "7.2",
+    "wordpress": "4.7",
     "mysql":     "5.6"
   },
   "reqs_rest":        {
