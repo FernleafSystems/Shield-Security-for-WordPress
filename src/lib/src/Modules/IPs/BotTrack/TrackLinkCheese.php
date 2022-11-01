@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * Works by inserting a random, nofollow link to the footer of the page and appending to robots.txt
@@ -71,7 +72,7 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 		return $WP->isPermalinksEnabled() ?
 			$WP->getHomeUrl( sprintf( '/%s/', $this->getCheeseWord() ) )
-			: add_query_arg( [ $this->getCheeseWord() => '1' ], $WP->getHomeUrl() );
+			: URL::Build( $WP->getHomeUrl(), [ $this->getCheeseWord() => '1' ] );
 	}
 
 	private function getCheeseWord() :string {

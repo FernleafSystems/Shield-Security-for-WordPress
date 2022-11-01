@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\PluginVulnerabilityWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class WpvAddPluginRows {
 
@@ -63,7 +64,6 @@ class WpvAddPluginRows {
 						  ] );
 			}, 100 );
 		}
-
 	}
 
 	public function addVulnerablePluginStatusView() {

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Legacy\RecaptchaJs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Enqueue {
 
@@ -31,14 +32,11 @@ class Enqueue {
 		$mod = $this->getMod();
 		$cfg = $mod->getCaptchaCfg();
 
-		$uriJS = add_query_arg(
-			[
-				'hl'     => Services::WpGeneral()->getLocale( '-' ),
-				'onload' => 'onLoadIcwpRecaptchaCallback',
-				'render' => 'explicit',
-			],
-			$cfg->url_api
-		);
+		$uriJS = URL::Build( $cfg->url_api, [
+			'hl'     => Services::WpGeneral()->getLocale( '-' ),
+			'onload' => 'onLoadIcwpRecaptchaCallback',
+			'render' => 'explicit',
+		] );
 		wp_register_script( $cfg->js_handle, $uriJS, [], false, true );
 		wp_enqueue_script( $cfg->js_handle );
 

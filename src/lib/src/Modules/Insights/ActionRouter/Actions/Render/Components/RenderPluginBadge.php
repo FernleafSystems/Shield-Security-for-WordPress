@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
 	PluginBadgeClose,
 	Traits
@@ -36,7 +37,7 @@ class RenderPluginBadge extends BasePlugin {
 					   ->getLicenseHandler()
 					   ->getLicense();
 			if ( !empty( $lic->aff_ref ) ) {
-				$badgeUrl = add_query_arg( [ 'ref' => $lic->aff_ref ], $badgeUrl );
+				$badgeUrl = URL::Build( $badgeUrl, [ 'ref' => $lic->aff_ref ] );
 			}
 		}
 

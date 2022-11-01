@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement
 };
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 use ZxcvbnPhp\Zxcvbn;
 
 class Components {
@@ -967,8 +968,9 @@ class Components {
 						'title'            => __( 'Inactive Plugins', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'All installed plugins appear to be active and in-use.', 'wp-simple-firewall' ),
 						'desc_unprotected' => sprintf( __( 'There are %s inactive and unused plugins.', 'wp-simple-firewall' ), $countPluginsInactive ),
-						'href'             => add_query_arg( [ 'plugin_status' => 'inactive' ],
-							Services::WpGeneral()->getAdminUrl_Plugins( true ) ),
+						'href'             => URL::Build( Services::WpGeneral()->getAdminUrl_Plugins( true ), [
+							'plugin_status' => 'inactive'
+						] ),
 						'protected'        => $countPluginsInactive === 0,
 						'weight'           => 25,
 					];
@@ -980,8 +982,9 @@ class Components {
 						'title'            => __( 'Plugins With Updates', 'wp-simple-firewall' ),
 						'desc_protected'   => __( "All available plugin updates have been applied.", 'wp-simple-firewall' ),
 						'desc_unprotected' => sprintf( __( 'There are %s plugin updates waiting to be applied.', 'wp-simple-firewall' ), $countPluginsUpdates ),
-						'href'             => add_query_arg( [ 'plugin_status' => 'upgrade' ],
-							Services::WpGeneral()->getAdminUrl_Plugins( true ) ),
+						'href'             => URL::Build( Services::WpGeneral()->getAdminUrl_Plugins( true ), [
+							'plugin_status' => 'upgrade'
+						] ),
 						'protected'        => $countPluginsUpdates === 0,
 						'weight'           => 45,
 					];
@@ -993,8 +996,7 @@ class Components {
 						'title'            => __( 'Inactive Themes', 'wp-simple-firewall' ),
 						'desc_protected'   => __( "All installed themes appear to be active and in-use.", 'wp-simple-firewall' ),
 						'desc_unprotected' => sprintf( __( 'There are %s inactive and unused themes.', 'wp-simple-firewall' ), $countThemesInactive ),
-						'href'             => add_query_arg( [ 'plugin_status' => 'upgrade' ],
-							Services::WpGeneral()->getAdminUrl_Themes( true ) ),
+						'href'             => Services::WpGeneral()->getAdminUrl_Themes( true ),
 						'protected'        => $countThemesInactive === 0,
 						'weight'           => 25,
 					];
@@ -1055,13 +1057,10 @@ class Components {
 						'title'            => __( 'SSL Certificate', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'SSL Certificate remains valid for at least the next 2 weeks', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Visitors aren't protected with a valid SSL Certificate.", 'wp-simple-firewall' ),
-						'href'             => add_query_arg(
-							[
-								'action' => Services::WpGeneral()->getHomeUrl(),
-								'run'    => 'toolpage'
-							],
-							'https://mxtoolbox.com/SuperTool.aspx'
-						),
+						'href'             => URL::Build( 'https://mxtoolbox.com/SuperTool.aspx', [
+							'action' => Services::WpGeneral()->getHomeUrl(),
+							'run'    => 'toolpage'
+						] ),
 						'protected'        => false,
 						'weight'           => 45,
 					];

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class FirewallBlockAlert extends EmailBase {
 
@@ -25,7 +26,7 @@ class FirewallBlockAlert extends EmailBase {
 					$this->getCon()->getHumanName() ),
 			],
 			'hrefs'   => [
-				'ip_lookup' => add_query_arg( [ 'ip' => $ip ], 'https://shsec.io/botornot' )
+				'ip_lookup' => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
 			],
 			'vars'    => [
 				'req_details' => [

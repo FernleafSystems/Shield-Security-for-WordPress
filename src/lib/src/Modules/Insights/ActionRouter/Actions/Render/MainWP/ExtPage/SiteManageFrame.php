@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class SiteManageFrame extends BaseMWP {
 
@@ -131,10 +132,10 @@ class SiteManageFrame extends BaseMWP {
 		$items = parent::getMenuTopNavItems();
 		$items[] = [
 			'title'  => 'www.google.com',
-			'href'   => add_query_arg( [
+			'href'   => URL::Build( $req->getUri(), [
 				'tab'     => 'site',
 				'site_id' => 123,
-			], $req->getUri() ),
+			] ),
 			'icon'   => 'globe',
 			'active' => true
 		];

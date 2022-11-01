@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Yubikey extends BaseProvider {
 
@@ -92,7 +93,7 @@ class Yubikey extends BaseProvider {
 				'id'    => $opts->getYubikeyAppId()
 			];
 
-			$response = Services::HttpRequest()->getContent( add_query_arg( $parts, self::URL_YUBIKEY_VERIFY ) );
+			$response = Services::HttpRequest()->getContent( URL::Build( self::URL_YUBIKEY_VERIFY, $parts ) );
 
 			unset( $parts[ 'id' ] );
 			$parts[ 'status' ] = 'OK';

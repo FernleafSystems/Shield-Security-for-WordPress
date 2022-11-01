@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 use Dolondro\GoogleAuthenticator\{
 	GoogleAuthenticator,
 	Secret,
@@ -71,12 +72,12 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	private function getQrUrl() :string {
-		$secret = $this->getGaSecret();
-		return add_query_arg( [
-			'secret' => $secret->getSecretKey(),
-			'issuer' => $secret->getIssuer(),
-			'label'  => $secret->getLabel(),
-		], sprintf( 'otpauth://totp/%s', urlencode( $secret->getIssuer().':'.$secret->getAccountName() ) ) );
+		$sec = $this->getGaSecret();
+		return URL::Build( sprintf( 'otpauth://totp/%s', urlencode( $sec->getIssuer().':'.$sec->getAccountName() ) ), [
+			'secret' => $sec->getSecretKey(),
+			'issuer' => $sec->getIssuer(),
+			'label'  => $sec->getLabel(),
+		] );
 	}
 
 	private function getQrImage() :string {

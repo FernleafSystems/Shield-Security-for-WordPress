@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @property int         $api_version
@@ -42,7 +43,7 @@ abstract class BaseApi extends DynPropertiesClass {
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.
 				// if they're not using the newer WP Request() class. WP 4.6+
 				$reqSuccess = $httpReq->get(
-					add_query_arg( $this->params_query, $this->getApiRequestUrl() ),
+					URL::Build( $this->getApiRequestUrl(), $this->params_query ),
 					$reqParams
 				);
 				break;

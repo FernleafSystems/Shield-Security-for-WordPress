@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Export {
 
@@ -174,7 +175,7 @@ class Export {
 	}
 
 	private function handshake( string $url ) :bool {
-		$reqURL = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $url );
+		$reqURL = URL::Build( $url, [ 'shield_action' => 'importexport_handshake' ] );
 		$dec = @json_decode( Services::HttpRequest()->getContent( $reqURL ), true );
 		return is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}

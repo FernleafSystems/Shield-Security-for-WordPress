@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class BaseMWP extends BaseRender {
 
@@ -64,13 +65,13 @@ class BaseMWP extends BaseRender {
 
 	protected function getRootUri() :string {
 		$req = Services::Request();
-		return add_query_arg( [
+		return URL::Build( $req->getPath(), [
 			'page' => $req->query( 'page' )
-		], $req->getPath() );
+		] );
 	}
 
 	protected function createInternalExtensionHref( array $params ) :string {
-		return add_query_arg( $params, $this->getRootUri() );
+		return URL::Build( $this->getRootUri(), $params );
 	}
 
 	protected function getSites() :string {

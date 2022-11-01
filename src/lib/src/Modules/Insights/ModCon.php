@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class ModCon extends BaseShield\ModCon {
 
@@ -62,7 +63,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getUrl_IpAnalysis( string $ip ) :string {
-		return add_query_arg( [ 'analyse_ip' => $ip ], $this->getUrl_IPs() );
+		return URL::Build( $this->getUrl_IPs(), [ 'analyse_ip' => $ip ] );
 	}
 
 	public function getUrl_ActivityLog() :string {
@@ -86,13 +87,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getUrl_SubInsightsPage( string $inavPage, string $subNav = '' ) :string {
-		return add_query_arg(
-			array_filter( [
-				Constants::NAV_ID     => sanitize_key( $inavPage ),
-				Constants::NAV_SUB_ID => sanitize_key( $subNav ),
-			] ),
-			$this->getUrl_AdminPage()
-		);
+		return URL::Build( $this->getUrl_AdminPage(), [
+			Constants::NAV_ID     => sanitize_key( $inavPage ),
+			Constants::NAV_SUB_ID => sanitize_key( $subNav ),
+		] );
 	}
 
 	public function getUrl_AdminPage() :string {

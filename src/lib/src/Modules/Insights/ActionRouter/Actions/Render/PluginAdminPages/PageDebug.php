@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class PageDebug extends BasePluginAdminPage {
 
@@ -31,7 +32,7 @@ class PageDebug extends BasePluginAdminPage {
 				'has_debug_exec' => !empty( $debugExec ),
 			],
 			'hrefs'   => [
-				'check_visitor_ip_source' => add_query_arg( [ 'shield_check_ip_source' => '1' ] ),
+				'check_visitor_ip_source' => URL::Build( '', [ 'shield_check_ip_source' => '1' ] ),
 			],
 			'strings' => [
 				'page_title' => sprintf( __( '%s Debug Page' ), $con->getHumanName() )

@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Comm
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class SitesListing extends BaseMWP {
 
@@ -144,14 +145,11 @@ class SitesListing extends BaseMWP {
 	}
 
 	private function getJumpUrlFor( string $siteID, string $page ) :string {
-		return add_query_arg(
-			[
-				'newWindow'  => 'yes',
-				'websiteid'  => $siteID,
-				'_opennonce' => wp_create_nonce( 'mainwp-admin-nonce' ),
-				'location'   => base64_encode( str_replace( Services::WpGeneral()->getAdminUrl(), '', $page ) )
-			],
-			Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' )
-		);
+		return URL::Build( Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' ), [
+			'newWindow'  => 'yes',
+			'websiteid'  => $siteID,
+			'_opennonce' => wp_create_nonce( 'mainwp-admin-nonce' ),
+			'location'   => base64_encode( str_replace( Services::WpGeneral()->getAdminUrl(), '', $page ) )
+		] );
 	}
 }

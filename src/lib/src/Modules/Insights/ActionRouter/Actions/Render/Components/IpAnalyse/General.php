@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPInfo;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class General extends Base {
 
@@ -64,9 +65,7 @@ class General extends Base {
 				'has_geo' => !empty( $geo->getRawData() ),
 			],
 			'hrefs'   => [
-				'snapi_reputation_details' => add_query_arg(
-					[ 'ip' => $ip ], 'https://shsec.io/botornot'
-				)
+				'snapi_reputation_details' => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
 			],
 			'strings' => [
 				'title_general' => __( 'Identifying Info', 'wp-simple-firewall' ),

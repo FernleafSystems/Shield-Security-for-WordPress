@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\Tab
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Plugins extends PluginThemesBase {
 
@@ -127,14 +128,11 @@ class Plugins extends PluginThemesBase {
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
 			'hrefs' => [
-				'vul_info' => add_query_arg(
-					[
-						'type'    => $plugin->asset_type,
-						'slug'    => $plugin->slug,
-						'version' => $plugin->Version,
-					],
-					'https://shsec.io/shieldvulnerabilitylookup'
-				),
+				'vul_info' => URL::Build( 'https://shsec.io/shieldvulnerabilitylookup', [
+					'type'    => $plugin->asset_type,
+					'slug'    => $plugin->slug,
+					'version' => $plugin->Version,
+				] ),
 			],
 			'flags' => $flags,
 			'vars'  => [

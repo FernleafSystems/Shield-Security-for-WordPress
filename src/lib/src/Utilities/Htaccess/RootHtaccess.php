@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class RootHtaccess {
 
@@ -38,7 +39,7 @@ class RootHtaccess {
 	}
 
 	private function getTestURL() :string {
-		return add_query_arg( [ 'rand' => rand( 1000, 9999 ) ], $this->getCon()->urls->forJs( 'plugin.js' ) );
+		return URL::Build( $this->getCon()->urls->forJs( 'plugin.js' ), [ 'rand' => rand( 1000, 9999 ) ] );
 	}
 
 	private function getPathToHtaccess() :string {

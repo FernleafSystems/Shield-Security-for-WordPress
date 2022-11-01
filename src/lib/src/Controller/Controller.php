@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @property Config\ConfigVO                                        $cfg
@@ -708,7 +709,9 @@ class Controller extends DynPropertiesClass {
 			foreach ( $actionLinks as $key => $actionHref ) {
 				if ( strpos( $actionHref, 'action=deactivate' ) ) {
 					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',
-						add_query_arg( [ 'plugin_status' => 'mustuse' ], $WP->getAdminUrl_Plugins() ),
+						URL::Build( $WP->getAdminUrl_Plugins(), [
+							'plugin_status' => 'mustuse'
+						] ),
 						__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
 					);
 				}

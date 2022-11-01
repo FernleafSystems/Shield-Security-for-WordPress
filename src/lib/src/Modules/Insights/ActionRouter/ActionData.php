@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class ActionData {
 
@@ -31,10 +32,10 @@ class ActionData {
 	}
 
 	public static function BuildURL( string $action, string $url = '', array $aux = [] ) :string {
-		if ( empty( $url ) ) {
-			$url = Services::WpGeneral()->getHomeUrl();
-		}
-		return add_query_arg( self::Build( $action, false, $aux ), $url );
+		return URL::Build(
+			empty( $url ) ? Services::WpGeneral()->getHomeUrl() : $url,
+			self::Build( $action, false, $aux )
+		);
 	}
 
 	public static function FileDownloadHref( string $downloadType, array $params = [] ) :string {

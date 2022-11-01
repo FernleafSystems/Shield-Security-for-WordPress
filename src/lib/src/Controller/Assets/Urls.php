@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Urls {
 
@@ -38,7 +39,7 @@ class Urls {
 
 	public function forPluginItem( string $path = '' ) :string {
 		$con = $this->getCon();
-		return add_query_arg( [ 'ver' => $con->getVersion() ], plugins_url( $path, $con->getRootFile() ) );
+		return URL::Build( plugins_url( $path, $con->getRootFile() ), [ 'ver' => $con->getVersion() ] );
 	}
 
 	/**
