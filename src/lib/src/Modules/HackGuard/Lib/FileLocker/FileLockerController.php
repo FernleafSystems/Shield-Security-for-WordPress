@@ -6,6 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
+	FileContentsEncryptionFailure,
+	FileContentsEncodingFailure,
+	LockDbInsertFailure,
+	NoFileLockPathsExistException,
+	PublicKeyRetrievalFailure,
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
@@ -192,7 +199,8 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';
 				}
-				catch ( Exceptions\NoFileLockPathsExistException $e ) {
+				catch ( NoFileLockPathsExistException | LockDbInsertFailure
+				| FileContentsEncodingFailure | FileContentsEncryptionFailure | PublicKeyRetrievalFailure $e ) {
 					// Remove the key if there are no files on-disk to lock
 					$opts->setOpt( 'file_locker', array_diff( $opts->getFilesToLock(), [ $fileKey ] ) );
 				}

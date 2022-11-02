@@ -18,7 +18,7 @@ class Accept extends BaseOps {
 		$publicKey = $this->getPublicKey();
 		$raw = ( new BuildEncryptedFilePayload() )
 			->setMod( $mod )
-			->build( $lock->file, reset( $publicKey ) );
+			->build( (string)$lock->file, reset( $publicKey ) );
 
 		/** @var FileLocker\Update $updater */
 		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
