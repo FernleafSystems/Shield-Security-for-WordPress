@@ -10,12 +10,12 @@ class FindSessions {
 	use ModConsumer;
 
 	public function mostRecent() :array {
-		return $this->lookupFromUserMeta();
+		return $this->lookupFromUserMeta( [ "`user_meta`.`last_login_at`!=0" ] );
 	}
 
 	public function byIP( string $ip ) :array {
 		$sessions = [];
-		foreach ( $this->lookupFromUserMeta( $ip ) as $userID => $userAtIP ) {
+		foreach ( $this->lookupFromUserMeta( [ $this->getWhere_IPEquals( $ip ) ] ) as $userID => $userAtIP ) {
 			$sessions[ $userID ] = array_map(
 				function ( $sess ) use ( $userAtIP ) {
 					$sess[ 'user_login' ] = $userAtIP[ 'user_login' ];
@@ -27,13 +27,8 @@ class FindSessions {
 		return $sessions;
 	}
 
-	public function lookupFromUserMeta( string $ip = '', int $limit = 10, string $orderBy = '`user_meta`.last_login_at' ) :array {
+	public function lookupFromUserMeta( array $wheres = [], int $limit = 10, string $orderBy = '`user_meta`.`last_login_at`' ) :array {
 		$modData = $this->getCon()->getModule_Data();
-
-		$wheres = [];
-		if ( !empty( $ip ) ) {
-			$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", $ip );
-		}
 
 		$DB = Services::WpDb();
 		$results = $DB->selectCustom(
@@ -65,5 +60,9 @@ class FindSessions {
 		}
 
 		return $byUserIDs;
+	}
+
+	private function getWhere_IPEquals( string $ip ) :string {
+		return sprintf( "`ips`.ip=INET6_ATON('%s')", $ip );
 	}
 }

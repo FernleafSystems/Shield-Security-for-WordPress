@@ -84,127 +84,90 @@ class UserSuspendController extends ExecOnceModConsumer {
 		/** @var Select $metaSelect */
 		$metaSelect = $userMetaDB->getQuerySelector();
 
-		if ( $opts->isSuspendManualEnabled() ) {
-			$manual = array_map(
-				function ( $res ) {
-					return (int)array_pop( $res );
-				},
-				$metaSelect->filterByHardSuspended()
-						   ->setResultsAsVo( false )
-						   ->setSelectResultsFormat( ARRAY_A )
-						   ->setColumnsToSelect( [ 'user_id' ] )
-						   ->queryWithResult()
-			);
-		}
-		else {
-			$manual = [];
-		}
+		$manual = $opts->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
+		$passwords = $opts->isSuspendAutoPasswordEnabled() ?
+			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getPassExpireTimeout() )->count() : 0;
+		$idle = $opts->isSuspendAutoPasswordEnabled() ?
+			$metaSelect->reset()->filterByPassExpired( $ts - $opts->getSuspendAutoIdleTime() )->count() : 0;
 
-		if ( $opts->isSuspendAutoPasswordEnabled() ) {
-			$passwords = array_map(
-				function ( $res ) {
-					return (int)array_pop( $res );
-				},
-				$metaSelect->filterByPassExpired( $ts - $opts->getPassExpireTimeout() )
-						   ->setResultsAsVo( false )
-						   ->setSelectResultsFormat( ARRAY_A )
-						   ->setColumnsToSelect( [ 'user_id' ] )
-						   ->queryWithResult()
-			);
-		}
-		else {
-			$passwords = [];
-		}
+		if ( $manual + $passwords + $idle > 0 ) {
+			// Filter the user list database query
+			add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual, $idle, $passwords ) {
+				$req = Services::Request();
+				if ( is_array( $args ) ) {
+					/** @var UserManagement\Options $opts */
+					$opts = $this->getOptions();
 
-		if ( $opts->isSuspendAutoIdleEnabled() ) {
-			$idle = array_map(
-				function ( $res ) {
-					return (int)array_pop( $res );
-				},
-				$metaSelect->filterByIdle( $ts - $opts->getSuspendAutoIdleTime() )
-						   ->setResultsAsVo( false )
-						   ->setSelectResultsFormat( ARRAY_A )
-						   ->setColumnsToSelect( [ 'user_id' ] )
-						   ->queryWithResult()
-			);
-		}
-		else {
-			$idle = [];
-		}
+					/** @var Select $metaSelect */
+					$metaSelect = $this->getCon()
+									   ->getModule_Data()
+									   ->getDbH_UserMeta()
+									   ->getQuerySelector();
 
-		$cleaned = $this->cleanNonExistentUsers( array_merge( $manual, $passwords, $idle ) );
-		if ( !empty( $cleaned ) ) {
-			$manual = array_diff( $manual, $cleaned );
-			$passwords = array_diff( $passwords, $cleaned );
-			$idle = array_diff( $idle, $cleaned );
-		}
+					if ( $manual > 0 && $req->query( 'shield_users_suspended' ) ) {
+						$filtered = true;
+						$metaSelect->filterByHardSuspended();
+					}
+					elseif ( $idle > 0 && $req->query( 'shield_users_idle' ) ) {
+						$filtered = true;
+						$metaSelect->filterByPassExpired( Services::Request()->ts() - $opts->getPassExpireTimeout() );
+					}
+					elseif ( $passwords > 0 && $req->query( 'shield_users_pass' ) ) {
+						$filtered = true;
+						$metaSelect->filterByIdle( Services::Request()->ts() - $opts->getSuspendAutoIdleTime() );
+					}
+					else {
+						$filtered = false;
+					}
 
-		// Filter the user list database query
-		add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual, $idle, $passwords ) {
-			$req = Services::Request();
-			if ( is_array( $args ) ) {
-				if ( !empty( $manual ) && $req->query( 'shield_users_suspended' ) ) {
-					$args[ 'include' ] = $manual;
+					if ( $filtered ) {
+						$idsToInclude = array_map(
+							function ( $res ) {
+								return (int)array_pop( $res );
+							},
+							$metaSelect->setResultsAsVo( false )
+									   ->setSelectResultsFormat( ARRAY_A )
+									   ->setColumnsToSelect( [ 'user_id' ] )
+									   ->queryWithResult()
+						);
+						if ( !empty( $idsToInclude ) ) {
+							$args[ 'include' ] = $idsToInclude;
+						}
+					}
 				}
-				elseif ( !empty( $idle ) && $req->query( 'shield_users_idle' ) ) {
-					$args[ 'include' ] = $idle;
+				return $args;
+			} );
+
+			// Provide the links above the table.
+			add_filter( 'views_users', function ( $views ) use ( $manual, $idle, $passwords ) {
+				$WP = Services::WpGeneral();
+				if ( $manual > 0 ) {
+					$views[ 'shield_users_suspended' ] = sprintf(
+						'<a href="%s">%s <span class="count">(%s)</span></a>',
+						URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_suspended' => 1 ] ),
+						__( 'Manually Suspended', 'wp-simple-firewall' ), $manual
+					);
 				}
-				elseif ( !empty( $passwords ) && $req->query( 'shield_users_pass' ) ) {
-					$args[ 'include' ] = $passwords;
+
+				if ( $idle > 0 ) {
+					$views[ 'shield_idle_users' ] = sprintf(
+						'<a href="%s">%s <span class="count">(%s)</span></a>',
+						URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_idle' => 1 ] ),
+						__( 'Idle', 'wp-simple-firewall' ), $idle
+					);
 				}
-			}
-			return $args;
-		} );
 
-		// Provide the links above the table.
-		add_filter( 'views_users', function ( $views ) use ( $manual, $idle, $passwords ) {
-			$WP = Services::WpGeneral();
-			if ( !empty( $manual ) ) {
-				$views[ 'shield_users_suspended' ] = sprintf(
-					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_suspended' => 1 ] ),
-					__( 'Manually Suspended', 'wp-simple-firewall' ), count( $manual )
-				);
-			}
+				if ( $passwords > 0 ) {
+					$views[ 'shield_users_pass' ] = sprintf(
+						'<a href="%s">%s <span class="count">(%s)</span></a>',
+						URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_pass' => 1 ] ),
+						__( 'Password Expired', 'wp-simple-firewall' ), $passwords
+					);
+				}
 
-			if ( !empty( $idle ) ) {
-				$views[ 'shield_idle_users' ] = sprintf(
-					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_idle' => 1 ] ),
-					__( 'Idle', 'wp-simple-firewall' ), count( $idle )
-				);
-			}
-
-			if ( !empty( $passwords ) ) {
-				$views[ 'shield_users_pass' ] = sprintf(
-					'<a href="%s">%s <span class="count">(%s)</span></a>',
-					URL::Build( $WP->getUrl_CurrentAdminPage(), [ 'shield_users_pass' => 1 ] ),
-					__( 'Password Expired', 'wp-simple-firewall' ), count( $passwords )
-				);
-			}
-
-			return $views;
-		} );
-	}
-
-	private function cleanNonExistentUsers( array $IDs ) :array {
-		$toClean = array_filter(
-			array_unique( $IDs ),
-			function ( $userID ) {
-				return empty( Services::WpUsers()->getUserById( (int)$userID ) );
-			}
-		);
-
-		if ( !empty( $toClean ) ) {
-			$this->getCon()
-				 ->getModule_Data()
-				 ->getDbH_UserMeta()
-				 ->getQueryDeleter()
-				 ->addWhereIn( 'user_id', $toClean )
-				 ->query();
+				return $views;
+			} );
 		}
-
-		return $toClean;
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
