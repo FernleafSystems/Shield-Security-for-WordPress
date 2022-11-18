@@ -3,7 +3,7 @@ Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: limit login, malware scan, firewall, two factor authentication, login protection
+Tags: limit login, malware scan, firewall, file scan, two factor authentication, intrusion prevention, security, login protection
 Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
@@ -18,9 +18,9 @@ Shield is [now partnered with CrowdSec](https://shsec.io/l5) for global, crowd-s
 
 **We need to stop our obsession with malware**. Malware scanning is important *after* your site is hacked. Get a security plugin that [prioritises security *protection* before the worst happens](https://shsec.io/ky).
 
-Shield is the only security plugin for WordPress that fully prioritises protection over repair. Who cares about malware when you can stop it before it even happens?
+Shield is the only security plugin for WordPress that fully prioritises protection over repair. With Shield, your site will start to block visitors as they probe your site looking for vulnerabilities, and before they can begin to do any damage.
 
-**No-Hype. No Scary Marketing. Just Great Security**. Shield is the only NO-nonsense security solution that defends and protects your WordPress sites against hackers and malicious bots, of all types. With our exclusive invisible "CAPTCHA"-replacement technology you can limit login attempts, block brute force attacks and prevent 100% bot comment SPAM.
+**No other standalone WordPress security plugin** (including Wordfence, WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step is Intrusion Detection/Prevention, the 2nd step is repair. Shield does both.
 
 Our mission is to block bad IPs and requests before they can do any damage. Shield will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current solution, give Shield a try - we promise that you won't be disappointed.
 

@@ -264,7 +264,7 @@ let Shield_WP_Dashboard_Widget = new function () {
 			.send_ajax_req( {
 				render_slug: data.ajax.render_dashboard_widget,
 				refresh: refresh
-			} )
+			}, false )
 			.then( ( response ) => {
 				if ( response.success ) {
 					widgetContainer.html( response.data.html );
@@ -289,10 +289,12 @@ let Shield_AjaxRender = new function () {
 
 	let ajax_req_vars;
 
-	this.send_ajax_req = function ( reqData ) {
+	this.send_ajax_req = function ( reqData, showOverlay = true ) {
 		return new Promise(
 			( resolve, reject ) => {
-				iCWP_WPSF_BodyOverlay.show();
+				if ( showOverlay ) {
+					iCWP_WPSF_BodyOverlay.show();
+				}
 
 				reqData.apto_wrap_response = 1;
 
@@ -302,11 +304,15 @@ let Shield_AjaxRender = new function () {
 					data: jQuery.extend( ajax_req_vars, reqData ),
 					dataType: "text",
 					success: function ( data ) {
-						iCWP_WPSF_BodyOverlay.hide();
+						if ( showOverlay ) {
+							iCWP_WPSF_BodyOverlay.hide();
+						}
 						resolve( iCWP_WPSF_ParseAjaxResponse.parseIt( data ) );
 					},
 					error: function ( data ) {
-						iCWP_WPSF_BodyOverlay.hide();
+						if ( showOverlay ) {
+							iCWP_WPSF_BodyOverlay.hide();
+						}
 						reject( data )
 					},
 				} );

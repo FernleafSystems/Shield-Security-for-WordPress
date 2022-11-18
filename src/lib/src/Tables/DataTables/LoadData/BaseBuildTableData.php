@@ -44,7 +44,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function loadRecordsWithDirectQuery() :array {
 		return $this->buildTableRowsFromRawRecords(
-			$this->getRecords( $this->buildWheresFromSearchParams(), (int)$this->table_data[ 'start' ], (int)$this->table_data[ 'length' ] )
+			$this->getRecords(
+				$this->buildWheresFromSearchParams(),
+				(int)$this->table_data[ 'start' ],
+				(int)$this->table_data[ 'length' ]
+			)
 		);
 	}
 
