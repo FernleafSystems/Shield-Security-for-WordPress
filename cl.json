@@ -128,7 +128,7 @@
     ],
     "patches":     [
       {
-        "version":     "13",
+        "version":     "14",
         "released_at": 1667298000,
         "items":       [
           {
@@ -136,6 +136,32 @@
             "type":  "changed",
             "href":  "https://shsec.io/l8"
           },
+          {
+            "title": "Performance improved when loading the WordPress Users page for sites with large users counts.",
+            "type":  "improved"
+          },
+          {
+            "title": "Dashboard widget showing incorrect dates for user last login if it's never been recorded.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Tweaks to CrowdSec Signals map.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Plugin/Theme file scanner bug fixes.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Minor bug fixes.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
+        "version":     "13",
+        "released_at": 1667298000,
+        "items":       [
           {
             "title": "Attempt to eliminate CrowdSec API issues.",
             "type":  "improved"
