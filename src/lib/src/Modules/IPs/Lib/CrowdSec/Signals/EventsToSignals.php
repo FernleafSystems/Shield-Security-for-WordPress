@@ -139,7 +139,7 @@ class EventsToSignals extends EventsListener {
 				'scenario' => 'btloginfail',
 			],
 			'bottrack_logininvalid' => [
-				'scenario' => 'btinvalidscript',
+				'scenario' => 'btlogininvalid',
 			],
 			'block_lostpassword'    => [
 				'scenario'                 => 'lostpasswordfail',
@@ -149,7 +149,6 @@ class EventsToSignals extends EventsListener {
 				'scenario'                 => 'registerfail',
 				'only_send_on_notbot_fail' => true,
 			],
-
 			'bottrack_404'            => [
 				'scenario' => 'bt404',
 			],
@@ -160,7 +159,7 @@ class EventsToSignals extends EventsListener {
 				'scenario' => 'btcheese',
 			],
 			'bottrack_invalidscript'  => [
-				'scenario' => 'btlogininvalid',
+				'scenario' => 'btinvalidscript',
 			],
 			'bottrack_useragent'      => [
 				'scenario' => 'btua',

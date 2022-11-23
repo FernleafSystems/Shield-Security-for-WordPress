@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class CleanDatabases extends ExecOnceModConsumer {
 
@@ -52,6 +53,27 @@ class CleanDatabases extends ExecOnceModConsumer {
 					   ->query();
 			}
 		}
+
+		$this->cleanUserMeta();
+	}
+
+	/**
+	 * Delete all the user meta rows where there is no corresponding User ID.
+	 * WARNING: GREAT CARE MUST ALWAYS BE TAKEN WHEN EDITING THIS QUERY TO ENSURE WE DELETE ONLY FROM `meta`
+	 */
+	private function cleanUserMeta() {
+		Services::WpDb()->doSql( sprintf(
+			'DELETE `meta` FROM `%s` as `meta`
+				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
+			$this->getCon()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
+			Services::WpDb()->getTable_Users()
+		) );
+//		$res = Services::WpDb()->selectCustom( sprintf(
+//			'SELECT `meta`.`user_id` as `meta_user_id`, `users`.`ID` as `wp_user_id` FROM `%s` as `meta`
+//				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
+//			$userMetaData->getTableSchema()->table,
+//			Services::WpDb()->getTable_Users()
+//		) );
 	}
 
 	private function cleanRequestLogs() {
