@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\MoveHashFiles;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\CleanOutOldGuardFiles;
 
 class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgrade {
 
@@ -15,24 +15,9 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 	 * in the first place - it should have been an upgrade process.
 	 */
 	protected function upgrade_16114() {
-		$FS = Services::WpFs();
-		$firstAcceptableDir = null;
-		foreach ( $FS->getAllFilesInDir( $this->getCon()->cache_dir_handler->dir() ) as $fileItem ) {
-			if ( $FS->isDir( $fileItem ) ) {
-				$dirBase = basename( $fileItem );
-				if ( $dirBase === 'ptguard' ) {
-					$FS->deleteDir( $fileItem );
-				}
-				elseif ( preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', 16 ), $dirBase ) ) {
-					if ( empty( $firstAcceptableDir ) ) {
-						$firstAcceptableDir = $fileItem;
-					}
-					else {
-						$FS->deleteDir( $fileItem );
-					}
-				}
-			}
-		}
+		( new CleanOutOldGuardFiles() )
+			->setMod( $this->getMod() )
+			->execute();
 	}
 
 	protected function upgrade_1617() {
