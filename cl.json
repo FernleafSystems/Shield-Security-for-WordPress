@@ -129,7 +129,7 @@
     "patches":     [
       {
         "version":     "14",
-        "released_at": 1667298000,
+        "released_at": 1669197000,
         "items":       [
           {
             "title": "Marks Shield 16.x as the final series supporting PHP 7.0 and 7.1. Shield 17 will require PHP 7.2.",

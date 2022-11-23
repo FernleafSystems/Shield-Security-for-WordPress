@@ -59,6 +59,7 @@ class CleanDatabases extends ExecOnceModConsumer {
 
 	/**
 	 * Delete all the user meta rows where there is no corresponding User ID.
+	 * WARNING: GREAT CARE MUST ALWAYS BE TAKEN WHEN EDITING THIS QUERY TO ENSURE WE DELETE ONLY FROM `meta`
 	 */
 	private function cleanUserMeta() {
 		Services::WpDb()->doSql( sprintf(

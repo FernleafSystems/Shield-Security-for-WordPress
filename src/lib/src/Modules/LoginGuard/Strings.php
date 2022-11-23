@@ -186,7 +186,13 @@ class Strings extends Base\Strings {
 				$name = __( 'Hide WP Login & Admin', 'wp-simple-firewall' );
 				$summary = __( 'Hide The WordPress Login And Admin Areas', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' ),
+					sprintf( '%s: %s',
+						__( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( "This will cause %s and %s URLs to return HTTP 404 errors while you're not logged-in.", 'wp-simple-firewall' ),
+							'<code>/wp-admin/</code>',
+							'<code>/wp-login.php</code>'
+						)
+					),
 					sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' ),
 					sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' )
 				];
@@ -196,14 +202,17 @@ class Strings extends Base\Strings {
 				$name = __( 'WP Login & Admin Redirect', 'wp-simple-firewall' );
 				$summary = __( 'Automatic Redirect URL For Hidden Pages', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Automatically redirect requests to this location for the hidden pages.', 'wp-simple-firewall' ),
+					__( 'Automatically redirect here for any requests made to hidden pages.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s',
 						__( 'Note', 'wp-simple-firewall' ),
-						__( 'Leave this blank to serve a standard "404 Not Found" error page.', 'wp-simple-firewall' )
+						sprintf( __( 'Leave this blank to serve a standard "%s" error page.', 'wp-simple-firewall' ), 'HTTP 404 Not Found' )
 					),
 					sprintf( '%s: %s',
 						__( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( 'Use relative paths e.g. %s redirects to your homepage.', 'wp-simple-firewall' ), '<code>/</code>' )
+						sprintf( __( 'Use relative paths from your homepage URL e.g. %s redirects to your homepage (%s).', 'wp-simple-firewall' ),
+							'<code>/</code>',
+							sprintf( '<code>%s</code>', Services::WpGeneral()->getHomeUrl() )
+						)
 					),
 				];
 				break;
