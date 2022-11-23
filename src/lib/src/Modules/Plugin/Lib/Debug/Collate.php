@@ -59,8 +59,8 @@ class Collate {
 			}
 		}
 
-		$totalDisk = disk_total_space( ABSPATH );
-		$freeDisk = disk_free_space( ABSPATH );
+		$totalDisk = function_exists( '\disk_total_space' ) ? \disk_total_space( ABSPATH ) : '-';
+		$freeDisk = function_exists( '\disk_free_space' ) ? \disk_free_space( ABSPATH ) : '-';
 		try {
 			$diff = ( new WorldTimeApi() )->diffServerWithReal();
 		}
@@ -78,10 +78,10 @@ class Collate {
 			'Server Name'                       => $req->server( 'SERVER_NAME' ),
 			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
 			'Server Software'                   => empty( $soft ) ? '-' : $soft,
-			'Disk Space (Used/Available/Total)' => sprintf( '%s used out of %s (%s free)',
-				FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ),
-				FormatBytes::Format( $totalDisk, 2, '' ),
-				FormatBytes::Format( $freeDisk, 2, '' )
+			'Disk Space' => sprintf( '%s used out of %s (unused: %s)',
+				( is_numeric( $totalDisk ) && is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
+				is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
+				is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'
 			)
 		];
 	}
