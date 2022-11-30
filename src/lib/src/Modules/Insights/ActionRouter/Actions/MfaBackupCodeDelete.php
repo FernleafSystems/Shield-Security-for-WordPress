@@ -13,16 +13,24 @@ class MfaBackupCodeDelete extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
-		/** @var BackupCodes $provider */
-		$provider = $mod->getMfaController()->getProviders()[ BackupCodes::SLUG ];
-		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )->removeFromProfile();
-		$mod->setFlashAdminNotice(
-			__( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' )
-		);
+
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		/** @var ?BackupCodes $provider */
+		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
+		if ( empty( $provider ) ) {
+			$msg = __( 'This action is unavailable for your profile at this time.', 'wp-simple-firewall' );
+			$success = false;
+		}
+		else {
+			$provider->removeFromProfile();
+			$msg = __( 'Login backup codes have been removed from your profile', 'wp-simple-firewall' );
+			$success = true;
+		}
+		$mod->setFlashAdminNotice( $msg, Services::WpUsers()->getCurrentWpUser(), !$success );
 
 		$this->response()->action_response_data = [
-			'message' => __( 'Your backup login codes have been deleted.', 'wp-simple-firewall' ),
-			'success' => true
+			'message' => $msg,
+			'success' => $success
 		];
 	}
 }

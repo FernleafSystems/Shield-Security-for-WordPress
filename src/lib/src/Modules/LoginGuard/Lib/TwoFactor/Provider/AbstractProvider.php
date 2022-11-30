@@ -58,12 +58,8 @@ abstract class AbstractProvider implements Provider2faInterface {
 
 	abstract protected function renderLoginIntentFormFieldForWpLoginReplica() :string;
 
-	/**
-	 * @return $this
-	 */
 	public function setUser( \WP_User $user ) {
 		$this->user = $user;
-		return $this;
 	}
 
 	public function validateLoginIntent( string $hashedLoginNonce ) :bool {

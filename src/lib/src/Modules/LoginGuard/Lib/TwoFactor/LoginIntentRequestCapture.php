@@ -159,7 +159,11 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				if ( $opts->isEnabledBackupCodes() ) {
 					$flash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' );
 				}
-				$this->getMod()->setFlashAdminNotice( $flash, $this->user );
+				$con->getAdminNotices()
+					->addFlash(
+						sprintf( '[%s] %s', $this->getCon()->getHumanName(), $flash ),
+						$this->user
+					);
 			}
 
 			$redirect = $req->request( 'redirect_to', false, $req->getPath() );

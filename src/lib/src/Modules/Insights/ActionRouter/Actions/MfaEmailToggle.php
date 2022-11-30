@@ -13,20 +13,26 @@ class MfaEmailToggle extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
-		/** @var Email $provider */
-		$provider = $mod->getMfaController()->getProviders()[ Email::SLUG ];
 
-		$turnOn = Services::Request()->post( 'direction' ) === 'on';
-		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-				 ->setProfileValidated( $turnOn );
-		$success = $turnOn === $provider->isProfileActive();
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		/** @var ?Email $provider */
+		$provider = $available[ Email::ProviderSlug() ] ?? null;
+		if ( !empty( $provider ) && !$provider->isEnforced() ) {
+			$turnOn = Services::Request()->post( 'direction' ) === 'on';
+			$provider->setProfileValidated( $turnOn );
+			$success = $turnOn === $provider->isProfileActive();
 
-		if ( $success ) {
-			$msg = $turnOn ? __( 'Email 2FA activated.', 'wp-simple-firewall' )
-				: __( 'Email 2FA deactivated.', 'wp-simple-firewall' );
+			if ( $success ) {
+				$msg = $turnOn ? __( 'Email 2FA activated.', 'wp-simple-firewall' )
+					: __( 'Email 2FA deactivated.', 'wp-simple-firewall' );
+			}
+			else {
+				$msg = __( "Email 2FA settings couldn't be changed.", 'wp-simple-firewall' );
+			}
 		}
 		else {
-			$msg = __( "Email 2FA settings couldn't be changed.", 'wp-simple-firewall' );
+			$success = false;
+			$msg = __( "Changing 2FA Email options isn't currently available to you.", 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [

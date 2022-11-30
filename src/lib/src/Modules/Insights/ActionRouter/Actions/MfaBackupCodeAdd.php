@@ -13,17 +13,24 @@ class MfaBackupCodeAdd extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
-		/** @var BackupCodes $provider */
-		$provider = $mod->getMfaController()->getProviders()[ BackupCodes::SLUG ];
 
-		$pass = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-						 ->resetSecret();
-		$pass = implode( '-', str_split( $pass, 5 ) );
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		/** @var ?BackupCodes $provider */
+		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
+		if ( empty( $provider ) ) {
+			$msg = __( "Changing Backup Code options isn't currently available to you.", 'wp-simple-firewall' );
+			$success = false;
+		}
+		else {
+			$pass = implode( '-', str_split( $provider->resetSecret(), 5 ) );
+			$msg = sprintf( 'Your backup login code is:<br/><code>%s</code>', $pass );
+			$success = true;
+		}
 
 		$this->response()->action_response_data = [
-			'message' => sprintf( 'Your backup login code is:<br/><code>%s</code>', $pass ),
+			'message' => $msg,
 			'code'    => $pass,
-			'success' => true
+			'success' => $success
 		];
 	}
 }

@@ -13,11 +13,11 @@ class MfaSmsIntentSend extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var Sms $provider */
-		$provider = $mod->getMfaController()->getProviders()[ Sms::SLUG ];
+		$provider = $available[ Sms::ProviderSlug() ];
 		try {
-			$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-					 ->startLoginIntent();
+			$provider->startLoginIntent();
 			$response = [
 				'success'     => true,
 				'message'     => __( 'One-Time Password was sent to your phone.', 'wp-simple-firewall' ),

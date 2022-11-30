@@ -13,8 +13,9 @@ class MfaU2fAdd extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var U2F $provider */
-		$provider = $mod->getMfaController()->getProviders()[ U2F::SLUG ];
+		$provider = $available[ U2F::ProviderSlug() ];
 
 		$u2fReg = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( empty( $u2fReg ) ) {
@@ -25,8 +26,7 @@ class MfaU2fAdd extends MfaBase {
 			];
 		}
 		else {
-			$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-							   ->addNewRegistration( $u2fReg );
+			$result = $provider->addNewRegistration( $u2fReg );
 			$response = [
 				'success'     => $result->success,
 				'message'     => $result->success ? $result->msg_text : $result->error_text,

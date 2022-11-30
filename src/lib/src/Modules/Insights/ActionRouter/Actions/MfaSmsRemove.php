@@ -13,10 +13,10 @@ class MfaSmsRemove extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var Sms $provider */
-		$provider = $mod->getMfaController()->getProviders()[ Sms::SLUG ];
-		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-				 ->removeFromProfile();
+		$provider = $available[ Sms::ProviderSlug() ];
+		$provider->removeFromProfile();
 
 		$this->response()->action_response_data = [
 			'success'     => true,

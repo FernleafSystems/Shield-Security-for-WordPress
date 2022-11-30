@@ -14,8 +14,9 @@ class MfaSmsAdd extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		$req = Services::Request();
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var Sms $provider */
-		$provider = $mod->getMfaController()->getProviders()[ Sms::SLUG ];
+		$provider = $available[ Sms::ProviderSlug() ];
 
 		$countryCode = $req->post( 'sms_country' );
 		$phoneNum = $req->post( 'sms_phone' );
@@ -33,13 +34,11 @@ class MfaSmsAdd extends MfaBase {
 			$response[ 'message' ] = __( 'The phone number was missing.', 'wp-simple-firewall' );
 		}
 		else {
-			$user = Services::WpUsers()->getCurrentWpUser();
 			try {
 				$response = [
 					'success'     => true,
 					'message'     => __( 'Please confirm the 6-digit code sent to your phone.', 'wp-simple-firewall' ),
-					'code'        => $provider->setUser( $user )
-											  ->addProvisionalRegistration( $countryCode, $phoneNum ),
+					'code'        => $provider->addProvisionalRegistration( $countryCode, $phoneNum ),
 					'page_reload' => false
 				];
 			}

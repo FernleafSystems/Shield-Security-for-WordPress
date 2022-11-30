@@ -47,7 +47,6 @@ class LoginIntentRequestValidate {
 
 		$validated = false;
 		foreach ( $providers as $provider ) {
-			$provider->setUser( $user );
 			try {
 				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
 					$provider->postSuccessActions();

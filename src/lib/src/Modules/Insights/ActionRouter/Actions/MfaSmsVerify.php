@@ -14,8 +14,10 @@ class MfaSmsVerify extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		$req = Services::Request();
+
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var Sms $provider */
-		$provider = $mod->getMfaController()->getProviders()[ Sms::SLUG ];
+		$provider = $available[ Sms::ProviderSlug() ];
 
 		$countryCode = $req->post( 'sms_country' );
 		$phoneNum = $req->post( 'sms_phone' );
@@ -38,8 +40,7 @@ class MfaSmsVerify extends MfaBase {
 				$response = [
 					'success'     => true,
 					'message'     => __( 'Phone verified and registered successfully for SMS Two-Factor Authentication.', 'wp-simple-firewall' ),
-					'code'        => $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-											  ->verifyProvisionalRegistration( $countryCode, $phoneNum, $verifyCode ),
+					'code'        => $provider->verifyProvisionalRegistration( $countryCode, $phoneNum, $verifyCode ),
 					'page_reload' => false
 				];
 			}

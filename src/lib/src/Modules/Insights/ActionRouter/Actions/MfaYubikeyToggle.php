@@ -13,13 +13,12 @@ class MfaYubikeyToggle extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
-		/** @var Yubikey $provider */
-		$provider = $mod->getMfaController()
-						->getProviders()[ Yubikey::ProviderSlug() ];
 
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		/** @var Yubikey $provider */
+		$provider = $available[ Yubikey::ProviderSlug() ];
 		$otp = Services::Request()->post( 'otp', '' );
-		$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-						   ->toggleRegisteredYubiID( $otp );
+		$result = $provider->toggleRegisteredYubiID( $otp );
 
 		$this->response()->action_response_data = [
 			'success'     => $result->success,

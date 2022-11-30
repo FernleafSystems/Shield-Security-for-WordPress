@@ -13,9 +13,9 @@ class MfaGoogleAuthToggle extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var GoogleAuth $provider */
-		$provider = $mod->getMfaController()->getProviders()[ GoogleAuth::SLUG ];
-		$provider->setUser( Services::WpUsers()->getCurrentWpUser() );
+		$provider = $available[ GoogleAuth::ProviderSlug() ];
 
 		$otp = Services::Request()->post( 'ga_otp', '' );
 		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );

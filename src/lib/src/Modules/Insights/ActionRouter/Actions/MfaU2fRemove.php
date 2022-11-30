@@ -13,14 +13,14 @@ class MfaU2fRemove extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
+
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
 		/** @var U2F $provider */
-		$provider = $mod->getMfaController()
-						->getProviders()[ U2F::SLUG ];
+		$provider = $available[ U2F::ProviderSlug() ];
 
 		$key = Services::Request()->post( 'u2fid' );
 		if ( !empty( $key ) ) {
-			$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-					 ->removeRegisteredU2fId( $key );
+			$provider->removeRegisteredU2fId( $key );
 		}
 
 		$this->response()->action_response_data = [

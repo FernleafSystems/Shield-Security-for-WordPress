@@ -43,6 +43,10 @@ class AdminNotice extends BaseRender {
 		return $data;
 	}
 
+	protected function getRenderTemplate() :string {
+		return ( new NoticeVO() )->applyFromArray( $this->action_data[ 'raw_notice_data' ] )->template;
+	}
+
 	protected function getRequiredDataKeys() :array {
 		return [
 			'raw_notice_data'

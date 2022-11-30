@@ -256,8 +256,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
 			foreach ( $this->getProvidersActiveForUser( $user ) as $provider ) {
-				$provider->setUser( $user )
-						 ->removeFromProfile();
+				$provider->removeFromProfile();
 			}
 			$result->success = true;
 			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.' ),
