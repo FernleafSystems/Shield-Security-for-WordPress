@@ -6,5 +6,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class BasePlugin extends BaseRender {
 
-	const PRIMARY_MOD = 'plugin';
+	public const PRIMARY_MOD = 'plugin';
 }

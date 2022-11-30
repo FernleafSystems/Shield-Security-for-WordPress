@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockMagicLink extends EmailBase {
 
-	const SLUG = 'email_unblock_magic_link';
-	const TEMPLATE = '/email/uaum_init.twig';
+	public const SLUG = 'email_unblock_magic_link';
+	public const TEMPLATE = '/email/uaum_init.twig';
 
 	protected function getBodyData() :array {
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;

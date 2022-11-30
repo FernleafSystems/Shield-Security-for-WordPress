@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MerlinStep extends BaseRender {
 
-	const SLUG = 'render_merlin_step';
-	const TEMPLATE = '/components/merlin/steps/%s.twig';
+	public const SLUG = 'render_merlin_step';
+	public const TEMPLATE = '/components/merlin/steps/%s.twig';
 
 	protected function getRenderData() :array {
 		return [

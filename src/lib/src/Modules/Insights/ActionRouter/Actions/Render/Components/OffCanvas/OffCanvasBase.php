@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 abstract class OffCanvasBase extends BaseRender {
 
-	const TEMPLATE = '/components/html/offcanvas_content.twig';
+	public const TEMPLATE = '/components/html/offcanvas_content.twig';
 
 	protected function getRenderData() :array {
 		return [

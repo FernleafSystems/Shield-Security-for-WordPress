@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\MfaController;
 
 class Options extends BaseShield\Options {
 
@@ -52,6 +53,10 @@ class Options extends BaseShield\Options {
 
 	public function getIfCanSendEmailVerified() :bool {
 		return (int)$this->getOpt( 'email_can_send_verified_at' ) > 0;
+	}
+
+	public function getMfaLoginIntentFormat() :string {
+		return $this->getOpt( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD );
 	}
 
 	public function getMfaSkip() :int { // seconds

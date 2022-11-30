@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNoteDelete extends PluginBase {
 
-	const SLUG = 'admin_note_delete';
+	public const SLUG = 'admin_note_delete';
 
 	protected function exec() {
 		/** @var ModCon $mod */

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionsTableBulkAction extends SecurityAdminBase {
 
-	const SLUG = 'user_sessions_bulk_action';
+	public const SLUG = 'user_sessions_bulk_action';
 
 	protected function exec() {
 		/** @var ModCon $mod */

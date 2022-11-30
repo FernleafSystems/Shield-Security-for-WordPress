@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 
 class KeyStats extends Base {
 
-	const SLUG = 'render_keystats';
-	const TEMPLATE = '/components/reports/mod/events/info_keystats.twig';
+	public const SLUG = 'render_keystats';
+	public const TEMPLATE = '/components/reports/mod/events/info_keystats.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

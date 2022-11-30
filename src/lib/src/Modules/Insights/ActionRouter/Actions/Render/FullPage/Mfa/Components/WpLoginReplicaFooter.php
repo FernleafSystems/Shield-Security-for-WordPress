@@ -6,8 +6,8 @@ use FernleafSystems\Utilities\Data\CaptureOutput;
 
 class WpLoginReplicaFooter extends Base {
 
-	const SLUG = 'render_shield_wploginreplica_footer';
-	const TEMPLATE = '/components/wplogin_replica/login_footer.twig';
+	public const SLUG = 'render_shield_wploginreplica_footer';
+	public const TEMPLATE = '/components/wplogin_replica/login_footer.twig';
 
 	protected function getRenderData() :array {
 		/**

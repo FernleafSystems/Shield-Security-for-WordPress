@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class ScanItemAnalysis extends OffCanvasBase {
 
-	const SLUG = 'offcanvas_scanitemanalysis';
+	public const SLUG = 'offcanvas_scanitemanalysis';
 
 	protected function buildCanvasTitle() :string {
 		return sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] );

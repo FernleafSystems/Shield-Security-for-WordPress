@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class StandardFullPageDisplay extends BaseFullPageDisplay {
 
-	const SLUG = 'display_full_page_standard';
+	public const SLUG = 'display_full_page_standard';
 }

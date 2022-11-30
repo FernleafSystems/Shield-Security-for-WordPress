@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginMarkTourFinished extends PluginBase {
 
-	const SLUG = 'mark_tour_finished';
+	public const SLUG = 'mark_tour_finished';
 
 	protected function exec() {
 		/** @var ModCon $mod */

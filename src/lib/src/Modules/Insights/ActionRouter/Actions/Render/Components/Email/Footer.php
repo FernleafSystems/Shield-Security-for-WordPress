@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Footer extends Base {
 
-	const SLUG = 'render_email_footer';
-	const TEMPLATE = '/email/footer.twig';
+	public const SLUG = 'render_email_footer';
+	public const TEMPLATE = '/email/footer.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

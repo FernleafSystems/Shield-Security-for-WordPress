@@ -114,7 +114,7 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 					$mod = $this->getMod();
 					$user = Services::WpUsers()->getCurrentWpUser();
 					$providers = $user instanceof \WP_User ? $mod->getMfaController()
-																 ->getProvidersForUser( $user ) : [];
+																 ->getProvidersAvailableToUser( $user ) : [];
 					$localz[] = [
 						'shield/userprofile',
 						'shield_vars_userprofile',

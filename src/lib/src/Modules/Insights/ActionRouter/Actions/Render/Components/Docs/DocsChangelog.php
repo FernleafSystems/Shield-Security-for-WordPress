@@ -9,8 +9,8 @@ class DocsChangelog extends Actions\Render\BaseRender {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'render_docs_changelog';
-	const TEMPLATE = '/wpadmin_pages/insights/overview/updates/index.twig';
+	public const SLUG = 'render_docs_changelog';
+	public const TEMPLATE = '/wpadmin_pages/insights/overview/updates/index.twig';
 
 	protected function getRenderData() :array {
 		try {

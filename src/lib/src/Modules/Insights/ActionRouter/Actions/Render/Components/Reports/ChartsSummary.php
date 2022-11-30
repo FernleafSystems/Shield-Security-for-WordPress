@@ -9,8 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRule
 
 class ChartsSummary extends Base {
 
-	const SLUG = 'render_charts_summary';
-	const TEMPLATE = '/wpadmin_pages/insights/reports/charts_summary.twig';
+	public const SLUG = 'render_charts_summary';
+	public const TEMPLATE = '/wpadmin_pages/insights/reports/charts_summary.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

@@ -9,5 +9,5 @@ abstract class Base extends BaseRender {
 
 	use AuthNotRequired;
 
-	const PRIMARY_MOD = 'login_protect';
+	public const PRIMARY_MOD = 'login_protect';
 }

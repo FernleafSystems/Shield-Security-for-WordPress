@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class PageImportExport extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_importexport';
-	const PRIMARY_MOD = 'plugin';
-	const TEMPLATE = '/wpadmin_pages/insights/importexport/index.twig';
+	public const SLUG = 'admin_plugin_page_importexport';
+	public const PRIMARY_MOD = 'plugin';
+	public const TEMPLATE = '/wpadmin_pages/insights/importexport/index.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

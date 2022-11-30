@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IpAutoUnblockCrowdsecVisitor extends IpAutoUnblockShieldVisitor {
 
-	const SLUG = 'ip_auto_unblock_crowdsec_visitor';
-	const PATTERN = self::SLUG.'-[a-f\d.:]+';
+	public const SLUG = 'ip_auto_unblock_crowdsec_visitor';
+	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockCrowdsec() )->setMod( $this->primary_mod );

@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 
 class TrafficLogTable extends BasePluginAdminPage {
 
-	const SLUG = 'page_admin_plugin_traffic_log_table';
-	const PRIMARY_MOD = 'traffic';
-	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/table_traffic.twig';
+	public const SLUG = 'page_admin_plugin_traffic_log_table';
+	public const PRIMARY_MOD = 'traffic';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/table_traffic.twig';
 
 	protected function getRenderData() :array {
 		/** @var Options $opts */

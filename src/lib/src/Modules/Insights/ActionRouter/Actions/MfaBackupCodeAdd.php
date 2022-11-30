@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaBackupCodeAdd extends MfaBase {
 
-	const SLUG = 'mfa_profile_backup_code_add';
+	public const SLUG = 'mfa_profile_backup_code_add';
 
 	protected function exec() {
 		/** @var ModCon $mod */

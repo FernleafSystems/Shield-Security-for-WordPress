@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\M
 
 class ProgressMeters extends BaseRender {
 
-	const SLUG = 'render_progress_meters';
-	const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig';
+	public const SLUG = 'render_progress_meters';
+	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig';
 
 	protected function getRenderData() :array {
 		$componentBuilder = ( new Handler() )->setMod( $this->getMod() );

@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\H
 
 class PageOverview extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_overview';
-	const PRIMARY_MOD = 'plugin';
-	const TEMPLATE = '/wpadmin_pages/insights/overview/index.twig';
+	public const SLUG = 'admin_plugin_page_overview';
+	public const PRIMARY_MOD = 'plugin';
+	public const TEMPLATE = '/wpadmin_pages/insights/overview/index.twig';
 
 	protected function getRenderData() :array {
 		return [

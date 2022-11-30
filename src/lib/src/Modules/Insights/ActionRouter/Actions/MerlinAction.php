@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\MerlinCo
 
 class MerlinAction extends BaseAction {
 
-	const SLUG = 'merlin_action';
+	public const SLUG = 'merlin_action';
 
 	protected function exec() {
 		try {

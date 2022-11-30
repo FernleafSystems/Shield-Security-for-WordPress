@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class ScansCheck extends ScansBase {
 
-	const SLUG = 'scans_check';
+	public const SLUG = 'scans_check';
 
 	protected function exec() {
 		/** @var ModCon $mod */

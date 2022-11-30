@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class DynamicPageLoad extends BaseAction {
 
-	const SLUG = 'dynamic_page_load';
+	public const SLUG = 'dynamic_page_load';
 
 	protected function exec() {
 		$resp = $this->response();

@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MwpOutOfDate extends BaseMWP {
 
-	const SLUG = 'mainwp_page_mwp_outofdate';
-	const TEMPLATE = '/integration/mainwp/pages/mwp_outofdate.twig';
+	public const SLUG = 'mainwp_page_mwp_outofdate';
+	public const TEMPLATE = '/integration/mainwp/pages/mwp_outofdate.twig';
 
 	protected function getRenderData() :array {
 		return [

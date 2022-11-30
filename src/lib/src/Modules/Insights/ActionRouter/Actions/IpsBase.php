@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class IpsBase extends BaseAction {
 
-	const PRIMARY_MOD = 'ips';
+	public const PRIMARY_MOD = 'ips';
 }

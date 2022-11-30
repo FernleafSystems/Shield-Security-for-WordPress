@@ -9,8 +9,8 @@ class RecaptchaJs extends BaseRender {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'legacy_recaptcha_js';
-	const TEMPLATE = '/snippets/anti_bot/google_recaptcha_js.twig';
+	public const SLUG = 'legacy_recaptcha_js';
+	public const TEMPLATE = '/snippets/anti_bot/google_recaptcha_js.twig';
 
 	protected function getRequiredDataKeys() :array {
 		return [

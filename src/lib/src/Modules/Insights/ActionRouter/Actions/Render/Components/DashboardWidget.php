@@ -15,8 +15,8 @@ class DashboardWidget extends BasePlugin {
 
 	use Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'render_dashboard_widget';
-	const TEMPLATE = '/admin/admin_dashboard_widget.twig';
+	public const SLUG = 'render_dashboard_widget';
+	public const TEMPLATE = '/admin/admin_dashboard_widget.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -27,7 +27,6 @@ class DashboardWidget extends BasePlugin {
 										  ->setTimestamp( $vars[ 'generated_at' ] )
 										  ->diffForHumans();
 		return [
-
 			'hrefs'   => [
 				'overview'    => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
 				'logo'        => $con->labels->PluginURI,

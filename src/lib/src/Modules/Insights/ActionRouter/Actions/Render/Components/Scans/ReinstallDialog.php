@@ -8,8 +8,8 @@ class ReinstallDialog extends BaseScans {
 
 	use SecurityAdminNotRequired;
 
-	const SLUG = 'render_reinstall_dialog';
-	const TEMPLATE = '/snippets/dialog_plugins_reinstall.twig';
+	public const SLUG = 'render_reinstall_dialog';
+	public const TEMPLATE = '/snippets/dialog_plugins_reinstall.twig';
 
 	protected function getRenderData() :array {
 		return [

@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Container extends Base {
 
-	const SLUG = 'scanitemanalysis_container';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/modal_content.twig';
+	public const SLUG = 'scanitemanalysis_container';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/modal_content.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

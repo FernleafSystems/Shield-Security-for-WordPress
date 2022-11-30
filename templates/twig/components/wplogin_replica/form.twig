@@ -8,8 +8,8 @@
 		<input type="hidden" name="{{ hidden_field_name }}" id="{{ hidden_field_name }}" value="{{ hidden_field_value }}" />
 	{% endfor %}
 
-	{% for key_field, field in vars.login_fields %}
-		{% include '/components/wplogin_replica/login_field_'~field.slug~'.twig' %}
+	{% for login_field in content.login_fields %}
+		{{ login_field|raw }}
 	{% endfor %}
 
 	{% if flags.can_skip_mfa %}

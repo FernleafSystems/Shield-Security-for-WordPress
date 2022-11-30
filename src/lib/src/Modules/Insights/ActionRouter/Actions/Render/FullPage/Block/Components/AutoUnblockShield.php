@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockShield extends Base {
 
-	const SLUG = 'render_autounblock_shield';
-	const TEMPLATE = '/pages/block/autorecover.twig';
+	public const SLUG = 'render_autounblock_shield';
+	public const TEMPLATE = '/pages/block/autorecover.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

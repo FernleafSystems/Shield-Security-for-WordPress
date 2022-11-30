@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaU2fAdd extends MfaBase {
 
-	const SLUG = 'mfa_profile_u2f_add';
+	public const SLUG = 'mfa_profile_u2f_add';
 
 	protected function exec() {
 		/** @var ModCon $mod */

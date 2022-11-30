@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSmsRemove extends MfaBase {
 
-	const SLUG = 'mfa_profile_sms_remove';
+	public const SLUG = 'mfa_profile_sms_remove';
 
 	protected function exec() {
 		/** @var ModCon $mod */
@@ -16,7 +16,7 @@ class MfaSmsRemove extends MfaBase {
 		/** @var Sms $provider */
 		$provider = $mod->getMfaController()->getProviders()[ Sms::SLUG ];
 		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )
-				 ->remove();
+				 ->removeFromProfile();
 
 		$this->response()->action_response_data = [
 			'success'     => true,

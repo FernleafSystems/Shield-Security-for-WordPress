@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MainwpSiteAction extends MainwpBase {
 
-	const SLUG = 'mainwp_site_action';
+	public const SLUG = 'mainwp_site_action';
 
 	protected function exec() {
 		$req = Services::Request();

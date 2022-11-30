@@ -8,9 +8,9 @@ class PageDocs extends BasePluginAdminPage {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'admin_plugin_page_docs';
-	const PRIMARY_MOD = 'insights';
-	const TEMPLATE = '/wpadmin_pages/insights/docs/index.twig';
+	public const SLUG = 'admin_plugin_page_docs';
+	public const PRIMARY_MOD = 'insights';
+	public const TEMPLATE = '/wpadmin_pages/insights/docs/index.twig';
 
 	protected function getRenderData() :array {
 		$actionRouter = $this->getCon()

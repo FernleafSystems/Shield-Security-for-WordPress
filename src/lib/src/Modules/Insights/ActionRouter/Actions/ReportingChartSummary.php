@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class ReportingChartSummary extends ReportingBase {
 
-	const SLUG = 'render_chart_summary';
+	public const SLUG = 'render_chart_summary';
 
 	protected function exec() {
 		 $this->renderChart( $_POST );

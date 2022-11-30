@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\Sessions;
 
 class UserSessionsTableRender extends SecurityAdminBase {
 
-	const SLUG = 'render_table_sessions';
+	public const SLUG = 'render_table_sessions';
 
 	protected function exec() {
 		/** @var Options $optsSecAdmin */

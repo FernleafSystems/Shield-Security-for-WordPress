@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaCanEmailSendVerify extends MfaBase {
 
-	const SLUG = 'email_send_verify';
+	public const SLUG = 'email_send_verify';
 
 	protected function exec() {
 		/** @var ModCon $mod */

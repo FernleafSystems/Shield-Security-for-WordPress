@@ -9,8 +9,8 @@ class GaspJs extends BaseRender {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'legacy_gasp_js';
-	const TEMPLATE = '/snippets/anti_bot/gasp_js.twig';
+	public const SLUG = 'legacy_gasp_js';
+	public const TEMPLATE = '/snippets/anti_bot/gasp_js.twig';
 
 	protected function getRenderData() :array {
 		return [

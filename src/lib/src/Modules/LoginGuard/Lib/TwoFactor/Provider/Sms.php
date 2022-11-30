@@ -13,9 +13,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendSms;
 
-class Sms extends BaseProvider {
+class Sms extends AbstractShieldProvider {
 
-	const SLUG = 'sms';
+	protected const SLUG = 'sms';
 
 	public function getJavascriptVars() :array {
 		return [
@@ -84,7 +84,7 @@ class Sms extends BaseProvider {
 		$meta->sms_registration = [
 			'country'  => $country,
 			'phone'    => $phone,
-			'code'     => $this->generateSimpleOTP(),
+			'code'     => LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate(),
 			'verified' => false,
 		];
 
@@ -103,7 +103,7 @@ class Sms extends BaseProvider {
 		$meta = $this->getCon()->getUserMeta( $user );
 
 		$reg = $meta->sms_registration;
-		$reg[ 'code' ] = $this->generateSimpleOTP();
+		$reg[ 'code' ] = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
 		$meta->sms_registration = $reg;
 
 		( new SendSms() )
@@ -131,8 +131,8 @@ class Sms extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'button',
 			'value'       => 'Click To Send 2FA Code via SMS',
 			'placeholder' => '',
@@ -141,7 +141,7 @@ class Sms extends BaseProvider {
 			'help_link'   => '',
 			'datas'       => [
 				'ajax_intent_sms_send' => ActionData::BuildJson( MfaSmsIntentSend::SLUG ),
-				'input_otp'            => $this->getLoginFormParameter(),
+				'input_otp'            => $this->getLoginIntentFormParameter(),
 			]
 		];
 	}
@@ -150,12 +150,12 @@ class Sms extends BaseProvider {
 		return true;
 	}
 
-	public function remove() {
+	public function removeFromProfile() {
 		$this->getCon()->getUserMeta( $this->getUser() )->sms_registration = [];
-		parent::remove();
+		parent::removeFromProfile();
 	}
 
-	public function getUserProfileFormRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		$user = $this->getUser();
 		$countries = ( new GetAvailableCountries() )
 			->setMod( $this->getMod() )

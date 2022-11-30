@@ -10,7 +10,7 @@ class MfaEmailSendIntent extends MfaBase {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'mfa_email_intent_code_send';
+	public const SLUG = 'mfa_email_intent_code_send';
 
 	protected function exec() {
 		/** @var ModCon $mod */
@@ -24,8 +24,7 @@ class MfaEmailSendIntent extends MfaBase {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
 				/** @var Email $p */
-				$p = $mod->getMfaController()
-						 ->getProvidersForUser( $user, true )[ Email::SLUG ] ?? null;
+				$p = $mod->getMfaController()->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
 				$success = !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce );
 			}
 		}

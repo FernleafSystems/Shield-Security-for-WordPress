@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IpRulesTableAction extends IpsBase {
 
-	const SLUG = 'iprulestable_action';
+	public const SLUG = 'iprulestable_action';
 
 	protected function exec() {
 		$resp = $this->response();

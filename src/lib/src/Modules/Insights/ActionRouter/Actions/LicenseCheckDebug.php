@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless\Ping;
 
 class LicenseCheckDebug extends LicenseBase {
 
-	const SLUG = 'license_debug';
+	public const SLUG = 'license_debug';
 
 	protected function exec() {
 		$success = ( new Ping() )->ping();

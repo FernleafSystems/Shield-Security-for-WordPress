@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSmsAdd extends MfaBase {
 
-	const SLUG = 'mfa_profile_sms_add';
+	public const SLUG = 'mfa_profile_sms_add';
 
 	protected function exec() {
 		/** @var ModCon $mod */

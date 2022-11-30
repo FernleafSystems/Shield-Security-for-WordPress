@@ -11,7 +11,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	/**
-	 * @var Provider\BaseProvider[]
+	 * These values MUST align with the option 'mfa_verify_page'
+	 */
+	public const LOGIN_INTENT_PAGE_FORMAT_SHIELD = 'custom_shield';
+	public const LOGIN_INTENT_PAGE_FORMAT_WP = 'wp_login';
+
+	/**
+	 * @var Provider\Provider2faInterface[]
 	 */
 	private $providers;
 
@@ -39,7 +45,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				function ( $provider ) {
 					return $provider->getProviderName();
 				},
-				$this->getProvidersForUser( $user, true )
+				$this->getProvidersActiveForUser( $user )
 			);
 			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
 				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : implode( ', ', $providers ) );
@@ -56,11 +62,11 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	public function isAutoSend2faEmail( \WP_User $user ) :bool {
 		$auto = false;
 
-		$providers = $this->getProvidersForUser( $user, true );
-		unset( $providers[ Provider\BackupCodes::SLUG ] );
+		$providers = $this->getProvidersActiveForUser( $user );
+		unset( $providers[ Provider\BackupCodes::ProviderSlug() ] );
 
 		/** @var Provider\Email|null $emailProvider */
-		$emailProvider = $providers[ Provider\Email::SLUG ] ?? null;
+		$emailProvider = $providers[ Provider\Email::ProviderSlug() ] ?? null;
 		if ( count( $providers ) === 1 && !empty( $emailProvider ) ) {
 			$intents = $this->getActiveLoginIntents( $user );
 			$latest = array_pop( $intents );
@@ -128,29 +134,85 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Provider\BaseProvider[]
+	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProviders() :array {
 		if ( !is_array( $this->providers ) ) {
-			$this->providers = array_map(
+
+			$this->providers = [];
+			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
+				$this->providers[ $providerClass::ProviderSlug() ] = new $providerClass();
+			}
+
+			array_map(
 				function ( $provider ) {
-					return $provider->setMod( $this->getMod() );
+					if ( $provider instanceof Provider\AbstractShieldProvider ) {
+						$provider->setMod( $this->getMod() );
+					}
+					return $provider;
 				},
-				[
-					Provider\Email::SLUG       => new Provider\Email(),
-					Provider\GoogleAuth::SLUG  => new Provider\GoogleAuth(),
-					Provider\Yubikey::SLUG     => new Provider\Yubikey(),
-					Provider\BackupCodes::SLUG => new Provider\BackupCodes(),
-					Provider\U2F::SLUG         => new Provider\U2F(),
-				]
+				$this->providers
 			);
 		}
 		return $this->providers;
 	}
 
 	/**
+	 * @return Provider\Provider2faInterface[]
+	 */
+	private function collateMfaProviderClasses() :array {
+		$shieldProviders = [
+			Provider\Email::class,
+			Provider\GoogleAuth::class,
+			Provider\Yubikey::class,
+			Provider\BackupCodes::class,
+			Provider\U2F::class,
+		];
+		$finalProviders = apply_filters( 'shield/2fa_providers', $shieldProviders );
+
+		/**
+		 * Ensure we have a valid data structure before proceeding.
+		 */
+		if ( !is_array( $finalProviders ) ) {
+			$finalProviders = $shieldProviders;
+		}
+
+		$finalValid = array_filter( $finalProviders, function ( string $providerClass ) {
+			/** @var Provider\Provider2faInterface $providerClass - not really, but helps with intelli */
+			return isset( class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
+				   && preg_match( '#^[a-z]+$#', $providerClass::ProviderSlug() );
+		} );
+
+		// Filter out any duplicate slugs.
+		$duplicateSlugs = array_filter(
+			array_count_values( array_map(
+				function ( $provider ) {
+					/** @var Provider\Provider2faInterface $provider */
+					return strtolower( $provider::ProviderSlug() );
+				},
+				$finalValid
+			) ),
+			function ( $count ) {
+				return $count > 1;
+			}
+		);
+		if ( !empty( $duplicateSlugs ) ) {
+			error_log( sprintf( 'Duplicate 2FA Provider Slugs: %s', implode( ', ', array_keys( $duplicateSlugs ) ) ) );
+			$finalValid = array_filter(
+				$finalValid,
+				function ( $providerClass ) use ( $duplicateSlugs ) {
+					/** @var Provider\Provider2faInterface $providerClass */
+					return !array_key_exists( $providerClass::ProviderSlug(), $duplicateSlugs );
+				}
+			);
+		}
+
+		return $finalValid;
+	}
+
+	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
-	 * @return Provider\BaseProvider[]
+	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
 		$Ps = array_filter(
@@ -162,20 +224,30 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			}
 		);
 
-		// BackupCode should NEVER be the only 1 provider available.
-		if ( count( $Ps ) === 1 ) {
-			/** @var Provider\BaseProvider $first */
-			$first = reset( $Ps );
-			if ( !$first::STANDALONE ) {
-				$Ps = [];
-			}
+		// If you have only 1 provider, and it's not a standalone provider, we don't offer any providers.
+		if ( count( $Ps ) === 1 && !reset( $Ps )->isProviderStandalone() ) {
+			$Ps = [];
 		}
 		return $Ps;
 	}
 
+	/**
+	 * @return Provider\Provider2faInterface[]
+	 */
+	public function getProvidersActiveForUser( \WP_User $user ) :array {
+		return $this->getProvidersForUser( $user, true );
+	}
+
+	/**
+	 * @return Provider\Provider2faInterface[]
+	 */
+	public function getProvidersAvailableToUser( \WP_User $user ) :array {
+		return $this->getProvidersForUser( $user, false );
+	}
+
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
 		return !$this->getCon()->this_req->request_bypasses_all_restrictions
-			   && count( $this->getProvidersForUser( $user, true ) ) > 0;
+			   && count( $this->getProvidersActiveForUser( $user ) ) > 0;
 	}
 
 	public function removeAllFactorsForUser( int $userID ) :StdResponse {
@@ -183,9 +255,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 		$user = Services::WpUsers()->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
-			foreach ( $this->getProvidersForUser( $user, true ) as $provider ) {
+			foreach ( $this->getProvidersActiveForUser( $user ) as $provider ) {
 				$provider->setUser( $user )
-						 ->remove();
+						 ->removeFromProfile();
 			}
 			$result->success = true;
 			$result->msg_text = sprintf( __( 'All MFA providers removed from user with ID %s.' ),

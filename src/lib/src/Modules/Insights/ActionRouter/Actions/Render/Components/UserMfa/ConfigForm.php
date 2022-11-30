@@ -12,8 +12,8 @@ class ConfigForm extends UserMfaBase {
 
 	use NonceVerifyNotRequired;
 
-	const SLUG = 'user_mfa_config_form';
-	const TEMPLATE = '/user/profile/mfa/main.twig';
+	public const SLUG = 'user_mfa_config_form';
+	public const TEMPLATE = '/user/profile/mfa/main.twig';
 
 	protected function getDefaults() :array {
 		return [
@@ -30,16 +30,10 @@ class ConfigForm extends UserMfaBase {
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
 		$providerRenders = array_map(
-			function ( $provider ) use ( $user ) {
-				return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render(
-						ConfigFormForProvider::SLUG,
-						$provider->setUser( $user )->getUserProfileFormRenderData()
-					);
+			function ( $provider ) {
+				return $provider->renderUserProfileConfigFormField();
 			},
-			$user instanceof \WP_User ? $mfaCon->getProvidersForUser( $user ) : []
+			$user instanceof \WP_User ? $mfaCon->getProvidersAvailableToUser( $user ) : []
 		);
 
 		return apply_filters( 'shield/render_data_custom_profiles_mfa', [

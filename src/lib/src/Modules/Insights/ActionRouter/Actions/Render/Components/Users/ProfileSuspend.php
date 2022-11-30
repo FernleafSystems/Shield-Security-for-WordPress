@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ProfileSuspend extends BaseRender {
 
-	const SLUG = 'render_profile_suspend';
-	const TEMPLATE = '/admin/user/profile/suspend.twig';
+	public const SLUG = 'render_profile_suspend';
+	public const TEMPLATE = '/admin/user/profile/suspend.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

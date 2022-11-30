@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IpRuleDelete extends IpsBase {
 
-	const SLUG = 'ip_rule_delete';
+	public const SLUG = 'ip_rule_delete';
 
 	protected function exec() {
 		/** @var ModCon $mod */

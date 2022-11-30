@@ -14,8 +14,8 @@ class RenderPluginBadge extends BasePlugin {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'render_plugin_badge';
-	const TEMPLATE = '/snippets/plugin_badge_widget.twig';
+	public const SLUG = 'render_plugin_badge';
+	public const TEMPLATE = '/snippets/plugin_badge_widget.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\H
 
 class MeterAnalysis extends OffCanvasBase {
 
-	const SLUG = 'offcanvas_meter_analysis';
+	public const SLUG = 'offcanvas_meter_analysis';
 
 	private $meterComponents;
 

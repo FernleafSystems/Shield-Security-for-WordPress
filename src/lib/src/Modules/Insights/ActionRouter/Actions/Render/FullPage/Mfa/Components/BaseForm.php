@@ -32,14 +32,24 @@ abstract class BaseForm extends Base {
 		$mfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
 
 		return [
-			'hrefs'   => [
-				'form_action' => $con->getShieldActionNoncedUrl( MfaLoginVerifyStep::SLUG, $WP->getLoginUrl(), [
-					'wpe-login' => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
-				] ),
+			'content' => [
+				'login_fields' => array_filter( array_map(
+					function ( $provider ) {
+						/** @var LoginGuard\Options $opts */
+						$opts = $this->primary_mod->getOptions();
+						return $provider->renderLoginIntentFormField( $opts->getMfaLoginIntentFormat() );
+					},
+					$mfaCon->getProvidersActiveForUser( $user )
+				) ),
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $opts->isMfaSkip(),
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
+			],
+			'hrefs'   => [
+				'form_action' => $con->getShieldActionNoncedUrl( MfaLoginVerifyStep::SLUG, $WP->getLoginUrl(), [
+					'wpe-login' => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
+				] ),
 			],
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
@@ -55,12 +65,6 @@ abstract class BaseForm extends Base {
 			],
 			'vars'    => [
 				'form_hidden_fields' => $this->getHiddenFields(),
-				'login_fields'       => array_filter( array_map(
-					function ( $provider ) {
-						return $provider->getFormField();
-					},
-					$mfaCon->getProvidersForUser( $user, true )
-				) ),
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 				'time_remaining'     => $this->getLoginIntentExpiresAt() - $req->ts(),
 				'message_type'       => 'info',
@@ -73,7 +77,7 @@ abstract class BaseForm extends Base {
 
 		$referUrl = $req->server( 'HTTP_REFERER', '' );
 		if ( strpos( $referUrl, '?' ) ) {
-			list( $referUrl, $referQuery ) = explode( '?', $referUrl, 2 );
+			[ $referUrl, $referQuery ] = explode( '?', $referUrl, 2 );
 		}
 		else {
 			$referQuery = '';

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class ModConfig extends OffCanvasBase {
 
-	const SLUG = 'offcanvas_modconfig';
+	public const SLUG = 'offcanvas_modconfig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

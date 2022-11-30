@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSmsIntentSend extends MfaBase {
 
-	const SLUG = 'intent_sms_send';
+	public const SLUG = 'intent_sms_send';
 
 	protected function exec() {
 		/** @var ModCon $mod */

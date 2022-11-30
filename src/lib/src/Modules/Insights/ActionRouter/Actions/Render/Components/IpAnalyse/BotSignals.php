@@ -9,8 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignals extends Base {
 
-	const SLUG = 'ipanalyse_botsignals';
-	const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig';
+	public const SLUG = 'ipanalyse_botsignals';
+	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig';
 
 	protected function getRenderData() :array {
 		/** @var Strings $strings */

@@ -8,8 +8,8 @@ class DocsEvents extends Actions\Render\BaseRender {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'render_docs_events';
-	const TEMPLATE = '/wpadmin_pages/insights/docs/events.twig';
+	public const SLUG = 'render_docs_events';
+	public const TEMPLATE = '/wpadmin_pages/insights/docs/events.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

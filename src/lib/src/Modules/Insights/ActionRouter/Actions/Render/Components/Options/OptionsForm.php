@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Opti
 
 class OptionsForm extends BaseRender {
 
-	const SLUG = 'render_options_form';
-	const TEMPLATE = '/components/options_form/main.twig';
+	public const SLUG = 'render_options_form';
+	public const TEMPLATE = '/components/options_form/main.twig';
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

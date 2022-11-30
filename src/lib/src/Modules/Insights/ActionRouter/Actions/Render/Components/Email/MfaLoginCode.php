@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaLoginCode extends EmailBase {
 
-	const SLUG = 'email_mfa_login_code';
-	const TEMPLATE = '/email/lp_2fa_email_code.twig';
+	public const SLUG = 'email_mfa_login_code';
+	public const TEMPLATE = '/email/lp_2fa_email_code.twig';
 
 	protected function getBodyData() :array {
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;

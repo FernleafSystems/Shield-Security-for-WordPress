@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\FullPageDisplay\StandardFullPageDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\FullPage\Mfa\{
-
 	ShieldLoginIntentPage,
 	WpReplicaLoginIntentPage
 };
@@ -25,15 +24,12 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 		$con = $this->getCon();
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 		$mfaCon = $mod->getMfaController();
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 
 			if ( !$this->canUserMfaSkip( $user ) ) {
-
-				foreach ( $mfaCon->getProvidersForUser( $user, true ) as $provider ) {
-					$provider->setUser( $user )
-							 ->captureLoginAttempt();
-				}
 
 				$loginNonce = bin2hex( random_bytes( 32 ) );
 				$loginNonceHashed = wp_hash_password( $loginNonce.$user->ID );
@@ -61,7 +57,8 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 					$con->getModule_Insights()
 						->getActionRouter()
 						->action( StandardFullPageDisplay::SLUG, [
-							'render_slug' => $mfaCon->useLoginIntentPage() ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
+							'render_slug' => ( $opts->getMfaLoginIntentFormat() === $mfaCon::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
+								ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 							'render_data' => [
 								'user_id'           => $user->ID,
 								'include_body'      => true,

@@ -14,8 +14,8 @@ class AdminNotice extends BaseRender {
 
 	use SecurityAdminNotRequired;
 
-	const SLUG = 'render_admin_notice';
-	const TEMPLATE = '/snippets/prerendered.twig';
+	public const SLUG = 'render_admin_notice';
+	public const TEMPLATE = '/snippets/prerendered.twig';
 
 	protected function getRenderData() :array {
 		$notice = ( new NoticeVO() )->applyFromArray( $this->action_data[ 'raw_notice_data' ] );

@@ -11,5 +11,9 @@ class GenericRender extends BaseRender {
 
 	use AuthNotRequired;
 
-	const SLUG = 'generic_render';
+	public const SLUG = 'generic_render';
+
+	protected function getRenderData() :array {
+		return $this->action_data[ 'render_action_data' ] ?? [];
+	}
 }

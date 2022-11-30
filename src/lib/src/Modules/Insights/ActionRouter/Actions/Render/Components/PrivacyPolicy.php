@@ -9,8 +9,8 @@ class PrivacyPolicy extends BasePlugin {
 
 	use SecurityAdminNotRequired;
 
-	const SLUG = 'render_privacy_policy';
-	const TEMPLATE = '/snippets/privacy_policy.twig';
+	public const SLUG = 'render_privacy_policy';
+	public const TEMPLATE = '/snippets/privacy_policy.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

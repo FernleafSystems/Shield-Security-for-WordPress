@@ -8,7 +8,7 @@ class CaptureNotBot extends IpsBase {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'not_bot';
+	public const SLUG = 'not_bot';
 
 	protected function exec() {
 		/** @var ModCon $mod */

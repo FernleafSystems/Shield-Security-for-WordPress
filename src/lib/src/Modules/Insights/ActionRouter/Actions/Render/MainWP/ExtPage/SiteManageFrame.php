@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class SiteManageFrame extends BaseMWP {
 
-	const SLUG = 'mainwp_page_site_manage_frame';
-	const TEMPLATE = '/integration/mainwp/pages/site.twig';
+	public const SLUG = 'mainwp_page_site_manage_frame';
+	public const TEMPLATE = '/integration/mainwp/pages/site.twig';
 
 	protected function getRenderData() :array {
 		$mwp = $this->getCon()->mwpVO;

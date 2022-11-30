@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Impo
 
 class PluginImportFromFileUpload extends PluginBase {
 
-	const SLUG = 'import_from_file_upload';
+	public const SLUG = 'import_from_file_upload';
 
 	protected function exec() {
 		try {

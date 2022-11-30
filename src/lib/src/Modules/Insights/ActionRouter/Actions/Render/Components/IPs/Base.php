@@ -6,5 +6,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class Base extends Actions\Render\BaseRender {
 
-	const PRIMARY_MOD = 'ips';
+	public const PRIMARY_MOD = 'ips';
 }

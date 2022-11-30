@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class ReportsBuilderAlerts extends ReportsBuilderBase {
 
-	const SLUG = 'reports_builder_alerts';
-	const TEMPLATE = '/components/reports/alert_body.twig';
+	public const SLUG = 'reports_builder_alerts';
+	public const TEMPLATE = '/components/reports/alert_body.twig';
 
 	protected function getRenderData() :array {
 		return [

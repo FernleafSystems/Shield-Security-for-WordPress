@@ -13,17 +13,16 @@ use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
 use u2flib_server\SignRequest;
 
-class U2F extends BaseProvider {
+class U2F extends AbstractShieldProvider {
 
-	const SLUG = 'u2f';
-	const DEFAULT_SECRET = '[]';
+	protected const SLUG = 'u2f';
 
 	public function isProfileActive() :bool {
 		return $this->hasValidatedProfile();
 	}
 
 	public function getJavascriptVars() :array {
-		list( $reg, $signs ) = $this->createNewU2fRegistrationRequest();
+		[ $reg, $signs ] = $this->createNewU2fRegistrationRequest();
 		return [
 			'reg_request' => $reg,
 			'signs'       => $signs,
@@ -60,7 +59,7 @@ class U2F extends BaseProvider {
 			}
 
 			$fieldData = [
-				'slug'        => static::SLUG,
+				'slug'        => static::ProviderSlug(),
 				'name'        => 'btn_u2f_start',
 				'type'        => 'button',
 				'value'       => __( 'Start U2F Auth', 'wp-simple-firewall' ),
@@ -70,7 +69,7 @@ class U2F extends BaseProvider {
 				'help_link'   => '',
 				'datas'       => [
 					'signs'     => base64_encode( json_encode( $signReqs ) ),
-					'input_otp' => $this->getLoginFormParameter(),
+					'input_otp' => $this->getLoginIntentFormParameter(),
 				]
 			];
 		}
@@ -86,7 +85,7 @@ class U2F extends BaseProvider {
 	 */
 	private function createNewU2fRegistrationRequest() :array {
 		$meta = $this->getCon()->getUserMeta( $this->getUser() );
-		list( $newRegRequest, $signRequests ) = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
+		[ $newRegRequest, $signRequests ] = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 			->getRegisterData( $this->getRegistrations() );
 
 		// Store requests as an array to allow for multiple requests to be kept
@@ -107,31 +106,21 @@ class U2F extends BaseProvider {
 	 */
 	private function getRegistrations() :array {
 		$regs = $this->getSecret();
-		if ( is_string( $regs ) ) {
-			/**
-			 * @since 13.1 - now store the registrations as an array rather than encode
-			 * and decode it each time, so we need to decode it first and re-save it as the array.
-			 */
-			$regs = json_decode( $regs, true );
-			$regs = array_map(
-				function ( $reg ) {
-					return (object)$reg;
-				},
-				is_array( $regs ) ? $regs : []
-			);
+		if ( !is_array( $regs ) ) {
+			$regs = [];
 			$this->storeRegistrations( $regs );
 		}
 
 		// should always be an array of objects
 		foreach ( $regs as $label => $reg ) {
-			if ( is_array( $reg ) ) {
-				if ( empty( $reg ) ) {
+			if ( !is_object( $reg ) ) {
+				if ( !is_array( $reg ) || empty( $reg ) ) {
 					unset( $regs[ $label ] );
 				}
 				else {
 					$regs[ $label ] = (object)$reg;
+					$this->storeRegistrations( $regs );
 				}
-				$this->storeRegistrations( $regs );
 			}
 		}
 
@@ -144,7 +133,7 @@ class U2F extends BaseProvider {
 		return sprintf( 'https://%s%s', $p[ 'host' ], $port );
 	}
 
-	public function getUserProfileFormRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[

@@ -9,8 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class History extends Base {
 
-	const SLUG = 'scanitemanalysis_history';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_history.twig';
+	public const SLUG = 'scanitemanalysis_history';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_history.twig';
 
 	private $history = [];
 

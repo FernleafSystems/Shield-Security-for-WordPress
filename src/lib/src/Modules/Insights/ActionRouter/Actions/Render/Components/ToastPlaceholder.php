@@ -8,8 +8,8 @@ class ToastPlaceholder extends BasePlugin {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'render_toast_placeholder';
-	const TEMPLATE = '/snippets/toaster.twig';
+	public const SLUG = 'render_toast_placeholder';
+	public const TEMPLATE = '/snippets/toaster.twig';
 
 	protected function getRenderData() :array {
 		return [

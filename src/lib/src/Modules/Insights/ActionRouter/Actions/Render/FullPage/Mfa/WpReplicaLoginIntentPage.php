@@ -4,10 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 
-class WpReplicaLoginIntentPage extends Base {
+class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 
-	const SLUG = 'render_login_intent_wploginreplica';
-	const TEMPLATE = '/components/wplogin_replica/wp_login.twig';
+	public const SLUG = 'render_login_intent_wploginreplica';
+	public const TEMPLATE = '/components/wplogin_replica/wp_login.twig';
 
 	protected function preExec() {
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {

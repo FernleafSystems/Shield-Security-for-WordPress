@@ -8,7 +8,7 @@ class PluginDumpTelemetry extends PluginBase {
 
 	use Traits\NonceVerifyRequired;
 
-	const SLUG = 'dump_telemetry_data';
+	public const SLUG = 'dump_telemetry_data';
 
 	protected function exec() {
 		$tel = ( new PluginTelemetry() )

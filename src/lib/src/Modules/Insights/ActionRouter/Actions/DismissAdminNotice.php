@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class DismissAdminNotice extends PluginBase {
 
-	const SLUG = 'dismiss_admin_notice';
+	public const SLUG = 'dismiss_admin_notice';
 
 	protected function exec() {
 		$noticeID = sanitize_key( Services::Request()->query( 'notice_id', '' ) );

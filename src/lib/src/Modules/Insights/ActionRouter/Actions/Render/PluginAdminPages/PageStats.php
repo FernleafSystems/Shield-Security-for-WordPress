@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PageStats extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_stats';
-	const PRIMARY_MOD = 'events';
-	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/stats.twig';
+	public const SLUG = 'admin_plugin_page_stats';
+	public const PRIMARY_MOD = 'events';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/stats.twig';
 
 	protected function getRenderData() :array {
 

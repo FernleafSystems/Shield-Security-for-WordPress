@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNoteBulkAction extends PluginBase {
 
-	const SLUG = 'admin_note_bulk_action';
+	public const SLUG = 'admin_note_bulk_action';
 
 	protected function exec() {
 		/** @var ModCon $mod */

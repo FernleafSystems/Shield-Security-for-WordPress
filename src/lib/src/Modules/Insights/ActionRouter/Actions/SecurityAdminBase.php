@@ -8,5 +8,5 @@ abstract class SecurityAdminBase extends BaseAction {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
-	const PRIMARY_MOD = 'admin_access_restriction';
+	public const PRIMARY_MOD = 'admin_access_restriction';
 }

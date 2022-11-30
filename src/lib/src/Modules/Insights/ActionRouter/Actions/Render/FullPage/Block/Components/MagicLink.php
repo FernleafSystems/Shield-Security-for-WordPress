@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class MagicLink extends Base {
 
-	const SLUG = 'render_magic_link';
-	const TEMPLATE = '/pages/block/magic_link.twig';
+	public const SLUG = 'render_magic_link';
+	public const TEMPLATE = '/pages/block/magic_link.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

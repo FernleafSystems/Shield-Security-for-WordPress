@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class Yubikey extends BaseProvider {
+class Yubikey extends AbstractShieldProvider {
 
-	const SLUG = 'yubi';
+	protected const SLUG = 'yubi';
 	const OTP_LENGTH = 12;
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
@@ -25,7 +25,7 @@ class Yubikey extends BaseProvider {
 		];
 	}
 
-	public function getUserProfileFormRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[
@@ -160,8 +160,8 @@ class Yubikey extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
 			'placeholder' => '',
 			'value'       => '',

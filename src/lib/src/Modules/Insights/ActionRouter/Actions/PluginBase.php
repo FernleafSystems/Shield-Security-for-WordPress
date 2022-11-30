@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class PluginBase extends BaseAction {
 
-	const PRIMARY_MOD = 'plugin';
+	public const PRIMARY_MOD = 'plugin';
 }

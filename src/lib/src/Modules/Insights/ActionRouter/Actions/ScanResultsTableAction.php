@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScanResultsTableAction extends ScansBase {
 
-	const SLUG = 'scanresults_action';
+	public const SLUG = 'scanresults_action';
 
 	protected function exec() {
 		try {

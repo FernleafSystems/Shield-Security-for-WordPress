@@ -33,7 +33,9 @@ class ActionProcessor {
 			throw new InvalidActionNonceException();
 		}
 
-		return $action->process()->response();
+		$action->process();
+
+		return $action->response();
 	}
 
 	public function verifyNonce() :bool {

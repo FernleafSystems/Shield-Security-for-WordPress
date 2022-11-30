@@ -10,9 +10,9 @@ class ConfigPage extends BaseRender {
 
 	use SecurityAdminNotRequired;
 
-	const SLUG = 'page_user_mfa_config';
-	const PRIMARY_MOD = 'login_protect';
-	const TEMPLATE = '/wpadmin_pages/my_login_security/index.twig';
+	public const SLUG = 'page_user_mfa_config';
+	public const PRIMARY_MOD = 'login_protect';
+	public const TEMPLATE = '/wpadmin_pages/my_login_security/index.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

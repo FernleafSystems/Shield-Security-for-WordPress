@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Container extends Base {
 
-	const SLUG = 'ipanalyse_container';
-	const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/container.twig';
+	public const SLUG = 'ipanalyse_container';
+	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/container.twig';
 
 	protected function getRenderData() :array {
 		$ip = $this->action_data[ 'ip' ];

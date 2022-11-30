@@ -9,8 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ActionRoutingController extends ExecOnceModConsumer {
 
-	const ACTION_AJAX = 1;
-	const ACTION_SHIELD = 2;
+	public const ACTION_AJAX = 1;
+	public const ACTION_SHIELD = 2;
 
 	protected function canRun() :bool {
 		return true;

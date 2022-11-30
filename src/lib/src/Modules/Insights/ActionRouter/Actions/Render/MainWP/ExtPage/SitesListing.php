@@ -12,8 +12,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class SitesListing extends BaseMWP {
 
-	const SLUG = 'mainwp_page_sites_listing';
-	const TEMPLATE = '/integration/mainwp/pages/sites.twig';
+	public const SLUG = 'mainwp_page_sites_listing';
+	public const TEMPLATE = '/integration/mainwp/pages/sites.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $modInsights */

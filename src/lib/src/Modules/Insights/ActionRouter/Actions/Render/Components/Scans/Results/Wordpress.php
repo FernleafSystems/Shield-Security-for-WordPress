@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Wordpress extends Base {
 
-	const SLUG = 'scanresults_wordpress';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/wordpress/index.twig';
+	public const SLUG = 'scanresults_wordpress';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/wordpress/index.twig';
 
 	protected function getRenderData() :array {
 		$wpData = $this->buildWordpressData();

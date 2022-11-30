@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 class AdminNotes extends BasePlugin {
 
-	const SLUG = 'render_adminnotes';
-	const TEMPLATE = '/snippets/prerendered.twig';
+	public const SLUG = 'render_adminnotes';
+	public const TEMPLATE = '/snippets/prerendered.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

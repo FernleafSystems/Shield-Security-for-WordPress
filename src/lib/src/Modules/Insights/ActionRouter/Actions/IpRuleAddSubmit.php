@@ -9,7 +9,7 @@ use IPLib\Factory;
 
 class IpRuleAddSubmit extends IpsBase {
 
-	const SLUG = 'ip_rule_add_submit';
+	public const SLUG = 'ip_rule_add_submit';
 
 	protected function exec() {
 		$con = $this->getCon();

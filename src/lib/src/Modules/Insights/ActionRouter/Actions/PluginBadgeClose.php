@@ -8,7 +8,7 @@ class PluginBadgeClose extends PluginBase {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'plugin_badge_close';
+	public const SLUG = 'plugin_badge_close';
 
 	protected function exec() {
 		/** @var ModCon $mod */

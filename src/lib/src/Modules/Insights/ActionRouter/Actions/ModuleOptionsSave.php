@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\HandleOptionsSa
 
 class ModuleOptionsSave extends BaseAction {
 
-	const SLUG = 'mod_options_save';
+	public const SLUG = 'mod_options_save';
 
 	protected function exec() {
 		$name = $this->getCon()->getHumanName();

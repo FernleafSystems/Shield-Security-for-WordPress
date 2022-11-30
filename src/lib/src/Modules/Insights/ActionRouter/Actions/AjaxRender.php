@@ -9,7 +9,7 @@ class AjaxRender extends BaseAction {
 
 	use SecurityAdminNotRequired;
 
-	const SLUG = 'ajax_render';
+	public const SLUG = 'ajax_render';
 
 	protected function exec() {
 		$response = $this->getCon()

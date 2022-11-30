@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAutoDbRepair extends PluginBase {
 
-	const SLUG = 'auto_db_repair';
+	public const SLUG = 'auto_db_repair';
 
 	protected function exec() {
 		$con = $this->getCon();

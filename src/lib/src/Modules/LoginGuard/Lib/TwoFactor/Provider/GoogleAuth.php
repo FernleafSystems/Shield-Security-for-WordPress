@@ -15,9 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\GenerateGoogleAuthQrCode;
 use FernleafSystems\Wordpress\Services\Services;
 
-class GoogleAuth extends BaseProvider {
+class GoogleAuth extends AbstractShieldProvider {
 
-	const SLUG = 'ga';
+	protected const SLUG = 'ga';
 
 	/**
 	 * @var Secret
@@ -36,7 +36,7 @@ class GoogleAuth extends BaseProvider {
 		];
 	}
 
-	public function getUserProfileFormRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		$con = $this->getCon();
 		$validatedProfile = $this->hasValidatedProfile();
 
@@ -142,8 +142,8 @@ class GoogleAuth extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
 			'value'       => '',
 			'placeholder' => __( '123456', 'wp-simple-firewall' ),

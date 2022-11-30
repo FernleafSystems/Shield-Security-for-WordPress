@@ -12,9 +12,9 @@ class FormSecurityAdminLoginBox extends BaseRender {
 
 	use SecurityAdminNotRequired;
 
-	const PRIMARY_MOD = 'admin_access_restriction';
-	const SLUG = 'render_form_security_admin_loginbox';
-	const TEMPLATE = '/components/security_admin/login_box.twig';
+	public const PRIMARY_MOD = 'admin_access_restriction';
+	public const SLUG = 'render_form_security_admin_loginbox';
+	public const TEMPLATE = '/components/security_admin/login_box.twig';
 
 	protected function getRenderData() :array {
 		/** @var Options $opts */

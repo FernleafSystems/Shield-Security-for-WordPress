@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainin
 
 class BlockFirewall extends BaseBlock {
 
-	const PRIMARY_MOD = 'firewall';
-	const SLUG = 'render_block_firewall';
+	public const PRIMARY_MOD = 'firewall';
+	public const SLUG = 'render_block_firewall';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

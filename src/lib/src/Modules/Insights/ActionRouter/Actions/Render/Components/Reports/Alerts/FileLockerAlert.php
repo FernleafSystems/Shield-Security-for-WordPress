@@ -8,9 +8,9 @@ class FileLockerAlert extends Actions\Render\Components\Reports\ReportsBuilderBa
 
 	use Actions\Traits\AuthNotRequired;
 
-	const PRIMARY_MOD = 'hack_protect';
-	const SLUG = 'alert_file_locker';
-	const TEMPLATE = '/components/reports/mod/hack_protect/alert_filelocker.twig';
+	public const PRIMARY_MOD = 'hack_protect';
+	public const SLUG = 'alert_file_locker';
+	public const TEMPLATE = '/components/reports/mod/hack_protect/alert_filelocker.twig';
 
 	protected function getRenderData() :array {
 		return [

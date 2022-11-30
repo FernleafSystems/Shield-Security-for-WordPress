@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class BlockIpAddressCrowdsec extends BlockIpAddressShield {
 
-	const SLUG = 'render_block_ip_address_crowdsec';
-	const TEMPLATE = '/pages/block/block_page_ip_crowdsec.twig';
+	public const SLUG = 'render_block_ip_address_crowdsec';
+	public const TEMPLATE = '/pages/block/block_page_ip_crowdsec.twig';
 
 	protected function getRestrictionDetailsBlurb() :array {
 		return [

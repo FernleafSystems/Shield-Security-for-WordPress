@@ -8,10 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BackupCodes extends BaseProvider {
+class BackupCodes extends AbstractShieldProvider {
 
-	const SLUG = 'backupcode';
-	const STANDALONE = false;
+	protected const SLUG = 'backupcode';
+
+	public function isProviderStandalone() :bool {
+		return false;
+	}
 
 	public function getProviderName() :string {
 		return 'Backup Codes';
@@ -26,7 +29,7 @@ class BackupCodes extends BaseProvider {
 		];
 	}
 
-	public function getUserProfileFormRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[
@@ -54,8 +57,8 @@ class BackupCodes extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
 			'value'       => '',
 			'placeholder' => __( 'Please use your Backup Code to login.', 'wp-simple-firewall' ),
@@ -74,7 +77,7 @@ class BackupCodes extends BaseProvider {
 	 */
 	public function postSuccessActions() {
 		parent::postSuccessActions();
-		$this->remove();
+		$this->removeFromProfile();
 		$this->sendBackupCodeUsedEmail();
 		return $this;
 	}

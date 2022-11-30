@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScansFileLockerAction extends ScansBase {
 
-	const SLUG = 'filelocker_fileaction';
+	public const SLUG = 'filelocker_fileaction';
 
 	protected function exec() {
 		/** @var ModCon $mod */

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class IpAnalysis extends OffCanvasBase {
 
-	const SLUG = 'offcanvas_ipanalysis';
+	public const SLUG = 'offcanvas_ipanalysis';
 
 	protected function buildCanvasTitle() :string {
 		return sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] );

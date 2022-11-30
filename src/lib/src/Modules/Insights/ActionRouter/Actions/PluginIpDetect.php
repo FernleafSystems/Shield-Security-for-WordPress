@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
 class PluginIpDetect extends PluginBase {
 
-	const SLUG = 'ipdetect';
+	public const SLUG = 'ipdetect';
 
 	protected function exec() {
 		/** @var Options $opts */

@@ -9,7 +9,7 @@ class MfaLoginVerifyStep extends MfaBase {
 
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'wp_login_2fa_verify';
+	public const SLUG = 'wp_login_2fa_verify';
 
 	protected function exec() {
 		if ( Services::Request()->isPost() && !Services::WpUsers()->isUserLoggedIn() ) {

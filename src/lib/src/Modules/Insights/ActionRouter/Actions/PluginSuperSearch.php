@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginSuperSearch extends PluginBase {
 
-	const SLUG = 'super_search_select';
+	public const SLUG = 'super_search_select';
 
 	protected function exec() {
 		$this->response()->action_response_data = [

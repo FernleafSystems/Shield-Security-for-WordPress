@@ -8,14 +8,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaBackupCodeDelete extends MfaBase {
 
-	const SLUG = 'mfa_profile_backup_code_delete';
+	public const SLUG = 'mfa_profile_backup_code_delete';
 
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		/** @var BackupCodes $provider */
 		$provider = $mod->getMfaController()->getProviders()[ BackupCodes::SLUG ];
-		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )->remove();
+		$provider->setUser( Services::WpUsers()->getCurrentWpUser() )->removeFromProfile();
 		$mod->setFlashAdminNotice(
 			__( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' )
 		);

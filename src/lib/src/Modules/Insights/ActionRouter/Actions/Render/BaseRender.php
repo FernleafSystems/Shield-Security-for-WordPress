@@ -10,18 +10,17 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 abstract class BaseRender extends BaseAction {
 
-	const PRIMARY_MOD = 'insights';
-	const TEMPLATE = '';
+	public const PRIMARY_MOD = 'insights';
+	public const TEMPLATE = '';
 
 	protected function exec() {
 		return $this->render()->response();
 	}
 
 	/**
-	 * @return $this
 	 * @throws ActionException
 	 */
-	private function render() {
+	private function render() :self {
 		$response = $this->response();
 		$respData = $response->action_response_data;
 		$respData[ 'render_template' ] = $this->getRenderTemplate();

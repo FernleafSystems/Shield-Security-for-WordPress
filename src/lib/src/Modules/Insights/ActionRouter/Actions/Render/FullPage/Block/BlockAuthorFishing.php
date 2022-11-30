@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class BlockAuthorFishing extends BaseBlock {
 
-	const SLUG = 'render_block_author_fishing';
+	public const SLUG = 'render_block_author_fishing';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

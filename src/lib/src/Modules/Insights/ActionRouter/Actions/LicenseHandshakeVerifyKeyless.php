@@ -10,7 +10,7 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 	use Traits\NonceVerifyNotRequired;
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'keyless_handshake';
+	public const SLUG = 'keyless_handshake';
 
 	protected function exec() {
 		$nonce = Services::Request()->query( 'nonce' );

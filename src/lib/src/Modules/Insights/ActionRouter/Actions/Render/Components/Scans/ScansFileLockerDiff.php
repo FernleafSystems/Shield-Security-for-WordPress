@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScansFileLockerDiff extends BaseScans {
 
-	const SLUG = 'filelocker_showdiff';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig';
+	public const SLUG = 'filelocker_showdiff';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

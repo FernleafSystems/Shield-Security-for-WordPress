@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class ChartsCustom extends Base {
 
-	const SLUG = 'render_charts_custom';
-	const TEMPLATE = '/wpadmin_pages/insights/reports/charts_custom.twig';
+	public const SLUG = 'render_charts_custom';
+	public const TEMPLATE = '/wpadmin_pages/insights/reports/charts_custom.twig';
 
 	protected function getRenderData() :array {
 		return [

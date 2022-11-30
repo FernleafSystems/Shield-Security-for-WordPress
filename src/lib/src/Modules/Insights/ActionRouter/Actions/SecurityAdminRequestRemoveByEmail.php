@@ -8,7 +8,7 @@ class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 
 	use Traits\NonceVerifyRequired;
 
-	const SLUG = 'req_email_remove';
+	public const SLUG = 'req_email_remove';
 
 	protected function exec() {
 		( new RemoveSecAdmin() )

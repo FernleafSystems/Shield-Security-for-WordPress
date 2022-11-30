@@ -17,17 +17,16 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	use ModConsumer;
 
-	const SLUG = '';
-	const PATTERN = '';
-	const PRIMARY_MOD = 'insights';
+	public const SLUG = '';
+	public const PATTERN = '';
+	public const PRIMARY_MOD = 'insights';
 
 	private $response;
 
 	/**
-	 * @param ActionResponse|null $response
 	 * @throws ActionException
 	 */
-	public function __construct( array $data = [], $response = null ) {
+	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
 		$this->checkAvailableData();
 		$this->response = $response instanceof ActionResponse ? $response : new ActionResponse();
@@ -69,14 +68,12 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return $this
 	 * @throws ActionException
 	 */
 	public function process() {
 		$this->preExec();
 		$this->exec();
 		$this->postExec();
-		return $this;
 	}
 
 	protected function preExec() {

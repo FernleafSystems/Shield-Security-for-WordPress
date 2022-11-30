@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
-	Actions,
 	Actions\FullPageDisplay\StandardFullPageDisplay,
 	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
@@ -17,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	LoginCancelException,
 	NoActiveProvidersForUserException,
 	NotValidUserException,
+	OtpVerificationFailedException,
 	TooManyAttemptsException
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -76,7 +76,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				'shield_msg' => 'no_providers'
 			] );
 		}
-		catch ( CouldNotValidate2FA $e ) {
+		catch ( OtpVerificationFailedException | CouldNotValidate2FA $e ) {
 			// Allow a further attempt to 2FA
 			try {
 				$con->getModule_Insights()
@@ -105,6 +105,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 	 * @throws Exceptions\TooManyAttemptsException
 	 * @throws LoginCancelException
 	 * @throws NoActiveProvidersForUserException
+	 * @throws OtpVerificationFailedException
 	 * @throws InvalidLoginIntentException
 	 */
 	private function capture() {

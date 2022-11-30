@@ -8,9 +8,9 @@ class ScanRepairsAlert extends Actions\Render\Components\Reports\ReportsBuilderB
 
 	use Actions\Traits\AuthNotRequired;
 
-	const PRIMARY_MOD = 'hack_protect';
-	const SLUG = 'alert_scan_repairs';
-	const TEMPLATE = '/components/reports/mod/hack_protect/alert_scanrepairs.twig';
+	public const PRIMARY_MOD = 'hack_protect';
+	public const SLUG = 'alert_scan_repairs';
+	public const TEMPLATE = '/components/reports/mod/hack_protect/alert_scanrepairs.twig';
 
 	protected function getRenderData() :array {
 		return [

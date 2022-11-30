@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class HackGuardPluginReinstall extends ScansBase {
 
-	const SLUG = 'plugin_reinstall';
+	public const SLUG = 'plugin_reinstall';
 
 	protected function exec() {
 		$req = Services::Request();

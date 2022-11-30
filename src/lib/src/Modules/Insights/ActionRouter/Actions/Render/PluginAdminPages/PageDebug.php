@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class PageDebug extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_debug';
-	const PRIMARY_MOD = 'plugin';
-	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/debug.twig';
+	public const SLUG = 'admin_plugin_page_debug';
+	public const PRIMARY_MOD = 'plugin';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/debug.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

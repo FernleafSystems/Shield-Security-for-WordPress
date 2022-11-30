@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\ModCon;
 
 abstract class ReportingBase extends BaseAction {
 
-	const PRIMARY_MOD = 'reporting';
+	public const PRIMARY_MOD = 'reporting';
 
 	protected function renderChart( array $data ) {
 		/** @var ModCon $mod */

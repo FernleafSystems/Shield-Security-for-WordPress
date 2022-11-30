@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Plugins extends PluginThemesBase {
 
-	const SLUG = 'scanresults_plugins';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/plugins/index.twig';
+	public const SLUG = 'scanresults_plugins';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/plugins/index.twig';
 
 	protected function getRenderData() :array {
 		$items = $this->buildPluginsData();

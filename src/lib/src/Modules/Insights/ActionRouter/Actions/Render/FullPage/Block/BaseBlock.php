@@ -10,7 +10,7 @@ abstract class BaseBlock extends BaseFullPageRender {
 
 	use AuthNotRequired;
 
-	const TEMPLATE = '/pages/block/block_page_standard.twig';
+	public const TEMPLATE = '/pages/block/block_page_standard.twig';
 
 	protected function getCommonPageRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(

@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class NotShieldPro extends BaseMWP {
 
-	const SLUG = 'mainwp_page_not_shield_pro';
-	const TEMPLATE = '/integration/mainwp/pages/mwp_for_pro.twig';
+	public const SLUG = 'mainwp_page_not_shield_pro';
+	public const TEMPLATE = '/integration/mainwp/pages/mwp_for_pro.twig';
 
 	protected function getRenderData() :array {
 		return [

@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
 
 class Content extends Base {
 
-	const SLUG = 'scanitemanalysis_content';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_content.twig';
+	public const SLUG = 'scanitemanalysis_content';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_content.twig';
 
 	protected function getRenderData() :array {
 		$item = $this->getScanItem();

@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class PageAdminNotes extends BasePluginAdminPage {
 
-	const PRIMARY_MOD = 'plugin';
-	const SLUG = 'admin_plugin_page_admin_notes';
-	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/notes.twig';
+	public const PRIMARY_MOD = 'plugin';
+	public const SLUG = 'admin_plugin_page_admin_notes';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/notes.twig';
 
 	protected function getRenderData() :array {
 		return [

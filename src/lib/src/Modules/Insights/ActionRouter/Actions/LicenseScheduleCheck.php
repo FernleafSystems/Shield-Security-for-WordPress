@@ -9,7 +9,7 @@ class LicenseScheduleCheck extends LicenseBase {
 	use Traits\NonceVerifyNotRequired;
 	use Traits\AuthNotRequired;
 
-	const SLUG = 'license_check';
+	public const SLUG = 'license_check';
 
 	protected function exec() {
 		/** @var ModCon $mod */

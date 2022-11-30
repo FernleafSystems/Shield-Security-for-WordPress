@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class ScansBase extends BaseAction {
 
-	const PRIMARY_MOD = 'hack_protect';
+	public const PRIMARY_MOD = 'hack_protect';
 }

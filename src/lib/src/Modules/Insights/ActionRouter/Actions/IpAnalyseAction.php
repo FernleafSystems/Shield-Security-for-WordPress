@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class IpAnalyseAction extends IpsBase {
 
-	const SLUG = 'ip_analyse_action';
+	public const SLUG = 'ip_analyse_action';
 
 	protected function exec() {
 		/** @var ModCon $mod */

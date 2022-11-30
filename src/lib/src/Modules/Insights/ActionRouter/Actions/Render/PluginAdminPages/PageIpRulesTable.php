@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 
 class PageIpRulesTable extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_ip_rules_table';
-	const PRIMARY_MOD = 'ips';
-	const TEMPLATE = '/wpadmin_pages/insights/ips/ip_rules.twig';
+	public const SLUG = 'admin_plugin_page_ip_rules_table';
+	public const PRIMARY_MOD = 'ips';
+	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_rules.twig';
 
 	protected function getRenderData() :array {
 		return [

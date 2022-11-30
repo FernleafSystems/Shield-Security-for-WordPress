@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Diff extends Base {
 
-	const SLUG = 'scanitemanalysis_diff';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_diff.twig';
+	public const SLUG = 'scanitemanalysis_diff';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_diff.twig';
 
 	protected function getRenderData() :array {
 		$item = $this->getScanItem();

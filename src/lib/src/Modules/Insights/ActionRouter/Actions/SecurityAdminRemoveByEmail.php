@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAd
 
 class SecurityAdminRemoveByEmail extends SecurityAdminBase {
 
-	const SLUG = 'secadmin_remove_confirm';
+	public const SLUG = 'secadmin_remove_confirm';
 
 	protected function exec() {
 		( new RemoveSecAdmin() )

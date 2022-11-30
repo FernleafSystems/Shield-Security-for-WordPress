@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class PluginDeleteForceOff extends PluginBase {
 
-	const SLUG = 'delete_forceoff';
+	public const SLUG = 'delete_forceoff';
 
 	protected function exec() {
 		$this->getCon()->deleteForceOffFile();

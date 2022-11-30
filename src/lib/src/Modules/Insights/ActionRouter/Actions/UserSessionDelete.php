@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionDelete extends SecurityAdminBase {
 
-	const SLUG = 'user_session_delete';
+	public const SLUG = 'user_session_delete';
 
 	protected function exec() {
 		$con = $this->getCon();

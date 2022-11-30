@@ -9,7 +9,7 @@ class PluginImportExport_UpdateNotified extends PluginBase {
 	use Traits\AuthNotRequired;
 	use Traits\NonceVerifyNotRequired;
 
-	const SLUG = 'importexport_updatenotified';
+	public const SLUG = 'importexport_updatenotified';
 
 	protected function exec() {
 		/** @var ModCon $mod */

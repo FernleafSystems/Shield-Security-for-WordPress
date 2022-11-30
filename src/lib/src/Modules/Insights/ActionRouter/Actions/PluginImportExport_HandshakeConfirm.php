@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
 class PluginImportExport_HandshakeConfirm extends PluginImportExport_Base {
 
-	const SLUG = 'importexport_handshake';
+	public const SLUG = 'importexport_handshake';
 
 	protected function exec() {
 		/** @var ModCon $mod */

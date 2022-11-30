@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaEmailToggle extends MfaBase {
 
-	const SLUG = 'mfa_profile_toggle_email';
+	public const SLUG = 'mfa_profile_toggle_email';
 
 	protected function exec() {
 		/** @var ModCon $mod */

@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class PageConfig extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_config';
-	const PRIMARY_MOD = 'plugin';
-	const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/config.twig';
+	public const SLUG = 'admin_plugin_page_config';
+	public const PRIMARY_MOD = 'plugin';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/config.twig';
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnbl
 
 class IpAutoUnblockShieldUserLinkRequest extends IpsBase {
 
-	const SLUG = 'ip_auto_unblock_shield_user_link_request';
+	public const SLUG = 'ip_auto_unblock_shield_user_link_request';
 
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod );

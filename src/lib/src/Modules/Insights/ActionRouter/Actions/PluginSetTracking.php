@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginSetTracking extends PluginBase {
 
-	const SLUG = 'set_plugin_tracking';
+	public const SLUG = 'set_plugin_tracking';
 
 	protected function exec() {
 		/** @var Options $opts */

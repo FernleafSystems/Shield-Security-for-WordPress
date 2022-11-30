@@ -8,14 +8,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaYubikeyToggle extends MfaBase {
 
-	const SLUG = 'mfa_profile_yubi_toggle';
+	public const SLUG = 'mfa_profile_yubi_toggle';
 
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		/** @var Yubikey $provider */
 		$provider = $mod->getMfaController()
-						->getProviders()[ Yubikey::SLUG ];
+						->getProviders()[ Yubikey::ProviderSlug() ];
 
 		$otp = Services::Request()->post( 'otp', '' );
 		$result = $provider->setUser( Services::WpUsers()->getCurrentWpUser() )

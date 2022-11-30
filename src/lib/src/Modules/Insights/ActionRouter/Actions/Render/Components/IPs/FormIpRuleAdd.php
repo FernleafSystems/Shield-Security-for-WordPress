@@ -9,8 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
 class FormIpRuleAdd extends Base {
 
-	const SLUG = 'render_form_ip_rule_add';
-	const TEMPLATE = '/components/forms/ip_rule_add.twig';
+	public const SLUG = 'render_form_ip_rule_add';
+	public const TEMPLATE = '/components/forms/ip_rule_add.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TrafficLogTableAction extends BaseAction {
 
-	const SLUG = 'traffictable_action';
-	const PRIMARY_MOD = 'traffic';
+	public const SLUG = 'traffictable_action';
+	public const PRIMARY_MOD = 'traffic';
 
 	protected function exec() {
 		try {

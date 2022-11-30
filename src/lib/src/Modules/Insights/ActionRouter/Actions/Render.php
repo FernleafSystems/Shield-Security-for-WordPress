@@ -14,8 +14,8 @@ class Render extends BaseAction {
 
 	use AuthNotRequired;
 
-	const SLUG = 'render';
-	const PRIMARY_MOD = 'insights';
+	public const SLUG = 'render';
+	public const PRIMARY_MOD = 'insights';
 
 	protected function exec() {
 		$req = Services::Request();

@@ -8,5 +8,5 @@ abstract class MfaBase extends BaseAction {
 
 	use SecurityAdminNotRequired;
 
-	const PRIMARY_MOD = 'login_protect';
+	public const PRIMARY_MOD = 'login_protect';
 }

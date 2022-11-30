@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BlockIpAddressShield extends BaseBlock {
 
-	const PRIMARY_MOD = 'ips';
-	const SLUG = 'render_block_ip_address_shield';
-	const TEMPLATE = '/pages/block/block_page_ip.twig';
+	public const PRIMARY_MOD = 'ips';
+	public const SLUG = 'render_block_ip_address_shield';
+	public const TEMPLATE = '/pages/block/block_page_ip.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

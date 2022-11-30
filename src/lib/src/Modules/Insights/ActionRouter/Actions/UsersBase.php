@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 abstract class UsersBase extends BaseAction {
 
-	const PRIMARY_MOD = 'user_management';
+	public const PRIMARY_MOD = 'user_management';
 }

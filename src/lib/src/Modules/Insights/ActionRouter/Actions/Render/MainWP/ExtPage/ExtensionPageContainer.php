@@ -11,8 +11,8 @@ class ExtensionPageContainer extends BaseMWP {
 
 	use Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'mainwp_page_extension';
-	const TEMPLATE = '/integration/mainwp/page_extension.twig';
+	public const SLUG = 'mainwp_page_extension';
+	public const TEMPLATE = '/integration/mainwp/page_extension.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

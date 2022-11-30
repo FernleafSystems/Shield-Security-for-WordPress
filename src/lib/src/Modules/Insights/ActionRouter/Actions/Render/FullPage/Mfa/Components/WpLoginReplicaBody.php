@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpLoginReplicaBody extends Base {
 
-	const SLUG = 'render_shield_wploginreplica_body';
-	const TEMPLATE = '/components/wplogin_replica/login_body.twig';
+	public const SLUG = 'render_shield_wploginreplica_body';
+	public const TEMPLATE = '/components/wplogin_replica/login_body.twig';
 
 	protected function getRenderData() :array {
 		global $interim_login;

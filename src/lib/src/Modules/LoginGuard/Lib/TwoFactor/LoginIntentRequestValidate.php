@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	InvalidLoginIntentException,
 	LoginCancelException,
 	NoActiveProvidersForUserException,
+	OtpVerificationFailedException,
 	TooManyAttemptsException
 };
 
@@ -18,9 +19,10 @@ class LoginIntentRequestValidate {
 
 	/**
 	 * @throws CouldNotValidate2FA
-	 * @throws LoginCancelException
 	 * @throws InvalidLoginIntentException
+	 * @throws LoginCancelException
 	 * @throws NoActiveProvidersForUserException
+	 * @throws OtpVerificationFailedException
 	 * @throws TooManyAttemptsException
 	 */
 	public function run( string $plainNonce, bool $isCancel = false ) :bool {
@@ -38,7 +40,7 @@ class LoginIntentRequestValidate {
 			throw new LoginCancelException();
 		}
 
-		$providers = $mfaCon->getProvidersForUser( $user, true );
+		$providers = $mfaCon->getProvidersActiveForUser( $user );
 		if ( empty( $providers ) ) {
 			throw new NoActiveProvidersForUserException();
 		}
@@ -46,10 +48,20 @@ class LoginIntentRequestValidate {
 		$validated = false;
 		foreach ( $providers as $provider ) {
 			$provider->setUser( $user );
-			if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
-				$provider->postSuccessActions();
-				$validated = true;
-				break;
+			try {
+				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
+					$provider->postSuccessActions();
+					$this->auditLoginIntent( true, $provider->getProviderName() );
+					$validated = true;
+					break;
+				}
+			}
+			catch ( Exceptions\OtpNotPresentException | Exceptions\ProviderNotActiveForUserException $e ) {
+				// Nothing to do here.
+			}
+			catch ( Exceptions\OtpVerificationFailedException $e ) {
+				$this->auditLoginIntent( false, $provider->getProviderName() );
+				throw $e;
 			}
 		}
 
@@ -64,5 +76,17 @@ class LoginIntentRequestValidate {
 		$this->getCon()->getUserMeta( $user )->login_intents = [];
 
 		return true;
+	}
+
+	protected function auditLoginIntent( bool $success, string $providerName ) {
+		$this->getCon()->fireEvent(
+			$success ? '2fa_verify_success' : '2fa_verify_fail',
+			[
+				'audit_params' => [
+					'user_login' => $this->getWpUser()->user_login,
+					'method'     => $providerName,
+				]
+			]
+		);
 	}
 }

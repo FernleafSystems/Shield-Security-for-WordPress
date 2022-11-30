@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Impo
 
 class PluginImportFromSite extends PluginBase {
 
-	const SLUG = 'import_from_site';
+	public const SLUG = 'import_from_site';
 
 	protected function exec() {
 		$success = false;

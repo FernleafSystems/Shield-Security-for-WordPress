@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigEdit extends UserMfaBase {
 
-	const SLUG = 'user_mfa_config_edit';
-	const TEMPLATE = '/admin/user/profile/mfa/remove_for_other_user.twig';
+	public const SLUG = 'user_mfa_config_edit';
+	public const TEMPLATE = '/admin/user/profile/mfa/remove_for_other_user.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -22,7 +22,7 @@ class ConfigEdit extends UserMfaBase {
 			function ( $provider ) {
 				return $provider->getProviderName();
 			},
-			$mod->getMfaController()->getProvidersForUser( $user, true )
+			$mod->getMfaController()->getProvidersActiveForUser( $user )
 		);
 
 		$isAdmin = Services::WpUsers()->isUserAdmin( $user );

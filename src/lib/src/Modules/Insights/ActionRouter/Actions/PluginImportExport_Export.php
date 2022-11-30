@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginImportExport_Export extends PluginImportExport_Base {
 
-	const SLUG = 'importexport_export';
+	public const SLUG = 'importexport_export';
 
 	protected function exec() {
 		( new Export() )

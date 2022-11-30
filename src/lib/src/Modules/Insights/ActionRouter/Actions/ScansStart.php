@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
 class ScansStart extends ScansBase {
 
-	const SLUG = 'scans_start';
+	public const SLUG = 'scans_start';
 
 	protected function exec() {
 		/** @var ModCon $mod */

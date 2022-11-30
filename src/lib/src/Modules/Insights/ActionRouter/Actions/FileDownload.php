@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class FileDownload extends BaseAction {
 
-	const SLUG = 'file_download';
+	public const SLUG = 'file_download';
 
 	protected function exec() {
 		try {

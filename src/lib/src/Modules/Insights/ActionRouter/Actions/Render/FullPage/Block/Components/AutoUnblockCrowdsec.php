@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockCrowdsec extends AutoUnblockShield {
 
-	const SLUG = 'render_autounblock_crowdsec';
+	public const SLUG = 'render_autounblock_crowdsec';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

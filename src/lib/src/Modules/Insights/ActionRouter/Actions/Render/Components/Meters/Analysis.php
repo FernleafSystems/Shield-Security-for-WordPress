@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class Analysis extends BaseRender {
 
-	const SLUG = 'render_progress_meter_analysis';
-	const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/analysis/standard.twig';
+	public const SLUG = 'render_progress_meter_analysis';
+	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/analysis/standard.twig';
 
 	protected function getRenderData() :array {
 		$components = $this->action_data[ 'meter_components' ];

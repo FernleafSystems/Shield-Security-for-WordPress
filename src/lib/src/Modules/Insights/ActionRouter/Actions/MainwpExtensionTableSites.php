@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class MainwpExtensionTableSites extends MainwpBase {
 
-	const SLUG = 'mainwp_ext_table';
+	public const SLUG = 'mainwp_ext_table';
 
 	protected function exec() {
 		$this->response()->action_response_data = [

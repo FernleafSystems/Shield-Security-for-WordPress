@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Activity extends Base {
 
-	const SLUG = 'ipanalyse_activity_log';
-	const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig';
+	public const SLUG = 'ipanalyse_activity_log';
+	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig';
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();

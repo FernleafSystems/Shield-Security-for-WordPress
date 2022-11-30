@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class LoginIntentFormShield extends BaseForm {
 
-	const SLUG = 'render_shield_login_intent_form';
-	const TEMPLATE = '/components/login_intent/form.twig';
+	public const SLUG = 'render_shield_login_intent_form';
+	public const TEMPLATE = '/components/login_intent/form.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

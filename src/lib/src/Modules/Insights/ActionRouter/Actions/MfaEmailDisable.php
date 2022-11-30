@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 
 class MfaEmailDisable extends MfaBase {
 
-	const SLUG = 'mfa_email_disable';
+	public const SLUG = 'mfa_email_disable';
 
 	protected function exec() {
 		/** @var Options $opts */

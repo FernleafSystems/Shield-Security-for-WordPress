@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IpAutoUnblockShieldVisitor extends IpsBase {
 
-	const SLUG = 'ip_auto_unblock_shield_visitor';
-	const PATTERN = self::SLUG.'-[a-f\d.:]+';
+	public const SLUG = 'ip_auto_unblock_shield_visitor';
+	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockVisitor() )->setMod( $this->primary_mod );

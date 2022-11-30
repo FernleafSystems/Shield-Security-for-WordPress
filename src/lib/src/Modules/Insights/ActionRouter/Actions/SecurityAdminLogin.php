@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 
-	const SLUG = 'sec_admin_login';
+	public const SLUG = 'sec_admin_login';
 
 	protected function exec() {
 		/** @var ModCon $mod */

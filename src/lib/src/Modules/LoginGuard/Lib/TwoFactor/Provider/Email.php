@@ -10,9 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Email extends BaseProvider {
+class Email extends AbstractShieldProvider {
 
-	const SLUG = 'email';
+	protected const SLUG = 'email';
 
 	public function getJavascriptVars() :array {
 		return [
@@ -43,10 +43,10 @@ class Email extends BaseProvider {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
-			'value'       => $this->fetchCodeFromRequest(),
+			'value'       => $this->fetchOtpFromRequest(),
 			'placeholder' => __( 'A1B2C3', 'wp-simple-firewall' ),
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter code sent to your email', 'wp-simple-firewall' ),
@@ -72,7 +72,7 @@ class Email extends BaseProvider {
 		return parent::hasValidatedProfile();
 	}
 
-	protected function isEnforced() :bool {
+	public function isEnforced() :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return count( array_intersect( $opts->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
@@ -134,7 +134,7 @@ class Email extends BaseProvider {
 			->send2FA( $this->getUser(), $code );
 	}
 
-	public function getUserProfileFormRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[
@@ -171,7 +171,7 @@ class Email extends BaseProvider {
 			$secrets = [];
 		}
 
-		$otp = $this->generateSimpleOTP();
+		$otp = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
 		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
 
 		// Clean old secrets linked to expired login intents

@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class LicenseHandshakeVerifySnapi extends LicenseHandshakeVerifyKeyless {
 
-	const SLUG = 'snapi_handshake';
+	public const SLUG = 'snapi_handshake';
 }

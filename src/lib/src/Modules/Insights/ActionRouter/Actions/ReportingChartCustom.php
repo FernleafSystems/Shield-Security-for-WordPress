@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 
 class ReportingChartCustom extends ReportingBase {
 
-	const SLUG = 'render_chart_custom';
+	public const SLUG = 'render_chart_custom';
 
 	protected function exec() {
 		$this->renderChart( FormParams::Retrieve() );

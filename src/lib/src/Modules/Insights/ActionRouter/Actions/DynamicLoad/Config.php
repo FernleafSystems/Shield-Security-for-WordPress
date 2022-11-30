@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 
 class Config extends Base {
 
-	const SLUG = 'dynamic_load_config';
+	public const SLUG = 'dynamic_load_config';
 
 	protected function getPageUrl() :string {
 		/** @var ModCon $mod */

@@ -9,5 +9,5 @@ class Base extends BaseRender {
 
 	use AuthNotRequired;
 
-	const PRIMARY_MOD = 'ips';
+	public const PRIMARY_MOD = 'ips';
 }

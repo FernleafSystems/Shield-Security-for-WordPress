@@ -13,7 +13,7 @@ class SitesListTableColumn extends BaseRender {
 
 	use Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'mainwp_sites_list_table_column';
+	public const SLUG = 'mainwp_sites_list_table_column';
 
 	/**
 	 * @inheritDoc

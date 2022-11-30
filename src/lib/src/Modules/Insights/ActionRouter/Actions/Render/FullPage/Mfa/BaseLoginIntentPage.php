@@ -4,9 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
-class Base extends Actions\Render\FullPage\BaseFullPageRender {
+abstract class BaseLoginIntentPage extends Actions\Render\FullPage\BaseFullPageRender {
 
 	use Actions\Traits\AuthNotRequired;
 
-	const PRIMARY_MOD = 'login_protect';
+	public const PRIMARY_MOD = 'login_protect';
+	public const LOGIN_INTENT_PAGE_SHIELD = '';
 }

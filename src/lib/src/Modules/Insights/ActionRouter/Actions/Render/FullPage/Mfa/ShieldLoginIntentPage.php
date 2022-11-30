@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\FullPage\Mfa;
 
-class ShieldLoginIntentPage extends Base {
+class ShieldLoginIntentPage extends BaseLoginIntentPage {
 
-	const SLUG = 'render_login_intent_shield';
-	const TEMPLATE = '/pages/shield_login_intent.twig';
+	public const SLUG = 'render_login_intent_shield';
+	public const TEMPLATE = '/pages/shield_login_intent.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaGoogleAuthToggle extends MfaBase {
 
-	const SLUG = 'mfa_profile_toggle_ga';
+	public const SLUG = 'mfa_profile_toggle_ga';
 
 	protected function exec() {
 		/** @var ModCon $mod */

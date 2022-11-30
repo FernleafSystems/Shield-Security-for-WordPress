@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 
 class SimplePluginTests extends BaseAction {
 
-	const SLUG = 'debug_simple_plugin_tests';
+	public const SLUG = 'debug_simple_plugin_tests';
 
 	protected function exec() {
 		$testMethod = $this->action_data[ 'test' ];

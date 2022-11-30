@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
 class AdminNoteInsert extends PluginBase {
 
-	const SLUG = 'admin_note_insert';
+	public const SLUG = 'admin_note_insert';
 
 	public function exec() {
 		/** @var ModCon $mod */

@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
 
 class Info extends Base {
 
-	const SLUG = 'scanitemanalysis_info';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_info.twig';
+	public const SLUG = 'scanitemanalysis_info';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_info.twig';
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();

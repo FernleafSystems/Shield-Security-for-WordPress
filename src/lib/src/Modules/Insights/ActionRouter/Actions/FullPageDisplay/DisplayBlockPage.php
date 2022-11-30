@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class DisplayBlockPage extends BaseFullPageDisplay {
 
-	const SLUG = 'display_full_page_block';
+	public const SLUG = 'display_full_page_block';
 
 	protected function getSuccessCode() :int {
 		return 503;

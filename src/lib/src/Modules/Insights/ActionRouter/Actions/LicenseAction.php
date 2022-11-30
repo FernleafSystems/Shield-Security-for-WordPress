@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseAction extends LicenseBase {
 
-	const SLUG = 'license_action';
+	public const SLUG = 'license_action';
 
 	protected function exec() {
 		/** @var ModCon $mod */

@@ -9,8 +9,8 @@ class BannerGoPro extends BasePlugin {
 
 	use Traits\SecurityAdminNotRequired;
 
-	const SLUG = 'render_banner_gopro';
-	const TEMPLATE = '/snippets/go_pro_banner.twig';
+	public const SLUG = 'render_banner_gopro';
+	public const TEMPLATE = '/snippets/go_pro_banner.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

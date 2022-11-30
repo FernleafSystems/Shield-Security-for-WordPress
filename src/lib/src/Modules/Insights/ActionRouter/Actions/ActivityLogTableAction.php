@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ActivityLogTableAction extends BaseAction {
 
-	const SLUG = 'logtable_action';
-	const PRIMARY_MOD = 'audit_trail';
+	public const SLUG = 'logtable_action';
+	public const PRIMARY_MOD = 'audit_trail';
 
 	protected function exec() {
 		try {

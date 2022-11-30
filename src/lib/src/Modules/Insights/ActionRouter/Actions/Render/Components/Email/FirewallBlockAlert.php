@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class FirewallBlockAlert extends EmailBase {
 
-	const SLUG = 'email_firewall_block_alert';
-	const TEMPLATE = '/email/firewall_block.twig';
+	public const SLUG = 'email_firewall_block_alert';
+	public const TEMPLATE = '/email/firewall_block.twig';
 
 	protected function getBodyData() :array {
 		$ip = $this->action_data[ 'ip' ];

@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 class ScansProgress extends BaseScans {
 
-	const SLUG = 'render_scans_progress';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress_snippet.twig';
+	public const SLUG = 'render_scans_progress';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress_snippet.twig';
 
 	protected function getRenderData() :array {
 		return [

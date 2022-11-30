@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginReport extends EmailBase {
 
-	const SLUG = 'email_report';
-	const TEMPLATE = '/email/reports/cron_alert_info_report.twig';
+	public const SLUG = 'email_report';
+	public const TEMPLATE = '/email/reports/cron_alert_info_report.twig';
 
 	protected function getBodyData() :array {
 		return [

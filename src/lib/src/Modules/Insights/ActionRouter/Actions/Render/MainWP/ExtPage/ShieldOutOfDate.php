@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldOutOfDate extends BaseMWP {
 
-	const SLUG = 'mainwp_page_shield_outofdate';
-	const TEMPLATE = '/integration/mainwp/pages/shield_outofdate.twig';
+	public const SLUG = 'mainwp_page_shield_outofdate';
+	public const TEMPLATE = '/integration/mainwp/pages/shield_outofdate.twig';
 
 	protected function getRenderData() :array {
 		return [

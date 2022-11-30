@@ -10,5 +10,5 @@ class UserMfaBase extends BaseRender {
 	/** Secadmin is handled later on */
 	use SecurityAdminNotRequired;
 
-	const PRIMARY_MOD = 'login_protect';
+	public const PRIMARY_MOD = 'login_protect';
 }

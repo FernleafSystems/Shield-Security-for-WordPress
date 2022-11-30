@@ -22,9 +22,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class PageScansResults extends BasePluginAdminPage {
 
-	const SLUG = 'admin_plugin_page_scans_results';
-	const PRIMARY_MOD = 'hack_protect';
-	const TEMPLATE = '/wpadmin_pages/insights/scans/results/index.twig';
+	public const SLUG = 'admin_plugin_page_scans_results';
+	public const PRIMARY_MOD = 'hack_protect';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/index.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */
