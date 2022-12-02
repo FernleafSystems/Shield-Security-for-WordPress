@@ -19,14 +19,11 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  */
 abstract class BaseApi extends DynPropertiesClass {
 
-	const DEFAULT_URL_STUB = '';
-	const API_ACTION = '';
-	const DEFAULT_API_VERSION = '1';
+	public const DEFAULT_URL_STUB = '';
+	public const API_ACTION = '';
+	public const DEFAULT_API_VERSION = '1';
 
-	/**
-	 * @return array|null
-	 */
-	protected function sendReq() {
+	protected function sendReq() :?array {
 		$httpReq = Services::HttpRequest();
 
 		$reqParams = $this->getRequestParams();
@@ -51,6 +48,10 @@ abstract class BaseApi extends DynPropertiesClass {
 
 		if ( $reqSuccess ) {
 			$response = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
+			if ( !is_array( $response ) ) {
+				error_log( 'failed to decode HTTP body response' );
+				$response = null;
+			}
 		}
 		else {
 			$response = null;

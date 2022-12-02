@@ -7,8 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class GetIPInfo extends Common\BaseShieldNetApiV2 {
 
-	const API_ACTION = 'ip/info';
 	use IpAddressConsumer;
+
+	public const API_ACTION = 'ip/info';
 
 	public function retrieve() :array {
 		$this->shield_net_params_required = false;

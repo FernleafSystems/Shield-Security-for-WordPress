@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\
 
 class MachineRegister extends Base {
 
-	const API_ACTION = 'watchers';
+	public const API_ACTION = 'watchers';
 
 	/**
 	 * @throws MachineAlreadyRegisteredException

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
 class DecryptFile extends BaseShieldNetApi {
 
-	const API_ACTION = 'filelocker/decrypt';
+	public const API_ACTION = 'filelocker/decrypt';
 
 	public function retrieve( OpenSslEncryptVo $openSslVO, int $publicKeyId ) {
 		$content = null;

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class BotScoringLogic extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'bot/antibot_scoring_logic';
+	public const API_ACTION = 'bot/antibot_scoring_logic';
 
 	/**
 	 * @return array|null

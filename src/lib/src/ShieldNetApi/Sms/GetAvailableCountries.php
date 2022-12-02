@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class GetAvailableCountries extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'sms/countries';
+	public const API_ACTION = 'sms/countries';
 
 	public function run() :array {
 		$this->shield_net_params_required = false;

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class SolicitToken extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'wphashes/token';
+	public const API_ACTION = 'wphashes/token';
 
 	public function send() :array {
 		$this->shield_net_params_required = false;

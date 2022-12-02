@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\
 
 class PushSignals extends BaseAuth {
 
-	const API_ACTION = 'signals';
+	public const API_ACTION = 'signals';
 
 	/**
 	 * @throws PushSignalsFailedException

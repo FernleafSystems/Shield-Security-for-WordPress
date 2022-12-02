@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BaseShieldNetApiV2 extends BaseShieldNetApi {
 
-	const DEFAULT_API_VERSION = '2';
+	public const DEFAULT_API_VERSION = '2';
 
 	/**
 	 * @return string[]

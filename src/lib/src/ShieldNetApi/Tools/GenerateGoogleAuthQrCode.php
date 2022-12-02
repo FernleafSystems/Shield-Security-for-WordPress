@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class GenerateGoogleAuthQrCode extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'tools/google_auth_qr';
+	public const API_ACTION = 'tools/google_auth_qr';
 
 	public function getCode( string $secret, string $issuer, string $label, string $format = 'png' ) :string {
 		$this->shield_net_params_required = false;

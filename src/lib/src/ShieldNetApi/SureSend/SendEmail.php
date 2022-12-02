@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class SendEmail extends BaseShieldNetApi {
 
-	const API_ACTION = 'sure-send/email';
+	public const API_ACTION = 'sure-send/email';
 
 	public function send2FA( \WP_User $to, string $code ) :bool {
 		return $this->run(

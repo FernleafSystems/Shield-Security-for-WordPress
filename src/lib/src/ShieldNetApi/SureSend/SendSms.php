@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class SendSms extends BaseShieldNetApi {
 
-	const API_ACTION = 'sure-send/sms';
+	public const API_ACTION = 'sure-send/sms';
 
 	/**
 	 * @throws \Exception

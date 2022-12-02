@@ -61,7 +61,6 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->collectAllPluginNotices() as $notice ) {
-			error_log( var_export( $notice, true ) );
 			echo $this->getCon()
 					  ->getModule_Insights()
 					  ->getActionRouter()

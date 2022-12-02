@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class DetectNotBot extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'tools/detect/notbot';
+	public const API_ACTION = 'tools/detect/notbot';
 
 	public function run( string $urlToFind ) :bool {
 		$this->shield_net_params_required = true;

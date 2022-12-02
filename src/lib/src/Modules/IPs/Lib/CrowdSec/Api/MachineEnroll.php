@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\
 
 class MachineEnroll extends BaseAuth {
 
-	const API_ACTION = 'watchers/enroll';
+	public const API_ACTION = 'watchers/enroll';
 
 	/**
 	 * @throws MachineEnrollFailedException

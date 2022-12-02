@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class SendTelemetry extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'telemetry/receive';
+	public const API_ACTION = 'telemetry/receive';
 
 	public function sendData( array $data ) :bool {
 		$this->shield_net_params_required = false;

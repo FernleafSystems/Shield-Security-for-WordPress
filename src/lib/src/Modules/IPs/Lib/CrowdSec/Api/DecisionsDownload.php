@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\
 
 class DecisionsDownload extends BaseAuth {
 
-	const API_ACTION = 'decisions/stream';
+	public const API_ACTION = 'decisions/stream';
 
 	/**
 	 * @throws DownloadDecisionsStreamFailedException

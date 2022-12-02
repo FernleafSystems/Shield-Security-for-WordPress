@@ -15,7 +15,7 @@ class BaseShieldNetApi extends BaseApi {
 
 	use ModConsumer;
 
-	const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi';
+	public const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi';
 
 	/**
 	 * @return mixed
