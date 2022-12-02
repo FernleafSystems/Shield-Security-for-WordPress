@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 
 class SimplePluginTests extends BaseAction {
@@ -15,7 +16,16 @@ class SimplePluginTests extends BaseAction {
 		if ( !method_exists( $this, $testMethod ) ) {
 			throw new ActionException( sprintf( 'There is no test method: %s', $testMethod ) );
 		}
-		$this->response()->action_response_data = $this->{$testMethod}();
+		ob_start();
+		$this->{$testMethod}();
+		$this->response()->action_response_data = [ ob_get_clean() ];
+	}
+
+	private function handshake() {
+		$success = ( new ShieldNetApi\Handshake\Verify() )
+			->setMod( $this->getMod() )
+			->run();
+		var_dump( $success );
 	}
 
 	private function plugin_tests() {

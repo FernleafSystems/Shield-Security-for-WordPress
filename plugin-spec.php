@@ -93,7 +93,7 @@
     "register":     {
       "css": {
         "bootstrap":                         {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.2/css/bootstrap.min.css"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.3/css/bootstrap.min.css"
         },
         "select2":                           {
           "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css",
@@ -168,7 +168,7 @@
       },
       "js":  {
         "bootstrap":                         {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.2/js/bootstrap.bundle.min.js",
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.3/js/bootstrap.bundle.min.js",
           "deps": [
             "wp-jquery"
           ]

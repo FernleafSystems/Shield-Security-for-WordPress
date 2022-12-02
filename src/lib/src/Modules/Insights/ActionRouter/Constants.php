@@ -29,7 +29,7 @@ class Constants {
 		Actions\IpAutoUnblockShieldVisitor::class,
 		Actions\IpAutoUnblockCrowdsecVisitor::class,
 		Actions\LicenseHandshakeVerifyKeyless::class,
-		Actions\LicenseHandshakeVerifySnapi::class,
+		Actions\ShieldNetHandshakeVerify::class,
 		Actions\LicenseAction::class,
 		Actions\LicenseCheckDebug::class,
 		Actions\LicenseScheduleCheck::class,

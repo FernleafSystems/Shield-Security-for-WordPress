@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
-class LicenseHandshakeVerifySnapi extends LicenseHandshakeVerifyKeyless {
+class ShieldNetHandshakeVerify extends LicenseHandshakeVerifyKeyless {
 
 	public const SLUG = 'snapi_handshake';
 }
