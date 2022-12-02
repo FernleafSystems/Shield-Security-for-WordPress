@@ -1,34 +1,35 @@
 {% if success %}
+	<h6 class="my-4 ps-3">{{ strings.reviewing_locked_file }}: <code>{{ vars.full_path }}</code></h6>
 	<div class="card-group">
 
 		<div class="card">
 
 			<div class="card-body">
-				<h5 class="card-title">{{ strings.locked_file }}</h5>
+				<h5 class="card-title">{{ strings.file_details }}</h5>
 
 				<dl class="row">
-					<dt class="col">{{ strings.relative_path }}</dt>
-					<dd class="col">{{ vars.relative_path }}</dd>
+					<dt>{{ strings.relative_path }}</dt>
+					<dd>{{ vars.relative_path }}</dd>
 				</dl>
 
 				<dl class="row">
-					<dt class="col">{{ strings.locked }}</dt>
-					<dd class="col">{{ vars.locked_at }}</dd>
+					<dt>{{ strings.locked }}</dt>
+					<dd>{{ vars.locked_at }}</dd>
 				</dl>
 
 				<dl class="row">
-					<dt class="col">{{ strings.file_size }}</dt>
-					<dd class="col">{{ vars.file_size_locked }}</dd>
+					<dt>{{ strings.file_size }}</dt>
+					<dd>{{ vars.file_size_locked }}</dd>
 				</dl>
 
 				<dl class="row">
-					<dt class="col">{{ strings.file_modified }}</dt>
-					<dd class="col">{{ vars.file_modified_ago }}<br/>({{ vars.file_modified_at }})</dd>
+					<dt>{{ strings.file_modified }}</dt>
+					<dd>{{ vars.file_modified_ago }}<br/>({{ vars.file_modified_at }})</dd>
 				</dl>
 
 				<dl class="row">
-					<dt class="col">{{ strings.download }}</dt>
-					<dd class="col">
+					<dt>{{ strings.download }}</dt>
+					<dd>
 						<a href="{{ ajax.original }}" title="{{ strings.download }}" class="shield_file_download text-nowrap">
 							<span class="dashicons dashicons-download"></span></a>
 					</dd>
@@ -44,17 +45,17 @@
 					<h5 class="card-title">{{ strings.modified_file }}</h5>
 
 					<dl class="row">
-						<dt class="col">{{ strings.change_detected_at }}</dt>
-						<dd class="col">{{ vars.change_detected_at }}</dd>
+						<dt>{{ strings.change_detected_at }}</dt>
+						<dd>{{ vars.change_detected_at }}</dd>
 					</dl>
 
 					<dl class="row">
-						<dt class="col">{{ strings.file_size }}</dt>
-						<dd class="col">{{ vars.file_size_modified }}</dd>
+						<dt >{{ strings.file_size }}</dt>
+						<dd >{{ vars.file_size_modified }}</dd>
 					</dl>
 
 					<dl class="row">
-						<dt class="col">{{ strings.download }}</dt>
+						<dt >{{ strings.download }}</dt>
 						<dd class="col">
 							<a href="{{ ajax.current }}" title="{{ strings.download }}" class="shield_file_download text-nowrap">
 								<span class="dashicons dashicons-download"></span></a>

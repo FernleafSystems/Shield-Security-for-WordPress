@@ -47,12 +47,14 @@ class ScansFileLockerDiff extends BaseScans {
 					'butt_accept'           => __( 'Accept Changes' ),
 					'file_name'             => __( 'Name' ),
 					'file_size'             => __( 'File Size' ),
-					'locked_file'           => __( 'Locked File' ),
+					'reviewing_locked_file' => __( 'Reviewing Locked File' ),
+					'file_details'          => __( 'File Details' ),
 					'modified_file'         => __( 'Modified File' ),
 					'locked'                => __( 'Locked' ),
 					'modified_timestamp'    => __( 'File Modified Timestamp' ),
 					'file_modified'         => __( 'File Modified' ),
 					'relative_path'         => __( 'Relative Path' ),
+					'full_path'             => __( 'Full Path' ),
 					'modified'              => __( 'Modified' ),
 					'download'              => __( 'Download' ),
 					'change_detected_at'    => __( 'Change Detected' ),
@@ -80,6 +82,7 @@ class ScansFileLockerDiff extends BaseScans {
 			else {
 				$data[ 'vars' ][ 'relative_path' ] = '../'.basename( $filePath );
 			}
+			$data[ 'vars' ][ 'full_path' ] = $filePath;
 
 			$data[ 'vars' ][ 'relative_path' ] = str_replace( wp_normalize_path( ABSPATH ), '/', wp_normalize_path( $lock->file ) );
 			$data[ 'vars' ][ 'locked_at' ] = $carb->setTimestamp( $lock->created_at )->diffForHumans();

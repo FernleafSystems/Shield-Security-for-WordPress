@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\Results\{
+	FileLocker,
 	Malware,
 	Plugins,
 	Themes,
@@ -15,8 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
 	ScansCheck,
-	ScansFileLockerAction,
-	Render\Components\Scans\ScansFileLockerDiff,
 	ScansStart
 };
 
@@ -102,11 +101,12 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			'content'     => [
 				'section' => [
-					'plugins'   => $actionRouter->render( Plugins::SLUG ),
-					'themes'    => $actionRouter->render( Themes::SLUG ),
-					'wordpress' => $actionRouter->render( Wordpress::SLUG ),
-					'malware'   => $actionRouter->render( Malware::SLUG ),
-					'logs'      => 'logs todo',
+					'plugins'    => $actionRouter->render( Plugins::SLUG ),
+					'themes'     => $actionRouter->render( Themes::SLUG ),
+					'wordpress'  => $actionRouter->render( Wordpress::SLUG ),
+					'malware'    => $actionRouter->render( Malware::SLUG ),
+					'filelocker' => $actionRouter->render( FileLocker::SLUG ),
+					'logs'       => 'logs todo',
 				]
 			],
 			'file_locker' => $this->getFileLockerVars(),
@@ -114,40 +114,13 @@ class PageScansResults extends BasePluginAdminPage {
 	}
 
 	protected function getFileLockerVars() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-
-		$lockerCon = $mod->getFileLocker();
-		$lockLoader = ( new LoadFileLocks() )->setMod( $mod );
-		$problemLocks = $lockLoader->withProblems();
-		$goodLocks = $lockLoader->withoutProblems();
-
 		return [
-			'ajax'    => [
-				'filelocker_showdiff'   => ScansFileLockerDiff::SLUG,
-				'filelocker_fileaction' => ActionData::BuildJson( ScansFileLockerAction::SLUG ),
-			],
-			'flags'   => [
-				'is_enabled'    => $lockerCon->isEnabled(),
-				'is_restricted' => !$this->getCon()->isPremiumActive(),
-			],
-			'hrefs'   => [
-				'options'       => $mod->getUrl_DirectLinkToOption( 'file_locker' ),
-				'please_enable' => $mod->getUrl_DirectLinkToOption( 'file_locker' ),
-			],
-			'vars'    => [
-				'file_locks' => [
-					'good'        => $goodLocks,
-					'bad'         => $problemLocks,
-					'count_items' => count( $problemLocks ),
-				],
-			],
 			'strings' => [
-				'title'         => __( 'File Locker', 'wp-simple-firewall' ),
-				'subtitle'      => __( 'Results of file locker monitoring', 'wp-simple-firewall' ),
-				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
+				'title' => __( 'File Locker', 'wp-simple-firewall' ),
 			],
-			'count'   => count( $problemLocks )
+			'count'   => count( ( new LoadFileLocks() )
+				->setMod( $this->primary_mod )
+				->withProblems() )
 		];
 	}
 }
