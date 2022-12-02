@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
  * @property array  $action_data
  * @property array  $action_response_data
  *
+ * @property array  $next_step
+ *
  * AJAX Actions:
  * @property array  $ajax_data
  */
@@ -22,6 +24,7 @@ class ActionResponse extends Response {
 			case 'action_response_data':
 			case 'ajax_data':
 			case 'render_data':
+			case 'next_step':
 				$value = is_array( $value ) ? $value : [];
 				break;
 

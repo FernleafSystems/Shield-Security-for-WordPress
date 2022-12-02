@@ -12,7 +12,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		return $this->getCon()->this_req->wp_is_ajax && parent::canRun();
 	}
 
-	protected function run() {
+	protected function theRun() {
 		foreach (
 			[
 				'wp_ajax_'.ActionData::FIELD_SHIELD        => 1,

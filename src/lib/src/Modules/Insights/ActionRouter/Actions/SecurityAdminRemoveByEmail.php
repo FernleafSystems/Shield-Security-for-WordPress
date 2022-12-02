@@ -12,9 +12,10 @@ class SecurityAdminRemoveByEmail extends SecurityAdminBase {
 		( new RemoveSecAdmin() )
 			->setMod( $this->primary_mod )
 			->remove();
-		$this->response()->action_response_data = [
-			'success' => true,
-			'message' => __( 'Security Admin restriction removed.' ),
+
+		$this->response()->next_step = [
+			'type' => 'redirect',
+			'url'  => $this->getCon()->getPluginUrl_DashboardHome(),
 		];
 	}
 }

@@ -25,7 +25,7 @@ class RemoveSecAdmin {
 	public function sendConfirmationEmail() {
 		$confirmationHref = $this->getCon()->getShieldActionNoncedUrl(
 			SecurityAdminRemoveByEmail::SLUG,
-			$this->getCon()->getPluginUrl_DashboardHome()
+			Services::WpGeneral()->getAdminUrl()
 		);
 		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
@@ -37,7 +37,7 @@ class RemoveSecAdmin {
 					sprintf( __( 'A WordPress user (%s) has requested to remove the Security Admin restriction.', 'wp-simple-firewall' ),
 						Services::WpUsers()->getCurrentWpUsername() ).'  '.
 					__( 'The purpose of this email is to confirm this action.', 'wp-simple-firewall' ),
-					__( 'Please click the link below to confirm the removal of the Security Admin restriction.', 'wp-simple-firewall' ),
+					__( 'Please click the link below to confirm the removal of all Security Admin restrictions.', 'wp-simple-firewall' ),
 					'',
 					'<strong>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						__( 'This link must be opened in the same browser that was used to make this original request.', 'wp-simple-firewall' )
