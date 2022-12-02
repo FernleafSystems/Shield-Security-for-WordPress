@@ -13,7 +13,7 @@ class Analysis extends BaseRender {
 		$components = $this->action_data[ 'meter_components' ];
 		return [
 			'strings' => [
-				'title'            => sprintf( '%s: %s', __( 'Analysis', 'wp-simple-firewall' ), $components[ 'meter_title' ] ),
+				'title'            => sprintf( '%s: %s', __( 'Analysis', 'wp-simple-firewall' ), $components[ 'title' ] ),
 				'total_score'      => __( 'Total Score', 'wp-simple-firewall' ),
 				'scores_footnote1' => __( 'Scores are an approximate weighting for each component.', 'wp-simple-firewall' ),
 				'scores_footnote2' => __( 'As each issue is resolved the overall score will improve, up to 100%.', 'wp-simple-firewall' ),

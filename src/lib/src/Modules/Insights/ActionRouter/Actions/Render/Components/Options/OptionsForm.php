@@ -29,11 +29,11 @@ class OptionsForm extends BaseRender {
 
 	protected function getRenderData() :array {
 		$mod = $this->primary_mod;
+		$actionData = $this->action_data;
 
 		$focusOption = $actionData[ 'focus_option' ] ?? '';
 		$focusSection = $actionData[ 'focus_section' ] ?? $mod->getOptions()->getPrimarySection()[ 'slug' ];
 
-		$actionData = $this->action_data;
 		if ( !empty( $actionData[ 'focus_item' ] ) && !empty( $actionData[ 'focus_item_type' ] ) ) {
 			if ( $actionData[ 'focus_item_type' ] === 'option' ) {
 				$focusOption = $actionData[ 'focus_item' ];

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\DynamicPageLoad;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
 
 class ModConfig extends OffCanvasBase {
 
@@ -38,7 +39,7 @@ class ModConfig extends OffCanvasBase {
 		}
 
 		if ( empty( $module ) ) {
-			throw new \Exception( "Couldn't determine the module config to load." );
+			throw new ActionException( "Couldn't determine the module config to load." );
 		}
 
 		$content = $con->getModule_Insights()

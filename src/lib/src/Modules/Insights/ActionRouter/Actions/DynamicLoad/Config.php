@@ -27,9 +27,7 @@ class Config extends Base {
 		return $this->getCon()
 					->getModule_Insights()
 					->getActionRouter()
-					->render( OptionsForm::SLUG, [
-						'primary_mod_slug' => $this->action_data[ 'primary_mod_slug' ]
-					] );
+					->render( OptionsForm::SLUG, $this->action_data );
 	}
 
 	protected function getRequiredDataKeys() :array {
