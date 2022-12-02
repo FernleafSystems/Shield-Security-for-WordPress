@@ -127,6 +127,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\MeterAnalysis::class,
 		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\Options\OptionsForm::class,
+		Actions\Render\Components\Reports\KeyStats::class,
 		Actions\Render\Components\Reports\ReportsBuilderAlerts::class,
 		Actions\Render\Components\Reports\ReportsBuilderInfo::class,
 		Actions\Render\Components\Reports\ChartsCustom::class,
