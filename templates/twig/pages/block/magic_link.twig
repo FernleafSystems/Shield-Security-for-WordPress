@@ -21,6 +21,7 @@
 			  method: 'POST',
 			  body: (new URLSearchParams( {{ vars.nonce_unblock|raw }} )).toString(),
 			  headers: {
+				  'Accept': 'application/json',
 				  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
 				  'X-Requested-With': 'XMLHttpRequest',
 			  }
@@ -29,7 +30,11 @@
 			  if ( !response.ok ) {
 				  throw Error( 'request appeared to fail.' );
 			  }
-			  alert( 'Please check your email for a link to confirm.' );
+			  return response.json();
+		  } )
+		  .then( function ( response ) {
+			  response.success ? alert( 'Please check your email for a link to confirm.' )
+				  : alert( "Request Failed. Perhaps you've tried to unblock your IP too soon after the previous attempt." );
 			  return response;
 		  } )
 		  .catch( function ( error ) {

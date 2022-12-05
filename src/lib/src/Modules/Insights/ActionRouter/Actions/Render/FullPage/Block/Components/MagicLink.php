@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\IpAutoUnblockShieldUserLinkRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockMagicLink;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
@@ -15,14 +16,13 @@ class MagicLink extends Base {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
 		$user = Services::WpUsers()->getCurrentWpUser();
-		$available = $user instanceof \WP_User;
+		$available = $user instanceof \WP_User
+					 && ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod )->isUnblockAvailable()
+					 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $user );
 		return [
 			'flags'   => [
-				'is_available' => $available && $opts->isEnabledMagicEmailLinkRecover()
-								  && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $user ),
+				'is_available' => $available,
 			],
 			'hrefs'   => [
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),

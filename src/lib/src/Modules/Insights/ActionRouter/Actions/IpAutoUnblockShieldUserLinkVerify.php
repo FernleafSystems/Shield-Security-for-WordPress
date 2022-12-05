@@ -10,6 +10,7 @@ class IpAutoUnblockShieldUserLinkVerify extends IpAutoUnblockShieldVisitor {
 	public const SLUG = 'ip_auto_unblock_shield_user_link_verify';
 	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
+	// TODO: produce an error response to tell user why it failed
 	protected function exec() {
 		$unBlocker = ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processUnblockLink() ) {
