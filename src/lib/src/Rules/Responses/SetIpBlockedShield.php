@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BlockRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
@@ -37,7 +38,7 @@ class SetIpBlockedShield extends Base {
 			( new BlockRequest() )
 				->setMod( $this->getCon()->getModule_IPs() )
 				->execute();
-		}, 0 );
+		}, HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_SHIELD );
 
 		return true;
 	}

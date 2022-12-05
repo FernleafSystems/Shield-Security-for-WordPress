@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
 	DynamicPageLoad,
@@ -27,10 +28,9 @@ class ModCon extends BaseShield\ModCon {
 	private $router;
 
 	protected function onModulesLoaded() {
-		// Before IP Block
 		add_action( 'init', function () {
 			$this->getActionRouter()->execute();
-		}, -1 );
+		}, HookTimings::INIT_ACTION_ROUTER_CONTROLLER_EXEC );
 	}
 
 	public function getActionRouter() :ActionRouter\ActionRoutingController {

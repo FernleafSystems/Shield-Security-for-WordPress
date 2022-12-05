@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,7 +25,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	private $mfaProfilesCon;
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], 9 ); // Login Intent handling
+		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent handling
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
 	}

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
@@ -17,7 +18,7 @@ class Processor extends BaseShield\Processor {
 
 			add_action( 'init', function () use ( $mod ) {
 				$mod->getController_UserForms()->execute();
-			}, -100 );
+			}, HookTimings::INIT_USER_FORMS_SETUP );
 		}
 	}
 }

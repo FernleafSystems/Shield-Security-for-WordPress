@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BlockRequestCrowdsec;
 
 class SetIpBlockedCrowdsec extends Base {
@@ -15,7 +16,7 @@ class SetIpBlockedCrowdsec extends Base {
 			( new BlockRequestCrowdsec() )
 				->setMod( $this->getCon()->getModule_IPs() )
 				->execute();
-		}, 0 );
+		}, HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC );
 
 		return true;
 	}

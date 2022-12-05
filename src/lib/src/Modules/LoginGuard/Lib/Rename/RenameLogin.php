@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
@@ -23,7 +24,7 @@ class RenameLogin {
 	}
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], 9 );
+		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_RENAME );
 	}
 
 	public function onWpInit() {

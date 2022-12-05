@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\AdminPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
@@ -17,14 +18,12 @@ class ActionRoutingController extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		$this->redirects();
-		add_action( 'init', [ $this, 'onWpInit' ], 0 );
-	}
+		$this->captureRedirects();
 
-	public function onWpInit() {
 		if ( is_admin() || is_network_admin() ) {
 			( new AdminPage() )->setMod( $this->getMod() )->execute();
 		}
+
 		( new CaptureShieldAction() )
 			->setMod( $this->getMod() )
 			->execute();
@@ -84,7 +83,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 		return $output;
 	}
 
-	private function redirects() {
+	private function captureRedirects() {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -105,7 +104,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 
 				// 'insights'
 				if ( $reqPage === $mod->getModSlug() ) {
-					if ( empty($req->query( Constants::NAV_ID )) ) {
+					if ( empty( $req->query( Constants::NAV_ID ) ) ) {
 						$redirectTo = $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW );
 					}
 					elseif ( $req->query( Constants::NAV_ID ) === Constants::ADMIN_PAGE_CONFIG && empty( $req->query( Constants::NAV_SUB_ID ) ) ) {
