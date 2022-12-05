@@ -2,10 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits\AuthNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockVisitor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IpAutoUnblockShieldVisitor extends IpsBase {
+
+	use AuthNotRequired;
 
 	public const SLUG = 'ip_auto_unblock_shield_visitor';
 	public const PATTERN = self::SLUG.'-[a-f\d.:]+';

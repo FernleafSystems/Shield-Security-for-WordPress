@@ -13,7 +13,6 @@ class BlockRequest extends ExecOnceModConsumer {
 
 	protected function run() {
 		do_action( 'shield/maybe_intercept_block_shield' );
-
 		// This can still be stopped.
 		if ( $this->isRequestBlocked() ) {
 			$con = $this->getCon();

@@ -56,7 +56,7 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 			if ( !$user instanceof \WP_User ) {
 				throw new \Exception( 'There is no user currently logged-in.' );
 			}
-			// Then verify that the part of the nonce action linked to the user login is valid
+
 			$this->timingChecks();
 
 			if ( $req->isGet() ) {
