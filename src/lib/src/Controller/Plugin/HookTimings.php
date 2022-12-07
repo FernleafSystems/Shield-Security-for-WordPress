@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 class HookTimings {
 
+	public const INIT_DEFAULT_RULES_HOOK = -2000;
 	public const INIT_MAIN_CONTROLLER = -1000;
 	public const INIT_ANTIBOT_SETUP = -100;
 	public const INIT_USER_FORMS_SETUP = -100;
