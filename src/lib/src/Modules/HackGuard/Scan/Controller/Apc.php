@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class Apc extends BaseForAssets {
 
-	const SCAN_SLUG = 'apc';
+	public const SCAN_SLUG = 'apc';
 
 	public function getAdminMenuItems() :array {
 		$items = [];

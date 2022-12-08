@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 
 class SetIpBlockedShield extends Base {
 
-	const SLUG = 'set_ip_blocked_shield';
+	public const SLUG = 'set_ip_blocked_shield';
 
 	protected function execResponse() :bool {
 		$con = $this->getCon();

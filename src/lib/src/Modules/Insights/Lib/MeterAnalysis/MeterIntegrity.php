@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterIntegrity extends MeterBase {
 
-	const SLUG = 'integrity';
+	public const SLUG = 'integrity';
 
 	protected function getWorkingMods() :array {
 		return array_filter(

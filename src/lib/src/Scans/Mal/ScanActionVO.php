@@ -15,5 +15,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  */
 class ScanActionVO extends BaseScanActionVO {
 
-	const DEFAULT_SLEEP_SECONDS = 0.1;
+	public const DEFAULT_SLEEP_SECONDS = 0.1;
 }

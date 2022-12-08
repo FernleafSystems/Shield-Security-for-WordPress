@@ -12,7 +12,7 @@ abstract class Base extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
-	const SLUG = '';
+	public const SLUG = '';
 
 	protected $conditionTriggerMeta = [];
 

@@ -15,7 +15,7 @@ use IPLib\Range\Type;
 
 class ProcessIPs extends ProcessBase {
 
-	const SCOPE = CrowdSecConstants::SCOPE_IP;
+	public const SCOPE = CrowdSecConstants::SCOPE_IP;
 
 	protected function preRun() {
 		( new CleanIpRules() )

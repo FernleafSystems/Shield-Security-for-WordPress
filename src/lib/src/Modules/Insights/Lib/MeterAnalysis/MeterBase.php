@@ -12,7 +12,7 @@ abstract class MeterBase {
 
 	use PluginControllerConsumer;
 
-	const SLUG = '';
+	public const SLUG = '';
 
 	/**
 	 * @return BaseShield\ModCon[]|Plugin\ModCon[]

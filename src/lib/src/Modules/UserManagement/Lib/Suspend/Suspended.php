@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 
 class Suspended extends Base {
 
-	const HOOK_PRIORITY = 999; // we process hard suspension before all others.
+	public const HOOK_PRIORITY = 999; // we process hard suspension before all others.
 
 	/**
 	 * @return \WP_Error|\WP_User

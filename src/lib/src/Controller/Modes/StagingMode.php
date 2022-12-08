@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Modes;
 
 class StagingMode extends BaseMode {
 
-	const SLUG = 'STAGING';
+	public const SLUG = 'STAGING';
 }

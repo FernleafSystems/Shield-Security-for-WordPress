@@ -9,7 +9,7 @@ class BaseTable {
 
 	use ModConsumer;
 
-	const DEFAULT_PER_PAGE = 25;
+	public const DEFAULT_PER_PAGE = 25;
 
 	/**
 	 * @var int

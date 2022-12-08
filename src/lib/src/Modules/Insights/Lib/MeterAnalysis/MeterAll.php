@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterAll extends MeterBase {
 
-	const SLUG = 'all';
+	public const SLUG = 'all';
 
 	public function title() :string {
 		return __( 'All', 'wp-simple-firewall' );

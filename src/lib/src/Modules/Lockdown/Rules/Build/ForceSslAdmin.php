@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class ForceSslAdmin extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/force_ssl_admin';
+	public const SLUG = 'shield/force_ssl_admin';
 
 	protected function getName() :string {
 		return 'Force SSL Admin';

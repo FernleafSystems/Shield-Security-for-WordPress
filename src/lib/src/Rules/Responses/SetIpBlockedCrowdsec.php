@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\BlockRequestCrowdsec
 
 class SetIpBlockedCrowdsec extends Base {
 
-	const SLUG = 'set_ip_blocked_crowdsec';
+	public const SLUG = 'set_ip_blocked_crowdsec';
 
 	protected function execResponse() :bool {
 		$this->getCon()->this_req->is_ip_blocked_crowdsec = true;

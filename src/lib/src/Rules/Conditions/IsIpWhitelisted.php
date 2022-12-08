@@ -9,7 +9,7 @@ class IsIpWhitelisted extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_whitelisted';
+	public const SLUG = 'is_ip_whitelisted';
 
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;

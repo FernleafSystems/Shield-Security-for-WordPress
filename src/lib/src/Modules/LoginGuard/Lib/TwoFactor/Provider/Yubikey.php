@@ -14,8 +14,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class Yubikey extends AbstractShieldProvider {
 
 	protected const SLUG = 'yubi';
-	const OTP_LENGTH = 12;
-	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
+	public const OTP_LENGTH = 12;
+	public const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	public function getJavascriptVars() :array {
 		return [

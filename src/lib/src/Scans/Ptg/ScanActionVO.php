@@ -9,6 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  */
 class ScanActionVO extends BaseScanActionVO {
 
-	const CONTEXT_PLUGINS = 'plugins';
-	const CONTEXT_THEMES = 'themes';
+	public const CONTEXT_PLUGINS = 'plugins';
+	public const CONTEXT_THEMES = 'themes';
 }

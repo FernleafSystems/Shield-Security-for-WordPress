@@ -8,7 +8,7 @@ class IsRequestToInvalidTheme extends Base {
 
 	use RequestPath;
 
-	const SLUG = 'is_request_to_invalid_theme';
+	public const SLUG = 'is_request_to_invalid_theme';
 
 	protected function execConditionCheck() :bool {
 		$asset = ( new IsRequestToThemeAsset() )->setCon( $this->getCon() );

@@ -9,7 +9,7 @@ class IsIpBlockedAuto extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_blocked_auto';
+	public const SLUG = 'is_ip_blocked_auto';
 
 	/**
 	 * @inheritDoc

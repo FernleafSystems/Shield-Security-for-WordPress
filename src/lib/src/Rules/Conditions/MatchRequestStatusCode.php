@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class MatchRequestStatusCode extends Base {
 
-	const SLUG = 'match_request_status_code';
+	public const SLUG = 'match_request_status_code';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->code ) ) {

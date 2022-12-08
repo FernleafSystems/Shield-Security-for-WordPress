@@ -12,7 +12,7 @@ abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\Bac
 
 	use ModConsumer;
 
-	const PAGE_SIZE = 100;
+	public const PAGE_SIZE = 100;
 
 	/**
 	 * Get batch

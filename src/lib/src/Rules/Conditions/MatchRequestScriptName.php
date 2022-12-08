@@ -13,7 +13,7 @@ class MatchRequestScriptName extends Base {
 
 	use RequestScriptName;
 
-	const SLUG = 'match_request_script_name';
+	public const SLUG = 'match_request_script_name';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_script_names ) ) {

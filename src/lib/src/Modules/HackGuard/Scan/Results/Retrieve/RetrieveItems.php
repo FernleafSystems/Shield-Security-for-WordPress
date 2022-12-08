@@ -19,9 +19,9 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class RetrieveItems extends RetrieveBase {
 
-	const CONTEXT_RESULTS_TABLE = 0;
-	const CONTEXT_AUTOREPAIR = 1;
-	const CONTEXT_LATEST = 2;
+	public const CONTEXT_RESULTS_TABLE = 0;
+	public const CONTEXT_AUTOREPAIR = 1;
+	public const CONTEXT_LATEST = 2;
 
 	public function retrieveResults( int $context ) {
 		$results = null;

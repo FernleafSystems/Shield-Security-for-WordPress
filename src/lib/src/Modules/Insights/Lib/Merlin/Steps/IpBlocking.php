@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class IpBlocking extends Base {
 
-	const SLUG = 'ip_blocking';
+	public const SLUG = 'ip_blocking';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$mod = $this->getCon()->getModule_IPs();

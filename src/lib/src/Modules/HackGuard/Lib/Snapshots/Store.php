@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Store {
 
-	const SEPARATOR = '=::=';
+	public const SEPARATOR = '=::=';
 
 	/**
 	 * @var array

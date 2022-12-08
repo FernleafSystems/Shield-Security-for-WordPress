@@ -12,9 +12,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
-	const LIST_MANUAL_WHITE = 'MW';
-	const LIST_MANUAL_BLACK = 'MB';
-	const LIST_AUTO_BLACK = 'AB';
+	public const LIST_MANUAL_WHITE = 'MW';
+	public const LIST_MANUAL_BLACK = 'MB';
+	public const LIST_AUTO_BLACK = 'AB';
 
 	/**
 	 * @var Lib\OffenseTracker

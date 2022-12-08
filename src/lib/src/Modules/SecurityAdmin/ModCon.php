@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
-	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
+	public const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
 	/**
 	 * @var Lib\WhiteLabel\WhitelabelController

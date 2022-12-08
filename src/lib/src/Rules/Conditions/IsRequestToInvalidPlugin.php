@@ -8,7 +8,7 @@ class IsRequestToInvalidPlugin extends Base {
 
 	use RequestPath;
 
-	const SLUG = 'is_request_to_invalid_plugin';
+	public const SLUG = 'is_request_to_invalid_plugin';
 
 	protected function execConditionCheck() :bool {
 		$asset = ( new IsRequestToPluginAsset() )->setCon( $this->getCon() );

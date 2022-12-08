@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterAssets extends MeterBase {
 
-	const SLUG = 'assets';
+	public const SLUG = 'assets';
 
 	public function title() :string {
 		return __( 'Plugins, Themes, WordPress Core', 'wp-simple-firewall' );

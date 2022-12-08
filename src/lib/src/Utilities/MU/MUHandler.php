@@ -9,7 +9,7 @@ class MUHandler {
 
 	use PluginControllerConsumer;
 
-	const PLUGIN_FILE_NAME = 'a-shield-mu.php';
+	public const PLUGIN_FILE_NAME = 'a-shield-mu.php';
 
 	public function isActiveMU() :bool {
 		return Services::WpFs()->isFile( $this->getMuFilePath() );

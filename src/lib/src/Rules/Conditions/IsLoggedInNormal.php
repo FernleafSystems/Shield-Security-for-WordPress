@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsLoggedInNormal extends Base {
 
-	const SLUG = 'is_logged_in_normal';
+	public const SLUG = 'is_logged_in_normal';
 
 	protected function execConditionCheck() :bool {
 		return Services::WpUsers()->isUserLoggedIn();

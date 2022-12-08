@@ -9,7 +9,7 @@ class IsRequestToValidThemeAsset extends Base {
 
 	use RequestPath;
 
-	const SLUG = 'is_request_to_valid_theme_asset';
+	public const SLUG = 'is_request_to_valid_theme_asset';
 
 	protected function execConditionCheck() :bool {
 		$pathMatcher = ( new MatchRequestPath() )->setCon( $this->getCon() );

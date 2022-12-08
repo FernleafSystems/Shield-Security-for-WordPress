@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallBlock extends Base {
 
-	const SLUG = 'firewall_block';
+	public const SLUG = 'firewall_block';
 
 	protected function execResponse() :bool {
 		$this->runBlock();

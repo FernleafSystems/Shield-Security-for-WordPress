@@ -15,7 +15,7 @@ class IpBlockedCrowdsec extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	const SLUG = 'shield/is_ip_blocked_crowdsec';
+	public const SLUG = 'shield/is_ip_blocked_crowdsec';
 
 	protected function getName() :string {
 		return 'Is IP CrowdSec Blocked';

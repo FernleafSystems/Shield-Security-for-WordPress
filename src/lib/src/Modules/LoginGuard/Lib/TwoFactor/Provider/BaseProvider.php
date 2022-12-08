@@ -12,7 +12,7 @@ abstract class BaseProvider extends AbstractOtpProvider {
 
 	use Modules\ModConsumer;
 
-	const DEFAULT_SECRET = '';
+	public const DEFAULT_SECRET = '';
 
 	public function getJavascriptVars() :array {
 		return [];

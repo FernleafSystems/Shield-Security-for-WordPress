@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_bot_probe_fakewebcrawler';
+	public const SLUG = 'shield/is_bot_probe_fakewebcrawler';
 
 	protected function getName() :string {
 		return 'Bot-Track Fake Web Crawler';

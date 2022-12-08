@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TrackLoginFailed extends Base {
 
-	const OPT_KEY = 'track_loginfailed';
+	public const OPT_KEY = 'track_loginfailed';
 
 	/**
 	 * @var string

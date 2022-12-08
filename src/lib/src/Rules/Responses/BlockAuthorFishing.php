@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 
 class BlockAuthorFishing extends Base {
 
-	const SLUG = 'block_author_fishing';
+	public const SLUG = 'block_author_fishing';
 
 	protected function execResponse() :bool {
 		$this->getCon()

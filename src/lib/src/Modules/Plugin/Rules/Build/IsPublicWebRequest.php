@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_public_web_request';
+	public const SLUG = 'shield/is_public_web_request';
 
 	protected function getName() :string {
 		return 'Is Public Web Request';

@@ -6,8 +6,8 @@ use function path_join;
 
 class WildCardOptions {
 
-	const FILE_PATH_REL = 0;
-	const URL_PATH = 1;
+	public const FILE_PATH_REL = 0;
+	public const URL_PATH = 1;
 
 	public function clean( array $optValues, array $checks, int $dataType ) :array {
 

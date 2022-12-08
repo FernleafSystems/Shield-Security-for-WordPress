@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class OptIn extends Base {
 
-	const SLUG = 'opt_in';
+	public const SLUG = 'opt_in';
 
 	public function getName() :string {
 		return 'Join Us!';

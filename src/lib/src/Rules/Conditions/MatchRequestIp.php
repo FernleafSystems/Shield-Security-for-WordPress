@@ -13,7 +13,7 @@ class MatchRequestIp extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'match_request_ip';
+	public const SLUG = 'match_request_ip';
 
 	/**
 	 * @throws IpsToMatchUnavailableException

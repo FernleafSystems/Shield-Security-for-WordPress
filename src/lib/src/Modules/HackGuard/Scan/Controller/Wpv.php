@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Wpv extends BaseForAssets {
 
-	const SCAN_SLUG = 'wpv';
+	public const SCAN_SLUG = 'wpv';
 
 	protected function run() {
 		parent::run();

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\St
 
 class ThankYou extends Base {
 
-	const SLUG = 'thank_you';
+	public const SLUG = 'thank_you';
 
 	public function getName() :string {
 		return 'Thanks!';

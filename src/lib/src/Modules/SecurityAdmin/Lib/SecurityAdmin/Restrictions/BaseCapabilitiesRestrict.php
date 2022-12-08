@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 
 class BaseCapabilitiesRestrict extends Base {
 
-	const AREA_SLUG = '';
+	public const AREA_SLUG = '';
 
 	protected function canRun() :bool {
 		return $this->hasRestrictedCapabilities();

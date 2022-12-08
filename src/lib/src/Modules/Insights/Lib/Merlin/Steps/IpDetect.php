@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 
 class IpDetect extends Base {
 
-	const SLUG = 'ip_detect';
+	public const SLUG = 'ip_detect';
 
 	public function getName() :string {
 		return 'IP Detect';

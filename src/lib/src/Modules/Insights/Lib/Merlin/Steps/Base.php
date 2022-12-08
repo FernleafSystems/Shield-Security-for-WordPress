@@ -9,7 +9,7 @@ abstract class Base {
 
 	use Shield\Modules\ModConsumer;
 
-	const SLUG = '';
+	public const SLUG = '';
 
 	public function getName() :string {
 		return 'Title Unset';

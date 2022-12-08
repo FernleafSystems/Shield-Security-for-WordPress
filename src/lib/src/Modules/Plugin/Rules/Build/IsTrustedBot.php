@@ -15,7 +15,7 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	const SLUG = 'shield/is_trusted_bot';
+	public const SLUG = 'shield/is_trusted_bot';
 
 	protected function getName() :string {
 		return 'Is Trusted Bot';

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class Import extends Base {
 
-	const SLUG = 'import';
+	public const SLUG = 'import';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$mod = $this->getCon()->getModule_IPs();

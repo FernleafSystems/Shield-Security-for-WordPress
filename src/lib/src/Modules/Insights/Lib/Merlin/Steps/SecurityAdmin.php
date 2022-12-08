@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class SecurityAdmin extends Base {
 
-	const SLUG = 'security_admin';
+	public const SLUG = 'security_admin';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 

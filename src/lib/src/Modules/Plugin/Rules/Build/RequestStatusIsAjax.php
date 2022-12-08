@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class RequestStatusIsAjax extends RequestStatusBase {
 
-	const SLUG = 'shield/request_status_is_ajax';
+	public const SLUG = 'shield/request_status_is_ajax';
 
 	protected function getName() :string {
 		return 'Is AJAX?';

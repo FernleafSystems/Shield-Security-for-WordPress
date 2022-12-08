@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class RequestStatusIsWpCli extends RequestStatusBase {
 
-	const SLUG = 'shield/request_status_is_wpcli';
+	public const SLUG = 'shield/request_status_is_wpcli';
 
 	protected function getName() :string {
 		return 'Is WP-CLI?';

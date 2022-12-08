@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 class IsBotProbe404 extends Base {
 
-	const SLUG = 'is_bot_probe_404';
+	public const SLUG = 'is_bot_probe_404';
 
 	protected function execResponse() :bool {
 		return true;

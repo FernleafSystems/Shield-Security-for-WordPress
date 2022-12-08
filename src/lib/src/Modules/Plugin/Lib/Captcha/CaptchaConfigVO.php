@@ -16,8 +16,8 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class CaptchaConfigVO extends DynPropertiesClass {
 
-	const PROV_GOOGLE_RECAP2 = 'grecaptcha';
-	const PROV_HCAPTCHA = 'hcaptcha';
+	public const PROV_GOOGLE_RECAP2 = 'grecaptcha';
+	public const PROV_HCAPTCHA = 'hcaptcha';
 
 	/**
 	 * @param string $key

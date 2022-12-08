@@ -9,7 +9,7 @@ class StorageDir {
 
 	use PluginControllerConsumer;
 
-	const SUFFIX_LENGTH = 16;
+	public const SUFFIX_LENGTH = 16;
 
 	private $tempDir;
 

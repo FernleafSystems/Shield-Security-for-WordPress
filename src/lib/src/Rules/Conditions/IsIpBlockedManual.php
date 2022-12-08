@@ -9,7 +9,7 @@ class IsIpBlockedManual extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_blocked_manual';
+	public const SLUG = 'is_ip_blocked_manual';
 
 	/**
 	 * @inheritDoc

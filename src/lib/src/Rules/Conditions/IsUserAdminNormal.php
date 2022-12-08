@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsUserAdminNormal extends Base {
 
-	const SLUG = 'is_user_admin_normal';
+	public const SLUG = 'is_user_admin_normal';
 
 	protected function execConditionCheck() :bool {
 		return ( new IsLoggedInNormal() )->setCon( $this->getCon() )->run()

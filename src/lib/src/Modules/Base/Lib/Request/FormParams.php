@@ -6,9 +6,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class FormParams {
 
-	const ENC_NONE = 'none';
-	const ENC_LZ = 'lz-string';
-	const ENC_BASE64 = 'b64';
+	public const ENC_NONE = 'none';
+	public const ENC_LZ = 'lz-string';
+	public const ENC_BASE64 = 'b64';
 
 	public static function Retrieve( string $encoding = self::ENC_NONE ) :array {
 		$req = Services::Request();

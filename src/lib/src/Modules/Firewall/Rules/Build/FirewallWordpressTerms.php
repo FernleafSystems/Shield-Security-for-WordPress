@@ -6,6 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallWordpressTerms extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_wordpress_terms';
-	const SCAN_CATEGORY = 'wordpress_terms';
+	public const SLUG = 'shield/firewall_wordpress_terms';
+	public const SCAN_CATEGORY = 'wordpress_terms';
 }

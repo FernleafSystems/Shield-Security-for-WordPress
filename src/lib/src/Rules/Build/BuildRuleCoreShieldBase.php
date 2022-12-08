@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
 
-	const SLUG = '';
+	public const SLUG = '';
 
 	protected function getFlags() :array {
 		return [

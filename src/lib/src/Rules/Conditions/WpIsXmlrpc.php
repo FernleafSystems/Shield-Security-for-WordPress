@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpIsXmlrpc extends Base {
 
-	const SLUG = 'wp_is_xmlrpc';
+	public const SLUG = 'wp_is_xmlrpc';
 
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;

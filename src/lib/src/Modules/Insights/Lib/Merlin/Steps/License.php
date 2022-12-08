@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class License extends Base {
 
-	const SLUG = 'license';
+	public const SLUG = 'license';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$resp = parent::processStepFormSubmit( $form );

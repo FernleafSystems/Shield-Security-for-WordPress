@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class GuidedSetupWelcome extends Base {
 
-	const SLUG = 'guided_setup_welcome';
+	public const SLUG = 'guided_setup_welcome';
 
 	public function getName() :string {
 		return 'Welcome';

@@ -6,7 +6,7 @@ class NotMatchRequestPath extends MatchRequestPath {
 
 	use Traits\RequestPath;
 
-	const SLUG = 'not_match_request_path';
+	public const SLUG = 'not_match_request_path';
 
 	protected function execConditionCheck() :bool {
 		return !parent::execConditionCheck();

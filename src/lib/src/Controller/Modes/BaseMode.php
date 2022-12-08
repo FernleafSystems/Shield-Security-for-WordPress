@@ -9,7 +9,7 @@ abstract class BaseMode {
 
 	use Shield\Modules\PluginControllerConsumer;
 
-	const SLUG = '';
+	public const SLUG = '';
 
 	public function enableViaFile() :bool {
 		$FS = Services::WpFs();

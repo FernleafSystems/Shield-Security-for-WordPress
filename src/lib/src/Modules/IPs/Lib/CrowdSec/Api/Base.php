@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseApi;
 
 class Base extends BaseApi {
 
-	const DEFAULT_URL_STUB = CrowdSecConstants::API_BASE_URL;
+	public const DEFAULT_URL_STUB = CrowdSecConstants::API_BASE_URL;
 
 	private $userAgent;
 

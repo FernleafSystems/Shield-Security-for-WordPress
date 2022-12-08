@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  */
 class TrackLinkCheese extends Base {
 
-	const OPT_KEY = 'track_linkcheese';
-	const CHEESE_WORD = 'link-cheese';
+	public const OPT_KEY = 'track_linkcheese';
+	private const CHEESE_WORD = 'link-cheese';
 
 	protected function process() {
 		add_filter( 'robots_txt', [ $this, 'appendRobotsTxt' ], 15 );

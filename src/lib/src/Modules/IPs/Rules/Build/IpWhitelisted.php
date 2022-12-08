@@ -14,7 +14,7 @@ class IpWhitelisted extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	const SLUG = 'shield/is_ip_whitelisted';
+	public const SLUG = 'shield/is_ip_whitelisted';
 
 	protected function getName() :string {
 		return 'Is IP Whitelisted';

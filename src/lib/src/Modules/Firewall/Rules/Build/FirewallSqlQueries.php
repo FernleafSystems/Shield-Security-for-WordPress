@@ -6,6 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallSqlQueries extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_sql_queries';
-	const SCAN_CATEGORY = 'sql_queries';
+	public const SLUG = 'shield/firewall_sql_queries';
+	public const SCAN_CATEGORY = 'sql_queries';
 }

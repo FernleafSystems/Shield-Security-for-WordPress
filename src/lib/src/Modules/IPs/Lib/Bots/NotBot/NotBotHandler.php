@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class NotBotHandler extends ExecOnceModConsumer {
 
-	const LIFETIME = 300;
-	const SLUG = 'notbot';
+	public const LIFETIME = 300;
+	public const SLUG = 'notbot';
 
 	private $useCookies;
 

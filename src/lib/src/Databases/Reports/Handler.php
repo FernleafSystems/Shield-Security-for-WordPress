@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 class Handler extends Base\Handler {
 
-	const TYPE_ALERT = 'alt';
-	const TYPE_INFO = 'nfo';
+	public const TYPE_ALERT = 'alt';
+	public const TYPE_INFO = 'nfo';
 
 	public function autoCleanDb() {
 		$this->tableCleanExpired( $this->getTableSchema()->autoexpire );

@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_security_admin';
+	public const SLUG = 'shield/is_security_admin';
 
 	protected function getName() :string {
 		return 'Is Security Admin';

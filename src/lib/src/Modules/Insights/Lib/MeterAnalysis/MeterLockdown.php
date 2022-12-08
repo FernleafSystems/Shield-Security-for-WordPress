@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterLockdown extends MeterBase {
 
-	const SLUG = 'lockdown';
+	public const SLUG = 'lockdown';
 
 	protected function getWorkingMods() :array {
 		return [ $this->getCon()->getModule_Lockdown() ];

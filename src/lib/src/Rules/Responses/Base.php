@@ -9,7 +9,7 @@ abstract class Base {
 
 	use PluginControllerConsumer;
 
-	const SLUG = '';
+	public const SLUG = '';
 
 	/**
 	 * @var RuleVO

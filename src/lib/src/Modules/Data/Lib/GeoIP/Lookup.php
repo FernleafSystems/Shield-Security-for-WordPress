@@ -16,7 +16,7 @@ class Lookup {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
-	const URL_REDIRECTLI = 'https://api.redirect.li/v1/ip/';
+	public const URL_REDIRECTLI = 'https://api.redirect.li/v1/ip/';
 
 	private $ips = [];
 

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterFirewall extends MeterBase {
 
-	const SLUG = 'firewall';
+	public const SLUG = 'firewall';
 
 	protected function getWorkingMods() :array {
 		return [ $this->getCon()->getModule_Firewall() ];

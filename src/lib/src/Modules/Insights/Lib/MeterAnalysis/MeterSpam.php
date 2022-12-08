@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterSpam extends MeterBase {
 
-	const SLUG = 'spam';
+	public const SLUG = 'spam';
 
 	protected function getWorkingMods() :array {
 		return [ $this->getCon()->getModule_Comments() ];

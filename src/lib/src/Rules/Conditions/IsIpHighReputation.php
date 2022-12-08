@@ -9,7 +9,7 @@ class IsIpHighReputation extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_high_reputation';
+	public const SLUG = 'is_ip_high_reputation';
 
 	protected function execConditionCheck() :bool {
 		return ( new IpRuleStatus( $this->getRequestIP() ) )

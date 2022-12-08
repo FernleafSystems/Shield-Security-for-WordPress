@@ -12,7 +12,7 @@ class MatchRequestPath extends Base {
 
 	use Traits\RequestPath;
 
-	const SLUG = 'match_request_path';
+	public const SLUG = 'match_request_path';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_paths ) ) {

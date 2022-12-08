@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class LoginProtection extends Base {
 
-	const SLUG = 'login_protection';
+	public const SLUG = 'login_protection';
 
 	public function getName() :string {
 		return 'Login';

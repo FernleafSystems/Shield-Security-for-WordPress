@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class DisableFileEditing extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/disable_file_editing';
+	public const SLUG = 'shield/disable_file_editing';
 
 	protected function getName() :string {
 		return 'Disable File Editing';

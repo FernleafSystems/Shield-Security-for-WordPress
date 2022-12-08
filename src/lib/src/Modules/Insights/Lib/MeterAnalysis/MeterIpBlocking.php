@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterIpBlocking extends MeterBase {
 
-	const SLUG = 'ips';
+	public const SLUG = 'ips';
 
 	protected function getWorkingMods() :array {
 		return [ $this->getCon()->getModule_IPs() ];

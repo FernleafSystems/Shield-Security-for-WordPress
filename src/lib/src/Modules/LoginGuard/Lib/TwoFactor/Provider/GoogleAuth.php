@@ -22,7 +22,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	/**
 	 * @var Secret
 	 */
-	private $oWorkingSecret;
+	private $workingSecret;
 
 	public function isProfileActive() :bool {
 		return $this->hasValidSecret() && $this->hasValidatedProfile();
@@ -182,14 +182,13 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	private function getGaSecret() :Secret {
-		if ( !isset( $this->oWorkingSecret ) ) {
-			$this->oWorkingSecret = ( new SecretFactory() )
-				->create(
-					preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
-					sanitize_user( $this->getUser()->user_login )
-				);
+		if ( !isset( $this->workingSecret ) ) {
+			$this->workingSecret = ( new SecretFactory() )->create(
+				preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
+				sanitize_user( $this->getUser()->user_login )
+			);
 		}
-		return $this->oWorkingSecret;
+		return $this->workingSecret;
 	}
 
 	/**

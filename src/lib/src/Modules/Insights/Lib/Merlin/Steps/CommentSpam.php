@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class CommentSpam extends Base {
 
-	const SLUG = 'comment_spam';
+	public const SLUG = 'comment_spam';
 
 	public function getName() :string {
 		return 'SPAM';

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\St
 
 class FreeTrial extends Base {
 
-	const SLUG = 'free_trial';
+	public const SLUG = 'free_trial';
 
 	public function getName() :string {
 		return 'Free Trial';

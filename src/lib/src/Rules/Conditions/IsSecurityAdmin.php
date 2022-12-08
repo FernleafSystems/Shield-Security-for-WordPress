@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsSecurityAdmin extends Base {
 
-	const SLUG = 'is_security_admin';
+	public const SLUG = 'is_security_admin';
 
 	protected function execConditionCheck() :bool {
 		$secAdminCon = $this->getCon()

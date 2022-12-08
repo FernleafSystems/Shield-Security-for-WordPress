@@ -6,6 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallPhpCode extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_php_code';
-	const SCAN_CATEGORY = 'php_code';
+	public const SLUG = 'shield/firewall_php_code';
+	public const SCAN_CATEGORY = 'php_code';
 }

@@ -9,9 +9,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BaseBuildChartData {
 
-	const LOCATION_SUMMARYCARD = 'insights-overview-statcard';
 	use ModConsumer;
 	use ChartRequestConsumer;
+
+	public const LOCATION_SUMMARYCARD = 'insights-overview-statcard';
 
 	/**
 	 * @var array

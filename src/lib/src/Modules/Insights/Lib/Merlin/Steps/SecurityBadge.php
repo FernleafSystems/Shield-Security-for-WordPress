@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class SecurityBadge extends Base {
 
-	const SLUG = 'security_badge';
+	public const SLUG = 'security_badge';
 
 	public function getName() :string {
 		return 'Badge';

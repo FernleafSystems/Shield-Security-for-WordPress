@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PushSignalsToCS extends ExecOnceModConsumer {
 
-	const LIMIT = 100;
+	public const LIMIT = 100;
 
 	private $distinctIPs;
 

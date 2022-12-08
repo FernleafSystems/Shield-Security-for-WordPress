@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 class MeterScans extends MeterBase {
 
-	const SLUG = 'scans';
+	public const SLUG = 'scans';
 
 	protected function getWorkingMods() :array {
 		return [ $this->getCon()->getModule_HackGuard() ];

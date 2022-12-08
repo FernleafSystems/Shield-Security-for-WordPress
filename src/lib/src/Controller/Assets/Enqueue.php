@@ -11,8 +11,8 @@ class Enqueue {
 	use PluginControllerConsumer;
 	use ExecOnce;
 
-	const CSS = 'css';
-	const JS = 'js';
+	public const CSS = 'css';
+	public const JS = 'js';
 
 	private $adminHookSuffix = '';
 

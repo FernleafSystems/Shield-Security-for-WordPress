@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_rate_limit_exceeded';
+	public const SLUG = 'shield/is_rate_limit_exceeded';
 
 	protected function getName() :string {
 		return 'Rate Limit Exceeded';

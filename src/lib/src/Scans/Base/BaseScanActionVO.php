@@ -17,7 +17,7 @@ abstract class BaseScanActionVO {
 
 	use DynProperties;
 
-	const DEFAULT_SLEEP_SECONDS = 0;
+	public const DEFAULT_SLEEP_SECONDS = 0;
 
 	public function getScanNamespace() :string {
 		try {

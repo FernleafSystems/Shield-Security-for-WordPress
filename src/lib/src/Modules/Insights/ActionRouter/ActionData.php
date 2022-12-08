@@ -8,12 +8,12 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class ActionData {
 
-	const FIELD_ACTION = 'action';
-	const FIELD_AJAXURL = 'ajaxurl';
-	const FIELD_SHIELD = 'shield_action';
-	const FIELD_EXECUTE = 'ex';
-	const FIELD_NONCE = 'exnonce';
-	const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
+	public const FIELD_ACTION = 'action';
+	public const FIELD_AJAXURL = 'ajaxurl';
+	public const FIELD_SHIELD = 'shield_action';
+	public const FIELD_EXECUTE = 'ex';
+	public const FIELD_NONCE = 'exnonce';
+	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
 	public static function Build( string $action, bool $isAjax = true, array $aux = [] ) :array {
 		$data = array_merge( [

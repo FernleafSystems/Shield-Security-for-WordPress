@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends ExecOnceModConsumer {
 
-	const SCAN_SLUG = '';
+	public const SCAN_SLUG = '';
 
 	/**
 	 * @var BaseScanActionVO

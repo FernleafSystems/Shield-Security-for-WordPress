@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class RequestStatusIsXmlRpc extends RequestStatusBase {
 
-	const SLUG = 'shield/request_status_is_xmlrpc';
+	public const SLUG = 'shield/request_status_is_xmlrpc';
 
 	protected function getName() :string {
 		return 'Is XML-RPC?';
