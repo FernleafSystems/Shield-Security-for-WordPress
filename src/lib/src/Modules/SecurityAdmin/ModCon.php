@@ -23,22 +23,20 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
-			$this->getSecurityAdminController()->isEnabledSecAdmin() ? Rules\Build\IsSecurityAdmin::class : null,
+			Rules\Build\IsSecurityAdmin::class,
 		];
 	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
 		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
-			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )
-				->setMod( $this );
+			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )->setMod( $this );
 		}
 		return $this->whitelabelCon;
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
 		if ( !$this->securityAdminCon instanceof Lib\SecurityAdmin\SecurityAdminController ) {
-			$this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )
-				->setMod( $this );
+			$this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )->setMod( $this );
 		}
 		return $this->securityAdminCon;
 	}

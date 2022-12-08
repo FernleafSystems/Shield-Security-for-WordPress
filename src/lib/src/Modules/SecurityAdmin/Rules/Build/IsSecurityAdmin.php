@@ -29,15 +29,7 @@ class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 					'condition' => Conditions\WpIsWpcli::SLUG,
 				],
 				[
-					'logic' => static::LOGIC_AND,
-					'group' => [
-						[
-							'condition' => Conditions\IsUserAdminNormal::SLUG,
-						],
-						[
-							'condition' => Conditions\IsSecurityAdmin::SLUG,
-						],
-					]
+					'condition' => Conditions\IsSecurityAdmin::SLUG,
 				]
 			]
 		];

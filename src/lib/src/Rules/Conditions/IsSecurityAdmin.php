@@ -12,7 +12,17 @@ class IsSecurityAdmin extends Base {
 		$secAdminCon = $this->getCon()
 							->getModule_SecAdmin()
 							->getSecurityAdminController();
-		return $secAdminCon->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
-			   || $secAdminCon->getSecAdminTimeRemaining() > 0;
+		return ( new IsUserAdminNormal() )->setCon( $this->getCon() )->run() &&
+			   (
+				   !$secAdminCon->isEnabledSecAdmin()
+				   || $secAdminCon->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
+				   || $secAdminCon->getSecAdminTimeRemaining() > 0
+			   );
+	}
+
+	public static function RequiredConditions() :array {
+		return [
+			IsUserAdminNormal::class
+		];
 	}
 }
