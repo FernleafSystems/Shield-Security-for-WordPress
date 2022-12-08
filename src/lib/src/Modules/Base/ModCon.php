@@ -34,11 +34,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $oProcessor;
 
 	/**
-	 * @var Shield\Modules\Base\Reporting
-	 */
-	private $reporting;
-
-	/**
 	 * @var Shield\Modules\Base\UI
 	 */
 	private $UI;
@@ -783,16 +778,6 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->UI;
 	}
 
-	/**
-	 * @return Shield\Modules\Base\Reporting|mixed|false
-	 */
-	public function getReportingHandler() {
-		if ( !isset( $this->reporting ) ) {
-			$this->reporting = $this->loadModElement( 'Reporting' );
-		}
-		return $this->reporting;
-	}
-
 	public function getAdminNotices() {
 		if ( !isset( $this->adminNotices ) ) {
 			$this->adminNotices = $this->loadModElement( 'AdminNotices' );
@@ -839,7 +824,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return false|Shield\Modules\ModConsumer
+	 * @return false|Shield\Modules\ModConsumer|mixed
 	 */
 	private function loadModElement( string $class ) {
 		$element = false;

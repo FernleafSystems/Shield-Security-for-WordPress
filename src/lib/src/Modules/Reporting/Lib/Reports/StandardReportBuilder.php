@@ -1,13 +1,18 @@
-<?php
+<?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\{
+	ReportsBuilderAlerts,
+	ReportsBuilderInfo
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseBuilder {
+class StandardReportBuilder {
 
 	use ModConsumer;
 
@@ -16,34 +21,69 @@ abstract class BaseBuilder {
 	 */
 	protected $rep;
 
-	public function __construct( ReportVO $oReport ) {
-		$this->rep = $oReport;
-	}
-
 	/**
 	 * @throws \Exception
 	 */
-	public function build() {
+	public function build( ReportVO $report ) {
+		$this->rep = $report;
 		if ( $this->isReadyToSend() ) {
-			$data = $this->gather();
-			if ( !empty( $data ) ) {
-				$this->rep->content = $this->render( $data );
+			$gatheredReports = $this->gather();
+			if ( !empty( $gatheredReports ) ) {
+				$this->rep->content = $this->render( $gatheredReports );
 			}
 		}
 	}
 
 	protected function isReadyToSend() :bool {
 		return !Services::WpGeneral()->isCron()
-			   || empty( $this->rep->previous )
+			   || !$this->rep->previous instanceof EntryVO
 			   || Services::Request()->ts() > $this->rep->interval_end_at;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	abstract protected function gather() :array;
+	protected function gather() :array {
+		$reports = [];
+		return array_filter( array_map(
+			function ( $reporter ) use ( $reports ) {
+				return array_merge( $reports, $reporter->setReport( $this->rep )->build() );
+			},
+			$this->getCon()
+				 ->getModule_Reporting()
+				 ->getReportingController()
+				 ->getReporters( $this->rep->type )
+		) );
+	}
 
-	abstract protected function render( array $gathered ) :string;
+	protected function render( array $gatheredReports ) :string {
+
+		switch ( $this->rep->type ) {
+			case Constants::REPORT_TYPE_ALERT:
+				$renderer = ReportsBuilderAlerts::SLUG;
+				break;
+
+			case Constants::REPORT_TYPE_INFO:
+			default:
+				$renderer = ReportsBuilderInfo::SLUG;
+				break;
+		}
+
+		return $this->getCon()
+					->getModule_Insights()
+					->getActionRouter()
+					->render(
+						$renderer,
+						[
+							'strings' => [
+								'time_interval' => $this->getTimeIntervalForDisplay(),
+							],
+							'vars'    => [
+								'reports' => $gatheredReports
+							],
+						]
+					);
+	}
 
 	/**
 	 * When displaying, we must take into account the GMT offset of the site.

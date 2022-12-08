@@ -1,11 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
@@ -23,42 +22,28 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		$this->buildAndSendReport();
+		$this->buildAndSendReports();
 	}
 
-	private function buildAndSendReport() {
-		/** @var Modules\Reporting\Options $opts */
-		$opts = $this->getOptions();
-
+	private function buildAndSendReports() {
+		/** @var Reports\ReportVO[] $reports */
 		$reports = [];
-
-		if ( $opts->getFrequencyAlert() !== 'disabled' ) {
+		foreach ( $this->getReportTypes() as $reportType ) {
 			try {
-				$report = $this->buildReportAlerts();
+				$report = ( new Reports\CreateReportVO() )
+					->setMod( $this->getMod() )
+					->create( $reportType );
+
+				( new Reports\StandardReportBuilder() )
+					->setMod( $this->getMod() )
+					->build( $report );
+
 				if ( !empty( $report->content ) ) {
-					$this->storeReportRecord( $report );
 					$reports[] = $report;
+					$this->storeReportRecord(  $report );
 					$this->getCon()->fireEvent( 'report_generated', [
 						'audit_params' => [
-							'type'     => 'alert',
-							'interval' => $report->interval,
-						]
-					] );
-				}
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-
-		if ( $opts->getFrequencyInfo() !== 'disabled' ) {
-			try {
-				$report = $this->buildReportInfo();
-				if ( !empty( $report->content ) ) {
-					$this->storeReportRecord( $report );
-					$reports[] = $report;
-					$this->getCon()->fireEvent( 'report_generated', [
-						'audit_params' => [
-							'type'     => 'info',
+							'type'     => $this->getReportTypeName( $report->type ),
 							'interval' => $report->interval,
 						]
 					] );
@@ -71,10 +56,6 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 		$this->sendEmail( $reports );
 	}
 
-	/**
-	 * @param Modules\Reporting\Lib\Reports\ReportVO $report
-	 * @return bool
-	 */
 	private function storeReportRecord( Reports\ReportVO $report ) :bool {
 		$record = new DBReports\EntryVO();
 		$record->sent_at = Services::Request()->ts();
@@ -91,29 +72,23 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	/**
-	 * @throws \Exception
+	 * @return Reports\Reporters\BaseReporter[]
 	 */
-	private function buildReportAlerts() :Reports\ReportVO {
-		$report = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_ALERT ) )
-			->setMod( $this->getMod() )
-			->create();
-		( new Build\BuilderAlerts( $report ) )
-			->setMod( $this->getMod() )
-			->build();
-		return $report;
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function buildReportInfo() :Reports\ReportVO {
-		$report = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_INFO ) )
-			->setMod( $this->getMod() )
-			->create();
-		( new Build\BuilderInfo( $report ) )
-			->setMod( $this->getMod() )
-			->build();
-		return $report;
+	public function getReporters( string $type ) :array {
+		return array_map(
+			function ( $reporter ) {
+				/** @var Reports\Reporters\BaseReporter $reporter */
+				$reporter = new $reporter();
+				return $reporter->setCon( $this->getCon() );
+			},
+			array_filter(
+				Constants::REPORTERS,
+				function ( $reporter ) use ( $type ) {
+					/** @var Reports\Reporters\BaseReporter $reporter */
+					return $reporter::TYPE === $type;
+				}
+			)
+		);
 	}
 
 	/**
@@ -154,5 +129,16 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 				error_log( $e->getMessage() );
 			}
 		}
+	}
+
+	private function getReportTypes() :array {
+		return [
+			Constants::REPORT_TYPE_ALERT => 'alert',
+			Constants::REPORT_TYPE_INFO  => 'info',
+		];
+	}
+
+	private function getReportTypeName( string $type ) :string {
+		return $this->getReportTypes()[ $type ] ?? 'invalid report type';
 	}
 }

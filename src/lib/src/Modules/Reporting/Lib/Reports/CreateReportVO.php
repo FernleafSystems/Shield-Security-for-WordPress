@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
@@ -16,16 +16,13 @@ class CreateReportVO {
 	 */
 	private $rep;
 
-	public function __construct( string $reportType ) {
-		$this->rep = new ReportVO();
-		$this->rep->type = $reportType;
-	}
-
 	/**
-	 * @return ReportVO
 	 * @throws \Exception
 	 */
-	public function create() :ReportVO {
+	public function create( string $reportType ) :ReportVO {
+		$this->rep = new ReportVO();
+		$this->rep->type = $reportType;
+
 		$this->setReportInterval()
 			 ->setPreviousReport()
 			 ->setIntervalBoundaries()
@@ -33,38 +30,30 @@ class CreateReportVO {
 		return $this->rep;
 	}
 
-	/**
-	 * @return $this
-	 * @throws \Exception
-	 */
-	private function setReportInterval() {
+	private function setReportInterval() :self {
 		/** @var Reporting\Options $opts */
 		$opts = $this->getOptions();
 
 		switch ( $this->rep->type ) {
-			case Reports\Handler::TYPE_ALERT:
+			case Reporting\Lib\Constants::REPORT_TYPE_ALERT:
 				$this->rep->interval = $opts->getFrequencyAlert();
 				break;
-			case Reports\Handler::TYPE_INFO:
+			case Reporting\Lib\Constants::REPORT_TYPE_INFO:
+			default:
 				$this->rep->interval = $opts->getFrequencyInfo();
 				break;
-			default:
-				throw new \Exception( 'Not a supported report type: '.$this->rep->type );
 		}
 		return $this;
 	}
 
-	/**
-	 * @return $this
-	 */
-	private function setPreviousReport() {
+	private function setPreviousReport() :self {
 		/** @var Reporting\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Reports\Select $sel */
 		$sel = $mod->getDbHandler_Reports()->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )
 								   ->filterByFrequency( $this->rep->interval )
-								   ->setOrderBy( 'sent_at', 'DESC' )
+								   ->setOrderBy( 'sent_at' )
 								   ->first();
 		return $this;
 	}
@@ -73,10 +62,9 @@ class CreateReportVO {
 	 * Here we test whether the report time boundary overlaps with the boundaries of the previous report.
 	 * If it does overlap, we're creating a duplicate report.
 	 *
-	 * @return $this
 	 * @throws \Exception
 	 */
-	private function setIntervalBoundaries() {
+	private function setIntervalBoundaries() :self {
 		$req = Services::Request();
 
 		$intervalToReport = $req->carbon( true );
@@ -124,8 +112,9 @@ class CreateReportVO {
 				$end = $intervalToReport->endOfYear()->timestamp;
 				break;
 
+			case 'disabled':
 			default:
-				throw new \Exception( 'Not a supported frequency' );
+				throw new \Exception( 'Attempting to create a report for a disabled interval.' );
 		}
 
 		if ( $this->rep->previous instanceof Reports\EntryVO && $end <= $this->rep->previous->interval_end_at ) {
@@ -142,11 +131,7 @@ class CreateReportVO {
 		return $this;
 	}
 
-	/**
-	 * @return $this
-	 * @throws \Exception
-	 */
-	private function setReportId() {
+	private function setReportId() :self {
 		/** @var Reporting\ModCon $mod */
 		$mod = $this->getMod();
 		/** @var Reports\Select $select */
