@@ -1,3 +1,16 @@
+{% if flags.display_tests %}
+	<div class="row">
+		<div class="col">
+			<h6>Debug Tests:</h6>
+			<ul>
+				{% for test in vars.available_tests %}
+					<li><code>{{ test|raw }}</code></li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+{% endif %}
+
 {% if flags.has_debug_exec %}
 
 	<div class="row">
