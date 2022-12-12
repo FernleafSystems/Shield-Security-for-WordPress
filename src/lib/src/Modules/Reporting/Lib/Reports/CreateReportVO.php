@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -25,8 +25,7 @@ class CreateReportVO {
 
 		$this->setReportInterval()
 			 ->setPreviousReport()
-			 ->setIntervalBoundaries()
-			 ->setReportId();
+			 ->setIntervalBoundaries();
 		return $this->rep;
 	}
 
@@ -49,10 +48,10 @@ class CreateReportVO {
 	private function setPreviousReport() :self {
 		/** @var Reporting\ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Reports\Select $sel */
-		$sel = $mod->getDbHandler_Reports()->getQuerySelector();
+		/** @var ReportsDB\Select $sel */
+		$sel = $mod->getDbHandler_ReportLogs()->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )
-								   ->filterByFrequency( $this->rep->interval )
+								   ->filterByInterval( $this->rep->interval )
 								   ->setOrderBy( 'sent_at' )
 								   ->first();
 		return $this;
@@ -117,7 +116,7 @@ class CreateReportVO {
 				throw new \Exception( 'Attempting to create a report for a disabled interval.' );
 		}
 
-		if ( $this->rep->previous instanceof Reports\EntryVO && $end <= $this->rep->previous->interval_end_at ) {
+		if ( $this->rep->previous instanceof ReportsDB\Record && $end <= $this->rep->previous->interval_end_at ) {
 			throw new \Exception( 'Attempting to create a duplicate report based on interval.' );
 		}
 
@@ -128,16 +127,6 @@ class CreateReportVO {
 		$this->rep->interval_start_at = $start;
 		$this->rep->interval_end_at = $end;
 
-		return $this;
-	}
-
-	private function setReportId() :self {
-		/** @var Reporting\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Reports\Select $select */
-		$select = $mod->getDbHandler_Reports()->getQuerySelector();
-		$prevID = $select->getLastReportId();
-		$this->rep->rid = is_numeric( $prevID ) ? $prevID + 1 : 1;
 		return $this;
 	}
 }

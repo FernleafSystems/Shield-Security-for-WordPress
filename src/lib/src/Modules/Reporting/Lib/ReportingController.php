@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -28,7 +28,7 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	private function buildAndSendReports() {
 		/** @var Reports\ReportVO[] $reports */
 		$reports = [];
-		foreach ( $this->getReportTypes() as $reportType ) {
+		foreach ( array_keys( $this->getReportTypes() ) as $reportType ) {
 			try {
 				$report = ( new Reports\CreateReportVO() )
 					->setMod( $this->getMod() )
@@ -40,7 +40,7 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 
 				if ( !empty( $report->content ) ) {
 					$reports[] = $report;
-					$this->storeReportRecord(  $report );
+					$this->storeReportRecord( $report );
 					$this->getCon()->fireEvent( 'report_generated', [
 						'audit_params' => [
 							'type'     => $this->getReportTypeName( $report->type ),
@@ -50,6 +50,7 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 				}
 			}
 			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
 			}
 		}
 
@@ -57,18 +58,17 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		$record = new DBReports\EntryVO();
-		$record->sent_at = Services::Request()->ts();
-		$record->rid = $report->rid;
-		$record->type = $report->type;
-		$record->frequency = $report->interval;
-		$record->interval_end_at = $report->interval_end_at;
-
 		/** @var Modules\Reporting\ModCon $mod */
 		$mod = $this->getMod();
-		return $mod->getDbHandler_Reports()
-				   ->getQueryInserter()
-				   ->insert( $record );
+		$reportsDB = $mod->getDbHandler_ReportLogs();
+		/** @var ReportsDB\Record $record */
+		$record = $reportsDB->getRecord();
+		$record->type = $report->type;
+		$record->interval_length = $report->interval;
+		$record->interval_end_at = $report->interval_end_at;
+
+		return $reportsDB->getQueryInserter()
+						 ->insert( $record );
 	}
 
 	/**

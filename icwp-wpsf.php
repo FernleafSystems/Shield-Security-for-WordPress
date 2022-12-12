@@ -13,7 +13,7 @@
  */
 
 /**
- * Copyright (c) 2022 Shield Security <support@getshieldsecurity.com>
+ * Copyright (c) 2023 Shield Security <support@getshieldsecurity.com>
  * All rights reserved.
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free

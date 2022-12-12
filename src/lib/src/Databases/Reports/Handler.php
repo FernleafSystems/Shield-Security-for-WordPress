@@ -8,8 +8,4 @@ class Handler extends Base\Handler {
 
 	public const TYPE_ALERT = 'alt';
 	public const TYPE_INFO = 'nfo';
-
-	public function autoCleanDb() {
-		$this->tableCleanExpired( $this->getTableSchema()->autoexpire );
-	}
 }

@@ -1,20 +1,18 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports\EntryVO;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops\Record;
 
 /**
- * @property int           $rid
- * @property string        $type
- * @property string        $interval
- * @property int           $interval_start_at
- * @property int           $interval_end_at
- * @property string        $content
- * @property EntryVO|false $previous
+ * @property string       $type
+ * @property string       $interval
+ * @property int          $interval_start_at
+ * @property int          $interval_end_at
+ * @property string       $content
+ * @property Record|false $previous
  */
-class ReportVO {
+class ReportVO extends DynPropertiesClass {
 
-	use DynProperties;
 }

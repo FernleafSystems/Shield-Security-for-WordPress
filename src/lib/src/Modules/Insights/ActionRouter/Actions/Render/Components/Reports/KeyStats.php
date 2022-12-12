@@ -5,8 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 
-class KeyStats extends Base {
+class KeyStats extends ReportsBuilderBase {
 
+	public const PRIMARY_MOD = 'events';
 	public const SLUG = 'render_keystats';
 	public const TEMPLATE = '/components/reports/mod/events/info_keystats.twig';
 

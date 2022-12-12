@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\{
 	ReportsBuilderAlerts,
 	ReportsBuilderInfo
@@ -36,7 +36,7 @@ class StandardReportBuilder {
 
 	protected function isReadyToSend() :bool {
 		return !Services::WpGeneral()->isCron()
-			   || !$this->rep->previous instanceof EntryVO
+			   || !$this->rep->previous instanceof Record
 			   || Services::Request()->ts() > $this->rep->interval_end_at;
 	}
 
@@ -45,15 +45,14 @@ class StandardReportBuilder {
 	 */
 	protected function gather() :array {
 		$reports = [];
-		return array_filter( array_map(
-			function ( $reporter ) use ( $reports ) {
-				return array_merge( $reports, $reporter->setReport( $this->rep )->build() );
-			},
-			$this->getCon()
-				 ->getModule_Reporting()
-				 ->getReportingController()
-				 ->getReporters( $this->rep->type )
-		) );
+		$reporters = $this->getCon()
+						  ->getModule_Reporting()
+						  ->getReportingController()
+						  ->getReporters( $this->rep->type );
+		foreach ( $reporters as $reporter ) {
+			$reports = array_merge( $reports, $reporter->setReport( $this->rep )->build() );
+		}
+		return $reports;
 	}
 
 	protected function render( array $gatheredReports ) :string {

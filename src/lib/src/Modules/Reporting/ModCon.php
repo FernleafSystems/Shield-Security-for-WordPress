@@ -12,6 +12,13 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $reportsCon;
 
+	public function getDbHandler_ReportLogs() :DB\Report\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'report' );
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getDbHandler_Reports() :Databases\Reports\Handler {
 		return $this->getDbH( 'reports' );
 	}

@@ -1,5 +1,5 @@
 {
-  "properties":       {
+  "properties":  {
     "slug":                  "reporting",
     "load_priority":         12,
     "name":                  "Reporting",
@@ -15,10 +15,10 @@
     "run_if_wpcli":          true,
     "tracking_exclude":      true
   },
-  "wpcli":            {
+  "wpcli":       {
     "enabled": true
   },
-  "sections":         [
+  "sections":    [
     {
       "slug":        "section_timings",
       "primary":     true,
@@ -44,7 +44,7 @@
       "hidden": true
     }
   ],
-  "options":          [
+  "options":     [
     {
       "key":         "enable_reporting",
       "section":     "section_enable_mod_reporting",
@@ -127,11 +127,41 @@
       "description":   "Decide when you should be sent non-critical information and reports about your site security."
     }
   ],
-  "definitions":      {
-    "db_classes":       {
+  "definitions": {
+    "db_handler_classes": {
+      "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Reporting\\DB\\Report\\Ops\\Handler"
+    },
+    "db_classes":         {
       "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Reports\\Handler"
     },
-    "db_table_reports": {
+    "db_table_report":    {
+      "autoexpire":      30,
+      "slug":            "report",
+      "has_updated_at":  false,
+      "has_deleted_at":  false,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "type":            {
+          "macro_type": "char",
+          "length":     3,
+          "comment":    "Report Type"
+        },
+        "interval_length": {
+          "macro_type": "varchar",
+          "length":     10,
+          "comment":    "Report Interval"
+        }
+      },
+      "cols_timestamps": {
+        "interval_end_at": {
+          "comment": "Interval End"
+        },
+        "created_at":      {
+          "comment": "Report Sent At"
+        }
+      }
+    },
+    "db_table_reports":   {
       "slug":            "reports",
       "autoexpire":      30,
       "cols_custom":     {
@@ -144,7 +174,7 @@
         "sent_at":         "Report Sent"
       }
     },
-    "events":           {
+    "events":             {
       "report_generated": {
         "audit_params": [
           "type",
