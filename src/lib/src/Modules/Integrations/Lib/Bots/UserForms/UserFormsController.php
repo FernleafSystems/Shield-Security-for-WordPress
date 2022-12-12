@@ -30,6 +30,7 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 			'memberpress'             => Handlers\MemberPress::class,
 			'paidmembersubscriptions' => Handlers\PaidMemberSubscriptions::class,
 			'profilebuilder'          => Handlers\ProfileBuilder::class,
+			'restrictcontentpro'      => Handlers\RestrictContentPro::class,
 			'ultimatemember'          => Handlers\UltimateMember::class,
 			'woocommerce'             => Handlers\WooCommerce::class,
 			'wordpress'               => Handlers\WordPress::class,
