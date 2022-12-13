@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -195,19 +196,14 @@ class Strings extends Base\Strings {
 		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$plugName = $con->getHumanName();
-
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :
-				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $plugName );
+				$name = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $con->getHumanName() );
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $plugName ),
-					sprintf( '<a href="%s">%s</a>',
-						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'debug' ),
-						'Launch Debug Info Page'
-					)
+					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $con->getHumanName() ),
+					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->adminTop( PluginURLs::NAV_DEBUG ), 'Launch Debug Info Page' )
 				];
 				break;
 

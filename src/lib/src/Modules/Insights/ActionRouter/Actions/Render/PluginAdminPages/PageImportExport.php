@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\IpAutoUnblockShieldVisitor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\PluginImportFromSite;
 
@@ -14,10 +15,9 @@ class PageImportExport extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		$mod = $this->primary_mod;
 		return [
 			'vars'    => [
-				'file_upload_nonce' => $con->getShieldActionNonceData( PluginImportFromFileUpload::SLUG, [
+				'file_upload_nonce' => ActionData::Build( PluginImportFromFileUpload::SLUG, true, [
 					'notification_type' => 'wp_admin_notice'
 				] ),
 			],
@@ -28,7 +28,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'can_importexport' => $con->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'export_file_download' => ActionData::FileDownloadHref( 'plugin_export' ),
+				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
 			],
 			'strings' => [
 				'tab_by_file'          => __( 'Import From File', 'wp-simple-firewall' ),

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use IPLib\Address\AddressInterface;
 use IPLib\Factory;
@@ -32,9 +32,10 @@ class SelectSearchData {
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function ipSearch( AddressInterface $ip ) :array {
+		$con = $this->getCon();
 		try {
 			( new IPRecords() )
-				->setMod( $this->getCon()->getModule_Data() )
+				->setMod( $con->getModule_Data() )
 				->loadIP( $ip->toString(), false );
 			$data = [
 				[
@@ -46,7 +47,7 @@ class SelectSearchData {
 							'href'       => '',
 							'ip'         => $ip->toString(),
 							'new_window' => false,
-							'icon'       => $this->getCon()->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
+							'icon'       => $con->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
 						],
 					],
 				]
@@ -116,6 +117,7 @@ class SelectSearchData {
 	}
 
 	private function getExternalSearch() :array {
+		$con = $this->getCon();
 		return [
 			[
 				'text'     => __( 'External Links', 'wp-simple-firewall' ),
@@ -123,10 +125,10 @@ class SelectSearchData {
 					[
 						'id'         => 'external_helpdesk',
 						'text'       => __( 'Helpdesk and Knowledge Base', 'wp-simple-firewall' ),
-						'href'       => $this->getCon()->labels->url_helpdesk,
+						'href'       => $con->labels->url_helpdesk,
 						'new_window' => true,
 						'tokens'     => 'help docs helpdesk support knowledge base doc',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/life-preserver.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
 					],
 					[
 						'id'         => 'external_getshieldhome',
@@ -134,7 +136,7 @@ class SelectSearchData {
 						'href'       => 'https://getshieldsecurity.com',
 						'new_window' => true,
 						'tokens'     => 'shield security homepage home website site',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/house-fill.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/house-fill.svg' ),
 					],
 					[
 						'id'         => 'external_gopro',
@@ -142,7 +144,7 @@ class SelectSearchData {
 						'href'       => 'https://getshieldsecurity.com/pricing/',
 						'new_window' => true,
 						'tokens'     => 'security pro premium security upgrade',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
 					],
 					[
 						'id'         => 'external_trial',
@@ -150,7 +152,7 @@ class SelectSearchData {
 						'href'       => 'https://getshieldsecurity.com/free-trial/',
 						'new_window' => true,
 						'tokens'     => 'security pro premium free trial',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
 					],
 					[
 						'id'         => 'external_review',
@@ -158,7 +160,7 @@ class SelectSearchData {
 						'href'       => 'https://shsec.io/l1',
 						'new_window' => true,
 						'tokens'     => 'review reviews stars',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/pencil-square.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/pencil-square.svg' ),
 					],
 					[
 						'id'         => 'external_testimonials',
@@ -166,7 +168,7 @@ class SelectSearchData {
 						'href'       => 'https://shsec.io/l2',
 						'new_window' => true,
 						'tokens'     => 'review reviews testimonial testimonials',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/book-half.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/book-half.svg' ),
 					],
 					[
 						'id'         => 'external_crowdsec',
@@ -174,7 +176,7 @@ class SelectSearchData {
 						'href'       => 'https://crowdsec.net/',
 						'new_window' => true,
 						'tokens'     => 'crowdsec',
-						'icon'       => $this->getCon()->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+						'icon'       => $con->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
 					],
 				],
 			]
@@ -182,7 +184,8 @@ class SelectSearchData {
 	}
 
 	private function getToolsSearch() :array {
-		$modInsights = $this->getCon()->getModule_Insights();
+		$con = $this->getCon();
+		$pageURLs = $con->plugin_urls;
 		return [
 			[
 				'text'     => __( 'Security Tools', 'wp-simple-firewall' ),
@@ -190,86 +193,86 @@ class SelectSearchData {
 					[
 						'id'     => 'tool_ip_manager',
 						'text'   => __( 'Manage IP Rules', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_IPs(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_IP_RULES ),
 						'tokens' => 'tool ips ip address analyse analysis rules rule manager block black white list lists bypass crowdsec table',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/diagram-3-fill.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/diagram-3-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_scan_run',
 						'text'   => __( 'Run A File Scan', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_ScansResults(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_SCANS_RUN ),
 						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/shield-shaded.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/shield-shaded.svg' ),
 					],
 					[
 						'id'     => 'tool_scan_results',
 						'text'   => __( 'View Scan Results', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_ScansResults(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/shield-fill.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/shield-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_activity_log',
 						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_ActivityLog(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
 						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_traffic_log',
 						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_ActivityLog(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_TRAFFIC_VIEWER ),
 						'tokens' => 'tool activity log table traffic request requests bots review',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/stoplights.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
 						'id'     => 'tool_sessions',
 						'text'   => __( 'View User Sessions', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_Sessions(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_USER_SESSIONS ),
 						'tokens' => 'tool user users session sessions expire discard logout',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/person-badge.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/person-badge.svg' ),
 					],
 					[
 						'id'     => 'tool_license',
 						'text'   => __( 'Activate ShieldPRO License', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_Sessions(),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_LICENSE ),
 						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/award.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/award.svg' ),
 					],
 					[
 						'id'     => 'tool_notes',
 						'text'   => __( 'Review Admin Notes', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_SubInsightsPage( 'notes' ),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_NOTES ),
 						'tokens' => 'tool admin notes note',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/pencil-square.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/pencil-square.svg' ),
 					],
 					[
 						'id'     => 'tool_importexport',
 						'text'   => __( 'Import / Export Settings', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_SubInsightsPage( 'importexport' ),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_IMPORT_EXPORT ),
 						'tokens' => 'tool sync import export transfer download settings configuration options slave master network',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/arrows-expand.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/arrows-expand.svg' ),
 					],
 					[
 						'id'     => 'tool_overview',
 						'text'   => __( 'My Security Overview', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_OVERVIEW ),
 						'tokens' => 'tool overview grade grading charts performance dashboard summary',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/speedometer.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
 					[
 						'id'     => 'tool_guidedsetup',
 						'text'   => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_SubInsightsPage( 'merlin' ),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_WIZARD ),
 						'tokens' => 'tool setup guide guided wizard',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/magic.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/magic.svg' ),
 					],
 					[
 						'id'     => 'tool_debug',
 						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
-						'href'   => $modInsights->getUrl_SubInsightsPage( 'debug' ),
+						'href'   => $pageURLs->adminTop( PluginURLs::NAV_DEBUG ),
 						'tokens' => 'tool debug info help',
-						'icon'   => $this->getCon()->svgs->raw( 'bootstrap/tools.svg' ),
+						'icon'   => $con->svgs->raw( 'bootstrap/tools.svg' ),
 					],
 				],
 			]
@@ -277,36 +280,41 @@ class SelectSearchData {
 	}
 
 	private function getIntegrationsSearch() :array {
-		$modInt = $this->getCon()->getModule_Integrations();
-		$optsInt = $modInt->getOptions();
+		$con = $this->getCon();
+		$pageURLs = $con->plugin_urls;
+		$modIntegrations = $con->getModule_Integrations();
 
 		$integrations = [
 			[
 				'id'     => 'integration_mainwp',
 				'text'   => 'Integration with MainWP',
-				'href'   => $modInt->getUrl_DirectLinkToOption( 'enable_mainwp' ),
+				'href'   => $pageURLs->modOption( $modIntegrations, 'enable_mainwp' ),
 				'tokens' => 'integration main mainwp',
-				'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 			]
 		];
 
-		foreach ( $optsInt->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item ) {
+		foreach (
+			$modIntegrations->getOptions()->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item
+		) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
-				'href'   => $modInt->getUrl_DirectLinkToOption( 'user_form_providers' ),
+				'href'   => $pageURLs->modOption( $modIntegrations, 'user_form_providers' ),
 				'tokens' => 'integration login form '.$item[ 'text' ],
-				'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 			];
 		}
 
-		foreach ( $optsInt->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item ) {
+		foreach (
+			$modIntegrations->getOptions()->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item
+		) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
-				'href'   => $modInt->getUrl_DirectLinkToOption( 'form_spam_providers' ),
+				'href'   => $pageURLs->modOption( $modIntegrations, 'form_spam_providers' ),
 				'tokens' => 'contact integration form forms '.$item[ 'text' ],
-				'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 			];
 		}
 
@@ -319,8 +327,10 @@ class SelectSearchData {
 	}
 
 	private function getConfigSearch() :array {
+		$con = $this->getCon();
+
 		$search = [];
-		foreach ( $this->getCon()->modules as $module ) {
+		foreach ( $con->modules as $module ) {
 			if ( $module->cfg->properties[ 'show_module_options' ] ) {
 				$config = [];
 				foreach ( $module->getOptions()->getVisibleOptionsKeys() as $optKey ) {
@@ -328,8 +338,8 @@ class SelectSearchData {
 						$config[] = [
 							'id'     => 'config_'.$optKey,
 							'text'   => $module->getStrings()->getOptionStrings( $optKey )[ 'name' ],
-							'href'   => $module->getUrl_DirectLinkToOption( $optKey ),
-							'icon'   => $this->getCon()->svgs->raw( 'bootstrap/sliders.svg' ),
+							'href'   => $con->plugin_urls->modOption( $module, $optKey ),
+							'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 							'tokens' => $this->getSearchableTextForModuleOption( $module, $optKey ),
 						];
 					}

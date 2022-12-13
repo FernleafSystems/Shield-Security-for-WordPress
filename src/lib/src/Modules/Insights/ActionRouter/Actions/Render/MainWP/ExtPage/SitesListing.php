@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
@@ -16,6 +16,7 @@ class SitesListing extends BaseMWP {
 	public const TEMPLATE = '/integration/mainwp/pages/sites.twig';
 
 	protected function getRenderData() :array {
+		$con = $this->getCon();
 		/** @var ModCon $modInsights */
 		$modInsights = $this->getMod();
 		$mwp = $this->getCon()->mwpVO;
@@ -73,10 +74,10 @@ class SitesListing extends BaseMWP {
 					$statsHead[ 'with_issues' ]++;
 				}
 
-				$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_ScansResults() );
+				$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ) );
 				$gradeLetter = $sync->modules[ 'insights' ][ 'grades' ][ 'integrity' ][ 'letter_score' ] ?? '-';
 				$shd[ 'grades' ] = [
-					'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ) ),
+					'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ) ),
 					'integrity' => $gradeLetter,
 					'good'      => in_array( $gradeLetter, [ 'A', 'B' ] ),
 				];
@@ -140,7 +141,7 @@ class SitesListing extends BaseMWP {
 		return str_replace(
 			$WP->getAdminUrl(),
 			'',
-			$this->getCon()->getModule_Insights()->getUrl_ScansResults()
+			$this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS )
 		);
 	}
 

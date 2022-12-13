@@ -155,10 +155,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return $this->getCon()->getShieldActionNoncedUrl(
-			Actions\PluginDumpTelemetry::SLUG,
-			Services::WpGeneral()->getHomeUrl()
-		);
+		return $this->getCon()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::SLUG );
 	}
 
 	public function getPluginReportEmail() :string {

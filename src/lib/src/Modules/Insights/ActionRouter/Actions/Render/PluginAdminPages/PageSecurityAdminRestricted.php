@@ -22,7 +22,7 @@ class PageSecurityAdminRestricted extends Actions\Render\BaseRender {
 				'allow_email_override' => $secOpts->isEmailOverridePermitted()
 			],
 			'hrefs'   => [
-				'form_action' => $this->getCon()->getPluginUrl_DashboardHome()
+				'form_action' => $this->getCon()->plugin_urls->adminHome()
 			],
 			'strings' => [
 				'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),

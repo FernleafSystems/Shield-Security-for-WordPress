@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -350,7 +350,7 @@ abstract class ModCon extends DynPropertiesClass {
 	public function getUrl_OptionsConfigPage() :string {
 		return $this->getCon()
 					->getModule_Insights()
-					->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, $this->getSlug() );
+					->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->getSlug() );
 	}
 
 	/**
@@ -368,6 +368,9 @@ abstract class ModCon extends DynPropertiesClass {
 		return false;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_DirectLinkToOption( string $key ) :string {
 		$def = $this->getOptions()->getOptDefinition( $key );
 		return empty( $def[ 'section' ] ) ?
@@ -375,6 +378,9 @@ abstract class ModCon extends DynPropertiesClass {
 			: $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_DirectLinkToSection( string $section ) :string {
 		if ( $section == 'primary' ) {
 			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 
@@ -19,7 +20,7 @@ class BannerGoPro extends BasePlugin {
 			'flags' => [
 				'show_promo' => $con->isModulePage()
 								&& !$con->isPremiumActive()
-								&& ( !in_array( $nav, [ 'scans_results', 'scans_run' ] ) ),
+								&& ( !in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ),
 			],
 			'hrefs' => [
 				'go_pro' => 'https://shsec.io/shieldgoprofeature',

@@ -102,7 +102,6 @@ class UI {
 				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
 				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
 				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
-				'css_wizard'       => $urlBuilder->forCss( 'wizard' ),
 				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
 				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap' ),
 				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),

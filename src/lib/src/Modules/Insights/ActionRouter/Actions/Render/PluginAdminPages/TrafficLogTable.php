@@ -26,7 +26,7 @@ class TrafficLogTable extends BasePluginAdminPage {
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),
 			],
 			'hrefs'   => [
-				'please_enable' => $this->primary_mod->getUrl_DirectLinkToOption( 'enable_logger' ),
+				'please_enable' => $this->getCon()->plugin_urls->modOption( $this->primary_mod, 'enable_logger' ),
 			],
 			'strings' => [
 			],

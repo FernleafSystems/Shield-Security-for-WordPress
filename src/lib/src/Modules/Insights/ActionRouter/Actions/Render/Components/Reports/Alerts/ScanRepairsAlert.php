@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
 class ScanRepairsAlert extends Actions\Render\Components\Reports\ReportsBuilderBase {
@@ -23,9 +24,7 @@ class ScanRepairsAlert extends Actions\Render\Components\Reports\ReportsBuilderB
 				'audit_trail' => \__( 'View all repairs and file deletions in the Activity Log', 'wp-simple-firewall' ),
 			],
 			'hrefs'   => [
-				'audit_trail' => $this->getCon()
-									  ->getModule_Insights()
-									  ->getUrl_SubInsightsPage( 'audit_trail' ),
+				'audit_trail' => $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
 			],
 		];
 	}

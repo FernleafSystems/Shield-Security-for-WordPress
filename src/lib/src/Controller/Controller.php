@@ -5,12 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 	ActionData,
-	Actions,
-	Constants
+	Actions
 };
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @property Config\ConfigVO                                        $cfg
+ * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
@@ -223,6 +224,13 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'plugin_urls':
+				if ( !$val instanceof Shield\Controller\Plugin\PluginURLs ) {
+					$val = ( new Shield\Controller\Plugin\PluginURLs() )->setCon( $this );
+					$this->plugin_urls = $val;
+				}
+				break;
+
 			case 'paths':
 				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
 					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
@@ -233,12 +241,14 @@ class Controller extends DynPropertiesClass {
 			case 'svgs':
 				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
 					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
+					$this->svgs = $val;
 				}
 				break;
 
 			case 'urls':
 				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
 					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+					$this->urls = $val;
 				}
 				break;
 
@@ -674,12 +684,18 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getShieldActionNonceData( string $shieldAction, array $aux = [] ) :array {
 		return ActionData::Build( $shieldAction, true, $aux );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getShieldActionNoncedUrl( string $shieldAction, string $url = null, array $aux = [] ) :string {
-		return ActionData::BuildURL( $shieldAction, $url, $aux );
+		return $this->plugin_urls->noncedPluginAction( $shieldAction, $url, $aux );
 	}
 
 	/**
@@ -943,6 +959,7 @@ class Controller extends DynPropertiesClass {
 				->run();
 			$this->cfg->load_source = 'php';
 		}
+		$this->plugin_urls;
 		$this->loadModConfigs();
 		$this->saveCurrentPluginControllerOptions();
 	}
@@ -1087,12 +1104,11 @@ class Controller extends DynPropertiesClass {
 		return $this->getCfgProperty( 'slug_plugin' );
 	}
 
-	public function getPluginUrl( string $path = '' ) :string {
-		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
-	}
-
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getPluginUrl_DashboardHome() :string {
-		return $this->getModule_Insights()->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW );
+		return $this->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OVERVIEW );
 	}
 
 	public function getPath_Languages() :string {

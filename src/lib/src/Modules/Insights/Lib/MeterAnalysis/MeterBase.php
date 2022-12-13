@@ -40,7 +40,7 @@ abstract class MeterBase {
 		if ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$warning = [
 				'text' => __( 'The plugin is currently entirely disabled.' ),
-				'href' => $pluginMod->getUrl_DirectLinkToOption( 'global_enable_plugin_features' ),
+				'href' => $con->plugin_urls->modOption( $pluginMod, 'global_enable_plugin_features' ),
 			];
 		}
 		else {
@@ -48,7 +48,7 @@ abstract class MeterBase {
 				if ( !$workingMod->isModOptEnabled() ) {
 					$warning = [
 						'text' => __( 'A module that manages some of these settings is disabled.' ),
-						'href' => $workingMod->getUrl_DirectLinkToOption( $workingMod->getEnableModOptKey() ),
+						'href' => $con->plugin_urls->modOption( $workingMod, $workingMod->getEnableModOptKey() ),
 					];
 					break;
 				}

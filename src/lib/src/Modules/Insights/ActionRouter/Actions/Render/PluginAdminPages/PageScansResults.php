@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
@@ -26,6 +27,7 @@ class PageScansResults extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/index.twig';
 
 	protected function getRenderData() :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		/** @var Options $opts */
@@ -38,9 +40,8 @@ class PageScansResults extends BasePluginAdminPage {
 			$mod->getScanCon( $scan )->cleanStalesResults();
 		}
 
-		$actionRouter = $this->getCon()
-							 ->getModule_Insights()
-							 ->getActionRouter();
+		$actionRouter = $con->getModule_Insights()
+							->getActionRouter();
 		$counter = $mod->getScansCon()->getScanResultsCount();
 
 		// Can Scan Checks:
@@ -51,7 +52,7 @@ class PageScansResults extends BasePluginAdminPage {
 				'scans_check' => ActionData::BuildJson( ScansCheck::SLUG ),
 			],
 			'flags'       => [
-				'is_premium'      => $this->getCon()->isPremiumActive(),
+				'is_premium'      => $con->isPremiumActive(),
 				'can_scan'        => count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
@@ -94,10 +95,8 @@ class PageScansResults extends BasePluginAdminPage {
 				]
 			],
 			'hrefs'       => [
-				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $this->getCon()
-											 ->getModule_Insights()
-											 ->getUrl_ScansResults(),
+				'scanner_mod_config' => $con->plugin_urls->modOptionSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'content'     => [
 				'section' => [

@@ -12,6 +12,7 @@ class UnblockMagicLink extends EmailBase {
 	public const TEMPLATE = '/email/uaum_init.twig';
 
 	protected function getBodyData() :array {
+		$con = $this->getCon();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;
 		$ip = $this->action_data[ 'ip' ];
 		$homeURL = $this->action_data[ 'home_url' ];
@@ -21,7 +22,7 @@ class UnblockMagicLink extends EmailBase {
 				'show_login_link' => !$this->getCon()->isRelabelled()
 			],
 			'hrefs'   => [
-				'unblock' => ActionData::BuildURL(
+				'unblock' => $con->plugin_urls->noncedPluginAction(
 					IpAutoUnblockShieldUserLinkVerify::SLUG.'-'.$ip,
 					$homeURL,
 					[

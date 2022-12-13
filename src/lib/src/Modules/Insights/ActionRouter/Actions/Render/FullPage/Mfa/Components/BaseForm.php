@@ -47,7 +47,7 @@ abstract class BaseForm extends Base {
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			],
 			'hrefs'   => [
-				'form_action' => $con->getShieldActionNoncedUrl( MfaLoginVerifyStep::SLUG, $WP->getLoginUrl(), [
+				'form_action' => $con->plugin_urls->noncedPluginAction( MfaLoginVerifyStep::SLUG, $WP->getLoginUrl(), [
 					'wpe-login' => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
 				] ),
 			],

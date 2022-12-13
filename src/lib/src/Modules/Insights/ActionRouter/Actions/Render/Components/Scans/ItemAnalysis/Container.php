@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Container extends Base {
@@ -37,7 +36,7 @@ class Container extends Base {
 				'can_download' => Services::WpFs()->isFile( $fullPath ),
 			],
 			'hrefs'   => [
-				'file_download' => ActionData::FileDownloadHref( 'scan_file', [ 'rid' => $item->VO->scanresult_id ] ),
+				'file_download' => $con->plugin_urls->fileDownload( 'scan_file', [ 'rid' => $item->VO->scanresult_id ] ),
 			],
 			'imgs'    => [
 				'svgs' => [

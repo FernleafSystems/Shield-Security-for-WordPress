@@ -8,10 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 class UI extends Modules\BaseShield\UI {
 
 	public function getSectionNotices( string $section ) :array {
+		$con = $this->getCon();
 		$notices = [];
 
 		/** @var Modules\LoginGuard\Options $loginGuardOpts */
-		$loginGuardOpts = $this->getCon()->getModule_LoginGuard()->getOptions();
+		$loginGuardOpts = $con->getModule_LoginGuard()->getOptions();
 		$locations = $loginGuardOpts->getBotProtectionLocations();
 		$locations = array_intersect_key(
 			array_merge(
@@ -37,7 +38,7 @@ class UI extends Modules\BaseShield\UI {
 							$locations
 						),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$this->getCon()->getModule_LoginGuard()->getUrl_OptionsConfigPage(),
+							$con->plugin_urls->modOptionsCfg( $con->getModule_LoginGuard() ),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}
@@ -48,12 +49,12 @@ class UI extends Modules\BaseShield\UI {
 	}
 
 	public function getSectionWarnings( string $section ) :array {
-		$warnings = [];
 		$con = $this->getCon();
+
+		$warnings = [];
 
 		/** @var Modules\LoginGuard\Options $loginGuardOpts */
 		$loginGuardOpts = $con->getModule_LoginGuard()->getOptions();
-
 		switch ( $section ) {
 
 			case 'section_user_forms':
@@ -61,7 +62,7 @@ class UI extends Modules\BaseShield\UI {
 					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->getModule_LoginGuard()->getUrl_OptionsConfigPage(),
+							$con->plugin_urls->modOptionsCfg( $con->getModule_LoginGuard() ),
 							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
 					);
 				}

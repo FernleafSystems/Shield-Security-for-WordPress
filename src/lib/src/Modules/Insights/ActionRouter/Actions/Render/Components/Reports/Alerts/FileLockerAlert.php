@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
 class FileLockerAlert extends Actions\Render\Components\Reports\ReportsBuilderBase {
@@ -15,7 +16,7 @@ class FileLockerAlert extends Actions\Render\Components\Reports\ReportsBuilderBa
 	protected function getRenderData() :array {
 		return [
 			'hrefs'   => [
-				'view_results' => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+				'view_results' => $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),

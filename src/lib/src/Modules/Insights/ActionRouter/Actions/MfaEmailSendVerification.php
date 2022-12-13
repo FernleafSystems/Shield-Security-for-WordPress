@@ -32,6 +32,7 @@ class MfaEmailSendVerification extends MfaBase {
 	}
 
 	private function sendEmailVerifyCanSend() {
+		$con = $this->getCon();
 		$this->primary_mod
 			->getEmailProcessor()
 			->sendEmailWithWrap(
@@ -43,10 +44,7 @@ class MfaEmailSendVerification extends MfaBase {
 					'',
 					sprintf(
 						__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-						$this->getCon()->getShieldActionNoncedUrl(
-							MfaCanEmailSendVerify::SLUG,
-							$this->getCon()->getPluginUrl_DashboardHome()
-						)
+						$con->plugin_urls->noncedPluginAction( MfaCanEmailSendVerify::SLUG, $con->plugin_urls->adminHome() )
 					)
 				]
 			);

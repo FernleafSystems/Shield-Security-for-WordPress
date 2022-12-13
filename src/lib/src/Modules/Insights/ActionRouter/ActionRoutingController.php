@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\AdminPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
@@ -97,22 +98,22 @@ class ActionRoutingController extends ExecOnceModConsumer {
 				 //				 || ( $mod->getAdminPage()->isCurrentPage() && empty( $mod->getCurrentInsightsPage() ) )
 				 || ( in_array( $mod->getCurrentInsightsPage(), [ 'dashboard', 'index' ] ) )
 			) {
-				$redirectTo = $con->getPluginUrl_DashboardHome();
+				$redirectTo = $con->plugin_urls->adminHome();
 			}
 			elseif ( $con->isModulePage() ) {
 
 				// 'insights'
 				if ( $reqPage === $mod->getModSlug() ) {
 					if ( empty( $req->query( Constants::NAV_ID ) ) ) {
-						$redirectTo = $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW );
+						$redirectTo = $con->plugin_urls->adminHome();
 					}
-					elseif ( $req->query( Constants::NAV_ID ) === Constants::ADMIN_PAGE_CONFIG && empty( $req->query( Constants::NAV_SUB_ID ) ) ) {
-						$redirectTo = $mod->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_CONFIG, 'plugin' );
+					elseif ( $req->query( Constants::NAV_ID ) === PluginURLs::NAV_OPTIONS_CONFIG && empty( $req->query( Constants::NAV_SUB_ID ) ) ) {
+						$redirectTo = $con->plugin_urls->modOptionsCfg( $con->getModule_Plugin() );
 					}
 				}
 				elseif ( preg_match( sprintf( '#^%s-redirect-([a-z_\-]+)$#', $con->prefix() ), $reqPage, $matches ) ) {
 					// Custom wp admin menu items redirect:
-					$redirectTo = $mod->getUrl_SubInsightsPage( $matches[ 1 ] );
+					$redirectTo = $con->plugin_urls->adminTop( $matches[ 1 ] );
 				}
 				else {
 					die( 'REDIRECT HERE' );
@@ -120,7 +121,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 				}
 			}
 			elseif ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
-				$redirectTo = $mod->getUrl_SubInsightsPage( 'merlin' );
+				$redirectTo = $con->plugin_urls->adminTop( PluginURLs::NAV_WIZARD );
 			}
 		}
 

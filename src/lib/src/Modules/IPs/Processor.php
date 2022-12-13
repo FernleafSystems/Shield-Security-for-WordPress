@@ -16,34 +16,36 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		$recentStats = ( new RecentStats() )->setCon( $this->getCon() );
+		$con = $this->getCon();
+		$recentStats = ( new RecentStats() )->setCon( $con );
 		$IPs = $recentStats->getRecentlyBlockedIPs();
 
-		if ( !empty( $IPs ) ) {
+		/** @deprecated 17.0 isset( $con->plugin_urls ) */
+		if ( !empty( $IPs ) && isset( $con->plugin_urls ) ) {
 			$groups[] = [
 				'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
-				'href'  => $modInsights->getUrl_IPs(),
-				'items' => array_map( function ( $ip ) {
+				'href'  => $con->plugin_urls->adminIpRules(),
+				'items' => array_map( function ( $ip ) use ( $con ) {
 					return [
-						'id'    => $this->getCon()->prefix( 'ip-'.$ip->id ),
+						'id'    => $con->prefix( 'ip-'.$ip->id ),
 						'title' => $ip->ip,
-						'href'  => $this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip->ip ),
+						'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
 					];
 				}, $IPs ),
 			];
 		}
 
 		$IPs = $recentStats->getRecentlyOffendedIPs();
-		if ( !empty( $IPs ) ) {
+		/** @deprecated 17.0 isset( $con->plugin_urls ) */
+		if ( !empty( $IPs ) && isset( $con->plugin_urls ) ) {
 			$groups[] = [
 				'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
-				'href'  => $modInsights->getUrl_IPs(),
-				'items' => array_map( function ( $ip ) {
+				'href'  => $con->plugin_urls->adminIpRules(),
+				'items' => array_map( function ( $ip ) use ( $con ) {
 					return [
-						'id'    => $this->getCon()->prefix( 'ip-'.$ip->id ),
+						'id'    => $con->prefix( 'ip-'.$ip->id ),
 						'title' => $ip->ip,
-						'href'  => $this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip->ip ),
+						'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
 					];
 				}, $IPs ),
 			];

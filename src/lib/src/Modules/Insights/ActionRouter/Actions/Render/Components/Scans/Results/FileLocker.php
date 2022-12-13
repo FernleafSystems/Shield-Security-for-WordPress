@@ -15,6 +15,7 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig';
 
 	protected function getRenderData() :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 
@@ -33,8 +34,8 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'options'       => $mod->getUrl_DirectLinkToOption( 'file_locker' ),
-				'please_enable' => $mod->getUrl_DirectLinkToOption( 'file_locker' ),
+				'options'       => $con->plugin_urls->modOption( $mod, 'file_locker' ),
+				'please_enable' => $con->plugin_urls->modOption( $mod, 'file_locker' ),
 			],
 			'vars'    => [
 				'file_locks' => [

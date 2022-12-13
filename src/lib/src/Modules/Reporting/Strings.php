@@ -70,7 +70,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-
+		$con = $this->getCon();
 		switch ( $section ) {
 
 			case 'section_timings' :
@@ -82,8 +82,7 @@ class Strings extends Base\Strings {
 																				  ->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
-						$this->getCon()->getModule_Plugin()
-							 ->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+						$con->plugin_urls->modOption( $con->getModule_Plugin(), 'block_send_email_address' ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),
@@ -97,7 +96,7 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
+			'summary'     => $summary ?? [],
 		];
 	}
 }

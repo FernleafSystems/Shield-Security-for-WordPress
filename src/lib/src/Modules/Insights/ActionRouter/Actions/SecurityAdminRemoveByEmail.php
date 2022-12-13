@@ -15,7 +15,7 @@ class SecurityAdminRemoveByEmail extends SecurityAdminBase {
 
 		$this->response()->next_step = [
 			'type' => 'redirect',
-			'url'  => $this->getCon()->getPluginUrl_DashboardHome(),
+			'url'  => $this->getCon()->plugin_urls->adminHome(),
 		];
 	}
 }

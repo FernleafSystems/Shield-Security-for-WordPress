@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
@@ -31,12 +32,10 @@ class PageDebug extends BasePluginAdminPage {
 		$availableTests = [];
 		if ( $con->this_req->is_security_admin && Services::Request()->query( 'show' ) ) {
 			$availableTests = array_map(
-				function ( $method ) {
+				function ( $method ) use ( $con ) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
-						$this->getCon()
-							 ->getModule_Insights()
-							 ->getUrl_SubInsightsPage( 'debug', $method->getName() ),
+						$con->plugin_urls->adminTop( PluginURLs::NAV_DEBUG, $method->getName() ),
 						str_replace( 'dbg_', '', $method->getName() )
 					);
 				},

@@ -11,6 +11,8 @@ class Urls {
 
 	use PluginControllerConsumer;
 
+	public $includeTS = true;
+
 	public function forCss( string $asset ) :string {
 		$url = $this->lookupAssetUrlInSpec( $asset, 'css' );
 		return empty( $url ) ? $this->forAsset( 'css/'.Paths::AddExt( $asset, 'css' ) ) : $url;
@@ -22,19 +24,15 @@ class Urls {
 
 	public function forJs( string $asset ) :string {
 		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
-		if ( empty( $url ) ) {
-			$url = $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) );
-		}
-		return $url;
+		return empty( $url ) ? $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) ) : $url;
 	}
 
 	public function forAsset( string $asset ) :string {
 		$con = $this->getCon();
-		$path = $con->paths->forAsset( $asset );
-		return Services::Includes()->addIncludeModifiedParam(
-			$this->forPluginItem( $con->cfg->paths[ 'assets' ].'/'.$asset ),
-			$path
-		);
+		$url = $this->forPluginItem( $con->cfg->paths[ 'assets' ].'/'.$asset );
+		return $this->includeTS ?
+			Services::Includes()->addIncludeModifiedParam( $url, $con->paths->forAsset( $asset ) )
+			: $url;
 	}
 
 	public function forPluginItem( string $path = '' ) :string {
@@ -42,12 +40,7 @@ class Urls {
 		return URL::Build( plugins_url( $path, $con->getRootFile() ), [ 'ver' => $con->getVersion() ] );
 	}
 
-	/**
-	 * @param string $asset
-	 * @param string $type
-	 * @return mixed|null
-	 */
-	protected function lookupAssetUrlInSpec( string $asset, string $type ) {
+	protected function lookupAssetUrlInSpec( string $asset, string $type ) :?string {
 		$asset = $this->lookupAssetInSpec( $asset, $type );
 		return empty( $asset[ 'url' ] ) ? null : $asset[ 'url' ];
 	}

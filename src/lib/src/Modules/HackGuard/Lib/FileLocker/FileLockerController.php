@@ -80,7 +80,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	public function createFileDownloadLinks( FileLocker\EntryVO $lock ) :array {
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
-			$links[ $type ] = ActionData::FileDownloadHref( 'filelocker', [
+			$links[ $type ] = $this->getCon()->plugin_urls->fileDownload( 'filelocker', [
 				'type' => $type,
 				'rid'  => $lock->id,
 				'rand' => uniqid(),

@@ -21,7 +21,7 @@ class FormIpRuleAdd extends Base {
 				'is_blacklist_allowed' => $con->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'please_enable' => $mod->getUrl_DirectLinkToOption( 'cs_block' ),
+				'please_enable' => $con->plugin_urls->modOption( $mod, 'cs_block' ),
 			],
 			'strings' => [
 				'add_to_list_block'       => __( 'Add To Block List', 'wp-simple-firewall' ),

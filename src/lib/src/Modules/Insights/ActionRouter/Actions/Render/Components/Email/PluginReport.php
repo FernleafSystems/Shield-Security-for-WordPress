@@ -10,6 +10,7 @@ class PluginReport extends EmailBase {
 	public const TEMPLATE = '/email/reports/cron_alert_info_report.twig';
 
 	protected function getBodyData() :array {
+		$con = $this->getCon();
 		return [
 			'content' => [
 				'reports' => $this->action_data[ 'reports' ]
@@ -19,9 +20,7 @@ class PluginReport extends EmailBase {
 				'report_date' => Services::WpGeneral()->getTimeStampForDisplay(),
 			],
 			'hrefs'   => [
-				'click_adjust' => $this->getCon()
-									   ->getModule_Insights()
-									   ->getUrl_SubInsightsPage( 'reports' )
+				'click_adjust' => $con->plugin_urls->modOptionsCfg( $con->getModule_Reporting() )
 			],
 			'strings' => [
 				'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),

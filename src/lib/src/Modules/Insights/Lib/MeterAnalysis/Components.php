@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Ssl;
@@ -134,7 +135,7 @@ class Components {
 						'title'            => __( 'ShieldPRO Premium Security', 'wp-simple-firewall' ),
 						'desc_protected'   => __( 'Your site benefits from additional security protection provided by ShieldPRO.', 'wp-simple-firewall' ),
 						'desc_unprotected' => __( "Your site doesn't benefit from the additional security protection provided by ShieldPRO.", 'wp-simple-firewall' ),
-						'href'             => $con->getModule_Insights()->getUrl_SubInsightsPage( 'license' ),
+						'href'             => $con->plugin_urls->adminTop( PluginURLs::NAV_LICENSE ),
 						'protected'        => $con->isPremiumActive(),
 						'weight'           => 35,
 					];
@@ -1117,7 +1118,7 @@ class Components {
 	}
 
 	private function getUrlForScanResults() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_ScansResults();
+		return $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS );
 	}
 
 	/**

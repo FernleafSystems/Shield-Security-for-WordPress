@@ -16,7 +16,7 @@ class NotifyWhitelist extends ExecOnceModConsumer {
 
 			foreach ( $opts->getImportExportWhitelist() as $url ) {
 				Services::HttpRequest()->get(
-					$this->getCon()->getShieldActionNoncedUrl( PluginImportExport_UpdateNotified::SLUG, $url ),
+					$this->getCon()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::SLUG, $url ),
 					[ 'blocking' => false ]
 				);
 			}

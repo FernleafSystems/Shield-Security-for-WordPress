@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
 	DynamicPageLoad,
@@ -13,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 	ActionData,
-	ActionRoutingController,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
@@ -62,30 +62,51 @@ class ModCon extends BaseShield\ModCon {
 		] );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_IpAnalysis( string $ip ) :string {
 		return URL::Build( $this->getUrl_IPs(), [ 'analyse_ip' => $ip ] );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_ActivityLog() :string {
-		return $this->getUrl_SubInsightsPage( 'audit_trail' );
+		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_ACTIVITY_LOG );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_IPs() :string {
-		return $this->getUrl_SubInsightsPage( 'ips' );
+		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_IP_RULES );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_ScansResults() :string {
-		return $this->getUrl_SubInsightsPage( 'scans_results' );
+		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_SCANS_RESULTS );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_ScansRun() :string {
-		return $this->getUrl_SubInsightsPage( 'scans_run' );
+		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_SCANS_RUN );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_Sessions() :string {
-		return $this->getUrl_SubInsightsPage( 'users' );
+		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_USER_SESSIONS );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_SubInsightsPage( string $inavPage, string $subNav = '' ) :string {
 		return URL::Build( $this->getUrl_AdminPage(), [
 			Constants::NAV_ID     => sanitize_key( $inavPage ),
@@ -183,23 +204,23 @@ class ModCon extends BaseShield\ModCon {
 		$con = $this->getCon();
 		$nav = $this->getCurrentInsightsPage();
 		if ( empty( $nav ) ) {
-			$nav = Constants::ADMIN_PAGE_OVERVIEW;
+			$nav = PluginURLs::NAV_OVERVIEW;
 		}
 
 		if ( $con->getIsPage_PluginAdmin() ) {
 			switch ( $nav ) {
 
-				case 'importexport':
+				case PluginURLs::NAV_IMPORT_EXPORT:
 					$enq[ Enqueue::JS ][] = 'shield/import';
 					break;
 
-				case Constants::ADMIN_PAGE_OVERVIEW:
+				case PluginURLs::NAV_OVERVIEW:
 					$enq[ Enqueue::JS ] = [
 						'ip_detect'
 					];
 					break;
 
-				case 'reports':
+				case PluginURLs::NAV_REPORTS:
 					$enq[ Enqueue::JS ] = [
 						'chartist',
 						'chartist-plugin-legend',
@@ -212,29 +233,24 @@ class ModCon extends BaseShield\ModCon {
 					];
 					break;
 
-				case 'merlin':
+				case PluginURLs::NAV_WIZARD:
 					$enq[ Enqueue::JS ][] = 'shield/merlin';
 					$enq[ Enqueue::CSS ][] = 'shield/merlin';
 					break;
 
-				case 'wizard':
-					$enq[ Enqueue::JS ][] = 'shield/wizard';
-					$enq[ Enqueue::CSS ][] = 'shield/wizard';
-					break;
-
-				case 'notes':
-				case 'scans_results':
-				case 'scans_run':
 				case 'audit':
-				case 'audit_trail':
-				case 'traffic':
-				case 'ips':
-				case 'debug':
-				case 'users':
-				case 'stats':
+				case PluginURLs::NAV_ACTIVITY_LOG:
+				case PluginURLs::NAV_DEBUG:
+				case PluginURLs::NAV_IP_RULES:
+				case PluginURLs::NAV_NOTES:
+				case PluginURLs::NAV_SCANS_RESULTS:
+				case PluginURLs::NAV_SCANS_RUN:
+				case PluginURLs::NAV_STATS:
+				case PluginURLs::NAV_TRAFFIC_VIEWER:
+				case PluginURLs::NAV_USER_SESSIONS:
 
 					$enq[ Enqueue::JS ][] = 'shield/tables';
-					if ( in_array( $nav, [ 'scans_results', 'scans_run' ] ) ) {
+					if ( in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					break;

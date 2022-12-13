@@ -37,7 +37,6 @@ class Init {
 	}
 
 	private function ajaxAction( bool $forceDie = true ) {
-		$con = $this->getCon();
 		$req = Services::Request();
 		$nonceAction = $req->request( 'exec' );
 

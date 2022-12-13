@@ -142,12 +142,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_PluginDisabled( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
+		$con = $this->getCon();
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
+				'title'          => sprintf( '%s: %s',
+					__( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $con->getHumanName() )
+				),
 				'message'        => implode( ' ', [
 					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
 					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
@@ -155,7 +157,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'jump_to_enable' => $this->getMod()->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
+				'jump_to_enable' => $con->plugin_urls->modOption( $this->getMod(), 'global_enable_plugin_features' ),
 			]
 		];
 	}

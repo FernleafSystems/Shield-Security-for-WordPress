@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
@@ -16,6 +17,7 @@ class PageScansRun extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/run/index.twig';
 
 	protected function getRenderData() :array {
+		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		( new CleanQueue() )
@@ -25,16 +27,16 @@ class PageScansRun extends BasePluginAdminPage {
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 		return [
-			'ajax'        => [
+			'ajax'    => [
 				'scans_start' => ActionData::BuildJson( ScansStart::SLUG ),
 				'scans_check' => ActionData::BuildJson( ScansCheck::SLUG ),
 			],
-			'flags'       => [
-				'is_premium'      => $this->getCon()->isPremiumActive(),
+			'flags'   => [
+				'is_premium'      => $con->isPremiumActive(),
 				'can_scan'        => count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
-			'strings'     => [
+			'strings' => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
@@ -56,18 +58,16 @@ class PageScansRun extends BasePluginAdminPage {
 				'module_disabled'       => __( "Scans can't run because the module that controls them is currently disabled.", 'wp-simple-firewall' ),
 				'review_scanner_config' => __( "Review Scanner Module configuration", 'wp-simple-firewall' ),
 			],
-			'scans'       => $this->buildScansVars(),
-			'vars'        => [
+			'scans'   => $this->buildScansVars(),
+			'vars'    => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
-			'hrefs'       => [
-				'scanner_mod_config' => $mod->getUrl_DirectLinkToSection( 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $this->getCon()
-											 ->getModule_Insights()
-											 ->getUrl_ScansResults(),
+			'hrefs'   => [
+				'scanner_mod_config' => $con->plugin_urls->modOptionSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 			],
-			'content'     => [
+			'content' => [
 				'section' => [
 				]
 			],

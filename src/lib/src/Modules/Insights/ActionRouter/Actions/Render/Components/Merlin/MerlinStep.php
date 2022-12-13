@@ -13,7 +13,7 @@ class MerlinStep extends BaseRender {
 	protected function getRenderData() :array {
 		return [
 			'hrefs' => [
-				'dashboard' => $this->getCon()->getPluginUrl_DashboardHome(),
+				'dashboard' => $this->getCon()->plugin_urls->adminHome(),
 				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'  => [

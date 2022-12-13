@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
 class ScanResultsAlert extends Actions\Render\Components\Reports\ReportsBuilderBase {
@@ -15,9 +16,7 @@ class ScanResultsAlert extends Actions\Render\Components\Reports\ReportsBuilderB
 	protected function getRenderData() :array {
 		return [
 			'hrefs'   => [
-				'view_results' => $this->getCon()
-									   ->getModule_Insights()
-									   ->getUrl_ScansResults(),
+				'view_results' => $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),

@@ -25,7 +25,7 @@ class MfaCanEmailSendVerify extends MfaBase {
 		$this->response()->action_response_data = [
 			'success'  => true,
 			'message'  => __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
-			'redirect' => $this->getCon()->getPluginUrl_DashboardHome()
+			'redirect' => $this->getCon()->plugin_urls->adminHome()
 		];
 	}
 }

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Traits;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
@@ -20,7 +20,6 @@ class DashboardWidget extends BasePlugin {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		$modInsights = $con->getModule_Insights();
 		$vars = $this->getVars( (bool)$this->action_data[ 'refresh' ] ?? true );
 		$vars[ 'generated_at' ] = Services::Request()
 										  ->carbon()
@@ -28,11 +27,11 @@ class DashboardWidget extends BasePlugin {
 										  ->diffForHumans();
 		return [
 			'hrefs'   => [
-				'overview'    => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
+				'overview'    => $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ),
 				'logo'        => $con->labels->PluginURI,
-				'audit_trail' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
-				'sessions'    => $modInsights->getUrl_SubInsightsPage( 'users' ),
-				'ips'         => $modInsights->getUrl_SubInsightsPage( 'ips' ),
+				'audit_trail' => $con->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
+				'sessions'    => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
+				'ips'         => $con->plugin_urls->adminTop( PluginURLs::NAV_IP_RULES ),
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()
@@ -68,7 +67,6 @@ class DashboardWidget extends BasePlugin {
 
 	private function getVars( bool $refresh ) :array {
 		$con = $this->getCon();
-		$modInsights = $con->getModule_Insights();
 		$recent = ( new RecentStats() )->setCon( $con );
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
@@ -80,27 +78,27 @@ class DashboardWidget extends BasePlugin {
 					->getComponent( 'all' ),
 				'jump_links'         => [
 					[
-						'href' => $modInsights->getUrl_SubInsightsPage( Constants::ADMIN_PAGE_OVERVIEW ),
+						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ),
 						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
 					[
-						'href' => $modInsights->getUrl_IPs(),
+						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_IP_RULES ),
 						'text' => __( 'IPs', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/diagram-3.svg' ),
 					],
 					[
-						'href' => $modInsights->getUrl_SubInsightsPage( 'audit_trail' ),
+						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 					],
 					[
-						'href' => $modInsights->getUrl_SubInsightsPage( 'traffic' ),
+						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_TRAFFIC_VIEWER ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
-						'href' => $con->getModule_Plugin()->getUrl_OptionsConfigPage(),
+						'href' => $con->plugin_urls->modOptionsCfg( $con->getModule_Plugin() ),
 						'text' => __( 'Config', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 					],
@@ -135,10 +133,10 @@ class DashboardWidget extends BasePlugin {
 					)
 				),
 				'recent_ips_blocked' => array_map(
-					function ( $ip ) use ( $modInsights ) {
+					function ( $ip ) {
 						return [
 							'ip'      => $ip->ip,
-							'ip_href' => $modInsights->getUrl_IpAnalysis( $ip->ip ),
+							'ip_href' => $this->getCon()->plugin_urls->ipAnalysis( $ip->ip ),
 							'at'      => Services::Request()
 												 ->carbon()
 												 ->setTimestamp( $ip->blocked_at )
@@ -148,10 +146,10 @@ class DashboardWidget extends BasePlugin {
 					$recent->getRecentlyBlockedIPs()
 				),
 				'recent_ips_offense' => array_map(
-					function ( $ip ) use ( $modInsights ) {
+					function ( $ip ) {
 						return [
 							'ip'      => $ip->ip,
-							'ip_href' => $modInsights->getUrl_IpAnalysis( $ip->ip ),
+							'ip_href' => $this->getCon()->plugin_urls->ipAnalysis( $ip->ip ),
 							'at'      => Services::Request()
 												 ->carbon()
 												 ->setTimestamp( $ip->last_access_at )
@@ -161,7 +159,7 @@ class DashboardWidget extends BasePlugin {
 					$recent->getRecentlyOffendedIPs()
 				),
 				'recent_users'       => array_map(
-					function ( $sess ) use ( $modInsights ) {
+					function ( $sess ) {
 
 						$user = $sess[ 'user_login' ];
 						$userHref = Services::WpUsers()->getAdminUrl_ProfileEdit( $sess[ 'user_id' ] );
@@ -176,7 +174,7 @@ class DashboardWidget extends BasePlugin {
 							'user'      => $user,
 							'user_href' => $userHref,
 							'ip'        => $sess[ 'ip' ],
-							'ip_href'   => $modInsights->getUrl_IpAnalysis( $sess[ 'ip' ] ),
+							'ip_href'   => $this->getCon()->plugin_urls->ipAnalysis( $sess[ 'ip' ] ),
 							'at'        => Services::Request()
 												   ->carbon()
 												   ->setTimestamp( (int)$sess[ 'last_login_at' ] )

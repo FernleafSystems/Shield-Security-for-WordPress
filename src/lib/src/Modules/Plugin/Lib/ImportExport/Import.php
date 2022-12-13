@@ -162,7 +162,7 @@ class Import {
 		}
 
 		{ // Make the request
-			$targetExportURL = $this->getCon()->getShieldActionNoncedUrl(
+			$targetExportURL = $this->getCon()->plugin_urls->noncedPluginAction(
 				PluginImportExport_Export::SLUG,
 				$masterURL,
 				$data

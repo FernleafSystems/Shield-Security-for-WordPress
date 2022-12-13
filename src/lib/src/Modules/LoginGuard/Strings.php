@@ -321,8 +321,7 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
-					sprintf( '<a href="%s">%s</a>', $con->getModule_Integrations()
-														->getUrl_DirectLinkToSection( 'section_user_forms' ),
+					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modOptionSection( $con->getModule_Integrations(), 'section_user_forms' ),
 						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $con->getHumanName() ) )
 				];
 				break;

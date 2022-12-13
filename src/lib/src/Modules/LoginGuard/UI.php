@@ -59,7 +59,7 @@ class UI extends BaseShield\UI {
 				$warnings[] = sprintf( __( "%s has an integration available to protect the login forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
 					$con->getHumanName(),
 					sprintf( '<a href="%s">%s</a>',
-						$con->getModule_Integrations()->getUrl_DirectLinkToSection( 'section_user_forms' ),
+						$con->plugin_urls->modOptionSection( $con->getModule_Integrations(), 'section_user_forms' ),
 						sprintf( __( "View the available integrations.", 'wp-simple-firewall' ), $con->getHumanName() )
 					)
 				);
