@@ -1,5 +1,1 @@
-<h2>{{ strings.title }}</h2>
-<p>{{ strings.subtitle }}</p>
-{% for report in vars.reports %}
-	<div>{{ report|raw }}</div>
-{% endfor %}
+{% extends '/components/reports/base_body.twig' %}

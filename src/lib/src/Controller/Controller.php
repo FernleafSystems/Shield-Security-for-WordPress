@@ -5,11 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
 	ActionData,
+	ActionRoutingController,
 	Actions
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,6 +19,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @property Config\ConfigVO                                        $cfg
+ * @property ActionRoutingController                                $action_router
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -222,6 +224,10 @@ class Controller extends DynPropertiesClass {
 						->setCon( $this );
 					$this->mu_handler = $val;
 				}
+				break;
+
+			case 'action_router':
+				$val = $this->getModule_Insights()->getActionRouter();
 				break;
 
 			case 'plugin_urls':

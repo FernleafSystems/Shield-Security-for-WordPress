@@ -3,8 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders\BaseBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
@@ -72,20 +73,20 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Reports\Reporters\BaseReporter[]
+	 * @return BaseBuilder[]
 	 */
-	public function getReporters( string $type ) :array {
+	public function getReporterBuilders( string $type ) :array {
 		return array_map(
-			function ( $reporter ) {
-				/** @var Reports\Reporters\BaseReporter $reporter */
-				$reporter = new $reporter();
-				return $reporter->setCon( $this->getCon() );
+			function ( $builder ) {
+				/** @var BaseBuilder $builder */
+				$builder = new $builder();
+				return $builder->setMod( $this->getCon()->getModule_Insights() );
 			},
 			array_filter(
-				Constants::REPORTERS,
-				function ( $reporter ) use ( $type ) {
-					/** @var Reports\Reporters\BaseReporter $reporter */
-					return $reporter::TYPE === $type;
+				Constants::REPORTER_BUILDERS,
+				function ( $builder ) use ( $type ) {
+					/** @var BaseBuilder $builder */
+					return $builder::TYPE === $type;
 				}
 			)
 		);

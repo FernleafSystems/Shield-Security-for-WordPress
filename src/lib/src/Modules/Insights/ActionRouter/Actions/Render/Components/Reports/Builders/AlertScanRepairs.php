@@ -1,20 +1,18 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Reporters;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Alerts\ScanRepairsAlert;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 
-class ScanRepairs extends BaseReporter {
+class AlertScanRepairs extends BaseBuilderForScans {
 
-	public const TYPE = Constants::REPORT_TYPE_ALERT;
+	public const SLUG = 'alert_scan_repairs';
+	public const TEMPLATE = '/components/reports/mod/hack_protect/alert_scanrepairs.twig';
 
-	public function build() :array {
-		$alerts = [];
-
+	protected function getRenderData() :array {
 		/** @var DBEvents\Select $selectorEvents */
 		$selectorEvents = $this->getCon()
 							   ->getModule_Events()
@@ -73,16 +71,22 @@ class ScanRepairs extends BaseReporter {
 			}
 		}
 
-		if ( !empty( $repairs ) ) {
-			$alerts[] = $this->getCon()
-							 ->getModule_Insights()
-							 ->getActionRouter()
-							 ->render( ScanRepairsAlert::SLUG, [
-								 'total'   => $total,
-								 'repairs' => $repairs,
-							 ] );
-		}
 
-		return $alerts;
+		return [
+			'flags'   => [
+				'render_required' => !empty( $repairs ),
+			],
+			'hrefs'   => [
+				'audit_trail' => $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
+			],
+			'strings' => [
+				'title'       => \__( 'Scanner Repairs', 'wp-simple-firewall' ),
+				'audit_trail' => \__( 'View all repairs and file deletions in the Activity Log', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'total'   => $total,
+				'repairs' => $repairs,
+			],
+		];
 	}
 }

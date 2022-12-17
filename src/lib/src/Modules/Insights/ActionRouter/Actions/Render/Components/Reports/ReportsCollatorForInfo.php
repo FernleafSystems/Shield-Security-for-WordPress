@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports;
 
-class ReportsBuilderInfo extends ReportsBuilderBase {
+class ReportsCollatorForInfo extends ReportsCollatorBase {
 
 	public const SLUG = 'reports_builder_info';
 	public const TEMPLATE = '/components/reports/info_body.twig';

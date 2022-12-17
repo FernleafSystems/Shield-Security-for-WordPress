@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\{
-	ReportsBuilderAlerts,
-	ReportsBuilderInfo
+	ReportsCollatorForAlerts,
+	ReportsCollatorForInfo
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -45,26 +45,32 @@ class StandardReportBuilder {
 	 */
 	protected function gather() :array {
 		$reports = [];
-		$reporters = $this->getCon()
-						  ->getModule_Reporting()
-						  ->getReportingController()
-						  ->getReporters( $this->rep->type );
-		foreach ( $reporters as $reporter ) {
-			$reports = array_merge( $reports, $reporter->setReport( $this->rep )->build() );
+		$builders = $this->getCon()
+						 ->getModule_Reporting()
+						 ->getReportingController()
+						 ->getReporterBuilders( $this->rep->type );
+		foreach ( $builders as $builder ) {
+			$reports[] = $this->getCon()->action_router->render(
+				$builder::SLUG,
+				[
+					'report' => $this->rep->getRawData()
+				]
+			);
 		}
-		return $reports;
+
+		return array_filter( array_map( 'trim', $reports ) );
 	}
 
 	protected function render( array $gatheredReports ) :string {
 
 		switch ( $this->rep->type ) {
 			case Constants::REPORT_TYPE_ALERT:
-				$renderer = ReportsBuilderAlerts::SLUG;
+				$renderer = ReportsCollatorForAlerts::SLUG;
 				break;
 
 			case Constants::REPORT_TYPE_INFO:
 			default:
-				$renderer = ReportsBuilderInfo::SLUG;
+				$renderer = ReportsCollatorForInfo::SLUG;
 				break;
 		}
 
