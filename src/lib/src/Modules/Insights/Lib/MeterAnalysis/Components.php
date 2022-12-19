@@ -3,9 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Ssl;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
 	CommentsFilter,
@@ -21,6 +18,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Ssl;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 use ZxcvbnPhp\Zxcvbn;
 
@@ -1050,6 +1050,29 @@ class Components {
 						'weight'           => 20,
 					];
 				},
+				'lib_openssl'              => function () {
+					$minimum = '1.1.0';
+					$curlVersion = function_exists( '\curl_version' ) ? \curl_version() : null;
+					if ( is_array( $curlVersion ) && is_string( $curlVersion[ 'ssl_version' ] ?? '' )
+						 && preg_match( '#^OpenSSL/([\d.]+).*$#', trim( $curlVersion[ 'ssl_version' ] ), $matches ) ) {
+						$protected = version_compare( $matches[ 1 ], $minimum, '>=' );
+						$current = $curlVersion[ 'ssl_version' ];
+					}
+					else {
+						$protected = false;
+						$current = '';
+					}
+					return [
+						'title'            => __( 'OpenSSL Extension', 'wp-simple-firewall' ),
+						'desc_protected'   => sprintf( "OpenSSL library version is '%s', which is at least version '%s'.", $current, $minimum ),
+						'desc_unprotected' => empty( $current ) ?
+							__( "We couldn't determine the version of your OpenSSL library." )
+							: sprintf( "Your OpenSSL library is older than '%s' at version '%s,' which is a little old.", $minimum, $current ),
+						'href'             => '',
+						'protected'        => $protected,
+						'weight'           => 20,
+					];
+				},
 				'ssl_certificate'          => function () {
 					$WP = Services::WpGeneral();
 					$srvSSL = new Ssl();
@@ -1078,7 +1101,6 @@ class Components {
 						$ssl[ 'href' ] = $WP->getAdminUrl_Settings();
 					}
 					elseif ( $srvSSL->isEnvSupported() ) {
-						$srvSSL = new Ssl();
 						try {
 							// first verify SSL cert:
 							$srvSSL->getCertDetailsForDomain( $homeURL );

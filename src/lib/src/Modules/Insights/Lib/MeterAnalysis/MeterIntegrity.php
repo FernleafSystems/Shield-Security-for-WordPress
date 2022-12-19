@@ -38,6 +38,7 @@ class MeterIntegrity extends MeterBase {
 		$components = [
 			'all',
 			'ssl_certificate',
+			( function_exists( '\curl_version' ) && in_array( 'openssl', get_loaded_extensions() ) ) ? 'lib_openssl' : '',
 			'db_password',
 			'activity_log_enabled',
 			'traffic_log_enabled',
@@ -46,6 +47,6 @@ class MeterIntegrity extends MeterBase {
 		if ( !$this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$components[] = 'shieldpro';
 		}
-		return $components;
+		return array_filter( $components );
 	}
 }
