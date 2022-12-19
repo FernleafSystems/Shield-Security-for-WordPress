@@ -30,10 +30,9 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_reporting() {
-		$this->getCon()
-			 ->getModule_Reporting()
-			 ->getReportingController()
-			 ->runHourlyCron();
+		( new Modules\Reporting\Lib\ReportGenerator() )
+			->setMod( $this->getCon()->getModule_Reporting() )
+			->adHoc();
 	}
 
 	private function handshake() {

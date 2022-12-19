@@ -28,7 +28,6 @@ abstract class BaseAction extends DynPropertiesClass {
 	 */
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
-		$this->checkAvailableData();
 		$this->response = $response instanceof ActionResponse ? $response : new ActionResponse();
 	}
 
@@ -71,6 +70,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @throws ActionException
 	 */
 	public function process() {
+		$this->checkAvailableData();
 		$this->preExec();
 		$this->exec();
 		$this->postExec();

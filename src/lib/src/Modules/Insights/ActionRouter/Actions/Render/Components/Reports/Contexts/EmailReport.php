@@ -1,10 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Contexts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email\EmailBase;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginReport extends EmailBase {
+class EmailReport extends EmailBase {
 
 	public const SLUG = 'email_report';
 	public const TEMPLATE = '/email/reports/cron_alert_info_report.twig';

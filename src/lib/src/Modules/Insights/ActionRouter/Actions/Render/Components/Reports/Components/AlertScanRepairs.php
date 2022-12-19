@@ -1,16 +1,16 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 
 class AlertScanRepairs extends BaseBuilderForScans {
 
 	public const SLUG = 'alert_scan_repairs';
-	public const TEMPLATE = '/components/reports/mod/hack_protect/alert_scanrepairs.twig';
+	public const TEMPLATE = '/components/reports/components/alert_scanrepairs.twig';
 
 	protected function getRenderData() :array {
 		/** @var DBEvents\Select $selectorEvents */

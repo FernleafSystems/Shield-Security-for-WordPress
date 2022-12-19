@@ -1,8 +1,9 @@
-<div style="padding-left: 10px;">
-	<h3>{{ strings.title }}</h3>
+{% extends '/components/reports/components/base.twig' %}
+
+{% block body %}
 	<ul>
 		{% for event_data in vars.counts %}
 			<li>{{ event_data.name }}: {{ event_data.count }}</li>
 		{% endfor %}
 	</ul>
-</div>
+{% endblock %}

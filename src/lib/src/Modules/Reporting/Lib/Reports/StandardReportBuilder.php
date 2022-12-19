@@ -27,9 +27,9 @@ class StandardReportBuilder {
 	public function build( ReportVO $report ) {
 		$this->rep = $report;
 		if ( $this->isReadyToSend() ) {
-			$gatheredReports = $this->gather();
-			if ( !empty( $gatheredReports ) ) {
-				$this->rep->content = $this->render( $gatheredReports );
+			$components = $this->buildComponents();
+			if ( !empty( $components ) ) {
+				$this->rep->content = $this->render( $components );
 			}
 		}
 	}
@@ -43,12 +43,12 @@ class StandardReportBuilder {
 	/**
 	 * @return string[]
 	 */
-	protected function gather() :array {
+	private function buildComponents() :array {
 		$reports = [];
 		$builders = $this->getCon()
 						 ->getModule_Reporting()
 						 ->getReportingController()
-						 ->getReporterBuilders( $this->rep->type );
+						 ->getComponentBuilders( $this->rep->type );
 		foreach ( $builders as $builder ) {
 			$reports[] = $this->getCon()->action_router->render(
 				$builder::SLUG,

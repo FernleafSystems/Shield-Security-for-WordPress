@@ -4,9 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders\BaseBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
 
 class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 
@@ -23,59 +21,15 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		$this->buildAndSendReports();
-	}
-
-	private function buildAndSendReports() {
-		/** @var Reports\ReportVO[] $reports */
-		$reports = [];
-		foreach ( array_keys( $this->getReportTypes() ) as $reportType ) {
-			try {
-				$report = ( new Reports\CreateReportVO() )
-					->setMod( $this->getMod() )
-					->create( $reportType );
-
-				( new Reports\StandardReportBuilder() )
-					->setMod( $this->getMod() )
-					->build( $report );
-
-				if ( !empty( $report->content ) ) {
-					$reports[] = $report;
-					$this->storeReportRecord( $report );
-					$this->getCon()->fireEvent( 'report_generated', [
-						'audit_params' => [
-							'type'     => $this->getReportTypeName( $report->type ),
-							'interval' => $report->interval,
-						]
-					] );
-				}
-			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-			}
-		}
-
-		$this->sendEmail( $reports );
-	}
-
-	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		/** @var Modules\Reporting\ModCon $mod */
-		$mod = $this->getMod();
-		$reportsDB = $mod->getDbHandler_ReportLogs();
-		/** @var ReportsDB\Record $record */
-		$record = $reportsDB->getRecord();
-		$record->type = $report->type;
-		$record->interval_length = $report->interval;
-		$record->interval_end_at = $report->interval_end_at;
-
-		return $reportsDB->getQueryInserter()
-						 ->insert( $record );
+		( new ReportGenerator() )
+			->setMod( $this->getMod() )
+			->auto();
 	}
 
 	/**
 	 * @return BaseBuilder[]
 	 */
-	public function getReporterBuilders( string $type ) :array {
+	public function getComponentBuilders( string $type ) :array {
 		return array_map(
 			function ( $builder ) {
 				/** @var BaseBuilder $builder */
@@ -83,63 +37,12 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 				return $builder->setMod( $this->getCon()->getModule_Insights() );
 			},
 			array_filter(
-				Constants::REPORTER_BUILDERS,
+				Constants::COMPONENT_REPORT_BUILDERS,
 				function ( $builder ) use ( $type ) {
 					/** @var BaseBuilder $builder */
 					return $builder::TYPE === $type;
 				}
 			)
 		);
-	}
-
-	/**
-	 * @param Reports\ReportVO[] $reportVOs
-	 */
-	private function sendEmail( array $reportVOs ) {
-
-		$reports = array_filter( array_map(
-			function ( $rep ) {
-				return $rep->content;
-			},
-			$reportVOs
-		) );
-
-		if ( !empty( $reports ) ) {
-			try {
-				$this->getMod()
-					 ->getEmailProcessor()
-					 ->send(
-						 $this->getMod()->getPluginReportEmail(),
-						 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
-						 $this->getCon()
-							  ->getModule_Insights()
-							  ->getActionRouter()
-							  ->render( Modules\Insights\ActionRouter\Actions\Render\Components\Email\PluginReport::SLUG, [
-								  'home_url' => Services::WpGeneral()->getHomeUrl(),
-								  'reports'  => $reports
-							  ] )
-					 );
-
-				$this->getCon()->fireEvent( 'report_sent', [
-					'audit_params' => [
-						'medium' => 'email',
-					]
-				] );
-			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-			}
-		}
-	}
-
-	private function getReportTypes() :array {
-		return [
-			Constants::REPORT_TYPE_ALERT => 'alert',
-			Constants::REPORT_TYPE_INFO  => 'info',
-		];
-	}
-
-	private function getReportTypeName( string $type ) :string {
-		return $this->getReportTypes()[ $type ] ?? 'invalid report type';
 	}
 }

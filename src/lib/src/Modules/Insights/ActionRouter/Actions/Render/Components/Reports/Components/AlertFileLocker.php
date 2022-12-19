@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker as FileLockerDB;
@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
 class AlertFileLocker extends BaseBuilderForScans {
 
 	public const SLUG = 'alert_file_locker';
-	public const TEMPLATE = '/components/reports/mod/hack_protect/alert_filelocker.twig';
+	public const TEMPLATE = '/components/reports/components/alert_filelocker.twig';
 
 	protected function getRenderData() :array {
 		$locksLoader = ( new LoadFileLocks() )->setMod( $this->getCon()->getModule_HackGuard() );
@@ -49,12 +49,5 @@ class AlertFileLocker extends BaseBuilderForScans {
 		}
 
 		$fileLocksLoader->clearLocksCache();
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'count_not_notified',
-			'count_with_problems',
-		];
 	}
 }

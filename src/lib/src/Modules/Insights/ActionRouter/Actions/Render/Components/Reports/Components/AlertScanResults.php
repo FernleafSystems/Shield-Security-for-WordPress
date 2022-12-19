@@ -1,19 +1,18 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
-	Strings
-};
+	Strings};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Reporters\Helpers\ScanCounts;
+use FernleafSystems\Wordpress\Services\Services;
 
 class AlertScanResults extends BaseBuilderForScans {
 
 	public const SLUG = 'alert_scan_results';
-	public const TEMPLATE = '/components/reports/mod/hack_protect/alert_scanresults.twig';
+	public const TEMPLATE = '/components/reports/components/alert_scanresults.twig';
 
 	protected function getRenderData() :array {
 		/** @var ModCon $mod */

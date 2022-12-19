@@ -15,4 +15,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops\Reco
  */
 class ReportVO extends DynPropertiesClass {
 
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+
+			case 'content':
+				$value = is_string( $value ) ? trim( $value ) : '';
+				break;
+
+			case 'interval_start_at':
+			case 'interval_end_at':
+				$value = (int)$value;
+				break;
+
+			default:
+				break;
+		}
+		return $value;
+	}
 }

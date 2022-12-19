@@ -2,16 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Builders;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\Components;
 
 class Constants {
 
 	public const REPORT_TYPE_ALERT = 'alt';
 	public const REPORT_TYPE_INFO = 'nfo';
-	public const REPORTER_BUILDERS = [
-		Builders\AlertFileLocker::class,
-		Builders\AlertScanResults::class,
-		Builders\AlertScanRepairs::class,
-		Builders\InfoKeyStats::class,
+	public const COMPONENT_REPORT_BUILDERS = [
+		Components\AlertFileLocker::class,
+		Components\AlertScanResults::class,
+		Components\AlertScanRepairs::class,
+		Components\InfoKeyStats::class,
 	];
+	public const REPORT_CONTEXT_AUTO = 'auto';
+	public const REPORT_CONTEXT_AD_HOC = 'ad_hoc';
 }
