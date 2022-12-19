@@ -64,6 +64,9 @@ class ReportGenerator {
 		return $reports;
 	}
 
+	/**
+	 * @param Reports\ReportVO[] $reports
+	 */
 	private function renderFinalReports( array $reports, string $context = Constants::REPORT_CONTEXT_AUTO ) :string {
 
 		switch ( $context ) {
@@ -80,7 +83,12 @@ class ReportGenerator {
 			$renderer,
 			[
 				'home_url' => Services::WpGeneral()->getHomeUrl(),
-				'reports'  => $reports
+				'reports'  => array_map(
+					function ( $report ) {
+						return $report->content;
+					},
+					$reports
+				)
 			]
 		);
 	}

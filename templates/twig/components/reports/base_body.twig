@@ -1,4 +1,4 @@
-{% if flags.render_required|default(false) %}
+{% if flags.render_required|default(true) %}
 	{% block title %}<h2>{{ strings.title }}</h2>{% endblock %}
 
 	{% block subtitle %}<p>{{ strings.subtitle }}</p>{% endblock %}

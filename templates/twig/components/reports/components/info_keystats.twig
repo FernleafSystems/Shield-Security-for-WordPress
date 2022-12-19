@@ -1,9 +1,24 @@
 {% extends '/components/reports/components/base.twig' %}
 
 {% block body %}
-	<ul>
+	<div style="display: flex;flex-flow:row wrap;justify-content:space-evenly;align-items:flex-start; width: 600px">
 		{% for event_data in vars.counts %}
-			<li>{{ event_data.name }}: {{ event_data.count }}</li>
+			<div
+					style="border: 1px solid #999999; box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+					width: 130px; margin-bottom: 20px; text-align: center;
+					 background-color: rgba(0,0,0,0.05);
+				"
+			>
+				<div style="border-bottom: 1px solid #999999; padding: 4px;">
+					{{ event_data.name }}
+				</div>
+				<div style="padding: 4px; background-color: white;">
+					{{ event_data.count }}
+				</div>
+{#				<div style="border-top: 1px dashed #999999;padding: 4px">#}
+{#				&uarr;#}
+{#				</div>#}
+			</div>
 		{% endfor %}
-	</ul>
+	</div>
 {% endblock %}
