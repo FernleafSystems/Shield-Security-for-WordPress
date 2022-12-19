@@ -74,12 +74,12 @@ class FileScanOptimiser {
 		$filesFound = [];
 
 		$pathToHashes = $this->pathToHashes();
-		if ( $FS->exists( $pathToHashes ) && $FS->getFileSize( $pathToHashes ) > 0 ) {
+		if ( $FS->isFile( $pathToHashes ) && $FS->getFileSize( $pathToHashes ) > 0 ) {
 
 			$filesThatExist = array_filter(
 				$files,
 				function ( $file ) {
-					return Services::WpFs()->exists( $file );
+					return Services::WpFs()->isFile( $file );
 				}
 			);
 
