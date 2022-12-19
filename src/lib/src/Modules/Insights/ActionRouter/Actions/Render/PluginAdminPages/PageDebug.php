@@ -2,10 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -18,16 +16,6 @@ class PageDebug extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		if ( !empty( $this->action_data[ Constants::NAV_SUB_ID ] ) ) {
-			$debugExec = implode( "\n", $con->getModule_Insights()
-											->getActionRouter()
-											->action( SimplePluginTests::SLUG, [
-												'test' => $this->action_data[ Constants::NAV_SUB_ID ]
-											] )->action_response_data );
-		}
-		else {
-			$debugExec = '';
-		}
 
 		$availableTests = [];
 		if ( $con->this_req->is_security_admin && Services::Request()->query( 'show' ) ) {
@@ -35,7 +23,9 @@ class PageDebug extends BasePluginAdminPage {
 				function ( $method ) use ( $con ) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTop( PluginURLs::NAV_DEBUG, $method->getName() ),
+						$con->plugin_urls->noncedPluginAction( SimplePluginTests::SLUG, null, [
+							'test' => $method->getName()
+						] ),
 						str_replace( 'dbg_', '', $method->getName() )
 					);
 				},
@@ -50,7 +40,6 @@ class PageDebug extends BasePluginAdminPage {
 
 		return [
 			'flags'   => [
-				'has_debug_exec' => !empty( $debugExec ),
 				'display_tests'  => !empty( $availableTests ),
 			],
 			'hrefs'   => [
@@ -60,11 +49,9 @@ class PageDebug extends BasePluginAdminPage {
 				'page_title' => sprintf( __( '%s Debug Page' ), $con->getHumanName() )
 			],
 			'vars'    => [
-				'debug_data'      => empty( $debugExec ) ?
-					( new Collate() )
-						->setMod( $this->getMod() )
-						->run() : '',
-				'debug_exec'      => $debugExec,
+				'debug_data'      => ( new Collate() )
+					->setMod( $this->getMod() )
+					->run(),
 				'available_tests' => $availableTests,
 			],
 			'content' => [

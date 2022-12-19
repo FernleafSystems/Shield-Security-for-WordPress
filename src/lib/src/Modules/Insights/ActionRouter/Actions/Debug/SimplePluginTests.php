@@ -29,10 +29,20 @@ class SimplePluginTests extends BaseAction {
 		$this->response()->action_response_data = [ ob_get_clean() ];
 	}
 
+	protected function postExec() {
+		var_dump( $this->response()->action_response_data );
+		die( 'asdf' );
+	}
+
 	private function dbg_reporting() {
-		( new Modules\Reporting\Lib\ReportGenerator() )
-			->setMod( $this->getCon()->getModule_Reporting() )
-			->adHoc();
+		try {
+			echo ( new Modules\Reporting\Lib\ReportGenerator() )
+				->setMod( $this->getCon()->getModule_Reporting() )
+				->adHoc();
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
 	}
 
 	private function handshake() {

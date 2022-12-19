@@ -22,11 +22,13 @@ class ReportGenerator {
 				]
 			] );
 		}
-		$this->sendEmail( $this->renderFinalReports( $reports ) );
+		if ( !empty( $reports ) ) {
+			$this->sendEmail( $this->renderFinalReports( $reports ) );
+		}
 	}
 
-	public function adHoc() {
-		echo $this->renderFinalReports( $this->buildReports() );
+	public function adHoc() :string {
+		return $this->renderFinalReports( $this->buildReports() );
 	}
 
 	/**
