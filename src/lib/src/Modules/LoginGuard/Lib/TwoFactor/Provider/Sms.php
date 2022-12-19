@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaSmsAdd,
 	MfaSmsIntentSend,
 	MfaSmsRemove,
@@ -12,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Action
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendSms;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Sms extends AbstractShieldProvider {
 

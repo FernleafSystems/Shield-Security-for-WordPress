@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\HackGuardPluginReinstall;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ReinstallDialog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\HackGuardPluginReinstall;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Scans\ReinstallDialog;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PtgAddReinstallLinks {
@@ -31,11 +31,9 @@ class PtgAddReinstallLinks {
 		}, 50, 2 );
 
 		add_action( 'admin_footer', function () {
-			$insights = $this->getScanController()
-							 ->getCon()
-							 ->getModule_Insights();
-			if ( method_exists( $insights, 'getActionRouter' ) ) {
-				echo $insights->getActionRouter()->render( ReinstallDialog::SLUG );
+			$con = $this->getScanController()->getCon();
+			if ( $con->action_router ) {
+				echo $con->action_router->render( ReinstallDialog::SLUG );
 			}
 		} );
 

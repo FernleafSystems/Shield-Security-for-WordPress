@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\StandardFullPageDisplay,
 	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
@@ -79,20 +79,18 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		catch ( OtpVerificationFailedException | CouldNotValidate2FA $e ) {
 			// Allow a further attempt to 2FA
 			try {
-				$con->getModule_Insights()
-					->getActionRouter()
-					->action( StandardFullPageDisplay::SLUG, [
-						'render_slug' => $mfaCon->useLoginIntentPage() ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
-						'render_data' => [
-							'user_id'           => $this->user->ID,
-							'include_body'      => true,
-							'plain_login_nonce' => $req->request( 'login_nonce', false, '' ),
-							'interim_login'     => $req->request( 'interim-login', false, '' ),
-							'redirect_to'       => $req->request( 'redirect_to', false, '' ),
-							'rememberme'        => $req->request( 'rememberme', false, '' ),
-							'msg_error'         => __( 'Could not verify your 2FA codes', 'wp-simple-firewall' ),
-						],
-					] );
+				$con->action_router->action( StandardFullPageDisplay::SLUG, [
+					'render_slug' => $mfaCon->useLoginIntentPage() ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
+					'render_data' => [
+						'user_id'           => $this->user->ID,
+						'include_body'      => true,
+						'plain_login_nonce' => $req->request( 'login_nonce', false, '' ),
+						'interim_login'     => $req->request( 'interim-login', false, '' ),
+						'redirect_to'       => $req->request( 'redirect_to', false, '' ),
+						'rememberme'        => $req->request( 'rememberme', false, '' ),
+						'msg_error'         => __( 'Could not verify your 2FA codes', 'wp-simple-firewall' ),
+					],
+				] );
 			}
 			catch ( ActionException $e ) {
 				die( $e->getMessage() );
@@ -139,20 +137,18 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 					return '';
 				}, 100, 0 );
 
-				$con->getModule_Insights()
-					->getActionRouter()
-					->action( StandardFullPageDisplay::SLUG, [
-						'render_slug' => WpReplicaLoginIntentPage::SLUG,
-						'render_data' => [
-							'user_id'           => $this->user->ID,
-							'include_body'      => false,
-							'interim_message'   => __( '2FA authentication verified successfully.', 'wp-simple-firewall' ),
-							'plain_login_nonce' => $req->request( 'login_nonce', false, '' ),
-							'interim_login'     => $req->request( 'interim-login', false, '' ),
-							'redirect_to'       => $req->request( 'redirect_to', false, '' ),
-							'rememberme'        => $req->request( 'rememberme', false, '' ),
-						],
-					] );
+				$con->action_router->action( StandardFullPageDisplay::SLUG, [
+					'render_slug' => WpReplicaLoginIntentPage::SLUG,
+					'render_data' => [
+						'user_id'           => $this->user->ID,
+						'include_body'      => false,
+						'interim_message'   => __( '2FA authentication verified successfully.', 'wp-simple-firewall' ),
+						'plain_login_nonce' => $req->request( 'login_nonce', false, '' ),
+						'interim_login'     => $req->request( 'interim-login', false, '' ),
+						'redirect_to'       => $req->request( 'redirect_to', false, '' ),
+						'rememberme'        => $req->request( 'rememberme', false, '' ),
+					],
+				] );
 			}
 			else {
 				$flash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );

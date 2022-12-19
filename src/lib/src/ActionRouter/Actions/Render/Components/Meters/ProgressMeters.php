@@ -1,0 +1,36 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
+
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\MeterIntegrity;
+
+class ProgressMeters extends BaseRender {
+
+	public const SLUG = 'render_progress_meters';
+	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig';
+
+	protected function getRenderData() :array {
+		$componentBuilder = ( new Handler() )->setMod( $this->getMod() );
+
+		$meters = [];
+		$AR = $this->getCon()->action_router;
+		foreach ( $componentBuilder->buildAllMeterComponents() as $meterSlug => $meter ) {
+			$meters[ $meterSlug ] = $AR->render( MeterCard::SLUG, [
+				'meter_slug' => $meterSlug,
+				'meter_data' => $meter,
+			] );
+		}
+
+		$primaryMeter = $meters[ MeterIntegrity::SLUG ];
+		unset( $meters[ MeterIntegrity::SLUG ] );
+
+		return [
+			'content' => [
+				'primary_meter' => $primaryMeter,
+				'meters'        => $meters
+			],
+		];
+	}
+}

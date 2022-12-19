@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallBlock extends Base {
@@ -33,15 +33,12 @@ class FirewallBlock extends Base {
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
 			case 'redirect_die_message':
-				$this->getCon()
-					 ->getModule_Insights()
-					 ->getActionRouter()
-					 ->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
-						 'render_slug'     => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
-						 'render_data'     => [
-							 'block_meta_data' => $this->getConsolidatedConditionMeta()
-						 ],
-					 ] );
+				$this->getCon()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+					'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
+					'render_data' => [
+						'block_meta_data' => $this->getConsolidatedConditionMeta()
+					],
+				] );
 				break;
 			case 'redirect_home':
 				Services::Response()->redirectToHome();
@@ -87,11 +84,10 @@ class FirewallBlock extends Base {
 				   ->send(
 					   $mod->getPluginReportEmail(),
 					   __( 'Firewall Block Alert', 'wp-simple-firewall' ),
-					   $mod->getActionRouter()
-						   ->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
-							   'ip'         => $con->this_req->ip,
-							   'block_meta' => $blockMeta
-						   ] )
+					   $con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
+						   'ip'         => $con->this_req->ip,
+						   'block_meta' => $blockMeta
+					   ] )
 				   );
 	}
 }

@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 

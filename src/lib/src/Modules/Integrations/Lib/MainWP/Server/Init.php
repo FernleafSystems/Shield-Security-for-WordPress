@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\MainWP\SitesListTableColumn;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\SitesListTableColumn;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\ExtensionSettingsPage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -53,12 +52,9 @@ class Init {
 			if ( $this->getCon()->getModule_Integrations()->getControllerMWP()->isServerExtensionLoaded() ) {
 				$columns[ 'shield' ] = 'Shield';
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
-					$item[ 'shield' ] = $this->getCon()
-											 ->getModule_Insights()
-											 ->getActionRouter()
-											 ->render( SitesListTableColumn::SLUG, [
-												 'raw_mainwp_site_data' => $item
-											 ] );
+					$item[ 'shield' ] = $this->getCon()->action_router->render( SitesListTableColumn::SLUG, [
+						'raw_mainwp_site_data' => $item
+					] );
 					return $item;
 				} );
 			}

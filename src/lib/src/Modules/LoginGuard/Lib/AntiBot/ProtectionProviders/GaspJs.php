@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -110,10 +110,7 @@ class GaspJs extends BaseProtectionProvider {
 	 * @inheritDoc
 	 */
 	public function buildFormInsert( $formProvider ) {
-		$this->getCon()
-			 ->getModule_Insights()
-			 ->getActionRouter()
-			 ->render( Actions\Render\Legacy\GaspJs::SLUG );
+		$this->getCon()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}
 
 	protected function isFactorJsRequired() :bool {

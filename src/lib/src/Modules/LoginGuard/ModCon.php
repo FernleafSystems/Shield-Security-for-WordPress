@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaBackupCodeAdd,
 	MfaBackupCodeDelete,
 	MfaEmailSendVerification
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -35,10 +35,7 @@ class ModCon extends BaseShield\ModCon {
 		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
 			$opts->setOpt( 'email_can_send_verified_at', 0 );
 			try {
-				$this->getCon()
-					 ->getModule_Insights()
-					 ->getActionRouter()
-					 ->action( MfaEmailSendVerification::SLUG );
+				$this->getCon()->action_router->action( MfaEmailSendVerification::SLUG );
 			}
 			catch ( ActionException $e ) {
 			}

@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaEmailSendIntent;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\MfaEmailToggle;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
@@ -111,15 +111,12 @@ class Email extends AbstractShieldProvider {
 							   ->send(
 								   $user->user_email,
 								   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-								   $this->getCon()
-										->getModule_Insights()
-										->getActionRouter()
-										->render( MfaLoginCode::SLUG, [
-											'home_url' => Services::WpGeneral()->getHomeUrl(),
-											'ip'       => $con->this_req->ip,
-											'user_id'  => $user->ID,
-											'otp'      => $otp,
-										] )
+								   $con->action_router->render( MfaLoginCode::SLUG, [
+									   'home_url' => Services::WpGeneral()->getHomeUrl(),
+									   'ip'       => $con->this_req->ip,
+									   'user_id'  => $user->ID,
+									   'otp'      => $otp,
+								   ] )
 							   );
 		}
 		catch ( \Exception $e ) {

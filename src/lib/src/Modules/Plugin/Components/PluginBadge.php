@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -57,12 +57,9 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function render( bool $isFloating = false ) :string {
-		return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
-						'is_floating' => $isFloating,
-					] );
+		return $this->getCon()->action_router->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
+			'is_floating' => $isFloating,
+		] );
 	}
 
 	public function setBadgeStateClosed() :bool {

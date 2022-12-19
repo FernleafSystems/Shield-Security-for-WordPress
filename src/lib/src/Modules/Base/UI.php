@@ -3,11 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
-	Actions,
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Constants
-};
+	Actions,
+	Constants};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 

@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Reports\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\{
 	ReportsCollatorForAlerts,
 	ReportsCollatorForInfo
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Constants;
@@ -74,20 +74,17 @@ class StandardReportBuilder {
 				break;
 		}
 
-		return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render(
-						$renderer,
-						[
-							'strings' => [
-								'time_interval' => $this->getTimeIntervalForDisplay(),
-							],
-							'vars'    => [
-								'reports' => $gatheredReports
-							],
-						]
-					);
+		return $this->getCon()->action_router->render(
+			$renderer,
+			[
+				'strings' => [
+					'time_interval' => $this->getTimeIntervalForDisplay(),
+				],
+				'vars'    => [
+					'reports' => $gatheredReports
+				],
+			]
+		);
 	}
 
 	/**

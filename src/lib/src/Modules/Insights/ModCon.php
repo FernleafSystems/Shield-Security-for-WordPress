@@ -2,20 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Constants
+};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	DynamicPageLoad,
 	MerlinAction,
 	Render\Components\BannerGoPro,
 	Render\Components\ToastPlaceholder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
-	ActionData,
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -23,27 +23,20 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class ModCon extends BaseShield\ModCon {
 
 	/**
-	 * @var ActionRouter\ActionRoutingController
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController
 	 */
 	private $router;
 
 	protected function onModulesLoaded() {
 		add_action( 'init', function () {
-			$this->getActionRouter()->execute();
+			$this->getCon()->action_router->execute();
 		}, HookTimings::INIT_ACTION_ROUTER_CONTROLLER_EXEC );
-	}
-
-	public function getActionRouter() :ActionRouter\ActionRoutingController {
-		if ( !isset( $this->router ) ) {
-			$this->router = ( new ActionRouter\ActionRoutingController() )->setMod( $this );
-		}
-		return $this->router;
 	}
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			if ( method_exists( $this, 'getActionRouter' ) ) {
-				$AR = $this->getActionRouter();
+			$AR = $this->getCon()->action_router;
+			if ( !empty( $AR ) ) {
 				echo $AR->render( BannerGoPro::SLUG );
 				if ( $this->getCon()->isModulePage() ) {
 					echo $AR->render( ToastPlaceholder::SLUG );

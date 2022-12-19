@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class AbstractShieldProvider extends AbstractOtpProvider {
@@ -126,42 +126,33 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	public function renderUserProfileConfigFormField() :string {
-		return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render(
-						Render\Components\UserMfa\ConfigFormForProvider::SLUG,
-						$this->getUserProfileFormRenderData()
-					);
+		return $this->getCon()->action_router->render(
+			Render\Components\UserMfa\ConfigFormForProvider::SLUG,
+			$this->getUserProfileFormRenderData()
+		);
 	}
 
 	protected function renderLoginIntentFormFieldForShield() :string {
-		return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render(
-						Render\GenericRender::SLUG,
-						[
-							'render_action_template' => sprintf( '/components/login_intent/login_field_%s.twig', static::ProviderSlug() ),
-							'render_action_data'     => [
-								'field' => $this->getFormField()
-							],
-						]
-					);
+		return $this->getCon()->action_router->render(
+			Render\GenericRender::SLUG,
+			[
+				'render_action_template' => sprintf( '/components/login_intent/login_field_%s.twig', static::ProviderSlug() ),
+				'render_action_data'     => [
+					'field' => $this->getFormField()
+				],
+			]
+		);
 	}
 
 	protected function renderLoginIntentFormFieldForWpLoginReplica() :string {
-		return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render(
-						Render\GenericRender::SLUG,
-						[
-							'render_action_template' => sprintf( '/components/wplogin_replica/login_field_%s.twig', static::ProviderSlug() ),
-							'render_action_data'     => [
-								'field' => $this->getFormField()
-							],
-						]
-					);
+		return $this->getCon()->action_router->render(
+			Render\GenericRender::SLUG,
+			[
+				'render_action_template' => sprintf( '/components/wplogin_replica/login_field_%s.twig', static::ProviderSlug() ),
+				'render_action_data'     => [
+					'field' => $this->getFormField()
+				],
+			]
+		);
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email\UnblockMagicLink;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UnblockMagicLink;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -38,13 +38,11 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 			 ->send(
 				 $user->user_email,
 				 __( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
-				 $con->getModule_Insights()
-					 ->getActionRouter()
-					 ->render( UnblockMagicLink::SLUG, [
-						 'home_url' => Services::WpGeneral()->getHomeUrl(),
-						 'ip'       => $con->this_req->ip,
-						 'user_id'  => $user->ID,
-					 ] )
+				 $con->action_router->render( UnblockMagicLink::SLUG, [
+					 'home_url' => Services::WpGeneral()->getHomeUrl(),
+					 'ip'       => $con->this_req->ip,
+					 'user_id'  => $user->ID,
+				 ] )
 			 );
 	}
 

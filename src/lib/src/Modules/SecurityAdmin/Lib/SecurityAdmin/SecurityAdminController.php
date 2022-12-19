@@ -2,15 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
 	SecurityAdminLogin,
-	SecurityAdminRequestRemoveByEmail
-};
+	SecurityAdminRequestRemoveByEmail};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -197,10 +196,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo $this->getCon()
-			 ->getModule_Insights()
-			 ->getActionRouter()
-			 ->render( FormSecurityAdminLoginBox::SLUG );
+		echo $this->getCon()->action_router->render( FormSecurityAdminLoginBox::SLUG );
 	}
 
 	public function verifyPinRequest() :bool {

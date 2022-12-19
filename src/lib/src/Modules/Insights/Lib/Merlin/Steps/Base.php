@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 abstract class Base {
 
@@ -25,10 +25,7 @@ abstract class Base {
 			$stepData[ 'vars' ] = [];
 		}
 		$stepData[ 'vars' ][ 'step_slug' ] = static::SLUG;
-		return $this->getCon()
-					->getModule_Insights()
-					->getActionRouter()
-					->render( Actions\Render\Components\Merlin\MerlinStep::SLUG, $stepData );
+		return $this->getCon()->action_router->render( Actions\Render\Components\Merlin\MerlinStep::SLUG, $stepData );
 	}
 
 	/**

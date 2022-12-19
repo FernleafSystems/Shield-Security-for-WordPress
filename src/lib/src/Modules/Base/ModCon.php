@@ -4,10 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -529,7 +529,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return array|string
 	 */
 	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
-		$data = Modules\Insights\ActionRouter\ActionData::Build( $action, true, [
+		$data = Shield\ActionRouter\ActionData::Build( $action, true, [
 			'mod_slug' => $this->getModSlug()
 		] );
 		return $asJson ? json_encode( (object)$data ) : $data;
@@ -682,15 +682,14 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 16.2
 	 */
 	public function renderTemplate( string $template, array $data = [] ) :string {
-		$ins = $this->getCon()->getModule_Insights();
+		$con = $this->getCon();
 
-		if ( method_exists( $ins, 'getActionRouter' ) ) {
+		if ( $con->action_router instanceof Shield\ActionRouter\ActionRoutingController ) {
 			$data[ 'render_action_template' ] = $template;
-			return $ins->getActionRouter()
-					   ->render(
-						   Actions\Render\GenericRender::SLUG,
-						   $data
-					   );
+			return $con->action_router->render(
+				Actions\Render\GenericRender::SLUG,
+				$data
+			);
 		}
 
 		return $this->getRenderer()

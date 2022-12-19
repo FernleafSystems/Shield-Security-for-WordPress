@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\AdminNotice;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
@@ -61,12 +61,9 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->collectAllPluginNotices() as $notice ) {
-			echo $this->getCon()
-					  ->getModule_Insights()
-					  ->getActionRouter()
-					  ->render( AdminNotice::SLUG, [
-						  'raw_notice_data' => $notice->getRawData()
-					  ] );
+			echo $this->getCon()->action_router->render( AdminNotice::SLUG, [
+				'raw_notice_data' => $notice->getRawData()
+			] );
 		}
 	}
 

@@ -4,15 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\{
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Actions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -227,7 +227,10 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'action_router':
-				$val = $this->getModule_Insights()->getActionRouter();
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\ActionRouter\ActionRoutingController() )->setMod( $this->getModule_Insights() );
+					$this->action_router = $val;
+				}
 				break;
 
 			case 'plugin_urls':
@@ -1433,9 +1436,7 @@ class Controller extends DynPropertiesClass {
 
 	private function buildPrivacyPolicyContent() :string {
 		return wp_kses_post( wpautop(
-			$this->getModule_Insights()
-				 ->getActionRouter()
-				 ->render( Actions\Render\Components\PrivacyPolicy::SLUG ),
+			$this->action_router->render( Actions\Render\Components\PrivacyPolicy::SLUG ),
 			false
 		) );
 	}

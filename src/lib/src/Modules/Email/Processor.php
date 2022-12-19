@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Email;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\Footer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\Components\Email\Footer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
@@ -17,10 +17,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function getEmailFooter() :array {
 		return apply_filters( 'icwp_shield_email_footer', [
-			$this->getCon()
-				 ->getModule_Insights()
-				 ->getActionRouter()
-				 ->render( Footer::SLUG )
+			$this->getCon()->action_router->render( Footer::SLUG )
 		] );
 	}
 

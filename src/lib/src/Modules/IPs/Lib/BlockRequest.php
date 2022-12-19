@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions;
 
 class BlockRequest extends ExecOnceModConsumer {
 
@@ -17,11 +17,9 @@ class BlockRequest extends ExecOnceModConsumer {
 		if ( $this->isRequestBlocked() ) {
 			$con = $this->getCon();
 			$con->fireEvent( 'conn_kill' );
-			$con->getModule_Insights()
-				->getActionRouter()
-				->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
-					'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressShield::SLUG
-				] );
+			$con->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+				'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressShield::SLUG
+			] );
 		}
 	}
 

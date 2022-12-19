@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PageAdminPlugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\Render\PageAdminPlugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminPage extends ExecOnceModConsumer {
@@ -57,10 +56,7 @@ class AdminPage extends ExecOnceModConsumer {
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
-		echo $this->getCon()
-				  ->getModule_Insights()
-				  ->getActionRouter()
-				  ->render( PageAdminPlugin::SLUG, [] );
+		echo $this->getCon()->action_router->render( PageAdminPlugin::SLUG, [] );
 	}
 
 	public function getScreenID() :string {

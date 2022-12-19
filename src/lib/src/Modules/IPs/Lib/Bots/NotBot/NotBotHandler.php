@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -105,7 +105,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 		$req = Services::Request();
 		$notBot = $req->cookie( $this->getCon()->prefix( self::SLUG ), '' );
 		if ( !empty( $notBot ) && strpos( $notBot, 'z' ) ) {
-			list( $ts, $hash ) = explode( 'z', $notBot );
+			[ $ts, $hash ] = explode( 'z', $notBot );
 			$parts[ 'ts' ] = $ts;
 			$parts[ 'hash' ] = $hash;
 		}
