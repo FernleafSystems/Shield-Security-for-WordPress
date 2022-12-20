@@ -1,9 +1,5 @@
 {% extends '/components/reports/components/base.twig' %}
 
-{% block pre_body %}
-	<p><small>{{ strings.note_changes }}</small></p>
-{% endblock %}
-
 {% block body %}
 	<ul>
 		{% for repair_data in vars.repairs %}
