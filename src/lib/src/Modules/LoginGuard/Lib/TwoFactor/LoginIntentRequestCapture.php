@@ -99,12 +99,15 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 	}
 
 	/**
+	 * @throws ActionException
 	 * @throws CouldNotValidate2FA
-	 * @throws Exceptions\TooManyAttemptsException
+	 * @throws InvalidLoginIntentException
 	 * @throws LoginCancelException
 	 * @throws NoActiveProvidersForUserException
 	 * @throws OtpVerificationFailedException
-	 * @throws InvalidLoginIntentException
+	 * @throws Shield\ActionRouter\Exceptions\ActionDoesNotExistException
+	 * @throws Shield\ActionRouter\Exceptions\ActionTypeDoesNotExistException
+	 * @throws TooManyAttemptsException
 	 */
 	private function capture() {
 		$con = $this->getCon();

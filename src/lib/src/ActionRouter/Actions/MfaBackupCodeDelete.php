@@ -14,7 +14,8 @@ class MfaBackupCodeDelete extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		$user = Services::WpUsers()->getCurrentWpUser();
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( $user );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {
@@ -26,7 +27,10 @@ class MfaBackupCodeDelete extends MfaBase {
 			$msg = __( 'Login backup codes have been removed from your profile', 'wp-simple-firewall' );
 			$success = true;
 		}
-		$mod->setFlashAdminNotice( $msg, Services::WpUsers()->getCurrentWpUser(), !$success );
+
+		$this->getCon()
+			 ->getAdminNotices()
+			 ->addFlash( $msg, $user, !$success );
 
 		$this->response()->action_response_data = [
 			'message' => $msg,

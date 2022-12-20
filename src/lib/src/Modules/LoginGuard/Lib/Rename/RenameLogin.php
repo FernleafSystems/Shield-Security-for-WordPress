@@ -64,8 +64,6 @@ class RenameLogin {
 	}
 
 	private function hasPluginConflict() :bool {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
@@ -97,33 +95,33 @@ class RenameLogin {
 		}
 
 		if ( $isConflicted ) {
-			$mod->setFlashAdminNotice( sprintf( '<strong>%s</strong>: %s',
-				__( 'Warning', 'wp-simple-firewall' ),
-				$msg
-			), null, true );
+			$this->getCon()
+				 ->getAdminNotices()
+				 ->addFlash(
+					 sprintf( '<strong>%s</strong>: %s', __( 'Warning', 'wp-simple-firewall' ), $msg ),
+					 null,
+					 true
+				 );
 		}
 
 		return $isConflicted;
 	}
 
 	private function hasUnsupportedConfiguration() :bool {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$path = Services::Request()->getPath();
-
-		$unsupported = empty( $path );
+		$unsupported = empty( Services::Request()->getPath() );
 		if ( $unsupported ) {
-			$mod->setFlashAdminNotice(
-				sprintf(
-					'<strong>%s</strong>: %s',
-					__( 'Warning', 'wp-simple-firewall' ),
-					__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
-				),
-				null,
-				true
-			);
+			$this->getCon()
+				 ->getAdminNotices()
+				 ->addFlash(
+					 sprintf(
+						 '<strong>%s</strong>: %s',
+						 __( 'Warning', 'wp-simple-firewall' ),
+						 __( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
+					 ),
+					 null,
+					 true
+				 );
 		}
-
 		return $unsupported;
 	}
 

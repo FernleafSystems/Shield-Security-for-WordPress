@@ -40,9 +40,11 @@ class Controller {
 	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
 		$con = $this->getCon();
 		$meta = $user instanceof \WP_User ? $con->getUserMeta( $user ) : $con->getCurrentUserMeta();
-		if ( $meta instanceof UserMeta ) {
+
+		$msg = trim( sanitize_text_field( $msg ) );
+		if ( !empty( $msg ) && $meta instanceof UserMeta ) {
 			$meta->flash_msg = [
-				'message'    => sanitize_text_field( $msg ),
+				'message'    => sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
 				'error'      => $isError,
 				'show_login' => $bShowOnLoginPage,

@@ -42,9 +42,13 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		if ( $opts->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
 			add_action( $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
-				( new Import() )
-					->setMod( $this->getMod() )
-					->run( 'site' );
+				try {
+					( new Import() )
+						->setMod( $this->getMod() )
+						->fromSite();
+				}
+				catch ( \Exception $e ) {
+				}
 			} );
 		}
 	}

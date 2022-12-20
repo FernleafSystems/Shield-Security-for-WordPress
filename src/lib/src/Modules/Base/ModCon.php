@@ -612,6 +612,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @param bool          $isError
 	 * @param bool          $bShowOnLogin
 	 * @return $this
+	 * @deprecated 17.0
 	 */
 	public function setFlashAdminNotice( $msg, $user = null, $isError = false, $bShowOnLogin = false ) {
 		$this->getCon()

@@ -11,26 +11,7 @@ class Import {
 
 	use ModConsumer;
 
-	public function run( string $method = 'site' ) {
-		try {
-			switch ( $method ) {
-				case 'file':
-					$this->fromFileUpload();
-					break;
-				case 'site':
-				default:
-					$this->fromSite();
-					break;
-			}
-		}
-		catch ( \Exception $e ) {
-		}
-		die();
-	}
-
 	/**
-	 * @param string $path
-	 * @param bool   $delete
 	 * @throws \Exception
 	 */
 	public function fromFile( string $path, bool $delete = true ) {
@@ -102,11 +83,9 @@ class Import {
 	}
 
 	/**
-	 * @param bool|null $enableNetwork
-	 * @return int
 	 * @throws \Exception
 	 */
-	public function fromSite( string $masterURL = '', string $secretKey = '', $enableNetwork = null ) {
+	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
@@ -166,7 +145,7 @@ class Import {
 				$masterURL,
 				$data
 			);
-			add_filter( 'http_request_host_is_external', '__return_true', 11 );
+			add_filter( 'http_request_host_is_external', '\__return_true', 11 );
 			$response = @json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
 			remove_filter( 'http_request_host_is_external', '__return_true', 11 );
 			if ( empty( $response ) ) {
@@ -209,8 +188,6 @@ class Import {
 		}
 		// store & clean the master URL
 		$mod->saveModOptions();
-
-		return 0;
 	}
 
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
@@ -218,15 +195,15 @@ class Import {
 		$anythingChanged = false;
 		foreach ( $this->getCon()->modules as $mod ) {
 			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
-				$oTheseOpts = $mod->getOptions();
-				$oTheseOpts->setMultipleOptions(
+				$theseOpts = $mod->getOptions();
+				$theseOpts->setMultipleOptions(
 					array_diff_key(
 						$data[ $mod->getOptionsStorageKey() ] ?? [],
-						array_flip( $oTheseOpts->getXferExcluded() )
+						array_flip( $theseOpts->getXferExcluded() )
 					)
 				);
 
-				$anythingChanged = $anythingChanged || $oTheseOpts->getNeedSave();
+				$anythingChanged = $anythingChanged || $theseOpts->getNeedSave();
 				$mod->saveModOptions( true );
 			}
 		}

@@ -95,11 +95,11 @@ class PluginURLs {
 		);
 	}
 
-	public function fileDownload( string $downloadType, array $params = [] ) :string {
+	public function fileDownload( string $downloadCategory, array $params = [] ) :string {
 		return $this->noncedPluginAction(
 			FileDownload::SLUG,
 			Services::WpGeneral()->getAdminUrl(),
-			array_merge( $params, [ 'download_category' => $downloadType ] )
+			array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
 	}
 }

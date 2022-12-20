@@ -18,7 +18,12 @@ class MfaCanEmailSendVerify extends MfaBase {
 			$opts->setOpt( 'email_can_send_verified_at', Services::Request()->ts() );
 			$mod->saveModOptions();
 			if ( Services::WpUsers()->isUserLoggedIn() ) {
-				$mod->setFlashAdminNotice( __( 'Email verification completed successfully.', 'wp-simple-firewall' ) );
+				$this->getCon()
+					 ->getAdminNotices()
+					 ->addFlash(
+						 __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
+						 Services::WpUsers()->getCurrentWpUser()
+					 );
 			}
 		}
 
