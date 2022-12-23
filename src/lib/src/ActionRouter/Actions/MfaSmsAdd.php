@@ -14,7 +14,7 @@ class MfaSmsAdd extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 		$req = Services::Request();
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Sms $provider */
 		$provider = $available[ Sms::ProviderSlug() ];
 

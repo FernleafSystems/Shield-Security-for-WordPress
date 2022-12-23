@@ -4,20 +4,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Fu
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ActiveWpUserConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockMagicLink;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class MagicLink extends Base {
+
+	use ActiveWpUserConsumer;
 
 	public const SLUG = 'render_magic_link';
 	public const TEMPLATE = '/pages/block/magic_link.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		$user = Services::WpUsers()->getCurrentWpUser();
-		$available = $user instanceof \WP_User
-					 && ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod )->isUnblockAvailable()
+		$user = $this->getActiveWPUser();
+		$available = ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod )->isUnblockAvailable()
 					 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $user );
 		return [
 			'flags'   => [

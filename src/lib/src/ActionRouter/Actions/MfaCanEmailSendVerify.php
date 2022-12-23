@@ -17,14 +17,12 @@ class MfaCanEmailSendVerify extends MfaBase {
 		if ( $opts->getOpt( 'email_can_send_verified_at' ) < 1 ) {
 			$opts->setOpt( 'email_can_send_verified_at', Services::Request()->ts() );
 			$mod->saveModOptions();
-			if ( Services::WpUsers()->isUserLoggedIn() ) {
-				$this->getCon()
-					 ->getAdminNotices()
-					 ->addFlash(
-						 __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
-						 Services::WpUsers()->getCurrentWpUser()
-					 );
-			}
+			$this->getCon()
+				 ->getAdminNotices()
+				 ->addFlash(
+					 __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
+					 $this->getActiveWPUser()
+				 );
 		}
 
 		$this->response()->action_response_data = [

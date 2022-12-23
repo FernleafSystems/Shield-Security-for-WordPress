@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MfaBackupCodeDelete extends MfaBase {
 
@@ -14,7 +13,7 @@ class MfaBackupCodeDelete extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 
-		$user = Services::WpUsers()->getCurrentWpUser();
+		$user = $this->getActiveWPUser();
 		$available = $mod->getMfaController()->getProvidersAvailableToUser( $user );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;

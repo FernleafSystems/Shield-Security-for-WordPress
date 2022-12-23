@@ -13,7 +13,7 @@ class MfaGoogleAuthToggle extends MfaBase {
 	protected function exec() {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var GoogleAuth $provider */
 		$provider = $available[ GoogleAuth::ProviderSlug() ];
 

@@ -14,7 +14,7 @@ class MfaYubikeyToggle extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Yubikey $provider */
 		$provider = $available[ Yubikey::ProviderSlug() ];
 		$otp = Services::Request()->post( 'otp', '' );

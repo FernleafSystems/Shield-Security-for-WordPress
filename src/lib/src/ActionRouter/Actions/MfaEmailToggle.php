@@ -14,7 +14,7 @@ class MfaEmailToggle extends MfaBase {
 		/** @var ModCon $mod */
 		$mod = $this->primary_mod;
 
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( Services::WpUsers()->getCurrentWpUser() );
+		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?Email $provider */
 		$provider = $available[ Email::ProviderSlug() ] ?? null;
 		if ( !empty( $provider ) && !$provider->isEnforced() ) {
