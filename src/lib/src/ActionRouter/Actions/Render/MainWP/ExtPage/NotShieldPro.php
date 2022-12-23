@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-class NotShieldPro extends BaseMWP {
+class NotShieldPro extends BaseSubPage {
 
 	public const SLUG = 'mainwp_page_not_shield_pro';
 	public const TEMPLATE = '/integration/mainwp/pages/mwp_for_pro.twig';

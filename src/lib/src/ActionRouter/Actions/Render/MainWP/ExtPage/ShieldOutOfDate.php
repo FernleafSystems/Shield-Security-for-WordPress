@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Ma
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class ShieldOutOfDate extends BaseMWP {
+class ShieldOutOfDate extends BaseSubPage {
 
 	public const SLUG = 'mainwp_page_shield_outofdate';
 	public const TEMPLATE = '/integration/mainwp/pages/shield_outofdate.twig';

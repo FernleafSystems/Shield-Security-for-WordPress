@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Cont
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\SyncHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Init {
 
@@ -34,11 +35,18 @@ class Init {
 		}
 
 		if ( Controller::isMainWPServerVersionSupported() && $con->isPremiumActive() ) {
-			( new SyncHandler() )
-				->setMod( $this->getMod() )
-				->execute();
-			$this->attachSitesListingShieldColumn();
-			$extensionsPage->execute();
+
+			if ( $con->isPremiumActive() ) {
+				( new SyncHandler() )
+					->setMod( $this->getMod() )
+					->execute();
+				$this->attachSitesListingShieldColumn();
+				$extensionsPage->execute();
+			}
+
+			add_action( 'mainwp_secure_check_admin_referer_is_accepted', function ( $isRequestAccepted ) {
+				$this->blockPluginDisable( $isRequestAccepted );
+			} );
 		}
 
 		return $key;
@@ -96,5 +104,32 @@ class Init {
 		} );
 
 		return ( new ExtensionSettingsPage() )->setMod( $this->getMod() );
+	}
+
+	/**
+	 * MainWP assumes that a MainWP Extension is only that. But we've integrated the extension as part of the
+	 * Shield plugin, not as a separate entity. So when the admin unwittingly clicks "disable extension", they're
+	 * actually disabling the entire plugin.
+	 *
+	 * We step in here and prevent this, and instead just disable the MainWP option within Shield.
+	 */
+	private function blockPluginDisable( $isRequestAccepted ) {
+		if ( $isRequestAccepted ) {
+			$con = $this->getCon();
+			$req = Services::Request();
+			if ( $req->post( 'action' ) === 'mainwp_extension_plugin_action'
+				 && $req->post( 'what' ) === 'disable'
+				 && $req->post( 'slug' ) === $con->base_file ) {
+				$this->getMod()->getOptions()->setOpt( 'enable_mainwp', 'N' );
+				wp_send_json( [
+					'error' => sprintf( 'The MainWP integration option within the %s plugin has been disabled.',
+							$con->getHumanName() )
+							   .' '.sprintf( "You'll need to re-enable the option to view the %s extension on this page again.",
+							$con->getHumanName() )
+				] );
+				die();
+			}
+		}
+		return $isRequestAccepted;
 	}
 }

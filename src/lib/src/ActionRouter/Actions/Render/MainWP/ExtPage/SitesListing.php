@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Serv
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class SitesListing extends BaseMWP {
+class SitesListing extends BaseSubPage {
 
 	public const SLUG = 'mainwp_page_sites_listing';
 	public const TEMPLATE = '/integration/mainwp/pages/sites.twig';

@@ -14,6 +14,30 @@ class ExtensionPageContainer extends BaseMWP {
 	public const SLUG = 'mainwp_page_extension';
 	public const TEMPLATE = '/integration/mainwp/page_extension.twig';
 
+	/**
+	 * @throws ActionException
+	 */
+	protected function getAllRenderDataArrays() :array {
+		return array_merge( parent::getAllRenderDataArrays(), [
+			25 => $this->getCommonMwpData()
+		] );
+	}
+
+	protected function getCommonMwpData() :array {
+		ob_start();
+		do_action( 'mainwp_pageheader_extensions', $this->getCon()->getRootFile() );
+		$mainwpHeader = ob_get_clean();
+		ob_start();
+		do_action( 'mainwp_pagefooter_extensions', $this->getCon()->getRootFile() );
+		$mainwpFooter = ob_get_clean();
+		return [
+			'content' => [
+				'mainwp_header' => $mainwpHeader,
+				'mainwp_footer' => $mainwpFooter,
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 
@@ -27,23 +51,9 @@ class ExtensionPageContainer extends BaseMWP {
 			$bodyToRender = MwpOutOfDate::SLUG;
 		}
 		else {
-			$currentTab = $this->action_data[ 'current_tab' ];
-
-			/** @var BaseMWP[] $pages */
-			$pages = [
-				SitesListing::SLUG,
-				SiteManageFrame::SLUG,
-			];
-
-			foreach ( $pages as $page ) {
-				if ( $currentTab == $page::SLUG ) {
-					$bodyToRender = new $page();
-					break;
-				}
-			}
-
-			if ( empty( $bodyToRender ) ) {
-				throw new ActionException( 'Not a supported tab: '.$currentTab );
+			$bodyToRender = $this->action_data[ 'current_tab' ];
+			if ( !in_array( $bodyToRender, $this->enumPages() ) ) {
+				throw new ActionException( 'Not a supported tab: '.sanitize_key( $bodyToRender ) );
 			}
 		}
 
@@ -51,6 +61,16 @@ class ExtensionPageContainer extends BaseMWP {
 			'content' => [
 				'page_body' => $con->action_router->render( $bodyToRender ),
 			],
+		];
+	}
+
+	/**
+	 * @return BaseMWP[]
+	 */
+	protected function enumPages() :array {
+		return [
+			SitesListing::SLUG,
+			SiteManageFrame::SLUG,
 		];
 	}
 

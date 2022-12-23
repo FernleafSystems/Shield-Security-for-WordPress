@@ -5,7 +5,7 @@
 			<div class="row">
 				<div class="column one">
 					<div class="ui labeled icon inverted menu mainwp-sub-submenu" id="mainwp-shield-menu">
-						{% for menu_topnav_item in vars.menu_topnav %}
+						{% for menu_topnav_item in vars.menu_topnav|default([]) %}
 							<a href="{{ menu_topnav_item.href }}"
 							   class="item {% if menu_topnav_item.active %}active{% endif %}">
 								<i class="{{ menu_topnav_item.icon }} icon"></i>{{ menu_topnav_item.title }}</a>
@@ -30,7 +30,7 @@
 		<script type="text/javascript">
 			jQuery( document ).ready( function () {
 		  jQuery( '#ShieldMainwpExtension' ).icwpWpsfMainwpExt( {
-			  'ajax_actions':{{ ajax.actions|raw }}
+			  'ajax_actions':{{ ajax.actions|json_encode()|raw }}
 		  } );
 	  } );
 		</script>

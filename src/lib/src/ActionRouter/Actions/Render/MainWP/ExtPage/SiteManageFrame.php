@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Serv
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class SiteManageFrame extends BaseMWP {
+class SiteManageFrame extends BaseSubPage {
 
 	public const SLUG = 'mainwp_page_site_manage_frame';
 	public const TEMPLATE = '/integration/mainwp/pages/site.twig';

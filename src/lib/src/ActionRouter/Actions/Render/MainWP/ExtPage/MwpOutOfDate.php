@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Ma
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MwpOutOfDate extends BaseMWP {
+class MwpOutOfDate extends BaseSubPage {
 
 	public const SLUG = 'mainwp_page_mwp_outofdate';
 	public const TEMPLATE = '/integration/mainwp/pages/mwp_outofdate.twig';
