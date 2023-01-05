@@ -31,6 +31,5 @@ class VerifyActions {
 		else {
 			echo "\nDuplicate action slugs for: ".var_export( $duplicates, true );
 		}
-
 	}
 }

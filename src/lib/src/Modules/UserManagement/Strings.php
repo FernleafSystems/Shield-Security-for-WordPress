@@ -82,7 +82,7 @@ class Strings extends Base\Strings {
 
 	/**
 	 * @inheritDoc
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	protected function getAdditionalDisplayStrings() :array {
 		return [];

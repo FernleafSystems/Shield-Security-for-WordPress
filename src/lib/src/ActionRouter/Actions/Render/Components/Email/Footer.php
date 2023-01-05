@@ -37,18 +37,19 @@ class Footer extends Base {
 
 		return [
 			'strings' => [
-				'benefits'              => $benefits,
-				'much_more'             => 'And So Much More',
-				'upgrade'               => $goPro[ array_rand( $goPro ) ],
-				'sent_from'             => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
+				'benefits'            => $benefits,
+				'much_more'           => 'And So Much More',
+				'upgrade'             => $goPro[ array_rand( $goPro ) ],
+				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 					$con->getHumanName(),
 					$con->getVersion(),
 					$WP->getHomeUrl()
 				),
-				'delays'                => __( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-				'time_sent'             => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
+				'delays'              => __( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
+				'time_sent'           => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
 				'configure_recipient' => sprintf( __( 'Configure security email recipient (%s)', 'wp-simple-firewall' ),
-					sprintf( __( 'currently %s', 'wp-simple-firewall' ),$con->getModule_Plugin()->getPluginReportEmail() ) ),
+					sprintf( __( 'currently %s', 'wp-simple-firewall' ), $con->getModule_Plugin()
+																			 ->getPluginReportEmail() ) ),
 			],
 			'hrefs'   => [
 				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',

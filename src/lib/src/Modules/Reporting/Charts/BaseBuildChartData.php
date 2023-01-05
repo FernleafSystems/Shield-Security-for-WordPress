@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 

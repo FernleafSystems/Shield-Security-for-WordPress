@@ -135,17 +135,17 @@ class EventsToSignals extends EventsListener {
 
 	private function getEventToSignalMap() :array {
 		return [
-			'bottrack_loginfailed'  => [
+			'bottrack_loginfailed'    => [
 				'scenario' => 'btloginfail',
 			],
-			'bottrack_logininvalid' => [
+			'bottrack_logininvalid'   => [
 				'scenario' => 'btlogininvalid',
 			],
-			'block_lostpassword'    => [
+			'block_lostpassword'      => [
 				'scenario'                 => 'lostpasswordfail',
 				'only_send_on_notbot_fail' => true,
 			],
-			'block_register'        => [
+			'block_register'          => [
 				'scenario'                 => 'registerfail',
 				'only_send_on_notbot_fail' => true,
 			],

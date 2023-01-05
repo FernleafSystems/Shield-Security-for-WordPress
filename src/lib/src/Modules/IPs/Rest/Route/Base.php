@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Route;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\{
-	Exceptions};
+	Exceptions
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends RouteBase {

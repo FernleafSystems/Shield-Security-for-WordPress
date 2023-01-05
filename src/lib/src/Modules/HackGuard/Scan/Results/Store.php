@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Scan\Queue\QueueItemVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	ResultItems as ResultItemsDB,
 	ResultItemMeta as ResultItemMetaDB,
+	ResultItems as ResultItemsDB,
 	ScanResults as ScanResultsDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;

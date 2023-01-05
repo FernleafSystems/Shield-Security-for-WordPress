@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	AuditTrail,
-	Traffic
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {

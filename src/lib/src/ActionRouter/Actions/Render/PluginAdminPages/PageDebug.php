@@ -40,7 +40,7 @@ class PageDebug extends BasePluginAdminPage {
 
 		return [
 			'flags'   => [
-				'display_tests'  => !empty( $availableTests ),
+				'display_tests' => !empty( $availableTests ),
 			],
 			'hrefs'   => [
 				'check_visitor_ip_source' => URL::Build( '', [ 'shield_check_ip_source' => '1' ] ),

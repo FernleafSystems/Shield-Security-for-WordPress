@@ -9,7 +9,7 @@ class GetAll extends Base {
 
 	protected function getRouteArgsCustom() :array {
 		return [
-			'scan_slugs' => $this->getRouteArgSchema( 'scan_slugs' ),
+			'scan_slugs'        => $this->getRouteArgSchema( 'scan_slugs' ),
 			'filter_item_state' => [
 				'description' => '[Filter] Comma-separated scan item states to include.',
 				'type'        => 'string',

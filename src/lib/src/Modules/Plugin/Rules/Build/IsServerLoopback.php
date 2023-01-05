@@ -27,7 +27,7 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 			'group' => [
 				[
 					'condition' => Conditions\MatchRequestIp::SLUG,
-					'params' => [
+					'params'    => [
 						'match_ips' => Services::IP()->getServerPublicIPs(),
 					],
 				],

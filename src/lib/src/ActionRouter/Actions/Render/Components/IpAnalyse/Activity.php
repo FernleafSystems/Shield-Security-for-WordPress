@@ -37,8 +37,8 @@ class Activity extends Base {
 
 		return [
 			'strings' => [
-				'title'      => __( 'Recent Activity Log', 'wp-simple-firewall' ),
-				'no_logs'    => __( 'No logs at this IP', 'wp-simple-firewall' ),
+				'title'      => __( 'Recent Activity Logs', 'wp-simple-firewall' ),
+				'no_logs'    => __( 'No activity logged for this IP address', 'wp-simple-firewall' ),
 				'username'   => __( 'Username', 'wp-simple-firewall' ),
 				'sec_admin'  => __( 'Security Admin', 'wp-simple-firewall' ),
 				'event'      => __( 'Event', 'wp-simple-firewall' ),

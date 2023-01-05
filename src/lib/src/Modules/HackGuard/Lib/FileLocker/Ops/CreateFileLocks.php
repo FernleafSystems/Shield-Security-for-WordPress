@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
+	FileContentsEncodingFailure,
+	FileContentsEncryptionFailure,
 	LockDbInsertFailure,
 	NoFileLockPathsExistException,
-	PublicKeyRetrievalFailure,
-	FileContentsEncodingFailure,
-	FileContentsEncryptionFailure
+	PublicKeyRetrievalFailure
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 

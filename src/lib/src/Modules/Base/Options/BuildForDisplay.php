@@ -259,7 +259,7 @@ class BuildForDisplay {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function setIsWhitelabelled( bool $isOrNot ) :self {
 		return $this;

@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions};
+	Actions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -50,8 +51,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
 		if ( !isset( $this->shieldNetCon ) ) {
-			$this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )
-				->setMod( $this );
+			$this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )->setMod( $this );
 		}
 		return $this->shieldNetCon;
 	}

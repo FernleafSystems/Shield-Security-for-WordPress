@@ -4,16 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
-use IPLib\Factory;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
 	MergeAutoBlockRules,
 	Ops\Handler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use IPLib\Factory;
 
 class IpRuleStatus {
 
@@ -44,11 +44,9 @@ class IpRuleStatus {
 		return empty( $rule ) ? 0 : $rule->offenses;
 	}
 
-	/**
-	 * @return IpRuleRecord|null
-	 */
-	public function getRuleForAutoBlock() {
-		return current( $this->getRulesForAutoBlock() );
+	public function getRuleForAutoBlock() :?IpRuleRecord {
+		$record = current( $this->getRulesForAutoBlock() );
+		return $record instanceof IpRuleRecord ? $record : null;
 	}
 
 	/**
@@ -81,6 +79,9 @@ class IpRuleStatus {
 		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BYPASS ] ) );
 	}
 
+	/**
+	 * @return IpRuleRecord[]
+	 */
 	private function getRulesForAutoBlock() :array {
 		/** @var Modules\IPs\Options $opts */
 		$opts = $this->getOptions();
@@ -110,7 +111,7 @@ class IpRuleStatus {
 		// Just in case we've previously blocked a Search Provider - perhaps a failed rDNS at the time.
 		if ( !empty( $rules ) ) {
 			try {
-				list( $ipKey, $ipName ) = ( new IpID( $this->getIP() ) )
+				[ $ipKey, $ipName ] = ( new IpID( $this->getIP() ) )
 					->setIgnoreUserAgent()
 					->run();
 				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {

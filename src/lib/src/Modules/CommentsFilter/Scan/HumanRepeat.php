@@ -31,7 +31,7 @@ class HumanRepeat {
 					'spam',
 					'trash',
 				],
-				'relation' => 'OR',
+				'relation'   => 'OR',
 				'meta_query' => [
 					[
 						'key'   => $this->getCon()->prefix( 'spam_human' ),

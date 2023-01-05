@@ -10,7 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	FileContentsEncryptionFailure,
 	LockDbInsertFailure,
 	NoFileLockPathsExistException,
-	PublicKeyRetrievalFailure,};
+	PublicKeyRetrievalFailure,
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {

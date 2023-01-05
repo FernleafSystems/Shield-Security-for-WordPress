@@ -60,7 +60,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getSecAdminLoginAjaxData() :array {
 		return ActionData::Build( Actions\SecurityAdminLogin::SLUG );
@@ -133,7 +133,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function preDeactivatePlugin() {
 	}

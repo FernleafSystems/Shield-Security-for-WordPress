@@ -2,14 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-abstract class Processor {
+abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	use Shield\Crons\PluginCronsConsumer;
-	use Shield\Modules\ModConsumer;
-	use ExecOnce;
 
 	/**
 	 * @param ModCon $mod

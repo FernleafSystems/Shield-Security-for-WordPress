@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
+ * @property int[] $nonces
+ * @property int   $handshake_fail_count
  * @property int   $last_handshake_at
  * @property int   $last_handshake_attempt_at
  * @property int   $last_send_iprep_at
- * @property int   $handshake_fail_count
- * @property int[] $nonces
  * @property int   $data_last_saved_at
  */
 class ShieldNetApiDataVO extends DynPropertiesClass {

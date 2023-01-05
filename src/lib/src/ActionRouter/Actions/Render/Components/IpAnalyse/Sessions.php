@@ -38,7 +38,7 @@ class Sessions extends Base {
 		return [
 			'strings' => [
 				'title'            => __( 'User Sessions', 'wp-simple-firewall' ),
-				'no_sessions'      => __( 'No sessions at this IP', 'wp-simple-firewall' ),
+				'no_sessions'      => __( 'No sessions recorded for this IP address', 'wp-simple-firewall' ),
 				'username'         => __( 'Username', 'wp-simple-firewall' ),
 				'sec_admin'        => __( 'Security Admin', 'wp-simple-firewall' ),
 				'logged_in_at'     => __( 'Logged-In At', 'wp-simple-firewall' ),

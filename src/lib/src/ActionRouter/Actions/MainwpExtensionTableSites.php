@@ -8,7 +8,7 @@ class MainwpExtensionTableSites extends MainwpBase {
 
 	protected function exec() {
 		$this->response()->action_response_data = [
-			'success'     => true,
+			'success' => true,
 		];
 	}
 }

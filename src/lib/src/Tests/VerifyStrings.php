@@ -27,6 +27,6 @@ class VerifyStrings {
 		}
 
 		var_dump( 'Description not array:' );
-		var_dump($descNotArray );
+		var_dump( $descNotArray );
 	}
 }

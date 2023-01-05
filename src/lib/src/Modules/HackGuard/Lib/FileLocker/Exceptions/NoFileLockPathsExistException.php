@@ -3,4 +3,5 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions;
 
 class NoFileLockPathsExistException extends \Exception {
+
 }

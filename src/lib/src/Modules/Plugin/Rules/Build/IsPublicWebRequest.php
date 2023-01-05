@@ -25,7 +25,7 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'condition'       => Conditions\WpIsWpcli::SLUG,
+					'condition'    => Conditions\WpIsWpcli::SLUG,
 					'invert_match' => true,
 				],
 				[

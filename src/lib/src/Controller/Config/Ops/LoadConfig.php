@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class LoadConfig {
 
@@ -77,8 +76,8 @@ class LoadConfig {
 	}
 
 	/**
-	 * @deprecated 16.2
 	 * @return array|null
+	 * @deprecated 17.0
 	 */
 	public function fromWp() {
 		return Services::WpGeneral()->getOption( $this->store_key );

@@ -108,7 +108,7 @@ class WpvAddPluginRows {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function attachVulnerabilityWarning( $pluginFile, $pData ) {
 	}

@@ -112,6 +112,8 @@ class Init {
 	 * actually disabling the entire plugin.
 	 *
 	 * We step in here and prevent this, and instead just disable the MainWP option within Shield.
+	 * We also then return an error message outlining what's happened. If they want to actually disable
+	 * the Shield plugin, they can do that, separately.
 	 */
 	private function blockPluginDisable( $isRequestAccepted ) {
 		if ( $isRequestAccepted ) {
@@ -122,7 +124,7 @@ class Init {
 				 && $req->post( 'slug' ) === $con->base_file ) {
 				$this->getMod()->getOptions()->setOpt( 'enable_mainwp', 'N' );
 				wp_send_json( [
-					'error' => sprintf( 'The MainWP integration option within the %s plugin has been disabled.',
+					'error' => sprintf( 'The MainWP integration within %s has been disabled.',
 							$con->getHumanName() )
 							   .' '.sprintf( "You'll need to re-enable the option to view the %s extension on this page again.",
 							$con->getHumanName() )

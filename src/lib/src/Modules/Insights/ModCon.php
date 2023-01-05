@@ -22,11 +22,6 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class ModCon extends BaseShield\ModCon {
 
-	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController
-	 */
-	private $router;
-
 	protected function onModulesLoaded() {
 		add_action( 'init', function () {
 			$this->getCon()->action_router->execute();
@@ -254,7 +249,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
 		return '';

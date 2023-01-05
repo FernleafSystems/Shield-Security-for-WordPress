@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
 
 class ConditionsProcessor extends BaseProcessor {
 

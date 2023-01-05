@@ -137,7 +137,7 @@ class Controller {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	protected function renderNotice( NoticeVO $notice ) :string {
 		return '';

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
- * @deprecated 16.2
+ * @deprecated 17.0
  */
 abstract class AjaxHandler {
 

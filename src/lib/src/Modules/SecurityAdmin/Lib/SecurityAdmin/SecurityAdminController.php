@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
 	SecurityAdminLogin,
-	SecurityAdminRequestRemoveByEmail};
+	SecurityAdminRequestRemoveByEmail
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
@@ -188,7 +189,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function renderPinLoginForm() :string {
 		return '';

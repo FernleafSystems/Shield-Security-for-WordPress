@@ -56,8 +56,8 @@ class Traffic extends Base {
 
 		return [
 			'strings' => [
-				'title'        => __( 'Visitor Requests', 'wp-simple-firewall' ),
-				'no_requests'  => __( 'No requests logged for this IP', 'wp-simple-firewall' ),
+				'title'        => __( 'Recent Requests', 'wp-simple-firewall' ),
+				'no_requests'  => __( 'No requests logged for this IP address', 'wp-simple-firewall' ),
 				'path'         => __( 'Path', 'wp-simple-firewall' ),
 				'query'        => __( 'Query', 'wp-simple-firewall' ),
 				'verb'         => __( 'Verb', 'wp-simple-firewall' ),

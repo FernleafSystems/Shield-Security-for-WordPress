@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	DB\Scans\Ops as ScansDB,
 	ModCon,
 	Options
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 class Clean extends ExecOnceModConsumer {
 

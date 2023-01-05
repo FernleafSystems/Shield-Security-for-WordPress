@@ -70,8 +70,8 @@ class MUHandler {
 
 	protected function testLoopback() :bool {
 		$status = Services::Rest()->callInternal( [
-				'route' => '/wp-site-health/v1/tests/loopback-requests'
-			] )->get_data()[ 'status' ] ?? '';
+			'route' => '/wp-site-health/v1/tests/loopback-requests'
+		] )->get_data()[ 'status' ] ?? '';
 		return $status === 'good';
 	}
 

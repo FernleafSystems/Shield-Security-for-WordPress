@@ -74,7 +74,7 @@ class PtgAddReinstallLinks {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	private function printPluginReinstallDialogs() {
 	}

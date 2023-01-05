@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 /**
  * Used in version 16.0 to migrate the IP List to the newer IP Rules.
- * @deprecated 16.2
+ * @deprecated 17.0
  */
 class QueueReqDbRecordMigrator extends Shield\Databases\Utility\QueueDbRecordsMigrator {
 

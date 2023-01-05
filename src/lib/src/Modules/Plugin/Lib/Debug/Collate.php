@@ -69,16 +69,16 @@ class Collate {
 		}
 
 		return [
-			'Host OS'                           => PHP_OS,
-			'Server Hostname'                   => gethostname(),
-			'Server Time Difference'            => $diff,
-			'Server IPs'                        => implode( ', ', $aIPs ),
-			'CloudFlare'                        => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
-			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
-			'Server Name'                       => $req->server( 'SERVER_NAME' ),
-			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
-			'Server Software'                   => empty( $soft ) ? '-' : $soft,
-			'Disk Space' => sprintf( '%s used out of %s (unused: %s)',
+			'Host OS'                => PHP_OS,
+			'Server Hostname'        => gethostname(),
+			'Server Time Difference' => $diff,
+			'Server IPs'             => implode( ', ', $aIPs ),
+			'CloudFlare'             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
+			'rDNS'                   => empty( $rDNS ) ? '-' : $rDNS,
+			'Server Name'            => $req->server( 'SERVER_NAME' ),
+			'Server Signature'       => empty( $sig ) ? '-' : $sig,
+			'Server Software'        => empty( $soft ) ? '-' : $soft,
+			'Disk Space'             => sprintf( '%s used out of %s (unused: %s)',
 				( is_numeric( $totalDisk ) && is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
 				is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
 				is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'

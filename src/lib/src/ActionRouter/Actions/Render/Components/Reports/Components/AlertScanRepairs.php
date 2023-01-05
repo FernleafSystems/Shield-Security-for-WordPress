@@ -71,7 +71,6 @@ class AlertScanRepairs extends BaseBuilderForScans {
 			}
 		}
 
-
 		return [
 			'flags'   => [
 				'render_required' => !empty( $repairs ),

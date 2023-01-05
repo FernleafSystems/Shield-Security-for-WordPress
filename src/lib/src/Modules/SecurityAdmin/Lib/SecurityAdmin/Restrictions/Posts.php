@@ -8,7 +8,7 @@ class Posts extends BaseCapabilitiesRestrict {
 
 	protected function isCapabilityToBeRestricted( string $cap ) :bool {
 		return in_array( $cap, $this->getApplicableCapabilities() )
-			&& in_array(
+			   && in_array(
 				   str_replace( [
 					   '_posts',
 					   '_pages',

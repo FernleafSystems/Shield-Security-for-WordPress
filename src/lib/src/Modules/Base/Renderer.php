@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Render\BaseTemplateRenderer;
 
 /**
- * @deprecated 16.2
+ * @deprecated 17.0
  */
 class Renderer extends BaseTemplateRenderer {
 

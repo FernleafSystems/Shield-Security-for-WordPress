@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 use FernleafSystems\Wordpress\Services\Utilities\Render;
 
 /**
- * @deprecated 16.2
+ * @deprecated 17.0
  */
 class BaseTemplateRenderer {
 

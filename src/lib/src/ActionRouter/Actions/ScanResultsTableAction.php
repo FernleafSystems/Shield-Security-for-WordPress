@@ -13,7 +13,7 @@ class ScanResultsTableAction extends ScansBase {
 
 	protected function exec() {
 		try {
-			$response =	$this->delegate( Services::Request()->post( 'sub_action' ) );
+			$response = $this->delegate( Services::Request()->post( 'sub_action' ) );
 		}
 		catch ( \Exception $e ) {
 			$response = [

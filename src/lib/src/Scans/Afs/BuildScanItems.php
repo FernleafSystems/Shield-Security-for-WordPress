@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanItems {
@@ -79,7 +78,7 @@ class BuildScanItems {
 		$files = [];
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
 			try {
-				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, $action->file_exts, false ) as $item ) {
+				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, $action->file_exts ) as $item ) {
 					/** @var \SplFileInfo $item */
 					try {
 						if ( !$this->isAutoFilterFile( $item ) ) {

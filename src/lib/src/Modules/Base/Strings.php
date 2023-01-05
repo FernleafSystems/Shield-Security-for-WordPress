@@ -15,7 +15,7 @@ class Strings {
 
 	/**
 	 * @return string[]
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getDisplayStrings() :array {
 		$con = $this->getCon();
@@ -178,7 +178,7 @@ class Strings {
 
 	/**
 	 * @return string[]
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	protected function getAdditionalDisplayStrings() :array {
 		return [];
@@ -219,17 +219,14 @@ class Strings {
 	 */
 	public function getSectionStrings( string $section ) :array {
 
-		switch ( $section ) {
-			default:
-				$section = $this->getOptions()->getSection( $section );
-				if ( is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {
-					$title = __( $section[ 'title' ], 'wp-simple-firewall' );
-					$titleShort = __( $section[ 'title_short' ], 'wp-simple-firewall' );
-					$summary = empty( $section[ 'summary' ] ) ? [] : $section[ 'summary' ];
-				}
-				else {
-					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $section ) );
-				}
+		$section = $this->getOptions()->getSection( $section );
+		if ( is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {
+			$title = __( $section[ 'title' ], 'wp-simple-firewall' );
+			$titleShort = __( $section[ 'title_short' ], 'wp-simple-firewall' );
+			$summary = empty( $section[ 'summary' ] ) ? [] : $section[ 'summary' ];
+		}
+		else {
+			throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $section ) );
 		}
 
 		return [

@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
-	OtpVerificationFailedException,
-	OtpNotPresentException
+	OtpNotPresentException,
+	OtpVerificationFailedException
 };
 use FernleafSystems\Wordpress\Services\Services;
 

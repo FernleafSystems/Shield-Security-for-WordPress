@@ -11,7 +11,7 @@ class MalFalsePositiveQuery {
 	use Modules\ModConsumer;
 
 	/**
-	 * @param int[]  $lines
+	 * @param int[] $lines
 	 * @return int[] - key is the file line number, value is the false positive confidence score
 	 */
 	public function queryFileLines( string $fullPath, array $lines ) :array {

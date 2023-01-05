@@ -8,4 +8,5 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string $page - e.g. Extensions-Wp-Simple-Firewall
  */
 class MWPExtensionVO extends DynPropertiesClass {
+
 }

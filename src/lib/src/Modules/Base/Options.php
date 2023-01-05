@@ -324,7 +324,7 @@ class Options {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getAdditionalMenuItems() :array {
 		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];

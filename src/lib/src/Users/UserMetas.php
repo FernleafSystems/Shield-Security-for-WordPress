@@ -14,7 +14,7 @@ class UserMetas {
 	 */
 	private $user;
 
-	public function forUser( \WP_User $user ) {
+	public function forUser( \WP_User $user ) :?ShieldUserMeta {
 		$con = $this->getCon();
 		$this->user = $user;
 

@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\TrafficLogTableAction};
+	Actions\TrafficLogTableAction
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 

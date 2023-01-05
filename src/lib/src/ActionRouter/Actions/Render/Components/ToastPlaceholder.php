@@ -13,7 +13,7 @@ class ToastPlaceholder extends BasePlugin {
 
 	protected function getRenderData() :array {
 		return [
-			'strings'     => [
+			'strings' => [
 				'title' => $this->getCon()->getHumanName(),
 			],
 		];

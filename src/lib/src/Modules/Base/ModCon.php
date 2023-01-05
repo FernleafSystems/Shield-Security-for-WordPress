@@ -354,7 +354,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2 - only on the base modcon
+	 * @deprecated 17.0 - only on the base modcon
 	 */
 	public function getUrl_AdminPage() :string {
 		return $this->getUrl_OptionsConfigPage();
@@ -362,7 +362,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @throws \Exception
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	protected function verifyModActionRequest() :bool {
 		return false;
@@ -519,7 +519,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function isModuleRequest() :bool {
 		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
@@ -680,7 +680,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function renderTemplate( string $template, array $data = [] ) :string {
 		$con = $this->getCon();
@@ -766,7 +766,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return mixed|Shield\Modules\Base\Renderer
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getRenderer() {
 		/** @var Renderer $r */
@@ -792,7 +792,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	protected function loadAjaxHandler() {
 		try {
@@ -892,14 +892,14 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
 		return '';
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getNonceActionData( string $action = '' ) :array {
 		return [];

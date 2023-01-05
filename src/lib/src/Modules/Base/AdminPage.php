@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @deprecated 16.2
+ * @deprecated 17.0
  */
 class AdminPage extends ExecOnceModConsumer {
 

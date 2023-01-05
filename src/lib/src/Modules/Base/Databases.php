@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Core;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Databases {
 

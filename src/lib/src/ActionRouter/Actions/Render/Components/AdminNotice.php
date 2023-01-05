@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\DismissAdminNotice,
 	Actions\Render\BaseRender,
-	Actions\Traits\SecurityAdminNotRequired};
+	Actions\Traits\SecurityAdminNotRequired
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotice extends BaseRender {

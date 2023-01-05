@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionDoesNotExistException,
 	ActionException,
-	InvalidActionNonceException};
+	InvalidActionNonceException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 

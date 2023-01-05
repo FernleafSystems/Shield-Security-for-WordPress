@@ -6,7 +6,6 @@ class Constants {
 
 	public const NAV_ID = 'nav';
 	public const NAV_SUB_ID = 'nav_sub';
-
 	/**
 	 * @type Actions\BaseAction[]
 	 */

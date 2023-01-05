@@ -25,7 +25,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	private $mfaProfilesCon;
 
 	protected function run() {
-		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent handling
+		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
 	}
@@ -125,7 +125,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$this->getMfaProfilesCon()->execute();
 		}
 		else {
-			/** @deprecated 16.2 */
+			/** @deprecated 17.0 */
 			( new MfaProfilesController() )
 				->setMod( $this->getMod() )
 				->setMfaController( $this )

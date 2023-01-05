@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use Dolondro\GoogleAuthenticator\{
 	GoogleAuthenticator,
 	Secret,
-	SecretFactory};
+	SecretFactory
+};
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
@@ -85,7 +86,7 @@ class GoogleAuth extends AbstractShieldProvider {
 
 	/**
 	 * @throws \Exception
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	private function getGaRegisterChartUrl( Secret $secret ) :string {
 		$rawImage = Services::HttpRequest()

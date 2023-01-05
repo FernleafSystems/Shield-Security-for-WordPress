@@ -5,4 +5,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class UI extends BaseShield\UI {
+
 }

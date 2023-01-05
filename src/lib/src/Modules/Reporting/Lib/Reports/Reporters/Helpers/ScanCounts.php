@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	Scans,
-	ScanResults
+	ScanResults,
+	Scans
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 

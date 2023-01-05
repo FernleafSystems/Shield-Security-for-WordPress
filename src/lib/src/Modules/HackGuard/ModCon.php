@@ -87,7 +87,8 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getMainWpData() :array {
 		return array_merge( parent::getMainWpData(), [
-			'scan_issues' => array_filter( ( new Shield\Modules\HackGuard\Scan\Results\Counts() )->setMod( $this )->all() )
+			'scan_issues' => array_filter( ( new Shield\Modules\HackGuard\Scan\Results\Counts() )->setMod( $this )
+																								 ->all() )
 		] );
 	}
 

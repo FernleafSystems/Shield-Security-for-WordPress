@@ -32,7 +32,7 @@ abstract class Base extends Process {
 			throw new ApiException( 'IP address not found on list' );
 		}
 
-		return $this->convertIpRuleToArray($IP);
+		return $this->convertIpRuleToArray( $IP );
 	}
 
 	protected function convertIpRuleToArray( IpRuleRecord $record ) :array {

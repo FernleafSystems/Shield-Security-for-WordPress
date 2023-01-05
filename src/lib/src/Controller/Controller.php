@@ -612,7 +612,7 @@ class Controller extends DynPropertiesClass {
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
@@ -1164,7 +1164,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
@@ -1459,7 +1459,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getNonceActionData( string $action ) :array {
 		return [

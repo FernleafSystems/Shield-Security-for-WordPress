@@ -6,12 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions,
-	Constants};
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @deprecated 16.2
+ * @deprecated 17.0
  */
 class UI extends BaseShield\UI {
 
@@ -301,13 +302,13 @@ class UI extends BaseShield\UI {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	private function printGoProFooter() {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	private function printToastTemplate() {
 	}

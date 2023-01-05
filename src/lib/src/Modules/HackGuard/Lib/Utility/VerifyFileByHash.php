@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Services\Core\CoreFileHashes;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\CrowdSourcedHashes\Query;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
-	Plugin,
-	Theme
-};
 
 class VerifyFileByHash {
 
@@ -31,23 +27,22 @@ class VerifyFileByHash {
 		$this->fullPath = wp_normalize_path( $fullPath );
 
 		return $this->isValidCoreFile();
+		/*
+				$verified = false;
 
-/*
-		$verified = false;
+				if ( $this->isValidCoreFile() ) {
+					$verified = true;
+				}
+				elseif ( $this->isInCoreDir() ) {
+					$verified = false;
+				}
+				elseif ( false && $this->isInPluginsDir() ) {
+				}
+				elseif ( false && $this->isInThemesDir() ) {
+				}
 
-		if ( $this->isValidCoreFile() ) {
-			$verified = true;
-		}
-		elseif ( $this->isInCoreDir() ) {
-			$verified = false;
-		}
-		elseif ( false && $this->isInPluginsDir() ) {
-		}
-		elseif ( false && $this->isInThemesDir() ) {
-		}
-
-		return $verified;
-		*/
+				return $verified;
+				*/
 	}
 
 	/**

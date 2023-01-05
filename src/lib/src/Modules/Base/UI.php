@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions,
-	Constants};
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,7 +16,7 @@ class UI {
 	use ModConsumer;
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	public function getBaseDisplayData() :array {
 		$con = $this->getCon();
@@ -137,7 +138,7 @@ class UI {
 	}
 
 	/**
-	 * @deprecated 16.2
+	 * @deprecated 17.0
 	 */
 	private function getDisplayStrings() :array {
 		$con = $this->getCon();

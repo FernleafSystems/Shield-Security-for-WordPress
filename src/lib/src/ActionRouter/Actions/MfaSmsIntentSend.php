@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Sms;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSmsIntentSend extends MfaBase {
 

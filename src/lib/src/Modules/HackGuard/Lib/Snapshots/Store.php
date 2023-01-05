@@ -161,7 +161,7 @@ class Store {
 		if ( !empty( $encoded ) ) {
 			$snap = [];
 			foreach ( array_map( 'trim', explode( "\n", $encoded ) ) as $line ) {
-				list( $file, $hash ) = explode( self::SEPARATOR, $line, 2 );
+				[ $file, $hash ] = explode( self::SEPARATOR, $line, 2 );
 				$snap[ $file ] = $hash;
 			}
 		}
