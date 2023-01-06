@@ -32,7 +32,7 @@ class ForIpRules extends Base {
 				'searchable'  => true,
 				'visible'     => false,
 				'searchPanes' => [
-					'show' => true,
+					'show' => false,
 				],
 			],
 			'ip_linked'      => [

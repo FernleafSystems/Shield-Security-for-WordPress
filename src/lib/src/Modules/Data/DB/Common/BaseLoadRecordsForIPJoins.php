@@ -126,7 +126,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	protected function buildWheres() :array {
 		$wheres = is_array( $this->wheres ) ? $this->wheres : [];
 		if ( !empty( $this->getIP() ) ) {
-			$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", $this->getIP() );
+			$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() );
 		}
 		return $wheres;
 	}

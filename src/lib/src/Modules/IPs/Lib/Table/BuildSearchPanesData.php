@@ -19,7 +19,7 @@ class BuildSearchPanesData {
 		return [
 			'options' => [
 				'type'       => $this->buildForIpType(),
-				'ip'         => $this->buildForIP(),
+				//				'ip'         => $this->buildForIP(),
 				//				'ip'         => $this->buildForIpWithoutIterator(),
 				'is_blocked' => $this->buildForIsBlocked(),
 			]
@@ -75,7 +75,8 @@ class BuildSearchPanesData {
 			foreach ( $rulesIterator as $record ) {
 				$ips[] = [
 					'label' => $record->is_range ?
-						Factory::parseRangeString( sprintf( '%s/%s', $record->ip, $record->cidr ) )->asSubnet()->toString()
+						Factory::parseRangeString( sprintf( '%s/%s', $record->ip, $record->cidr ) )->asSubnet()
+							   ->toString()
 						: $record->ip,
 					'value' => $record->id,
 				];

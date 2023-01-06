@@ -103,7 +103,6 @@
 				$.extend( base.options.datatables_init,
 					{
 						serverSide: true,
-						searchDelay: 600,
 						ajax: function ( data, callback, settings ) {
 							let reqData = base.getBaseAjaxData();
 							reqData.sub_action = 'retrieve_table_data';
@@ -132,14 +131,16 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'BPrptip',
+						dom: 'BPrpftip',
 						searchPanes: {
 							cascadePanes: false,
 							viewTotal: false,
 							viewCount: false,
 							initCollapsed: true
 						},
-						search: {},
+						search: {
+							return: true,
+						},
 						buttons: [
 							{
 								text: 'Reload',
@@ -159,6 +160,7 @@
 							}
 						],
 						language: {
+							search: "Search IP",
 							emptyTable: "There are no items to display.",
 							zeroRecords: "No entries found - please try adjusting your search filters."
 						}

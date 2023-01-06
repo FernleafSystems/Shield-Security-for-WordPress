@@ -92,6 +92,13 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 				}
 			}
 		}
+
+		if ( !empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
+			$ip = preg_replace( '#[^0-9a-f:.]#i', '', $this->table_data[ 'search' ][ 'value' ] );
+			if ( !empty( $ip ) ) {
+				$wheres[] = sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ip );
+			}
+		}
 		return $wheres;
 	}
 
