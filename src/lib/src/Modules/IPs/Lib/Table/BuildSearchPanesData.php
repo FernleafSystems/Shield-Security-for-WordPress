@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use IPLib\Factory;
 
 class BuildSearchPanesData {
@@ -64,24 +65,28 @@ class BuildSearchPanesData {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$rulesIterator = new IpRulesIterator();
-		$loader = $rulesIterator->setMod( $mod )->getLoader();
-		$loader->joined_table_select_fields = [ 'cidr' ];
+		$ips = Transient::Get( 'apto-shield-iprulestable-ips', [] );
+		if ( empty( $ips ) ) {
+			$rulesIterator = new IpRulesIterator();
+			$loader = $rulesIterator->setMod( $mod )->getLoader();
+			$loader->joined_table_select_fields = [ 'cidr', 'is_range' ];
 
-		$ips = [];
-		foreach ( $rulesIterator as $record ) {
-			$range = Factory::parseRangeString( sprintf( '%s/%s', $record->ip, $record->cidr ) );
-			if ( !empty( $range ) ) {
+			$ips = [];
+			foreach ( $rulesIterator as $record ) {
 				$ips[] = [
-					'label' => $range->getSize() === 1 ? $record->ip : $range->asSubnet()->toString(),
+					'label' => $record->is_range ?
+						Factory::parseRangeString( sprintf( '%s/%s', $record->ip, $record->cidr ) )->asSubnet()->toString()
+						: $record->ip,
 					'value' => $record->id,
 				];
 			}
+			Transient::Set( 'apto-shield-iprulestable-ips', $ips, 10 );
 		}
 		return $ips;
 	}
 
 	private function buildForIpWithoutIterator() :array {
+		error_log( __FUNCTION__.var_export( time(), true ) );
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

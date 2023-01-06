@@ -14,7 +14,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 	 */
 	protected $loader;
 
-	protected $pageSize = 100;
+	protected $pageSize = 1000;
 
 	protected $useCache = false;
 
