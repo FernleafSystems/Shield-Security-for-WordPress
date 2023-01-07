@@ -110,16 +110,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'day':
-						$splitDates = array_map(
-							function ( $date ) {
-								[ $year, $month, $day ] = explode( '-', $date );
-								$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
-								return sprintf( "(`req`.`created_at`>%s AND `req`.`created_at`<%s)",
-									$carbon->startOfDay()->timestamp, $carbon->endOfDay()->timestamp );
-							},
-							$selected
-						);
-						$wheres[] = sprintf( '(%s)', implode( ' OR ', $splitDates ) );
+						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'req' );
 						break;
 					case 'ip':
 						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", array_pop( $selected ) );

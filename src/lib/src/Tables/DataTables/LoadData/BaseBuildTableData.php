@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -214,5 +215,29 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function getSearchableColumns() :array {
 		return [];
+	}
+
+	protected function buildSqlWhereForDaysSearch( array $selectedDays, string $tableAbbr, string $column = 'created_at' ) :string {
+		$splitDates = array_map(
+			function ( $selectedDay ) use ( $tableAbbr, $column ) {
+				if ( $selectedDay === BuildDataForDays::ZERO_DATE_FORMAT ) {
+					return sprintf( "(`%s`.`%s`=0)", $tableAbbr, $column );
+				}
+				else {
+					[ $year, $month, $day ] = explode( '-', $selectedDay );
+					$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
+					return sprintf( "(`%s`.`%s`>%s AND `%s`.`%s`<%s)",
+						$tableAbbr,
+						$column,
+						$carbon->startOfDay()->timestamp,
+						$tableAbbr,
+						$column,
+						$carbon->endOfDay()->timestamp
+					);
+				}
+			},
+			$selectedDays
+		);
+		return sprintf( '(%s)', implode( ' OR ', array_filter( $splitDates ) ) );
 	}
 }

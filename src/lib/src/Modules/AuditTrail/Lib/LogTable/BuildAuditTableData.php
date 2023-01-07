@@ -63,16 +63,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'day':
-						$splitDates = array_map(
-							function ( $date ) {
-								[ $year, $month, $day ] = explode( '-', $date );
-								$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
-								return sprintf( "(`log`.`created_at`>%s AND `log`.`created_at`<%s)",
-									$carbon->startOfDay()->timestamp, $carbon->endOfDay()->timestamp );
-							},
-							$selected
-						);
-						$wheres[] = sprintf( '(%s)', implode( ' OR ', $splitDates ) );
+						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'log' );
 						break;
 					case 'event':
 						if ( count( $selected ) > 1 ) {

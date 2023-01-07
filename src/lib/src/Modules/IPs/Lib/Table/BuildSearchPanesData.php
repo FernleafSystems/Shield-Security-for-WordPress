@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use IPLib\Factory;
@@ -18,12 +19,23 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
+				'day'        => $this->buildForDay(),
 				'type'       => $this->buildForIpType(),
 				//				'ip'         => $this->buildForIP(),
 				//				'ip'         => $this->buildForIpWithoutIterator(),
 				'is_blocked' => $this->buildForIsBlocked(),
 			]
 		];
+	}
+
+	private function buildForDay() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return ( new BuildDataForDays() )->build(
+			$mod->getDbH_IPRules()
+				->getQuerySelector()
+				->getDistinctForColumn( 'last_access_at' )
+		);
 	}
 
 	private function buildForIsBlocked() :array {

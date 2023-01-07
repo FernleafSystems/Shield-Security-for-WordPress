@@ -18,6 +18,7 @@ class ForIpRules extends Base {
 			'is_blocked',
 			'unblocked_at',
 			'last_access_at',
+			'day',
 			'date',
 		];
 	}
@@ -81,6 +82,18 @@ class ForIpRules extends Base {
 				'visible'       => true,
 				'searchPanes'   => [
 					'show' => false
+				],
+			],
+			'day'        => [
+				'data'          => 'day',
+				'title'         => __( 'Last Access', 'wp-simple-firewall' ),
+				'className'     => 'day',
+				'orderable'     => false,
+				'orderSequence' => [ 'desc' ],
+				'searchable'    => false,
+				'visible'       => false,
+				'searchPanes'   => [
+					'show' => true,
 				],
 			],
 			'last_access_at' => [

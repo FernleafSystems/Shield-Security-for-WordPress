@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
@@ -13,33 +14,21 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
-				'day'   => $this->buildForDays(),
+				'day'   => $this->buildForDay(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
 			]
 		];
 	}
 
-	private function buildForDays() :array {
+	private function buildForDay() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$dbh = $mod->getDbH_Logs();
-
-		$days = [];
-
-		$carbon = Services::Request()->carbon( true );
-		foreach ( $dbh->getQuerySelector()->getDistinctForColumn( 'created_at' ) as $timestamp ) {
-			$carbon->setTimestamp( (int)$timestamp );
-			$date = $carbon->toDateString();
-			if ( !isset( $days[ $date ] ) ) {
-				$days[ $date ] = [
-					'label' => $date,
-					'value' => $date,
-				];
-			}
-		}
-		ksort( $days );
-		return array_values( $days );
+		return ( new BuildDataForDays() )->build(
+			$mod->getDbH_Logs()
+				->getQuerySelector()
+				->getDistinctForColumn( 'created_at' )
+		);
 	}
 
 	private function buildForIPs() :array {
