@@ -83,6 +83,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'details' ] = $this->getColumnContent_Details();
 				$data[ 'response' ] = $this->getColumnContent_Response();
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
+				$data[ 'day' ] = Services::Request()
+										 ->carbon( true )->setTimestamp( $this->log->created_at )->toDateString();
 				return $data;
 			},
 			$records
@@ -107,6 +109,18 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
+					case 'day':
+						$splitDates = array_map(
+							function ( $date ) {
+								[ $year, $month, $day ] = explode( '-', $date );
+								$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
+								return sprintf( "(`req`.`created_at`>%s AND `req`.`created_at`<%s)",
+									$carbon->startOfDay()->timestamp, $carbon->endOfDay()->timestamp );
+							},
+							$selected
+						);
+						$wheres[] = sprintf( '(%s)', implode( ' OR ', $splitDates ) );
+						break;
 					case 'ip':
 						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", array_pop( $selected ) );
 						break;

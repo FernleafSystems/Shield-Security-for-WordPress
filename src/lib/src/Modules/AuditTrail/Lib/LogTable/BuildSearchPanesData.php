@@ -28,7 +28,6 @@ class BuildSearchPanesData {
 		$days = [];
 
 		$carbon = Services::Request()->carbon( true );
-		$now = Services::Request()->carbon( true );
 		foreach ( $dbh->getQuerySelector()->getDistinctForColumn( 'created_at' ) as $timestamp ) {
 			$carbon->setTimestamp( (int)$timestamp );
 			$date = $carbon->toDateString();

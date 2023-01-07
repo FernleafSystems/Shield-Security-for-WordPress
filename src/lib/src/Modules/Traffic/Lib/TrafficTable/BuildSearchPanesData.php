@@ -17,12 +17,35 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
+				'day'     => $this->buildForDays(),
 				'ip'      => $this->buildForIPs(),
 				'type'    => $this->buildForType(),
 				'offense' => $this->buildForOffense(),
 				'code'    => $this->buildForCodes(),
 			]
 		];
+	}
+
+	private function buildForDays() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbH_ReqLogs();
+
+		$days = [];
+
+		$carbon = Services::Request()->carbon( true );
+		foreach ( $dbh->getQuerySelector()->getDistinctForColumn( 'created_at' ) as $timestamp ) {
+			$carbon->setTimestamp( (int)$timestamp );
+			$date = $carbon->toDateString();
+			if ( !isset( $days[ $date ] ) ) {
+				$days[ $date ] = [
+					'label' => $date,
+					'value' => $date,
+				];
+			}
+		}
+		ksort( $days );
+		return array_values( $days );
 	}
 
 	protected function getDistinctQueryResult() :array {
