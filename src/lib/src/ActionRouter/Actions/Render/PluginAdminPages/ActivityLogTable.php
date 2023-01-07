@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActivityLogTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 
 class ActivityLogTable extends BasePluginAdminPage {
 
@@ -22,7 +22,7 @@ class ActivityLogTable extends BasePluginAdminPage {
 				'table_title' => __( 'Activity Log', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'datatables_init' => ( new ForAuditTrail() )
+				'datatables_init' => ( new ForActivityLog() )
 					->setMod( $this->primary_mod )
 					->build()
 			],

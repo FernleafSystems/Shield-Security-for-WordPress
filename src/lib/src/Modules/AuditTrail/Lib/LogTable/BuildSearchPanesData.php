@@ -13,10 +13,34 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
+				'day'   => $this->buildForDays(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
 			]
 		];
+	}
+
+	private function buildForDays() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$dbh = $mod->getDbH_Logs();
+
+		$days = [];
+
+		$carbon = Services::Request()->carbon( true );
+		$now = Services::Request()->carbon( true );
+		foreach ( $dbh->getQuerySelector()->getDistinctForColumn( 'created_at' ) as $timestamp ) {
+			$carbon->setTimestamp( (int)$timestamp );
+			$date = $carbon->toDateString();
+			if ( !isset( $days[ $date ] ) ) {
+				$days[ $date ] = [
+					'label' => $date,
+					'value' => $date,
+				];
+			}
+		}
+		ksort( $days );
+		return array_values( $days );
 	}
 
 	private function buildForIPs() :array {
@@ -31,7 +55,7 @@ class BuildSearchPanesData {
 				}
 				return $ip;
 			},
-			$this->runQuery( 'INET6_NTOA(ips.ip) as ip' )
+			$this->runQuery( 'INET6_NTOA(`ips`.`ip`) as `ip`' )
 		) ) );
 	}
 
@@ -47,7 +71,7 @@ class BuildSearchPanesData {
 				}
 				return $evt;
 			},
-			$this->runQuery( '`log`.event_slug as event' )
+			$this->runQuery( '`log`.`event_slug` as event' )
 		) ) );
 	}
 

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -46,6 +46,8 @@ class BuildAuditTableData extends BaseBuildTableData {
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
 				$data[ 'meta' ] = $this->getColumnContent_Meta();
+				$data[ 'day' ] = Services::Request()
+										 ->carbon( true )->setTimestamp( $this->log->created_at )->toDateString();
 				return $data;
 			},
 			$records
@@ -60,6 +62,18 @@ class BuildAuditTableData extends BaseBuildTableData {
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
+					case 'day':
+						$splitDates = array_map(
+							function ( $date ) {
+								[ $year, $month, $day ] = explode( '-', $date );
+								$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
+								return sprintf( "(`log`.`created_at`>%s AND `log`.`created_at`<%s)",
+									$carbon->startOfDay()->timestamp, $carbon->endOfDay()->timestamp );
+							},
+							$selected
+						);
+						$wheres[] = sprintf( '(%s)', implode( ' OR ', $splitDates ) );
+						break;
 					case 'event':
 						if ( count( $selected ) > 1 ) {
 							$wheres[] = sprintf( "log.event_slug IN ('%s')", implode( '`,`', $selected ) );
@@ -95,7 +109,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new ForAuditTrail() )
+			( new ForActivityLog() )
 				->setMod( $this->getMod() )
 				->buildRaw()[ 'columns' ]
 		) );

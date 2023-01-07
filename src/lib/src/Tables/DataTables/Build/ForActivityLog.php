@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
-class ForAuditTrail extends Base {
+class ForActivityLog extends Base {
 
 	protected function getOrderColumnSlug() :string {
 		return 'date';
@@ -18,6 +18,7 @@ class ForAuditTrail extends Base {
 			'user',
 			'message',
 			'date',
+			'day',
 			'rid',
 			'meta',
 		];
@@ -137,6 +138,18 @@ class ForAuditTrail extends Base {
 				'visible'     => true,
 				'searchPanes' => [
 					'show' => false
+				],
+			],
+			'day'        => [
+				'data'          => 'day',
+				'title'         => __( 'Day' ),
+				'className'     => 'day',
+				'orderable'     => false,
+				'orderSequence' => [ 'desc' ],
+				'searchable'    => false,
+				'visible'       => false,
+				'searchPanes'   => [
+					'show' => true,
 				],
 			],
 			'date'       => [
