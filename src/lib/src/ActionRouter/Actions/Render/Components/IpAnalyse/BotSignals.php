@@ -15,6 +15,7 @@ class BotSignals extends Base {
 	protected function getRenderData() :array {
 		/** @var Strings $strings */
 		$strings = $this->primary_mod->getStrings();
+		$WP = Services::WpGeneral();
 		$names = $strings->getBotSignalNames();
 
 		$signals = [];
@@ -33,6 +34,7 @@ class BotSignals extends Base {
 		}
 
 		if ( !empty( $record ) ) {
+			$carbon = Services::Request()->carbon();
 			foreach ( $scores as $scoreKey => $scoreValue ) {
 				$column = $scoreKey.'_at';
 				if ( $scoreValue !== 0 ) {
@@ -45,9 +47,10 @@ class BotSignals extends Base {
 						}
 					}
 					else {
-						$signals[ $scoreKey ] = Services::Request()
-														->carbon()
-														->setTimestamp( $record->{$column} )->diffForHumans();
+						$signals[ $scoreKey ] = sprintf( '%s (%s)',
+							$carbon->setTimestamp( $record->{$column} )->diffForHumans(),
+							$WP->getTimeStringForDisplay( $record->{$column} )
+						);
 					}
 				}
 			}
