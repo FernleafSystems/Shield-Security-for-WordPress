@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\MeterIntegrity;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\{
+	Handler,
+	Meter\MeterOverallConfig,
+	Meter\MeterSummary
+};
 
 class ProgressMeters extends BaseRender {
 
@@ -12,23 +15,25 @@ class ProgressMeters extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig';
 
 	protected function getRenderData() :array {
-		$componentBuilder = ( new Handler() )->setMod( $this->getMod() );
+		$componentBuilder = ( new Handler() )->setCon( $this->getCon() );
 
 		$meters = [];
 		$AR = $this->getCon()->action_router;
-		foreach ( $componentBuilder->buildAllMeterComponents() as $meterSlug => $meter ) {
-			$meters[ $meterSlug ] = $AR->render( MeterCard::SLUG, [
-				'meter_slug' => $meterSlug,
-				'meter_data' => $meter,
-			] );
+		foreach ( $componentBuilder->getAllMeters() as $meterSlug => $meter ) {
+			if ( !in_array( $meterSlug, [ MeterSummary::SLUG, MeterOverallConfig::SLUG ] ) ) {
+				$meters[ $meterSlug ] = $AR->render( MeterCard::SLUG, [
+					'meter_slug' => $meterSlug,
+					'meter_data' => $meter,
+				] );
+			}
 		}
-
-		$primaryMeter = $meters[ MeterIntegrity::SLUG ];
-		unset( $meters[ MeterIntegrity::SLUG ] );
 
 		return [
 			'content' => [
-				'primary_meter' => $primaryMeter,
+				'primary_meter' => $AR->render( MeterCardPrimary::SLUG, [
+					'meter_slug' => MeterSummary::SLUG,
+					'meter_data' => $componentBuilder->getMeter( MeterSummary::class ),
+				] ),
 				'meters'        => $meters
 			],
 		];

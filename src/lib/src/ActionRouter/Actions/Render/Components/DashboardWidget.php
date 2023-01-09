@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Components;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Meter\MeterOverallConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
@@ -73,9 +74,9 @@ class DashboardWidget extends BasePlugin {
 		if ( $refresh || empty( $vars ) ) {
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
-				'security_progress'  => ( new Components() )
+				'security_progress'  => ( new Handler() )
 					->setCon( $con )
-					->getComponent( 'all' ),
+					->getMeter( MeterOverallConfig::class ),
 				'jump_links'         => [
 					[
 						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ),

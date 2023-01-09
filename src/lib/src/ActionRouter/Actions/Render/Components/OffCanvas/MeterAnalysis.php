@@ -24,9 +24,8 @@ class MeterAnalysis extends OffCanvasBase {
 	private function getMeterComponents() :array {
 		if ( !isset( $this->meterComponents ) ) {
 			$this->meterComponents = ( new Handler() )
-				->setMod( $this->getMod() )
-				->getMeter( $this->action_data[ 'meter' ] )
-				->buildMeterComponents();
+				->setCon( $this->getCon() )
+				->getMeter( $this->action_data[ 'meter' ] );
 		}
 		return $this->meterComponents;
 	}

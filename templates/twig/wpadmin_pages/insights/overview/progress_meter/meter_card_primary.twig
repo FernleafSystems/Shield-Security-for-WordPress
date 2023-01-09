@@ -1,0 +1,50 @@
+{% set meter = vars.meter %}
+{% set meter_slug = vars.meter_slug %}
+
+<div class="progress-meter progress-meter-{{ meter_slug }}
+{% if meter.has_critical|default(false) %}
+	meter-critical
+{% elseif meter.totals.percentage > 50 %}
+	meter-success
+{% else %}
+	meter-warning
+{% endif %}
+">
+
+	<div class="row">
+		<div class="col-lg-4 col-xl-3 d-flex align-items-center justify-content-center">
+			<div class="pie d-flex align-items-center justify-content-center m-auto" data-pie='{
+			  "number": false,
+			  "colorCircle": "rgba( {{ meter.rgbs|join(',') }},0.2 )",
+			  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )",
+			  "percent": {{ meter.totals.percentage }},
+			  "size":180
+			}'>
+				<div class="letter-score"
+				     style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div>
+			</div>
+
+		</div>
+		<div class="col-lg-5 col-xl-6 primary-description pb-1 px-4">
+		  <h6>
+	      {{ meter.title }}
+			  <br /><small class="text-muted">{{ meter.subtitle }}</small>
+		  </h6>
+			<div class="">
+				{% for desc in meter.description %}
+					<p class="">{{ desc }}</p>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="col-lg-3 col-xl-3 d-flex justify-content-center align-items-center">
+	    <a class="mt-2 btn {% if meter.status == 'l' %}btn-danger{% elseif meter.status == 'm' %}btn-warning{% elseif meter.status == 'h' %}btn-success{% else %}btn-primary{% endif %}"
+	       href="javascript:{iCWP_WPSF_OffCanvas.renderMeterAnalysis('{{ meter_slug }}')}"
+	       aria-controls="ShieldProgressMeterOffcanvas">
+				<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+		    {{ strings.analysis }}
+			</a>
+		</div>
+
+	</div>
+</div>

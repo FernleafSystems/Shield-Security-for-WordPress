@@ -23,6 +23,7 @@ class RunTests {
 			new VerifyEvents(),
 			new VerifyUniqueEvents(),
 			new VerifyStrings(),
+			new VerifyMeterComponents(),
 		];
 	}
 }

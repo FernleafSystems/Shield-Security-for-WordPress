@@ -3,15 +3,15 @@
 </a>
 
 <div class="shield-progress-bar
-	{% if vars.security_progress.original_score < 45 %}
+	{% if vars.security_progress.totals.percentage < 45 %}
 		red
-	{% elseif vars.security_progress.original_score < 70 %}
+	{% elseif vars.security_progress.totals.percentage < 70 %}
 		orange
 	{% endif %}
 	">
-  <a class="thebar" style="width: {{ vars.security_progress.original_score }}%"
+  <a class="thebar" style="width: {{ vars.security_progress.totals.percentage }}%"
      href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
-		<div class="thepercent">{{ strings.security_level }}: {{ vars.security_progress.letter_score }}</div>
+		<div class="thepercent">{{ strings.security_level }}: {{ vars.security_progress.totals.letter_score }}</div>
   </a>
 </div>
 

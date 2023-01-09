@@ -2,71 +2,66 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Handler {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
-	public function buildAllMeterComponents() :array {
-		return array_map(
-			function ( string $class ) {
-				/** @var MeterBase $class */
-				try {
-					return $this->buildMeterComponents( $class::SLUG );
-				}
-				catch ( \Exception $e ) {
-					return 'meter component error:'.$e->getMessage();
-				}
-			},
-			$this->enumMeters()
-		);
-	}
+	public const METERS = [
+		Meter\MeterOverallConfig::SLUG => Meter\MeterOverallConfig::class,
+		Meter\MeterSummary::SLUG       => Meter\MeterSummary::class,
+		Meter\MeterIpBlocking::SLUG    => Meter\MeterIpBlocking::class,
+		Meter\MeterAssets::SLUG        => Meter\MeterAssets::class,
+		Meter\MeterScans::SLUG         => Meter\MeterScans::class,
+		Meter\MeterFirewall::SLUG      => Meter\MeterFirewall::class,
+		Meter\MeterLockdown::SLUG      => Meter\MeterLockdown::class,
+		Meter\MeterLogin::SLUG         => Meter\MeterLogin::class,
+		Meter\MeterUsers::SLUG         => Meter\MeterUsers::class,
+		Meter\MeterSpam::SLUG          => Meter\MeterSpam::class,
+	];
 
-	/**
-	 * @throws \Exception
-	 */
-	public function buildMeterComponents( string $meter ) :array {
-		return $this->getMeter( $meter )->buildMeterComponents();
-	}
+	private static $BuiltMeters;
 
-	/**
-	 * @return MeterBase|mixed
-	 * @throws \Exception
-	 */
-	public function getMeter( string $meter ) {
-		$this->exists( $meter );
-		$class = $this->enumMeters()[ $meter ];
-		return ( new $class() )->setCon( $this->getCon() );
-	}
-
-	public function enumMeters() :array {
-		$meters = [
-			MeterIntegrity::class,
-			MeterIpBlocking::class,
-			MeterAssets::class,
-			MeterScans::class,
-			MeterFirewall::class,
-			MeterLockdown::class,
-			MeterLoginProtection::class,
-			MeterUsers::class,
-			MeterSpam::class,
-		];
-		$enum = [];
-		foreach ( $meters as $meter ) {
-			/** @var MeterBase $meter */
-			$enum[ $meter::SLUG ] = $meter;
+	public function __construct() {
+		if ( !is_array( self::$BuiltMeters ) ) {
+			self::$BuiltMeters = [];
 		}
-		return $enum;
 	}
 
 	/**
-	 * @throws \Exception
+	 * array keys are the Meter::SLUG
 	 */
-	protected function exists( string $meter ) :bool {
-		if ( empty( $this->enumMeters()[ $meter ] ) ) {
-			throw new \Exception( 'No such meter exists: '.sanitize_key( $meter ) );
+	public function getAllMeters() :array {
+		foreach ( self::METERS as $meterClass ) {
+			try {
+				$this->getMeter( $meterClass );
+			}
+			catch ( \Exception $e ) {
+			}
 		}
-		return true;
+		return self::$BuiltMeters;
+	}
+
+	public function getMeter( string $meterClassOrSlug ) :array {
+
+		if ( isset( self::METERS[ $meterClassOrSlug ] ) ) {
+			$theSlug = $meterClassOrSlug;
+		}
+		elseif ( in_array( $meterClassOrSlug, self::METERS ) ) {
+			/** @var Meter\MeterBase $meterClassOrSlug */
+			$theSlug = $meterClassOrSlug::SLUG;
+		}
+		else {
+			throw new \Exception( 'Invalid Meter Class or Slug: '.$meterClassOrSlug );
+		}
+
+		if ( empty( self::$BuiltMeters[ $theSlug ] ) ) {
+			self::$BuiltMeters[ $theSlug ] = ( new BuildMeter() )
+				->setCon( $this->getCon() )
+				->build( self::METERS[ $theSlug ] );
+		}
+
+		return self::$BuiltMeters[ $theSlug ];
 	}
 }

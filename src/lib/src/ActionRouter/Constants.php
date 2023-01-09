@@ -119,6 +119,7 @@ class Constants {
 		Actions\Render\Components\Merlin\MerlinStep::class,
 		Actions\Render\Components\Meters\Analysis::class,
 		Actions\Render\Components\Meters\MeterCard::class,
+		Actions\Render\Components\Meters\MeterCardPrimary::class,
 		Actions\Render\Components\Meters\ProgressMeters::class,
 		Actions\Render\Components\OffCanvas\IpAnalysis::class,
 		Actions\Render\Components\OffCanvas\IpRuleAddForm::class,

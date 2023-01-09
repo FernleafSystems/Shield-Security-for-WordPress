@@ -1,21 +1,21 @@
 {% block body %}
   {% block body_components %}
 
-	  <div class="alert alert-secondary mb-4">
-		  <h3 class="m-0">{{ strings.total_score }}:
+	  <div class="mb-4">
+		  <h4 class="m-0">{{ strings.total_score }}:
 			  <span class="badge bg-dark text-white float-end">
 				 {{ vars.total_percentage_score }}/100
 			  </span>
-		  </h3>
+		  </h4>
 	  </div>
 	  <ul class="list-group">
 
-		  {% for component in vars.components %}
+		  {% for slug,component in vars.components %}
 
 			  {% if component.href is empty %}
 				  <span
 			  {% else %}
-				  <a href="{{ component.href }}" {% if component.new_window %}target="_blank"{% endif %}
+				  <a href="{{ component.href }}" {% if component.new_window|default(false) %}target="_blank"{% endif %}
 			  {% endif %}
 			  class="meter-analysis-link list-group-item list-group-item-action
 				     {{ component.is_critical|default(false) ? 'list-group-item-danger' : (component.protected ? 'list-group-item-success' : 'list-group-item-warning') }}"

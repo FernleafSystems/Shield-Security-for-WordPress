@@ -893,44 +893,20 @@ body.folded #FooterBannerGoPro {
 	font-size: 3rem;
 	line-height: 3.5rem;
 }
-#odp-PageContainer .card.progress-meter {
-	box-shadow: 1px 1px 2px rgb(0 0 0 / 20%);
-	background: rgb(253 253 253 / 45%);
-	border-radius: 6px;
-	border: 1px solid white;
-}
-#odp-PageContainer .card.progress-meter.progress-meter-integrity {
-	box-shadow: none;
-	background: transparent !important;
-	border-radius: 0;
-	border: 1px solid transparent !important;
-}
-#odp-PageContainer .card.progress-meter.meter-success {
-	background: rgba(249, 255, 246, 0.2);
-}
-#odp-PageContainer .card.progress-meter.meter-warning {
-	background: rgba(255, 247, 240, 0.4);
-}
-#odp-PageContainer .card.progress-meter.meter-critical {
-	background: rgba(255, 246, 246, 0.4);
-}
-.card.progress-meter .card-header {
-	text-align: center;
-	padding: 1rem 1rem 0.5rem;
-	background: transparent;
-	border: 0 none;
-}
-.card.progress-meter .card-footer {
-	text-align: right;
-	border: 0 none;
-	padding: 0.5rem 1rem 1rem;
-	background-color: transparent;
-}
-.card.progress-meter .letter-score {
+.progress-meter .letter-score {
 	position: absolute;
-	font-size: 5rem;
+	font-size: 3rem;
 	margin: -10px auto 0;
 	text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
+}
+.progress-meter .toggleable {
+	cursor: pointer;
+}
+.progress-meter-summary {
+	background-color: white;
+	border-radius: 6px;
+	border: 1px solid #dddddd;
+	padding: 30px 0;
 }
 #ScanResultsTabs table td.actions {
 	white-space: nowrap;
