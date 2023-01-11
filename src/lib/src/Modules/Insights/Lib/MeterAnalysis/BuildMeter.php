@@ -22,12 +22,18 @@ class BuildMeter {
 	public function build( string $meterClass ) :array {
 		/** @var Meter\MeterBase $meter */
 		$meter = ( new $meterClass() )->setCon( $this->getCon() );
+		$components = $meter->buildComponents();
+		usort( $components, function ( $a, $b ) {
+			$wA = $a[ 'weight' ];
+			$wB = $b[ 'weight' ];
+			return ( $wA === $wB ) ? 0 : ( $wA > $wB ? -1 : 1 );
+		} );
 		return $this->postProcessMeter( [
 			'title'       => $meter->title(),
 			'subtitle'    => $meter->subtitle(),
 			'warning'     => $meter->warning(),
 			'description' => $meter->description(),
-			'components'  => $meter->buildComponents(),
+			'components'  => $components,
 		] );
 	}
 

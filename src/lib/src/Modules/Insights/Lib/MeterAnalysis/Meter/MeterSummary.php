@@ -28,11 +28,11 @@ class MeterSummary extends MeterBase {
 
 	public function description() :array {
 		return [
-			__( "There are many aspects that affect the security of a WordPress website.", 'wp-simple-firewall' ),
-			__( "This section assesses your security from an high-level perspective so you can see, at a glance, how you're progressing.", 'wp-simple-firewall' )
-			.' '.__( "It uses a simple grading system from A - F, where A is best, and F is worst.", 'wp-simple-firewall' ),
-			__( "Your overall grade in this section incorporates all other security scores.", 'wp-simple-firewall' )
-			.' '.__( "Use the 'Analysis' buttons in each section to review the areas that might need improvement.", 'wp-simple-firewall' ),
+			__( "This section takes a high-level perspective on assessing your overall security, so you can see at a glance how you're progressing.", 'wp-simple-firewall' ),
+			__( "There are many aspects that affect the security of a WordPress website.", 'wp-simple-firewall' )
+			.' '.__( "Your overall grade in this section incorporates all other security scores as well as some components not directly related to the plugin.", 'wp-simple-firewall' ),
+			__( "All sections use a simple grading system from A - F, where A is best, and F is worst.", 'wp-simple-firewall' ),
+			__( "Use the 'Analysis' button within each section to review how the score is reached and to quickly jump to the relevant plugin option.", 'wp-simple-firewall' ),
 		];
 	}
 

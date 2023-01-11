@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Af
 class ScanEnabledAfsAutoRepairCore extends Base {
 
 	public const SLUG = 'scan_enabled_afs_autorepair_core';
+	public const WEIGHT = 40;
 
 	protected function isProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();

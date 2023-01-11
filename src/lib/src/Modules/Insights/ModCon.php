@@ -16,6 +16,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Meter\MeterSummary;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -42,9 +44,9 @@ class ModCon extends BaseShield\ModCon {
 	public function getMainWpData() :array {
 		return array_merge( parent::getMainWpData(), [
 			'grades' => [
-				'integrity' => ( new Lib\MeterAnalysis\Components() )
+				'integrity' => ( new Handler() )
 					->setCon( $this->getCon() )
-					->buildComponent( 'all' )
+					->getMeter( MeterSummary::class )
 			]
 		] );
 	}

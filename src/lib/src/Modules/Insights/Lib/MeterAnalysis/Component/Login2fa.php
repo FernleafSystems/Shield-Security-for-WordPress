@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 class Login2fa extends Base {
 
 	public const SLUG = 'login_2fa';
+	public const WEIGHT = 50;
 
 	protected function isProtected() :bool {
 		$mod = $this->getCon()->getModule_LoginGuard();

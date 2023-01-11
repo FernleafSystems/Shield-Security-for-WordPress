@@ -5,30 +5,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 class MeterCardPrimary extends MeterCard {
 
 	public const SLUG = 'render_progress_meter_card_primary';
-	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/meter_card_primary.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		return [
-			'strings' => [
-				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
-			],
-			'imgs'    => [
-				'svgs' => [
-					'analysis' => $con->svgs->raw( 'bootstrap/clipboard2-data-fill.svg' ),
-				],
-			],
-			'vars'    => [
-				'meter_slug' => $this->action_data[ 'meter_slug' ],
-				'meter'      => $this->action_data[ 'meter_data' ],
-			],
+		$data = parent::getRenderData();
+		$data[ 'vars' ][ 'display' ] = [
+			'progress_chart_size'           => 180,
+			'dimensions_column_chart'       => 'col-lg-4 col-xl-3',
+			'dimensions_column_description' => 'col-lg-5 col-xl-6',
+			'dimensions_column_analysis'    => 'col-lg-3 col-xl-3',
 		];
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'meter_slug',
-			'meter_data',
-		];
+		return $data;
 	}
 }

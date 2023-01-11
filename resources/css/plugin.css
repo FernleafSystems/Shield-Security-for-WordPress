@@ -899,6 +899,12 @@ body.folded #FooterBannerGoPro {
 	margin: -10px auto 0;
 	text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
 }
+.progress-meter .description {
+	border-bottom: 1px solid #dddddd;
+}
+.progress-meter.progress-meter-summary .description {
+	border-bottom-color: transparent;
+}
 .progress-meter .toggleable {
 	cursor: pointer;
 }
