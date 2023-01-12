@@ -23,8 +23,10 @@ abstract class BaseFullPageDisplay extends BaseAction {
 		);
 	}
 
+	/**
+	 * display page and die().
+	 */
 	protected function postExec() {
-		// display page and die().
 		$this->issueHeaders();
 		$this->pushContent();
 		$this->complete();
@@ -63,7 +65,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	}
 
 	protected function isSuccess() :bool {
-		return (bool)( $this->response()->action_response_data[ 'success' ] ?? false );
+		return $this->response()->success ?? false;
 	}
 
 	protected function getRequiredDataKeys() :array {

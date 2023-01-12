@@ -9,5 +9,4 @@ abstract class BaseLoginIntentPage extends Actions\Render\FullPage\BaseFullPageR
 	use Actions\Traits\AuthNotRequired;
 
 	public const PRIMARY_MOD = 'login_protect';
-	public const LOGIN_INTENT_PAGE_SHIELD = '';
 }

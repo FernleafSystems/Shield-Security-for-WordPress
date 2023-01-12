@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\{
-	ExtensionPageContainer,
-	SitesListing
+	TabSitesListing
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtensionPageContainer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MwpExtensionLoader {
@@ -24,7 +24,7 @@ class MwpExtensionLoader {
 
 		// Render the main extension page content
 		echo $con->action_router->render( ExtensionPageContainer::SLUG, [
-			'current_tab' => empty( $req->query( 'tab' ) ) ? SitesListing::SLUG : $req->query( 'tab' )
+			'current_tab' => empty( $req->query( 'tab' ) ) ? TabSitesListing::TAB : $req->query( 'tab' )
 		] );
 	}
 }

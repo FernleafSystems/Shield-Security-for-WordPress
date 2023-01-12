@@ -56,10 +56,9 @@
 				</ol>
 
 				<form method="post" class="licenseForm">
-					{% for ajax_key, ajax_val in ajax.license_action %}
+					{% for ajax_key, ajax_val in ajax.license_action_lookup %}
 						<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 					{% endfor %}
-					<input type="hidden" name="license-action" value="check" />
 					<p class="text-center">
 						<button class="btn btn-success m-2" type="submit"
 						        {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
@@ -72,11 +71,9 @@
 					<div class="col-6 text-start">
 						{% if flags.is_pro %}
 							<form method="post" class="licenseForm">
-								{% for ajax_key, ajax_val in ajax.license_action %}
+								{% for ajax_key, ajax_val in ajax.license_action_clear %}
 									<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 								{% endfor %}
-								<input type="hidden" name="license-action" value="clear" />
-
 								<button class="btn btn-link p-0" type="submit"
 								        style="text-decoration: none; font-size: small;"
 								        {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
@@ -165,7 +162,8 @@
 									  {{ line|raw }}
 								  {% endfor %}
 								  {% if feature.href|default('') is not empty %}
-									  <br/><a href="{{ feature.href }}" target="_blank" class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info }}</a>
+									  <br /><a href="{{ feature.href }}" target="_blank"
+									           class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info }}</a>
 								  {% endif %}
 							  </div>
 						  </div>

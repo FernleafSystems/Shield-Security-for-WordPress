@@ -1,7 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\BaseMWP;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\MwpOutOfDate;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\NotShieldPro;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\ShieldOutOfDate;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\TabSiteManage;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage\TabSitesListing;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller;
@@ -51,9 +57,9 @@ class ExtensionPageContainer extends BaseMWP {
 			$bodyToRender = MwpOutOfDate::SLUG;
 		}
 		else {
-			$bodyToRender = $this->action_data[ 'current_tab' ];
-			if ( !in_array( $bodyToRender, $this->enumPages() ) ) {
-				throw new ActionException( 'Not a supported tab: '.sanitize_key( $bodyToRender ) );
+			$bodyToRender = $this->enumPages()[ $this->action_data[ 'current_tab' ] ] ?? null;
+			if ( empty( $bodyToRender ) ) {
+				throw new ActionException( 'Not a supported tab: '.sanitize_key( $this->action_data[ 'current_tab' ] ) );
 			}
 		}
 
@@ -68,9 +74,20 @@ class ExtensionPageContainer extends BaseMWP {
 	 * @return BaseMWP[]
 	 */
 	protected function enumPages() :array {
+		$enum = [];
+		foreach ( $this->getPageRenderers() as $pageRenderer ) {
+			$enum[ $pageRenderer::TAB ] = $pageRenderer::SLUG;
+		}
+		return $enum;
+	}
+
+	/**
+	 * @return BaseMWP[]
+	 */
+	protected function getPageRenderers() :array {
 		return [
-			SitesListing::SLUG,
-			SiteManageFrame::SLUG,
+			TabSitesListing::class,
+			TabSiteManage::class,
 		];
 	}
 

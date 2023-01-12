@@ -1,84 +1,84 @@
 <!DOCTYPE html>
-<html{% for htmlattr, htmlattrval in head.html %} {{ htmlattr }}="{{ htmlattrval }}"{% endfor %}>
-<head>
-    <link rel="icon" type="image/png" href="{{ imgs.favicon }}" />
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	{% if not head.meta is empty %}
-		{% for metaEntry in head.meta %}
-			<meta {{ metaEntry.type }}="{{ metaEntry.type_type }}" content="{{ metaEntry.content }}" />
-		{% endfor %}
-	{% endif %}
+<html
+{% for htmlattr, htmlattrval in head.html %} {{ htmlattr }}="{{ htmlattrval }}"{% endfor %}>
 
-	<title>{{ strings.page_title }}</title>
+{% block head %}
+	<head>
+	    <link rel="icon" type="image/png" href="{{ imgs.favicon }}" />
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		{% if not head.meta is empty %}
+			{% for metaEntry in head.meta %}
+				<meta {{ metaEntry.type }}="{{ metaEntry.type_type }}" content="{{ metaEntry.content }}" />
+			{% endfor %}
+		{% endif %}
 
-	{% block head_stylesheets %}
-		<link rel="stylesheet" href="{{ hrefs.css_bootstrap }}" />
-		<link rel="stylesheet" href="{{ hrefs.css_globalplugin }}" />
-		<link rel="stylesheet" href="{{ hrefs.css_pages }}" />
-		{% for headstyle in head.styles|default([]) %}
-			<link rel="stylesheet" href="{{ headstyle.href }}" />
-		{% endfor %}
-	{% endblock %}
-	{% block head_inline_styles %}
-		<style>
-			body {
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-			}
-		</style>
-	{% endblock %}
-	{% block head_scripts %}
-		<script type="text/javascript" src="{{ hrefs.js_jquery }}"></script>
-		<script type="text/javascript" src="{{ hrefs.js_bootstrap }}"></script>
-		<script type="text/javascript" src="{{ hrefs.js_globalplugin }}"></script>
-		{% for headscript in head.scripts|default([]) %}
-		<script type="text/javascript" src="{{ headscript.src }}"></script>
-		{% endfor %}
-	{% endblock %}
-	{% block head_inline_scripts %}
-	{% endblock %}
-</head>
+		<title>{{ strings.page_title }}</title>
+
+		{% block head_stylesheets %}
+			{% for headstyle_key,headstyle in head.styles|default([]) %}
+				<link id="{{ headstyle.id }}-css" rel="stylesheet" href="{{ headstyle.href }}" />
+			{% endfor %}
+		{% endblock %}
+		{% block head_inline_styles %}
+			<style>
+				body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+		}
+			</style>
+		{% endblock %}
+		{% block head_scripts %}
+			{% for headscript_key,headscript in head.scripts|default([]) %}
+				<script id="{{ headscript.id }}-js" type="text/javascript" src="{{ headscript.src }}"></script>
+			{% endfor %}
+		{% endblock %}
+		{% block head_inline_scripts %}
+		{% endblock %}
+	</head>
+
+{% endblock %}
+
 {% block body %}
 	{% block html_tag_body %}<body>{% endblock html_tag_body %}
-		<main>
+	<main>
 			{% block body_start %}
 			{% endblock %}
 
-			{% block body_header %}
-			{% endblock %}
+		{% block body_header %}
+		{% endblock %}
 
-			{% block body_content %}
-				<div class="container-fluid">
+		{% block body_content %}
+			<div class="container-fluid">
 				{% block body_content_header %}
 					<div class="row">
 						<div class="col-4 offset-4"></div>
 					</div>
 				{% endblock %}
-					{% block body_content_main %}
-						<div class="row">
+				{% block body_content_main %}
+					<div class="row">
 						<div class="col-4 offset-4"></div>
 					</div>
-					{% endblock %}
-					{% block body_content_footer %}
-						<div class="row">
+				{% endblock %}
+				{% block body_content_footer %}
+					<div class="row">
 						<div class="col-4 offset-4"></div>
 					</div>
-					{% endblock %}
+				{% endblock %}
 			</div>
-			{% endblock %}
+		{% endblock %}
 
-			{% block body_footer %}
-			{% endblock %}
+		{% block body_footer %}
+		{% endblock %}
 
-			{% block body_footer_scripts %}
-			{% endblock %}
+		{% block body_footer_scripts %}
+		{% endblock %}
 
-			{% block body_end %}
-			{% endblock %}
+		{% block body_end %}
+		{% endblock %}
 		</main>
 
-		{% block pre_body_close %}
-		{% endblock %}
+	{% block pre_body_close %}
+	{% endblock %}
 	</body>
 {% endblock %}
 </html>

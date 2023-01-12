@@ -17,11 +17,11 @@ class ShieldPluginAction {
 	use MWPSiteConsumer;
 
 	public function alignByStatus() {
-		$oStatus = ( new ClientPluginStatus() )
+		$status = ( new ClientPluginStatus() )
 			->setMod( $this->getMod() )
 			->setMwpSite( $this->getMwpSite() );
 
-		switch ( $oStatus->status() ) {
+		switch ( $status->status() ) {
 
 			case ClientPluginStatus::INACTIVE:
 				if ( $this->activate() ) {
@@ -52,9 +52,8 @@ class ShieldPluginAction {
 	}
 
 	public function activate() :bool {
-		$siteObj = $this->getMwpSite()->siteobj;
 		$info = MainWP_Connect::fetch_url_authed(
-			$siteObj,
+			$this->getMwpSite()->siteobj,
 			'plugin_action',
 			[
 				'action' => 'activate',
@@ -70,9 +69,8 @@ class ShieldPluginAction {
 	}
 
 	public function deactivate() :bool {
-		$siteObj = $this->getMwpSite()->siteobj;
 		$info = MainWP_Connect::fetch_url_authed(
-			$siteObj,
+			$this->getMwpSite()->siteobj,
 			'plugin_action',
 			[
 				'action' => 'deactivate',
@@ -110,9 +108,8 @@ class ShieldPluginAction {
 	}
 
 	public function upgrade() :bool {
-		$siteObj = $this->getMwpSite()->siteobj;
 		MainWP_Connect::fetch_url_authed(
-			$siteObj,
+			$this->getMwpSite()->siteobj,
 			'upgradeplugintheme',
 			[
 				'type' => 'plugin',

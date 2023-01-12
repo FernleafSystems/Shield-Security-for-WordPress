@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Client\Auth\ReproduceClientAuthByKey,
 	Controller
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -47,11 +48,24 @@ class Init {
 			// Execute custom actions via MainWP API.
 			add_filter( 'mainwp_child_extra_execution', function ( $information, $post ) {
 				$con = $this->getCon();
-				if ( !empty( $post[ $con->prefix( 'mainwp-action' ) ] ) ) {
-					$information[ $con->prefix( 'mainwp-action' ) ] =
-						wp_json_encode( ( new ApiActionInit() )
-							->setMod( $this->getMod() )
-							->run( $post[ $con->prefix( 'mainwp-action' ) ] ) );
+
+				if ( !empty( $post[ $con->prefix( 'mwp-action' ) ] ) ) {
+					try {
+						$response = $this->getCon()
+							->action_router
+							->action(
+								$post[ $con->prefix( 'mwp-action' ) ],
+								$post[ $con->prefix( 'mwp-params' ) ] ?? []
+							)
+							->action_response_data;
+					}
+					catch ( ActionException $e ) {
+						$response = [
+							'success' => false,
+							'message' => 'Client action failed: '.$e->getMessage(),
+						];
+					}
+					$information[ $con->prefix( 'mwp-action-response' ) ] = wp_json_encode( $response );
 				}
 				return $information;
 			}, 10, 2 );

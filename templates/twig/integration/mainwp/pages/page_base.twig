@@ -7,6 +7,7 @@
 					<div class="ui labeled icon inverted menu mainwp-sub-submenu" id="mainwp-shield-menu">
 						{% for menu_topnav_item in vars.menu_topnav|default([]) %}
 							<a href="{{ menu_topnav_item.href }}"
+							   title="{{ menu_topnav_item.tooltip|default('') }}"
 							   class="item {% if menu_topnav_item.active %}active{% endif %}">
 								<i class="{{ menu_topnav_item.icon }} icon"></i>{{ menu_topnav_item.title }}</a>
 						{% endfor %}

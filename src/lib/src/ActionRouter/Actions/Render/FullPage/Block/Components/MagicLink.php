@@ -17,9 +17,9 @@ class MagicLink extends Base {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		$user = $this->getActiveWPUser();
-		$available = ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod )->isUnblockAvailable()
-					 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $user );
+		$available = $this->hasActiveWPUser()
+					 && ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod )->isUnblockAvailable()
+					 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() );
 		return [
 			'flags'   => [
 				'is_available' => $available,
@@ -28,7 +28,7 @@ class MagicLink extends Base {
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 			],
 			'vars'    => [
-				'email'         => $available ? Obfuscate::Email( $user->user_email ) : '',
+				'email'         => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
 				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::SLUG, true, [
 					'ip' => $con->this_req->ip
 				] ),

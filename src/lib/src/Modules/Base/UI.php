@@ -39,7 +39,7 @@ class UI {
 			'classes'    => [
 				'top_container' => implode( ' ', array_filter( [
 					'odp-outercontainer',
-					$this->getCon()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
+					$con->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 					$mod->getModSlug(),
 					Services::Request()->query( Constants::NAV_ID, '' )
 				] ) )
@@ -95,18 +95,8 @@ class UI {
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 
-				'dashboard_home'   => $con->getPluginUrl_DashboardHome(),
-				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap' ),
-				'css_pages'        => $urlBuilder->forCss( 'shield/pages' ),
-				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
-				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
-				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
-				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap' ),
-				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
-				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
-				'js_steps'         => 'https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js',
+				'dashboard_home' => $con->getPluginUrl_DashboardHome(),
+				'form_action'    => Services::Request()->getUri(),
 			],
 			'imgs'       => [
 				'svgs'           => [
@@ -159,7 +149,7 @@ class UI {
 		$proFeaturesDisplay = array_slice( $proFeatures, 0, 6 );
 		$proFeaturesDisplay[] = __( 'and much more!' );
 
-		$isAdvanced = $this->getCon()->getModule_Plugin()->isShowAdvanced();
+		$isAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		return [
 			'btn_save'          => __( 'Save Options' ),

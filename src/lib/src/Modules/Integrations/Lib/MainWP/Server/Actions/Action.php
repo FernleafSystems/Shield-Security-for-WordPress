@@ -19,12 +19,12 @@ class Action {
 			$this->getMwpSite()->siteobj,
 			'extra_execution',
 			[
-				$this->getCon()->prefix( 'mainwp-action' ) => $actionToExecute,
-				$this->getCon()->prefix( 'mainwp-params' ) => $params
+				$this->getCon()->prefix( 'mwp-action' ) => $actionToExecute,
+				$this->getCon()->prefix( 'mwp-params' ) => [ 'test' => 'test' ]
 			]
 		);
 
-		$key = $this->getCon()->prefix( 'mainwp-action' );
+		$key = $this->getCon()->prefix( 'mwp-action' );
 		if ( empty( $info ) || !is_array( $info ) || !isset( $info[ $key ] ) ) {
 			throw new \Exception( 'Empty response from client site' );
 		}

@@ -20,16 +20,15 @@ abstract class BaseFullPageRender extends BaseRender {
 	protected function getCommonPageRenderData() :array {
 		$con = $this->getCon();
 		$WP = Services::WpGeneral();
-
 		return [
 			'flags'   => [
 				'is_whitelabelled' => $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled()
 			],
 			'head'    => [
+				'scripts' => $this->getScripts(),
+				'styles'  => $this->getStyles(),
 			],
 			'hrefs'   => [
-				'css_bootstrap'  => $con->urls->forCss( 'bootstrap' ),
-				'js_bootstrap'   => $con->urls->forJs( 'bootstrap' ),
 				'shield_logo'    => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
 				'helpdesk'       => 'https://shsec.io/shieldhelpdesk'
@@ -49,6 +48,46 @@ abstract class BaseFullPageRender extends BaseRender {
 				'visitor_ip' => $con->this_req->ip,
 				'time_now'   => $WP->getTimeStringForDisplay(),
 				'home_url'   => $WP->getHomeUrl(),
+			],
+		];
+	}
+
+	protected function getScripts() :array {
+		$urlBuilder = $this->getCon()->urls;
+		return [
+			10 => [
+				'src' => Services::Includes()->getUrl_Jquery(),
+				'id'  => 'wp_jquery',
+			],
+			20 => [
+				'src' => $urlBuilder->forJs( 'bootstrap' ),
+				'id'  => 'bootstrap',
+			],
+			30 => [
+				'src' => $urlBuilder->forJs( 'global-plugin' ),
+				'id'  => 'shield-global-plugin',
+			],
+			35 => [
+				'src' => $urlBuilder->forJs( 'plugin' ),
+				'id'  => 'shield-plugin',
+			],
+		];
+	}
+
+	protected function getStyles() :array {
+		$urlBuilder = $this->getCon()->urls;
+		return [
+			20 => [
+				'href' => $urlBuilder->forCss( 'bootstrap' ),
+				'id'   => 'bootstrap',
+			],
+			30 => [
+				'href' => $urlBuilder->forCss( 'global-plugin' ),
+				'id'   => 'shield-global-plugin',
+			],
+			35 => [
+				'href' => $urlBuilder->forCss( 'plugin' ),
+				'id'   => 'shield-plugin',
 			],
 		];
 	}

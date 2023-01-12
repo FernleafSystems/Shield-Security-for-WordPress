@@ -46,8 +46,8 @@
 						plugin.options[ 'req_params' ] = $.extend(
 							plugin.options.ajax_actions[ 'site_action' ],
 							{
-								'sid': $( this ).parent().data( 'sid' ),
-								'saction': $( this ).data( 'saction' )
+								'site_id': $( this ).parent().data( 'sid' ),
+								'site_action': $( this ).data( 'site_action' )
 							}
 						);
 						plugin.site_action.call( plugin );
@@ -135,14 +135,6 @@
 				this.sendReq( this.options[ 'working_custom_action' ] );
 			},
 
-			hrefDownload: function () {
-				$.fileDownload( this.options[ 'working_href_download' ], {
-					preparingMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file,
-					failMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file_problem
-				} );
-				return false;
-			},
-
 			sendReq: function ( reqData = {} ) {
 				iCWP_WPSF_BodyOverlay.show();
 
@@ -199,10 +191,10 @@
 			},
 		} );
 */
-		siteFrame = $( "iframe#SiteContent" );
-		if ( siteFrame.length === 1 ) {
-			siteFrame.attr( "srcdoc", "<p>This content was updated dynamically!</p>" );
-		}
+		// siteFrame = $( "iframe#SiteContent" );
+		// if ( siteFrame.length === 1 ) {
+		// 	siteFrame.attr( "srcdoc", "<p>This content was updated dynamically!</p>" );
+		// }
 
 		return this.each(
 			function () {

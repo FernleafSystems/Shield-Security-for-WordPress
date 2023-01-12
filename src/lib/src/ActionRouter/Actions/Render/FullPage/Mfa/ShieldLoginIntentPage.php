@@ -14,25 +14,8 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
 			],
-			'head'    => [
-				'scripts' => [
-					[
-						'src' => $con->urls->forJs( 'u2f-bundle' ),
-					],
-					[
-						'src' => $con->urls->forJs( 'shield/login2fa' ),
-					]
-				],
-				'styles'  => [
-					[
-						'href' => $con->urls->forCss( 'shield/login2fa' ),
-					]
-				]
-			],
 			'hrefs'   => [
-				'css_bootstrap' => $con->urls->forCss( 'bootstrap' ),
-				'js_bootstrap'  => $con->urls->forJs( 'bootstrap' ),
-				'what_is_this'  => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
+				'what_is_this' => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
 			],
 			'imgs'    => [
 				'logo_banner' => $con->labels->url_img_pagebanner,
@@ -45,5 +28,28 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 				'form' => $con->action_router->render( Components\LoginIntentFormShield::SLUG, $this->action_data ),
 			]
 		];
+	}
+
+	protected function getScripts() :array {
+		$urlBuilder = $this->getCon()->urls;
+		$scripts = parent::getScripts();
+		$scripts[ 50 ] = [
+			'src' => $urlBuilder->forJs( 'u2f-bundle' ),
+			'id'  => 'u2f-bundle',
+		];
+		$scripts[ 51 ] = [
+			'src' => $urlBuilder->forJs( 'shield/login2fa' ),
+			'id'  => 'shield/login2fa',
+		];
+		return $scripts;
+	}
+
+	protected function getStyles() :array {
+		$styles = parent::getStyles();
+		$styles[ 51 ] = [
+			'href' => $this->getCon()->urls->forCss( 'shield/login2fa' ),
+			'id'  => 'shield/login2fa',
+		];
+		return $styles;
 	}
 }

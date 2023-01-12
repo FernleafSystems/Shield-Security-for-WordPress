@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	LicenseAction,
+	LicenseActionClear,
+	LicenseActionLookup,
 	LicenseCheckDebug
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
@@ -79,8 +80,9 @@ class PageLicense extends BasePluginAdminPage {
 				]
 			],
 			'ajax'    => [
-				'license_action'   => ActionData::Build( LicenseAction::SLUG ),
-				'connection_debug' => ActionData::Build( LicenseCheckDebug::SLUG )
+				'license_action_clear'  => ActionData::Build( LicenseActionClear::SLUG ),
+				'license_action_lookup' => ActionData::Build( LicenseActionLookup::SLUG ),
+				'connection_debug'      => ActionData::Build( LicenseCheckDebug::SLUG )
 			],
 			'hrefs'   => [
 				'shield_pro_url' => 'https://shsec.io/shieldpro',

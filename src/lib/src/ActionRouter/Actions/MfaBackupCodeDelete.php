@@ -32,8 +32,8 @@ class MfaBackupCodeDelete extends MfaBase {
 			 ->addFlash( $msg, $user, !$success );
 
 		$this->response()->action_response_data = [
+			'success' => $success,
 			'message' => $msg,
-			'success' => $success
 		];
 	}
 }

@@ -97,18 +97,8 @@ class UI extends BaseShield\UI {
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 
-				'dashboard_home'   => $con->getPluginUrl_DashboardHome(),
-				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $urlBuilder->forCss( 'bootstrap' ),
-				'css_pages'        => $urlBuilder->forCss( 'shield/pages' ),
-				'css_steps'        => $urlBuilder->forCss( 'jquery.steps' ),
-				'css_fancybox'     => $urlBuilder->forCss( 'jquery.fancybox.min' ),
-				'css_globalplugin' => $urlBuilder->forCss( 'global-plugin' ),
-				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $urlBuilder->forJs( 'bootstrap' ),
-				'js_fancybox'      => $urlBuilder->forJs( 'jquery.fancybox.min' ),
-				'js_globalplugin'  => $urlBuilder->forJs( 'global-plugin' ),
-				'js_steps'         => 'https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js',
+				'dashboard_home' => $con->getPluginUrl_DashboardHome(),
+				'form_action'    => Services::Request()->getUri(),
 			],
 			'imgs'       => [
 				'svgs'           => [

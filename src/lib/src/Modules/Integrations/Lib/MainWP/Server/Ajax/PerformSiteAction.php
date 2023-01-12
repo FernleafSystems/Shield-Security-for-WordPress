@@ -6,16 +6,22 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
+/**
+ * @deprecated 17.0
+ */
 class PerformSiteAction {
 
 	use MainWP\Common\Consumers\MWPSiteConsumer;
 	use Shield\Modules\ModConsumer;
 
-	public function run( string $action ) :array {
+	public function run( string $action, array $params = [] ) :array {
 		try {
+			if ( !is_callable( [ $this, $action ] ) ) {
+				throw new \Exception( 'Not a valid MainWP Shield Site Action' );
+			}
 			$resp = [
 				'success' => true,
-				'message' => $this->{$action}()
+				'message' => $this->{$action}( $params )
 			];
 		}
 		catch ( \Exception $e ) {
@@ -64,28 +70,6 @@ class PerformSiteAction {
 		}
 		return sprintf( __( 'Successfully installed %s plugin.', 'wp-simple-firewall' ),
 			$this->getCon()->getHumanName() );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function license() :string {
-		$resp = $this->getApiActioner()->licenseCheck();
-		if ( empty( $resp[ 'success' ] ) ) {
-			throw new \Exception( $resp[ 'message' ] );
-		}
-		return $resp[ 'message' ];
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function mwp() :string {
-		$resp = $this->getApiActioner()->mwpEnable();
-		if ( empty( $resp[ 'success' ] ) ) {
-			throw new \Exception( $resp[ 'message' ] );
-		}
-		return $resp[ 'message' ];
 	}
 
 	/**

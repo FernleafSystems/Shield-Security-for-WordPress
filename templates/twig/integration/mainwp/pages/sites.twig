@@ -91,7 +91,15 @@
 {#								{% endif %}#}
 {#							</td>#}
 
-							<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
+							<td>
+								<a href="{{ site.hrefs.manage_site }}">
+									{{ site.name }}
+								</a>
+								<br />
+								<a href="{{ site.url }}" target="_blank" style="text-decoration: none!important;">
+									<small>{{ site.url }} <i class="external alternate icon"></i></small>
+								</a>
+							</td>
 							{% if site.shield.is_active %}
 								<td>
 									{{ site.shield.status }}
@@ -138,25 +146,25 @@
 									<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
 
 										<a href="#"
-										   data-saction="sync"
+										   data-site_action="sync"
 										   class="item site_action {% if not site.shield.can_sync %}disabled{% endif %}"
 										>{{ strings.act_sync }}</a>
 
 										{% if site.shield.is_inactive %}
 											<a href="#"
-											   data-saction="activate"
+											   data-site_action="activate"
 											   class="item site_action"
 											>{{ strings.act_activate }}</a>
 
 										{% elseif site.shield.is_notinstalled %}
 											<a href="#"
-											   data-saction="install"
+											   data-site_action="install"
 											   class="item site_action"
 											>{{ strings.act_install }}</a>
 
 										{% else %}
 											<a href="#"
-											   data-saction="deactivate"
+											   data-site_action="deactivate"
 											   class="item site_action"
 											>{{ strings.act_deactivate }}</a>
 										{% endif %}
@@ -164,10 +172,10 @@
 										<a href="#"
 										   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
 												{% if site.shield.is_mwpnoton %}
-													data-saction="mwp"
+													data-site_action="mwp"
 													{% set linktxt = strings.act_mwp %}
 												{% else %}
-													data-saction="license"
+													data-site_action="{{ vars.site_actions.license }}"
 													{% set linktxt = strings.act_license %}
 												{% endif %}
 										>{{ linktxt }}</a>
