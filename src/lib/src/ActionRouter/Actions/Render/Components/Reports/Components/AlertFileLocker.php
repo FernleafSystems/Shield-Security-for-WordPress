@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 
 class AlertFileLocker extends BaseBuilderForScans {
@@ -42,10 +42,10 @@ class AlertFileLocker extends BaseBuilderForScans {
 		/** @var FileLockerDB\Update $updater */
 		$updater = $this->getCon()
 						->getModule_HackGuard()
-						->getDbHandler_FileLocker()
+						->getDbH_FileLocker()
 						->getQueryUpdater();
-		foreach ( $fileLocksLoader->withProblemsNotNotified() as $entry ) {
-			$updater->markNotified( $entry );
+		foreach ( $fileLocksLoader->withProblemsNotNotified() as $record ) {
+			$updater->markNotified( $record );
 		}
 
 		$fileLocksLoader->clearLocksCache();

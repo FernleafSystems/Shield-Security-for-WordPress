@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
@@ -44,19 +44,20 @@ class CreateFileLocks extends BaseOps {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$entry = new FileLocker\EntryVO();
-		$entry->file = $path;
-		$entry->hash_original = hash_file( 'sha1', $path );
+		$record = new FileLockerDB\Record();
+		$record->file = $path;
+		$record->hash_original = hash_file( 'sha1', $path );
 
 		$publicKey = $this->getPublicKey();
-		$entry->public_key_id = key( $publicKey );
-		$entry->content = ( new BuildEncryptedFilePayload() )
+		$record->public_key_id = key( $publicKey );
+		$record->cipher = $mod->getFileLocker()->getState()[ 'cipher' ];
+		$record->content = ( new BuildEncryptedFilePayload() )
 			->setMod( $mod )
 			->build( $path, reset( $publicKey ) );
 
-		/** @var FileLocker\Insert $inserter */
-		$inserter = $mod->getDbHandler_FileLocker()->getQueryInserter();
-		if ( !$inserter->insert( $entry ) ) {
+		/** @var FileLockerDB\Insert $inserter */
+		$inserter = $mod->getDbH_FileLocker()->getQueryInserter();
+		if ( !$inserter->insert( $record ) ) {
 			throw new LockDbInsertFailure( sprintf( 'Failed to insert file locker record for path: "%s"', $path ) );
 		}
 

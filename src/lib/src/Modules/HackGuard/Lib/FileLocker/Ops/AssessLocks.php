@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
@@ -14,8 +14,8 @@ class AssessLocks extends BaseOps {
 	public function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var FileLocker\Update $updater */
-		$updater = $mod->getDbHandler_FileLocker()->getQueryUpdater();
+		/** @var FileLockerDB\Update $updater */
+		$updater = $mod->getDbH_FileLocker()->getQueryUpdater();
 
 		$this->removeDuplicates();
 
@@ -29,7 +29,7 @@ class AssessLocks extends BaseOps {
 				}
 				else {
 					$fileHash = hash_file( 'sha1', $lock->file );
-					if ( empty( $lock->hash_current ) || !hash_equals( $lock->hash_current, $fileHash ) ) {
+					if ( !empty( $fileHash ) && !hash_equals( $lock->hash_current, $fileHash ) ) {
 						$updater->updateCurrentHash( $lock, $fileHash );
 						$aProblemIds[] = $lock->id;
 					}
@@ -50,7 +50,7 @@ class AssessLocks extends BaseOps {
 			if ( in_array( $lock->file, $paths ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
-				$mod->getDbHandler_FileLocker()
+				$mod->getDbH_FileLocker()
 					->getQueryDeleter()
 					->deleteById( $lock->id );
 			}

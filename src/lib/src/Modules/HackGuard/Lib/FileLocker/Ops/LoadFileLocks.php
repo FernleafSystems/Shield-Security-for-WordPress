@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -11,33 +11,33 @@ class LoadFileLocks {
 	use ModConsumer;
 
 	/**
-	 * @var FileLocker\EntryVO[]
+	 * @var FileLockerDB\Record[]
 	 */
-	private static $aFileLockRecords;
+	private static $FileLockRecords;
 
 	/**
-	 * @return FileLocker\EntryVO[]
+	 * @return FileLockerDB\Record[]
 	 */
 	public function loadLocks() :array {
-		if ( is_null( self::$aFileLockRecords ) ) {
+		if ( is_null( self::$FileLockRecords ) ) {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 
-			self::$aFileLockRecords = [];
+			self::$FileLockRecords = [];
 			if ( $mod->getFileLocker()->isEnabled() ) {
-				$all = $mod->getDbHandler_FileLocker()->getQuerySelector()->all();
+				$all = $mod->getDbH_FileLocker()->getQuerySelector()->all();
 				if ( is_array( $all ) ) {
 					foreach ( $all as $lock ) {
-						self::$aFileLockRecords[ $lock->id ] = $lock;
+						self::$FileLockRecords[ $lock->id ] = $lock;
 					}
 				}
 			}
 		}
-		return self::$aFileLockRecords;
+		return self::$FileLockRecords;
 	}
 
 	/**
-	 * @return FileLocker\EntryVO[]
+	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblems() :array {
 		return array_filter(
@@ -49,7 +49,7 @@ class LoadFileLocks {
 	}
 
 	/**
-	 * @return FileLocker\EntryVO[]
+	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblemsNotNotified() :array {
 		return array_filter(
@@ -61,7 +61,7 @@ class LoadFileLocks {
 	}
 
 	/**
-	 * @return FileLocker\EntryVO[]
+	 * @return FileLockerDB\Record[]
 	 */
 	public function withoutProblems() :array {
 		return array_filter(
@@ -76,7 +76,7 @@ class LoadFileLocks {
 	 * @return $this
 	 */
 	public function clearLocksCache() {
-		self::$aFileLockRecords = null;
+		self::$FileLockRecords = null;
 		return $this;
 	}
 }

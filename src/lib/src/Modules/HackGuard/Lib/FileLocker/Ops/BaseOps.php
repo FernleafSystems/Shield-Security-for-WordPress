@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\PublicKeyRetrievalFailure;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
@@ -14,19 +14,11 @@ class BaseOps {
 	use ModConsumer;
 
 	/**
-	 * @var Databases\FileLocker\EntryVO[]
-	 */
-	private static $aFileLockRecords;
-
-	/**
 	 * @var FileLocker\File
 	 */
 	protected $file;
 
-	/**
-	 * @return Databases\FileLocker\EntryVO|null
-	 */
-	protected function findLockRecordForFile() {
+	protected function findLockRecordForFile() :?FileLockerDB\Record {
 		$theLock = null;
 		foreach ( $this->file->getPossiblePaths() as $path ) {
 			foreach ( $this->getFileLocks() as $maybeLock ) {
@@ -40,7 +32,7 @@ class BaseOps {
 	}
 
 	/**
-	 * @return Databases\FileLocker\EntryVO[]
+	 * @return FileLockerDB\Record[]
 	 */
 	protected function getFileLocks() :array {
 		return ( new LoadFileLocks() )

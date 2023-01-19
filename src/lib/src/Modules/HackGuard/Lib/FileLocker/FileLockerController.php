@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	FileContentsEncryptionFailure,
 	LockDbInsertFailure,
 	NoFileLockPathsExistException,
-	PublicKeyRetrievalFailure,
+	PublicKeyRetrievalFailure
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,7 +19,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	protected function canRun() :bool {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		return $this->isEnabled() && $mod->getDbHandler_FileLocker()->isReady();
+		return $this->isEnabled() && $mod->getDbH_FileLocker()->isReady();
 	}
 
 	public function isEnabled() :bool {
@@ -76,7 +76,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 			->withProblems() );
 	}
 
-	public function createFileDownloadLinks( FileLocker\EntryVO $lock ) :array {
+	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
 			$links[ $type ] = $this->getCon()->plugin_urls->fileDownload( 'filelocker', [
@@ -123,19 +123,19 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	public function deleteAllLocks() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$mod->getDbHandler_FileLocker()->tableDelete( true );
+		$mod->getDbH_FileLocker()->tableDelete( true );
 	}
 
 	public function purge() {
 		/** @var HackGuard\ModCon $mod */
 		$mod = $this->getMod();
-		$mod->getDbHandler_FileLocker()->tableDelete();
+		$mod->getDbH_FileLocker()->tableDelete();
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	public function getFileLock( int $ID ) :FileLocker\EntryVO {
+	public function getFileLock( int $ID ) :FileLockerDB\Record {
 		$lock = ( new Ops\LoadFileLocks() )
 					->setMod( $this->getMod() )
 					->loadLocks()[ $ID ] ?? null;
@@ -224,6 +224,8 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 				'last_locks_created_at'        => 0,
 				'last_locks_created_failed_at' => 0,
 				'last_error'                   => '',
+				'cipher'                       => 'rc4',
+				'cipher_last_checked_at'       => 0,
 			],
 			is_array( $state ) ? $state : []
 		);

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
@@ -12,7 +12,7 @@ class ReadOriginalFileContent extends BaseOps {
 	/**
 	 * @throws \Exception
 	 */
-	public function run( Databases\FileLocker\EntryVO $lock ) :string {
+	public function run( FileLockerDB\Record $lock ) :string {
 		try {
 			$content = $this->useOriginalFile( $lock );
 		}
@@ -25,7 +25,7 @@ class ReadOriginalFileContent extends BaseOps {
 	/**
 	 * @throws \Exception
 	 */
-	private function useOriginalFile( Databases\FileLocker\EntryVO $lock ) :string {
+	private function useOriginalFile( FileLockerDB\Record $lock ) :string {
 		$FS = Services::WpFs();
 		if ( empty( $lock->detected_at ) && empty( $lock->hash_current )
 			 && $FS->exists( $lock->file ) ) {
@@ -37,7 +37,7 @@ class ReadOriginalFileContent extends BaseOps {
 	/**
 	 * @throws \Exception
 	 */
-	private function useCacheAndApi( Databases\FileLocker\EntryVO $lock ) :string {
+	private function useCacheAndApi( FileLockerDB\Record $lock ) :string {
 		$cacheKey = 'file-content-'.$lock->id;
 		$content = wp_cache_get( $cacheKey, $this->getCon()->prefix( 'filelocker' ) );
 		if ( !is_string( $content ) ) {

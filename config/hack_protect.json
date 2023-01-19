@@ -407,7 +407,57 @@
       "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
       "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
       "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
-      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler",
+      "file_locker":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler"
+    },
+    "db_table_file_locker":        {
+      "autoexpire":     0,
+      "slug":           "file_locker",
+      "col_older_than": "created_at",
+      "has_updated_at": true,
+      "cols_custom":    {
+        "file":            {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "File Path relative to ABSPATH"
+        },
+        "hash_original":   {
+          "macro_type": "varchar",
+          "length":     40,
+          "comment":    "SHA1 File Hash Original"
+        },
+        "hash_current":    {
+          "macro_type": "varchar",
+          "length":     40,
+          "comment":    "SHA1 File Hash Current"
+        },
+        "public_key_id":   {
+          "type":    "tinyint",
+          "length":  2,
+          "comment": "Public Key ID"
+        },
+        "algo":            {
+          "macro_type": "varchar",
+          "length":     32,
+          "default":    "rc4",
+          "comment":    "Algorithm"
+        },
+        "content":         {
+          "type":    "mediumblob",
+          "comment": "Encrypted Content"
+        }
+      },
+      "cols_timestamps": {
+        "detected_at": {
+          "comment": "Change Last Detected"
+        },
+        "reverted_at": {
+          "comment": "Reverted To Backup"
+        },
+        "notified_at": {
+          "comment": "Notification Sent"
+        }
+      }
     },
     "db_table_scans":              {
       "autoexpire":     0,

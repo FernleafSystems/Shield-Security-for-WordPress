@@ -1,21 +1,20 @@
-<?php
+<?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
-
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops;
 
 /**
  * @property string $file
  * @property string $hash_original
  * @property string $hash_current
  * @property string $content
+ * @property string $algo
  * @property int    $public_key_id
  * @property int    $detected_at
  * @property int    $reverted_at
  * @property int    $notified_at
  * @property int    $updated_at
  */
-class EntryVO extends Base\EntryVO {
+class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
@@ -24,7 +23,15 @@ class EntryVO extends Base\EntryVO {
 			case 'file':
 				$value = (string)base64_decode( $value );
 				break;
-
+			case 'hash_current':
+			case 'hash_original':
+				$value = (string)$value;
+				break;
+			case 'algo':
+				if ( empty( $value ) ) {
+					$value = 'rc4';
+				}
+				break;
 			default:
 				break;
 		}
@@ -37,7 +44,6 @@ class EntryVO extends Base\EntryVO {
 			case 'file':
 				$value = base64_encode( $value );
 				break;
-
 			default:
 				break;
 		}

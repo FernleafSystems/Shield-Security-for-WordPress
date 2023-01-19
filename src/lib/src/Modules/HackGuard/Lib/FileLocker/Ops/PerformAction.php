@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 
 class PerformAction extends BaseOps {
 
@@ -10,7 +10,7 @@ class PerformAction extends BaseOps {
 	 * @return bool|string
 	 * @throws \Exception
 	 */
-	public function run( Databases\FileLocker\EntryVO $lock, string $action ) {
+	public function run( FileLockerDB\Record $lock, string $action ) {
 
 		switch ( $action ) {
 			case 'accept':
