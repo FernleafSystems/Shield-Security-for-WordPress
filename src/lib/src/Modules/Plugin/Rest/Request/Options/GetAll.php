@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Op
 
 class GetAll extends Base {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function process() :array {
 		return $this->getAllOptions();
 	}

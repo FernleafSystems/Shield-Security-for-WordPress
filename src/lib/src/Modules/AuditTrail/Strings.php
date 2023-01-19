@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'plugin_activated'            => [

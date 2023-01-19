@@ -15,9 +15,6 @@ class SitesListTableColumn extends BaseRender {
 
 	public const SLUG = 'mainwp_sites_list_table_column';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		$workingSite = ( new MWPSiteVO() )->applyFromArray( $this->action_data[ 'raw_mainwp_site_data' ] );

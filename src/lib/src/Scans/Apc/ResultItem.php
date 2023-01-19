@@ -8,9 +8,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 

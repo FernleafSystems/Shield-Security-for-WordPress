@@ -65,9 +65,6 @@ class ResultItem extends Base\ResultItem {
 		return $value;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __set( string $key, $value ) {
 		switch ( $key ) {
 			case 'mal_fp_lines':

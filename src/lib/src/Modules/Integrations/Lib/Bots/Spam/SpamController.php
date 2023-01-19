@@ -10,9 +10,6 @@ class SpamController extends BaseBotDetectionController {
 		return 'form_spam_providers';
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function enumProviders() :array {
 		return [
 			'calderaforms'    => Handlers\CalderaForms::class,

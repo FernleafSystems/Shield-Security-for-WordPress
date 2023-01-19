@@ -8,9 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {

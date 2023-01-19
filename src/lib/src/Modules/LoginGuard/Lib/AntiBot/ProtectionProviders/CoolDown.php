@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\CooldownFlagF
 
 class CoolDown extends BaseProtectionProvider {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function performCheck( $form ) {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
@@ -33,9 +30,6 @@ class CoolDown extends BaseProtectionProvider {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function buildFormInsert( $formProvider ) {
 		return '';
 	}

@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 
 class AjaxResponseAdapter extends BaseAdapter {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function adapt( ActionResponse $response ) {
 		$responseData = array_merge(
 			[

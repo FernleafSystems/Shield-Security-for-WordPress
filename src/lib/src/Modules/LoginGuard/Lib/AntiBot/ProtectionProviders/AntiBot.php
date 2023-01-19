@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 class AntiBot extends BaseProtectionProvider {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function performCheck( $form ) {
 		if ( $this->isFactorTested() ) {
 			return;

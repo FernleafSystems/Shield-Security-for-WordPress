@@ -51,9 +51,6 @@ class GaspJs extends BaseProtectionProvider {
 		} );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function performCheck( $form ) {
 		if ( $this->isFactorTested() ) {
 			return;
@@ -106,9 +103,6 @@ class GaspJs extends BaseProtectionProvider {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function buildFormInsert( $formProvider ) {
 		$this->getCon()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}

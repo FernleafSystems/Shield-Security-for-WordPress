@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'key_success'          => [
@@ -33,9 +30,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getSectionStrings( string $section ) :array {
 		$sPlugName = $this->getCon()->getHumanName();
 
@@ -97,9 +91,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getOptionStrings( string $key ) :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

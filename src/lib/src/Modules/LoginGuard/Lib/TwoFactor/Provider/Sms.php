@@ -112,9 +112,6 @@ class Sms extends AbstractShieldProvider {
 			->send2FA( $user, $meta->sms_registration[ 'code' ] );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function postSuccessActions() {
 		parent::postSuccessActions();
 		$meta = $this->getCon()->getUserMeta( $this->getUser() );

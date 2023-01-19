@@ -31,9 +31,6 @@ class Email extends AbstractShieldProvider {
 		return !empty( $secret ) && wp_check_password( $otp, $secret );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function postSuccessActions() {
 		parent::postSuccessActions();
 		return $this->setSecret( [] );

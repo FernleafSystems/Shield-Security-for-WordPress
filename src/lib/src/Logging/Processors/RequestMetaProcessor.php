@@ -8,9 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class RequestMetaProcessor extends BaseMetaProcessor {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __invoke( array $records ) {
 		$WP = Services::WpGeneral();
 		$isWpCli = $WP->isWpCli();

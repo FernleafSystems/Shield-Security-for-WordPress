@@ -9,9 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {

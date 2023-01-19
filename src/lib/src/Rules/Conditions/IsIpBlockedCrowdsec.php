@@ -12,9 +12,6 @@ class IsIpBlockedCrowdsec extends Base {
 
 	public const SLUG = 'is_ip_blocked_crowdsec';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;
 		$srvIP = Services::IP();

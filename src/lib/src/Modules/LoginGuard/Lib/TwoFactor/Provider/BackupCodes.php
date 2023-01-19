@@ -72,9 +72,6 @@ class BackupCodes extends AbstractShieldProvider {
 		return parent::hasValidatedProfile();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function postSuccessActions() {
 		parent::postSuccessActions();
 		$this->removeFromProfile();

@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'spam_form_pass'     => [
@@ -38,9 +35,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
@@ -82,9 +76,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->getCon();
 

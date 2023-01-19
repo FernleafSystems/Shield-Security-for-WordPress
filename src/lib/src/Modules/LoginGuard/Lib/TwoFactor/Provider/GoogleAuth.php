@@ -191,9 +191,6 @@ class GoogleAuth extends AbstractShieldProvider {
 		return $this->workingSecret;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function getSecret() {
 		$secret = parent::getSecret();
 		return empty( $secret ) ? $this->resetSecret() : $secret;

@@ -15,9 +15,6 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 			 ->setToEnqueue();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function performCheck( $form ) {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
@@ -40,9 +37,6 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		return new TestRequest();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function buildFormInsert( $formProvider ) {
 		return $this->getCaptchaHtml();
 	}

@@ -11,9 +11,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {

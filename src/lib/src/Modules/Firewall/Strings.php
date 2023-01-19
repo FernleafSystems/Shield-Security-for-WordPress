@@ -166,9 +166,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'firewall_block'   => [
@@ -207,9 +204,6 @@ class Strings extends Base\Strings {
 			   ][ $category ] ?? 'Unspecified';
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function getAuditMessages() :array {
 		return [
 			'block_param'                => sprintf( __( 'Firewall Block Triggered: %s.', 'wp-simple-firewall' ), __( 'Directory Traversal', 'wp-simple-firewall' ) ),

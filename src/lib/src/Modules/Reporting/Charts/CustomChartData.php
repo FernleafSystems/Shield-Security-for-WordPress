@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
 
 class CustomChartData extends BaseBuildChartData {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function preProcessRequest() {
 		parent::preProcessRequest();
 
