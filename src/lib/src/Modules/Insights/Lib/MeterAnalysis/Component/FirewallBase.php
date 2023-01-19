@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Strings;
 
 abstract class FirewallBase extends Base {
 
-	public const WEIGHT = 20;
+	public const WEIGHT = 30;
 
 	protected function isProtected() :bool {
 		$mod = $this->getCon()->getModule_Firewall();
@@ -22,7 +22,7 @@ abstract class FirewallBase extends Base {
 	public function title() :string {
 		/** @var Strings $strings */
 		$strings = $this->getCon()->getModule_Firewall()->getStrings();
-		return $strings->getFirewallCategoryName( $this->getFirewallKey() );
+		return sprintf( '%s - %s', __( 'Firewall', 'wp-simple-firewall' ), $strings->getFirewallCategoryName( $this->getFirewallKey() ) );
 	}
 
 	public function descProtected() :string {

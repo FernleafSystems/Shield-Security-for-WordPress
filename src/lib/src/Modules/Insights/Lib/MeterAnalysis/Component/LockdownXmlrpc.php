@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 class LockdownXmlrpc extends Base {
 
 	public const SLUG = 'lockdown_xmlrpc';
+	public const WEIGHT = 50;
 
 	protected function isProtected() :bool {
 		$mod = $this->getCon()->getModule_Lockdown();

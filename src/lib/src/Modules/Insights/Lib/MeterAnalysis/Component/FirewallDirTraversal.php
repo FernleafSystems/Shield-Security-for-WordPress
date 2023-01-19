@@ -5,4 +5,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 class FirewallDirTraversal extends FirewallBase {
 
 	public const SLUG = 'firewall_dir_traversal';
+	public const WEIGHT = 40;
 }

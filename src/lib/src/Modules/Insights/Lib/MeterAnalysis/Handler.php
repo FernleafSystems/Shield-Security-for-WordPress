@@ -14,7 +14,6 @@ class Handler {
 		Meter\MeterIpBlocking::SLUG    => Meter\MeterIpBlocking::class,
 		Meter\MeterAssets::SLUG        => Meter\MeterAssets::class,
 		Meter\MeterScans::SLUG         => Meter\MeterScans::class,
-		Meter\MeterFirewall::SLUG      => Meter\MeterFirewall::class,
 		Meter\MeterLockdown::SLUG      => Meter\MeterLockdown::class,
 		Meter\MeterLogin::SLUG         => Meter\MeterLogin::class,
 		Meter\MeterUsers::SLUG         => Meter\MeterUsers::class,
