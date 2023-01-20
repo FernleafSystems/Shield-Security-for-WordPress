@@ -14,11 +14,11 @@ class Diff extends BaseOps {
 	public function run( FileLockerDB\Record $lock ) :string {
 		$FS = Services::WpFs();
 
-		if ( !$FS->isFile( $lock->file ) ) {
+		if ( !$FS->isFile( $lock->path ) ) {
 			throw new \Exception( __( 'File is missing or could not be read.', 'wp-simple-firewall' ) );
 		}
 
-		$current = $FS->getFileContent( $lock->file );
+		$current = $FS->getFileContent( $lock->path );
 		if ( empty( $current ) ) {
 			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}

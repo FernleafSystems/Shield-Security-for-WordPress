@@ -3,7 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops;
 
 /**
- * @property string $file
+ * @property string $type
+ * @property string $path
  * @property string $hash_original
  * @property string $hash_current
  * @property string $content
@@ -20,9 +21,10 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		$value = parent::__get( $key );
 		switch ( $key ) {
 			case 'content':
-			case 'file':
+			case 'path':
 				$value = (string)base64_decode( $value );
 				break;
+			case 'type':
 			case 'hash_current':
 			case 'hash_original':
 				$value = (string)$value;
@@ -41,7 +43,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 	public function __set( string $key, $value ) {
 		switch ( $key ) {
 			case 'content':
-			case 'file':
+			case 'path':
 				$value = base64_encode( $value );
 				break;
 			default:

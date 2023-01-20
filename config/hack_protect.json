@@ -395,12 +395,12 @@
       "hbs"
     ],
     "db_handler_classes":          {
+      "file_locker":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler",
       "scans":           "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
       "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
       "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
       "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
-      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler",
-      "file_locker":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler"
+      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
     },
     "db_table_file_locker":        {
       "autoexpire":      0,
@@ -408,10 +408,15 @@
       "col_older_than":  "created_at",
       "has_updated_at":  true,
       "cols_custom":     {
-        "file":          {
+        "type":          {
+          "macro_type": "varchar",
+          "length":     20,
+          "comment":    "The type of file being locked"
+        },
+        "path":          {
           "macro_type": "varchar",
           "length":     256,
-          "comment":    "File Path relative to ABSPATH"
+          "comment":    "Full Path to file"
         },
         "hash_original": {
           "macro_type": "varchar",

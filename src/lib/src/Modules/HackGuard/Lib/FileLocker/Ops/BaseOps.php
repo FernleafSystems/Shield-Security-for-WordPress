@@ -20,9 +20,14 @@ class BaseOps {
 
 	protected function findLockRecordForFile() :?FileLockerDB\Record {
 		$theLock = null;
+
+		$locks = ( new LoadFileLocks() )
+			->setMod( $this->getMod() )
+			->ofType( $this->file->type );
+
 		foreach ( $this->file->getPossiblePaths() as $path ) {
-			foreach ( $this->getFileLocks() as $maybeLock ) {
-				if ( $maybeLock->file === $path ) {
+			foreach ( $locks as $maybeLock ) {
+				if ( $maybeLock->path === $path ) {
 					$theLock = $maybeLock;
 					break;
 				}

@@ -11,7 +11,7 @@ class Restore extends BaseOps {
 	public function run( FileLockerDB\Record $record ) :bool {
 		try {
 			$reverted = Services::WpFs()->putFileContent(
-				$record->file,
+				$record->path,
 				( new ReadOriginalFileContent() )
 					->setMod( $this->getMod() )
 					->run( $record )

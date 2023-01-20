@@ -30,11 +30,11 @@
 								<select class="form-select mw-100" id="FileLockerFileSelect">
 									<option selected value="-">--</option>
 									{% for lock_key, file_lock in vars.file_locks.bad %}
-										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.file }}</option>
+										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.path }}</option>
 									{% endfor %}
 									{% for lock_key, file_lock in vars.file_locks.good %}
 										<option value="{{ lock_key }}"
-										        class="text-success">{{ file_lock.file }}</option>
+										        class="text-success">{{ file_lock.path }}</option>
 									{% endfor %}
 								</select>
 							 </div>

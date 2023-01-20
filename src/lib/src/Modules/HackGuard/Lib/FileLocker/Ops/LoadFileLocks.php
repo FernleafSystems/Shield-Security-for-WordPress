@@ -39,6 +39,18 @@ class LoadFileLocks {
 	/**
 	 * @return FileLockerDB\Record[]
 	 */
+	public function ofType( string $type ) :array {
+		return array_filter(
+			$this->loadLocks(),
+			function ( $lock ) use ( $type ) {
+				return $lock->type === $type;
+			}
+		);
+	}
+
+	/**
+	 * @return FileLockerDB\Record[]
+	 */
 	public function withProblems() :array {
 		return array_filter(
 			$this->loadLocks(),
@@ -72,11 +84,7 @@ class LoadFileLocks {
 		);
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function clearLocksCache() {
 		self::$FileLockRecords = null;
-		return $this;
 	}
 }

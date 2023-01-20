@@ -8,9 +8,6 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
 
-	/**
-	 * @return int[]
-	 */
 	public function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -19,35 +16,32 @@ class AssessLocks extends BaseOps {
 
 		$this->removeDuplicates();
 
-		$aProblemIds = [];
 		foreach ( $this->getFileLocks() as $lock ) {
 			try {
-				if ( ( new CompareHash() )->isEqualFileSha1( $lock->file, $lock->hash_original ) ) {
+				if ( ( new CompareHash() )->isEqualFileSha1( $lock->path, $lock->hash_original ) ) {
 					if ( !empty( $lock->hash_current ) ) {
 						$updater->updateCurrentHash( $lock );
 					}
 				}
 				else {
-					$fileHash = hash_file( 'sha1', $lock->file );
+					$fileHash = hash_file( 'sha1', $lock->path );
 					if ( !empty( $fileHash ) && !hash_equals( $lock->hash_current, $fileHash ) ) {
 						$updater->updateCurrentHash( $lock, $fileHash );
-						$aProblemIds[] = $lock->id;
 					}
 				}
 			}
 			catch ( \InvalidArgumentException $e ) {
 				$updater->markProblem( $lock );
-				$aProblemIds[] = $lock->id;
 			}
 		}
+
 		$this->clearFileLocksCache();
-		return $aProblemIds;
 	}
 
 	private function removeDuplicates() {
 		$paths = [];
 		foreach ( $this->getFileLocks() as $lock ) {
-			if ( in_array( $lock->file, $paths ) ) {
+			if ( in_array( $lock->path, $paths ) ) {
 				/** @var ModCon $mod */
 				$mod = $this->getMod();
 				$mod->getDbH_FileLocker()
@@ -55,7 +49,7 @@ class AssessLocks extends BaseOps {
 					->deleteById( $lock->id );
 			}
 			else {
-				$paths[] = $lock->file;
+				$paths[] = $lock->path;
 			}
 		}
 		if ( count( $this->getFileLocks() ) != count( $paths ) ) {

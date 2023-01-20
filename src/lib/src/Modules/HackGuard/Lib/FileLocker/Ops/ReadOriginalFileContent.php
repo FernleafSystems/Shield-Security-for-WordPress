@@ -28,8 +28,8 @@ class ReadOriginalFileContent extends BaseOps {
 	private function useOriginalFile( FileLockerDB\Record $lock ) :string {
 		$FS = Services::WpFs();
 		if ( empty( $lock->detected_at ) && empty( $lock->hash_current )
-			 && $FS->exists( $lock->file ) ) {
-			return (string)$FS->getFileContent( $lock->file );
+			 && $FS->exists( $lock->path ) ) {
+			return (string)$FS->getFileContent( $lock->path );
 		}
 		throw new \Exception( 'Cannot use original file' );
 	}

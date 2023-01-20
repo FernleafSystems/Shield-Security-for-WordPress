@@ -251,7 +251,7 @@ class Strings extends Base\Strings {
 				if ( !empty( $locks ) ) {
 					$desc[] = __( 'Locked Files', 'wp-simple-firewall' ).':';
 					foreach ( $locks as $lock ) {
-						$desc[] = sprintf( '<code>%s</code>', $lock->file );
+						$desc[] = sprintf( '<code>%s</code>', $lock->path );
 					}
 				}
 				break;

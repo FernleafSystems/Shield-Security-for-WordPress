@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
 class UI extends BaseShield\UI {
 
@@ -31,8 +32,8 @@ class UI extends BaseShield\UI {
 				if ( !$enc->isSupportedOpenSslDataEncryption() ) {
 					$warnings[] = sprintf( __( "FileLocker can't be used because the PHP %s extension isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
 				}
-				elseif ( !$enc->hasCipherAlgo( 'rc4' ) ) {
-					$warnings[] = sprintf( __( "FileLocker can't be used because the RC4 encryption cipher isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
+				elseif ( count( ( new CipherTests() )->findAvailableCiphers() ) === 0 ) {
+					$warnings[] = sprintf( __( "FileLocker can't be used because there is no encryption cipher isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 
 				break;

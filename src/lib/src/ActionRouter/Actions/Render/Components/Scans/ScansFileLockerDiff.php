@@ -74,7 +74,7 @@ class ScansFileLockerDiff extends BaseScans {
 			$carb = Services::Request()->carbon( true );
 
 			$absPath = wp_normalize_path( ABSPATH );
-			$filePath = wp_normalize_path( $lock->file );
+			$filePath = wp_normalize_path( $lock->path );
 			if ( strpos( $filePath, $absPath ) !== false ) {
 				$data[ 'vars' ][ 'relative_path' ] = str_replace( $absPath, '/', $filePath );
 			}
@@ -83,17 +83,17 @@ class ScansFileLockerDiff extends BaseScans {
 			}
 			$data[ 'vars' ][ 'full_path' ] = $filePath;
 
-			$data[ 'vars' ][ 'relative_path' ] = str_replace( wp_normalize_path( ABSPATH ), '/', wp_normalize_path( $lock->file ) );
+			$data[ 'vars' ][ 'relative_path' ] = str_replace( wp_normalize_path( ABSPATH ), '/', wp_normalize_path( $lock->path ) );
 			$data[ 'vars' ][ 'locked_at' ] = $carb->setTimestamp( $lock->created_at )->diffForHumans();
 			$data[ 'vars' ][ 'file_modified_at' ] =
-				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $lock->file ) );
+				Services::WpGeneral()->getTimeStampForDisplay( $FS->getModifiedTime( $lock->path ) );
 			$data[ 'vars' ][ 'file_modified_ago' ] =
-				$carb->setTimestamp( $FS->getModifiedTime( $lock->file ) )->diffForHumans();
+				$carb->setTimestamp( $FS->getModifiedTime( $lock->path ) )->diffForHumans();
 			$data[ 'vars' ][ 'change_detected_at' ] = $carb->setTimestamp( $lock->detected_at )->diffForHumans();
-			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->file ) ?
-				FormatBytes::Format( $FS->getFileSize( $lock->file ), 3 )
+			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->path ) ?
+				FormatBytes::Format( $FS->getFileSize( $lock->path ), 3 )
 				: 0;
-			$data[ 'vars' ][ 'file_name' ] = basename( $lock->file );
+			$data[ 'vars' ][ 'file_name' ] = basename( $lock->path );
 
 			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )

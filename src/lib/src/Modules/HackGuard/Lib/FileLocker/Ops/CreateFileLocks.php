@@ -29,7 +29,7 @@ class CreateFileLocks extends BaseOps {
 
 		foreach ( $existingPaths as $path ) {
 			if ( empty( $this->findLockRecordForFile() ) ) {
-				$this->processPath( $path );
+				$this->createLockForPath( $path );
 			}
 		}
 	}
@@ -40,12 +40,13 @@ class CreateFileLocks extends BaseOps {
 	 * @throws FileContentsEncodingFailure
 	 * @throws FileContentsEncryptionFailure
 	 */
-	private function processPath( string $path ) {
+	private function createLockForPath( string $path ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$record = new FileLockerDB\Record();
-		$record->file = $path;
+		$record->type = $this->file->type;
+		$record->path = $path;
 		$record->hash_original = hash_file( 'sha1', $path );
 
 		$publicKey = $this->getPublicKey();

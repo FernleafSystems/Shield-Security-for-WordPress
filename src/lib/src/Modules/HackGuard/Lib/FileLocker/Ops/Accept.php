@@ -18,12 +18,12 @@ class Accept extends BaseOps {
 		$publicKey = $this->getPublicKey();
 		$raw = ( new BuildEncryptedFilePayload() )
 			->setMod( $mod )
-			->build( (string)$lock->file, reset( $publicKey ) );
+			->build( (string)$lock->path, reset( $publicKey ) );
 
 		/** @var FileLockerDB\Update $updater */
 		$updater = $mod->getDbH_FileLocker()->getQueryUpdater();
 		$success = $updater->updateEntry( $lock, [
-			'hash_original' => hash_file( 'sha1', $lock->file ),
+			'hash_original' => hash_file( 'sha1', $lock->path ),
 			'content'       => base64_encode( $raw ),
 			'public_key_id' => key( $publicKey ),
 			'detected_at'   => 0,

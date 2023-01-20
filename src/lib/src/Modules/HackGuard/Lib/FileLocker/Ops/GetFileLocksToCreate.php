@@ -11,12 +11,12 @@ class GetFileLocksToCreate extends BaseOps {
 		$opts = $this->getOptions();
 
 		$locksToCreate = [];
-		foreach ( $opts->getFilesToLock() as $fileKey ) {
+		foreach ( $opts->getFilesToLock() as $fileType ) {
 			try {
-				$file = ( new BuildFileFromFileKey() )->build( $fileKey );
+				$file = ( new BuildFileFromFileKey() )->build( $fileType );
 				$lock = $this->setWorkingFile( $file )->findLockRecordForFile();
 				if ( empty( $lock ) ) {
-					$locksToCreate[] = $fileKey;
+					$locksToCreate[] = $fileType;
 				}
 			}
 			catch ( \Exception $e ) {
