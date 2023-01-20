@@ -5,10 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
 	FileContentsEncryptionFailure,
 	LockDbInsertFailure,
+	NoCipherAvailableException,
 	NoFileLockPathsExistException,
 	PublicKeyRetrievalFailure
 };
@@ -33,9 +35,11 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 					  ->canHandshake();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function canSslEncryption() :bool {
-		$enc = Services::Encrypt();
-		return $enc->isSupportedOpenSslDataEncryption() && $enc->hasCipherAlgo( 'rc4' );
+		return Services::Encrypt()->isSupportedOpenSslDataEncryption();
 	}
 
 	protected function run() {
@@ -46,7 +50,8 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function checkLockConfig() {
-		if ( ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() ) || !$this->canSslEncryption() ) {
+		if ( ( !$this->getCon()->plugin_deactivating && $this->isFileLockerStateChanged() )
+			 || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 			$this->deleteAllLocks();
 			$this->setState( [] );
 		}
@@ -191,6 +196,10 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 		) {
 			foreach ( $filesToLock as $fileKey ) {
 				try {
+					if ( !$this->canEncrypt() ) {
+						throw new NoCipherAvailableException();
+					}
+
 					( new Ops\CreateFileLocks() )
 						->setMod( $this->getMod() )
 						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $fileKey ) )
@@ -199,7 +208,8 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 					$state[ 'last_error' ] = '';
 				}
 				catch ( NoFileLockPathsExistException | LockDbInsertFailure
-				| FileContentsEncodingFailure | FileContentsEncryptionFailure | PublicKeyRetrievalFailure $e ) {
+				| FileContentsEncodingFailure | FileContentsEncryptionFailure
+				| NoCipherAvailableException | PublicKeyRetrievalFailure $e ) {
 					// Remove the key if there are no files on-disk to lock
 					$opts->setOpt( 'file_locker', array_diff( $opts->getFilesToLock(), [ $fileKey ] ) );
 				}
@@ -234,5 +244,22 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	protected function setState( array $state ) {
 		$this->getOptions()->setOpt( 'filelocker_state', $state );
 		$this->getMod()->saveModOptions();
+	}
+
+	public function canEncrypt() :bool {
+		/** @var HackGuard\ModCon $mod */
+		$mod = $this->getMod();
+		$state = $mod->getFileLocker()->getState();
+
+		if ( Services::Request()->carbon()->subDay()->timestamp > $state[ 'cipher_last_checked_at' ] ) {
+			$ciphers = ( new CipherTests() )->findAvailableCiphers();
+			if ( !empty( $ciphers ) && !in_array( $state[ 'cipher' ], $ciphers ) ) {
+				$state[ 'cipher' ] = array_shift( $ciphers );
+			}
+			$state[ 'cipher_last_checked_at' ] = Services::Request()->ts();
+			$mod->getFileLocker()->setState( $state );
+		}
+
+		return !empty( $state[ 'cipher' ] );
 	}
 }

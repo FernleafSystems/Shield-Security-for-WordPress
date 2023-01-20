@@ -7,7 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocke
  * @property string $hash_original
  * @property string $hash_current
  * @property string $content
- * @property string $algo
+ * @property string $cipher
  * @property int    $public_key_id
  * @property int    $detected_at
  * @property int    $reverted_at
@@ -27,7 +27,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 			case 'hash_original':
 				$value = (string)$value;
 				break;
-			case 'algo':
+			case 'cipher':
 				if ( empty( $value ) ) {
 					$value = 'rc4';
 				}

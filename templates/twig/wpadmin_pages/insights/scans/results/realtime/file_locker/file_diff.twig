@@ -1,5 +1,19 @@
 {% if success %}
 	<h6 class="my-4 ps-3">{{ strings.reviewing_locked_file }}: <code>{{ vars.full_path }}</code></h6>
+
+	{% if flags.has_diff %}
+		<div class="row text-center mt-4">
+			<div class="col"><h5>{{ strings.file_content_original }}</h5></div>
+			<div class="col"><h5>{{ strings.file_content_current }}</h5></div>
+		</div>
+		<hr />
+		<div class="row my-4">
+			<div class="col">
+				{{ html.diff|raw }}
+			</div>
+		</div>
+	{% endif %}
+
 	<div class="card-group">
 
 		<div class="card">
@@ -110,21 +124,6 @@
 		{% endif %}
 
 	</div>
-	{% if flags.has_diff %}
-		<div class="row text-center mt-4">
-			<div class="col">
-				<div class="alert alert-warning mb-2">
-					<p class="m-0">{{ strings.please_review }}</p>
-				</div>
-			</div>
-		</div>
-		<div class="row text-center mt-4">
-			<div class="col"><h5>{{ strings.file_content_original }}</h5></div>
-			<div class="col"><h5>{{ strings.file_content_current }}</h5></div>
-		</div>
-		<hr />
-		{{ html.diff|raw }}
-	{% endif %}
 {% else %}
 	<div class="alert alert-warning">{{ error }}</div>
 {% endif %}

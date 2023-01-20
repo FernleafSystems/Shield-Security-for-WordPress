@@ -361,14 +361,6 @@
       "default":          0,
       "transferable":     false,
       "tracking_exclude": true
-    },
-    {
-      "key":              "legacy_db_conversion_at",
-      "section":          "section_non_ui",
-      "type":             "integer",
-      "default":          0,
-      "transferable":     false,
-      "tracking_exclude": true
     }
   ],
   "definitions":      {
@@ -411,38 +403,38 @@
       "file_locker":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler"
     },
     "db_table_file_locker":        {
-      "autoexpire":     0,
-      "slug":           "file_locker",
-      "col_older_than": "created_at",
-      "has_updated_at": true,
-      "cols_custom":    {
-        "file":            {
+      "autoexpire":      0,
+      "slug":            "file_locker",
+      "col_older_than":  "created_at",
+      "has_updated_at":  true,
+      "cols_custom":     {
+        "file":          {
           "macro_type": "varchar",
           "length":     256,
           "comment":    "File Path relative to ABSPATH"
         },
-        "hash_original":   {
+        "hash_original": {
           "macro_type": "varchar",
           "length":     40,
           "comment":    "SHA1 File Hash Original"
         },
-        "hash_current":    {
+        "hash_current":  {
           "macro_type": "varchar",
           "length":     40,
           "comment":    "SHA1 File Hash Current"
         },
-        "public_key_id":   {
+        "public_key_id": {
           "type":    "tinyint",
           "length":  2,
           "comment": "Public Key ID"
         },
-        "algo":            {
+        "cipher":        {
           "macro_type": "varchar",
           "length":     32,
           "default":    "rc4",
-          "comment":    "Algorithm"
+          "comment":    "OpenSSL Cipher"
         },
-        "content":         {
+        "content":       {
           "type":    "mediumblob",
           "comment": "Encrypted Content"
         }

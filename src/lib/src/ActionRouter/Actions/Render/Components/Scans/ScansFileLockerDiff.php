@@ -42,7 +42,6 @@ class ScansFileLockerDiff extends BaseScans {
 				],
 				'strings' => [
 					'no_changes'            => __( 'There have been no changes to the selected file.' ),
-					'please_review'         => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
 					'butt_restore'          => __( 'Restore File' ),
 					'butt_accept'           => __( 'Accept Changes' ),
 					'file_name'             => __( 'Name' ),
