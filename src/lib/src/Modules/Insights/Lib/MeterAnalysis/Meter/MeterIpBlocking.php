@@ -30,7 +30,7 @@ class MeterIpBlocking extends MeterBase {
 
 	protected function getComponents() :array {
 		return [
-			Component\IpAutoBlock::class,
+			Component\IpAutoBlockShield::class,
 			Component\IpAutoBlockOffenseLimit::class,
 			Component\IpAutoBlockCrowdsec::class,
 			Component\AdeTreshold::class,

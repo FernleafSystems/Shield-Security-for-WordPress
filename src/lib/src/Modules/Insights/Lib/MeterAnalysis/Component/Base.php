@@ -15,7 +15,7 @@ abstract class Base {
 
 	public function build() :array {
 		return [
-			'slug'             => static::SLUG,
+			'slug'             => $this->slug(),
 			'weight'           => $this->weight(),
 			'score'            => $this->score(),
 			'title'            => $this->title(),
@@ -59,6 +59,10 @@ abstract class Base {
 
 	protected function score() :?int {
 		return null;
+	}
+
+	protected function slug() :string {
+		return static::SLUG;
 	}
 
 	protected function weight() :int {

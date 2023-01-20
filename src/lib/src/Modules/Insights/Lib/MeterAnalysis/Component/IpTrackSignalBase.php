@@ -19,4 +19,8 @@ abstract class IpTrackSignalBase extends IpBase {
 		return $this->getCon()->getModule_IPs()->isModOptEnabled() ?
 			$this->link( static::SIGNAL_KEY ) : parent::href();
 	}
+
+	public function slug() :string {
+		return 'bot_signal_'.static::SIGNAL_KEY;
+	}
 }

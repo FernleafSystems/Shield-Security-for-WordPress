@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 
-class IpAutoBlock extends IpBase {
+class IpAutoBlockShield extends IpBase {
 
-	public const SLUG = 'ip_autoblock';
+	public const SLUG = 'ip_autoblock_shield';
 	public const WEIGHT = 50;
 
 	protected function isProtected() :bool {

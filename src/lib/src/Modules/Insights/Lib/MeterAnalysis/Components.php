@@ -28,7 +28,7 @@ class Components {
 		Component\FirewallPhpCode::class,
 		Component\FirewallWpTerms::class,
 		Component\HttpHeaders::class,
-		Component\IpAutoBlock::class,
+		Component\IpAutoBlockShield::class,
 		Component\IpAutoBlockOffenseLimit::class,
 		Component\IpAutoBlockCrowdsec::class,
 		Component\IpTrackSignal404::class,
