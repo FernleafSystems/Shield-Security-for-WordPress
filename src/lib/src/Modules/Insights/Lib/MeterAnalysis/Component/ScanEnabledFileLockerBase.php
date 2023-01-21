@@ -4,8 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnal
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
-class ScanEnabledFileLockerBase extends Base {
+abstract class ScanEnabledFileLockerBase extends Base {
 
+	public const SLUG = 'scan_enabled_filelocker_';
 	public const FILE_LOCKER_FILE = '';
 	public const FILE_LOCKER_FILE_KEY = '';
 
@@ -23,6 +24,10 @@ class ScanEnabledFileLockerBase extends Base {
 			$this->link( 'file_locker' ) : $this->link( 'enable_hack_protect' );
 	}
 
+	public function slug() :string {
+		return static::SLUG.static::FILE_LOCKER_FILE_KEY;
+	}
+
 	public function title() :string {
 		return sprintf( '%s - %s',
 			__( 'Critical File Protection', 'wp-simple-firewall' ), static::FILE_LOCKER_FILE );
@@ -33,6 +38,6 @@ class ScanEnabledFileLockerBase extends Base {
 	}
 
 	public function descUnprotected() :string {
-		return sprintf( __( "%s isn't protected against tampering.", 'wp-simple-firewall' ), 'wp-config.php' );
+		return sprintf( __( "%s isn't protected against tampering.", 'wp-simple-firewall' ), static::FILE_LOCKER_FILE );
 	}
 }

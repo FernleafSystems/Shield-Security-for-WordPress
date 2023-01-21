@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Meter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\MeterAnalysis\Component;
+use FernleafSystems\Wordpress\Services\Services;
 
 class MeterScans extends MeterBase {
 
@@ -31,6 +32,7 @@ class MeterScans extends MeterBase {
 	}
 
 	protected function getComponents() :array {
+		$FS = Services::WpFs();
 		return [
 			Component\ScanEnabledAfs::class,
 			Component\ScanEnabledMal::class,
@@ -38,7 +40,9 @@ class MeterScans extends MeterBase {
 			Component\ScanEnabledAfsAutoRepairPlugins::class,
 			Component\ScanEnabledAfsAutoRepairThemes::class,
 			Component\ScanEnabledFileLockerWpconfig::class,
-			Component\ScanEnabledFileLockerHtaccess::class,
+			$FS->isAccessibleFile( path_join( ABSPATH, '.htaccess' ) ) ? Component\ScanEnabledFileLockerHtaccess::class : '',
+			$FS->isAccessibleFile( path_join( ABSPATH, 'index.php' ) ) ? Component\ScanEnabledFileLockerIndex::class : '',
+			Services::Data()->isWindows() ? Component\ScanEnabledFileLockerWebconfig::class : '',
 			Component\ScanEnabledApc::class,
 			Component\ScanResultsWcf::class,
 			Component\ScanResultsWpv::class,

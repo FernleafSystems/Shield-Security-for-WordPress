@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	BaseShield,
 	Insights\Lib\MeterAnalysis\Components,
 	Plugin,
-	PluginControllerConsumer};
+	PluginControllerConsumer
+};
 
 abstract class MeterBase {
 
@@ -60,7 +61,7 @@ abstract class MeterBase {
 	public function buildComponents() :array {
 		$builder = ( new Components() )->setCon( $this->getCon() );
 		$components = [];
-		foreach ( array_intersect( $this->getComponents(), $builder::COMPONENTS ) as $class ) {
+		foreach ( array_intersect( array_filter( $this->getComponents() ), $builder::COMPONENTS ) as $class ) {
 			try {
 				$built = $builder->buildComponent( $class );
 				$components[ $built[ 'slug' ] ] = $built;
