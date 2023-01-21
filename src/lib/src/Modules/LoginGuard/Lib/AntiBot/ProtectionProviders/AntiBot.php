@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 class AntiBot extends BaseProtectionProvider {
 
-	public function performCheck( $form ) {
+	public function performCheck( $formProvider ) {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
@@ -18,7 +18,7 @@ class AntiBot extends BaseProtectionProvider {
 		}
 	}
 
-	public function buildFormInsert( $formProvider ) {
+	public function buildFormInsert( $formProvider ) :string {
 		return '';
 	}
 }

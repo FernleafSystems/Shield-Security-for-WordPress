@@ -51,7 +51,7 @@ class GaspJs extends BaseProtectionProvider {
 		} );
 	}
 
-	public function performCheck( $form ) {
+	public function performCheck( $formProvider ) {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
@@ -64,8 +64,8 @@ class GaspJs extends BaseProtectionProvider {
 
 		$gasp = $req->post( $mod->getGaspKey() );
 
-		$username = $form->getUserToAudit();
-		$action = $form->getActionToAudit();
+		$username = $formProvider->getUserToAudit();
+		$action = $formProvider->getActionToAudit();
 
 		$valid = false;
 		$errorMsg = '';
@@ -103,8 +103,8 @@ class GaspJs extends BaseProtectionProvider {
 		}
 	}
 
-	public function buildFormInsert( $formProvider ) {
-		$this->getCon()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
+	public function buildFormInsert( $formProvider ) :string {
+		return $this->getCon()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}
 
 	protected function isFactorJsRequired() :bool {

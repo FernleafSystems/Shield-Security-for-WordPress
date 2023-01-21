@@ -36,19 +36,19 @@ class LearnPress extends BaseFormProvider {
 	}
 
 	/**
-	 * @param string|\WP_Error $sFieldNameOrError
+	 * @param string|\WP_Error $fieldNameOrError
 	 * @return string|\WP_Error
 	 */
-	public function checkRegister( $sFieldNameOrError ) {
-		if ( !empty( $sFieldNameOrError ) && !is_wp_error( $sFieldNameOrError ) ) {
+	public function checkRegister( $fieldNameOrError ) {
+		if ( !empty( $fieldNameOrError ) && !is_wp_error( $fieldNameOrError ) ) {
 			try {
 				$this->setActionToAudit( 'learnpress-register' )
 					 ->checkProviders();
 			}
 			catch ( \Exception $e ) {
-				$sFieldNameOrError = new \WP_Error( 'shield-fail-register', $e->getMessage() );
+				$fieldNameOrError = new \WP_Error( 'shield-fail-register', $e->getMessage() );
 			}
 		}
-		return $sFieldNameOrError;
+		return $fieldNameOrError;
 	}
 }

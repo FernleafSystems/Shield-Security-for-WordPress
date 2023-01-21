@@ -13,9 +13,6 @@ class UserRegistration extends BaseFormProvider {
 		add_action( 'user_registration_response_array', [ $this, 'checkRegister' ], 5, 3 );
 	}
 
-	/**
-	 * @return void
-	 */
 	public function printFormInsert() {
 		echo '<div class="ur-form-grid">';
 		echo preg_replace( '#class="(.*)"#i', 'class="\\1 ur-frontend-field"', $this->buildFormInsert() );
