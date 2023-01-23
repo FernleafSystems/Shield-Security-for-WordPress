@@ -220,6 +220,9 @@ td.column-message textarea {
 	border-color: transparent;
 	font-family: monospace;
 }
+#table_id-iprules_filter.dataTables_filter {
+	text-align: left;
+}
 /** INSIGHTS **/
 /* TABLES */
 #odp-PageContainer .card {

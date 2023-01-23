@@ -138,9 +138,8 @@
 							viewCount: false,
 							initCollapsed: true
 						},
-						search: {
-							return: true,
-						},
+						search: {},
+						searchDelay: 400,
 						buttons: [
 							{
 								text: 'Reload',
@@ -166,6 +165,8 @@
 						}
 					}
 				) );
+
+			new $.fn.dataTable.Debounce(this.$table);
 		};
 
 		base.tableReload = function ( full = false ) {
@@ -182,5 +183,27 @@
 	}
 
 	$.icwpWpsfIpRulesTableActions.defaultOptions = {};
+
+	/** https://datatables.net/forums/discussion/comment/164708/#Comment_164708 **/
+	$.fn.dataTable.Debounce = function ( table, options ) {
+		var tableId = table.settings()[0].sTableId;
+		$('.dataTables_filter input[aria-controls="' + tableId + '"]') // select the correct input field
+		.unbind() // Unbind previous default bindings
+		.bind('input', (delay(function (e) { // Bind our desired behavior
+			table.search($(this).val()).draw();
+		}, 600))); // Set delay in milliseconds
+	}
+
+	function delay(callback, ms) {
+		let timer = 0;
+		return function () {
+			let context = this, args = arguments;
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				callback.apply(context, args);
+			}, ms || 0);
+		};
+	}
+
 
 })( jQuery );

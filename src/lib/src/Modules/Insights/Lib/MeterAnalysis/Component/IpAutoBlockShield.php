@@ -21,7 +21,7 @@ class IpAutoBlockShield extends IpBase {
 	}
 
 	public function title() :string {
-		return __( 'IP Auto-Block', 'wp-simple-firewall' );
+		return sprintf( __( '%s Intelligent IP Blocking', 'wp-simple-firewall' ), $this->getCon()->labels->Name );
 	}
 
 	public function descProtected() :string {
