@@ -6,10 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Af
 
 class ScanEnabledMal extends ScanEnabledBase {
 
-	public const SLUG = 'scan_enabled_mal';
-	public const WEIGHT = 30;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'scan_enabled_mal';
+	public const WEIGHT = 4;
+
+	protected function getOptConfigKey() :string {
+		return 'enable_core_file_integrity_scan';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
 		try {
 			/** @var Afs $afsCon */
@@ -25,11 +31,6 @@ class ScanEnabledMal extends ScanEnabledBase {
 
 	public function title() :string {
 		return __( 'PHP Malware Scanner', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'enable_core_file_integrity_scan' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

@@ -281,14 +281,13 @@ class SelectSearchData {
 
 	private function getIntegrationsSearch() :array {
 		$con = $this->getCon();
-		$pageURLs = $con->plugin_urls;
 		$modIntegrations = $con->getModule_Integrations();
 
 		$integrations = [
 			[
 				'id'     => 'integration_mainwp',
 				'text'   => 'Integration with MainWP',
-				'href'   => $pageURLs->modOption( $modIntegrations, 'enable_mainwp' ),
+				'href'   => $con->plugin_urls->modCfgOption( 'enable_mainwp' ),
 				'tokens' => 'integration main mainwp',
 				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 			]
@@ -300,7 +299,7 @@ class SelectSearchData {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
-				'href'   => $pageURLs->modOption( $modIntegrations, 'user_form_providers' ),
+				'href'   => $con->plugin_urls->modCfgOption( 'user_form_providers' ),
 				'tokens' => 'integration login form '.$item[ 'text' ],
 				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 			];
@@ -312,7 +311,7 @@ class SelectSearchData {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
 				'text'   => sprintf( 'Integration with %s', $item[ 'text' ] ),
-				'href'   => $pageURLs->modOption( $modIntegrations, 'form_spam_providers' ),
+				'href'   => $con->plugin_urls->modCfgOption( 'form_spam_providers' ),
 				'tokens' => 'contact integration form forms '.$item[ 'text' ],
 				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 			];
@@ -338,7 +337,7 @@ class SelectSearchData {
 						$config[] = [
 							'id'     => 'config_'.$optKey,
 							'text'   => $module->getStrings()->getOptionStrings( $optKey )[ 'name' ],
-							'href'   => $con->plugin_urls->modOption( $module, $optKey ),
+							'href'   => $con->plugin_urls->modCfgOption( $optKey ),
 							'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 							'tokens' => $this->getSearchableTextForModuleOption( $module, $optKey ),
 						];

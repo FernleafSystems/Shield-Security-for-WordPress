@@ -18,6 +18,7 @@ class TrafficLogTable extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		/** @var Options $opts */
 		$opts = $this->primary_mod->getOptions();
+		error_log( $this->getCon()->plugin_urls->modCfgOption( 'enable_logger' ) );
 		return [
 			'ajax'    => [
 				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::SLUG ),
@@ -26,7 +27,7 @@ class TrafficLogTable extends BasePluginAdminPage {
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),
 			],
 			'hrefs'   => [
-				'please_enable' => $this->getCon()->plugin_urls->modOption( $this->primary_mod, 'enable_logger' ),
+				'please_enable' => $this->getCon()->plugin_urls->modCfgOption( 'enable_logger' ),
 			],
 			'strings' => [
 			],

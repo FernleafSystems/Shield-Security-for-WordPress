@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 
 class CommentSpamAntibot extends Base {
 
-	public const SLUG = 'comment_spam_antibot';
-	public const WEIGHT = 75;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'comment_spam_antibot';
+	public const WEIGHT = 7;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Comments();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isEnabledAntiBot();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Comments();
-		return $mod->isModOptEnabled() ? $this->link( 'enable_antibot_comments' ) : $this->link( 'enable_comments_filter' );
+	protected function getOptConfigKey() :string {
+		return 'enable_antibot_comments';
 	}
 
 	public function title() :string {

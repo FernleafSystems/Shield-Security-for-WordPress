@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 class ScanResultsApc extends ScanResultsBase {
 
 	public const SLUG = 'scan_results_apc';
-	public const WEIGHT = 35;
+	public const WEIGHT = 4;
 
 	protected function countResults() :int {
 		return $this->getCon()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countAbandoned();

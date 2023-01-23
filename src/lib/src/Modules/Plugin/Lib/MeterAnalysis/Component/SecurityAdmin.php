@@ -4,17 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class SecurityAdmin extends Base {
 
-	public const SLUG = 'security_admin';
-	public const WEIGHT = 40;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
-		$mod = $this->getCon()->getModule_SecAdmin();
-		return $mod->isModOptEnabled() && $mod->getSecurityAdminController()->isEnabledSecAdmin();
+	public const SLUG = 'security_admin';
+	public const WEIGHT = 5;
+
+	protected function getOptConfigKey() :string {
+		return 'admin_access_key';
 	}
 
-	public function href() :string {
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_SecAdmin();
-		return $mod->isModOptEnabled() ? $this->link( 'admin_access_key' ) : $this->link( 'enable_admin_access_restriction' );
+		return $mod->isModOptEnabled() && $mod->getSecurityAdminController()->isEnabledSecAdmin();
 	}
 
 	public function title() :string {

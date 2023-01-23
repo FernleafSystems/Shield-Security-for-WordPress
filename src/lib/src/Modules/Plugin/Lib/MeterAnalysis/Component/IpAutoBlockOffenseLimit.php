@@ -8,15 +8,14 @@ class IpAutoBlockOffenseLimit extends IpBase {
 
 	public const SLUG = 'ip_autoblock_limit';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		/** @var Options $opts */
 		$opts = $this->getCon()->getModule_IPs()->getOptions();
-		return parent::isProtected() && $opts->isEnabledAutoBlackList() && $opts->getOffenseLimit() <= 10;
+		return parent::testIfProtected() && $opts->isEnabledAutoBlackList() && $opts->getOffenseLimit() <= 10;
 	}
 
-	public function href() :string {
-		return $this->getCon()->getModule_IPs()->isModOptEnabled() ?
-			$this->link( 'transgression_limit' ) : parent::href();
+	protected function getOptConfigKey() :string {
+		return 'transgression_limit';
 	}
 
 	public function title() :string {

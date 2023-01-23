@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 
 class CommentApprovedMinimum extends Base {
 
-	public const SLUG = 'comment_approved_minimum';
-	public const WEIGHT = 10;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'comment_approved_minimum';
+	public const WEIGHT = 1;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Comments();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->getApprovedMinimum() > 1;
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Comments();
-		return $mod->isModOptEnabled() ? $this->link( 'trusted_commenter_minimum' ) : $this->link( 'enable_comments_filter' );
+	protected function getOptConfigKey() :string {
+		return 'trusted_commenter_minimum';
 	}
 
 	public function title() :string {

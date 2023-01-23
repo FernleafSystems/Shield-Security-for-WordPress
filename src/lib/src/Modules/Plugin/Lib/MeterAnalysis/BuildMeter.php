@@ -22,18 +22,12 @@ class BuildMeter {
 	public function build( string $meterClass ) :array {
 		/** @var Meter\MeterBase $meter */
 		$meter = ( new $meterClass() )->setCon( $this->getCon() );
-		$components = $meter->buildComponents();
-		usort( $components, function ( $a, $b ) {
-			$wA = $a[ 'weight' ];
-			$wB = $b[ 'weight' ];
-			return ( $wA === $wB ) ? 0 : ( $wA > $wB ? -1 : 1 );
-		} );
 		return $this->postProcessMeter( [
 			'title'       => $meter->title(),
 			'subtitle'    => $meter->subtitle(),
 			'warning'     => $meter->warning(),
 			'description' => $meter->description(),
-			'components'  => $components,
+			'components'  => $meter->buildComponents(),
 		] );
 	}
 
@@ -43,20 +37,14 @@ class BuildMeter {
 		$totalWeight = 0;
 
 		foreach ( $meter[ 'components' ] as $key => $component ) {
-
-			if ( !is_numeric( $component[ 'score' ] ?? null ) ) {
-				$component[ 'score' ] = $component[ 'protected' ] ? $component[ 'weight' ] : 0;
+			if ( empty( $component[ 'is_applicable' ] ) ) {
+				unset( $meter[ 'components' ][ $key ] );
 			}
-			$totalScore += $component[ 'score' ];
-			$totalWeight += $component[ 'weight' ];
-
-			if ( !isset( $component[ 'is_critical' ] ) ) {
-				$component[ 'is_critical' ] = false;
+			else {
+				$totalScore += $component[ 'score' ];
+				$totalWeight += $component[ 'weight' ];
+				$hasCritical = $hasCritical || $component[ 'is_critical' ];
 			}
-
-			$meter[ 'components' ][ $key ] = $component;
-
-			$hasCritical = $hasCritical || $component[ 'is_critical' ];
 		}
 
 		foreach ( $meter[ 'components' ] as &$comp ) {

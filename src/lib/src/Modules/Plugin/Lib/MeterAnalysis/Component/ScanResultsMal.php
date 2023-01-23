@@ -11,7 +11,7 @@ class ScanResultsMal extends ScanResultsBase {
 	}
 
 	public function title() :string {
-		return $this->protected() ? __( 'No Potential Malware Found', 'wp-simple-firewall' ) : __( 'Potential Malware Found', 'wp-simple-firewall' );
+		return $this->isProtected() ? __( 'No Potential Malware Found', 'wp-simple-firewall' ) : __( 'Potential Malware Found', 'wp-simple-firewall' );
 	}
 
 	public function descProtected() :string {

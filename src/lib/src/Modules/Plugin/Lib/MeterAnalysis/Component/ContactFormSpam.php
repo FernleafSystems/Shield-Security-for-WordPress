@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 
 class ContactFormSpam extends Base {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'contact_form_spam';
 
 	/**
@@ -32,12 +34,12 @@ class ContactFormSpam extends Base {
 		);
 	}
 
-	protected function isProtected() :bool {
-		return count( $this->getUnprotectedProvidersByName() ) === 0;
+	protected function getOptConfigKey() :string {
+		return 'form_spam_providers';
 	}
 
-	public function href() :string {
-		return $this->link( 'form_spam_providers' );
+	protected function testIfProtected() :bool {
+		return count( $this->getUnprotectedProvidersByName() ) === 0;
 	}
 
 	public function title() :string {

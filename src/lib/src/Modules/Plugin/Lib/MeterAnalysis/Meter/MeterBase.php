@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	BaseShield,
-	Plugin\Lib\MeterAnalysis\Components,
 	Plugin,
+	Plugin\Lib\MeterAnalysis\Components,
 	PluginControllerConsumer
 };
 
@@ -41,7 +41,7 @@ abstract class MeterBase {
 		if ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$warning = [
 				'text' => __( 'The plugin is currently entirely disabled.' ),
-				'href' => $con->plugin_urls->modOption( $pluginMod, 'global_enable_plugin_features' ),
+				'href' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
 			];
 		}
 		else {
@@ -49,7 +49,7 @@ abstract class MeterBase {
 				if ( !$workingMod->isModOptEnabled() ) {
 					$warning = [
 						'text' => __( 'A module that manages some of these settings is disabled.' ),
-						'href' => $con->plugin_urls->modOption( $workingMod, $workingMod->getEnableModOptKey() ),
+						'href' => $con->plugin_urls->modCfgOption( $workingMod->getEnableModOptKey() ),
 					];
 					break;
 				}

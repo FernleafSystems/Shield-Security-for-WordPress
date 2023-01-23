@@ -6,10 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
 class ScanFrequency extends Base {
 
-	public const SLUG = 'scan_frequency';
-	public const WEIGHT = 10;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'scan_frequency';
+	public const WEIGHT = 2;
+
+	protected function getOptConfigKey() :string {
+		return 'scan_frequency';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
@@ -18,11 +24,6 @@ class ScanFrequency extends Base {
 
 	public function title() :string {
 		return __( 'Scanning Frequency', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'scan_frequency' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

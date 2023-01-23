@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class PluginBadge extends Base {
 
-	public const SLUG = 'plugin_badge';
-	public const WEIGHT = 5;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'plugin_badge';
+	public const WEIGHT = 3;
+
+	protected function getOptConfigKey() :string {
+		return 'display_plugin_badge';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Plugin();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isOpt( 'display_plugin_badge', 'Y' );
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Plugin();
-		return $mod->isModOptEnabled() ? $this->link( 'display_plugin_badge' ) : $this->link( 'global_enable_plugin_features' );
 	}
 
 	public function title() :string {

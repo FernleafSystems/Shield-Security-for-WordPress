@@ -7,9 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Wp
 
 class ScanEnabledWpvAutoupdate extends Base {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'scan_enabled_wpv_autoupdate';
 
-	protected function isProtected() :bool {
+	protected function getOptConfigKey() :string {
+		return 'wpvuln_scan_autoupdate';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
@@ -20,11 +26,6 @@ class ScanEnabledWpvAutoupdate extends Base {
 
 	public function title() :string {
 		return __( 'Auto-Update Vulnerable Plugins', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'wpvuln_scan_autoupdate' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

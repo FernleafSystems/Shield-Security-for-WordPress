@@ -8,12 +8,12 @@ class AdeLostPassword extends AdeBase {
 
 	public const SLUG = 'ade_lostpassword';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		/** @var Options $opts */
 		$opts = $this->getCon()
 					 ->getModule_LoginGuard()
 					 ->getOptions();
-		return parent::isProtected() && $opts->isProtectLostPassword();
+		return parent::testIfProtected() && $opts->isProtectLostPassword();
 	}
 
 	public function title() :string {

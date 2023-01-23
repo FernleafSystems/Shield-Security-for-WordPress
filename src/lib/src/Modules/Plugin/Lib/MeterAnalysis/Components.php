@@ -9,7 +9,8 @@ class Components {
 	use PluginControllerConsumer;
 
 	public const COMPONENTS = [
-		Component\AllComponents::class, /** SPECIAL */
+		Component\AllComponents::class,
+		/** SPECIAL */
 
 		Component\ActivityLogEnabled::class,
 		Component\AdeLogin::class,
@@ -26,6 +27,7 @@ class Components {
 		Component\FirewallExeFileUploads::class,
 		Component\FirewallFieldTruncation::class,
 		Component\FirewallPhpCode::class,
+		Component\FirewallSqlQueries::class,
 		Component\FirewallWpTerms::class,
 		Component\HttpHeaders::class,
 		Component\IpAutoBlockShield::class,

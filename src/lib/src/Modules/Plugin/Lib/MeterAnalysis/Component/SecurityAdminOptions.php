@@ -6,21 +6,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 
 class SecurityAdminOptions extends Base {
 
-	public const SLUG = 'security_admin_options';
-	public const WEIGHT = 20;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'security_admin_options';
+	public const WEIGHT = 3;
+
+	protected function getOptConfigKey() :string {
+		return 'admin_access_restrict_options';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_SecAdmin();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled()
 			   && $mod->getSecurityAdminController()->isEnabledSecAdmin()
 			   && $opts->isRestrictWpOptions();
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_SecAdmin();
-		return $mod->isModOptEnabled() ? $this->link( 'admin_access_restrict_options' ) : $this->link( 'enable_admin_access_restriction' );
 	}
 
 	public function title() :string {

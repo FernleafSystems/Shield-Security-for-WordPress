@@ -42,7 +42,7 @@ class Handler {
 		return self::$BuiltMeters;
 	}
 
-	public function getMeter( string $meterClassOrSlug ) :array {
+	public function getMeter( string $meterClassOrSlug, bool $orderComponentsByWeight = true ) :array {
 
 		if ( isset( self::METERS[ $meterClassOrSlug ] ) ) {
 			$theSlug = $meterClassOrSlug;
@@ -61,6 +61,15 @@ class Handler {
 				->build( self::METERS[ $theSlug ] );
 		}
 
-		return self::$BuiltMeters[ $theSlug ];
+		$meter = self::$BuiltMeters[ $theSlug ];
+		if ( $orderComponentsByWeight ) {
+			usort( $meter[ 'components' ], function ( $a, $b ) {
+				$wA = $a[ 'weight' ];
+				$wB = $b[ 'weight' ];
+				return ( $wA === $wB ) ? 0 : ( $wA > $wB ? -1 : 1 );
+			} );
+		}
+
+		return $meter;
 	}
 }

@@ -4,16 +4,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class ScanEnabledApc extends ScanEnabledBase {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'scan_enabled_apc';
-	public const WEIGHT = 30;
+	public const WEIGHT = 3;
+
+	protected function getOptConfigKey() :string {
+		return 'enabled_scan_apc';
+	}
 
 	public function title() :string {
 		return __( 'Abandoned WordPress.org Plugins', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'enabled_scan_apc' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

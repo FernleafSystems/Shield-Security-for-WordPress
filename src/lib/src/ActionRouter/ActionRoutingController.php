@@ -108,7 +108,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 						$redirectTo = $con->plugin_urls->adminHome();
 					}
 					elseif ( $req->query( Constants::NAV_ID ) === PluginURLs::NAV_OPTIONS_CONFIG && empty( $req->query( Constants::NAV_SUB_ID ) ) ) {
-						$redirectTo = $con->plugin_urls->modOptionsCfg( $con->getModule_Plugin() );
+						$redirectTo = $con->plugin_urls->modCfg( $con->getModule_Plugin() );
 					}
 				}
 				elseif ( preg_match( sprintf( '#^%s-redirect-([a-z_\-]+)$#', $con->prefix() ), $reqPage, $matches ) ) {

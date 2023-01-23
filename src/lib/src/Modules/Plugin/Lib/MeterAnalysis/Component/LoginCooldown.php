@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 
 class LoginCooldown extends Base {
 
-	public const SLUG = 'login_cooldown';
-	public const WEIGHT = 20;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'login_cooldown';
+	public const WEIGHT = 4;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_LoginGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isEnabledCooldown();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_LoginGuard();
-		return $mod->isModOptEnabled() ? $this->link( 'login_limit_interval' ) : $this->link( 'enable_login_protect' );
+	protected function getOptConfigKey() :string {
+		return 'login_limit_interval';
 	}
 
 	public function title() :string {

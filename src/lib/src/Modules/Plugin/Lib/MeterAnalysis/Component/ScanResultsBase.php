@@ -6,23 +6,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 
 abstract class ScanResultsBase extends Base {
 
-	public const WEIGHT = 55;
+	public const WEIGHT = 6;
 
 	abstract protected function countResults() :int;
 
-	protected function href() :string {
+	protected function hrefFull() :string {
 		return $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS );
 	}
 
 	protected function isCritical() :bool {
-		return !$this->isProtected();
+		return !$this->testIfProtected();
 	}
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return $this->countResults() === 0;
 	}
 
 	protected function weight() :int {
-		return $this->countResults() > 0 ? static::WEIGHT : 10;
+		return $this->countResults() > 0 ? static::WEIGHT : 2;
 	}
 }

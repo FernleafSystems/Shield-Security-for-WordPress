@@ -64,7 +64,7 @@ class PageScansRun extends BasePluginAdminPage {
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
 			'hrefs'   => [
-				'scanner_mod_config' => $con->plugin_urls->modOptionSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'content' => [

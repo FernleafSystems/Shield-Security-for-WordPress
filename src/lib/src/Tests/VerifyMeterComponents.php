@@ -17,6 +17,8 @@ class VerifyMeterComponents {
 				$declaredButNotExists[] = $component;
 			}
 		}
-		var_dump( 'Meter Components classes exist, but not declared: '.var_export( $declaredButNotExists, true ) );
+		if ( !empty( $declaredButNotExists ) ) {
+			var_dump( 'Meter Components classes exist, but not declared: '.var_export( $declaredButNotExists, true ) );
+		}
 	}
 }

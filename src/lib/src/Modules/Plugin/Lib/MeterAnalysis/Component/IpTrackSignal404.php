@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 class IpTrackSignal404 extends IpTrackSignalBase {
 
 	protected const SIGNAL_KEY = 'track_404';
-	public const WEIGHT = 20;
+	public const WEIGHT = 2;
 
 	public function title() :string {
 		return sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), '404s' );

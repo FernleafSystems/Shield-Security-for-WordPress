@@ -68,17 +68,6 @@
       ]
     },
     {
-      "slug":        "section_user_messages",
-      "title":       "Customize Messages Shown To User",
-      "title_short": "Visitor Messages",
-      "beacon_id":   403,
-      "summary":     [
-        "Purpose - Customize the messages shown to visitors.",
-        "Recommendation - Be sure to change the messages to suit your audience.",
-        "Hint - To reset any message to its default, enter the text exactly: default"
-      ]
-    },
-    {
       "slug":        "section_enable_plugin_feature_spam_comments_protection_filter",
       "title":       "Enable Module: Comments SPAM Protection",
       "title_short": "Disable Module",

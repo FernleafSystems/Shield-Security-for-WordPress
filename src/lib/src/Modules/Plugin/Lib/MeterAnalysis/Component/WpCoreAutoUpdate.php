@@ -6,14 +6,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpCoreAutoUpdate extends Base {
 
-	public const SLUG = 'wp_core_autoupdate';
-	public const WEIGHT = 50;
+	use Traits\OptConfigBased;
 
-	public function href() :string {
-		return $this->link( $this->getCon()->getModule_Autoupdates()->getSlug() );
+	public const SLUG = 'wp_core_autoupdate';
+	public const WEIGHT = 6;
+
+	protected function getOptConfigKey() :string {
+		return 'autoupdate_core';
 	}
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return Services::WpGeneral()->canCoreUpdateAutomatically();
 	}
 

@@ -5,4 +5,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 class FirewallFieldTruncation extends FirewallBase {
 
 	public const SLUG = 'firewall_field_truncation';
+	public const WEIGHT = 3;
 }

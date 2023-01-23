@@ -6,9 +6,8 @@ class AdeLoginGuard extends AdeBase {
 
 	public const SLUG = 'ade_loginguard';
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_LoginGuard();
-		return $mod->isModOptEnabled() ? $this->link( 'enable_antibot_check' ) : $this->link( 'enable_login_protect' );
+	protected function getOptConfigKey() :string {
+		return 'enable_antibot_check';
 	}
 
 	public function title() :string {

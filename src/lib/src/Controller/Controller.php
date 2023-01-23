@@ -526,10 +526,6 @@ class Controller extends DynPropertiesClass {
 			->setCon( $this )
 			->execute();
 
-		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
-			$this->runTests();
-		}
-
 		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
 			 && function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
@@ -1467,15 +1463,5 @@ class Controller extends DynPropertiesClass {
 			'exec'       => $action,
 			'exec_nonce' => wp_create_nonce( $action ),
 		];
-	}
-
-	private function runTests() {
-		die();
-		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
-		foreach ( $this->modules as $oModule ) {
-			( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
-				->setOpts( $oModule->getOptions() )
-				->run();
-		}
 	}
 }

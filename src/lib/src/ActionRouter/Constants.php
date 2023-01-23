@@ -148,6 +148,7 @@ class Constants {
 		Actions\Render\Components\Scans\ItemAnalysis\Diff::class,
 		Actions\Render\Components\Scans\ItemAnalysis\History::class,
 		Actions\Render\Components\Scans\ItemAnalysis\Info::class,
+		Actions\Render\Components\SiteHealth\Analysis::class,
 		Actions\Render\Components\UserMfa\ConfigPage::class,
 		Actions\Render\Components\UserMfa\ConfigEdit::class,
 		Actions\Render\Components\UserMfa\ConfigForm::class,

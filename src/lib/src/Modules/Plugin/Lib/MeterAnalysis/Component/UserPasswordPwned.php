@@ -8,16 +8,15 @@ class UserPasswordPwned extends UserPasswordPoliciesBase {
 
 	public const SLUG = 'user_pass_pwned';
 
-	protected function isProtected() :bool {
+	protected function getOptConfigKey() :string {
+		return 'pass_prevent_pwned';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_UserManagement();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
-		return parent::isProtected() && $opts->isPassPreventPwned();
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_UserManagement();
-		return $mod->isModOptEnabled() ? $this->link( 'pass_prevent_pwned' ) : $this->link( 'enable_user_management' );
+		return parent::testIfProtected() && $opts->isPassPreventPwned();
 	}
 
 	public function title() :string {

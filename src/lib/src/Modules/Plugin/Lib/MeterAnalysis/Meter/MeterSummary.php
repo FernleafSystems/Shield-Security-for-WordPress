@@ -37,18 +37,15 @@ class MeterSummary extends MeterBase {
 	}
 
 	protected function getComponents() :array {
-		$components = [
+		return [
 			Component\AllComponents::class,
 			Component\SystemSslCertificate::class,
-			( function_exists( '\curl_version' ) && in_array( 'openssl', get_loaded_extensions() ) ) ? Component\SystemLibOpenssl::class : '',
+			Component\SystemLibOpenssl::class,
 			Component\WpDbPassword::class,
 			Component\ActivityLogEnabled::class,
 			Component\TrafficLogEnabled::class,
+			Component\ShieldPro::class,
 			Component\PluginReportEmail::class,
 		];
-		if ( !$this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-			$components[] = Component\ShieldPro::class;
-		}
-		return $components;
 	}
 }

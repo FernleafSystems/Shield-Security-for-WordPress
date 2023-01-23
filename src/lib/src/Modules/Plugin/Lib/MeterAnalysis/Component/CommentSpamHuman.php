@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 
 class CommentSpamHuman extends Base {
 
-	public const SLUG = 'comment_spam_human';
-	public const WEIGHT = 25;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'comment_spam_human';
+	public const WEIGHT = 2;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Comments();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isEnabledHumanCheck();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Comments();
-		return $mod->isModOptEnabled() ? $this->link( 'enable_comments_human_spam_filter' ) : $this->link( 'enable_comments_filter' );
+	protected function getOptConfigKey() :string {
+		return 'enable_comments_human_spam_filter';
 	}
 
 	public function title() :string {

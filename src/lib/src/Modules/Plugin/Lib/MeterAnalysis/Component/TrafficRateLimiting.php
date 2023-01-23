@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 
 class TrafficRateLimiting extends Base {
 
-	public const SLUG = 'traffic_rate_limiting';
-	public const WEIGHT = 35;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'traffic_rate_limiting';
+	public const WEIGHT = 2;
+
+	protected function getOptConfigKey() :string {
+		return 'enable_limiter';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Traffic();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isTrafficLimitEnabled();
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Traffic();
-		return $mod->isModOptEnabled() ? $this->link( 'enable_limiter' ) : $this->link( 'enable_traffic' );
 	}
 
 	public function title() :string {

@@ -8,16 +8,15 @@ class UserPasswordStrength extends UserPasswordPoliciesBase {
 
 	public const SLUG = 'user_pass_strength';
 
-	protected function isProtected() :bool {
+	protected function getOptConfigKey() :string {
+		return 'pass_min_strength';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_UserManagement();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
-		return parent::isProtected() && $opts->getPassMinStrength() >= 3;
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_UserManagement();
-		return $mod->isModOptEnabled() ? $this->link( 'pass_min_strength' ) : $this->link( 'enable_user_management' );
+		return parent::testIfProtected() && $opts->getPassMinStrength() >= 3;
 	}
 
 	public function title() :string {

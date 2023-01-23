@@ -101,7 +101,7 @@ class DashboardWidget extends BasePlugin {
 						'svg'  => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->modOptionsCfg( $con->getModule_Plugin() ),
+						'href' => $con->plugin_urls->modCfg( $con->getModule_Plugin() ),
 						'text' => __( 'Config', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/sliders.svg' ),
 					],

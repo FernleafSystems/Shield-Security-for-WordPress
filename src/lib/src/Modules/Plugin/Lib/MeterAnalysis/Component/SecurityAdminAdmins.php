@@ -6,10 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 
 class SecurityAdminAdmins extends Base {
 
-	public const SLUG = 'security_admin_admins';
-	public const WEIGHT = 20;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'security_admin_admins';
+	public const WEIGHT = 3;
+
+	protected function getOptConfigKey() :string {
+		return 'enable_admin_access_restriction';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_SecAdmin();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
@@ -23,16 +29,16 @@ class SecurityAdminAdmins extends Base {
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		if ( !$mod->isModOptEnabled() ) {
-			$href = $this->link( 'enable_admin_access_restriction' );
+			$href = $this->getOptLink( 'enable_admin_access_restriction' );
 		}
 		elseif ( !$opts->hasSecurityPIN() ) {
-			$href = $this->link( 'admin_access_key' );
+			$href = $this->getOptLink( 'admin_access_key' );
 		}
 		elseif ( !$opts->hasSecurityPIN() ) {
-			$href = $this->link( 'admin_access_timeout' );
+			$href = $this->getOptLink( 'admin_access_timeout' );
 		}
 		else {
-			$href = $this->link( 'admin_access_restrict_admin_users' );
+			$href = $this->getOptLink( 'admin_access_restrict_admin_users' );
 		}
 		return $href;
 	}

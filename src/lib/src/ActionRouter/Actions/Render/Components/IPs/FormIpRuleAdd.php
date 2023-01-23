@@ -12,14 +12,9 @@ class FormIpRuleAdd extends Base {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		return [
 			'flags'   => [
 				'is_blacklist_allowed' => $con->isPremiumActive(),
-			],
-			'hrefs'   => [
-				'please_enable' => $con->plugin_urls->modOption( $mod, 'cs_block' ),
 			],
 			'strings' => [
 				'add_to_list_block'       => __( 'Add To Block List', 'wp-simple-firewall' ),

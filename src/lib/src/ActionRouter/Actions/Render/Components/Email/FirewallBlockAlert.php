@@ -30,7 +30,7 @@ class FirewallBlockAlert extends EmailBase {
 			],
 			'hrefs'   => [
 				'ip_lookup'   => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
-				'unsubscribe' => $con->plugin_urls->modOption( $con->getModule_Firewall(), 'block_send_email' ),
+				'unsubscribe' => $con->plugin_urls->modCfgOption( 'block_send_email' ),
 			],
 			'vars'    => [
 				'req_details' => [

@@ -7,17 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 class IpAutoBlockShield extends IpBase {
 
 	public const SLUG = 'ip_autoblock_shield';
-	public const WEIGHT = 50;
+	public const WEIGHT = 7;
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		/** @var Options $opts */
 		$opts = $this->getCon()->getModule_IPs()->getOptions();
-		return parent::isProtected() && $opts->isEnabledAutoBlackList();
+		return parent::testIfProtected() && $opts->isEnabledAutoBlackList();
 	}
 
-	public function href() :string {
-		return $this->getCon()->getModule_IPs()->isModOptEnabled() ?
-			$this->link( 'transgression_limit' ) : parent::href();
+	protected function getOptConfigKey() :string {
+		return 'transgression_limit';
 	}
 
 	public function title() :string {

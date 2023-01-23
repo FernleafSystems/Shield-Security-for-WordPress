@@ -10,7 +10,7 @@ class Config extends Base {
 
 	protected function getPageUrl() :string {
 		$con = $this->getCon();
-		return $con->plugin_urls->modOptionsCfg( $con->modules[ $this->action_data[ 'primary_mod_slug' ] ] );
+		return $con->plugin_urls->modCfg( $con->modules[ $this->action_data[ 'primary_mod_slug' ] ] );
 	}
 
 	protected function getPageTitle() :string {#

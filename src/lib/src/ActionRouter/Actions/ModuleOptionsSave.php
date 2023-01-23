@@ -16,7 +16,7 @@ class ModuleOptionsSave extends BaseAction {
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
-			'redirect_to' => $con->plugin_urls->modOptionsCfg( $this->getMod() ),
+			'redirect_to' => $con->plugin_urls->modCfg( $this->getMod() ),
 			'html'        => '', //we reload the page
 			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->getHumanName() )

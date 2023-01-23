@@ -6,10 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 
 class Login2fa extends Base {
 
-	public const SLUG = 'login_2fa';
-	public const WEIGHT = 50;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'login_2fa';
+	public const WEIGHT = 5;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_LoginGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
@@ -20,9 +22,8 @@ class Login2fa extends Base {
 					|| $opts->isEnabledU2F() );
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_LoginGuard();
-		return $mod->isModOptEnabled() ? $this->link( 'enable_email_authentication' ) : $this->link( 'enable_login_protect' );
+	protected function getOptConfigKey() :string {
+		return 'enable_email_authentication';
 	}
 
 	public function title() :string {

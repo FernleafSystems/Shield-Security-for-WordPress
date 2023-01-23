@@ -6,18 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 
 class ActivityLogEnabled extends Base {
 
-	public const SLUG = 'activity_log_enabled';
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'activity_log_enabled';
+	public const WEIGHT = 5;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_AuditTrail();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isLogToDB();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_AuditTrail();
-		return $mod->isModOptEnabled() ? $this->link( 'section_localdb' ) : $this->link( 'enable_audit_trail' );
+	protected function getOptConfigKey() :string {
+		return 'log_level_db';
 	}
 
 	public function title() :string {

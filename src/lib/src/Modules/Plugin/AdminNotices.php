@@ -154,7 +154,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'jump_to_enable' => $con->plugin_urls->modOption( $this->getMod(), 'global_enable_plugin_features' ),
+				'jump_to_enable' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
 			]
 		];
 	}

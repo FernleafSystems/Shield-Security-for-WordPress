@@ -2,23 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 use ZxcvbnPhp\Zxcvbn;
 
 class WpDbPassword extends Base {
 
 	public const SLUG = 'wp_db_password';
-	public const WEIGHT = 25;
+	public const WEIGHT = 3;
 
-	public function href() :string {
-		return URL::Build( 'https://mxtoolbox.com/SuperTool.aspx', [
-			'action' => Services::WpGeneral()->getHomeUrl(),
-			'run'    => 'toolpage'
-		] );
-	}
-
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return ( ( new Zxcvbn() )->passwordStrength( DB_PASSWORD )[ 'score' ] ?? 0 ) >= 4;
 	}
 

@@ -79,7 +79,7 @@ class Strings extends Base\Strings {
 																				  ->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
-						$con->plugin_urls->modOption( $con->getModule_Plugin(), 'block_send_email_address' ),
+						$con->plugin_urls->modCfgOption( 'block_send_email_address' ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),

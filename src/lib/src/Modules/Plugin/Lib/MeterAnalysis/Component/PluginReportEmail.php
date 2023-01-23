@@ -6,17 +6,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginReportEmail extends Base {
 
-	public const SLUG = 'report_email';
-	public const WEIGHT = 10;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'report_email';
+	public const WEIGHT = 1;
+
+	protected function testIfProtected() :bool {
 		return Services::Data()->validEmail(
 			$this->getCon()->getModule_Plugin()->getOptions()->getOpt( 'block_send_email_address' )
 		);
 	}
 
-	public function href() :string {
-		return $this->link( 'block_send_email_address' );
+	protected function getOptConfigKey() :string {
+		return 'block_send_email_address';
 	}
 
 	public function title() :string {

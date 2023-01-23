@@ -7,13 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 class ShieldPro extends Base {
 
 	public const SLUG = 'shieldpro';
-	public const WEIGHT = 35;
+	public const WEIGHT = 5;
 
-	protected function isProtected() :bool {
+	protected function isApplicable() :bool {
+		return !$this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+	}
+
+	protected function testIfProtected() :bool {
 		return $this->getCon()->isPremiumActive();
 	}
 
-	public function href() :string {
+	public function hrefFull() :string {
 		return $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_LICENSE );
 	}
 

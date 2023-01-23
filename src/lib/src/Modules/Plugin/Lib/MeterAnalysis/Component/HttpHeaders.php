@@ -6,10 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers\Options;
 
 class HttpHeaders extends Base {
 
-	public const SLUG = 'http_headers';
-	public const WEIGHT = 10;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'http_headers';
+	public const WEIGHT = 1;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Headers();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
@@ -20,9 +22,8 @@ class HttpHeaders extends Base {
 			   && $opts->isReferrerPolicyEnabled();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Comments();
-		return $mod->isModOptEnabled() ? $this->link( 'section_security_headers' ) : $this->link( 'enable_headers' );
+	protected function getOptConfigKey() :string {
+		return 'section_security_headers';
 	}
 
 	public function title() :string {

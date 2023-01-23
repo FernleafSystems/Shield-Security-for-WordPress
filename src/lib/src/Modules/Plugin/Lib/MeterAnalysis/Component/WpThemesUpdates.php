@@ -7,13 +7,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class WpThemesUpdates extends Base {
 
 	public const SLUG = 'wp_themes_updates';
-	public const WEIGHT = 45;
+	public const WEIGHT = 3;
 
-	public function href() :string {
+	public function hrefFull() :string {
 		return Services::WpGeneral()->getAdminUrl_Themes( true );
 	}
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return $this->countUpdates() === 0;
 	}
 

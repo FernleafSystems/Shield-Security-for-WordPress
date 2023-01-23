@@ -38,7 +38,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->modOptionsCfg( $this->getMod() ),
+					$con->plugin_urls->modCfg( $this->getMod() ),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
 				)
@@ -64,7 +64,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$con->plugin_urls->modOptionsCfg( $this->getMod() ),
+					$con->plugin_urls->modCfg( $this->getMod() ),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
 				)

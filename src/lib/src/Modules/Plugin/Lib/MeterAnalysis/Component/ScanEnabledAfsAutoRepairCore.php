@@ -7,10 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Af
 
 class ScanEnabledAfsAutoRepairCore extends Base {
 
-	public const SLUG = 'scan_enabled_afs_autorepair_core';
-	public const WEIGHT = 40;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'scan_enabled_afs_autorepair_core';
+	public const WEIGHT = 6;
+
+	protected function getOptConfigKey() :string {
+		return 'file_repair_areas';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
@@ -21,11 +27,6 @@ class ScanEnabledAfsAutoRepairCore extends Base {
 
 	public function title() :string {
 		return __( 'WordPress Core Auto-Repair', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'file_repair_areas' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

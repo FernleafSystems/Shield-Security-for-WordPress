@@ -6,7 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common
 
 class LoginFormThirdParties extends Base {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'login_forms_third_parties';
+
+	protected function getOptConfigKey() :string {
+		return 'user_form_providers';
+	}
 
 	/**
 	 * @return string[]
@@ -32,12 +38,8 @@ class LoginFormThirdParties extends Base {
 		);
 	}
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return count( $this->getUnprotectedProvidersByName() ) === 0;
-	}
-
-	public function href() :string {
-		return $this->link( 'user_form_providers' );
 	}
 
 	public function title() :string {

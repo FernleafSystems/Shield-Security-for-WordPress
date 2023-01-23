@@ -6,18 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 
 class LockdownAuthorDiscovery extends Base {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'lockdown_author_discovery';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isBlockAuthorDiscovery();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Lockdown();
-		return $mod->isModOptEnabled() ? $this->link( 'block_author_discovery' ) : $this->link( 'enable_lockdown' );
+	protected function getOptConfigKey() :string {
+		return 'block_author_discovery';
 	}
 
 	public function title() :string {

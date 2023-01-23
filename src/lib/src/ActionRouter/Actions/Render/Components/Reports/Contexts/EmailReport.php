@@ -21,7 +21,7 @@ class EmailReport extends EmailBase {
 				'report_date' => Services::WpGeneral()->getTimeStampForDisplay(),
 			],
 			'hrefs'   => [
-				'click_adjust' => $con->plugin_urls->modOptionsCfg( $con->getModule_Reporting() )
+				'click_adjust' => $con->plugin_urls->modCfg( $con->getModule_Reporting() )
 			],
 			'strings' => [
 				'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),

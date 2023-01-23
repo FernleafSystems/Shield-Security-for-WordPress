@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 
 class LockdownAnonymousRestApi extends Base {
 
-	public const SLUG = 'lockdown_anonymous_rest_api';
-	public const WEIGHT = 20;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'lockdown_anonymous_rest_api';
+	public const WEIGHT = 2;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isRestApiAnonymousAccessDisabled();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Lockdown();
-		return $mod->isModOptEnabled() ? $this->link( 'disable_anonymous_restapi' ) : $this->link( 'enable_lockdown' );
+	protected function getOptConfigKey() :string {
+		return 'disable_anonymous_restapi';
 	}
 
 	public function title() :string {

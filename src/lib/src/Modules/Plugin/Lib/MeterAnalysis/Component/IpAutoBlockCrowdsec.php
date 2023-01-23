@@ -7,17 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 class IpAutoBlockCrowdsec extends IpBase {
 
 	public const SLUG = 'ip_autoblock_crowdsec';
-	public const WEIGHT = 50;
+	public const WEIGHT = 6;
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		/** @var Options $opts */
 		$opts = $this->getCon()->getModule_IPs()->getOptions();
-		return parent::isProtected() && $opts->isEnabledCrowdSecAutoBlock();
+		return parent::testIfProtected() && $opts->isEnabledCrowdSecAutoBlock();
 	}
 
-	public function href() :string {
-		return $this->getCon()->getModule_IPs()->isModOptEnabled() ?
-			$this->link( 'cs_block' ) : parent::href();
+	protected function getOptConfigKey() :string {
+		return 'cs_block';
 	}
 
 	public function title() :string {

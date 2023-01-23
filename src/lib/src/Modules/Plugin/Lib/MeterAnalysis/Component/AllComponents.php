@@ -8,16 +8,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Met
 class AllComponents extends Base {
 
 	public const SLUG = 'all_components';
-	public const WEIGHT = 150;
+	public const WEIGHT = 15;
 
-	protected function isProtected() :bool {
-		return $this->score() > 85;
+	protected function testIfProtected() :bool {
+		return $this->score() > 8;
 	}
 
-	public function score() :?int {
-		return ( new Handler() )
-				   ->setCon( $this->getCon() )
-				   ->getMeter( MeterOverallConfig::class )[ 'totals' ][ 'percentage' ];
+	public function score() :int {
+		return (int)round( ( new Handler() )
+							   ->setCon( $this->getCon() )
+							   ->getMeter( MeterOverallConfig::class )[ 'totals' ][ 'percentage' ]*static::WEIGHT/100 );
 	}
 
 	public function title() :string {
@@ -26,7 +26,7 @@ class AllComponents extends Base {
 	}
 
 	public function descProtected() :string {
-		return sprintf( __( 'Your %s plugin is configured to protect your site to a high level.', 'wp-simple-firewall' ),
+		return sprintf( __( "You've configured the %s plugin is configured to protect your site to a high level.", 'wp-simple-firewall' ),
 			$this->getCon()->getHumanName() );
 	}
 

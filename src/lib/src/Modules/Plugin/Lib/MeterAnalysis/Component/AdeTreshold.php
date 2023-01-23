@@ -6,9 +6,8 @@ class AdeTreshold extends AdeBase {
 
 	public const SLUG = 'ade_threshold';
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_LoginGuard();
-		return $mod->isModOptEnabled() ? $this->link( 'antibot_minimum' ) : $this->link( 'enable_login_protect' );
+	protected function getOptConfigKey() :string {
+		return 'antibot_minimum';
 	}
 
 	public function title() :string {

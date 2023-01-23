@@ -401,12 +401,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'text_loginfailed' :
-				$name = __( 'Login Failed', 'wp-simple-firewall' );
-				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
-				$desc = [ __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' ) ];
-				break;
-
 			case 'track_404' :
 				$name = __( '404 Detect', 'wp-simple-firewall' );
 				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );

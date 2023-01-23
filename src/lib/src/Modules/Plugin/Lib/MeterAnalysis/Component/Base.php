@@ -9,32 +9,55 @@ abstract class Base {
 	use PluginControllerConsumer;
 
 	public const SLUG = '';
-	public const WEIGHT = 30;
+	public const WEIGHT = 3;
 
-	private $protected = null;
+	protected $isProtected = null;
 
 	public function build() :array {
 		return [
-			'slug'             => $this->slug(),
-			'weight'           => $this->weight(),
-			'score'            => $this->score(),
-			'title'            => $this->title(),
-			'protected'        => $this->protected(),
-			'desc_protected'   => $this->descProtected(),
-			'desc_unprotected' => $this->descUnprotected(),
-			'href'             => $this->href(),
-			'is_critical'      => $this->isCritical(),
-			'new_window'       => !strpos( $this->href() ?? '', 'iCWP_WPSF_OffCanvas' ),
+			'slug'              => $this->slug(),
+			'categories'        => $this->categories(),
+			'weight'            => $this->weight(),
+			'score'             => $this->score(),
+			'title'             => $this->title(),
+			'title_protected'   => $this->titleProtected(),
+			'title_unprotected' => $this->titleUnprotected(),
+			'desc_protected'    => $this->descProtected(),
+			'desc_unprotected'  => $this->descUnprotected(),
+			'href_offcanvas'    => $this->hrefOffCanvas(),
+			'href_full'         => $this->hrefFull(),
+			'is_protected'      => $this->isProtected(),
+			'is_applicable'     => $this->isApplicable(),
+			'is_critical'       => $this->isCritical(),
+			'is_optcfg'         => $this->isOptConfigBased(),
 		];
 	}
 
-	abstract public function title() :string;
+	public function title() :string {
+		return $this->isProtected() ? $this->titleProtected() : $this->titleUnprotected();
+	}
+
+	protected function titleProtected() :string {
+		return '';
+	}
+
+	protected function titleUnprotected() :string {
+		return '';
+	}
 
 	abstract public function descProtected() :string;
 
 	abstract public function descUnprotected() :string;
 
 	protected function href() :string {
+		return $this->hrefFull();
+	}
+
+	protected function hrefOffCanvas() :string {
+		return '';
+	}
+
+	protected function hrefFull() :string {
 		return '';
 	}
 
@@ -42,23 +65,31 @@ abstract class Base {
 		return false;
 	}
 
-	protected function isProtected() :bool {
+	protected function isApplicable() :bool {
+		return true;
+	}
+
+	protected function isOptConfigBased() :bool {
 		return false;
 	}
 
-	protected function link( string $for ) :string {
-		return $this->getCon()->getModule_Plugin()->getUIHandler()->getOffCanvasJavascriptLinkFor( $for );
+	protected function testIfProtected() :bool {
+		return false;
 	}
 
-	public function protected() :bool {
-		if ( is_null( $this->protected ) ) {
-			$this->protected = $this->isProtected();
+	protected function isProtected() :bool {
+		if ( is_null( $this->isProtected ) ) {
+			$this->isProtected = $this->isApplicable() && $this->testIfProtected();
 		}
-		return $this->protected;
+		return $this->isProtected;
 	}
 
-	protected function score() :?int {
-		return null;
+	protected function categories() :array {
+		return [ __( 'Security', 'wp-simple-firewall' ) ];
+	}
+
+	protected function score() :int {
+		return $this->isProtected() ? $this->weight() : 0;
 	}
 
 	protected function slug() :string {

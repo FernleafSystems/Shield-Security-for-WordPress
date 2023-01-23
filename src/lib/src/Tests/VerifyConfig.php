@@ -1,15 +1,41 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\OptsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class VerifyConfig {
 
-	use OptsConsumer;
+	use PluginControllerConsumer;
 
 	public function run() {
-		$opts = $this->getOpts();
+		$sectionDuplicateExceptions = [ 'section_non_ui' ];
+		$optsDuplicateExceptions = [ 'dismissed_notices', 'ui_track', 'xfer_excluded', 'cfg_version' ];
+
+		$allSections = [];
+		$allOpts = [];
+		foreach ( $this->getCon()->modules as $mod ) {
+			$opts = $mod->getOptions();
+			$sections = array_keys( $opts->getSections( true ) );
+			$duplicates = array_diff( array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );
+			if ( count( $duplicates ) > 0 ) {
+				var_dump( sprintf( 'Mod %s has duplicate section slugs: %s', $mod->getSlug(), implode( ', ', $duplicates ) ) );
+			}
+			$allSections = array_unique( array_merge( $allSections, $sections ) );
+
+			$optKeys = $opts->getOptionsKeys();
+			$duplicates = array_diff( array_intersect( $allOpts, $optKeys ), $optsDuplicateExceptions );
+			if ( count( $duplicates ) > 0 ) {
+				var_dump( sprintf( 'Mod %s has duplicate option slugs: %s', $mod->getSlug(), implode( ', ', $duplicates ) ) );
+			}
+			$allOpts = array_unique( array_merge( $allOpts, $optKeys ) );
+//			$this->verifyCfg( $mod );
+		}
+	}
+
+	public function verifyCfg( ModCon $mod ) {
+		$opts = $mod->getOptions();
 		foreach ( $opts->getOptionsKeys() as $sKey ) {
 			$optType = $opts->getOptionType( $sKey );
 			if ( empty( $optType ) ) {

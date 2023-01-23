@@ -6,34 +6,45 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Strings;
 
 abstract class FirewallBase extends Base {
 
-	public const WEIGHT = 30;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const WEIGHT = 4;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Firewall();
 		return $mod->isModOptEnabled()
 			   && $mod->getOptions()->isOpt( 'block_'.$this->getFirewallKey(), 'Y' );
 	}
 
-	public function href() :string {
-		return $this->getCon()->getModule_Firewall()->isModOptEnabled() ?
-			$this->link( 'block_'.$this->getFirewallKey() ) : $this->link( 'enable_firewall' );
+	protected function getOptConfigKey() :string {
+		return 'block_'.$this->getFirewallKey();
 	}
 
 	public function title() :string {
-		/** @var Strings $strings */
-		$strings = $this->getCon()->getModule_Firewall()->getStrings();
-		return sprintf( '%s - %s', __( 'Firewall', 'wp-simple-firewall' ), $strings->getFirewallCategoryName( $this->getFirewallKey() ) );
+		return sprintf( '%s - %s', __( 'Firewall', 'wp-simple-firewall' ), $this->getFirewallCategoryName() );
+	}
+
+	protected function categories() :array {
+		return [ __( 'Firewall', 'wp-simple-firewall' ) ];
 	}
 
 	public function descProtected() :string {
-		return __( 'Firewall is configured to block this category of requests.', 'wp-simple-firewall' );
+		return sprintf( '%s: %s', $this->getFirewallCategoryName(),
+			__( 'Firewall is configured to block this category of requests.', 'wp-simple-firewall' ) );
 	}
 
 	public function descUnprotected() :string {
-		return __( "Firewall isn't configured to block this category of requests.", 'wp-simple-firewall' );
+		return sprintf( '%s: %s', $this->getFirewallCategoryName(),
+			__( "Firewall isn't configured to block this category of requests.", 'wp-simple-firewall' ) );
 	}
 
 	protected function getFirewallKey() :string {
 		return explode( '_', static::SLUG, 2 )[ 1 ];
+	}
+
+	protected function getFirewallCategoryName() :string {
+		/** @var Strings $strings */
+		$strings = $this->getCon()->getModule_Firewall()->getStrings();
+		return $strings->getFirewallCategoryName( $this->getFirewallKey() );
 	}
 }

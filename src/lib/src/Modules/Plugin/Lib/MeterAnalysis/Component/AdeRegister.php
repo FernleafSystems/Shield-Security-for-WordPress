@@ -8,12 +8,12 @@ class AdeRegister extends AdeBase {
 
 	public const SLUG = 'ade_register';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		/** @var Options $opts */
 		$opts = $this->getCon()
 					 ->getModule_LoginGuard()
 					 ->getOptions();
-		return parent::isProtected() && $opts->isProtectRegister();
+		return parent::testIfProtected() && $opts->isProtectRegister();
 	}
 
 	public function title() :string {

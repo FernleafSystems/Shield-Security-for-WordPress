@@ -8,12 +8,12 @@ class AdeLogin extends AdeBase {
 
 	public const SLUG = 'ade_login';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		/** @var Options $opts */
 		$opts = $this->getCon()
 					 ->getModule_LoginGuard()
 					 ->getOptions();
-		return parent::isProtected() && $opts->isProtectLogin();
+		return parent::testIfProtected() && $opts->isProtectLogin();
 	}
 
 	public function title() :string {

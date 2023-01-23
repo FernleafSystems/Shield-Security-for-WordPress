@@ -8,15 +8,15 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class WpPluginsInactive extends Base {
 
 	public const SLUG = 'wp_plugins_inactive';
-	public const WEIGHT = 25;
+	public const WEIGHT = 2;
 
-	public function href() :string {
+	public function hrefFull() :string {
 		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins( true ), [
 			'plugin_status' => 'inactive'
 		] );
 	}
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return $this->countInactive() === 0;
 	}
 

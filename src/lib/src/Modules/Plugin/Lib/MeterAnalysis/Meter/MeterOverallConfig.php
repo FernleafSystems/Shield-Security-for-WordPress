@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\AllComponents;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Components;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	Component\AllComponents,
+	Components
+};
 
 /**
  * Not actually displayed to the user, but used by Component\AllComponents to build an overall config score.
@@ -13,8 +15,7 @@ class MeterOverallConfig extends MeterBase {
 	public const SLUG = 'overall_config';
 
 	public function title() :string {
-		return sprintf( __( 'Entire %s Configuration', 'wp-simple-firewall' ),
-			$this->getCon()->getHumanName() );
+		return sprintf( __( 'Entire %s Configuration', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
 	}
 
 	public function subtitle() :string {

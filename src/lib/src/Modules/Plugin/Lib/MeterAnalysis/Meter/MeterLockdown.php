@@ -42,6 +42,7 @@ class MeterLockdown extends MeterBase {
 			Component\LockdownAuthorDiscovery::class,
 			Component\LockdownAnonymousRestApi::class,
 			Component\FirewallDirTraversal::class,
+			Component\FirewallSqlQueries::class,
 			Component\FirewallWpTerms::class,
 			Component\FirewallFieldTruncation::class,
 			Component\FirewallPhpCode::class,

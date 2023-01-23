@@ -31,7 +31,7 @@ class SimplePluginTests extends BaseAction {
 
 	protected function postExec() {
 		var_dump( $this->response()->action_response_data );
-		die( 'asdf' );
+		die( 'end tests' );
 	}
 
 	private function dbg_reporting() {
@@ -45,20 +45,17 @@ class SimplePluginTests extends BaseAction {
 		}
 	}
 
+	private function dbg_plugin_tests() {
+		( new RunTests() )
+			->setCon( $this->getCon() )
+			->run();
+	}
+
 	private function handshake() {
 		$success = ( new ShieldNetApi\Handshake\Verify() )
 			->setMod( $this->getMod() )
 			->run();
 		var_dump( $success );
-	}
-
-	private function plugin_tests() {
-		ob_start();
-		( new RunTests() )
-			->setCon( $this->getCon() )
-			->run();
-		$output = ob_get_clean();
-		return [ print_r( $output, true ) ];
 	}
 
 	private function cleanIPs() {

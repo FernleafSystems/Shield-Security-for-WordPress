@@ -6,16 +6,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 
 abstract class AdeBase extends Base {
 
-	protected function isProtected() :bool {
+	use Traits\OptConfigBased;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_LoginGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isEnabledAntiBot();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_LoginGuard();
-		return $mod->isModOptEnabled() ? $this->link( 'bot_protection_locations' ) : $this->link( 'enable_login_protect' );
+	protected function getOptConfigKey() :string {
+		return 'bot_protection_locations';
 	}
 
 	public function title() :string {

@@ -4,15 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class ScanEnabledAfs extends ScanEnabledBase {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'scan_enabled_afs';
+
+	protected function getOptConfigKey() :string {
+		return 'enable_core_file_integrity_scan';
+	}
 
 	public function title() :string {
 		return __( 'WordPress File Scanner', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'enable_core_file_integrity_scan' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

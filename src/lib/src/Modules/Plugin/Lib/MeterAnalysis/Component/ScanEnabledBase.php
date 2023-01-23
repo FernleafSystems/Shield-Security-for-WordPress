@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 abstract class ScanEnabledBase extends Base {
 
-	public const WEIGHT = 40;
+	public const WEIGHT = 4;
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
 		return $mod->isModOptEnabled() && $mod->getScanCon( explode( '_', static::SLUG )[ 2 ] )->isEnabled();
 	}

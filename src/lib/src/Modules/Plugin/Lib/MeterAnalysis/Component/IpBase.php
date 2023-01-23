@@ -4,11 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 abstract class IpBase extends Base {
 
-	protected function isProtected() :bool {
+	use Traits\OptConfigBased;
+
+	protected function testIfProtected() :bool {
 		return $this->getCon()->getModule_IPs()->isModOptEnabled();
 	}
 
-	public function href() :string {
-		return $this->link( 'enable_ips' );
+	protected function getOptConfigKey() :string {
+		return 'enable_ips';
 	}
 }

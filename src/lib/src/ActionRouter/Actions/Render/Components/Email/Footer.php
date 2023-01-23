@@ -54,7 +54,7 @@ class Footer extends Base {
 			'hrefs'   => [
 				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',
 				'much_more'           => 'https://shsec.io/gp',
-				'configure_recipient' => $con->plugin_urls->modOption( $con->getModule_Plugin(), 'block_send_email_address' ),
+				'configure_recipient' => $con->plugin_urls->modCfgOption( 'block_send_email_address' ),
 			],
 			'flags'   => [
 				'is_pro'           => $con->isPremiumActive(),

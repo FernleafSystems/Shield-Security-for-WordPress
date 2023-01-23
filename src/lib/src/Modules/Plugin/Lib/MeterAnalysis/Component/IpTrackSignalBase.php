@@ -8,16 +8,15 @@ abstract class IpTrackSignalBase extends IpBase {
 
 	protected const SIGNAL_KEY = '';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_IPs();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
-		return parent::isProtected() && $opts->getOffenseCountFor( static::SIGNAL_KEY ) > 0;
+		return parent::testIfProtected() && $opts->getOffenseCountFor( static::SIGNAL_KEY ) > 0;
 	}
 
-	public function href() :string {
-		return $this->getCon()->getModule_IPs()->isModOptEnabled() ?
-			$this->link( static::SIGNAL_KEY ) : parent::href();
+	protected function getOptConfigKey() :string {
+		return static::SIGNAL_KEY;
 	}
 
 	public function slug() :string {

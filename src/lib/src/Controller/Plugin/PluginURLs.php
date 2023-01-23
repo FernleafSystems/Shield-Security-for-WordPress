@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FileDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -42,28 +43,23 @@ class PluginURLs {
 	}
 
 	/**
-	 * @param ModCon|string $mod
+	 * @param ModCon $mod
 	 */
-	public function modOptionsCfg( $mod ) :string {
+	public function modCfg( $mod ) :string {
 		return $this->adminTop( PluginURLs::NAV_OPTIONS_CONFIG, $mod->getSlug() );
 	}
 
-	/**
-	 * @param ModCon|mixed $mod
-	 */
-	public function modOption( $mod, string $optKey ) :string {
+	public function modCfgOption( string $optKey ) :string {
+		$mod = OptUtils::ModFromOpt( $optKey );
 		$def = $mod->getOptions()->getOptDefinition( $optKey );
-		return empty( $def[ 'section' ] ) ? $this->modOptionsCfg( $mod ) : $this->modOptionSection( $mod, $def[ 'section' ] );
+		return empty( $def[ 'section' ] ) ? $this->modCfg( $mod ) : $this->modCfgSection( $mod, $def[ 'section' ] );
 	}
 
 	/**
 	 * @param ModCon|mixed $mod
 	 */
-	public function modOptionSection( $mod, string $optSection ) :string {
-		if ( $optSection == 'primary' ) {
-			$optSection = $mod->getOptions()->getPrimarySection()[ 'slug' ];
-		}
-		return $this->modOptionsCfg( $mod ).'#tab-'.$optSection;
+	public function modCfgSection( $mod, string $optSection ) :string {
+		return $this->modCfg( $mod ).'#tab-'.$optSection;
 	}
 
 	public function adminHome() :string {

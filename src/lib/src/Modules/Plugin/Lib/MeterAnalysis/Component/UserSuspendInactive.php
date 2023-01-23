@@ -4,17 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class UserSuspendInactive extends Base {
 
-	public const SLUG = 'user_suspend_inactive';
-	public const WEIGHT = 20;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
-		$mod = $this->getCon()->getModule_UserManagement();
-		return $mod->isModOptEnabled() && $mod->getOptions()->getOpt( 'auto_idle_days' ) > 0;
+	public const SLUG = 'user_suspend_inactive';
+	public const WEIGHT = 2;
+
+	protected function getOptConfigKey() :string {
+		return 'auto_idle_days';
 	}
 
-	public function href() :string {
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_UserManagement();
-		return $mod->isModOptEnabled() ? $this->link( 'auto_idle_days' ) : $this->link( 'enable_user_management' );
+		return $mod->isModOptEnabled() && $mod->getOptions()->getOpt( 'auto_idle_days' ) > 0;
 	}
 
 	public function title() :string {

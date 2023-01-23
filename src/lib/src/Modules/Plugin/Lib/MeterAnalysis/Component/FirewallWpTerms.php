@@ -5,4 +5,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 class FirewallWpTerms extends FirewallBase {
 
 	public const SLUG = 'firewall_wordpress_terms';
+	public const WEIGHT = 3;
 }

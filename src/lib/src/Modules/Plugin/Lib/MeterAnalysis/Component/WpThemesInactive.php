@@ -7,13 +7,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class WpThemesInactive extends Base {
 
 	public const SLUG = 'wp_themes_inactive';
-	public const WEIGHT = 25;
+	public const WEIGHT = 2;
 
-	public function href() :string {
+	public function hrefFull() :string {
 		return Services::WpGeneral()->getAdminUrl_Themes( true );
 	}
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		return $this->countInactive() === 0;
 	}
 

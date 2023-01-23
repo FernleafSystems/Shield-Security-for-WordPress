@@ -302,20 +302,6 @@
       "description": "CrowdSec Enroll ID."
     },
     {
-      "key":         "text_loginfailed",
-      "section":     "section_user_messages",
-      "sensitive":   true,
-      "premium":     true,
-      "default":     "default",
-      "type":        "text",
-      "link_info":   "https://shsec.io/e8",
-      "link_blog":   "",
-      "beacon_id":   139,
-      "name":        "Login Failed",
-      "summary":     "Visitor Triggers The IP Offenses System Through A Failed Login",
-      "description": "This message is displayed if the visitor fails a login attempt."
-    },
-    {
       "key":           "track_404",
       "section":       "section_probes",
       "premium":       true,

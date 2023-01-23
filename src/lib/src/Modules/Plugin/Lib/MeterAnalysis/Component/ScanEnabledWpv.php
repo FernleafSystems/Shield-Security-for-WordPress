@@ -4,15 +4,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class ScanEnabledWpv extends ScanEnabledBase {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'scan_enabled_wpv';
+	public const WEIGHT = 5;
+
+	protected function getOptConfigKey() :string {
+		return 'enable_wpvuln_scan';
+	}
 
 	public function title() :string {
 		return __( 'Vulnerable Plugins & Themes', 'wp-simple-firewall' );
-	}
-
-	public function href() :string {
-		return $this->getCon()->getModule_HackGuard()->isModOptEnabled() ?
-			$this->link( 'enable_wpvuln_scan' ) : $this->link( 'enable_hack_protect' );
 	}
 
 	public function descProtected() :string {

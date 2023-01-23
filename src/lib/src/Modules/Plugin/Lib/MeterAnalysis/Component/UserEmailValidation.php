@@ -6,18 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
 
 class UserEmailValidation extends Base {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'user_email_validation';
 
-	protected function isProtected() :bool {
+	protected function getOptConfigKey() :string {
+		return 'reg_email_validate';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_UserManagement();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isValidateEmailOnRegistration();
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_UserManagement();
-		return $mod->isModOptEnabled() ? $this->link( 'reg_email_validate' ) : $this->link( 'enable_user_management' );
 	}
 
 	public function title() :string {

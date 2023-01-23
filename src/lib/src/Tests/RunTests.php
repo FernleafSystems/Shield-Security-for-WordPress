@@ -10,7 +10,7 @@ class RunTests {
 
 	public function run() {
 		array_map(
-			fn( $test ) => $test->setCon( $this->getCon() )->run(), $this->enumPluginTests()
+			fn( $test ) => ( new $test() )->setCon( $this->getCon() )->run(), $this->enumPluginTests()
 		);
 	}
 
@@ -19,11 +19,12 @@ class RunTests {
 	 */
 	private function enumPluginTests() :array {
 		return [
-			new VerifyActions(),
-			new VerifyEvents(),
-			new VerifyUniqueEvents(),
-			new VerifyStrings(),
-			new VerifyMeterComponents(),
+			VerifyConfig::class,
+			VerifyActions::class,
+			VerifyEvents::class,
+			VerifyUniqueEvents::class,
+			VerifyStrings::class,
+			VerifyMeterComponents::class,
 		];
 	}
 }

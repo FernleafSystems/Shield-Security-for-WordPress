@@ -6,18 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 
 class LockdownFileEditing extends Base {
 
+	use Traits\OptConfigBased;
+
 	public const SLUG = 'lockdown_file_editing';
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isOptFileEditingDisabled();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Lockdown();
-		return $mod->isModOptEnabled() ? $this->link( 'disable_file_editing' ) : $this->link( 'enable_lockdown' );
+	protected function getOptConfigKey() :string {
+		return 'disable_file_editing';
 	}
 
 	public function title() :string {

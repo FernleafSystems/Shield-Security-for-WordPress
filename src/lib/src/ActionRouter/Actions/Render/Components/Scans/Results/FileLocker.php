@@ -34,8 +34,8 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'options'       => $con->plugin_urls->modOption( $mod, 'file_locker' ),
-				'please_enable' => $con->plugin_urls->modOption( $mod, 'file_locker' ),
+				'options'       => $con->plugin_urls->modCfgOption( 'file_locker' ),
+				'please_enable' => $con->plugin_urls->modCfgOption( 'file_locker' ),
 			],
 			'vars'    => [
 				'file_locks' => [

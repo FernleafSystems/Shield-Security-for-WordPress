@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 
 class LockdownXmlrpc extends Base {
 
-	public const SLUG = 'lockdown_xmlrpc';
-	public const WEIGHT = 50;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'lockdown_xmlrpc';
+	public const WEIGHT = 5;
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isXmlrpcDisabled();
 	}
 
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Lockdown();
-		return $mod->isModOptEnabled() ? $this->link( 'disable_xmlrpc' ) : $this->link( 'enable_lockdown' );
+	protected function getOptConfigKey() :string {
+		return 'disable_xmlrpc';
 	}
 
 	public function title() :string {

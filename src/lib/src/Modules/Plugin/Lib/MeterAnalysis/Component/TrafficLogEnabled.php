@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 
 class TrafficLogEnabled extends Base {
 
-	public const SLUG = 'traffic_log_enabled';
-	public const WEIGHT = 25;
+	use Traits\OptConfigBased;
 
-	protected function isProtected() :bool {
+	public const SLUG = 'traffic_log_enabled';
+	public const WEIGHT = 4;
+
+	protected function getOptConfigKey() :string {
+		return 'enable_logger';
+	}
+
+	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_Traffic();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isTrafficLoggerEnabled();
-	}
-
-	public function href() :string {
-		$mod = $this->getCon()->getModule_Traffic();
-		return $mod->isModOptEnabled() ? $this->link( 'enable_logger' ) : $this->link( 'enable_traffic' );
 	}
 
 	public function title() :string {

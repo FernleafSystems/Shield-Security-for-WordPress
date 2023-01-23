@@ -28,6 +28,9 @@ class Processor extends BaseShield\Processor {
 		( new AllowBetaUpgrades() )
 			->setMod( $this->getMod() )
 			->execute();
+		( new Lib\SiteHealth\SiteHealthController() )
+			->setMod( $this->getMod() )
+			->execute();
 
 		if ( $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) ) {
 			$mod->getImpExpController()->execute();

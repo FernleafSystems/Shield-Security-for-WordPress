@@ -7,15 +7,15 @@ use FernleafSystems\Wordpress\Services\Services;
 class UserAdminExists extends Base {
 
 	public const SLUG = 'user_admin_exists';
-	public const WEIGHT = 5;
+	public const WEIGHT = 1;
 
-	protected function isProtected() :bool {
+	protected function testIfProtected() :bool {
 		$WPUsers = Services::WpUsers();
 		$adminUser = $WPUsers->getUserByUsername( 'admin' );
 		return !$adminUser instanceof \WP_User || !user_can( $adminUser, 'manage_options' );
 	}
 
-	public function href() :string {
+	public function hrefFull() :string {
 		$WPUsers = Services::WpUsers();
 		$adminUser = $WPUsers->getUserByUsername( 'admin' );
 		return $adminUser instanceof \WP_User ? $WPUsers->getAdminUrl_ProfileEdit( $adminUser ) : '';
