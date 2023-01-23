@@ -41,25 +41,17 @@
 				{% endif %}
 
 				<div class="">
-					{% if meter.description|length == 1 %}
-
+					<div class="{% if meter.description|length > 1 %}toggleable{% endif %}">
+						<p class="pb-1">{{ meter.description|first }}</p>
+					</div>
+					<div class="hidden {% if meter.description|length > 1 %}toggleable{% endif %}">
 						{% for desc in meter.description %}
-							<p class="">{{ desc }}</p>
+							<p class="pb-1">{{ desc }}</p>
 						{% endfor %}
-
-					{% else %}
-						<span class="teaser toggleable">
-							{{ meter.description|first }}
-						</span>
-						<span class="complete hidden toggleable">
-							{% for desc in meter.description %}
-								<p class="">{{ desc }}</p>
-							{% endfor %}
-						</span>
-						<div class="mt-2 toggleable">
-							<a href="javascript:{}" class="d-block fst-italic">more...</a>
-						</div>
-					{% endif %}
+					</div>
+					<div class="mt-2 {% if meter.description|length > 1 %}toggleable{% else %}hidden{% endif %}">
+						<a href="javascript:{}" class="d-block fst-italic">more...</a>
+					</div>
 				</div>
 
 			</div>
