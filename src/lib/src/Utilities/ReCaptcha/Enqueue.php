@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Legacy\RecaptchaJs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -61,12 +60,10 @@ class Enqueue {
 	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$cfg = $mod->getCaptchaCfg();
+		$cfg = $this->getMod()->getCaptchaCfg();
 
 		if ( $this->bEnqueue ) {
-			$this->getCon()->action_router->render( RecaptchaJs::SLUG, [
+			echo $this->getCon()->action_router->render( RecaptchaJs::SLUG, [
 				'sitekey' => $cfg->key,
 				'size'    => $cfg->invisible ? 'invisible' : '',
 				'theme'   => $cfg->theme,

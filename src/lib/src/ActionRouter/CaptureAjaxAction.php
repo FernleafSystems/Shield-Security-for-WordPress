@@ -34,11 +34,11 @@ class CaptureAjaxAction extends CaptureActionBase {
 		try {
 			$router = $con->action_router;
 			ob_start();
-			$response = $router
-				->action( $this->extractActionSlug(), $req->post, $router::ACTION_AJAX )
-				->action_response_data;
-			$noise = ob_get_clean();
-			$response = $this->normaliseAjaxResponse( $response );
+			$response = $this->normaliseAjaxResponse(
+				$router
+					->action( $this->extractActionSlug(), $req->post, $router::ACTION_AJAX )
+					->action_response_data
+			);
 		}
 		catch ( ActionException $e ) {
 			$response = [
@@ -46,6 +46,9 @@ class CaptureAjaxAction extends CaptureActionBase {
 				'message' => $e->getMessage(),
 				'error'   => $e->getMessage(),
 			];
+		}
+		finally {
+			$noise = ob_get_clean();
 		}
 
 		if ( !empty( $response ) ) {
