@@ -21,12 +21,14 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 		$con = $this->getCon();
 		return [
 			'content' => [
-				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::SLUG, [
-					'title' => __( 'Login 2FA Verification', 'wp-simple-firewall' )
-				] ),
+				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::SLUG,
+					array_merge( $this->action_data, [
+						'title' => __( 'Login 2FA Verification', 'wp-simple-firewall' )
+					] )
+				),
 				'body'   => $this->action_data[ 'include_body' ] ?
 					$con->action_router->render( Components\WpLoginReplicaBody::SLUG, $this->action_data ) : '',
-				'footer' => $con->action_router->render( Components\WpLoginReplicaFooter::SLUG ),
+				'footer' => $con->action_router->render( Components\WpLoginReplicaFooter::SLUG, $this->action_data ),
 			]
 		];
 	}

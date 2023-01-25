@@ -11,7 +11,9 @@ class WpLoginReplicaHeader extends Base {
 	public const TEMPLATE = '/components/wplogin_replica/login_header.twig';
 
 	protected function getRenderData() :array {
-		global $interim_login, $action;
+		global $action;
+
+		$isInterimLogin = (bool)( $this->action_data[ 'interim_login' ] ?? false );
 
 		// Don't index any of these forms.
 		if ( function_exists( 'wp_robots_sensitive_page' ) ) {
@@ -65,7 +67,10 @@ class WpLoginReplicaHeader extends Base {
 			do_action( 'login_head' );
 		} );
 
-		$login_header_url = __( 'https://wordpress.org/' );
+		/**
+		 * Weird behaviour when clicking the icon. We avoid that in the interim iframe.
+		 */
+		$login_header_url = $isInterimLogin ? '#' : __( 'https://wordpress.org/' );
 
 		/**
 		 * Filters link URL of the header logo above login form.
@@ -95,11 +100,11 @@ class WpLoginReplicaHeader extends Base {
 			$classes[] = 'rtl';
 		}
 
-		if ( $interim_login ) {
+		if ( $isInterimLogin ) {
 			$classes[] = 'interim-login';
 		}
 
-		if ( 'success' === $interim_login ) {
+		if ( 'success' === ( $this->action_data[ 'interim_login' ] ?? '' ) ) {
 			$classes[] = 'interim-login-success';
 		}
 
@@ -192,8 +197,8 @@ class WpLoginReplicaHeader extends Base {
 			'flags'   => [
 				'has_login_errors'    => !empty( $loginErrors ),
 				'has_login_messages'  => !empty( $loginMessages ),
-				'has_interim_message' => $interim_login && !empty( $interimMessage ),
-				'is_interim_login'    => $interim_login,
+				'has_interim_message' => $isInterimLogin && !empty( $interimMessage ),
+				'is_interim_login'    => $isInterimLogin,
 			],
 			'hrefs'   => [
 				'login_header_url' => esc_url( $login_header_url ),

@@ -11,8 +11,6 @@ class WpLoginReplicaBody extends Base {
 	public const TEMPLATE = '/components/wplogin_replica/login_body.twig';
 
 	protected function getRenderData() :array {
-		global $interim_login;
-
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->primary_mod;
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
@@ -23,7 +21,7 @@ class WpLoginReplicaBody extends Base {
 			],
 			'flags'   => [
 				'has_error_msg'    => !empty( $errorMsg ),
-				'is_interim_login' => (bool)$interim_login,
+				'is_interim_login' => (bool)$this->action_data[ 'interim_login' ],
 			],
 			'hrefs'   => [
 				'home' => Services::WpGeneral()->getHomeUrl(),
