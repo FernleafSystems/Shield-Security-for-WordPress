@@ -46,8 +46,8 @@
 						plugin.options[ 'req_params' ] = $.extend(
 							plugin.options.ajax_actions[ 'site_action' ],
 							{
-								'site_id': $( this ).parent().data( 'sid' ),
-								'site_action': $( this ).data( 'site_action' )
+								site_id: $( this ).parent().data( 'sid' ),
+								site_action_slug: $( this ).data( 'site_action' )
 							}
 						);
 						plugin.site_action.call( plugin );
@@ -170,27 +170,27 @@
 	);
 
 	$.fn.icwpWpsfMainwpExt = function ( options ) {
-/*
-		jQuery( '#mainwp-shield-extension-table-sites' ).DataTable( {
-			serverSide: true,
-			"ajax": {
-				"url": ajaxurl,
-				"type": "POST",
-				"data": function ( d ) {
-					return $.extend( {}, d, this.options.ajax_actions[ 'site_action' ] );
-				},
-				"dataSrc": function ( json ) {
-					for ( var i = 0, ien = json.data.length; i < ien; i++ ) {
-						json.data[ i ].syncError = json.rowsInfo[ i ].syncError ? json.rowsInfo[ i ].syncError : false;
-						json.data[ i ].rowClass = json.rowsInfo[ i ].rowClass;
-						json.data[ i ].siteID = json.rowsInfo[ i ].siteID;
-						json.data[ i ].siteUrl = json.rowsInfo[ i ].siteUrl;
-					}
-					return json.data;
-				}
-			},
-		} );
-*/
+		/*
+				jQuery( '#mainwp-shield-extension-table-sites' ).DataTable( {
+					serverSide: true,
+					"ajax": {
+						"url": ajaxurl,
+						"type": "POST",
+						"data": function ( d ) {
+							return $.extend( {}, d, this.options.ajax_actions[ 'site_action' ] );
+						},
+						"dataSrc": function ( json ) {
+							for ( var i = 0, ien = json.data.length; i < ien; i++ ) {
+								json.data[ i ].syncError = json.rowsInfo[ i ].syncError ? json.rowsInfo[ i ].syncError : false;
+								json.data[ i ].rowClass = json.rowsInfo[ i ].rowClass;
+								json.data[ i ].siteID = json.rowsInfo[ i ].siteID;
+								json.data[ i ].siteUrl = json.rowsInfo[ i ].siteUrl;
+							}
+							return json.data;
+						}
+					},
+				} );
+		*/
 		// siteFrame = $( "iframe#SiteContent" );
 		// if ( siteFrame.length === 1 ) {
 		// 	siteFrame.attr( "srcdoc", "<p>This content was updated dynamically!</p>" );

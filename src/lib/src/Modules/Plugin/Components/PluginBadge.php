@@ -15,7 +15,8 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 		$req = Services::Request();
 
 		$display = apply_filters( 'shield/show_security_badge',
-			$opts->isOpt( 'display_plugin_badge', 'Y' ) && ( $req->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
+			$opts->isOpt( 'display_plugin_badge', 'Y' )
+			&& ( $req->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
 		);
 
 		if ( $display ) {

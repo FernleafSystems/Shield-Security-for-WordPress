@@ -14,6 +14,7 @@ class SitesListTableColumn extends BaseRender {
 	use Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'mainwp_sites_list_table_column';
+	public const TEMPLATE = '/integration/mainwp/tables/manage_sites_col.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -41,6 +42,8 @@ class SitesListTableColumn extends BaseRender {
 				'is_inactive'         => $statusKey === ClientPluginStatus::INACTIVE,
 				'is_notpro'           => $statusKey === ClientPluginStatus::NOT_PRO,
 				'is_mwpnoton'         => $statusKey === ClientPluginStatus::MWP_NOT_ON,
+				'is_client_older'     => $statusKey === ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
+				'is_client_newer'     => $statusKey === ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 				'is_version_mismatch' => in_array( $statusKey, [
 					ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 					ClientPluginStatus::VERSION_OLDER_THAN_SERVER,

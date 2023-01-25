@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\MainWP;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpServerSiteAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\MainwpServerSiteActionHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 
@@ -33,7 +33,7 @@ class TabManageSitePage extends BaseMainwpPage {
 
 	protected function renderMainBodyContent() :string {
 		try {
-			return $this->getCon()->action_router->action( MainwpServerSiteAction::SLUG, [
+			return $this->getCon()->action_router->action( MainwpServerSiteActionHandler::SLUG, [
 				'site_id'            => $this->action_data[ 'site_id' ],
 				'site_action_slug'   => OptionsForm::SLUG,
 				'site_action_params' => [

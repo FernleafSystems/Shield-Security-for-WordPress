@@ -4,7 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Ma
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpExtensionTableSites;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpServerSiteAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
+	MainwpServerSiteActionHandler,
+	SiteActionActivate,
+	SiteActionDeactivate,
+	SiteActionInstall,
+	SiteActionSync,
+	SiteActionUpdate};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
@@ -30,10 +36,17 @@ class BaseSubPage extends BaseMWP {
 	protected function getCommonSubPageData() :array {
 		return [
 			'ajax'    => [
-				'actions' => $this->getAjaxActionsData()
+				'actions' => $this->getAjaxActionsData(),
 			],
 			'vars'    => [
-				'menu_topnav' => $this->getMenuTopNavItems(),
+				'menu_topnav'  => $this->getMenuTopNavItems(),
+				'site_actions' => [
+					'sync'       => SiteActionSync::SLUG,
+					'activate'   => SiteActionActivate::SLUG,
+					'deactivate' => SiteActionDeactivate::SLUG,
+					'install'    => SiteActionInstall::SLUG,
+					'update'     => SiteActionUpdate::SLUG,
+				],
 			],
 			'strings' => [
 				'manage'              => __( 'Manage', 'wp-simple-firewall' ),
@@ -53,6 +66,14 @@ class BaseSubPage extends BaseMWP {
 				'st_notinstalled'     => __( "Shield Security plugin not detected in last sync.", 'wp-simple-firewall' ),
 				'st_notpro'           => __( "ShieldPRO isn't activated on this site.", 'wp-simple-firewall' ),
 				'st_mwpnoton'         => __( "Shield's MainWP integration isn't enabled for this site.", 'wp-simple-firewall' ),
+				'st_client_older'     => sprintf( '%s: %s',
+					__( "Version Mismatch", 'wp-simple-firewall' ),
+					__( "The Shield plugin version on the client site is older than this server and must be updated.", 'wp-simple-firewall' )
+				),
+				'st_client_newer'     => sprintf( '%s: %s',
+					__( "Version Mismatch", 'wp-simple-firewall' ),
+					__( "The Shield plugin version on the client site is newer than this server.", 'wp-simple-firewall' )
+				),
 				'st_sync_rqd'         => __( 'Shield Security plugin needs to sync.', 'wp-simple-firewall' ),
 				'st_version_mismatch' => __( 'Shield Security plugin versions are out of sync.', 'wp-simple-firewall' ),
 				'st_unknown'          => __( "Couldn't determine Shield plugin status.", 'wp-simple-firewall' ),
@@ -61,7 +82,7 @@ class BaseSubPage extends BaseMWP {
 				'act_align'           => __( 'Align Shield', 'wp-simple-firewall' ),
 				'act_deactivate'      => __( 'Deactivate Shield', 'wp-simple-firewall' ),
 				'act_install'         => __( 'Install Shield', 'wp-simple-firewall' ),
-				'act_upgrade'         => __( 'Upgrade Shield', 'wp-simple-firewall' ),
+				'act_update'          => __( 'Update Shield', 'wp-simple-firewall' ),
 				'act_uninstall'       => __( 'Uninstall Shield', 'wp-simple-firewall' ),
 				'act_license'         => __( 'Check ShieldPRO License', 'wp-simple-firewall' ),
 				'act_mwp'             => __( 'Switch-On MainWP Integration', 'wp-simple-firewall' ),
@@ -95,6 +116,8 @@ class BaseSubPage extends BaseMWP {
 		$shd[ 'is_notpro' ] = $shd[ 'status_key' ] === ClientPluginStatus::NOT_PRO;
 		$shd[ 'is_mwpnoton' ] = $shd[ 'status_key' ] === ClientPluginStatus::MWP_NOT_ON;
 		$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === ClientPluginStatus::NEED_SYNC;
+		$shd[ 'is_client_older' ] = $shd[ 'status_key' ] === ClientPluginStatus::VERSION_OLDER_THAN_SERVER;
+		$shd[ 'is_client_newer' ] = $shd[ 'status_key' ] === ClientPluginStatus::VERSION_NEWER_THAN_SERVER;
 		$shd[ 'is_version_mismatch' ] = in_array( $shd[ 'status_key' ], [
 			ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 			ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
@@ -175,7 +198,7 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getAjaxActionsData() :array {
 		return [
-			'site_action' => ActionData::Build( MainwpServerSiteAction::SLUG ),
+			'site_action' => ActionData::Build( MainwpServerSiteActionHandler::SLUG ),
 			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::SLUG ),
 		];
 	}

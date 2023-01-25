@@ -8,8 +8,8 @@
  * Domain Path: /languages
  * Author: Shield Security
  * Author URI: https://shsec.io/bv
- * Requires at least: 3.7
- * Requires PHP: 7.0
+ * Requires at least: 4.7
+ * Requires PHP: 7.2
  */
 
 /**
@@ -30,7 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
+if ( version_compare( PHP_VERSION, '7.2', '<' ) ) {
 	global $sIcwpWpsfPluginFile;
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
