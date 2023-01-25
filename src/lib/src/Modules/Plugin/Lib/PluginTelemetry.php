@@ -140,7 +140,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 				'locale'           => get_locale(),
 				'plugins_total'    => count( $WPP->getPlugins() ),
 				'plugins_active'   => count( $WPP->getActivePlugins() ),
-				'plugins_updates'  => count( $WPP->getUpdates() )
+				'plugins_updates'  => count( $WPP->getUpdates() ),
 			]
 		];
 	}

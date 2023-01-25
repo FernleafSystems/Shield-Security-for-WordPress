@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScanEnabledFileLockerHtaccess extends ScanEnabledFileLockerBase {
 
 	public const FILE_LOCKER_FILE = '.htaccess';
-	public const FILE_LOCKER_FILE_KEY = 'htaccess';
+	public const FILE_LOCKER_FILE_KEY = 'root_htaccess';
 	public const WEIGHT = 5;
 
 	protected function isApplicable() :bool {

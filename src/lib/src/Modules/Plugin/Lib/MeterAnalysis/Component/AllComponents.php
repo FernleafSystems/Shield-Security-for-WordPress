@@ -26,7 +26,7 @@ class AllComponents extends Base {
 	}
 
 	public function descProtected() :string {
-		return sprintf( __( "You've configured the %s plugin is configured to protect your site to a high level.", 'wp-simple-firewall' ),
+		return sprintf( __( "You've configured the %s plugin to protect your site to a high level.", 'wp-simple-firewall' ),
 			$this->getCon()->getHumanName() );
 	}
 

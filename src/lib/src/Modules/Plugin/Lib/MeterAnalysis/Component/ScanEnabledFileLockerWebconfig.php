@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScanEnabledFileLockerWebconfig extends ScanEnabledFileLockerBase {
 
 	public const FILE_LOCKER_FILE = 'web.config';
-	public const FILE_LOCKER_FILE_KEY = 'webconfig';
+	public const FILE_LOCKER_FILE_KEY = 'root_webconfig';
 
 	protected function isApplicable() :bool {
 		return Services::Data()->isWindows();

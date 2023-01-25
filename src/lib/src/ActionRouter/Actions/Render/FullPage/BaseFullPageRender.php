@@ -67,10 +67,6 @@ abstract class BaseFullPageRender extends BaseRender {
 				'src' => $urlBuilder->forJs( 'global-plugin' ),
 				'id'  => 'shield-global-plugin',
 			],
-			35 => [
-				'src' => $urlBuilder->forJs( 'plugin' ),
-				'id'  => 'shield-plugin',
-			],
 		];
 	}
 
@@ -84,10 +80,6 @@ abstract class BaseFullPageRender extends BaseRender {
 			30 => [
 				'href' => $urlBuilder->forCss( 'global-plugin' ),
 				'id'   => 'shield-global-plugin',
-			],
-			35 => [
-				'href' => $urlBuilder->forCss( 'plugin' ),
-				'id'   => 'shield-plugin',
 			],
 		];
 	}
