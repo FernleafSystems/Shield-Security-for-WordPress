@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Met
 class AllComponents extends Base {
 
 	public const SLUG = 'all_components';
-	public const WEIGHT = 15;
+	public const WEIGHT = 20;
 
 	protected function testIfProtected() :bool {
 		return $this->score() > 8;

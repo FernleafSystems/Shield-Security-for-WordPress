@@ -56,9 +56,41 @@ class PageLicense extends BasePluginAdminPage {
 			);
 		}
 
-		$strings = $mod->getStrings()->getDisplayStrings();
-		$strings[ 'pro_features' ] = $this->getProFeatureStrings();
 		return [
+			'ajax'    => [
+				'license_action_clear'  => ActionData::Build( LicenseActionClear::SLUG ),
+				'license_action_lookup' => ActionData::Build( LicenseActionLookup::SLUG ),
+				'connection_debug'      => ActionData::Build( LicenseCheckDebug::SLUG )
+			],
+			'flags'   => [
+				'show_ads'              => false,
+				'button_enabled_check'  => true,
+				'show_standard_options' => false,
+				'show_alt_content'      => true,
+				'is_pro'                => $con->isPremiumActive(),
+				'has_error'             => $mod->hasLastErrors()
+			],
+			'hrefs'   => [
+				'shield_pro_url' => 'https://shsec.io/shieldpro',
+				'iframe_url'     => $opts->getDef( 'landing_page_url' ),
+				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
+			],
+			'imgs'    => [
+				'svgs' => [
+					'thumbs_up' => $con->svgs->raw( 'bootstrap/hand-thumbs-up.svg' )
+				],
+			],
+			'inputs'  => [
+				'license_key' => [
+					'name'      => $con->prefixOption( 'license_key' ),
+					'maxlength' => $opts->getDef( 'license_key_length' ),
+				]
+			],
+			'strings' => [
+				'inner_page_title'    => __( 'ShieldPRO License Management', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Seamlessly activate and manage your ShieldPRO license without any license keys.', 'wp-simple-firewall' ),
+				'pro_features'        => $this->getProFeatureStrings(),
+			],
 			'vars'    => [
 				'license_table'  => [
 					'product_name'    => $opts->getDef( $lic->is_central ? 'license_item_name_sc' : 'license_item_name' ),
@@ -73,36 +105,6 @@ class PageLicense extends BasePluginAdminPage {
 				'activation_url' => $WP->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true ),
 			],
-			'inputs'  => [
-				'license_key' => [
-					'name'      => $con->prefixOption( 'license_key' ),
-					'maxlength' => $opts->getDef( 'license_key_length' ),
-				]
-			],
-			'ajax'    => [
-				'license_action_clear'  => ActionData::Build( LicenseActionClear::SLUG ),
-				'license_action_lookup' => ActionData::Build( LicenseActionLookup::SLUG ),
-				'connection_debug'      => ActionData::Build( LicenseCheckDebug::SLUG )
-			],
-			'hrefs'   => [
-				'shield_pro_url' => 'https://shsec.io/shieldpro',
-				'iframe_url'     => $opts->getDef( 'landing_page_url' ),
-				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
-			],
-			'imgs'    => [
-				'svgs' => [
-					'thumbs_up' => $con->svgs->raw( 'bootstrap/hand-thumbs-up.svg' )
-				],
-			],
-			'flags'   => [
-				'show_ads'              => false,
-				'button_enabled_check'  => true,
-				'show_standard_options' => false,
-				'show_alt_content'      => true,
-				'is_pro'                => $con->isPremiumActive(),
-				'has_error'             => $mod->hasLastErrors()
-			],
-			'strings' => $strings,
 		];
 	}
 

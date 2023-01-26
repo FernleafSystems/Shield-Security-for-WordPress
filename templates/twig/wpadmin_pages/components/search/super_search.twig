@@ -1,0 +1,6 @@
+<div class="d-flex flex-column align-items-center" id="SuperSearchLaunch">
+	<input type="text"
+	       placeholder="{{ strings.search_shield }}"
+	       {% if not flags.is_security_admin %}disabled="disabled" class="disabled"{% endif %}
+	/>
+</div>

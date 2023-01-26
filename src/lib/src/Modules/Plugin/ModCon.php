@@ -318,6 +318,11 @@ class ModCon extends BaseShield\ModCon {
 							'mod_options_save' => ActionData::Build( Actions\ModuleOptionsSave::SLUG )
 						]
 					],
+					'super_search'  => [
+						'vars' => [
+							'render_slug' => Actions\Render\Components\SuperSearchResults::SLUG,
+						],
+					],
 					'select_search' => [
 						'ajax'    => [
 							'select_search' => ActionData::Build( Actions\PluginSuperSearch::SLUG )

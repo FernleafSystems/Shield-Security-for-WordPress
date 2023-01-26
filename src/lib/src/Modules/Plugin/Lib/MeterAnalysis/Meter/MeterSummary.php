@@ -42,6 +42,7 @@ class MeterSummary extends MeterBase {
 			Component\SystemSslCertificate::class,
 			Component\SystemLibOpenssl::class,
 			Component\WpDbPassword::class,
+			Component\SecurityAdmin::class,
 			Component\ActivityLogEnabled::class,
 			Component\TrafficLogEnabled::class,
 			Component\ShieldPro::class,

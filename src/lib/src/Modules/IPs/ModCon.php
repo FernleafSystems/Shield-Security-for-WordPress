@@ -156,9 +156,6 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_ips',
 			[
 				'components' => [
-					'modal_ip_rule_add' => [
-						'render_slug' => Actions\Render\Components\IPs\FormIpRuleAdd::SLUG
-					],
 					'ip_analysis'       => [
 						'ajax' => [
 							'ip_analyse_action' => ActionData::Build( Actions\IpAnalyseAction::SLUG ),

@@ -15,8 +15,7 @@ class PageUserSessions extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/table_sessions.twig';
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$con = $this->getCon();
 		return [
 			'ajax'    => [
 				'render_table_sessions' => ActionData::BuildJson( UserSessionsTableRender::SLUG ),
@@ -24,13 +23,17 @@ class PageUserSessions extends BasePluginAdminPage {
 				'bulk_action'           => ActionData::BuildJson( UserSessionsTableBulkAction::SLUG ),
 
 			],
-			'flags'   => [],
+			'hrefs'   => [
+				'inner_page_config' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+			],
 			'strings' => [
 				'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),
 				'users_title'         => __( 'User Sessions', 'wp-simple-firewall' ),
 				'users_subtitle'      => __( 'Review and manage current user sessions', 'wp-simple-firewall' ),
 				'users_maybe_expired' => __( "Some sessions may have expired but haven't been automatically cleaned from the database yet", 'wp-simple-firewall' ),
 				'username'            => __( 'Username', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'User Sessions', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'View and manage details of current user sessions on the site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'unique_users' => $this->getDistinctUsernames(),

@@ -1,0 +1,33 @@
+<div class="modal fade" role="dialog"
+     id="ModalSuperSearchBox"
+     tabindex="-1"
+     aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title d-flex align-items-center">
+					<span class="search-icon">{{ imgs.svgs.search|raw }}</span>
+					<input type="text"
+					       class="search-text flex-fill"
+					       placeholder="Search for anything..."
+					       {% if not flags.is_security_admin %}disabled="disabled"{% endif %}
+					/>
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="w-100" style="">
+					<p class="my-1 fs-6">
+						{{ strings.search_modal_placeholder }}
+						<div class="mt-1">{{ strings.search_modal_you_could }}:</div>
+					</p>
+					<ul class="list-group list-group-flush mb-3">
+						{% for suggestion in strings.search_suggestions %}
+							<li class="fs-6 list-group-item">&#10003; {{ suggestion }}</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+    </div>
+  </div>
+</div>

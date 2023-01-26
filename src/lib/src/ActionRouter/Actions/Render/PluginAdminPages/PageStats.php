@@ -13,14 +13,15 @@ class PageStats extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/stats.twig';
 
 	protected function getRenderData() :array {
-
 		$statsVars = $this->build();
-
 		return [
 			'flags'   => [
 				'has_stats' => !empty( $statsVars[ 'stats' ] )
 			],
 			'strings' => [
+				'inner_page_title'    => __( 'Simple Stats', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Some basic stats - this is in beta and will be developed over time.', 'wp-simple-firewall' ),
+
 				'no_stats' => __( 'No stats yet. It wont take long though, so check back here soon.' )
 			],
 			'vars'    => $statsVars,

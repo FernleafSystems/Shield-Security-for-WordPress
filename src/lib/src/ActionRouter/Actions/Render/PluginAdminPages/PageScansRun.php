@@ -14,7 +14,7 @@ class PageScansRun extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_scans_run';
 	public const PRIMARY_MOD = 'hack_protect';
-	public const TEMPLATE = '/wpadmin_pages/insights/scans/run/index.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/scan_run.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -36,23 +36,27 @@ class PageScansRun extends BasePluginAdminPage {
 				'can_scan'        => count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
+			'hrefs'   => [
+				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
+				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
+				'inner_page_config'  => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+				'inner_page_toggle'  => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
+			],
 			'strings' => [
+				'inner_page_title'    => __( 'Scan Your Site', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),
+				'inner_page_toggle'   => __( 'View Scan Results', 'wp-simple-firewall' ),
+
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
-				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
-				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
-				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
 				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
-				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
-				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
-				'no_entries_to_display' => __( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 				'module_disabled'       => __( "Scans can't run because the module that controls them is currently disabled.", 'wp-simple-firewall' ),
@@ -62,14 +66,6 @@ class PageScansRun extends BasePluginAdminPage {
 			'vars'    => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
-			],
-			'hrefs'   => [
-				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
-			],
-			'content' => [
-				'section' => [
-				]
 			],
 		];
 	}

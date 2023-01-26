@@ -77,7 +77,7 @@ class PageAdminPlugin extends BaseRender {
 	 */
 	private function getDelegateActionRenderer() :array {
 		return [
-			PluginURLs::NAV_ACTIVITY_LOG   => PluginAdminPages\ActivityLogTable::class,
+			PluginURLs::NAV_ACTIVITY_LOG   => PluginAdminPages\PageActivityLogTable::class,
 			PluginURLs::NAV_DEBUG          => PluginAdminPages\PageDebug::class,
 			PluginURLs::NAV_DOCS           => PluginAdminPages\PageDocs::class,
 			PluginURLs::NAV_IMPORT_EXPORT  => PluginAdminPages\PageImportExport::class,
@@ -92,7 +92,7 @@ class PageAdminPlugin extends BaseRender {
 			PluginURLs::NAV_SCANS_RESULTS  => PluginAdminPages\PageScansResults::class,
 			PluginURLs::NAV_SCANS_RUN      => PluginAdminPages\PageScansRun::class,
 			PluginURLs::NAV_STATS          => PluginAdminPages\PageStats::class,
-			PluginURLs::NAV_TRAFFIC_VIEWER => PluginAdminPages\TrafficLogTable::class,
+			PluginURLs::NAV_TRAFFIC_VIEWER => PluginAdminPages\PageTrafficLogTable::class,
 			PluginURLs::NAV_USER_SESSIONS  => PluginAdminPages\PageUserSessions::class,
 			PluginURLs::NAV_WIZARD         => PluginAdminPages\PageMerlin::class,
 		];

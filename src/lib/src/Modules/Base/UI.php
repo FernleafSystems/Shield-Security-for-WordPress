@@ -289,13 +289,6 @@ class UI {
 		];
 	}
 
-	/**
-	 * @param string $for - option, section, module
-	 */
-	public function getOffCanvasJavascriptLinkFor( string $for ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
-	}
-
 	protected function getHelpVideoUrl( string $id ) :string {
 		return sprintf( 'https://player.vimeo.com/video/%s', $id );
 	}
@@ -310,5 +303,13 @@ class UI {
 
 	public function getSectionCriticalWarnings( string $section ) :array {
 		return [];
+	}
+
+	/**
+	 * @param string $for - option, section, module
+	 * @description 17.0
+	 */
+	public function getOffCanvasJavascriptLinkFor( string $for ) :string {
+		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
 	}
 }

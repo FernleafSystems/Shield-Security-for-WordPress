@@ -98,4 +98,11 @@ class PluginURLs {
 			array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
 	}
+
+	/**
+	 * @param string $for - option, section, module
+	 */
+	public function offCanvasConfigRender( string $for ) :string {
+		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
+	}
 }

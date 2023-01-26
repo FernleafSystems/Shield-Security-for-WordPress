@@ -15,7 +15,7 @@ trait OptConfigBased {
 
 	protected function getOptLink( string $for, bool $offCanvasJS = false ) :string {
 		return $offCanvasJS ?
-			$this->getCon()->getModule_Plugin()->getUIHandler()->getOffCanvasJavascriptLinkFor( $for )
+			$this->getCon()->plugin_urls->offCanvasConfigRender( $for )
 			: $this->getCon()->plugin_urls->modCfgOption( $for );
 	}
 

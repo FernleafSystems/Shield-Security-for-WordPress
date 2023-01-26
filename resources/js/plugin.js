@@ -431,6 +431,9 @@ let jQueryDoc = jQuery( 'document' );
 
 jQueryDoc.ready( function () {
 
+	let searchTimeout;
+	let searchModal;
+
 	/** Progress Meters: */
 	(new CircularProgressBar( 'pie' )).initial();
 
@@ -446,15 +449,61 @@ jQueryDoc.ready( function () {
 		iCWP_WPSF_Helpscout.initialise( icwp_wpsf_vars_plugin.components.helpscout );
 	}
 
-	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_rule_add !== 'undefined' ) {
-
-		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
-			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
-		}
-		if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
-			jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
-		}
+	if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
+		jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
 	}
+	if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
+		jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
+	}
+
+	jQuery( document ).on( 'click', '#SuperSearchLaunch input', function ( evt ) {
+		evt.preventDefault();
+
+		if ( typeof searchModal === 'undefined' ) {
+			let theModal = document.getElementById( 'ModalSuperSearchBox' );
+			theModal.addEventListener( 'shown.bs.modal', event => {
+				theModal.getElementsByTagName( 'input' )[ 0 ].focus();
+			} )
+			searchModal = new bootstrap.Modal( theModal );
+		}
+		searchModal.show();
+		return false;
+	} );
+
+	jQuery( document ).on( 'keyup', '#ModalSuperSearchBox input.search-text', function ( evt ) {
+		let $this = jQuery( evt.currentTarget );
+		let current = $this.val();
+
+		if ( searchTimeout ) {
+			clearTimeout( searchTimeout );
+		}
+
+		if ( current !== '' ) {
+			searchTimeout = setTimeout( function () {
+				jQuery( '#ModalSuperSearchBox .modal-body' ).html(
+					'<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+				);
+				Shield_AjaxRender
+				.send_ajax_req( {
+					render_slug: icwp_wpsf_vars_plugin.components.super_search.vars.render_slug,
+					search: current
+				} )
+				.then( ( response ) => {
+					if ( response.success ) {
+						console.log( response );
+						jQuery( '#ModalSuperSearchBox .modal-body' ).html( response.data.render_output );
+					}
+					else {
+						alert( response.data.error );
+					}
+				} )
+				.catch( ( error ) => {
+					alert( 'Sorry, something went wrong with the request.' );
+					console.log( error );
+				} );
+			}, 700 );
+		}
+	} );
 
 	jQuery( document ).on( 'click', '.render_ip_analysis', function ( evt ) {
 		evt.preventDefault();

@@ -1,39 +1,38 @@
-<div id="SectionAdminNotes" class="insights_widget card w-100 p-0">
-	<div class="card-header">
-		<h5 class="card-title">{{ strings.note_title }}</h5>
-		<h6 class="card-subtitle text-muted">{{ strings.use_this_area }}</h6>
-	</div>
-	<div class="card-body overflow_container">
+{% extends '/wpadmin_pages/insights/plugin_admin/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div id="SectionAdminNotes" class="p-0">
 		<form id="NewAdminNote" action="#" method="post" autocomplete="off">
-			<label class="visually-hidden" for="AdminNote">{{ strings.note_title }}</label>
 			<div class="input-group w-100">
 				<div class="input-group-text" style="border-radius: 0">{{ strings.note_new }}:</div>
-				<input class="form-control" id="AdminNote" name="admin_note" type="text"
-					   placeholder="{{ strings.note_enter }}" />
+				<input class="form-control"
+				       id="AdminNote"
+				       name="admin_note"
+				       type="text"
+				       placeholder="{{ strings.note_enter }}" />
 				<button type="submit" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
 				>{{ strings.note_add }}</button>
 			</div>
 		</form>
 
 		<div id="TableAdminNotes" class="p-0"></div>
-
 	</div>
-</div>
-<script>
-	let $oTableAdminNotes = jQuery( '#TableAdminNotes' ).icwpWpsfAjaxTable(
-		{
-			'ajax_render':{{ ajax.render_adminnotes|raw }}
-		}
-	);
-	jQuery( '#SectionAdminNotes' ).icwpWpsfTableActions(
-		{
-			'table': $oTableAdminNotes,
-			'ajax_item_delete':{{ ajax.item_delete|raw }},
-			'ajax_item_insert':{{ ajax.item_insert|raw }},
-			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
-			'forms': {
-				'insert': jQuery( 'form#NewAdminNote' )
-			}
-		}
-	);
-</script>
+		<script>
+		let $oTableAdminNotes = jQuery( '#TableAdminNotes' ).icwpWpsfAjaxTable(
+		  {
+			  'ajax_render':{{ ajax.render_adminnotes|raw }}
+		  }
+	  );
+	  jQuery( '#SectionAdminNotes' ).icwpWpsfTableActions(
+		  {
+			  'table': $oTableAdminNotes,
+			  'ajax_item_delete':{{ ajax.item_delete|raw }},
+			  'ajax_item_insert':{{ ajax.item_insert|raw }},
+			  'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			  'forms': {
+				  'insert': jQuery( 'form#NewAdminNote' )
+			  }
+		  }
+	  );
+	</script>
+{% endblock %}

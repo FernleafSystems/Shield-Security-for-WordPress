@@ -180,14 +180,6 @@ label input[type=checkbox] {
 	transition: transform 0.2s ease, -webkit-transform 0.2s ease;
 }
 #IcwpWpsfSecurityAdmin {
-	background-color: white;
-	padding: 40px;
-	margin: 120px 0 40px;
-	box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2);
-	border: 1px solid rgba(0, 0, 0, 0.2);
-}
-.card.gopro-card {
-	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
 }
 @media (max-width: 848px) {
 	.modules a.module {
@@ -222,6 +214,10 @@ td.column-message textarea {
 }
 #table_id-iprules_filter.dataTables_filter {
 	text-align: left;
+}
+div.dtsp-topRow.dtsp-bordered.dtsp-bordered,
+div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
+	border: 1px solid transparent;
 }
 /** INSIGHTS **/
 /* TABLES */
@@ -332,6 +328,9 @@ th.column-is_secadmin {
 table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
+ul.nav.nav-tabs.insights-sub-nav {
+	border-bottom: transparent !important;
+}
 ul.nav.nav-tabs.insights-sub-nav a.nav-link {
 	color: #2b2b2b;
 	font-size: 0.9rem;
@@ -342,7 +341,7 @@ ul.nav.nav-tabs.insights-sub-nav a.nav-link {
 	opacity: 0.9;
 	border-radius: 0;
 	padding: 4px 12px;
-	margin: 0 0 -1px -1px;
+	margin: 0 5px -1px -1px;
 }
 ul.nav.nav-tabs.insights-sub-nav a.nav-link:hover {
 	opacity: 1;
@@ -350,7 +349,7 @@ ul.nav.nav-tabs.insights-sub-nav a.nav-link:hover {
 ul.nav.nav-tabs.insights-sub-nav a.nav-link.active {
 	color: #008000;
 	background-color: transparent;
-	border-bottom-color: #f1f1f1;
+	border-bottom-color: transparent;
 	opacity: 1;
 	box-shadow: none;
 }
@@ -801,11 +800,29 @@ body.folded #FooterBannerGoPro {
 }
 #odp-PageHead {
 }
+.odp-outercontainer {
+	background-color: #f1f1f1;
+}
 #apto-PageMainSide {
 	background-color: transparent;
 	border: 0 none;
 	min-width: 160px;
 	width: 160px;
+}
+#apto-PageMainSide .nav-link.disabled {
+	opacity: 0.4 !important;
+	color: #b7b7b7 !important;
+}
+#apto-PageMainBody-Inner {
+	background-color: rgba(255, 255, 255, 0.4);
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	border-radius: 12px;
+	padding: 20px 30px 30px;
+}
+#apto-PageMainBody-Inner p,
+#apto-PageMainBody-Inner li,
+#apto-PageMainBody-Inner label {
+	font-size: 14px;
 }
 #NavSideBar a.nav-link:hover {
 }
@@ -913,7 +930,7 @@ body.folded #FooterBannerGoPro {
 }
 .progress-meter-summary {
 	padding: 30px 0;
-	border-bottom: 2px dashed rgba(0,0,0,0.2)
+	border-bottom: 2px dashed rgba(0, 0, 0, 0.2)
 }
 #ScanResultsTabs table td.actions {
 	white-space: nowrap;
@@ -986,7 +1003,7 @@ td.mal_details ul {
 #apto-PageHeader {
 	border-top: 3px solid #008000;
 	border-bottom: 1px solid #008000;
-	padding: 22px 0;
+	padding: 5px 0;
 	margin-left: -20px;
 	background: #ffffff;
 }
@@ -1002,22 +1019,44 @@ td.mal_details ul {
 	color: #008000;
 	margin: 3px;
 }
-#SuperSearchBox > div {
+#SuperSearchLaunch > input {
+	border: 2px solid rgba(0, 128, 0, 0.1);
+	cursor: pointer;
 	width: 100%;
+	margin-bottom: 20px;
+	text-indent: 20px;
+	font-size: 11px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 5px rgba(255, 255, 255, 0.4);
 }
-#SuperSearchBox .select2-selection,
-.select2-dropdown {
-	background: rgb(244, 248, 244) !important;
-	border: 1px solid #008000 !important;
+#SuperSearchLaunch > input:hover {
+	border: 2px solid rgba(0, 128, 0, 1);
 }
+#SuperSearchLaunch > input.disabled {
+	border: 2px solid transparent;
+	cursor: no-drop;
+}
+#ModalSuperSearchBox .modal-content {
+	margin-top: 100px;
+}
+#ModalSuperSearchBox .search-icon > svg {
+	width: 32px;
+	height: 32px;
+	color: #999999;
+}
+#ModalSuperSearchBox input.search-text,
+#ModalSuperSearchBox input.search-text:active,
+#ModalSuperSearchBox input.search-text:focus,
+#ModalSuperSearchBox input.search-text:hover {
+	border: 1px solid transparent !important;
+	box-shadow: none;
+	margin-left: 20px;
+	min-width: 400px;
+}
+
 .select2-search__field:active,
 .select2-search__field:focus,
 .select2-search__field:hover {
 	box-shadow: 0 0 0 1px #008000 !important;
-}
-#SuperSearchBox:hover .select2-selection,
-.select2-dropdown {
-	box-shadow: 1px 1px 3px rgba(0, 128, 0, 0.4);
 }
 
 .select2-results__option--selected,
@@ -1039,7 +1078,7 @@ td.mal_details ul {
 	width: 80%;
 }
 #ShieldOffcanvas.offcanvas_meter_analysis {
-	background-color: #fff;
+	background-color: #ffffff;
 	width: 600px;
 }
 #ShieldOffcanvas.offcanvas_ipanalysis {
@@ -1051,4 +1090,12 @@ td.mal_details ul {
 	border: 1px solid #00800044;
 	border-radius: 5px;
 	box-shadow: 2px 2px 2px rgb(0 0 0 / 10%);
+}
+.inner-page-header a.config > svg {
+	width: 32px;
+	height: 32px;
+}
+.inner-page-header .inner-page-subtitle {
+	font-size: small;
+	font-weight: normal;
 }

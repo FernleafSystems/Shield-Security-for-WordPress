@@ -28,6 +28,7 @@ class Constants {
 		Actions\IpAutoUnblockCrowdsecVisitor::class,
 		Actions\LicenseHandshakeVerifyKeyless::class,
 		Actions\ShieldNetHandshakeVerify::class,
+		Actions\LicenseActionClear::class,
 		Actions\LicenseActionLookup::class,
 		Actions\LicenseCheckDebug::class,
 		Actions\LicenseScheduleCheck::class,
@@ -153,6 +154,7 @@ class Constants {
 		Actions\Render\Components\Scans\ItemAnalysis\Diff::class,
 		Actions\Render\Components\Scans\ItemAnalysis\History::class,
 		Actions\Render\Components\Scans\ItemAnalysis\Info::class,
+		Actions\Render\Components\SuperSearchResults::class,
 		Actions\Render\Components\SiteHealth\Analysis::class,
 		Actions\Render\Components\UserMfa\ConfigPage::class,
 		Actions\Render\Components\UserMfa\ConfigEdit::class,
@@ -184,7 +186,7 @@ class Constants {
 		Actions\Render\MainWP\ExtPage\TabSiteManage::class,
 		Actions\Render\MainWP\ExtPage\TabSitesListing::class,
 		Actions\Render\PageAdminPlugin::class,
-		Actions\Render\PluginAdminPages\ActivityLogTable::class,
+		Actions\Render\PluginAdminPages\PageActivityLogTable::class,
 		Actions\Render\PluginAdminPages\PageDebug::class,
 		Actions\Render\PluginAdminPages\PageDocs::class,
 		Actions\Render\PluginAdminPages\PageImportExport::class,
@@ -200,7 +202,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageScansRun::class,
 		Actions\Render\PluginAdminPages\PageConfig::class,
 		Actions\Render\PluginAdminPages\PageStats::class,
-		Actions\Render\PluginAdminPages\TrafficLogTable::class,
+		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
 	];
 }

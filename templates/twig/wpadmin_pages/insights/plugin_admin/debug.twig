@@ -1,47 +1,51 @@
-{% if flags.display_tests %}
-	<div class="row">
-		<div class="col">
-			<h6>Debug Tests:</h6>
-			<ul>
-				{% for test in vars.available_tests %}
-					<li><code>{{ test|raw }}</code></li>
-				{% endfor %}
-			</ul>
-		</div>
-	</div>
-{% endif %}
+{% extends '/wpadmin_pages/insights/plugin_admin/base_inner_page.twig' %}
 
-<div class="row">
-	<div class="col">
-		<a href="{{ hrefs.check_visitor_ip_source }}">Run background check for visitor IP source</a>
-	</div>
-</div>
-<div class="row">
-	<div class="col">
-		{{ content.recent_events|raw }}
-	</div>
-</div>
-<div class="row mt-3">
-	{% for group_title,group in vars.debug_data %}
-		<div class="col-12 insights_section">
-			<h5 class="mb-3">{{ group_title }}</h5>
-			<div class="card-deck">
-				{% for title,section_data in group %}
-					<div class="card">
-						<div class="card-header">{{ title }}</div>
-						<div class="card-body">
-							<dl>
-							{% for key,val in section_data %}
-								<dt>{{ key }}</dt>
-								<dd class="mb-2">
-									{{ val is iterable ? val|join('<br/>')|raw : val|raw }}
-								</dd>
-							{% endfor %}
-							</dl>
-						</div>
-					</div>
-				{% endfor %}
+{% block inner_page_body %}
+	{% if flags.display_tests %}
+		<div class="row">
+			<div class="col">
+				<h6>Debug Tests:</h6>
+				<ul>
+					{% for test in vars.available_tests %}
+						<li><code>{{ test|raw }}</code></li>
+					{% endfor %}
+				</ul>
 			</div>
 		</div>
-	{% endfor %}
-</div>
+	{% endif %}
+
+	<div class="row">
+		<div class="col">
+			<a href="{{ hrefs.check_visitor_ip_source }}">Run background check for visitor IP source</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			{{ content.recent_events|raw }}
+		</div>
+	</div>
+	<div class="row mt-3">
+		{% for group_title,group in vars.debug_data %}
+			<div class="col-12 insights_section">
+				<h5 class="mb-3">{{ group_title }}</h5>
+				<div class="card-deck">
+					{% for title,section_data in group %}
+						<div class="card">
+							<div class="card-header">{{ title }}</div>
+							<div class="card-body">
+								<dl>
+								{% for key,val in section_data %}
+									<dt>{{ key }}</dt>
+									<dd class="mb-2">
+										{{ val is iterable ? val|join('<br/>')|raw : val|raw }}
+									</dd>
+								{% endfor %}
+								</dl>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}

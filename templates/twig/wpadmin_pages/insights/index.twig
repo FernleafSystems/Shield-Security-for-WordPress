@@ -1,9 +1,5 @@
 {% extends '/wpadmin_pages/insights/base.twig' %}
 
 {% block page_main %}
-	<div class="row">
-		<div class="col">
-			{{ content.rendered_page_body|raw }}
-		</div>
-	</div>
+	{{ content.rendered_page_body|raw }}
 {% endblock %}

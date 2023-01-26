@@ -10,7 +10,7 @@ class PageImportExport extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_importexport';
 	public const PRIMARY_MOD = 'plugin';
-	public const TEMPLATE = '/wpadmin_pages/insights/importexport/index.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/import.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -28,6 +28,7 @@ class PageImportExport extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
+				'inner_page_config'    => $con->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
 			],
 			'strings' => [
 				'tab_by_file'          => __( 'Import From File', 'wp-simple-firewall' ),
@@ -65,6 +66,9 @@ class PageImportExport extends BasePluginAdminPage {
 					__( 'When you adjust options on the Master site, they will be reflected in this site after the automatic import', 'wp-simple-firewall' ),
 				],
 				'import_options'       => __( 'Import Options', 'wp-simple-firewall' ),
+
+				'inner_page_title'    => __( 'Import Configuration', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Quickly setup your site by importing from another site or a backup.', 'wp-simple-firewall' ),
 			]
 		];
 	}

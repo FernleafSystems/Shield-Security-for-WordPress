@@ -23,10 +23,10 @@ class SecurityAdmin extends Base {
 	}
 
 	public function descProtected() :string {
-		return __( 'The security plugin is protected against tampering through use of a Security Admin PIN.', 'wp-simple-firewall' );
+		return __( 'The security plugin is protected against tampering.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
-		return __( "The security plugin isn't protected against tampering through use of a Security Admin PIN.", 'wp-simple-firewall' );
+		return __( "The security plugin isn't protected against tampering.", 'wp-simple-firewall' );
 	}
 }

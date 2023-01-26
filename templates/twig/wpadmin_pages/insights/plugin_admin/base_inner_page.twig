@@ -1,0 +1,32 @@
+{% import "/common/macros.twig" as icwp_macros %}
+
+{% block inner_page_header %}
+
+	{% if strings.inner_page_title|default('') is not empty %}
+		<div class="row border-bottom mb-3 inner-page-header">
+			<div class="col">
+				<h4 class="mb-3">
+					{{ strings.inner_page_title|default('No inner page title set') }}
+					{% block inner_page_title_after %}{% endblock %}
+					<br />
+					<small class="inner-page-subtitle">
+						{{ strings.inner_page_subtitle|default('No inner page subtitle set') }}
+					</small>
+				</h4>
+
+			</div>
+			<div class="col-2 text-end">
+				{% if hrefs.inner_page_config|default('') is not empty %}
+					<a href="{{ hrefs.inner_page_config }}" class="config"
+					   title="Configure options for this feature">
+						{{ imgs.svgs.settings|raw }}
+					</a>
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
+
+{% endblock %}
+
+{% block inner_page_body %}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends '/wpadmin_pages/insights/plugin_admin/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+
+	{% if flags.can_importexport %}
+		<div class="row">
+			<div class="col insights_section">
+				<ul class="nav nav-tabs insights-sub-nav">
+					<li class="nav-item">
+						<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#byFile" aria-selected="true"
+						   data-bs-toggle="tab">
+							{{ strings.tab_by_file }}
+						</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#bySite"
+						   data-bs-toggle="tab">
+							{{ strings.tab_by_site }}
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="tab-content">
+			<div class="tab-pane fade show active" id="byFile" role="tabpanel" aria-labelledby="byFile">
+				<div class="row">
+					<div class="col insights_section">
+						{% include '/wpadmin_pages/insights/importexport/from_file.twig' %}
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="bySite" role="tabpanel" aria-labelledby="bySite">
+				<div class="row">
+					<div class="col insights_section">
+						{% include '/wpadmin_pages/insights/importexport/from_site.twig' %}
+					</div>
+				</div>
+			</div>
+		</div>
+	{% else %}
+		<div class="row">
+			<div class="col-12 insights_section">
+				{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
+			</div>
+		</div>
+	{% endif %}
+
+{% endblock %}

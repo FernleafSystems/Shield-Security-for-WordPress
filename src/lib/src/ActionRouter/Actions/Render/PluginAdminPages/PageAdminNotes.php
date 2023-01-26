@@ -23,8 +23,9 @@ class PageAdminNotes extends BasePluginAdminPage {
 				'bulk_action'       => ActionData::BuildJson( AdminNoteBulkAction::SLUG ),
 			],
 			'strings' => [
-				'note_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),
-				'use_this_area' => __( 'Use this feature to make ongoing notes and to-dos', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Make notes for your future reference.', 'wp-simple-firewall' ),
+
 				'note_add'      => __( 'Add Note', 'wp-simple-firewall' ),
 				'note_new'      => __( 'New Note', 'wp-simple-firewall' ),
 				'note_enter'    => __( 'Enter new note here', 'wp-simple-firewall' ),

@@ -45,8 +45,6 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 				],
 			],
 			'strings' => [
-				'title'         => __( 'File Locker', 'wp-simple-firewall' ),
-				'subtitle'      => __( 'Results of file locker monitoring', 'wp-simple-firewall' ),
 				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
 			],
 			'count'   => count( $problemLocks )
