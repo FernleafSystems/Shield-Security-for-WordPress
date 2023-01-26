@@ -912,10 +912,8 @@ body.folded #FooterBannerGoPro {
 	cursor: pointer;
 }
 .progress-meter-summary {
-	background-color: white;
-	border-radius: 6px;
-	border: 1px solid #dddddd;
 	padding: 30px 0;
+	border-bottom: 2px dashed rgba(0,0,0,0.2)
 }
 #ScanResultsTabs table td.actions {
 	white-space: nowrap;

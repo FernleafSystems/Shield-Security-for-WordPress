@@ -18,10 +18,9 @@ class NavMenuBuilder {
 			$this->configuration(),
 			$this->ips(),
 			$this->scans(),
-			$this->audit(),
-			$this->traffic(),
+			$this->logs(),
 			$this->users(),
-			$this->integrations(),
+//			$this->integrations(),
 			$this->stats(),
 			$this->gopro(),
 			$this->tools(),
@@ -114,6 +113,39 @@ class NavMenuBuilder {
 		];
 	}
 
+	private function logs() :array {
+		$con = $this->getCon();
+		$slug = 'logs';
+		return [
+			'slug'      => $slug,
+			'title'     => __( 'Logs', 'wp-simple-firewall' ),
+			'img'       => $this->getCon()->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
+			'introjs'   => [
+				'body' => __( "Track and review all important actions and traffic on your site - see the Who, What and When.", 'wp-simple-firewall' ),
+			],
+			'sub_items' => [
+				[
+					'slug'   => PluginURLs::NAV_ACTIVITY_LOG.'-log',
+					'title'  => __( 'User Activity', 'wp-simple-firewall' ),
+					'href'   => $con->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
+					'active' => $this->getInav() === PluginURLs::NAV_ACTIVITY_LOG,
+				],
+				[
+					'slug'   => PluginURLs::NAV_TRAFFIC_VIEWER.'-log',
+					'title'  => __( 'Traffic', 'wp-simple-firewall' ),
+					'href'   => $con->plugin_urls->adminTop( PluginURLs::NAV_TRAFFIC_VIEWER ),
+					'active' => $this->getInav() === PluginURLs::NAV_TRAFFIC_VIEWER,
+				],
+				[
+					'slug'   => 'audit-glossary',
+					'title'  => __( 'Glossary', 'wp-simple-firewall' ),
+					'href'   => 'https://shsec.io/audittrailglossary',
+					'target' => '_blank',
+				],
+			],
+		];
+	}
+
 	private function audit() :array {
 		$con = $this->getCon();
 		$slug = PluginURLs::NAV_ACTIVITY_LOG;
@@ -127,7 +159,7 @@ class NavMenuBuilder {
 			'sub_items' => [
 				[
 					'slug'   => $slug.'-log',
-					'title'  => __( 'View Log', 'wp-simple-firewall' ),
+					'title'  => __( 'A Log', 'wp-simple-firewall' ),
 					'href'   => $con->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
 					'active' => $this->getInav() === PluginURLs::NAV_ACTIVITY_LOG,
 				],
@@ -151,16 +183,16 @@ class NavMenuBuilder {
 		$slug = 'scans';
 		$subItems = [
 			[
-				'slug'   => $slug.'-run',
-				'title'  => __( 'Run Scan', 'wp-simple-firewall' ),
-				'href'   => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RUN ),
-				'active' => $this->getInav() === PluginURLs::NAV_SCANS_RUN,
-			],
-			[
 				'slug'   => $slug.'-results',
-				'title'  => __( 'Scan Results', 'wp-simple-firewall' ),
+				'title'  => __( 'Results', 'wp-simple-firewall' ),
 				'href'   => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
 				'active' => $this->getInav() === PluginURLs::NAV_SCANS_RESULTS,
+			],
+			[
+				'slug'   => $slug.'-run',
+				'title'  => __( 'Run', 'wp-simple-firewall' ),
+				'href'   => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RUN ),
+				'active' => $this->getInav() === PluginURLs::NAV_SCANS_RUN,
 			],
 			[
 				'slug'  => $slug.'-settings',
