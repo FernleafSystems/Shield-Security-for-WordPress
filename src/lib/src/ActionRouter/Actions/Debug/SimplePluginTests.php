@@ -26,11 +26,13 @@ class SimplePluginTests extends BaseAction {
 		}
 		ob_start();
 		$this->{$testMethod}();
-		$this->response()->action_response_data = [ ob_get_clean() ];
+		$this->response()->action_response_data = [
+			'debug_output' => ob_get_clean()
+		];
 	}
 
 	protected function postExec() {
-		var_dump( $this->response()->action_response_data );
+		var_dump( $this->response()->action_response_data[ 'debug_output' ] );
 		die( 'end tests' );
 	}
 
@@ -49,6 +51,12 @@ class SimplePluginTests extends BaseAction {
 		( new RunTests() )
 			->setCon( $this->getCon() )
 			->run();
+	}
+
+	private function dbg_telemetry() {
+		( new Modules\Plugin\Lib\PluginTelemetry() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->collectAndSend( true );
 	}
 
 	private function handshake() {

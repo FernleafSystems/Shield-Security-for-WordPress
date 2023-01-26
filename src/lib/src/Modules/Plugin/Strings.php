@@ -359,12 +359,6 @@ class Strings extends Base\Strings {
 				$desc = [ __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' ) ];
 				break;
 
-			case 'unique_installation_id' :
-				$name = __( 'Installation ID', 'wp-simple-firewall' );
-				$summary = __( 'Unique Plugin Installation ID', 'wp-simple-firewall' );
-				$desc = [ __( 'Keep this ID private.', 'wp-simple-firewall' ) ];
-				break;
-
 			case 'captcha_provider' :
 				$name = __( 'CAPTCHA Provider', 'wp-simple-firewall' );
 				$summary = __( 'Which CAPTCHA Provider To Use Throughout', 'wp-simple-firewall' );

@@ -470,13 +470,6 @@
       "min":          0
     },
     {
-      "key":          "unique_installation_id",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      0
-    },
-    {
       "key":     "tracking_permission_set_at",
       "section": "section_non_ui",
       "type":    "integer",
@@ -509,14 +502,6 @@
       "transferable": false,
       "type":         "integer",
       "default":      0
-    },
-    {
-      "key":          "openssl_private_key",
-      "transferable": false,
-      "sensitive":    true,
-      "section":      "section_non_ui",
-      "type":         "text",
-      "default":      ""
     },
     {
       "key":          "snapi_data",

@@ -184,8 +184,6 @@ class ModCon extends BaseShield\ModCon {
 
 		$this->cleanImportExportWhitelistUrls();
 		$this->cleanImportExportMasterImportUrl();
-
-		$this->setPluginInstallationId();
 	}
 
 	public function getFirstInstallDate() :int {
@@ -198,53 +196,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function isShowAdvanced() :bool {
 		return $this->getOptions()->isOpt( 'show_advanced', 'Y' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOpenSslPrivateKey() {
-		$opts = $this->getOptions();
-		$key = null;
-		$srvEnc = Services::Encrypt();
-		if ( $srvEnc->isSupportedOpenSslDataEncryption() ) {
-			$key = $opts->getOpt( 'openssl_private_key' );
-			if ( empty( $key ) ) {
-				try {
-					$keys = $srvEnc->createNewPrivatePublicKeyPair();
-					if ( !empty( $keys[ 'private' ] ) ) {
-						$key = $keys[ 'private' ];
-						$opts->setOpt( 'openssl_private_key', base64_encode( $key ) );
-						$this->saveModOptions();
-					}
-				}
-				catch ( \Exception $e ) {
-				}
-			}
-			else {
-				$key = base64_decode( $key );
-			}
-		}
-		return $key;
-	}
-
-	/**
-	 * @return string|null
-	 */
-	public function getOpenSslPublicKey() {
-		$key = null;
-		if ( $this->hasOpenSslPrivateKey() ) {
-			try {
-				$key = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $key;
-	}
-
-	public function hasOpenSslPrivateKey() :bool {
-		return !empty( $this->getOpenSslPrivateKey() );
 	}
 
 	/**
@@ -290,21 +241,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( $optionKey, $sCaptchaKey );
 	}
 
-	/**
-	 * Ensure we always a valid installation ID.
-	 *
-	 * @return string
-	 * @deprecated but still used because it aligns with stats collection
-	 */
-	public function getPluginInstallationId() {
-		$ID = $this->getOptions()->getOpt( 'unique_installation_id', '' );
-
-		if ( !$this->isValidInstallId( $ID ) ) {
-			$ID = $this->setPluginInstallationId();
-		}
-		return $ID;
-	}
-
 	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
@@ -315,27 +251,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function setActivatedAt() {
 		$this->getOptions()->setOpt( 'activated_at', Services::Request()->ts() );
-	}
-
-	/**
-	 * @param string $newID - leave empty to reset if the current isn't valid
-	 * @return string
-	 */
-	protected function setPluginInstallationId( $newID = null ) {
-		// only reset if it's not of the correct type
-		if ( !$this->isValidInstallId( $newID ) ) {
-			$newID = $this->genInstallId();
-		}
-		$this->getOptions()->setOpt( 'unique_installation_id', $newID );
-		return $newID;
-	}
-
-	protected function genInstallId() :string {
-		return sha1(
-			$this->getInstallDate()
-			.Services::WpGeneral()->getWpUrl()
-			.Services::WpDb()->getPrefix()
-		);
 	}
 
 	private function cleanImportExportWhitelistUrls() {
@@ -358,13 +273,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
 		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
-	}
-
-	/**
-	 * @param string $id
-	 */
-	protected function isValidInstallId( $id ) :bool {
-		return !empty( $id ) && is_string( $id ) && strlen( $id ) == 40;
 	}
 
 	public function isXmlrpcBypass() :bool {
@@ -398,11 +306,6 @@ class ModCon extends BaseShield\ModCon {
 					'helpscout'     => [
 						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
 						'visible'   => $con->isModulePage()
-					],
-					'mod_config'    => [
-						'ajax' => [
-							'offcanvas_render' => ActionData::Build( Actions\Render\Components\OffCanvas\OffCanvasBase::SLUG ),
-						]
 					],
 					'offcanvas'     => [
 						'ip_analysis'      => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
@@ -515,7 +418,42 @@ class ModCon extends BaseShield\ModCon {
 		return !$opts->isPluginGloballyDisabled();
 	}
 
+	/**
+	 * Ensure we always a valid installation ID.
+	 *
+	 * @return string
+	 * @deprecated but still used because it aligns with stats collection
+	 * @deprecated 17.0
+	 */
+	public function getPluginInstallationId() {
+		return $this->getCon()->getInstallationID()[ 'id' ];
+	}
+
+	/**
+	 * @param string $newID - leave empty to reset if the current isn't valid
+	 * @return string
+	 * @deprecated 17.0
+	 */
+	protected function setPluginInstallationId( $newID = null ) {
+		return $newID;
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	protected function genInstallId() :string {
+		return $this->getCon()->getInstallationID()[ 'id' ];
+	}
+
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
+	}
+
+	/**
+	 * @param string $id
+	 * @deprecated 17.0
+	 */
+	protected function isValidInstallId( $id ) :bool {
+		return false;
 	}
 }

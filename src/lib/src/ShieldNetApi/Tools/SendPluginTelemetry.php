@@ -1,20 +1,19 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Telemetry;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-class SendTelemetry extends Common\BaseShieldNetApi {
+class SendPluginTelemetry extends Common\BaseShieldNetApiV2 {
 
 	public const API_ACTION = 'telemetry/receive';
 
-	public function sendData( array $data ) :bool {
+	public function send( array $data ) :bool {
 		$this->shield_net_params_required = false;
 		$this->request_method = 'post';
 		$this->params_body = [
 			'telemetry' => $data,
 		];
-		$raw = $this->sendReq();
-		return !( !is_array( $raw ) || $raw[ 'error' ] ?? false );
+		return ( $this->sendReq()[ 'error_code' ] ?? 1 ) === 0;
 	}
 }
