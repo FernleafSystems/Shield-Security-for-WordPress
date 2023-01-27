@@ -153,7 +153,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		$session = $this->getMod()->getSessionWP();
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
-			if ( !$this->isRegisteredSecAdminUser() && $secAdminAt > 0 ) {
+			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
 				$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
 			}
 		}
@@ -178,14 +178,11 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	}
 
 	public function isCurrentlySecAdmin() :bool {
-		// TODO: replace with isCurrentUserRegisteredSecAdmin()
-		return $this->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
-			   || $this->getSecAdminTimeRemaining() > 0;
+		return $this->isCurrentUserRegisteredSecAdmin() || $this->getSecAdminTimeRemaining() > 0;
 	}
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
-		return $isPluginAdmin &&
-			   ( $this->getCon()->this_req->is_security_admin || $this->verifyPinRequest() );
+		return $isPluginAdmin && $this->getCon()->this_req->is_security_admin;
 	}
 
 	/**
@@ -202,9 +199,10 @@ class SecurityAdminController extends ExecOnceModConsumer {
 
 	public function verifyPinRequest() :bool {
 		if ( !isset( $this->validPinRequest ) ) {
-			$this->validPinRequest = ( new Ops\VerifyPinRequest() )
-				->setMod( $this->getMod() )
-				->run();
+			$this->validPinRequest = $this->isCurrentlySecAdmin()
+									 || ( new Ops\VerifyPinRequest() )
+										 ->setMod( $this->getMod() )
+										 ->run( (string)Services::Request()->post( 'sec_admin_key' ) );
 		}
 		return $this->validPinRequest;
 	}

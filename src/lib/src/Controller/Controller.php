@@ -1060,9 +1060,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function isPluginAdmin() :bool {
 		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
-			   || ( $this->getMeetsBasePermissions() // takes care of did_action('init)
-					&& apply_filters( $this->prefix( 'is_plugin_admin' ), true )
-			   );
+			   || apply_filters( $this->prefix( 'is_plugin_admin' ), $this->getMeetsBasePermissions() );
 	}
 
 	/**

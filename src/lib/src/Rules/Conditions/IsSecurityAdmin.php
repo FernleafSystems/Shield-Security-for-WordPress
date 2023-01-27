@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class IsSecurityAdmin extends Base {
 
 	public const SLUG = 'is_security_admin';
@@ -15,7 +13,7 @@ class IsSecurityAdmin extends Base {
 		return ( new IsUserAdminNormal() )->setCon( $this->getCon() )->run() &&
 			   (
 				   !$secAdminCon->isEnabledSecAdmin()
-				   || $secAdminCon->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
+				   || $secAdminCon->isCurrentUserRegisteredSecAdmin()
 				   || $secAdminCon->getSecAdminTimeRemaining() > 0
 			   );
 	}
