@@ -34,8 +34,19 @@ class Footer extends Base {
 		shuffle( $benefits );
 
 		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
-
 		return [
+			'flags'   => [
+				'is_pro'           => $con->isPremiumActive(),
+				'is_whitelabelled' => $isWhitelabelled,
+				'email_flags'      => array_merge( [
+					'is_admin_email' => true,
+				], $this->action_data[ 'email_flags' ] ?? [] )
+			],
+			'hrefs'   => [
+				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',
+				'much_more'           => 'https://shsec.io/gp',
+				'configure_recipient' => $con->plugin_urls->modCfgOption( 'block_send_email_address' ),
+			],
 			'strings' => [
 				'benefits'            => $benefits,
 				'much_more'           => 'And So Much More',
@@ -51,15 +62,6 @@ class Footer extends Base {
 					sprintf( __( 'currently %s', 'wp-simple-firewall' ), $con->getModule_Plugin()
 																			 ->getPluginReportEmail() ) ),
 			],
-			'hrefs'   => [
-				'upgrade'             => 'https://shsec.io/buyshieldproemailfooter',
-				'much_more'           => 'https://shsec.io/gp',
-				'configure_recipient' => $con->plugin_urls->modCfgOption( 'block_send_email_address' ),
-			],
-			'flags'   => [
-				'is_pro'           => $con->isPremiumActive(),
-				'is_whitelabelled' => $isWhitelabelled
-			]
 		];
 	}
 }

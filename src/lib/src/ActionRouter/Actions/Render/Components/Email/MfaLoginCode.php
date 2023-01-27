@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaLoginCode extends EmailBase {
 
+	use Traits\UserEmail;
+
 	public const SLUG = 'email_mfa_login_code';
 	public const TEMPLATE = '/email/lp_2fa_email_code.twig';
 
@@ -16,7 +18,7 @@ class MfaLoginCode extends EmailBase {
 
 		return [
 			'flags'   => [
-				'show_login_link' => !$this->getCon()->isRelabelled()
+				'show_login_link' => !$this->getCon()->isRelabelled(),
 			],
 			'vars'    => [
 				'code' => $this->action_data[ 'otp' ]

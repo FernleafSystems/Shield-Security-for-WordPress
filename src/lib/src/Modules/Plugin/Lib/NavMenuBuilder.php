@@ -24,7 +24,7 @@ class NavMenuBuilder {
 			$this->gopro(),
 			//			$this->logs(),
 			//			$this->integrations(),
-//			$this->stats(),
+			//			$this->stats(),
 			$this->configuration(),
 			$this->docs(),
 		];
@@ -56,12 +56,15 @@ class NavMenuBuilder {
 				$item[ 'classes' ][] = 'body_content_link';
 			}
 			else {
-				$item[ 'sub_items' ] = array_map( function ( $sub ) {
+				$item[ 'sub_items' ] = array_map( function ( $sub ) use ( $isSecAdmin ) {
 					if ( empty( $sub[ 'classes' ] ) ) {
 						$sub[ 'classes' ] = [];
 					}
 					if ( $sub[ 'active' ] ?? false ) {
 						$sub[ 'classes' ][] = 'active';
+					}
+					if ( !$isSecAdmin ) {
+						$sub[ 'classes' ][] = 'disabled';
 					}
 					return $sub;
 				}, $item[ 'sub_items' ] );
@@ -439,40 +442,40 @@ class NavMenuBuilder {
 	private function users() :array {
 		$con = $this->getCon();
 		return [
-			'slug'      => 'users',
-			'title'     => __( 'Users', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'bootstrap/person-badge.svg' ),
-			'href'  => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
-			'introjs'   => [
+			'slug'    => 'users',
+			'title'   => __( 'Users', 'wp-simple-firewall' ),
+			'img'     => $con->svgs->raw( 'bootstrap/person-badge.svg' ),
+			'href'    => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
+			'introjs' => [
 				'body' => __( 'View sessions, and configure session timeouts and passwords requirements.', 'wp-simple-firewall' ),
 			],
-//			'sub_items' => [
-//				[
-//					'slug'  => 'users-sessions',
-//					'title' => __( 'View Sessions', 'wp-simple-firewall' ),
-//					'href'  => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
-//				],
-//				[
-//					'slug'  => 'users-secadmin',
-//					'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
-//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_security_admin_settings' ),
-//				],
-//				[
-//					'slug'  => 'users-settings',
-//					'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
-//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_user_session_management' ),
-//				],
-//				[
-//					'slug'  => 'users-passwords',
-//					'title' => __( 'Password Policies', 'wp-simple-firewall' ),
-//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_passwords' ),
-//				],
-//				[
-//					'slug'  => 'users-suspend',
-//					'title' => __( 'User Suspension', 'wp-simple-firewall' ),
-//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_suspend' ),
-//				],
-//			],
+			//			'sub_items' => [
+			//				[
+			//					'slug'  => 'users-sessions',
+			//					'title' => __( 'View Sessions', 'wp-simple-firewall' ),
+			//					'href'  => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
+			//				],
+			//				[
+			//					'slug'  => 'users-secadmin',
+			//					'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
+			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_security_admin_settings' ),
+			//				],
+			//				[
+			//					'slug'  => 'users-settings',
+			//					'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
+			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_user_session_management' ),
+			//				],
+			//				[
+			//					'slug'  => 'users-passwords',
+			//					'title' => __( 'Password Policies', 'wp-simple-firewall' ),
+			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_passwords' ),
+			//				],
+			//				[
+			//					'slug'  => 'users-suspend',
+			//					'title' => __( 'User Suspension', 'wp-simple-firewall' ),
+			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_suspend' ),
+			//				],
+			//			],
 		];
 	}
 

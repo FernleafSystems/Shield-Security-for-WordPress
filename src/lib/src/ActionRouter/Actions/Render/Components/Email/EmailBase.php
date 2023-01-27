@@ -19,7 +19,9 @@ abstract class EmailBase extends Base {
 
 	protected function getFooterData() :array {
 		return apply_filters( 'icwp_shield_email_footer', [
-			$this->getCon()->action_router->render( Footer::SLUG )
+			$this->getCon()->action_router->render( Footer::SLUG, [
+				'email_flags' => $this->getEmailFlags(),
+			] )
 		] );
 	}
 
@@ -29,6 +31,12 @@ abstract class EmailBase extends Base {
 		return [
 			__( 'Hi !', 'wp-simple-firewall' ),
 			'',
+		];
+	}
+
+	protected function getEmailFlags() :array {
+		return [
+			'is_admin_email' => true,
 		];
 	}
 }

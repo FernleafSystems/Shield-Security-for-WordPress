@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockMagicLink extends EmailBase {
 
+	use Traits\UserEmail;
+
 	public const SLUG = 'email_unblock_magic_link';
 	public const TEMPLATE = '/email/uaum_init.twig';
 

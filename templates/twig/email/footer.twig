@@ -1,7 +1,10 @@
 <p>--</p>
-<p>
-	&rarr; <a href="{{ hrefs.configure_recipient }}" target="_blank">{{ strings.configure_recipient }}</a>
-</p>
+{% if flags.email_flags.is_admin_email %}
+	<p>
+		&rarr; <a href="{{ hrefs.configure_recipient }}" target="_blank">{{ strings.configure_recipient }}</a>
+	</p>
+{% endif %}
+
 {% if flags.is_pro %}
 	{% if not flags.is_whitelabelled %}
 		<p>Thank you for choosing Shield Security PRO.</p>
