@@ -35,6 +35,11 @@ if ( version_compare( PHP_VERSION, '7.2', '<' ) ) {
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
 }
+elseif ( version_compare( PHP_VERSION, '8.2', '>' ) ) {
+	global $sIcwpWpsfPluginFile;
+	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
+	include_once( dirname( __FILE__ ).'/unsupported_82.php' );
+}
 elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
 	add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
