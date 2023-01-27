@@ -20,12 +20,12 @@ class NavMenuBuilder {
 			$this->audit(),
 			$this->traffic(),
 			$this->users(),
+			$this->configuration(),
 			$this->tools(),
 			$this->gopro(),
 			//			$this->logs(),
 			//			$this->integrations(),
 			//			$this->stats(),
-			$this->configuration(),
 			$this->docs(),
 		];
 

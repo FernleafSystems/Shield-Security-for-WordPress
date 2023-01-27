@@ -17,7 +17,7 @@ class Components {
 		Component\AdeLoginGuard::class,
 		Component\AdeLostPassword::class,
 		Component\AdeRegister::class,
-		Component\AdeTreshold::class,
+		Component\IpAdeThreshold::class,
 		Component\CommentApprovedMinimum::class,
 		Component\CommentSpamAntibot::class,
 		Component\CommentSpamHuman::class,

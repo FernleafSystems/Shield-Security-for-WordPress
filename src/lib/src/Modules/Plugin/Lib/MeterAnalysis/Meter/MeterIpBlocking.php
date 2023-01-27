@@ -33,7 +33,7 @@ class MeterIpBlocking extends MeterBase {
 			Component\IpAutoBlockShield::class,
 			Component\IpAutoBlockOffenseLimit::class,
 			Component\IpAutoBlockCrowdsec::class,
-			Component\AdeTreshold::class,
+			Component\IpAdeThreshold::class,
 			Component\LockdownAuthorDiscovery::class,
 			Component\TrafficRateLimiting::class,
 			Component\IpTrackSignal404::class,

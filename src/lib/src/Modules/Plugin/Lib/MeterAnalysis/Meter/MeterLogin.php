@@ -34,6 +34,7 @@ class MeterLogin extends MeterBase {
 
 	protected function getComponents() :array {
 		return [
+			Component\IpAdeThreshold::class,
 			Component\AdeLoginGuard::class,
 			Component\AdeLogin::class,
 			Component\AdeRegister::class,
