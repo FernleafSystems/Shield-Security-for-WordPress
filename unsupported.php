@@ -18,7 +18,7 @@ function icwp_wpsf_unsupported_php() {
 		sprintf( 'Shield Security Plugin - Unsupported PHP Version: %s', PHP_VERSION ),
 		implode( '<br/>', $text ),
 		'https://shsec.io/dl',
-		sprintf( 'Click here for more info' ),
+		'Click here for more info',
 		add_query_arg(
 			array(
 				'action'   => 'deactivate',
@@ -27,6 +27,6 @@ function icwp_wpsf_unsupported_php() {
 			),
 			self_admin_url( 'plugins.php' )
 		),
-		sprintf( 'Or, deactivate the Shield Security plugin for now' )
+		'Or, deactivate the Shield Security plugin for now'
 	);
 }
