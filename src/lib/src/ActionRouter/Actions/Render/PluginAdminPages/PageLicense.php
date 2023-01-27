@@ -16,7 +16,7 @@ class PageLicense extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_license';
 	public const PRIMARY_MOD = 'license';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/license.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/license.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

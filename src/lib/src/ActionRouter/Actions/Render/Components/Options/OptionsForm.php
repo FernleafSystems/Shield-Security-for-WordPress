@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Opti
 class OptionsForm extends BaseRender {
 
 	public const SLUG = 'render_options_form';
-	public const TEMPLATE = '/components/options_form/main.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
@@ -45,10 +45,14 @@ class OptionsForm extends BaseRender {
 		}
 
 		return [
-			'hrefs' => [
+			'hrefs'   => [
 				'form_action' => 'admin.php?page='.$mod->getModSlug(),
 			],
-			'vars'  => [
+			'strings' => [
+				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $mod->getModDescriptors()[ 'title' ] ),
+				'inner_page_subtitle' => $mod->getModDescriptors()[ 'subtitle' ],
+			],
+			'vars'    => [
 				'working_mod'   => $mod->getSlug(),
 				'all_options'   => ( new BuildForDisplay( $focusSection, $focusOption ) )
 					->setMod( $mod )

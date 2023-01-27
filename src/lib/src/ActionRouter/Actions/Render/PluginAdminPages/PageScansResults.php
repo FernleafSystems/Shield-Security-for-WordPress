@@ -24,7 +24,7 @@ class PageScansResults extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_scans_results';
 	public const PRIMARY_MOD = 'hack_protect';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/scan_results.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_results.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -69,8 +69,16 @@ class PageScansResults extends BasePluginAdminPage {
 			'hrefs'       => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
-				'inner_page_config'  => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
-				'inner_page_toggle'  => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RUN ),
+				'inner_page_config' => [
+					[
+						'text' => __( 'Run Scans', 'wp-simple-firewall' ),
+						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RUN ),
+					],
+					[
+						'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
+						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+					],
+				],
 			],
 			'strings'     => [
 				'inner_page_title'    => __( 'Scan Results', 'wp-simple-firewall' ),

@@ -10,7 +10,7 @@ class PageStats extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_stats';
 	public const PRIMARY_MOD = 'events';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/stats.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/stats.twig';
 
 	protected function getRenderData() :array {
 		$statsVars = $this->build();

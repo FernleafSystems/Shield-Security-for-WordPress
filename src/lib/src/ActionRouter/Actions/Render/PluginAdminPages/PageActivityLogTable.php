@@ -10,7 +10,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 
 	public const SLUG = 'page_admin_plugin_activity_log_table';
 	public const PRIMARY_MOD = 'audit_trail';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/table_activity.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_activity.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -19,11 +19,16 @@ class PageActivityLogTable extends BasePluginAdminPage {
 				'logtable_action' => ActionData::BuildJson( ActivityLogTableAction::SLUG ),
 			],
 			'hrefs'   => [
-				'inner_page_config' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+				'inner_page_config' => [
+					[
+						'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
+						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+					],
+				],
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Users, Visitors & Bots Activity', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Track and monitor activity on your site by user, visitors and bots.', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Track and monitor activity on your site by users, visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForActivityLog() )

@@ -205,9 +205,7 @@ class UI extends BaseShield\UI {
 
 			'description'                  => __( 'Description', 'wp-simple-firewall' ),
 			'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
-			'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
 			'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Admin PIN.', 'wp-simple-firewall' ),
-			'aar_must_supply_key_first'    => __( 'Please provide the Security Admin PIN to manage this plugin.', 'wp-simple-firewall' ),
 			'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the Security Admin PIN.', 'wp-simple-firewall' ),
 			'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
 			'aar_submit_access_key'        => __( 'Submit Security Admin PIN', 'wp-simple-firewall' ),

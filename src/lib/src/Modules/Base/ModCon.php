@@ -455,6 +455,17 @@ abstract class ModCon extends DynPropertiesClass {
 		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
 	}
 
+	/**
+	 * @return array{title: string, subtitle: string, description: array}
+	 */
+	public function getModDescriptors() :array {
+		return [
+			'title'       => $this->getMainFeatureName(),
+			'subtitle'    => '',
+			'description' => [],
+		];
+	}
+
 	public function getModSlug( bool $prefix = true ) :string {
 		return $prefix ? $this->getCon()->prefix( $this->getSlug() ) : $this->getSlug();
 	}

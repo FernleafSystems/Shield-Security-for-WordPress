@@ -10,7 +10,7 @@ class PageImportExport extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_importexport';
 	public const PRIMARY_MOD = 'plugin';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/import.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/import.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
@@ -28,13 +28,21 @@ class PageImportExport extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
-				'inner_page_config'    => $con->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
+				'inner_page_config' => [
+					[
+						'text' => __( 'Configure', 'wp-simple-firewall' ),
+						'href' => $con->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
+					],
+				],
 			],
 			'strings' => [
+				'inner_page_title'    => __( 'Import Configuration', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Quickly setup your site by importing from another site or a backup.', 'wp-simple-firewall' ),
+
 				'tab_by_file'          => __( 'Import From File', 'wp-simple-firewall' ),
 				'tab_by_site'          => __( 'Import From Another Site', 'wp-simple-firewall' ),
+				'tab_to_file'          => __( 'Export To File', 'wp-simple-firewall' ),
 				'title_import_file'    => __( 'Import From File', 'wp-simple-firewall' ),
-				'subtitle_import_file' => __( 'Upload an exported options file you downloaded from another site', 'wp-simple-firewall' ),
 				'select_import_file'   => __( 'Select file to import options from', 'wp-simple-firewall' ),
 				'i_understand'         => __( 'I Understand Existing Options Will Be Overwritten', 'wp-simple-firewall' ),
 				'be_sure'              => __( 'Please be sure that this is what you want.', 'wp-simple-firewall' ),
@@ -44,7 +52,6 @@ class PageImportExport extends BasePluginAdminPage {
 				'title_download_file'    => __( 'Download Options Export File', 'wp-simple-firewall' ),
 				'subtitle_download_file' => __( 'Use this file to copy options from this site into another site', 'wp-simple-firewall' ),
 
-				'subtitle_import_site' => __( 'Import options directly from another site', 'wp-simple-firewall' ),
 				'master_site_url'      => __( 'Master Site URL', 'wp-simple-firewall' ),
 				'remember_include'     => sprintf(
 					__( 'Remember to include %s or %s', 'wp-simple-firewall' ),
@@ -66,9 +73,6 @@ class PageImportExport extends BasePluginAdminPage {
 					__( 'When you adjust options on the Master site, they will be reflected in this site after the automatic import', 'wp-simple-firewall' ),
 				],
 				'import_options'       => __( 'Import Options', 'wp-simple-firewall' ),
-
-				'inner_page_title'    => __( 'Import Configuration', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Quickly setup your site by importing from another site or a backup.', 'wp-simple-firewall' ),
 			]
 		];
 	}

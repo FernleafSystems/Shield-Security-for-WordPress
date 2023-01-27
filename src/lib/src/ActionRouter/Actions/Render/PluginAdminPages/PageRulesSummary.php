@@ -6,7 +6,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_rules_summary';
 	public const PRIMARY_MOD = 'plugin';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/rules_summary.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/rules_summary.twig';
 
 	protected function getRenderData() :array {
 		$rules = $this->getCon()->rules->getRules();

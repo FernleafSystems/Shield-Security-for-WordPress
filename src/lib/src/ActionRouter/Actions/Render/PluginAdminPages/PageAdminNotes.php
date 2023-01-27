@@ -12,7 +12,7 @@ class PageAdminNotes extends BasePluginAdminPage {
 
 	public const PRIMARY_MOD = 'plugin';
 	public const SLUG = 'admin_plugin_page_admin_notes';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/notes.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/notes.twig';
 
 	protected function getRenderData() :array {
 		return [

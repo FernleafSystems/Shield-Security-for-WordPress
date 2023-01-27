@@ -1091,7 +1091,14 @@ td.mal_details ul {
 	border-radius: 5px;
 	box-shadow: 2px 2px 2px rgb(0 0 0 / 10%);
 }
-.inner-page-header a.config > svg {
+.inner-page-header .dropstart button {
+	color: #008000;
+}
+.inner-page-header .dropdown-menu {
+	border-color: #008000;
+	box-shadow: 1px 1px 2px rgb(0 128 0 / 20%);
+}
+.inner-page-header .dropstart svg {
 	width: 32px;
 	height: 32px;
 }

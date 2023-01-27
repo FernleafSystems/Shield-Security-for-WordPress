@@ -6,7 +6,7 @@ class PageConfig extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_config';
 	public const PRIMARY_MOD = 'plugin';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/config.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

@@ -12,7 +12,7 @@ class PageDebug extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_debug';
 	public const PRIMARY_MOD = 'plugin';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/debug.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/debug.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();

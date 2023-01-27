@@ -8,7 +8,7 @@ class PageReports extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_reports';
 	public const PRIMARY_MOD = 'reporting';
-	public const TEMPLATE = '/wpadmin_pages/insights/plugin_admin/reports.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
 
 	protected function getRenderData() :array {
 		$AR = $this->getCon()->action_router;

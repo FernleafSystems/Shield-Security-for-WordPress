@@ -14,12 +14,11 @@ class ReinstallDialog extends BaseScans {
 	protected function getRenderData() :array {
 		return [
 			'strings'     => [
-				'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewll' ),
-				'really_reinstall'   => __( 'Really Re-Install Plugin', 'wp-simple-firewll' ),
-				'wp_reinstall'       => __( 'WordPress will now download and install the latest available version of this plugin.', 'wp-simple-firewll' ),
+				'really_reinstall'   => __( 'Really Re-Install Plugin', 'wp-simple-firewall' ),
+				'wp_reinstall'       => __( 'WordPress will now download and install the latest available version of this plugin.', 'wp-simple-firewall' ),
 				'in_case'            => sprintf( '%s: %s',
 					__( 'Note', 'wp-simple-firewall' ),
-					__( 'In case of possible failure, it may be better to do this while the plugin is inactive.', 'wp-simple-firewll' )
+					__( 'In case of possible failure, it may be better to do this while the plugin is inactive.', 'wp-simple-firewall' )
 				),
 				'reinstall_first'    => __( 'Re-install first?', 'wp-simple-firewall' ),
 				'corrupted'          => __( "This ensures files for this plugin haven't been corrupted in any way.", 'wp-simple-firewall' ),
