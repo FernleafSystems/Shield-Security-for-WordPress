@@ -4,10 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use IPLib\Address\AddressInterface;
-use IPLib\Factory;
 
 class SelectSearchData {
 
@@ -15,16 +13,7 @@ class SelectSearchData {
 
 	public function build( string $terms ) :array {
 		$terms = strtolower( trim( $terms ) );
-
-		$ip = Factory::parseAddressString( $terms );
-		if ( is_null( $ip ) ) {
-			$data = $this->textSearch( $terms );
-		}
-		else {
-			$data = $this->ipSearch( $ip );
-		}
-
-		return $this->postProcessResults( $data );
+		return $this->postProcessResults( array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
 	}
 
 	private function postProcessResults( array $results ) :array {
@@ -51,22 +40,49 @@ class SelectSearchData {
 	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
-	protected function ipSearch( AddressInterface $ip ) :array {
-		$con = $this->getCon();
-		try {
-			$ip = $ip->toString();
-			( new IPRecords() )
-				->setMod( $con->getModule_Data() )
-				->loadIP( $ip, false );
-			$data = [
-				[
-					'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
-					'children' => [
-						[
+	protected function ipSearch( string $terms ) :array {
+		$ipTerms = array_filter(
+			array_map( 'trim', explode( ' ', $terms ) ),
+			function ( string $term ) {
+				return preg_match( '#^[\d.]{3,}$#i', $term ) || preg_match( '#^[\da-f:]{3,}$#i', $term );
+			}
+		);
+
+		$results = [];
+		$dbhIPs = $this->getCon()->getModule_Data()->getDbH_IPs();
+		foreach ( $ipTerms as $ipTerm ) {
+			$ips = $dbhIPs->getQuerySelector()
+						  ->addRawWhere( [
+							  sprintf( 'INET6_NTOA(`%s`.`ip`)', $dbhIPs->getTableSchema()->table ),
+							  'LIKE',
+							  "'%$ipTerm%'"
+						  ] )
+						  ->queryWithResult();
+			$results = array_merge(
+				$results,
+				array_map(
+					function ( Record $ipRecord ) {
+						return $ipRecord->ip;
+					},
+					is_array( $ips ) ? $ips : []
+				)
+			);
+		}
+
+		if ( empty( $results ) ) {
+			return [];
+		}
+
+		return [
+			[
+				'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
+				'children' => array_map(
+					function ( string $ip ) {
+						return [
 							'id'          => 'ip_'.$ip,
 							'text'        => $ip,
 							'link'        => [
-								'href'    => $con->plugin_urls->ipAnalysis( $ip ),
+								'href'    => $this->getCon()->plugin_urls->ipAnalysis( $ip ),
 								'classes' => [ 'render_ip_analysis' ],
 								'data'    => [
 									'ip' => $ip
@@ -74,17 +90,13 @@ class SelectSearchData {
 							],
 							'ip'          => $ip,
 							'is_external' => false,
-							'icon'        => $con->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
-						],
-					],
-				]
-			];
-		}
-		catch ( \Exception $e ) {
-			$data = [];
-		}
-
-		return $data;
+							'icon'        => $this->getCon()->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
+						];
+					},
+					array_unique( $results )
+				),
+			]
+		];
 	}
 
 	/**
