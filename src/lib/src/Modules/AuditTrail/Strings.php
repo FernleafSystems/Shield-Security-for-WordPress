@@ -266,7 +266,7 @@ class Strings extends Base\Strings {
 					__( 'Specify the logging levels when using the local database.', 'wp-simple-firewall' ),
 					__( "Debug and Info logging should only be enabled when investigating specific problems.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTop( PluginURLs::NAV_DOCS ),
+						$con->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
 						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
 					)
 				];
@@ -294,7 +294,7 @@ class Strings extends Base\Strings {
 						$opts->getLogFilePath()
 					),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTop( PluginURLs::NAV_DOCS ),
+						$con->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
 						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
 					),
 					sprintf( '%s: %s',

@@ -30,11 +30,11 @@ class DashboardWidget extends BasePlugin {
 										  ->diffForHumans();
 		return [
 			'hrefs'   => [
-				'overview'    => $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ),
+				'overview'    => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
 				'logo'        => $con->labels->PluginURI,
-				'audit_trail' => $con->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
-				'sessions'    => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
-				'ips'         => $con->plugin_urls->adminTop( PluginURLs::NAV_IP_RULES ),
+				'audit_trail' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
+				'sessions'    => $con->plugin_urls->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
+				'ips'         => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()
@@ -81,22 +81,22 @@ class DashboardWidget extends BasePlugin {
 					->getMeter( MeterSummary::class ),
 				'jump_links'         => [
 					[
-						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ),
+						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
 						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_IP_RULES ),
+						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
 						'text' => __( 'IPs', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/diagram-3.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
+						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_TRAFFIC_VIEWER ),
+						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_TRAFFIC_VIEWER ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
 					],

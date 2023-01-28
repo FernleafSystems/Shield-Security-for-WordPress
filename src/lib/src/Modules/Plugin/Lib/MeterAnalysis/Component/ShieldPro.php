@@ -18,7 +18,7 @@ class ShieldPro extends Base {
 	}
 
 	public function hrefFull() :string {
-		return $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_LICENSE );
+		return $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE );
 	}
 
 	public function title() :string {

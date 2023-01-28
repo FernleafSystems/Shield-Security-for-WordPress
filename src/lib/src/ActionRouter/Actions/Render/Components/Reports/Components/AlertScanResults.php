@@ -43,7 +43,7 @@ class AlertScanResults extends BaseBuilderForScans {
 				'render_required' => !empty( $counts ),
 			],
 			'hrefs'   => [
-				'view_results' => $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
+				'view_results' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),

@@ -145,10 +145,10 @@ class BaseSubPage extends BaseMWP {
 				$shd[ 'issues' ] = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 			}
 
-			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ) );
+			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ) );
 			$gradeLetter = $sync->modules[ 'insights' ][ 'grades' ][ 'integrity' ][ 'totals' ][ 'letter_score' ] ?? '-';
 			$shd[ 'grades' ] = [
-				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTop( PluginURLs::NAV_OVERVIEW ) ),
+				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ) ),
 				'integrity' => $gradeLetter,
 				'good'      => in_array( $gradeLetter, [ 'A', 'B' ] ),
 			];

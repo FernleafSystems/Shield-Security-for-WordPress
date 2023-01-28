@@ -38,11 +38,11 @@ class PageScansRun extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
+				'scans_results'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 				'inner_page_config' => [
 					[
 						'text' => __( 'Scan Results', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
+						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 					],
 					[
 						'text' => __( 'Configure Scans', 'wp-simple-firewall' ),

@@ -73,6 +73,8 @@ class SelectSearchData {
 			return [];
 		}
 
+		natsort( $results );
+
 		return [
 			[
 				'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
@@ -247,7 +249,7 @@ class SelectSearchData {
 						'id'     => 'tool_ip_manager',
 						'text'   => __( 'Manage IP Rules', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_IP_RULES ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_IP_RULES ),
 						],
 						'tokens' => 'tool ips ip address analyse analysis rules rule manager block black white list lists bypass crowdsec table',
 						'icon'   => $con->svgs->raw( 'bootstrap/diagram-3-fill.svg' ),
@@ -256,7 +258,7 @@ class SelectSearchData {
 						'id'     => 'tool_scan_run',
 						'text'   => __( 'Run A File Scan', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_SCANS_RUN ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_SCANS_RUN ),
 						],
 						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware',
 						'icon'   => $con->svgs->raw( 'bootstrap/shield-shaded.svg' ),
@@ -265,7 +267,7 @@ class SelectSearchData {
 						'id'     => 'tool_scan_results',
 						'text'   => __( 'View Scan Results', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_SCANS_RESULTS ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 						],
 						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore',
 						'icon'   => $con->svgs->raw( 'bootstrap/shield-fill.svg' ),
@@ -274,7 +276,7 @@ class SelectSearchData {
 						'id'     => 'tool_activity_log',
 						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 						],
 						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
 						'icon'   => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
@@ -283,7 +285,7 @@ class SelectSearchData {
 						'id'     => 'tool_traffic_log',
 						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_TRAFFIC_VIEWER ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_TRAFFIC_VIEWER ),
 						],
 						'tokens' => 'tool activity log table traffic request requests bots review',
 						'icon'   => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
@@ -292,7 +294,7 @@ class SelectSearchData {
 						'id'     => 'tool_sessions',
 						'text'   => __( 'View User Sessions', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_USER_SESSIONS ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
 						],
 						'tokens' => 'tool user users session sessions expire discard logout',
 						'icon'   => $con->svgs->raw( 'bootstrap/person-badge.svg' ),
@@ -301,7 +303,7 @@ class SelectSearchData {
 						'id'     => 'tool_license',
 						'text'   => __( 'Activate ShieldPRO License', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_LICENSE ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_LICENSE ),
 						],
 						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing',
 						'icon'   => $con->svgs->raw( 'bootstrap/award.svg' ),
@@ -310,7 +312,7 @@ class SelectSearchData {
 						'id'     => 'tool_notes',
 						'text'   => __( 'Review Admin Notes', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_NOTES ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_NOTES ),
 						],
 						'tokens' => 'tool admin notes note',
 						'icon'   => $con->svgs->raw( 'bootstrap/pencil-square.svg' ),
@@ -319,7 +321,7 @@ class SelectSearchData {
 						'id'     => 'tool_importexport',
 						'text'   => __( 'Import / Export Settings', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_IMPORT_EXPORT ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_IMPORT_EXPORT ),
 						],
 						'tokens' => 'tool sync import export transfer download settings configuration options slave master network',
 						'icon'   => $con->svgs->raw( 'bootstrap/arrows-expand.svg' ),
@@ -328,7 +330,7 @@ class SelectSearchData {
 						'id'     => 'tool_overview',
 						'text'   => __( 'My Security Overview', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_OVERVIEW ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_OVERVIEW ),
 						],
 						'tokens' => 'tool overview grade grading charts performance dashboard summary',
 						'icon'   => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
@@ -337,7 +339,7 @@ class SelectSearchData {
 						'id'     => 'tool_guidedsetup',
 						'text'   => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_WIZARD ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_WIZARD ),
 						],
 						'tokens' => 'tool setup guide guided wizard',
 						'icon'   => $con->svgs->raw( 'bootstrap/magic.svg' ),
@@ -346,7 +348,7 @@ class SelectSearchData {
 						'id'     => 'tool_debug',
 						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTop( PluginURLs::NAV_DEBUG ),
+							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_DEBUG ),
 						],
 						'tokens' => 'tool debug info help',
 						'icon'   => $con->svgs->raw( 'bootstrap/tools.svg' ),

@@ -76,7 +76,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 				'render_required' => !empty( $repairs ),
 			],
 			'hrefs'   => [
-				'audit_trail' => $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_ACTIVITY_LOG ),
+				'audit_trail' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 			],
 			'strings' => [
 				'title'       => \__( 'Scanner Repairs', 'wp-simple-firewall' ),

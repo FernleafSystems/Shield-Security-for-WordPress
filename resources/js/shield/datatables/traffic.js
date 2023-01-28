@@ -130,12 +130,6 @@
 							style: 'multi'
 						},
 						dom: 'PBfrptip',
-						searchPanes: {
-							cascadePanes: false,
-							viewTotal: false,
-							viewCount: false,
-							initCollapsed: true
-						},
 						search: {},
 						buttons: [
 							{

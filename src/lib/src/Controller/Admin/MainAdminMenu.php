@@ -17,12 +17,6 @@ class MainAdminMenu {
 	}
 
 	protected function run() {
-		add_action( 'admin_menu', function () {
-			$this->createAdminMenu();
-		} );
-		add_action( 'network_admin_menu', function () {
-			$this->createAdminMenu();
-		} );
 	}
 
 	private function createAdminMenu() {

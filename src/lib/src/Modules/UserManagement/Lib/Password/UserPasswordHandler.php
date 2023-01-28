@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
+	Options,
+	Strings
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 use ZxcvbnPhp\Zxcvbn;
@@ -15,36 +18,44 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 
 	use WpLoginCapture;
 
-	protected function canRun() :bool {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isPasswordPoliciesEnabled();
-	}
-
 	protected function run() {
+
 		$this->setupLoginCaptureHooks();
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
-		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
-		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
-		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
+
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isPasswordPoliciesEnabled() ) {
+			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
+			add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
+			add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
+		}
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$password = $this->getLoginPassword();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( Services::Request()->isPost() && !empty( $password ) ) {
-			try {
-				$this->applyPasswordChecks( $password );
-				$failed = false;
-			}
-			catch ( \Exception $e ) {
-				// We don't fail when the PWNED API is not available.
-				$failed = ( $e->getCode() != 999 );
-			}
+		$failed = false;
 
-			$this->getCon()
-				 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
+		if ( $opts->isPasswordPoliciesEnabled() ) {
+			$password = $this->getLoginPassword();
+			if ( Services::Request()->isPost() && !empty( $password ) ) {
+				try {
+					$this->applyPasswordChecks( $password );
+				}
+				catch ( \Exception $e ) {
+					// We don't fail when the PWNED API is not available.
+					$failed = ( $e->getCode() != 999 );
+				}
+				$this->getCon()
+					 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
+			}
+		}
+
+		if ( !$failed ) {
+			$this->getCon()->getUserMeta( $user )->updatePasswordStartedAt( $user->user_pass );
 		}
 	}
 
@@ -68,7 +79,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	private function processExpiredPassword() {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isPassExpirationEnabled() ) {
 			$startedAt = $this->getCon()->getCurrentUserMeta()->record->pass_started_at;
@@ -172,7 +183,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	private function applyPasswordChecks( string $password ) {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		if ( $opts->getPassMinLength() > 0 ) {
@@ -204,11 +215,11 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		$score = (int)( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
 		if ( $score < $min ) {
-			/** @var UserManagement\ModCon $mod */
-			$mod = $this->getMod();
+			/** @var Strings $str */
+			$str = $this->getMod()->getStrings();
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-				$mod->getPassStrengthName( $score ),
-				$mod->getPassStrengthName( $min )
+				$str->getPassStrengthName( $score ),
+				$str->getPassStrengthName( $min )
 			) );
 		}
 

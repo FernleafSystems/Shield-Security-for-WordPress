@@ -6,7 +6,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class WpCli extends BaseShield\WpCli {
 
-	protected function enumCmdHandlers() :array {
-		return [];
-	}
 }

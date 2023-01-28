@@ -156,12 +156,12 @@ class ModCon extends BaseShield\ModCon {
 			'icwp_wpsf_vars_ips',
 			[
 				'components' => [
-					'ip_analysis'       => [
+					'ip_analysis' => [
 						'ajax' => [
 							'ip_analyse_action' => ActionData::Build( Actions\IpAnalyseAction::SLUG ),
 						]
 					],
-					'ip_rules'          => [
+					'ip_rules'    => [
 						'ajax'    => [
 							'ip_rule_add_submit' => ActionData::Build( Actions\IpRuleAddSubmit::SLUG ),
 							'ip_rule_delete'     => ActionData::Build( Actions\IpRuleDelete::SLUG ),

@@ -177,20 +177,41 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {
-		$con = $this->getCon();
 		$WPU = Services::WpUsers();
-
 		$user = $WPU->getUserById( $uid );
 
-		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $con->isPluginAdmin() ) ) {
+		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $this->getCon()->isPluginAdmin() ) ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var UserManagement\ModCon $mod */
-			$mod = $this->getMod();
-			$mod->addRemoveHardSuspendUser( $user, $isSuspend );
+			$this->addRemoveHardSuspendUser( $user, $isSuspend );
 
 			if ( $isSuspend ) {
 				\WP_Session_Tokens::get_instance( $user->ID )->destroy_all();
 			}
+		}
+	}
+
+	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
+		$con = $this->getCon();
+		$meta = $con->getUserMeta( $user );
+		$isSuspended = $meta->record->hard_suspended_at > 0;
+
+		if ( $add && !$isSuspended ) {
+			$meta->record->hard_suspended_at = Services::Request()->ts();
+			$con->fireEvent( 'user_hard_suspended', [
+				'audit_params' => [
+					'user_login' => $user->user_login,
+					'admin'      => Services::WpUsers()->getCurrentWpUsername(),
+				]
+			] );
+		}
+		elseif ( !$add && $isSuspended ) {
+			$meta->record->hard_suspended_at = 0;
+			$con->fireEvent( 'user_hard_unsuspended', [
+				'audit_params' => [
+					'user_login' => $user->user_login,
+					'admin'      => Services::WpUsers()->getCurrentWpUsername(),
+				]
+			] );
 		}
 	}
 }

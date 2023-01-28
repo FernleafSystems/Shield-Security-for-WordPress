@@ -15,9 +15,6 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		return [
-			'ajax' => [
-				'table_action' => ActionData::BuildJson( IpRulesTableAction::SLUG ),
-			],
 			'hrefs'   => [
 				'inner_page_config' => [
 					[
@@ -30,11 +27,16 @@ class PageIpRulesTable extends BasePluginAdminPage {
 				'inner_page_title'    => __( 'Manage IP Rules', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' ),
 			],
-			'vars' => [
-				'datatables_init' => ( new ForIpRules() )
-					->setMod( $this->primary_mod )
-					->build()
-			],
+			'vars'    => [
+				'datatable_iprules' => wp_json_encode( [
+					'ajax'       => [
+						'table_action' => ActionData::Build( IpRulesTableAction::SLUG ),
+					],
+					'table_init' => ( new ForIpRules() )
+						->setMod( $this->primary_mod )
+						->buildRaw(),
+				] ),
+			]
 		];
 	}
 }

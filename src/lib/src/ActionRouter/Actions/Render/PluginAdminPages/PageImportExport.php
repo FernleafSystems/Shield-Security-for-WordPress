@@ -30,7 +30,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
 				'inner_page_config' => [
 					[
-						'text' => __( 'Configure', 'wp-simple-firewall' ),
+						'text' => __( 'Configure Auto Import', 'wp-simple-firewall' ),
 						'href' => $con->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
 					],
 				],

@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\AdminPage;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActionRoutingController extends ExecOnceModConsumer {
@@ -19,10 +17,6 @@ class ActionRoutingController extends ExecOnceModConsumer {
 
 	protected function run() {
 		$this->captureRedirects();
-
-		if ( is_admin() || is_network_admin() ) {
-			( new AdminPage() )->setMod( $this->getMod() )->execute();
-		}
 
 		( new CaptureShieldAction() )
 			->setMod( $this->getMod() )
@@ -85,48 +79,33 @@ class ActionRoutingController extends ExecOnceModConsumer {
 
 	private function captureRedirects() {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$urls = $con->plugin_urls;
 		$req = Services::Request();
 
-		$redirectTo = null;
+		if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 
-		if ( !Services::WpGeneral()->isAjax() && is_admin() ) {
+			$redirectTo = null;
 
-			$reqPage = (string)$req->query( 'page' );
-			if ( $reqPage === $con->prefix()
-				 //				 || ( $mod->getAdminPage()->isCurrentPage() && empty( $mod->getCurrentInsightsPage() ) )
-				 || ( in_array( $mod->getCurrentInsightsPage(), [ 'dashboard', 'index' ] ) )
-			) {
-				$redirectTo = $con->plugin_urls->adminHome();
-			}
-			elseif ( $con->isModulePage() ) {
+			if ( $con->isModulePage() ) {
+				$page = (string)$req->query( 'page' );
+				$navID = $req->query( Constants::NAV_ID );
+				$subNavID = $req->query( Constants::NAV_SUB_ID );
 
-				// 'insights'
-				if ( $reqPage === $mod->getModSlug() ) {
-					if ( empty( $req->query( Constants::NAV_ID ) ) ) {
-						$redirectTo = $con->plugin_urls->adminHome();
-					}
-					elseif ( $req->query( Constants::NAV_ID ) === PluginURLs::NAV_OPTIONS_CONFIG && empty( $req->query( Constants::NAV_SUB_ID ) ) ) {
-						$redirectTo = $con->plugin_urls->modCfg( $con->getModule_Plugin() );
-					}
+				if ( empty( $navID ) ) {
+					$pseudoNavID = explode( '-', $page )[ 2 ] ?? '';
+					$redirectTo = $urls->isValidNav( $pseudoNavID ) ? $urls->adminTopNav( $pseudoNavID ) : $urls->adminHome();
 				}
-				elseif ( preg_match( sprintf( '#^%s-redirect-([a-z_\-]+)$#', $con->prefix() ), $reqPage, $matches ) ) {
-					// Custom wp admin menu items redirect:
-					$redirectTo = $con->plugin_urls->adminTop( $matches[ 1 ] );
-				}
-				else {
-					die( 'REDIRECT HERE' );
-					$this->redirectToInsightsSubPage();
+				elseif ( $navID === PluginURLs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
+					$redirectTo = $urls->modCfg( $con->getModule_Plugin() );
 				}
 			}
 			elseif ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
-				$redirectTo = $con->plugin_urls->adminTop( PluginURLs::NAV_WIZARD );
+				$redirectTo = $urls->adminTopNav( PluginURLs::NAV_WIZARD );
 			}
-		}
 
-		if ( !empty( $redirectTo ) ) {
-			Services::Response()->redirect( $redirectTo, [], true, false );
+			if ( !empty( $redirectTo ) ) {
+				Services::Response()->redirect( $redirectTo, [], true, false );
+			}
 		}
 	}
 }

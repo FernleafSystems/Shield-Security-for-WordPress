@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Ses
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,6 +23,155 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
+		$this->getCon()
+			 ->getUserMeta( $user )
+			->record
+			->last_login_at = Services::Request()->ts();
+		$this->sendLoginNotifications( $user );
+	}
+
+	private function sendLoginNotifications( \WP_User $user ) {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$adminEmails = $this->getAdminLoginNotificationEmails();
+		$sendAdmin = count( $adminEmails ) > 0;
+		$sendUser = $opts->isOpt( 'enable_user_login_email_notification', 'Y' );
+
+		// do some magic logic so we don't send both to the same person (the assumption being that the admin
+		// email recipient is actually an admin (or they'll maybe not get any).
+		if ( $sendAdmin && $sendUser && in_array( strtolower( $user->user_email ), $adminEmails ) ) {
+			$sendUser = false;
+		}
+
+		if ( $sendAdmin ) {
+			$this->sendAdminLoginEmailNotification( $user );
+		}
+		if ( $sendUser ) {
+			$hasLoginIntent = $this->getCon()
+								   ->getModule_LoginGuard()
+								   ->getMfaController()
+								   ->isSubjectToLoginIntent( $user );
+			if ( !$hasLoginIntent ) {
+				$this->sendUserLoginEmailNotification( $user );
+			}
+		}
+	}
+
+	/**
+	 * Should have no default email. If no email is set, no notification is sent.
+	 * @return string[]
+	 */
+	public function getAdminLoginNotificationEmails() :array {
+		$emails = [];
+
+		$rawEmails = $this->getOptions()->getOpt( 'enable_admin_login_email_notification', '' );
+		if ( !empty( $rawEmails ) ) {
+			$emails = array_values( array_unique( array_filter(
+				array_map(
+					function ( $email ) {
+						return trim( strtolower( $email ) );
+					},
+					explode( ',', $rawEmails )
+				),
+				function ( $email ) {
+					return Services::Data()->validEmail( $email );
+				}
+			) ) );
+
+			if ( count( $emails ) > 1 && !$this->getCon()->isPremiumActive() ) {
+				$emails = array_slice( $emails, 0, 1 );
+			}
+
+			$this->getOptions()
+				 ->setOpt( 'enable_admin_login_email_notification', implode( ', ', $emails ) );
+		}
+
+		return $emails;
+	}
+
+	private function sendAdminLoginEmailNotification( \WP_User $user ) {
+		$con = $this->getCon();
+
+		$userCapToRolesMap = [
+			'network_admin' => 'manage_network',
+			'administrator' => 'manage_options',
+			'editor'        => 'edit_pages',
+			'author'        => 'publish_posts',
+			'contributor'   => 'delete_posts',
+			'subscriber'    => 'read',
+		];
+
+		$roleToCheck = strtolower( apply_filters(
+			$con->prefix( 'login-notification-email-role' ), 'administrator' ) );
+		if ( !array_key_exists( $roleToCheck, $userCapToRolesMap ) ) {
+			$roleToCheck = 'administrator';
+		}
+		$pluginName = ucwords( str_replace( '_', ' ', $roleToCheck ) ).'+';
+
+		$isUserSignificantEnough = false;
+		foreach ( $userCapToRolesMap as $sRole => $sCap ) {
+			if ( isset( $user->allcaps[ $sCap ] ) && $user->allcaps[ $sCap ] ) {
+				$isUserSignificantEnough = true;
+			}
+			if ( $roleToCheck == $sRole ) {
+				break; // we've hit our role limit.
+			}
+		}
+		if ( $isUserSignificantEnough ) {
+
+			$homeURL = Services::WpGeneral()->getHomeUrl();
+
+			$emailer = $this->getMod()
+							->getEmailProcessor();
+			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
+				$emailer->sendEmailWithWrap(
+					$to,
+					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
+					[
+						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
+							$con->getHumanName(),
+							$pluginName
+						),
+						'',
+						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
+						'',
+						__( 'Details for this user are below:', 'wp-simple-firewall' ),
+						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
+						'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+						'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
+						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
+						'',
+						__( 'Thanks.', 'wp-simple-firewall' )
+					]
+				);
+			}
+		}
+	}
+
+	private function sendUserLoginEmailNotification( \WP_User $user ) {
+		$WP = Services::WpGeneral();
+		$this->getMod()
+			 ->getEmailProcessor()
+			 ->sendEmailWithWrap(
+				 $user->user_email,
+				 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
+				 [
+					 sprintf( __( '%s is notifying you of a successful login to your WordPress account.', 'wp-simple-firewall' ), $this->getCon()
+																																	   ->getHumanName() ),
+					 '',
+					 __( 'Details for this login are below:', 'wp-simple-firewall' ),
+					 '- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $WP->getHomeUrl() ),
+					 '- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+					 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->getCon()->this_req->ip ),
+					 '- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
+					 '',
+					 __( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),
+					 '',
+					 __( 'Thanks.', 'wp-simple-firewall' )
+				 ]
+			 );
 	}
 
 	public function onWpLoaded() {

@@ -35,7 +35,7 @@ if ( version_compare( PHP_VERSION, '7.2', '<' ) ) {
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
 }
-elseif ( version_compare( PHP_VERSION, '8.2', '>' ) ) {
+elseif ( version_compare( PHP_VERSION, '8.2', '>=' ) ) {
 	global $sIcwpWpsfPluginFile;
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported_82.php' );

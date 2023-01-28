@@ -110,7 +110,6 @@
     {
       "key":         "enable_user_login_email_notification",
       "section":     "section_admin_login_notification",
-      "premium":     true,
       "sensitive":   false,
       "default":     "N",
       "type":        "checkbox",

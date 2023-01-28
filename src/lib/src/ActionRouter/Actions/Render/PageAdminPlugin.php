@@ -120,7 +120,7 @@ class PageAdminPlugin extends BaseRender {
 			],
 			PluginURLs::NAV_SCANS_RUN      => [
 				__( 'Scans', 'wp-simple-firewall' ),
-				__( 'Run Scans', 'wp-simple-firewall' ),
+				__( 'Run Manual Scan', 'wp-simple-firewall' ),
 			],
 			PluginURLs::NAV_IP_RULES       => [
 				__( 'IPs', 'wp-simple-firewall' ),

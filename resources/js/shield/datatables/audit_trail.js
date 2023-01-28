@@ -175,12 +175,6 @@
 							zeroRecords: "No entries found - please try adjusting your search filters."
 						},
 						search: {},
-						searchPanes: {
-							cascadePanes: false,
-							viewTotal: false,
-							viewCount: false,
-							initCollapsed: true
-						},
 						select: {
 							style: 'multi'
 						}

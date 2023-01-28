@@ -11,8 +11,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isSuspendAutoIdleEnabled() :bool {
-		return ( $this->getSuspendAutoIdleTime() > 0 )
-			   && ( count( $this->getSuspendAutoIdleUserRoles() ) > 0 );
+		return $this->getSuspendAutoIdleTime() > 0 && count( $this->getSuspendAutoIdleUserRoles() ) > 0;
 	}
 
 	public function getSuspendAutoIdleTime() :int {
@@ -64,8 +63,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isPasswordPoliciesEnabled() :bool {
-		return $this->isOpt( 'enable_password_policies', 'Y' )
-			   && $this->isOptReqsMet( 'enable_password_policies' );
+		return $this->isOpt( 'enable_password_policies', 'Y' ) && $this->isOptReqsMet( 'enable_password_policies' );
 	}
 
 	public function isSuspendEnabled() :bool {
@@ -76,7 +74,7 @@ class Options extends BaseShield\Options {
 
 	public function isSuspendAutoPasswordEnabled() :bool {
 		return $this->isOpt( 'auto_password', 'Y' )
-			   && $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
+			   && $this->isPasswordPoliciesEnabled() && $this->getPassExpireTimeout() > 0;
 	}
 
 	public function isSuspendManualEnabled() :bool {

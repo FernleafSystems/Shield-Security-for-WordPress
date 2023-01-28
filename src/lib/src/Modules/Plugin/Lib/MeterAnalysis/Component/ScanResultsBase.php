@@ -11,7 +11,7 @@ abstract class ScanResultsBase extends Base {
 	abstract protected function countResults() :int;
 
 	protected function hrefFull() :string {
-		return $this->getCon()->plugin_urls->adminTop( PluginURLs::NAV_SCANS_RESULTS );
+		return $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS );
 	}
 
 	protected function isCritical() :bool {

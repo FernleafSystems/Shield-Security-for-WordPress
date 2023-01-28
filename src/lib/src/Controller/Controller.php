@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
-	Actions
-};
+	Actions,
+	Actions\PluginAdmin\PluginAdminPageHandler};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
@@ -551,24 +551,12 @@ class Controller extends DynPropertiesClass {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
-		$this->processShieldNonceActions();
+
+		$this->action_router->action( PluginAdminPageHandler::SLUG );
+
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
-	}
-
-	private function processShieldNonceActions() {
-		$shieldNonceAction = $this->getShieldNonceAction();
-		$shieldNonce = Services::Request()->request( 'shield_nonce' );
-		if ( !empty( $shieldNonceAction ) && !empty( $shieldNonce ) ) {
-			$shieldNonce = Services::Request()->request( 'shield_nonce' );
-			if ( $this->nonce_handler->verify( $shieldNonceAction, $shieldNonce ) ) {
-				do_action( $this->prefix( 'shield_nonce_action' ), $shieldNonceAction );
-			}
-			else {
-				wp_die( 'It appears that this action and nonce has expired. Please retry the action.' );
-			}
-		}
 	}
 
 	/**
@@ -656,12 +644,6 @@ class Controller extends DynPropertiesClass {
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
-
-		if ( is_admin() || is_network_admin() ) {
-			( new Admin\MainAdminMenu() )
-				->setCon( $this )
-				->execute();
-		}
 	}
 
 	protected function initCrons() {
@@ -1162,11 +1144,6 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
-		return empty( $action ) ? '' : $action;
-	}
-
-	public function getShieldNonceAction() :string {
-		$action = sanitize_key( Services::Request()->query( 'shield_nonce_action', '' ) );
 		return empty( $action ) ? '' : $action;
 	}
 

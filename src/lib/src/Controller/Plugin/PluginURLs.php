@@ -43,10 +43,10 @@ class PluginURLs {
 	}
 
 	/**
-	 * @param ModCon $mod
+	 * @param ModCon|mixed $mod
 	 */
 	public function modCfg( $mod ) :string {
-		return $this->adminTop( PluginURLs::NAV_OPTIONS_CONFIG, $mod->getSlug() );
+		return $this->adminTopNav( PluginURLs::NAV_OPTIONS_CONFIG, $mod->getSlug() );
 	}
 
 	public function modCfgOption( string $optKey ) :string {
@@ -63,18 +63,18 @@ class PluginURLs {
 	}
 
 	public function adminHome() :string {
-		return $this->adminTop( PluginURLs::NAV_OVERVIEW );
+		return $this->adminTopNav( PluginURLs::NAV_OVERVIEW );
 	}
 
-	public function adminTop( string $nav, string $subNav = '' ) :string {
-		return URL::Build( $this->modAdminPage( $this->getCon()->getModule_Insights() ), [
+	public function adminTopNav( string $nav, string $subNav = '' ) :string {
+		return URL::Build( $this->modAdminPage( $this->getCon()->getModule_Plugin() ), [
 			Constants::NAV_ID     => sanitize_key( $nav ),
 			Constants::NAV_SUB_ID => sanitize_key( $subNav ),
 		] );
 	}
 
 	public function adminIpRules() :string {
-		return $this->adminTop( self::NAV_IP_RULES );
+		return $this->adminTopNav( self::NAV_IP_RULES );
 	}
 
 	public function ipAnalysis( string $ip ) :string {
@@ -104,5 +104,9 @@ class PluginURLs {
 	 */
 	public function offCanvasConfigRender( string $for ) :string {
 		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
+	}
+
+	public function isValidNav( string $navID ) :bool {
+		return in_array( $navID, ( new \ReflectionClass( $this ) )->getConstants() );
 	}
 }

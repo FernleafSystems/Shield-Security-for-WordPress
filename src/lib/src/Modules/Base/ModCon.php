@@ -818,12 +818,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 17.0
-	 */
-	protected function loadDebug() {
-	}
-
-	/**
 	 * @return Shield\Modules\Base\Databases|mixed
 	 */
 	public function getDbHandler() {
@@ -914,6 +908,12 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getNonceActionData( string $action = '' ) :array {
 		return [];
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	protected function loadDebug() {
 	}
 
 	/**

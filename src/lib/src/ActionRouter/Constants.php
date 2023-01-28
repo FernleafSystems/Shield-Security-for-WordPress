@@ -96,6 +96,8 @@ class Constants {
 
 		Actions\DynamicLoad\Config::class,
 
+		Actions\PluginAdmin\PluginAdminPageHandler::class,
+
 		Actions\Render::class,
 		Actions\Render\GenericRender::class,
 

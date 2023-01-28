@@ -200,7 +200,7 @@ class Strings extends Base\Strings {
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $con->getHumanName() ),
-					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->adminTop( PluginURLs::NAV_DEBUG ), 'Launch Debug Info Page' )
+					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), 'Launch Debug Info Page' )
 				];
 				break;
 

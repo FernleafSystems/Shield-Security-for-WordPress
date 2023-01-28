@@ -7,6 +7,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
+	public function getPassStrengthName( int $strength ) :string {
+		return [
+				   __( 'Very Weak', 'wp-simple-firewall' ),
+				   __( 'Weak', 'wp-simple-firewall' ),
+				   __( 'Medium', 'wp-simple-firewall' ),
+				   __( 'Strong', 'wp-simple-firewall' ),
+				   __( 'Very Strong', 'wp-simple-firewall' ),
+			   ][ max( 0, min( 4, $strength ) ) ];
+	}
+
 	public function getEventStrings() :array {
 		return [
 			'reg_email_invalid'            => [
