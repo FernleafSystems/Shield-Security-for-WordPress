@@ -187,8 +187,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady();
 	}
 
 	public function onPluginDeactivate() {

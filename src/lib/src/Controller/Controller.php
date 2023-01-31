@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Actions,
-	Actions\PluginAdmin\PluginAdminPageHandler};
+	Exceptions\ActionException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
@@ -552,7 +553,11 @@ class Controller extends DynPropertiesClass {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 
-		$this->action_router->action( PluginAdminPageHandler::SLUG );
+		try {
+			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::SLUG );
+		}
+		catch ( ActionException $e ) {
+		}
 
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )

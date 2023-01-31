@@ -16,7 +16,6 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	protected function isReadyToExecute() :bool {
 		return ( $this->getDbHandler_Events() instanceof Shield\Databases\Events\Handler )
-			   && $this->getDbHandler_Events()->isReady()
-			   && parent::isReadyToExecute();
+			   && $this->getDbHandler_Events()->isReady();
 	}
 }

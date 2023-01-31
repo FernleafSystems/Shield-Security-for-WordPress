@@ -50,7 +50,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 				->processAction( $slug, $data );
 		}
 		catch ( Exceptions\InvalidActionNonceException $e ) {
-			wp_die( 'Unexpected data. Please try again.' );
+			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $slug, var_export( $data, true ) ) );
 		}
 
 		$adapter->setMod( $this->getMod() )->adapt( $actionResponse );

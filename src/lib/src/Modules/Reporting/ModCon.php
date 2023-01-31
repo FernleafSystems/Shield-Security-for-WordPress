@@ -12,15 +12,12 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $reportsCon;
 
-	public function getDbHandler_ReportLogs() :DB\Report\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'report' );
+	protected function isReadyToExecute() :bool {
+		return true;
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getDbHandler_Reports() :Databases\Reports\Handler {
-		return $this->getDbH( 'reports' );
+	public function getDbHandler_ReportLogs() :DB\Report\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'report' );
 	}
 
 	public function getReportingController() :Lib\ReportingController {
@@ -28,5 +25,12 @@ class ModCon extends BaseShield\ModCon {
 			$this->reportsCon = ( new Lib\ReportingController() )->setMod( $this );
 		}
 		return $this->reportsCon;
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	public function getDbHandler_Reports() :Databases\Reports\Handler {
+		return $this->getDbH( 'reports' );
 	}
 }

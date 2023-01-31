@@ -41,7 +41,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_Logs()->isReady() && parent::isReadyToExecute();
+		return $this->getDbH_Logs()->isReady();
 	}
 
 	/**

@@ -3,12 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	use Shield\Modules\ModConsumer;
+
+	public function dispatch() {
+		// Perform remote post.
+		return parent::dispatch();
+	}
 
 	/**
 	 * Get batch
@@ -104,8 +110,8 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	/**
 	 * Update queue
 	 *
-	 * @param string                   $key  Key.
-	 * @param ScanItemsDB\Ops\Record[] $data Data.
+	 * @param string               $key  Key.
+	 * @param ScanItemsDB\Record[] $data Data.
 	 * @return $this
 	 */
 	public function update( $key, $data ) {

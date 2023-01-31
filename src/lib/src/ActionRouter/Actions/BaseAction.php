@@ -23,9 +23,6 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	private $response;
 
-	/**
-	 * @throws ActionException
-	 */
 	public function __construct( array $data = [], ?ActionResponse $response = null ) {
 		$this->action_data = $data;
 		$this->response = $response instanceof ActionResponse ? $response : new ActionResponse();
