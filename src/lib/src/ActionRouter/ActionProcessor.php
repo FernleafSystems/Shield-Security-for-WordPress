@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionDoesNotExistException,
 	ActionException,
-	InvalidActionNonceException
+	InvalidActionNonceException,
+	SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -20,6 +21,7 @@ class ActionProcessor {
 	 * @throws ActionDoesNotExistException
 	 * @throws ActionException
 	 * @throws InvalidActionNonceException
+	 * @throws SecurityAdminRequiredException
 	 */
 	public function processAction( string $slug, array $data = [] ) :ActionResponse {
 		$action = $this->getAction( $slug, $data );
@@ -27,7 +29,7 @@ class ActionProcessor {
 			throw new ActionException( sprintf( 'Must be logged-in to execute this action: %s', $slug ) );
 		}
 		elseif ( $action->isSecurityAdminRestricted() && !$this->getCon()->isPluginAdmin() ) {
-			$action = $this->getAction( Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::SLUG, $data );
+			throw new SecurityAdminRequiredException( __( 'Security Admin Authorisation required.', 'wp-simple-firewall' ) );
 		}
 		elseif ( $action->isNonceVerifyRequired() && !$this->verifyNonce() ) {
 			throw new InvalidActionNonceException();

@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
+	ActionException,
+	SecurityAdminRequiredException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -39,6 +42,17 @@ class CaptureAjaxAction extends CaptureActionBase {
 					->action( $this->extractActionSlug(), $req->post, $router::ACTION_AJAX )
 					->action_response_data
 			);
+		}
+		catch ( SecurityAdminRequiredException $e ) {
+			$msg = implode( ' ', [
+				__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
+				__( 'You may need to refresh the page.', 'wp-simple-firewall' ),
+			] );
+			$response = [
+				'success' => false,
+				'message' => $msg,
+				'error'   => $msg,
+			];
 		}
 		catch ( ActionException $e ) {
 			$response = [

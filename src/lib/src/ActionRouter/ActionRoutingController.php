@@ -30,6 +30,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 	 * @throws Exceptions\ActionDoesNotExistException
 	 * @throws Exceptions\ActionException
 	 * @throws Exceptions\ActionTypeDoesNotExistException
+	 * @throws Exceptions\SecurityAdminRequiredException
 	 */
 	public function action( string $slug = '', array $data = [], int $type = self::ACTION_SHIELD ) :ActionResponse {
 
@@ -45,16 +46,22 @@ class ActionRoutingController extends ExecOnceModConsumer {
 		}
 
 		try {
-			$actionResponse = ( new ActionProcessor() )
+			$response = ( new ActionProcessor() )
 				->setMod( $this->getMod() )
 				->processAction( $slug, $data );
+		}
+		catch ( Exceptions\SecurityAdminRequiredException $sare ) {
+			if ( Services::WpGeneral()->isAjax() ) {
+				throw $sare;
+			}
+			$response = $this->action( Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::SLUG, $data );
 		}
 		catch ( Exceptions\InvalidActionNonceException $e ) {
 			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $slug, var_export( $data, true ) ) );
 		}
 
-		$adapter->setMod( $this->getMod() )->adapt( $actionResponse );
-		return $actionResponse;
+		$adapter->setMod( $this->getMod() )->adapt( $response );
+		return $response;
 	}
 
 	/**

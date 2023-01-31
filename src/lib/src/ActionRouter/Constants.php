@@ -75,6 +75,7 @@ class Constants {
 		Actions\PluginSetTracking::class,
 		Actions\ReportingChartCustom::class,
 		Actions\ReportingChartSummary::class,
+		Actions\SecurityAdminAuthClear::class,
 		Actions\SecurityAdminCheck::class,
 		Actions\SecurityAdminLogin::class,
 		Actions\SecurityAdminRequestRemoveByEmail::class,
