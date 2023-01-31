@@ -85,24 +85,17 @@
 
 		{% elseif option.type is same as('select') %}
 
-			{% for option_value, option_value_name in option.value_options %}
-				<div class="form-check">
-					<input type="radio" id="Opt-{{ option.key }}_{{ option_value }}"
-					       name="{{ option.key }}"
-					       value="{{ option_value }}"
-					       {% if option.disabled %}disabled="disabled"{% endif %}
-							{# this type of comparison required for comment spam as value is 0 or '0' #}
-							{% if option.value matches "'^"~option_value~"$'" %}checked="checked"{% endif %}
-							   class="form-check-input">
-					<label class="form-check-label"
-					       for="Opt-{{ option.key }}_{{ option_value }}">
-							{% if option.value matches "'^"~option_value~"$'" %}
-								<strong>{{ option_value_name }}</strong>
-							{% else %}
-								{{ option_value_name }}
-							{% endif %}</label>
-				</div>
-			{% endfor %}
+			<select name="{{ option.key }}"
+			        class="form-select"
+			        {% if option.disabled %}{% endif %}
+			        aria-label="Select for: {{ option.name }}">
+				{% for option_value, option_value_name in option.value_options %}
+						<option
+								value="{{ option_value }}"
+								{% if option.value matches "'^"~option_value~"$'" %}selected{% endif %}
+						>{{ option_value_name }}</option>
+				{% endfor %}
+			</select>
 
 		{% elseif option.type is same as('multiple_select') %}
 
