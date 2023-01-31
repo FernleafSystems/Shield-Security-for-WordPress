@@ -939,18 +939,11 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function loadConfig() {
-		try {
-			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
-				->setCon( $this )
-				->run();
-			$this->cfg->load_source = 'json';
-		}
-		catch ( \Exception $e ) {
-			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( false ), $this->getConfigStoreKey() ) )
-				->setCon( $this )
-				->run();
-			$this->cfg->load_source = 'php';
-		}
+		$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
+			->setCon( $this )
+			->run();
+		$this->cfg->load_source = 'json';
+
 		$this->plugin_urls;
 		$this->loadModConfigs();
 		$this->saveCurrentPluginControllerOptions();
@@ -1295,27 +1288,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getModulesNamespace() :string {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
-	}
-
-	/**
-	 * @return Shield\Modules\Base\ModCon|mixed
-	 * @throws \Exception
-	 */
-	private function loadFeatureHandler( Shield\Modules\Base\Config\ModConfigVO $cfg ) {
-		$modSlug = $cfg->properties[ 'slug' ];
-
-		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
-				$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) ) );
-		if ( !class_exists( $className ) ) {
-			// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
-			throw new \Exception( sprintf( 'Class "%s" is missing', $className ) );
-		}
-
-		$modules = $this->modules;
-		$modules[ $modSlug ] = new $className( $this, $cfg );
-		$this->modules = $modules;
-
-		return $this->modules[ $modSlug ];
 	}
 
 	/**

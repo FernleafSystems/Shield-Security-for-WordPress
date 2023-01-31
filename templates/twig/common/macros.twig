@@ -2,6 +2,10 @@
 	<span class="shieldpro"><strong>Shield</strong><span style="text-transform: uppercase">pro</span></span>
 {% endmacro %}
 
+{% macro svg(svg) %}
+	<span class="svg-container">{{ svg|raw }}</span>
+{% endmacro %}
+
 {% macro issues_wrapper(components, strings) %}
 	<div class="health-check-accordion issues">
 		{% for component in components %}

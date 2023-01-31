@@ -263,20 +263,20 @@ class Strings extends Base\Strings {
 				$name = __( 'IP Source', 'wp-simple-firewall' );
 				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
 				$desc = [
-					__( "Knowing the real IP address of your visitors is critical to your security, but many hosts aren't configured correctly to let us find it easily.", 'wp-simple-firewall' ),
-					__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' ),
-					__( 'Use the link below to find your correct IP address, then select the option on the list.', 'wp-simple-firewall' ),
-					sprintf(
-						'<p class="mt-2"><a href="%s" target="_blank">%s</a></p>',
-						'https://shsec.io/shieldwhatismyip',
-						__( 'What Is My IP Address?', 'wp-simple-firewall' )
-					),
-					sprintf(
-						__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
-						'<strong>'.$opts->getIpSource().'</strong>',
-						$con->this_req->ip
-					),
-					__( 'If the option you select becomes unavailable at some point, we will revert to auto detection.', 'wp-simple-firewall' ),
+					implode( ' ', [
+						__( "It's crucial that we can detect the correct IP address for each visitor to the site.", 'wp-simple-firewall' ),
+						__( "We rely on the PHP server configuration, but some hosts aren't correctly setup to let us find it easily.", 'wp-simple-firewall' ),
+						sprintf( __( "The preferred source is %s since this can't be spoofed.", 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
+					] ),
+					implode( ' ', [
+						__( "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it.", 'wp-simple-firewall' ),
+						sprintf(
+							'<p class="mt-2 text-center"><a href="%s" class="btn btn-secondary btn-sm" target="_blank">%s</a></p>',
+							'https://shsec.io/shieldwhatismyip',
+							__( 'What Is My IP Address?', 'wp-simple-firewall' )
+						),
+					] ),
 				];
 				break;
 

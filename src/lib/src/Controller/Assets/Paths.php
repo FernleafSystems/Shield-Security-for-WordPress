@@ -12,8 +12,8 @@ class Paths {
 		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'assets' ].'/'.ltrim( $asset, '/' ) );
 	}
 
-	public function forModuleConfig( string $module, bool $fromJSONFile = false ) :string {
-		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'config' ].'/'.$module.( $fromJSONFile ? '.json' : '.php' ) );
+	public function forModuleConfig( string $module ) :string {
+		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'config' ].'/'.$module.'.json' );
 	}
 
 	public function forFlag( string $flag = '' ) :string {

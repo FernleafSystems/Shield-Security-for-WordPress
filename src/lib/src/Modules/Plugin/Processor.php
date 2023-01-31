@@ -36,6 +36,8 @@ class Processor extends BaseShield\Processor {
 		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
+
+		$mod->getReportingController()->execute();
 	}
 
 	public function runDailyCron() {
