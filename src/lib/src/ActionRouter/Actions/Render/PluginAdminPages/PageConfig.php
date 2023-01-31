@@ -8,6 +8,14 @@ class PageConfig extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'plugin';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
 
+	protected function getRenderData() :array {
+		return [
+			'flags' => [
+				'is_render_placeholder' => true,
+			],
+		];
+	}
+
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 

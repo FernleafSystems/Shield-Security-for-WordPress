@@ -13,9 +13,9 @@ abstract class BaseForm extends Base {
 	 * @throws ActionException
 	 */
 	protected function getAllRenderDataArrays() :array {
-		return array_merge( parent::getAllRenderDataArrays(), [
-			25 => $this->getCommonFormData()
-		] );
+		$data = parent::getAllRenderDataArrays();
+		$data[ 25 ] = $this->getCommonFormData();
+		return $data;
 	}
 
 	protected function getCommonFormData() :array {

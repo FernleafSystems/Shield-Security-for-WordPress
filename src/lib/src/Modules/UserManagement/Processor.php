@@ -64,7 +64,8 @@ class Processor extends BaseShield\Processor {
 
 		$thisGroup = [
 			'title' => __( 'Recent Users', 'wp-simple-firewall' ),
-			'href'  => $con->getModule_Insights()->getUrl_Sessions(),
+			'href'  => $con->plugin_urls ? $con->plugin_urls->adminTopNav( $con->plugin_urls::NAV_USER_SESSIONS ) :
+				$con->getModule_Insights()->getUrl_Sessions(),
 			'items' => [],
 		];
 		if ( !empty( $recent ) ) {

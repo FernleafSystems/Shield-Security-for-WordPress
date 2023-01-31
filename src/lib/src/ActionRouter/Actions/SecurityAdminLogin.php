@@ -24,11 +24,11 @@ class SecurityAdminLogin extends SecurityAdminBase {
 		}
 		else {
 			$resp->success = $secAdminCon->verifyPinRequest();
-			( new ToggleSecAdminStatus() )
-				->setMod( $mod )
-				->turnOn();
 
 			if ( $resp->success ) {
+				( new ToggleSecAdminStatus() )
+					->setMod( $mod )
+					->turnOn();
 				$resp->message = __( 'Security Admin PIN Accepted.', 'wp-simple-firewall' )
 								 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 			}

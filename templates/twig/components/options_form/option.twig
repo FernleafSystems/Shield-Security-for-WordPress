@@ -66,6 +66,7 @@
 			       id="Opt-{{ option.key }}"
 			       value="{{ option.value|raw }}"
 			       placeholder="{{ strings.supply_password }}"
+			       autocomplete="new-password"
 			       {% if option.disabled %}disabled="disabled"{% endif %}
 			       class="form-control mb-2" />
 
@@ -73,6 +74,7 @@
 			       id="Opt-{{ option.key }}_confirm"
 			       value="{{ option.value|raw }}"
 			       placeholder="{{ strings.confirm_password }}"
+			       autocomplete="new-password"
 			       {% if option.disabled %}disabled="disabled"{% endif %}
 			       class="form-control" />
 

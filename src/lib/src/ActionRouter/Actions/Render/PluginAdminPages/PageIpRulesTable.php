@@ -12,17 +12,17 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'ips';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/ip_rules.twig';
 
-	protected function getRenderData() :array {
-		$con = $this->getCon();
+	protected function getPageContextualHrefs() :array {
 		return [
-			'hrefs'   => [
-				'inner_page_config' => [
-					[
-						'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
-					],
-				],
+			[
+				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
+				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
 			],
+		];
+	}
+
+	protected function getRenderData() :array {
+		return [
 			'strings' => [
 				'inner_page_title'    => __( 'Manage IP Rules', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' ),

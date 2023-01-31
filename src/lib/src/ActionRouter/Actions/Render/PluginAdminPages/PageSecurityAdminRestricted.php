@@ -14,6 +14,16 @@ class PageSecurityAdminRestricted extends Actions\Render\BaseRender {
 	public const PRIMARY_MOD = 'admin_access_restriction';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/security_admin.twig';
 
+	protected function getPageContextualHrefs() :array {
+		return [
+			[
+				'text' => 'Disable Security Admin',
+				'href' => '#',
+				'id'   => 'SecAdminRemoveConfirmEmail',
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		/** @var Options $secOpts */
@@ -24,13 +34,6 @@ class PageSecurityAdminRestricted extends Actions\Render\BaseRender {
 			],
 			'hrefs'   => [
 				'form_action'       => $con->plugin_urls->adminHome(),
-				'inner_page_config' => [
-					[
-						'text' => 'Disable Security Admin',
-						'href' => '#',
-						'id'   => 'SecAdminRemoveConfirmEmail',
-					]
-				],
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),

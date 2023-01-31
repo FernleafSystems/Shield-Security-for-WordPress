@@ -12,12 +12,12 @@ abstract class BaseFullPageRender extends BaseRender {
 	 * @throws ActionException
 	 */
 	protected function getAllRenderDataArrays() :array {
-		return array_merge( parent::getAllRenderDataArrays(), [
-			25 => $this->getCommonPageRenderData()
-		] );
+		$data = parent::getAllRenderDataArrays();
+		$data[ 25 ] = $this->getCommonFullPageRenderData();
+		return $data;
 	}
 
-	protected function getCommonPageRenderData() :array {
+	protected function getCommonFullPageRenderData() :array {
 		$con = $this->getCon();
 		$WP = Services::WpGeneral();
 		return [

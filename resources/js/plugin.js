@@ -346,7 +346,11 @@ let iCWP_WPSF_OffCanvas = new function () {
 
 		canvasTracker.push( canvasProperties );
 
-		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		let spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
+		spinner.id = '';
+		spinner.classList.remove( 'd-none' );
+
+		$offCanvas.html( spinner );
 		$offCanvas.removeClass( Object.values( data ) );
 		bsCanvas.show();
 

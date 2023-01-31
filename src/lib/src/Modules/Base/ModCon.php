@@ -348,9 +348,10 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()
-					->getModule_Insights()
-					->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->getSlug() );
+		$con = $this->getCon();
+		$urls = $con->plugin_urls;
+		return $urls ? $urls->modCfg( $this )
+			: $con->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->getSlug() );
 	}
 
 	/**

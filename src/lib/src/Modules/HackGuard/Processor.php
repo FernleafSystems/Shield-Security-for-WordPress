@@ -20,10 +20,14 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
+		$con = $this->getCon();
+		$urls = $con->plugin_urls;
+
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$thisGroup = [
-			'href'  => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+			'href'  => $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) :
+				$con->getModule_Insights()->getUrl_ScansResults(),
 			'items' => [],
 		];
 		foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {

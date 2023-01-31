@@ -48,11 +48,14 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	public function addAdminMenuBarItem( array $items ) :array {
 		$problems = $this->countProblems();
 		if ( $problems > 0 ) {
+			$con = $this->getCon();
+			$urls = $con->plugin_urls;
 			$items[] = [
 				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
-				'href'     => $this->getCon()->getModule_Insights()->getUrl_ScansResults(),
+				'href'     => $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) :
+					$con->getModule_Insights()->getUrl_ScansResults(),
 				'warnings' => $problems
 			];
 		}

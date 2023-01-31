@@ -3,9 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ProfileSuspend extends BaseRender {
+
+	use SecurityAdminNotRequired;
 
 	public const SLUG = 'render_profile_suspend';
 	public const TEMPLATE = '/admin/user/profile/suspend.twig';

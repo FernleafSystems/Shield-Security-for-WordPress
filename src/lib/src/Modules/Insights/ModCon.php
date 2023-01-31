@@ -69,14 +69,16 @@ class ModCon extends BaseShield\ModCon {
 	 * @deprecated 17.0
 	 */
 	public function getUrl_IPs() :string {
-		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_IP_RULES );
+		$urls = $this->getCon()->plugin_urls;
+		return $urls ? $urls->adminTopNav( $urls::NAV_IP_RULES ) : $this->getUrl_SubInsightsPage( PluginURLs::NAV_IP_RULES );
 	}
 
 	/**
 	 * @deprecated 17.0
 	 */
 	public function getUrl_ScansResults() :string {
-		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_SCANS_RESULTS );
+		$urls = $this->getCon()->plugin_urls;
+		return $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) : $this->getUrl_SubInsightsPage( PluginURLs::NAV_SCANS_RESULTS );
 	}
 
 	/**
@@ -90,24 +92,29 @@ class ModCon extends BaseShield\ModCon {
 	 * @deprecated 17.0
 	 */
 	public function getUrl_Sessions() :string {
-		return $this->getUrl_SubInsightsPage( PluginURLs::NAV_USER_SESSIONS );
+		$urls = $this->getCon()->plugin_urls;
+		return $urls ? $urls->adminTopNav( $urls::NAV_USER_SESSIONS ) : $this->getUrl_SubInsightsPage( PluginURLs::NAV_USER_SESSIONS );
 	}
 
 	/**
 	 * @deprecated 17.0
 	 */
 	public function getUrl_SubInsightsPage( string $inavPage, string $subNav = '' ) :string {
-		return URL::Build( $this->getUrl_AdminPage(), [
-			Constants::NAV_ID     => sanitize_key( $inavPage ),
-			Constants::NAV_SUB_ID => sanitize_key( $subNav ),
-		] );
+		$urls = $this->getCon()->plugin_urls;
+		return $urls ? $urls->adminTopNav( $inavPage, $subNav ) :
+			URL::Build( $this->getUrl_AdminPage(), [
+				Constants::NAV_ID     => sanitize_key( $inavPage ),
+				Constants::NAV_SUB_ID => sanitize_key( $subNav ),
+			] );
 	}
 
 	public function getUrl_AdminPage() :string {
-		return Services::WpGeneral()->getUrl_AdminPage(
-			$this->getModSlug(),
-			$this->getCon()->getIsWpmsNetworkAdminOnly()
-		);
+		$urls = $this->getCon()->plugin_urls;
+		return $urls ? $urls->rootAdminPage()
+			: Services::WpGeneral()->getUrl_AdminPage(
+				$this->getCon()->getModule_Plugin()->getModSlug(),
+				$this->getCon()->getIsWpmsNetworkAdminOnly()
+			);
 	}
 
 	/**

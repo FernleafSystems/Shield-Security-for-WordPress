@@ -19,7 +19,7 @@
 			</div>
 			<div class="col-2 text-end inner-page-config">
 
-				{% if hrefs.inner_page_config|default('') is not empty %}
+				{% if hrefs.inner_page_contextual_hrefs|default('') is not empty %}
 
 					<div class="btn-group dropstart">
 								<button type="button"
@@ -27,7 +27,7 @@
 								        data-bs-toggle="dropdown"
 								        aria-expanded="false">{{ imgs.svgs.settings|raw }}</button>
 								<ul class="dropdown-menu">
-									{% for item in hrefs.inner_page_config %}
+									{% for item in hrefs.inner_page_contextual_hrefs %}
 										<li>
 											{% if item.href|default('') is empty %}
 												<h6 class="dropdown-header">{{ item.text }}</h6>

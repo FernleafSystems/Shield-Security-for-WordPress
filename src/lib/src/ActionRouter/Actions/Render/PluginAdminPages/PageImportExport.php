@@ -12,14 +12,18 @@ class PageImportExport extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'plugin';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/import.twig';
 
+	protected function getPageContextualHrefs() :array {
+		return [
+			[
+				'text' => __( 'Configure Auto Import', 'wp-simple-firewall' ),
+				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		return [
-			'vars'    => [
-				'file_upload_nonce' => ActionData::Build( PluginImportFromFileUpload::SLUG, true, [
-					'notification_type' => 'wp_admin_notice'
-				] ),
-			],
 			'ajax'    => [
 				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::SLUG ),
 			],
@@ -28,12 +32,11 @@ class PageImportExport extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
-				'inner_page_config' => [
-					[
-						'text' => __( 'Configure Auto Import', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
-					],
-				],
+			],
+			'vars'    => [
+				'file_upload_nonce' => ActionData::Build( PluginImportFromFileUpload::SLUG, true, [
+					'notification_type' => 'wp_admin_notice'
+				] ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Import Configuration', 'wp-simple-firewall' ),

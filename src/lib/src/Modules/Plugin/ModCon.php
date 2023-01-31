@@ -397,6 +397,9 @@ class ModCon extends BaseShield\ModCon {
 				[
 					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
 					'ajax'    => ActionData::Build( Actions\PluginIpDetect::SLUG ),
+					'flags'   => [
+						'silent' => empty( $req->query( 'shield_check_ip_source' ) ),
+					],
 					'strings' => [
 						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
 						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),

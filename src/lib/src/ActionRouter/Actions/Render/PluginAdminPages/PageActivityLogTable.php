@@ -12,19 +12,19 @@ class PageActivityLogTable extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'audit_trail';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_activity.twig';
 
+	protected function getPageContextualHrefs() :array {
+		return [
+			[
+				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
+				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+			]
+		];
+	}
+
 	protected function getRenderData() :array {
-		$con = $this->getCon();
 		return [
 			'ajax'    => [
 				'logtable_action' => ActionData::BuildJson( ActivityLogTableAction::SLUG ),
-			],
-			'hrefs'   => [
-				'inner_page_config' => [
-					[
-						'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
-					],
-				],
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Users, Visitors & Bots Activity', 'wp-simple-firewall' ),

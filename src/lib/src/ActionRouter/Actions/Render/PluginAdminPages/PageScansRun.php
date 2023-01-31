@@ -16,6 +16,20 @@ class PageScansRun extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'hack_protect';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_run.twig';
 
+	protected function getPageContextualHrefs() :array {
+		$con = $this->getCon();
+		return [
+			[
+				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+			],
+			[
+				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
@@ -39,16 +53,6 @@ class PageScansRun extends BasePluginAdminPage {
 			'hrefs'   => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
-				'inner_page_config' => [
-					[
-						'text' => __( 'Scan Results', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
-					],
-					[
-						'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
-					],
-				],
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Scan Your Site', 'wp-simple-firewall' ),

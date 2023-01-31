@@ -14,6 +14,23 @@ class PageUserSessions extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'user_management';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_sessions.twig';
 
+	protected function getPageContextualHrefs() :array {
+		$con = $this->getCon();
+		return [
+			[
+				'text' => __( 'Config', 'wp-simple-firewall' ),
+			],
+			[
+				'text' => __( 'User Controls', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+			],
+			[
+				'text' => __( 'Security Admin', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_SecAdmin()->getSlug() ),
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		return [
@@ -22,21 +39,6 @@ class PageUserSessions extends BasePluginAdminPage {
 				'item_delete'           => ActionData::BuildJson( UserSessionDelete::SLUG ),
 				'bulk_action'           => ActionData::BuildJson( UserSessionsTableBulkAction::SLUG ),
 
-			],
-			'hrefs'   => [
-				'inner_page_config' => [
-					[
-						'text' => __( 'Config', 'wp-simple-firewall' ),
-					],
-					[
-						'text' => __( 'User Controls', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
-					],
-					[
-						'text' => __( 'Security Admin', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_SecAdmin()->getSlug() ),
-					],
-				],
 			],
 			'strings' => [
 				'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),

@@ -34,12 +34,29 @@ class PluginURLs {
 	public const NAV_USER_SESSIONS = 'users';
 	public const NAV_WIZARD = 'merlin';
 
-	/**
-	 * @param ModCon|mixed $mod
-	 */
-	public function modAdminPage( $mod ) :string {
+	public function rootAdminPage() :string {
+		$con = $this->getCon();
 		return Services::WpGeneral()
-					   ->getUrl_AdminPage( $mod->getModSlug(), $this->getCon()->getIsWpmsNetworkAdminOnly() );
+					   ->getUrl_AdminPage( $con->getModule_Plugin()->getModSlug(), $con->getIsWpmsNetworkAdminOnly() );
+	}
+
+	public function adminHome() :string {
+		return $this->adminTopNav( PluginURLs::NAV_OVERVIEW );
+	}
+
+	public function adminTopNav( string $nav, string $subNav = '' ) :string {
+		return URL::Build( $this->rootAdminPage(), [
+			Constants::NAV_ID     => sanitize_key( $nav ),
+			Constants::NAV_SUB_ID => sanitize_key( $subNav ),
+		] );
+	}
+
+	public function adminIpRules() :string {
+		return $this->adminTopNav( self::NAV_IP_RULES );
+	}
+
+	public function ipAnalysis( string $ip ) :string {
+		return URL::Build( $this->adminIpRules(), [ 'analyse_ip' => $ip ] );
 	}
 
 	/**
@@ -60,25 +77,6 @@ class PluginURLs {
 	 */
 	public function modCfgSection( $mod, string $optSection ) :string {
 		return $this->modCfg( $mod ).'#tab-'.$optSection;
-	}
-
-	public function adminHome() :string {
-		return $this->adminTopNav( PluginURLs::NAV_OVERVIEW );
-	}
-
-	public function adminTopNav( string $nav, string $subNav = '' ) :string {
-		return URL::Build( $this->modAdminPage( $this->getCon()->getModule_Plugin() ), [
-			Constants::NAV_ID     => sanitize_key( $nav ),
-			Constants::NAV_SUB_ID => sanitize_key( $subNav ),
-		] );
-	}
-
-	public function adminIpRules() :string {
-		return $this->adminTopNav( self::NAV_IP_RULES );
-	}
-
-	public function ipAnalysis( string $ip ) :string {
-		return URL::Build( $this->adminIpRules(), [ 'analyse_ip' => $ip ] );
 	}
 
 	/**

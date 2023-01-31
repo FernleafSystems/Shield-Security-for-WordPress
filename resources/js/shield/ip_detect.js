@@ -12,11 +12,13 @@ if ( typeof icwp_wpsf_vars_ipdetect !== typeof undefined ) {
 						success: function ( raw ) {
 							let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 							if ( response.success ) {
-								console.log(
-									icwp_wpsf_vars_ipdetect.strings.source_found
+								let msg = icwp_wpsf_vars_ipdetect.strings.source_found
 									+ ' ' + icwp_wpsf_vars_ipdetect.strings.ip_source
-									+ ': ' + response.data.ip_source
-								);
+									+ ': ' + response.data.ip_source;
+								if ( !icwp_wpsf_vars_ipdetect.flags.silent ) {
+									alert( msg );
+								}
+								console.log( msg );
 							}
 						}
 					}

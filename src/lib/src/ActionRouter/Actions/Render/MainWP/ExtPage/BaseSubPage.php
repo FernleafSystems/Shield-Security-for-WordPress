@@ -28,9 +28,9 @@ class BaseSubPage extends BaseMWP {
 	 * @throws ActionException
 	 */
 	protected function getAllRenderDataArrays() :array {
-		return array_merge( parent::getAllRenderDataArrays(), [
-			25 => $this->getCommonSubPageData()
-		] );
+		$data = parent::getAllRenderDataArrays();
+		$data[ 25 ] = $this->getCommonSubPageData();
+		return $data;
 	}
 
 	protected function getCommonSubPageData() :array {

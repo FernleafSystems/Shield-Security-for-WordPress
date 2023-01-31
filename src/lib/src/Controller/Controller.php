@@ -1091,7 +1091,9 @@ class Controller extends DynPropertiesClass {
 	 * @deprecated 17.0
 	 */
 	public function getPluginUrl_DashboardHome() :string {
-		return $this->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OVERVIEW );
+		$urls = $this->plugin_urls;
+		return $urls ? $urls->adminHome()
+			: $this->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OVERVIEW );
 	}
 
 	public function getPath_Languages() :string {

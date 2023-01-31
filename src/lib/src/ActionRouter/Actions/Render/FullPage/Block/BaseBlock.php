@@ -12,9 +12,9 @@ abstract class BaseBlock extends BaseFullPageRender {
 
 	public const TEMPLATE = '/pages/block/block_page_standard.twig';
 
-	protected function getCommonPageRenderData() :array {
+	protected function getCommonFullPageRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getCommonPageRenderData(),
+			parent::getCommonFullPageRenderData(),
 			[
 				'strings' => [
 					'restriction_details'       => __( 'Restriction Details', 'wp-simple-firewall' ),

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -14,16 +15,27 @@ class PageDebug extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'plugin';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/debug.twig';
 
+	protected function getPageContextualHrefs() :array {
+		$con = $this->getCon();
+		return [
+			[
+				'text' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
+				'href' => URL::Build( $con->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
+			]
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
+		$urls = $con->plugin_urls;
 
 		$availableTests = [];
 		if ( $con->this_req->is_security_admin && Services::Request()->query( 'show' ) ) {
 			$availableTests = array_map(
-				function ( $method ) use ( $con ) {
+				function ( $method ) use ( $urls ) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->noncedPluginAction( SimplePluginTests::SLUG, null, [
+						$urls->noncedPluginAction( SimplePluginTests::SLUG, null, [
 							'test' => $method->getName()
 						] ),
 						str_replace( 'dbg_', '', $method->getName() )
@@ -39,14 +51,15 @@ class PageDebug extends BasePluginAdminPage {
 		}
 
 		return [
+			'content' => [
+				'recent_events' => $con->action_router->render( DebugRecentEvents::SLUG ),
+			],
 			'flags'   => [
 				'display_tests' => !empty( $availableTests ),
 			],
-			'hrefs'   => [
-				'check_visitor_ip_source' => URL::Build( '', [ 'shield_check_ip_source' => '1' ] ),
-			],
 			'strings' => [
-				'page_title' => sprintf( __( '%s Debug Page' ), $con->getHumanName() )
+				'inner_page_title'    => sprintf( __( '%s Debug Information' ), $con->getHumanName() ),
+				'inner_page_subtitle' => __( 'Assess the state of the plugin and view various configuration information for your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'debug_data'      => ( new Collate() )
@@ -54,9 +67,6 @@ class PageDebug extends BasePluginAdminPage {
 					->run(),
 				'available_tests' => $availableTests,
 			],
-			'content' => [
-				'recent_events' => $con->action_router->render( DebugRecentEvents::SLUG ),
-			]
 		];
 	}
 }

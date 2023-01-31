@@ -95,7 +95,7 @@ class UI {
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 
-				'dashboard_home' => $con->getPluginUrl_DashboardHome(),
+				'dashboard_home' => $con->plugin_urls ? $con->plugin_urls->adminHome() : $con->getPluginUrl_DashboardHome(),
 				'form_action'    => Services::Request()->getUri(),
 			],
 			'imgs'       => [

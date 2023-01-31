@@ -72,9 +72,11 @@ abstract class BaseRender extends BaseAction {
 	 * @throws ActionException
 	 */
 	protected function buildRenderData() :array {
+		$data = $this->getAllRenderDataArrays();
+		ksort( $data );
 		return call_user_func_array(
 			[ Services::DataManipulation(), 'mergeArraysRecursive' ],
-			$this->getAllRenderDataArrays()
+			$data
 		);
 	}
 
@@ -112,12 +114,12 @@ abstract class BaseRender extends BaseAction {
 
 	public function getCommonDisplayData() :array {
 		$con = $this->getCon();
+		$urls = $con->plugin_urls;
 		$mod = $this->getMod();
 		$urlBuilder = $con->urls;
 
 		/** @var Options $pluginOptions */
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
-		$secAdminCon = $con->getModule_SecAdmin()->getSecurityAdminController();
 
 		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		return [
@@ -189,7 +191,7 @@ abstract class BaseRender extends BaseAction {
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 
-				'dashboard_home' => $con->getPluginUrl_DashboardHome(),
+				'dashboard_home' => $urls ? $urls->adminHome() : $con->getPluginUrl_DashboardHome(),
 				'form_action'    => Services::Request()->getUri(),
 			],
 			'imgs'       => [

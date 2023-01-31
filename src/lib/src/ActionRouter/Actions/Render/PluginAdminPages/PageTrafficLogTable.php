@@ -15,6 +15,16 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 	public const PRIMARY_MOD = 'traffic';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_traffic.twig';
 
+	protected function getPageContextualHrefs() :array {
+		$con = $this->getCon();
+		return [
+			[
+				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		/** @var Options $opts */
@@ -28,12 +38,6 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'please_enable'     => $con->plugin_urls->modCfgOption( 'enable_logger' ),
-				'inner_page_config' => [
-					[
-						'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
-					],
-				],
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Traffic & Request Logs', 'wp-simple-firewall' ),
