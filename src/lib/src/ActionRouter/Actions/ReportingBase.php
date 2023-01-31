@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\ModCon;
 
 abstract class ReportingBase extends BaseAction {

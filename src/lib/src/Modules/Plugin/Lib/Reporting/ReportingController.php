@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
@@ -11,9 +11,9 @@ class ReportingController extends Modules\Base\Common\ExecOnceModConsumer {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		/** @var Modules\Reporting\Options $opts */
+		/** @var Modules\Plugin\Options $opts */
 		$opts = $this->getOptions();
-		return $opts->getFrequencyInfo() !== 'disabled' || $opts->getFrequencyAlert() !== 'disabled';
+		return $opts->getReportFrequencyInfo() !== 'disabled' || $opts->getReportFrequencyAlert() !== 'disabled';
 	}
 
 	protected function run() {

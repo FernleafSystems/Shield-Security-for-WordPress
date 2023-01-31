@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Charts;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;

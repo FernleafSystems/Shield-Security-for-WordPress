@@ -100,21 +100,22 @@
       "beacon_id":   389
     },
     {
-      "slug":        "section_general_plugin_options",
-      "title":       "General Plugin Options",
-      "title_short": "General Options"
-    },
-    {
-      "slug":        "section_third_party_captcha",
-      "title":       "CAPTCHA",
-      "title_short": "CAPTCHA",
-      "beacon_id":   390
+      "slug":        "section_reporting",
+      "title":       "Reporting",
+      "title_short": "Reporting",
+      "beacon_id":   136
     },
     {
       "slug":        "section_importexport",
       "title":       "Import / Export",
       "title_short": "Import / Export",
       "beacon_id":   129
+    },
+    {
+      "slug":        "section_third_party_captcha",
+      "title":       "CAPTCHA",
+      "title_short": "CAPTCHA",
+      "beacon_id":   390
     },
     {
       "slug":        "section_global_security_options",
@@ -151,30 +152,6 @@
       "name":        "Beta Access",
       "summary":     "Enable Access To Beta Versions",
       "description": "Enable This Option To Allow Shield To Upgrade To Beta and Pre-Release Versions"
-    },
-    {
-      "key":         "enable_tracking",
-      "section":     "section_general_plugin_options",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/7i",
-      "link_blog":   "",
-      "name":        "Enable Information Gathering",
-      "summary":     "Permit Anonymous Usage Information Gathering",
-      "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
-    },
-    {
-      "key":         "enable_shieldnet",
-      "section":     "section_general_plugin_options",
-      "premium":     true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "beacon_id":   437,
-      "link_info":   "https://shsec.io/kb",
-      "link_blog":   "https://shsec.io/kc",
-      "name":        "Enable ShieldNET",
-      "summary":     "Enhanced Website Security Through Network Intelligence",
-      "description": "Enhanced Website Security Through Network Intelligence."
     },
     {
       "key":         "show_advanced",
@@ -260,8 +237,32 @@
       "description": "If this is empty, it will default to the blog admin email address."
     },
     {
+      "key":         "enable_tracking",
+      "section":     "section_defaults",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/7i",
+      "link_blog":   "",
+      "name":        "Enable Information Gathering",
+      "summary":     "Permit Anonymous Usage Information Gathering",
+      "description": "Allows us to gather information on statistics and features in-use across our client installations. This information is strictly anonymous and contains no personally, or otherwise, identifiable data."
+    },
+    {
+      "key":         "enable_shieldnet",
+      "section":     "section_defaults",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "beacon_id":   437,
+      "link_info":   "https://shsec.io/kb",
+      "link_blog":   "https://shsec.io/kc",
+      "name":        "Enable ShieldNET",
+      "summary":     "Enhanced Website Security Through Network Intelligence",
+      "description": "Enhanced Website Security Through Network Intelligence."
+    },
+    {
       "key":         "enable_upgrade_admin_notice",
-      "section":     "section_general_plugin_options",
+      "section":     "section_defaults",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "",
@@ -272,7 +273,7 @@
     },
     {
       "key":         "enable_wpcli",
-      "section":     "section_general_plugin_options",
+      "section":     "section_defaults",
       "advanced":    true,
       "premium":     true,
       "default":     "Y",
@@ -286,7 +287,7 @@
     },
     {
       "key":         "display_plugin_badge",
-      "section":     "section_general_plugin_options",
+      "section":     "section_defaults",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/5v",
@@ -365,7 +366,7 @@
     },
     {
       "key":         "delete_on_deactivate",
-      "section":     "section_general_plugin_options",
+      "section":     "section_defaults",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -376,7 +377,7 @@
     },
     {
       "key":         "locale_override",
-      "section":     "section_general_plugin_options",
+      "section":     "section_defaults",
       "advanced":    true,
       "default":     "",
       "type":        "text",
@@ -460,6 +461,74 @@
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
+    },
+    {
+      "key":           "frequency_alert",
+      "section":       "section_reporting",
+      "type":          "select",
+      "default":       "daily",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "hourly",
+          "text":      "Hourly"
+        },
+        {
+          "value_key": "daily",
+          "text":      "Daily"
+        },
+        {
+          "value_key": "weekly",
+          "text":      "Weekly"
+        }
+      ],
+      "link_info":     "https://shsec.io/h9",
+      "link_blog":     "",
+      "beacon_id":     233,
+      "name":          "Alert Frequency",
+      "summary":       "How Often Should You Be Sent Important Alerts",
+      "description":   "Decide when you should be sent important and critical alerts about your site security."
+    },
+    {
+      "key":           "frequency_info",
+      "section":       "section_reporting",
+      "type":          "select",
+      "default":       "weekly",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "hourly",
+          "text":      "Hourly"
+        },
+        {
+          "value_key": "daily",
+          "text":      "Daily"
+        },
+        {
+          "value_key": "weekly",
+          "text":      "Weekly"
+        },
+        {
+          "value_key": "biweekly",
+          "text":      "Bi-Weekly"
+        },
+        {
+          "value_key": "monthly",
+          "text":      "Monthly"
+        }
+      ],
+      "link_info":     "https://shsec.io/ha",
+      "link_blog":     "",
+      "beacon_id":     232,
+      "name":          "Info Frequency",
+      "summary":       "How Often Should You Be Sent Information Reports",
+      "description":   "Decide when you should be sent non-critical information and reports about your site security."
     },
     {
       "key":          "tracking_last_sent_at",
@@ -561,6 +630,36 @@
         "options_get": {
         },
         "options_set": {
+        }
+      }
+    },
+    "db_handler_classes": {
+      "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
+    },
+    "db_table_report":    {
+      "autoexpire":      30,
+      "slug":            "report",
+      "has_updated_at":  false,
+      "has_deleted_at":  false,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "type":            {
+          "macro_type": "char",
+          "length":     3,
+          "comment":    "Report Type"
+        },
+        "interval_length": {
+          "macro_type": "varchar",
+          "length":     10,
+          "comment":    "Report Interval"
+        }
+      },
+      "cols_timestamps": {
+        "interval_end_at": {
+          "comment": "Interval End"
+        },
+        "created_at":      {
+          "comment": "Report Sent At"
         }
       }
     },
@@ -669,6 +768,19 @@
         "level":   "debug",
         "offense": false,
         "stat":    false
+      },
+      "report_generated": {
+        "audit_params": [
+          "type",
+          "interval"
+        ],
+        "level":        "debug"
+      },
+      "report_sent":      {
+        "audit_params": [
+          "medium"
+        ],
+        "level":        "debug"
       }
     }
   }

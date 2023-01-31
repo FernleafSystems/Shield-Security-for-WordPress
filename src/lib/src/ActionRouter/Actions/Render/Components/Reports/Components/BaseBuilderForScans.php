@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 
 abstract class BaseBuilderForScans extends BaseBuilder {
 

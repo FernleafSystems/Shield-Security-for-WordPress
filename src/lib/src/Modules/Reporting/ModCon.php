@@ -7,24 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
-	/**
-	 * @var Lib\ReportingController
-	 */
-	private $reportsCon;
-
 	protected function isReadyToExecute() :bool {
-		return true;
-	}
-
-	public function getDbHandler_ReportLogs() :DB\Report\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'report' );
-	}
-
-	public function getReportingController() :Lib\ReportingController {
-		if ( !isset( $this->reportsCon ) ) {
-			$this->reportsCon = ( new Lib\ReportingController() )->setMod( $this );
-		}
-		return $this->reportsCon;
+		return false;
 	}
 
 	/**
@@ -32,5 +16,13 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	public function getDbHandler_Reports() :Databases\Reports\Handler {
 		return $this->getDbH( 'reports' );
+	}
+
+	/**
+	 * @inheritDoc
+	 * @deprecated 17.0
+	 */
+	public function getDbHandlers( $bInitAll = false ) {
+		return [];
 	}
 }

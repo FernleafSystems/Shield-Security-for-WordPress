@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 
 trait Common {
 

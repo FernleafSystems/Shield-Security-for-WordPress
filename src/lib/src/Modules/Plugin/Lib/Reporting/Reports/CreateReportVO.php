@@ -1,10 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\DB\Report\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -30,23 +33,23 @@ class CreateReportVO {
 	}
 
 	private function setReportInterval() :self {
-		/** @var Reporting\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		switch ( $this->rep->type ) {
-			case Reporting\Lib\Constants::REPORT_TYPE_ALERT:
-				$this->rep->interval = $opts->getFrequencyAlert();
+			case \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants::REPORT_TYPE_ALERT:
+				$this->rep->interval = $opts->getReportFrequencyAlert();
 				break;
-			case Reporting\Lib\Constants::REPORT_TYPE_INFO:
+			case \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants::REPORT_TYPE_INFO:
 			default:
-				$this->rep->interval = $opts->getFrequencyInfo();
+				$this->rep->interval = $opts->getReportFrequencyInfo();
 				break;
 		}
 		return $this;
 	}
 
 	private function setPreviousReport() :self {
-		/** @var Reporting\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var ReportsDB\Select $sel */
 		$sel = $mod->getDbHandler_ReportLogs()->getQuerySelector();

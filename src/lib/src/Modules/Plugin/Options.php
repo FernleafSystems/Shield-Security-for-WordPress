@@ -32,6 +32,22 @@ class Options extends BaseShield\Options {
 		return (string)$this->getOpt( 'visitor_address_source' );
 	}
 
+	public function getReportFrequencyAlert() :string {
+		return $this->getFrequency( 'alert' );
+	}
+
+	public function getReportFrequencyInfo() :string {
+		return $this->getFrequency( 'info' );
+	}
+
+	private function getFrequency( string $type ) :string {
+		$key = 'frequency_'.$type;
+		$default = $this->getOptDefault( $key );
+		return ( $this->isPremium() || in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
+			? $this->getOpt( $key )
+			: $default;
+	}
+
 	public function hasImportExportMasterImportUrl() :bool {
 		return !empty( $this->getImportExportMasterImportUrl() );
 	}

@@ -104,6 +104,19 @@ class Strings extends Base\Strings {
 					__( 'Request failed the AntiBot Test with a Visitor Score of "{{score}}" (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
 				],
 			],
+			'report_generated'       => [
+				'name'  => __( 'Report Generated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Report Generated.', 'wp-simple-firewall' ),
+					__( 'Type: {{type}}; Interval: {{interval}};', 'wp-simple-firewall' ),
+				],
+			],
+			'report_sent'            => [
+				'name'  => __( 'Report Sent', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Report Sent (via {{medium}}).', 'wp-simple-firewall' ),
+				],
+			],
 		];
 	}
 
@@ -136,6 +149,22 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'section_reporting' :
+				$title = __( 'Reporting', 'wp-simple-firewall' );
+				$titleShort = __( 'Reporting', 'wp-simple-firewall' );
+				$summary = [
+					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
+					sprintf( 'Your reporting email address is: %s',
+						'<code>'.$this->getMod()->getPluginReportEmail().'</code>' )
+					.' '.
+					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
+						$this->getCon()->plugin_urls->modCfgOption( 'block_send_email_address' ),
+						__( 'Update reporting email address', 'wp-simple-firewall' )
+					),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),
+				];
+				break;
+
 			case 'section_importexport' :
 				$title = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
 				$titleShort = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
@@ -143,16 +172,6 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatically import options, and deploy configurations across your entire network.', 'wp-simple-firewall' ) ),
 					__( 'This is a Pro-only feature.', 'wp-simple-firewall' ),
 				];
-				break;
-
-			case 'section_suresend' :
-				$title = __( 'SureSend Email', 'wp-simple-firewall' );
-				$titleShort = __( 'SureSend Email', 'wp-simple-firewall' );
-				break;
-
-			case 'section_general_plugin_options' :
-				$title = __( 'General Plugin Options', 'wp-simple-firewall' );
-				$titleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
 			case 'section_third_party_captcha' :
@@ -394,6 +413,32 @@ class Strings extends Base\Strings {
 				$name = __( 'CAPTCHA Style', 'wp-simple-firewall' );
 				$summary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
 				$desc = [ __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' ) ];
+				break;
+
+			case 'frequency_alert' :
+				$name = __( 'Alert Frequency', 'wp-simple-firewall' );
+				$summary = __( 'How Often Important Alerts Will Be Sent To You', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Choose when you should be sent important and critical alerts about your site security.', 'wp-simple-firewall' ),
+					__( 'Critical alerts are typically results from your most recent site scans.', 'wp-simple-firewall' )
+				];
+				if ( !$con->isPremiumActive() ) {
+					$desc[] = __( 'If you wish to receive alerts more quickly, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
+					$desc[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
+				}
+				break;
+
+			case 'frequency_info' :
+				$name = __( 'Info Frequency', 'wp-simple-firewall' );
+				$summary = __( 'How Often Informational Reports Will Be Sent To You', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
+					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
+				];
+				if ( !$con->isPremiumActive() ) {
+					$desc[] = __( 'If you wish to receive reports more often, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
+					$desc[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
+				}
 				break;
 
 			default:

@@ -40,7 +40,7 @@ class Diff extends Base {
 
 		$FS = Services::WpFs();
 		if ( empty( $originalFileDownload ) || !$FS->isFile( $originalFileDownload ) ) {
-			throw new ActionException( "A File Diff can't be created as there is no original/official file available for us to compare with." );
+			throw new ActionException( "A File Diff can't be created as there is no official file available for us to compare with." );
 		}
 
 		$conv = new ConvertLineEndings();

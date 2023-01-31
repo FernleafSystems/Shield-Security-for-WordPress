@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Strings
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Reporters\Helpers\ScanCounts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Reporters\Helpers\ScanCounts;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AlertScanResults extends BaseBuilderForScans {

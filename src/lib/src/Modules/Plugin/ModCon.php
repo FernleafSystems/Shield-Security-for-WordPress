@@ -35,6 +35,15 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $shieldNetCon;
 
+	/**
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportingController
+	 */
+	private $reportsCon;
+
+	public function getDbHandler_ReportLogs() :DB\Report\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'report' );
+	}
+
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		if ( !isset( $this->importExportCon ) ) {
 			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )->setMod( $this );
@@ -47,6 +56,13 @@ class ModCon extends BaseShield\ModCon {
 			$this->pluginBadgeCon = ( new Components\PluginBadge() )->setMod( $this );
 		}
 		return $this->pluginBadgeCon;
+	}
+
+	public function getReportingController() :Lib\Reporting\ReportingController {
+		if ( !isset( $this->reportsCon ) ) {
+			$this->reportsCon = ( new Lib\Reporting\ReportingController() )->setMod( $this );
+		}
+		return $this->reportsCon;
 	}
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {

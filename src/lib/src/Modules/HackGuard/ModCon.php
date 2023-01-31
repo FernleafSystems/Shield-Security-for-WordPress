@@ -173,6 +173,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
 		return $this->getDbH( 'filelocker' );
 	}
@@ -220,7 +223,7 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @inheritDoc
-	 * @deprecated 13.1
+	 * @deprecated 17.0
 	 */
 	public function getDbHandlers( $bInitAll = false ) {
 		return [];

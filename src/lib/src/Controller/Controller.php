@@ -1270,6 +1270,9 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'plugin' );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
 		return $this->getModule( 'reporting' );
 	}
