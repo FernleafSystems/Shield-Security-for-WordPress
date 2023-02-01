@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 
 abstract class Base extends BaseAction {
+
+	use SecurityAdminNotRequired;
 
 	protected function exec() {
 		$resp = $this->response();

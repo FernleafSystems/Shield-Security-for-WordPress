@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+
 class DynamicPageLoad extends BaseAction {
+
+	use SecurityAdminNotRequired;
 
 	public const SLUG = 'dynamic_page_load';
 

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -76,6 +78,9 @@ class ActionRoutingController extends ExecOnceModConsumer {
 					'render_action_data' => $data,
 				]
 			)->action_response_data[ 'render_output' ];
+		}
+		catch ( SecurityAdminRequiredException $e ) {
+			$output = $this->getCon()->action_router->render( PageSecurityAdminRestricted::SLUG );
 		}
 		catch ( Exceptions\ActionException $e ) {
 			$output = $e->getMessage();

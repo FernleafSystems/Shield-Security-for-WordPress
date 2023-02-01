@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
-class PageSecurityAdminRestricted extends Actions\Render\BaseRender {
+class PageSecurityAdminRestricted extends BasePluginAdminPage {
 
-	use Actions\Traits\SecurityAdminNotRequired;
+	use SecurityAdminNotRequired;
 
 	public const SLUG = 'admin_plugin_page_security_admin_restricted';
 	public const PRIMARY_MOD = 'admin_access_restriction';
