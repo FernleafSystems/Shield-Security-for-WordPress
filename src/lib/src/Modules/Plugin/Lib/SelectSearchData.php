@@ -92,7 +92,7 @@ class SelectSearchData {
 							],
 							'ip'          => $ip,
 							'is_external' => false,
-							'icon'        => $this->getCon()->svgs->raw( 'bootstrap/diagram-2-fill.svg' ),
+							'icon'        => $this->getCon()->svgs->raw( 'diagram-2-fill.svg' ),
 						];
 					},
 					array_unique( $results )
@@ -171,7 +171,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'help docs helpdesk support knowledge base doc',
-						'icon'        => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
+						'icon'        => $con->svgs->raw( 'life-preserver.svg' ),
 					],
 					[
 						'id'          => 'external_getshieldhome',
@@ -181,7 +181,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'shield security homepage home website site',
-						'icon'        => $con->svgs->raw( 'bootstrap/house-fill.svg' ),
+						'icon'        => $con->svgs->raw( 'house-fill.svg' ),
 					],
 					[
 						'id'          => 'external_gopro',
@@ -191,7 +191,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'security pro premium security upgrade',
-						'icon'        => $con->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+						'icon'        => $con->svgs->raw( 'box-arrow-up-right.svg' ),
 					],
 					[
 						'id'          => 'external_trial',
@@ -201,7 +201,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'security pro premium free trial',
-						'icon'        => $con->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+						'icon'        => $con->svgs->raw( 'box-arrow-up-right.svg' ),
 					],
 					[
 						'id'          => 'external_review',
@@ -211,7 +211,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'review reviews stars',
-						'icon'        => $con->svgs->raw( 'bootstrap/pencil-square.svg' ),
+						'icon'        => $con->svgs->raw( 'pencil-square.svg' ),
 					],
 					[
 						'id'          => 'external_testimonials',
@@ -221,7 +221,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'review reviews testimonial testimonials',
-						'icon'        => $con->svgs->raw( 'bootstrap/book-half.svg' ),
+						'icon'        => $con->svgs->raw( 'book-half.svg' ),
 					],
 					[
 						'id'          => 'external_crowdsec',
@@ -231,7 +231,7 @@ class SelectSearchData {
 						],
 						'is_external' => true,
 						'tokens'      => 'crowdsec',
-						'icon'        => $con->svgs->raw( 'bootstrap/box-arrow-up-right.svg' ),
+						'icon'        => $con->svgs->raw( 'box-arrow-up-right.svg' ),
 					],
 				],
 			]
@@ -252,7 +252,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_IP_RULES ),
 						],
 						'tokens' => 'tool ips ip address analyse analysis rules rule manager block black white list lists bypass crowdsec table',
-						'icon'   => $con->svgs->raw( 'bootstrap/diagram-3-fill.svg' ),
+						'icon'   => $con->svgs->raw( 'diagram-3-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_scan_run',
@@ -261,7 +261,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_SCANS_RUN ),
 						],
 						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware',
-						'icon'   => $con->svgs->raw( 'bootstrap/shield-shaded.svg' ),
+						'icon'   => $con->svgs->raw( 'shield-shaded.svg' ),
 					],
 					[
 						'id'     => 'tool_scan_results',
@@ -270,7 +270,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 						],
 						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore',
-						'icon'   => $con->svgs->raw( 'bootstrap/shield-fill.svg' ),
+						'icon'   => $con->svgs->raw( 'shield-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_activity_log',
@@ -279,7 +279,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 						],
 						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
-						'icon'   => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
+						'icon'   => $con->svgs->raw( 'person-lines-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_traffic_log',
@@ -288,7 +288,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_TRAFFIC_VIEWER ),
 						],
 						'tokens' => 'tool activity log table traffic request requests bots review',
-						'icon'   => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
+						'icon'   => $con->svgs->raw( 'stoplights.svg' ),
 					],
 					[
 						'id'     => 'tool_sessions',
@@ -297,7 +297,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
 						],
 						'tokens' => 'tool user users session sessions expire discard logout',
-						'icon'   => $con->svgs->raw( 'bootstrap/person-badge.svg' ),
+						'icon'   => $con->svgs->raw( 'person-badge.svg' ),
 					],
 					[
 						'id'     => 'tool_license',
@@ -306,7 +306,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_LICENSE ),
 						],
 						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing',
-						'icon'   => $con->svgs->raw( 'bootstrap/award.svg' ),
+						'icon'   => $con->svgs->raw( 'award.svg' ),
 					],
 					[
 						'id'     => 'tool_notes',
@@ -315,7 +315,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_NOTES ),
 						],
 						'tokens' => 'tool admin notes note',
-						'icon'   => $con->svgs->raw( 'bootstrap/pencil-square.svg' ),
+						'icon'   => $con->svgs->raw( 'pencil-square.svg' ),
 					],
 					[
 						'id'     => 'tool_importexport',
@@ -324,7 +324,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_IMPORT_EXPORT ),
 						],
 						'tokens' => 'tool sync import export transfer download settings configuration options slave master network',
-						'icon'   => $con->svgs->raw( 'bootstrap/arrows-expand.svg' ),
+						'icon'   => $con->svgs->raw( 'arrows-expand.svg' ),
 					],
 					[
 						'id'     => 'tool_overview',
@@ -333,7 +333,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_OVERVIEW ),
 						],
 						'tokens' => 'tool overview grade grading charts performance dashboard summary',
-						'icon'   => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
+						'icon'   => $con->svgs->raw( 'speedometer.svg' ),
 					],
 					[
 						'id'     => 'tool_guidedsetup',
@@ -342,7 +342,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_WIZARD ),
 						],
 						'tokens' => 'tool setup guide guided wizard',
-						'icon'   => $con->svgs->raw( 'bootstrap/magic.svg' ),
+						'icon'   => $con->svgs->raw( 'magic.svg' ),
 					],
 					[
 						'id'     => 'tool_debug',
@@ -351,7 +351,7 @@ class SelectSearchData {
 							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_DEBUG ),
 						],
 						'tokens' => 'tool debug info help',
-						'icon'   => $con->svgs->raw( 'bootstrap/tools.svg' ),
+						'icon'   => $con->svgs->raw( 'tools.svg' ),
 					],
 				],
 			]
@@ -370,7 +370,7 @@ class SelectSearchData {
 					'href' => $con->plugin_urls->modCfgOption( 'enable_mainwp' ),
 				],
 				'tokens' => 'integration main mainwp',
-				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
+				'icon'   => $con->svgs->raw( 'sliders.svg' ),
 			]
 		];
 
@@ -384,7 +384,7 @@ class SelectSearchData {
 					'href' => $con->plugin_urls->modCfgOption( 'user_form_providers' ),
 				],
 				'tokens' => 'integration login form bots '.$item[ 'text' ],
-				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
+				'icon'   => $con->svgs->raw( 'sliders.svg' ),
 			];
 		}
 
@@ -398,7 +398,7 @@ class SelectSearchData {
 					'href' => $con->plugin_urls->modCfgOption( 'form_spam_providers' ),
 				],
 				'tokens' => 'contact integration form forms spam '.$item[ 'text' ],
-				'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
+				'icon'   => $con->svgs->raw( 'sliders.svg' ),
 			];
 		}
 
@@ -425,7 +425,7 @@ class SelectSearchData {
 							'link'   => [
 								'href' => $con->plugin_urls->modCfgOption( $optKey ),
 							],
-							'icon'   => $con->svgs->raw( 'bootstrap/sliders.svg' ),
+							'icon'   => $con->svgs->raw( 'sliders.svg' ),
 							'tokens' => $this->getSearchableTextForModuleOption( $module, $optKey ),
 						];
 					}

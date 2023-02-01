@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
@@ -14,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class SecurityAdminController extends ExecOnceModConsumer {
 

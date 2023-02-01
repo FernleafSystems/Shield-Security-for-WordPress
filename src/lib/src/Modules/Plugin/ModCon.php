@@ -36,11 +36,11 @@ class ModCon extends BaseShield\ModCon {
 	private $shieldNetCon;
 
 	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportingController
+	 * @var Lib\Reporting\ReportingController
 	 */
 	private $reportsCon;
 
-	public function getDbHandler_ReportLogs() :DB\Report\Ops\Handler {
+	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'report' );
 	}
 

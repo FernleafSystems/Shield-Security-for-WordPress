@@ -31,6 +31,7 @@ class PluginDelete {
 		// Delete all the legacy tables first (i.e. no inter-dependencies)
 		array_map(
 			function ( $module ) {
+				/** @var Shield\Modules\Base\ModCon $module */
 				foreach ( $module->getDbHandlers( true ) as $dbh ) {
 					$dbh->tableDelete();
 				}
@@ -40,7 +41,7 @@ class PluginDelete {
 				$con->getModule_Events(),
 				$con->getModule_HackGuard(),
 				$con->getModule_IPs(),
-				$con->getModule_Reporting(),
+				$con->getModule_Plugin(),
 				$con->getModule_Sessions(),
 			]
 		);
@@ -60,12 +61,14 @@ class PluginDelete {
 						$con->getModule_HackGuard()->getDbH_ResultItems(),
 						$con->getModule_HackGuard()->getDbH_ScanItems(),
 						$con->getModule_HackGuard()->getDbH_Scans(),
+						$con->getModule_HackGuard()->getDbH_FileLocker(),
 						$con->getModule_IPs()->getDbH_CrowdSecSignals(),
 						$con->getModule_IPs()->getDbH_BotSignal(),
 						$con->getModule_IPs()->getDbH_IPRules(),
 						$con->getModule_Data()->getDbH_ReqLogs(),
 						$con->getModule_Data()->getDbH_UserMeta(),
 						$con->getModule_Data()->getDbH_IPs(),
+						$con->getModule_Plugin()->getDbH_ReportLogs(),
 					]
 				)
 			)

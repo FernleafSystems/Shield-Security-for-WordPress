@@ -4,9 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportGenerator {
@@ -30,7 +29,9 @@ class ReportGenerator {
 	}
 
 	public function adHoc() :string {
-		return $this->renderFinalReports( $this->buildReports() );
+		$r = $this->renderFinalReports( $this->buildReports() );
+//		$this->sendEmail($r);
+		return $r;
 	}
 
 	/**
@@ -73,8 +74,6 @@ class ReportGenerator {
 
 		switch ( $context ) {
 			case Constants::REPORT_CONTEXT_AD_HOC:
-				$renderer = ReportsActions\Contexts\EmailReport::SLUG;
-				break;
 			case Constants::REPORT_CONTEXT_AUTO:
 			default:
 				$renderer = ReportsActions\Contexts\EmailReport::SLUG;
@@ -96,9 +95,9 @@ class ReportGenerator {
 	}
 
 	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		/** @var Modules\Reporting\ModCon $mod */
+		/** @var Modules\Plugin\ModCon $mod */
 		$mod = $this->getMod();
-		$reportsDB = $mod->getDbHandler_ReportLogs();
+		$reportsDB = $mod->getDbH_ReportLogs();
 		/** @var ReportsDB\Record $record */
 		$record = $reportsDB->getRecord();
 		$record->type = $report->type;

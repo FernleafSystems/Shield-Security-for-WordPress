@@ -1,13 +1,14 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 abstract class Base {
 
-	use Shield\Modules\ModConsumer;
+	use PluginControllerConsumer;
 
 	public const SLUG = '';
 
@@ -31,8 +32,8 @@ abstract class Base {
 	/**
 	 * @throws \Exception
 	 */
-	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
-		$resp = new Shield\Utilities\Response();
+	public function processStepFormSubmit( array $form ) :Response {
+		$resp = new Response();
 		$resp->success = false;
 		$resp->error = 'No form processing has been configured for this step';
 		$resp->addData( 'page_reload', false );

@@ -38,8 +38,8 @@ abstract class BaseFullPageRender extends BaseRender {
 				'logo_banner'  => $con->labels->url_img_pagebanner,
 				'favicon'      => $con->urls->forImage( 'pluginlogo_24x24.png' ),
 				'svgs'         => [
-					'megaphone'       => $con->svgs->raw( 'bootstrap/megaphone.svg' ),
-					'question_square' => $con->svgs->raw( 'bootstrap/question-square.svg' ),
+					'megaphone'       => $con->svgs->raw( 'megaphone.svg' ),
+					'question_square' => $con->svgs->raw( 'question-square.svg' ),
 				],
 			],
 			'strings' => [

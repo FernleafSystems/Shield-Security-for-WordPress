@@ -633,10 +633,10 @@
         }
       }
     },
-    "db_handler_classes": {
+    "db_handler_classes":  {
       "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
     },
-    "db_table_report":    {
+    "db_table_report":     {
       "autoexpire":      30,
       "slug":            "report",
       "has_updated_at":  false,
@@ -769,18 +769,18 @@
         "offense": false,
         "stat":    false
       },
-      "report_generated": {
+      "report_generated":       {
         "audit_params": [
           "type",
           "interval"
         ],
-        "level":        "debug"
+        "level":        "info"
       },
-      "report_sent":      {
+      "report_sent":            {
         "audit_params": [
           "medium"
         ],
-        "level":        "debug"
+        "level":        "notice"
       }
     }
   }

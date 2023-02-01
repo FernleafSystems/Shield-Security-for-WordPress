@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
-	ModCon,
 	Options
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
@@ -31,8 +31,6 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	private function sendLoginNotifications( \WP_User $user ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$adminEmails = $this->getAdminLoginNotificationEmails();
@@ -151,26 +149,18 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	private function sendUserLoginEmailNotification( \WP_User $user ) {
-		$WP = Services::WpGeneral();
+		$con = $this->getCon();
 		$this->getMod()
 			 ->getEmailProcessor()
-			 ->sendEmailWithWrap(
+			 ->send(
 				 $user->user_email,
 				 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-				 [
-					 sprintf( __( '%s is notifying you of a successful login to your WordPress account.', 'wp-simple-firewall' ), $this->getCon()
-																																	   ->getHumanName() ),
-					 '',
-					 __( 'Details for this login are below:', 'wp-simple-firewall' ),
-					 '- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $WP->getHomeUrl() ),
-					 '- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-					 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->getCon()->this_req->ip ),
-					 '- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $WP->getTimeStampForDisplay() ),
-					 '',
-					 __( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),
-					 '',
-					 __( 'Thanks.', 'wp-simple-firewall' )
-				 ]
+				 $this->getCon()->action_router->render( UserLoginNotice::SLUG, [
+					 'home_url'  => Services::WpGeneral()->getHomeUrl(),
+					 'username'  => $user->user_login,
+					 'ip'        => $con->this_req->ip,
+					 'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
+				 ] )
 			 );
 	}
 
@@ -237,7 +227,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->checkIp( $this->getCon()->this_req->ip, $sess->ip ) ) {
+		if ( $opts->isLockToIp() && !$srvIP->IpIn( $this->getCon()->this_req->ip, [ $sess->ip ] ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}

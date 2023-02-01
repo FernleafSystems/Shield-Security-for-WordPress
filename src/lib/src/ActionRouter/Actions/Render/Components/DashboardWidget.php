@@ -83,27 +83,27 @@ class DashboardWidget extends BasePlugin {
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
 						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
-						'svg'  => $con->svgs->raw( 'bootstrap/speedometer.svg' ),
+						'svg'  => $con->svgs->raw( 'speedometer.svg' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
 						'text' => __( 'IPs', 'wp-simple-firewall' ),
-						'svg'  => $con->svgs->raw( 'bootstrap/diagram-3.svg' ),
+						'svg'  => $con->svgs->raw( 'diagram-3.svg' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
-						'svg'  => $con->svgs->raw( 'bootstrap/person-lines-fill.svg' ),
+						'svg'  => $con->svgs->raw( 'person-lines-fill.svg' ),
 					],
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_TRAFFIC_VIEWER ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
-						'svg'  => $con->svgs->raw( 'bootstrap/stoplights.svg' ),
+						'svg'  => $con->svgs->raw( 'stoplights.svg' ),
 					],
 					[
 						'href' => $con->plugin_urls->modCfg( $con->getModule_Plugin() ),
 						'text' => __( 'Config', 'wp-simple-firewall' ),
-						'svg'  => $con->svgs->raw( 'bootstrap/sliders.svg' ),
+						'svg'  => $con->svgs->raw( 'sliders.svg' ),
 					],
 				],
 				'recent_events'      => array_map(

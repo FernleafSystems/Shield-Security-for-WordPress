@@ -37,7 +37,7 @@ class Container extends Base {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'file_download' => $con->svgs->raw( 'bootstrap/download.svg' ),
+					'file_download' => $con->svgs->raw( 'download.svg' ),
 				],
 			],
 			'strings' => [

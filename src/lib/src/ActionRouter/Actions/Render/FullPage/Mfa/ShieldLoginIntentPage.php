@@ -48,7 +48,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		$styles = parent::getStyles();
 		$styles[ 51 ] = [
 			'href' => $this->getCon()->urls->forCss( 'shield/login2fa' ),
-			'id'  => 'shield/login2fa',
+			'id'   => 'shield/login2fa',
 		];
 		return $styles;
 	}

@@ -21,10 +21,18 @@ class MeterIpBlocking extends MeterBase {
 	}
 
 	public function description() :array {
+		$con = $this->getCon();
 		return [
-			__( "Bot Detection & IP Blocking form the core foundation to reliable, powerful, and long-term WordPress protection.", 'wp-simple-firewall' ),
-			__( "Your biggest threat comes from automated bots, so detecting them quickly and blocking them early is your greatest source of protection.", 'wp-simple-firewall' ),
-			__( "When the security plugin detects enough bad behaviours it'll block the IP from accessing the site altogether.", 'wp-simple-firewall' ),
+			__( "Your #1 security threat is from automated bots.", 'wp-simple-firewall' ),
+			implode( ' ', [
+				__( "Bot Detection & IP Blocking together form the core foundation to powerful WordPress protection that actually works.", 'wp-simple-firewall' ),
+				__( "Detecting them early and blocking them, is your greatest source of protection.", 'wp-simple-firewall' ),
+			] ),
+			implode( ' ', [
+				sprintf( __( "%s tracks bad visitors in many separate areas, so it can create a risk assessment quickly.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				__( "When enough bad behaviours are detected, it'll block the IP from accessing the site altogether.", 'wp-simple-firewall' ),
+				__( "Eventually, when the visitor leaves you alone, it'll clean the stale IPs from your block lists, keeping your site performance running optimally.", 'wp-simple-firewall' ),
+			] ),
 		];
 	}
 

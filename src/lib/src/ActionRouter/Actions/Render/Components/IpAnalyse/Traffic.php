@@ -58,7 +58,7 @@ class Traffic extends Base {
 		}
 
 		return [
-			'flags'    => [
+			'flags'   => [
 				'log_display_limit_reached' => count( $logs ) === $logLimit,
 			],
 			'strings' => [

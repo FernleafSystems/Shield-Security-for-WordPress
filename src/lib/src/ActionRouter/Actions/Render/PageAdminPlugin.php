@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageAdminPlugin extends BaseRender {
@@ -15,13 +14,10 @@ class PageAdminPlugin extends BaseRender {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'page_admin_plugin';
-	public const PRIMARY_MOD = 'insights';
 	public const TEMPLATE = '/wpadmin_pages/insights/index.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$req = Services::Request();
 
 		$nav = $this->primary_mod->isAccessRestricted() ? 'restricted' : $req->query( Constants::NAV_ID, PluginURLs::NAV_OVERVIEW );
@@ -66,7 +62,7 @@ class PageAdminPlugin extends BaseRender {
 			'vars'    => [
 				'active_module_settings' => $subNav,
 				'navbar_menu'            => ( new NavMenuBuilder() )
-					->setMod( $mod )
+					->setCon( $con )
 					->build()
 			],
 		];

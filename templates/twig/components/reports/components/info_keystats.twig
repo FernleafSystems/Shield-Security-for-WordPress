@@ -1,24 +1,19 @@
 {% extends '/components/reports/components/base.twig' %}
 
 {% block body %}
-	<div style="display: flex;flex-flow:row wrap;justify-content:space-evenly;align-items:flex-start; width: 600px">
-		{% for event_data in vars.counts %}
-			<div
-					style="border: 1px solid #999999; box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
-					width: 130px; margin-bottom: 20px; text-align: center;
-					 background-color: rgba(0,0,0,0.05);
-				"
-			>
-				<div style="border-bottom: 1px solid #999999; padding: 4px;">
-					{{ event_data.name }}
-				</div>
-				<div style="padding: 4px; background-color: white;">
-					{{ event_data.count }}
-				</div>
-{#				<div style="border-top: 1px dashed #999999;padding: 4px">#}
-{#				&uarr;#}
-{#				</div>#}
-			</div>
+	<table style="width: 600px">
+		{% for count_row in vars.counts %}
+			<tr>
+				{% for event_count in count_row %}
+					<td style="text-align: center;padding-bottom: 7px; border:1px solid transparent;">
+						<p style="margin: 3px 0; font-size: 15px; font-weight: bolder; background-color: #f6f6f6;"
+						>{{ event_count.name }}</p>
+						<p style="margin: 3px 0 5px;font-size: 16px">{{ event_count.count_latest }}
+							{{ event_count.diff_symbol|raw }} ({{ event_count.count_previous }})
+						</p>
+					</td>
+				{% endfor %}
+			</tr>
 		{% endfor %}
-	</div>
+	</table>
 {% endblock %}

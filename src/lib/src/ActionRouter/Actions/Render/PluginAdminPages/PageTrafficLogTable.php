@@ -37,7 +37,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),
 			],
 			'hrefs'   => [
-				'please_enable'     => $con->plugin_urls->modCfgOption( 'enable_logger' ),
+				'please_enable' => $con->plugin_urls->modCfgOption( 'enable_logger' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Traffic & Request Logs', 'wp-simple-firewall' ),

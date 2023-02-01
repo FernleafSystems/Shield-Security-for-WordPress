@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\MerlinController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\MerlinController;
 
 class MerlinAction extends BaseAction {
 
@@ -12,7 +12,7 @@ class MerlinAction extends BaseAction {
 	protected function exec() {
 		try {
 			$response = ( new MerlinController() )
-				->setMod( $this->getMod() )
+				->setCon( $this->getCon() )
 				->processFormSubmit( FormParams::Retrieve() );
 			$success = $response->success;
 			$msg = $response->getRelevantMsg();

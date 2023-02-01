@@ -3,18 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\ModCon;
 
 abstract class ReportingBase extends BaseAction {
 
 	public const PRIMARY_MOD = 'reporting';
 
 	protected function renderChart( array $data ) {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		try {
 			$chartData = ( new Charts\CustomChartData() )
-				->setMod( $mod )
+				->setMod( $this->primary_mod )
 				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $data ) )
 				->build();
 			$msg = 'No message';

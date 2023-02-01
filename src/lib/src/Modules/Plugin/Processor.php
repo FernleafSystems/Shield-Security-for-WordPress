@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AllowBetaUpgrades;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
 
 class Processor extends BaseShield\Processor {
@@ -22,7 +20,7 @@ class Processor extends BaseShield\Processor {
 		$mod->getShieldNetApiController()->execute();
 		$mod->getPluginBadgeCon()->execute();
 
-		( new AllowBetaUpgrades() )
+		( new Lib\AllowBetaUpgrades() )
 			->setMod( $this->getMod() )
 			->execute();
 		( new Lib\SiteHealth\SiteHealthController() )
@@ -45,7 +43,7 @@ class Processor extends BaseShield\Processor {
 		( new CleanStorage() )
 			->setCon( $this->getCon() )
 			->run();
-		( new PluginTelemetry() )
+		( new Lib\PluginTelemetry() )
 			->setMod( $this->getMod() )
 			->collectAndSend();
 	}
@@ -58,7 +56,7 @@ class Processor extends BaseShield\Processor {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
 		if ( @function_exists( '\wp_cache_setting' ) ) {
-			@wp_cache_setting( 'wp_super_cache_late_init', 1 );
+			@\wp_cache_setting( 'wp_super_cache_late_init', 1 );
 		}
 	}
 }

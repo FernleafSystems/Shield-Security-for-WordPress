@@ -42,11 +42,11 @@
 
 				<div class="">
 					<div class="{% if meter.description|length > 1 %}toggleable{% endif %}">
-						<p class="pb-1">{{ meter.description|first }}</p>
+						<p class="mb-2">{{ meter.description|first }}</p>
 					</div>
 					<div class="hidden {% if meter.description|length > 1 %}toggleable{% endif %}">
 						{% for desc in meter.description %}
-							<p class="pb-1">{{ desc }}</p>
+							<p class="mb-2">{{ desc }}</p>
 						{% endfor %}
 					</div>
 					<div class="mt-2 {% if meter.description|length > 1 %}toggleable{% else %}hidden{% endif %}">

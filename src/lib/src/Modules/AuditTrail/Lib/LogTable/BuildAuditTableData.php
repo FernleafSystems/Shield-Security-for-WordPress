@@ -167,7 +167,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 			' data-toggle="popover"'.
 			' data-rid="%s">%s</button>', $this->log->rid,
 			sprintf( '<span class="meta-icon">%s</span>',
-				$this->getCon()->svgs->raw( 'bootstrap/tags.svg' )
+				$this->getCon()->svgs->raw( 'tags.svg' )
 			)
 		);
 	}
@@ -196,7 +196,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 							],
 						][ $level ];
 		return sprintf( '<span class="severity-%s severity-icon">%s</span>', $level,
-			$this->getCon()->svgs->raw( sprintf( 'bootstrap/%s.svg', $levelDetails[ 'icon' ] ) )
+			$this->getCon()->svgs->raw( $levelDetails[ 'icon' ] )
 		);
 	}
 }

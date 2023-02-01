@@ -17,7 +17,7 @@ class MeterCard extends BaseRender {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'analysis' => $con->svgs->raw( 'bootstrap/clipboard2-data-fill.svg' ),
+					'analysis' => $con->svgs->raw( 'clipboard2-data-fill.svg' ),
 				],
 			],
 			'vars'    => [

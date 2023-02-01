@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
 class FreeTrial extends Base {
 
@@ -17,7 +17,7 @@ class FreeTrial extends Base {
 				'features'   => 'https://getshieldsecurity.com/features/',
 			],
 			'imgs'    => [
-				'free_trial' => $this->getCon()->svgs->raw( 'bootstrap/shield-fill-plus.svg' ),
+				'free_trial' => $this->getCon()->svgs->raw( 'shield-fill-plus.svg' ),
 			],
 			'strings' => [
 				'step_title' => 'Try ShieldPRO For Free',

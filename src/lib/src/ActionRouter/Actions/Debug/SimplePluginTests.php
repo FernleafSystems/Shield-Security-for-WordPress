@@ -39,7 +39,7 @@ class SimplePluginTests extends BaseAction {
 	private function dbg_reporting() {
 		try {
 			echo ( new Modules\Plugin\Lib\Reporting\ReportGenerator() )
-				->setMod( $this->getCon()->getModule_Reporting() )
+				->setMod( $this->getCon()->getModule_Plugin() )
 				->adHoc();
 		}
 		catch ( \Exception $e ) {

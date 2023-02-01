@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
 	ModCon,
 	Options
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -52,7 +52,7 @@ class CreateReportVO {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var ReportsDB\Select $sel */
-		$sel = $mod->getDbHandler_ReportLogs()->getQuerySelector();
+		$sel = $mod->getDbH_ReportLogs()->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )
 								   ->filterByInterval( $this->rep->interval )
 								   ->setOrderBy( 'sent_at' )

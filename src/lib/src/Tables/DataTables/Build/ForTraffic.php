@@ -144,7 +144,7 @@ class ForTraffic extends Base {
 				'searchable' => false,
 				'visible'    => false,
 			],
-			'day'        => [
+			'day'      => [
 				'data'          => 'day',
 				'title'         => __( 'Day' ),
 				'className'     => 'day',

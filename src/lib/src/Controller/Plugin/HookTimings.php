@@ -15,6 +15,5 @@ class HookTimings {
 	public const INIT_PROCESSOR_DEFAULT = 9;
 	public const INIT_LOGIN_INTENT_REQUEST_CAPTURE = 9;
 	public const INIT_LOGIN_RENAME = 9;
-
 	public const WPLOADED_ADMIN_PAGE_HANDLER = 5;
 }

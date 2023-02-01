@@ -87,7 +87,6 @@ class PageScansResults extends BasePluginAdminPage {
 			'strings'     => [
 				'inner_page_title'    => __( 'Scan Results', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage all scan results.', 'wp-simple-firewall' ),
-				'inner_page_toggle'   => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),

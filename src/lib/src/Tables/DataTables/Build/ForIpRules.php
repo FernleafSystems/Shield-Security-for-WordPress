@@ -84,7 +84,7 @@ class ForIpRules extends Base {
 					'show' => false
 				],
 			],
-			'day'        => [
+			'day'            => [
 				'data'          => 'day',
 				'title'         => __( 'Last Access', 'wp-simple-firewall' ),
 				'className'     => 'day',

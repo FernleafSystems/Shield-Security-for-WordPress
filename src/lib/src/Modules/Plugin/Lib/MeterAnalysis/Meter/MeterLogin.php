@@ -26,9 +26,19 @@ class MeterLogin extends MeterBase {
 	public function description() :array {
 		$name = $this->getCon()->getHumanName();
 		return [
-			sprintf( __( '%s protects the login/register/lost-password forms in a number of important ways.', 'wp-simple-firewall' ), $name ),
-			__( "The most critical is the AntiBot Detection Engine which completely replaces the need for CAPTCHAs, providing a smooth user login experience.", 'wp-simple-firewall' ),
-			__( "There are also 2FA options available to help enforce user identify verification.", 'wp-simple-firewall' ),
+			implode( ' ', [
+				__( "CAPTCHAs are horrible.", 'wp-simple-firewall' ),
+				__( "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare.", 'wp-simple-firewall' ),
+			] ),
+			implode( ' ', [
+				__( "To address this we created our own system called the AntiBot Detection Engine.", 'wp-simple-firewall' ),
+				__( "It completely replaces the need for any CAPTCHAS and can integrate with almost any other contact forms and user login forms.", 'wp-simple-firewall' ),
+				__( "And best of all, it's completely invisible to the user!", 'wp-simple-firewall' ),
+			] ),
+			implode( ' ', [
+				__( "Another crucial element of user login security is 2-Factor Authentication.", 'wp-simple-firewall' ),
+				sprintf( __( "%s offers email, Yubikey, Google Authenticator and U2F.", 'wp-simple-firewall' ), $name ),
+			] ),
 		];
 	}
 

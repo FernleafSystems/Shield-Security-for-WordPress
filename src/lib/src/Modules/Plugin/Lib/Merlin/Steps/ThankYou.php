@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\Steps;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
 class ThankYou extends Base {
 
@@ -19,9 +19,9 @@ class ThankYou extends Base {
 				'email'    => 'https://shsec.io/pluginshieldsecuritynewsletter',
 			],
 			'imgs'    => [
-				'facebook' => $con->svgs->raw( 'bootstrap/facebook.svg' ),
-				'twitter'  => $con->svgs->raw( 'bootstrap/twitter.svg' ),
-				'email'    => $con->svgs->raw( 'bootstrap/envelope-fill.svg' ),
+				'facebook' => $con->svgs->raw( 'facebook.svg' ),
+				'twitter'  => $con->svgs->raw( 'twitter.svg' ),
+				'email'    => $con->svgs->raw( 'envelope-fill.svg' ),
 			],
 			'vars'    => [
 				'video_id' => '269364269',

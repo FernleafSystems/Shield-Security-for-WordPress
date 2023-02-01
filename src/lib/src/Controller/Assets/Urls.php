@@ -22,6 +22,10 @@ class Urls {
 		return $this->forAsset( 'images/'.$asset );
 	}
 
+	public function svg( string $asset ) :string {
+		return $this->forImage( 'bootstrap/'.Paths::AddExt( $asset, 'svg' ) );
+	}
+
 	public function forJs( string $asset ) :string {
 		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
 		return empty( $url ) ? $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) ) : $url;

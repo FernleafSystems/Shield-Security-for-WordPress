@@ -1,12 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
 class MerlinController {
 
-	use Shield\Modules\ModConsumer;
+	use Shield\Modules\PluginControllerConsumer;
 
 	private $workingKey;
 
@@ -84,7 +84,7 @@ class MerlinController {
 			function ( string $handlerClass ) {
 				/** @var Steps\Base $handler */
 				$handler = new $handlerClass();
-				return $handler->setMod( $this->getMod() );
+				return $handler->setCon( $this->getCon() );
 			},
 			$handlers
 		);

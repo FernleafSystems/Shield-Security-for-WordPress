@@ -77,7 +77,7 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'thumbs_up' => $con->svgs->raw( 'bootstrap/hand-thumbs-up.svg' )
+					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' )
 				],
 			],
 			'inputs'  => [

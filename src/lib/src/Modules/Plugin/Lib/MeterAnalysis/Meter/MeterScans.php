@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MeterScans extends MeterBase {
 
@@ -23,16 +22,21 @@ class MeterScans extends MeterBase {
 
 	public function description() :array {
 		return [
-			__( "Regular file scanning is important to ensure malicious files are caught before they can be abused.", 'wp-simple-firewall' ),
-			__( "Scanning is often marketed as the most important aspect of security, but this thinking is backwards.", 'wp-simple-firewall' )
-			.' '.__( "Scanning is remedial and detection of malware, for example, is a symptom of larger problem i.e. that your site is vulnerable to intrusion.", 'wp-simple-firewall' ),
-			__( "It is, nevertheless, a critical component of your WordPress security because we must know when our site has been infected.", 'wp-simple-firewall' ),
-			__( "In summary, scanning your site doesn't protect your site from being hacked, it tells you that you're already hacked.", 'wp-simple-firewall' ),
+			__( "The easiest way to know that you've been hacked is when you discover that a file has been modified or added which shouldn't have been.", 'wp-simple-firewall' ),
+			implode( ' ', [
+				__( "You'll only know whether a file has been changed, or a new file added, if you're regularly scanning your WordPress filesystem.", 'wp-simple-firewall' ),
+				__( "The sooner you can find any malicious files or modifications, the sooner you can prevent any abuse.", 'wp-simple-firewall' ),
+				__( "The more scans you enable, the quicker you'll be alerted to potentially malicious file changes..", 'wp-simple-firewall' ),
+			] ),
+			implode( ' ', [
+				__( "'Malware scanning' is often marketed as the most important aspect of security, but this thinking is backwards.", 'wp-simple-firewall' ),
+				__( "Discovering malware on your site isn't 'protection' - it's actually a sign that your site is already hacked.", 'wp-simple-firewall' ),
+				__( "While this is good to know, it's far more useful to prevent the hack in the first place (see the IP Blocking section above).", 'wp-simple-firewall' ),
+			] ),
 		];
 	}
 
 	protected function getComponents() :array {
-		$FS = Services::WpFs();
 		return [
 			Component\ScanEnabledAfs::class,
 			Component\ScanEnabledMal::class,

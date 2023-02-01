@@ -11,7 +11,7 @@ class AllComponents extends Base {
 	public const WEIGHT = 80;
 
 	protected function testIfProtected() :bool {
-		return $this->score() > (static::WEIGHT*0.8);
+		return $this->score() > ( static::WEIGHT*0.8 );
 	}
 
 	public function score() :int {

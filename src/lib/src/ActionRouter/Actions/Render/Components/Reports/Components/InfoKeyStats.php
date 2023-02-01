@@ -22,13 +22,21 @@ class InfoKeyStats extends BaseBuilder {
 				$selector = $mod->getDbHandler_Events()->getQuerySelector();
 				$report = $this->getReport();
 				try {
-					$eventSum = $selector
+					$intervalDiff = $report->interval_end_at - $report->interval_start_at;
+					$eventSumLatest = $selector
 						->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
 						->sumEvent( $event );
-					if ( $eventSum > 0 ) {
+					$eventSumPrevious = $selector
+						->filterByBoundary( $report->interval_start_at - $intervalDiff, $report->interval_start_at )
+						->sumEvent( $event );
+					if ( $eventSumLatest > 0 || $eventSumPrevious > 0 ) {
+						$diff = $eventSumLatest - $eventSumPrevious;
 						$countData = [
-							'count' => $eventSum,
-							'name'  => $this->getCon()->loadEventsService()->getEventName( $event ),
+							'count_latest'   => $eventSumLatest,
+							'count_previous' => $eventSumPrevious,
+							'count_diff'     => abs( $diff ),
+							'diff_symbol'    => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
+							'name'           => $this->getCon()->loadEventsService()->getEventName( $event ),
 						];
 					}
 				}
@@ -40,6 +48,8 @@ class InfoKeyStats extends BaseBuilder {
 			$this->getEventsToStat()
 		) );
 
+		$countsInRows = array_chunk( $counts, 2 );
+
 		return [
 			'flags'   => [
 				'render_required' => !empty( $counts ),
@@ -48,7 +58,7 @@ class InfoKeyStats extends BaseBuilder {
 				'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'counts' => $counts
+				'counts' => $countsInRows
 			],
 		];
 	}

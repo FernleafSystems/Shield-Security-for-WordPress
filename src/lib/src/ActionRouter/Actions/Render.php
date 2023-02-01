@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * This is the entry point for ALL rendering. This is the action that should be called, which will then delegate
- * the rendering further onward. This will allow us to customization the rendering data and environment for all
+ * the rendering further onward. This will allow us to customize the rendering data and environment for all
  * renders before they're ever processed.
  */
 class Render extends BaseAction {
@@ -15,7 +15,6 @@ class Render extends BaseAction {
 	use AuthNotRequired;
 
 	public const SLUG = 'render';
-	public const PRIMARY_MOD = 'insights';
 
 	protected function exec() {
 		$req = Services::Request();

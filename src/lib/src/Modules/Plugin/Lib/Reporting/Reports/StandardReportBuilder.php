@@ -46,7 +46,7 @@ class StandardReportBuilder {
 	private function buildComponents() :array {
 		$reports = [];
 		$builders = $this->getCon()
-						 ->getModule_Reporting()
+						 ->getModule_Plugin()
 						 ->getReportingController()
 						 ->getComponentBuilders( $this->rep->type );
 		foreach ( $builders as $builder ) {

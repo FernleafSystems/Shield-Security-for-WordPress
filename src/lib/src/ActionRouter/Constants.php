@@ -117,6 +117,7 @@ class Constants {
 		Actions\Render\Components\Email\UnblockMagicLink::class,
 		Actions\Render\Components\Email\MfaLoginCode::class,
 		Actions\Render\Components\Email\FirewallBlockAlert::class,
+		Actions\Render\Components\Email\UserLoginNotice::class,
 		Actions\Render\Components\Reports\Contexts\EmailReport::class,
 		Actions\Render\Components\IpAnalyse\Container::class,
 		Actions\Render\Components\IpAnalyse\General::class,

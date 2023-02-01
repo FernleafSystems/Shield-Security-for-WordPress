@@ -853,9 +853,16 @@ body.folded #FooterBannerGoPro {
 #NavSideBar .nav-item .active .nav-icon > svg,
 #NavSideBar .nav-item:hover .nav-icon > svg {
 	color: #008000;
-	-webkit-transform: scaleX(-1);
 	transform: scaleX(-1);
 	transition: transform 0.25s;
+}
+.inner-page-header button.dropstart > svg {
+	transform: rotate(0deg);
+	transition: transform 0.5s;
+}
+.inner-page-header:hover button.dropstart > svg {
+	transform: rotate(45deg);
+	transition: transform 0.3s;
 }
 #NavSideBar .nav-item .top-title {
 	color: black;

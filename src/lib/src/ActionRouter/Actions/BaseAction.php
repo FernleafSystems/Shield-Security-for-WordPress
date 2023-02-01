@@ -19,7 +19,7 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	public const SLUG = '';
 	public const PATTERN = '';
-	public const PRIMARY_MOD = 'insights';
+	public const PRIMARY_MOD = 'plugin';
 
 	private $response;
 

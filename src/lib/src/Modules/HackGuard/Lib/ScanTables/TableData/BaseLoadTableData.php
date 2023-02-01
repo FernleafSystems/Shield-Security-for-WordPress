@@ -100,7 +100,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 				implode( ' ', $defaultButtonClasses ),
 				__( 'View File Details', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
-				$con->svgs->raw( 'bootstrap/zoom-in.svg' )
+				$con->svgs->raw( 'zoom-in.svg' )
 			);
 		}
 
@@ -109,7 +109,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 				implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
-				$con->svgs->raw( 'bootstrap/x-square.svg' )
+				$con->svgs->raw( 'x-square.svg' )
 			);
 		}
 
@@ -120,7 +120,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 					implode( ' ', $defaultButtonClasses ),
 					__( 'Repair', 'wp-simple-firewall' ),
 					$item->VO->scanresult_id,
-					$con->svgs->raw( 'bootstrap/tools.svg' )
+					$con->svgs->raw( 'tools.svg' )
 				);
 			}
 		}
@@ -131,7 +131,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 			implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
 			$item->VO->scanresult_id,
-			$con->svgs->raw( 'bootstrap/eye-slash-fill.svg' )
+			$con->svgs->raw( 'eye-slash-fill.svg' )
 		);
 
 		return $actions;

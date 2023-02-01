@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Utilities;
 
 class Paths {
 
@@ -22,6 +23,10 @@ class Paths {
 
 	public function forImage( string $asset ) :string {
 		return $this->forAsset( 'images/'.ltrim( $asset, '/' ) );
+	}
+
+	public function forSVG( string $asset ) :string {
+		return $this->forImage( 'bootstrap/'.Utilities\File\Paths::AddExt( ltrim( $asset, '/' ), 'svg' ) );
 	}
 
 	public function forJs( string $asset ) :string {

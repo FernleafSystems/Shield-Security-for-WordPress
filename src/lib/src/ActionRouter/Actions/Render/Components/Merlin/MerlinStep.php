@@ -17,7 +17,7 @@ class MerlinStep extends BaseRender {
 				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'  => [
-				'play_button' => $this->getCon()->urls->forImage( 'bootstrap/play-circle.svg' ),
+				'play_button' => $this->getCon()->urls->svg( 'play-circle' ),
 				'video_thumb' => $this->getVideoThumbnailUrl( $step[ 'vars' ][ 'video_id' ] ?? '' )
 			],
 		];

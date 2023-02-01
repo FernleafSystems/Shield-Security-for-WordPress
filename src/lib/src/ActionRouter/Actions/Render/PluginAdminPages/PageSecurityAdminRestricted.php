@@ -33,7 +33,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 				'allow_email_override' => $secOpts->isEmailOverridePermitted()
 			],
 			'hrefs'   => [
-				'form_action'       => $con->plugin_urls->adminHome(),
+				'form_action' => $con->plugin_urls->adminHome(),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),

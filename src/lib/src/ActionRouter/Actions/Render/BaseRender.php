@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 abstract class BaseRender extends BaseAction {
 
-	public const PRIMARY_MOD = 'insights';
 	public const TEMPLATE = '';
 
 	protected function exec() {
@@ -196,15 +195,15 @@ abstract class BaseRender extends BaseAction {
 			],
 			'imgs'       => [
 				'svgs'           => [
-					'exit'        => $con->svgs->raw( 'bootstrap/box-arrow-left.svg' ),
-					'help'        => $con->svgs->raw( 'bootstrap/question-circle.svg' ),
-					'helpdesk'    => $con->svgs->raw( 'bootstrap/life-preserver.svg' ),
-					'ignore'      => $con->svgs->raw( 'bootstrap/eye-slash-fill.svg' ),
-					'info_square' => $con->svgs->raw( 'bootstrap/info-square.svg' ),
-					'megaphone'   => $con->svgs->raw( 'bootstrap/megaphone.svg' ),
-					'search'      => $con->svgs->raw( 'bootstrap/search.svg' ),
-					'settings'    => $con->svgs->raw( 'bootstrap/gear.svg' ),
-					'triangle'    => $con->svgs->raw( 'bootstrap/triangle-fill.svg' ),
+					'exit'        => $con->svgs->raw( 'box-arrow-left.svg' ),
+					'help'        => $con->svgs->raw( 'question-circle.svg' ),
+					'helpdesk'    => $con->svgs->raw( 'life-preserver.svg' ),
+					'ignore'      => $con->svgs->raw( 'eye-slash-fill.svg' ),
+					'info_square' => $con->svgs->raw( 'info-square.svg' ),
+					'megaphone'   => $con->svgs->raw( 'megaphone.svg' ),
+					'search'      => $con->svgs->raw( 'search.svg' ),
+					'settings'    => $con->svgs->raw( 'gear.svg' ),
+					'triangle'    => $con->svgs->raw( 'triangle-fill.svg' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),

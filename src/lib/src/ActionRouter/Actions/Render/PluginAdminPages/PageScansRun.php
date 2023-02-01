@@ -57,7 +57,6 @@ class PageScansRun extends BasePluginAdminPage {
 			'strings' => [
 				'inner_page_title'    => __( 'Scan Your Site', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),
-				'inner_page_toggle'   => __( 'View Scan Results', 'wp-simple-firewall' ),
 
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),

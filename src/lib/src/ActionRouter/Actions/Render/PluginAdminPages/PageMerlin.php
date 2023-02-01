@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights\Lib\Merlin\MerlinController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\MerlinController;
 
 class PageMerlin extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_merlin';
-	public const PRIMARY_MOD = 'insights';
 	public const TEMPLATE = '/components/merlin/container.twig';
 
 	/**
@@ -18,7 +17,7 @@ class PageMerlin extends BasePluginAdminPage {
 		return [
 			'content' => [
 				'steps' => ( new MerlinController() )
-					->setMod( $this->primary_mod )
+					->setCon( $this->getCon() )
 					->buildSteps( empty( $subNavSection ) ? 'guided_setup_wizard' : $subNavSection )
 			],
 			'flags'   => [
