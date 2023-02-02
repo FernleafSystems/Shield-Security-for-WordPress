@@ -1,11 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Htaccess;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class RootHtaccess {
@@ -14,11 +15,17 @@ class RootHtaccess {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
+	protected function canRun() :bool {
+		return empty( Transient::Get( $this->getCon()->prefix( md5( __FILE__ ) ) ) );
+	}
+
 	protected function run() {
 		$this->setupCronHooks();
 	}
 
 	public function runDailyCron() {
+		Transient::Set( $this->getCon()->prefix( md5( __FILE__ ) ), 1, MONTH_IN_SECONDS );
+
 		$hadFile = (bool)Services::WpFs()->exists( $this->getPathToHtaccess() );
 		$couldAccess = $this->testCanAccessURL();
 

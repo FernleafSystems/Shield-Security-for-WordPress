@@ -12,8 +12,7 @@ class MeterSummary extends MeterBase {
 		return array_filter(
 			$this->getCon()->modules,
 			function ( $mod ) {
-				return ( $mod->cfg->properties[ 'show_module_options' ] ?? false )
-					   && $mod->getSlug() !== 'plugin';
+				return ( $mod->cfg->properties[ 'show_module_options' ] ?? false ) && $mod->cfg->slug !== 'plugin';
 			}
 		);
 	}

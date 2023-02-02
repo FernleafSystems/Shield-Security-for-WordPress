@@ -63,7 +63,7 @@
 				'button.action.delete',
 				function ( evt ) {
 					evt.preventDefault();
-					if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+					if ( confirm( icwp_wpsf_vars_plugin.strings.are_you_sure ) ) {
 						base.bulkAction.call( base, 'delete', [ $( this ).data( 'rid' ) ] );
 					}
 				}
@@ -256,7 +256,7 @@
 								name: 'selected-ignore',
 								className: 'action selected-action ignore',
 								action: function ( e, dt, node, config ) {
-									if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+									if ( confirm( icwp_wpsf_vars_plugin.strings.are_you_sure ) ) {
 										base.bulkAction.call( base, 'ignore' );
 									}
 								}
@@ -270,7 +270,7 @@
 									if ( base.$table.rows( { selected: true } ).count() > 20 ) {
 										alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
 									}
-									else if ( confirm( icwp_wpsf_vars_insights.strings.absolutely_sure ) ) {
+									else if ( confirm( icwp_wpsf_vars_plugin.strings.absolutely_sure ) ) {
 										base.bulkAction.call( base, 'repair-delete' );
 									}
 								}

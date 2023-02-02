@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'audit_trail';
+
 	/**
 	 * @var Lib\AuditLogger
 	 */
@@ -31,10 +33,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getAuditLogger() :Lib\AuditLogger {
-		if ( !isset( $this->auditLogger ) ) {
-			$this->auditLogger = new Lib\AuditLogger( $this->getCon() );
-		}
-		return $this->auditLogger;
+		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger( $this->getCon() );
 	}
 
 	/**

@@ -32,7 +32,7 @@ class ScansController extends ExecOnceModConsumer {
 			$scanCon->execute();
 		}
 		$this->setupCron();
-		$this->setupCronHooks(); // Plugin crons
+		$this->setupCronHooks();
 		$this->handlePostScanCron();
 	}
 

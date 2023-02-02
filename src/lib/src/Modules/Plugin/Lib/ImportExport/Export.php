@@ -125,7 +125,7 @@ class Export {
 					array_flip( $opts->getXferExcluded() )
 				);
 			}
-			$all[ $mod->getSlug() ] = $xfr;
+			$all[ $mod->cfg->slug ] = $xfr;
 		}
 		return $all;
 	}

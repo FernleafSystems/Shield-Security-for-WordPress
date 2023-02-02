@@ -76,11 +76,11 @@ class AlertScanRepairs extends BaseBuilderForScans {
 				'render_required' => !empty( $repairs ),
 			],
 			'hrefs'   => [
-				'audit_trail' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
+				'activity_log' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 			],
 			'strings' => [
-				'title'       => \__( 'Scanner Repairs', 'wp-simple-firewall' ),
-				'audit_trail' => \__( 'View all repairs and file deletions in the Activity Log', 'wp-simple-firewall' ),
+				'title'        => \__( 'Scanner Repairs', 'wp-simple-firewall' ),
+				'activity_log' => \__( 'View all repairs and file deletions in the Activity Log', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'total'   => $total,

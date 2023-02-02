@@ -97,7 +97,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 		$modPlugin = $con->getModule_Plugin();
 		/** @var Plugin\Options $modOpts */
 		$modOpts = $modPlugin->getOptions();
-		if ( is_main_network() && $modOpts->isEnabledShieldNET() && $con->isPremiumActive()
+		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $con->isPremiumActive()
 			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
 
 			$this->sendIPReputationData();

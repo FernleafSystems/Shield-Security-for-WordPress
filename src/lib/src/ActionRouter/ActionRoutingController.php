@@ -99,16 +99,24 @@ class ActionRoutingController extends ExecOnceModConsumer {
 			$redirectTo = null;
 
 			if ( $con->isModulePage() ) {
-				$page = (string)$req->query( 'page' );
-				$navID = $req->query( Constants::NAV_ID );
-				$subNavID = $req->query( Constants::NAV_SUB_ID );
 
-				if ( empty( $navID ) ) {
-					$pseudoNavID = explode( '-', $page )[ 2 ] ?? '';
-					$redirectTo = $urls->isValidNav( $pseudoNavID ) ? $urls->adminTopNav( $pseudoNavID ) : $urls->adminHome();
+				$page = (string)$req->query( 'page' );
+				$navID = (string)$req->query( Constants::NAV_ID );
+				$subNavID = (string)$req->query( Constants::NAV_SUB_ID );
+
+				if ( $page == $urls->rootAdminPageSlug() ) {
+					if ( empty( $navID ) ) {
+						$redirectTo = $urls->adminHome();
+					}
+					elseif ( $navID === PluginURLs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
+						$redirectTo = $urls->modCfg( $con->getModule_Plugin() );
+					}
 				}
-				elseif ( $navID === PluginURLs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
-					$redirectTo = $urls->modCfg( $con->getModule_Plugin() );
+				else {
+					if ( !$urls->isValidNav( $navID ) ) {
+						$navID = explode( '-', $page )[ 2 ] ?? '';
+					}
+					$redirectTo = $urls->isValidNav( $navID ) ? $urls->adminTopNav( $navID ) : $urls->adminHome();
 				}
 			}
 			elseif ( $con->getModule_Plugin()->getActivateLength() < 5 ) {

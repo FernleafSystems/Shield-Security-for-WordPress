@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs as IPsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -14,12 +14,12 @@ class RecentStats {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var IPsDB\EntryVO[]
+	 * @var IpRuleRecord[]
 	 */
 	private static $recentlyBlocked;
 
 	/**
-	 * @var IPsDB\EntryVO[]
+	 * @var IpRuleRecord[]
 	 */
 	private static $recentlyOffended;
 

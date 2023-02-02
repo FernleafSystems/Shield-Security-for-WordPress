@@ -161,32 +161,4 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $text;
 	}
-
-	public function getScriptLocalisations() :array {
-		$locals = parent::getScriptLocalisations();
-		$locals[] = [
-			'global-plugin',
-			'icwp_wpsf_vars_lg',
-			[
-				'ajax' => [
-					'profile_backup_codes_gen' => ActionData::Build( MfaBackupCodeAdd::SLUG ),
-					'profile_backup_codes_del' => ActionData::Build( MfaBackupCodeDelete::SLUG ),
-				],
-			]
-		];
-		return $locals;
-	}
-
-	public function getCustomScriptEnqueues() :array {
-		$enq = [];
-		if ( is_admin() || is_network_admin() ) {
-			$enq[ Enqueue::CSS ] = [
-				'wp-wp-jquery-ui-dialog'
-			];
-			$enq[ Enqueue::JS ] = [
-				'wp-jquery-ui-dialog'
-			];
-		}
-		return $enq;
-	}
 }

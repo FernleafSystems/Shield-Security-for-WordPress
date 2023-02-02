@@ -29,7 +29,8 @@ class MeterIpBlocking extends MeterBase {
 				__( "Detecting them early and blocking them, is your greatest source of protection.", 'wp-simple-firewall' ),
 			] ),
 			implode( ' ', [
-				sprintf( __( "%s tracks bad visitors in many separate areas, so it can create a risk assessment quickly.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				sprintf( __( "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas.", 'wp-simple-firewall' ), $con->getHumanName() ),
+				__( "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page.", 'wp-simple-firewall' ),
 				__( "When enough bad behaviours are detected, it'll block the IP from accessing the site altogether.", 'wp-simple-firewall' ),
 				__( "Eventually, when the visitor leaves you alone, it'll clean the stale IPs from your block lists, keeping your site performance running optimally.", 'wp-simple-firewall' ),
 			] ),

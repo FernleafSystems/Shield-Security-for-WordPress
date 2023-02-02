@@ -52,7 +52,7 @@ class WpCli extends ExecOnceModConsumer {
 			[
 				'enabled'          => false,
 				'cmd_root'         => $this->getCon()->getPluginPrefix(),
-				'cmd_base'         => $this->getMod()->getSlug(),
+				'cmd_base'         => $this->getMod()->cfg->slug,
 				'inc_mod_standard' => false,
 			],
 			$this->getOptions()->getRawData_FullFeatureConfig()[ 'wpcli' ] ?? []

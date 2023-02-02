@@ -60,7 +60,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 											 'display'          => false,
 											 'min_install_days' => 0,
 											 'twig'             => true,
-											 'mod'              => $this->getMod()->getSlug(),
+											 'mod'              => $this->getMod()->cfg->slug,
 										 ],
 										 $noticeDef
 									 );

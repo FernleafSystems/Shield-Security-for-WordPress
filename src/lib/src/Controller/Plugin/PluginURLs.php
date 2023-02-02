@@ -15,7 +15,7 @@ class PluginURLs {
 
 	use PluginControllerConsumer;
 
-	public const NAV_ACTIVITY_LOG = 'audit_trail';
+	public const NAV_ACTIVITY_LOG = 'activity_log';
 	public const NAV_DEBUG = 'debug';
 	public const NAV_DOCS = 'docs';
 	public const NAV_IMPORT_EXPORT = 'importexport';
@@ -36,8 +36,21 @@ class PluginURLs {
 
 	public function rootAdminPage() :string {
 		$con = $this->getCon();
-		return Services::WpGeneral()
-					   ->getUrl_AdminPage( $con->getModule_Plugin()->getModSlug(), $con->getIsWpmsNetworkAdminOnly() );
+		return Services::WpGeneral()->getUrl_AdminPage( $this->rootAdminPageSlug(), $con->getIsWpmsNetworkAdminOnly() );
+	}
+
+	public function rootAdminPageSlug() :string {
+		return $this->getCon()->getModule_Plugin()->getModSlug();
+	}
+
+	public static function GetAllNavs() :array {
+		$cons = ( new \ReflectionClass( __CLASS__ ) )->getConstants();
+		return array_intersect_key( $cons, array_flip( array_filter(
+			array_keys( $cons ),
+			function ( string $nav ) {
+				return strpos( $nav, 'NAV_' ) === 0;
+			}
+		) ) );
 	}
 
 	public function adminHome() :string {
@@ -63,7 +76,7 @@ class PluginURLs {
 	 * @param ModCon|mixed $mod
 	 */
 	public function modCfg( $mod ) :string {
-		return $this->adminTopNav( PluginURLs::NAV_OPTIONS_CONFIG, $mod->getSlug() );
+		return $this->adminTopNav( PluginURLs::NAV_OPTIONS_CONFIG, $mod->cfg->slug );
 	}
 
 	public function modCfgOption( string $optKey ) :string {
@@ -105,6 +118,6 @@ class PluginURLs {
 	}
 
 	public function isValidNav( string $navID ) :bool {
-		return in_array( $navID, ( new \ReflectionClass( $this ) )->getConstants() );
+		return in_array( $navID, self::GetAllNavs() );
 	}
 }

@@ -130,7 +130,7 @@
 <h3 class="subheader">
 	{{ strings.recent_activity }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.audit_trail }}" target="_blank">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.activity_log }}" target="_blank">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 {% if vars.recent_events|default([])|length > 0 %}

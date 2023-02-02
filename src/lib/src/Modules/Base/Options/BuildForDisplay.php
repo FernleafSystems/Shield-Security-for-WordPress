@@ -34,6 +34,7 @@ class BuildForDisplay {
 
 		$opts = $this->getOptions();
 		$sections = $this->buildAvailableSections();
+		$notices = ( new SectionNotices() )->setCon( $con );
 
 		foreach ( $sections as $sectionKey => $sect ) {
 
@@ -76,11 +77,8 @@ class BuildForDisplay {
 					if ( !$opts->isSectionReqsMet( $sect[ 'slug' ] ) ) {
 						$warning[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
 					}
-					$sections[ $sectionKey ][ 'warnings' ] = array_merge(
-						$warning,
-						$UI->getSectionWarnings( $sect[ 'slug' ] )
-					);
-					$sections[ $sectionKey ][ 'notices' ] = $UI->getSectionNotices( $sect[ 'slug' ] );
+					$sections[ $sectionKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
+					$sections[ $sectionKey ][ 'warnings' ] = array_merge( $warning, $notices->warnings( $sect[ 'slug' ] ) );
 					$sections[ $sectionKey ][ 'critical_warnings' ] = $UI->getSectionCriticalWarnings( $sect[ 'slug' ] );
 				}
 			}

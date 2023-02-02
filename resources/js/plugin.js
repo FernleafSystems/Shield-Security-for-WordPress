@@ -454,10 +454,10 @@ jQueryDoc.ready( function () {
 	}
 
 	if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
-		jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
+		jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_plugin.components.ip_analysis.ajax );
 	}
 	if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
-		jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
+		jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_plugin.components.ip_rules );
 	}
 
 	jQuery( document ).on( 'click', '#SuperSearchLaunch input', function ( evt ) {

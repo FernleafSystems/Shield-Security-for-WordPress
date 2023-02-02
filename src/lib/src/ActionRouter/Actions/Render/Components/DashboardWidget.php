@@ -30,11 +30,11 @@ class DashboardWidget extends BasePlugin {
 										  ->diffForHumans();
 		return [
 			'hrefs'   => [
-				'overview'    => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
-				'logo'        => $con->labels->PluginURI,
-				'audit_trail' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
-				'sessions'    => $con->plugin_urls->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
-				'ips'         => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
+				'overview'     => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
+				'logo'         => $con->labels->PluginURI,
+				'activity_log' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
+				'sessions'     => $con->plugin_urls->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
+				'ips'          => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()

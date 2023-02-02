@@ -73,7 +73,7 @@
 						let action = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
 						if ( action === "-1" ) {
-							alert( icwp_wpsf_vars_insights.strings.select_action );
+							alert( icwp_wpsf_vars_plugin.strings.select_action );
 						}
 						else {
 							let checkedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(

@@ -3,10 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -146,34 +142,6 @@ class ModCon extends BaseShield\ModCon {
 			$this->oOffenseTracker = new Lib\OffenseTracker( $this->getCon() );
 		}
 		return $this->oOffenseTracker;
-	}
-
-	public function getScriptLocalisations() :array {
-		$locals = parent::getScriptLocalisations();
-
-		$locals[] = [
-			'plugin',
-			'icwp_wpsf_vars_ips',
-			[
-				'components' => [
-					'ip_analysis' => [
-						'ajax' => [
-							'ip_analyse_action' => ActionData::Build( Actions\IpAnalyseAction::SLUG ),
-						]
-					],
-					'ip_rules'    => [
-						'ajax'    => [
-							'ip_rule_add_submit' => ActionData::Build( Actions\IpRuleAddSubmit::SLUG ),
-							'ip_rule_delete'     => ActionData::Build( Actions\IpRuleDelete::SLUG ),
-						],
-						'strings' => [
-							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
-						],
-					],
-				],
-			]
-		];
-		return $locals;
 	}
 
 	public function getTextOptDefault( string $key ) :string {

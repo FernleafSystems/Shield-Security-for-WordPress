@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\BuildAuditTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\GetRequestMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActivityLogTableAction extends BaseAction {
 
 	public const SLUG = 'logtable_action';
-	public const PRIMARY_MOD = 'audit_trail';
+	public const PRIMARY_MOD = ModCon::SLUG;
 
 	protected function exec() {
 		try {

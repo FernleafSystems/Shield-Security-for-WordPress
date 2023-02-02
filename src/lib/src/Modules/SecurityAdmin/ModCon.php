@@ -28,17 +28,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
-		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
-			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )->setMod( $this );
-		}
-		return $this->whitelabelCon;
+		return $this->whitelabelCon ?? $this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )->setMod( $this );
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
-		if ( !$this->securityAdminCon instanceof Lib\SecurityAdmin\SecurityAdminController ) {
-			$this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )->setMod( $this );
-		}
-		return $this->securityAdminCon;
+		return $this->securityAdminCon ?? $this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )->setMod( $this );
 	}
 
 	public function runDailyCron() {

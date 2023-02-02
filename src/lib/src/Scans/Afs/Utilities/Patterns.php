@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
-use const HOUR_IN_SECONDS;
-
 class Patterns {
 
 	use Modules\ModConsumer;
@@ -16,14 +14,11 @@ class Patterns {
 	 * @return string[][]
 	 */
 	public function retrieve() {
-		/** @var Modules\HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-
 		$cacher = new Cache\CacheDefVO();
-		$cacher->dir = $mod->getScansTempDir();
+		$cacher->dir = $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
 		if ( !empty( $cacher->dir ) ) {
 			$cacher->file_fragment = 'cache_patterns.txt';
-			$cacher->expiration = HOUR_IN_SECONDS;
+			$cacher->expiration = \HOUR_IN_SECONDS;
 			( new Cache\LoadFromCache() )
 				->setCacheDef( $cacher )
 				->load();

@@ -53,7 +53,7 @@ class OptionsForm extends BaseRender {
 				'inner_page_subtitle' => $mod->getModDescriptors()[ 'subtitle' ],
 			],
 			'vars'    => [
-				'working_mod'   => $mod->getSlug(),
+				'working_mod'   => $mod->cfg->slug,
 				'all_options'   => ( new BuildForDisplay( $focusSection, $focusOption ) )
 					->setMod( $mod )
 					->standard(),

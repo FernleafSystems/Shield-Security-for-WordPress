@@ -61,30 +61,19 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledWpcli() :bool {
-		return $this->isPremium()
-			   && apply_filters( 'shield/enable_wpcli', $this->isOpt( 'enable_wpcli', 'Y' ) );
+		return $this->isPremium() && apply_filters( 'shield/enable_wpcli', $this->isOpt( 'enable_wpcli', 'Y' ) );
 	}
 
 	public function isTrackingPermissionSet() :bool {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}
 
-	public function isEnabledShieldNET() :bool {
-		return $this->isOpt( 'enable_shieldnet', 'Y' );
-	}
-
-	/**
-	 * @return $this
-	 */
 	public function setPluginTrackingPermission( bool $onOrOff = true ) {
-		return $this->setOpt( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
-					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		$this->setOpt( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
+			 ->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function setVisitorAddressSource( string $source ) {
-		return $this->setOpt( 'visitor_address_source', $source );
+		$this->setOpt( 'visitor_address_source', $source );
 	}
 }

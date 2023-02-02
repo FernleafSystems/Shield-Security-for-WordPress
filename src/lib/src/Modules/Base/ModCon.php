@@ -18,6 +18,8 @@ abstract class ModCon extends DynPropertiesClass {
 	use Modules\PluginControllerConsumer;
 	use Shield\Crons\PluginCronsConsumer;
 
+	public const SLUG = '';
+
 	/**
 	 * @var Config\ModConfigVO
 	 */
@@ -101,10 +103,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	protected function setupHooks() {
 		$con = $this->getCon();
-
-		add_action( $con->prefix( 'modules_loaded' ), function () {
-			$this->onModulesLoaded();
-		} );
 
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -220,9 +218,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getUpgradeHandler() {
 		return $this->loadModElement( 'Upgrade' );
-	}
-
-	protected function onModulesLoaded() {
 	}
 
 	public function onRunProcessors() {
@@ -351,7 +346,7 @@ abstract class ModCon extends DynPropertiesClass {
 		$con = $this->getCon();
 		$urls = $con->plugin_urls;
 		return $urls ? $urls->modCfg( $this )
-			: $con->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->getSlug() );
+			: $con->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->cfg->slug );
 	}
 
 	/**
@@ -411,7 +406,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_'.$this->getSlug(), $enable ? 'Y' : 'N' );
+		$this->getOptions()->setOpt( $this->getEnableModOptKey(), $enable ? 'Y' : 'N' );
 		return $this;
 	}
 
@@ -444,12 +439,11 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function isModOptEnabled() :bool {
 		$opts = $this->getOptions();
-		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $opts->isOpt( $this->getEnableModOptKey(), true, true );
+		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' ) || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
 	public function getEnableModOptKey() :string {
-		return 'enable_'.$this->getSlug();
+		return 'enable_'.$this->cfg->slug;
 	}
 
 	public function getMainFeatureName() :string {
@@ -468,13 +462,19 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? $this->getCon()->prefix( $this->getSlug() ) : $this->getSlug();
+		return $prefix ? $this->getCon()->prefix( $this->cfg->slug ) : $this->cfg->slug;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSlug() :string {
-		return $this->sModSlug ?? $this->cfg->slug;
+		return $this->cfg->slug;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getIfShowModuleMenuItem() :bool {
 		return $this->cfg->properties[ 'show_module_menu_item' ];
 	}
@@ -679,14 +679,23 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->cfg->properties[ 'access_restricted' ] && !$this->getCon()->isPluginAdmin();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function canDisplayOptionsForm() :bool {
 		return !$this->cfg->properties[ 'access_restricted' ] || $this->getCon()->isPluginAdmin();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getScriptLocalisations() :array {
 		return [];
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getCustomScriptEnqueues() :array {
 		return [];
 	}

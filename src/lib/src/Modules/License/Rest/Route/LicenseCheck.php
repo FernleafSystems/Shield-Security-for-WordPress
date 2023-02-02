@@ -11,4 +11,11 @@ class LicenseCheck extends Base {
 	protected function getRequestProcessorClass() :string {
 		return Request\LicenseCheck::class;
 	}
+
+	/**
+	 * Allows Shield service to PING a site to perform a license check after customer activates license.
+	 */
+	protected function isShieldServiceAuthorised() :bool {
+		return true;
+	}
 }

@@ -4,6 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainW
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterSummary;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	Plugin,
+	HackGuard
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sync {
@@ -20,9 +26,6 @@ class Sync {
 		];
 	}
 
-	/**
-	 * @return mixed[]
-	 */
 	private function buildMetaData() :array {
 		$con = $this->getCon();
 		/** @var Options $intOpts */
@@ -44,7 +47,38 @@ class Sync {
 		$con = $this->getCon();
 		$data = [];
 		foreach ( $con->modules as $mod ) {
-			$data[ $mod->getSlug() ] = $mod->getMainWpData();
+			$options = $this->getOptions()->getTransferableOptions();
+			if ( !empty( $options ) ) {
+				$data[ $mod->cfg->slug ] = [
+					'options' => $options
+				];
+
+				switch ( $mod->cfg->slug ) {
+
+					case Plugin\ModCon::SLUG:
+						try {
+							$data[ $mod->cfg->slug ][ 'grades' ] = [
+								'integrity' => ( new Handler() )
+									->setCon( $this->getCon() )
+									->getMeter( MeterSummary::class )
+							];
+						}
+						catch ( \Exception $e ) {
+						}
+						break;
+
+					case HackGuard\ModCon::SLUG:
+						$data[ $mod->cfg->slug ][ 'scan_issues' ] = array_filter(
+							( new HackGuard\Scan\Results\Counts() )
+								->setMod( $mod )
+								->all()
+						);
+						break;
+
+					default:
+						break;
+				}
+			}
 		}
 		return $data;
 	}

@@ -4,16 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions
+	Actions,
+	Actions\Render\Components\BannerGoPro,
+	Actions\Render\Components\ToastPlaceholder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
 class ModCon extends BaseShield\ModCon {
+
+	public const SLUG = 'plugin';
 
 	/**
 	 * @var Lib\ImportExport\ImportExportController
@@ -45,31 +47,19 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
-		if ( !isset( $this->importExportCon ) ) {
-			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )->setMod( $this );
-		}
-		return $this->importExportCon;
+		return $this->importExportCon ?? $this->importExportCon = ( new Lib\ImportExport\ImportExportController() )->setMod( $this );
 	}
 
 	public function getPluginBadgeCon() :Components\PluginBadge {
-		if ( !isset( $this->pluginBadgeCon ) ) {
-			$this->pluginBadgeCon = ( new Components\PluginBadge() )->setMod( $this );
-		}
-		return $this->pluginBadgeCon;
+		return $this->pluginBadgeCon ?? $this->pluginBadgeCon = ( new Components\PluginBadge() )->setMod( $this );
 	}
 
 	public function getReportingController() :Lib\Reporting\ReportingController {
-		if ( !isset( $this->reportsCon ) ) {
-			$this->reportsCon = ( new Lib\Reporting\ReportingController() )->setMod( $this );
-		}
-		return $this->reportsCon;
+		return $this->reportsCon ?? $this->reportsCon = ( new Lib\Reporting\ReportingController() )->setMod( $this );
 	}
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
-		if ( !isset( $this->shieldNetCon ) ) {
-			$this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )->setMod( $this );
-		}
-		return $this->shieldNetCon;
+		return $this->shieldNetCon ?? $this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )->setMod( $this );
 	}
 
 	protected function doPostConstruction() {
@@ -299,132 +289,6 @@ class ModCon extends BaseShield\ModCon {
 		return Services::WpUsers()->isUserAdmin();
 	}
 
-	public function getScriptLocalisations() :array {
-		$locals = parent::getScriptLocalisations();
-		$con = $this->getCon();
-
-		$tourManager = $this->getTourManager();
-		$locals[] = [
-			'shield/tours',
-			'shield_vars_tourmanager',
-			[
-				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::SLUG ),
-				'tour_states' => $tourManager->getUserTourStates(),
-				'tours'       => $tourManager->getAllTours(),
-			]
-		];
-
-		$locals[] = [
-			'plugin',
-			'icwp_wpsf_vars_plugin',
-			[
-				'components' => [
-					'helpscout'     => [
-						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
-						'visible'   => $con->isModulePage()
-					],
-					'offcanvas'     => [
-						'ip_analysis'      => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
-						'ip_rule_add_form' => Actions\Render\Components\OffCanvas\IpRuleAddForm::SLUG,
-						'meter_analysis'   => Actions\Render\Components\OffCanvas\MeterAnalysis::SLUG,
-						'mod_config'       => Actions\Render\Components\OffCanvas\ModConfig::SLUG,
-					],
-					'mod_options'   => [
-						'ajax' => [
-							'mod_options_save' => ActionData::Build( Actions\ModuleOptionsSave::SLUG )
-						]
-					],
-					'super_search'  => [
-						'vars' => [
-							'render_slug' => Actions\Render\Components\SuperSearchResults::SLUG,
-						],
-					],
-					'select_search' => [
-						'ajax'    => [
-							'select_search' => ActionData::Build( Actions\PluginSuperSearch::SLUG )
-						],
-						'strings' => [
-							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
-							'placeholder'            => sprintf( '%s (%s)',
-								__( 'Search for anything', 'wp-simple-firewall' ),
-								'e.g. '.implode( ', ', [
-									__( 'IPs', 'wp-simple-firewall' ),
-									__( 'options', 'wp-simple-firewall' ),
-									__( 'tools', 'wp-simple-firewall' ),
-									__( 'help', 'wp-simple-firewall' ),
-								] )
-							),
-						]
-					],
-				],
-				'strings'    => [
-					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-				],
-			]
-		];
-
-		$locals[] = [
-			'global-plugin',
-			'icwp_wpsf_vars_globalplugin',
-			[
-				'vars' => [
-					'ajax_render'      => ActionData::Build( Actions\AjaxRender::SLUG ),
-					'dashboard_widget' => [
-						'ajax' => [
-							'render_dashboard_widget' => Actions\Render\Components\DashboardWidget::SLUG
-						]
-					],
-					'notices'          => [
-						'ajax' => [
-							'auto_db_repair'  => ActionData::Build( Actions\PluginAutoDbRepair::SLUG ),
-							'delete_forceoff' => ActionData::Build( Actions\PluginDeleteForceOff::SLUG ),
-						]
-					]
-				],
-			]
-		];
-
-		$req = Services::Request();
-		$opts = $this->getOptions();
-		$runCheck = ( $req->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 )
-					|| ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
-		if ( $runCheck ) {
-			$opts->setOpt( 'ipdetect_at', $req->ts() );
-			$locals[] = [
-				'shield/ip_detect',
-				'icwp_wpsf_vars_ipdetect',
-				[
-					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
-					'ajax'    => ActionData::Build( Actions\PluginIpDetect::SLUG ),
-					'flags'   => [
-						'silent' => empty( $req->query( 'shield_check_ip_source' ) ),
-					],
-					'strings' => [
-						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
-						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),
-						'reloading'    => __( 'Please reload the page.', 'wp-simple-firewall' ),
-					],
-				]
-			];
-		}
-
-		return $locals;
-	}
-
-	public function getCustomScriptEnqueues() :array {
-		$enqs = [];
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$enqs[ Enqueue::CSS ] = [
-				'wp-wp-jquery-ui-dialog'
-			];
-			$enqs[ Enqueue::JS ] = [
-				'wp-jquery-ui-dialog'
-			];
-		}
-		return $enqs;
-	}
-
 	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {
 		return $this->getDbH( 'notes' );
 	}
@@ -434,6 +298,18 @@ class ModCon extends BaseShield\ModCon {
 			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
 		}
 		return $this->oCaptchaEnqueue;
+	}
+
+	protected function setupCustomHooks() {
+		add_action( 'admin_footer', function () {
+			$AR = $this->getCon()->action_router;
+			if ( !empty( $AR ) ) {
+				echo $AR->render( BannerGoPro::SLUG );
+				if ( $this->getCon()->isModulePage() ) {
+					echo $AR->render( ToastPlaceholder::SLUG );
+				}
+			}
+		}, 100, 0 );
 	}
 
 	public function isModOptEnabled() :bool {

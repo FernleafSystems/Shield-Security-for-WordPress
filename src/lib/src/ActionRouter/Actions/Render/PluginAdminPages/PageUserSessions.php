@@ -22,11 +22,11 @@ class PageUserSessions extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'User Controls', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
 			],
 			[
 				'text' => __( 'Security Admin', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_SecAdmin()->getSlug() ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_SecAdmin()->cfg->slug ),
 			],
 		];
 	}

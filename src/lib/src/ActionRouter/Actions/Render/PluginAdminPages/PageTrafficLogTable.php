@@ -20,7 +20,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
 			],
 		];
 	}

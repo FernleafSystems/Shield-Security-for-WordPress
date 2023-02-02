@@ -46,7 +46,7 @@ class ModConfig extends OffCanvasBase {
 			'dynamic_load_params' => [
 				'dynamic_load_slug' => Config::SLUG,
 				'dynamic_load_data' => [
-					'primary_mod_slug' => $module->getSlug(),
+					'primary_mod_slug' => $module->cfg->slug,
 					'focus_item'       => $configItem,
 					'focus_item_type'  => $itemType,
 					'form_context'     => 'offcanvas',

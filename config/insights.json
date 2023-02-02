@@ -23,10 +23,6 @@
     "enabled": false
   },
   "sections":   [
-    {
-      "slug":   "section_non_ui",
-      "hidden": true
-    }
   ],
   "options":    [
   ]

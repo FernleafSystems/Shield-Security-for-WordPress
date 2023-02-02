@@ -32,7 +32,6 @@ class Databases {
 
 	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
-	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;

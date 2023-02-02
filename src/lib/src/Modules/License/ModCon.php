@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	/**
 	 * @var Lib\LicenseHandler
@@ -21,38 +18,10 @@ class ModCon extends BaseShield\ModCon {
 	 * @return Lib\LicenseHandler
 	 */
 	public function getLicenseHandler() :Lib\LicenseHandler {
-		if ( !isset( $this->licenseHandler ) ) {
-			$this->licenseHandler = ( new Lib\LicenseHandler() )->setMod( $this );
-		}
-		return $this->licenseHandler;
+		return $this->licenseHandler ?? $this->licenseHandler = ( new Lib\LicenseHandler() )->setMod( $this );
 	}
 
 	public function getWpHashesTokenManager() :Lib\WpHashes\ApiTokenManager {
-		if ( !isset( $this->wpHashesTokenManager ) ) {
-			$this->wpHashesTokenManager = ( new Lib\WpHashes\ApiTokenManager() )->setMod( $this );
-		}
-		return $this->wpHashesTokenManager;
-	}
-
-	public function runHourlyCron() {
-		$this->getWpHashesTokenManager()->getToken();
-	}
-
-	public function onWpInit() {
-		parent::onWpInit();
-		$this->getWpHashesTokenManager()->execute();
-	}
-
-	public function getIfShowModuleMenuItem() :bool {
-		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
-	}
-
-	public function onWpLoaded() {
-		parent::onWpLoaded();
-		try {
-			$this->getLicenseHandler()->verify( false );
-		}
-		catch ( \Exception $e ) {
-		}
+		return $this->wpHashesTokenManager ?? $this->wpHashesTokenManager = ( new Lib\WpHashes\ApiTokenManager() )->setMod( $this );
 	}
 }

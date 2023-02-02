@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\ActionException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
@@ -392,8 +393,6 @@ class Controller extends DynPropertiesClass {
 			->setCon( $this )
 			->execute();
 
-		do_action( $this->prefix( 'modules_loaded' ) );
-
 		$this->rules = ( new Shield\Rules\RulesController() )->setCon( $this );
 		$this->rules->execute();
 
@@ -553,6 +552,8 @@ class Controller extends DynPropertiesClass {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 
+		$this->action_router->execute();
+
 		try {
 			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::SLUG );
 		}
@@ -657,7 +658,7 @@ class Controller extends DynPropertiesClass {
 		$this->cron_daily = ( new Shield\Crons\DailyCron() )->setCon( $this );
 		$this->cron_daily->execute();
 
-		( new Shield\Utilities\Htaccess\RootHtaccess() )
+		( new Shield\Utilities\RootHtaccess() )
 			->setCon( $this )
 			->execute();
 	}
@@ -1198,7 +1199,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
-		return $this->getModule( 'audit_trail' );
+		return $this->getModule( Shield\Modules\AuditTrail\ModCon::SLUG );
 	}
 
 	public function getModule_Autoupdates() :Shield\Modules\Autoupdates\ModCon {
@@ -1234,13 +1235,16 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
-		return $this->getModule( 'hack_protect' );
+		return $this->getModule( Shield\Modules\HackGuard\ModCon::SLUG );
 	}
 
 	public function getModule_Headers() :Shield\Modules\Headers\ModCon {
 		return $this->getModule( 'headers' );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getModule_Insights() :Shield\Modules\Insights\ModCon {
 		return $this->getModule( 'insights' );
 	}
@@ -1262,7 +1266,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
-		return $this->getModule( 'plugin' );
+		return $this->getModule( Shield\Modules\Plugin\ModCon::SLUG );
 	}
 
 	/**

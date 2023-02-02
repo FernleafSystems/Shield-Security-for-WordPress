@@ -35,7 +35,7 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->getSlug() ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
 			],
 		];
 	}

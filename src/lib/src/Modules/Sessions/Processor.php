@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,10 +17,8 @@ class Processor extends BaseShield\Processor {
 	/**
 	 * Only show Go To Admin link for Authors+
 	 * @param string $msg
-	 * @return string
-	 * @throws \Exception
 	 */
-	public function printLinkToAdmin( $msg = '' ) {
+	public function printLinkToAdmin( $msg = '' ) :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$user = Services::WpUsers()->getCurrentWpUser();
@@ -35,6 +32,7 @@ class Processor extends BaseShield\Processor {
 					Services::WpGeneral()->getAdminUrl(),
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
-		return $msg;
+
+		return is_string( $msg ) ? $msg : '';
 	}
 }

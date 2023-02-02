@@ -43,7 +43,7 @@ class PluginTelemetry {
 
 		$data = $this->getBaseTrackingData();
 		foreach ( $con->modules as $mod ) {
-			$data[ $mod->getSlug() ] = $this->buildOptionsDataForMod( $mod );
+			$data[ $mod->cfg->slug ] = $this->buildOptionsDataForMod( $mod );
 		}
 
 		if ( !empty( $data[ 'events' ] ) ) {

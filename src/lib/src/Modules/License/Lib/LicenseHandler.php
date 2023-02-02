@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
@@ -9,10 +10,34 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
+	use PluginCronsConsumer;
+
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );
+
+		$this->setupCronHooks();
+
+		add_action( 'init', function () {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			$mod->getWpHashesTokenManager()->execute();
+		} );
+
+		add_action( 'wp_loaded', function () {
+			try {
+				$this->verify();
+			}
+			catch ( \Exception $e ) {
+			}
+		} );
+	}
+
+	public function runHourlyCron() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getWpHashesTokenManager()->getToken();
 	}
 
 	public function scheduleAdHocCheck( int $delay = 20 ) {
@@ -49,18 +74,12 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function canCheck() :bool {
-		return !in_array( $this->getCon()->getShieldAction(), [ 'keyless_handshake', 'license_check' ] )
-			   && $this->getIsLicenseNotCheckedFor( 20 )
-			   && $this->canLicenseCheck_FileFlag();
+		return $this->getIsLicenseNotCheckedFor( 20 ) && $this->canLicenseCheck_FileFlag();
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function clearLicense() {
 		$this->getMod()->clearLastErrors();
 		$this->getOptions()->setOpt( 'license_data', [] );
-		return $this;
 	}
 
 	/**

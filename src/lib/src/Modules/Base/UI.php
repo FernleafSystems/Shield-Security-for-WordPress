@@ -291,14 +291,23 @@ class UI {
 		return sprintf( 'https://player.vimeo.com/video/%s', $id );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSectionNotices( string $section ) :array {
 		return [];
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSectionWarnings( string $section ) :array {
 		return [];
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSectionCriticalWarnings( string $section ) :array {
 		return [];
 	}

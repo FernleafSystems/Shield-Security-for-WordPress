@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'hack_protect';
+
 	/**
 	 * @var Scan\ScansController
 	 */
@@ -89,14 +91,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getScansCon()->getScanCon( $slug );
 	}
 
-	public function getMainWpData() :array {
-		return array_merge( parent::getMainWpData(), [
-			'scan_issues' => array_filter( ( new Shield\Modules\HackGuard\Scan\Results\Counts() )
-				->setMod( $this )
-				->all() )
-		] );
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -151,26 +145,17 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function setCustomCronSchedules() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$freq = $opts->getScanFrequency();
-		Services::WpCron()
-				->addNewSchedule(
-					$this->getCon()->prefix( sprintf( 'per-day-%s', $freq ) ),
-					[
-						'interval' => DAY_IN_SECONDS/$freq,
-						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
-					]
-				);
-		return $this;
-	}
-
-	public function getScansTempDir() :string {
-		return $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
+		Services::WpCron()->addNewSchedule(
+			$this->getCon()->prefix( sprintf( 'per-day-%s', $freq ) ),
+			[
+				'interval' => DAY_IN_SECONDS/$freq,
+				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
+			]
+		);
 	}
 
 	/**
