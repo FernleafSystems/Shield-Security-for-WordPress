@@ -5,12 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginBadgeClose,
-	Traits
-};
+	Render\BaseRender,
+	Traits};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class RenderPluginBadge extends BasePlugin {
+class RenderPluginBadge extends BaseRender {
 
 	use Traits\AuthNotRequired;
 

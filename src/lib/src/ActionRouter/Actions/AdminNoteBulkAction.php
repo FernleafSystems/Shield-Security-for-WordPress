@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AdminNoteBulkAction extends PluginBase {
+class AdminNoteBulkAction extends BaseAction {
 
 	public const SLUG = 'admin_note_bulk_action';
 

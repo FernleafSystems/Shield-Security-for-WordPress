@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 class PageOverview extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_overview';
-	public const PRIMARY_MOD = 'plugin';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/overview.twig';
 
 	protected function getRenderData() :array {

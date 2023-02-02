@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class DismissAdminNotice extends PluginBase {
+class DismissAdminNotice extends BaseAction {
 
 	public const SLUG = 'dismiss_admin_notice';
 

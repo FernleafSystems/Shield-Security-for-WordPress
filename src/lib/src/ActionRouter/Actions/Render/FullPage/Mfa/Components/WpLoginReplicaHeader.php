@@ -210,7 +210,7 @@ class WpLoginReplicaHeader extends Base {
 				'interim_message'   => $interimMessage,
 			],
 			'vars'    => [
-				'language_attributes' => get_language_attributes( 'html' ),
+				'language_attributes' => get_language_attributes(),
 				'meta_content_type'   => get_bloginfo( 'html_type' ),
 				'meta_charset'        => get_bloginfo( 'charset' ),
 				'classes_body'        => esc_attr( implode( ' ', $classes ) ),

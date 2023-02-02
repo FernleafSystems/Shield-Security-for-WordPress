@@ -25,7 +25,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'plugin_admin_page_handler';
-	public const PRIMARY_MOD = 'plugin';
 
 	protected $pageHookSuffix;
 

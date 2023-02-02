@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfig;
 
 class Config extends Base {
 
@@ -21,7 +21,7 @@ class Config extends Base {
 	}
 
 	protected function getContent() :string {
-		return $this->getCon()->action_router->render( OptionsForm::SLUG, $this->action_data );
+		return $this->getCon()->action_router->render( PageConfig::SLUG, $this->action_data );
 	}
 
 	protected function getRequiredDataKeys() :array {

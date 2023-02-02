@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFro
 class PageImportExport extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_importexport';
-	public const PRIMARY_MOD = 'plugin';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/import.twig';
 
 	protected function getPageContextualHrefs() :array {

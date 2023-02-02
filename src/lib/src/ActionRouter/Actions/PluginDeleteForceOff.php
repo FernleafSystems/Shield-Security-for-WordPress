@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class PluginDeleteForceOff extends PluginBase {
+class PluginDeleteForceOff extends BaseAction {
 
 	public const SLUG = 'delete_forceoff';
 

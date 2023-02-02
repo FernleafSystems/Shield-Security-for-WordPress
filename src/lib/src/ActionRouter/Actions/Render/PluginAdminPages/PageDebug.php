@@ -13,25 +13,15 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class PageDebug extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_debug';
-	public const PRIMARY_MOD = 'plugin';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/debug.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->getCon();
-		$urls = $this->getCon()->plugin_urls;
-		$hrefs = [
+		return [
 			[
 				'text' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
-				'href' => URL::Build( $urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
+				'href' => URL::Build( $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
 			],
 		];
-		if ( $con->isPluginAdmin() && $con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
-			$hrefs[] = [
-				'text' => __( 'Clear Security Admin Status', 'wp-simple-firewall' ),
-				'href' => $urls->noncedPluginAction( SecurityAdminAuthClear::SLUG, $urls->adminHome() ),
-			];
-		}
-		return $hrefs;
 	}
 
 	protected function getRenderData() :array {

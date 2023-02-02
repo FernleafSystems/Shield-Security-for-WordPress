@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
-class ToastPlaceholder extends BasePlugin {
+class ToastPlaceholder extends BaseRender {
 
 	use Traits\AuthNotRequired;
 

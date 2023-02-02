@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginSetTracking extends PluginBase {
+class PluginSetTracking extends BaseAction {
 
 	public const SLUG = 'set_plugin_tracking';
 

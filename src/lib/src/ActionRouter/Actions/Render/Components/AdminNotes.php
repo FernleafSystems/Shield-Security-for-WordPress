@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-class AdminNotes extends BasePlugin {
+class AdminNotes extends BaseRender {
 
 	public const SLUG = 'render_adminnotes';
 	public const TEMPLATE = '/snippets/prerendered.twig';

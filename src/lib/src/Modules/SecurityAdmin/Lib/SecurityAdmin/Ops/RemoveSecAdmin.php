@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemoveByEmail;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -19,12 +19,15 @@ class RemoveSecAdmin {
 			$opts->clearSecurityAdminKey();
 			$this->getMod()->saveModOptions();
 			$this->sendNotificationEmail();
+			( new ToggleSecAdminStatus() )
+				->setMod( $this->getCon()->getModule_SecAdmin() )
+				->turnOff();
 		}
 	}
 
 	public function sendConfirmationEmail() {
 		$confirmationHref = $this->getCon()->plugin_urls->noncedPluginAction(
-			SecurityAdminRemoveByEmail::SLUG,
+			SecurityAdminRemove::SLUG,
 			Services::WpGeneral()->getAdminUrl()
 		);
 		/** @var SecurityAdmin\ModCon $mod */

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 
-class PluginImportFromFileUpload extends PluginBase {
+class PluginImportFromFileUpload extends BaseAction {
 
 	public const SLUG = 'import_from_file_upload';
 

@@ -1,0 +1,35 @@
+<div id="ShieldLoadingPlaceholder" class="d-none">
+	<div class="row border-bottom mb-3">
+		<div class="col">
+				<div class="load-wrapper mb-2" style="height: 20px; width: 200px;"><div class="activity"></div></div>
+				<div class="load-wrapper mb-2" style="height: 16px; width: 300px;"><div class="activity"></div></div>
+		</div>
+
+		<div class="col-2 text-end inner-page-config">
+			<div class="btn-group dropstart">
+				<div class="load-wrapper mb-2" style="height: 40px; width: 40px;"><div class="activity"></div></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="load-wrapper mb-4 w-50" style="height: 40px;"><div class="activity"></div></div>
+		</div>
+	</div>
+
+	{% for i in [1,2,3] %}
+		<div class="row mb-3">
+			<div class="col-2">
+				<div class="load-wrapper w-100" style="height: 140px;"><div class="activity"></div></div>
+			</div>
+			<div class="col-4">
+				<div class="load-wrapper w-100" style="height: 140px;"><div class="activity"></div></div>
+			</div>
+			<div class="col">
+				<div class="load-wrapper w-100" style="height: 140px;"><div class="activity"></div></div>
+			</div>
+		</div>
+	{% endfor %}
+
+</div>

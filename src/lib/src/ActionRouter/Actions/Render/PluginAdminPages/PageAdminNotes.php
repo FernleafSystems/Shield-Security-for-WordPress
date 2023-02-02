@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 class PageAdminNotes extends BasePluginAdminPage {
 
-	public const PRIMARY_MOD = 'plugin';
 	public const SLUG = 'admin_plugin_page_admin_notes';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/notes.twig';
 

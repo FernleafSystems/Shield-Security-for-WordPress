@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginMarkTourFinished extends PluginBase {
+class PluginMarkTourFinished extends BaseAction {
 
 	public const SLUG = 'mark_tour_finished';
 

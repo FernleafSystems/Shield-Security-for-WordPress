@@ -3,10 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\UserSessionDelete;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\UserSessionsTableBulkAction;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\UserSessionsTableRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	SecurityAdminAuthClear,
+	UserSessionDelete,
+	UserSessionsTableBulkAction,
+	UserSessionsTableRender
+};
 
 class PageUserSessions extends BasePluginAdminPage {
 
@@ -16,23 +18,27 @@ class PageUserSessions extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
 		$con = $this->getCon();
-		return [
-			[
-				'text' => __( 'Config', 'wp-simple-firewall' ),
-			],
+		$urls = $this->getCon()->plugin_urls;
+		$hrefs = [
 			[
 				'text' => __( 'User Controls', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
 			],
 			[
-				'text' => __( 'Security Admin', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_SecAdmin()->cfg->slug ),
+				'text' => __( 'Configure Security Admin', 'wp-simple-firewall' ),
+				'href' => $urls->offCanvasConfigRender( $con->getModule_SecAdmin()->cfg->slug ),
 			],
 		];
+		if ( $con->isPluginAdmin() && $con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
+			$hrefs[] = [
+				'text' => __( 'Clear Security Admin Status', 'wp-simple-firewall' ),
+				'href' => $urls->noncedPluginAction( SecurityAdminAuthClear::SLUG, $urls->adminHome() ),
+			];
+		}
+		return $hrefs;
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
 		return [
 			'ajax'    => [
 				'render_table_sessions' => ActionData::BuildJson( UserSessionsTableRender::SLUG ),
@@ -64,7 +70,7 @@ class PageUserSessions extends BasePluginAdminPage {
 		$results = $metaSelect->setResultsAsVo( false )
 							  ->setSelectResultsFormat( ARRAY_A )
 							  ->setColumnsToSelect( [ 'user_id' ] )
-							  ->setOrderBy( 'updated_at', 'DESC' )
+							  ->setOrderBy( 'updated_at' )
 							  ->setLimit( 20 )
 							  ->queryWithResult();
 

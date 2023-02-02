@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Opti
 class OptionsForm extends BaseRender {
 
 	public const SLUG = 'render_options_form';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
+	public const TEMPLATE = '/components/config/options_form.twig';
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

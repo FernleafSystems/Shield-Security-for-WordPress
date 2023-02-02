@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Checks\PreModulesBootCheck;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginAutoDbRepair extends PluginBase {
+class PluginAutoDbRepair extends BaseAction {
 
 	public const SLUG = 'auto_db_repair';
 

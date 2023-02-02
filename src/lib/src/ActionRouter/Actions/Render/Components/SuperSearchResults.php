@@ -7,10 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginBadgeClose,
-	Traits
-};
+	Render\BaseRender,
+	Traits};
 
-class SuperSearchResults extends BasePlugin {
+class SuperSearchResults extends BaseRender {
 
 	use Traits\SecurityAdminRequired;
 

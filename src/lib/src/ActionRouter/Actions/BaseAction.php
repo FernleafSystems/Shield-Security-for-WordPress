@@ -5,13 +5,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	Base,
+	Plugin
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
- * @property ModCon $primary_mod
- * @property string $primary_mod_slug
- * @property array  $action_data
+ * @property Base\ModCon|mixed $primary_mod
+ * @property string            $primary_mod_slug
+ * @property array             $action_data
  */
 abstract class BaseAction extends DynPropertiesClass {
 
@@ -19,7 +22,7 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	public const SLUG = '';
 	public const PATTERN = '';
-	public const PRIMARY_MOD = 'plugin';
+	public const PRIMARY_MOD = Plugin\ModCon::SLUG;
 
 	private $response;
 

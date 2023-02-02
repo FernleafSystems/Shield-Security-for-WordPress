@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginSuperSearch extends PluginBase {
+class PluginSuperSearch extends BaseAction {
 
 	public const SLUG = 'super_search_select';
 

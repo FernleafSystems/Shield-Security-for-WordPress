@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AdminNoteDelete extends PluginBase {
+class AdminNoteDelete extends BaseAction {
 
 	public const SLUG = 'admin_note_delete';
 

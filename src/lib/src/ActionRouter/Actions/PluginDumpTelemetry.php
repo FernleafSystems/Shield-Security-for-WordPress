@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 
-class PluginDumpTelemetry extends PluginBase {
+class PluginDumpTelemetry extends BaseAction {
 
 	use Traits\NonceVerifyRequired;
 

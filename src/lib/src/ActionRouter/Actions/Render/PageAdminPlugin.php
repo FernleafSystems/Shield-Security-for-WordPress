@@ -82,7 +82,7 @@ class PageAdminPlugin extends BaseRender {
 			PluginURLs::NAV_NOTES          => PluginAdminPages\PageAdminNotes::class,
 			PluginURLs::NAV_OVERVIEW       => PluginAdminPages\PageOverview::class,
 			PluginURLs::NAV_RESTRICTED     => PluginAdminPages\PageSecurityAdminRestricted::class,
-			PluginURLs::NAV_OPTIONS_CONFIG => PluginAdminPages\PageConfig::class,
+			PluginURLs::NAV_OPTIONS_CONFIG => PluginAdminPages\PageDynamicLoad::class,
 			PluginURLs::NAV_REPORTS        => PluginAdminPages\PageReports::class,
 			PluginURLs::NAV_RULES_VIEW     => PluginAdminPages\PageRulesSummary::class,
 			PluginURLs::NAV_SCANS_RESULTS  => PluginAdminPages\PageScansResults::class,

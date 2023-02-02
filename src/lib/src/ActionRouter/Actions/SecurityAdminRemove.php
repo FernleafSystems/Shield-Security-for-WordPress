@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\RemoveSecAdmin;
 
-class SecurityAdminRemoveByEmail extends SecurityAdminBase {
+class SecurityAdminRemove extends SecurityAdminBase {
 
 	public const SLUG = 'secadmin_remove_confirm';
 

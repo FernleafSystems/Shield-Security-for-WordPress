@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Insert;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
-class AdminNoteInsert extends PluginBase {
+class AdminNoteInsert extends BaseAction {
 
 	public const SLUG = 'admin_note_insert';
 

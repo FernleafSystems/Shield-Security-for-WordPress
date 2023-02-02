@@ -456,7 +456,7 @@ abstract class ModCon extends DynPropertiesClass {
 	public function getModDescriptors() :array {
 		return [
 			'title'       => $this->getMainFeatureName(),
-			'subtitle'    => '',
+			'subtitle'    => __( $this->cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),
 			'description' => [],
 		];
 	}

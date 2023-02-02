@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
-class PluginBadgeClose extends PluginBase {
+class PluginBadgeClose extends BaseAction {
 
 	use Traits\AuthNotRequired;
 

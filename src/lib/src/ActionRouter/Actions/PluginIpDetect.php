@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
-class PluginIpDetect extends PluginBase {
+class PluginIpDetect extends BaseAction {
 
 	public const SLUG = 'ipdetect';
 

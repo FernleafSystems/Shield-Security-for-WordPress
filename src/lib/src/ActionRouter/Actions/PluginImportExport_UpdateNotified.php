@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
-class PluginImportExport_UpdateNotified extends PluginBase {
+class PluginImportExport_UpdateNotified extends BaseAction {
 
 	use Traits\AuthNotRequired;
 	use Traits\NonceVerifyNotRequired;
