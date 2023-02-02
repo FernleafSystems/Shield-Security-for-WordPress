@@ -38,6 +38,15 @@ class ModCon extends BaseShield\ModCon {
 	private $shieldNetCon;
 
 	/**
+	 * @var Lib\Sessions\SessionController
+	 */
+	private $sessionCon;
+
+	public function getSessionCon() :Lib\Sessions\SessionController {
+		return $this->sessionCon ?? $this->sessionCon = ( new  Lib\Sessions\SessionController() )->setMod( $this );
+	}
+
+	/**
 	 * @var Lib\Reporting\ReportingController
 	 */
 	private $reportsCon;

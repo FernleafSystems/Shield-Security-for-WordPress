@@ -152,8 +152,10 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	 * Only returns greater than 0 if you have a valid Sec admin session
 	 */
 	public function getSecAdminTimeRemaining() :int {
+		$mod = $this->getMod();
+
 		$remaining = 0;
-		$session = $this->getMod()->getSessionWP();
+		$session = method_exists( $mod, 'getSession' ) ? $mod->getSession() : $mod->getSessionWP();
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {

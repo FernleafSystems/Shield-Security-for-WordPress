@@ -9,7 +9,7 @@ class IpRuleAddForm extends OffCanvasBase {
 	public const SLUG = 'offcanvas_ip_rule_add_form';
 
 	protected function buildCanvasTitle() :string {
-		return __( 'Add New IP Rule', 'wp-simple-firewall' );
+		return __( 'Create New IP Rule', 'wp-simple-firewall' );
 	}
 
 	protected function buildCanvasBody() :string {

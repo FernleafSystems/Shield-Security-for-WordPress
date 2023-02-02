@@ -4,10 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Ses
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
-	Options
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,6 +18,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
 		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100 );
+		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 	}
 
 	protected function captureLogin( \WP_User $user ) {
@@ -28,6 +27,28 @@ class UserSessionHandler extends ExecOnceModConsumer {
 			->record
 			->last_login_at = Services::Request()->ts();
 		$this->sendLoginNotifications( $user );
+	}
+
+	/**
+	 * Only show Go To Admin link for Authors+
+	 * @param string $msg
+	 */
+	public function printLinkToAdmin( $msg = '' ) :string {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$user = Services::WpUsers()->getCurrentWpUser();
+
+		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] ) && $mod->getSession()->valid
+			 && $user instanceof \WP_User ) {
+			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
+				__( "You're already logged-in.", 'wp-simple-firewall' ),
+				sprintf( '<span style="white-space: nowrap">(%s)</span>', $user->user_login ),
+				( $user->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
+					Services::WpGeneral()->getAdminUrl(),
+					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
+		}
+
+		return is_string( $msg ) ? $msg : '';
 	}
 
 	private function sendLoginNotifications( \WP_User $user ) {
@@ -192,7 +213,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 					]
 				] );
 
-				$con->getModule_Sessions()
+				$con->getModule_Plugin()
 					->getSessionCon()
 					->terminateCurrentSession();
 				$WPU = Services::WpUsers();
@@ -205,11 +226,11 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	private function assessSession() {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		$sess = $this->getCon()
-					 ->getModule_Sessions()
+					 ->getModule_Plugin()
 					 ->getSessionCon()
 					 ->getCurrentWP();
 		if ( !$sess->valid ) {
@@ -237,7 +258,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->hasMaxSessionTimeout() ? min( $timeout, $opts->getMaxSessionTime() ) : $timeout;
 	}

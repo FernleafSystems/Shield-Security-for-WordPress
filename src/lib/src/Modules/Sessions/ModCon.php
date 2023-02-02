@@ -9,6 +9,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 */
 	private $sessionCon;
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSessionCon() :Lib\SessionController {
 		return $this->sessionCon ?? $this->sessionCon = ( new  Lib\SessionController() )->setMod( $this );
 	}

@@ -676,29 +676,29 @@
       }
     },
     "events":              {
-      "debug_log":              {
+      "debug_log":                 {
         "audit_params": [
           "message"
         ],
         "level":        "debug",
         "stat":         false
       },
-      "test_cron_run":          {
+      "test_cron_run":             {
         "level":  "debug",
         "recent": true
       },
-      "import_notify_sent":     {
+      "import_notify_sent":        {
         "level": "debug",
         "stat":  false
       },
-      "import_notify_received": {
+      "import_notify_received":    {
         "audit_params": [
           "master_site"
         ],
         "level":        "notice",
         "stat":         false
       },
-      "options_exported":       {
+      "options_exported":          {
         "audit_params": [
           "site"
         ],
@@ -706,7 +706,7 @@
         "stat":         true,
         "recent":       true
       },
-      "options_imported":       {
+      "options_imported":          {
         "audit_params": [
           "site"
         ],
@@ -714,36 +714,36 @@
         "stat":         true,
         "recent":       true
       },
-      "whitelist_site_added":   {
+      "whitelist_site_added":      {
         "audit_params": [
           "site"
         ],
         "level":        "warning",
         "stat":         false
       },
-      "whitelist_site_removed": {
+      "whitelist_site_removed":    {
         "audit_params": [
           "site"
         ],
         "level":        "notice",
         "stat":         false
       },
-      "master_url_set":         {
+      "master_url_set":            {
         "audit_params": [
           "site"
         ],
         "level":        "warning",
         "stat":         false
       },
-      "recaptcha_success":      {
+      "recaptcha_success":         {
         "level": "debug"
       },
-      "recaptcha_fail":         {
+      "recaptcha_fail":            {
         "level":   "warning",
         "audit":   true,
         "offense": true
       },
-      "antibot_pass":           {
+      "antibot_pass":              {
         "audit_params": [
           "score",
           "minimum"
@@ -751,7 +751,7 @@
         "level":        "info",
         "stat":         true
       },
-      "antibot_fail":           {
+      "antibot_fail":              {
         "audit_params": [
           "score",
           "minimum"
@@ -759,28 +759,51 @@
         "level":        "warning",
         "stat":         true
       },
-      "frontpage_load":         {
+      "frontpage_load":            {
         "level":   "debug",
         "offense": false,
         "stat":    false
       },
-      "loginpage_load":         {
+      "loginpage_load":            {
         "level":   "debug",
         "offense": false,
         "stat":    false
       },
-      "report_generated":       {
+      "report_generated":          {
         "audit_params": [
           "type",
           "interval"
         ],
         "level":        "info"
       },
-      "report_sent":            {
+      "report_sent":               {
         "audit_params": [
           "medium"
         ],
         "level":        "notice"
+      },
+      "session_start":             {
+        "audit_params": [
+          "user_login",
+          "session_id"
+        ],
+        "level":        "info"
+      },
+      "session_terminate":         {
+        "level": "info"
+      },
+      "session_terminate_current": {
+        "audit_params": [
+          "user_login",
+          "session_id"
+        ],
+        "level":        "info",
+        "recent":       true
+      },
+      "login_success":             {
+        "level":   "info",
+        "offense": false,
+        "stat":    false
       }
     }
   }

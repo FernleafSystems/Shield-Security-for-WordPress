@@ -135,24 +135,23 @@
 						},
 						search: {},
 						searchDelay: 400,
-						buttons: [
-							{
-								text: 'Reload',
-								name: 'table-reload',
-								className: 'action table-refresh',
-								action: function ( e, dt, node, config ) {
-									base.tableReload.call( base );
+						buttons: {
+							buttons: [
+								{
+									text: 'Reload Table',
+									name: 'table-reload',
+									className: 'action table-refresh btn-outline-secondary mb-2',
+									action: function ( e, dt, node, config ) {
+										base.tableReload.call( base );
+									}
 								}
-							},
-							{
-								text: 'Add New IP',
-								name: 'ip-add',
-								className: 'action ipadd',
-								action: function ( e, dt, node, config ) {
-									base.ipAdd.call( base );
+							],
+							dom: {
+								button: {
+									className: 'btn'
 								}
 							}
-						],
+						},
 						language: {
 							search: "Search IP",
 							emptyTable: "There are no items to display.",

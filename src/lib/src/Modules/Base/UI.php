@@ -45,7 +45,7 @@ class UI {
 				] ) )
 			],
 			'flags'      => [
-				'has_session'             => $mod->getSessionWP()->valid,
+				'has_session'             => true,
 				'display_helpdesk_widget' => !$isWhitelabelled,
 				'is_whitelabelled'        => $isWhitelabelled,
 				'is_mode_live'            => $con->is_mode_live,

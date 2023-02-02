@@ -20,11 +20,11 @@ class UserSessionDelete extends SecurityAdminBase {
 		if ( empty( $userID ) || !is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		elseif ( $mod->getSessionWP()->shield[ 'unique' ] === $uniqueID ) {
+		elseif ( $mod->getSession()->shield[ 'unique' ] === $uniqueID ) {
 			$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
 		else {
-			$con->getModule_Sessions()
+			$con->getModule_Plugin()
 				->getSessionCon()
 				->removeSessionBasedOnUniqueID( (int)$userID, $uniqueID );
 			$msg = __( 'User session deleted', 'wp-simple-firewall' );

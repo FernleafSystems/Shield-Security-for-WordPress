@@ -26,7 +26,7 @@ class FormIpRuleAdd extends Base {
 				'label_help_max'          => sprintf( '%s: %s', __( '255 characters max', 'wp-simple-firewall' ), 'a-z,0-9' ),
 				'ip_address'              => __( 'IP Address or IP Range', 'wp-simple-firewall' ),
 				'ip_address_help'         => __( 'IPv4 or IPv6; Single Address or CIDR Range', 'wp-simple-firewall' ),
-				'add_rule'                => __( 'Add New IP Rule', 'wp-simple-firewall' ),
+				'add_rule'                => __( 'Create New IP Rule', 'wp-simple-firewall' ),
 				'confirm'                 => __( "I fully understand the significance of this action", 'wp-simple-firewall' ),
 			],
 			'vars'    => [

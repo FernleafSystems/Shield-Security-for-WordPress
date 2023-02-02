@@ -15,6 +15,10 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
+				'text' => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'href' => 'javascript:{iCWP_WPSF_OffCanvas.renderIpRuleAddForm()}',
+			],
+			[
 				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
 				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
 			],

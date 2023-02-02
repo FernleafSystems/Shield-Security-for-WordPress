@@ -56,7 +56,7 @@ class UI extends Base\UI {
 					'sec_admin_login' => ActionData::Build( Actions\SecurityAdminLogin::SLUG ),
 				],
 				'flags'   => [
-					'has_session'             => $mod->getSessionWP()->valid,
+					'has_session'             => true,
 					'display_helpdesk_widget' => !$isWhitelabelled,
 					'is_whitelabelled'        => $isWhitelabelled
 				],

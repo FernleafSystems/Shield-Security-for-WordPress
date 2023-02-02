@@ -24,30 +24,5 @@
   "options":     [
   ],
   "definitions": {
-    "events": {
-      "session_start":             {
-        "audit_params": [
-          "user_login",
-          "session_id"
-        ],
-        "level":        "info"
-      },
-      "session_terminate":         {
-        "level": "info"
-      },
-      "session_terminate_current": {
-        "audit_params": [
-          "user_login",
-          "session_id"
-        ],
-        "level":        "info",
-        "recent":       true
-      },
-      "login_success":             {
-        "level":   "info",
-        "offense": false,
-        "stat":    false
-      }
-    }
   }
 }

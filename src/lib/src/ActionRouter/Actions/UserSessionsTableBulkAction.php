@@ -24,8 +24,8 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			$sessionCon = $this->getCon()->getModule_Sessions()->getSessionCon();
-			$yourId = $mod->getSessionWP()->shield[ 'unique' ] ?? '';
+			$sessionCon = $this->getCon()->getModule_Plugin()->getSessionCon();
+			$yourId = $mod->getSession()->shield[ 'unique' ] ?? '';
 			$includesYourSession = false;
 
 			foreach ( $IDs as $IDunique ) {

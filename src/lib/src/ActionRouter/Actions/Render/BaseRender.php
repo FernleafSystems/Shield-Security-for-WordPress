@@ -139,7 +139,7 @@ abstract class BaseRender extends BaseAction {
 				] ) )
 			],
 			'flags'      => [
-				'has_session'             => $mod->getSessionWP()->valid,
+				'has_session'             => method_exists( $mod, 'getSession' ) ? $mod->getSession()->valid : $mod->getSessionWP()->valid,
 				'display_helpdesk_widget' => !$isWhitelabelled,
 				'is_whitelabelled'        => $isWhitelabelled,
 				'is_mode_live'            => $con->is_mode_live,
