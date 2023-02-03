@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
 
-class SecurityAdminRequiredException extends \Exception {
+class SecurityAdminRequiredException extends ActionException {
 
 }

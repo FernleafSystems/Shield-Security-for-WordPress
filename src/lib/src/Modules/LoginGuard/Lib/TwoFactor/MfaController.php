@@ -243,7 +243,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProvidersAvailableToUser( \WP_User $user ) :array {
-		return $this->getProvidersForUser( $user, false );
+		return $this->getProvidersForUser( $user );
 	}
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {

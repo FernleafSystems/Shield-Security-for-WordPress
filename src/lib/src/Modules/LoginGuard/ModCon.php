@@ -2,19 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	MfaBackupCodeAdd,
-	MfaBackupCodeDelete,
-	MfaEmailSendVerification
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	/**
 	 * @var Lib\TwoFactor\MfaController
@@ -22,10 +15,7 @@ class ModCon extends BaseShield\ModCon {
 	private $mfaCon;
 
 	public function getMfaController() :Lib\TwoFactor\MfaController {
-		if ( !isset( $this->mfaCon ) ) {
-			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
-		}
-		return $this->mfaCon;
+		return $this->mfaCon ?? $this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
 	}
 
 	protected function preProcessOptions() {

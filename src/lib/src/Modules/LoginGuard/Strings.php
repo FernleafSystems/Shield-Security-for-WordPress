@@ -403,10 +403,10 @@ class Strings extends Base\Strings {
 				$name = __( 'Yubikey Unique Keys', 'wp-simple-firewall' );
 				$summary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( '<strong>%s: %s</strong>', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' )
-					.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
-					.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
-					.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' )
+					sprintf( '<strong>%s: %s</strong>', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ),
+					__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' ),
+					__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' ),
+					__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' ),
 				];
 				break;
 

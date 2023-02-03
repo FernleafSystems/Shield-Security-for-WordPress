@@ -69,17 +69,17 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function trackAssetsVersions() {
-		$aAssVers = $this->getTrackedAssetsVersions();
+		$assetVers = $this->getTrackedAssetsVersions();
 
 		$WPP = Services::WpPlugins();
 		foreach ( array_keys( $WPP->getUpdates() ) as $file ) {
-			$aAssVers[ 'plugins' ][ $file ] = $WPP->getPluginAsVo( $file )->Version;
+			$assetVers[ 'plugins' ][ $file ] = $WPP->getPluginAsVo( $file )->Version;
 		}
 		$WPT = Services::WpThemes();
 		foreach ( array_keys( $WPT->getUpdates() ) as $file ) {
-			$aAssVers[ 'themes' ][ $file ] = $WPT->getTheme( $file )->get( 'Version' );
+			$assetVers[ 'themes' ][ $file ] = $WPT->getTheme( $file )->get( 'Version' );
 		}
-		$this->assetsVersions = $aAssVers;
+		$this->assetsVersions = $assetVers;
 	}
 
 	protected function getTrackedAssetsVersions() :array {
@@ -93,17 +93,17 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param \stdClass $oUpdates
+	 * @param \stdClass $updates
 	 */
-	public function trackUpdateTimesCore( $oUpdates ) {
+	public function trackUpdateTimesCore( $updates ) {
 
-		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
+		if ( !empty( $updates ) && isset( $updates->updates ) && is_array( $updates->updates ) ) {
 			/** @var Options $opts */
 			$opts = $this->getOptions();
 
 			$delayTracking = $opts->getDelayTracking();
 			$item = $delayTracking[ 'core' ][ 'wp' ] ?? [];
-			foreach ( $oUpdates->updates as $upd ) {
+			foreach ( $updates->updates as $upd ) {
 				if ( 'autoupdate' == $upd->response ) {
 					$version = $upd->current;
 					if ( !isset( $item[ $version ] ) ) {
@@ -342,15 +342,15 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param array $aUpdateResults
+	 * @param array $updateResults
 	 */
-	public function sendNotificationEmail( $aUpdateResults ) {
-		if ( empty( $aUpdateResults ) || !is_array( $aUpdateResults ) ) {
+	public function sendNotificationEmail( $updateResults ) {
+		if ( empty( $updateResults ) || !is_array( $updateResults ) ) {
 			return;
 		}
 
 		// Are there really updates?
-		$bReallyUpdates = false;
+		$reallyUpdates = false;
 
 		$body = [
 			sprintf(
@@ -363,74 +363,74 @@ class Processor extends BaseShield\Processor {
 		$assetVersionTrack = $this->getTrackedAssetsVersions();
 
 		$WPP = Services::WpPlugins();
-		if ( !empty( $aUpdateResults[ 'plugin' ] ) && is_array( $aUpdateResults[ 'plugin' ] ) ) {
-			$bHasPluginUpdates = false;
-			$aTrkdPlugs = $assetVersionTrack[ 'plugins' ];
+		if ( !empty( $updateResults[ 'plugin' ] ) && is_array( $updateResults[ 'plugin' ] ) ) {
+			$hasPluginUpdates = false;
+			$trackedPlugins = $assetVersionTrack[ 'plugins' ];
 
-			$aTempContent[] = __( 'Plugins Updated:', 'wp-simple-firewall' );
-			foreach ( $aUpdateResults[ 'plugin' ] as $oUpdate ) {
-				$oP = $WPP->getPluginAsVo( $oUpdate->item->plugin, true );
-				$bValidUpdate = !empty( $oUpdate->result ) && !empty( $oUpdate->name )
-								&& isset( $aTrkdPlugs[ $oP->file ] )
-								&& version_compare( $aTrkdPlugs[ $oP->file ], $oP->Version, '<' );
-				if ( $bValidUpdate ) {
-					$aTempContent[] = ' - '.sprintf(
+			$tempContent[] = __( 'Plugins Updated:', 'wp-simple-firewall' );
+			foreach ( $updateResults[ 'plugin' ] as $update ) {
+				$p = $WPP->getPluginAsVo( $update->item->plugin, true );
+				$validUpdate = !empty( $update->result ) && !empty( $update->name )
+							   && isset( $trackedPlugins[ $p->file ] )
+							   && version_compare( $trackedPlugins[ $p->file ], $p->Version, '<' );
+				if ( $validUpdate ) {
+					$tempContent[] = ' - '.sprintf(
 							__( 'Plugin "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
-							$oUpdate->name, $aTrkdPlugs[ $oP->file ], $oP->Version );
-					$bHasPluginUpdates = true;
+							$update->name, $trackedPlugins[ $p->file ], $p->Version );
+					$hasPluginUpdates = true;
 				}
 			}
-			$aTempContent[] = '';
+			$tempContent[] = '';
 
-			if ( $bHasPluginUpdates ) {
-				$bReallyUpdates = true;
-				$body = array_merge( $body, $aTempContent );
+			if ( $hasPluginUpdates ) {
+				$reallyUpdates = true;
+				$body = array_merge( $body, $tempContent );
 			}
 		}
 
-		if ( !empty( $aUpdateResults[ 'theme' ] ) && is_array( $aUpdateResults[ 'theme' ] ) ) {
-			$bHasThemesUpdates = false;
-			$aTrkdThemes = $assetVersionTrack[ 'themes' ];
+		if ( !empty( $updateResults[ 'theme' ] ) && is_array( $updateResults[ 'theme' ] ) ) {
+			$hasThemesUpdates = false;
+			$trackedThemes = $assetVersionTrack[ 'themes' ];
 
-			$aTempContent = [ __( 'Themes Updated:', 'wp-simple-firewall' ) ];
-			foreach ( $aUpdateResults[ 'theme' ] as $oUpdate ) {
-				$oItem = $oUpdate->item;
-				$bValidUpdate = isset( $oUpdate->result ) && $oUpdate->result && !empty( $oUpdate->name )
-								&& isset( $aTrkdThemes[ $oItem->theme ] )
-								&& version_compare( $aTrkdThemes[ $oItem->theme ], $oItem->new_version, '<' );
-				if ( $bValidUpdate ) {
-					$aTempContent[] = ' - '.sprintf(
+			$tempContent = [ __( 'Themes Updated:', 'wp-simple-firewall' ) ];
+			foreach ( $updateResults[ 'theme' ] as $update ) {
+				$oItem = $update->item;
+				$validUpdate = isset( $update->result ) && $update->result && !empty( $update->name )
+							   && isset( $trackedThemes[ $oItem->theme ] )
+							   && version_compare( $trackedThemes[ $oItem->theme ], $oItem->new_version, '<' );
+				if ( $validUpdate ) {
+					$tempContent[] = ' - '.sprintf(
 							__( 'Theme "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
-							$oUpdate->name, $aTrkdThemes[ $oItem->theme ], $oItem->new_version );
-					$bHasThemesUpdates = true;
+							$update->name, $trackedThemes[ $oItem->theme ], $oItem->new_version );
+					$hasThemesUpdates = true;
 				}
 			}
-			$aTempContent[] = '';
+			$tempContent[] = '';
 
-			if ( $bHasThemesUpdates ) {
-				$bReallyUpdates = true;
-				$body = array_merge( $body, $aTempContent );
+			if ( $hasThemesUpdates ) {
+				$reallyUpdates = true;
+				$body = array_merge( $body, $tempContent );
 			}
 		}
 
-		if ( !empty( $aUpdateResults[ 'core' ] ) && is_array( $aUpdateResults[ 'core' ] ) ) {
-			$bHasCoreUpdates = false;
-			$aTempContent = [ __( 'WordPress Core Updated:', 'wp-simple-firewall' ) ];
-			foreach ( $aUpdateResults[ 'core' ] as $oUpdate ) {
-				if ( isset( $oUpdate->result ) && !is_wp_error( $oUpdate->result ) ) {
-					$aTempContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdate->name );
-					$bHasCoreUpdates = true;
+		if ( !empty( $updateResults[ 'core' ] ) && is_array( $updateResults[ 'core' ] ) ) {
+			$hasCoreUpdates = false;
+			$tempContent = [ __( 'WordPress Core Updated:', 'wp-simple-firewall' ) ];
+			foreach ( $updateResults[ 'core' ] as $update ) {
+				if ( isset( $update->result ) && !is_wp_error( $update->result ) ) {
+					$tempContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $update->name );
+					$hasCoreUpdates = true;
 				}
 			}
-			$aTempContent[] = '';
+			$tempContent[] = '';
 
-			if ( $bHasCoreUpdates ) {
-				$bReallyUpdates = true;
-				$body = array_merge( $body, $aTempContent );
+			if ( $hasCoreUpdates ) {
+				$reallyUpdates = true;
+				$body = array_merge( $body, $tempContent );
 			}
 		}
 
-		if ( !$bReallyUpdates ) {
+		if ( !$reallyUpdates ) {
 			return;
 		}
 
