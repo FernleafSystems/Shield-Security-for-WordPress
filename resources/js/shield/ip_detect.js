@@ -15,7 +15,7 @@ if ( typeof icwp_wpsf_vars_ipdetect !== typeof undefined ) {
 								let msg = icwp_wpsf_vars_ipdetect.strings.source_found
 									+ ' ' + icwp_wpsf_vars_ipdetect.strings.ip_source
 									+ ': ' + response.data.ip_source;
-								if ( !icwp_wpsf_vars_ipdetect.flags.silent ) {
+								if ( !icwp_wpsf_vars_ipdetect.flags.quiet ) {
 									alert( msg );
 								}
 								console.log( msg );
