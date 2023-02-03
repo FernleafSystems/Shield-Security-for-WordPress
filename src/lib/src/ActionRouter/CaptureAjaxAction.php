@@ -46,7 +46,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		catch ( SecurityAdminRequiredException $e ) {
 			$msg = implode( ' ', [
 				__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
-				__( 'You may need to refresh the page.', 'wp-simple-firewall' ),
+				__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
 			] );
 			$response = [
 				'success' => false,

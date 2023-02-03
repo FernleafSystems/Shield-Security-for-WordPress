@@ -940,7 +940,7 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function loadConfig() {
-		$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
+		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )
 			->setCon( $this )
 			->run();
 		$this->cfg->load_source = 'json';
@@ -1105,8 +1105,11 @@ class Controller extends DynPropertiesClass {
 		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
+	/**
+	 * @description 17.0
+	 */
 	private function getPathPluginSpec( bool $asJSON = true ) :string {
-		return path_join( $this->getRootDir(), $asJSON ? 'plugin.json' : 'plugin-spec.php' );
+		return path_join( $this->getRootDir(), 'plugin.json' );
 	}
 
 	public function getRootDir() :string {

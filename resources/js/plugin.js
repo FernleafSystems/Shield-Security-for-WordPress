@@ -361,6 +361,9 @@ let iCWP_WPSF_OffCanvas = new function () {
 				$offCanvas.addClass( canvasProperties.render_slug );
 				$offCanvas.html( response.data.html );
 			}
+			else if ( typeof response.data.error !== 'undefined' ) {
+				alert( response.data.error );
+			}
 			else {
 				alert( 'There was a problem displaying the page.' );
 				console.log( response );
