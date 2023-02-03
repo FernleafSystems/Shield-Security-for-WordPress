@@ -29,7 +29,7 @@ class BuildForDisplay {
 		$mod = $this->getMod();
 		$UI = $mod->getUIHandler();
 
-		$isPremium = $con->isPremiumExtensionsEnabled();
+		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		$opts = $this->getOptions();

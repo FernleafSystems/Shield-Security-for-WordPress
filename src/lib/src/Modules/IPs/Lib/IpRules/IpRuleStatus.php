@@ -207,6 +207,23 @@ class IpRuleStatus {
 		return $this->isBlockedByShield() || $this->isBlockedByCrowdsec();
 	}
 
+	public function isUnBlocked() :bool {
+		$isUnblocked = false;
+		if ( $this->hasAutoBlock() ) {
+			$rule = $this->getRuleForAutoBlock();
+			$isUnblocked = $rule->unblocked_at > $rule->blocked_at;
+		}
+		elseif ( $this->hasCrowdsecBlock() ) {
+			foreach ( $this->getRulesForCrowdsec() as $rule ) {
+				if ( !$rule->is_range && $rule->unblocked_at > $rule->blocked_at ) {
+					$isUnblocked = true;
+					break;
+				}
+			}
+		}
+		return $isUnblocked;
+	}
+
 	private function removeRecordFromCache( IpRuleRecord $recordToRemove ) {
 		foreach ( self::$cache[ $this->getIP() ] as $key => $record ) {
 			if ( $record->id == $recordToRemove->id ) {

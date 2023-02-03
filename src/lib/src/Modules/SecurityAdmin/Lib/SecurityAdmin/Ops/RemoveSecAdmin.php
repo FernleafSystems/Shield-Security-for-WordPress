@@ -11,17 +11,20 @@ class RemoveSecAdmin {
 
 	use ModConsumer;
 
-	public function remove() {
+	public function remove( bool $quietly = false ) {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->hasSecurityPIN() ) {
 			$this->getCon()->this_req->is_security_admin = true;
 			$opts->clearSecurityAdminKey();
 			$this->getMod()->saveModOptions();
-			$this->sendNotificationEmail();
 			( new ToggleSecAdminStatus() )
 				->setMod( $this->getCon()->getModule_SecAdmin() )
 				->turnOff();
+
+			if ( !$quietly ) {
+				$this->sendNotificationEmail();
+			}
 		}
 	}
 

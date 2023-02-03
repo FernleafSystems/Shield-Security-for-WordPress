@@ -1148,6 +1148,9 @@ class Controller extends DynPropertiesClass {
 		return empty( $action ) ? '' : $action;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isPremiumExtensionsEnabled() :bool {
 		return (bool)$this->getCfgProperty( 'enable_premium' );
 	}

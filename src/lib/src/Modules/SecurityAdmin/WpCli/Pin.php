@@ -53,7 +53,7 @@ class Pin extends BaseWpCliCmd {
 		if ( $isRemove ) {
 			( new Ops\RemoveSecAdmin() )
 				->setMod( $this->getMod() )
-				->remove();
+				->remove( true );
 			WP_CLI::success( __( 'Security admin pin removed.', 'wp-simple-firewall' ) );
 		}
 		else {

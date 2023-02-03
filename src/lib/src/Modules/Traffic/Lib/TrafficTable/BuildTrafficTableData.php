@@ -262,6 +262,9 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				if ( $ipRuleStatus->isBypass() ) {
 					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
 				}
+				elseif ( $ipRuleStatus->isUnBlocked() ) {
+					$status = sprintf( $badgeTemplate, 'warning', __( 'Unblocked', 'wp-simple-firewall' ) );
+				}
 				elseif ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
