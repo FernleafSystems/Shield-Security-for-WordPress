@@ -59,6 +59,7 @@ abstract class BaseRender extends BaseAction {
 
 			$output = $renderer->setTemplate( $template )
 							   ->setRenderVars( $renderData )
+							   ->setTwigEnvironmentVars( $this->getTwigEnvironmentVars() )
 							   ->render();
 		}
 		catch ( \Exception $e ) {
@@ -389,6 +390,12 @@ abstract class BaseRender extends BaseAction {
 				__( 'IP addresses', 'wp-simple-firewall' ),
 				__( 'help resources', 'wp-simple-firewall' ),
 			],
+		];
+	}
+
+	protected function getTwigEnvironmentVars() :array {
+		return [
+			'strict_variables' => false,
 		];
 	}
 }

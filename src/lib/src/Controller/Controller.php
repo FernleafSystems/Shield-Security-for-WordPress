@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\ActionException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
