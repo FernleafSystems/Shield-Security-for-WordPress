@@ -25,6 +25,7 @@ class SpamController extends BaseBotDetectionController {
 			'ninjaforms'      => Handlers\NinjaForms::class,
 			'superforms'      => Handlers\SuperForms::class,
 			'supportcandy'    => Handlers\SupportCandy::class,
+			'weforms'         => Handlers\WeForms::class,
 			'wpforms'         => Handlers\WPForms::class,
 			'wpforo'          => Handlers\WpForo::class,
 		];
