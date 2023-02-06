@@ -226,14 +226,14 @@
     },
     {
       "key":         "block_send_email_address",
-      "section":     "section_defaults",
+      "section":     "section_reporting",
       "sensitive":   true,
       "default":     "",
       "type":        "email",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Report Email",
-      "summary":     "Where to send email reports",
+      "summary":     "Where to send all email reports and admin notifications for the plugin",
       "description": "If this is empty, it will default to the blog admin email address."
     },
     {

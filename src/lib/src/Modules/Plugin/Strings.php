@@ -306,7 +306,7 @@ class Strings extends Base\Strings {
 
 			case 'block_send_email_address' :
 				$name = __( 'Report Email', 'wp-simple-firewall' );
-				$summary = __( 'Where to send email reports', 'wp-simple-firewall' );
+				$summary = __( 'Where to send all email reports and admin notifications for the plugin', 'wp-simple-firewall' );
 				$desc = [
 					__( "This lets you customise the default email address for all emails sent by the plugin.", 'wp-simple-firewall' ),
 					sprintf( __( "The plugin defaults to the site administration email address, which is: %s", 'wp-simple-firewall' ),
