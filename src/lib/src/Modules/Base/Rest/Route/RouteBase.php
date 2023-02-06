@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Exceptions\NotAnIpAddressOrRangeException;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Route\RouteBase {
 
@@ -45,7 +46,11 @@ abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Rou
 
 	protected function isRequestFromShieldService() :bool {
 		try {
-			return Services::IP()->IpIn( $this->getCon()->this_req->ip, [ '18.221.94.192' ] );
+			$data = Services::ServiceProviders()->getProviderInfo( ServiceProviders::PROVIDER_SHIELD );
+			return Services::IP()->IpIn(
+				$this->getCon()->this_req->ip,
+				array_merge( $data[ 'ips' ][ 4 ] ?? [], $data[ 'ips' ][ 6 ] ?? [] )
+			);
 		}
 		catch ( NotAnIpAddressOrRangeException $e ) {
 			return false;

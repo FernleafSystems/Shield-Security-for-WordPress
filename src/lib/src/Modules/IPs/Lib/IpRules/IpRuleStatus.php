@@ -111,7 +111,7 @@ class IpRuleStatus {
 		// Just in case we've previously blocked a Search Provider - perhaps a failed rDNS at the time.
 		if ( !empty( $rules ) ) {
 			try {
-				[ $ipKey, $ipName ] = ( new IpID( $this->getIP() ) )
+				[ $ipKey, ] = ( new IpID( $this->getIP() ) )
 					->setIgnoreUserAgent()
 					->run();
 				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
@@ -209,7 +209,7 @@ class IpRuleStatus {
 
 	public function isUnBlocked() :bool {
 		$isUnblocked = false;
-		if ( $this->hasAutoBlock() ) {
+		if ( $this->isAutoBlacklisted() ) {
 			$rule = $this->getRuleForAutoBlock();
 			$isUnblocked = $rule->unblocked_at > $rule->blocked_at;
 		}

@@ -71,7 +71,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
 
-				$userID = (int)$this->log->uid;
+				$userID = $this->log->uid;
 				if ( $userID > 0 && !isset( $users[ $userID ] ) ) {
 					$user = $WPU->getUserById( $userID );
 					$this->users[ $userID ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
@@ -259,21 +259,25 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			else {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
-				if ( $ipRuleStatus->isBypass() ) {
-					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
+				if ( $ipRuleStatus->isAutoBlacklisted() ) {
+					$offenses = $ipRuleStatus->getOffenses();
+					$offensesString = sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses );
+					if ( $ipRuleStatus->isUnBlocked() ) {
+						$status = __( 'Unblocked', 'wp-simple-firewall' );
+						if ( $offenses > 0 ) {
+							$status .= ' ('.$offensesString.')';
+						}
+					}
+					else {
+						$status = $offensesString;
+					}
+					$status = sprintf( $badgeTemplate, 'warning', $status );
 				}
-				elseif ( $ipRuleStatus->isUnBlocked() ) {
-					$status = sprintf( $badgeTemplate, 'warning', __( 'Unblocked', 'wp-simple-firewall' ) );
+				elseif ( $ipRuleStatus->isBypass() ) {
+					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
 				}
 				elseif ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
-				}
-				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
-					$offenses = $ipRuleStatus->getOffenses();
-					$status = sprintf( $badgeTemplate,
-						'warning',
-						sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses )
-					);
 				}
 				else {
 					$status = '';
