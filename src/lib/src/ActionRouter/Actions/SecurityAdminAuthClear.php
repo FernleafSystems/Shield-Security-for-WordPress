@@ -9,8 +9,9 @@ class SecurityAdminAuthClear extends SecurityAdminBase {
 	public const SLUG = 'sec_admin_auth_clear';
 
 	protected function exec() {
+		$con = $this->getCon();
 		( new ToggleSecAdminStatus() )
-			->setMod( $this->primary_mod )
+			->setMod( $con->getModule_SecAdmin() )
 			->turnOff();
 
 		$response = $this->response();
