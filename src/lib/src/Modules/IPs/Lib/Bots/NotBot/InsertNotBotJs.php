@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBotNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
@@ -46,34 +47,42 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 
 	protected function run() {
 		$this->enqueueJS();
-		$this->nonceJs();
 	}
 
 	protected function enqueueJS() {
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
 			$enqueues[ Enqueue::JS ][] = 'shield/notbot';
+
+			/**
+			 * @since 11.2 - don't fire for GTMetrix page requests
+			 */
+			add_filter( 'shield/custom_localisations', function ( array $localz ) {
+				$nb = ActionData::Build( CaptureNotBotNonce::SLUG );
+				$nb[ ActionData::FIELD_NONCE ] = 'asdf';
+				$localz[] = [
+					'shield/notbot',
+					'shield_vars_notbotjs',
+					apply_filters( 'shield/notbot_data_js', [
+						'ajax'  => [
+							'not_bot'       => ActionData::Build( CaptureNotBot::SLUG ),
+							'not_bot_nonce' => $nb,
+							//						'not_bot_nonce' => ActionData::Build( CaptureNotBotNonce::SLUG ),
+						],
+						'flags' => [
+							'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+						],
+					] )
+				];
+				return $localz;
+			} );
+
 			return $enqueues;
 		} );
 	}
 
 	/**
-	 * @since 11.2 - don't fire for GTMetrix page requests
+	 * @deprecated 17.0
 	 */
 	private function nonceJs() {
-		add_filter( 'shield/custom_localisations', function ( array $localz ) {
-			$localz[] = [
-				'shield/notbot',
-				'shield_vars_notbotjs',
-				apply_filters( 'shield/notbot_data_js', [
-					'ajax'  => [
-						'not_bot' => ActionData::Build( CaptureNotBot::SLUG ),
-					],
-					'flags' => [
-						'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
-					],
-				] )
-			];
-			return $localz;
-		} );
 	}
 }

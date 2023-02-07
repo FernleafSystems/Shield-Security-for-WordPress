@@ -2,19 +2,30 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Services\Services;
 
-class CaptureNotBot extends IpsBase {
+class CaptureNotBot extends BaseAction {
 
 	use Traits\AuthNotRequired;
 
-	public const SLUG = 'not_bot';
+	public const SLUG = 'capture_not_bot';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$this->response()->success = $mod->getBotSignalsController()
-										 ->getHandlerNotBot()
-										 ->registerAsNotBot();
+		$notBotHandler = $this->getCon()
+							  ->getModule_IPs()
+							  ->getBotSignalsController()
+							  ->getHandlerNotBot();
+
+		$cookieLife = apply_filters( 'shield/notbot_cookie_life', $notBotHandler::LIFETIME );
+		$ts = Services::Request()->ts() + $cookieLife;
+		Services::Response()->cookieSet(
+			$this->getCon()->prefix( $notBotHandler::SLUG ),
+			sprintf( '%sz%s', $ts, $notBotHandler->getHashForVisitorTS( $ts ) ),
+			$cookieLife
+		);
+
+		$this->getCon()->fireEvent( 'bottrack_notbot' );
+
+		$this->response()->success = true;
 	}
 }

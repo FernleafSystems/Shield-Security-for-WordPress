@@ -8,12 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	ModCon,
 	Options
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsController extends ExecOnceModConsumer {
 
 	/**
-	 * @var NotBot\NotBotHandler
+	 * @var NotBotHandler
 	 */
 	private $handlerNotBot;
 
@@ -34,6 +35,8 @@ class BotSignalsController extends ExecOnceModConsumer {
 			}
 		} );
 		$this->getHandlerNotBot()->execute();
+		$this->registerFrontPageLoad();
+		$this->registerLoginPageLoad();
 	}
 
 	public function isBot( string $IP = '', bool $allowEventFire = true ) :bool {
@@ -68,18 +71,11 @@ class BotSignalsController extends ExecOnceModConsumer {
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
-		if ( !isset( $this->handlerNotBot ) ) {
-			$this->handlerNotBot = ( new NotBot\NotBotHandler( true ) )
-				->setMod( $this->getMod() );
-		}
-		return $this->handlerNotBot;
+		return $this->handlerNotBot ?? $this->handlerNotBot = ( new NotBotHandler() )->setMod( $this->getMod() );
 	}
 
 	public function getEventListener() :BotEventListener {
-		if ( !isset( $this->eventListener ) ) {
-			$this->eventListener = ( new BotEventListener() )->setMod( $this->getMod() );
-		}
-		return $this->eventListener;
+		return $this->eventListener ?? $this->eventListener = ( new BotEventListener() )->setMod( $this->getMod() );
 	}
 
 	/**
@@ -112,5 +108,23 @@ class BotSignalsController extends ExecOnceModConsumer {
 		}
 
 		return $trackers;
+	}
+
+	private function registerFrontPageLoad() {
+		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
+			if ( Services::Request()->isGet() && did_action( 'wp' )
+				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+				$this->getEventListener()->fireEventForIP( $this->getCon()->this_req->ip, 'frontpage_load' );
+			}
+		} );
+	}
+
+	private function registerLoginPageLoad() {
+		add_action( 'login_footer', function () {
+			$req = Services::Request();
+			if ( $req->isGet() ) {
+				$this->getEventListener()->fireEventForIP( $this->getCon()->this_req->ip, 'loginpage_load' );
+			}
+		} );
 	}
 }
