@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BlockIpAddressShield extends BaseBlock {
 
-	public const PRIMARY_MOD = 'ips';
 	public const SLUG = 'render_block_ip_address_shield';
 	public const TEMPLATE = '/pages/block/block_page_ip.twig';
 
@@ -54,7 +53,7 @@ class BlockIpAddressShield extends BaseBlock {
 
 	protected function getRestrictionDetailsPoints() :array {
 		/** @var IPs\Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $this->getCon()->getModule_IPs()->getOptions();
 		return array_merge(
 			[
 				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()

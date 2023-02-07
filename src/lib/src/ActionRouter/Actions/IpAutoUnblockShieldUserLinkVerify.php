@@ -12,7 +12,7 @@ class IpAutoUnblockShieldUserLinkVerify extends IpAutoUnblockShieldVisitor {
 
 	// TODO: produce an error response to tell user why it failed
 	protected function exec() {
-		$unBlocker = ( new AutoUnblockMagicLink() )->setMod( $this->primary_mod );
+		$unBlocker = ( new AutoUnblockMagicLink() )->setMod( $this->getCon()->getModule_IPs() );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processUnblockLink() ) {
 			Services::Response()->redirectToHome();
 		}

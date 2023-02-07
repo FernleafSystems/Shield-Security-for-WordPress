@@ -71,7 +71,7 @@ class BaseShieldNetApi extends BaseApi {
 		$con = $this->getCon();
 		return $this->shield_net_params_required ? [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
-			'install_id' => $con->getSiteInstallationId(),
+			'install_id' => $con->getInstallationID()[ 'id' ],
 			'nonce'      => ( new HandshakingNonce() )->setCon( $con )->create(),
 		] : [];
 	}

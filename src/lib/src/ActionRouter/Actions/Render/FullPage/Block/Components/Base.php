@@ -8,6 +8,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotR
 class Base extends BaseRender {
 
 	use AuthNotRequired;
-
-	public const PRIMARY_MOD = 'ips';
 }

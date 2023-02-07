@@ -7,14 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Factory;
 
-class IpRuleAddSubmit extends IpsBase {
+class IpRuleAddSubmit extends BaseAction {
 
 	public const SLUG = 'ip_rule_add_submit';
 
 	protected function exec() {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $con->getModule_IPs();
 		$dbh = $mod->getDbH_IPRules();
 		$form = Services::Request()->post( 'form_data' );
 		try {

@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 class PageIpRulesTable extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_ip_rules_table';
-	public const PRIMARY_MOD = 'ips';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/ip_rules.twig';
 
 	protected function getPageContextualHrefs() :array {
@@ -20,7 +19,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
-				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->getCon()->getModule_IPs()->cfg->slug ),
 			],
 		];
 	}
@@ -37,7 +36,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 						'table_action' => ActionData::Build( IpRulesTableAction::SLUG ),
 					],
 					'table_init' => ( new ForIpRules() )
-						->setMod( $this->primary_mod )
+						->setMod( $this->getCon()->getModule_IPs() )
 						->buildRaw(),
 				] ),
 			]

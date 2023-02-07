@@ -643,7 +643,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		$this->getSiteInstallationId();
+		$this->getInstallationID();
 		$this->getAdminNotices();
 		$this->initCrons();
 		( new Utilities\CaptureMyUpgrade() )

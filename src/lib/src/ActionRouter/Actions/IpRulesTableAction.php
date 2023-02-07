@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table\BuildIpRulesTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
-class IpRulesTableAction extends IpsBase {
+class IpRulesTableAction extends BaseAction {
 
 	public const SLUG = 'iprulestable_action';
 
@@ -16,7 +16,7 @@ class IpRulesTableAction extends IpsBase {
 			switch ( $action ) {
 
 				case 'retrieve_table_data':
-					$builder = ( new BuildIpRulesTableData() )->setMod( $this->primary_mod );
+					$builder = ( new BuildIpRulesTableData() )->setMod( $this->getCon()->getModule_IPs() );
 					$builder->table_data = Services::Request()->post( 'table_data', [] );
 					$response = [
 						'success'        => true,

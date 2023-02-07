@@ -8,13 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-class IpAnalyseAction extends IpsBase {
+class IpAnalyseAction extends BaseAction {
 
 	public const SLUG = 'ip_analyse_action';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_IPs();
 		$resp = $this->response();
 		$req = Services::Request();
 

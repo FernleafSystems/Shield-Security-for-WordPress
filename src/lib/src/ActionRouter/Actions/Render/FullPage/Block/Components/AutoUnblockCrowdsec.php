@@ -14,7 +14,7 @@ class AutoUnblockCrowdsec extends AutoUnblockShield {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $con->getModule_IPs()->getOptions();
 		return [
 			'flags'   => [
 				'is_available' => $opts->isEnabledCrowdSecAutoVisitorUnblock()

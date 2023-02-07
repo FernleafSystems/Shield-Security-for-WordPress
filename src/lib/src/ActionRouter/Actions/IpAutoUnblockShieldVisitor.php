@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotR
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockVisitor;
 use FernleafSystems\Wordpress\Services\Services;
 
-class IpAutoUnblockShieldVisitor extends IpsBase {
+class IpAutoUnblockShieldVisitor extends BaseAction {
 
 	use AuthNotRequired;
 
@@ -14,7 +14,7 @@ class IpAutoUnblockShieldVisitor extends IpsBase {
 	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function exec() {
-		$unBlocker = ( new AutoUnblockVisitor() )->setMod( $this->primary_mod );
+		$unBlocker = ( new AutoUnblockVisitor() )->setMod( $this->getCon()->getModule_IPs() );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {
 			Services::Response()->redirectToHome();
 		}

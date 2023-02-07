@@ -17,7 +17,7 @@ class AutoUnblockShield extends Base {
 		return [
 			'flags'   => [
 				'is_available' => ( new AutoUnblockVisitor() )
-					->setMod( $this->primary_mod )
+					->setMod( $con->getModule_IPs() )
 					->isUnblockAvailable()
 			],
 			'hrefs'   => [

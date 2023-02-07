@@ -11,7 +11,7 @@ class IpAutoUnblockCrowdsecVisitor extends IpAutoUnblockShieldVisitor {
 	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function exec() {
-		$unBlocker = ( new AutoUnblockCrowdsec() )->setMod( $this->primary_mod );
+		$unBlocker = ( new AutoUnblockCrowdsec() )->setMod( $this->getCon()->getModule_IPs() );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {
 			Services::Response()->redirectToHome();
 		}

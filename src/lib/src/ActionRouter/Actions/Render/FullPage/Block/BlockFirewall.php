@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Strings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 
 class BlockFirewall extends BaseBlock {
 
-	public const PRIMARY_MOD = 'firewall';
 	public const SLUG = 'render_block_firewall';
 
 	protected function getRenderData() :array {
@@ -32,13 +31,14 @@ class BlockFirewall extends BaseBlock {
 	}
 
 	protected function getRestrictionDetailsPoints() :array {
+		$con = $this->getCon();
 		$blockMeta = $this->action_data[ 'block_meta_data' ];
-		/** @var Strings $str */
-		$str = $this->primary_mod->getStrings();
+		/** @var Firewall\Strings $str */
+		$str = $con->getModule_Firewall()->getStrings();
 
 		$remainingOffenses = max( 0, ( new QueryRemainingOffenses() )
-			->setMod( $this->getCon()->getModule_IPs() )
-			->setIP( $this->getCon()->this_req->ip )
+			->setMod( $con->getModule_IPs() )
+			->setIP( $con->this_req->ip )
 			->run() );
 
 		return array_merge(

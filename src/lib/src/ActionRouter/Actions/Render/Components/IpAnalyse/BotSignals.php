@@ -13,19 +13,20 @@ class BotSignals extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig';
 
 	protected function getRenderData() :array {
+		$mod = $this->getCon()->getModule_IPs();
 		/** @var Strings $strings */
-		$strings = $this->primary_mod->getStrings();
+		$strings = $mod->getStrings();
 		$WP = Services::WpGeneral();
 		$names = $strings->getBotSignalNames();
 
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )
-			->setMod( $this->primary_mod )
+			->setMod( $mod )
 			->setIP( $this->action_data[ 'ip' ] )
 			->scores();
 		try {
 			$record = ( new BotSignalsRecord() )
-				->setMod( $this->primary_mod )
+				->setMod( $mod )
 				->setIP( $this->action_data[ 'ip' ] )
 				->retrieve();
 		}
