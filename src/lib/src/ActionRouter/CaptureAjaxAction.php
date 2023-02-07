@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionException,
+	InvalidActionNonceException,
 	SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
@@ -43,7 +44,17 @@ class CaptureAjaxAction extends CaptureActionBase {
 					->action_response_data
 			);
 		}
+		catch ( InvalidActionNonceException $e ) {
+			$statusCode = 401;
+			$msg = __( 'Nonce Failed.', 'wp-simple-firewall' );
+			$response = [
+				'success'     => false,
+				'message'     => $msg,
+				'error'       => $msg,
+			];
+		}
 		catch ( SecurityAdminRequiredException $e ) {
+			$statusCode = 401;
 			$msg = implode( ' ', [
 				__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
 				__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
@@ -55,6 +66,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 			];
 		}
 		catch ( ActionException $e ) {
+			$statusCode = 400;
 			$response = [
 				'success' => false,
 				'message' => $e->getMessage(),
@@ -67,9 +79,10 @@ class CaptureAjaxAction extends CaptureActionBase {
 
 		if ( !empty( $response ) ) {
 			( new Response() )->issue( [
-				'success' => $response[ 'success' ] ?? false,
-				'data'    => $response,
-				'noise'   => $noise ?? ''
+				'success'     => $response[ 'success' ] ?? false,
+				'data'        => $response,
+				'noise'       => $noise ?? '',
+				'status_code' => $statusCode ?? 200
 			] );
 		}
 	}

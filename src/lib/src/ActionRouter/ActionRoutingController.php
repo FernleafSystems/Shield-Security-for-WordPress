@@ -33,6 +33,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 	 * @throws Exceptions\ActionException
 	 * @throws Exceptions\ActionTypeDoesNotExistException
 	 * @throws Exceptions\SecurityAdminRequiredException
+	 * @throws Exceptions\InvalidActionNonceException
 	 */
 	public function action( string $slug = '', array $data = [], int $type = self::ACTION_SHIELD ) :ActionResponse {
 
@@ -58,7 +59,10 @@ class ActionRoutingController extends ExecOnceModConsumer {
 			}
 			$response = $this->action( Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::SLUG, $data );
 		}
-		catch ( Exceptions\InvalidActionNonceException $e ) {
+		catch ( Exceptions\InvalidActionNonceException $iane ) {
+			if ( Services::WpGeneral()->isAjax() ) {
+				throw $iane;
+			}
 			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $slug, var_export( $data, true ) ) );
 		}
 
