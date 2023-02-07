@@ -59,6 +59,7 @@ class Constants {
 		Actions\MfaYubikeyToggle::class,
 		Actions\ModuleOptionsSave::class,
 		Actions\CaptureNotBot::class,
+		Actions\CaptureNotBotNonce::class,
 		Actions\PluginAutoDbRepair::class,
 		Actions\PluginBadgeClose::class,
 		Actions\PluginDeleteForceOff::class,

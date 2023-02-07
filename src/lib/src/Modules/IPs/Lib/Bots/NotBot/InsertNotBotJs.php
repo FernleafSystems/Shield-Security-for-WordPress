@@ -57,19 +57,25 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			 * @since 11.2 - don't fire for GTMetrix page requests
 			 */
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$nb = ActionData::Build( CaptureNotBotNonce::SLUG );
-				$nb[ ActionData::FIELD_NONCE ] = 'asdf';
 				$localz[] = [
 					'shield/notbot',
 					'shield_vars_notbotjs',
 					apply_filters( 'shield/notbot_data_js', [
 						'ajax'  => [
-							'not_bot'       => ActionData::Build( CaptureNotBot::SLUG ),
-							'not_bot_nonce' => $nb,
-							//						'not_bot_nonce' => ActionData::Build( CaptureNotBotNonce::SLUG ),
+							'not_bot'       => ActionData::Build( CaptureNotBot::SLUG, false ),
+							'not_bot_nonce' => array_diff_key(
+								ActionData::Build( CaptureNotBotNonce::SLUG ),
+								array_flip( [
+									ActionData::FIELD_NONCE,
+									ActionData::FIELD_AJAXURL,
+								] )
+							),
 						],
 						'flags' => [
 							'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+						],
+						'vars'  => [
+							'ajaxurl' => admin_url( 'admin-ajax.php' ),
 						],
 					] )
 				];
