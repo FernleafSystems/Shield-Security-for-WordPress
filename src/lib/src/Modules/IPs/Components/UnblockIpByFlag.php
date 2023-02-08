@@ -29,14 +29,16 @@ class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			if ( !empty( $content ) ) {
 
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
-					$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
-					foreach ( $ruleStatus->getRulesForBlock() as $record ) {
-						$removed = ( new IPs\Lib\IpRules\DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $record );
-						if ( $removed ) {
-							$IPs[] = $ip;
-							$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+					if ( Services::IP()->isValidIp( $ip ) ) {
+						$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
+						foreach ( $ruleStatus->getRulesForBlock() as $record ) {
+							$removed = ( new IPs\Lib\IpRules\DeleteRule() )
+								->setMod( $mod )
+								->byRecord( $record );
+							if ( $removed ) {
+								$IPs[] = $ip;
+								$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+							}
 						}
 					}
 				}

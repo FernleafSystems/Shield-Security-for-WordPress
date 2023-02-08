@@ -55,7 +55,12 @@ class IpRuleStatus {
 	public function getRules( array $filterByLists = [] ) :array {
 		$ip = $this->getIP();
 		if ( !isset( self::$cache[ $ip ] ) ) {
-			self::$cache[ $ip ] = $this->loadRecordsForIP();
+			try {
+				self::$cache[ $ip ] = $this->loadRecordsForIP();
+			}
+			catch ( \Exception $e ) {
+				self::$cache[ $ip ] = [];
+			}
 		}
 		return array_filter(
 			self::$cache[ $ip ],
@@ -278,7 +283,15 @@ class IpRuleStatus {
 		return $rules;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function loadRecordsForIP() :array {
+		$parsedIP = Factory::parseRangeString( $this->getIP() );
+		if ( empty( $parsedIP ) ) {
+			throw new \Exception( 'Not a valid IP Address or Range' );
+		}
+
 		$records = [];
 
 		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
@@ -289,7 +302,6 @@ class IpRuleStatus {
 			)
 		];
 
-		$parsedIP = Factory::parseRangeString( $this->getIP() );
 		foreach ( $loader->select() as $record ) {
 			if ( $record->is_range ) {
 				$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
