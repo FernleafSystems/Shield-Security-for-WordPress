@@ -2,10 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIpBlock;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BlockIpAddressShield extends BaseBlock {
+
+	use ByPassIpBlock;
 
 	public const SLUG = 'render_block_ip_address_shield';
 	public const TEMPLATE = '/pages/block/block_page_ip.twig';

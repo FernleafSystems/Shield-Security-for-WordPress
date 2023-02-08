@@ -3,13 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Base,
 	Plugin
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
+	InvalidActionNonceException,
+	UserAuthRequiredException,
+	IpBlockedException};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property Base\ModCon|mixed $primary_mod
@@ -68,12 +74,37 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	/**
 	 * @throws ActionException
+	 * @throws InvalidActionNonceException
+	 * @throws IpBlockedException
+	 * @throws UserAuthRequiredException
 	 */
 	public function process() {
+		$this->checkAccess();
 		$this->checkAvailableData();
 		$this->preExec();
 		$this->exec();
 		$this->postExec();
+	}
+
+	/**
+	 * @throws InvalidActionNonceException
+	 * @throws IpBlockedException
+	 * @throws UserAuthRequiredException
+	 */
+	protected function checkAccess() {
+		if ( $this->getCon()->this_req->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
+			throw new IpBlockedException();
+		}
+
+		$WPU = Services::WpUsers();
+		if ( $this->isUserAuthRequired()
+			 && ( !$WPU->isUserLoggedIn() || !user_can( $WPU->getCurrentWpUser(), $this->getMinimumUserAuthCapability() ) ) ) {
+			throw new UserAuthRequiredException( sprintf( 'Must be logged-in to execute this action: %s', static::SLUG ) );
+		}
+
+		if ( $this->isNonceVerifyRequired() && !$this->verifyNonce() ) {
+			throw new InvalidActionNonceException();
+		}
 	}
 
 	protected function preExec() {
@@ -101,12 +132,20 @@ abstract class BaseAction extends DynPropertiesClass {
 		return [];
 	}
 
+	public function getMinimumUserAuthCapability() :string {
+		return $this->getCon()->cfg->properties[ 'base_permissions' ] ?? 'manage_options';
+	}
+
 	public function isNonceVerifyRequired() :bool {
 		return $this->getCon()->this_req->wp_is_ajax;
 	}
 
+	public function canBypassIpAddressBlock() :bool {
+		return false;
+	}
+
 	public function isUserAuthRequired() :bool {
-		return true;
+		return !empty( $this->getMinimumUserAuthCapability() );
 	}
 
 	public function isSecurityAdminRestricted() :bool {
@@ -125,5 +164,13 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	protected function getRequiredDataKeys() :array {
 		return [];
+	}
+
+	public function verifyNonce() :bool {
+		$req = Services::Request();
+		return wp_verify_nonce(
+				   $req->request( ActionData::FIELD_NONCE ),
+				   ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE )
+			   ) === 1;
 	}
 }

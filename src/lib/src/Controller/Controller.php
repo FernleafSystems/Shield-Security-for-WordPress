@@ -229,7 +229,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'action_router':
 				if ( is_null( $val ) ) {
-					$val = ( new Shield\ActionRouter\ActionRoutingController() )->setMod( $this->getModule_Insights() );
+					$val = ( new Shield\ActionRouter\ActionRoutingController() )->setCon( $this );
 					$this->action_router = $val;
 				}
 				break;

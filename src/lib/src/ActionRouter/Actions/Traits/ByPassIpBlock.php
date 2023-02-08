@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
-trait AuthNotRequired {
+trait ByPassIpBlock {
 
-	public function getMinimumUserAuthCapability() :string {
-		return '';
+	public function canBypassIpAddressBlock() :bool {
+		return true;
 	}
 }

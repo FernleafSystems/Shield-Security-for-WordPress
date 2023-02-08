@@ -5,15 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionDoesNotExistException,
 	ActionException,
+	IpBlockedException,
 	InvalidActionNonceException,
-	SecurityAdminRequiredException
+	UserAuthRequiredException,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ActionProcessor {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private static $actions;
 
@@ -21,31 +21,13 @@ class ActionProcessor {
 	 * @throws ActionDoesNotExistException
 	 * @throws ActionException
 	 * @throws InvalidActionNonceException
-	 * @throws SecurityAdminRequiredException
+	 * @throws IpBlockedException
+	 * @throws UserAuthRequiredException
 	 */
 	public function processAction( string $slug, array $data = [] ) :ActionResponse {
 		$action = $this->getAction( $slug, $data );
-		if ( $action->isUserAuthRequired() && !Services::WpUsers()->isUserLoggedIn() ) {
-			throw new ActionException( sprintf( 'Must be logged-in to execute this action: %s', $slug ) );
-		}
-		elseif ( $action->isSecurityAdminRestricted() && !$this->getCon()->isPluginAdmin() ) {
-			throw new SecurityAdminRequiredException( __( 'Security Admin Authorisation required.', 'wp-simple-firewall' ) );
-		}
-		elseif ( $action->isNonceVerifyRequired() && !$this->verifyNonce() ) {
-			throw new InvalidActionNonceException();
-		}
-
 		$action->process();
-
 		return $action->response();
-	}
-
-	public function verifyNonce() :bool {
-		$req = Services::Request();
-		return wp_verify_nonce(
-				   $req->request( ActionData::FIELD_NONCE ),
-				   ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE )
-			   ) === 1;
 	}
 
 	/**
@@ -56,7 +38,7 @@ class ActionProcessor {
 		if ( empty( $action ) ) {
 			throw new ActionDoesNotExistException( 'There was no action handler available for '.$slug );
 		}
-		return ( new $action( $data ) )->setMod( $this->getMod() );
+		return ( new $action( $data ) )->setMod( $this->getCon()->getModule_Plugin() );
 	}
 
 	public function findActionFromSlug( string $slug ) :string {

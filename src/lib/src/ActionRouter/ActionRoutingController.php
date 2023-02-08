@@ -2,13 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ActionRoutingController extends ExecOnceModConsumer {
+class ActionRoutingController {
+
+	use ExecOnce;
+	use PluginControllerConsumer;
 
 	public const ACTION_AJAX = 1;
 	public const ACTION_SHIELD = 2;
@@ -21,10 +25,10 @@ class ActionRoutingController extends ExecOnceModConsumer {
 		$this->captureRedirects();
 
 		( new CaptureShieldAction() )
-			->setMod( $this->getMod() )
+			->setCon( $this->getCon() )
 			->execute();
 		( new CaptureAjaxAction() )
-			->setMod( $this->getMod() )
+			->setCon( $this->getCon() )
 			->execute();
 	}
 
@@ -50,7 +54,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 
 		try {
 			$response = ( new ActionProcessor() )
-				->setMod( $this->getMod() )
+				->setCon( $this->getCon() )
 				->processAction( $slug, $data );
 		}
 		catch ( Exceptions\SecurityAdminRequiredException $sare ) {
@@ -66,7 +70,7 @@ class ActionRoutingController extends ExecOnceModConsumer {
 			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $slug, var_export( $data, true ) ) );
 		}
 
-		$adapter->setMod( $this->getMod() )->adapt( $response );
+		$adapter->setCon( $this->getCon() )->adapt( $response );
 		return $response;
 	}
 

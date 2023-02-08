@@ -2,10 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CaptureActionBase extends ExecOnceModConsumer {
+class CaptureActionBase {
+
+	use ExecOnce;
+	use PluginControllerConsumer;
 
 	/**
 	 * @var ?ActionResponse
