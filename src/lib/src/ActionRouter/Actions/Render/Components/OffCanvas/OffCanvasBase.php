@@ -18,7 +18,7 @@ abstract class OffCanvasBase extends BaseRender {
 	}
 
 	protected function buildCanvasTitle() :string {
-		return 'No canvas title';
+		return '';
 	}
 
 	protected function buildCanvasBody() :string {

@@ -19,7 +19,7 @@ class PageUserSessions extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		$con = $this->getCon();
 		$urls = $this->getCon()->plugin_urls;
-		$hrefs = [
+		return [
 			[
 				'text' => __( 'User Controls', 'wp-simple-firewall' ),
 				'href' => $urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
@@ -29,13 +29,6 @@ class PageUserSessions extends BasePluginAdminPage {
 				'href' => $urls->offCanvasConfigRender( $con->getModule_SecAdmin()->cfg->slug ),
 			],
 		];
-		if ( $con->isPluginAdmin() && $con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
-			$hrefs[] = [
-				'text' => __( 'Clear Security Admin Status', 'wp-simple-firewall' ),
-				'href' => $urls->noncedPluginAction( SecurityAdminAuthClear::SLUG, $urls->adminHome() ),
-			];
-		}
-		return $hrefs;
 	}
 
 	protected function getRenderData() :array {

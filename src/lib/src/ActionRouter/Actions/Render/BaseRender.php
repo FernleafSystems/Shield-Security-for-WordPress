@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminLogin;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
@@ -12,6 +13,8 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 abstract class BaseRender extends BaseAction {
+
+	use NonceVerifyNotRequired;
 
 	public const TEMPLATE = '';
 

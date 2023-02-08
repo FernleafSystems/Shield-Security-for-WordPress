@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 

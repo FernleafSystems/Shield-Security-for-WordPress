@@ -3,18 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockCrowdsec;
-use FernleafSystems\Wordpress\Services\Services;
 
-class IpAutoUnblockCrowdsecVisitor extends IpAutoUnblockShieldVisitor {
+class IpAutoUnblockCrowdsecVisitor extends IpAutoUnblockBase {
 
 	public const SLUG = 'ip_auto_unblock_crowdsec_visitor';
 	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
-	protected function exec() {
-		$unBlocker = ( new AutoUnblockCrowdsec() )->setMod( $this->getCon()->getModule_IPs() );
-		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {
-			Services::Response()->redirectToHome();
-		}
-		$this->response()->success = false;
+	protected function getAutoUnblockerClass() :string {
+		return AutoUnblockCrowdsec::class;
 	}
 }

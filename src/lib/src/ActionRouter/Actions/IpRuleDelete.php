@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IpRuleDelete extends BaseAction {

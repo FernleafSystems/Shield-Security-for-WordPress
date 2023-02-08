@@ -25,16 +25,17 @@ class BlockIpAddressShield extends BaseBlock {
 				'email_unblock' => $magicLink,
 			],
 			'flags'   => [
-				'has_magiclink'   => !empty( $magicLink ),
 				'has_autorecover' => !empty( $autoUnblock ),
+				'has_magiclink'   => !empty( $magicLink ),
 			],
 			'hrefs'   => [
 				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
 			],
 			'strings' => [
-				'page_title' => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), $con->getHumanName() ),
-				'title'      => __( 'Access Restricted', 'wp-simple-firewall' ),
-				'subtitle'   => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
+				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'title'         => __( 'Access Restricted', 'wp-simple-firewall' ),
+				'subtitle'      => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
+				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
 			],
 		];
 	}

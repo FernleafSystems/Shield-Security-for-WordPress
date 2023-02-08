@@ -3,16 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Sms;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 
-class MfaSmsIntentSend extends MfaBase {
+class MfaSmsIntentSend extends MfaUserConfigBase {
 
 	public const SLUG = 'intent_sms_send';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = $this->getCon()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Sms $provider */
 		$provider = $available[ Sms::ProviderSlug() ];
 		try {

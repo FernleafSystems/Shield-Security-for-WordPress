@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
 trait ByPassIpBlock {
 
-	public function canBypassIpAddressBlock() :bool {
+	protected function canBypassIpAddressBlock() :bool {
 		return true;
 	}
 }

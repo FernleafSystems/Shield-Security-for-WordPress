@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
-	NonceVerifyNotRequired
+	AnyUserAuthRequired
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigForm extends UserMfaBase {
 
-	use NonceVerifyNotRequired;
+	use AnyUserAuthRequired;
 
 	public const SLUG = 'user_mfa_config_form';
 	public const TEMPLATE = '/user/profile/mfa/main.twig';

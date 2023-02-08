@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -87,10 +86,16 @@ class ActionRoutingController {
 				]
 			)->action_response_data[ 'render_output' ];
 		}
-		catch ( SecurityAdminRequiredException $e ) {
+		catch ( Exceptions\SecurityAdminRequiredException $e ) {
+//			error_log( 'render::SecurityAdminRequiredException: '.$slug );
 			$output = $this->getCon()->action_router->render( PageSecurityAdminRestricted::SLUG );
 		}
+		catch ( Exceptions\UserAuthRequiredException $uare ) {
+//			error_log( 'render::UserAuthRequiredException: '.$slug );
+			$output = '';
+		}
 		catch ( Exceptions\ActionException $e ) {
+			error_log( 'render::ActionException: '.$slug.' '.$e->getMessage() );
 			$output = $e->getMessage();
 		}
 

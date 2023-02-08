@@ -3,17 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\U2F;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaU2fAdd extends MfaBase {
+class MfaU2fAdd extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_u2f_add';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = $this->getCon()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var U2F $provider */
 		$provider = $available[ U2F::ProviderSlug() ];
 

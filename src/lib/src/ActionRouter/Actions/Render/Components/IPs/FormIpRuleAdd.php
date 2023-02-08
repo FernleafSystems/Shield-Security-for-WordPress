@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
 class FormIpRuleAdd extends Base {
 

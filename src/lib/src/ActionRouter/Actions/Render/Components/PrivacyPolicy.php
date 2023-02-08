@@ -17,7 +17,7 @@ class PrivacyPolicy extends BaseRender {
 		$con = $this->getCon();
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$name = $con->getHumanName();
-			$href = $this->labels->PluginURI;
+			$href = $con->labels->PluginURI;
 		}
 		else {
 			$name = $con->cfg->menu[ 'title' ];

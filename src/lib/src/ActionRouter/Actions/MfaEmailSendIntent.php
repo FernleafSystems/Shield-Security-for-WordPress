@@ -3,18 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaEmailSendIntent extends MfaBase {
+class MfaEmailSendIntent extends MfaUserConfigBase {
 
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'mfa_email_intent_code_send';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		$req = Services::Request();
 
 		$success = false;
@@ -24,7 +21,10 @@ class MfaEmailSendIntent extends MfaBase {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
 				/** @var Email $p */
-				$p = $mod->getMfaController()->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
+				$p = $this->getCon()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
 				$success = !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce );
 			}
 		}

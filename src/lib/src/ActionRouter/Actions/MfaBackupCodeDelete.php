@@ -3,18 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 
-class MfaBackupCodeDelete extends MfaBase {
+class MfaBackupCodeDelete extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_backup_code_delete';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-
-		$user = $this->getActiveWPUser();
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( $user );
+		$available = $this->getCon()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {
@@ -29,7 +27,7 @@ class MfaBackupCodeDelete extends MfaBase {
 
 		$this->getCon()
 			 ->getAdminNotices()
-			 ->addFlash( $msg, $user, !$success );
+			 ->addFlash( $msg, $this->getActiveWPUser(), !$success );
 
 		$this->response()->action_response_data = [
 			'success' => $success,

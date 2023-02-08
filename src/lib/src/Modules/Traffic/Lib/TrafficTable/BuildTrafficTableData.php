@@ -259,7 +259,13 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			else {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
-				if ( $ipRuleStatus->isAutoBlacklisted() ) {
+				if ( $ipRuleStatus->isBlocked() ) {
+					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
+				}
+				elseif ( $ipRuleStatus->isBypass() ) {
+					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
+				}
+				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
 					$offenses = $ipRuleStatus->getOffenses();
 					$offensesString = sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses );
 					if ( $ipRuleStatus->isUnBlocked() ) {
@@ -272,12 +278,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 						$status = $offensesString;
 					}
 					$status = sprintf( $badgeTemplate, 'warning', $status );
-				}
-				elseif ( $ipRuleStatus->isBypass() ) {
-					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
-				}
-				elseif ( $ipRuleStatus->isBlocked() ) {
-					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
 				else {
 					$status = '';

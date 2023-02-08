@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnbl
 
 class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 
+	use Traits\AnyUserAuthRequired;
+	use Traits\ByPassIpBlock;
+
 	public const SLUG = 'ip_auto_unblock_shield_user_link_request';
 
 	protected function exec() {
@@ -23,5 +26,9 @@ class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 				throw new ActionException( $e->getMessage() );
 			}
 		}
+	}
+
+	protected function getMinimumUserAuthCapability() :string {
+		return 'read';
 	}
 }

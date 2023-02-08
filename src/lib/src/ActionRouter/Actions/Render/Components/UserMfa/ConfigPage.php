@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 
 class ConfigPage extends BaseRender {
 
-	use SecurityAdminNotRequired;
+	use AnyUserAuthRequired;
 
 	public const SLUG = 'page_user_mfa_config';
 	public const PRIMARY_MOD = 'login_protect';

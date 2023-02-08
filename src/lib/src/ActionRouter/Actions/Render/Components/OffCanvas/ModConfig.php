@@ -56,7 +56,7 @@ class ModConfig extends OffCanvasBase {
 
 		return [
 			'content' => [
-				'canvas_title' => $content[ 'page_title' ],
+				'canvas_title' => '',
 				'canvas_body'  => $content[ 'html' ],
 			]
 		];

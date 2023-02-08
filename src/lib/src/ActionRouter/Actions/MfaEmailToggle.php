@@ -3,18 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaEmailToggle extends MfaBase {
+class MfaEmailToggle extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_toggle_email';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = $this->getCon()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?Email $provider */
 		$provider = $available[ Email::ProviderSlug() ] ?? null;
 		if ( !empty( $provider ) && !$provider->isEnforced() ) {

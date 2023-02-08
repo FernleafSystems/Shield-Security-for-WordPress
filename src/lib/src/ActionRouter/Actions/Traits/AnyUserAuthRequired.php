@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
-trait AuthNotRequired {
+trait AnyUserAuthRequired {
 
 	protected function getMinimumUserAuthCapability() :string {
-		return '';
+		return 'read';
 	}
 }

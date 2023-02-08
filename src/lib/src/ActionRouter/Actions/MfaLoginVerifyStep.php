@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginIntentRequestCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaLoginVerifyStep extends MfaBase {
+class MfaLoginVerifyStep extends BaseAction {
 
 	use Traits\AuthNotRequired;
 
@@ -17,7 +17,7 @@ class MfaLoginVerifyStep extends MfaBase {
 
 			add_action( 'wp_loaded', function () {
 				( new LoginIntentRequestCapture() )
-					->setMod( $this->primary_mod )
+					->setMod( $this->getCon()->getModule_LoginGuard() )
 					->runCapture();
 				// TODO: move the render that's embedded in the capture.
 			}, 8 ); // before rename login render

@@ -2,10 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigEdit extends UserMfaBase {
+
+	/** Secadmin is handled within the UI */
+	use SecurityAdminNotRequired;
 
 	public const SLUG = 'user_mfa_config_edit';
 	public const TEMPLATE = '/admin/user/profile/mfa/remove_for_other_user.twig';

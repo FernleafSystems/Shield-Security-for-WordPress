@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -12,7 +11,9 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class Render extends BaseAction {
 
-	use AuthNotRequired;
+	use Traits\AuthNotRequired;
+	use Traits\ByPassIpBlock;
+	use Traits\NonceVerifyNotRequired;
 
 	public const SLUG = 'render';
 

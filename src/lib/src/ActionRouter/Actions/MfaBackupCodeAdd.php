@@ -3,17 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 
-class MfaBackupCodeAdd extends MfaBase {
+class MfaBackupCodeAdd extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_backup_code_add';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-
-		$available = $mod->getMfaController()->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = $this->getCon()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {

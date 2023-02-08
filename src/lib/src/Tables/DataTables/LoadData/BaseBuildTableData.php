@@ -199,7 +199,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		}
 		elseif ( Services::IP()->isValidIp( $ip ) ) {
 			$content = sprintf(
-				'<a href="%s" target="_blank" title="%s" class="%s" data-ip="%s">%s</a>',
+				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
 				$this->getCon()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
 				'render_ip_analysis',

@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaEmailSendVerification extends MfaBase {
+class MfaEmailSendVerification extends BaseAction {
+
+	use SecurityAdminRequired;
 
 	public const SLUG = 'mfa_email_send_verification';
 
 	protected function exec() {
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
 
 		if ( !$opts->isEnabledEmailAuth() ) {
 			$msg = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );

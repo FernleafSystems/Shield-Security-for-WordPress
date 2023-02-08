@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
 trait NonceVerifyNotRequired {
 
-	public function isNonceVerifyRequired() :bool {
+	protected function isNonceVerifyRequired() :bool {
 		return false;
 	}
 }

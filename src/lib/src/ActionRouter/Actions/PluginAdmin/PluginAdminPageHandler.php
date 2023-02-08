@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
 	NonceVerifyNotRequired,
 	SecurityAdminNotRequired
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
@@ -24,7 +24,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	protected $screenID;
 
 	protected function exec() {
-		if ( $this->canRun() ) {
+		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
 
 			if ( apply_filters( 'shield/show_admin_menu', $this->getCon()->cfg->menu[ 'show' ] ?? true ) ) {
 				add_action( 'admin_menu', function () {
@@ -39,10 +39,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 				->setCon( $this->getCon() )
 				->execute();
 		}
-	}
-
-	private function canRun() :bool {
-		return ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax();
 	}
 
 	private function createAdminMenu() {

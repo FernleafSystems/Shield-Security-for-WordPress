@@ -32,7 +32,7 @@ class PtgAddReinstallLinks {
 
 		add_action( 'admin_footer', function () {
 			$con = $this->getScanController()->getCon();
-			if ( $con->action_router ) {
+			if ( $con->this_req->is_security_admin && $con->action_router ) {
 				echo $con->action_router->render( ReinstallDialog::SLUG );
 			}
 		} );

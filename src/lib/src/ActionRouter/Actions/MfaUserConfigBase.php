@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ActiveWpUserConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 
-abstract class MfaBase extends BaseAction {
+abstract class MfaUserConfigBase extends BaseAction {
 
 	use ActiveWpUserConsumer;
-	use SecurityAdminNotRequired;
+	use AnyUserAuthRequired;
 
 	public const PRIMARY_MOD = 'login_protect';
 }

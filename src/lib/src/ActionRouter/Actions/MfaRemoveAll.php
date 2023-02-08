@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
-
-class MfaRemoveAll extends MfaBase {
+class MfaRemoveAll extends MfaUserConfigBase {
 
 	/** Attempting to remove MFA settings on another user account. */
 	use Traits\SecurityAdminNotRequired;
@@ -12,8 +10,6 @@ class MfaRemoveAll extends MfaBase {
 	public const SLUG = 'mfa_profile_remove_all';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		$userID = $this->action_data[ 'user_id' ] ?? null;
 
 		if ( !$this->getCon()->isPluginAdmin() ) {
@@ -29,7 +25,10 @@ class MfaRemoveAll extends MfaBase {
 			];
 		}
 		else {
-			$result = $mod->getMfaController()->removeAllFactorsForUser( (int)$userID );
+			$result = $this->getCon()
+						   ->getModule_LoginGuard()
+						   ->getMfaController()
+						   ->removeAllFactorsForUser( (int)$userID );
 			$response = [
 				'success' => $result->success,
 				'message' => $result->success ? $result->msg_text : $result->error_text,

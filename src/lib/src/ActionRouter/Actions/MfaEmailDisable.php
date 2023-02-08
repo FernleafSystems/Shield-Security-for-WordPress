@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 
-class MfaEmailDisable extends MfaBase {
+class MfaEmailDisable extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_email_disable';
 
 	protected function exec() {
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
 		$opts->setOpt( 'enable_email_authentication', 'N' );
 		$this->response()->action_response_data = [
 			'success'     => true,

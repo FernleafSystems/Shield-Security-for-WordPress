@@ -2,17 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sessions extends BaseBuild {
-
-	/**
-	 * @var string[]
-	 */
-	private $aSecAdminUsers;
 
 	/**
 	 * @var array
@@ -49,7 +43,7 @@ class Sessions extends BaseBuild {
 				$results = $metaSelect->setResultsAsVo( false )
 									  ->setSelectResultsFormat( ARRAY_A )
 									  ->setColumnsToSelect( [ 'user_id' ] )
-									  ->setOrderBy( 'updated_at', 'DESC' )
+									  ->setOrderBy( 'updated_at' )
 									  ->setLimit( 20 )
 									  ->queryWithResult();
 				$UIDs = array_map(
@@ -97,26 +91,6 @@ class Sessions extends BaseBuild {
 		} );
 
 		return $allSessions;
-	}
-
-	/**
-	 * Override this to apply table-specific query filters.
-	 * @return $this
-	 */
-	protected function applyCustomQueryFilters() {
-		/** @var Session\Select $oSelector */
-		$oSelector = $this->getWorkingSelector();
-
-		$params = $this->getParams();
-
-		// If an IP is specified, it takes priority
-		if ( Services::IP()->isValidIp( $params[ 'fIp' ] ) ) {
-			$oSelector->filterByIp( $params[ 'fIp' ] );
-		}
-
-		$oSelector->setOrderBy( 'last_activity_at', 'DESC', true );
-
-		return $this;
 	}
 
 	protected function getCustomParams() :array {
@@ -167,14 +141,5 @@ class Sessions extends BaseBuild {
 	 */
 	protected function getTableRenderer() {
 		return new Tables\Render\WpListTable\Sessions();
-	}
-
-	/**
-	 * @param array $aSecAdminUsernames
-	 * @return $this
-	 */
-	public function setSecAdminUsers( $aSecAdminUsernames ) {
-		$this->aSecAdminUsers = $aSecAdminUsernames;
-		return $this;
 	}
 }

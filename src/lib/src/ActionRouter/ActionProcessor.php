@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionException,
 	IpBlockedException,
 	InvalidActionNonceException,
+	SecurityAdminRequiredException,
 	UserAuthRequiredException,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -22,6 +23,7 @@ class ActionProcessor {
 	 * @throws ActionException
 	 * @throws InvalidActionNonceException
 	 * @throws IpBlockedException
+	 * @throws SecurityAdminRequiredException
 	 * @throws UserAuthRequiredException
 	 */
 	public function processAction( string $slug, array $data = [] ) :ActionResponse {

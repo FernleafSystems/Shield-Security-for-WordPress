@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
 trait SecurityAdminRequired {
 
-	public function isSecurityAdminRestricted() :bool {
+	protected function isSecurityAdminRequired() :bool {
 		return true;
 	}
 }

@@ -311,12 +311,11 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			$AR = $this->getCon()->action_router;
-			if ( !empty( $AR ) ) {
+			$con = $this->getCon();
+			$AR = $con->action_router;
+			if ( !empty( $AR ) && $con->isModulePage() ) {
 				echo $AR->render( BannerGoPro::SLUG );
-				if ( $this->getCon()->isModulePage() ) {
-					echo $AR->render( ToastPlaceholder::SLUG );
-				}
+				echo $AR->render( ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
 	}
