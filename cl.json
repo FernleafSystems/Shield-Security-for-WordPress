@@ -128,6 +128,16 @@
     ],
     "patches":     [
       {
+        "version":     "15",
+        "released_at": 1675876000,
+        "items":       [
+          {
+            "title": "Have I Been Pwned API Error.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "14",
         "released_at": 1669197000,
         "items":       [

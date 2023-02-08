@@ -1,4 +1,4 @@
-﻿=== Shield Security - Scanners, Security Hardening, Brute Force Protection & Firewall ===
+﻿=== Shield Security - Smart Bot Blocking & Intrusion Prevention  ===
 Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
@@ -8,109 +8,18 @@ Requires at least: 3.7
 Requires PHP: 7.0
 Recommended PHP: 7.4
 Tested up to: 6.1
-Stable tag: 16.1.14
+Stable tag: 16.1.15
 
-Bad Bots Are Your #1 Security Risk. Are you playing whack-a-mole with malware & vulnerabilities? Discover the real security before marketing hype.
+Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 
 == Description ==
 
-Shield is [now partnered with CrowdSec](https://shsec.io/l5) for global, crowd-sourced IP reputation data. You literally can't get this level of protection anywhere else.
-
-**We need to stop our obsession with malware**. Malware scanning is important *after* your site is hacked. Get a security plugin that [prioritises security *protection* before the worst happens](https://shsec.io/ky).
-
-Shield is the only security plugin for WordPress that fully prioritises protection over repair. With Shield, your site will start to block visitors as they probe your site looking for vulnerabilities, and before they can begin to do any damage.
-
-**No other standalone WordPress security plugin** (including Wordfence, WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield does both.
-
-Our mission is to block bad IPs and requests before they can do any damage. Shield will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current solution, give Shield a try - we promise that you won't be disappointed.
-
-**Use the power of the network**. ShieldNET is our new and exclusive network-based intelligence platform that draws-in information from all around the globe to help Shield Security plugins be smarter when assessing security threats and taking appropriate action. And with our new [Crowdsec partnership](https://shsec.io/l5) you've got even more data to make smarter decision.
-
-#### Get the highest rated 5* Security Plugin for WordPress
-
-Per download, Shield Security [has the highest 5* rating](https://shsec.io/jl) in the WordPress plugin repository.
-
-## Leave Behind the Security Marketing Hype and Scare Mongering
-
-Our Security solution isn't designed to scare you and make you feel unsafe.
-
-We're all about delivering powerful security without the scary stories and fear-based marketing. We're all about WordPress security without the marketing hype.
-
-Shield Security is full of powerful security mechanisms, making intelligent decisions to protect your site and maintain security and integrity, so *you don't have to*.
-
-## Your Goal And Ours: Peace Of Mind and Freedom From Hackers
-
-Bots are the #1 cause of WordPress security hacks and malware exploitation.
-
-Better WordPress Security protection is smarter and uncomplicated.
-
-### 2 Key WordPress Security Strategies
-
-Shield Security uses 2 simple key strategies to protect your WordPress sites:
-
-1. Prevention - Intrusion Prevention System: Detect Bots/Malicious IPs, WordPress Intrusions, and WordPress Hacks and Malware
-1. Cure - Block Bad Bots and Repair Hacks
-
-#### Key Security Strategy #1: Hacking Prevention
-
-Bad Bots are the primary cause for nearly all our security troubles - they're relentless, automatic and powerful.
-
-Shield Security is highly focused on their detection and eradication from your WordPress sites.
-
-Blocking malicious bots before they do damage through malware and exploitation of vulnerabilities is the #1 security strategy to protect and enhance security on a WordPress site.
-
-Shield detects these malicious visitors, then blocks their access to your site completely. This involves analysing different security bot-signals and combining them to identify a visitor as malicious.
-
-These security signals include:
-
-* site probes that generate 404 errors
-* failed logins
-* logins with invalid usernames
-* xml-rpc access
-* fake search engine web crawlers
-* invalid user agents
-* excessive website requests and resource abuse
-* and many more signals our security team have identified.
-
-Early identification and blocking of malicious bots reduces your WordPress site's vulnerability to any sort of attack.
-
-#### Key Strategy #2: Hacking Cure
-
-Even with best security efforts, a site can get hacked. This usually involves file modification: either a hack file is added, or a file is changed.
-
-There are 3 key WordPress assets whose files can be hacked:
-
-1. WordPress Core
-1. WordPress Plugins
-1. WordPress Themes
-
-Almost every security plugin can now do #1 - it's easy because WordPress.org provides *file fingerprints* for core files.
-
-But, there are no hashes available for plugins and themes, so they can't do it.
-
-Shield is **the only WordPress security plugin** that offers full and accurate detection of file modifications for plugins and themes because we **build our own file fingerprints**.
-
-Shield Security can compare the file contents of every plugin & theme in the WordPress.org repository, looking for changed or new files
-
-And, if you're a ShieldPRO client, you can protect premium plugins/themes too, including Yoast SEO and Advanced Custom Fields Pro.
-
-Where possible, Shield Security will repair any unrecognised/modified files it detects.
-
-#### Shield makes Security for WordPress easy
-
-There's no reason for your WordPress security to be so complicated.
-
-Shield Security is the easiest security plugin to setup - you simply activate it and off you go! As you learn more, you can tweak the settings to suit your needs.
-
-#### Non-stop Security Notifications Are Not Okay.
-Your security plugin must be smarter, and take responsibility for decisions so you don't have to.
-
-Shield Security handles many problems for you, making intelligent security decisions without noisy email notifications.
-
-#### WordPress Security Features You'll Absolutely Love
+=Features You'll Absolutely Love=
 
 * Exclusive [AntiBot Detection Engine](https://shsec.io/ju) - The most powerful Bot Detection security system on any WordPress security plugin.
-* [Automatic Bot & IP Blocking](https://shsec.io/j0) - points-based security system to block bad bots.
+* [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security system to block bad bots.
+* **Instant Bad Bot Blocking with [our exclusive CrowdSec integration](https://shsec.io/l5)**
+* Easy To Understand Dashboard points you to quick wins and areas you can quickly improve
 * Add Security To Important Forms To Block Bots:
     * Login Security
     * Registration Security
@@ -175,6 +84,85 @@ Shield Security handles many problems for you, making intelligent security decis
 * [HTTP Security Headers & Content Security Policies (CSP)](https://shsec.io/j6)
 
 #### [Full Shield Security Features List](https://shsec.io/shieldfeatures)
+
+Shield is the only security plugin for WordPress that fully prioritises protection and intrusion prevention before repair. With Shield, your site will start to block visitors as they probe your site looking for vulnerabilities, and before they can begin to do any damage.
+
+**No other standalone WordPress security plugin** (including Wordfence, WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield does both.
+
+Our mission is to block bad IPs and requests before they can do any damage. Shield will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current solution, give Shield a try - we promise that you won't be disappointed.
+
+**Use the power of the network**. ShieldNET is our new and exclusive network-based intelligence platform that draws-in information from all around the globe to help Shield Security plugins be smarter when assessing security threats and taking appropriate action. And with our new [Crowdsec partnership](https://shsec.io/l5) you've got even more data to make smarter decision.
+
+#### Get the highest rated 5* Security Plugin for WordPress
+
+Per download, Shield Security [has the highest 5* rating](https://shsec.io/jl) in the WordPress plugin repository.
+
+## Leave Behind the Security Marketing Hype and Scare Mongering
+
+Our Security solution isn't designed to scare you and make you feel unsafe. We'll never try to scare you.
+
+### 2 Key WordPress Security Strategies
+
+Shield Security uses 2 simple key strategies to protect your WordPress sites:
+
+1. Intrusion Prevention System - Detect Bots/Malicious IPs that will try to hack and invade your WordPress sites.
+1. Cure - Block Bad Bots and Repair Hacks
+
+#### Key Security Strategy #1: Hacking Prevention
+
+Bad Bots are the primary cause for nearly all our security troubles - they're relentless, automatic and powerful.
+
+Shield Security is highly focused on their detection and eradication from your WordPress sites.
+
+Blocking malicious bots before they do damage through malware and exploitation of vulnerabilities is the #1 security strategy to protect and enhance security on a WordPress site.
+
+Shield detects these malicious visitors, then blocks their access to your site completely. This involves analysing different security bot-signals and combining them to identify a visitor as malicious.
+
+These security signals include:
+
+* site probes that generate 404 errors
+* failed logins
+* logins with invalid usernames
+* xml-rpc access
+* fake search engine web crawlers
+* invalid user agents
+* excessive website requests and resource abuse
+* and many more signals our security team have identified.
+
+Early identification and blocking of malicious bots reduces your WordPress site's vulnerability to any sort of attack.
+
+#### Key Strategy #2: Hacking Cure
+
+Even with the best security efforts, a site can get hacked. This usually involves file modification: either a hack file is added, or a file is changed.
+
+There are 3 key WordPress assets whose files can be hacked:
+
+1. WordPress Core
+1. WordPress Plugins
+1. WordPress Themes
+
+Almost every security plugin can now do #1 - it's easy because WordPress.org provides *file fingerprints* for core files.
+
+But, there are no hashes available for plugins and themes, so they can't do it.
+
+Shield is **the only WordPress security plugin** that offers full and accurate detection of file modifications for plugins and themes because we **build our own file fingerprints**.
+
+Shield Security can compare the file contents of every plugin & theme in the WordPress.org repository, looking for changed or new files
+
+And, if you're a ShieldPRO client, you can protect premium plugins/themes too, including Yoast SEO and Advanced Custom Fields Pro.
+
+Where possible, Shield Security will repair any unrecognised/modified files it detects.
+
+#### Shield makes Security easy
+
+There's no reason for your WordPress security to be so complicated.
+
+Shield Security is the easiest security plugin to setup - you simply activate it and off you go! As you learn more, you can tweak the settings to suit your needs.
+
+#### Non-stop Security Notifications Are Not Okay.
+Your security plugin must be smarter, and take responsibility for decisions so you don't have to.
+
+Shield Security handles many problems for you, making intelligent security decisions without noisy email notifications.
 
 ### Dedicated Premium Security Support When You Go PRO
 
