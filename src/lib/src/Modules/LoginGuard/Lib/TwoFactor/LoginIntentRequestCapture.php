@@ -117,12 +117,12 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		$opts = $this->getOptions();
 		$req = Services::Request();
 
-		$valid = ( new LoginIntentRequestValidate() )
+		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setMod( $mod )
 			->setWpUser( $this->user )
 			->run( (string)$req->post( 'login_nonce' ), $req->post( 'cancel' ) == '1' );
 
-		if ( $valid ) {
+		if ( $validatedSlug ) {
 			wp_set_auth_cookie( $this->user->ID, (bool)$req->post( 'rememberme' ) );
 
 			if ( $req->post( 'skip_mfa' ) === 'Y' ) {
@@ -154,13 +154,13 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				] );
 			}
 			else {
-				$flash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
-				if ( $opts->isEnabledBackupCodes() ) {
-					$flash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' );
-				}
 				$con->getAdminNotices()
 					->addFlash(
-						sprintf( '[%s] %s', $this->getCon()->getHumanName(), $flash ),
+						implode( ' ', [
+							__( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ),
+							__( 'Thank you for authenticating your login.', 'wp-simple-firewall' ),
+							__( "To use a backup code again to login, you'll need to create it in your user profile.", 'wp-simple-firewall' )
+						] ),
 						$this->user
 					);
 			}

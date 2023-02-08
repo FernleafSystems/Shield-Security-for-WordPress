@@ -25,7 +25,7 @@ class LoginIntentRequestValidate {
 	 * @throws OtpVerificationFailedException
 	 * @throws TooManyAttemptsException
 	 */
-	public function run( string $plainNonce, bool $isCancel = false ) :bool {
+	public function run( string $plainNonce, bool $isCancel = false ) :string {
 		/** @var Shield\Modules\LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
@@ -45,13 +45,13 @@ class LoginIntentRequestValidate {
 			throw new NoActiveProvidersForUserException();
 		}
 
-		$validated = false;
+		$validatedSlug = null;
 		foreach ( $providers as $provider ) {
 			try {
 				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
 					$provider->postSuccessActions();
 					$this->auditLoginIntent( true, $provider->getProviderName() );
-					$validated = true;
+					$validatedSlug = $provider::ProviderSlug();
 					break;
 				}
 			}
@@ -64,7 +64,7 @@ class LoginIntentRequestValidate {
 			}
 		}
 
-		if ( !$validated ) {
+		if ( empty( $validatedSlug ) ) {
 			throw new CouldNotValidate2FA();
 			if ( empty( $mfaCon->getActiveLoginIntents( $user )[ $plainNonce ] ) ) {
 				throw new TooManyAttemptsException();
@@ -74,7 +74,7 @@ class LoginIntentRequestValidate {
 		// Always remove intents after success.
 		$this->getCon()->getUserMeta( $user )->login_intents = [];
 
-		return true;
+		return $validatedSlug;
 	}
 
 	protected function auditLoginIntent( bool $success, string $providerName ) {

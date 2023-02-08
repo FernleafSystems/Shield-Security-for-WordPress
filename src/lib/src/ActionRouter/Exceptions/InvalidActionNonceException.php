@@ -2,6 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
 
-class InvalidActionNonceException extends \Exception {
+class InvalidActionNonceException extends ActionException {
 
 }
