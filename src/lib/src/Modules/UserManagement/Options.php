@@ -34,10 +34,6 @@ class Options extends BaseShield\Options {
 		return $this->getPassExpireDays()*DAY_IN_SECONDS; /* seconds */
 	}
 
-	public function getPassMinLength() :int {
-		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_length' ) : 0;
-	}
-
 	public function getPassMinStrength() :int {
 		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
 	}

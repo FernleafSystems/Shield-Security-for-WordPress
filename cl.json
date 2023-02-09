@@ -87,6 +87,14 @@
         ]
       },
       {
+        "type":        "removed",
+        "title":       "Removed Password Policy Option: Minimum Password Length",
+        "description": [
+          "Shield has an option to enforce minimum password strengths, and also an option to enforce minimum length.",
+          "There is no real need to enforce a password length, when an overall password strength meter is also applied."
+        ]
+      },
+      {
         "type":     "fixed",
         "pro_only": false,
         "title":    "Various Fixes",

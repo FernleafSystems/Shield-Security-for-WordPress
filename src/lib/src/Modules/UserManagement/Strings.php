@@ -258,15 +258,6 @@ class Strings extends Base\Strings {
 				$desc = [ __( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.', 'wp-simple-firewall' ) ];
 				break;
 
-			case 'pass_min_length' :
-				$name = __( 'Minimum Length', 'wp-simple-firewall' );
-				$summary = __( 'Minimum Password Length', 'wp-simple-firewall' );
-				$desc = [
-					__( 'All passwords that a user sets must be at least this many characters in length.', 'wp-simple-firewall' ),
-					__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' )
-				];
-				break;
-
 			case 'pass_min_strength' :
 				$name = __( 'Minimum Strength', 'wp-simple-firewall' );
 				$summary = __( 'Minimum Password Strength', 'wp-simple-firewall' );
