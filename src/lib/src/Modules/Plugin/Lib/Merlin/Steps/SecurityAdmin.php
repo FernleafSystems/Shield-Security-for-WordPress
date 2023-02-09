@@ -36,7 +36,7 @@ class SecurityAdmin extends Base {
 	}
 
 	public function getName() :string {
-		return 'Security Admin';
+		return __( 'Security Admin', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {
@@ -44,8 +44,6 @@ class SecurityAdmin extends Base {
 			'strings' => [
 				'step_title' => __( "Protect Your Shield Plugin From Tampering", 'wp-simple-firewall' ),
 			],
-			'vars'    => [
-			]
 		];
 	}
 

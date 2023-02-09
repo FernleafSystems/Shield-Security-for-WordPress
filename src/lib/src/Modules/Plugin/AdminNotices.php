@@ -73,7 +73,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'click_repair' => __( 'Click here to repair the database tables', 'wp-simple-firewall' )
 			],
 			'ajax'              => [
-				'auto_db_repair' => ActionData::BuildJson( Actions\PluginAutoDbRepair::SLUG )
+				'auto_db_repair' => ActionData::BuildJson( Actions\PluginAutoDbRepair::class )
 			]
 		];
 	}
@@ -222,7 +222,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'set_plugin_tracking' => ActionData::BuildJson( Actions\PluginSetTracking::SLUG ),
+				'set_plugin_tracking' => ActionData::BuildJson( Actions\PluginSetTracking::class ),
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',

@@ -74,6 +74,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		$urlIcon = $this->constructImageURL( 'wl_menuiconurl' );
 		if ( !empty( $urlIcon ) ) {
 			$labels->icon_url_16x16 = $urlIcon;
+			$labels->icon_url_16x16_grey = $urlIcon;
 			$labels->icon_url_32x32 = $urlIcon;
 		}
 
@@ -88,6 +89,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		}
 
 		$labels->url_secadmin_forgotten_key = $labels->AuthorURI;
+		$labels->is_whitelabelled = true;
 
 		return $labels;
 	}

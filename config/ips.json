@@ -39,16 +39,6 @@
       }
     }
   ],
-  "admin_notices":    {
-    "visitor-whitelisted": {
-      "id":               "visitor-whitelisted",
-      "schedule":         "conditions",
-      "can_dismiss":      false,
-      "plugin_page_only": true,
-      "per_user":         true,
-      "type":             "info"
-    }
-  },
   "sections":         [
     {
       "slug":        "section_auto_black_list",

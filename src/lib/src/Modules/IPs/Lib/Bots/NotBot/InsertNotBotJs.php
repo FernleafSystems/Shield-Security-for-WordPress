@@ -62,9 +62,9 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 					'shield_vars_notbotjs',
 					apply_filters( 'shield/notbot_data_js', [
 						'ajax'  => [
-							'not_bot'       => ActionData::Build( CaptureNotBot::SLUG, false ),
+							'not_bot'       => ActionData::Build( CaptureNotBot::class, false ),
 							'not_bot_nonce' => array_diff_key(
-								ActionData::Build( CaptureNotBotNonce::SLUG ),
+								ActionData::Build( CaptureNotBotNonce::class ),
 								array_flip( [
 									ActionData::FIELD_NONCE,
 									ActionData::FIELD_AJAXURL,

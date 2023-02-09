@@ -21,9 +21,9 @@ class Sms extends AbstractShieldProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::SLUG ),
-				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::SLUG ),
-				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::SLUG ),
+				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::class ),
+				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::class ),
+				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::class ),
 			],
 		];
 	}
@@ -138,7 +138,7 @@ class Sms extends AbstractShieldProvider {
 			'classes'     => [ 'btn', 'btn-light' ],
 			'help_link'   => '',
 			'datas'       => [
-				'ajax_intent_sms_send' => ActionData::BuildJson( MfaSmsIntentSend::SLUG ),
+				'ajax_intent_sms_send' => ActionData::BuildJson( MfaSmsIntentSend::class ),
 				'input_otp'            => $this->getLoginIntentFormParameter(),
 			]
 		];

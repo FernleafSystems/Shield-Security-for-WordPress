@@ -30,7 +30,7 @@ class RemoveSecAdmin {
 
 	public function sendConfirmationEmail() {
 		$confirmationHref = $this->getCon()->plugin_urls->noncedPluginAction(
-			SecurityAdminRemove::SLUG,
+			SecurityAdminRemove::class,
 			Services::WpGeneral()->getAdminUrl()
 		);
 		/** @var SecurityAdmin\ModCon $mod */

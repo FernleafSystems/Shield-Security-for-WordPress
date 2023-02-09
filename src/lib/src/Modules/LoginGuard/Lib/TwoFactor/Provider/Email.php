@@ -17,7 +17,7 @@ class Email extends AbstractShieldProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::SLUG ),
+				'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::class ),
 			],
 		];
 	}
@@ -51,7 +51,7 @@ class Email extends AbstractShieldProvider {
 			'size'        => 6,
 			'datas'       => [
 				'auto_send'              => $mod->getMfaController()->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
-				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::SLUG ),
+				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::class ),
 			],
 			'supp'        => [
 				'send_email' => __( 'Send OTP Code', 'wp-simple-firewall' ),

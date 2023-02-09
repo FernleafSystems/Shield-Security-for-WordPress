@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnbl
 class IpAutoUnblockCrowdsecVisitor extends IpAutoUnblockBase {
 
 	public const SLUG = 'ip_auto_unblock_crowdsec_visitor';
-	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function getAutoUnblockerClass() :string {
 		return AutoUnblockCrowdsec::class;

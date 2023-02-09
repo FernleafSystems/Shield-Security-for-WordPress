@@ -14,7 +14,7 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
 
 == Description ==
 
-=Features You'll Absolutely Love=
+### Features You'll Absolutely Love
 
 * Exclusive [AntiBot Detection Engine](https://shsec.io/ju) - The most powerful Bot Detection security system on any WordPress security plugin.
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security system to block bad bots.

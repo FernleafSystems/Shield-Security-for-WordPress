@@ -42,8 +42,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'resend_verification_email' => ActionData::BuildJson( Actions\MfaEmailSendVerification::SLUG ),
-				'profile_email2fa_disable'  => ActionData::BuildJson( Actions\MfaEmailDisable::SLUG ),
+				'resend_verification_email' => ActionData::BuildJson( Actions\MfaEmailSendVerification::class ),
+				'profile_email2fa_disable'  => ActionData::BuildJson( Actions\MfaEmailDisable::class ),
 			],
 		];
 	}

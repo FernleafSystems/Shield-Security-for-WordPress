@@ -34,7 +34,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 			'vars'    => [
 				'datatable_iprules' => wp_json_encode( [
 					'ajax'       => [
-						'table_action' => ActionData::Build( IpRulesTableAction::SLUG ),
+						'table_action' => ActionData::Build( IpRulesTableAction::class ),
 					],
 					'table_init' => ( new ForIpRules() )
 						->setMod( $this->getCon()->getModule_IPs() )

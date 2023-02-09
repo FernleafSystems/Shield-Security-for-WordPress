@@ -53,7 +53,7 @@ class UI extends Base\UI {
 					'scripts' => []
 				],
 				'ajax'    => [
-					'sec_admin_login' => ActionData::Build( Actions\SecurityAdminLogin::SLUG ),
+					'sec_admin_login' => ActionData::Build( Actions\SecurityAdminLogin::class ),
 				],
 				'flags'   => [
 					'has_session'             => true,

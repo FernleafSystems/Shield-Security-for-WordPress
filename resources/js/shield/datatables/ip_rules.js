@@ -156,7 +156,8 @@
 							search: "Search IP",
 							emptyTable: "There are no items to display.",
 							zeroRecords: "No entries found - please try adjusting your search filters."
-						}
+						},
+						pageLength: 25
 					}
 				) );
 

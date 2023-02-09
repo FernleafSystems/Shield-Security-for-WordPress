@@ -27,8 +27,8 @@ class U2F extends AbstractShieldProvider {
 			'reg_request' => $reg,
 			'signs'       => $signs,
 			'ajax'        => [
-				'profile_u2f_add'    => ActionData::Build( MfaU2fAdd::SLUG ),
-				'profile_u2f_remove' => ActionData::Build( MfaU2fRemove::SLUG ),
+				'profile_u2f_add'    => ActionData::Build( MfaU2fAdd::class ),
+				'profile_u2f_remove' => ActionData::Build( MfaU2fRemove::class ),
 			],
 			'flags'       => [
 				'has_validated' => $this->hasValidatedProfile()

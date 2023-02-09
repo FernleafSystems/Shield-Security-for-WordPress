@@ -20,7 +20,7 @@ class CaptureNotBotNonce extends BaseAction {
 
 		$this->response()->success = true;
 		$this->response()->action_response_data = [
-			'nonce' => ActionData::Build( CaptureNotBot::SLUG )[ ActionData::FIELD_NONCE ]
+			'nonce' => ActionData::Build( CaptureNotBot::class )[ ActionData::FIELD_NONCE ]
 		];
 	}
 }

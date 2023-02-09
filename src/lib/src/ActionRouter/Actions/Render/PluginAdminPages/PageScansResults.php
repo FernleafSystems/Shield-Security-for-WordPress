@@ -61,8 +61,8 @@ class PageScansResults extends BasePluginAdminPage {
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 		return [
 			'ajax'        => [
-				'scans_start' => ActionData::BuildJson( ScansStart::SLUG ),
-				'scans_check' => ActionData::BuildJson( ScansCheck::SLUG ),
+				'scans_start' => ActionData::BuildJson( ScansStart::class ),
+				'scans_check' => ActionData::BuildJson( ScansCheck::class ),
 			],
 			'content'     => [
 				'section' => [

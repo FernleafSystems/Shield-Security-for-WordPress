@@ -27,7 +27,7 @@ class FormSecurityAdminLoginBox extends BaseRender {
 				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
 			],
 			'ajax'    => [
-				'sec_admin_login' => ActionData::BuildJson( SecurityAdminLogin::SLUG ),
+				'sec_admin_login' => ActionData::BuildJson( SecurityAdminLogin::class ),
 			]
 		];
 	}

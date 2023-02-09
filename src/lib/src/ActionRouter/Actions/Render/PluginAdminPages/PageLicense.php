@@ -58,9 +58,9 @@ class PageLicense extends BasePluginAdminPage {
 
 		return [
 			'ajax'    => [
-				'license_action_clear'  => ActionData::Build( LicenseActionClear::SLUG ),
-				'license_action_lookup' => ActionData::Build( LicenseActionLookup::SLUG ),
-				'connection_debug'      => ActionData::Build( LicenseCheckDebug::SLUG )
+				'license_action_clear'  => ActionData::Build( LicenseActionClear::class ),
+				'license_action_lookup' => ActionData::Build( LicenseActionLookup::class ),
+				'connection_debug'      => ActionData::Build( LicenseCheckDebug::class )
 			],
 			'flags'   => [
 				'show_ads'              => false,

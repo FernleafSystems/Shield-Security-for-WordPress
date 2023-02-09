@@ -7,7 +7,7 @@ class ThankYou extends Base {
 	public const SLUG = 'thank_you';
 
 	public function getName() :string {
-		return 'Thanks!';
+		return __( 'Thanks!', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

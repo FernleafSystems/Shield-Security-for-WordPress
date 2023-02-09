@@ -9,7 +9,7 @@ class SecurityBadge extends Base {
 	public const SLUG = 'security_badge';
 
 	public function getName() :string {
-		return 'Badge';
+		return __( 'Badge', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

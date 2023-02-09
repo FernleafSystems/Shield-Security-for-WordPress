@@ -13,7 +13,7 @@ class ChartsCustom extends Base {
 	protected function getRenderData() :array {
 		return [
 			'ajax'    => [
-				'render_custom_chart' => ActionData::BuildJson( ReportingChartCustom::SLUG ),
+				'render_custom_chart' => ActionData::BuildJson( ReportingChartCustom::class ),
 			],
 			'strings' => [
 				'select_events'   => __( 'Events', 'wp-simple-firewall' ),

@@ -27,7 +27,7 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 		return [
 			'ajax'    => [
 				'filelocker_showdiff'   => ScansFileLockerDiff::SLUG,
-				'filelocker_fileaction' => ActionData::BuildJson( ScansFileLockerAction::SLUG ),
+				'filelocker_fileaction' => ActionData::BuildJson( ScansFileLockerAction::class ),
 			],
 			'flags'   => [
 				'is_enabled'    => $lockerCon->isEnabled(),

@@ -16,10 +16,10 @@ class PageAdminNotes extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'ajax'    => [
-				'render_adminnotes' => ActionData::BuildJson( AdminNotes::SLUG ),
-				'item_delete'       => ActionData::BuildJson( AdminNoteDelete::SLUG ),
-				'item_insert'       => ActionData::BuildJson( AdminNoteInsert::SLUG ),
-				'bulk_action'       => ActionData::BuildJson( AdminNoteBulkAction::SLUG ),
+				'render_adminnotes' => ActionData::BuildJson( AdminNotes::class ),
+				'item_delete'       => ActionData::BuildJson( AdminNoteDelete::class ),
+				'item_insert'       => ActionData::BuildJson( AdminNoteInsert::class ),
+				'bulk_action'       => ActionData::BuildJson( AdminNoteBulkAction::class ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),

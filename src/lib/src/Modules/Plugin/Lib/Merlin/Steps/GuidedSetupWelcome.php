@@ -9,7 +9,7 @@ class GuidedSetupWelcome extends Base {
 	public const SLUG = 'guided_setup_welcome';
 
 	public function getName() :string {
-		return 'Welcome';
+		return __( 'Welcome', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

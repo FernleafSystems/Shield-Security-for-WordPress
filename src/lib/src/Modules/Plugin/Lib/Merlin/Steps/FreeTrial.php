@@ -7,7 +7,7 @@ class FreeTrial extends Base {
 	public const SLUG = 'free_trial';
 
 	public function getName() :string {
-		return 'Free Trial';
+		return __( 'Free Trial', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

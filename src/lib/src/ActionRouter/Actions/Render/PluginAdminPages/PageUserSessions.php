@@ -34,9 +34,9 @@ class PageUserSessions extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'ajax'    => [
-				'render_table_sessions' => ActionData::BuildJson( UserSessionsTableRender::SLUG ),
-				'item_delete'           => ActionData::BuildJson( UserSessionDelete::SLUG ),
-				'bulk_action'           => ActionData::BuildJson( UserSessionsTableBulkAction::SLUG ),
+				'render_table_sessions' => ActionData::BuildJson( UserSessionsTableRender::class ),
+				'item_delete'           => ActionData::BuildJson( UserSessionDelete::class ),
+				'bulk_action'           => ActionData::BuildJson( UserSessionsTableBulkAction::class ),
 
 			],
 			'strings' => [

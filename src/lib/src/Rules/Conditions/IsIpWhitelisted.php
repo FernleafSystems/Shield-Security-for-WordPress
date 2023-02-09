@@ -13,11 +13,9 @@ class IsIpWhitelisted extends Base {
 
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;
-		if ( !isset( $thisReq->is_ip_whitelisted ) ) {
-			$thisReq->is_ip_whitelisted = ( new IpRuleStatus( $this->getRequestIP() ) )
-				->setMod( $this->getCon()->getModule_IPs() )
-				->isBypass();
-		}
-		return $thisReq->is_ip_whitelisted;
+		return $thisReq->is_ip_whitelisted ??
+			   $thisReq->is_ip_whitelisted = ( new IpRuleStatus( $this->getRequestIP() ) )
+				   ->setMod( $this->getCon()->getModule_IPs() )
+				   ->isBypass();
 	}
 }

@@ -31,7 +31,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_ga_toggle' => ActionData::Build( MfaGoogleAuthToggle::SLUG ),
+				'profile_ga_toggle' => ActionData::Build( MfaGoogleAuthToggle::class ),
 			],
 		];
 	}

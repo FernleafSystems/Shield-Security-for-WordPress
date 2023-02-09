@@ -9,7 +9,7 @@ class OptIn extends Base {
 	public const SLUG = 'opt_in';
 
 	public function getName() :string {
-		return 'Join Us!';
+		return __( 'Join Us!', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

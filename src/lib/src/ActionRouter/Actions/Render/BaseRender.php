@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminLo
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
@@ -117,12 +118,15 @@ abstract class BaseRender extends BaseAction {
 
 	public function getCommonDisplayData() :array {
 		$con = $this->getCon();
+		$thisReq = $con->this_req;
 		$urls = $con->plugin_urls;
 		$mod = $this->getMod();
 		$urlBuilder = $con->urls;
 
 		/** @var Options $pluginOptions */
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
+
+		$ipStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $con->getModule_IPs() );
 
 		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		return [
@@ -132,7 +136,7 @@ abstract class BaseRender extends BaseAction {
 
 			'sPageTitle' => $mod->getMainFeatureName(),
 			'ajax'       => [
-				'sec_admin_login' => ActionData::Build( SecurityAdminLogin::SLUG ),
+				'sec_admin_login' => ActionData::Build( SecurityAdminLogin::class ),
 			],
 			'classes'    => [
 				'top_container' => implode( ' ', array_filter( [
@@ -146,6 +150,8 @@ abstract class BaseRender extends BaseAction {
 				'has_session'             => method_exists( $mod, 'getSession' ) ? $mod->getSession()->valid : $mod->getSessionWP()->valid,
 				'display_helpdesk_widget' => !$isWhitelabelled,
 				'is_whitelabelled'        => $isWhitelabelled,
+				'is_ip_whitelisted'       => $ipStatus->isBypass(),
+				'is_ip_blocked'           => $ipStatus->isBlocked(),
 				'is_mode_live'            => $con->is_mode_live,
 				'access_restricted'       => method_exists( $mod, 'isAccessRestricted' ) && $mod->isAccessRestricted(),
 				'show_ads'                => $mod->getIsShowMarketing(),
@@ -230,6 +236,7 @@ abstract class BaseRender extends BaseAction {
 
 	private function getDisplayStrings() :array {
 		$con = $this->getCon();
+		$thisReq = $con->this_req;
 		$name = $con->getHumanName();
 
 		$proFeatures = [
@@ -383,6 +390,11 @@ abstract class BaseRender extends BaseAction {
 			'um_last_activity_at'      => __( 'Last Activity At', 'wp-simple-firewall' ),
 			'um_last_activity_uri'     => __( 'Last Activity URI', 'wp-simple-firewall' ),
 			'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
+
+			'you_are_whitelisted' => sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
+				sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) ),
+			'you_are_blocked'     => sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
+				sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) ),
 
 			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->getHumanName() ),
 			'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),

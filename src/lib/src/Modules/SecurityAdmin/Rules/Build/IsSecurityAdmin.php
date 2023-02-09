@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
@@ -26,10 +26,18 @@ class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'condition' => Conditions\WpIsWpcli::SLUG,
+					'rule' => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
 				],
 				[
-					'condition' => Conditions\IsSecurityAdmin::SLUG,
+					'logic' => static::LOGIC_AND,
+					'group' => [
+						[
+							'condition' => Conditions\IsUserAdminNormal::SLUG,
+						],
+						[
+							'condition' => Conditions\IsSecurityAdmin::SLUG,
+						],
+					]
 				]
 			]
 		];

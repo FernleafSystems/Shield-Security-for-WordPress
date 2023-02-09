@@ -91,11 +91,9 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $rootFile
-	 * @return Controller
 	 * @throws \Exception
 	 */
-	public static function GetInstance( $rootFile = null ) {
+	public static function GetInstance( ?string $rootFile = null ) :Controller {
 		if ( !isset( static::$oInstance ) ) {
 			if ( empty( $rootFile ) ) {
 				throw new \Exception( 'Empty root file provided for instantiation' );
@@ -126,7 +124,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
@@ -298,7 +296,7 @@ class Controller extends DynPropertiesClass {
 
 		$flag = $this->paths->forFlag( 'reqs_met.flag' );
 		if ( !$FS->isFile( $flag )
-			 || Services::Request()->carbon()->subHours( 1 )->timestamp > $FS->getModifiedTime( $flag ) ) {
+			 || Services::Request()->carbon()->subHour()->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
@@ -493,9 +491,6 @@ class Controller extends DynPropertiesClass {
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
-		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
-		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
-		add_action( 'in_plugin_update_message-'.$this->base_file, [ $this, 'onWpPluginUpdateMessage' ] );
 		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
@@ -518,10 +513,10 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpAdminInit() {
-		( new Admin\AdminBarMenu() )
+		( new Admin\DashboardWidget() )
 			->setCon( $this )
 			->execute();
-		( new Admin\DashboardWidget() )
+		( new Admin\PluginsPageSupplements() )
 			->setCon( $this )
 			->execute();
 
@@ -649,6 +644,9 @@ class Controller extends DynPropertiesClass {
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
+		( new Admin\AdminBarMenu() )
+			->setCon( $this )
+			->execute();
 	}
 
 	protected function initCrons() {
@@ -691,103 +689,23 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param array  $pluginMeta
-	 * @param string $pluginFile
-	 * @return array
+	 * @deprecated 17.0
 	 */
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
-
-		if ( $pluginFile === $this->base_file ) {
-			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $this->cfg->plugin_meta as $href ) {
-				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
-			}
-		}
 		return $pluginMeta;
 	}
 
 	/**
-	 * @param array $actionLinks
-	 * @return array
+	 * @deprecated 17.0
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
-		$WP = Services::WpGeneral();
-
-		if ( $this->mu_handler->isActiveMU() ) {
-			foreach ( $actionLinks as $key => $actionHref ) {
-				if ( strpos( $actionHref, 'action=deactivate' ) ) {
-					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',
-						URL::Build( $WP->getAdminUrl_Plugins(), [
-							'plugin_status' => 'mustuse'
-						] ),
-						__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
-					);
-				}
-			}
-		}
-
-		if ( $this->isValidAdminArea() ) {
-
-			if ( array_key_exists( 'edit', $actionLinks ) ) {
-				unset( $actionLinks[ 'edit' ] );
-			}
-
-			$links = $this->cfg->action_links[ 'add' ];
-			if ( is_array( $links ) ) {
-
-				$isPro = $this->isPremiumActive();
-				$DP = Services::Data();
-				$linkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
-				foreach ( $links as $link ) {
-					$link = array_merge(
-						[
-							'highlight' => false,
-							'show'      => 'always',
-							'name'      => '',
-							'title'     => '',
-							'href'      => '',
-							'target'    => '_top',
-						],
-						$link
-					);
-
-					$show = $link[ 'show' ];
-					$show = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
-					if ( !$DP->isValidWebUrl( $link[ 'href' ] ) && method_exists( $this, $link[ 'href' ] ) ) {
-						$link[ 'href' ] = $this->{$link[ 'href' ]}();
-					}
-
-					if ( !$show || !$DP->isValidWebUrl( $link[ 'href' ] )
-						 || empty( $link[ 'name' ] ) || empty( $link[ 'href' ] ) ) {
-						continue;
-					}
-
-					$link[ 'name' ] = __( $link[ 'name' ], 'wp-simple-firewall' );
-
-					$href = sprintf( $linkTemplate, $link[ 'href' ], $link[ 'target' ], $link[ 'title' ], $link[ 'name' ] );
-					if ( $link[ 'highlight' ] ) {
-						$href = sprintf( '<span style="font-weight: bold;">%s</span>', $href );
-					}
-
-					$actionLinks = array_merge(
-						[ $this->prefix( sanitize_key( $link[ 'name' ] ) ) => $href ],
-						$actionLinks
-					);
-				}
-			}
-		}
 		return $actionLinks;
 	}
 
 	/**
-	 * Displays a message in the plugins listing when a plugin has an update available.
+	 * @deprecated 17.0
 	 */
 	public function onWpPluginUpdateMessage() {
-		echo sprintf(
-			' <span class="%s plugin_update_message">%s</span>',
-			$this->getPluginPrefix(),
-			__( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' )
-		);
 	}
 
 	/**

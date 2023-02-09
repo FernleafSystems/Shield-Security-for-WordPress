@@ -24,7 +24,7 @@ class PageImportExport extends BasePluginAdminPage {
 		$con = $this->getCon();
 		return [
 			'ajax'    => [
-				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::SLUG ),
+				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::class ),
 			],
 			'flags'   => [
 				'can_importexport' => $con->isPremiumActive(),
@@ -33,7 +33,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
 			],
 			'vars'    => [
-				'file_upload_nonce' => ActionData::Build( PluginImportFromFileUpload::SLUG, true, [
+				'file_upload_nonce' => ActionData::Build( PluginImportFromFileUpload::class, true, [
 					'notification_type' => 'wp_admin_notice'
 				] ),
 			],

@@ -50,7 +50,7 @@ class IpBlocking extends Base {
 	}
 
 	public function getName() :string {
-		return 'IP Block';
+		return __( 'IP Blocking', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

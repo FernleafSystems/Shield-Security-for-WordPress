@@ -56,34 +56,35 @@ class Processor extends BaseShield\Processor {
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
-		$WPUsers = Services::WpUsers();
+		if ( $con->isValidAdminArea() ) {
 
-		$recent = ( new FindSessions() )
-			->setMod( $this->getMod() )
-			->mostRecent();
+			$recent = ( new FindSessions() )
+				->setMod( $this->getMod() )
+				->mostRecent();
 
-		$thisGroup = [
-			'title' => __( 'Recent Users', 'wp-simple-firewall' ),
-			'href'  => $con->plugin_urls ? $con->plugin_urls->adminTopNav( $con->plugin_urls::NAV_USER_SESSIONS ) :
-				$con->getModule_Insights()->getUrl_Sessions(),
-			'items' => [],
-		];
-		if ( !empty( $recent ) ) {
+			$thisGroup = [
+				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls ? $con->plugin_urls->adminTopNav( $con->plugin_urls::NAV_USER_SESSIONS ) :
+					$con->getModule_Insights()->getUrl_Sessions(),
+				'items' => [],
+			];
+			if ( !empty( $recent ) ) {
 
-			foreach ( $recent as $userID => $user ) {
-				$thisGroup[ 'items' ][] = [
-					'id'    => $con->prefix( 'meta-'.$userID ),
-					'title' => sprintf( '<a href="%s">%s (%s)</a>',
-						$WPUsers->getAdminUrl_ProfileEdit( $userID ),
-						$user[ 'user_login' ],
-						$user[ 'ip' ]
-					),
-				];
+				foreach ( $recent as $userID => $user ) {
+					$thisGroup[ 'items' ][] = [
+						'id'    => $con->prefix( 'meta-'.$userID ),
+						'title' => sprintf( '<a href="%s">%s (%s)</a>',
+							Services::WpUsers()->getAdminUrl_ProfileEdit( $userID ),
+							$user[ 'user_login' ],
+							$user[ 'ip' ]
+						),
+					];
+				}
 			}
-		}
 
-		if ( !empty( $thisGroup[ 'items' ] ) ) {
-			$groups[] = $thisGroup;
+			if ( !empty( $thisGroup[ 'items' ] ) ) {
+				$groups[] = $thisGroup;
+			}
 		}
 		return $groups;
 	}

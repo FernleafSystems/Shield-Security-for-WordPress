@@ -47,7 +47,7 @@ class MfaEmailSendVerification extends BaseAction {
 					'',
 					sprintf(
 						__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-						$con->plugin_urls->noncedPluginAction( MfaCanEmailSendVerify::SLUG, $con->plugin_urls->adminHome() )
+						$con->plugin_urls->noncedPluginAction( MfaCanEmailSendVerify::class, $con->plugin_urls->adminHome() )
 					)
 				]
 			);

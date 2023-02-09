@@ -58,7 +58,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @deprecated 17.0
 	 */
 	public function getSecAdminLoginAjaxData() :array {
-		return ActionData::Build( Actions\SecurityAdminLogin::SLUG );
+		return ActionData::Build( Actions\SecurityAdminLogin::class );
 	}
 
 	protected function preProcessOptions() {

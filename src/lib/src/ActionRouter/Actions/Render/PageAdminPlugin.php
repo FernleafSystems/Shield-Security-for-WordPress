@@ -48,7 +48,7 @@ class PageAdminPlugin extends BaseRender {
 				] ),
 			],
 			'flags'   => [
-				'is_advanced' => $con->getModule_Plugin()->isShowAdvanced()
+				'is_advanced' => $con->getModule_Plugin()->isShowAdvanced(),
 			],
 			'hrefs'   => [
 				'go_pro' => 'https://shsec.io/shieldgoprofeature',
@@ -57,7 +57,7 @@ class PageAdminPlugin extends BaseRender {
 				'logo_banner' => $con->labels->url_img_pagebanner,
 			],
 			'strings' => [
-				'page_title' => $pageTitle
+				'page_title' => $pageTitle,
 			],
 			'vars'    => [
 				'active_module_settings' => $subNav,

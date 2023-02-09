@@ -86,10 +86,16 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		];
 	}
 
+	public function hasActiveSession() :bool {
+		return $this->getCon()->this_req->is_security_admin && $this->getSecAdminTimeRemaining() > 0;
+	}
+
 	public function isEnabledSecAdmin() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $this->getMod()->isModOptEnabled() && $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
+		return $this->getMod()->isModOptEnabled()
+			   && $opts->hasSecurityPIN()
+			   && $this->getSecAdminTimeout() > 0;
 	}
 
 	private function enqueueJS() {
@@ -106,9 +112,9 @@ class SecurityAdminController extends ExecOnceModConsumer {
 					'shield_vars_secadmin',
 					[
 						'ajax'    => [
-							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::SLUG ),
-							'sec_admin_login'  => ActionData::Build( SecurityAdminLogin::SLUG ),
-							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::SLUG ),
+							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::class ),
+							'sec_admin_login'  => ActionData::Build( SecurityAdminLogin::class ),
+							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::class ),
 						],
 						'flags'   => [
 							'restrict_options' => !$isSecAdmin && $opts->isRestrictWpOptions(),

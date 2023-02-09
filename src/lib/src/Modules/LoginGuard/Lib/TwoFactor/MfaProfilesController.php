@@ -114,7 +114,7 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 						'shield_vars_userprofile',
 						[
 							'ajax'    => [
-								'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::SLUG ),
+								'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
 							],
 							'vars'    => [
 								'providers' => array_map( function ( $provider ) {

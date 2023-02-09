@@ -199,8 +199,8 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getAjaxActionsData() :array {
 		return [
-			'site_action' => ActionData::Build( MainwpServerSiteActionHandler::SLUG ),
-			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::SLUG ),
+			'site_action' => ActionData::Build( MainwpServerSiteActionHandler::class ),
+			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::class ),
 		];
 	}
 

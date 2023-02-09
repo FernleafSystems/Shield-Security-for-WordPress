@@ -11,6 +11,20 @@ class AutoUnblockVisitor extends BaseAutoUnblockShield {
 		return parent::canRunAutoUnblockProcess() && Services::Request()->isPost();
 	}
 
+	protected function preUnblockChecks() :bool {
+		parent::preUnblockChecks();
+
+		$req = Services::Request();
+		if ( $req->post( '_confirm' ) !== 'Y' ) {
+			throw new \Exception( 'No confirmation checkbox.' );
+		}
+		if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
+			throw new \Exception( 'Oh so yummy.' );
+		}
+
+		return true;
+	}
+
 	protected function getUnblockMethodName() :string {
 		return 'Visitor Auto-Unblock';
 	}

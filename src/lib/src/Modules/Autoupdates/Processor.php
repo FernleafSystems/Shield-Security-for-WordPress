@@ -53,6 +53,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function onWpLoaded() {
+		parent::onWpLoaded();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isDisableAllAutoUpdates() ) {

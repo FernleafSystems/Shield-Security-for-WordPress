@@ -31,7 +31,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 		$opts = $this->primary_mod->getOptions();
 		return [
 			'ajax'    => [
-				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::SLUG ),
+				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::class ),
 			],
 			'flags'   => [
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),

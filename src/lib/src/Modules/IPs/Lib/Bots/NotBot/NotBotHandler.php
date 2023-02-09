@@ -32,7 +32,7 @@ class NotBotHandler extends ExecOnceModConsumer {
 	public function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet(
 			'shield-notbot-nonce',
-			ActionData::Build( CaptureNotBot::SLUG )[ ActionData::FIELD_NONCE ],
+			ActionData::Build( CaptureNotBot::class )[ ActionData::FIELD_NONCE ],
 			60
 		);
 	}

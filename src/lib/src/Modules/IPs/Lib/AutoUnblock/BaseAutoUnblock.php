@@ -16,20 +16,9 @@ abstract class BaseAutoUnblock {
 		return $this->isUnblockAvailable();
 	}
 
-	protected function run() {
-		try {
-			if ( $this->processAutoUnblockRequest() ) {
-				Services::Response()->redirectToHome();
-			}
-		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
-		}
-	}
-
 	public function processAutoUnblockRequest() :bool {
 		try {
-			$unblocked = $this->canRunUnblock() && $this->unblockIP();
+			$unblocked = $this->preUnblockChecks() && $this->unblockIP();
 		}
 		catch ( \Exception $e ) {
 			$unblocked = false;
@@ -40,7 +29,7 @@ abstract class BaseAutoUnblock {
 	public function isUnblockAvailable() :bool {
 		$thisReq = $this->getCon()->this_req;
 		try {
-			$available = !empty( $thisReq->ip )
+			$available = $thisReq->ip
 						 && ( $thisReq->is_ip_blocked_crowdsec || $thisReq->is_ip_blocked_shield_auto );
 			if ( $available ) {
 				$this->timingChecks();
@@ -55,19 +44,9 @@ abstract class BaseAutoUnblock {
 	/**
 	 * @throws \Exception
 	 */
-	protected function canRunUnblock() :bool {
-		$req = Services::Request();
-
+	protected function preUnblockChecks() :bool {
 		$this->timingChecks();
 		$this->updateLastAttemptAt();
-
-		if ( $req->post( '_confirm' ) !== 'Y' ) {
-			throw new \Exception( 'No confirmation checkbox.' );
-		}
-		if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
-			throw new \Exception( 'Oh so yummy.' );
-		}
-
 		return true;
 	}
 

@@ -15,7 +15,6 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 		$this->setMod( $mod );
 		add_action( 'init', [ $this, 'onWpInit' ], $this->getWpHookPriority( 'init' ) );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $this->getWpHookPriority( 'wp_loaded' ) );
-		add_action( 'admin_init', [ $this, 'onWpAdminInit' ], $this->getWpHookPriority( 'admin_init' ) );
 		$this->setupCronHooks();
 	}
 
@@ -23,14 +22,17 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	}
 
 	public function onWpLoaded() {
-	}
-
-	public function onWpAdminInit() {
 		/** @var Shield\Modules\Plugin\Options $optsPlugin */
 		$optsPlugin = $this->getCon()->getModule_Plugin()->getOptions();
 		if ( $optsPlugin->isShowPluginNotices() ) {
 			add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
 		}
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	public function onWpAdminInit() {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {

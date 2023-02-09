@@ -33,7 +33,7 @@ class PageDebug extends BasePluginAdminPage {
 				function ( $method ) use ( $urls ) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
-						$urls->noncedPluginAction( SimplePluginTests::SLUG, null, [
+						$urls->noncedPluginAction( SimplePluginTests::class, null, [
 							'test' => $method->getName()
 						] ),
 						str_replace( 'dbg_', '', $method->getName() )

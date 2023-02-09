@@ -27,9 +27,13 @@ class PageConfig extends BasePluginAdminPage {
 				if ( $mod->getSecurityAdminController()->isEnabledSecAdmin() ) {
 					$hrefs[] = [
 						'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
-						'href' => $con->plugin_urls->noncedPluginAction( SecurityAdminRemove::SLUG, $WP->getAdminUrl(), [
-							'quietly' => '1',
-						] ),
+						'href' => $con->plugin_urls->noncedPluginAction(
+							SecurityAdminRemove::class,
+							$WP->getAdminUrl(),
+							[
+								'quietly' => '1',
+							]
+						),
 					];
 				}
 				break;

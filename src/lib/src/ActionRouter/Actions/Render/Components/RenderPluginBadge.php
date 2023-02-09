@@ -58,7 +58,7 @@ class RenderPluginBadge extends BaseRender {
 
 		return [
 			'ajax'    => [
-				'plugin_badge_close' => ActionData::BuildJson( PluginBadgeClose::SLUG ),
+				'plugin_badge_close' => ActionData::BuildJson( PluginBadgeClose::class ),
 			],
 			'content' => [
 				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),

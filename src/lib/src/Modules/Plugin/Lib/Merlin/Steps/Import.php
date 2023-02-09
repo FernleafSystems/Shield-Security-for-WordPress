@@ -50,7 +50,7 @@ class Import extends Base {
 	}
 
 	public function getName() :string {
-		return 'Import';
+		return __( 'Import', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

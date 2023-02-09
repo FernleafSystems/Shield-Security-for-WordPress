@@ -43,7 +43,7 @@ class PtgAddReinstallLinks {
 					'global-plugin',
 					'icwp_wpsf_vars_hp',
 					[
-						'ajax_plugin_reinstall' => ActionData::Build( HackGuardPluginReinstall::SLUG ),
+						'ajax_plugin_reinstall' => ActionData::Build( HackGuardPluginReinstall::class ),
 						'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
 						'strings'               => [
 							'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )

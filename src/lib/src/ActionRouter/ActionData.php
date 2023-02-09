@@ -13,11 +13,13 @@ class ActionData {
 	public const FIELD_NONCE = 'exnonce';
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
-	public static function Build( string $action, bool $isAjax = true, array $aux = [] ) :array {
+	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [] ) :array {
+		/** @var Shield\ActionRouter\Actions\BaseAction $actionClass */
+
 		$data = array_merge( [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
-			self::FIELD_EXECUTE => $action,
-			self::FIELD_NONCE   => wp_create_nonce( self::FIELD_SHIELD.'-'.$action ),
+			self::FIELD_EXECUTE => $actionClass::SLUG,
+			self::FIELD_NONCE   => wp_create_nonce( self::FIELD_SHIELD.'-'.$actionClass::SLUG ),
 		], $aux );
 		if ( $isAjax ) {
 			$data[ self::FIELD_AJAXURL ] = admin_url( 'admin-ajax.php' );
@@ -25,7 +27,7 @@ class ActionData {
 		return $data;
 	}
 
-	public static function BuildJson( string $action, bool $isAjax = true, array $aux = [] ) :string {
-		return json_encode( (object)self::Build( $action, $isAjax, $aux ) );
+	public static function BuildJson( string $actionClass, bool $isAjax = true, array $aux = [] ) :string {
+		return json_encode( (object)self::Build( $actionClass, $isAjax, $aux ) );
 	}
 }

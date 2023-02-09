@@ -539,6 +539,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return array|string
+	 * @deprecated 17.0
 	 */
 	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
 		$data = Shield\ActionRouter\ActionData::Build( $action, true, [

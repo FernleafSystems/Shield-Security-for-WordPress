@@ -24,7 +24,7 @@ class TabSiteManage extends BaseSubPage {
 		return [
 			'hrefs'   => [
 				'page' => $con->plugin_urls->noncedPluginAction(
-					StandardFullPageDisplay::SLUG,
+					StandardFullPageDisplay::class,
 					Services::WpGeneral()->getAdminUrl(),
 					[
 						'render_slug' => TabManageSitePage::SLUG,
@@ -38,16 +38,6 @@ class TabSiteManage extends BaseSubPage {
 				'page' => base64_encode( $this->runAction() )
 			],
 		];
-	}
-
-	protected function getAjaxActionsData() :array {
-		$renderManageSiteAjax = ActionData::Build( 'render_manage_site', true, [
-			'site_id' => Services::Request()->query( 'site_id' )
-		] );
-
-		$data = parent::getAjaxActionsData();
-		$data[ 'render_manage_site' ] = $renderManageSiteAjax;
-		return $data;
 	}
 
 	protected function runAction() :string {

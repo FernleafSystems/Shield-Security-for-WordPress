@@ -45,30 +45,4 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 				 ] )
 			 );
 	}
-
-	public function processUnblockLink() :bool {
-		$req = Services::Request();
-		$success = false;
-		try {
-			$user = Services::WpUsers()->getCurrentWpUser();
-			if ( !$user instanceof \WP_User ) {
-				throw new \Exception( 'There is no user currently logged-in.' );
-			}
-
-			$this->timingChecks();
-
-			if ( $req->isGet() ) {
-				$this->updateLastAttemptAt();
-				$success = $this->unblockIP();
-			}
-			else {
-				throw new \Exception( 'Not a supported UAUM action.' );
-			}
-		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
-		}
-
-		return $success;
-	}
 }

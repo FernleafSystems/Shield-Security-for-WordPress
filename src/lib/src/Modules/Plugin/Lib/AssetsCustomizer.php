@@ -95,7 +95,7 @@ class AssetsCustomizer {
 			'merlin',
 			[
 				'ajax' => [
-					'merlin_action' => ActionData::Build( Actions\MerlinAction::SLUG )
+					'merlin_action' => ActionData::Build( Actions\MerlinAction::class )
 				],
 				'vars' => [
 					/** http://techlaboratory.net/jquery-smartwizard#advanced-options */
@@ -130,7 +130,7 @@ class AssetsCustomizer {
 			'shield_vars_navigation',
 			[
 				'ajax' => [
-					'dynamic_load' => ActionData::Build( Actions\DynamicPageLoad::SLUG )
+					'dynamic_load' => ActionData::Build( Actions\DynamicPageLoad::class )
 				]
 			]
 		];
@@ -142,7 +142,7 @@ class AssetsCustomizer {
 			'shield/tours',
 			'shield_vars_tourmanager',
 			[
-				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::SLUG ),
+				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::class ),
 				'tour_states' => $tourManager->getUserTourStates(),
 				'tours'       => $tourManager->getAllTours(),
 			]
@@ -162,13 +162,13 @@ class AssetsCustomizer {
 					],
 					'ip_analysis'   => [
 						'ajax' => [
-							'ip_analyse_action' => ActionData::Build( Actions\IpAnalyseAction::SLUG ),
+							'ip_analyse_action' => ActionData::Build( Actions\IpAnalyseAction::class ),
 						]
 					],
 					'ip_rules'      => [
 						'ajax'    => [
-							'ip_rule_add_submit' => ActionData::Build( Actions\IpRuleAddSubmit::SLUG ),
-							'ip_rule_delete'     => ActionData::Build( Actions\IpRuleDelete::SLUG ),
+							'ip_rule_add_submit' => ActionData::Build( Actions\IpRuleAddSubmit::class ),
+							'ip_rule_delete'     => ActionData::Build( Actions\IpRuleDelete::class ),
 						],
 						'strings' => [
 							'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
@@ -182,7 +182,7 @@ class AssetsCustomizer {
 					],
 					'mod_options'   => [
 						'ajax' => [
-							'mod_options_save' => ActionData::Build( Actions\ModuleOptionsSave::SLUG )
+							'mod_options_save' => ActionData::Build( Actions\ModuleOptionsSave::class )
 						]
 					],
 					'super_search'  => [
@@ -192,7 +192,7 @@ class AssetsCustomizer {
 					],
 					'select_search' => [
 						'ajax'    => [
-							'select_search' => ActionData::Build( Actions\PluginSuperSearch::SLUG )
+							'select_search' => ActionData::Build( Actions\PluginSuperSearch::class )
 						],
 						'strings' => [
 							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
@@ -225,7 +225,7 @@ class AssetsCustomizer {
 			'icwp_wpsf_vars_globalplugin',
 			[
 				'vars' => [
-					'ajax_render'      => ActionData::Build( Actions\AjaxRender::SLUG ),
+					'ajax_render'      => ActionData::Build( Actions\AjaxRender::class ),
 					'dashboard_widget' => [
 						'ajax' => [
 							'render_dashboard_widget' => Actions\Render\Components\DashboardWidget::SLUG
@@ -233,8 +233,8 @@ class AssetsCustomizer {
 					],
 					'notices'          => [
 						'ajax' => [
-							'auto_db_repair'  => ActionData::Build( Actions\PluginAutoDbRepair::SLUG ),
-							'delete_forceoff' => ActionData::Build( Actions\PluginDeleteForceOff::SLUG ),
+							'auto_db_repair'  => ActionData::Build( Actions\PluginAutoDbRepair::class ),
+							'delete_forceoff' => ActionData::Build( Actions\PluginDeleteForceOff::class ),
 						]
 					]
 				],
@@ -253,7 +253,7 @@ class AssetsCustomizer {
 				'icwp_wpsf_vars_ipdetect',
 				[
 					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
-					'ajax'    => ActionData::Build( Actions\PluginIpDetect::SLUG ),
+					'ajax'    => ActionData::Build( Actions\PluginIpDetect::class ),
 					'flags'   => [
 						'quiet' => empty( $req->query( 'shield_check_ip_source' ) ),
 					],

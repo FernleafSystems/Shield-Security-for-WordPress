@@ -29,7 +29,7 @@ class MagicLink extends Base {
 			],
 			'vars'    => [
 				'email'         => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
-				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::SLUG, true, [
+				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::class, true, [
 					'ip' => $con->this_req->ip
 				] ),
 			],

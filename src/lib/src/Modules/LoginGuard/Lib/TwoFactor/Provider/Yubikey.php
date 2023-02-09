@@ -20,7 +20,7 @@ class Yubikey extends AbstractShieldProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::SLUG ),
+				'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
 			],
 		];
 	}

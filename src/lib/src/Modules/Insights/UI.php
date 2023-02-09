@@ -36,7 +36,7 @@ class UI extends BaseShield\UI {
 
 			'sPageTitle' => $mod->getMainFeatureName(),
 			'ajax'       => [
-				'sec_admin_login' => ActionData::Build( Actions\SecurityAdminLogin::SLUG ),
+				'sec_admin_login' => ActionData::Build( Actions\SecurityAdminLogin::class ),
 			],
 			'classes'    => [
 				'top_container' => implode( ' ', array_filter( [

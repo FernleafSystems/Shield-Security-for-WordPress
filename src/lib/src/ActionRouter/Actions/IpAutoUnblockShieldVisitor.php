@@ -9,7 +9,6 @@ class IpAutoUnblockShieldVisitor extends IpAutoUnblockBase {
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'ip_auto_unblock_shield_visitor';
-	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function getAutoUnblockerClass() :string {
 		return AutoUnblockVisitor::class;

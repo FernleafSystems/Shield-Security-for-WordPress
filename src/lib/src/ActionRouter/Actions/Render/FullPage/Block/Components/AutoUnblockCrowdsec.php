@@ -23,7 +23,7 @@ class AutoUnblockCrowdsec extends AutoUnblockShield {
 				'home' => Services::WpGeneral()->getHomeUrl( '/' )
 			],
 			'vars'    => [
-				'unblock_nonce' => ActionData::Build( IpAutoUnblockCrowdsecVisitor::SLUG.'-'.$con->this_req->ip ),
+				'unblock_nonce' => ActionData::Build( IpAutoUnblockCrowdsecVisitor::class ),
 			],
 			'strings' => [
 				'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),

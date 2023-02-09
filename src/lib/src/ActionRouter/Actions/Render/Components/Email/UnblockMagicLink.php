@@ -26,7 +26,7 @@ class UnblockMagicLink extends EmailBase {
 			],
 			'hrefs'   => [
 				'unblock' => $con->plugin_urls->noncedPluginAction(
-					IpAutoUnblockShieldUserLinkVerify::SLUG.'-'.$ip,
+					IpAutoUnblockShieldUserLinkVerify::class,
 					$homeURL,
 					[
 						'ip' => $ip

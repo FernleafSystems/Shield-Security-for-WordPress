@@ -35,7 +35,7 @@ class AdminNotice extends BaseRender {
 		$data[ 'unique_render_id' ] = uniqid( (string)$notice->id );
 		$data[ 'notice_id' ] = $notice->id;
 
-		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = ActionData::BuildJson( DismissAdminNotice::SLUG, true, [
+		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = ActionData::BuildJson( DismissAdminNotice::class, true, [
 			'notice_id' => $notice->id,
 			'hide'      => 1,
 		] );

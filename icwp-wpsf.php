@@ -9,7 +9,7 @@
  * Author: Shield Security
  * Author URI: https://shsec.io/bv
  * Requires at least: 4.7
- * Requires PHP: 7.2
+ * Requires PHP: 7.2.5
  */
 
 /**
@@ -30,15 +30,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( version_compare( PHP_VERSION, '7.2', '<' ) ) {
+if ( version_compare( PHP_VERSION, '7.2.5', '<' ) ) {
 	global $sIcwpWpsfPluginFile;
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
 }
-elseif ( version_compare( PHP_VERSION, '8.2', '>=' ) ) {
+elseif ( version_compare( PHP_VERSION, '8.3', '>=' ) ) {
 	global $sIcwpWpsfPluginFile;
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
-	include_once( dirname( __FILE__ ).'/unsupported_82.php' );
+	include_once( dirname( __FILE__ ).'/unsupported_83.php' );
 }
 elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 

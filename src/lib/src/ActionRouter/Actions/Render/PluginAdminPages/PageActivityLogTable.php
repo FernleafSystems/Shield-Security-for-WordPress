@@ -25,7 +25,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'ajax'    => [
-				'logtable_action' => ActionData::BuildJson( ActivityLogTableAction::SLUG ),
+				'logtable_action' => ActionData::BuildJson( ActivityLogTableAction::class ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Users, Visitors & Bots Activity', 'wp-simple-firewall' ),

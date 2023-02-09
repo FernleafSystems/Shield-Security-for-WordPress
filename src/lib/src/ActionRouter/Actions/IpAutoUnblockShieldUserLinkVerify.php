@@ -9,7 +9,6 @@ class IpAutoUnblockShieldUserLinkVerify extends IpAutoUnblockBase {
 	use Traits\AnyUserAuthRequired;
 
 	public const SLUG = 'ip_auto_unblock_shield_user_link_verify';
-	public const PATTERN = self::SLUG.'-[a-f\d.:]+';
 
 	protected function getAutoUnblockerClass() :string {
 		return AutoUnblockMagicLink::class;

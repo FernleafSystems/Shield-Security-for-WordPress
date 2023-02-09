@@ -104,7 +104,7 @@ class PluginURLs {
 
 	public function fileDownload( string $downloadCategory, array $params = [] ) :string {
 		return $this->noncedPluginAction(
-			FileDownload::SLUG,
+			FileDownload::class,
 			Services::WpGeneral()->getAdminUrl(),
 			array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);

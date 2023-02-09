@@ -14,7 +14,7 @@ abstract class Base extends BaseScans {
 	protected function getRenderData() :array {
 		return [
 			'ajax'    => [
-				'scanresults_action' => ActionData::BuildJson( ScanResultsTableAction::SLUG ),
+				'scanresults_action' => ActionData::BuildJson( ScanResultsTableAction::class ),
 			],
 			'strings' => [
 				'author'            => __( 'Author' ),

@@ -23,7 +23,6 @@
     "dolondro/google-authenticator":         "^2.2",
     "fernleafsystems/wordpress-plugin-core": "^2.0",
     "fernleafsystems/zxcvbn-php":            "^1.0",
-    "nesbot/carbon":                         "^1.39",
     "nullpunkt/lz-string-php":               "^1.2.0",
     "symfony/polyfill-iconv":                "^1.18",
     "ext-json":                              "*",

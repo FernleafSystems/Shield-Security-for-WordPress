@@ -10,7 +10,7 @@ class IpDetect extends Base {
 	public const SLUG = 'ip_detect';
 
 	public function getName() :string {
-		return 'IP Detect';
+		return __( 'Visitor IP', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

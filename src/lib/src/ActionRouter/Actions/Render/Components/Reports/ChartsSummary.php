@@ -85,7 +85,7 @@ class ChartsSummary extends Base {
 
 		return [
 			'ajax' => [
-				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::SLUG ),
+				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
 			],
 			'vars' => [
 				'stats' => $statsData,

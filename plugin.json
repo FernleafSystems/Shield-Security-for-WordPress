@@ -1,8 +1,8 @@
 {
   "properties":       {
     "version":                 "17.0.0",
-    "release_timestamp":       1675875000,
-    "build":                   "202302.0801",
+    "release_timestamp":       1676025000,
+    "build":                   "202302.1001",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -79,7 +79,7 @@
         "shield/ipanalyse",
         "shield/scanners",
         "shield/tours",
-        "shield/datatables/audit_trail",
+        "shield/datatables/activity_log",
         "shield/datatables/ip_rules",
         "shield/datatables/scans",
         "shield/datatables/traffic",
@@ -102,7 +102,7 @@
           ]
         },
         "datatables":                        {
-          "url":  "https://cdn.datatables.net/v/bs5/dt-1.12.1/b-2.2.3/sp-2.0.2/sl-1.4.0/datatables.min.css",
+          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.2/b-2.3.4/sp-2.1.1/sl-1.6.0/datatables.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -185,7 +185,7 @@
           ]
         },
         "datatables":                        {
-          "url":  "https://cdn.datatables.net/v/bs5/dt-1.12.1/b-2.2.3/sp-2.0.2/sl-1.4.0/datatables.min.js",
+          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.2/b-2.3.4/sp-2.1.1/sl-1.6.0/datatables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
@@ -277,7 +277,7 @@
             "wp-jquery"
           ]
         },
-        "shield/datatables/audit_trail":     {
+        "shield/datatables/activity_log":     {
           "deps": [
             "shield/datatables/common"
           ]
@@ -380,18 +380,19 @@
     "has_submenu":    true
   },
   "labels":           {
-    "Name":               "Shield Security",
-    "MenuTitle":          "Shield Security",
-    "Description":        "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
-    "Title":              "Shield Security",
-    "Author":             "Shield Security",
-    "AuthorName":         "Shield Security",
-    "PluginURI":          "https://shsec.io/2f",
-    "AuthorURI":          "https://shsec.io/bv",
-    "url_img_pagebanner": "pluginlogo_banner-1544x500.png",
-    "icon_url_16x16":     "pluginlogo_16x16.png",
-    "icon_url_32x32":     "pluginlogo_32x32.png",
-    "icon_url_128x128":   "pluginlogo_128x128.png"
+    "Name":                "Shield Security",
+    "MenuTitle":           "Shield Security",
+    "Description":         "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Activity Log, Security Admin, and so much more.",
+    "Title":               "Shield Security",
+    "Author":              "Shield Security",
+    "AuthorName":          "Shield Security",
+    "PluginURI":           "https://shsec.io/2f",
+    "AuthorURI":           "https://shsec.io/bv",
+    "url_img_pagebanner":  "pluginlogo_banner-1544x500.png",
+    "icon_url_16x16":      "pluginlogo_16x16.png",
+    "icon_url_16x16_grey": "pluginlogo_16x16_grey.png",
+    "icon_url_32x32":      "pluginlogo_32x32.png",
+    "icon_url_128x128":    "pluginlogo_128x128.png"
   },
   "meta":             {
     "url_repo_home":       "https://shsec.io/eh",

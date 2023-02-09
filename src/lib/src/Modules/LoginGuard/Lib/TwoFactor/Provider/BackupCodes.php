@@ -23,8 +23,8 @@ class BackupCodes extends AbstractShieldProvider {
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_backup_codes_gen' => ActionData::Build( MfaBackupCodeAdd::SLUG ),
-				'profile_backup_codes_del' => ActionData::Build( MfaBackupCodeDelete::SLUG ),
+				'profile_backup_codes_gen' => ActionData::Build( MfaBackupCodeAdd::class ),
+				'profile_backup_codes_del' => ActionData::Build( MfaBackupCodeDelete::class ),
 			],
 		];
 	}

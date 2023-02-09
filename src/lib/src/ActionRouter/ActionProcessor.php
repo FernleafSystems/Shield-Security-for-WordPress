@@ -46,7 +46,7 @@ class ActionProcessor {
 	public function findActionFromSlug( string $slug ) :string {
 		$theAction = '';
 		foreach ( Constants::ACTIONS as $action ) {
-			if ( preg_match( $action::Pattern(), $slug ) ) {
+			if ( $action::SLUG === $slug ) {
 				$theAction = $action;
 				break;
 			}

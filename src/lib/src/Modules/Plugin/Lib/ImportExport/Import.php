@@ -141,7 +141,7 @@ class Import {
 
 		{ // Make the request
 			$targetExportURL = $this->getCon()->plugin_urls->noncedPluginAction(
-				PluginImportExport_Export::SLUG,
+				PluginImportExport_Export::class,
 				$masterURL,
 				$data
 			);
