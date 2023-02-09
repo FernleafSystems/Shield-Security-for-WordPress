@@ -3,10 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkVerify;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockMagicLink extends EmailBase {
 
+	use AnyUserAuthRequired;
 	use Traits\UserEmail;
 
 	public const SLUG = 'email_unblock_magic_link';

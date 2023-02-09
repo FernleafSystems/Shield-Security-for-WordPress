@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
-abstract class Base extends Actions\Render\BaseRender {
+abstract class Base extends BaseRender {
 
-	use Actions\Traits\AuthNotRequired;
+	use Traits\AuthNotRequired;
+	use Traits\ByPassIpBlock;
 }
