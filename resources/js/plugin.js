@@ -137,11 +137,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
 
 		setTimeout( function () {
-			if ( $form.data( 'context' ) === 'offcanvas' ) {
-				iCWP_WPSF_OffCanvas.closeCanvas();
+			if ( $form.data( 'context' ) !== 'offcanvas' || response.data.page_reload ) {
+				window.location.reload();
 			}
 			else {
-				window.location.reload();
+				iCWP_WPSF_OffCanvas.closeCanvas();
 			}
 		}, 1000 );
 	};

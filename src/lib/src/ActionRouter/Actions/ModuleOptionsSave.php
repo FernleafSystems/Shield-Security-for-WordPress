@@ -10,14 +10,21 @@ class ModuleOptionsSave extends BaseAction {
 
 	protected function exec() {
 		$con = $this->getCon();
-		$saver = ( new HandleOptionsSaveRequest() )
-			->setMod( $this->getMod() );
-		$success = $saver->handleSave();
+		$secAdminCon = $con->getModule_SecAdmin()->getSecurityAdminController();
+
+		$wasSecAdminEnabled = $secAdminCon->isEnabledSecAdmin();
+
+		$success = ( new HandleOptionsSaveRequest() )
+			->setMod( $this->getMod() )
+			->handleSave();
+
+		// The appropriate module is set during the handleSave(). if it's Security Admin and the PIN
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
 			'redirect_to' => $con->plugin_urls->modCfg( $this->getMod() ),
 			'html'        => '', //we reload the page
+			'page_reload' => !$wasSecAdminEnabled && $secAdminCon->isEnabledSecAdmin(), // for Sec Admin activation
 			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->getHumanName() )
 				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $con->getHumanName() )
