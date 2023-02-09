@@ -63,6 +63,15 @@
         ]
       },
       {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Pwned Passwords API",
+        "description": [
+          "We've made our implementation of the Pwned Passwords API more forgiving of API errors.",
+          "Instead of blocking passwords when there's an error with the API, we bypass the test altogether allowing the request to succeed."
+        ]
+      },
+      {
         "type":        "changed",
         "title":       "Removed Reporting Module",
         "description": [

@@ -167,17 +167,15 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				}
 
 				if ( $checksFailed ) {
-					if ( Services::WpUsers()->isUserLoggedIn() ) {
-						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
-					}
-				}
-				else {
 					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
 					if ( !empty( $failureMsg ) ) {
 						$msg .= sprintf( '<br/>%s: %s', __( 'Reason', 'wp-simple-firewall' ), $failureMsg );
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
 					$this->getCon()->fireEvent( 'password_policy_block' );
+				}
+				elseif ( Services::WpUsers()->isUserLoggedIn() ) {
+					$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 				}
 			}
 		}
@@ -260,20 +258,19 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 			throw new Exceptions\PwnedApiFailedException( '[Pwned Password API Request] '.$error );
 		}
 
-		foreach ( array_map( 'trim', explode( "\n", trim( $req->lastResponse->body ) ) ) as $row ) {
-			if ( $substrPasswordSHA1.substr( strtoupper( $row ), 0, 35 ) == $passwordSHA1 ) {
-				$countPwned = substr( $row, 36 );
-				throw new Exceptions\PasswordIsPwnedException(
-					implode( ' ', [
-						__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
-						sprintf( '(<a href="%s" target="_blank">%s</a>)',
-							'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-							sprintf( __( '%s times', 'wp-simple-firewall' ), $countPwned )
-						)
-					] ),
-					$countPwned
-				);
-			}
+		$body = strtoupper( trim( $req->lastResponse->body ) )."\n";
+		if ( preg_match( sprintf( '#%s:([0-9]+)\s#', substr( $passwordSHA1, 5 ) ), $body, $matches ) ) {
+			$countPwned = $matches[ 1 ];
+			throw new Exceptions\PasswordIsPwnedException(
+				implode( ' ', [
+					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
+					sprintf( '(<a href="%s" target="_blank">%s</a>)',
+						'https://shsec.io/la',
+						sprintf( _n( '%s time', '%s times', $countPwned, 'wp-simple-firewall' ), $countPwned )
+					)
+				] ),
+				$countPwned
+			);
 		}
 
 		return 0;
