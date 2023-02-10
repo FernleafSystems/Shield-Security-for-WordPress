@@ -6,25 +6,33 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 
 abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 
+	private $installedProviders;
+
 	protected function canRun() :bool {
 		return !$this->getCon()->this_req->request_bypasses_all_restrictions;
 	}
 
-	protected function run() {
-		array_map(
-			function ( $providerClass ) {
-				( new $providerClass() )->setMod( $this->getMod() )->execute();
-			},
-			array_filter(
-				array_intersect_key(
-					$this->enumProviders(),
-					array_flip( $this->getSelectedProviders() )
-				),
-				function ( $provider ) {
-					/** @var BaseHandler $provider - it's actually FQ class string */
+	/**
+	 * @return BaseHandler[]|string[]
+	 */
+	public function getInstalled() :array {
+		if ( !isset( $this->installedProviders ) ) {
+			$this->installedProviders = array_filter(
+				$this->enumProviders(),
+				function ( string $provider ) {
 					return $provider::IsProviderInstalled();
 				}
-			)
+			);
+		}
+		return $this->installedProviders;
+	}
+
+	protected function run() {
+		array_map(
+			function ( string $providerClass ) {
+				( new $providerClass() )->setMod( $this->getMod() )->execute();
+			},
+			array_intersect_key( $this->getInstalled(), array_flip( $this->getSelectedProviders() ) )
 		);
 	}
 
@@ -38,7 +46,7 @@ abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 	abstract public function getSelectedProvidersOptKey() :string;
 
 	/**
-	 * @return string[]
+	 * @return BaseHandler[]|string[]
 	 */
 	public function enumProviders() :array {
 		return [];

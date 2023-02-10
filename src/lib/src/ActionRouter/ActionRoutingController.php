@@ -95,7 +95,7 @@ class ActionRoutingController {
 			$output = '';
 		}
 		catch ( Exceptions\ActionException $e ) {
-			error_log( 'render::ActionException: '.$slug.' '.$e->getMessage() );
+//			error_log( 'render::ActionException: '.$slug.' '.$e->getMessage() );
 			$output = $e->getMessage();
 		}
 

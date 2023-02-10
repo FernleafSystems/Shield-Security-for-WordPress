@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ActiveWpUserConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockMagicLink;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class MagicLink extends Base {
@@ -25,7 +26,7 @@ class MagicLink extends Base {
 				'is_available' => $available,
 			],
 			'hrefs'   => [
-				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'ajaxurl' => Services::WpGeneral()->ajaxURL(),
 			],
 			'vars'    => [
 				'email'         => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',

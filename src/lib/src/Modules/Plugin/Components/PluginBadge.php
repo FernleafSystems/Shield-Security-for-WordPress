@@ -39,8 +39,7 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	public function addPluginBadgeWidget() {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
-		if ( !empty( $mod ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
-			 && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
+		if ( !empty( $mod ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
 			register_widget( new BadgeWidget( $mod ) );
 		}
 	}

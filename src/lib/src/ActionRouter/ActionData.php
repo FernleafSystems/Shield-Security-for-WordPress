@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ActionData {
 
@@ -14,6 +15,7 @@ class ActionData {
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [] ) :array {
+		$WP = Services::WpGeneral();
 		/** @var Shield\ActionRouter\Actions\BaseAction $actionClass */
 
 		$data = array_merge( [
@@ -22,7 +24,7 @@ class ActionData {
 			self::FIELD_NONCE   => wp_create_nonce( self::FIELD_SHIELD.'-'.$actionClass::SLUG ),
 		], $aux );
 		if ( $isAjax ) {
-			$data[ self::FIELD_AJAXURL ] = admin_url( 'admin-ajax.php' );
+			$data[ self::FIELD_AJAXURL ] = method_exists( $WP, 'ajaxURL' ) ? $WP->ajaxURL() : admin_url( 'admin-ajax.php' );
 		}
 		return $data;
 	}

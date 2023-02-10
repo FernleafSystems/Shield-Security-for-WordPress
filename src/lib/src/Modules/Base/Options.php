@@ -275,8 +275,8 @@ class Options {
 		$section = $this->getSection( $slug );
 		return array_merge(
 			[
-				'php_min' => '7.0',
-				'wp_min'  => '3.7',
+				'php_min' => '7.2',
+				'wp_min'  => '4.7',
 			],
 			( is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
 		);

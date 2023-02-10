@@ -1,7 +1,7 @@
 {
   "17.0": {
     "version":     "17.0",
-    "released_at": 1675700000,
+    "released_at": 1676040000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease170",
       "upgrade": "https://shsec.io/shieldupgradeguide170"
@@ -57,6 +57,14 @@
       {
         "type":        "improved",
         "pro_only":    false,
+        "title":       "Major Code Overhaul",
+        "description": [
+          "Nearly all functionality of the plugin has been rewritten and improved."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
         "title":       "Better Plugin Search",
         "description": [
           "We've improved the UI for searching the plugin alongside adding the ability to search for partial IP addresses."
@@ -75,7 +83,7 @@
         "type":        "changed",
         "title":       "Removed Reporting Module",
         "description": [
-          "As part of our focus on simplifying the Shield plugin, we've removed the Reporting module.",
+          "As part of our focus on simplifying the Shield plugin, we've removed the separate Reporting module.",
           "You'll still get email Reports, but the options are now configured under the General Settings module."
         ]
       },

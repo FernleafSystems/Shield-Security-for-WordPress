@@ -47,9 +47,6 @@
     },
     {
       "slug":        "section_passwords",
-      "reqs":        {
-        "wp_min": "4.4"
-      },
       "title":       "Password Policies",
       "title_short": "Password Policies",
       "beacon_id":   256,

@@ -117,6 +117,7 @@ abstract class BaseRender extends BaseAction {
 	}
 
 	public function getCommonDisplayData() :array {
+		$WP = Services::WpGeneral();
 		$con = $this->getCon();
 		$thisReq = $con->this_req;
 		$urls = $con->plugin_urls;
@@ -166,7 +167,7 @@ abstract class BaseRender extends BaseAction {
 			],
 			'head'       => [
 				'html'    => [
-					'lang' => Services::WpGeneral()->getLocale( '-' ),
+					'lang' => $WP->getLocale( '-' ),
 					'dir'  => is_rtl() ? 'rtl' : 'ltr',
 				],
 				'meta'    => [
@@ -202,6 +203,9 @@ abstract class BaseRender extends BaseAction {
 
 				'dashboard_home' => $urls ? $urls->adminHome() : $con->getPluginUrl_DashboardHome(),
 				'form_action'    => Services::Request()->getUri(),
+
+				/** @deprecated 17.0 */
+				'ajax'           => method_exists( $WP, 'ajaxURL' ) ? $WP->ajaxURL() : '',
 			],
 			'imgs'       => [
 				'svgs'           => [
@@ -235,6 +239,7 @@ abstract class BaseRender extends BaseAction {
 	}
 
 	private function getDisplayStrings() :array {
+		$WP = Services::WpGeneral();
 		$con = $this->getCon();
 		$thisReq = $con->this_req;
 		$name = $con->getHumanName();
@@ -351,7 +356,7 @@ abstract class BaseRender extends BaseAction {
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
-						Services::WpGeneral()->getAdminUrl_Updates(), $con->getVersion() )
+						$WP->getAdminUrl_Updates(), $con->getVersion() )
 					: $con->getVersion()
 			),
 

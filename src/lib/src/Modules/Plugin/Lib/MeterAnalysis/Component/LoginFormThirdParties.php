@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers\WordPress;
 
 class LoginFormThirdParties extends Base {
 
@@ -18,24 +18,19 @@ class LoginFormThirdParties extends Base {
 	 * @return string[]
 	 */
 	private function getUnprotectedProvidersByName() :array {
-		$modIntegrations = $this->getCon()->getModule_Integrations();
-		return array_map(
-			function ( $provider ) {
-				return $provider->getHandlerName();
+		return array_filter( array_map(
+			function ( string $providerClass ) {
+				$provider = ( new $providerClass() )->setMod( $this->getCon()->getModule_Integrations() );
+				return $provider->isEnabled() ? null : $provider->getHandlerName();
 			},
-			array_filter(
-				array_map(
-					function ( $providerClass ) use ( $modIntegrations ) {
-						return ( new $providerClass() )->setMod( $modIntegrations );
-					},
-					$modIntegrations->getController_UserForms()->enumProviders()
-				),
-				function ( $provider ) {
-					/** @var BaseHandler $provider */
-					return !$provider->isEnabled() && $provider::IsProviderInstalled();
-				}
-			)
-		);
+			$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled()
+		) );
+	}
+
+	protected function isApplicable() :bool {
+		$installed = $this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled();
+		unset( $installed[ WordPress::Slug() ] );
+		return count( $installed ) > 0;
 	}
 
 	protected function testIfProtected() :bool {

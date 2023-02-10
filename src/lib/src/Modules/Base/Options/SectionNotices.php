@@ -161,13 +161,10 @@ class SectionNotices {
 					$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
 				}
 
-				$modIntegrations = $con->getModule_Integrations();
 				$installedButNotEnabledProviders = array_filter(
-					$modIntegrations->getController_UserForms()->enumProviders(),
-					function ( $providerClass ) use ( $modIntegrations ) {
-						/** @var BaseHandler $provider */
-						$provider = ( new $providerClass() )->setMod( $modIntegrations );
-						return !$provider->isEnabled() && $provider::IsProviderInstalled();
+					$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled(),
+					function ( string $provider ) {
+						return !( new $provider() )->setMod( $this->getCon()->getModule_Integrations() )->isEnabled();
 					}
 				);
 

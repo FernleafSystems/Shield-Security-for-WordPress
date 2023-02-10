@@ -17,6 +17,19 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	 */
 	abstract public function getHandlerController();
 
+	public static function Slug() :string {
+		try {
+			$slug = strtolower( ( new \ReflectionClass( static::class ) )->getShortName() );
+		}
+		catch ( \Exception $e ) {
+			$slug = '';
+		}
+		return $slug;
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getHandlerSlug() :string {
 		try {
 			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
@@ -29,7 +42,7 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 
 	public function getHandlerName() :string {
 		$name = 'Undefined Name';
-		$slug = $this->getHandlerSlug();
+		$slug = method_exists( $this, 'Slug' ) ? static::Slug() : $this->getHandlerSlug();
 
 		$valueOptions = $this->getOptions()
 							 ->getOptDefinition(
@@ -71,8 +84,9 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	}
 
 	public function isEnabled() :bool {
+		$slug = method_exists( $this, 'Slug' ) ? static::Slug() : $this->getHandlerSlug();
 		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
-			   && in_array( $this->getHandlerSlug(), $this->getHandlerController()->getSelectedProviders() );
+			   && in_array( $slug, $this->getHandlerController()->getSelectedProviders() );
 	}
 
 	public static function IsProviderInstalled() :bool {

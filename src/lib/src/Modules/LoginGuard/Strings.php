@@ -227,8 +227,6 @@ class Strings extends Base\Strings {
 					__( 'Choose the type of page provided to users for MFA verification.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
 						__( 'Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
-						__( 'WP Login page option is only available for WordPress v4.0 and above.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
@@ -289,7 +287,7 @@ class Strings extends Base\Strings {
 			case 'enable_google_recaptcha_login' :
 				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$summary = sprintf( '[DEPRECATED - %s] : %s',
-					'Please use the newer AntiBot setting above',
+					'Please use the newer AntiBot setting',
 					__( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' )
 				);
 				$desc = [
@@ -326,7 +324,7 @@ class Strings extends Base\Strings {
 			case 'enable_login_gasp_check' :
 				$name = __( 'Bot Protection', 'wp-simple-firewall' );
 				$summary = sprintf( '[DEPRECATED - %s] %s',
-					'Please use the newer AntiBot setting above',
+					'Please use the newer AntiBot setting',
 					__( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' )
 				);
 				$desc = [
@@ -338,7 +336,7 @@ class Strings extends Base\Strings {
 			case 'antibot_form_ids' :
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$summary = sprintf( '%s %s',
-					'[DEPRECATED - Please use the newer AntiBot setting above]',
+					'[DEPRECATED - Please use the newer AntiBot setting]',
 					__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' )
 				);
 				$desc = [

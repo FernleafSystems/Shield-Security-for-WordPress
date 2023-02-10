@@ -303,18 +303,28 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
 			}
 
-			if ( !empty( $versions ) ) {
-				if ( !in_array( $con->getVersion(), $versions ) ) {
-					$needed = true;
-				}
-				else {
-					array_splice( $versions, array_search( $con->getVersion(), $versions ) );
-					$needed = count( array_unique( array_map( function ( $version ) {
-							return substr( $version, 0, strrpos( $version, '.' ) );
-						}, $versions ) ) ) > 2;
-				}
+			$currentMajor = intval( substr( $con->getVersion(), 0, strpos( $con->getVersion(), '.' ) ) );
+			if ( !empty( $versions ) && !empty( $currentMajor ) ) {
+
+				$majorVersionsNewerThanCurrent = array_filter(
+					array_unique( array_map(
+						function ( $version ) {
+							/** 1. Convert all versions to major releases */
+							return intval( substr( $version, 0, strpos( $version, '.' ) ) );
+						},
+						$versions
+					) ),
+					function ( $version ) use ( $currentMajor ) {
+						/** 2. Find all major versions newer than current */
+						return $version > $currentMajor;
+					}
+				);
+
+				/** 3. Suggest upgrade needed  */
+				$needed = count( $majorVersionsNewerThanCurrent ) >= 2;
 			}
 		}
+
 		return $needed;
 	}
 
