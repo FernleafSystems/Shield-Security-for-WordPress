@@ -103,6 +103,13 @@ class ModCon extends BaseShield\ModCon {
 		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
+
+		if ( $opts->isOptChanged( 'cs_block' ) && !$opts->isEnabledCrowdSecAutoBlock() ) {
+			/** @var DB\IpRules\Ops\Delete $deleter */
+			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
+			$deleter->filterByType( $this->getDbH_IPRules()::T_CROWDSEC )->query();
+		}
+
 		$this->cleanPathWhitelist();
 	}
 
@@ -169,7 +176,7 @@ class ModCon extends BaseShield\ModCon {
 		$this->getDbH_BotSignal()
 			 ->getQueryDeleter()
 			 ->addWhereOlderThan(
-				 Services::Request()->carbon()->subWeeks( 1 )->timestamp,
+				 Services::Request()->carbon()->subWeek()->timestamp,
 				 'updated_at'
 			 )
 			 ->query();

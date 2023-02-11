@@ -36,24 +36,15 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
-		if ( !isset( $this->oFileLocker ) ) {
-			$this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
-		}
-		return $this->oFileLocker;
+		return $this->oFileLocker ?? $this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
 	}
 
 	public function getScansCon() :Scan\ScansController {
-		if ( !isset( $this->scanCon ) ) {
-			$this->scanCon = ( new Scan\ScansController() )->setMod( $this );
-		}
-		return $this->scanCon;
+		return $this->scanCon ?? $this->scanCon = ( new Scan\ScansController() )->setMod( $this );
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		if ( !isset( $this->scanQueueCon ) ) {
-			$this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
-		}
-		return $this->scanQueueCon;
+		return $this->scanQueueCon ?? $this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
 	}
 
 	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
