@@ -30,9 +30,7 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_reporting() {
 		try {
-			echo ( new Modules\Plugin\Lib\Reporting\ReportGenerator() )
-				->setMod( $this->getCon()->getModule_Plugin() )
-				->adHoc();
+			echo ( new Modules\Plugin\Lib\Reporting\ReportGenerator() )->adHoc();
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );
@@ -46,9 +44,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_telemetry() {
-		( new Modules\Plugin\Lib\PluginTelemetry() )
-			->setMod( $this->getCon()->getModule_Plugin() )
-			->collectAndSend( true );
+		( new Modules\Plugin\Lib\PluginTelemetry() )->collectAndSend( true );
 	}
 
 	private function crowdsec() {

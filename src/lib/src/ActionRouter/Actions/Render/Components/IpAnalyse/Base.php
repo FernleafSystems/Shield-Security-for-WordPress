@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Base extends Render\BaseRender {
 
-	public const PRIMARY_MOD = 'ips';
-
 	protected function getRequiredDataKeys() :array {
 		return [
 			'ip'

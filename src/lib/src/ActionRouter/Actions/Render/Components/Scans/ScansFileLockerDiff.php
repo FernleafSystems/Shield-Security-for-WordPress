@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,8 +13,7 @@ class ScansFileLockerDiff extends BaseScans {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig';
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_HackGuard();
 		$FLCon = $mod->getFileLocker();
 		$FS = Services::WpFs();
 

@@ -4,20 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActivityLogTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 
 class PageActivityLogTable extends BasePluginAdminPage {
 
 	public const SLUG = 'page_admin_plugin_activity_log_table';
-	public const PRIMARY_MOD = ModCon::SLUG;
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_activity.twig';
 
 	protected function getPageContextualHrefs() :array {
+		$con = $this->getCon();
 		return [
 			[
 				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_AuditTrail()->cfg->slug ),
 			]
 		];
 	}
@@ -33,7 +32,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForActivityLog() )
-					->setMod( $this->primary_mod )
+					->setMod( $this->getCon()->getModule_AuditTrail() )
 					->build()
 			],
 		];

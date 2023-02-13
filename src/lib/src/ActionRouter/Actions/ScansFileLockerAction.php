@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScansFileLockerAction extends ScansBase {
@@ -11,8 +10,7 @@ class ScansFileLockerAction extends ScansBase {
 	public const SLUG = 'filelocker_fileaction';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_HackGuard();
 		$FLCon = $mod->getFileLocker();
 		$req = Services::Request();
 		$success = false;

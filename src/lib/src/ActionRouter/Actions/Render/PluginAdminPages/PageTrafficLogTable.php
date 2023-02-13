@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 class PageTrafficLogTable extends BasePluginAdminPage {
 
 	public const SLUG = 'page_admin_plugin_traffic_log_table';
-	public const PRIMARY_MOD = 'traffic';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_traffic.twig';
 
 	protected function getPageContextualHrefs() :array {
@@ -20,7 +19,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_Traffic()->cfg->slug ),
 			],
 		];
 	}
@@ -28,7 +27,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $con->getModule_Traffic()->getOptions();
 		return [
 			'ajax'    => [
 				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::class ),
@@ -45,7 +44,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForTraffic() )
-					->setMod( $this->primary_mod )
+					->setMod( $con->getModule_Traffic() )
 					->build()
 			],
 		];

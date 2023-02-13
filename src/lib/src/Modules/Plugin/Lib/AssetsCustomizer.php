@@ -137,7 +137,7 @@ class AssetsCustomizer {
 	}
 
 	private function tourManager() :array {
-		$tourManager = $this->getCon()->getModule_Plugin()->getTourManager();
+		$tourManager = new TourManager();
 		return [
 			'shield/tours',
 			'shield_vars_tourmanager',

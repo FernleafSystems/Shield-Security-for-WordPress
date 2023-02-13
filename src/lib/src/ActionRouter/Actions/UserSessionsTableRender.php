@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\Sessions;
 
 class UserSessionsTableRender extends SecurityAdminBase {
@@ -13,7 +12,7 @@ class UserSessionsTableRender extends SecurityAdminBase {
 		$this->response()->action_response_data = [
 			'success' => true,
 			'html'    => ( new Sessions() )
-				->setMod( $this->primary_mod )
+				->setMod( $this->getMod() )
 				->render()
 		];
 	}

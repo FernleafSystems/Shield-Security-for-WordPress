@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionsTableBulkAction extends SecurityAdminBase {
@@ -10,8 +9,6 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 	public const SLUG = 'user_sessions_bulk_action';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		$req = Services::Request();
 
 		$success = false;
@@ -25,7 +22,7 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 		}
 		else {
 			$sessionCon = $this->getCon()->getModule_Plugin()->getSessionCon();
-			$yourId = $mod->getSession()->shield[ 'unique' ] ?? '';
+			$yourId = $sessionCon->current()->shield[ 'unique' ] ?? '';
 			$includesYourSession = false;
 
 			foreach ( $IDs as $IDunique ) {

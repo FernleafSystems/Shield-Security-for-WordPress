@@ -19,7 +19,7 @@ abstract class Base extends BaseScans {
 			try {
 				/** @var ResultItem $item */
 				$item = ( new RetrieveItems() )
-					->setMod( $this->primary_mod )
+					->setMod( $this->getCon()->getModule_HackGuard() )
 					->byID( (int)$this->action_data[ 'rid' ] );
 			}
 			catch ( \Exception $e ) {

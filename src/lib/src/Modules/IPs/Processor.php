@@ -10,7 +10,10 @@ class Processor extends BaseShield\Processor {
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$mod->getBlacklistHandler()->execute();
+
+		( new Lib\BlacklistHandler() )
+			->setMod( $mod )
+			->execute();
 		$mod->getBotSignalsController()->execute();
 		$mod->getCrowdSecCon()->execute();
 	}

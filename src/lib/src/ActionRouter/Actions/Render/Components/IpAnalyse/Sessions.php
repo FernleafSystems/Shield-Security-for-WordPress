@@ -13,9 +13,8 @@ class Sessions extends Base {
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();
 
-		$finder = ( new FindSessions() )->setMod( $this->getMod() );
 		$allSessions = [];
-		foreach ( $finder->byIP( $this->action_data[ 'ip' ] ) as $userID => $sessions ) {
+		foreach ( ( new FindSessions() )->byIP( $this->action_data[ 'ip' ] ) as $userID => $sessions ) {
 			foreach ( $sessions as $session ) {
 				$loginAt = $session[ 'login' ];
 				$activityAt = $session[ 'shield' ][ 'last_activity_at' ] ?? $loginAt;

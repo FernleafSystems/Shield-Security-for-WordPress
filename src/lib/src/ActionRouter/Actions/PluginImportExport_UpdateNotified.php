@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
-
 class PluginImportExport_UpdateNotified extends BaseAction {
 
 	use Traits\AuthNotRequired;
@@ -12,9 +10,7 @@ class PluginImportExport_UpdateNotified extends BaseAction {
 	public const SLUG = 'importexport_updatenotified';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$mod->getImpExpController()->runOptionsUpdateNotified();
+		$this->getCon()->getModule_Plugin()->getImpExpController()->runOptionsUpdateNotified();
 		$this->response()->action_response_data = [
 			'success' => true,
 		];

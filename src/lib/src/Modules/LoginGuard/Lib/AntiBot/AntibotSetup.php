@@ -53,7 +53,7 @@ class AntibotSetup extends ExecOnceModConsumer {
 				new AntiBot\FormProviders\WordPress()
 			];
 
-			if ( $this->getMod()->getIfSupport3rdParty() ) {
+			if ( $this->getCon()->isPremiumActive() ) {
 				if ( @class_exists( 'BuddyPress' ) ) {
 					$formProviders[] = new AntiBot\FormProviders\BuddyPress();
 				}
@@ -80,9 +80,6 @@ class AntibotSetup extends ExecOnceModConsumer {
 				}
 				if ( defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' ) ) {
 					$formProviders[] = new AntiBot\FormProviders\WPMembers();
-				}
-				if ( false && @class_exists( 'UserRegistration' ) && @function_exists( 'UR' ) ) {
-					$formProviders[] = new AntiBot\FormProviders\UserRegistration();
 				}
 			}
 

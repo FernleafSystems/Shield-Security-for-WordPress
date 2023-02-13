@@ -12,24 +12,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Base,
-	Plugin
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property Base\ModCon|mixed $primary_mod
- * @property string            $primary_mod_slug
- * @property array             $action_data
+ * @property array $action_data
  */
 abstract class BaseAction extends DynPropertiesClass {
 
 	use ModConsumer;
 
 	public const SLUG = '';
-	public const PRIMARY_MOD = Plugin\ModCon::SLUG;
 
 	private $response;
 
@@ -45,23 +38,6 @@ abstract class BaseAction extends DynPropertiesClass {
 			case 'action_data':
 				$value = array_merge( $this->getDefaults(), is_array( $value ) ? $value : [] );
 				break;
-
-			case 'primary_mod':
-				$value = $this->getCon()->getModule( $this->primary_mod_slug );
-				if ( empty( $value ) ) {
-					$value = $this->getMod();
-				}
-				break;
-
-			case 'primary_mod_slug':
-				if ( empty( $value ) ) {
-					if ( empty( static::PRIMARY_MOD ) ) {
-						throw new \Exception( 'Empty primary mod: '.get_class( $this ) );
-					}
-					$value = static::PRIMARY_MOD;
-				}
-				break;
-
 			default:
 				break;
 		}

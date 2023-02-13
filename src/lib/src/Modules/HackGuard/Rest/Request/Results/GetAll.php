@@ -2,15 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\RequestVO;
 
 class GetAll extends Base {
 
 	protected function process() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
@@ -25,7 +23,11 @@ class GetAll extends Base {
 
 		$results = [];
 		foreach ( $req->scan_slugs as $scanSlug ) {
-			$RS = $mod->getScanCon( $scanSlug )->getAllResults();
+			$RS = $this->getCon()
+					   ->getModule_HackGuard()
+					   ->getScansCon()
+					   ->getScanCon( $scanSlug )
+					   ->getAllResults();
 			$thisResults = [];
 			foreach ( $RS->getAllItems() as $item ) {
 				$item = array_merge(

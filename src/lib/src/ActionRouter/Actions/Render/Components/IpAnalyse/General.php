@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPInfo;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
@@ -20,8 +19,7 @@ class General extends Base {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $con->getModule_IPs();
 		$ip = $this->action_data[ 'ip' ];
 
 		$geo = ( new Lookup() )

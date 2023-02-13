@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TourManager {
 
 	use ModConsumer;
+
+	public const MOD = ModCon::SLUG;
 
 	public function getAllTours() :array {
 		return [
@@ -16,10 +19,6 @@ class TourManager {
 		];
 	}
 
-	/**
-	 * @param string $tourKey
-	 * @return bool
-	 */
 	public function isCompleted( string $tourKey ) :bool {
 		try {
 			$tours = $this->loadUserTourStates();

@@ -81,7 +81,7 @@ class Themes extends PluginThemesBase {
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $theme->stylesheet );
 		$countGuardFiles = ( new LoadTableDataTheme( $theme ) )
-			->setMod( $this->primary_mod )
+			->setMod( $this->getCon()->getModule_HackGuard() )
 			->countAll();
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );

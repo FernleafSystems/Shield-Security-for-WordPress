@@ -13,11 +13,11 @@ class AlertScanRepairs extends BaseBuilderForScans {
 	public const TEMPLATE = '/components/reports/components/alert_scanrepairs.twig';
 
 	protected function getRenderData() :array {
+		$con = $this->getCon();
 		/** @var DBEvents\Select $selectorEvents */
-		$selectorEvents = $this->getCon()
-							   ->getModule_Events()
-							   ->getDbHandler_Events()
-							   ->getQuerySelector();
+		$selectorEvents = $con->getModule_Events()
+							  ->getDbHandler_Events()
+							  ->getQuerySelector();
 
 		$report = $this->getReport();
 
@@ -29,7 +29,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 		];
 
 		$total = 0;
-		$srvEvents = $this->getCon()->loadEventsService();
+		$srvEvents = $con->loadEventsService();
 		foreach ( $repairEvents as $event ) {
 			$eventTotal = $selectorEvents
 				->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
@@ -37,7 +37,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 			$total += $eventTotal;
 
 			if ( $eventTotal > 0 ) {
-				$modAudit = $this->getCon()->getModule_AuditTrail();
+				$modAudit = $con->getModule_AuditTrail();
 
 				/** @var Logs\Ops\Select $logSelect */
 				$logSelect = $modAudit->getDbH_Logs()->getQuerySelector();
@@ -76,7 +76,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 				'render_required' => !empty( $repairs ),
 			],
 			'hrefs'   => [
-				'activity_log' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
+				'activity_log' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
 			],
 			'strings' => [
 				'title'        => \__( 'Scanner Repairs', 'wp-simple-firewall' ),

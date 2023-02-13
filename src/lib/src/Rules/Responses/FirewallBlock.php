@@ -79,10 +79,10 @@ class FirewallBlock extends Base {
 		}
 		$blockMeta[ 'firewall_rule_name' ] = $ruleName;
 
-		$mod = $con->getModule_Insights();
-		return $mod->getEmailProcessor()
+		return $con->getModule_Plugin()
+				   ->getEmailProcessor()
 				   ->send(
-					   $mod->getPluginReportEmail(),
+					   $con->getModule_Plugin()->getPluginReportEmail(),
 					   __( 'Firewall Block Alert', 'wp-simple-firewall' ),
 					   $con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
 						   'ip'         => $con->this_req->ip,

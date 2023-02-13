@@ -12,7 +12,9 @@ class AlertFileLocker extends BaseBuilderForScans {
 	public const TEMPLATE = '/components/reports/components/alert_filelocker.twig';
 
 	protected function getRenderData() :array {
-		$locksLoader = ( new LoadFileLocks() )->setMod( $this->getCon()->getModule_HackGuard() );
+		$con = $this->getCon();
+
+		$locksLoader = ( new LoadFileLocks() )->setMod( $con->getModule_HackGuard() );
 		$hasNotNotified = count( $locksLoader->withProblemsNotNotified() ) > 0;
 		if ( $hasNotNotified ) {
 			$this->markAlertsAsNotified();
@@ -23,7 +25,7 @@ class AlertFileLocker extends BaseBuilderForScans {
 				'render_required' => $hasNotNotified,
 			],
 			'hrefs'   => [
-				'view_results' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'view_results' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),

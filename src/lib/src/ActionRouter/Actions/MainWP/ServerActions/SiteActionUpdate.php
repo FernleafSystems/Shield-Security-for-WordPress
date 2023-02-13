@@ -28,7 +28,6 @@ class SiteActionUpdate extends BaseSiteMwpAction {
 		return [
 			'type' => 'plugin',
 			'list' => ( new ClientPluginStatus() )
-						  ->setMod( $this->getMod() )
 						  ->setMwpSite( $this->getMwpSite() )
 						  ->getInstalledPlugin()[ 'slug' ],
 		];

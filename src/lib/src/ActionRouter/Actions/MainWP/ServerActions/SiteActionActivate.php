@@ -20,7 +20,6 @@ class SiteActionActivate extends BaseSiteMwpAction {
 		return [
 			'action' => 'activate',
 			'plugin' => ( new ClientPluginStatus() )
-							->setMod( $this->getMod() )
 							->setMwpSite( $this->getMwpSite() )
 							->getInstalledPlugin()[ 'slug' ],
 		];

@@ -45,7 +45,7 @@ class SetScanCompleted {
 					] )
 					->query();
 
-				$scanCon = $mod->getScanCon( $scan );
+				$scanCon = $mod->getScansCon()->getScanCon( $scan );
 				$this->getCon()->fireEvent( 'scan_run', [
 					'audit_params' => [
 						'scan' => $scanCon->getScanName()

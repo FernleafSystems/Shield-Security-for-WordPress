@@ -6,11 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportGenerator {
 
 	use ModConsumer;
+
+	public const MOD = ModCon::SLUG;
 
 	public function auto() {
 		$reports = $this->buildReports();
@@ -30,7 +33,7 @@ class ReportGenerator {
 
 	public function adHoc() :string {
 		$r = $this->renderFinalReports( $this->buildReports() );
-//		$this->sendEmail($r);
+		$this->sendEmail($r);
 		return $r;
 	}
 

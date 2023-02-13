@@ -6,5 +6,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 
 abstract class MainwpBase extends BaseAction {
 
-	public const PRIMARY_MOD = 'integrations';
 }

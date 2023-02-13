@@ -1,13 +1,15 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteHealth;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\SiteHealth\Analysis;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SiteHealthController extends ExecOnceModConsumer {
 
+	public const MOD = ModCon::SLUG;
 	public const TAB_SLUG = 'shield_security';
 
 	protected function canRun() :bool {

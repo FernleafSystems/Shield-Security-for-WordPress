@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	Strings
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Reporters\Helpers\ScanCounts;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,19 +13,18 @@ class AlertScanResults extends BaseBuilderForScans {
 	public const TEMPLATE = '/components/reports/components/alert_scanresults.twig';
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$con = $this->getCon();
 
 		$counts = array_filter(
 			( new ScanCounts() )
-				->setMod( $mod )
+				->setMod( $con->getModule_HackGuard() )
 				->standard()
 		);
 
 		$scanCounts = [];
 		if ( !empty( $counts ) ) {
 			/** @var Strings $strings */
-			$strings = $mod->getStrings();
+			$strings = $con->getModule_HackGuard()->getStrings();
 			foreach ( $counts as $slug => $count ) {
 				$scanCounts[ $slug ] = [
 					'count' => $count,
@@ -43,7 +39,7 @@ class AlertScanResults extends BaseBuilderForScans {
 				'render_required' => !empty( $counts ),
 			],
 			'hrefs'   => [
-				'view_results' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'view_results' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),

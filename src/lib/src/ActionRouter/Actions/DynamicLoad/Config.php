@@ -10,13 +10,13 @@ class Config extends Base {
 
 	protected function getPageUrl() :string {
 		$con = $this->getCon();
-		return $con->plugin_urls->modCfg( $con->modules[ $this->action_data[ 'primary_mod_slug' ] ] );
+		return $con->plugin_urls->modCfg( $con->modules[ $this->action_data[ 'mod_slug' ] ] );
 	}
 
 	protected function getPageTitle() :string {#
 		return sprintf( '%s > %s',
 			__( 'Configuration', 'wp-simple-firewall' ),
-			$this->getCon()->getModule( $this->action_data[ 'primary_mod_slug' ] )->getMainFeatureName()
+			$this->getCon()->modules[ $this->action_data[ 'mod_slug' ] ]->getMainFeatureName()
 		);
 	}
 
@@ -26,7 +26,7 @@ class Config extends Base {
 
 	protected function getRequiredDataKeys() :array {
 		return [
-			'primary_mod_slug',
+			'mod_slug',
 		];
 	}
 }

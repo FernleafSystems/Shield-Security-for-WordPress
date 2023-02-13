@@ -6,5 +6,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 
 class UserMfaBase extends BaseRender {
 
-	public const PRIMARY_MOD = 'login_protect';
 }

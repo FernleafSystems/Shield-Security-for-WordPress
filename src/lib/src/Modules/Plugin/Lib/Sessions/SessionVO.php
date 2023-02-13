@@ -17,4 +17,17 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class SessionVO extends DynPropertiesClass {
 
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+
+			case 'valid':
+			$value = (bool)$value;
+				break;
+
+			default:
+				break;
+		}
+		return $value;
+	}
 }

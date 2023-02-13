@@ -21,62 +21,56 @@ class ConsolidateAllEvents {
 		}
 	}
 
-	/**
-	 * @param $event
-	 */
-	protected function consolidateEventIntoHourly( $event ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$oDbH = $mod->getDbHandler_Events();
+	protected function consolidateEventIntoHourly( string $event ) {
+		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
 
-		$oTime = Services::Request()
-						 ->carbon()
-						 ->subHour( 1 )
-						 ->startOfHour();
+		$time = Services::Request()
+						->carbon()
+						->subHour()
+						->startOfHour();
 
-		$nHourCount = 0;
+		$hourCount = 0;
 		do {
-			/** @var Events\Select $oSel */
-			$oSel = $oDbH->getQuerySelector();
-			$nRecords = $oSel->filterByBoundary_Hour( $oTime->timestamp )
-							 ->filterByEvent( $event )
-							 ->count();
+			/** @var Events\Select $select */
+			$select = $dbh->getQuerySelector();
+			$nRecords = $select->filterByBoundary_Hour( $time->timestamp )
+							   ->filterByEvent( $event )
+							   ->count();
 
 			if ( $nRecords > 1 ) {
-				/** @var Events\Select $oSel */
-				$oSel = $oDbH->getQuerySelector();
+				/** @var Events\Select $select */
+				$select = $dbh->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $oSel->filterByBoundary_Hour( $oTime->timestamp )
-							 ->sumEvent( $event );
+				$nSum = $select->filterByBoundary_Hour( $time->timestamp )
+							   ->sumEvent( $event );
 				if ( $nSum > 0 ) {
 
-					/** @var Events\Delete $oDel */
-					$oDel = $oDbH->getQueryDeleter();
-					$oDel->filterByBoundary_Hour( $oTime->timestamp )
-						 ->filterByEvent( $event )
-						 ->query();
+					/** @var Events\Delete $deleter */
+					$deleter = $dbh->getQueryDeleter();
+					$deleter->filterByBoundary_Hour( $time->timestamp )
+							->filterByEvent( $event )
+							->query();
 
-					$oEntry = new Events\EntryVO();
-					$oEntry->event = $event;
-					$oEntry->count = $nSum;
-					$oEntry->created_at = $oTime->timestamp + 1;
-					/** @var Events\Insert $oQI */
-					$oQI = $oDbH->getQueryInserter();
-					$oQI->insert( $oEntry );
+					$entry = new Events\EntryVO();
+					$entry->event = $event;
+					$entry->count = $nSum;
+					$entry->created_at = $time->timestamp + 1;
+					/** @var Events\Insert $inserter */
+					$inserter = $dbh->getQueryInserter();
+					$inserter->insert( $entry );
 				}
 			}
 
-			$nHourCount++;
-			$oTime->subHour();
-		} while ( $nHourCount < 48 );
+			$hourCount++;
+			$time->subHour();
+		} while ( $hourCount < 48 );
 	}
 
 	/**
 	 * Consolidates each event in Daily sums. Doesn't process events from the previous 48hrs.
 	 * Processes event for the 7 days previous to the last 48 hours.
-	 * @param $event
 	 */
-	protected function consolidateEventIntoDaily( $event ) {
+	protected function consolidateEventIntoDaily( string $event ) {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbHandler_Events();
@@ -86,7 +80,7 @@ class ConsolidateAllEvents {
 						->subDays( 2 )
 						->startOfDay();
 
-		$nDayCount = 0;
+		$count = 0;
 		do {
 			/** @var Events\Select $select */
 			$select = $dbh->getQuerySelector();
@@ -95,12 +89,11 @@ class ConsolidateAllEvents {
 								   ->count();
 
 			if ( $recordsCount > 1 ) {
-				/** @var Events\Select $oSel */
+				/** @var Events\Select $select */
 				$select = $dbh->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $select->filterByBoundary_Day( $time->timestamp )
-							   ->sumEvent( $event );
-				if ( $nSum > 0 ) {
+				$sum = $select->filterByBoundary_Day( $time->timestamp )->sumEvent( $event );
+				if ( $sum > 0 ) {
 
 					/** @var Events\Delete $deleter */
 					$deleter = $dbh->getQueryDeleter();
@@ -108,175 +101,159 @@ class ConsolidateAllEvents {
 							->filterByEvent( $event )
 							->query();
 
-					$oEntry = new Events\EntryVO();
-					$oEntry->event = $event;
-					$oEntry->count = $nSum;
-					$oEntry->created_at = $time->timestamp + 1;
-					/** @var Events\Insert $oQI */
-					$oQI = $dbh->getQueryInserter();
-					$oQI->insert( $oEntry );
+					$entry = new Events\EntryVO();
+					$entry->event = $event;
+					$entry->count = $sum;
+					$entry->created_at = $time->timestamp + 1;
+					/** @var Events\Insert $inserter */
+					$inserter = $dbh->getQueryInserter();
+					$inserter->insert( $entry );
 				}
 			}
 
-			$nDayCount++;
+			$count++;
 			$time->subDay();
-		} while ( $nDayCount < 13 );
+		} while ( $count < 13 );
 	}
 
 	/**
 	 * Consolidates each event in weekly sums. Doesn't process events from the previous 2 whole weeks.
 	 * Processes event for the previous 8 weeks.
-	 * @param $event
 	 */
-	protected function consolidateEventIntoWeekly( $event ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$oDbH = $mod->getDbHandler_Events();
+	protected function consolidateEventIntoWeekly( string $event ) {
+		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
 
-		$oTime = Services::Request()
-						 ->carbon()
-						 ->subWeek( 2 )
-						 ->startOfWeek();
+		$time = Services::Request()
+						->carbon()
+						->subWeeks( 2 )
+						->startOfWeek();
 
-		$nWeekCount = 0;
-		do {
-			/** @var Events\Select $oSel */
-			$oSel = $oDbH->getQuerySelector();
-			$nRecords = $oSel->filterByBoundary_Week( $oTime->timestamp )
-							 ->filterByEvent( $event )
-							 ->count();
-
-			if ( $nRecords > 1 ) {
-				/** @var Events\Select $oSel */
-				$oSel = $oDbH->getQuerySelector();
-				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $oSel->filterByBoundary_Week( $oTime->timestamp )
-							 ->sumEvent( $event );
-
-				if ( $nSum > 0 ) {
-					/** @var Events\Delete $oDel */
-					$oDel = $oDbH->getQueryDeleter();
-					$oDel->filterByBoundary_Week( $oTime->timestamp )
-						 ->filterByEvent( $event )
-						 ->query();
-
-					$oEntry = new Events\EntryVO();
-					$oEntry->event = $event;
-					$oEntry->count = $nSum;
-					$oEntry->created_at = $oTime->timestamp + 1;
-					/** @var Events\Insert $oQI */
-					$oQI = $oDbH->getQueryInserter();
-					$oQI->insert( $oEntry );
-				}
-			}
-
-			$nWeekCount++;
-			$oTime->subWeek();
-		} while ( $nWeekCount < 8 );
-	}
-
-	/**
-	 * Consolidates each event in Daily sums. Doesn't process events from the previous 48hrs.
-	 * Processes event for the 7 days previous to the last 48 hours.
-	 * @param $event
-	 */
-	protected function consolidateEventIntoMonthly( $event ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbHandler_Events();
-
-		$oTime = Services::Request()
-						 ->carbon()
-						 ->subMonth( 2 )
-						 ->startOfMonth();
-
-		$nMonthCount = 0;
+		$count = 0;
 		do {
 			/** @var Events\Select $select */
 			$select = $dbh->getQuerySelector();
-			$nRecords = $select->filterByBoundary_Month( $oTime->timestamp )
-							   ->filterByEvent( $event )
-							   ->count();
+			$records = $select->filterByBoundary_Week( $time->timestamp )
+							  ->filterByEvent( $event )
+							  ->count();
 
-			if ( $nRecords > 1 ) {
-				/** @var Events\Select $oSel */
+			if ( $records > 1 ) {
+				/** @var Events\Select $select */
 				$select = $dbh->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $select->filterByBoundary_Month( $oTime->timestamp )
-							   ->sumEvent( $event );
+				$sum = $select->filterByBoundary_Week( $time->timestamp )
+							  ->sumEvent( $event );
 
-				if ( $nSum > 0 ) {
-					/** @var Events\Delete $oDel */
-					$oDel = $dbh->getQueryDeleter();
-					$oDel->filterByBoundary_Month( $oTime->timestamp )
-						 ->filterByEvent( $event )
-						 ->query();
+				if ( $sum > 0 ) {
+					/** @var Events\Delete $deleter */
+					$deleter = $dbh->getQueryDeleter();
+					$deleter->filterByBoundary_Week( $time->timestamp )
+							->filterByEvent( $event )
+							->query();
 
-					$oEntry = new Events\EntryVO();
-					$oEntry->event = $event;
-					$oEntry->count = $nSum;
-					$oEntry->created_at = $oTime->timestamp + 1;
-					/** @var Events\Insert $oQI */
-					$oQI = $dbh->getQueryInserter();
-					$oQI->insert( $oEntry );
+					$entry = new Events\EntryVO();
+					$entry->event = $event;
+					$entry->count = $sum;
+					$entry->created_at = $time->timestamp + 1;
+					/** @var Events\Insert $inserter */
+					$inserter = $dbh->getQueryInserter();
+					$inserter->insert( $entry );
 				}
 			}
 
-			$nMonthCount++;
-			$oTime->subMonth();
-		} while ( $nMonthCount < 24 );
+			$count++;
+			$time->subWeek();
+		} while ( $count < 8 );
 	}
 
-	/**
-	 * @param $event
-	 */
-	protected function consolidateEventIntoYearly( $event ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$oDbH = $mod->getDbHandler_Events();
+	protected function consolidateEventIntoMonthly( string $event ) {
+		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
 
-		$oTime = Services::Request()
-						 ->carbon()
-						 ->subYear( 2 )
-						 ->startOfYear();
+		$time = Services::Request()
+						->carbon()
+						->subMonths( 2 )
+						->startOfMonth();
 
-		/** @var Events\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
-		$oOldest = $oSel->getOldestForEvent( $event );
-
+		$count = 0;
 		do {
-			/** @var Events\Select $oSel */
-			$oSel = $oDbH->getQuerySelector();
-			$nRecords = $oSel->filterByBoundary_Year( $oTime->timestamp )
-							 ->filterByEvent( $event )
-							 ->count();
+			/** @var Events\Select $select */
+			$select = $dbh->getQuerySelector();
+			$recordsCount = $select->filterByBoundary_Month( $time->timestamp )
+								   ->filterByEvent( $event )
+								   ->count();
 
-			if ( $nRecords > 1 ) {
-				/** @var Events\Select $oSel */
-				$oSel = $oDbH->getQuerySelector();
+			if ( $recordsCount > 1 ) {
+				/** @var Events\Select $select */
+				$select = $dbh->getQuerySelector();
 				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $oSel->filterByBoundary_Year( $oTime->timestamp )
-							 ->sumEvent( $event );
+				$sum = $select->filterByBoundary_Month( $time->timestamp )->sumEvent( $event );
 
-				if ( $nSum > 0 ) {
+				if ( $sum > 0 ) {
 					/** @var Events\Delete $oDel */
-					$oDel = $oDbH->getQueryDeleter();
-					$oDel->filterByBoundary_Year( $oTime->timestamp )
+					$oDel = $dbh->getQueryDeleter();
+					$oDel->filterByBoundary_Month( $time->timestamp )
 						 ->filterByEvent( $event )
 						 ->query();
 
-					$oEntry = new Events\EntryVO();
-					$oEntry->event = $event;
-					$oEntry->count = $nSum;
-					$oEntry->created_at = $oTime->timestamp + 1;
-					/** @var Events\Insert $oQI */
-					$oQI = $oDbH->getQueryInserter();
-					$oQI->insert( $oEntry );
+					$entry = new Events\EntryVO();
+					$entry->event = $event;
+					$entry->count = $sum;
+					$entry->created_at = $time->timestamp + 1;
+					/** @var Events\Insert $inserter */
+					$inserter = $dbh->getQueryInserter();
+					$inserter->insert( $entry );
 				}
 			}
 
-			$oTime->subYear();
-		} while ( $oTime->timestamp > $oOldest->created_at );
+			$count++;
+			$time->subMonth();
+		} while ( $count < 24 );
+	}
+
+	protected function consolidateEventIntoYearly( string $event ) {
+		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
+
+		$time = Services::Request()
+						->carbon()
+						->subYear( 2 )
+						->startOfYear();
+
+		/** @var Events\Select $selector */
+		$selector = $dbh->getQuerySelector();
+		$oldest = $selector->getOldestForEvent( $event );
+
+		do {
+			/** @var Events\Select $selector */
+			$selector = $dbh->getQuerySelector();
+			$nRecords = $selector->filterByBoundary_Year( $time->timestamp )
+								 ->filterByEvent( $event )
+								 ->count();
+
+			if ( $nRecords > 1 ) {
+				/** @var Events\Select $selector */
+				$selector = $dbh->getQuerySelector();
+				/** @var Events\EntryVO[] $aRecords */
+				$nSum = $selector->filterByBoundary_Year( $time->timestamp )
+								 ->sumEvent( $event );
+
+				if ( $nSum > 0 ) {
+					/** @var Events\Delete $deleter */
+					$deleter = $dbh->getQueryDeleter();
+					$deleter->filterByBoundary_Year( $time->timestamp )
+							->filterByEvent( $event )
+							->query();
+
+					$entry = new Events\EntryVO();
+					$entry->event = $event;
+					$entry->count = $nSum;
+					$entry->created_at = $time->timestamp + 1;
+					/** @var Events\Insert $inserter */
+					$inserter = $dbh->getQueryInserter();
+					$inserter->insert( $entry );
+				}
+			}
+
+			$time->subYear();
+		} while ( $time->timestamp > $oldest->created_at );
 	}
 
 	/**
@@ -287,6 +264,11 @@ class ConsolidateAllEvents {
 		$mod = $this->getMod();
 		/** @var Events\Select $select */
 		$select = $mod->getDbHandler_Events()->getQuerySelector();
-		return $select->getAllEvents();
+		return array_filter(
+			$select->getAllEvents(),
+			function ( $event ) {
+				return !empty( $event ) && is_string( $event );
+			}
+		);
 	}
 }

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class WpLoginReplicaBody extends Base {
@@ -11,9 +10,6 @@ class WpLoginReplicaBody extends Base {
 	public const TEMPLATE = '/components/wplogin_replica/login_body.twig';
 
 	protected function getRenderData() :array {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->primary_mod;
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 		$errorMsg = $this->action_data[ 'msg_error' ] ?? '';
 		return [
 			'content' => [

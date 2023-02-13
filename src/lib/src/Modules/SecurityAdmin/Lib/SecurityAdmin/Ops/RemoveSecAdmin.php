@@ -12,14 +12,21 @@ class RemoveSecAdmin {
 	use ModConsumer;
 
 	public function remove( bool $quietly = false ) {
+		$con = $this->getCon();
+		$mod = $con->getModule_SecAdmin();
+
 		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $mod->getOptions();
 		if ( $opts->hasSecurityPIN() ) {
-			$this->getCon()->this_req->is_security_admin = true;
+			$con->this_req->is_security_admin = true;
+
 			$opts->clearSecurityAdminKey();
-			$this->getMod()->saveModOptions();
+			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
+			$opts->setOpt( 'sec_admin_users', [] );
+			$mod->saveModOptions();
+
 			( new ToggleSecAdminStatus() )
-				->setMod( $this->getCon()->getModule_SecAdmin() )
+				->setMod( $mod )
 				->turnOff();
 
 			if ( !$quietly ) {
@@ -29,12 +36,14 @@ class RemoveSecAdmin {
 	}
 
 	public function sendConfirmationEmail() {
-		$confirmationHref = $this->getCon()->plugin_urls->noncedPluginAction(
+		$con = $this->getCon();
+		$mod = $con->getModule_SecAdmin();
+
+		$confirmationHref = $con->plugin_urls->noncedPluginAction(
 			SecurityAdminRemove::class,
 			Services::WpGeneral()->getAdminUrl()
 		);
-		/** @var SecurityAdmin\ModCon $mod */
-		$mod = $this->getMod();
+
 		$mod->getEmailProcessor()
 			->sendEmailWithWrap(
 				$mod->getPluginReportEmail(),

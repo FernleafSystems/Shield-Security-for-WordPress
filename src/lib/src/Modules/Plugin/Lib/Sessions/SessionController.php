@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,38 +12,40 @@ class SessionController extends ExecOnceModConsumer {
 
 	use WpLoginCapture;
 
+	public const MOD = ModCon::SLUG;
+
 	/**
 	 * @var SessionVO
 	 */
-	private $currentWP;
+	private $current;
 
 	protected function run() {
 		if ( !Services::WpUsers()->isProfilePage() && !Services::IP()->isLoopback() ) { // only on logout
 			add_action( 'clear_auth_cookie', function () {
-				$this->getCurrentWP();
+				$this->current();
 			}, 0 );
 		}
 
-		$this->setToCaptureApplicationLogin( true )
-			 ->setAllowMultipleCapture( true )
+		$this->setToCaptureApplicationLogin()
+			 ->setAllowMultipleCapture()
 			 ->setupLoginCaptureHooks();
 	}
 
 	protected function captureLogin( \WP_User $user ) {
 		if ( !empty( $this->getLoggedInCookie() ) ) {
-			$this->getCurrentWP();
+			$this->current();
 			$this->getCon()->fireEvent( 'login_success' );
 		}
 	}
 
-	public function getCurrentWP() :SessionVO {
-
-		if ( !isset( $this->currentWP ) ) {
-			$this->currentWP = new SessionVO();
+	public function current() :SessionVO {
+		$con = $this->getCon();
+		if ( !isset( $this->current ) ) {
+			$this->current = new SessionVO();
 		}
 
 		$WPUsers = Services::WpUsers();
-		if ( !$this->currentWP->valid ) {
+		if ( !$this->current->valid ) {
 
 			if ( !empty( $this->getLoggedInCookie() ) ) {
 				$parsed = wp_parse_auth_cookie( $this->getLoggedInCookie() );
@@ -69,8 +71,8 @@ class SessionController extends ExecOnceModConsumer {
 
 						// Ensure the correct IP is stored
 						$srvIP = Services::IP();
-						$ip = $this->getCon()->this_req->ip;
-						if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->checkIp( $ip, $session[ 'ip' ] ) ) ) {
+						$ip = $con->this_req->ip;
+						if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->IpIn( $ip, [ $session[ 'ip' ] ] ) ) ) {
 							$session[ 'ip' ] = $ip;
 						}
 
@@ -89,14 +91,15 @@ class SessionController extends ExecOnceModConsumer {
 						// This is a copy of \WP_Session_Tokens::hash_token(). They made it private, cuz that's helpful.
 						$session[ 'hashed_token' ] = function_exists( 'hash' ) ? hash( 'sha256', $parsed[ 'token' ] ) : sha1( $parsed[ 'token' ] );
 						$session[ 'valid' ] = true;
-						$this->currentWP->applyFromArray( $session );
+
+						$this->current->applyFromArray( $session );
 
 						// Update User Last Seen IP.
 						try {
-							$userMeta = $this->getCon()->getUserMeta( $WPUsers->getUserById( $userID ) );
+							$userMeta = $con->getUserMeta( $WPUsers->getUserById( $userID ) );
 							if ( !empty( $userMeta ) ) {
 								$userMeta->record->ip_ref = ( new IPRecords() )
-									->setMod( $this->getCon()->getModule_Data() )
+									->setMod( $con->getModule_Data() )
 									->loadIP( $session[ 'ip' ] )
 									->id;
 							}
@@ -108,7 +111,7 @@ class SessionController extends ExecOnceModConsumer {
 			}
 		}
 
-		return $this->currentWP;
+		return $this->current;
 	}
 
 	/**
@@ -129,7 +132,7 @@ class SessionController extends ExecOnceModConsumer {
 	}
 
 	public function updateSessionParameter( string $key, $value ) {
-		$current = $this->getCurrentWP();
+		$current = $this->current();
 		if ( $current->valid ) {
 
 			$user = Services::WpUsers()->getCurrentWpUser();
@@ -152,8 +155,7 @@ class SessionController extends ExecOnceModConsumer {
 	}
 
 	public function terminateCurrentSession() :bool {
-		$current = $this->getCurrentWP();
-
+		$current = $this->current();
 		if ( $current->valid ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
@@ -168,7 +170,7 @@ class SessionController extends ExecOnceModConsumer {
 			}
 		}
 
-		unset( $this->currentWP );
+		unset( $this->current );
 
 		return true;
 	}

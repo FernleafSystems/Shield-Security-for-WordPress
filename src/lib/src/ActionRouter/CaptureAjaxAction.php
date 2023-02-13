@@ -48,9 +48,9 @@ class CaptureAjaxAction extends CaptureActionBase {
 			$statusCode = 401;
 			$msg = __( 'Nonce Failed.', 'wp-simple-firewall' );
 			$response = [
-				'success'     => false,
-				'message'     => $msg,
-				'error'       => $msg,
+				'success' => false,
+				'message' => $msg,
+				'error'   => $msg,
 			];
 		}
 		catch ( SecurityAdminRequiredException $e ) {

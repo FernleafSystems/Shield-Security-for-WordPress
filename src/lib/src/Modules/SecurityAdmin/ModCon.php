@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
-	public const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 	public const SLUG = 'admin_access_restriction';
 
 	/**
@@ -73,15 +72,6 @@ class ModCon extends BaseShield\ModCon {
 				->setMod( $this )
 				->run( $opts->getSecurityAdminUsers() )
 		);
-
-		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
-			$opts->clearSecurityAdminKey();
-			( new Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
-				->setMod( $this )
-				->turnOff();
-			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
-			$opts->setOpt( 'sec_admin_users', [] );
-		}
 
 		$this->runMuHandler();
 	}

@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
-	AnyUserAuthRequired
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigForm extends UserMfaBase {
@@ -24,16 +21,14 @@ class ConfigForm extends UserMfaBase {
 	}
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$mfaCon = $mod->getMfaController();
+		$mod = $this->getCon()->getModule_LoginGuard();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
 		$providerRenders = array_map(
 			function ( $provider ) {
 				return $provider->renderUserProfileConfigFormField();
 			},
-			$user instanceof \WP_User ? $mfaCon->getProvidersAvailableToUser( $user ) : []
+			$user instanceof \WP_User ? $mod->getMfaController()->getProvidersAvailableToUser( $user ) : []
 		);
 
 		return apply_filters( 'shield/render_data_custom_profiles_mfa', [

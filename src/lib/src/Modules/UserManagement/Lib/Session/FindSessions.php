@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FindSessions {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public function mostRecent() :array {
 		return $this->lookupFromUserMeta( [ "`user_meta`.`last_login_at`!=0" ] );

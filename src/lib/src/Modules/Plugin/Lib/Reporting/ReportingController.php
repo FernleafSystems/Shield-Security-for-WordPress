@@ -5,11 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class ReportingController extends ExecOnceModConsumer {
 
 	use PluginCronsConsumer;
+
+	public const MOD = ModCon::SLUG;
 
 	protected function canRun() :bool {
 		/** @var Options $opts */
@@ -22,9 +25,7 @@ class ReportingController extends ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new ReportGenerator() )
-			->setMod( $this->getMod() )
-			->auto();
+		( new ReportGenerator() )->auto();
 	}
 
 	/**
@@ -35,7 +36,7 @@ class ReportingController extends ExecOnceModConsumer {
 			function ( $builder ) {
 				/** @var BaseBuilder $builder */
 				$builder = new $builder();
-				return $builder->setMod( $this->getCon()->getModule_Insights() );
+				return $builder->setMod( $this->getCon()->getModule_Plugin() );
 			},
 			array_filter(
 				Constants::COMPONENT_REPORT_BUILDERS,

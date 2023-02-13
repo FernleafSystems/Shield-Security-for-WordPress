@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 
 class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 
@@ -16,8 +15,7 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $con->getModule_HackGuard();
 
 		$lockerCon = $mod->getFileLocker();
 		$lockLoader = ( new LoadFileLocks() )->setMod( $mod );

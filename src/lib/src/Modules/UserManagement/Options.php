@@ -27,7 +27,9 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getPassExpireDays() :int {
-		return ( $this->isPasswordPoliciesEnabled() && $this->isPremium() ) ? (int)$this->getOpt( 'pass_expire' ) : 0;
+		return ( $this->isPasswordPoliciesEnabled() && $this->getCon()->isPremiumActive() )
+			? (int)$this->getOpt( 'pass_expire' )
+			: 0;
 	}
 
 	public function getPassExpireTimeout() :int {
@@ -35,7 +37,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getPassMinStrength() :int {
-		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
+		return $this->getCon()->isPremiumActive() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
 	}
 
 	public function hasMaxSessionTimeout() :bool {
@@ -78,7 +80,8 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getValidateEmailOnRegistration() :string {
-		return $this->isPremium() ? (string)$this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
+		return $this->getCon()->isPremiumActive() ?
+			(string)$this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
 	}
 
 	public function getEmailValidationChecks() :array {

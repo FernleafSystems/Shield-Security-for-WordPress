@@ -162,9 +162,7 @@ class GoogleAuth extends AbstractShieldProvider {
 			$valid = preg_match( '#^\d{6}$#', $otp )
 					 && ( new GoogleAuthenticator() )->authenticate( $this->getSecret(), $otp );
 		}
-		catch ( \Exception $e ) {
-		}
-		catch ( \Psr\Cache\CacheException $e ) {
+		catch ( \Exception | \Psr\Cache\CacheException $e ) {
 		}
 		return $valid;
 	}

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConfigEdit extends UserMfaBase {
@@ -16,8 +15,6 @@ class ConfigEdit extends UserMfaBase {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
 		$pluginName = $con->getHumanName();
@@ -26,7 +23,7 @@ class ConfigEdit extends UserMfaBase {
 			function ( $provider ) {
 				return $provider->getProviderName();
 			},
-			$mod->getMfaController()->getProvidersActiveForUser( $user )
+			$con->getModule_LoginGuard()->getMfaController()->getProvidersActiveForUser( $user )
 		);
 
 		$isAdmin = Services::WpUsers()->isUserAdmin( $user );

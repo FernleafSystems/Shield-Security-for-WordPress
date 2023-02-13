@@ -83,12 +83,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			formData = LZString.compress( formData );
 		}
 
-		/** Required since using dynamic AJAX loaded page content **/
-		if ( !$form.data( 'mod_slug' ) ) {
-			alert( 'Missing form data' );
-			return false;
-		}
-
 		let reqData = jQuery.extend(
 			workingData.ajax.mod_options_save,
 			{

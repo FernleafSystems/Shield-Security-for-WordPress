@@ -22,7 +22,7 @@ class ModCon extends Base\ModCon {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getSessionCon()
-					->getCurrentWP();
+					->current();
 	}
 
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
@@ -53,8 +53,11 @@ class ModCon extends Base\ModCon {
 					->getPluginReportEmail();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getIfSupport3rdParty() :bool {
-		return $this->isPremium();
+		return $this->getCon()->isPremiumActive();
 	}
 
 	/**

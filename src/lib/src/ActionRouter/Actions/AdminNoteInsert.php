@@ -4,19 +4,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Insert;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
 class AdminNoteInsert extends BaseAction {
 
 	public const SLUG = 'admin_note_insert';
 
 	public function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$con = $this->getCon();
 		$resp = $this->response();
 
 		$note = trim( FormParams::Retrieve()[ 'admin_note' ] ?? '' );
-		if ( !$mod->getCanAdminNotes() ) {
+		if ( !$con->isPluginAdmin() ) {
 			$resp->message = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $note ) ) {
@@ -24,7 +22,7 @@ class AdminNoteInsert extends BaseAction {
 		}
 		else {
 			/** @var Insert $inserter */
-			$inserter = $mod->getDbHandler_Notes()->getQueryInserter();
+			$inserter = $con->getModule_Plugin()->getDbHandler_Notes()->getQueryInserter();
 			$resp->success = $inserter->create( $note );
 			$resp->message = $resp->success ? __( 'Note created successfully.', 'wp-simple-firewall' )
 				: __( 'Note could not be created.', 'wp-simple-firewall' );

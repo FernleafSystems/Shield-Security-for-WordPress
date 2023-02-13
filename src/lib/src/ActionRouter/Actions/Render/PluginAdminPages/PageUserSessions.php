@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	SecurityAdminAuthClear,
 	UserSessionDelete,
 	UserSessionsTableBulkAction,
 	UserSessionsTableRender
@@ -13,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 class PageUserSessions extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_user_sessions';
-	public const PRIMARY_MOD = 'user_management';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_sessions.twig';
 
 	protected function getPageContextualHrefs() :array {
@@ -22,7 +20,7 @@ class PageUserSessions extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'User Controls', 'wp-simple-firewall' ),
-				'href' => $urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $urls->offCanvasConfigRender( $con->getModule_UserManagement()->cfg->slug ),
 			],
 			[
 				'text' => __( 'Configure Security Admin', 'wp-simple-firewall' ),

@@ -168,7 +168,7 @@ class NavMenuBuilder {
 						'dynamic_page_load' => json_encode( [
 							'dynamic_load_slug' => Config::SLUG,
 							'dynamic_load_data' => [
-								'primary_mod_slug' => $cfg->slug,
+								'mod_slug' => $cfg->slug,
 							],
 						] ),
 					],

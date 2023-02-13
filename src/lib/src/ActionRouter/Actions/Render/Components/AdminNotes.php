@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 class AdminNotes extends BaseRender {
@@ -12,8 +11,7 @@ class AdminNotes extends BaseRender {
 	public const TEMPLATE = '/snippets/prerendered.twig';
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_Plugin();
 		return [
 			'content' => ( new Build\AdminNotes() )
 				->setMod( $mod )

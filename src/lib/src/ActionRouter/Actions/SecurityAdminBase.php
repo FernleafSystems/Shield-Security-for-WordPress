@@ -7,6 +7,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 abstract class SecurityAdminBase extends BaseAction {
 
 	use Actions\Traits\SecurityAdminNotRequired;
-
-	public const PRIMARY_MOD = 'admin_access_restriction';
 }

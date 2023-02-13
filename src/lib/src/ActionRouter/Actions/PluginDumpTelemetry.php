@@ -11,10 +11,7 @@ class PluginDumpTelemetry extends BaseAction {
 	public const SLUG = 'dump_telemetry_data';
 
 	protected function exec() {
-		$tel = ( new PluginTelemetry() )
-			->setMod( $this->primary_mod )
-			->collectTrackingData();
-		echo sprintf( '<pre><code>%s</code></pre>', print_r( $tel, true ) );
+		echo sprintf( '<pre><code>%s</code></pre>', print_r( ( new PluginTelemetry() )->collectTrackingData(), true ) );
 		die();
 	}
 }

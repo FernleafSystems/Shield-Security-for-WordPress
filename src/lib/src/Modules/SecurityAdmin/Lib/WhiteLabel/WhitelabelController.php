@@ -9,16 +9,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WhitelabelController extends ExecOnceModConsumer {
 
+	protected function canRun() :bool {
+		return $this->isEnabled();
+	}
+
 	public function isEnabled() :bool {
 		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		return $this->getCon()->isPremiumActive()
 			   && $this->getOptions()->isOpt( 'whitelabel_enable', 'Y' )
 			   && $mod->getSecurityAdminController()->isEnabledSecAdmin();
-	}
-
-	protected function canRun() :bool {
-		return $this->isEnabled();
 	}
 
 	protected function run() {

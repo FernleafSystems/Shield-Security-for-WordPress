@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	DB\ScanItems\Ops as ScanItemsDB,
-	ModCon,
 	Options,
 	Scan\Exceptions\NoQueueItems
 };
@@ -19,19 +18,17 @@ class ProcessQueueWpcli extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->getCon()->getModule_HackGuard();
+		$scansCon = $mod->getScansCon();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		/** @var ScanItemsDB\Select $selector */
-		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
 
 		foreach ( array_keys( $opts->getScansToBuild() ) as $scan ) {
 			$opts->addRemoveScanToBuild( $scan, false );
 			$mod->saveModOptions();
 			try {
 				WP_CLI::log( sprintf( 'Building scan items for scan: %s',
-					$mod->getScanCon( $scan )->getScanName() ) );
+					$scansCon->getScanCon( $scan )->getScanName() ) );
 				( new QueueInit() )
 					->setMod( $mod )
 					->init( $scan );
@@ -42,6 +39,8 @@ class ProcessQueueWpcli extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 		WP_CLI::log( 'Starting Scans...' );
 
+		/** @var ScanItemsDB\Select $selector */
+		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
 		$progress = WP_CLI\Utils\make_progress_bar( 'Scans Progress',
 			array_sum( $selector->countAllForEachScan() ) );
 

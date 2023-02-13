@@ -33,6 +33,11 @@ class ModCon extends BaseShield\ModCon {
 	private $oCaptchaEnqueue;
 
 	/**
+	 * @var Lib\Reporting\ReportingController
+	 */
+	private $reportsCon;
+
+	/**
 	 * @var Shield\ShieldNetApi\ShieldNetApiController
 	 */
 	private $shieldNetCon;
@@ -42,21 +47,8 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $sessionCon;
 
-	public function getSessionCon() :Lib\Sessions\SessionController {
-		return $this->sessionCon ?? $this->sessionCon = ( new  Lib\Sessions\SessionController() )->setMod( $this );
-	}
-
-	/**
-	 * @var Lib\Reporting\ReportingController
-	 */
-	private $reportsCon;
-
-	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'report' );
-	}
-
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
-		return $this->importExportCon ?? $this->importExportCon = ( new Lib\ImportExport\ImportExportController() )->setMod( $this );
+		return $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController();
 	}
 
 	public function getPluginBadgeCon() :Components\PluginBadge {
@@ -64,11 +56,19 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getReportingController() :Lib\Reporting\ReportingController {
-		return $this->reportsCon ?? $this->reportsCon = ( new Lib\Reporting\ReportingController() )->setMod( $this );
+		return $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController();
+	}
+
+	public function getSessionCon() :Lib\Sessions\SessionController {
+		return $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController();
 	}
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
 		return $this->shieldNetCon ?? $this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )->setMod( $this );
+	}
+
+	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'report' );
 	}
 
 	protected function doPostConstruction() {
@@ -173,9 +173,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getPluginReportEmail() :string {
+		$con = $this->getCon();
 		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
-		if ( $this->isPremium() ) {
-			$e = apply_filters( $this->getCon()->prefix( 'report_email' ), $e );
+		if ( $con->isPremiumActive() ) {
+			$e = apply_filters( $con->prefix( 'report_email' ), $e );
 		}
 		$e = trim( $e );
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
@@ -260,8 +261,11 @@ class ModCon extends BaseShield\ModCon {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getTourManager() :Lib\TourManager {
-		return ( new Lib\TourManager() )->setMod( $this );
+		return new Lib\TourManager();
 	}
 
 	public function setActivatedAt() {
@@ -294,19 +298,12 @@ class ModCon extends BaseShield\ModCon {
 		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
 
-	public function getCanAdminNotes() :bool {
-		return Services::WpUsers()->isUserAdmin();
-	}
-
 	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {
 		return $this->getDbH( 'notes' );
 	}
 
 	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
-		if ( !isset( $this->oCaptchaEnqueue ) ) {
-			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
-		}
-		return $this->oCaptchaEnqueue;
+		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
 	}
 
 	protected function setupCustomHooks() {
@@ -353,6 +350,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getCon()->getInstallationID()[ 'id' ];
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
 	}

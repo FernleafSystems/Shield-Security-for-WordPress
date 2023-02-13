@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildScanTableData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -54,8 +53,7 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function doAction( string $action ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_HackGuard();
 
 		$items = $this->getItemIDs();
 
@@ -67,7 +65,7 @@ class ScanResultsTableAction extends ScansBase {
 					->setMod( $mod )
 					->byID( $itemID );
 				$scanSlugs[] = $item->VO->scan;
-				if ( $mod->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
+				if ( $mod->getScansCon()->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
 					$successfulItems[] = $item->VO->scanresult_id;
 				}
 			}
@@ -75,9 +73,8 @@ class ScanResultsTableAction extends ScansBase {
 			}
 		}
 
-		$scanSlugs = array_unique( $scanSlugs );
-		foreach ( $scanSlugs as $slug ) {
-			$mod->getScanCon( $slug )->cleanStalesResults();
+		foreach ( array_unique( $scanSlugs ) as $slug ) {
+			$mod->getScansCon()->getScanCon( $slug )->cleanStalesResults();
 		}
 
 		if ( count( $successfulItems ) === count( $items ) ) {
@@ -143,7 +140,7 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function retrieveTableData() :array {
 		$req = Services::Request();
-		$builder = ( new BuildScanTableData() )->setMod( $this->primary_mod );
+		$builder = ( new BuildScanTableData() )->setMod( $this->getCon()->getModule_HackGuard() );
 		$builder->table_data = (array)$req->post( 'table_data', [] );
 		$builder->type = (string)$req->post( 'type', '' );
 		$builder->file = (string)$req->post( 'file', '' );

@@ -210,7 +210,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan all files on your site for changes.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) ),
 				];
-				if ( $mod->isPremium() ) {
+				if ( $this->getCon()->isPremiumActive() ) {
 					$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
 						sprintf( __( 'Scan areas include: WordPress Core Files, Plugin and Themes, and PHP Malware.', 'wp-simple-firewall' ), 'ShieldPRO' ) );
 				}

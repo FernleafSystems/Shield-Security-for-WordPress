@@ -105,7 +105,7 @@ class BaseSubPage extends BaseMWP {
 
 		$shd = $sync->getRawData();
 		$status = ( new ClientPluginStatus() )
-			->setMod( $this->getMod() )
+			->setCon( $con )
 			->setMwpSite( $mwpSite )
 			->detect();
 		$shd[ 'status_key' ] = key( $status );

@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionDoesNotExistException,
 	ActionException,
-	IpBlockedException,
 	InvalidActionNonceException,
+	IpBlockedException,
 	SecurityAdminRequiredException,
 	UserAuthRequiredException,
 };

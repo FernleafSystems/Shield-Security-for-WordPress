@@ -20,10 +20,7 @@ class ScanCounts {
 	 * @return int[] - key is scan slug
 	 */
 	public function all() :array {
-		return array_merge(
-			$this->standard(),
-			$this->filelocker()
-		);
+		return array_merge( $this->standard(), $this->filelocker() );
 	}
 
 	/**

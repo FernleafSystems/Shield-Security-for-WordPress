@@ -19,8 +19,8 @@ class Store {
 	use ModConsumer;
 
 	public function store( QueueItemVO $queueItem, array $results ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->getCon()->getModule_HackGuard();
+		$scansCon = $mod->getScansCon();
 
 		$dbhResItems = $mod->getDbH_ResultItems();
 		$dbhResItemMetas = $mod->getDbH_ResultItemMeta();
@@ -31,7 +31,7 @@ class Store {
 
 		foreach ( $results as $result ) {
 
-			$scanResult = $mod->getScanCon( $queueItem->scan )->buildScanResult( $result );
+			$scanResult = $scansCon->getScanCon( $queueItem->scan )->buildScanResult( $result );
 
 			/** @var ResultItemsDB\Ops\Record $resultRecord */
 			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )

@@ -2,12 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
-	Afs,
-	Apc,
-	Wpv
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -15,20 +9,23 @@ class Counts {
 
 	use ModConsumer;
 
-	private $counts;
+	private $counts = [];
 
 	public function all() :array {
-		array_map( function ( string $type ) {
-			$this->getCount( $type );
-		}, [
-			'malware_files',
-			'abandoned',
-			'plugin_files',
-			'theme_files',
-			'assets_vulnerable',
-			'wp_files',
-		] );
-		return $this->getCounts();
+		array_map(
+			function ( string $type ) {
+				$this->getCount( $type );
+			},
+			[
+				'malware_files',
+				'abandoned',
+				'plugin_files',
+				'theme_files',
+				'assets_vulnerable',
+				'wp_files',
+			]
+		);
+		return $this->counts;
 	}
 
 	public function countMalware() :int {
@@ -56,56 +53,46 @@ class Counts {
 	}
 
 	private function getCount( $resultType ) :int {
-		$counts = $this->getCounts();
 
-		if ( !isset( $counts[ $resultType ] ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$resultsCount = ( new RetrieveCount() )
-				->setMod( $this->getMod() )
-				->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
+		if ( !isset( $this->counts[ $resultType ] ) ) {
+			$mod = $this->getCon()->getModule_HackGuard();
+			$scansCon = $mod->getScansCon();
+			$resultsCount = ( new RetrieveCount() )->setMod( $mod );
 
 			switch ( $resultType ) {
 
 				case 'malware_files':
-					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_mal'", ] )->count();
+					$resultsCount->setScanController( $scansCon->AFS() )
+								 ->addWheres( [ "`rim`.`meta_key`='is_mal'", ] );
 					break;
 				case 'wp_files':
-					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_in_core'", ] )->count();
+					$resultsCount->setScanController( $scansCon->AFS() )
+								 ->addWheres( [ "`rim`.`meta_key`='is_in_core'", ] );
 					break;
 				case 'plugin_files':
-					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_in_plugin'", ] )->count();
+					$resultsCount->setScanController( $scansCon->AFS() )
+								 ->addWheres( [ "`rim`.`meta_key`='is_in_plugin'", ] );
 					break;
 				case 'theme_files':
-					$count = $resultsCount->addWheres( [ "`rim`.`meta_key`='is_in_theme'", ] )->count();
+					$resultsCount->setScanController( $scansCon->AFS() )
+								 ->addWheres( [ "`rim`.`meta_key`='is_in_theme'", ] );
 					break;
 				case 'abandoned':
-					$count = $resultsCount
-						->setScanController( $mod->getScanCon( Apc::SCAN_SLUG ) )
-						->addWheres( [ "`rim`.`meta_key`='is_abandoned'", ] )
-						->count();
+					$resultsCount->setScanController( $scansCon->APC() )
+								 ->addWheres( [ "`rim`.`meta_key`='is_abandoned'", ] );
 					break;
 				case 'assets_vulnerable':
-					$count = $resultsCount
-						->setScanController( $mod->getScanCon( Wpv::SCAN_SLUG ) )
-						->addWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] )
-						->count();
+					$resultsCount->setScanController( $scansCon->WPV() )
+								 ->addWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] );
 					break;
 
 				default:
 					die( 'unsupported result type' );
 			}
-			$counts[ $resultType ] = $count;
-			$this->counts = $counts;
+
+			$this->counts[ $resultType ] = $resultsCount->count();
 		}
 
-		return $this->getCounts()[ $resultType ];
-	}
-
-	public function getCounts() :array {
-		if ( !is_array( $this->counts ) ) {
-			$this->counts = [];
-		}
-		return $this->counts;
+		return $this->counts[ $resultType ];
 	}
 }

@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class TrafficLogTableAction extends BaseAction {
 
 	public const SLUG = 'traffictable_action';
-	public const PRIMARY_MOD = 'traffic';
 
 	protected function exec() {
 		try {
@@ -34,7 +33,7 @@ class TrafficLogTableAction extends BaseAction {
 	}
 
 	private function retrieveTableData() :array {
-		$builder = ( new BuildTrafficTableData() )->setMod( $this->primary_mod );
+		$builder = ( new BuildTrafficTableData() )->setMod( $this->getCon()->getModule_Traffic() );
 		$builder->table_data = Services::Request()->post( 'table_data', [] );
 		return [
 			'success'        => true,

@@ -20,7 +20,9 @@ class PageAdminPlugin extends BaseRender {
 		$con = $this->getCon();
 		$req = Services::Request();
 
-		$nav = $this->primary_mod->isAccessRestricted() ? 'restricted' : $req->query( Constants::NAV_ID, PluginURLs::NAV_OVERVIEW );
+		$nav = $con->getModule_Plugin()->isAccessRestricted()
+			? PluginURLs::NAV_RESTRICTED
+			: $req->query( Constants::NAV_ID, PluginURLs::NAV_OVERVIEW );
 		$subNav = (string)$req->query( Constants::NAV_SUB_ID );
 
 		// The particular renderer for the main page body area, based on navigation

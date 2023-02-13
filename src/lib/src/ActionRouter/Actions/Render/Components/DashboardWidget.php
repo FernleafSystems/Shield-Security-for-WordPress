@@ -71,7 +71,7 @@ class DashboardWidget extends BaseRender {
 
 	private function getVars( bool $refresh ) :array {
 		$con = $this->getCon();
-		$recent = ( new RecentStats() )->setCon( $con );
+		$recent = new RecentStats();
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
 		if ( $refresh || empty( $vars ) ) {

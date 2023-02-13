@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends BaseScans {
@@ -38,11 +36,5 @@ abstract class Base extends BaseScans {
 				'upgrade' => Services::WpGeneral()->getAdminUrl_Updates()
 			],
 		];
-	}
-
-	protected function getScanConAFS() :Afs {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		return $mod->getScanCon( Afs::SCAN_SLUG );
 	}
 }

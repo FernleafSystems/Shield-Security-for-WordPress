@@ -77,6 +77,7 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @return Scan\Controller\Base|mixed
+	 * @deprecated 17.0
 	 */
 	public function getScanCon( string $slug ) {
 		return $this->getScansCon()->getScanCon( $slug );
@@ -171,10 +172,8 @@ class ModCon extends BaseShield\ModCon {
 
 	public function onPluginDeactivate() {
 		// 1. Clean out the scanners
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $slug ) {
-			$this->getScanCon( $slug )->purge();
+		foreach ( $this->getScansCon()->getAllScanCons() as $scanCon ) {
+			$scanCon->purge();
 		}
 		$this->getDbH_ScanItems()->tableDelete();
 		$this->getDbH_ScanResults()->tableDelete();

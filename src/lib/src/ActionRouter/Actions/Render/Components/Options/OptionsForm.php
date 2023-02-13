@@ -11,25 +11,9 @@ class OptionsForm extends BaseRender {
 	public const SLUG = 'render_options_form';
 	public const TEMPLATE = '/components/config/options_form.twig';
 
-	public function __get( string $key ) {
-		$value = parent::__get( $key );
-
-		switch ( $key ) {
-
-			case 'primary_mod_slug':
-				$value = $this->action_data[ 'primary_mod_slug' ];
-				break;
-
-			default:
-				break;
-		}
-
-		return $value;
-	}
-
 	protected function getRenderData() :array {
-		$mod = $this->primary_mod;
 		$actionData = $this->action_data;
+		$mod = $this->getCon()->modules[ $actionData[ 'mod_slug' ] ];
 
 		$focusOption = $actionData[ 'focus_option' ] ?? '';
 		$focusSection = $actionData[ 'focus_section' ] ?? $mod->getOptions()->getPrimarySection()[ 'slug' ];
@@ -49,8 +33,8 @@ class OptionsForm extends BaseRender {
 				'form_action' => 'admin.php?page='.$mod->getModSlug(),
 			],
 			'strings' => [
-				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $mod->getModDescriptors()[ 'title' ] ),
-				'inner_page_subtitle' => $mod->getModDescriptors()[ 'subtitle' ],
+				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration' ), $mod->getDescriptors()[ 'title' ] ),
+				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],
 			],
 			'vars'    => [
 				'working_mod'   => $mod->cfg->slug,
@@ -69,7 +53,7 @@ class OptionsForm extends BaseRender {
 
 	protected function getRequiredDataKeys() :array {
 		return [
-			'primary_mod_slug',
+			'mod_slug',
 		];
 	}
 }

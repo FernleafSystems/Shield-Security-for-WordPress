@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForWordpress;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,20 +20,18 @@ class Wordpress extends Base {
 			'vars'    => [
 				'count_items'     => $wpData[ 'vars' ][ 'count_items' ],
 				'wordpress'       => $wpData,
-				'datatables_init' => ( new ForWordpress() )
-					->setMod( $this->getMod() )
-					->build()
+				'datatables_init' => ( new ForWordpress() )->build()
 			]
 		] );
 	}
 
 	private function buildWordpressData() :array {
 		$WP = Services::WpGeneral();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$count = $mod->getScansCon()
-					 ->getScanResultsCount()
-					 ->countWPFiles();
+		$count = $this->getCon()
+					  ->getModule_HackGuard()
+					  ->getScansCon()
+					  ->getScanResultsCount()
+					  ->countWPFiles();
 		$data = [
 			'info'  => [
 				'type'    => 'wordpress',

@@ -4,24 +4,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModCon;
 
 class ConfigPage extends BaseRender {
 
 	use AnyUserAuthRequired;
 
 	public const SLUG = 'page_user_mfa_config';
-	public const PRIMARY_MOD = 'login_protect';
 	public const TEMPLATE = '/wpadmin_pages/my_login_security/index.twig';
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		return [
 			'content' => [
-				'mfa_setup' => $mod->getMfaController()
-								   ->getMfaProfilesCon()
-								   ->renderUserProfileMFA()
+				'mfa_setup' => $this->getCon()
+									->getModule_LoginGuard()
+									->getMfaController()
+									->getMfaProfilesCon()
+									->renderUserProfileMFA()
 			]
 		];
 	}

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
@@ -19,7 +18,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	}
 
 	protected function preProcessOptions() {
-		$WP = Services::WpGeneral();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
@@ -73,7 +71,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		$opts = $this->getOptions();
 
 		$style = $opts->getOpt( 'enable_google_recaptcha_login' );
-		if ( $this->isPremium() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			$cfg = $this->getCaptchaCfg();
 			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
 				if ( !$cfg->invisible && $style == 'invisible' ) {
@@ -122,9 +120,9 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public function getCaptchaCfg() :CaptchaConfigVO {
 		$cfg = parent::getCaptchaCfg();
-		$sStyle = $this->getOptions()->getOpt( 'enable_google_recaptcha_login' );
-		if ( $sStyle !== 'default' && $this->isPremium() ) {
-			$cfg->theme = $sStyle;
+		$style = $this->getOptions()->getOpt( 'enable_google_recaptcha_login' );
+		if ( $style !== 'default' && $this->getCon()->isPremiumActive() ) {
+			$cfg->theme = $style;
 			$cfg->invisible = $cfg->theme == 'invisible';
 		}
 		return $cfg;

@@ -2,16 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
-
 class LicenseActionLookup extends LicenseBase {
 
 	public const SLUG = 'license_action_lookup';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$licHandler = $mod->getLicenseHandler();
+		$licHandler = $this->getCon()->getModule_License()->getLicenseHandler();
 
 		$success = false;
 

@@ -13,6 +13,8 @@ class PluginTelemetry {
 
 	use ModConsumer;
 
+	public const MOD = Plugin\ModCon::SLUG;
+
 	public function collectAndSend( bool $forceSend = false ) {
 		if ( $forceSend || $this->canSend() ) {
 			$data = $this->collectTrackingData();

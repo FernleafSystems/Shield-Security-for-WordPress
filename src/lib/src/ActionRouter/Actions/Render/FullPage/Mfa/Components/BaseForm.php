@@ -20,13 +20,9 @@ abstract class BaseForm extends Base {
 
 	protected function getCommonFormData() :array {
 		$con = $this->getCon();
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->primary_mod;
-		$mfaCon = $mod->getMfaController();
+		$mod = $con->getModule_LoginGuard();
 		/** @var LoginGuard\Options $opts */
 		$opts = $mod->getOptions();
-		$req = Services::Request();
-		$user = $this->getWpUser();
 		$WP = Services::WpGeneral();
 
 		$mfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
@@ -34,12 +30,10 @@ abstract class BaseForm extends Base {
 		return [
 			'content' => [
 				'login_fields' => array_filter( array_map(
-					function ( $provider ) {
-						/** @var LoginGuard\Options $opts */
-						$opts = $this->primary_mod->getOptions();
+					function ( $provider ) use ( $opts ) {
 						return $provider->renderLoginIntentFormField( $opts->getMfaLoginIntentFormat() );
 					},
-					$mfaCon->getProvidersActiveForUser( $user )
+					$mod->getMfaController()->getProvidersActiveForUser( $this->getWpUser() )
 				) ),
 			],
 			'flags'   => [
@@ -66,7 +60,7 @@ abstract class BaseForm extends Base {
 			'vars'    => [
 				'form_hidden_fields' => $this->getHiddenFields(),
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
-				'time_remaining'     => $this->getLoginIntentExpiresAt() - $req->ts(),
+				'time_remaining'     => $this->getLoginIntentExpiresAt() - Services::Request()->ts(),
 				'message_type'       => 'info',
 			]
 		];
@@ -122,8 +116,7 @@ abstract class BaseForm extends Base {
 	}
 
 	protected function getLoginIntentExpiresAt() :int {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_LoginGuard();
 		$mfaCon = $mod->getMfaController();
 		/** @var LoginGuard\Options $opts */
 		$opts = $mod->getOptions();

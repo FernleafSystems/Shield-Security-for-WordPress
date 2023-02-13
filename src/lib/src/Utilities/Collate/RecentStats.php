@@ -64,12 +64,7 @@ class RecentStats {
 	}
 
 	public function getRecentUserSessions() :array {
-		if ( !isset( self::$recentUserSessions ) ) {
-			self::$recentUserSessions = ( new FindSessions() )
-				->setMod( $this->getCon()->getModule_UserManagement() )
-				->mostRecent();
-		}
-		return self::$recentUserSessions;
+		return self::$recentUserSessions ?? self::$recentUserSessions = ( new FindSessions() )->mostRecent() ;
 	}
 
 	public function getRecentEvents() :array {

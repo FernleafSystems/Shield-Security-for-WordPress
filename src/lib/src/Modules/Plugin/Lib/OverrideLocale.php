@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\LoadTextDomain;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 
-class OverrideLocale {
+class OverrideLocale extends ExecOnceModConsumer {
 
-	use ModConsumer;
+	public const MOD = ModCon::SLUG;
 
-	public function run() {
+	protected function run() {
 		$locale = $this->getOptions()->getOpt( 'locale_override' );
 		if ( !empty( $locale ) ) {
 

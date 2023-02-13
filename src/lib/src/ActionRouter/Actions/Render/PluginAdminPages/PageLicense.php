@@ -9,19 +9,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	LicenseCheckDebug
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageLicense extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_license';
-	public const PRIMARY_MOD = 'license';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/license.twig';
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $con->getModule_License();
 		$opts = $mod->getOptions();
 		$WP = Services::WpGeneral();
 		$carb = Services::Request()->carbon();

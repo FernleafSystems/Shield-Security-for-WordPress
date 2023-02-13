@@ -6,5 +6,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 
 abstract class BaseScans extends BaseRender {
 
-	public const PRIMARY_MOD = 'hack_protect';
 }

@@ -8,6 +8,9 @@ abstract class ScanEnabledBase extends Base {
 
 	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
-		return $mod->isModOptEnabled() && $mod->getScanCon( explode( '_', static::SLUG )[ 2 ] )->isEnabled();
+		return $mod->isModOptEnabled() &&
+			   $mod->getScansCon()
+				   ->getScanCon( explode( '_', static::SLUG )[ 2 ] )
+				   ->isEnabled();
 	}
 }

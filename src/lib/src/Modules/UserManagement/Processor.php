@@ -58,16 +58,14 @@ class Processor extends BaseShield\Processor {
 		$con = $this->getCon();
 		if ( $con->isValidAdminArea() ) {
 
-			$recent = ( new FindSessions() )
-				->setMod( $this->getMod() )
-				->mostRecent();
-
 			$thisGroup = [
 				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
 				'href'  => $con->plugin_urls ? $con->plugin_urls->adminTopNav( $con->plugin_urls::NAV_USER_SESSIONS ) :
 					$con->getModule_Insights()->getUrl_Sessions(),
 				'items' => [],
 			];
+
+			$recent = ( new FindSessions() )->mostRecent();
 			if ( !empty( $recent ) ) {
 
 				foreach ( $recent as $userID => $user ) {

@@ -3,14 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\BuildAuditTableData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\GetRequestMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActivityLogTableAction extends BaseAction {
 
 	public const SLUG = 'logtable_action';
-	public const PRIMARY_MOD = ModCon::SLUG;
 
 	protected function exec() {
 		try {
@@ -41,7 +39,7 @@ class ActivityLogTableAction extends BaseAction {
 	}
 
 	private function retrieveTableData() :array {
-		$builder = ( new BuildAuditTableData() )->setMod( $this->primary_mod );
+		$builder = ( new BuildAuditTableData() )->setMod( $this->getCon()->getModule_AuditTrail() );
 		$builder->table_data = (array)Services::Request()->post( 'table_data', [] );
 		return [
 			'success'        => true,

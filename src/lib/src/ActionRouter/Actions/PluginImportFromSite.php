@@ -25,7 +25,7 @@ class PluginImportFromSite extends BaseAction {
 			$doNetwork = ( $formParams[ 'ShieldNetwork' ] === 'Y' ) ? true : ( ( $formParams[ 'ShieldNetwork' ] === 'N' ) ? false : null );
 			try {
 				$code = ( new Import() )
-					->setMod( $this->primary_mod )
+					->setMod( $this->getCon()->getModule_Plugin() )
 					->fromSite( (string)$formParams[ 'MasterSiteUrl' ], (string)$formParams[ 'MasterSiteSecretKey' ], $doNetwork );
 			}
 			catch ( \Exception $e ) {

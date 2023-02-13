@@ -4,9 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	SecurityAdmin,
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageConfig extends BasePluginAdminPage {
@@ -16,20 +14,16 @@ class PageConfig extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
 		$con = $this->getCon();
-		$mod = $this->primary_mod;
-		$WP = Services::WpGeneral();
-
 		$hrefs = [];
-		switch ( $mod->cfg->slug ) {
+		switch ( $this->action_data[ 'mod_slug' ] ) {
 
 			case SecurityAdmin\ModCon::SLUG:
-				/** @var SecurityAdmin\ModCon $mod */
-				if ( $mod->getSecurityAdminController()->isEnabledSecAdmin() ) {
+				if ( $con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
 					$hrefs[] = [
 						'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
 						'href' => $con->plugin_urls->noncedPluginAction(
 							SecurityAdminRemove::class,
-							$WP->getAdminUrl(),
+							Services::WpGeneral()->getAdminUrl(),
 							[
 								'quietly' => '1',
 							]
@@ -46,30 +40,16 @@ class PageConfig extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$mod = $this->primary_mod;
+		$con = $this->getCon();
+		$mod = $con->modules[ $this->action_data[ 'mod_slug' ] ];
 		return [
 			'content' => [
-				'options_form' => $this->getCon()->action_router->render( OptionsForm::SLUG, $this->action_data ),
+				'options_form' => $con->action_router->render( OptionsForm::SLUG, $this->action_data ),
 			],
 			'strings' => [
-				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration', 'wp-simple-firewall' ), $mod->getModDescriptors()[ 'title' ] ),
-				'inner_page_subtitle' => $mod->getModDescriptors()[ 'subtitle' ],
+				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration', 'wp-simple-firewall' ), $mod->getDescriptors()[ 'title' ] ),
+				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],
 			],
 		];
-	}
-
-	public function __get( string $key ) {
-		$value = parent::__get( $key );
-
-		switch ( $key ) {
-			case 'primary_mod_slug':
-				$value = $this->action_data[ 'primary_mod_slug' ];
-				break;
-
-			default:
-				break;
-		}
-
-		return $value;
 	}
 }

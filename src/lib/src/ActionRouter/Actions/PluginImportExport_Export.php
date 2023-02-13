@@ -11,7 +11,7 @@ class PluginImportExport_Export extends PluginImportExport_Base {
 
 	protected function exec() {
 		( new Export() )
-			->setMod( $this->primary_mod )
+			->setMod( $this->getCon()->getModule_Plugin() )
 			->run( (string)Services::Request()->query( 'method' ) );
 		$this->response()->action_response_data = [
 			'success' => true,

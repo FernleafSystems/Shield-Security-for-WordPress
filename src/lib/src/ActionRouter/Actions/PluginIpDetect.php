@@ -12,7 +12,7 @@ class PluginIpDetect extends BaseAction {
 
 	protected function exec() {
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $this->getCon()->getModule_Plugin()->getOptions();
 		$source = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
 		if ( !empty( $source ) ) {
 			$opts->setVisitorAddressSource( $source );

@@ -16,14 +16,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 
 class PageScansResults extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_scans_results';
-	public const PRIMARY_MOD = 'hack_protect';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_results.twig';
 
 	protected function getPageContextualHrefs() :array {
@@ -35,30 +32,27 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_HackGuard()->cfg->slug ),
 			],
 		];
 	}
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$mod = $con->getModule_HackGuard();
+		$scansCon = $mod->getScansCon();
 
 		( new CleanQueue() )
-			->setMod( $this->primary_mod )
+			->setMod( $mod )
 			->execute();
-		foreach ( $opts->getScanSlugs() as $scan ) {
-			$mod->getScanCon( $scan )->cleanStalesResults();
+		foreach ( $scansCon->getAllScanCons() as $scanCon ) {
+			$scanCon->cleanStalesResults();
 		}
 
-		$actionRouter = $con->action_router;
-		$counter = $mod->getScansCon()->getScanResultsCount();
+		$counter = $scansCon->getScanResultsCount();
 
 		// Can Scan Checks:
-		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
+		$reasonsCantScan = $scansCon->getReasonsScansCantExecute();
 		return [
 			'ajax'        => [
 				'scans_start' => ActionData::BuildJson( ScansStart::class ),
@@ -66,11 +60,11 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			'content'     => [
 				'section' => [
-					'plugins'    => $actionRouter->render( Plugins::SLUG ),
-					'themes'     => $actionRouter->render( Themes::SLUG ),
-					'wordpress'  => $actionRouter->render( Wordpress::SLUG ),
-					'malware'    => $actionRouter->render( Malware::SLUG ),
-					'filelocker' => $actionRouter->render( FileLocker::SLUG ),
+					'plugins'    => $con->action_router->render( Plugins::SLUG ),
+					'themes'     => $con->action_router->render( Themes::SLUG ),
+					'wordpress'  => $con->action_router->render( Wordpress::SLUG ),
+					'malware'    => $con->action_router->render( Malware::SLUG ),
+					'filelocker' => $con->action_router->render( FileLocker::SLUG ),
 					'logs'       => 'logs todo',
 				]
 			],
@@ -129,7 +123,7 @@ class PageScansResults extends BasePluginAdminPage {
 				'title' => __( 'File Locker', 'wp-simple-firewall' ),
 			],
 			'count'   => count( ( new LoadFileLocks() )
-				->setMod( $this->primary_mod )
+				->setMod( $this->getCon()->getModule_HackGuard() )
 				->withProblems() )
 		];
 	}

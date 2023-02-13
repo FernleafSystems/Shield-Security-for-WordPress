@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,8 +14,7 @@ class History extends Base {
 	private $history = [];
 
 	protected function getRenderData() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_HackGuard();
 		$item = $this->getScanItem();
 
 		$results = ( new RetrieveItems() )
@@ -38,7 +36,9 @@ class History extends Base {
 						$this->history[ $ts ][] = sprintf(
 							__( "File detected as %s by %s scanner.", 'wp-simple-firewall' ),
 							sprintf( '<strong>%s</strong>', $this->getItemFileStatus() ),
-							sprintf( '<strong>%s</strong>', $mod->getScanCon( $item->VO->scan )->getScanName() )
+							sprintf( '<strong>%s</strong>', $mod->getScansCon()
+																->getScanCon( $item->VO->scan )
+																->getScanName() )
 						);
 					}
 					else {

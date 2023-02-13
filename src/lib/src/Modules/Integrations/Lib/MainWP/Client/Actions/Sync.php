@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	HackGuard,
+	Plugin
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterSummary;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Plugin,
-	HackGuard
-};
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sync {

@@ -37,7 +37,7 @@ class TabManageSitePage extends BaseMainwpPage {
 				'site_id'            => $this->action_data[ 'site_id' ],
 				'site_action_slug'   => OptionsForm::SLUG,
 				'site_action_params' => [
-					'primary_mod_slug' => 'plugin'
+					'mod_slug' => 'plugin'
 				],
 			] )->action_response_data[ 'render_output' ];
 		}

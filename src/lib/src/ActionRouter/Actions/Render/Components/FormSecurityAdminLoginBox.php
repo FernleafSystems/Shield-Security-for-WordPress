@@ -12,13 +12,12 @@ class FormSecurityAdminLoginBox extends BaseRender {
 
 	use SecurityAdminNotRequired;
 
-	public const PRIMARY_MOD = 'admin_access_restriction';
 	public const SLUG = 'render_form_security_admin_loginbox';
 	public const TEMPLATE = '/components/security_admin/login_box.twig';
 
 	protected function getRenderData() :array {
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
 		return [
 			'flags'   => [
 				'restrict_options' => $opts->isRestrictWpOptions()

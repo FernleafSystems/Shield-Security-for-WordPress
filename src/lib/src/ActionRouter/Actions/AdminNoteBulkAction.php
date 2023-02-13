@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Delete;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNoteBulkAction extends BaseAction {
@@ -11,8 +10,6 @@ class AdminNoteBulkAction extends BaseAction {
 	public const SLUG = 'admin_note_bulk_action';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
 		$req = Services::Request();
 
 		$success = false;
@@ -26,7 +23,7 @@ class AdminNoteBulkAction extends BaseAction {
 		}
 		else {
 			/** @var Delete $deleter */
-			$deleter = $mod->getDbHandler_Notes()->getQueryDeleter();
+			$deleter = $this->getCon()->getModule_Plugin()->getDbHandler_Notes()->getQueryDeleter();
 			foreach ( $IDs as $id ) {
 				if ( is_numeric( $id ) ) {
 					$deleter->deleteById( $id );

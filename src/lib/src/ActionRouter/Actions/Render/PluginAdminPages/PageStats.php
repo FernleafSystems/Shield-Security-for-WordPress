@@ -3,13 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageStats extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_stats';
-	public const PRIMARY_MOD = 'events';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/stats.twig';
 
 	protected function getRenderData() :array {
@@ -66,9 +64,8 @@ class PageStats extends BasePluginAdminPage {
 		return $allStats;
 	}
 
-	private function buildSums( $event ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+	private function buildSums( string $event ) :array {
+		$mod = $this->getCon()->getModule_Events();
 		/** @var Select $selector */
 		$selector = $mod->getDbHandler_Events()->getQuerySelector();
 		$carbon = Services::Request()->carbon( true );

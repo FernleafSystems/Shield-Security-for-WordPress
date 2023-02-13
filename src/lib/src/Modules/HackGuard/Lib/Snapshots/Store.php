@@ -97,14 +97,24 @@ class Store {
 	 */
 	public function getSnapData() :array {
 		if ( !is_array( $this->snapData ) ) {
-			$this->loadSnapDataIfExists();
+			try {
+				$this->snapData = $this->readSnapData();
+			}
+			catch ( \Exception $e ) {
+				$this->snapData = [];
+			}
 		}
 		return is_array( $this->snapData ) ? $this->snapData : [];
 	}
 
 	public function getSnapMeta() :array {
 		if ( empty( $this->snapMeta ) ) {
-			$this->loadSnapMetaIfExists();
+			try {
+				$this->snapMeta = $this->readSnapMeta();
+			}
+			catch ( \Exception $e ) {
+				$this->snapMeta = [];
+			}
 		}
 		return is_array( $this->snapMeta ) ? $this->snapMeta : [];
 	}
@@ -123,6 +133,7 @@ class Store {
 
 	/**
 	 * @return $this
+	 * @deprecated 17.0
 	 */
 	private function loadSnapDataIfExists() {
 		try {
@@ -136,6 +147,7 @@ class Store {
 
 	/**
 	 * @return $this
+	 * @deprecated 17.0
 	 */
 	private function loadSnapMetaIfExists() {
 		try {
@@ -175,7 +187,7 @@ class Store {
 	/**
 	 * @throws \Exception
 	 */
-	private function readSnapMeta() {
+	private function readSnapMeta() :array {
 		$FS = Services::WpFs();
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {

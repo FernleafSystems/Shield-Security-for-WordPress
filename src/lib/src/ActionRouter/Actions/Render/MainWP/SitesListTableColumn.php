@@ -17,12 +17,10 @@ class SitesListTableColumn extends BaseRender {
 	public const TEMPLATE = '/integration/mainwp/tables/manage_sites_col.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
 		$workingSite = ( new MWPSiteVO() )->applyFromArray( $this->action_data[ 'raw_mainwp_site_data' ] );
 
 		$sync = LoadShieldSyncData::Load( $workingSite );
 		$status = ( new ClientPluginStatus() )
-			->setMod( $this->getMod() )
 			->setMwpSite( $workingSite )
 			->detect();
 
@@ -57,7 +55,7 @@ class SitesListTableColumn extends BaseRender {
 			],
 			'hrefs'   => [
 				'this_extension' => Services::WpGeneral()
-											->getUrl_AdminPage( $con->mwpVO->official_extension_data[ 'page' ] ),
+											->getUrl_AdminPage( $this->getCon()->mwpVO->official_extension_data[ 'page' ] ),
 			],
 			'strings' => [
 				'tooltip_inactive'         => __( "Shield plugin is installed, but not active.", 'wp-simple-firewall' ),

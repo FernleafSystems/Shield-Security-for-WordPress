@@ -121,8 +121,10 @@ abstract class BaseRender extends BaseAction {
 		$con = $this->getCon();
 		$thisReq = $con->this_req;
 		$urls = $con->plugin_urls;
-		$mod = $this->getMod();
 		$urlBuilder = $con->urls;
+
+		$modPlugin = $con->getModule_Plugin();
+		$sessionCon = method_exists( $modPlugin, 'getSessionCon' ) ? $modPlugin->getSessionCon() : null;
 
 		/** @var Options $pluginOptions */
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
@@ -132,40 +134,31 @@ abstract class BaseRender extends BaseAction {
 		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		return [
 			'unique_render_id' => uniqid(),
-			'sTagline'         => $mod->cfg->properties[ 'tagline' ],
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
 
-			'sPageTitle' => $mod->getMainFeatureName(),
-			'ajax'       => [
+			'ajax'    => [
 				'sec_admin_login' => ActionData::Build( SecurityAdminLogin::class ),
 			],
-			'classes'    => [
+			'classes' => [
 				'top_container' => implode( ' ', array_filter( [
 					'odp-outercontainer',
 					$this->getCon()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
-					$mod->getModSlug(),
 					Services::Request()->query( Constants::NAV_ID, '' )
 				] ) )
 			],
-			'flags'      => [
-				'has_session'             => method_exists( $mod, 'getSession' ) ? $mod->getSession()->valid : $mod->getSessionWP()->valid,
+			'flags'   => [
+				'has_session'             => empty( $sessionCon ) ? $modPlugin->getSessionWP()->valid : $sessionCon->current()->valid,
 				'display_helpdesk_widget' => !$isWhitelabelled,
 				'is_whitelabelled'        => $isWhitelabelled,
 				'is_ip_whitelisted'       => $ipStatus->isBypass(),
 				'is_ip_blocked'           => $ipStatus->isBlocked(),
 				'is_mode_live'            => $con->is_mode_live,
-				'access_restricted'       => method_exists( $mod, 'isAccessRestricted' ) && $mod->isAccessRestricted(),
-				'show_ads'                => $mod->getIsShowMarketing(),
-				'wrap_page_content'       => true,
-				'show_standard_options'   => true,
-				'show_content_help'       => true,
-				'show_alt_content'        => false,
 				'is_premium'              => $con->isPremiumActive(),
 				'show_transfer_switch'    => $con->isPremiumActive(),
 				'is_wpcli'                => $pluginOptions->isEnabledWpcli(),
 				'is_security_admin'       => $con->isPluginAdmin(),
 			],
-			'head'       => [
+			'head'    => [
 				'html'    => [
 					'lang' => $WP->getLocale( '-' ),
 					'dir'  => is_rtl() ? 'rtl' : 'ltr',
@@ -194,7 +187,7 @@ abstract class BaseRender extends BaseAction {
 				],
 				'scripts' => []
 			],
-			'hrefs'      => [
+			'hrefs'   => [
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'helpdesk'       => $con->labels->url_helpdesk,
 				'plugin_home'    => $con->labels->PluginURI,
@@ -207,7 +200,7 @@ abstract class BaseRender extends BaseAction {
 				/** @deprecated 17.0 */
 				'ajax'           => method_exists( $WP, 'ajaxURL' ) ? $WP->ajaxURL() : '',
 			],
-			'imgs'       => [
+			'imgs'    => [
 				'svgs'           => [
 					'exit'        => $con->svgs->raw( 'box-arrow-left.svg' ),
 					'help'        => $con->svgs->raw( 'question-circle.svg' ),
@@ -223,18 +216,13 @@ abstract class BaseRender extends BaseAction {
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
 				'background_svg' => $urlBuilder->forImage( 'shield/background-blob.svg' )
 			],
-			'content'    => [
+			'content' => [
 				'options_form' => '',
 				'alt'          => '',
 				'actions'      => '',
 				'help'         => '',
 			],
-			'strings'    => $this->getDisplayStrings(),
-			'vars'       => [
-				'mod_slug'         => $mod->getModSlug(),
-				'unique_render_id' => uniqid(),
-				'plugin_version'   => $con->getVersion(),
-			],
+			'strings' => $this->getDisplayStrings(),
 		];
 	}
 
@@ -415,7 +403,7 @@ abstract class BaseRender extends BaseAction {
 
 	protected function getTwigEnvironmentVars() :array {
 		return [
-			'strict_variables' => false,
+			'strict_variables' => true,
 		];
 	}
 }

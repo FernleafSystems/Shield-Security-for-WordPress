@@ -9,6 +9,4 @@ abstract class MfaUserConfigBase extends BaseAction {
 
 	use ActiveWpUserConsumer;
 	use AnyUserAuthRequired;
-
-	public const PRIMARY_MOD = 'login_protect';
 }

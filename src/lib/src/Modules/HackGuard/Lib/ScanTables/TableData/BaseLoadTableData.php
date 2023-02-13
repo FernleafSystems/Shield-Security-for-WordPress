@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -40,11 +38,10 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 	}
 
 	protected function getRecordRetriever() :RetrieveItems {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->getCon()->getModule_HackGuard();
 		$retriever = ( new RetrieveItems() )
-			->setMod( $this->getMod() )
-			->setScanController( $mod->getScanCon( Afs::SCAN_SLUG ) );
+			->setMod( $mod )
+			->setScanController( $mod->getScansCon()->AFS() );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
 
@@ -82,12 +79,11 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 	 */
 	protected function getActions( string $status, $item ) :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$actionHandler = $mod->getScanCon( $item->VO->scan )
+		$actionHandler = $con->getModule_HackGuard()
+							 ->getScansCon()
+							 ->getScanCon( $item->VO->scan )
 							 ->getItemActionHandler()
 							 ->setScanItem( $item );
-
 		$actions = [];
 
 		$defaultButtonClasses = [

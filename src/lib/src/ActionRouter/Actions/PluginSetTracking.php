@@ -11,7 +11,7 @@ class PluginSetTracking extends BaseAction {
 
 	protected function exec() {
 		/** @var Options $opts */
-		$opts = $this->primary_mod->getOptions();
+		$opts = $this->getCon()->getModule_Plugin()->getOptions();
 		if ( !$opts->isTrackingPermissionSet() ) {
 			$opts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		}

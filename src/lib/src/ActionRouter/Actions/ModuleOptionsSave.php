@@ -14,16 +14,13 @@ class ModuleOptionsSave extends BaseAction {
 
 		$wasSecAdminEnabled = $secAdminCon->isEnabledSecAdmin();
 
-		$success = ( new HandleOptionsSaveRequest() )
-			->setMod( $this->getMod() )
-			->handleSave();
+		$success = ( new HandleOptionsSaveRequest() )->handleSave();
 
 		// The appropriate module is set during the handleSave(). if it's Security Admin and the PIN
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
-			'redirect_to' => $con->plugin_urls->modCfg( $this->getMod() ),
-			'html'        => '', //we reload the page
+			'html'        => '',
 			'page_reload' => !$wasSecAdminEnabled && $secAdminCon->isEnabledSecAdmin(), // for Sec Admin activation
 			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->getHumanName() )

@@ -8,6 +8,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotR
 abstract class Base extends BaseRender {
 
 	use AuthNotRequired;
-
-	public const PRIMARY_MOD = 'login_protect';
 }

@@ -14,7 +14,6 @@ class QueueInit {
 
 	/**
 	 * Build and Enqueue.
-	 * @param string $slug
 	 * @throws \Exception
 	 */
 	public function init( string $slug ) {
@@ -41,7 +40,7 @@ class QueueInit {
 
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )
-			->setScanController( $mod->getScanCon( $slug ) )
+			->setScanController( $mod->getScansCon()->getScanCon( $slug ) )
 			->run();
 	}
 }

@@ -4,5 +4,4 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 abstract class LicenseBase extends BaseAction {
 
-	public const PRIMARY_MOD = 'license';
 }

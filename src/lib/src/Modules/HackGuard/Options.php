@@ -36,7 +36,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getWhitelistedPathsAsRegex() :array {
 		$paths = $this->getDef( 'default_whitelist_paths' );
-		if ( $this->isPremium() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			$paths = array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
 		}
 
@@ -106,7 +106,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isPtgReinstallLinks() :bool {
-		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->isPremium();
+		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->getCon()->isPremiumActive();
 	}
 
 	public function isRepairFileAuto() :bool {
@@ -135,9 +135,11 @@ class Options extends BaseShield\Options {
 
 	/**
 	 * @return string[]
+	 * @deprecated 17.0
 	 */
 	public function getScanSlugs() :array {
-		return $this->getDef( 'all_scan_slugs' );
+		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
+		return method_exists( $scansCon, 'getScans' ) ? $scansCon->getScanSlugs() : $this->getDef( 'all_scan_slugs' );
 	}
 
 	/**

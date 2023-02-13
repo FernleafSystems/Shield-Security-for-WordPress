@@ -34,12 +34,12 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	 * @param string $msg
 	 */
 	public function printLinkToAdmin( $msg = '' ) :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$user = Services::WpUsers()->getCurrentWpUser();
 
-		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] ) && $mod->getSession()->valid
-			 && $user instanceof \WP_User ) {
+		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
+			 && $user instanceof \WP_User
+			 && $this->getCon()->getModule_Plugin()->getSessionCon()->current()->valid
+		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
 				sprintf( '<span style="white-space: nowrap">(%s)</span>', $user->user_login ),
@@ -232,7 +232,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 		$sess = $this->getCon()
 					 ->getModule_Plugin()
 					 ->getSessionCon()
-					 ->getCurrentWP();
+					 ->current();
 		if ( !$sess->valid ) {
 			throw new \Exception( 'session_notfound' );
 		}

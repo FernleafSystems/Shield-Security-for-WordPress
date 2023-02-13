@@ -20,7 +20,7 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	private $validPinRequest;
 
 	protected function canRun() :bool {
-		return $this->isEnabledSecAdmin();
+		return !$this->getCon()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
 	}
 
 	protected function run() {
@@ -158,17 +158,22 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	 * Only returns greater than 0 if you have a valid Sec admin session
 	 */
 	public function getSecAdminTimeRemaining() :int {
-		$mod = $this->getMod();
-
 		$remaining = 0;
-		$session = method_exists( $mod, 'getSession' ) ? $mod->getSession() : $mod->getSessionWP();
-		if ( $session->valid ) {
-			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
-			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
-				$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
+
+		$modPlugin = $this->getCon()->getModule_Plugin();
+		/** @deprecated 17.0 - no need for this IF */
+		if ( method_exists( $modPlugin, 'getSessionCon' ) ) {
+			$session = $modPlugin->getSessionCon()->current();
+			if ( $session->valid ) {
+				$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
+				if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
+					$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
+				}
 			}
+			$remaining = (int)max( 0, $remaining );
 		}
-		return (int)max( 0, $remaining );
+
+		return $remaining;
 	}
 
 	public function isCurrentUserRegisteredSecAdmin() :bool {

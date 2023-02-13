@@ -6,14 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
 class PageScansRun extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_scans_run';
-	public const PRIMARY_MOD = 'hack_protect';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_run.twig';
 
 	protected function getPageContextualHrefs() :array {
@@ -25,17 +23,17 @@ class PageScansRun extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $this->primary_mod->cfg->slug ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_HackGuard()->cfg->slug ),
 			],
 		];
 	}
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $con->getModule_HackGuard();
+
 		( new CleanQueue() )
-			->setMod( $this->primary_mod )
+			->setMod( $mod )
 			->execute();
 
 		// Can Scan Checks:
@@ -82,10 +80,9 @@ class PageScansRun extends BasePluginAdminPage {
 	}
 
 	private function buildScansVars() :array {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_HackGuard();
 		/** @var Strings $strings */
-		$strings = $this->primary_mod->getStrings();
+		$strings = $mod->getStrings();
 		$scanStrings = $strings->getScanStrings();
 
 		$scans = [];

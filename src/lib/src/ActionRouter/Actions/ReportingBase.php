@@ -6,12 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
 
 abstract class ReportingBase extends BaseAction {
 
-	public const PRIMARY_MOD = 'reporting';
-
 	protected function renderChart( array $data ) {
 		try {
 			$chartData = ( new Charts\CustomChartData() )
-				->setMod( $this->primary_mod )
+				->setMod( $this->getCon()->getModule_Plugin() )
 				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $data ) )
 				->build();
 			$msg = 'No message';

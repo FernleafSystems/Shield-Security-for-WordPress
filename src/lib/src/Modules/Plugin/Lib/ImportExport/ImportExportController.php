@@ -5,12 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	use Shield\Crons\PluginCronsConsumer;
+
+	public const MOD = ModCon::SLUG;
 
 	protected function canRun() :bool {
 		return $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) && $this->getCon()->isPremiumActive();

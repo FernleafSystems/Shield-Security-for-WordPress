@@ -31,7 +31,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$sPlugName = $this->getCon()->getHumanName();
+		$name = $this->getCon()->getHumanName();
 
 		switch ( $section ) {
 
@@ -69,12 +69,12 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s',
 						__( 'Purpose', 'wp-simple-firewall' ),
 						sprintf( __( 'Rename and re-brand the %s plugin for your client site installations.', 'wp-simple-firewall' ),
-							$sPlugName )
+							$name )
 					),
 					sprintf( '%s - %s',
 						__( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( 'The Security Admin system must be active for these settings to apply.', 'wp-simple-firewall' ),
-							$sPlugName )
+							$name )
 					)
 				];
 				$titleShort = __( 'White Label', 'wp-simple-firewall' );
@@ -111,13 +111,6 @@ class Strings extends Base\Strings {
 					sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) ),
 					'<strong>'.( $opts->hasSecurityPIN() ? __( 'Security PIN Currently Set', 'wp-simple-firewall' ) : __( 'Security PIN NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>',
 				];
-				if ( $opts->hasSecurityPIN() ) {
-					$desc[] = sprintf( __( 'To delete the current security PIN, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' );
-					if ( !empty( $opts->getSecurityAdminUsers() ) ) {
-						$desc[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Deleting the PIN will also remove security admin users.', 'wp-simple-firewall' ) );
-					}
-				}
-
 				break;
 
 			case 'sec_admin_users' :

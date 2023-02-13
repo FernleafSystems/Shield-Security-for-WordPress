@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
-
 class PluginBadgeClose extends BaseAction {
 
 	use Traits\AuthNotRequired;
@@ -11,9 +9,7 @@ class PluginBadgeClose extends BaseAction {
 	public const SLUG = 'plugin_badge_close';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$success = $mod->getPluginBadgeCon()->setBadgeStateClosed();
+		$success = $this->getCon()->getModule_Plugin()->getPluginBadgeCon()->setBadgeStateClosed();
 		$this->response()->action_response_data = [
 			'success' => $success,
 			'message' => $success ? 'Badge Closed' : 'Badge Not Closed'

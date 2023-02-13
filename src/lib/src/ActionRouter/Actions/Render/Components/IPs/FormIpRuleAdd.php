@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IPs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 
-class FormIpRuleAdd extends Base {
+class FormIpRuleAdd extends BaseRender {
 
 	public const SLUG = 'render_form_ip_rule_add';
 	public const TEMPLATE = '/components/forms/ip_rule_add.twig';

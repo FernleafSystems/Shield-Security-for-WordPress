@@ -14,11 +14,18 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @var Lib\OffenseTracker
+	 * @deprecated 17.0
 	 */
 	private $oOffenseTracker;
 
 	/**
+	 * @var Lib\OffenseTracker
+	 */
+	private $offenseTracker;
+
+	/**
 	 * @var Lib\BlacklistHandler
+	 * @deprecated 17.0
 	 */
 	private $oBlacklistHandler;
 
@@ -33,25 +40,22 @@ class ModCon extends BaseShield\ModCon {
 	private $crowdSecCon;
 
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
-		if ( !isset( $this->botSignalsCon ) ) {
-			$this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )
-				->setMod( $this );
-		}
-		return $this->botSignalsCon;
+		return $this->botSignalsCon ?? $this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )->setMod( $this );
 	}
 
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
-		if ( !isset( $this->crowdSecCon ) ) {
-			$this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
-		}
-		return $this->crowdSecCon;
+		return $this->crowdSecCon ?? $this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getBlacklistHandler() :Lib\BlacklistHandler {
-		if ( !isset( $this->oBlacklistHandler ) ) {
-			$this->oBlacklistHandler = ( new Lib\BlacklistHandler() )->setMod( $this );
-		}
-		return $this->oBlacklistHandler;
+		return $this->oBlacklistHandler ?? $this->oBlacklistHandler = ( new Lib\BlacklistHandler() )->setMod( $this );
+	}
+
+	public function loadOffenseTracker() :Lib\OffenseTracker {
+		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker( $this->getCon() );
 	}
 
 	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
@@ -142,13 +146,6 @@ class ModCon extends BaseShield\ModCon {
 				   !== trim( (string)parse_url( $WP->getWpUrl(), PHP_URL_PATH ), '/' );
 		return !$FS->exists( path_join( ABSPATH, 'robots.txt' ) )
 			   && ( !$isSplit || !$FS->exists( path_join( dirname( ABSPATH ), 'robots.txt' ) ) );
-	}
-
-	public function loadOffenseTracker() :Lib\OffenseTracker {
-		if ( !isset( $this->oOffenseTracker ) ) {
-			$this->oOffenseTracker = new Lib\OffenseTracker( $this->getCon() );
-		}
-		return $this->oOffenseTracker;
 	}
 
 	public function getTextOptDefault( string $key ) :string {

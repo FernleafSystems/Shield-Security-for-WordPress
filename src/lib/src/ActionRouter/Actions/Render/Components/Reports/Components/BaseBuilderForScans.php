@@ -6,6 +6,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constan
 
 abstract class BaseBuilderForScans extends BaseBuilder {
 
-	public const PRIMARY_MOD = 'hack_protect';
 	public const TYPE = Constants::REPORT_TYPE_ALERT;
 }

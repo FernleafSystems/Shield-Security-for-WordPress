@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
-
 class ScanEnabledMal extends ScanEnabledBase {
 
 	use Traits\OptConfigBased;
@@ -18,11 +16,10 @@ class ScanEnabledMal extends ScanEnabledBase {
 	protected function testIfProtected() :bool {
 		$mod = $this->getCon()->getModule_HackGuard();
 		try {
-			/** @var Afs $afsCon */
-			$afsCon = $this->getCon()
-						   ->getModule_HackGuard()
-						   ->getScanCon( Afs::SCAN_SLUG );
-			return $mod->isModOptEnabled() && $afsCon->isEnabledMalwareScan();
+			return $mod->isModOptEnabled() &&
+				   $mod->getScansCon()
+					   ->AFS()
+					   ->isEnabledMalwareScan();
 		}
 		catch ( \Exception $e ) {
 			return false;

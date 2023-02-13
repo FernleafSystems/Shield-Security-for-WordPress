@@ -280,7 +280,7 @@ abstract class ModCon extends DynPropertiesClass {
 		} );
 
 		// GDPR
-		if ( $this->isPremium() ) {
+		if ( $con->isPremiumActive() ) {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
@@ -411,8 +411,9 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModuleEnabled() :bool {
+		$con = $this->getCon();
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
-		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
+		$pluginOpts = $con->getModule_Plugin()->getOptions();
 
 		if ( !$this->moduleReadyCheck() ) {
 			$enabled = false;
@@ -427,7 +428,7 @@ abstract class ModCon extends DynPropertiesClass {
 		elseif ( $this->getCon()->this_req->is_force_off ) {
 			$enabled = false;
 		}
-		elseif ( $this->cfg->properties[ 'premium' ] && !$this->isPremium() ) {
+		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
 			$enabled = false;
 		}
 		else {
@@ -453,7 +454,7 @@ abstract class ModCon extends DynPropertiesClass {
 	/**
 	 * @return array{title: string, subtitle: string, description: array}
 	 */
-	public function getModDescriptors() :array {
+	public function getDescriptors() :array {
 		return [
 			'title'       => $this->getMainFeatureName(),
 			'subtitle'    => __( $this->cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),
@@ -602,7 +603,7 @@ abstract class ModCon extends DynPropertiesClass {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()
-			 ->doOptionsSave( $con->plugin_reset, $this->isPremium() );
+			 ->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
@@ -639,17 +640,25 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isPremium() :bool {
 		return $this->getCon()->isPremiumActive();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isThisModulePage() :bool {
-		return $this->getCon()->isModulePage()
-			   && Services::Request()->query( 'page' ) == $this->getModSlug();
+		return $this->getCon()->isModulePage() && Services::Request()->query( 'page' ) == $this->getModSlug();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isPage_Insights() :bool {
-		return Services::Request()->query( 'page' ) == $this->getCon()->getModule_Insights()->getModSlug();
+		return false;
 	}
 
 	protected function buildContextualHelp() {
@@ -673,7 +682,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getIsShowMarketing() :bool {
-		return (bool)apply_filters( 'shield/show_marketing', !$this->isPremium() );
+		return (bool)apply_filters( 'shield/show_marketing', !$this->getCon()->isPremiumActive() );
 	}
 
 	public function isAccessRestricted() :bool {

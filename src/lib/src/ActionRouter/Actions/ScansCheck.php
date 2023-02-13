@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
@@ -12,8 +11,7 @@ class ScansCheck extends ScansBase {
 	public const SLUG = 'scans_check';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$mod = $this->getCon()->getModule_HackGuard();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 

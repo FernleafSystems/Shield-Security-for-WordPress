@@ -60,9 +60,7 @@ class PageDebug extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'Assess the state of the plugin and view various configuration information for your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'debug_data'      => ( new Collate() )
-					->setMod( $this->getMod() )
-					->run(),
+				'debug_data'      => ( new Collate() )->run(),
 				'available_tests' => $availableTests,
 			],
 		];

@@ -38,7 +38,7 @@ class PtgAddReinstallLinks {
 		} );
 
 		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
-			if ( in_array( $hook, [ 'plugins.php', ] ) ) {
+			if ( $hook === 'plugins.php' ) {
 				$localz[] = [
 					'global-plugin',
 					'icwp_wpsf_vars_hp',

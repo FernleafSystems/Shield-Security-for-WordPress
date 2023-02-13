@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TourManager;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginMarkTourFinished extends BaseAction {
@@ -10,12 +10,10 @@ class PluginMarkTourFinished extends BaseAction {
 	public const SLUG = 'mark_tour_finished';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$mod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );
+		( new TourManager() )->setCompleted( Services::Request()->post( 'tour_key' ) );
 		$this->response()->action_response_data = [
 			'success' => true,
-			'message' => 'Tour Finished'
+			'message' => __( 'Tour Finished', 'wp-simple-firewall' ),
 		];
 	}
 }

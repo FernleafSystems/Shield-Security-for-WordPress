@@ -11,13 +11,12 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'admin_plugin_page_security_admin_restricted';
-	public const PRIMARY_MOD = 'admin_access_restriction';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/security_admin.twig';
 
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => 'Disable Security Admin',
+				'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
 				'href' => '#',
 				'id'   => 'SecAdminRemoveConfirmEmail',
 			],
@@ -27,7 +26,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		/** @var Options $secOpts */
-		$secOpts = $this->primary_mod->getOptions();
+		$secOpts = $con->getModule_SecAdmin()->getOptions();
 		return [
 			'flags'   => [
 				'allow_email_override' => $secOpts->isEmailOverridePermitted()
@@ -42,7 +41,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 
 				'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
 				'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
-					Obfuscate::Email( $this->primary_mod->getPluginReportEmail() ) ),
+					Obfuscate::Email( $con->getModule_Plugin()->getPluginReportEmail() ) ),
 				'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
 			],
 		];

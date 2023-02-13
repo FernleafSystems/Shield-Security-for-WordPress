@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\Consumers\MWPSiteConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ClientPluginStatus {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use MWPSiteConsumer;
 
 	public const ACTIVE = 'acti';

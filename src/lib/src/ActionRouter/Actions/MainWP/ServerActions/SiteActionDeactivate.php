@@ -20,7 +20,6 @@ class SiteActionDeactivate extends BaseSiteMwpAction {
 		return [
 			'action' => 'deactivate',
 			'plugin' => ( new ClientPluginStatus() )
-							->setMod( $this->getMod() )
 							->setMwpSite( $this->getMwpSite() )
 							->getInstalledPlugin()[ 'slug' ],
 		];

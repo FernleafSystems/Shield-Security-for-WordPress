@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionDelete extends SecurityAdminBase {
@@ -10,9 +9,7 @@ class UserSessionDelete extends SecurityAdminBase {
 	public const SLUG = 'user_session_delete';
 
 	protected function exec() {
-		$con = $this->getCon();
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
+		$sessionCon = $this->getCon()->getModule_Plugin()->getSessionCon();
 		$success = false;
 
 		[ $userID, $uniqueID ] = explode( '-', Services::Request()->post( 'rid', '' ) );
@@ -20,13 +17,11 @@ class UserSessionDelete extends SecurityAdminBase {
 		if ( empty( $userID ) || !is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		elseif ( $mod->getSession()->shield[ 'unique' ] === $uniqueID ) {
+		elseif ( $sessionCon->current()->shield[ 'unique' ] === $uniqueID ) {
 			$msg = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
 		else {
-			$con->getModule_Plugin()
-				->getSessionCon()
-				->removeSessionBasedOnUniqueID( (int)$userID, $uniqueID );
+			$sessionCon->removeSessionBasedOnUniqueID( (int)$userID, $uniqueID );
 			$msg = __( 'User session deleted', 'wp-simple-firewall' );
 			$success = true;
 		}

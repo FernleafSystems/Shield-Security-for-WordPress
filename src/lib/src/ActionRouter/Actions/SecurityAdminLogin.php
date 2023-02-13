@@ -4,26 +4,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 
 	public const SLUG = 'sec_admin_login';
 
 	protected function exec() {
-		/** @var ModCon $mod */
-		$mod = $this->primary_mod;
-		$secAdminCon = $mod->getSecurityAdminController();
+		$con = $this->getCon();
+		$mod = $con->getModule_SecAdmin();
 		$resp = $this->response();
 
 		$html = '';
-		if ( $secAdminCon->isCurrentlySecAdmin() ) {
+		if ( $mod->getSecurityAdminController()->isCurrentlySecAdmin() ) {
 			$resp->success = true;
 			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
 							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 		}
 		else {
-			$resp->success = $secAdminCon->verifyPinRequest();
+			$resp->success = $mod->getSecurityAdminController()->verifyPinRequest();
 
 			if ( $resp->success ) {
 				( new ToggleSecAdminStatus() )
@@ -34,8 +32,8 @@ class SecurityAdminLogin extends SecurityAdminBase {
 			}
 			else {
 				$remaining = ( new QueryRemainingOffenses() )
-					->setMod( $this->getCon()->getModule_IPs() )
-					->setIP( $this->getCon()->this_req->ip )
+					->setMod( $con->getModule_IPs() )
+					->setIP( $con->this_req->ip )
 					->run();
 				$resp->message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
 				if ( $remaining > 0 ) {

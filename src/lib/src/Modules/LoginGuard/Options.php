@@ -28,7 +28,7 @@ class Options extends BaseShield\Options {
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return $this->isPremium() ? $ids : [];
+		return $this->getCon()->isPremiumActive() ? $ids : [];
 	}
 
 	public function getCooldownInterval() :int {
@@ -60,7 +60,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getMfaSkip() :int { // seconds
-		return DAY_IN_SECONDS*( $this->isPremium() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
+		return DAY_IN_SECONDS*( $this->getCon()->isPremiumActive() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
 	}
 
 	public function getYubikeyAppId() :string {
@@ -97,11 +97,11 @@ class Options extends BaseShield\Options {
 
 	public function isEnabledEmailAuthAnyUserSet() :bool {
 		return $this->isEmailAuthenticationActive()
-			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->isPremium();
+			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->getCon()->isPremiumActive();
 	}
 
 	public function isEnabledBackupCodes() :bool {
-		return $this->isPremium() && $this->isOpt( 'allow_backupcodes', 'Y' );
+		return $this->getCon()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	public function isEnabledGoogleAuthenticator() :bool {
@@ -109,13 +109,10 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledU2F() :bool {
-		return $this->isPremium() && $this->isOpt( 'enable_u2f', 'Y' );
+		return $this->getCon()->isPremiumActive() && $this->isOpt( 'enable_u2f', 'Y' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isProtectLogin() {
+	public function isProtectLogin() :bool {
 		return $this->isProtect( 'login' );
 	}
 
@@ -130,7 +127,7 @@ class Options extends BaseShield\Options {
 	/**
 	 * @param string $location - see config for keys, e.g. login, register, password, checkout_woo
 	 */
-	public function isProtect( $location ) :bool {
+	public function isProtect( string $location ) :bool {
 		$locs = $this->getOpt( 'bot_protection_locations' );
 		return in_array( $location, is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
 	}

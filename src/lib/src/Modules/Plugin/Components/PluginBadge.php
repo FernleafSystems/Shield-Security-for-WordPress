@@ -9,14 +9,13 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 
+	public const MOD = Plugin\ModCon::SLUG;
+
 	protected function run() {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
-		$req = Services::Request();
 
 		$display = apply_filters( 'shield/show_security_badge',
-			$opts->isOpt( 'display_plugin_badge', 'Y' )
-			&& ( $req->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
+			$this->getOptions()->isOpt( 'display_plugin_badge', 'Y' )
+			&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
 		);
 
 		if ( $display ) {
@@ -37,8 +36,6 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
 		if ( !empty( $mod ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
 			register_widget( new BadgeWidget( $mod ) );
 		}

@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HackGuardPluginReinstall extends ScansBase {
@@ -20,11 +18,11 @@ class HackGuardPluginReinstall extends ScansBase {
 		$file = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
 
 		if ( $req->post( 'reinstall' ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->primary_mod;
-			/** @var Afs $scan */
-			$scan = $mod->getScansCon()->getScanCon( 'afs' );
-			$activate = $scan->actionPluginReinstall( $file );
+			$activate = $this->getCon()
+							 ->getModule_HackGuard()
+							 ->getScansCon()
+							 ->AFS()
+							 ->actionPluginReinstall( $file );
 		}
 
 		if ( $activate ) {
