@@ -40,7 +40,7 @@ class Upgrade extends Base\Upgrade {
 			$record->type = $entry->type;
 			$record->interval_length = $entry->frequency;
 			$record->interval_end_at = $entry->interval_end_at;
-			$record->created_at = $entry->created_at;
+			$record->created_at = $entry->sent_at;
 		}
 
 		// remove the legacy table.

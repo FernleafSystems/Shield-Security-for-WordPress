@@ -6,7 +6,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops;
  * @property string $type
  * @property string $interval_length
  * @property int    $interval_end_at
- * @property int    $sent_at
+ * @property int    $created_at - sent at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 

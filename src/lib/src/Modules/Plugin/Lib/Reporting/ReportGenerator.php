@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportGenerator {
 
-	use Modules\ModConsumer;
+	use ModConsumer;
 
 	public function auto() {
 		$reports = $this->buildReports();
@@ -95,9 +95,7 @@ class ReportGenerator {
 	}
 
 	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		/** @var Modules\Plugin\ModCon $mod */
-		$mod = $this->getMod();
-		$reportsDB = $mod->getDbH_ReportLogs();
+		$reportsDB = $this->getCon()->getModule_Plugin()->getDbH_ReportLogs();
 		/** @var ReportsDB\Record $record */
 		$record = $reportsDB->getRecord();
 		$record->type = $report->type;

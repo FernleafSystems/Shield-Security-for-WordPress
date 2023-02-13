@@ -101,7 +101,7 @@ class StandardReportBuilder {
 			case 'hourly':
 				$time = sprintf( 'The full hour from %s until %s on %s.',
 					$CStart->format( 'H:i' ),
-					$CStart->addHours( 1 )->format( 'H:i' ),
+					$CStart->addHours()->format( 'H:i' ),
 					$CEnd->format( 'D, d F (Y)' ) );
 				break;
 			case 'daily':

@@ -4,10 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\R
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
+	DB\Report\Ops as ReportsDB,
+	Lib\Reporting\Constants,
 	ModCon,
 	Options
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -37,10 +38,10 @@ class CreateReportVO {
 		$opts = $this->getOptions();
 
 		switch ( $this->rep->type ) {
-			case \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants::REPORT_TYPE_ALERT:
+			case Constants::REPORT_TYPE_ALERT:
 				$this->rep->interval = $opts->getReportFrequencyAlert();
 				break;
-			case \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants::REPORT_TYPE_INFO:
+			case Constants::REPORT_TYPE_INFO:
 			default:
 				$this->rep->interval = $opts->getReportFrequencyInfo();
 				break;
@@ -55,7 +56,7 @@ class CreateReportVO {
 		$sel = $mod->getDbH_ReportLogs()->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )
 								   ->filterByInterval( $this->rep->interval )
-								   ->setOrderBy( 'sent_at' )
+								   ->setOrderBy( 'created_at' )
 								   ->first();
 		return $this;
 	}
