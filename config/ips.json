@@ -62,24 +62,6 @@
       "title_short": "CrowdSec"
     },
     {
-      "slug":        "section_logins",
-      "title":       "Capture Login Bots",
-      "title_short": "Login Bots",
-      "beacon_id":   122,
-      "summary":     [
-        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
-      ]
-    },
-    {
-      "slug":        "section_probes",
-      "title":       "Capture Probing Bots",
-      "title_short": "Probing Bots",
-      "beacon_id":   123,
-      "summary":     [
-        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
-      ]
-    },
-    {
       "slug":        "section_behaviours",
       "title":       "Identify Common Bot Behaviours",
       "title_short": "Bot Behaviours",
@@ -293,7 +275,7 @@
     },
     {
       "key":           "track_404",
-      "section":       "section_probes",
+      "section":       "section_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",
@@ -328,7 +310,7 @@
     },
     {
       "key":           "track_linkcheese",
-      "section":       "section_probes",
+      "section":       "section_behaviours",
       "premium":       true,
       "default":       "disabled",
       "type":          "select",
@@ -363,7 +345,7 @@
     },
     {
       "key":           "track_xmlrpc",
-      "section":       "section_probes",
+      "section":       "section_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",
@@ -398,7 +380,7 @@
     },
     {
       "key":           "track_invalidscript",
-      "section":       "section_probes",
+      "section":       "section_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",
@@ -433,7 +415,7 @@
     },
     {
       "key":           "track_loginfailed",
-      "section":       "section_logins",
+      "section":       "section_behaviours",
       "default":       "transgression-single",
       "type":          "select",
       "value_options": [
@@ -467,7 +449,7 @@
     },
     {
       "key":           "track_logininvalid",
-      "section":       "section_logins",
+      "section":       "section_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",

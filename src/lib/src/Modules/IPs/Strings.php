@@ -232,30 +232,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_logins':
-				$titleShort = __( 'Login Bots', 'wp-simple-firewall' );
-				$title = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ),
-						__( "Legitimate users may get their password wrong, so take care not to block this.", 'wp-simple-firewall' ) ),
-				];
-				break;
-
-			case 'section_probes':
-				$titleShort = __( 'Probing Bots', 'wp-simple-firewall' );
-				$title = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Bots are designed to probe and this feature is dedicated to detecting probing bots.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
-				];
-				break;
-
 			case 'section_behaviours':
 				$titleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
 				$title = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );

@@ -248,16 +248,14 @@ class SectionNotices {
 				break;
 
 			case 'section_behaviours':
-			case 'section_probes':
-			case 'section_logins':
 				/** @var IPs\Options $opts */
 				$opts = $con->getModule_IPs()->getOptions();
 				if ( !$opts->isEnabledAutoBlackList() ) {
 					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
-				if ( $section == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$warnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
+				if ( strlen( Services::Request()->getUserAgent() ) == 0 ) {
+					$warnings[] = __( "Your User Agent appears to be empty. We don't recommend turning on this option.", 'wp-simple-firewall' );
 				}
 				break;
 
