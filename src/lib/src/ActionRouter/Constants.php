@@ -6,6 +6,7 @@ class Constants {
 
 	public const NAV_ID = 'nav';
 	public const NAV_SUB_ID = 'nav_sub';
+	public const ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED = 'is_nonce_verify_required';
 	/**
 	 * @type Actions\BaseAction[]
 	 */
@@ -28,17 +29,18 @@ class Constants {
 		Actions\IpAutoUnblockCrowdsecVisitor::class,
 		Actions\LicenseHandshakeVerifyKeyless::class,
 		Actions\ShieldNetHandshakeVerify::class,
-		Actions\LicenseActionClear::class,
-		Actions\LicenseActionLookup::class,
+		Actions\LicenseClear::class,
+		Actions\LicenseLookup::class,
 		Actions\LicenseCheckDebug::class,
 		Actions\LicenseScheduleCheck::class,
 		Actions\MainWP\MainwpExtensionTableSites::class,
-		Actions\MainWP\ServerActions\MainwpServerSiteActionHandler::class,
+		Actions\MainWP\ServerActions\MainwpServerClientActionHandler::class,
 		Actions\MainWP\ServerActions\SiteActionSync::class,
 		Actions\MainWP\ServerActions\SiteActionActivate::class,
 		Actions\MainWP\ServerActions\SiteActionDeactivate::class,
 		Actions\MainWP\ServerActions\SiteActionInstall::class,
 		Actions\MainWP\ServerActions\SiteActionUpdate::class,
+		Actions\MainWP\ServerActions\SiteCustomAction::class,
 		Actions\MerlinAction::class,
 		Actions\MfaBackupCodeAdd::class,
 		Actions\MfaBackupCodeDelete::class,

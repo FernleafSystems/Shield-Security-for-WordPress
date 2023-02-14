@@ -3,14 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpExtensionTableSites;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
-	MainwpServerSiteActionHandler,
+	MainwpServerClientActionHandler,
 	SiteActionActivate,
 	SiteActionDeactivate,
 	SiteActionInstall,
 	SiteActionSync,
-	SiteActionUpdate
+	SiteActionUpdate,
+	SiteCustomAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
@@ -41,13 +43,12 @@ class BaseSubPage extends BaseMWP {
 			],
 			'vars'    => [
 				'menu_topnav'  => $this->getMenuTopNavItems(),
-				'site_actions' => [
-					'sync'       => SiteActionSync::SLUG,
-					'activate'   => SiteActionActivate::SLUG,
-					'deactivate' => SiteActionDeactivate::SLUG,
-					'install'    => SiteActionInstall::SLUG,
-					'update'     => SiteActionUpdate::SLUG,
-				],
+				'site_actions' => array_map(
+					function ( $action ) {
+						return wp_json_encode( is_array( $action ) ? $action : [ 'site_action_slug' => $action ] );
+					},
+					$this->getSiteActions()
+				),
 			],
 			'strings' => [
 				'manage'              => __( 'Manage', 'wp-simple-firewall' ),
@@ -199,8 +200,24 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getAjaxActionsData() :array {
 		return [
-			'site_action' => ActionData::Build( MainwpServerSiteActionHandler::class ),
+			'site_action' => ActionData::Build( MainwpServerClientActionHandler::class ),
 			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::class ),
+		];
+	}
+
+	protected function getSiteActions() :array {
+		return [
+			'sync'       => SiteActionSync::SLUG,
+			'activate'   => SiteActionActivate::SLUG,
+			'deactivate' => SiteActionDeactivate::SLUG,
+			'install'    => SiteActionInstall::SLUG,
+			'update'     => SiteActionUpdate::SLUG,
+			'license'    => [
+				'site_action_slug'   => SiteCustomAction::SLUG,
+				'site_action_params' => [
+					'sub_action_slug' => LicenseLookup::SLUG
+				],
+			]
 		];
 	}
 

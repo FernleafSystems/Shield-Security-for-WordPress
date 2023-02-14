@@ -46,8 +46,8 @@
 						plugin.options[ 'req_params' ] = $.extend(
 							plugin.options.ajax_actions[ 'site_action' ],
 							{
-								site_id: $( this ).parent().data( 'sid' ),
-								site_action_slug: $( this ).data( 'site_action' )
+								client_site_id: $( this ).parent().data( 'sid' ),
+								client_site_action_data: $( this ).data( 'site_action' )
 							}
 						);
 						plugin.site_action.call( plugin );

@@ -8,8 +8,12 @@ class SiteActionSync extends BaseSiteMwpAction {
 
 	public const SLUG = 'mwp_server_site_action_site_sync';
 
-	protected function fireMainwpSitePluginAction() :bool {
+	protected function fireClientSiteAction() {
 		return MainWP_Sync::sync_site( $this->getMwpSite()->siteobj );
+	}
+
+	protected function checkResponse() :bool {
+		return (bool)$this->clientActionResponse;
 	}
 
 	protected function getMainwpActionFailureMessage() :string {

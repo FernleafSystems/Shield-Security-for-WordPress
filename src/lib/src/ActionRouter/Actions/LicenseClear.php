@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class LicenseActionClear extends LicenseBase {
+class LicenseClear extends LicenseBase {
 
-	public const SLUG = 'license_action_clear';
+	public const SLUG = 'license_clear';
 
 	protected function exec() {
 		$licHandler = $this->getCon()->getModule_License()->getLicenseHandler();

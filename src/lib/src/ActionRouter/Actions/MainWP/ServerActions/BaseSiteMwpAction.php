@@ -9,9 +9,14 @@ use MainWP\Dashboard\MainWP_Connect;
 
 abstract class BaseSiteMwpAction extends MainwpBase {
 
+	/**
+	 * @var mixed
+	 */
+	protected $clientActionResponse;
+
 	protected function exec() {
 		try {
-			$success = $this->fireMainwpSitePluginAction();
+			$success = $this->doClientSitePluginAction();
 			$response = [
 				'success' => $success,
 				'message' => $success ? $this->getMainwpActionSuccessMessage() : $this->getMainwpActionFailureMessage(),
@@ -46,18 +51,27 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 			   && !in_array( static::SLUG, [ SiteActionSync::SLUG, SiteActionDeactivate::SLUG ] );
 	}
 
-	protected function fireMainwpSitePluginAction() :bool {
-		return $this->isResultSuccess(
-			MainWP_Connect::fetch_url_authed(
-				$this->getMwpSite()->siteobj,
-				$this->getMainwpActionSlug(),
-				$this->getMainwpActionParams()
-			)
+	/**
+	 * @throws ActionException
+	 */
+	protected function doClientSitePluginAction() :bool {
+		$this->clientActionResponse = $this->fireClientSiteAction();
+		return $this->checkResponse();
+	}
+
+	protected function fireClientSiteAction() {
+		return MainWP_Connect::fetch_url_authed(
+			$this->getMwpSite()->siteobj,
+			$this->getMainwpActionSlug(),
+			$this->getMainwpActionParams()
 		);
 	}
 
-	protected function isResultSuccess( array $result ) :bool {
-		return ( $result[ 'status' ] ?? false ) === 'SUCCESS';
+	/**
+	 * @throws ActionException
+	 */
+	protected function checkResponse() :bool {
+		return ( $this->clientActionResponse[ 'status' ] ?? false ) === 'SUCCESS';
 	}
 
 	protected function getMainwpActionSlug() :string {
@@ -69,20 +83,20 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 	}
 
 	protected function getMainwpActionFailureMessage() :string {
-		return 'Action Failed';
+		return __( 'Client site action failed.', 'wp-simple-firewall' );
 	}
 
 	protected function getMainwpActionSuccessMessage() :string {
-		return 'Action Successful';
+		return __( 'Client site action was successful', 'wp-simple-firewall' );
 	}
 
 	protected function getMwpSite() :MWPSiteVO {
-		return MWPSiteVO::LoadByID( (int)$this->action_data[ 'site_id' ] );
+		return MWPSiteVO::LoadByID( (int)$this->action_data[ 'client_site_id' ] );
 	}
 
 	protected function getRequiredDataKeys() :array {
 		return [
-			'site_id'
+			'client_site_id'
 		];
 	}
 }

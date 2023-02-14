@@ -59,10 +59,10 @@ class Init {
 							)
 							->action_response_data;
 					}
-					catch ( ActionException $e ) {
+					catch ( ActionException $ae ) {
 						$response = [
 							'success' => false,
-							'message' => 'Client action failed: '.$e->getMessage(),
+							'message' => sprintf( 'Client site action failed: %s', $ae->getMessage() ),
 						];
 					}
 					$information[ $con->prefix( 'mwp-action-response' ) ] = wp_json_encode( $response );

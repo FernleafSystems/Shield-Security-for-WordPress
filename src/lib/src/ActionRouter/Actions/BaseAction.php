@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
 	IpBlockedException,
@@ -83,7 +84,7 @@ abstract class BaseAction extends DynPropertiesClass {
 		}
 
 		if ( $this->isNonceVerifyRequired() && !$this->verifyNonce() ) {
-			throw new InvalidActionNonceException();
+			throw new InvalidActionNonceException( 'Invalid Action Nonce Exception.' );
 		}
 	}
 
@@ -121,7 +122,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	protected function isNonceVerifyRequired() :bool {
-		return $this->getCon()->this_req->wp_is_ajax;
+		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? $this->getCon()->this_req->wp_is_ajax );
 	}
 
 	protected function isUserAuthRequired() :bool {
@@ -130,6 +131,10 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	protected function isSecurityAdminRequired() :bool {
 		return $this->getMinimumUserAuthCapability() === 'manage_options';
+	}
+
+	protected function getActionOverrides() :array {
+		return $this->action_data[ 'action_overrides' ] ?? [];
 	}
 
 	/**

@@ -44,9 +44,8 @@ class Sync {
 	 * @return array[]
 	 */
 	private function buildModulesData() :array {
-		$con = $this->getCon();
 		$data = [];
-		foreach ( $con->modules as $mod ) {
+		foreach ( $this->getCon()->modules as $mod ) {
 			$options = $this->getOptions()->getTransferableOptions();
 			if ( !empty( $options ) ) {
 				$data[ $mod->cfg->slug ] = [

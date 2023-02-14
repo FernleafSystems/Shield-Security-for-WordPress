@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseActionLookup;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\SiteCustomAction;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TabSitesListing extends BaseSubPage {
@@ -56,14 +57,7 @@ class TabSitesListing extends BaseSubPage {
 			'vars' => [
 				'sites'        => $sites,
 				'stats_head'   => $statsHead,
-				'site_actions' => $this->getSiteActionsMap(),
 			],
-		];
-	}
-
-	protected function getSiteActionsMap() :array {
-		return [
-			'license' => LicenseActionLookup::SLUG
 		];
 	}
 }

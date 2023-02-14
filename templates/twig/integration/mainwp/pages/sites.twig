@@ -149,32 +149,32 @@
 									<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
 
 										<a href="#"
-										   data-site_action="{{ vars.site_actions.sync }}"
+										   data-site_action='{{ vars.site_actions.sync|raw }}'
 										   class="item site_action {% if not site.shield.can_sync %}disabled{% endif %}"
 										>{{ strings.act_sync }}</a>
 
 										{% if site.shield.has_update %}
 											<a href="#"
-											   data-site_action="{{ vars.site_actions.update }}"
+											   data-site_action='{{ vars.site_actions.update|raw }}'
 											   class="item site_action"
 											>{{ strings.act_update }}</a>
 										{% endif %}
 
 										{% if site.shield.is_inactive %}
 											<a href="#"
-											   data-site_action="{{ vars.site_actions.activate }}"
+											   data-site_action='{{ vars.site_actions.activate|raw }}'
 											   class="item site_action"
 											>{{ strings.act_activate }}</a>
 
 										{% elseif site.shield.is_notinstalled %}
 											<a href="#"
-											   data-site_action="{{ vars.site_actions.install }}"
+											   data-site_action='{{ vars.site_actions.install|raw }}'
 											   class="item site_action"
 											>{{ strings.act_install }}</a>
 
 										{% else %}
 											<a href="#"
-											   data-site_action="{{ vars.site_actions.deactivate }}"
+											   data-site_action='{{ vars.site_actions.deactivate|raw }}'
 											   class="item site_action"
 											>{{ strings.act_deactivate }}</a>
 										{% endif %}
@@ -185,7 +185,7 @@
 													data-site_action="mwp"
 													{% set linktxt = strings.act_mwp %}
 												{% else %}
-													data-site_action="{{ vars.site_actions.license }}"
+													data-site_action='{{ vars.site_actions.license|raw }}'
 													{% set linktxt = strings.act_license %}
 												{% endif %}
 										>{{ linktxt }}</a>

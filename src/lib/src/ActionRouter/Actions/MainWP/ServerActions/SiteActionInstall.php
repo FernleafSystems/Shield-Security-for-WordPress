@@ -16,8 +16,8 @@ class SiteActionInstall extends BaseSiteMwpAction {
 		return 'Shield plugin installed';
 	}
 
-	protected function isResultSuccess( array $result ) :bool {
-		return ( $result[ 'installation' ] ?? false ) === 'SUCCESS';
+	protected function checkResponse() :bool {
+		return ( $this->clientActionResponse[ 'installation' ] ?? false ) === 'SUCCESS';
 	}
 
 	protected function getMainwpActionSlug() :string {

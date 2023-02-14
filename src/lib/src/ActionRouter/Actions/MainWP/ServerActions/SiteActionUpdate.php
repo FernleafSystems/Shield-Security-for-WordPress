@@ -16,7 +16,7 @@ class SiteActionUpdate extends BaseSiteMwpAction {
 		return 'Shield plugin updated';
 	}
 
-	protected function isResultSuccess( array $result ) :bool {
+	protected function checkResponse() :bool {
 		return true; // TODO
 	}
 
