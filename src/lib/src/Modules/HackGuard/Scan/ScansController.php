@@ -10,7 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Options,
 	Scan\Queue\CleanQueue,
-	Scan\Queue\ProcessQueueWpcli
+	Scan\Queue\ProcessQueueWpcli,
+	Scan\Results\Update
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -147,15 +148,7 @@ class ScansController extends ExecOnceModConsumer {
 			$opts = $this->getOptions();
 			$opts->setIsScanCron( true );
 			$this->getMod()->saveModOptions();
-
-			$this->startNewScans(
-				array_filter(
-					$this->getAllScanCons(),
-					function ( $con ) {
-						return $con->isReady();
-					}
-				)
-			);
+			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
 			error_log( 'Shield scans cannot execute.' );
@@ -184,15 +177,15 @@ class ScansController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 
 		$toScan = [];
-		foreach ( $scans as $slug ) {
+		foreach ( $scans as $slugOrCon ) {
 			try {
-				$thisScanCon = $this->getScanCon( $slug );
-				if ( $thisScanCon->isReady() ) {
-					$toScan[] = $slug;
+				$scanCon = is_string( $slugOrCon ) ? $this->getScanCon( $slugOrCon ) : $slugOrCon;
+				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
+					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
-						$thisScanCon->resetIgnoreStatus();
+						$this->resetIgnoreStatus( $slugOrCon );
 					}
-					$opts->addRemoveScanToBuild( $slug );
+					$opts->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -256,5 +249,12 @@ class ScansController extends ExecOnceModConsumer {
 
 	protected function getCronName() :string {
 		return $this->getCon()->prefix( 'all-scans' );
+	}
+
+	protected function resetIgnoreStatus( $scanCon ) {
+		( new Update() )
+			->setMod( $this->getMod() )
+			->setScanController( $scanCon )
+			->clearIgnored();
 	}
 }

@@ -22,6 +22,8 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+		/** @var Shield\Modules\IPs\Options $opts */
+		$opts = $this->getCon()->getModule_IPs()->getOptions();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
@@ -37,7 +39,7 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 					'invert_match' => true,
 					'params'       => [
 						'is_match_regex'     => false,
-						'match_script_names' => $this->getAllowedScripts(),
+						'match_script_names' => $opts->botSignalsGetAllowableScripts(),
 					],
 				],
 			]
@@ -57,23 +59,6 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],
-		];
-	}
-
-	private function getAllowedScripts() :array {
-		return [
-			'index.php',
-			'admin-ajax.php',
-			'wp-activate.php',
-			'wp-links-opml.php',
-			'wp-cron.php',
-			'wp-login.php',
-			'wp-mail.php',
-			'wp-comments-post.php',
-			'wp-signup.php',
-			'wp-trackback.php',
-			'xmlrpc.php',
-			'admin.php',
 		];
 	}
 }

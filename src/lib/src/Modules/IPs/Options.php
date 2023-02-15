@@ -15,6 +15,26 @@ class Options extends BaseShield\Options {
 		return (int)$this->getOpt( 'transgression_limit' );
 	}
 
+	public function botSignalsGetAllowable404s() :array {
+		$def = $this->getDef( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
+		return array_unique( array_filter(
+			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
+			function ( $ext ) {
+				return !empty( $ext ) && is_string( $ext ) && preg_match( '#^[a-z\d]+$#i', $ext );
+			}
+		) );
+	}
+
+	public function botSignalsGetAllowableScripts() :array {
+		$def = $this->getDef( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
+		return array_unique( array_filter(
+			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
+			function ( $script ) {
+				return !empty( $script ) && is_string( $script ) && strpos( $script, '.php' );
+			}
+		) );
+	}
+
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */

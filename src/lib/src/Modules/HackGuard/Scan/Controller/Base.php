@@ -203,13 +203,6 @@ abstract class Base extends ExecOnceModConsumer {
 		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
 	}
 
-	public function resetIgnoreStatus() {
-		( new Update() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->clearIgnored();
-	}
-
 	/**
 	 * TODO: Make private/protected
 	 */

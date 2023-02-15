@@ -22,6 +22,8 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+		/** @var Shield\Modules\IPs\Options $opts */
+		$opts = $this->getCon()->getModule_IPs()->getOptions();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
@@ -46,7 +48,7 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 							'params'    => [
 								'is_match_regex' => true,
 								'match_paths'    => [
-									sprintf( "\\.(%s)$", implode( '|', $this->getAllowableExtensions() ) )
+									sprintf( "\\.(%s)$", implode( '|', $opts->botSignalsGetAllowable404s() ) )
 								],
 							],
 						],
@@ -76,11 +78,5 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 				],
 			],
 		];
-	}
-
-	private function getAllowableExtensions() :array {
-		$defExt = $this->getOptions()->getDef( 'allowable_ext_404s' );
-		$extensions = apply_filters( 'shield/allowable_extensions_404s', $defExt );
-		return is_array( $extensions ) ? array_filter( $extensions ) : $defExt;
 	}
 }

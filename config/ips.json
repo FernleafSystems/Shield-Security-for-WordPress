@@ -578,6 +578,35 @@
         ]
       }
     },
+    "bot_signals":               {
+      "allowable_ext_404s":        [
+        "js",
+        "css",
+        "gif",
+        "jpg",
+        "jpeg",
+        "png",
+        "map",
+        "ttf",
+        "woff",
+        "woff2"
+      ],
+      "allowable_invalid_scripts": [
+        "index.php",
+        "admin-ajax.php",
+        "wp-activate.php",
+        "wp-links-opml.php",
+        "wp-cron.php",
+        "wp-login.php",
+        "wp-mail.php",
+        "wp-comments-post.php",
+        "wp-signup.php",
+        "wp-trackback.php",
+        "xmlrpc.php",
+        "admin.php",
+        "matomo.php"
+      ]
+    },
     "rest_api":                  {
       "publish":    true,
       "pro_only":   true,
@@ -592,18 +621,6 @@
         }
       }
     },
-    "allowable_ext_404s":        [
-      "js",
-      "css",
-      "gif",
-      "jpg",
-      "jpeg",
-      "png",
-      "map",
-      "ttf",
-      "woff",
-      "woff2"
-    ],
     "db_handler_classes":        {
       "botsignal":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\BotSignal\\Ops\\Handler",
       "ip_rules":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\IpRules\\Ops\\Handler",
