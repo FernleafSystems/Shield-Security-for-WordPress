@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Components;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -14,7 +13,6 @@ class UiTrack extends DynPropertiesClass {
 	use PluginControllerConsumer;
 
 	/**
-	 * @param string $key
 	 * @return mixed
 	 */
 	public function __get( string $key ) {
@@ -23,12 +21,11 @@ class UiTrack extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'selected_scans':
-				if ( !is_array( $value ) || empty( $value ) ) {
-					/** @var HackGuard\Options $opts */
-					$opts = $this->getCon()
-								 ->getModule_HackGuard()
-								 ->getOptions();
-					$value = $opts->getScanSlugs();
+				if ( empty( $value ) || !is_array( $value ) ) {
+					$value = $this->getCon()
+								  ->getModule_HackGuard()
+								  ->getScansCon()
+								  ->getScanSlugs();
 				}
 				break;
 			default:

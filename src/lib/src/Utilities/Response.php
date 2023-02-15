@@ -7,7 +7,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 /**
  * @property bool   $success
  * @property int    $error_code
- * @property string $msg
+ * @property string $message
  * @property string $error
  * @property string $debug
  * @property array  $data
@@ -19,10 +19,11 @@ class Response extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'data':
+			case 'aux_data':
 				$value = is_array( $value ) ? $value : [];
 				break;
 
-			case 'msg':
+			case 'message':
 			case 'error':
 			case 'debug':
 				$value = (string)$value;
@@ -43,7 +44,7 @@ class Response extends DynPropertiesClass {
 	}
 
 	public function getRelevantMsg() :string {
-		return $this->success ? $this->msg : $this->error;
+		return $this->success ? $this->message : $this->error;
 	}
 
 	public function addData( string $key, $value ) :self {

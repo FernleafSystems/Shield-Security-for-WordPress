@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 use FernleafSystems\Wordpress\Services\Utilities\Render;
 
+/**
+ * @deprecated 17.0
+ */
 class BaseTemplateRenderer {
 
 	use PluginControllerConsumer;

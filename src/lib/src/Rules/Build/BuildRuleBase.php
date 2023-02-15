@@ -9,8 +9,8 @@ abstract class BuildRuleBase {
 
 	use Shield\Modules\ModConsumer;
 
-	const LOGIC_AND = 'AND';
-	const LOGIC_OR = 'OR';
+	public const LOGIC_AND = 'AND';
+	public const LOGIC_OR = 'OR';
 
 	public function build() :Shield\Rules\RuleVO {
 		$rule = new RuleVO();

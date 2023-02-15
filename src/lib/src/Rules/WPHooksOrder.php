@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 class WPHooksOrder {
 
-	const NONE = 0;
-	const PLUGINS_LOADED = 10;
-	const INIT = 20;
-	const WP_LOADED = 40;
-	const TEMPLATE_REDIRECT = 60;
-	const WP = 80;
-	const SHUTDOWN = 100;
+	public const NONE = 0;
+	public const PLUGINS_LOADED = 10;
+	public const INIT = 20;
+	public const WP_LOADED = 40;
+	public const TEMPLATE_REDIRECT = 60;
+	public const WP = 80;
+	public const SHUTDOWN = 100;
 
 	public static function HOOK_NAME( int $hookOrder ) :string {
 		return [

@@ -67,7 +67,7 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 
 	let bFoundRunning = false;
-	let bCurrentlyRunning = false;
+	let currentlyRunning = false;
 	let nRunningCount = 0;
 
 	let loadResultsPage = function ( evt ) {
@@ -77,18 +77,18 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 	let sendReq = function ( aParams ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		let aReqData = aOpts[ 'ajax_scans_check' ];
-		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
+		let reqData = aOpts[ 'ajax_scans_check' ];
+		jQuery.post( ajaxurl, jQuery.extend( reqData, aParams ),
 			function ( response ) {
 
-				bCurrentlyRunning = false;
+				currentlyRunning = false;
 				nRunningCount = 0;
 				if ( response.data.running !== undefined ) {
-					for ( const scankey of Object.keys( response.data.running ) ) {
-						if ( response.data.running[ scankey ] ) {
+					for ( const scanKey of Object.keys( response.data.running ) ) {
+						if ( response.data.running[ scanKey ] ) {
 							nRunningCount++;
 							bFoundRunning = true;
-							bCurrentlyRunning = true;
+							currentlyRunning = true;
 						}
 					}
 				}
@@ -97,7 +97,7 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 				modal.modal( 'show' );
 			}
 		).always( function () {
-				if ( bCurrentlyRunning ) {
+				if ( currentlyRunning ) {
 					setTimeout( function () {
 						sendReq();
 					}, 3000 );
@@ -117,7 +117,6 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 		} );
 	};
 
-	let $oThis = this;
 	let aOpts = jQuery.extend( {}, aOptions );
 	initialise();
 

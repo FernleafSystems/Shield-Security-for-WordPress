@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Export {
 
@@ -94,14 +95,14 @@ class Export {
 		];
 	}
 
-	public function toFile() {
-		Services::Response()->downloadStringAsFile(
-			implode( "\n", $this->toStandardArray() ),
-			sprintf( 'shieldexport-%s-%s.json',
+	public function toFile() :array {
+		return [
+			'name'    => sprintf( 'shieldexport-%s-%s.json',
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
 				date( 'Ymd_His' )
-			)
-		);
+			),
+			'content' => implode( "\n", $this->toStandardArray() )
+		];
 	}
 
 	public function getExportData() :array {
@@ -124,7 +125,7 @@ class Export {
 					array_flip( $opts->getXferExcluded() )
 				);
 			}
-			$all[ $mod->getSlug() ] = $xfr;
+			$all[ $mod->cfg->slug ] = $xfr;
 		}
 		return $all;
 	}
@@ -173,7 +174,7 @@ class Export {
 	}
 
 	private function handshake( string $url ) :bool {
-		$reqURL = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $url );
+		$reqURL = URL::Build( $url, [ 'shield_action' => 'importexport_handshake' ] );
 		$dec = @json_decode( Services::HttpRequest()->getContent( $reqURL ), true );
 		return is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}

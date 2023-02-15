@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 
 class ModuleStandard extends BaseWpCliCmd {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function addCmds() {
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt-list' ] ),

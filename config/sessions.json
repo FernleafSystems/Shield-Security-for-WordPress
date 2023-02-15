@@ -20,59 +20,9 @@
     "enabled": false
   },
   "sections":    [
-    {
-      "slug":        "section_enable_plugin_feature_sessions",
-      "primary":     true,
-      "title":       "Enable Module: Sessions",
-      "title_short": "Disable Module",
-      "summary":     [
-        "Purpose - Creates and Manages User Sessions.",
-        "Recommendation - Keep the Sessions feature turned on."
-      ]
-    },
-    {
-      "slug":   "section_non_ui",
-      "hidden": true
-    }
   ],
   "options":     [
-    {
-      "key":         "enable_sessions",
-      "section":     "section_enable_plugin_feature_sessions",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Enable Sessions",
-      "summary":     "Enable (or Disable) The Sessions module",
-      "description": "Un-Checking this option will completely disable the Sessions module"
-    }
   ],
   "definitions": {
-    "events":              {
-      "session_start":             {
-        "audit_params": [
-          "user_login",
-          "session_id"
-        ],
-        "level":        "info"
-      },
-      "session_terminate":         {
-        "level": "info"
-      },
-      "session_terminate_current": {
-        "audit_params": [
-          "user_login",
-          "session_id"
-        ],
-        "level":        "info",
-        "recent":       true
-      },
-      "login_success":             {
-        "level":   "info",
-        "offense": false,
-        "stat":    false
-      }
-    }
   }
 }

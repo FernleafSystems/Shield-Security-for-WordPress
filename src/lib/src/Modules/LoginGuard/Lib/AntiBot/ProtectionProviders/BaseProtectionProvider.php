@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 abstract class BaseProtectionProvider {
@@ -31,24 +31,21 @@ abstract class BaseProtectionProvider {
 	}
 
 	/**
-	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $formProvider
-	 * @return string
+	 * @param FormProviders\BaseFormProvider $formProvider
 	 */
-	abstract public function buildFormInsert( $formProvider );
+	abstract public function buildFormInsert( $formProvider ) :string;
 
-	public function setAsInsertBuilt() :self {
+	/**
+	 * @param FormProviders\BaseFormProvider $formProvider
+	 * @throws \Exception
+	 */
+	abstract public function performCheck( $formProvider );
+
+	public function setAsInsertBuilt() {
 		$this->factorBuilt = true;
-		return $this;
 	}
 
 	/**
-	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $form
-	 * @throws \Exception
-	 */
-	abstract public function performCheck( $form );
-
-	/**
-	 * @param bool $tested
 	 * @return $this
 	 */
 	public function setFactorTested( bool $tested ) {
@@ -56,14 +53,10 @@ abstract class BaseProtectionProvider {
 		return $this;
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function processFailure() {
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
 		$this->getCon()->fireEvent( 'login_block' );
-		return $this;
 	}
 
 	public function maybeDequeueScript() {

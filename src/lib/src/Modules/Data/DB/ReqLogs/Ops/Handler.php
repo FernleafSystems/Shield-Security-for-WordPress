@@ -6,15 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 
 class Handler extends Base\Handler {
 
-	const TYPE_AJAX = 'A';
-	const TYPE_CRON = 'C';
-	const TYPE_COMMENT = 'M';
-	const TYPE_HTTP = 'H';
-	const TYPE_LOGIN = 'L';
-	const TYPE_2FA = '2';
-	const TYPE_REST = 'R';
-	const TYPE_WPCLI = 'W';
-	const TYPE_XMLRPC = 'X';
+	public const TYPE_AJAX = 'A';
+	public const TYPE_CRON = 'C';
+	public const TYPE_COMMENT = 'M';
+	public const TYPE_HTTP = 'H';
+	public const TYPE_LOGIN = 'L';
+	public const TYPE_2FA = '2';
+	public const TYPE_REST = 'R';
+	public const TYPE_WPCLI = 'W';
+	public const TYPE_XMLRPC = 'X';
 
 	public static function GetTypeName( string $type ) :string {
 		switch ( $type ) {

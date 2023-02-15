@@ -26,32 +26,21 @@ class BaseBuild {
 		if ( $db && !$this->getDbHandler()->isReady() ) {
 			$render = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
 		}
+		elseif ( $this->countTotal() > 0 ) {
+			$table = $this->getTableRenderer()
+						  ->setItemEntries( $this->getEntriesFormatted() )
+						  ->setPerPage( $this->getParams()[ 'limit' ] )
+						  ->setTotalRecords( $this->countTotal() )
+						  ->prepare_items();
+			ob_start();
+			$table->display();
+			$render = ob_get_clean();
+		}
 		else {
-			$this->preBuildTable();
-
-			if ( $this->countTotal() > 0 ) {
-				$table = $this->getTableRenderer()
-							  ->setItemEntries( $this->getEntriesFormatted() )
-							  ->setPerPage( $this->getParams()[ 'limit' ] )
-							  ->setTotalRecords( $this->countTotal() )
-							  ->prepare_items();
-				ob_start();
-				$table->display();
-				$render = ob_get_clean();
-			}
-			else {
-				$render = $this->buildEmpty();
-			}
+			$render = $this->buildEmpty();
 		}
 
 		return $render;
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function preBuildTable() {
-		return $this;
 	}
 
 	protected function buildEmpty() :string {
@@ -200,11 +189,11 @@ class BaseBuild {
 
 	protected function getIpAnalysisLink( string $ip ) :string {
 		$srvIP = Services::IP();
-		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) :
-			$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip );
+		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : $this->getCon()->plugin_urls->ipAnalysis( $ip );
 		return sprintf(
-			'<a href="%s" target="_blank" title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
+			'<a href="%s" %s title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
 			$href,
+			$srvIP->isValidIpRange( $ip ) ? 'target="_blank"' : '',
 			__( 'IP Analysis' ),
 			$srvIP->isValidIpRange( $ip ) ? '' : 'render_ip_analysis',
 			$ip,

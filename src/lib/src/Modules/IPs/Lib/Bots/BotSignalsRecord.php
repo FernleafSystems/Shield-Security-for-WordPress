@@ -127,6 +127,15 @@ class BotSignalsRecord {
 			}
 		}
 
+		/** Clean out old signals that have no bearing on bot calculations */
+		foreach ( $mod->getDbH_BotSignal()->getTableSchema()->getColumnNames() as $col ) {
+			if ( preg_match( '#_at$#i', $col )
+				 && !in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
+				 && Services::Request()->carbon()->subMonth()->timestamp > $r->{$col} ) {
+				$r->{$col} = 0;
+			}
+		}
+
 		$this->store( $r );
 
 		return $r;
@@ -195,15 +204,5 @@ class BotSignalsRecord {
 		$this->store( $record );
 
 		return $record;
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 16.0
-	 */
-	private function getIPRecord() :IPs\Ops\Record {
-		return ( new IPs\IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP(), false );
 	}
 }

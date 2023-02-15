@@ -7,9 +7,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
+	public function getPassStrengthName( int $strength ) :string {
+		return [
+				   __( 'Very Weak', 'wp-simple-firewall' ),
+				   __( 'Weak', 'wp-simple-firewall' ),
+				   __( 'Medium', 'wp-simple-firewall' ),
+				   __( 'Strong', 'wp-simple-firewall' ),
+				   __( 'Very Strong', 'wp-simple-firewall' ),
+			   ][ max( 0, min( 4, $strength ) ) ];
+	}
+
 	public function getEventStrings() :array {
 		return [
 			'reg_email_invalid'            => [
@@ -82,17 +89,10 @@ class Strings extends Base\Strings {
 
 	/**
 	 * @inheritDoc
+	 * @deprecated 17.0
 	 */
 	protected function getAdditionalDisplayStrings() :array {
-		return [
-			'um_current_user_settings'          => __( 'Current User Sessions', 'wp-simple-firewall' ),
-			'um_username'                       => __( 'Username', 'wp-simple-firewall' ),
-			'um_logged_in_at'                   => __( 'Logged In At', 'wp-simple-firewall' ),
-			'um_last_activity_at'               => __( 'Last Activity At', 'wp-simple-firewall' ),
-			'um_last_activity_uri'              => __( 'Last Activity URI', 'wp-simple-firewall' ),
-			'um_login_ip'                       => __( 'Login IP', 'wp-simple-firewall' ),
-			'um_need_to_enable_user_management' => __( 'You need to enable the User Management feature to view and manage user sessions.', 'wp-simple-firewall' ),
-		];
+		return [];
 	}
 
 	public function getSectionStrings( string $section ) :array {
@@ -256,15 +256,6 @@ class Strings extends Base\Strings {
 				$name = __( 'Prevent Pwned Passwords', 'wp-simple-firewall' );
 				$summary = __( 'Prevent Use Of "Pwned" Passwords', 'wp-simple-firewall' );
 				$desc = [ __( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.', 'wp-simple-firewall' ) ];
-				break;
-
-			case 'pass_min_length' :
-				$name = __( 'Minimum Length', 'wp-simple-firewall' );
-				$summary = __( 'Minimum Password Length', 'wp-simple-firewall' );
-				$desc = [
-					__( 'All passwords that a user sets must be at least this many characters in length.', 'wp-simple-firewall' ),
-					__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' )
-				];
 				break;
 
 			case 'pass_min_strength' :

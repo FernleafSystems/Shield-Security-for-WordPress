@@ -32,6 +32,22 @@ class Options extends BaseShield\Options {
 		return (string)$this->getOpt( 'visitor_address_source' );
 	}
 
+	public function getReportFrequencyAlert() :string {
+		return $this->getFrequency( 'alert' );
+	}
+
+	public function getReportFrequencyInfo() :string {
+		return $this->getFrequency( 'info' );
+	}
+
+	private function getFrequency( string $type ) :string {
+		$key = 'frequency_'.$type;
+		$default = $this->getOptDefault( $key );
+		return ( $this->getCon()->isPremiumActive() || in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
+			? $this->getOpt( $key )
+			: $default;
+	}
+
 	public function hasImportExportMasterImportUrl() :bool {
 		return !empty( $this->getImportExportMasterImportUrl() );
 	}
@@ -41,11 +57,11 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrackingEnabled() :bool {
-		return $this->isPremium() || $this->isOpt( 'enable_tracking', 'Y' );
+		return $this->getCon()->isPremiumActive() || $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
 	public function isEnabledWpcli() :bool {
-		return $this->isPremium()
+		return $this->getCon()->isPremiumActive()
 			   && apply_filters( 'shield/enable_wpcli', $this->isOpt( 'enable_wpcli', 'Y' ) );
 	}
 
@@ -53,22 +69,12 @@ class Options extends BaseShield\Options {
 		return !$this->isOpt( 'tracking_permission_set_at', 0 );
 	}
 
-	public function isEnabledShieldNET() :bool {
-		return $this->isOpt( 'enable_shieldnet', 'Y' );
-	}
-
-	/**
-	 * @return $this
-	 */
 	public function setPluginTrackingPermission( bool $onOrOff = true ) {
-		return $this->setOpt( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
-					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		$this->setOpt( 'enable_tracking', $onOrOff ? 'Y' : 'N' )
+			 ->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function setVisitorAddressSource( string $source ) {
-		return $this->setOpt( 'visitor_address_source', $source );
+		$this->setOpt( 'visitor_address_source', $source );
 	}
 }

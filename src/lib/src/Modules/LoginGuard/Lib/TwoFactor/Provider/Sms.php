@@ -2,20 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	MfaSmsAdd,
+	MfaSmsIntentSend,
+	MfaSmsRemove,
+	MfaSmsVerify
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Sms\GetAvailableCountries;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendSms;
+use FernleafSystems\Wordpress\Services\Services;
 
-class Sms extends BaseProvider {
+class Sms extends AbstractShieldProvider {
 
-	const SLUG = 'sms';
+	protected const SLUG = 'sms';
 
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_sms2fa_add'    => $this->getMod()->getAjaxActionData( 'profile_sms2fa_add' ),
-				'profile_sms2fa_remove' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_remove' ),
-				'profile_sms2fa_verify' => $this->getMod()->getAjaxActionData( 'profile_sms2fa_verify' ),
+				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::class ),
+				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::class ),
+				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::class ),
 			],
 		];
 	}
@@ -77,7 +85,7 @@ class Sms extends BaseProvider {
 		$meta->sms_registration = [
 			'country'  => $country,
 			'phone'    => $phone,
-			'code'     => $this->generateSimpleOTP(),
+			'code'     => LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate(),
 			'verified' => false,
 		];
 
@@ -96,7 +104,7 @@ class Sms extends BaseProvider {
 		$meta = $this->getCon()->getUserMeta( $user );
 
 		$reg = $meta->sms_registration;
-		$reg[ 'code' ] = $this->generateSimpleOTP();
+		$reg[ 'code' ] = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
 		$meta->sms_registration = $reg;
 
 		( new SendSms() )
@@ -104,9 +112,6 @@ class Sms extends BaseProvider {
 			->send2FA( $user, $meta->sms_registration[ 'code' ] );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function postSuccessActions() {
 		parent::postSuccessActions();
 		$meta = $this->getCon()->getUserMeta( $this->getUser() );
@@ -124,8 +129,8 @@ class Sms extends BaseProvider {
 
 	public function getFormField() :array {
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'button',
 			'value'       => 'Click To Send 2FA Code via SMS',
 			'placeholder' => '',
@@ -133,8 +138,8 @@ class Sms extends BaseProvider {
 			'classes'     => [ 'btn', 'btn-light' ],
 			'help_link'   => '',
 			'datas'       => [
-				'ajax_intent_sms_send' => $this->getMod()->getAjaxActionData( 'intent_sms_send', true ),
-				'input_otp'            => $this->getLoginFormParameter(),
+				'ajax_intent_sms_send' => ActionData::BuildJson( MfaSmsIntentSend::class ),
+				'input_otp'            => $this->getLoginIntentFormParameter(),
 			]
 		];
 	}
@@ -143,12 +148,12 @@ class Sms extends BaseProvider {
 		return true;
 	}
 
-	public function remove() {
+	public function removeFromProfile() {
 		$this->getCon()->getUserMeta( $this->getUser() )->sms_registration = [];
-		parent::remove();
+		parent::removeFromProfile();
 	}
 
-	protected function getProviderSpecificRenderData() :array {
+	protected function getUserProfileFormRenderData() :array {
 		$user = $this->getUser();
 		$countries = ( new GetAvailableCountries() )
 			->setMod( $this->getMod() )
@@ -161,26 +166,29 @@ class Sms extends BaseProvider {
 				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
 		}
 
-		return [
-			'flags'   => [
-				'has_countries' => !empty( $countries ),
-				'is_validated'  => $this->isProfileActive()
-			],
-			'strings' => [
-				'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
-				'title'                       => __( 'SMS Authentication', 'wp-simple-firewall' ),
-				'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
-				'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
-												 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
-				'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
-				'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'countries'        => $countries,
-				'validated_number' => $validatedNumber,
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getUserProfileFormRenderData(),
+			[
+				'flags'   => [
+					'has_countries' => !empty( $countries ),
+					'is_validated'  => $this->isProfileActive()
+				],
+				'strings' => [
+					'label_email_authentication'  => __( 'SMS Authentication', 'wp-simple-firewall' ),
+					'title'                       => __( 'SMS Authentication', 'wp-simple-firewall' ),
+					'provide_full_phone_number'   => __( 'Provide Your Full Mobile Telephone Number', 'wp-simple-firewall' ),
+					'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
+													 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
+					'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ),
+					'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'countries'        => $countries,
+					'validated_number' => $validatedNumber,
+				]
 			]
-		];
+		);
 	}
 
 	public function isProviderEnabled() :bool {

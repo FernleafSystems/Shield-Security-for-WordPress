@@ -46,8 +46,8 @@
 						plugin.options[ 'req_params' ] = $.extend(
 							plugin.options.ajax_actions[ 'site_action' ],
 							{
-								'sid': $( this ).parent().data( 'sid' ),
-								'saction': $( this ).data( 'saction' )
+								client_site_id: $( this ).parent().data( 'sid' ),
+								client_site_action_data: $( this ).data( 'site_action' )
 							}
 						);
 						plugin.site_action.call( plugin );
@@ -73,7 +73,7 @@
 						let action = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
 						if ( action === "-1" ) {
-							alert( icwp_wpsf_vars_insights.strings.select_action );
+							alert( icwp_wpsf_vars_plugin.strings.select_action );
 						}
 						else {
 							let checkedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
@@ -135,14 +135,6 @@
 				this.sendReq( this.options[ 'working_custom_action' ] );
 			},
 
-			hrefDownload: function () {
-				$.fileDownload( this.options[ 'working_href_download' ], {
-					preparingMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file,
-					failMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file_problem
-				} );
-				return false;
-			},
-
 			sendReq: function ( reqData = {} ) {
 				iCWP_WPSF_BodyOverlay.show();
 
@@ -178,31 +170,31 @@
 	);
 
 	$.fn.icwpWpsfMainwpExt = function ( options ) {
-/*
-		jQuery( '#mainwp-shield-extension-table-sites' ).DataTable( {
-			serverSide: true,
-			"ajax": {
-				"url": ajaxurl,
-				"type": "POST",
-				"data": function ( d ) {
-					return $.extend( {}, d, this.options.ajax_actions[ 'site_action' ] );
-				},
-				"dataSrc": function ( json ) {
-					for ( var i = 0, ien = json.data.length; i < ien; i++ ) {
-						json.data[ i ].syncError = json.rowsInfo[ i ].syncError ? json.rowsInfo[ i ].syncError : false;
-						json.data[ i ].rowClass = json.rowsInfo[ i ].rowClass;
-						json.data[ i ].siteID = json.rowsInfo[ i ].siteID;
-						json.data[ i ].siteUrl = json.rowsInfo[ i ].siteUrl;
-					}
-					return json.data;
-				}
-			},
-		} );
-*/
-		siteFrame = $( "iframe#SiteContent" );
-		if ( siteFrame.length === 1 ) {
-			siteFrame.attr( "srcdoc", "<p>This content was updated dynamically!</p>" );
-		}
+		/*
+				jQuery( '#mainwp-shield-extension-table-sites' ).DataTable( {
+					serverSide: true,
+					"ajax": {
+						"url": ajaxurl,
+						"type": "POST",
+						"data": function ( d ) {
+							return $.extend( {}, d, this.options.ajax_actions[ 'site_action' ] );
+						},
+						"dataSrc": function ( json ) {
+							for ( var i = 0, ien = json.data.length; i < ien; i++ ) {
+								json.data[ i ].syncError = json.rowsInfo[ i ].syncError ? json.rowsInfo[ i ].syncError : false;
+								json.data[ i ].rowClass = json.rowsInfo[ i ].rowClass;
+								json.data[ i ].siteID = json.rowsInfo[ i ].siteID;
+								json.data[ i ].siteUrl = json.rowsInfo[ i ].siteUrl;
+							}
+							return json.data;
+						}
+					},
+				} );
+		*/
+		// siteFrame = $( "iframe#SiteContent" );
+		// if ( siteFrame.length === 1 ) {
+		// 	siteFrame.attr( "srcdoc", "<p>This content was updated dynamically!</p>" );
+		// }
 
 		return this.each(
 			function () {

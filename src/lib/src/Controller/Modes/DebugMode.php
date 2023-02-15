@@ -4,5 +4,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Modes;
 
 class DebugMode extends BaseMode {
 
-	const SLUG = 'DEBUG';
+	public const SLUG = 'DEBUG';
 }

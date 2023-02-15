@@ -2,46 +2,45 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\License\{
-	EddLicenseVO,
-	ShieldLicense
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
+	use PluginCronsConsumer;
+
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'shield_action' ), function ( $action ) {
-			switch ( $action ) {
-
-				case 'keyless_handshake':
-				case 'snapi_handshake':
-					$nonce = Services::Request()->query( 'nonce' );
-					if ( !empty( $nonce ) ) {
-						die( json_encode( [
-							'success' => ( new HandshakingNonce() )
-								->setCon( $this->getCon() )
-								->verify( $nonce )
-						] ) );
-					}
-					break;
-
-				case 'license_check':
-					$this->scheduleAdHocCheck();
-					break;
-			}
-		} );
-
-		// performs the license check on-demand
 		add_action( $this->getCon()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );
+
+		$this->setupCronHooks();
+
+		add_action( 'init', function () {
+			/** @var ModCon $mod */
+			$mod = $this->getMod();
+			$mod->getWpHashesTokenManager()->execute();
+		} );
+
+		add_action( 'wp_loaded', function () {
+			try {
+				$this->verify();
+			}
+			catch ( \Exception $e ) {
+			}
+		} );
 	}
 
-	private function scheduleAdHocCheck( int $delay = 20 ) {
+	public function runHourlyCron() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getWpHashesTokenManager()->getToken();
+	}
+
+	public function scheduleAdHocCheck( int $delay = 20 ) {
 		$con = $this->getCon();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 			wp_schedule_single_event(
@@ -75,18 +74,12 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function canCheck() :bool {
-		return !in_array( $this->getCon()->getShieldAction(), [ 'keyless_handshake', 'license_check' ] )
-			   && $this->getIsLicenseNotCheckedFor( 20 )
-			   && $this->canLicenseCheck_FileFlag();
+		return $this->getIsLicenseNotCheckedFor( 20 ) && $this->canLicenseCheck_FileFlag();
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function clearLicense() {
 		$this->getMod()->clearLastErrors();
 		$this->getOptions()->setOpt( 'license_data', [] );
-		return $this;
 	}
 
 	/**
@@ -115,13 +108,9 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		return (int)$this->getOptions()->getOpt( 'license_deactivated_at' );
 	}
 
-	/**
-	 * @return EddLicenseVO|ShieldLicense
-	 */
-	public function getLicense() {
+	public function getLicense() :ShieldLicense {
 		$data = $this->getOptions()->getOpt( 'license_data', [] );
-		$lic = class_exists( 'ShieldLicense' ) ? new ShieldLicense() : new EddLicenseVO();
-		return $lic->applyFromArray( is_array( $data ) ? $data : [] );
+		return ( new ShieldLicense() )->applyFromArray( is_array( $data ) ? $data : [] );
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {

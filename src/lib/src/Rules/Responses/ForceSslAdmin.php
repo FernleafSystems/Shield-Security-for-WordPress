@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 class ForceSslAdmin extends Base {
 
-	const SLUG = 'force_ssl_admin';
+	public const SLUG = 'force_ssl_admin';
 
 	protected function execResponse() :bool {
 		if ( !defined( 'FORCE_SSL_ADMIN' ) ) {

@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use IPLib\Factory;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	Ops as IpRulesDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
+use IPLib\Factory;
 use IPLib\Range\Type;
 
 class AddRule {

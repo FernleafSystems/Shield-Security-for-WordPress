@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseFormProvider extends ExecOnceModConsumer {
@@ -13,20 +12,20 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	/**
 	 * @var string
 	 */
-	private $sActionToAudit;
+	private $actionToAudit;
 
 	/**
 	 * @var string
 	 */
-	private $sUserToAudit;
+	private $userToAudit;
 
 	/**
-	 * @var LoginGuard\Lib\AntiBot\ProtectionProviders\BaseProtectionProvider[]
+	 * @var ProtectionProviders\BaseProtectionProvider[]
 	 */
-	private static $aProtectionProviders;
+	private static $Providers = [];
 
 	public static function SetProviders( array $providers ) {
-		self::$aProtectionProviders = $providers;
+		self::$Providers = $providers;
 	}
 
 	/**
@@ -38,8 +37,11 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 		}
 	}
 
+	/**
+	 * @return ProtectionProviders\BaseProtectionProvider[]
+	 */
 	protected function getProtectionProviders() :array {
-		return is_array( self::$aProtectionProviders ) ? self::$aProtectionProviders : [];
+		return is_array( self::$Providers ) ? self::$Providers : [];
 	}
 
 	protected function checkThenDie() {
@@ -75,65 +77,55 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param string $sToAppend
-	 * @return string
+	 * @param string $toAppend
 	 */
-	public function formInsertsAppend( $sToAppend ) {
-		return $sToAppend.$this->buildFormInsert();
+	public function formInsertsAppend( $toAppend ) :string {
+		return $toAppend.$this->buildFormInsert();
 	}
 
 	public function buildFormInsert() :string {
-		$aInserts = [];
-		if ( is_array( self::$aProtectionProviders ) ) {
-			foreach ( self::$aProtectionProviders as $oProvider ) {
-				$aInserts[] = $oProvider->buildFormInsert( $this );
-				$oProvider->setAsInsertBuilt();
-			}
-		}
-		return implode( "\n", $aInserts );
+		return implode( "\n", array_map(
+			function ( $provider ) {
+				$provider->setAsInsertBuilt();
+				return $provider->buildFormInsert( $this );
+			},
+			$this->getProtectionProviders()
+		) );
 	}
 
 	public function printFormInsert() {
 		echo $this->buildFormInsert();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getActionToAudit() {
-		return empty( $this->sActionToAudit ) ? 'unknown-action' : $this->sActionToAudit;
+	public function getActionToAudit() :string {
+		return empty( $this->actionToAudit ) ? 'unknown-action' : $this->actionToAudit;
+	}
+
+	public function getUserToAudit() :string {
+		return empty( $this->userToAudit ) ? 'unknown' : (string)$this->userToAudit;
 	}
 
 	/**
-	 * @return string
+	 * @param \WP_Error $maybeWpError
 	 */
-	public function getUserToAudit() {
-		return empty( $this->sUserToAudit ) ? 'unknown' : $this->sUserToAudit;
+	protected function giveMeWpError( $maybeWpError ) :\WP_Error {
+		return is_wp_error( $maybeWpError ) ? $maybeWpError : new \WP_Error();
 	}
 
 	/**
-	 * @param \WP_Error $oMaybeWpError
-	 * @return \WP_Error
-	 */
-	protected function giveMeWpError( $oMaybeWpError ) {
-		return is_wp_error( $oMaybeWpError ) ? $oMaybeWpError : new \WP_Error();
-	}
-
-	/**
-	 * @param string $sActionToAudit
 	 * @return $this
 	 */
-	protected function setActionToAudit( $sActionToAudit ) {
-		$this->sActionToAudit = $sActionToAudit;
+	protected function setActionToAudit( string $actionToAudit ) {
+		$this->actionToAudit = $actionToAudit;
 		return $this;
 	}
 
 	/**
-	 * @param string $sUserToAudit
+	 * @param string $userToAudit
 	 * @return $this
 	 */
-	protected function setUserToAudit( $sUserToAudit ) {
-		$this->sUserToAudit = sanitize_user( $sUserToAudit );
+	protected function setUserToAudit( $userToAudit ) {
+		$this->userToAudit = sanitize_user( $userToAudit );
 		return $this;
 	}
 }

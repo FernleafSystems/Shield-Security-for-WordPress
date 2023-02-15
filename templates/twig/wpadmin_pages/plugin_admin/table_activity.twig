@@ -1,0 +1,22 @@
+{% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="row insights_widget shield-section-datatable" id="SectionAuditTable">
+		<div class="col">
+			<table id="table_id-audit_trail"class="table table-striped table-bordered" style="width: 100%;"></table>
+		</div>
+	</div>
+
+	<script>
+		jQuery( document ).ready( function () {
+		jQuery( '#table_id-audit_trail' ).icwpWpsfAuditTableActions(
+			{
+				'ajax': {
+					'logtable_action':{{ ajax.logtable_action|raw }},
+				},
+				'datatables_init': {{ vars.datatables_init|raw }}
+			}
+		);
+	} );
+	</script>
+{% endblock %}

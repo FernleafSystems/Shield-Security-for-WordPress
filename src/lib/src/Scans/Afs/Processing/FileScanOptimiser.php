@@ -19,7 +19,7 @@ class FileScanOptimiser {
 			if ( !$FS->exists( $pathToHashes ) ) {
 				$FS->touch( $pathToHashes );
 			}
-			if ( $FS->exists( $pathToHashes ) ) {
+			if ( $FS->isAccessibleFile( $pathToHashes ) ) {
 				$fileHashes = array_unique( array_filter( array_map(
 					function ( $file ) {
 						return hash_file( 'md5', $file );
@@ -27,16 +27,15 @@ class FileScanOptimiser {
 					array_filter(
 						$files,
 						function ( $file ) {
-							return Services::WpFs()->exists( $file );
+							return Services::WpFs()->isAccessibleFile( $file );
 						}
 					)
 				) ) );
 
 				try {
-					$searcher = new SearchFile( $pathToHashes );
 					$allNotFoundHashes = array_diff(
 						$fileHashes,
-						array_keys( array_filter( $searcher->multipleExists( $fileHashes ) ) )
+						array_keys( array_filter( ( new SearchFile( $pathToHashes ) )->multipleExists( $fileHashes ) ) )
 					);
 					file_put_contents(
 						$pathToHashes,
@@ -74,12 +73,12 @@ class FileScanOptimiser {
 		$filesFound = [];
 
 		$pathToHashes = $this->pathToHashes();
-		if ( $FS->exists( $pathToHashes ) && $FS->getFileSize( $pathToHashes ) > 0 ) {
+		if ( $FS->isFile( $pathToHashes ) && $FS->getFileSize( $pathToHashes ) > 0 ) {
 
 			$filesThatExist = array_filter(
 				$files,
 				function ( $file ) {
-					return Services::WpFs()->exists( $file );
+					return Services::WpFs()->isAccessibleFile( $file );
 				}
 			);
 
@@ -89,10 +88,11 @@ class FileScanOptimiser {
 			}
 
 			try {
-				$searcher = new SearchFile( $pathToHashes );
 				$filesFound = array_keys( array_intersect(
 					$filesAndTheirHashes,
-					array_keys( array_filter( $searcher->multipleExists( array_values( $filesAndTheirHashes ) ) ) )
+					array_keys( array_filter(
+						( new SearchFile( $pathToHashes ) )->multipleExists( array_values( $filesAndTheirHashes ) )
+					) )
 				) );
 			}
 			catch ( \Exception $e ) {

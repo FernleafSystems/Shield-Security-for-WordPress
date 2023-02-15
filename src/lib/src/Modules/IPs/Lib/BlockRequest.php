@@ -2,19 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockIP;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 
 class BlockRequest extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return (bool)apply_filters( 'shield/is_request_blocked', $this->getCon()->this_req->is_ip_blocked_shield );
+		return $this->isRequestBlocked();
 	}
 
 	protected function run() {
-		$this->getCon()->fireEvent( 'conn_kill' );
-		( new RenderBlockIP() )
-			->setMod( $this->getMod() )
-			->display();
+		do_action( 'shield/maybe_intercept_block_shield' );
+		// This can still be stopped.
+		if ( $this->isRequestBlocked() ) {
+			$con = $this->getCon();
+			$con->fireEvent( 'conn_kill' );
+			$con->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+				'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressShield::SLUG
+			] );
+		}
+	}
+
+	private function isRequestBlocked() :bool {
+		return (bool)apply_filters( 'shield/is_request_blocked', $this->getCon()->this_req->is_ip_blocked_shield );
 	}
 }

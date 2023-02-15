@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class MatchRequestParamFileUploads extends MatchRequestParam {
 
-	const SLUG = 'match_request_param_file_uploads';
+	public const SLUG = 'match_request_param_file_uploads';
 
 	protected function getRequestParamsToTest() :array {
 		return array_filter( array_map(

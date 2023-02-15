@@ -1,10 +1,12 @@
 <h5 class="mb-3">
 	{{ strings.title }}
-	<span class="badge bg-info">{{ vars.total_sessions }}</span>
+	<span class="badge {% if vars.total_sessions > 0 %}bg-info{% else %}bg-secondary{% endif %}">
+		{{ vars.total_sessions }}
+	</span>
 </h5>
 
 {% if vars.total_sessions < 1 %}
-	<div class="alert-secondary alert">{{ strings.no_sessions }}</div>
+	<p>{{ strings.no_sessions }}</p>
 {% else %}
 	<table class="table">
 		<thead class="thead-light">

@@ -46,7 +46,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	public function getAuditAction() :string {
-		return sprintf( '%s-%s', $this->getHandlerSlug(), empty( $this->auditAction ) ? 'unknown' : $this->auditAction );
+		return sprintf( '%s-%s', static::Slug(), empty( $this->auditAction ) ? 'unknown' : $this->auditAction );
 	}
 
 	public function getAuditUser() :string {

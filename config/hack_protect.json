@@ -10,7 +10,7 @@
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "hack_protect",
-    "tagline":               "Automatically detect and repair vulnerable and suspicious items",
+    "tagline":               "Automatically detect & repair vulnerable and suspicious files, plugins and themes.",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
@@ -35,12 +35,6 @@
     "enabled": true,
     "root":    "hack_guard"
   },
-  "menu_items":       [
-    {
-      "title": "Scans",
-      "slug":  "scans-redirect"
-    }
-  ],
   "custom_redirects": [
     {
       "source_mod_page": "scans-redirect",
@@ -367,14 +361,6 @@
       "default":          0,
       "transferable":     false,
       "tracking_exclude": true
-    },
-    {
-      "key":              "legacy_db_conversion_at",
-      "section":          "section_non_ui",
-      "type":             "integer",
-      "default":          0,
-      "transferable":     false,
-      "tracking_exclude": true
     }
   ],
   "definitions":      {
@@ -409,11 +395,66 @@
       "hbs"
     ],
     "db_handler_classes":          {
+      "file_locker":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler",
       "scans":           "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Scans\\Ops\\Handler",
       "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
       "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
       "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
       "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+    },
+    "db_table_file_locker":        {
+      "autoexpire":      0,
+      "slug":            "file_locker",
+      "col_older_than":  "created_at",
+      "has_updated_at":  true,
+      "cols_custom":     {
+        "type":          {
+          "macro_type": "varchar",
+          "length":     20,
+          "comment":    "The type of file being locked"
+        },
+        "path":          {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "Full Path to file"
+        },
+        "hash_original": {
+          "macro_type": "varchar",
+          "length":     40,
+          "comment":    "SHA1 File Hash Original"
+        },
+        "hash_current":  {
+          "macro_type": "varchar",
+          "length":     40,
+          "comment":    "SHA1 File Hash Current"
+        },
+        "public_key_id": {
+          "type":    "tinyint",
+          "length":  2,
+          "comment": "Public Key ID"
+        },
+        "cipher":        {
+          "macro_type": "varchar",
+          "length":     32,
+          "default":    "rc4",
+          "comment":    "OpenSSL Cipher"
+        },
+        "content":       {
+          "type":    "mediumblob",
+          "comment": "Encrypted Content"
+        }
+      },
+      "cols_timestamps": {
+        "detected_at": {
+          "comment": "Change Last Detected"
+        },
+        "reverted_at": {
+          "comment": "Reverted To Backup"
+        },
+        "notified_at": {
+          "comment": "Notification Sent"
+        }
+      }
     },
     "db_table_scans":              {
       "autoexpire":     0,

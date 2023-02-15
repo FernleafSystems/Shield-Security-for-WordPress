@@ -9,7 +9,6 @@ class SetSecAdminPin {
 	use ModConsumer;
 
 	/**
-	 * @param string $pin
 	 * @throws \Exception
 	 */
 	public function run( string $pin ) {

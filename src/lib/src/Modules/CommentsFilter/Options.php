@@ -24,7 +24,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getTrustedRoles() :array {
 		$roles = [];
-		if ( $this->isPremium() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			$roles = $this->getOpt( 'trusted_user_roles', [] );
 		}
 		return is_array( $roles ) ? $roles : [];

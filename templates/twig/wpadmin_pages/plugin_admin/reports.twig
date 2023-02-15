@@ -1,0 +1,10 @@
+{% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="alert alert-warning">
+		Please note that these charts are new and experimental and are provided for early illustration of Shield's activity.
+		<br />They will be enhanced with ongoing development.
+	</div>
+	{{ content.summary_stats|raw }}
+	{{ content.custom_chart|raw }}
+{% endblock %}

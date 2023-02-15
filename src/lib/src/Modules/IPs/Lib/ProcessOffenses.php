@@ -12,20 +12,16 @@ class ProcessOffenses extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-
-		$mod->loadOffenseTracker()->setIfCommit( true );
-
 		$con = $this->getCon();
+		$mod = $con->getModule_IPs();
+		$mod->loadOffenseTracker()->setIfCommit( true );
 		add_action( $con->prefix( 'pre_plugin_shutdown' ), function () {
 			$this->processOffense();
 		} );
 	}
 
 	private function processOffense() {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->getCon()->getModule_IPs();
 
 		$tracker = $mod->loadOffenseTracker();
 		if ( !$this->getCon()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {

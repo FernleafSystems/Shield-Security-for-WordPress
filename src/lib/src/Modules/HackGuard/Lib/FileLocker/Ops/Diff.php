@@ -2,24 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 
 class Diff extends BaseOps {
 
 	/**
-	 * @return string
 	 * @throws \Exception
 	 */
-	public function run( FileLocker\EntryVO $lock ) {
+	public function run( FileLockerDB\Record $lock ) :string {
 		$FS = Services::WpFs();
 
-		if ( !$FS->isFile( $lock->file ) ) {
+		if ( !$FS->isFile( $lock->path ) ) {
 			throw new \Exception( __( 'File is missing or could not be read.', 'wp-simple-firewall' ) );
 		}
 
-		$current = $FS->getFileContent( $lock->file );
+		$current = $FS->getFileContent( $lock->path );
 		if ( empty( $current ) ) {
 			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}

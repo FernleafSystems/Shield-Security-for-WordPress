@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 class Themes extends BaseCapabilitiesRestrict {
 
-	const AREA_SLUG = 'themes';
+	public const AREA_SLUG = 'themes';
 
 	protected function getApplicableCapabilities() :array {
 		return [

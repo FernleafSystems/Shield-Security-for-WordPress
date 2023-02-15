@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHand
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
@@ -20,10 +20,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 */
 	private $log;
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function write( array $record ) {
+	protected function write( array $record ) :void {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 

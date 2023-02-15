@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
+	NoResponseActionDefinedException,
+	NoSuchResponseHandlerException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RulesController;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 
@@ -30,10 +33,7 @@ class ResponseProcessor extends BaseProcessor {
 					$eventFireResponseProcessed = true;
 				}
 			}
-			catch ( Exceptions\NoResponseActionDefinedException $e ) {
-				error_log( $e->getMessage() );
-			}
-			catch ( Exceptions\NoSuchResponseHandlerException $e ) {
+			catch ( NoResponseActionDefinedException | NoSuchResponseHandlerException $e ) {
 				error_log( $e->getMessage() );
 			}
 		}

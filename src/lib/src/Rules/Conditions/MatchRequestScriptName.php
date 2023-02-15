@@ -13,7 +13,7 @@ class MatchRequestScriptName extends Base {
 
 	use RequestScriptName;
 
-	const SLUG = 'match_request_script_name';
+	public const SLUG = 'match_request_script_name';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_script_names ) ) {
@@ -25,7 +25,7 @@ class MatchRequestScriptName extends Base {
 
 		if ( $this->is_match_regex ) {
 			foreach ( $this->match_script_names as $matchScriptName ) {
-				if ( preg_match( sprintf( '#%s#i', $matchScriptName ), $scriptName ) ) {
+				if ( preg_match( sprintf( '#%s#i', preg_quote( $matchScriptName, '#' ) ), $scriptName ) ) {
 					$matched = true;
 					break;
 				}
@@ -35,7 +35,7 @@ class MatchRequestScriptName extends Base {
 			$matched = in_array( $scriptName, $this->match_script_names );
 		}
 
-		// always add this incase we need to invert_match
+		// always add this in-case we need to invert_match
 		$this->addConditionTriggerMeta( 'matched_script_name', $scriptName );
 		return $matched;
 	}

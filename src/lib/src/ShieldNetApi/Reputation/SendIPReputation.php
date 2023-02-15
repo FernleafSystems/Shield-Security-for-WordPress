@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 class SendIPReputation extends Common\BaseShieldNetApi {
 
-	const API_ACTION = 'ip/reputation/receive';
+	public const API_ACTION = 'ip/reputation/receive';
 
 	public function send( array $signalsData ) :bool {
 		$this->request_method = 'post';

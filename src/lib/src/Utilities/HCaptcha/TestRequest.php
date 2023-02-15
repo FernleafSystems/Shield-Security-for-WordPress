@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TestRequest extends ReCaptcha\TestRequest {
 
-	const URL_VERIFY = 'https://hcaptcha.com/siteverify';
+	public const URL_VERIFY = 'https://hcaptcha.com/siteverify';
 
 	/**
 	 * @return bool

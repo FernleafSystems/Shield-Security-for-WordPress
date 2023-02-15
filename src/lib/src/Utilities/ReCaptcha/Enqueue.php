@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Legacy\RecaptchaJs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Enqueue {
 
@@ -27,24 +28,20 @@ class Enqueue {
 	 * TODO: Consider how to move this to our standardised Enqueue system.
 	 */
 	public function onWpEnqueueJs() {
-		/** @var ModCon $oMod */
-		$oMod = $this->getMod();
-		$oCFG = $oMod->getCaptchaCfg();
+		$mod = $this->getMod();
+		$cfg = $mod->getCaptchaCfg();
 
-		$sJsUri = add_query_arg(
-			[
-				'hl'     => Services::WpGeneral()->getLocale( '-' ),
-				'onload' => 'onLoadIcwpRecaptchaCallback',
-				'render' => 'explicit',
-			],
-			$oCFG->url_api
-		);
-		wp_register_script( $oCFG->js_handle, $sJsUri, [], false, true );
-		wp_enqueue_script( $oCFG->js_handle );
+		$uriJS = URL::Build( $cfg->url_api, [
+			'hl'     => Services::WpGeneral()->getLocale( '-' ),
+			'onload' => 'onLoadIcwpRecaptchaCallback',
+			'render' => 'explicit',
+		] );
+		wp_register_script( $cfg->js_handle, $uriJS, [], false, true );
+		wp_enqueue_script( $cfg->js_handle );
 
 		Services::Includes()
-				->addIncludeAttribute( $oCFG->js_handle, 'async', 'async' )
-				->addIncludeAttribute( $oCFG->js_handle, 'defer', 'defer' );
+				->addIncludeAttribute( $cfg->js_handle, 'async', 'async' )
+				->addIncludeAttribute( $cfg->js_handle, 'defer', 'defer' );
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
@@ -63,12 +60,10 @@ class Enqueue {
 	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$cfg = $mod->getCaptchaCfg();
+		$cfg = $this->getMod()->getCaptchaCfg();
 
 		if ( $this->bEnqueue ) {
-			echo $mod->renderTemplate( 'snippets/anti_bot/google_recaptcha_js.twig', [
+			echo $this->getCon()->action_router->render( RecaptchaJs::SLUG, [
 				'sitekey' => $cfg->key,
 				'size'    => $cfg->invisible ? 'invisible' : '',
 				'theme'   => $cfg->theme,

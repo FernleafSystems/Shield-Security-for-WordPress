@@ -1,66 +1,40 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Telemetry\SendTelemetry;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\SendPluginTelemetry;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginTelemetry extends ExecOnceModConsumer {
+class PluginTelemetry {
 
-	use PluginCronsConsumer;
+	use ModConsumer;
 
-	protected function canRun() :bool {
+	public const MOD = Plugin\ModCon::SLUG;
+
+	public function collectAndSend( bool $forceSend = false ) {
+		if ( $forceSend || $this->canSend() ) {
+			$data = $this->collectTrackingData();
+			if ( !empty( $data ) ) {
+				$this->getOptions()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
+				$this->getMod()->saveModOptions();
+				( new SendPluginTelemetry() )
+					->setMod( $this->getMod() )
+					->send( $data );
+			}
+		}
+	}
+
+	private function canSend() :bool {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet();
-	}
-
-	protected function run() {
-		$con = $this->getCon();
-		switch ( $con->getShieldAction() ) {
-			case 'dump_tracking_data':
-				add_action( 'wp_loaded', function () {
-					if ( $this->getCon()->isPluginAdmin() ) {
-						echo sprintf( '<pre><code>%s</code></pre>',
-							print_r( $this->collectTrackingData(), true ) );
-						die();
-					}
-				} );
-				break;
-			default:
-				break;
-		}
-
-		$this->setupCronHooks();
-	}
-
-	public function runDailyCron() {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
-
-		$canSend = $opts->isTrackingEnabled()
-				   && Services::Request()
-							  ->carbon()
-							  ->subDay()->timestamp > (int)$opts->getOpt( 'tracking_last_sent_at', 0 );
-		if ( $canSend ) {
-			$this->collectAndSend();
-		}
-	}
-
-	public function collectAndSend() {
-		$data = $this->collectTrackingData();
-		if ( !empty( $data ) ) {
-			$this->getOptions()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-			$this->getMod()->saveModOptions();
-			( new SendTelemetry() )
-				->setMod( $this->getMod() )
-				->sendData( $data );
-		}
+		return ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() )
+			   && Services::Request()
+						  ->carbon()
+						  ->subDay()->timestamp > $opts->getOpt( 'tracking_last_sent_at', 0 );
 	}
 
 	/**
@@ -71,7 +45,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 
 		$data = $this->getBaseTrackingData();
 		foreach ( $con->modules as $mod ) {
-			$data[ $mod->getSlug() ] = $this->buildOptionsDataForMod( $mod );
+			$data[ $mod->cfg->slug ] = $this->buildOptionsDataForMod( $mod );
 		}
 
 		if ( !empty( $data[ 'events' ] ) ) {
@@ -100,18 +74,14 @@ class PluginTelemetry extends ExecOnceModConsumer {
 		}
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
-			/** @var Plugin\ModCon $mod */
-			$mod = $this->getMod();
-			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $mod->getPluginInstallationId();
-			$data[ 'plugin' ][ 'options' ][ 'new_unique_installation_id' ] = $con->getSiteInstallationId();
-			$data[ 'plugin' ][ 'options' ][ 'newer_unique_installation_id' ] = $con->getInstallationID()[ 'id' ];
+			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->getCon()->getInstallationID()[ 'id' ];
 		}
 
 		return $data;
 	}
 
 	/**
-	 * @param ModCon $mod
+	 * @param ModCon|mixed $mod
 	 */
 	private function buildOptionsDataForMod( $mod ) :array {
 		$data = [];
@@ -123,7 +93,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 			// some cleaning to ensure we don't have disallowed characters
 			$opt = preg_replace( '#[^_a-z]#', '', strtolower( $opt ) );
 			if ( $opts->getOptionType( $opt ) == 'checkbox' ) { // only want a boolean 1 or 0
-				$optionsData[ $opt ] = (int)( $mValue == 'Y' );
+				$optionsData[ $opt ] = $mValue == 'Y' ? 1 : 0;
 			}
 			else {
 				$optionsData[ $opt ] = $mValue;
@@ -155,7 +125,7 @@ class PluginTelemetry extends ExecOnceModConsumer {
 				'locale'           => get_locale(),
 				'plugins_total'    => count( $WPP->getPlugins() ),
 				'plugins_active'   => count( $WPP->getActivePlugins() ),
-				'plugins_updates'  => count( $WPP->getUpdates() )
+				'plugins_updates'  => count( $WPP->getUpdates() ),
 			]
 		];
 	}

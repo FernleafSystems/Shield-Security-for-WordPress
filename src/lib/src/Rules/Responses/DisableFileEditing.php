@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 class DisableFileEditing extends Base {
 
-	const SLUG = 'disable_file_editing';
+	public const SLUG = 'disable_file_editing';
 
 	protected function execResponse() :bool {
 		if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {

@@ -275,8 +275,8 @@ class Options {
 		$section = $this->getSection( $slug );
 		return array_merge(
 			[
-				'php_min' => '7.0',
-				'wp_min'  => '3.7',
+				'php_min' => '7.2',
+				'wp_min'  => '4.7',
 			],
 			( is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
 		);
@@ -323,6 +323,9 @@ class Options {
 		}, $this->getVisibleOptions() );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getAdditionalMenuItems() :array {
 		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
 	}

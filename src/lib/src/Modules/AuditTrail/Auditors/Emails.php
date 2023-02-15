@@ -69,7 +69,7 @@ class Emails extends Base {
 		);
 
 		foreach ( $headers as $header ) {
-			list( $headerKey, $emails ) = explode( ':', $header, 2 );
+			[ $headerKey, $emails ] = explode( ':', $header, 2 );
 
 			$emails = array_filter(
 				array_map( 'trim', explode( ',', $emails ) ),

@@ -62,10 +62,6 @@ class ShieldUserMeta extends UserMeta {
 		return $value;
 	}
 
-	public function getLastVerifiedAt() :int {
-		return (int)$this->last_verified_at;
-	}
-
 	public function updatePasswordStartedAt( string $userPassHash ) :self {
 		$newHash = substr( sha1( $userPassHash ), 6, 4 );
 		if ( !isset( $this->pass_hash ) || ( $this->pass_hash != $newHash ) ) {

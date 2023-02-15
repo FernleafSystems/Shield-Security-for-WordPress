@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Serv
 
 class Controller extends ExecOnceModConsumer {
 
-	const MIN_VERSION_MAINWP = '4.1';
+	public const MIN_VERSION_MAINWP = '4.1';
 
 	protected function run() {
 		try {

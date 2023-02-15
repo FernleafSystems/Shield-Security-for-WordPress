@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'hack_protect';
+
 	/**
 	 * @var Scan\ScansController
 	 */
@@ -34,24 +36,19 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
-		if ( !isset( $this->oFileLocker ) ) {
-			$this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
-		}
-		return $this->oFileLocker;
+		return $this->oFileLocker ?? $this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
 	}
 
 	public function getScansCon() :Scan\ScansController {
-		if ( !isset( $this->scanCon ) ) {
-			$this->scanCon = ( new Scan\ScansController() )->setMod( $this );
-		}
-		return $this->scanCon;
+		return $this->scanCon ?? $this->scanCon = ( new Scan\ScansController() )->setMod( $this );
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		if ( !isset( $this->scanQueueCon ) ) {
-			$this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
-		}
-		return $this->scanQueueCon;
+		return $this->scanQueueCon ?? $this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
+	}
+
+	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'file_locker' );
 	}
 
 	public function getDbH_Scans() :DB\Scans\Ops\Handler {
@@ -80,28 +77,10 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @return Scan\Controller\Base|mixed
+	 * @deprecated 17.0
 	 */
 	public function getScanCon( string $slug ) {
 		return $this->getScansCon()->getScanCon( $slug );
-	}
-
-	public function getMainWpData() :array {
-		return array_merge( parent::getMainWpData(), [
-			'scan_issues' => array_filter( ( new Shield\Modules\HackGuard\Scan\Results\Counts() )->setMod( $this )->all() )
-		] );
-	}
-
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'filelocker':
-				$this->getFileLocker()->handleFileDownloadRequest();
-				break;
-			case 'scan_file':
-				( new Lib\Utility\FileDownloadHandler() )
-					->setMod( $this )
-					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
-				break;
-		}
 	}
 
 	protected function preProcessOptions() {
@@ -158,28 +137,22 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function setCustomCronSchedules() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$freq = $opts->getScanFrequency();
-		Services::WpCron()
-				->addNewSchedule(
-					$this->getCon()->prefix( sprintf( 'per-day-%s', $freq ) ),
-					[
-						'interval' => DAY_IN_SECONDS/$freq,
-						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
-					]
-				);
-		return $this;
+		Services::WpCron()->addNewSchedule(
+			$this->getCon()->prefix( sprintf( 'per-day-%s', $freq ) ),
+			[
+				'interval' => DAY_IN_SECONDS/$freq,
+				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
+			]
+		);
 	}
 
-	public function getScansTempDir() :string {
-		return $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
-	}
-
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
 		return $this->getDbH( 'filelocker' );
 	}
@@ -194,16 +167,13 @@ class ModCon extends BaseShield\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->getDbH_ScanResults()->isReady() && $this->getDbH_ScanItems()->isReady();
 	}
 
 	public function onPluginDeactivate() {
 		// 1. Clean out the scanners
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $slug ) {
-			$this->getScanCon( $slug )->purge();
+		foreach ( $this->getScansCon()->getAllScanCons() as $scanCon ) {
+			$scanCon->purge();
 		}
 		$this->getDbH_ScanItems()->tableDelete();
 		$this->getDbH_ScanResults()->tableDelete();
@@ -228,7 +198,7 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @inheritDoc
-	 * @deprecated 13.1
+	 * @deprecated 17.0
 	 */
 	public function getDbHandlers( $bInitAll = false ) {
 		return [];

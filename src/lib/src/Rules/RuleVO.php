@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 /**
  * @property string   $slug
@@ -32,7 +33,7 @@ class RuleVO extends DynPropertiesClass {
 				break;
 
 			case 'wp_hook_priority':
-				$value = is_numeric( $value ) ? (int)$value : 0;
+				$value = is_numeric( $value ) ? (int)$value : $this->determineWpHookPriority();
 				break;
 
 			case 'immediate_exec_response':
@@ -61,5 +62,16 @@ class RuleVO extends DynPropertiesClass {
 			$hook = 'init';
 		}
 		return $hook;
+	}
+
+	private function determineWpHookPriority() :int {
+		switch ( $this->wp_hook ) {
+			case 'init':
+				$priority = HookTimings::INIT_DEFAULT_RULES_HOOK;
+				break;
+			default:
+				$priority = 0;
+		}
+		return $priority;
 	}
 }

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi
 
 class GetPublicKey extends BaseShieldNetApi {
 
-	const API_ACTION = 'filelocker/public_key';
+	public const API_ACTION = 'filelocker/public_key';
 
 	/**
 	 * @return array|null

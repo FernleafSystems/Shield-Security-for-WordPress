@@ -30,13 +30,6 @@
       "type":             "error"
     }
   },
-  "menu_items":       [
-    {
-      "title":     "Go PRO!",
-      "slug":      "pro-redirect",
-      "highlight": true
-    }
-  ],
   "custom_redirects": [
     {
       "source_mod_page": "pro-redirect",

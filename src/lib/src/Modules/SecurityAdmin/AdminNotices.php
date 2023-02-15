@@ -8,9 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {
@@ -30,35 +27,31 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_CertainOptionsRestricted( NoticeVO $notice ) {
-		$mod = $this->getMod();
-		$sName = $this->getCon()->getHumanName();
-
+		$con = $this->getCon();
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->getHumanName() ),
 				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
 									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$mod->getUrl_AdminPage(),
+					$con->plugin_urls->modCfg( $this->getMod() ),
 					__( 'Admin Access Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
 				)
 			]
 		];
 	}
 
 	private function buildNotice_AdminUsersRestricted( NoticeVO $notice ) {
-		$mod = $this->getMod();
-		$sName = $this->getCon()->getHumanName();
-
+		$con = $this->getCon();
 		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $con->getHumanName() ),
 				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
 									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
 				'unlock_link'    => sprintf(
@@ -71,9 +64,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$mod->getUrl_AdminPage(),
+					$con->plugin_urls->modCfg( $this->getMod() ),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $con->getHumanName() )
 				)
 			]
 		];
@@ -92,7 +85,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'certain-options-restricted':
-				$needed = empty( Services::Request()->query( 'page' ) ) && in_array( $current, $opts->getOptionsPagesToRestrict() );
+				$needed = empty( Services::Request()
+										 ->query( 'page' ) ) && in_array( $current, $opts->getOptionsPagesToRestrict() );
 				break;
 
 			default:

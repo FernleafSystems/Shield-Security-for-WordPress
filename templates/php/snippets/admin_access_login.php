@@ -25,7 +25,7 @@
 		$oThisAAL.html( '<div class="spinner"></div>' );
 		$oInput.prop( 'disabled', true );
 
-		var requestData = <?php echo $ajax[ 'sec_admin_login' ]; ?>;
+		let requestData = <?php echo $ajax[ 'sec_admin_login' ]; ?>;
 		requestData[ 'sec_admin_key' ] = $oInput.val();
 
 		jQuery.post( ajaxurl, requestData, function ( oResponse ) {

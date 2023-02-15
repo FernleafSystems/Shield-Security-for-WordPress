@@ -1,0 +1,23 @@
+{% extends '/components/reports/components/base.twig' %}
+
+{% block body %}
+	<ul>
+		{% for repair_data in vars.repairs %}
+			<li>
+				{{ repair_data.name }}: {{ repair_data.count }}
+				{% if repair_data.repairs is not empty %}
+					<ul>
+						{% for repair in repair_data.repairs %}
+							<li><code>{{ repair }}</code></li>
+						{% endfor %}
+						{{ repair_data.count > repair_data.repairs|length ? '<li>...</li>' : '' }}
+					</ul>
+				{% endif %}
+			</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
+
+{% block post_body %}
+	<p><a href="{{ hrefs.activity_log }}" target="_blank">{{ strings.activity_log }}</a></p>
+{% endblock %}

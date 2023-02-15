@@ -1,10 +1,15 @@
-<h5 class="mb-3">
+<h5 class="mb-1">
 	{{ strings.title }}
-	<span class="badge bg-info">{{ vars.total_requests }}</span>
+	<span class="badge {% if vars.total_requests > 0 %}bg-info{% else %}bg-secondary{% endif %}">
+		{{ vars.total_requests }}
+	</span>
 </h5>
+{% if flags.log_display_limit_reached %}
+	<p>{{ strings.display_limit }}</p>
+{% endif %}
 
 {% if vars.total_requests < 1 %}
-	<div class="alert-secondary alert">{{ strings.no_requests }}</div>
+	<p>{{ strings.no_requests }}</p>
 {% else %}
 	<div class="">
 		<table class="table">
@@ -50,6 +55,13 @@
 				</tr>
 			{% endfor %}
 			</tbody>
+			{% if flags.log_display_limit_reached %}
+				<tfoot>
+				 <tr>
+					 <td colspan="3" class="text-center border-0"><h2>&hellip;</h2></td>
+				 </tr>
+				</tfoot>
+			{% endif %}
 		</table>
 	</div>
 {% endif %}

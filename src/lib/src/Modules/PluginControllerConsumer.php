@@ -15,7 +15,7 @@ trait PluginControllerConsumer {
 	 * @return Controller
 	 */
 	public function getCon() {
-		return $this->oPlugCon;
+		return $this->oPlugCon ?? shield_security_get_plugin()->getController();
 	}
 
 	/**

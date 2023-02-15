@@ -24,9 +24,9 @@ class DailyCron extends BaseCron {
 			$hour = 7;
 		}
 		$carbon = Services::Request()
-						 ->carbon( true )
-						 ->minute( rand( 1, 59 ) )
-						 ->second( 0 );
+						  ->carbon( true )
+						  ->minute( rand( 1, 59 ) )
+						  ->second( 0 );
 		if ( $carbon->hour >= $hour ) {
 			$carbon->addDays( 1 );
 		}

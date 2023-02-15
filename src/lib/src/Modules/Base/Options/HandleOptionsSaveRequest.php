@@ -3,30 +3,40 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Options\SaveExcludedOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandleOptionsSaveRequest {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	private $form;
 
+	/**
+	 * @var ModCon
+	 */
+	private $mod;
+
 	public function handleSave() :bool {
 		try {
+			$con = $this->getCon();
+			if ( !$con->isPluginAdmin() ) {
+				throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
+			}
+
 			$form = $this->getForm();
 			if ( empty( $form ) ) {
 				throw new \Exception( 'options form parameters were empty.' );
 			}
 
-			$this->setMod( $this->getCon()->getModule( $form[ 'working_mod' ] ) );
-			$con = $this->getCon();
-			if ( !$con->isPluginAdmin() ) {
-				throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
+			$this->mod = $con->getModule( $form[ 'working_mod' ] );
+			if ( empty( $this->mod ) ) {
+				throw new \Exception( 'Working mod provided is invalid.' );
 			}
-			$this->doSaveStandardOptions();
-			$this->getMod()->saveModOptions( true );
+
+			$this->storeOptions();
 
 			// auto-import notify: ONLY when the options are being updated with a MANUAL save.
 			if ( !wp_next_scheduled( $con->prefix( 'importexport_notify' ) ) ) {
@@ -51,7 +61,7 @@ class HandleOptionsSaveRequest {
 	/**
 	 * @throws \Exception
 	 */
-	private function doSaveStandardOptions() {
+	private function storeOptions( ) {
 		// standard options use b64 and fail-over to lz-string
 		$form = $this->getForm();
 
@@ -59,7 +69,7 @@ class HandleOptionsSaveRequest {
 			function ( $optDef ) {
 				return $optDef[ 'type' ];
 			},
-			$this->getOptions()->getVisibleOptions()
+			$this->mod->getOptions()->getVisibleOptions()
 		);
 		foreach ( $optsAndTypes as $optKey => $optType ) {
 
@@ -111,15 +121,17 @@ class HandleOptionsSaveRequest {
 
 			// Prevent overwriting of non-editable fields
 			if ( !in_array( $optType, [ 'noneditable_text' ] ) ) {
-				$this->getOptions()->setOpt( $optKey, $optValue );
+				$this->mod->getOptions()->setOpt( $optKey, $optValue );
 			}
 		}
 
 		// Handle Import/Export exclusions
 		if ( $this->getCon()->isPremiumActive() ) {
 			( new SaveExcludedOptions() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod )
 				->save( $form );
 		}
+
+		$this->mod->saveModOptions( true );
 	}
 }

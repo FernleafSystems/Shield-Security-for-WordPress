@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller as ScanController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
-	Common\ScanItemConsumer,
 	Afs,
+	Common\ScanItemConsumer,
 	Mal,
 	Ptg,
 	Wcf

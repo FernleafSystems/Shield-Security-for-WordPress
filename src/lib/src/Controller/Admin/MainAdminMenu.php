@@ -17,12 +17,6 @@ class MainAdminMenu {
 	}
 
 	protected function run() {
-		add_action( 'admin_menu', function () {
-			$this->createAdminMenu();
-		} );
-		add_action( 'network_admin_menu', function () {
-			$this->createAdminMenu();
-		} );
 	}
 
 	private function createAdminMenu() {
@@ -53,15 +47,5 @@ class MainAdminMenu {
 	}
 
 	private function fixSubmenu() {
-		global $submenu;
-		$con = $this->getCon();
-		$menuID = $con->getPluginPrefix();
-		if ( isset( $submenu[ $menuID ] ) ) {
-			unset( $submenu[ $menuID ][ 0 ] );
-		}
-		else {
-			// remove entire top-level menu if no submenu items - ASSUMES this plugin MUST have submenu or no menu at all
-			remove_menu_page( $menuID );
-		}
 	}
 }

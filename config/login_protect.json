@@ -9,7 +9,7 @@
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "loginprotect",
-    "tagline":               "Block brute force attacks and secure user identities with Two-Factor Authentication",
+    "tagline":               "Add protections to your WordPress login forms and protect user accounts with 2-Factor Authentication.",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
@@ -103,17 +103,6 @@
       "summary":     [
         "Purpose - To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.",
         "Recommendation - This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
-      ]
-    },
-    {
-      "slug":        "section_user_messages",
-      "title":       "User Messages",
-      "title_short": "User Messages",
-      "beacon_id":   139,
-      "summary":     [
-        "Purpose - Customize the messages shown to visitors.",
-        "Recommendation - Be sure to change the messages to suit your audience.",
-        "Hint - To reset any message to its default, enter the text exactly: default"
       ]
     },
     {

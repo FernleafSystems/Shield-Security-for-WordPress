@@ -1,0 +1,14 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>{{ body.strings.login_occurred }}</p>
+
+	<p>{{ body.strings.details_heading }}</p>
+	<ul>
+		{% for detail in body.strings.details %}
+			<li style="list-style-type: disc">{{ detail }}</li>
+		{% endfor %}
+	</ul>
+
+	<p>{{ body.strings.unexpected }}</p>
+{% endblock %}

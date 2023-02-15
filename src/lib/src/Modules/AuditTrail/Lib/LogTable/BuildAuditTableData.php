@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForAuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -46,6 +46,8 @@ class BuildAuditTableData extends BaseBuildTableData {
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
 				$data[ 'meta' ] = $this->getColumnContent_Meta();
+				$data[ 'day' ] = Services::Request()
+										 ->carbon( true )->setTimestamp( $this->log->created_at )->toDateString();
 				return $data;
 			},
 			$records
@@ -60,6 +62,9 @@ class BuildAuditTableData extends BaseBuildTableData {
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
+					case 'day':
+						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'log' );
+						break;
 					case 'event':
 						if ( count( $selected ) > 1 ) {
 							$wheres[] = sprintf( "log.event_slug IN ('%s')", implode( '`,`', $selected ) );
@@ -95,7 +100,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new ForAuditTrail() )
+			( new ForActivityLog() )
 				->setMod( $this->getMod() )
 				->buildRaw()[ 'columns' ]
 		) );
@@ -162,7 +167,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 			' data-toggle="popover"'.
 			' data-rid="%s">%s</button>', $this->log->rid,
 			sprintf( '<span class="meta-icon">%s</span>',
-				$this->getCon()->svgs->raw( 'bootstrap/tags.svg' )
+				$this->getCon()->svgs->raw( 'tags.svg' )
 			)
 		);
 	}
@@ -191,7 +196,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 							],
 						][ $level ];
 		return sprintf( '<span class="severity-%s severity-icon">%s</span>', $level,
-			$this->getCon()->svgs->raw( sprintf( 'bootstrap/%s.svg', $levelDetails[ 'icon' ] ) )
+			$this->getCon()->svgs->raw( $levelDetails[ 'icon' ] )
 		);
 	}
 }

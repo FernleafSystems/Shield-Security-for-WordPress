@@ -80,7 +80,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					'button.action.delete',
 					function ( evt ) {
 						evt.preventDefault();
-						if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+						if ( confirm( icwp_wpsf_vars_plugin.strings.are_you_sure ) ) {
 							plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
 							plugin.deleteEntry.call( plugin );
 						}
@@ -136,7 +136,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
 						if ( sAction === "-1" ) {
-							alert( icwp_wpsf_vars_insights.strings.select_action );
+							alert( icwp_wpsf_vars_plugin.strings.select_action );
 						}
 						else {
 							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(

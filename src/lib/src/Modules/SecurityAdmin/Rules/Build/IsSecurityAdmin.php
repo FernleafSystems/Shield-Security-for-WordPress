@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_security_admin';
+	public const SLUG = 'shield/is_security_admin';
 
 	protected function getName() :string {
 		return 'Is Security Admin';
@@ -26,7 +26,7 @@ class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'condition' => Conditions\WpIsWpcli::SLUG,
+					'rule' => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
 				],
 				[
 					'logic' => static::LOGIC_AND,

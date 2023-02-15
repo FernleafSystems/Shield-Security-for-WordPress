@@ -1,0 +1,27 @@
+<div class="row">
+	<div class="col">
+		{% if flags.has_results %}
+			{% for section in vars.results %}
+				<h6>{{ section.text }}</h6>
+				<div class="list-group list-group-flush mb-4">
+					{% for child in section.children %}
+						<a class="list-group-item list-group-item-action {{ child.link.classes|join(' ') }}"
+						   href="{{ child.link.href }}"
+						   {% if child.link.target %}target="{{ child.link.target }}"{% endif %}
+								{% if child.link.data is not empty %}
+									{% for data_key,data_value in child.link.data %}
+										data-{{ data_key }}="{{ data_value }}"
+									{% endfor %}
+								{% endif %}
+						>
+								<span>{{ child.icon|raw }}</span>
+								<span class="ms-2">{{ child.text }}</span>
+						</a>
+					{% endfor %}
+					</div>
+			{% endfor %}
+		{% else %}
+			<p>{{ strings.no_results }}</p>
+		{% endif %}
+	</div>
+</div>

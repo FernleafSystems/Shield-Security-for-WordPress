@@ -30,32 +30,31 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * overload on our API.
 	 *
 	 * Note To Plugin 'Null'ers:
-	 * PRO features that require handshaking wont work even if you null the plugin because our
+	 * PRO features that require handshaking won't work even if you null the plugin because our
 	 * API will always reject those requests. Don't fiddle with this function, please.  You may get
-	 * away with nulling the plugin for some PRO features, but you can't null our API, sorry.
-	 * @return bool
+	 * away with nulling the plugin for some PRO features, but you can't 'null' our API, sorry.
 	 */
 	public function canHandshake() :bool {
 		$now = Services::Request()->ts();
-		if ( $this->vo->last_handshake_at === 0 ) {
 
-			$canAttempt = $now - MINUTE_IN_SECONDS*$this->vo->handshake_fail_count
-						  > $this->vo->last_handshake_attempt_at;
-			if ( $canAttempt ) {
-				$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
-					->setMod( $this->getMod() )
-					->run();
+		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > MONTH_IN_SECONDS )
+					  && $now - MINUTE_IN_SECONDS*min( $this->vo->handshake_fail_count, 60 ) > $this->vo->last_handshake_attempt_at;
+		if ( $canAttempt ) {
 
-				if ( $handshakeSuccess ) {
-					$this->vo->last_handshake_at = $now;
-					$this->vo->handshake_fail_count = 0;
-				}
-				else {
-					$this->vo->handshake_fail_count++;
-				}
-				$this->vo->last_handshake_attempt_at = $now;
-				$this->storeVoData();
+			$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
+				->setMod( $this->getMod() )
+				->run();
+
+			if ( $handshakeSuccess ) {
+				$this->vo->last_handshake_at = $now;
+				$this->vo->handshake_fail_count = 0;
 			}
+			else {
+				$this->vo->handshake_fail_count++;
+			}
+
+			$this->vo->last_handshake_attempt_at = $now;
+			$this->storeVoData();
 		}
 
 		return $this->vo->last_handshake_at > 0;
@@ -98,7 +97,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 		$modPlugin = $con->getModule_Plugin();
 		/** @var Plugin\Options $modOpts */
 		$modOpts = $modPlugin->getOptions();
-		if ( is_main_network() && $modOpts->isEnabledShieldNET() && $con->isPremiumActive()
+		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $con->isPremiumActive()
 			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
 
 			$this->sendIPReputationData();

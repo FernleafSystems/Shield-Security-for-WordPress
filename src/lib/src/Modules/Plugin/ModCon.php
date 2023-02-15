@@ -3,13 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions,
+	Actions\Render\Components\BannerGoPro,
+	Actions\Render\Components\ToastPlaceholder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
 
 class ModCon extends BaseShield\ModCon {
+
+	public const SLUG = 'plugin';
 
 	/**
 	 * @var Lib\ImportExport\ImportExportController
@@ -27,32 +33,42 @@ class ModCon extends BaseShield\ModCon {
 	private $oCaptchaEnqueue;
 
 	/**
+	 * @var Lib\Reporting\ReportingController
+	 */
+	private $reportsCon;
+
+	/**
 	 * @var Shield\ShieldNetApi\ShieldNetApiController
 	 */
 	private $shieldNetCon;
 
+	/**
+	 * @var Lib\Sessions\SessionController
+	 */
+	private $sessionCon;
+
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
-		if ( !isset( $this->importExportCon ) ) {
-			$this->importExportCon = ( new Lib\ImportExport\ImportExportController() )
-				->setMod( $this );
-		}
-		return $this->importExportCon;
+		return $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController();
 	}
 
 	public function getPluginBadgeCon() :Components\PluginBadge {
-		if ( !isset( $this->pluginBadgeCon ) ) {
-			$this->pluginBadgeCon = ( new Components\PluginBadge() )
-				->setMod( $this );
-		}
-		return $this->pluginBadgeCon;
+		return $this->pluginBadgeCon ?? $this->pluginBadgeCon = ( new Components\PluginBadge() )->setMod( $this );
+	}
+
+	public function getReportingController() :Lib\Reporting\ReportingController {
+		return $this->reportsCon ?? $this->reportsCon = new Lib\Reporting\ReportingController();
+	}
+
+	public function getSessionCon() :Lib\Sessions\SessionController {
+		return $this->sessionCon ?? $this->sessionCon = new Lib\Sessions\SessionController();
 	}
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
-		if ( !isset( $this->shieldNetCon ) ) {
-			$this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )
-				->setMod( $this );
-		}
-		return $this->shieldNetCon;
+		return $this->shieldNetCon ?? $this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )->setMod( $this );
+	}
+
+	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'report' );
 	}
 
 	protected function doPostConstruction() {
@@ -136,45 +152,6 @@ class ModCon extends BaseShield\ModCon {
 									   && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
 	}
 
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'plugin_export':
-				( new Lib\ImportExport\Export() )
-					->setMod( $this )
-					->toFile();
-				break;
-			default:
-				break;
-		}
-	}
-
-	protected function handleModAction( string $action ) {
-
-		switch ( $action ) {
-			case 'import_file_upload':
-				try {
-					( new Lib\ImportExport\Import() )
-						->setMod( $this )
-						->fromFileUpload();
-					$success = true;
-					$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
-				}
-				catch ( \Exception $e ) {
-					$success = false;
-					$msg = $e->getMessage();
-				}
-				$this->setFlashAdminNotice( $msg, null, !$success );
-				Services::Response()->redirect(
-					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
-				);
-				break;
-
-			default:
-				parent::handleModAction( $action );
-				break;
-		}
-	}
-
 	/**
 	 * @throws \Exception
 	 */
@@ -192,13 +169,14 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return add_query_arg( [ 'shield_action' => 'dump_tracking_data' ], Services::WpGeneral()->getAdminUrl() );
+		return $this->getCon()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
 	}
 
 	public function getPluginReportEmail() :string {
+		$con = $this->getCon();
 		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
-		if ( $this->isPremium() ) {
-			$e = apply_filters( $this->getCon()->prefix( 'report_email' ), $e );
+		if ( $con->isPremiumActive() ) {
+			$e = apply_filters( $con->prefix( 'report_email' ), $e );
 		}
 		$e = trim( $e );
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
@@ -222,8 +200,6 @@ class ModCon extends BaseShield\ModCon {
 
 		$this->cleanImportExportWhitelistUrls();
 		$this->cleanImportExportMasterImportUrl();
-
-		$this->setPluginInstallationId();
 	}
 
 	public function getFirstInstallDate() :int {
@@ -236,53 +212,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function isShowAdvanced() :bool {
 		return $this->getOptions()->isOpt( 'show_advanced', 'Y' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOpenSslPrivateKey() {
-		$opts = $this->getOptions();
-		$key = null;
-		$srvEnc = Services::Encrypt();
-		if ( $srvEnc->isSupportedOpenSslDataEncryption() ) {
-			$key = $opts->getOpt( 'openssl_private_key' );
-			if ( empty( $key ) ) {
-				try {
-					$keys = $srvEnc->createNewPrivatePublicKeyPair();
-					if ( !empty( $keys[ 'private' ] ) ) {
-						$key = $keys[ 'private' ];
-						$opts->setOpt( 'openssl_private_key', base64_encode( $key ) );
-						$this->saveModOptions();
-					}
-				}
-				catch ( \Exception $e ) {
-				}
-			}
-			else {
-				$key = base64_decode( $key );
-			}
-		}
-		return $key;
-	}
-
-	/**
-	 * @return string|null
-	 */
-	public function getOpenSslPublicKey() {
-		$key = null;
-		if ( $this->hasOpenSslPrivateKey() ) {
-			try {
-				$key = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $key;
-	}
-
-	public function hasOpenSslPrivateKey() :bool {
-		return !empty( $this->getOpenSslPrivateKey() );
 	}
 
 	/**
@@ -328,52 +257,19 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( $optionKey, $sCaptchaKey );
 	}
 
-	/**
-	 * Ensure we always a valid installation ID.
-	 *
-	 * @return string
-	 * @deprecated but still used because it aligns with stats collection
-	 */
-	public function getPluginInstallationId() {
-		$ID = $this->getOptions()->getOpt( 'unique_installation_id', '' );
-
-		if ( !$this->isValidInstallId( $ID ) ) {
-			$ID = $this->setPluginInstallationId();
-		}
-		return $ID;
-	}
-
 	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getTourManager() :Lib\TourManager {
-		return ( new Lib\TourManager() )->setMod( $this );
+		return new Lib\TourManager();
 	}
 
 	public function setActivatedAt() {
 		$this->getOptions()->setOpt( 'activated_at', Services::Request()->ts() );
-	}
-
-	/**
-	 * @param string $newID - leave empty to reset if the current isn't valid
-	 * @return string
-	 */
-	protected function setPluginInstallationId( $newID = null ) {
-		// only reset if it's not of the correct type
-		if ( !$this->isValidInstallId( $newID ) ) {
-			$newID = $this->genInstallId();
-		}
-		$this->getOptions()->setOpt( 'unique_installation_id', $newID );
-		return $newID;
-	}
-
-	protected function genInstallId() :string {
-		return sha1(
-			$this->getInstallDate()
-			.Services::WpGeneral()->getWpUrl()
-			.Services::WpDb()->getPrefix()
-		);
 	}
 
 	private function cleanImportExportWhitelistUrls() {
@@ -398,140 +294,8 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
-	/**
-	 * @param string $id
-	 */
-	protected function isValidInstallId( $id ) :bool {
-		return !empty( $id ) && is_string( $id ) && strlen( $id ) == 40;
-	}
-
 	public function isXmlrpcBypass() :bool {
 		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
-	}
-
-	public function getCanAdminNotes() :bool {
-		return Services::WpUsers()->isUserAdmin();
-	}
-
-	public function getScriptLocalisations() :array {
-		$locals = parent::getScriptLocalisations();
-		$con = $this->getCon();
-
-		$tourManager = $this->getTourManager();
-		$locals[] = [
-			'shield/tours',
-			'shield_vars_tourmanager',
-			[
-				'ajax'        => $this->getAjaxActionData( 'mark_tour_finished' ),
-				'tour_states' => $tourManager->getUserTourStates(),
-				'tours'       => $tourManager->getAllTours(),
-			]
-		];
-
-		$locals[] = [
-			'plugin',
-			'icwp_wpsf_vars_plugin',
-			[
-				'components' => [
-					'helpscout'     => [
-						'beacon_id' => $con->isPremiumActive() ? 'db2ff886-2329-4029-9452-44587df92c8c' : 'aded6929-af83-452d-993f-a60c03b46568',
-						'visible'   => $con->isModulePage()
-					],
-					'mod_config'    => [
-						'ajax' => [
-							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
-						]
-					],
-					'offcanvas'     => [
-						'ajax' => [
-							'render_offcanvas' => $this->getAjaxActionData( 'render_offcanvas' ),
-						]
-					],
-					'mod_options'   => [
-						'ajax' => [
-							'mod_options_save' => $this->getAjaxActionData( 'mod_options_save' )
-						]
-					],
-					'select_search' => [
-						'ajax'    => [
-							'select_search' => $this->getAjaxActionData( 'select_search' )
-						],
-						'strings' => [
-							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
-							'placeholder'            => sprintf( '%s (%s)',
-								__( 'Search for anything', 'wp-simple-firewall' ),
-								'e.g. '.implode( ', ', [
-									__( 'IPs', 'wp-simple-firewall' ),
-									__( 'options', 'wp-simple-firewall' ),
-									__( 'tools', 'wp-simple-firewall' ),
-									__( 'help', 'wp-simple-firewall' ),
-								] )
-							),
-						]
-					],
-				],
-				'strings'    => [
-					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-					'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-				],
-			]
-		];
-
-		$locals[] = [
-			'global-plugin',
-			'icwp_wpsf_vars_globalplugin',
-			[
-				'vars' => [
-					'dashboard_widget' => [
-						'ajax' => [
-							'render_dashboard_widget' => $this->getAjaxActionData( 'render_dashboard_widget' )
-						]
-					],
-					'notices'          => [
-						'ajax' => [
-							'auto_db_repair'  => $this->getAjaxActionData( 'auto_db_repair' ),
-							'delete_forceoff' => $this->getAjaxActionData( 'delete_forceoff' ),
-						]
-					]
-				],
-			]
-		];
-
-		$req = Services::Request();
-		$opts = $this->getOptions();
-		$runCheck = ( $req->ts() - $opts->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 )
-					|| ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
-		if ( $runCheck ) {
-			$opts->setOpt( 'ipdetect_at', $req->ts() );
-			$locals[] = [
-				'shield/ip_detect',
-				'icwp_wpsf_vars_ipdetect',
-				[
-					'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
-					'ajax'    => $this->getAjaxActionData( 'ipdetect' ),
-					'strings' => [
-						'source_found' => __( 'Valid visitor IP address source discovered.', 'wp-simple-firewall' ),
-						'ip_source'    => __( 'IP Source', 'wp-simple-firewall' ),
-						'reloading'    => __( 'Please reload the page.', 'wp-simple-firewall' ),
-					],
-				]
-			];
-		}
-
-		return $locals;
-	}
-
-	public function getCustomScriptEnqueues() :array {
-		$enqs = [];
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$enqs[ Enqueue::CSS ] = [
-				'wp-wp-jquery-ui-dialog'
-			];
-			$enqs[ Enqueue::JS ] = [
-				'wp-jquery-ui-dialog'
-			];
-		}
-		return $enqs;
 	}
 
 	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {
@@ -539,10 +303,18 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
-		if ( !isset( $this->oCaptchaEnqueue ) ) {
-			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
-		}
-		return $this->oCaptchaEnqueue;
+		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
+	}
+
+	protected function setupCustomHooks() {
+		add_action( 'admin_footer', function () {
+			$con = $this->getCon();
+			$AR = $con->action_router;
+			if ( !empty( $AR ) && $con->isModulePage() ) {
+				echo $AR->render( BannerGoPro::SLUG );
+				echo $AR->render( ToastPlaceholder::SLUG );
+			}
+		}, 100, 0 );
 	}
 
 	public function isModOptEnabled() :bool {
@@ -551,7 +323,45 @@ class ModCon extends BaseShield\ModCon {
 		return !$opts->isPluginGloballyDisabled();
 	}
 
+	/**
+	 * Ensure we always a valid installation ID.
+	 *
+	 * @return string
+	 * @deprecated but still used because it aligns with stats collection
+	 * @deprecated 17.0
+	 */
+	public function getPluginInstallationId() {
+		return $this->getCon()->getInstallationID()[ 'id' ];
+	}
+
+	/**
+	 * @param string $newID - leave empty to reset if the current isn't valid
+	 * @return string
+	 * @deprecated 17.0
+	 */
+	protected function setPluginInstallationId( $newID = null ) {
+		return $newID;
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	protected function genInstallId() :string {
+		return $this->getCon()->getInstallationID()[ 'id' ];
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
 	protected function getNamespaceBase() :string {
 		return 'Plugin';
+	}
+
+	/**
+	 * @param string $id
+	 * @deprecated 17.0
+	 */
+	protected function isValidInstallId( $id ) :bool {
+		return false;
 	}
 }

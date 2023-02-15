@@ -19,13 +19,13 @@
     "skip_processor":        false,
     "tracking_exclude":      false
   },
-  "reqs":             {
+  "reqs":        {
     "dbs": [
       "botsignal",
       "ips"
     ]
   },
-  "menus":         {
+  "menus":       {
     "config_menu_priority": 50
   },
   "wpcli":       {
@@ -130,12 +130,16 @@
           "text":      "Support Candy"
         },
         {
-          "value_key": "wpforo",
-          "text":      "wpForo"
+          "value_key": "weforms",
+          "text":      "WeForms"
         },
         {
           "value_key": "wpforms",
           "text":      "WPForms"
+        },
+        {
+          "value_key": "wpforo",
+          "text":      "wpForo"
         }
       ],
       "link_info":     "https://shsec.io/k2",
@@ -186,6 +190,10 @@
         {
           "value_key": "profilebuilder",
           "text":      "Profile Builder"
+        },
+        {
+          "value_key": "restrictcontentpro",
+          "text":      "Restrict Content Pro"
         },
         {
           "value_key": "ultimatemember",

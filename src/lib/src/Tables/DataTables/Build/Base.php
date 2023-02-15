@@ -24,6 +24,7 @@ abstract class Base {
 			// array_values() to ensure data of the correct format
 			'columns'     => array_values( $this->getColumnsForDisplay() ),
 			'order'       => $this->getInitialOrdering(),
+			'searchPanes' => $this->getSearchPanesData()
 		];
 	}
 
@@ -40,6 +41,18 @@ abstract class Base {
 		}
 		return [
 			[ $thePosition, $this->getOrderMethod() ]
+		];
+	}
+
+	protected function getSearchPanesData() :array {
+		return [
+			'cascadePanes'  => false,
+			'viewTotal'     => false,
+			'viewCount'     => false,
+			'initCollapsed' => true,
+			'i18n'          => [
+				'clearMessage' => __( 'Clear All Filters', 'wp-simple-firewall' ),
+			]
 		];
 	}
 

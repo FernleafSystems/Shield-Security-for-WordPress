@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	IPs,
+	Plugin
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
@@ -12,7 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_bot_probe_fakewebcrawler';
+	public const SLUG = 'shield/is_bot_probe_fakewebcrawler';
 
 	protected function getName() :string {
 		return 'Bot-Track Fake Web Crawler';
@@ -27,7 +30,7 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -35,16 +38,16 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 				],
 				[
 					'condition' => Conditions\MatchRequestPath::SLUG,
-					'params' => [
+					'params'    => [
 						'is_match_regex' => true,
-						'match_paths' => [
+						'match_paths'    => [
 							'.*'
 						],
 					],
 				],
 				[
 					'condition' => Conditions\MatchRequestUseragent::SLUG,
-					'params' => [
+					'params'    => [
 						'match_useragents' => Services::ServiceProviders()->getAllCrawlerUseragents(),
 					],
 				],
@@ -53,12 +56,12 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
+		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,
-				'params' => [
+				'params'   => [
 					'event'            => 'bottrack_fakewebcrawler',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_fakewebcrawler' ),
 					'block'            => $opts->isTrackOptImmediateBlock( 'track_fakewebcrawler' ),

@@ -2,20 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	/**
 	 * @var Lib\SessionController
 	 */
 	private $sessionCon;
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSessionCon() :Lib\SessionController {
-		if ( !isset( $this->sessionCon ) ) {
-			$this->sessionCon = ( new  Lib\SessionController() )->setMod( $this );
-		}
-		return $this->sessionCon;
+		return $this->sessionCon ?? $this->sessionCon = ( new Lib\SessionController() )->setMod( $this );
 	}
 }

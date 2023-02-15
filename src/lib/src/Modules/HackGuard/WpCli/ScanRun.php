@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\WpCli;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	Options
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModCon
+};
 use WP_CLI;
 
 class ScanRun extends Base\WpCli\BaseWpCliCmd {
@@ -17,17 +16,15 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$scansCon = $mod->getScansCon();
 
 		$params = [];
-		foreach ( $opts->getScanSlugs() as $scanSlug ) {
-			$sCon = $mod->getScanCon( $scanSlug );
+		foreach ( $scansCon->getScanSlugs() as $slug ) {
 			$params[] = [
 				'type'        => 'flag',
-				'name'        => $scanSlug,
+				'name'        => $slug,
 				'optional'    => true,
-				'description' => sprintf( '%s: %s', __( 'Run Scan' ), $sCon->getScanName() ),
+				'description' => sprintf( '%s: %s', __( 'Run Scan' ), $scansCon->getScanCon( $slug )->getScanName() ),
 			];
 		}
 
@@ -50,19 +47,14 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdScanRun( array $null, array $args ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$availableScans = $opts->getScanSlugs();
+		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
 
-		$scans = ( $args[ 'all' ] ?? false ) ? $availableScans : array_keys( $args );
-
+		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : array_keys( $args );
 		if ( empty( $scans ) ) {
 			WP_CLI::error( sprintf( 'Please specify scans to run. Use `--all` or specify any of: `--%s`',
-				implode( '`, `--', $availableScans ) ) );
+				implode( '`, `--', $scansCon->getScanSlugs() ) ) );
 		}
 
-		$mod->getScansCon()->startNewScans( $scans );
+		$scansCon->startNewScans( $scans );
 	}
 }

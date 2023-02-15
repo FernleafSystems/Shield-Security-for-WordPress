@@ -5,10 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends Base\ModCon {
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSessionWP() :Shield\Modules\Sessions\Lib\SessionVO {
 		return $this->getCon()
 					->getModule_Sessions()
@@ -16,22 +18,11 @@ class ModCon extends Base\ModCon {
 					->getCurrentWP();
 	}
 
-	public function onWpInit() {
-		parent::onWpInit();
-		if ( $this->isThisModulePage() && ( $this->getSlug() != 'insights' ) ) {
-			$this->redirectToInsightsSubPage();
-		}
-	}
-
-	protected function redirectToInsightsSubPage() {
-		Services::Response()->redirect(
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
-			[
-				'inav'   => 'settings',
-				'subnav' => $this->getSlug()
-			],
-			true, false
-		);
+	public function getSession() :Shield\Modules\Plugin\Lib\Sessions\SessionVO {
+		return $this->getCon()
+					->getModule_Plugin()
+					->getSessionCon()
+					->current();
 	}
 
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
@@ -62,8 +53,11 @@ class ModCon extends Base\ModCon {
 					->getPluginReportEmail();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getIfSupport3rdParty() :bool {
-		return $this->isPremium();
+		return $this->getCon()->isPremiumActive();
 	}
 
 	/**

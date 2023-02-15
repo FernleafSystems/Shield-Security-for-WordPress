@@ -3,9 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 17.0
+ */
 class Init {
 
 	use ExecOnce;
@@ -16,16 +20,23 @@ class Init {
 	}
 
 	protected function run() {
-		add_action( 'wp_ajax_'.$this->getCon()->prefix(), function () {
+		add_action( 'wp_ajax_shield_action', function () {
 			$this->ajaxAction();
+		}, 1 );
+		add_action( 'wp_ajax_nopriv_shield_action', function () {
+			$this->ajaxAction( false );
+		}, 1 );
+
+		// this allows us to intercept specific AJAX requests before a block is enforced.
+		add_action( 'shield/maybe_intercept_block_shield', function () {
+			$this->ajaxAction( false );
 		} );
-		add_action( 'wp_ajax_nopriv_'.$this->getCon()->prefix(), function () {
+		add_action( 'shield/maybe_intercept_block_crowdsec', function () {
 			$this->ajaxAction( false );
 		} );
 	}
 
 	private function ajaxAction( bool $forceDie = true ) {
-		$con = $this->getCon();
 		$req = Services::Request();
 		$nonceAction = $req->request( 'exec' );
 
@@ -34,27 +45,27 @@ class Init {
 		check_ajax_referer( $nonceAction, 'exec_nonce',
 			$forceDie || !in_array( $nonceAction, $this->getAllowedNoPrivExecs() ) );
 
-		/** @var callable[] $handlers */
-		$handlers = apply_filters( $con->prefix( 'ajax_handlers' ), [], Services::WpUsers()->isUserLoggedIn() );
-		if ( isset( $handlers[ $nonceAction ] ) ) {
+		try {
 			ob_start();
-			$response = $handlers[ $nonceAction ]();
+			$response = [];
 			$noise = ob_get_clean();
 			$response = $this->normaliseAjaxResponse( $response );
 		}
-		else {
+		catch ( ActionException $e ) {
 			$response = [
 				'success' => false,
-				'error'   => 'There was no AJAX handler available for '.$nonceAction
+				'message' => $e->getMessage(),
+				'error'   => $e->getMessage(),
 			];
-			$noise = [];
 		}
 
-		( new Response() )->issue( [
-			'success' => $response[ 'success' ] ?? false,
-			'data'    => $response,
-			'noise'   => $noise
-		] );
+		if ( !empty( $response ) ) {
+			( new Response() )->issue( [
+				'success' => $response[ 'success' ] ?? false,
+				'data'    => $response,
+				'noise'   => $noise ?? ''
+			] );
+		}
 	}
 
 	/**

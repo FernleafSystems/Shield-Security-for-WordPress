@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class RequestPostParamIs extends RequestParamIs {
 
-	const SLUG = 'request_post_param_is';
+	public const SLUG = 'request_post_param_is';
 
 	/**
 	 * @return mixed|null

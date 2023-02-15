@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class CheckCaptchaSettings {
 
@@ -64,13 +65,12 @@ class CheckCaptchaSettings {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 
-		$sResponse = Services::HttpRequest()->getContent( add_query_arg(
-			[
+		$sResponse = Services::HttpRequest()->getContent(
+			URL::Build( 'https://www.google.com/recaptcha/api/siteverify', [
 				'secret'   => $mod->getCaptchaCfg()->secret,
 				'response' => rand(),
-			],
-			'https://www.google.com/recaptcha/api/siteverify'
-		) );
+			] )
+		);
 
 		$valid = false;
 		if ( !empty( $sResponse ) ) {

@@ -92,7 +92,7 @@ class Processor extends BaseShield\Processor {
 		if ( function_exists( 'headers_list' ) ) {
 			foreach ( headers_list() as $header ) {
 				if ( strpos( $header, ':' ) ) {
-					list( $key, $value ) = array_map( 'trim', explode( ':', $header, 2 ) );
+					[ $key, $value ] = array_map( 'trim', explode( ':', $header, 2 ) );
 					$headers[ $key ] = $value;
 				}
 			}

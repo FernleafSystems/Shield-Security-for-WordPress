@@ -9,16 +9,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WhitelabelController extends ExecOnceModConsumer {
 
+	protected function canRun() :bool {
+		return $this->isEnabled();
+	}
+
 	public function isEnabled() :bool {
 		/** @var SecurityAdmin\ModCon $mod */
 		$mod = $this->getMod();
 		return $this->getCon()->isPremiumActive()
 			   && $this->getOptions()->isOpt( 'whitelabel_enable', 'Y' )
 			   && $mod->getSecurityAdminController()->isEnabledSecAdmin();
-	}
-
-	protected function canRun() :bool {
-		return $this->isEnabled();
 	}
 
 	protected function run() {
@@ -74,6 +74,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		$urlIcon = $this->constructImageURL( 'wl_menuiconurl' );
 		if ( !empty( $urlIcon ) ) {
 			$labels->icon_url_16x16 = $urlIcon;
+			$labels->icon_url_16x16_grey = $urlIcon;
 			$labels->icon_url_32x32 = $urlIcon;
 		}
 
@@ -88,6 +89,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		}
 
 		$labels->url_secadmin_forgotten_key = $labels->AuthorURI;
+		$labels->is_whitelabelled = true;
 
 		return $labels;
 	}

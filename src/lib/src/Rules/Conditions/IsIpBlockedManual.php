@@ -9,15 +9,12 @@ class IsIpBlockedManual extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_blocked_manual';
+	public const SLUG = 'is_ip_blocked_manual';
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function execConditionCheck() :bool {
-		$this->getCon()->this_req->is_ip_blocked_shield_manual = ( new IpRuleStatus( $this->getRequestIP() ) )
-			->setMod( $this->getCon()->getModule_IPs() )
-			->hasManualBlock();
-		return $this->getCon()->this_req->is_ip_blocked_shield_manual;
+		return $this->getCon()->this_req->is_ip_blocked_shield_manual =
+			( new IpRuleStatus( $this->getRequestIP() ) )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->hasManualBlock();
 	}
 }

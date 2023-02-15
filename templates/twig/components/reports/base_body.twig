@@ -1,0 +1,15 @@
+{% if flags.render_required|default(true) %}
+	{% block title %}<h2>{{ strings.title }}</h2>{% endblock %}
+
+	{% block subtitle %}<p>{{ strings.subtitle }}</p>{% endblock %}
+
+	{% block pre_reports %}{% endblock %}
+
+	{% block reports_output %}
+		{% for report in vars.reports %}
+			<div>{{ report|raw }}</div>
+		{% endfor %}
+	{% endblock %}
+
+	{% block post_reports %}{% endblock %}
+{% endif %}

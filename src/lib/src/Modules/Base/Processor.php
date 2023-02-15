@@ -2,14 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-abstract class Processor {
+abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	use Shield\Crons\PluginCronsConsumer;
-	use Shield\Modules\ModConsumer;
-	use ExecOnce;
 
 	/**
 	 * @param ModCon $mod
@@ -18,7 +15,6 @@ abstract class Processor {
 		$this->setMod( $mod );
 		add_action( 'init', [ $this, 'onWpInit' ], $this->getWpHookPriority( 'init' ) );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], $this->getWpHookPriority( 'wp_loaded' ) );
-		add_action( 'admin_init', [ $this, 'onWpAdminInit' ], $this->getWpHookPriority( 'wp_loaded' ) );
 		$this->setupCronHooks();
 	}
 
@@ -26,14 +22,15 @@ abstract class Processor {
 	}
 
 	public function onWpLoaded() {
-	}
-
-	public function onWpAdminInit() {
-		/** @var Shield\Modules\Plugin\Options $optsPlugin */
-		$optsPlugin = $this->getCon()->getModule_Plugin()->getOptions();
-		if ( $optsPlugin->isShowPluginNotices() ) {
+		if ( $this->getCon()->getModule_Plugin()->getOptions()->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
 			add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
 		}
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	public function onWpAdminInit() {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
@@ -43,7 +40,7 @@ abstract class Processor {
 	protected function getWpHookPriority( string $hook ) :int {
 		switch ( $hook ) {
 			case 'init':
-				$pri = 9;
+				$pri = Shield\Controller\Plugin\HookTimings::INIT_PROCESSOR_DEFAULT;
 				break;
 			default:
 				$pri = 10;

@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItemMeta as ResultItemMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Services\Services;
@@ -19,9 +19,9 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class RetrieveItems extends RetrieveBase {
 
-	const CONTEXT_RESULTS_TABLE = 0;
-	const CONTEXT_AUTOREPAIR = 1;
-	const CONTEXT_LATEST = 2;
+	public const CONTEXT_RESULTS_TABLE = 0;
+	public const CONTEXT_AUTOREPAIR = 1;
+	public const CONTEXT_LATEST = 2;
 
 	public function retrieveResults( int $context ) {
 		$results = null;
@@ -87,7 +87,7 @@ class RetrieveItems extends RetrieveBase {
 		if ( empty( $scan ) ) {
 			throw new \Exception( sprintf( 'Could not determine scan type from the scan result ID %s.', $scanResultID ) );
 		}
-		$this->setScanController( $mod->getScanCon( $scan ) );
+		$this->setScanController( $mod->getScansCon()->getScanCon( $scan ) );
 
 		$query = $this
 			->addWheres( [
@@ -180,8 +180,6 @@ class RetrieveItems extends RetrieveBase {
 	 * @return ResultsSet|mixed
 	 */
 	protected function convertToResultsSet( array $results ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$resultsSet = $this->getNewResultsSet();
 
 		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
@@ -193,20 +191,23 @@ class RetrieveItems extends RetrieveBase {
 
 		$this->addMetaToResults( $scanResults );
 
+		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
 		foreach ( $scanResults as $vo ) {
 
 			// we haven't specified a type of scan, so we're collecting all results.
 			if ( empty( $workingScan ) ) {
 				foreach ( $vo->meta as $scanSlug => $scanMeta ) {
-					$scanCon = $mod->getScanCon( $vo->scan );
-					$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
+					$item = $scansCon->getScanCon( $vo->scan )
+									 ->getNewResultItem()
+									 ->applyFromArray( $vo->meta );
 					$item->VO = $vo;
 					$resultsSet->addItem( $item );
 				}
 			}
 			elseif ( !empty( $vo->scan ) ) {
-				$scanCon = $mod->getScanCon( $workingScan );
-				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
+				$item = $scansCon->getScanCon( $workingScan )
+								 ->getNewResultItem()
+								 ->applyFromArray( $vo->meta );
 				$item->VO = $vo;
 				$resultsSet->addItem( $item );
 			}

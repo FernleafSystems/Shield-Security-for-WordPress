@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Plugins extends BaseCapabilitiesRestrict {
 
-	const AREA_SLUG = 'plugins';
+	public const AREA_SLUG = 'plugins';
 
 	/**
 	 * @param array $allCaps

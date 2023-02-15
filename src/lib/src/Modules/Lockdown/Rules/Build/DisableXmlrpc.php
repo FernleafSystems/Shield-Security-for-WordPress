@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class DisableXmlrpc extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/disable_xmlrpc';
+	public const SLUG = 'shield/disable_xmlrpc';
 
 	protected function getName() :string {
 		return 'Disable XMLRPC';

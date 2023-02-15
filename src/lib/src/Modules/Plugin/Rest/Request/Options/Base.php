@@ -40,7 +40,7 @@ abstract class Base extends Process {
 			$maybe = $opts->getOptDefinition( $key );
 			if ( !empty( $maybe ) ) {
 				$def = $maybe;
-				$def[ 'module' ] = $module->getSlug();
+				$def[ 'module' ] = $module->cfg->slug;
 				$def[ 'value' ] = $opts->getOpt( $key );
 				break;
 			}

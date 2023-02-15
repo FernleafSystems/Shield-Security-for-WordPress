@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ListTags {
 
-	const BASE_URL = 'https://api.github.com/repos/%s/tags';
+	public const BASE_URL = 'https://api.github.com/repos/%s/tags';
 
 	public function run( string $repo ) :array {
 		$tags = [];
@@ -21,6 +21,8 @@ class ListTags {
 				return $version;
 			}, is_array( $decoded ) ? $decoded : [] ) );
 		}
+
+		natsort( $tags );
 		return $tags;
 	}
 }

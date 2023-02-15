@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'spam_form_pass'     => [
@@ -38,9 +35,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getSectionStrings( string $section ) :array {
 
 		switch ( $section ) {
@@ -82,9 +76,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->getCon();
 
@@ -112,8 +103,7 @@ class Strings extends Base\Strings {
 					__( "Select your 3rd party providers to have Shield automatically detect Bot requests to these forms.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						__( 'Only the form types (login, registration, lost password), that you have selected in the Login Guard module will be checked.', 'wp-simple-firewall' ) ),
-					sprintf( '<a href="%s">%s</a>', $con->getModule_LoginGuard()
-														->getUrl_DirectLinkToSection( 'section_brute_force_login_protection' ),
+					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_LoginGuard(), 'section_brute_force_login_protection' ),
 						sprintf( __( 'Choose the types of forms you want %s to check', 'wp-simple-firewall' ), $con->getHumanName() ) ),
 				];
 				break;

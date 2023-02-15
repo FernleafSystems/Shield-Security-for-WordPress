@@ -16,7 +16,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_rate_limit_exceeded';
+	public const SLUG = 'is_rate_limit_exceeded';
 
 	protected function execConditionCheck() :bool {
 		$ip = $this->getRequestIP();

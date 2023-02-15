@@ -11,7 +11,7 @@ class Users extends Base {
 
 	protected function run() {
 		$this->setupLoginCaptureHooks();
-		$this->setToCaptureApplicationLogin( true );
+		$this->setToCaptureApplicationLogin();
 
 		add_action( 'user_register', [ $this, 'auditNewUserRegistered' ] );
 		add_action( 'delete_user', [ $this, 'auditDeleteUser' ], 30, 2 );

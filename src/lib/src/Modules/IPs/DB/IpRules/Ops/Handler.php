@@ -6,11 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 
 class Handler extends Base\Handler {
 
-	const T_AUTO_BYPASS = 'AW';
-	const T_MANUAL_BYPASS = 'MW';
-	const T_MANUAL_BLOCK = 'MB';
-	const T_AUTO_BLOCK = 'AB';
-	const T_CROWDSEC = 'CS';
+	public const T_AUTO_BYPASS = 'AW';
+	public const T_MANUAL_BYPASS = 'MW';
+	public const T_MANUAL_BLOCK = 'MB';
+	public const T_AUTO_BLOCK = 'AB';
+	public const T_CROWDSEC = 'CS';
 
 	public static function IsValidType( string $type ) :bool {
 		return in_array( $type, [

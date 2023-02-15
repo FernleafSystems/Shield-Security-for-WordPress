@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
 use Elliotchance\Iterator\AbstractPagedIterator;
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class IpRulesIterator extends AbstractPagedIterator {
@@ -15,7 +14,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 	 */
 	protected $loader;
 
-	protected $pageSize = 100;
+	protected $pageSize = 1000;
 
 	protected $useCache = false;
 

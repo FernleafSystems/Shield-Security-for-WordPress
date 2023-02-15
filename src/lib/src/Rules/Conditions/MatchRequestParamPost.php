@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MatchRequestParamPost extends MatchRequestParam {
 
-	const SLUG = 'match_request_param_post';
+	public const SLUG = 'match_request_param_post';
 
 	protected function getRequestParamsToTest() :array {
 		return Services::Request()->post;

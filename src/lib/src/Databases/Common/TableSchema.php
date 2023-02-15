@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class TableSchema extends DynPropertiesClass {
 
-	const PRIMARY_KEY = 'id';
+	public const PRIMARY_KEY = 'id';
 
 	public function __get( string $key ) {
 		switch ( $key ) {

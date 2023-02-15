@@ -63,7 +63,7 @@
 
 </ul>
 
-<div class="tab-content mb-5" id="ScanResultsTabsContent">
+<div class="tab-content mb-3">
 
 	<div class="tab-pane show active" id="h-tabs-wordpress" role="tabpanel"
 		 aria-labelledby="h-tabs-wordpress-tab">
@@ -92,8 +92,7 @@
 
 	<div class="tab-pane show" id="h-tabs-file_locker" role="tabpanel"
 		 aria-labelledby="h-tabs-file_locker-tab">
-		{% set scan = file_locker %}
-		{% include '/wpadmin_pages/insights/scans/results/realtime/file_locker/index.twig' %}
+		{{ content.section.filelocker|raw }}
 	</div>
 </div>
 

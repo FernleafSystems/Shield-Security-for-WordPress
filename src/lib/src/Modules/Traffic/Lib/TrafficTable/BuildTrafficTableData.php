@@ -71,7 +71,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'country' ] = empty( $geo->countryCode ) ?
 					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
 
-				$userID = (int)$this->log->uid;
+				$userID = $this->log->uid;
 				if ( $userID > 0 && !isset( $users[ $userID ] ) ) {
 					$user = $WPU->getUserById( $userID );
 					$this->users[ $userID ] = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) :
@@ -83,6 +83,8 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'details' ] = $this->getColumnContent_Details();
 				$data[ 'response' ] = $this->getColumnContent_Response();
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
+				$data[ 'day' ] = Services::Request()
+										 ->carbon( true )->setTimestamp( $this->log->created_at )->toDateString();
 				return $data;
 			},
 			$records
@@ -107,6 +109,9 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
+					case 'day':
+						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'req' );
+						break;
 					case 'ip':
 						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", array_pop( $selected ) );
 						break;
@@ -254,18 +259,25 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			else {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
 				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
-				if ( $ipRuleStatus->isBypass() ) {
-					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
-				}
-				elseif ( $ipRuleStatus->isBlocked() ) {
+				if ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
+				}
+				elseif ( $ipRuleStatus->isBypass() ) {
+					$status = sprintf( $badgeTemplate, 'success', __( 'Bypass', 'wp-simple-firewall' ) );
 				}
 				elseif ( $ipRuleStatus->isAutoBlacklisted() ) {
 					$offenses = $ipRuleStatus->getOffenses();
-					$status = sprintf( $badgeTemplate,
-						'warning',
-						sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses )
-					);
+					$offensesString = sprintf( _n( '%s offense', '%s offenses', $offenses, 'wp-simple-firewall' ), $offenses );
+					if ( $ipRuleStatus->isUnBlocked() ) {
+						$status = __( 'Unblocked', 'wp-simple-firewall' );
+						if ( $offenses > 0 ) {
+							$status .= ' ('.$offensesString.')';
+						}
+					}
+					else {
+						$status = $offensesString;
+					}
+					$status = sprintf( $badgeTemplate, 'warning', $status );
 				}
 				else {
 					$status = '';

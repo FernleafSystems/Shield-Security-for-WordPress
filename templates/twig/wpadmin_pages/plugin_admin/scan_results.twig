@@ -1,0 +1,11 @@
+{% extends '/wpadmin_pages/plugin_admin/scan_base.twig' %}
+
+{% block inner_page_body %}
+	<div class="row">
+		<div class="col" id="ScanResultsTabs">
+			{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' %}
+		</div>
+	</div>
+	{% include '/wpadmin_pages/insights/scans/modal/shield_modal_container.twig' %}
+	{% include '/wpadmin_pages/insights/scans/modal/progress.twig' %}
+{% endblock %}

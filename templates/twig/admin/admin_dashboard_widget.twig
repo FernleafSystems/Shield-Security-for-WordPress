@@ -1,19 +1,22 @@
-<a class="shield-logo" href="{{ hrefs.logo }}" target="_blank" style="display: block">
-	<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
-</a>
+<div style="display: flex; align-items: center;">
+	<div class="shield-progress-bar
+		{% if vars.security_progress.totals.percentage < 45 %}
+			red
+		{% elseif vars.security_progress.totals.percentage < 70 %}
+			orange
+		{% endif %}
+		">
+	  <a class="thebar" style="width: {{ vars.security_progress.totals.percentage }}%"
+	     href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
+			<div class="thepercent">{{ strings.security_level }}: {{ vars.security_progress.totals.letter_score }}</div>
+	  </a>
+	</div>
 
-<div class="shield-progress-bar
-	{% if vars.security_progress.original_score < 45 %}
-		red
-	{% elseif vars.security_progress.original_score < 70 %}
-		orange
-	{% endif %}
-	">
-  <a class="thebar" style="width: {{ vars.security_progress.original_score }}%"
-     href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
-		<div class="thepercent">{{ strings.security_level }}: {{ vars.security_progress.letter_score }}</div>
-  </a>
+	<a class="shield-logo" href="{{ hrefs.logo }}" target="_blank" style="width: 45%;">
+		<img src="{{ imgs.logo }}" alt="Shield Security Logo" width="100%">
+	</a>
 </div>
+
 
 <h3 class="subheader">
 	{{ strings.recent_blocked }}
@@ -130,7 +133,7 @@
 <h3 class="subheader">
 	{{ strings.recent_activity }}
 	{% if flags.show_internal_links %}
-		<small>[<a href="{{ hrefs.audit_trail }}" target="_blank">{{ strings.view_all }}</a>]</small>
+		<small>[<a href="{{ hrefs.activity_log }}" target="_blank">{{ strings.view_all }}</a>]</small>
 	{% endif %}
 </h3>
 {% if vars.recent_events|default([])|length > 0 %}

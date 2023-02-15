@@ -15,7 +15,7 @@ class CleanDatabases extends ExecOnceModConsumer {
 
 	protected function run() {
 		$this->cleanRequestLogs();
-		$this->cleanOutUnreferencedIPs( true );
+		$this->cleanOutUnreferencedIPs();
 	}
 
 	private function cleanOutUnreferencedIPs() {

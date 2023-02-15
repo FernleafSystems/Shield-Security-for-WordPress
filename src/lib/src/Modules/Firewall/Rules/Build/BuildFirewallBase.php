@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
-	const SCAN_CATEGORY = '';
+	public const SCAN_CATEGORY = '';
 
 	protected function getName() :string {
 		return sprintf( '%s: %s', __( 'Firewall', 'wp-simple-firewall' ),

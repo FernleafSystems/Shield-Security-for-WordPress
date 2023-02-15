@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TrackLoginFailed extends Base {
 
-	const OPT_KEY = 'track_loginfailed';
+	public const OPT_KEY = 'track_loginfailed';
 
 	/**
 	 * @var string
@@ -30,7 +30,8 @@ class TrackLoginFailed extends Base {
 					// Adds an extra message to login failed
 					$user->add(
 						$this->getCon()->prefix( 'transgression-warning' ),
-						$this->getMod()->getTextOpt( 'text_loginfailed' )
+						apply_filters( 'shield/message_login_failed',
+							__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' ) )
 					);
 				}
 				return $user;

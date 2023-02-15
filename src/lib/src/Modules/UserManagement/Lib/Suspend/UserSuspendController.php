@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
@@ -170,42 +171,47 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
-		$con = $this->getCon();
-		$meta = $con->getUserMeta( $user );
-		echo $this->getMod()->renderTemplate( '/admin/user/profile/suspend.twig', [
-			'strings' => [
-				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
-				'label'       => __( 'Check to un/suspend user account', 'wp-simple-firewall' ),
-				'description' => __( 'The user can never login while their account is suspended.', 'wp-simple-firewall' ),
-				'cant_manage' => __( 'Sorry, suspension for this account may only be managed by a security administrator.', 'wp-simple-firewall' ),
-				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ),
-					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
-			],
-			'flags'   => [
-				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $user ) || $con->isPluginAdmin(),
-				'is_suspended'          => $meta->record->hard_suspended_at > 0
-			],
-			'vars'    => [
-				'form_field' => 'shield_suspend_user',
-			]
+		echo $this->getCon()->action_router->render( ProfileSuspend::SLUG, [
+			'user_id' => $user->ID
 		] );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {
-		$con = $this->getCon();
 		$WPU = Services::WpUsers();
-
 		$user = $WPU->getUserById( $uid );
 
-		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $con->isPluginAdmin() ) ) {
+		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $this->getCon()->isPluginAdmin() ) ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var UserManagement\ModCon $mod */
-			$mod = $this->getMod();
-			$mod->addRemoveHardSuspendUser( $user, $isSuspend );
+			$this->addRemoveHardSuspendUser( $user, $isSuspend );
 
 			if ( $isSuspend ) {
 				\WP_Session_Tokens::get_instance( $user->ID )->destroy_all();
 			}
+		}
+	}
+
+	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
+		$con = $this->getCon();
+		$meta = $con->getUserMeta( $user );
+		$isSuspended = $meta->record->hard_suspended_at > 0;
+
+		if ( $add && !$isSuspended ) {
+			$meta->record->hard_suspended_at = Services::Request()->ts();
+			$con->fireEvent( 'user_hard_suspended', [
+				'audit_params' => [
+					'user_login' => $user->user_login,
+					'admin'      => Services::WpUsers()->getCurrentWpUsername(),
+				]
+			] );
+		}
+		elseif ( !$add && $isSuspended ) {
+			$meta->record->hard_suspended_at = 0;
+			$con->fireEvent( 'user_hard_unsuspended', [
+				'audit_params' => [
+					'user_login' => $user->user_login,
+					'admin'      => Services::WpUsers()->getCurrentWpUsername(),
+				]
+			] );
 		}
 	}
 }

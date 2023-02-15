@@ -10,43 +10,50 @@ class Processor extends BaseShield\Processor {
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		$mod->getBlacklistHandler()->execute();
+
+		( new Lib\BlacklistHandler() )
+			->setMod( $mod )
+			->execute();
 		$mod->getBotSignalsController()->execute();
 		$mod->getCrowdSecCon()->execute();
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$modInsights = $this->getCon()->getModule_Insights();
-		$recentStats = ( new RecentStats() )->setCon( $this->getCon() );
-		$IPs = $recentStats->getRecentlyBlockedIPs();
+		$con = $this->getCon();
+		if ( $con->isValidAdminArea() ) {
+			$recentStats = ( new RecentStats() )->setCon( $con );
+			$IPs = $recentStats->getRecentlyBlockedIPs();
 
-		if ( !empty( $IPs ) ) {
-			$groups[] = [
-				'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
-				'href'  => $modInsights->getUrl_IPs(),
-				'items' => array_map( function ( $ip ) {
-					return [
-						'id'    => $this->getCon()->prefix( 'ip-'.$ip->id ),
-						'title' => $ip->ip,
-						'href'  => $this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip->ip ),
-					];
-				}, $IPs ),
-			];
-		}
+			/** @deprecated 17.0 isset( $con->plugin_urls ) */
+			if ( !empty( $IPs ) && isset( $con->plugin_urls ) ) {
+				$groups[] = [
+					'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
+					'href'  => $con->plugin_urls->adminIpRules(),
+					'items' => array_map( function ( $ip ) use ( $con ) {
+						return [
+							'id'    => $con->prefix( 'ip-'.$ip->id ),
+							'title' => $ip->ip,
+							'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+						];
+					}, $IPs ),
+				];
+			}
 
-		$IPs = $recentStats->getRecentlyOffendedIPs();
-		if ( !empty( $IPs ) ) {
-			$groups[] = [
-				'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
-				'href'  => $modInsights->getUrl_IPs(),
-				'items' => array_map( function ( $ip ) {
-					return [
-						'id'    => $this->getCon()->prefix( 'ip-'.$ip->id ),
-						'title' => $ip->ip,
-						'href'  => $this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip->ip ),
-					];
-				}, $IPs ),
-			];
+			$IPs = $recentStats->getRecentlyOffendedIPs();
+			/** @deprecated 17.0 isset( $con->plugin_urls ) */
+			if ( !empty( $IPs ) && isset( $con->plugin_urls ) ) {
+				$groups[] = [
+					'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
+					'href'  => $con->plugin_urls->adminIpRules(),
+					'items' => array_map( function ( $ip ) use ( $con ) {
+						return [
+							'id'    => $con->prefix( 'ip-'.$ip->id ),
+							'title' => $ip->ip,
+							'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+						];
+					}, $IPs ),
+				];
+			}
 		}
 
 		return $groups;

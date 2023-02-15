@@ -3,16 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {
@@ -39,10 +37,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'update-available':
 				$this->buildNotice_UpdateAvailable( $notice );
-				break;
-
-			case 'compat-sgoptimize':
-				$this->buildNotice_CompatSgOptimize( $notice );
 				break;
 
 			case 'plugin-mailing-list-signup':
@@ -79,7 +73,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'click_repair' => __( 'Click here to repair the database tables', 'wp-simple-firewall' )
 			],
 			'ajax'              => [
-				'auto_db_repair' => $this->getMod()->getAjaxActionData( 'auto_db_repair', true )
+				'auto_db_repair' => ActionData::BuildJson( Actions\PluginAutoDbRepair::class )
 			]
 		];
 	}
@@ -145,12 +139,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_PluginDisabled( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
+		$con = $this->getCon();
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $name ) ),
+				'title'          => sprintf( '%s: %s',
+					__( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $con->getHumanName() )
+				),
 				'message'        => implode( ' ', [
 					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
 					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
@@ -158,29 +154,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'jump_to_enable' => $this->getMod()->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
-			]
-		];
-	}
-
-	private function buildNotice_CompatSgOptimize( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'               => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( 'Site Ground Optimizer plugin has a conflict', 'wp-simple-firewall' ), $name ) ),
-				'message'             => sprintf(
-											 __( 'The SG Optimizer plugin has 2 settings which are breaking your site and certain %s features.', 'wp-simple-firewall' ),
-											 $name
-										 )
-										 .' '.'The problematic options are: "Defer Render-blocking JS" and "Remove Query Strings From Static Resources".',
-				'learn_more'          => 'Click here to learn more',
-				'sgoptimizer_turnoff' => __( 'Click here to automatically turn off those options.', 'wp-simple-firewall' )
-			],
-			'ajax'              => [
-				'sgoptimizer_turnoff' => $this->getMod()->getAjaxActionData( 'sgoptimizer_turnoff', true )
+				'jump_to_enable' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
 			]
 		];
 	}
@@ -248,7 +222,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'set_plugin_tracking' => $mod->getAjaxActionData( 'set_plugin_tracking', true ),
+				'set_plugin_tracking' => ActionData::BuildJson( Actions\PluginSetTracking::class ),
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
@@ -303,10 +277,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$needed = Services::WpPlugins()->isUpdateAvailable( $con->base_file );
 				break;
 
-			case 'compat-sgoptimize':
-				$needed = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
-				break;
-
 			case 'allow-tracking':
 				$needed = !$opts->isTrackingPermissionSet();
 				break;
@@ -333,18 +303,28 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
 			}
 
-			if ( !empty( $versions ) ) {
-				if ( !in_array( $con->getVersion(), $versions ) ) {
-					$needed = true;
-				}
-				else {
-					array_splice( $versions, array_search( $con->getVersion(), $versions ) );
-					$needed = count( array_unique( array_map( function ( $version ) {
-							return substr( $version, 0, strrpos( $version, '.' ) );
-						}, $versions ) ) ) > 2;
-				}
+			$currentMajor = intval( substr( $con->getVersion(), 0, strpos( $con->getVersion(), '.' ) ) );
+			if ( !empty( $versions ) && !empty( $currentMajor ) ) {
+
+				$majorVersionsNewerThanCurrent = array_filter(
+					array_unique( array_map(
+						function ( $version ) {
+							/** 1. Convert all versions to major releases */
+							return intval( substr( $version, 0, strpos( $version, '.' ) ) );
+						},
+						$versions
+					) ),
+					function ( $version ) use ( $currentMajor ) {
+						/** 2. Find all major versions newer than current */
+						return $version > $currentMajor;
+					}
+				);
+
+				/** 3. Suggest upgrade needed  */
+				$needed = count( $majorVersionsNewerThanCurrent ) >= 2;
 			}
 		}
+
 		return $needed;
 	}
 

@@ -17,7 +17,7 @@ class MatchRequestIpIdentity extends Base {
 	use RequestIP;
 	use UserAgent;
 
-	const SLUG = 'match_request_ip_identity';
+	public const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
 		$matchIDs = $this->match_ip_ids;

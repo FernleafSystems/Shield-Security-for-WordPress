@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_bot_probe_xmlrpc';
+	public const SLUG = 'shield/is_bot_probe_xmlrpc';
 
 	protected function getName() :string {
 		return 'Bot-Track XML-RPC';

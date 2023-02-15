@@ -1,0 +1,60 @@
+{% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="row justify-content-center">
+		<div class="col-12 col-xl-8">
+			<div id="IcwpWpsfSecurityAdmin">
+
+				<p>{{ strings.aar_what_should_you_enter }}</p>
+
+				<form action="{{ hrefs.form_action }}" method="post" class="form-horizontal" id="SecurityAdminForm">
+
+					{% for input_name, input_val in ajax.sec_admin_login %}
+						<input type="hidden" name="{{ input_name }}" value="{{ input_val }}" />
+					{% endfor %}
+
+					<div class="row">
+
+						<label class="form-label col-3 col-form-label" for="sec_admin_key">
+							<span class="optname">{{ strings.aar_enter_access_key }}</span>
+						</label>
+
+						<div class="col-8 col-xs-offset-1 option_container">
+							<div class="option_section">
+								<label class="sec_admin_key form-label">
+									<input type="password" name="sec_admin_key"
+									       id="sec_admin_key"
+									       value="" autocomplete="off" autofocus />
+								</label>
+								<p class="help-block">{{ strings.aar_to_manage_must_enter_key }}</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="row no-gutters">
+						<div class="col-6 order-2 text-end">
+							<button type="submit" class="btn btn-primary" name="submit">
+								{{ strings.aar_submit_access_key }}</button>
+						</div>
+						<div class="col-5 order-1 text-start">
+							<a class="btn btn-link "
+							   href="{{ hrefs.aar_forget_key }}" target="_blank">
+								{{ strings.aar_forget_key }}</a>
+						</div>
+					</div>
+
+				</form>
+
+				<div class="alert alert-secondary mb-0 mt-5 text-center">
+					{% if flags.allow_email_override %}
+						<p class="mb-0">
+							{{ strings.force_remove_email }} ({{ strings.send_to_email }})
+						</p>
+					{% else %}
+						{{ strings.no_email_override }}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

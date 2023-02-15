@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @property int         $api_version
@@ -18,14 +19,11 @@ use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
  */
 abstract class BaseApi extends DynPropertiesClass {
 
-	const DEFAULT_URL_STUB = '';
-	const API_ACTION = '';
-	const DEFAULT_API_VERSION = '1';
+	public const DEFAULT_URL_STUB = '';
+	public const API_ACTION = '';
+	public const DEFAULT_API_VERSION = '1';
 
-	/**
-	 * @return array|null
-	 */
-	protected function sendReq() {
+	protected function sendReq() :?array {
 		$httpReq = Services::HttpRequest();
 
 		$reqParams = $this->getRequestParams();
@@ -42,7 +40,7 @@ abstract class BaseApi extends DynPropertiesClass {
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.
 				// if they're not using the newer WP Request() class. WP 4.6+
 				$reqSuccess = $httpReq->get(
-					add_query_arg( $this->params_query, $this->getApiRequestUrl() ),
+					URL::Build( $this->getApiRequestUrl(), $this->params_query ),
 					$reqParams
 				);
 				break;
@@ -50,6 +48,10 @@ abstract class BaseApi extends DynPropertiesClass {
 
 		if ( $reqSuccess ) {
 			$response = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
+			if ( !is_array( $response ) ) {
+				error_log( 'failed to decode HTTP body response' );
+				$response = null;
+			}
 		}
 		else {
 			$response = null;

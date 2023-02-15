@@ -16,7 +16,7 @@ class CaptureMyUpgrade {
 	}
 
 	public function captureMyInstall( $true, $hooksExtra ) {
-		if ( !empty( $hooksExtra[ 'plugin' ] ) && $hooksExtra['plugin'] === $this->getCon()->base_file ) {
+		if ( !empty( $hooksExtra[ 'plugin' ] ) && $hooksExtra[ 'plugin' ] === $this->getCon()->base_file ) {
 			$this->getCon()->is_my_upgrade = true;
 		}
 		return $true;

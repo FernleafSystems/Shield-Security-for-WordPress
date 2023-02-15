@@ -60,7 +60,7 @@ abstract class Handler extends ExecOnceModConsumer {
 		return $this;
 	}
 
-	private function setupTableSchema() :TableSchema {
+	private function setupTableSchema() {
 		$this->schema = new TableSchema();
 
 		$this->schema->applyFromArray( array_merge(
@@ -78,8 +78,6 @@ abstract class Handler extends ExecOnceModConsumer {
 		) );
 
 		$this->schema->table = $this->getTable();
-
-		return $this->schema;
 	}
 
 	public function autoCleanDb() {
@@ -237,11 +235,7 @@ abstract class Handler extends ExecOnceModConsumer {
 		return rtrim( $namespace, '\\' ).'\\';
 	}
 
-	/**
-	 * @return $this
-	 */
 	private function reset() {
 		unset( $this->bIsReady );
-		return $this;
 	}
 }

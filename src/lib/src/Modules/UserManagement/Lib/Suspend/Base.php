@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 
 abstract class Base extends ExecOnceModConsumer {
 
-	const HOOK_PRIORITY = 1000; // so only authenticated user is notified of account state.
+	public const HOOK_PRIORITY = 1000; // so only authenticated user is notified of account state.
 
 	protected function run() {
 		add_filter( 'authenticate', [ $this, 'checkUser' ], static::HOOK_PRIORITY );

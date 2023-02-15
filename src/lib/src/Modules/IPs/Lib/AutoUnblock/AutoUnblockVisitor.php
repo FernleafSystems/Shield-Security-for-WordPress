@@ -7,8 +7,22 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockVisitor extends BaseAutoUnblockShield {
 
-	protected function canRun() :bool {
-		return parent::canRun() && Services::Request()->isPost();
+	public function canRunAutoUnblockProcess() :bool {
+		return parent::canRunAutoUnblockProcess() && Services::Request()->isPost();
+	}
+
+	protected function preUnblockChecks() :bool {
+		parent::preUnblockChecks();
+
+		$req = Services::Request();
+		if ( $req->post( '_confirm' ) !== 'Y' ) {
+			throw new \Exception( 'No confirmation checkbox.' );
+		}
+		if ( !empty( $req->post( 'email' ) ) || !empty( $req->post( 'name' ) ) ) {
+			throw new \Exception( 'Oh so yummy.' );
+		}
+
+		return true;
 	}
 
 	protected function getUnblockMethodName() :string {

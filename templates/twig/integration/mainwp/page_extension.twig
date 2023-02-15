@@ -1,5 +1,9 @@
-{{ content.mainwp_header|raw }}
-
-{{ content.page_inner|raw }}
-
-{{ content.mainwp_footer|raw }}
+{% block mainwp_header %}
+	{{ content.mainwp_header|raw }}
+{% endblock %}
+{% block extension_page_body %}
+	{{ content.page_body|raw }}
+{% endblock %}
+{% block mainwp_footer %}
+	{{ content.mainwp_footer|raw }}
+{% endblock %}

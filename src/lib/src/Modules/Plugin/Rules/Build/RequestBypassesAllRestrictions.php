@@ -14,7 +14,7 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	const SLUG = 'shield/request_bypasses_all_restrictions';
+	public const SLUG = 'shield/request_bypasses_all_restrictions';
 
 	protected function getName() :string {
 		return 'A Request That Bypasses Restrictions';

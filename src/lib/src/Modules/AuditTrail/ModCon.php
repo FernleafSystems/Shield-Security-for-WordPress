@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'audit_trail';
+
 	/**
 	 * @var Lib\AuditLogger
 	 */
@@ -31,30 +33,14 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getAuditLogger() :Lib\AuditLogger {
-		if ( !isset( $this->auditLogger ) ) {
-			$this->auditLogger = new Lib\AuditLogger( $this->getCon() );
-		}
-		return $this->auditLogger;
-	}
-
-	protected function handleFileDownload( string $downloadID ) {
-		switch ( $downloadID ) {
-			case 'db_log':
-				Services::Response()->downloadStringAsFile(
-					( new Lib\Utility\GetLogFileContent() )
-						->setMod( $this )
-						->run(),
-					sprintf( 'log_file-%s.json', date( 'Ymd_His' ) )
-				);
-				break;
-		}
+		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger( $this->getCon() );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return $this->getDbH_Logs()->isReady() && parent::isReadyToExecute();
+		return $this->getDbH_Logs()->isReady();
 	}
 
 	/**

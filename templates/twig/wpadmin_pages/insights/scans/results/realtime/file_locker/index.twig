@@ -2,14 +2,9 @@
 	<div class="col">
 		<div class="card card-scan_results">
 
-			<div class="card-header">
-				<h5 class="card-title">{{ scan.strings.title }}</h5>
-				<h6 class="card-subtitle text-muted">{{ scan.strings.subtitle }}</h6>
-			</div>
-
 			<div class="card-body">
 
-				{% if scan.flags.is_restricted %}
+				{% if flags.is_restricted %}
 					<div class="row">
 						<div class="col">
 							<div class="alert alert-warning m-0">
@@ -22,19 +17,19 @@
 						</div>
 					</div>
 				{% else %}
-					{% if scan.flags.is_enabled %}
+					{% if flags.is_enabled %}
 						<div class="col mt-3 mb-3">
 							 <div class="input-group m-auto mt-3 mb-3">
 								<label class="input-group-text" for="FileLockerFileSelect">
 									 Select File To Review</label>
 								<select class="form-select mw-100" id="FileLockerFileSelect">
-									<option selected value="-" disabled="disabled">--</option>
-									{% for lock_key, file_lock in scan.vars.file_locks.bad %}
-										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.file }}</option>
+									<option selected value="-">--</option>
+									{% for lock_key, file_lock in vars.file_locks.bad %}
+										<option value="{{ lock_key }}" class="text-danger">{{ file_lock.path }}</option>
 									{% endfor %}
-									{% for lock_key, file_lock in scan.vars.file_locks.good %}
+									{% for lock_key, file_lock in vars.file_locks.good %}
 										<option value="{{ lock_key }}"
-												class="text-success">{{ file_lock.file }}</option>
+										        class="text-success">{{ file_lock.path }}</option>
 									{% endfor %}
 								</select>
 							 </div>
@@ -43,7 +38,7 @@
 						<div class="col">
 							<div id="FileLockerDiffContents" class="w-100">
 								<div class="alert alert-success">
-									<p class="m-0">{{ scan.strings.please_select }}</p>
+									<p class="m-0">{{ strings.please_select }}</p>
 								</div>
 							</div>
 						</div>
@@ -52,7 +47,7 @@
 							<div class="col">
 								<div class="alert alert-success m-0">
 									<h6 class="alert-heading">{{ strings.not_enabled }}</h6>
-									<p class="m-0"><a class="alert-link" href="{{ scan.hrefs.please_enable }}"
+									<p class="m-0"><a class="alert-link" href="{{ hrefs.please_enable }}"
 										>{{ strings.please_enable }}</a></p>
 								</div>
 							</div>
@@ -66,7 +61,7 @@
 					<div class="col-sm-6">
 					</div>
 					<div class="col-sm-6 text-end">
-						<a href="{{ scan.hrefs.options }}"
+						<a href="{{ hrefs.options }}"
 						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
 					</div>
 				</div>
@@ -76,58 +71,67 @@
 	</div>
 </div>
 
-{% if not scan.flags.is_restricted %}
+{% if not flags.is_restricted %}
 	<script type="text/javascript">
 	jQuery( '#FileLockerFileSelect' ).on( 'change', function ( e ) {
-		iCWP_WPSF_BodyOverlay.show();
-		let ajax_vars ={{ scan.ajax.filelocker_showdiff|raw }};
-		ajax_vars.rid = jQuery( this ).val();
-		jQuery.post( ajaxurl, ajax_vars,
-			function ( oResponse ) {
-				jQuery( '#FileLockerDiffContents' ).html( oResponse.data.html );
-			}
-		).fail(
-			function () {
-			}
-		).always( function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-	} );
-	jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
-		evt.preventDefault();
-		iCWP_WPSF_BodyOverlay.show();
-		let ajax_vars ={{ scan.ajax.filelocker_fileaction|raw }};
-		let $oButton = jQuery( 'input[type=submit]', this );
-		ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
-		ajax_vars.rid = $oButton.data( 'rid' );
-		ajax_vars.file_action = $oButton.data( 'action' );
+	  let $this = jQuery( this );
+	  let current = $this.find( ":selected" ).val();
+	  if ( current !== '-' ) {
+		  Shield_AjaxRender
+		  .send_ajax_req( {
+			  render_slug: '{{ ajax.filelocker_showdiff }}',
+			  rid: jQuery( this ).val()
+		  } )
+		  .then( ( response ) => {
+			  if ( response.success ) {
+				  jQuery( '#FileLockerDiffContents' ).html( response.data.html );
+			  }
+			  else {
+				  alert( response.data.error );
+			  }
+		  } )
+		  .catch( ( error ) => {
+			  alert( 'Sorry, something went wrong with the request.' );
+			  console.log( error );
+		  } );
+		  jQuery( 'option[value="-"]', $this ).prop( 'selected', true );
+	  }
+  } );
 
-		jQuery.post( ajaxurl, ajax_vars,
-			function ( oResponse ) {
-				let sMessage = '';
-				if ( oResponse === null || typeof oResponse.data === 'undefined'
-					|| typeof oResponse.data.message === 'undefined' ) {
-					sMessage = oResponse.success ? 'Success' : 'Failure';
-				}
-				else {
-					sMessage = oResponse.data.message;
-				}
-				iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
-				if ( oResponse.success ) {
-					setTimeout( function () {
-						location.reload();
-					}, 500 );
-				}
-			}
-		).fail(
-			function () {
-			}
-		).always( function () {
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		);
-		return false;
-	} );
+  jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
+	  evt.preventDefault();
+	  iCWP_WPSF_BodyOverlay.show();
+	  let ajax_vars ={{ ajax.filelocker_fileaction|raw }};
+	  let $oButton = jQuery( 'input[type=submit]', this );
+	  ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
+	  ajax_vars.rid = $oButton.data( 'rid' );
+	  ajax_vars.file_action = $oButton.data( 'action' );
+
+	  jQuery.post( ajaxurl, ajax_vars,
+		  function ( oResponse ) {
+			  let sMessage = '';
+			  if ( oResponse === null || typeof oResponse.data === 'undefined'
+				  || typeof oResponse.data.message === 'undefined' ) {
+				  sMessage = oResponse.success ? 'Success' : 'Failure';
+			  }
+			  else {
+				  sMessage = oResponse.data.message;
+			  }
+			  iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+			  if ( oResponse.success ) {
+				  setTimeout( function () {
+					  location.reload();
+				  }, 500 );
+			  }
+		  }
+	  ).fail(
+		  function () {
+		  }
+	  ).always( function () {
+			  iCWP_WPSF_BodyOverlay.hide();
+		  }
+	  );
+	  return false;
+  } );
 </script>
 {% endif %}

@@ -7,10 +7,10 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class WpCoreFile {
 
-	const URL_WP_CORE = 'https://core.svn.wordpress.org';
-	const URL_WP_CORE_IL8N = 'https://i18n.svn.wordpress.org';
-	const URL_CP_CORE = 'https://raw.githubusercontent.com/ClassicPress/ClassicPress-release';
-	const URL_CP_CORE_IL8N = 'https://raw.githubusercontent.com/ClassicPress/ClassicPress-release';
+	public const URL_WP_CORE = 'https://core.svn.wordpress.org';
+	public const URL_WP_CORE_IL8N = 'https://i18n.svn.wordpress.org';
+	public const URL_CP_CORE = 'https://raw.githubusercontent.com/ClassicPress/ClassicPress-release';
+	public const URL_CP_CORE_IL8N = 'https://raw.githubusercontent.com/ClassicPress/ClassicPress-release';
 
 	/**
 	 * @var string

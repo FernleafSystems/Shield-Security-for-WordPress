@@ -3,16 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 
 class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_request_author_discovery';
+	public const SLUG = 'shield/is_request_author_discovery';
 
 	protected function getName() :string {
 		return 'Detect Author Discovery';

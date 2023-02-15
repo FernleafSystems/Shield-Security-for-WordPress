@@ -1,0 +1,50 @@
+{% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="accordion" id="RulesByHooks">
+		{% for hook in vars.components.hooks %}
+
+			<div class="accordion-item">
+
+				<h5 class="accordion-header">
+					<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#hook-{{ hook }}"
+					        aria-expanded="true" aria-controls="hook-{{ hook }}">
+		        WP Hook: <code>{{ hook }}</code>
+		      </button>
+				</h5>
+
+				<div id="hook-{{ hook }}" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+				     data-bs-parent="#RulesByHooks">
+		      <div class="accordion-body">
+
+			      {# SUB-Accordion for all the rules in this hook #}
+			      <div class="accordion" id="RulesForHook-{{ hook }}">
+				      {% for rule_slug,rule in vars.rules %}
+					      {% if rule.wp_hook == hook %}
+						      <div class="accordion-item">
+
+										<h5 class="accordion-header">
+											<button class="accordion-button" type="button" data-bs-toggle="collapse"
+											        data-bs-target="#rule-{{ rule.simple_id }}" aria-expanded="true" aria-controls="rule-{{ rule.simple_id }}">
+												{{ rule.name }}
+								      </button>
+										</h5>
+
+										<div id="rule-{{ rule.simple_id }}" class="accordion-collapse collapse" aria-labelledby="headingOne"
+										     data-bs-parent="#RulesForHook-{{ hook }}">
+								      <div class="accordion-body">
+									      <p>{{ rule.description }}</p>
+								      </div>
+										</div>
+						      </div>
+					      {% endif %}
+				      {% endfor %}
+			      </div>
+
+		      </div>
+		    </div>
+			</div>
+
+		{% endfor %}
+	</div>
+{% endblock %}

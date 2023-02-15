@@ -100,10 +100,11 @@
 		base.setupDatatable = function () {
 
 			this.$table = this.$el.DataTable(
-				$.extend( base.options.datatables_init,
+				$.extend(
+					base.options.table_init,
 					{
+						dom: 'BPrpftip',
 						serverSide: true,
-						searchDelay: 600,
 						ajax: function ( data, callback, settings ) {
 							let reqData = base.getBaseAjaxData();
 							reqData.sub_action = 'retrieve_table_data';
@@ -132,38 +133,35 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'BPrptip',
-						searchPanes: {
-							cascadePanes: false,
-							viewTotal: false,
-							viewCount: false,
-							initCollapsed: true
-						},
 						search: {},
-						buttons: [
-							{
-								text: 'Reload',
-								name: 'table-reload',
-								className: 'action table-refresh',
-								action: function ( e, dt, node, config ) {
-									base.tableReload.call( base );
+						searchDelay: 400,
+						buttons: {
+							buttons: [
+								{
+									text: 'Reload Table',
+									name: 'table-reload',
+									className: 'action table-refresh btn-outline-secondary mb-2',
+									action: function ( e, dt, node, config ) {
+										base.tableReload.call( base );
+									}
 								}
-							},
-							{
-								text: 'Add New IP',
-								name: 'ip-add',
-								className: 'action ipadd',
-								action: function ( e, dt, node, config ) {
-									base.ipAdd.call( base );
+							],
+							dom: {
+								button: {
+									className: 'btn'
 								}
 							}
-						],
+						},
 						language: {
+							search: "Search IP",
 							emptyTable: "There are no items to display.",
 							zeroRecords: "No entries found - please try adjusting your search filters."
-						}
+						},
+						pageLength: 25
 					}
 				) );
+
+			new $.fn.dataTable.Debounce( this.$table );
 		};
 
 		base.tableReload = function ( full = false ) {
@@ -172,8 +170,7 @@
 		};
 
 		base.ipAdd = function () {
-			iCWP_WPSF_Modals.renderModalIpAdd();
-			base.tableReload();
+			iCWP_WPSF_OffCanvas.renderIpRuleAddForm();
 		};
 
 		// Run initializer
@@ -181,5 +178,26 @@
 	}
 
 	$.icwpWpsfIpRulesTableActions.defaultOptions = {};
+
+	/** https://datatables.net/forums/discussion/comment/164708/#Comment_164708 **/
+	$.fn.dataTable.Debounce = function ( table, options ) {
+		var tableId = table.settings()[ 0 ].sTableId;
+		$( '.dataTables_filter input[aria-controls="' + tableId + '"]' ) // select the correct input field
+		.unbind() // Unbind previous default bindings
+		.bind( 'input', (delay( function ( e ) { // Bind our desired behavior
+			table.search( $( this ).val() ).draw();
+		}, 600 )) ); // Set delay in milliseconds
+	}
+
+	function delay( callback, ms ) {
+		let timer = 0;
+		return function () {
+			let context = this, args = arguments;
+			clearTimeout( timer );
+			timer = setTimeout( function () {
+				callback.apply( context, args );
+			}, ms || 0 );
+		};
+	}
 
 })( jQuery );

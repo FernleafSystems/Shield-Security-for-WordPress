@@ -16,7 +16,7 @@ abstract class BaseBuildScores {
 
 	protected function score_known() :int {
 		try {
-			list( $ipID, $ipName ) = ( new IpID( $this->getRecord()->ip ) )->run();
+			[ $ipID, $ipName ] = ( new IpID( $this->getRecord()->ip ) )->run();
 		}
 		catch ( \Exception $e ) {
 			$ipID = null;

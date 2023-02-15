@@ -1,11 +1,7 @@
-{% extends '/wpadmin_pages/insights/base.twig' %}
-
-{% block page_main %}
-	<div class="row" id="SectionInsightsScans">
-		<div class="col-12" id="ScanResultsTabs">
-			{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' %}
-		</div>
+<div class="row">
+	<div class="col-12" id="ScanResultsTabs">
+		{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' %}
 	</div>
-	{% include '/wpadmin_pages/insights/scans/modal/shield_modal_container.twig' %}
-	{% include '/wpadmin_pages/insights/scans/modal/progress.twig' %}
-{% endblock %}
+</div>
+{% include '/wpadmin_pages/insights/scans/modal/shield_modal_container.twig' %}
+{% include '/wpadmin_pages/insights/scans/modal/progress.twig' %}

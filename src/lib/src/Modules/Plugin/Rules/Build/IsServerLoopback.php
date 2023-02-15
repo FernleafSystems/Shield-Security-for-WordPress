@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsServerLoopback extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/is_server_loopback';
+	public const SLUG = 'shield/is_server_loopback';
 
 	protected function getName() :string {
 		return 'Is Server Loopback';
@@ -27,7 +27,7 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 			'group' => [
 				[
 					'condition' => Conditions\MatchRequestIp::SLUG,
-					'params' => [
+					'params'    => [
 						'match_ips' => Services::IP()->getServerPublicIPs(),
 					],
 				],

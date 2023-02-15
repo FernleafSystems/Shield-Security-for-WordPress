@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class MatchRequestParam extends Base {
 
-	const SLUG = 'match_request_param';
+	public const SLUG = 'match_request_param';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_patterns ) ) {

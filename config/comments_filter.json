@@ -8,7 +8,7 @@
     "sidebar_name":          "SPAM",
     "show_module_menu_item": false,
     "show_module_options":   true,
-    "tagline":               "Block comment SPAM and retain your privacy",
+    "tagline":               "Block comment SPAM while retaining your privacy",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
@@ -65,17 +65,6 @@
       "beacon_id":   152,
       "summary":     [
         "Purpose - Settings that apply to all comment SPAM scanning."
-      ]
-    },
-    {
-      "slug":        "section_user_messages",
-      "title":       "Customize Messages Shown To User",
-      "title_short": "Visitor Messages",
-      "beacon_id":   403,
-      "summary":     [
-        "Purpose - Customize the messages shown to visitors.",
-        "Recommendation - Be sure to change the messages to suit your audience.",
-        "Hint - To reset any message to its default, enter the text exactly: default"
       ]
     },
     {

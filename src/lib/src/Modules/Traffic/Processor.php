@@ -7,8 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 class Processor extends Modules\BaseShield\Processor {
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getRequestLogger()->execute();
+		$this->getCon()
+			 ->getModule_Traffic()
+			 ->getRequestLogger()
+			 ->execute();
 	}
 }

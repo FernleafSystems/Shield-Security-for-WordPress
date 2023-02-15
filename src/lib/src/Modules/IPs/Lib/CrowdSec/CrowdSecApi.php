@@ -3,26 +3,26 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecApi {
 
 	use ModConsumer;
 
-	const MAX_FAILED_LOGINS = 5;
-	const STATE_NO_URL = 'no_url';
-	const STATE_INVALID_URL = 'invalid_url';
-	const STATE_NO_MACHINE_ID = 'no_mach_id';
-	const STATE_NO_PASSWORD = 'no_password';
-	const STATE_MACHINE_NOT_REGISTERED = 'mach_not_registered';
-	const STATE_NO_AUTH_TOKEN = 'no_auth_token';
-	const STATE_NO_AUTH_EXPIRE = 'no_auth_expire';
-	const STATE_AUTH_EXPIRED = 'auth_expired';
-	const STATE_READY_NO_ENROLL_ID = 'ready_no_enroll_id';
-	const STATE_READY_MACH_NOT_ENROLLED = 'ready_mach_not_enrolled';
-	const STATE_READY_COMPLETE = 'ready_complete';
+	public const MAX_FAILED_LOGINS = 5;
+	public const STATE_NO_URL = 'no_url';
+	public const STATE_INVALID_URL = 'invalid_url';
+	public const STATE_NO_MACHINE_ID = 'no_mach_id';
+	public const STATE_NO_PASSWORD = 'no_password';
+	public const STATE_MACHINE_NOT_REGISTERED = 'mach_not_registered';
+	public const STATE_NO_AUTH_TOKEN = 'no_auth_token';
+	public const STATE_NO_AUTH_EXPIRE = 'no_auth_expire';
+	public const STATE_AUTH_EXPIRED = 'auth_expired';
+	public const STATE_READY_NO_ENROLL_ID = 'ready_no_enroll_id';
+	public const STATE_READY_MACH_NOT_ENROLLED = 'ready_mach_not_enrolled';
+	public const STATE_READY_COMPLETE = 'ready_complete';
 
 	public function isReady() :bool {
 		$this->login();

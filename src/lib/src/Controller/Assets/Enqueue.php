@@ -11,8 +11,8 @@ class Enqueue {
 	use PluginControllerConsumer;
 	use ExecOnce;
 
-	const CSS = 'css';
-	const JS = 'js';
+	public const CSS = 'css';
+	public const JS = 'js';
 
 	private $adminHookSuffix = '';
 
@@ -108,15 +108,13 @@ class Enqueue {
 		$this->registerAssets();
 
 		// Get standard enqueues
-		if ( current_action() == 'admin_enqueue_scripts' ) {
-			$assets = $this->getAdminAssetsToEnq();
-		}
-		else {
-			$assets = $this->getFrontendAssetsToEnq();
-		}
+		$assets = current_action() == 'admin_enqueue_scripts' ? $this->getAdminAssetsToEnq() : $this->getFrontendAssetsToEnq();
 
 		// Get custom enqueues from modules or elsewhere
-		$customAssets = $this->getCustomEnqueues();
+		$customAssets = apply_filters( 'shield/custom_enqueues', [
+			self::CSS => [],
+			self::JS  => [],
+		], $this->adminHookSuffix );
 
 		// Combine enqueues and enqueue assets
 		foreach ( [ self::CSS, self::JS ] as $type ) {
@@ -131,17 +129,8 @@ class Enqueue {
 	}
 
 	private function localise() {
-		$localz = [];
-		foreach ( $this->getCon()->modules as $module ) {
-			foreach ( $module->getScriptLocalisations() as $local ) {
-				$localz[] = $local;
-			}
-		}
-
-		$localz = apply_filters( 'shield/custom_localisations', $localz, $this->adminHookSuffix );
-
-		foreach ( $localz as $local ) {
-			if ( is_array( $local ) && count( $local ) === 3 ) { //sanity
+		foreach ( apply_filters( 'shield/custom_localisations', [], $this->adminHookSuffix ) as $local ) {
+			if ( is_array( $local ) && count( $local ) === 3 ) {
 				wp_localize_script( $this->normaliseHandle( $local[ 0 ] ), $local[ 1 ], $local[ 2 ] );
 			}
 			else {
@@ -210,27 +199,16 @@ class Enqueue {
 		}
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	private function getCustomEnqueues() :array {
-		$enqueues = [
-			self::CSS => [],
-			self::JS  => [],
-		];
-		foreach ( $this->getCon()->modules as $module ) {
-			$custom = $module->getCustomScriptEnqueues();
-			foreach ( array_keys( $enqueues ) as $type ) {
-				if ( !empty( $custom[ $type ] ) ) {
-					$enqueues[ $type ] = array_merge( $enqueues[ $type ], $custom[ $type ] );
-				}
-			}
-		}
-		return apply_filters( 'shield/custom_enqueues', $enqueues, $this->adminHookSuffix );
+		return apply_filters( 'shield/custom_enqueues', [ self::CSS => [], self::JS => [], ], $this->adminHookSuffix );
 	}
 
 	private function prefixKeys( array $keys ) :array {
 		return array_map( function ( $handle ) {
-			return strpos( $handle, 'wp-' ) === 0 ?
-				preg_replace( '#^wp-#', '', $handle )
-				: $this->normaliseHandle( $handle );
+			return strpos( $handle, 'wp-' ) === 0 ? preg_replace( '#^wp-#', '', $handle ) : $this->normaliseHandle( $handle );
 		}, $keys );
 	}
 

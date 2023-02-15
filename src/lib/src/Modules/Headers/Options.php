@@ -5,12 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function getCspCustomRules() :array {
-		$csp = $this->getOpt( 'xcsp_custom' );
-		if ( !is_array( $csp ) ) {
-			$csp = [];
-			$this->setOpt( 'xcsp_custom', $csp );
-		}
-		return $this->isPremium() ? array_filter( array_map( 'trim', $csp ) ) : [];
+		$csp = is_array( $this->getOpt( 'xcsp_custom' ) ) ? $this->getOpt( 'xcsp_custom' ) : [];
+		$this->setOpt( 'xcsp_custom', array_filter( array_map( 'trim', $csp ) ) );
+		return $this->getCon()->isPremiumActive() ? $this->getOpt( 'xcsp_custom' ) : [];
 	}
 
 	/**

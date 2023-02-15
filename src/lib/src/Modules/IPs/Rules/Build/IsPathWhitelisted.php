@@ -15,7 +15,7 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	const SLUG = 'shield/is_path_whitelisted';
+	public const SLUG = 'shield/is_path_whitelisted';
 
 	protected function getName() :string {
 		return 'Is Path Whitelisted';

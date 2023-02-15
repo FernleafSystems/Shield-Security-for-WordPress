@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class RequestHasParameters extends Base {
 
-	const SLUG = 'request_has_parameters';
+	public const SLUG = 'request_has_parameters';
 
 	protected function execConditionCheck() :bool {
 		$req = Services::Request();

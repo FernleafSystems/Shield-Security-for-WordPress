@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @property string $type
  * @property string $dir
  * @property string $file
  * @property int    $max_levels
@@ -13,7 +14,8 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class File extends DynPropertiesClass {
 
-	public function __construct( string $filename, $dir = ABSPATH ) {
+	public function __construct( string $fileType, string $filename, $dir = ABSPATH ) {
+		$this->type = $fileType;
 		$this->file = $filename;
 		$this->dir = wp_normalize_path( $dir );
 	}

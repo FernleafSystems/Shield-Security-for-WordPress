@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\DetectNotBot;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class TestNotBotLoading {
 
@@ -19,7 +20,7 @@ class TestNotBotLoading {
 		return preg_match(
 				   sprintf( '#%s#i', preg_quote( $urlToFind, '#' ) ),
 				   Services::HttpRequest()->getContent(
-					   add_query_arg( [ 'force_notbot' => '1' ], network_home_url( '/' ) ),
+					   URL::Build( network_home_url( '/' ), [ 'force_notbot' => '1' ] ),
 					   [ 'timeout' => 5 ]
 				   )
 			   ) === 1;

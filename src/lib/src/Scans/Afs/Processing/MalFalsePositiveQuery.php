@@ -11,7 +11,7 @@ class MalFalsePositiveQuery {
 	use Modules\ModConsumer;
 
 	/**
-	 * @param int[]  $lines
+	 * @param int[] $lines
 	 * @return int[] - key is the file line number, value is the false positive confidence score
 	 */
 	public function queryFileLines( string $fullPath, array $lines ) :array {
@@ -21,7 +21,7 @@ class MalFalsePositiveQuery {
 		if ( $opts->isMalUseNetworkIntelligence() ) {
 			try {
 				foreach ( ( new ExtractLinesFromFile() )->run( $fullPath, $lines ) as $lineNumber => $line ) {
-					$scores[ $lineNumber ] = $this->queryLine( $fullPath, $line );
+					$scores[ $lineNumber ] = $this->queryLine( $fullPath, (string)$line );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -48,12 +48,7 @@ class MalFalsePositiveQuery {
 		return $nFpConfidence;
 	}
 
-	/**
-	 * @param string $file - path to file containing line
-	 * @param string $line
-	 * @return int
-	 */
-	public function queryLine( $file, $line ) :int {
+	public function queryLine( string $file, string $line ) :int {
 		$falsePositiveConfidence = 0;
 
 		/** @var Modules\HackGuard\Options $opts */

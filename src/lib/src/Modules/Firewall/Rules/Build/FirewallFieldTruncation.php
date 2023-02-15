@@ -6,6 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallFieldTruncation extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_field_truncation';
-	const SCAN_CATEGORY = 'field_truncation';
+	public const SLUG = 'shield/firewall_field_truncation';
+	public const SCAN_CATEGORY = 'field_truncation';
 }

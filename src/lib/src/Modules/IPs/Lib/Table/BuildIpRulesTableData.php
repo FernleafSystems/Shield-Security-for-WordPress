@@ -48,6 +48,8 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $record->last_access_at );
 				$data[ 'unblocked_at' ] = $this->getColumnContent_UnblockedAt( $record->unblocked_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $record->created_at );
+				$data[ 'day' ] = Services::Request()
+										 ->carbon( true )->setTimestamp( $record->last_access_at )->toDateString();
 
 				return $data;
 			},
@@ -73,6 +75,9 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
+					case 'day':
+						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'ir', 'last_access_at' );
+						break;
 					case 'ip':
 						$wheres[] = sprintf( "`ir`.`id` IN (%s)", implode( ',', array_map( 'intval', $selected ) ) );
 						break;
@@ -90,6 +95,13 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 					default:
 						break;
 				}
+			}
+		}
+
+		if ( !empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
+			$ip = preg_replace( '#[^0-9a-f:.]#i', '', $this->table_data[ 'search' ][ 'value' ] );
+			if ( !empty( $ip ) ) {
+				$wheres[] = sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ip );
 			}
 		}
 		return $wheres;

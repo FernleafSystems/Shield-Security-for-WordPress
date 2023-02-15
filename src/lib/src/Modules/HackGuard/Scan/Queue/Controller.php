@@ -2,8 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModCon,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Controller {
@@ -33,11 +37,11 @@ class Controller {
 	 * @return bool[]
 	 */
 	public function getScansRunningStates() :array {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
 
-		$scans = array_fill_keys( $opts->getScanSlugs(), false );
-		foreach ( ( new HackGuard\Scan\Init\ScansStatus() )->setMod( $this->getMod() )->enqueued() as $enqueued ) {
+		$scans = array_fill_keys( $mod->getScansCon()->getScanSlugs(), false );
+		foreach ( ( new ScansStatus() )->setMod( $this->getMod() )->enqueued() as $enqueued ) {
 			$scans[ $enqueued ] = true;
 		}
 		return $scans;
@@ -54,7 +58,7 @@ class Controller {
 	 * @return float
 	 */
 	public function getScanJobProgress() {
-		/** @var HackGuard\ModCon $mod */
+		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		/** @var ScanItemsDB\Ops\Select $selector */
 		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
@@ -77,7 +81,7 @@ class Controller {
 	}
 
 	public function hasRunningScans() :bool {
-		/** @var HackGuard\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return count( $this->getRunningScans() ) > 0 || count( $opts->getScansToBuild() ) > 0;
 	}

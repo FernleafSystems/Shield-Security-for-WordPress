@@ -4,32 +4,32 @@ Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: limit login, malware scan, firewall, file scan, two factor authentication, intrusion prevention, security, login protection
-Requires at least: 3.7
-Requires PHP: 7.0
+Requires at least: 4.7
+Requires PHP: 7.2
 Recommended PHP: 7.4
 Tested up to: 6.1
-Stable tag: 16.1.15
+Stable tag: 17.0.1
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 
 == Description ==
 
-=Features You'll Absolutely Love=
+### Features You'll Absolutely Love
 
 * Exclusive [AntiBot Detection Engine](https://shsec.io/ju) - The most powerful Bot Detection security system on any WordPress security plugin.
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security system to block bad bots.
 * **Instant Bad Bot Blocking with [our exclusive CrowdSec integration](https://shsec.io/l5)**
 * Easy To Understand Dashboard points you to quick wins and areas you can quickly improve
-* Add Security To Important Forms To Block Bots:
-    * Login Security
-    * Registration Security
-    * Password Reset Security
+* Block Bots On Important Forms:
+    * Login Forms
+    * User Registration Forms
+    * Lost Password Reset Forms
     * [ShieldPRO] WooCommerce & Easy Digital Downloads Security
     * [ShieldPRO] Memberpress, LearnPress, BuddyPress, WP Members, ProfileBuilder Security
 * [Brute Force Security Protection, Limit Login Attempts + Login Cooldown Security](https://shsec.io/iw)
 * Powerful Firewall Security Rules
 * Restricted Security Admin Access
-   * [Prevents Unauthorized Changes To Site Even By Admins](https://shsec.io/ix).
+   * [Prevents Unauthorized Changes By Compromised Admins](https://shsec.io/ix).
 * (MFA) [Two-Factor / Multi-Factor Login Security Authentication](https://shsec.io/iy):
     * Email
     * Google Authenticator
@@ -197,9 +197,9 @@ Easy - we're just better! ;)
 
 Firstly, we don't modify any core WordPress or web hosting file. This is important and explains why randomly you upgrade your security plugin and your site dies.
 
-Ideally you shouldn't use this alongside other Anti-SPAM plugins or security plugins. If there is a feature you need, please feel free to suggest it in the support forums.
+Ideally you shouldn't use this along side other Anti-SPAM plugins or security plugins. If there is a feature you need, please feel free to suggest it in the support forums.
 
-= My server has a security firewall, why do I need this plugin? =
+= My server has a securiy firewall, why do I need this plugin? =
 
 This plugin is an application layer firewall, not a server/network security firewall.  It is designed to interpret web calls to your site to look for attempts to circumvent it and gain unauthorized access.
 

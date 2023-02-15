@@ -5,61 +5,29 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseProvider {
+/**
+ * @deprecated 17.0
+ */
+abstract class BaseProvider extends AbstractOtpProvider {
 
 	use Modules\ModConsumer;
 
-	const SLUG = '';
-	/**
-	 * Set to true if this provider can be used in isolation. False if there
-	 * must be at least 1 other 2FA provider active alongside it.
-	 */
-	const STANDALONE = true;
-	const DEFAULT_SECRET = '';
-
-	/**
-	 * @var \WP_User
-	 */
-	private $user;
-
-	/**
-	 * @var string
-	 */
-	protected $workingHashedLoginNonce;
-
-	public function __construct() {
-	}
+	public const DEFAULT_SECRET = '';
 
 	public function getJavascriptVars() :array {
 		return [];
-	}
-
-	abstract public function getProviderName() :string;
-
-	/**
-	 * Assumes this is only called on active profiles
-	 */
-	public function validateLoginIntent( string $hashedNonce ) :bool {
-		$otpSuccess = false;
-		$otp = $this->fetchCodeFromRequest();
-		if ( !empty( $otp ) ) {
-			$this->workingHashedLoginNonce = $hashedNonce;
-			$otpSuccess = $this->processOtp( $otp );
-			$this->auditLogin( $otpSuccess );
-		}
-		return $otpSuccess;
 	}
 
 	/**
 	 * @return string|array|mixed
 	 */
 	protected function getSecret() {
-		$secret = $this->getCon()->getUserMeta( $this->getUser() )->{static::SLUG.'_secret'};
+		$secret = $this->getCon()->getUserMeta( $this->getUser() )->{static::ProviderSlug().'_secret'};
 		return empty( $secret ) ? static::DEFAULT_SECRET : $secret;
 	}
 
 	public function hasValidatedProfile() :bool {
-		return $this->getCon()->getUserMeta( $this->getUser() )->{static::SLUG.'_validated'} === true;
+		return $this->getCon()->getUserMeta( $this->getUser() )->{static::ProviderSlug().'_validated'} === true;
 	}
 
 	protected function hasValidSecret() :bool {
@@ -67,7 +35,7 @@ abstract class BaseProvider {
 		return !empty( $secret ) && is_string( $secret );
 	}
 
-	protected function isEnforced() :bool {
+	public function isEnforced() :bool {
 		return false;
 	}
 
@@ -79,8 +47,6 @@ abstract class BaseProvider {
 		return $this->isProviderEnabled();
 	}
 
-	abstract public function isProviderEnabled() :bool;
-
 	/**
 	 * @return mixed
 	 */
@@ -90,8 +56,8 @@ abstract class BaseProvider {
 		return $newSecret;
 	}
 
-	public function remove() {
-		$this->getCon()->getUserMeta( $this->getUser() )->{static::SLUG.'_secret'} = null;
+	public function removeFromProfile() {
+		$this->getCon()->getUserMeta( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
 		$this->setProfileValidated( false );
 	}
 
@@ -100,7 +66,7 @@ abstract class BaseProvider {
 	 */
 	public function setProfileValidated( bool $validated ) {
 		$this->getCon()
-			 ->getUserMeta( $this->getUser() )->{static::SLUG.'_validated'} = $validated;
+			 ->getUserMeta( $this->getUser() )->{static::ProviderSlug().'_validated'} = $validated;
 		return $this;
 	}
 
@@ -110,7 +76,7 @@ abstract class BaseProvider {
 	 */
 	protected function setSecret( $secret ) {
 		$this->getCon()
-			 ->getUserMeta( $this->getUser() )->{static::SLUG.'_secret'} = $secret;
+			 ->getUserMeta( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
 		return $this;
 	}
 
@@ -120,8 +86,6 @@ abstract class BaseProvider {
 	protected function genNewSecret() {
 		return '';
 	}
-
-	abstract protected function processOtp( string $otp ) :bool;
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
@@ -133,50 +97,28 @@ abstract class BaseProvider {
 		return $this;
 	}
 
-	public function renderUserProfileCustomForm() :string {
-		$user = $this->getUser();
-		$data = Services::DataManipulation()->mergeArraysRecursive(
-			[
-				'flags'   => [
-					'has_validated_profile' => $this->hasValidatedProfile(),
-					'is_enforced'           => $this->isEnforced(),
-					'is_profile_active'     => $this->isProfileActive(),
-					'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $user ),
-					'show_explanatory_text' => true
-				],
-				'vars'    => [
-					'otp_field_name' => $this->getLoginFormParameter(),
-				],
-				'strings' => [
-					'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
-					'provider_name' => $this->getProviderName()
-				],
+	public function getUserProfileFormRenderData() :array {
+		return [
+			'flags'   => [
+				'has_validated_profile' => $this->hasValidatedProfile(),
+				'is_enforced'           => $this->isEnforced(),
+				'is_profile_active'     => $this->isProfileActive(),
+				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $this->getUser() ),
+				'show_explanatory_text' => false
 			],
-			$this->getProviderSpecificRenderData()
-		);
-		$data[ 'flags' ][ 'show_explanatory_text' ] = false;
-
-		return $this->getMod()->renderTemplate( sprintf( '/user/profile/mfa/provider_%s.twig', static::SLUG ), $data );
-	}
-
-	protected function getProviderSpecificRenderData() :array {
-		return [];
-	}
-
-	public function captureLoginAttempt() {
+			'vars'    => [
+				'otp_field_name' => $this->getLoginIntentFormParameter(),
+				'provider_slug'  => static::ProviderSlug(),
+			],
+			'strings' => [
+				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
+				'provider_name' => $this->getProviderName()
+			],
+		];
 	}
 
 	public function getFormField() :array {
 		return [];
-	}
-
-	public function renderFormFieldForWpLogin() :string {
-		return $this->getMod()->renderTemplate(
-			sprintf( '/components/wplogin_replica/login_field_%s.twig', static::SLUG ),
-			[
-				'field' => $this->getFormField()
-			]
-		);
 	}
 
 	protected function auditLogin( bool $success ) {
@@ -191,50 +133,7 @@ abstract class BaseProvider {
 		);
 	}
 
-	protected function getLoginFormParameter() :string {
-		return $this->getCon()->prefixOption( static::SLUG.'_otp' );
-	}
-
-	protected function fetchCodeFromRequest() :string {
-		return trim( (string)Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
-	}
-
-	protected function getCommonData() :array {
-		$user = $this->getUser();
-		return [
-			'flags'   => [
-				'has_validated_profile' => $this->hasValidatedProfile(),
-				'is_enforced'           => $this->isEnforced(),
-				'is_profile_active'     => $this->isProfileActive(),
-				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $user ),
-				'show_explanatory_text' => true
-			],
-			'vars'    => [
-				'otp_field_name' => $this->getLoginFormParameter(),
-			],
-			'strings' => [
-				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
-				'provider_name' => $this->getProviderName()
-			],
-		];
-	}
-
-	protected function generateSimpleOTP( int $length = 6 ) :string {
-		do {
-			$otp = substr( strtoupper( preg_replace( '#[io01l]#i', '', wp_generate_password( 50, false ) ) ), 0, $length );
-		} while ( strlen( $otp ) !== $length );
-		return $otp;
-	}
-
-	protected function getUser() :\WP_User {
-		return $this->user ?? Services::WpUsers()->getCurrentWpUser();
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function setUser( \WP_User $user ) {
-		$this->user = $user;
-		return $this;
+	public function getLoginIntentFormParameter() :string {
+		return $this->getCon()->prefixOption( static::ProviderSlug().'_otp' );
 	}
 }

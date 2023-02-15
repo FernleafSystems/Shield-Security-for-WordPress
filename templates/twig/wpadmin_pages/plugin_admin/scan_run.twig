@@ -1,0 +1,19 @@
+{% extends '/wpadmin_pages/plugin_admin/scan_base.twig' %}
+
+{% block inner_page_body %}
+
+	{% if flags.module_disabled %}
+		<div class="row">
+			<div class="col">
+				<div class="alert alert-warning">
+					{{ strings.module_disabled }}
+					<a class="alert-link" href="{{ hrefs.scanner_mod_config }}">{{ strings.review_scanner_config }}</a>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	{% include '/wpadmin_pages/insights/scans/run/scan_areas.twig' %}
+	{% include '/wpadmin_pages/insights/scans/modal/progress.twig' %}
+
+{% endblock %}

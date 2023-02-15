@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class LoadConfig {
 
@@ -22,21 +21,22 @@ class LoadConfig {
 		$this->cfg = $cfg;
 	}
 
-	private $configSourceFile = '';
+	private $pathToCfg = '';
 
 	private $isBuiltFromFile = false;
-
-	public function getConfigSourceFile() :string {
-		return empty( $this->configSourceFile ) ? $this->getPathCfg() : $this->configSourceFile;
-	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function run() :ModConfigVO {
+		$this->pathToCfg = $this->getCon()->paths->forModuleConfig( $this->slug );
+		if ( !Services::WpFs()->exists( $this->pathToCfg ) ) {
+			throw new \Exception( sprintf( 'Configuration file "%s" does not exist.', $this->pathToCfg ) );
+		}
+
 		$rebuild = $this->getCon()->cfg->rebuilt
 				   || !$this->cfg instanceof ModConfigVO
-				   || ( Services::WpFs()->getModifiedTime( $this->getPathCfg() ) > $this->cfg->meta[ 'ts_mod' ] );
+				   || ( Services::WpFs()->getModifiedTime( $this->pathToCfg ) > $this->cfg->meta[ 'ts_mod' ] );
 		if ( $rebuild ) {
 			$this->getCon()->cfg->rebuilt = true;
 		}
@@ -46,21 +46,12 @@ class LoadConfig {
 	/**
 	 * @throws \Exception
 	 */
-	public function fromFile() :array {
-		$path = $this->getPathCfg();
-		try {
-			$raw = $this->loadRawFromFile( $path );
-			$this->configSourceFile = $path;
-		}
-		catch ( \Exception $e ) {
-			$path = $this->getCon()->paths->forModuleConfig( $this->slug, false );
-			$raw = $this->loadRawFromFile( $path );
-			$this->configSourceFile = $path;
-		}
+	private function fromFile() :array {
+		$raw = $this->loadRawFromFile();
 
 		$cfg = json_decode( $raw, true );
 		if ( empty( $cfg ) || !is_array( $cfg ) ) {
-			throw new \Exception( sprintf( "Couldn't parse JSON from (%s) file '%s'.", $this->configSourceFile, $path ) );
+			throw new \Exception( sprintf( "Couldn't parse JSON from file '%s'.", $this->pathToCfg ) );
 		}
 
 		$keyedOptions = [];
@@ -72,7 +63,7 @@ class LoadConfig {
 		$cfg[ 'options' ] = $keyedOptions;
 
 		$cfg[ 'meta' ] = [
-			'ts_mod' => Services::WpFs()->getModifiedTime( $this->getConfigSourceFile() ),
+			'ts_mod' => Services::WpFs()->getModifiedTime( $this->pathToCfg ),
 		];
 
 		if ( empty( $cfg[ 'slug' ] ) ) {
@@ -111,20 +102,13 @@ class LoadConfig {
 		return $cfg;
 	}
 
-	private function getPathCfg() :string {
-		return $this->getCon()->paths->forModuleConfig( $this->slug, true );
-	}
-
 	/**
 	 * @throws \Exception
 	 */
-	private function loadRawFromFile( string $file ) :string {
-		if ( !Services::WpFs()->exists( $file ) ) {
-			throw new \Exception( sprintf( 'Configuration file "%s" does not exist.', $file ) );
-		}
-		$contents = Services::Data()->readFileWithInclude( $file );
+	private function loadRawFromFile() :string {
+		$contents = Services::Data()->readFileWithInclude( $this->pathToCfg );
 		if ( empty( $contents ) ) {
-			throw new \Exception( sprintf( 'Configuration file "%s" contents were empty or could not be read.', $file ) );
+			throw new \Exception( sprintf( 'Configuration file "%s" contents were empty or could not be read.', $this->pathToCfg ) );
 		}
 		return $contents;
 	}

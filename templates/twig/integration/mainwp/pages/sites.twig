@@ -1,50 +1,50 @@
 {% extends '/integration/mainwp/pages/page_base.twig' %}
 
 {% block actions_bar %}
-{#	<div class="mainwp_shield_tabs_content" data-tab="dashboard">#}
-{#		<div class="mainwp-actions-bar">#}
-{#			<div class="ui grid">#}
-{#				<div class="ui two column row">#}
-{#					<div class="middle aligned column ui mini form">#}
-{#	#}
-{#						<div class="ui dropdown selection" tabindex="0">#}
-{#							<select id="mwp_shield_plugin_action">#}
-{#								<option value="-1">Bulk Actions</option>#}
-{#								<option value="activate-selected">Activate</option>#}
-{#								<option value="update-selected">Update</option>#}
-{#								<option value="hide-selected">Hide</option>#}
-{#								<option value="show-selected">Unhide</option>#}
-{#							</select>#}
-{#							<i class="dropdown icon"></i>#}
-{#							<div class="text">Bulk Actions</div>#}
-{#							<div class="menu" tabindex="-1">#}
-{#								<div#}
-{#										class="item active selected" data-value="-1" data-text="Bulk Actions">Bulk Actions</div>#}
-{#								<div#}
-{#										class="item" data-value="activate-selected" data-text="Activate">Activate</div>#}
-{#								<div class="item" data-value="update-selected" data-text="Update">Update</div>#}
-{#								<div class="item" data-value="hide-selected" data-text="Hide">Hide</div>#}
-{#								<div class="item" data-value="show-selected" data-text="Unhide">Unhide</div>#}
-{#							</div>#}
-{#						</div>#}
-{#	#}
-{#						<input type="button" value="Apply"#}
-{#						       class="ui basic mini button action"#}
-{#						       id="shield_plugin_doaction_btn"#}
-{#						       name="shield_plugin_doaction_btn">#}
-{#					</div>#}
-{#	#}
-{#					<div class="right aligned middle aligned column">#}
-{#						<span id="mainwp_shield_remind_change_status"></span>#}
-{#						<a href="#" id="mainwp-shield-kill-scan" class="ui mini button">Stop Scan Process</a>#}
-{#						<a href="#" id="mainwp-shield-run-scan" class="ui mini green button shield-run-scan"#}
-{#						   title="Start a Wordfence Scan">Scan all Child Sites</a>#}
-{#					</div>#}
-{#	#}
-{#				</div>#}
-{#			</div>#}
-{#		</div>#}
-{#	</div>#}
+	{#  <div class="mainwp_shield_tabs_content" data-tab="dashboard"> #}
+	{#    <div class="mainwp-actions-bar"> #}
+	{#      <div class="ui grid"> #}
+	{#        <div class="ui two column row"> #}
+	{#          <div class="middle aligned column ui mini form"> #}
+	{#  #}
+	{#            <div class="ui dropdown selection" tabindex="0"> #}
+	{#              <select id="mwp_shield_plugin_action"> #}
+	{#                <option value="-1">Bulk Actions</option> #}
+	{#                <option value="activate-selected">Activate</option> #}
+	{#                <option value="update-selected">Update</option> #}
+	{#                <option value="hide-selected">Hide</option> #}
+	{#                <option value="show-selected">Unhide</option> #}
+	{#              </select> #}
+	{#              <i class="dropdown icon"></i> #}
+	{#              <div class="text">Bulk Actions</div> #}
+	{#              <div class="menu" tabindex="-1"> #}
+	{#                <div #}
+	{#                    class="item active selected" data-value="-1" data-text="Bulk Actions">Bulk Actions</div> #}
+	{#                <div #}
+	{#                    class="item" data-value="activate-selected" data-text="Activate">Activate</div> #}
+	{#                <div class="item" data-value="update-selected" data-text="Update">Update</div> #}
+	{#                <div class="item" data-value="hide-selected" data-text="Hide">Hide</div> #}
+	{#                <div class="item" data-value="show-selected" data-text="Unhide">Unhide</div> #}
+	{#              </div> #}
+	{#            </div> #}
+	{#  #}
+	{#            <input type="button" value="Apply" #}
+	{#                   class="ui basic mini button action" #}
+	{#                   id="shield_plugin_doaction_btn" #}
+	{#                   name="shield_plugin_doaction_btn"> #}
+	{#          </div> #}
+	{#  #}
+	{#          <div class="right aligned middle aligned column"> #}
+	{#            <span id="mainwp_shield_remind_change_status"></span> #}
+	{#            <a href="#" id="mainwp-shield-kill-scan" class="ui mini button">Stop Scan Process</a> #}
+	{#            <a href="#" id="mainwp-shield-run-scan" class="ui mini green button shield-run-scan" #}
+	{#               title="Start a Wordfence Scan">Scan all Child Sites</a> #}
+	{#          </div> #}
+	{#  #}
+	{#        </div> #}
+	{#      </div> #}
+	{#    </div> #}
+	{#  </div> #}
 {% endblock %}
 
 {% block body_main %}
@@ -62,7 +62,7 @@
 									<input type="checkbox" name="checkall" class="url_checkall" id="url_checkall" />
 								</span>
 							</th>
-{#							<th>{{ strings.site }}</th>#}
+							{#              <th>{{ strings.site }}</th> #}
 							<th>{{ strings.url }}</th>
 							<th>{{ strings.status }}</th>
 							<th>{{ strings.overall_grade }}</th>
@@ -82,16 +82,23 @@
 								</span>
 							</td>
 
-{#							<td>#}
-{#								{% if site.shield.is_active %}#}
-{#									<a href="{{ site.shield.href_manage }}"#}
-{#									   class="ui mini compact button">{{ strings.manage }}</a>#}
-{#								{% else %}#}
-{#									{{ site.name }}#}
-{#								{% endif %}#}
-{#							</td>#}
+							{#              <td> #}
+							{#                {% if site.shield.is_active %} #}
+							{#                  <a href="{{ site.shield.href_manage }}" #}
+							{#                     class="ui mini compact button">{{ strings.manage }}</a> #}
+							{#                {% else %} #}
+							{#                  {{ site.name }} #}
+							{#                {% endif %} #}
+							{#              </td> #}
 
-							<td><a href="{{ site.url }}" target="_blank">{{ site.url }}</a></td>
+							<td>
+								{{ site.name }}
+								{#                <a href="{{ site.hrefs.manage_site }}">{{ site.name }}</a> #}
+								<br />
+								<a href="{{ site.url }}" target="_blank" style="text-decoration: none!important;">
+									<small>{{ site.url }} <i class="external alternate icon"></i></small>
+								</a>
+							</td>
 							{% if site.shield.is_active %}
 								<td>
 									{{ site.shield.status }}
@@ -122,6 +129,10 @@
 								<td colspan="4" class="cell-span-issue">{{ strings.st_notpro }}</td>
 							{% elseif site.shield.is_mwpnoton %}
 								<td colspan="4" class="cell-span-issue">{{ strings.st_mwpnoton }}</td>
+							{% elseif site.shield.is_client_newer %}
+								<td colspan="4" class="cell-span-issue">{{ strings.st_client_newer }}</td>
+							{% elseif site.shield.is_client_older %}
+								<td colspan="4" class="cell-span-issue">{{ strings.st_client_older }}</td>
 							{% elseif site.shield.is_sync_rqd %}
 								<td colspan="4" class="cell-span-issue">{{ strings.st_sync_rqd }}</td>
 							{% elseif site.shield.is_version_mismatch %}
@@ -138,25 +149,32 @@
 									<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
 
 										<a href="#"
-										   data-saction="sync"
+										   data-site_action='{{ vars.site_actions.sync|raw }}'
 										   class="item site_action {% if not site.shield.can_sync %}disabled{% endif %}"
 										>{{ strings.act_sync }}</a>
 
+										{% if site.shield.has_update %}
+											<a href="#"
+											   data-site_action='{{ vars.site_actions.update|raw }}'
+											   class="item site_action"
+											>{{ strings.act_update }}</a>
+										{% endif %}
+
 										{% if site.shield.is_inactive %}
 											<a href="#"
-											   data-saction="activate"
+											   data-site_action='{{ vars.site_actions.activate|raw }}'
 											   class="item site_action"
 											>{{ strings.act_activate }}</a>
 
 										{% elseif site.shield.is_notinstalled %}
 											<a href="#"
-											   data-saction="install"
+											   data-site_action='{{ vars.site_actions.install|raw }}'
 											   class="item site_action"
 											>{{ strings.act_install }}</a>
 
 										{% else %}
 											<a href="#"
-											   data-saction="deactivate"
+											   data-site_action='{{ vars.site_actions.deactivate|raw }}'
 											   class="item site_action"
 											>{{ strings.act_deactivate }}</a>
 										{% endif %}
@@ -164,10 +182,10 @@
 										<a href="#"
 										   class="item site_action {% if not site.shield.is_active %}disabled{% endif %}"
 												{% if site.shield.is_mwpnoton %}
-													data-saction="mwp"
+													data-site_action="mwp"
 													{% set linktxt = strings.act_mwp %}
 												{% else %}
-													data-saction="license"
+													data-site_action='{{ vars.site_actions.license|raw }}'
 													{% set linktxt = strings.act_license %}
 												{% endif %}
 										>{{ linktxt }}</a>

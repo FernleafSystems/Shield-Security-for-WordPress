@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class LoadConfig {
 
@@ -36,7 +35,7 @@ class LoadConfig {
 		$con = $this->getCon();
 		$WPP = Services::WpPlugins();
 
-		$def = $this->fromWp();
+		$def = Services::WpGeneral()->getOption( $this->store_key );
 		$rebuild = empty( $def ) || !is_array( $def );
 
 		$specHash = sha1_file( $this->path );
@@ -77,11 +76,10 @@ class LoadConfig {
 	}
 
 	/**
-	 * @deprecated 16.0 - remove the empty()?
 	 * @return array|null
+	 * @deprecated 17.0
 	 */
 	public function fromWp() {
-		$def = Services::WpGeneral()->getOption( $this->store_key );
-		return empty( $def ) ? Transient::Get( $this->store_key ) : $def;
+		return Services::WpGeneral()->getOption( $this->store_key );
 	}
 }

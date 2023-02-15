@@ -1,5 +1,128 @@
 {
-  "16.0": {
+  "17.0": {
+    "version":     "17.0",
+    "released_at": 1676460000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease170",
+      "upgrade": "https://shsec.io/shieldupgradeguide170"
+    },
+    "title":       "Simplified Control and UI, Faster Processing & Major Code Enhancements",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "UI Enhancements",
+        "description": [
+          "We've made huge progress forward in improving the Shield Dashboard interface making it easier to get to exactly where you need to.",
+          "Shield is a big plugin, so organising all the tools and features is a challenge, but this is our best UI yet!"
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "WeForms Integration",
+        "description": [
+          "We've added native support for protection against contact form SPAM directed against WeForms."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Much Improved IP Rules Management",
+        "description": [
+          "IP Rules management could be slow as the IP rules table grew, but we've done a lot of work to speed this up."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Filter Tables By Date",
+        "description": [
+          "The Activity Log and Traffic Log can now be filtered by date, letting you quickly find the logs you need."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Better Security Overview",
+        "description": [
+          "We've made some adjustments to how the Overview dashboard is created alongside tweaks to the scoring logic.",
+          "We've also aligned the Admin dashboard widget score with the overall Shield Dashboard score."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Major Code Overhaul",
+        "description": [
+          "Nearly all functionality of the plugin has been rewritten and improved."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Better Plugin Search",
+        "description": [
+          "We've improved the UI for searching the plugin alongside adding the ability to search for partial IP addresses."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Pwned Passwords API",
+        "description": [
+          "We've made our implementation of the Pwned Passwords API more forgiving of API errors.",
+          "Instead of blocking passwords when there's an error with the API, we bypass the test altogether allowing the request to succeed."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Removed Reporting Module",
+        "description": [
+          "As part of our focus on simplifying the Shield plugin, we've removed the separate Reporting module.",
+          "You'll still get email Reports, but the options are now configured under the General Settings module."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Minimum PHP Version: 7.2",
+        "description": [
+          "To stay ahead and on top of the latest developments in our PHP libraries, we've pushed our minimum PHP version to 7.2."
+        ],
+        "href":        "https://shsec.io/l8"
+      },
+      {
+        "type":        "changed",
+        "title":       "Minimum WordPress Version: 4.7",
+        "description": [
+          "Based on Shield telemetry data, we're pushing our minimum supported WordPress version up to 4.7.",
+          "We'll continue to push this upwards as usage data suggests it make sense to do so."
+        ]
+      },
+      {
+        "type":        "removed",
+        "title":       "Removed Password Policy Option: Minimum Password Length",
+        "description": [
+          "Shield has an option to enforce minimum password strengths, and also an option to enforce minimum length.",
+          "There is no real need to enforce a password length, when an overall password strength meter is also applied."
+        ]
+      },
+      {
+        "type":     "fixed",
+        "pro_only": false,
+        "title":    "Various Fixes",
+        "list":     [
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
+  "16.1": {
     "version":     "16.1",
     "released_at": 1662984000,
     "hrefs":       {

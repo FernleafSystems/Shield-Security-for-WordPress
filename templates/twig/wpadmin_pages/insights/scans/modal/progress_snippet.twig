@@ -1,16 +1,16 @@
 <h6>
-	{% if progress == 100 %}
-		{{ completed }}
+	{% if vars.progress == 100 %}
+		{{ strings.completed }}
 	{% else %}
-		{{ current_scan }}: {{ scan }}
+		{{ strings.current_scan }}: {{ vars.current_scan }}
 	{% endif %}
 </h6>
-<p>{{ remaining_scans }}</p>
+<p>{{ vars.remaining_scans }}</p>
 <div class="progress">
 	<div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-		 style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+		 style="width: {{ vars.progress }}%" aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
 	</div>
 </div>
-<p class="mt-2">{{ patience_1 }}
-	{{ patience_2 }}
+<p class="mt-2">{{ strings.patience_1 }}
+	{{ strings.patience_2 }}
 </p>

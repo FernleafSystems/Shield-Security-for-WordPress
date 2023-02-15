@@ -7,6 +7,11 @@
 
 	<p>{{ body.strings.this_is_info }} {{ body.strings.already_blocked }}</p>
 
+	<p>
+		&rarr; {{ body.strings.unsubscribe_1 }}
+		<a href="{{ body.hrefs.unsubscribe }}" target="_blank">{{ body.strings.unsubscribe_2 }}</a>
+	</p>
+
 	<p><strong>{{ body.strings.details }}</strong>:</p>
 	<table style="border: 0 transparent">
 		{% for detail,detail_value in body.vars.req_details %}

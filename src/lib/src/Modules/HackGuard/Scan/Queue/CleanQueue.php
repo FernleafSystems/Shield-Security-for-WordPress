@@ -3,12 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	Scans as ScansDB,
-	ScanItems as ScanItemsDB
+	ScanItems as ScanItemsDB,
+	Scans as ScansDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Services\Services;
 
 class CleanQueue extends ExecOnceModConsumer {
 

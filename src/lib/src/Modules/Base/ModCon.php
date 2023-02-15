@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,6 +17,8 @@ abstract class ModCon extends DynPropertiesClass {
 
 	use Modules\PluginControllerConsumer;
 	use Shield\Crons\PluginCronsConsumer;
+
+	public const SLUG = '';
 
 	/**
 	 * @var Config\ModConfigVO
@@ -29,11 +34,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @var Shield\Modules\Base\Processor
 	 */
 	private $oProcessor;
-
-	/**
-	 * @var Shield\Modules\Base\Reporting
-	 */
-	private $reporting;
 
 	/**
 	 * @var Shield\Modules\Base\UI
@@ -84,7 +84,6 @@ abstract class ModCon extends DynPropertiesClass {
 	public function boot() {
 		if ( !$this->is_booted ) {
 			$this->is_booted = true;
-			$this->handleAutoPageRedirects();
 			$this->doPostConstruction();
 			$this->setupHooks();
 		}
@@ -105,11 +104,7 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function setupHooks() {
 		$con = $this->getCon();
 
-		add_action( $con->prefix( 'modules_loaded' ), function () {
-			$this->onModulesLoaded();
-		} );
-
-		add_action( 'init', [ $this, 'onWpInit' ], 1 );
+		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 
 		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
@@ -225,9 +220,6 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->loadModElement( 'Upgrade' );
 	}
 
-	protected function onModulesLoaded() {
-	}
-
 	public function onRunProcessors() {
 		if ( $this->cfg->properties[ 'auto_load_processor' ] ) {
 			$this->loadProcessor();
@@ -253,9 +245,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() || is_network_admin() ) {
-			$this->getAdminPage()->execute();
-		}
 		if ( $this->getCon()->is_rest_enabled ) {
 			$this->initRestApi();
 		}
@@ -282,12 +271,6 @@ abstract class ModCon extends DynPropertiesClass {
 	public function onWpInit() {
 		$con = $this->getCon();
 
-		$shieldAction = $con->getShieldAction();
-		if ( !empty( $shieldAction ) ) {
-			do_action( $con->prefix( 'shield_action' ), $shieldAction );
-			$this->handleShieldAction( $shieldAction );
-		}
-
 		add_action( 'cli_init', function () {
 			try {
 				$this->getWpCli()->execute();
@@ -296,25 +279,8 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		} );
 
-		if ( $this->isModuleRequest() ) {
-
-			if ( Services::WpGeneral()->isAjax() ) {
-				$this->loadAjaxHandler();
-			}
-			else {
-				try {
-					if ( $this->verifyModActionRequest() ) {
-						$this->handleModAction( Services::Request()->request( 'exec' ) );
-					}
-				}
-				catch ( \Exception $e ) {
-					wp_nonce_ays( '' );
-				}
-			}
-		}
-
 		// GDPR
-		if ( $this->isPremium() ) {
+		if ( $con->isPremiumActive() ) {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
@@ -324,9 +290,6 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 
 		$this->loadDebug();
-	}
-
-	protected function handleShieldAction( string $action ) {
 	}
 
 	/**
@@ -380,64 +343,30 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'settings', $this->getSlug() );
-	}
-
-	public function getUrl_AdminPage() :string {
-		return Services::WpGeneral()
-					   ->getUrl_AdminPage(
-						   $this->getModSlug(),
-						   $this->getCon()->getIsWpmsNetworkAdminOnly()
-					   );
-	}
-
-	public function buildAdminActionNonceUrl( string $action ) :string {
-		$nonce = $this->getNonceActionData( $action );
-		$nonce[ 'ts' ] = Services::Request()->ts();
-		return add_query_arg( $nonce, $this->getUrl_AdminPage() );
-	}
-
-	protected function getModActionParams( string $action ) :array {
 		$con = $this->getCon();
-		return [
-			'action'     => $con->prefix(),
-			'exec'       => $action,
-			'mod_slug'   => $this->getModSlug(),
-			'ts'         => Services::Request()->ts(),
-			'exec_nonce' => substr(
-				hash_hmac( 'md5', $action.Services::Request()->ts(), $con->getSiteInstallationId() ), 0, 6
-			)
-		];
+		$urls = $con->plugin_urls;
+		return $urls ? $urls->modCfg( $this )
+			: $con->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->cfg->slug );
 	}
 
 	/**
-	 * @return bool
-	 * @throws \Exception
+	 * @deprecated 17.0 - only on the base modcon
 	 */
-	protected function verifyModActionRequest() :bool {
-		$valid = false;
-
-		$con = $this->getCon();
-		$req = Services::Request();
-
-		$exec = $req->request( 'exec' );
-		if ( !empty( $exec ) && $req->request( 'action' ) == $con->prefix() ) {
-
-			if ( wp_verify_nonce( $req->request( 'exec_nonce' ), $exec ) && $con->getMeetsBasePermissions() ) {
-				$valid = true;
-			}
-			else {
-				$valid = $req->request( 'exec_nonce' ) ===
-						 substr( hash_hmac( 'md5', $exec.$req->request( 'ts' ), $con->getSiteInstallationId() ), 0, 6 );
-			}
-			if ( !$valid ) {
-				throw new \Exception( 'Invalid request' );
-			}
-		}
-
-		return $valid;
+	public function getUrl_AdminPage() :string {
+		return $this->getUrl_OptionsConfigPage();
 	}
 
+	/**
+	 * @throws \Exception
+	 * @deprecated 17.0
+	 */
+	protected function verifyModActionRequest() :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_DirectLinkToOption( string $key ) :string {
 		$def = $this->getOptions()->getOptDefinition( $key );
 		return empty( $def[ 'section' ] ) ?
@@ -445,6 +374,9 @@ abstract class ModCon extends DynPropertiesClass {
 			: $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getUrl_DirectLinkToSection( string $section ) :string {
 		if ( $section == 'primary' ) {
 			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];
@@ -474,13 +406,14 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
-		$this->getOptions()->setOpt( 'enable_'.$this->getSlug(), $enable ? 'Y' : 'N' );
+		$this->getOptions()->setOpt( $this->getEnableModOptKey(), $enable ? 'Y' : 'N' );
 		return $this;
 	}
 
 	public function isModuleEnabled() :bool {
+		$con = $this->getCon();
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
-		$pluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
+		$pluginOpts = $con->getModule_Plugin()->getOptions();
 
 		if ( !$this->moduleReadyCheck() ) {
 			$enabled = false;
@@ -495,7 +428,7 @@ abstract class ModCon extends DynPropertiesClass {
 		elseif ( $this->getCon()->this_req->is_force_off ) {
 			$enabled = false;
 		}
-		elseif ( $this->cfg->properties[ 'premium' ] && !$this->isPremium() ) {
+		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
 			$enabled = false;
 		}
 		else {
@@ -507,48 +440,42 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function isModOptEnabled() :bool {
 		$opts = $this->getOptions();
-		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' )
-			   || $opts->isOpt( $this->getEnableModOptKey(), true, true );
+		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' ) || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
 	public function getEnableModOptKey() :string {
-		return 'enable_'.$this->getSlug();
+		return 'enable_'.$this->cfg->slug;
 	}
 
 	public function getMainFeatureName() :string {
 		return __( $this->cfg->properties[ 'name' ], 'wp-simple-firewall' );
 	}
 
-	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? $this->getCon()->prefix( $this->getSlug() ) : $this->getSlug();
+	/**
+	 * @return array{title: string, subtitle: string, description: array}
+	 */
+	public function getDescriptors() :array {
+		return [
+			'title'       => $this->getMainFeatureName(),
+			'subtitle'    => __( $this->cfg->properties[ 'tagline' ] ?? '', 'wp-simple-firewall' ),
+			'description' => [],
+		];
 	}
 
-	public function getSlug() :string {
-		return $this->sModSlug ?? $this->cfg->slug;
+	public function getModSlug( bool $prefix = true ) :string {
+		return $prefix ? $this->getCon()->prefix( $this->cfg->slug ) : $this->cfg->slug;
 	}
 
 	/**
-	 * Handles the case where we want to redirect certain menu requests to other pages
-	 * of the plugin automatically. It lets us create custom menu items.
-	 * This can of course be extended for any other types of redirect.
+	 * @deprecated 17.0
 	 */
-	public function handleAutoPageRedirects() {
-		$cfg = $this->getOptions()->getRawData_FullFeatureConfig();
-		if ( !empty( $cfg[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
-			foreach ( $cfg[ 'custom_redirects' ] as $redirect ) {
-				if ( Services::Request()->query( 'page' )
-					 == $this->getCon()->prefix( $redirect[ 'source_mod_page' ] ) ) {
-					Services::Response()->redirect(
-						$this->getCon()->getModule( $redirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
-						$redirect[ 'query_args' ],
-						true,
-						false
-					);
-				}
-			}
-		}
+	public function getSlug() :string {
+		return $this->cfg->slug;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getIfShowModuleMenuItem() :bool {
 		return $this->cfg->properties[ 'show_module_menu_item' ];
 	}
@@ -604,23 +531,22 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isModuleRequest() :bool {
 		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
 	}
 
 	/**
 	 * @return array|string
+	 * @deprecated 17.0
 	 */
 	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
-		$data = $this->getNonceActionData( $action );
-		$data[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
+		$data = Shield\ActionRouter\ActionData::Build( $action, true, [
+			'mod_slug' => $this->getModSlug()
+		] );
 		return $asJson ? json_encode( (object)$data ) : $data;
-	}
-
-	public function getNonceActionData( string $action = '' ) :array {
-		$data = $this->getCon()->getNonceActionData( $action );
-		$data[ 'mod_slug' ] = $this->getModSlug();
-		return $data;
 	}
 
 	/**
@@ -677,7 +603,7 @@ abstract class ModCon extends DynPropertiesClass {
 		$con = $this->getCon();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()
-			 ->doOptionsSave( $con->plugin_reset, $this->isPremium() );
+			 ->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
@@ -694,37 +620,13 @@ abstract class ModCon extends DynPropertiesClass {
 		$this->getOptions()->deleteStorage();
 	}
 
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case 'file_download':
-				$id = Services::Request()->query( 'download_id', '' );
-				if ( !empty( $id ) ) {
-					header( 'Set-Cookie: fileDownload=true; path=/' );
-					$this->handleFileDownload( $id );
-				}
-				break;
-			default:
-				break;
-		}
-	}
-
-	protected function handleFileDownload( string $downloadID ) {
-	}
-
-	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
-		$additionalParams[ 'download_id' ] = $downloadID;
-		return add_query_arg(
-			array_merge( $this->getNonceActionData( 'file_download' ), $additionalParams ),
-			$this->getUrl_AdminPage()
-		);
-	}
-
 	/**
 	 * @param string        $msg
 	 * @param \WP_User|null $user
 	 * @param bool          $isError
 	 * @param bool          $bShowOnLogin
 	 * @return $this
+	 * @deprecated 17.0
 	 */
 	public function setFlashAdminNotice( $msg, $user = null, $isError = false, $bShowOnLogin = false ) {
 		$this->getCon()
@@ -738,17 +640,25 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isPremium() :bool {
 		return $this->getCon()->isPremiumActive();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isThisModulePage() :bool {
-		return $this->getCon()->isModulePage()
-			   && Services::Request()->query( 'page' ) == $this->getModSlug();
+		return $this->getCon()->isModulePage() && Services::Request()->query( 'page' ) == $this->getModSlug();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isPage_Insights() :bool {
-		return Services::Request()->query( 'page' ) == $this->getCon()->getModule_Insights()->getModSlug();
+		return false;
 	}
 
 	protected function buildContextualHelp() {
@@ -772,26 +682,48 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getIsShowMarketing() :bool {
-		return (bool)apply_filters( 'shield/show_marketing', !$this->isPremium() );
+		return (bool)apply_filters( 'shield/show_marketing', !$this->getCon()->isPremiumActive() );
 	}
 
 	public function isAccessRestricted() :bool {
 		return $this->cfg->properties[ 'access_restricted' ] && !$this->getCon()->isPluginAdmin();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function canDisplayOptionsForm() :bool {
 		return !$this->cfg->properties[ 'access_restricted' ] || $this->getCon()->isPluginAdmin();
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getScriptLocalisations() :array {
 		return [];
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getCustomScriptEnqueues() :array {
 		return [];
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function renderTemplate( string $template, array $data = [] ) :string {
+		$con = $this->getCon();
+
+		if ( $con->action_router instanceof Shield\ActionRouter\ActionRoutingController ) {
+			$data[ 'render_action_template' ] = $template;
+			return $con->action_router->render(
+				Actions\Render\GenericRender::SLUG,
+				$data
+			);
+		}
+
 		return $this->getRenderer()
 					->setTemplate( $template )
 					->setRenderData( $data )
@@ -865,6 +797,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return mixed|Shield\Modules\Base\Renderer
+	 * @deprecated 17.0
 	 */
 	public function getRenderer() {
 		/** @var Renderer $r */
@@ -882,16 +815,6 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->UI;
 	}
 
-	/**
-	 * @return Shield\Modules\Base\Reporting|mixed|false
-	 */
-	public function getReportingHandler() {
-		if ( !isset( $this->reporting ) ) {
-			$this->reporting = $this->loadModElement( 'Reporting' );
-		}
-		return $this->reporting;
-	}
-
 	public function getAdminNotices() {
 		if ( !isset( $this->adminNotices ) ) {
 			$this->adminNotices = $this->loadModElement( 'AdminNotices' );
@@ -899,6 +822,9 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->adminNotices;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	protected function loadAjaxHandler() {
 		try {
 			$class = $this->findElementClass( 'AjaxHandler', true );
@@ -908,16 +834,6 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		}
 		catch ( \Exception $e ) {
-		}
-	}
-
-	protected function loadDebug() {
-		$req = Services::Request();
-		if ( $req->query( 'debug' ) && $req->query( 'mod' ) == $this->getModSlug()
-			 && $this->getCon()->isPluginAdmin() ) {
-			/** @var Shield\Modules\Base\Debug $debug */
-			$debug = $this->loadModElement( 'Debug' );
-			$debug->run();
 		}
 	}
 
@@ -939,7 +855,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return false|Shield\Modules\ModConsumer
+	 * @return false|Shield\Modules\ModConsumer|mixed
 	 */
 	private function loadModElement( string $class ) {
 		$element = false;
@@ -1001,59 +917,31 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
+	 * @deprecated 17.0
+	 */
+	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
+		return '';
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	public function getNonceActionData( string $action = '' ) :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	protected function loadDebug() {
+	}
+
+	/**
 	 * Saves the options to the WordPress Options store.
 	 * @return void
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
-	}
-
-	/**
-	 * @deprecated 16.0
-	 * @var \ICWP_WPSF_Wizard_Base
-	 */
-	private $oWizard;
-
-	/**
-	 * @deprecated 16.0
-	 */
-	public function hasWizard() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 16.0
-	 */
-	public function hasWizardDefinition( string $wizardSlug ) :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 16.0
-	 * @return \ICWP_WPSF_Wizard_Base|null
-	 */
-	public function getWizardHandler() {
-		return null;
-	}
-
-	/**
-	 * @deprecated 16.0
-	 */
-	public function getWizardDefinitions() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 16.1
-	 */
-	protected function runWizards() {
-	}
-
-	/**
-	 * @deprecated 16.0
-	 */
-	protected function isWizardPage() :bool {
-		return false;
 	}
 }

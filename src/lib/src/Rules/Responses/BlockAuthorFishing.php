@@ -2,17 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Blocks\RenderBlockPages\RenderBlockAuthorFishing;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 class BlockAuthorFishing extends Base {
 
-	const SLUG = 'block_author_fishing';
+	public const SLUG = 'block_author_fishing';
 
 	protected function execResponse() :bool {
-		( new RenderBlockAuthorFishing() )
-			->setMod( $this->getCon()->getModule_Lockdown() )
-			->setAuxData( $this->getConsolidatedConditionMeta() )
-			->display();
+		$this->getCon()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+			'render_slug' => Actions\Render\FullPage\Block\BlockAuthorFishing::SLUG
+		] );
 		return true;
 	}
 }

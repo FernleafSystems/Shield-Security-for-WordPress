@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
-use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	/**
 	 * @var Lib\TwoFactor\MfaController
@@ -15,20 +14,19 @@ class ModCon extends BaseShield\ModCon {
 	private $mfaCon;
 
 	public function getMfaController() :Lib\TwoFactor\MfaController {
-		if ( !isset( $this->mfaCon ) ) {
-			$this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
-		}
-		return $this->mfaCon;
+		return $this->mfaCon ?? $this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
 	}
 
 	protected function preProcessOptions() {
-		$WP = Services::WpGeneral();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( $opts->isEnabledEmailAuth() && $opts->isOptChanged( 'enable_email_authentication' )
-			 && !$opts->getIfCanSendEmailVerified() ) {
-			$this->setIfCanSendEmail( false )
-				 ->sendEmailVerifyCanSend();
+		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
+			$opts->setOpt( 'email_can_send_verified_at', 0 );
+			try {
+				$this->getCon()->action_router->action( MfaEmailSendVerification::SLUG );
+			}
+			catch ( ActionException $e ) {
+			}
 		}
 
 		$IDs = $opts->getOpt( 'antibot_form_ids', [] );
@@ -53,10 +51,6 @@ class ModCon extends BaseShield\ModCon {
 
 		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
 
-		if ( !$opts->isOpt( 'mfa_verify_page', 'custom_shield' ) && !$WP->getWordpressIsAtLeastVersion( '4.0' ) ) {
-			$opts->setOpt( 'mfa_verify_page', 'custom_shield' );
-		}
-
 		$redirect = preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
 		if ( !empty( $redirect ) ) {
 
@@ -77,7 +71,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 
 		$style = $opts->getOpt( 'enable_google_recaptcha_login' );
-		if ( $this->isPremium() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			$cfg = $this->getCaptchaCfg();
 			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
 				if ( !$cfg->invisible && $style == 'invisible' ) {
@@ -88,69 +82,6 @@ class ModCon extends BaseShield\ModCon {
 		elseif ( !in_array( $style, [ 'disabled', 'default' ] ) ) {
 			$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
-	}
-
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case 'email_send_verify':
-				$this->processEmailSendVerify();
-				break;
-			default:
-				parent::handleModAction( $action );
-				break;
-		}
-	}
-
-	/**
-	 * @uses wp_redirect()
-	 */
-	private function processEmailSendVerify() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$this->setIfCanSendEmail( true );
-		$this->saveModOptions();
-
-		if ( $opts->getIfCanSendEmailVerified() ) {
-			$success = true;
-			$msg = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
-		}
-		else {
-			$success = false;
-			$msg = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
-		}
-		$this->setFlashAdminNotice( $msg, null, !$success );
-		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			Services::Response()->redirect( $this->getUrl_AdminPage() );
-		}
-	}
-
-	public function sendEmailVerifyCanSend( string $to = '', bool $sendAsLink = true ) :bool {
-
-		if ( !Services::Data()->validEmail( $to ) ) {
-			$to = Services::WpGeneral()->getSiteAdminEmail();
-		}
-
-		$msg = [
-			__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.', 'wp-simple-firewall' ),
-			__( 'This verifies your website can send email and that your account can receive emails sent from your site.', 'wp-simple-firewall' ),
-			''
-		];
-
-		if ( $sendAsLink ) {
-			$msg[] = sprintf(
-				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-				add_query_arg( $this->getModActionParams( 'email_send_verify' ), Services::WpGeneral()->getHomeUrl() )
-			);
-		}
-		else {
-			$msg[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );
-		}
-
-		return $this->getEmailProcessor()->sendEmailWithWrap(
-			$to,
-			__( 'Email Sending Verification', 'wp-simple-firewall' ),
-			$msg
-		);
 	}
 
 	private function cleanLoginUrlPath() {
@@ -182,13 +113,6 @@ class ModCon extends BaseShield\ModCon {
 		return stripslashes( $this->getTextOpt( 'text_pleasecheckbox' ) );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getCanEmailVerifyCode() {
-		return strtoupper( substr( $this->getCon()->getSiteInstallationId(), 10, 6 ) );
-	}
-
 	public function isEnabledCaptcha() :bool {
 		return !$this->getOptions()->isOpt( 'enable_google_recaptcha_login', 'disabled' )
 			   && $this->getCaptchaCfg()->ready;
@@ -196,20 +120,12 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getCaptchaCfg() :CaptchaConfigVO {
 		$cfg = parent::getCaptchaCfg();
-		$sStyle = $this->getOptions()->getOpt( 'enable_google_recaptcha_login' );
-		if ( $sStyle !== 'default' && $this->isPremium() ) {
-			$cfg->theme = $sStyle;
+		$style = $this->getOptions()->getOpt( 'enable_google_recaptcha_login' );
+		if ( $style !== 'default' && $this->getCon()->isPremiumActive() ) {
+			$cfg->theme = $style;
 			$cfg->invisible = $cfg->theme == 'invisible';
 		}
 		return $cfg;
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function setIfCanSendEmail( bool $can ) {
-		$this->getOptions()->setOpt( 'email_can_send_verified_at', $can ? Services::Request()->ts() : 0 );
-		return $this;
 	}
 
 	public function getTextOptDefault( string $key ) :string {
@@ -228,33 +144,5 @@ class ModCon extends BaseShield\ModCon {
 				break;
 		}
 		return $text;
-	}
-
-	public function getScriptLocalisations() :array {
-		$locals = parent::getScriptLocalisations();
-		$locals[] = [
-			'global-plugin',
-			'icwp_wpsf_vars_lg',
-			[
-				'ajax' => [
-					'profile_backup_codes_gen' => $this->getAjaxActionData( 'profile_backup_codes_gen' ),
-					'profile_backup_codes_del' => $this->getAjaxActionData( 'profile_backup_codes_del' ),
-				],
-			]
-		];
-		return $locals;
-	}
-
-	public function getCustomScriptEnqueues() :array {
-		$enq = [];
-		if ( is_admin() || is_network_admin() ) {
-			$enq[ Enqueue::CSS ] = [
-				'wp-wp-jquery-ui-dialog'
-			];
-			$enq[ Enqueue::JS ] = [
-				'wp-jquery-ui-dialog'
-			];
-		}
-		return $enq;
 	}
 }

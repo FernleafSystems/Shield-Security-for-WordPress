@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Afs extends BaseForFiles {
 
-	const SCAN_SLUG = 'afs';
+	public const SCAN_SLUG = 'afs';
 	use PluginCronsConsumer;
 
 	protected function run() {

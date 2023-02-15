@@ -35,9 +35,6 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$action->patterns_fullregex = $patterns[ 'fullregex' ] ?? [];
 	}
 
-	/**
-	 * @return $this
-	 */
 	protected function scanSlice() {
 		$action = $this->getScanActionVO();
 
@@ -53,8 +50,6 @@ class Scan extends Shield\Scans\Base\BaseScan {
 				->run()
 				->getAllItems()
 		);
-
-		return $this;
 	}
 
 	protected function postScan() {

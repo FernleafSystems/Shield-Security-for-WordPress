@@ -16,9 +16,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class ModConfigVO extends DynPropertiesClass {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __get( string $key ) {
 
 		$value = parent::__get( $key );

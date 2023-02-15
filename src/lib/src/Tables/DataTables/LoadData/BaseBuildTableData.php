@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -44,7 +45,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function loadRecordsWithDirectQuery() :array {
 		return $this->buildTableRowsFromRawRecords(
-			$this->getRecords( $this->buildWheresFromSearchParams(), (int)$this->table_data[ 'start' ], (int)$this->table_data[ 'length' ] )
+			$this->getRecords(
+				$this->buildWheresFromSearchParams(),
+				(int)$this->table_data[ 'start' ],
+				(int)$this->table_data[ 'length' ]
+			)
 		);
 	}
 
@@ -80,7 +85,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					foreach ( $searchable as $value ) {
 						$value = wp_strip_all_tags( $value );
 						if ( !is_string( $search ) ) {
-							error_log( var_export( $search, true ) );
+//							error_log( var_export( $search, true ) );
 							continue;
 						}
 						if ( stripos( $value, $search ) !== false ) {
@@ -165,7 +170,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
 				$recordDeleteID,
 				__( 'Delete IP', 'wp-simple-firewall' ),
-				$this->getCon()->svgs->raw( 'bootstrap/trash3-fill.svg' )
+				$this->getCon()->svgs->raw( 'trash3-fill.svg' )
 			);
 
 			$content = implode( '', array_filter( [
@@ -194,8 +199,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		}
 		elseif ( Services::IP()->isValidIp( $ip ) ) {
 			$content = sprintf(
-				'<a href="%s" target="_blank" title="%s" class="%s" data-ip="%s">%s</a>',
-				$this->getCon()->getModule_Insights()->getUrl_IpAnalysis( $ip ),
+				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
+				$this->getCon()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
 				'render_ip_analysis',
 				$ip,
@@ -210,5 +215,29 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function getSearchableColumns() :array {
 		return [];
+	}
+
+	protected function buildSqlWhereForDaysSearch( array $selectedDays, string $tableAbbr, string $column = 'created_at' ) :string {
+		$splitDates = array_map(
+			function ( $selectedDay ) use ( $tableAbbr, $column ) {
+				if ( $selectedDay === BuildDataForDays::ZERO_DATE_FORMAT ) {
+					return sprintf( "(`%s`.`%s`=0)", $tableAbbr, $column );
+				}
+				else {
+					[ $year, $month, $day ] = explode( '-', $selectedDay );
+					$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
+					return sprintf( "(`%s`.`%s`>%s AND `%s`.`%s`<%s)",
+						$tableAbbr,
+						$column,
+						$carbon->startOfDay()->timestamp,
+						$tableAbbr,
+						$column,
+						$carbon->endOfDay()->timestamp
+					);
+				}
+			},
+			$selectedDays
+		);
+		return sprintf( '(%s)', implode( ' OR ', array_filter( $splitDates ) ) );
 	}
 }

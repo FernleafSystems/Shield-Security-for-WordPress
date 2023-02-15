@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\PathsToMatchUnavail
  */
 class RequestParamIs extends Base {
 
-	const SLUG = 'request_param_is';
+	public const SLUG = 'request_param_is';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_patterns ) ) {

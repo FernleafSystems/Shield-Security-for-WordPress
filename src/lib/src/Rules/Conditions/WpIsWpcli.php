@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpIsWpcli extends Base {
 
-	const SLUG = 'wp_is_wpcli';
+	public const SLUG = 'wp_is_wpcli';
 
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;

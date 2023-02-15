@@ -4,14 +4,23 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	ActionRoutingController,
+	Actions,
+	Exceptions\ActionException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
  * @property Config\ConfigVO                                        $cfg
+ * @property ActionRoutingController                                $action_router
+ * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
@@ -81,11 +90,9 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $rootFile
-	 * @return Controller
 	 * @throws \Exception
 	 */
-	public static function GetInstance( $rootFile = null ) {
+	public static function GetInstance( ?string $rootFile = null ) :Controller {
 		if ( !isset( static::$oInstance ) ) {
 			if ( empty( $rootFile ) ) {
 				throw new \Exception( 'Empty root file provided for instantiation' );
@@ -116,7 +123,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
@@ -217,6 +224,20 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'action_router':
+				if ( is_null( $val ) ) {
+					$val = ( new Shield\ActionRouter\ActionRoutingController() )->setCon( $this );
+					$this->action_router = $val;
+				}
+				break;
+
+			case 'plugin_urls':
+				if ( !$val instanceof Shield\Controller\Plugin\PluginURLs ) {
+					$val = ( new Shield\Controller\Plugin\PluginURLs() )->setCon( $this );
+					$this->plugin_urls = $val;
+				}
+				break;
+
 			case 'paths':
 				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
 					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
@@ -227,12 +248,14 @@ class Controller extends DynPropertiesClass {
 			case 'svgs':
 				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
 					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
+					$this->svgs = $val;
 				}
 				break;
 
 			case 'urls':
 				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
 					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+					$this->urls = $val;
 				}
 				break;
 
@@ -272,7 +295,7 @@ class Controller extends DynPropertiesClass {
 
 		$flag = $this->paths->forFlag( 'reqs_met.flag' );
 		if ( !$FS->isFile( $flag )
-			 || Services::Request()->carbon()->subHours( 1 )->timestamp > $FS->getModifiedTime( $flag ) ) {
+			 || Services::Request()->carbon()->subHour()->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
@@ -332,7 +355,7 @@ class Controller extends DynPropertiesClass {
 	public function adminNoticeDoesNotMeetRequirements() {
 		if ( !empty( $this->reqs_not_met ) ) {
 			$this->getRenderer()
-				 ->setTemplate( 'notices/does-not-meet-requirements.twig' )
+				 ->setTemplate( '/notices/does-not-meet-requirements.twig' )
 				 ->setTemplateEngineTwig()
 				 ->setRenderVars( [
 					 'strings' => [
@@ -365,8 +388,6 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Controller\Utilities\Upgrade() )
 			->setCon( $this )
 			->execute();
-
-		do_action( $this->prefix( 'modules_loaded' ) );
 
 		$this->rules = ( new Shield\Rules\RulesController() )->setCon( $this );
 		$this->rules->execute();
@@ -464,14 +485,11 @@ class Controller extends DynPropertiesClass {
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
-		add_action( 'init', [ $this, 'onWpInit' ], -1000 );
+		add_action( 'init', [ $this, 'onWpInit' ], Shield\Controller\Plugin\HookTimings::INIT_MAIN_CONTROLLER );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 5 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
 		add_filter( 'all_plugins', [ $this, 'doPluginLabels' ] );
-		add_filter( 'plugin_action_links_'.$this->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
-		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
-		add_action( 'in_plugin_update_message-'.$this->base_file, [ $this, 'onWpPluginUpdateMessage' ] );
 		add_filter( 'site_transient_update_plugins', [ $this, 'blockIncompatibleUpdates' ] );
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
@@ -494,16 +512,12 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpAdminInit() {
-		( new Admin\AdminBarMenu() )
-			->setCon( $this )
-			->execute();
 		( new Admin\DashboardWidget() )
 			->setCon( $this )
 			->execute();
-
-		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
-			$this->runTests();
-		}
+		( new Admin\PluginsPageSupplements() )
+			->setCon( $this )
+			->execute();
 
 		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
 			 && function_exists( 'wp_add_privacy_policy_content' ) ) {
@@ -530,27 +544,18 @@ class Controller extends DynPropertiesClass {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
-		$this->processShieldNonceActions();
-		( new Ajax\Init() )
-			->setCon( $this )
-			->execute();
+
+		$this->action_router->execute();
+
+		try {
+			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::SLUG );
+		}
+		catch ( ActionException $e ) {
+		}
+
 		( new Shield\Controller\Assets\Enqueue() )
 			->setCon( $this )
 			->execute();
-	}
-
-	private function processShieldNonceActions() {
-		$shieldNonceAction = $this->getShieldNonceAction();
-		$shieldNonce = Services::Request()->request( 'shield_nonce' );
-		if ( !empty( $shieldNonceAction ) && !empty( $shieldNonce ) ) {
-			$shieldNonce = Services::Request()->request( 'shield_nonce' );
-			if ( $this->nonce_handler->verify( $shieldNonceAction, $shieldNonce ) ) {
-				do_action( $this->prefix( 'shield_nonce_action' ), $shieldNonceAction );
-			}
-			else {
-				wp_die( 'It appears that this action and nonce has expired. Please retry the action.' );
-			}
-		}
 	}
 
 	/**
@@ -590,7 +595,7 @@ class Controller extends DynPropertiesClass {
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
-	 * @deprecated 16.0
+	 * @deprecated 17.0
 	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
@@ -632,18 +637,15 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		$this->getSiteInstallationId();
+		$this->getInstallationID();
 		$this->getAdminNotices();
 		$this->initCrons();
 		( new Utilities\CaptureMyUpgrade() )
 			->setCon( $this )
 			->execute();
-
-		if ( is_admin() || is_network_admin() ) {
-			( new Admin\MainAdminMenu() )
-				->setCon( $this )
-				->execute();
-		}
+		( new Admin\AdminBarMenu() )
+			->setCon( $this )
+			->execute();
 	}
 
 	protected function initCrons() {
@@ -652,7 +654,7 @@ class Controller extends DynPropertiesClass {
 		$this->cron_daily = ( new Shield\Crons\DailyCron() )->setCon( $this );
 		$this->cron_daily->execute();
 
-		( new Shield\Utilities\Htaccess\RootHtaccess() )
+		( new Shield\Utilities\RootHtaccess() )
 			->setCon( $this )
 			->execute();
 	}
@@ -671,111 +673,38 @@ class Controller extends DynPropertiesClass {
 		return $this->oNotices;
 	}
 
-	public function getNonceActionData( string $action ) :array {
-		return [
-			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $action,
-			'exec_nonce' => wp_create_nonce( $action ),
-			//			'rand'       => wp_rand( 10000, 99999 )
-		];
+	/**
+	 * @deprecated 17.0
+	 */
+	public function getShieldActionNonceData( string $shieldAction, array $aux = [] ) :array {
+		return ActionData::Build( $shieldAction, true, $aux );
 	}
 
 	/**
-	 * @param array  $pluginMeta
-	 * @param string $pluginFile
-	 * @return array
+	 * @deprecated 17.0
+	 */
+	public function getShieldActionNoncedUrl( string $shieldAction, string $url = null, array $aux = [] ) :string {
+		return $this->plugin_urls->noncedPluginAction( $shieldAction, $url, $aux );
+	}
+
+	/**
+	 * @deprecated 17.0
 	 */
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
-
-		if ( $pluginFile === $this->base_file ) {
-			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $this->cfg->plugin_meta as $href ) {
-				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
-			}
-		}
 		return $pluginMeta;
 	}
 
 	/**
-	 * @param array $actionLinks
-	 * @return array
+	 * @deprecated 17.0
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
-		$WP = Services::WpGeneral();
-
-		if ( $this->mu_handler->isActiveMU() ) {
-			foreach ( $actionLinks as $key => $actionHref ) {
-				if ( strpos( $actionHref, 'action=deactivate' ) ) {
-					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',
-						add_query_arg( [ 'plugin_status' => 'mustuse' ], $WP->getAdminUrl_Plugins() ),
-						__( 'Disable MU To Deactivate', 'wp-simple-firewall' )
-					);
-				}
-			}
-		}
-
-		if ( $this->isValidAdminArea() ) {
-
-			if ( array_key_exists( 'edit', $actionLinks ) ) {
-				unset( $actionLinks[ 'edit' ] );
-			}
-
-			$links = $this->cfg->action_links[ 'add' ];
-			if ( is_array( $links ) ) {
-
-				$isPro = $this->isPremiumActive();
-				$DP = Services::Data();
-				$linkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
-				foreach ( $links as $link ) {
-					$link = array_merge(
-						[
-							'highlight' => false,
-							'show'      => 'always',
-							'name'      => '',
-							'title'     => '',
-							'href'      => '',
-							'target'    => '_top',
-						],
-						$link
-					);
-
-					$show = $link[ 'show' ];
-					$show = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
-					if ( !$DP->isValidWebUrl( $link[ 'href' ] ) && method_exists( $this, $link[ 'href' ] ) ) {
-						$link[ 'href' ] = $this->{$link[ 'href' ]}();
-					}
-
-					if ( !$show || !$DP->isValidWebUrl( $link[ 'href' ] )
-						 || empty( $link[ 'name' ] ) || empty( $link[ 'href' ] ) ) {
-						continue;
-					}
-
-					$link[ 'name' ] = __( $link[ 'name' ], 'wp-simple-firewall' );
-
-					$href = sprintf( $linkTemplate, $link[ 'href' ], $link[ 'target' ], $link[ 'title' ], $link[ 'name' ] );
-					if ( $link[ 'highlight' ] ) {
-						$href = sprintf( '<span style="font-weight: bold;">%s</span>', $href );
-					}
-
-					$actionLinks = array_merge(
-						[ $this->prefix( sanitize_key( $link[ 'name' ] ) ) => $href ],
-						$actionLinks
-					);
-				}
-			}
-		}
 		return $actionLinks;
 	}
 
 	/**
-	 * Displays a message in the plugins listing when a plugin has an update available.
+	 * @deprecated 17.0
 	 */
 	public function onWpPluginUpdateMessage() {
-		echo sprintf(
-			' <span class="%s plugin_update_message">%s</span>',
-			$this->getPluginPrefix(),
-			__( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' )
-		);
 	}
 
 	/**
@@ -927,18 +856,12 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function loadConfig() {
-		try {
-			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec(), $this->getConfigStoreKey() ) )
-				->setCon( $this )
-				->run();
-			$this->cfg->load_source = 'json';
-		}
-		catch ( \Exception $e ) {
-			$this->cfg = ( new Config\Ops\LoadConfig( $this->getPathPluginSpec( false ), $this->getConfigStoreKey() ) )
-				->setCon( $this )
-				->run();
-			$this->cfg->load_source = 'php';
-		}
+		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )
+			->setCon( $this )
+			->run();
+		$this->cfg->load_source = 'json';
+
+		$this->plugin_urls;
 		$this->loadModConfigs();
 		$this->saveCurrentPluginControllerOptions();
 	}
@@ -1034,9 +957,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function isPluginAdmin() :bool {
 		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
-			   || ( $this->getMeetsBasePermissions() // takes care of did_action('init)
-					&& apply_filters( $this->prefix( 'is_plugin_admin' ), true )
-			   );
+			   || apply_filters( $this->prefix( 'is_plugin_admin' ), $this->getMeetsBasePermissions() );
 	}
 
 	/**
@@ -1083,16 +1004,13 @@ class Controller extends DynPropertiesClass {
 		return $this->getCfgProperty( 'slug_plugin' );
 	}
 
-	public function getPluginUrl( string $path = '' ) :string {
-		return add_query_arg( [ 'ver' => $this->getVersion() ], plugins_url( $path, $this->getRootFile() ) );
-	}
-
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getPluginUrl_DashboardHome() :string {
-		return $this->getModule_Insights()->getUrl_SubInsightsPage( 'overview' );
-	}
-
-	public function getPluginUrl_AdminMainPage() :string {
-		return $this->getModule_Plugin()->getUrl_AdminPage();
+		$urls = $this->plugin_urls;
+		return $urls ? $urls->adminHome()
+			: $this->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OVERVIEW );
 	}
 
 	public function getPath_Languages() :string {
@@ -1103,8 +1021,11 @@ class Controller extends DynPropertiesClass {
 		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
+	/**
+	 * @description 17.0
+	 */
 	private function getPathPluginSpec( bool $asJSON = true ) :string {
-		return path_join( $this->getRootDir(), $asJSON ? 'plugin.json' : 'plugin-spec.php' );
+		return path_join( $this->getRootDir(), 'plugin.json' );
 	}
 
 	public function getRootDir() :string {
@@ -1138,16 +1059,17 @@ class Controller extends DynPropertiesClass {
 		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getShieldAction() :string {
 		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
 		return empty( $action ) ? '' : $action;
 	}
 
-	public function getShieldNonceAction() :string {
-		$action = sanitize_key( Services::Request()->query( 'shield_nonce_action', '' ) );
-		return empty( $action ) ? '' : $action;
-	}
-
+	/**
+	 * @deprecated 17.0
+	 */
 	public function isPremiumExtensionsEnabled() :bool {
 		return (bool)$this->getCfgProperty( 'enable_premium' );
 	}
@@ -1169,8 +1091,6 @@ class Controller extends DynPropertiesClass {
 		}
 		elseif ( isset( $this->cfg ) ) {
 			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $this->cfg->getRawData() );
-			Transient::Set( $this->getConfigStoreKey(), $this->cfg->getRawData() );
-			/* @deprecated 16.0 */
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
@@ -1201,7 +1121,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_AuditTrail() :Shield\Modules\AuditTrail\ModCon {
-		return $this->getModule( 'audit_trail' );
+		return $this->getModule( Shield\Modules\AuditTrail\ModCon::SLUG );
 	}
 
 	public function getModule_Autoupdates() :Shield\Modules\Autoupdates\ModCon {
@@ -1237,13 +1157,16 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_HackGuard() :Shield\Modules\HackGuard\ModCon {
-		return $this->getModule( 'hack_protect' );
+		return $this->getModule( Shield\Modules\HackGuard\ModCon::SLUG );
 	}
 
 	public function getModule_Headers() :Shield\Modules\Headers\ModCon {
 		return $this->getModule( 'headers' );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getModule_Insights() :Shield\Modules\Insights\ModCon {
 		return $this->getModule( 'insights' );
 	}
@@ -1265,9 +1188,12 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getModule_Plugin() :Shield\Modules\Plugin\ModCon {
-		return $this->getModule( 'plugin' );
+		return $this->getModule( Shield\Modules\Plugin\ModCon::SLUG );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
 		return $this->getModule( 'reporting' );
 	}
@@ -1293,27 +1219,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\ModCon|mixed
-	 * @throws \Exception
-	 */
-	private function loadFeatureHandler( Shield\Modules\Base\Config\ModConfigVO $cfg ) {
-		$modSlug = $cfg->properties[ 'slug' ];
-
-		$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
-				$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $modSlug ) ) ) );
-		if ( !class_exists( $className ) ) {
-			// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
-			throw new \Exception( sprintf( 'Class "%s" is missing', $className ) );
-		}
-
-		$modules = $this->modules;
-		$modules[ $modSlug ] = new $className( $this, $cfg );
-		$this->modules = $modules;
-
-		return $this->modules[ $modSlug ];
-	}
-
-	/**
 	 * @return Shield\Users\ShieldUserMeta
 	 */
 	public function getCurrentUserMeta() {
@@ -1328,10 +1233,7 @@ class Controller extends DynPropertiesClass {
 		return $user instanceof \WP_User ? $this->user_metas->forUser( $user ) : null;
 	}
 
-	/**
-	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
-	 */
-	public function getRenderer() {
+	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();
 		$locator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
 		foreach ( $locator->run() as $dir ) {
@@ -1411,39 +1313,11 @@ class Controller extends DynPropertiesClass {
 		return $result;
 	}
 
-	/**
-	 * @return string
-	 */
-	private function buildPrivacyPolicyContent() {
-		try {
-			if ( $this->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-				$name = $this->getHumanName();
-				$href = $this->labels->PluginURI;
-			}
-			else {
-				$name = $this->cfg->menu[ 'title' ];
-				$href = $this->cfg->meta[ 'privacy_policy_href' ];
-			}
-
-			/** @var Shield\Modules\AuditTrail\Options $opts */
-			$opts = $this->getModule_AuditTrail()->getOptions();
-
-			$content = $this->getRenderer()
-							->setTemplate( 'snippets/privacy_policy' )
-							->setTemplateEngineTwig()
-							->setRenderVars(
-								[
-									'name'             => $name,
-									'href'             => $href,
-									'audit_trail_days' => $opts->getAutoCleanDays()
-								]
-							)
-							->render();
-		}
-		catch ( \Exception $e ) {
-			$content = '';
-		}
-		return empty( $content ) ? '' : wp_kses_post( wpautop( $content, false ) );
+	private function buildPrivacyPolicyContent() :string {
+		return wp_kses_post( wpautop(
+			$this->action_router->render( Actions\Render\Components\PrivacyPolicy::SLUG ),
+			false
+		) );
 	}
 
 	private function labels() :Config\Labels {
@@ -1463,13 +1337,14 @@ class Controller extends DynPropertiesClass {
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
 
-	private function runTests() {
-		die();
-		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
-		foreach ( $this->modules as $oModule ) {
-			( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
-				->setOpts( $oModule->getOptions() )
-				->run();
-		}
+	/**
+	 * @deprecated 17.0
+	 */
+	public function getNonceActionData( string $action ) :array {
+		return [
+			'action'     => $this->prefix(), //wp ajax doesn't work without this.
+			'exec'       => $action,
+			'exec_nonce' => wp_create_nonce( $action ),
+		];
 	}
 }

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 class EventFire extends Base {
 
-	const SLUG = 'event_fire';
+	public const SLUG = 'event_fire';
 
 	protected function execResponse() :bool {
 		$params = $this->responseParams;

@@ -9,7 +9,7 @@ class IsIpBlacklisted extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_ip_blacklisted';
+	public const SLUG = 'is_ip_blacklisted';
 
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;

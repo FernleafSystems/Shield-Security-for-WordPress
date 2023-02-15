@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'conn_kill'                   => [
@@ -235,30 +232,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_logins':
-				$titleShort = __( 'Login Bots', 'wp-simple-firewall' );
-				$title = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ),
-						__( "Legitimate users may get their password wrong, so take care not to block this.", 'wp-simple-firewall' ) ),
-				];
-				break;
-
-			case 'section_probes':
-				$titleShort = __( 'Probing Bots', 'wp-simple-firewall' );
-				$title = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
-						__( "Bots are designed to probe and this feature is dedicated to detecting probing bots.", 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
-				];
-				break;
-
 			case 'section_behaviours':
 				$titleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
 				$title = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
@@ -293,6 +266,8 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( string $key ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 		$pluginName = $this->getCon()->getHumanName();
 		$modName = $mod->getMainFeatureName();
 
@@ -404,12 +379,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'text_loginfailed' :
-				$name = __( 'Login Failed', 'wp-simple-firewall' );
-				$summary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
-				$desc = [ __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' ) ];
-				break;
-
 			case 'track_404' :
 				$name = __( '404 Detect', 'wp-simple-firewall' );
 				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
@@ -418,7 +387,7 @@ class Strings extends Base\Strings {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						implode( ', ', $this->getOptions()->getDef( 'allowable_ext_404s' ) )
+						implode( ', ', $opts->botSignalsGetAllowable404s() )
 					),
 				];
 				break;
@@ -462,9 +431,13 @@ class Strings extends Base\Strings {
 				$summary = __( 'Identify Bot Attempts To Load WordPress In A Non-Standard Way', 'wp-simple-firewall' );
 				$desc = [
 					__( "Detect when a bot tries to load WordPress directly from a file that isn't normally used to load WordPress.", 'wp-simple-firewall' ),
-					__( 'WordPress should only be loaded in a limited number of ways.', 'wp-simple-firewall' ),
+					__( "WordPress is normally loaded in a limited number of ways and when it's loaded in other ways it may point to probing by a malicious bot.", 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) )
+						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this under normal circumstances.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) ),
+					sprintf( '%s: %s',
+						__( "Currently permitted scripts", 'wp-simple-firewall' ),
+						sprintf( '<ul><li><code>%s</code></li></ul>', implode( '</code></li><li><code>', $opts->botSignalsGetAllowableScripts() ) )
+					)
 				];
 				break;
 

@@ -19,7 +19,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends ExecOnceModConsumer {
 
-	const SCAN_SLUG = '';
+	public const SCAN_SLUG = '';
 
 	/**
 	 * @var BaseScanActionVO
@@ -60,10 +60,6 @@ abstract class Base extends ExecOnceModConsumer {
 		foreach ( $this->getAllResults()->getItems() as $item ) {
 			$this->cleanStaleResultItem( $item );
 		}
-	}
-
-	public function createFileDownloadLink( int $recordID ) :string {
-		return $this->getMod()->createFileDownloadLink( 'scan_file', [ 'rid' => $recordID ] );
 	}
 
 	public function countScanProblems() :int {
@@ -205,13 +201,6 @@ abstract class Base extends ExecOnceModConsumer {
 
 	public function isRestricted() :bool {
 		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
-	}
-
-	public function resetIgnoreStatus() {
-		( new Update() )
-			->setMod( $this->getMod() )
-			->setScanController( $this )
-			->clearIgnored();
 	}
 
 	/**

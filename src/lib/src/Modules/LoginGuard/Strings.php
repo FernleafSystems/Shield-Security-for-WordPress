@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function getEventStrings() :array {
 		return [
 			'botbox_fail'           => [
@@ -230,8 +227,6 @@ class Strings extends Base\Strings {
 					__( 'Choose the type of page provided to users for MFA verification.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
 						__( 'Choose the Custom Shield page if there are conflicts or issues with the WP Login page for 2FA.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
-						__( 'WP Login page option is only available for WordPress v4.0 and above.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
@@ -292,7 +287,7 @@ class Strings extends Base\Strings {
 			case 'enable_google_recaptcha_login' :
 				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$summary = sprintf( '[DEPRECATED - %s] : %s',
-					'Please use the newer AntiBot setting above',
+					'Please use the newer AntiBot setting',
 					__( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' )
 				);
 				$desc = [
@@ -321,8 +316,7 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) ),
-					sprintf( '<a href="%s">%s</a>', $con->getModule_Integrations()
-														->getUrl_DirectLinkToSection( 'section_user_forms' ),
+					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_Integrations(), 'section_user_forms' ),
 						sprintf( __( "Choose the 3rd party plugins you want %s to also integrate with.", 'wp-simple-firewall' ), $con->getHumanName() ) )
 				];
 				break;
@@ -330,7 +324,7 @@ class Strings extends Base\Strings {
 			case 'enable_login_gasp_check' :
 				$name = __( 'Bot Protection', 'wp-simple-firewall' );
 				$summary = sprintf( '[DEPRECATED - %s] %s',
-					'Please use the newer AntiBot setting above',
+					'Please use the newer AntiBot setting',
 					__( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' )
 				);
 				$desc = [
@@ -342,7 +336,7 @@ class Strings extends Base\Strings {
 			case 'antibot_form_ids' :
 				$name = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$summary = sprintf( '%s %s',
-					'[DEPRECATED - Please use the newer AntiBot setting above]',
+					'[DEPRECATED - Please use the newer AntiBot setting]',
 					__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' )
 				);
 				$desc = [
@@ -407,10 +401,10 @@ class Strings extends Base\Strings {
 				$name = __( 'Yubikey Unique Keys', 'wp-simple-firewall' );
 				$summary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
 				$desc = [
-					sprintf( '<strong>%s: %s</strong>', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' )
-					.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
-					.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
-					.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' )
+					sprintf( '<strong>%s: %s</strong>', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ),
+					__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' ),
+					__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' ),
+					__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' ),
 				];
 				break;
 

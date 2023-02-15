@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class RetrieveCount extends RetrieveBase {
 
-	const CONTEXT_ACTIVE_PROBLEMS = 0;
+	public const CONTEXT_ACTIVE_PROBLEMS = 0;
 
 	public function buildQuery( array $selectFields = [] ) :string {
 		return sprintf(

@@ -2,16 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
-
-class WpCli extends BaseShield\WpCli {
+class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\WpCli {
 
 	protected function enumCmdHandlers() :array {
 		return [
-			SecurityAdmin\WpCli\Pin::class,
-			SecurityAdmin\WpCli\AdminAdd::class,
-			SecurityAdmin\WpCli\AdminRemove::class
+			WpCli\Pin::class,
+			WpCli\AdminAdd::class,
+			WpCli\AdminRemove::class
 		];
 	}
 }

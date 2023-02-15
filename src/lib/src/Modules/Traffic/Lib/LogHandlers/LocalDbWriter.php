@@ -11,10 +11,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 	use ModConsumer;
 
-	/**
-	 * @inheritDoc
-	 */
-	protected function write( array $record ) {
+	protected function write( array $record ) :void {
 		try {
 			$this->createPrimaryLogRecord( $record );
 		}

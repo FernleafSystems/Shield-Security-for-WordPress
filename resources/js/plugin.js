@@ -21,57 +21,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 	};
 }();
 
-let iCWP_WPSF_Modals = new function () {
-	let workingData = {};
-
-	this.renderModalIpAdd = function ( params = [] ) {
-		iCWP_WPSF_BodyOverlay.show();
-		jQuery.ajax( {
-			type: "POST",
-			url: ajaxurl,
-			data: workingData.modal_ip_rule_add.ajax.render_ip_rule_add,
-			dataType: "json",
-			success: function ( raw ) {
-				iCWP_WPSF_Modals.display( raw.data );
-			},
-		} )
-			  .fail( function () {
-			  } )
-			  .always( function () {
-				  iCWP_WPSF_BodyOverlay.hide();
-			  } );
-	};
-
-	this.display = function ( params ) {
-		let modal = document.getElementById( 'ShieldGeneralPurposeDialog' );
-		if ( typeof params.modal_class === typeof undefined ) {
-			params.modal_class = 'modal-xl';
-		}
-		if ( params.modal_static ) {
-			modal.setAttribute( 'data-bs-backdrop', 'static' );
-		}
-		else {
-			modal.removeAttribute( 'data-bs-backdrop' );
-		}
-		jQuery( '.modal-dialog', modal ).addClass( params.modal_class );
-		jQuery( '.modal-title', modal ).html( params.title );
-		jQuery( '.modal-body .col', modal ).html( params.body );
-		(new bootstrap.Modal( modal )).show();
-	};
-
-	this.setData = function ( key, data ) {
-		workingData[ key ] = data;
-	};
-
-	this.initialise = function () {
-		jQuery( document ).on( 'click', '.render_ip_analysis', function ( evt ) {
-			evt.preventDefault();
-			iCWP_WPSF_OffCanvas.renderIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
-			return false;
-		} );
-	};
-}();
-
 var iCWP_WPSF_Toaster = new function () {
 
 	let toasterContainer;
@@ -134,12 +83,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			formData = LZString.compress( formData );
 		}
 
-		/** Required since using dynamic AJAX loaded page content **/
-		if ( !$form.data( 'mod_slug' ) ) {
-			alert( 'Missing form data' );
-			return false;
-		}
-
 		let reqData = jQuery.extend(
 			workingData.ajax.mod_options_save,
 			{
@@ -188,11 +131,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		iCWP_WPSF_Toaster.showMessage( msg, response.success );
 
 		setTimeout( function () {
-			if ( $form.data( 'context' ) === 'offcanvas' ) {
-				iCWP_WPSF_OffCanvas.closeCanvas();
+			if ( $form.data( 'context' ) !== 'offcanvas' || response.data.page_reload ) {
+				window.location.reload();
 			}
 			else {
-				window.location.reload();
+				iCWP_WPSF_OffCanvas.closeCanvas();
 			}
 		}, 1000 );
 	};
@@ -363,64 +306,69 @@ let iCWP_WPSF_OffCanvas = new function () {
 	let offCanvas;
 	let $offCanvas;
 	let bsCanvas;
-	let allTypes = [
-		'ip_analysis',
-		'meter_analysis',
-		'mod_config'
-	];
 	let canvasTracker = [];
 
 	this.renderConfig = function ( config_item ) {
 		this.renderCanvas( {
-			offcanvas_type: 'mod_config',
+			render_slug: data.mod_config,
 			config_item: config_item
 		} );
 	};
 
 	this.renderIpAnalysis = function ( ip ) {
 		this.renderCanvas( {
-			offcanvas_type: 'ip_analysis',
+			render_slug: data.ip_analysis,
 			ip: ip
+		} );
+	};
+
+	this.renderIpRuleAddForm = function ( ip ) {
+		this.renderCanvas( {
+			render_slug: data.ip_rule_add_form
 		} );
 	};
 
 	this.renderMeterAnalysis = function ( meter ) {
 		this.renderCanvas( {
-			offcanvas_type: 'meter_analysis',
+			render_slug: data.meter_analysis,
 			meter: meter
 		} );
 	};
 
-	this.renderCanvas = function ( canvasProperties ) {
+	this.renderCanvas = function ( canvasProperties, params = {} ) {
 		iCWP_WPSF_BodyOverlay.show();
 
 		canvasTracker.push( canvasProperties );
 
-		$offCanvas.html( '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>' );
+		let spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
+		spinner.id = '';
+		spinner.classList.remove( 'd-none' );
+
+		$offCanvas.html( spinner );
+		$offCanvas.removeClass( Object.values( data ) );
 		bsCanvas.show();
 
-		$offCanvas.removeClass( allTypes );
-
-		jQuery.ajax(
-			{
-				type: "POST",
-				url: ajaxurl,
-				data: jQuery.extend(
-					data.ajax.render_offcanvas,
-					canvasProperties
-				),
-				dataType: "text",
-				success: function ( raw ) {
-					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
-					$offCanvas.addClass( canvasProperties.offcanvas_type );
-					$offCanvas.html( response.data.html );
-				}
+		Shield_AjaxRender
+		.send_ajax_req( canvasProperties )
+		.then( ( response ) => {
+			if ( response.success ) {
+				$offCanvas.addClass( canvasProperties.render_slug );
+				$offCanvas.html( response.data.html );
 			}
-		).always(
-			function () {
-				iCWP_WPSF_BodyOverlay.hide();
+			else if ( typeof response.data.error !== 'undefined' ) {
+				alert( response.data.error );
 			}
-		);
+			else {
+				alert( 'There was a problem displaying the page.' );
+				console.log( response );
+			}
+		} )
+		.catch( ( error ) => {
+			console.log( error );
+		} )
+		.finally( ( response ) => {
+			iCWP_WPSF_BodyOverlay.hide();
+		} );
 	};
 
 	this.closeCanvas = function () {
@@ -484,6 +432,9 @@ let jQueryDoc = jQuery( 'document' );
 
 jQueryDoc.ready( function () {
 
+	let searchTimeout;
+	let searchModal;
+
 	/** Progress Meters: */
 	(new CircularProgressBar( 'pie' )).initial();
 
@@ -499,17 +450,67 @@ jQueryDoc.ready( function () {
 		iCWP_WPSF_Helpscout.initialise( icwp_wpsf_vars_plugin.components.helpscout );
 	}
 
-	iCWP_WPSF_Modals.initialise();
-	if ( typeof icwp_wpsf_vars_ips.components.modal_ip_rule_add !== 'undefined' ) {
-		iCWP_WPSF_Modals.setData( 'modal_ip_rule_add', icwp_wpsf_vars_ips.components.modal_ip_rule_add );
-
-		if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
-			jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_ips.components.ip_analysis.ajax );
-		}
-		if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
-			jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_ips.components.ip_rules );
-		}
+	if ( typeof jQueryDoc.icwpWpsfIpAnalyse !== 'undefined' ) {
+		jQueryDoc.icwpWpsfIpAnalyse( icwp_wpsf_vars_plugin.components.ip_analysis.ajax );
 	}
+	if ( typeof jQueryDoc.icwpWpsfIpRules !== 'undefined' ) {
+		jQueryDoc.icwpWpsfIpRules( icwp_wpsf_vars_plugin.components.ip_rules );
+	}
+
+	jQuery( document ).on( 'click', '#SuperSearchLaunch input', function ( evt ) {
+		evt.preventDefault();
+
+		if ( typeof searchModal === 'undefined' ) {
+			let theModal = document.getElementById( 'ModalSuperSearchBox' );
+			theModal.addEventListener( 'shown.bs.modal', event => {
+				theModal.getElementsByTagName( 'input' )[ 0 ].focus();
+			} )
+			searchModal = new bootstrap.Modal( theModal );
+		}
+		searchModal.show();
+		return false;
+	} );
+
+	jQuery( document ).on( 'keyup', '#ModalSuperSearchBox input.search-text', function ( evt ) {
+		let $this = jQuery( evt.currentTarget );
+		let current = $this.val();
+
+		if ( searchTimeout ) {
+			clearTimeout( searchTimeout );
+		}
+
+		if ( current !== '' ) {
+			searchTimeout = setTimeout( function () {
+				jQuery( '#ModalSuperSearchBox .modal-body' ).html(
+					'<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+				);
+				Shield_AjaxRender
+				.send_ajax_req( {
+					render_slug: icwp_wpsf_vars_plugin.components.super_search.vars.render_slug,
+					search: current
+				} )
+				.then( ( response ) => {
+					if ( response.success ) {
+						console.log( response );
+						jQuery( '#ModalSuperSearchBox .modal-body' ).html( response.data.render_output );
+					}
+					else {
+						alert( response.data.error );
+					}
+				} )
+				.catch( ( error ) => {
+					alert( 'Sorry, something went wrong with the request.' );
+					console.log( error );
+				} );
+			}, 700 );
+		}
+	} );
+
+	jQuery( document ).on( 'click', '.render_ip_analysis', function ( evt ) {
+		evt.preventDefault();
+		iCWP_WPSF_OffCanvas.renderIpAnalysis( jQuery( evt.currentTarget ).data( 'ip' ) );
+		return false;
+	} );
 
 	jQuery( document ).ajaxComplete( function () {
 		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
@@ -521,6 +522,11 @@ jQueryDoc.ready( function () {
 		tooltipTriggerList.map( function ( tooltipTriggerEl ) {
 			return new bootstrap.Tooltip( tooltipTriggerEl );
 		} );
+	} );
+
+	/** TODO: test this fully */
+	jQuery( document ).on( "submit", 'form.icwp-form-dynamic-action', function ( evt ) {
+		evt.currentTarget.action = window.location.href;
 	} );
 
 	jQuery( document ).icwpWpsfTours();

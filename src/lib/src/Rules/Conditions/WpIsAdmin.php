@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class WpIsAdmin extends Base {
 
-	const SLUG = 'wp_is_admin';
+	public const SLUG = 'wp_is_admin';
 
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;

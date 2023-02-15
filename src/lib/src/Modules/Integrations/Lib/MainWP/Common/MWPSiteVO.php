@@ -7,6 +7,12 @@ use FernleafSystems\Wordpress\Services\Services;
 use MainWP\Dashboard\MainWP_DB;
 
 /**
+ * @property string  $id
+ * @property string  $userid
+ * @property string  $adminname
+ * @property string  $name
+ * @property string  $url
+ * @property string  $siteurl
  * @property object  $siteobj // For use with MainWP functions
  * @property array[] $plugins
  * @property array[] $themes

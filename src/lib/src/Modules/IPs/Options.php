@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
 
@@ -12,29 +11,35 @@ class Options extends BaseShield\Options {
 		return (int)constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
-	/**
-	 * @deprecated 16.0
-	 */
-	public function getAutoUnblockEmailIDs() :array {
-		$ids = is_array( $this->getOpt( 'autounblock_emailids', [] ) ) ? $this->getOpt( 'autounblock_emailids', [] ) : [];
-		$ids = array_filter( $ids, function ( $ts ) {
-			return Services::Request()
-						   ->carbon()
-						   ->subHours( 1 )->timestamp < $ts;
-		} );
-		$this->setOpt( 'autounblock_emailids', $ids );
-		return $ids;
-	}
-
 	public function getOffenseLimit() :int {
 		return (int)$this->getOpt( 'transgression_limit' );
+	}
+
+	public function botSignalsGetAllowable404s() :array {
+		$def = $this->getDef( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
+		return array_unique( array_filter(
+			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
+			function ( $ext ) {
+				return !empty( $ext ) && is_string( $ext ) && preg_match( '#^[a-z\d]+$#i', $ext );
+			}
+		) );
+	}
+
+	public function botSignalsGetAllowableScripts() :array {
+		$def = $this->getDef( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
+		return array_unique( array_filter(
+			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
+			function ( $script ) {
+				return !empty( $script ) && is_string( $script ) && strpos( $script, '.php' );
+			}
+		) );
 	}
 
 	/**
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
 	public function getRequestWhitelistAsRegex() :array {
-		$paths = $this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : [];
+		$paths = $this->getCon()->isPremiumActive() ? $this->getOpt( 'request_whitelist', [] ) : [];
 		return array_map(
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH );

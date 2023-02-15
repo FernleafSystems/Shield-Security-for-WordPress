@@ -2,18 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Email extends BaseProvider {
+class Email extends AbstractShieldProvider {
 
-	const SLUG = 'email';
+	protected const SLUG = 'email';
 
 	public function getJavascriptVars() :array {
 		return [
 			'ajax' => [
-				'profile_email2fa_toggle' => $this->getMod()->getAjaxActionData( 'profile_email2fa_toggle' ),
+				'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::class ),
 			],
 		];
 	}
@@ -27,9 +31,6 @@ class Email extends BaseProvider {
 		return !empty( $secret ) && wp_check_password( $otp, $secret );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function postSuccessActions() {
 		parent::postSuccessActions();
 		return $this->setSecret( [] );
@@ -39,10 +40,10 @@ class Email extends BaseProvider {
 		/** @var LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		return [
-			'slug'        => static::SLUG,
-			'name'        => $this->getLoginFormParameter(),
+			'slug'        => static::ProviderSlug(),
+			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
-			'value'       => $this->fetchCodeFromRequest(),
+			'value'       => $this->fetchOtpFromRequest(),
 			'placeholder' => __( 'A1B2C3', 'wp-simple-firewall' ),
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter code sent to your email', 'wp-simple-firewall' ),
@@ -50,7 +51,7 @@ class Email extends BaseProvider {
 			'size'        => 6,
 			'datas'       => [
 				'auto_send'              => $mod->getMfaController()->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
-				'ajax_intent_email_send' => $mod->getAjaxActionData( 'intent_email_send', true ),
+				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::class ),
 			],
 			'supp'        => [
 				'send_email' => __( 'Send OTP Code', 'wp-simple-firewall' ),
@@ -68,7 +69,7 @@ class Email extends BaseProvider {
 		return parent::hasValidatedProfile();
 	}
 
-	protected function isEnforced() :bool {
+	public function isEnforced() :bool {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 		return count( array_intersect( $opts->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
@@ -104,33 +105,15 @@ class Email extends BaseProvider {
 			$success = ( $useSureSend && $this->send2faEmailSureSend( $otp ) )
 					   || $this->getMod()
 							   ->getEmailProcessor()
-							   ->sendEmailWithTemplate(
-								   '/email/lp_2fa_email_code.twig',
+							   ->send(
 								   $user->user_email,
 								   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-								   [
-									   'flags'   => [
-										   'show_login_link' => !$this->getCon()->isRelabelled()
-									   ],
-									   'vars'    => [
-										   'code' => $otp
-									   ],
-									   'hrefs'   => [
-										   'login_link' => 'https://shsec.io/96',
-									   ],
-									   'strings' => [
-										   'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-										   'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-										   'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
-										   'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
-										   'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
-										   'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ),
-											   Services::WpGeneral()->getHomeUrl() ),
-										   'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-										   'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ),
-											   $this->getCon()->this_req->ip ),
-									   ]
-								   ]
+								   $con->action_router->render( MfaLoginCode::SLUG, [
+									   'home_url' => Services::WpGeneral()->getHomeUrl(),
+									   'ip'       => $con->this_req->ip,
+									   'user_id'  => $user->ID,
+									   'otp'      => $otp,
+								   ] )
 							   );
 		}
 		catch ( \Exception $e ) {
@@ -145,16 +128,19 @@ class Email extends BaseProvider {
 			->send2FA( $this->getUser(), $code );
 	}
 
-	protected function getProviderSpecificRenderData() :array {
-		return [
-			'strings' => [
-				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
-				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() )
+	protected function getUserProfileFormRenderData() :array {
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getUserProfileFormRenderData(),
+			[
+				'strings' => [
+					'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
+					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
+					'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
+					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() )
+				]
 			]
-		];
+		);
 	}
 
 	public function isProviderEnabled() :bool {
@@ -179,7 +165,7 @@ class Email extends BaseProvider {
 			$secrets = [];
 		}
 
-		$otp = $this->generateSimpleOTP();
+		$otp = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
 		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
 
 		// Clean old secrets linked to expired login intents

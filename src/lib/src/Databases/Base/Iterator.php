@@ -6,8 +6,9 @@ use Elliotchance\Iterator\AbstractPagedIterator;
 
 class Iterator extends AbstractPagedIterator {
 
-	const PAGE_LIMIT = 50;
 	use HandlerConsumer;
+
+	public const PAGE_LIMIT = 50;
 
 	/**
 	 * @var Select|mixed

@@ -4,10 +4,10 @@
 
 	{% for mitem in vars.navbar_menu %}
 
-		<li class="nav-item pb-2{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
+		<li class="nav-item pb-3{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
 		    {% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
-			<a class="nav-link p-0 mb-2 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }} "
+			<a class="nav-link fs-6 p-0 mb-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }} "
 					{% if mitem.sub_items|default([]) is not empty %}
 						data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
 					{% endif %}
@@ -50,7 +50,7 @@
 					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
 						{% for sub in mitem.sub_items %}
 							<li class="mb-0 pl-0 py-0">
-							<a class="py-1 m0-1 pe-0 nav-link {{ sub.classes|default([])|join( ' ' ) }}"
+							<a class="py-1 m0-1 pe-0 nav-link fs-6 {{ sub.classes|default([])|join( ' ' ) }}"
 							   href="{{ sub.href|default('#') }}"
 									{% for data_key,data_val in sub.data|default([]) %}
 										data-{{ data_key }}="{{ data_val }}"

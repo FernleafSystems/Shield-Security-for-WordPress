@@ -9,7 +9,7 @@ class IsRequestToValidPluginAsset extends Base {
 
 	use RequestPath;
 
-	const SLUG = 'is_request_to_valid_plugin_asset';
+	public const SLUG = 'is_request_to_valid_plugin_asset';
 
 	protected function execConditionCheck() :bool {
 		$pathMatcher = ( new MatchRequestPath() )->setCon( $this->getCon() );

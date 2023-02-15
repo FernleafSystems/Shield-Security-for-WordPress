@@ -99,6 +99,7 @@
 			this.$table = this.$el.DataTable(
 				$.extend( base.options.datatables_init,
 					{
+						dom: 'BPfrptip',
 						serverSide: true,
 						searchDelay: 600,
 						ajax: function ( data, callback, settings ) {
@@ -129,28 +130,29 @@
 						select: {
 							style: 'multi'
 						},
-						dom: 'PBfrptip',
-						searchPanes: {
-							cascadePanes: false,
-							viewTotal: false,
-							viewCount: false,
-							initCollapsed: true
-						},
 						search: {},
-						buttons: [
-							{
-								text: 'Reload',
-								name: 'table-reload',
-								className: 'action table-refresh',
-								action: function ( e, dt, node, config ) {
-									base.tableReload.call( base );
+						buttons: {
+							buttons: [
+								{
+									text: 'Reload Table',
+									name: 'table-reload',
+									className: 'action table-refresh btn-outline-secondary mb-2',
+									action: function ( e, dt, node, config ) {
+										base.tableReload.call( base );
+									}
+								}
+							],
+							dom: {
+								button: {
+									className: 'btn'
 								}
 							}
-						],
+						},
 						language: {
 							emptyTable: "There are no items to display.",
 							zeroRecords: "No entries found - please try adjusting your search filters."
-						}
+						},
+						pageLength: 25
 					}
 				) );
 		};

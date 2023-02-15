@@ -1,40 +1,83 @@
 {% import "/common/macros.twig" as icwp_macros %}
 
+{% block notice_styles %}
+	<style>
+		.notice-icon {
+		align-self: center;
+		justify-content: center;
+		height: 48px;
+		width: 48px;
+	}
+	.notice-title {
+		padding: 0;
+	}
+	.notice-content {
+		padding: 10px;
+	}
+	.notice-content p {
+		margin-left: 0;
+	}
+	.notice-content p {
+	}
+	.notice-icon .dashicons {
+		display: inline-block;
+		font-size: 48px;
+	}
+	.flash .notice-icon {
+		height: 26px;
+	}
+	.flash .notice-icon .dashicons {
+		font-size: 24px;
+		height: 26px;
+	}
+	.notice-content p a {
+		text-shadow: none;
+		font-weight: bold;
+	}
+	</style>
+{% endblock %}
+
 {% if unique_render_id|default('') is empty %}
 	{% set unique_render_id= random() %}
 {% endif %}
+
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
 	     class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible">
 
-		<div class="notice-icon">
-			<span class="dashicons dashicons-shield"></span>&nbsp;
-		</div>
+		<div style="display: flex; flex-direction: row; ">
 
-		<div class="notice-content">
-			{% if strings.title|default('') is not empty %}
-				<h3 class="notice-title">{{ strings.title }}</h3>
-			{% endif %}
-			<div>
-				{% block notice_body %}
-					{% if strings.lines|default([]) is not empty %}
-						{% for line in strings.lines %}
-							<p>{{ line }}</p>
-						{% endfor %}
-					{% endif %}
-					{% if strings.read_more|default('') is not empty %}
-					<p><a href="{{ hrefs.read_more }}" target="_blank">{{ strings.read_more }}</a></p>
-				{% endif %}
-				{% endblock %}
+			<div class="notice-icon">
+				<span class="dashicons dashicons-shield"></span>&nbsp;
 			</div>
+
+			<div class="notice-content">
+				{% if strings.title|default('') is not empty %}
+					<h3 class="notice-title">{{ strings.title }}</h3>
+				{% endif %}
+				<div>
+					{% block notice_body %}
+						{% if strings.lines|default([]) is not empty %}
+							{% for line in strings.lines %}
+								<p>{{ line }}</p>
+							{% endfor %}
+						{% endif %}
+						{% if strings.read_more|default('') is not empty %}
+						<p><a href="{{ hrefs.read_more }}" target="_blank">{{ strings.read_more }}</a></p>
+					{% endif %}
+					{% endblock %}
+				</div>
+			</div>
+
 		</div>
 
-		<div class="dismiss-p" style="margin-bottom: 15px">
-			<a class="icwp-notice-dismiss" href="#">{{ strings.dismiss|default('Dismiss') }}</a>
-		</div>
+		{% block dismiss_link %}
+			<div class="dismiss-p" style="margin-bottom: 15px">
+				<a class="icwp-notice-dismiss" href="#">{{ strings.dismiss|default('Dismiss') }}</a>
+			</div>
+		{% endblock %}
 
-		<div style="clear:both;"></div>
 	</div>
 {% endblock %}
 
@@ -45,10 +88,10 @@
 		  'click',
 		  '#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
 		  function () {
-			  var $oContainer = jQuery( '#{{ unique_render_id }}' );
+			  let $container = jQuery( '#{{ unique_render_id }}' );
 			  jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
-			  $oContainer.fadeOut( 500, function () {
-				  $oContainer.remove();
+			  $container.fadeOut( 500, function () {
+				  $container.remove();
 			  } );
 		  }
 	  );

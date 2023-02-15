@@ -26,37 +26,37 @@ class MemberPress extends BaseFormProvider {
 	}
 
 	/**
-	 * @param array $aErrors
+	 * @param array $errors
 	 * @return array
 	 */
-	public function checkLogin( $aErrors ) {
-		if ( empty( $aErrors ) ) {
+	public function checkLogin( $errors ) {
+		if ( empty( $errors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-login' )
 					 ->checkProviders();
 			}
 			catch ( \Exception $e ) {
-				$aErrors[] = $e->getMessage();
+				$errors[] = $e->getMessage();
 			}
 		}
-		return $aErrors;
+		return $errors;
 	}
 
 	/**
-	 * @param array $aErrors
+	 * @param array $errors
 	 * @return array
 	 */
-	public function checkLostPassword( $aErrors ) {
-		if ( empty( $aErrors ) ) {
+	public function checkLostPassword( $errors ) {
+		if ( empty( $errors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-lostpassword' )
 					 ->checkProviders();
 			}
 			catch ( \Exception $e ) {
-				$aErrors[] = $e->getMessage();
+				$errors[] = $e->getMessage();
 			}
 		}
-		return $aErrors;
+		return $errors;
 	}
 
 	/**

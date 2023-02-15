@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	InvalidLoginIntentException,
 	LoginCancelException,
 	NoActiveProvidersForUserException,
+	OtpVerificationFailedException,
 	TooManyAttemptsException
 };
 
@@ -18,12 +19,13 @@ class LoginIntentRequestValidate {
 
 	/**
 	 * @throws CouldNotValidate2FA
-	 * @throws LoginCancelException
 	 * @throws InvalidLoginIntentException
+	 * @throws LoginCancelException
 	 * @throws NoActiveProvidersForUserException
+	 * @throws OtpVerificationFailedException
 	 * @throws TooManyAttemptsException
 	 */
-	public function run( string $plainNonce, bool $isCancel = false ) :bool {
+	public function run( string $plainNonce, bool $isCancel = false ) :string {
 		/** @var Shield\Modules\LoginGuard\ModCon $mod */
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
@@ -38,22 +40,31 @@ class LoginIntentRequestValidate {
 			throw new LoginCancelException();
 		}
 
-		$providers = $mfaCon->getProvidersForUser( $user, true );
+		$providers = $mfaCon->getProvidersActiveForUser( $user );
 		if ( empty( $providers ) ) {
 			throw new NoActiveProvidersForUserException();
 		}
 
-		$validated = false;
+		$validatedSlug = null;
 		foreach ( $providers as $provider ) {
-			$provider->setUser( $user );
-			if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
-				$provider->postSuccessActions();
-				$validated = true;
-				break;
+			try {
+				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
+					$provider->postSuccessActions();
+					$this->auditLoginIntent( true, $provider->getProviderName() );
+					$validatedSlug = $provider::ProviderSlug();
+					break;
+				}
+			}
+			catch ( Exceptions\OtpNotPresentException | Exceptions\ProviderNotActiveForUserException $e ) {
+				// Nothing to do here.
+			}
+			catch ( Exceptions\OtpVerificationFailedException $e ) {
+				$this->auditLoginIntent( false, $provider->getProviderName() );
+				throw $e;
 			}
 		}
 
-		if ( !$validated ) {
+		if ( empty( $validatedSlug ) ) {
 			throw new CouldNotValidate2FA();
 			if ( empty( $mfaCon->getActiveLoginIntents( $user )[ $plainNonce ] ) ) {
 				throw new TooManyAttemptsException();
@@ -63,6 +74,18 @@ class LoginIntentRequestValidate {
 		// Always remove intents after success.
 		$this->getCon()->getUserMeta( $user )->login_intents = [];
 
-		return true;
+		return $validatedSlug;
+	}
+
+	protected function auditLoginIntent( bool $success, string $providerName ) {
+		$this->getCon()->fireEvent(
+			$success ? '2fa_verify_success' : '2fa_verify_fail',
+			[
+				'audit_params' => [
+					'user_login' => $this->getWpUser()->user_login,
+					'method'     => $providerName,
+				]
+			]
+		);
 	}
 }

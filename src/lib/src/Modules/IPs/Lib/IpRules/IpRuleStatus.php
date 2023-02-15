@@ -4,16 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
-use IPLib\Factory;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
 	MergeAutoBlockRules,
 	Ops\Handler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use IPLib\Factory;
 
 class IpRuleStatus {
 
@@ -44,11 +44,9 @@ class IpRuleStatus {
 		return empty( $rule ) ? 0 : $rule->offenses;
 	}
 
-	/**
-	 * @return IpRuleRecord|null
-	 */
-	public function getRuleForAutoBlock() {
-		return current( $this->getRulesForAutoBlock() );
+	public function getRuleForAutoBlock() :?IpRuleRecord {
+		$record = current( $this->getRulesForAutoBlock() );
+		return $record instanceof IpRuleRecord ? $record : null;
 	}
 
 	/**
@@ -57,7 +55,12 @@ class IpRuleStatus {
 	public function getRules( array $filterByLists = [] ) :array {
 		$ip = $this->getIP();
 		if ( !isset( self::$cache[ $ip ] ) ) {
-			self::$cache[ $ip ] = $this->loadRecordsForIP();
+			try {
+				self::$cache[ $ip ] = $this->loadRecordsForIP();
+			}
+			catch ( \Exception $e ) {
+				self::$cache[ $ip ] = [];
+			}
 		}
 		return array_filter(
 			self::$cache[ $ip ],
@@ -81,6 +84,9 @@ class IpRuleStatus {
 		return $this->purgeDuplicateRulesForWhiteAndBlack( $this->getRules( [ Handler::T_MANUAL_BYPASS ] ) );
 	}
 
+	/**
+	 * @return IpRuleRecord[]
+	 */
 	private function getRulesForAutoBlock() :array {
 		/** @var Modules\IPs\Options $opts */
 		$opts = $this->getOptions();
@@ -110,7 +116,7 @@ class IpRuleStatus {
 		// Just in case we've previously blocked a Search Provider - perhaps a failed rDNS at the time.
 		if ( !empty( $rules ) ) {
 			try {
-				list( $ipKey, $ipName ) = ( new IpID( $this->getIP() ) )
+				[ $ipKey, ] = ( new IpID( $this->getIP() ) )
 					->setIgnoreUserAgent()
 					->run();
 				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
@@ -206,6 +212,23 @@ class IpRuleStatus {
 		return $this->isBlockedByShield() || $this->isBlockedByCrowdsec();
 	}
 
+	public function isUnBlocked() :bool {
+		$isUnblocked = false;
+		if ( $this->isAutoBlacklisted() ) {
+			$rule = $this->getRuleForAutoBlock();
+			$isUnblocked = $rule->unblocked_at > $rule->blocked_at;
+		}
+		elseif ( $this->hasCrowdsecBlock() ) {
+			foreach ( $this->getRulesForCrowdsec() as $rule ) {
+				if ( !$rule->is_range && $rule->unblocked_at > $rule->blocked_at ) {
+					$isUnblocked = true;
+					break;
+				}
+			}
+		}
+		return $isUnblocked;
+	}
+
 	private function removeRecordFromCache( IpRuleRecord $recordToRemove ) {
 		foreach ( self::$cache[ $this->getIP() ] as $key => $record ) {
 			if ( $record->id == $recordToRemove->id ) {
@@ -260,7 +283,15 @@ class IpRuleStatus {
 		return $rules;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function loadRecordsForIP() :array {
+		$parsedIP = Factory::parseRangeString( $this->getIP() );
+		if ( empty( $parsedIP ) ) {
+			throw new \Exception( 'Not a valid IP Address or Range' );
+		}
+
 		$records = [];
 
 		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
@@ -271,7 +302,6 @@ class IpRuleStatus {
 			)
 		];
 
-		$parsedIP = Factory::parseRangeString( $this->getIP() );
 		foreach ( $loader->select() as $record ) {
 			if ( $record->is_range ) {
 				$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );

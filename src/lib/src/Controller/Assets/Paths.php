@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Utilities;
 
 class Paths {
 
@@ -12,8 +13,8 @@ class Paths {
 		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'assets' ].'/'.ltrim( $asset, '/' ) );
 	}
 
-	public function forModuleConfig( string $module, bool $fromJSONFile = false ) :string {
-		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'config' ].'/'.$module.( $fromJSONFile ? '.json' : '.php' ) );
+	public function forModuleConfig( string $module ) :string {
+		return $this->forPluginItem( $this->getCon()->cfg->paths[ 'config' ].'/'.$module.'.json' );
 	}
 
 	public function forFlag( string $flag = '' ) :string {
@@ -22,6 +23,10 @@ class Paths {
 
 	public function forImage( string $asset ) :string {
 		return $this->forAsset( 'images/'.ltrim( $asset, '/' ) );
+	}
+
+	public function forSVG( string $asset ) :string {
+		return $this->forImage( 'bootstrap/'.Utilities\File\Paths::AddExt( ltrim( $asset, '/' ), 'svg' ) );
 	}
 
 	public function forJs( string $asset ) :string {

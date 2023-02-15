@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestL
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
@@ -17,12 +18,23 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
+				'day'     => $this->buildForDay(),
 				'ip'      => $this->buildForIPs(),
 				'type'    => $this->buildForType(),
 				'offense' => $this->buildForOffense(),
 				'code'    => $this->buildForCodes(),
 			]
 		];
+	}
+
+	private function buildForDay() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return ( new BuildDataForDays() )->build(
+			$mod->getDbH_ReqLogs()
+				->getQuerySelector()
+				->getDistinctForColumn( 'created_at' )
+		);
 	}
 
 	protected function getDistinctQueryResult() :array {

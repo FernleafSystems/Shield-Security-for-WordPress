@@ -4,34 +4,9 @@
 	</div>
 {% endif %}
 
-<form name="shield_2fa_verify" id="loginform"
-      class="shield-2fa-wplogin"
-      action="{{ hrefs.form_action }}"
-      method="post" autocomplete="off">
+{{ content.form|raw }}
 
-	{% for hidden_field_name,hidden_field_value in vars.form_hidden_fields %}
-		<input type="hidden" name="{{ hidden_field_name }}" id="{{ hidden_field_name }}" value="{{ hidden_field_value }}" />
-	{% endfor %}
-
-	{% for provider in content.providers %}
-		{{ provider|raw }}
-	{% endfor %}
-
-	{% if flags.can_skip_mfa %}
-		<p style="margin-bottom: 18px">
-			<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa" />
-			{{ strings.skip_mfa }}
-		</p>
-	{% endif %}
-
-	<p>
-		<input type="submit" name="wp-submit"
-		       id="wp-submit" class="button button-primary button-large"
-		       value="{{ strings.button_submit }}" />
-	</p>
-</form>
-
-	<p id="backtoblog">
-		<a href="{{ hrefs.home }}" title="{{ strings.back_home }}">
-			&larr; {{ strings.back_home }}</a>
-	</p>
+<p id="backtoblog">
+	<a href="{{ hrefs.home }}" title="{{ strings.back_home }}">
+		&larr; {{ strings.back_home }}</a>
+</p>

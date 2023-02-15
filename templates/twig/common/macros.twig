@@ -2,6 +2,48 @@
 	<span class="shieldpro"><strong>Shield</strong><span style="text-transform: uppercase">pro</span></span>
 {% endmacro %}
 
+{% macro svg(svg) %}
+	<span class="svg-container">{{ svg|raw }}</span>
+{% endmacro %}
+
+{% macro issues_wrapper(components, strings) %}
+	<div class="health-check-accordion issues">
+		{% for component in components %}
+			<h4 class="health-check-accordion-heading">
+				<button aria-expanded="false"
+				        class="health-check-accordion-trigger"
+				        aria-controls="health-check-accordion-block-shield_{{ component.slug }}"
+				        type="button">
+					<span
+							class="title">{{ component.is_protected ? component.desc_protected : component.desc_unprotected }}</span>
+					{% for cat in component.categories %}
+						<span class="badge blue" style="font-size: xx-small">{{ cat }}</span>
+					{% endfor %}
+					<span class="icon"></span>
+				</button>
+			</h4>
+			<div class="health-check-accordion-panel"
+			     id="health-check-accordion-block-shield_{{ component.slug }}"
+			     hidden="hidden">
+						<p>
+							<a href="{{ component.href_full }}" target="_blank">{{ strings.to_address_this_issue }}</a>
+						</p>
+					</div>
+		{% endfor %}
+	</div>
+{% endmacro %}
+
+{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[]) %}
+	<a href="{{ href }}"
+	   class="{{ classes|join(' ') }}"
+	    {% if id is not empty %}id="{{ id }}"{% endif %}
+	    {% if new_window %}target="_blank"{% endif %}
+			{% if datas is not empty %}
+				{% for data_key,data_value in datas %}data-{{ data_key }}="{{ data_value }}"{% endfor %}
+			{% endif %}
+	>{{ text }}</a>
+{% endmacro %}
+
 {% macro slideTitle(content) %}
 	<h4 class="my-3">{{ content }}</h4>
 {% endmacro %}

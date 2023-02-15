@@ -10,14 +10,13 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getSectionStrings( string $section ) :array {
-		$sModName = $this->getMod()->getMainFeatureName();
-		$sPlugName = $this->getCon()->getHumanName();
+		$modName = $this->getMod()->getMainFeatureName();
 
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modName );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic Updates', 'wp-simple-firewall' ) ) )
@@ -25,38 +24,39 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_disable_all_wordpress_automatic_updates' :
-				$sTitle = __( 'Disable ALL WordPress Automatic Updates', 'wp-simple-firewall' );
+				$title = __( 'Disable ALL WordPress Automatic Updates', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'If you never want WordPress to automatically update anything on your site, turn on this option.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Do not turn on this option unless you really need to block updates.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Turn Off', 'wp-simple-firewall' );
+				$titleShort = __( 'Turn Off', 'wp-simple-firewall' );
 				break;
 
 			case 'section_automatic_plugin_self_update' :
-				$sTitle = __( 'Automatic Plugin Self-Update', 'wp-simple-firewall' );
+				$title = __( 'Automatic Plugin Self-Update', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s',
 						__( 'Purpose', 'wp-simple-firewall' ),
-						sprintf( __( 'Allows the %s plugin to automatically update itself when an update is available.', 'wp-simple-firewall' ), $sPlugName )
+						sprintf( __( 'Allows the %s plugin to automatically update itself when an update is available.', 'wp-simple-firewall' ),
+							$this->getCon()->getHumanName() )
 					),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this option turned on.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Self-Update', 'wp-simple-firewall' );
+				$titleShort = __( 'Self-Update', 'wp-simple-firewall' );
 				break;
 
 			case 'section_automatic_updates_for_wordpress_components' :
-				$sTitle = __( 'Automatic Updates For WordPress Components', 'wp-simple-firewall' );
+				$title = __( 'Automatic Updates For WordPress Components', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Control how automatic updates for each WordPress component is handled.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'You should at least allow minor updates for the WordPress core.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'WordPress Components', 'wp-simple-firewall' );
+				$titleShort = __( 'WordPress Components', 'wp-simple-firewall' );
 				break;
 
 			case 'section_options' :
-				$sTitle = __( 'Auto-Update Options', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Auto-Update Options', 'wp-simple-firewall' );
+				$title = __( 'Auto-Update Options', 'wp-simple-firewall' );
+				$titleShort = __( 'Auto-Update Options', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Make adjustments to how automatic updates are handled on your site.', 'wp-simple-firewall' ) ),
 				];
@@ -67,8 +67,8 @@ class Strings extends Base\Strings {
 		}
 
 		return [
-			'title'       => $sTitle,
-			'title_short' => $sTitleShort,
+			'title'       => $title,
+			'title_short' => $titleShort,
 			'summary'     => $summary,
 		];
 	}

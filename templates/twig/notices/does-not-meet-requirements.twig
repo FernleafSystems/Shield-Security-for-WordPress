@@ -8,5 +8,10 @@
 			<li>{{ req }}</li>
 		{% endfor %}
 	</ul>
-	<a href="{{ hrefs.more_information }}" target="_blank">{{ strings.more_information }}</a>
+	<p style="margin-bottom: 10px;">
+		<a href="{{ hrefs.more_information }}" target="_blank">{{ strings.more_information }}</a>
+	</p>
+{% endblock %}
+
+{% block dismiss_link %}
 {% endblock %}

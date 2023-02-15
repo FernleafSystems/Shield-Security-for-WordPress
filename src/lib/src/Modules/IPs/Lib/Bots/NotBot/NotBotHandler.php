@@ -2,114 +2,84 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NotBotHandler extends ExecOnceModConsumer {
 
-	const LIFETIME = 300;
-	const SLUG = 'notbot';
-
-	private $useCookies;
-
-	public function __construct( bool $useCookies = false ) {
-		$this->useCookies = $useCookies;
-	}
+	public const LIFETIME = 600;
+	public const SLUG = 'notbot';
 
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );
+	}
+
+	protected function isForced() :bool {
+		return $this->getOptions()->isOpt( 'force_notbot', 'Y' );
 	}
 
 	protected function run() {
 		( new InsertNotBotJs() )
 			->setMod( $this->getMod() )
 			->execute();
-		$this->sendNotBotNonceCookie();
-		$this->registerFrontPageLoad();
-		$this->registerLoginPageLoad();
+		if ( $this->isForced() ) {
+			$this->sendNotBotNonceCookie();
+		}
 	}
 
-	protected function sendNotBotNonceCookie() {
+	public function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet(
 			'shield-notbot-nonce',
-			$this->getMod()->getAjaxActionData( 'not_bot' )[ 'exec_nonce' ],
-			15
+			ActionData::Build( CaptureNotBot::class )[ ActionData::FIELD_NONCE ],
+			60
 		);
-	}
-
-	private function registerFrontPageLoad() {
-		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
-			if ( Services::Request()->isGet() && did_action( 'wp' )
-				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
-				/** @var ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getBotSignalsController()
-					->getEventListener()
-					->fireEventForIP( $this->getCon()->this_req->ip, 'frontpage_load' );
-			}
-		} );
-	}
-
-	private function registerLoginPageLoad() {
-		add_action( 'login_footer', function () {
-			$req = Services::Request();
-			if ( $req->isGet() ) {
-				/** @var ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getBotSignalsController()
-					->getEventListener()
-					->fireEventForIP( $this->getCon()->this_req->ip, 'loginpage_load' );
-			}
-		} );
-	}
-
-	public function registerAsNotBot() :bool {
-		if ( $this->useCookies ) {
-			$cookieLife = apply_filters( 'shield/notbot_cookie_life', self::LIFETIME );
-			$ts = Services::Request()->ts() + $cookieLife;
-			Services::Response()->cookieSet(
-				$this->getCon()->prefix( self::SLUG ),
-				sprintf( '%sz%s', $ts, $this->getHashForVisitorTS( $ts ) ),
-				$cookieLife
-			);
-		}
-		$this->getCon()->fireEvent( 'bottrack_notbot' );
-		return true;
-	}
-
-	public function clearCookie() :bool {
-		Services::Response()->cookieSet(
-			$this->getCon()->prefix( self::SLUG ),
-			'',
-			-self::LIFETIME
-		);
-		return true;
 	}
 
 	public function hasCookie() :bool {
-		$cookie = $this->getCookieParts();
-		return !empty( $cookie )
-			   && ( Services::Request()->ts() < $cookie[ 'ts' ] )
-			   && hash_equals( $this->getHashForVisitorTS( (int)$cookie[ 'ts' ] ), $cookie[ 'hash' ] );
-	}
-
-	protected function getHashForVisitorTS( int $timestamp ) {
-		return hash_hmac( 'sha1',
-			$timestamp.$this->getCon()->this_req->ip,
-			$this->getCon()->getSiteInstallationId()
-		);
-	}
-
-	private function getCookieParts() :array {
-		$parts = [];
+		$cookie = [];
 		$req = Services::Request();
 		$notBot = $req->cookie( $this->getCon()->prefix( self::SLUG ), '' );
 		if ( !empty( $notBot ) && strpos( $notBot, 'z' ) ) {
-			list( $ts, $hash ) = explode( 'z', $notBot );
-			$parts[ 'ts' ] = $ts;
-			$parts[ 'hash' ] = $hash;
+			[ $ts, $hash ] = explode( 'z', $notBot );
+			$cookie[ 'ts' ] = (int)$ts;
+			$cookie[ 'hash' ] = $hash;
 		}
-		return $parts;
+
+		return !empty( $cookie )
+			   && ( $req->ts() < $cookie[ 'ts' ] )
+			   && hash_equals( $this->getHashForVisitorTS( $cookie[ 'ts' ] ), $cookie[ 'hash' ] );
+	}
+
+	public function getHashForVisitorTS( int $ts ) {
+		return hash_hmac( 'sha1', $ts.$this->getCon()->this_req->ip, $this->getCon()->getInstallationID()[ 'id' ] );
+	}
+
+	/**
+	 * @return array{ts: int, hash: string}
+	 * @deprecated 17.0
+	 */
+	private function getCookieParts() :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	private function registerFrontPageLoad() {
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	private function registerLoginPageLoad() {
+	}
+
+	/**
+	 * @deprecated 17.0
+	 */
+	public function registerAsNotBot() :bool {
+		return true;
 	}
 }

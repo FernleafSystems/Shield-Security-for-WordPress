@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Core;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Databases {
 
@@ -32,7 +32,6 @@ class Databases {
 
 	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
-	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;

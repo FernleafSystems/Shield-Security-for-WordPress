@@ -1,0 +1,45 @@
+{% import '/common/macros.twig' as icwp_macros %}
+
+<div class="health-check-body health-check-tab-shield_security hide-if-no-js">
+
+	<div class="site-shield_security-has-issues">
+		<h2>
+			{{ strings.title }}
+			<small style="font-size: x-small">{{ strings.powered_by }}</small>
+		</h2>
+		{% for desc in strings.subtitle_description %}
+			<p>{{ desc }}</p>
+		{% endfor %}
+		<p>
+			<a href="{{ hrefs.dashboard_home }}" target="_blank">{{ strings.go_to_shield_home }}</a>
+		</p>
+	</div>
+
+	<div class="site-health-issues-wrapper">
+		<h3>{{ strings.critical_areas_to_improve }}</h3>
+		<p>{{ strings.critical_areas_to_improve_desc }}</p>
+		{{ icwp_macros.issues_wrapper(vars.critical_components, strings) }}
+	</div>
+
+	<div class="site-health-issues-wrapper">
+		<h3>{{ strings.areas_to_improve }}</h3>
+		<p>{{ strings.areas_to_improve_desc }}</p>
+		{{ icwp_macros.issues_wrapper(vars.improvement_components, strings) }}
+	</div>
+
+	<div class="site-health-view-more">
+		<button type="button"
+		        class="button site-health-view-passed"
+		        aria-expanded="false"
+		        aria-controls="health-check-issues-good">
+			{{ strings.passed_tests }}
+			<span class="icon"></span>
+		</button>
+	</div>
+
+	<div class="site-health-issues-wrapper hidden" id="health-check-issues-good">
+		<div id="health-check-site-status-good" class="health-check-accordion issues"></div>
+		{{ icwp_macros.issues_wrapper(vars.protected_components, strings) }}
+	</div>
+
+</div>

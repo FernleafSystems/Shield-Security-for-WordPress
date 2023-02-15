@@ -3,40 +3,34 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AllowBetaUpgrades;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Processor extends BaseShield\Processor {
 
+	public const MOD = ModCon::SLUG;
+
 	protected function run() {
-		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
 		$this->removePluginConflicts();
-		( new Lib\OverrideLocale() )
-			->setMod( $this->getMod() )
-			->run();
+		( new Lib\OverrideLocale() )->execute();
 
 		$mod->getShieldNetApiController()->execute();
 		$mod->getPluginBadgeCon()->execute();
 
-		( new PluginTelemetry() )
-			->setMod( $this->getMod() )
-			->execute();
-		( new AllowBetaUpgrades() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new Lib\AllowBetaUpgrades() )->execute();
+		( new Lib\SiteHealthController() )->execute();
 
 		if ( $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) ) {
 			$mod->getImpExpController()->execute();
 		}
 
-		add_filter( $con->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+		add_filter( $this->getCon()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
+
+		$mod->getReportingController()->execute();
 	}
 
 	public function runDailyCron() {
@@ -44,6 +38,7 @@ class Processor extends BaseShield\Processor {
 		( new CleanStorage() )
 			->setCon( $this->getCon() )
 			->run();
+		( new Lib\PluginTelemetry() )->collectAndSend();
 	}
 
 	/**
@@ -54,7 +49,7 @@ class Processor extends BaseShield\Processor {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
 		if ( @function_exists( '\wp_cache_setting' ) ) {
-			@wp_cache_setting( 'wp_super_cache_late_init', 1 );
+			@\wp_cache_setting( 'wp_super_cache_late_init', 1 );
 		}
 	}
 }

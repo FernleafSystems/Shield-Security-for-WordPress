@@ -22,8 +22,7 @@ class ProfileBuilder extends BaseFormProvider {
 				 ->checkProviders();
 		}
 		catch ( \Exception $e ) {
-			$errors[ 'shield-fail-register' ] =
-				'<span class="wppb-form-error">Bot</span>';
+			$errors[ 'shield-fail-register' ] = '<span class="wppb-form-error">Bot</span>';
 		}
 		return $errors;
 	}

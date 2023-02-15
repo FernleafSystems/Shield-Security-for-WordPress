@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Processor {
 
 	protected function run() {
 		/** @var ModCon $mod */
@@ -20,22 +20,11 @@ class Processor extends BaseShield\Processor {
 			->execute();
 
 		$mod->getMfaController()->execute();
-	}
 
-	public function onWpInit() {
-		( new Lib\AntiBot\AntibotSetup() )
-			->setMod( $this->getMod() )
-			->execute();
-	}
-
-	protected function getWpHookPriority( string $hook ) :int {
-		switch ( $hook ) {
-			case 'init':
-				$pri = -100;
-				break;
-			default:
-				$pri = parent::getWpHookPriority( $hook );
-		}
-		return $pri;
+		add_action( 'init', function () {
+			( new Lib\AntiBot\AntibotSetup() )
+				->setMod( $this->getMod() )
+				->execute();
+		}, HookTimings::INIT_ANTIBOT_SETUP );
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -29,7 +30,8 @@ class LicenseEmails {
 					'Pro License Check Has Failed',
 					[
 						__( 'Attempts to verify Shield Pro license has just failed.', 'wp-simple-firewall' ),
-						sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $mod->getUrl_AdminPage() ),
+						sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE )
+						),
 						sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 					]
 				);
@@ -56,7 +58,7 @@ class LicenseEmails {
 					'[Action May Be Required] Pro License Has Been Deactivated',
 					[
 						__( 'All attempts to verify Shield Pro license have failed.', 'wp-simple-firewall' ),
-						sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $mod->getUrl_AdminPage() ),
+						sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE ) ),
 						sprintf( __( 'If this problem persists, please contact support: %s', 'wp-simple-firewall' ), 'https://support.getshieldsecurity.com/' )
 					]
 				);

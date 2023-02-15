@@ -3,21 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\Consumers\MWPSiteConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ClientPluginStatus {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use MWPSiteConsumer;
 
-	const ACTIVE = 'acti';
-	const NEED_SYNC = 'nsync';
-	const NOT_PRO = 'npro';
-	const MWP_NOT_ON = 'mwpnoton';
-	const INACTIVE = 'inact';
-	const NOT_INSTALLED = 'ninst';
-	const VERSION_NEWER_THAN_SERVER = 'vnts';
-	const VERSION_OLDER_THAN_SERVER = 'vots';
+	public const ACTIVE = 'acti';
+	public const NEED_SYNC = 'nsync';
+	public const NOT_PRO = 'npro';
+	public const MWP_NOT_ON = 'mwpnoton';
+	public const INACTIVE = 'inact';
+	public const NOT_INSTALLED = 'ninst';
+	public const VERSION_NEWER_THAN_SERVER = 'vnts';
+	public const VERSION_OLDER_THAN_SERVER = 'vots';
 
 	public function status() :string {
 		$status = $this->detect();

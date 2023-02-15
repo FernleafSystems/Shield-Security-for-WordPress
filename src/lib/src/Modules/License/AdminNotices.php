@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
-	/**
-	 * @inheritDoc
-	 */
 	protected function processNotice( NoticeVO $notice ) {
 		switch ( $notice->id ) {
 			case 'wphashes-token-fail':
@@ -38,7 +35,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'jump_to_support' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'jump_to_support' => $this->getMod()->getUrl_DirectLinkToSection( 'global_enable_plugin_features' )
+				'jump_to_support' => $this->getCon()->plugin_urls->modCfgSection( $this->getMod(), 'global_enable_plugin_features' )
 			]
 		];
 	}

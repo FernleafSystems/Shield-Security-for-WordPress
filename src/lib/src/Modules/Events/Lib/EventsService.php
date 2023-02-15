@@ -68,9 +68,9 @@ class EventsService {
 					$events,
 					array_map(
 						function ( $evt ) use ( $mod ) {
-							$evt[ 'module' ] = $mod->getSlug();
+							$evt[ 'module' ] = $mod->cfg->slug;
 							/** @deprecated 12.0 */
-							$evt[ 'context' ] = $mod->getSlug();
+							$evt[ 'context' ] = $mod->cfg->slug;
 							return $evt;
 						},
 						$opts->getEvents()

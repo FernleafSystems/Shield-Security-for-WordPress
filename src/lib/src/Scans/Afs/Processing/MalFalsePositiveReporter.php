@@ -12,7 +12,7 @@ class MalFalsePositiveReporter {
 
 	use Modules\ModConsumer;
 
-	const HASH_ALGO = 'sha1';
+	public const HASH_ALGO = 'sha1';
 
 	public function reportResultItem( ResultItem $item, bool $isFalsePositive = true ) {
 		$this->reportPath( $item->path_full, $isFalsePositive );

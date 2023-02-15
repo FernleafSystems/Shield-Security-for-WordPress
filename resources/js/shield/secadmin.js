@@ -102,7 +102,7 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 		jQuery( document ).on( 'click', '#SecAdminRemoveConfirmEmail',
 			function ( evt ) {
 				evt.preventDefault();
-				if ( confirm( shield_vars_secadmin.strings.are_you_sure ) ) {
+				if ( confirm( shield_vars_secadmin.strings.confirm_disable ) ) {
 					iCWP_WPSF_StandardAjax.send_ajax_req( shield_vars_secadmin.ajax.req_email_remove );
 				}
 				return false;

@@ -1,0 +1,21 @@
+{% extends '/pages/base.twig' %}
+
+{% block head_inline_styles %}
+	{{ parent() }}
+	<style>
+	</style>
+{% endblock %}
+
+{% block body_content_header %}
+{% endblock %}
+
+{% block body_content_main %}
+	<div class="row mt-4">
+		<div class="col">
+			{{ content.main|raw }}
+		</div>
+	</div>
+{% endblock %}
+
+{% block body_content_footer %}
+{% endblock %}

@@ -7,6 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\CleanO
 
 class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgrade {
 
+	protected function upgrade_1700() {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		$mod->getDbHandler_FileLocker()->tableDelete();
+	}
+
 	/**
 	 * Repairs the state where the PTGuard was recreating multiple directories for the ptguard files.
 	 * Here we delete everything except the first valid PTGuard dir we find.

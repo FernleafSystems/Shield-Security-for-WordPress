@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 class HideGeneratorTag extends Base {
 
-	const SLUG = 'hide_generator_tag';
+	public const SLUG = 'hide_generator_tag';
 
 	protected function execResponse() :bool {
 		remove_action( 'wp_head', 'wp_generator' );

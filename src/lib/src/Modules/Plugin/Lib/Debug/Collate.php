@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Licenses;
 
 class Collate {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @return array[]
@@ -69,16 +69,16 @@ class Collate {
 		}
 
 		return [
-			'Host OS'                           => PHP_OS,
-			'Server Hostname'                   => gethostname(),
-			'Server Time Difference'            => $diff,
-			'Server IPs'                        => implode( ', ', $aIPs ),
-			'CloudFlare'                        => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
-			'rDNS'                              => empty( $rDNS ) ? '-' : $rDNS,
-			'Server Name'                       => $req->server( 'SERVER_NAME' ),
-			'Server Signature'                  => empty( $sig ) ? '-' : $sig,
-			'Server Software'                   => empty( $soft ) ? '-' : $soft,
-			'Disk Space' => sprintf( '%s used out of %s (unused: %s)',
+			'Host OS'                => PHP_OS,
+			'Server Hostname'        => gethostname(),
+			'Server Time Difference' => $diff,
+			'Server IPs'             => implode( ', ', $aIPs ),
+			'CloudFlare'             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
+			'rDNS'                   => empty( $rDNS ) ? '-' : $rDNS,
+			'Server Name'            => $req->server( 'SERVER_NAME' ),
+			'Server Signature'       => empty( $sig ) ? '-' : $sig,
+			'Server Software'        => empty( $soft ) ? '-' : $soft,
+			'Disk Space'             => sprintf( '%s used out of %s (unused: %s)',
 				( is_numeric( $totalDisk ) && is_numeric( $freeDisk ) ) ? FormatBytes::Format( $totalDisk - $freeDisk, 2, '' ) : '-',
 				is_numeric( $totalDisk ) ? FormatBytes::Format( $totalDisk, 2, '' ) : '-',
 				is_numeric( $freeDisk ) ? FormatBytes::Format( $freeDisk, 2, '' ) : '-'

@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallExeFileUploads extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_exe_file_uploads';
-	const SCAN_CATEGORY = 'exe_file_uploads';
+	public const SLUG = 'shield/firewall_exe_file_uploads';
+	public const SCAN_CATEGORY = 'exe_file_uploads';
 
 	protected function getConditions() :array {
 		$conditions = [

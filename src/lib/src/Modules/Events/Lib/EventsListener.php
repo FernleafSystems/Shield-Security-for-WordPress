@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class EventsListener {

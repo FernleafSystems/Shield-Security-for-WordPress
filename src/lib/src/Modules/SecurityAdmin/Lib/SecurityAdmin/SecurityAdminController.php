@@ -2,18 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	Render\Components\FormSecurityAdminLoginBox,
+	SecurityAdminCheck,
+	SecurityAdminLogin,
+	SecurityAdminRequestRemoveByEmail
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class SecurityAdminController extends ExecOnceModConsumer {
 
 	private $validPinRequest;
 
 	protected function canRun() :bool {
-		return $this->isEnabledSecAdmin();
+		return !$this->getCon()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
 	}
 
 	protected function run() {
@@ -47,18 +54,19 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	}
 
 	public function blockRemoval() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
+		$con = $this->getCon();
+		if ( !$con->isPluginAdmin() ) {
 			if ( !Services::WpUsers()->isUserAdmin() ) {
-				$this->getCon()->fireEvent( 'attempt_deactivation' );
+				$con->fireEvent( 'attempt_deactivation' );
 			}
 			Services::WpGeneral()->wpDie(
 				sprintf(
 					'<p>%s</p><p>%s</p>',
 					__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s</a>',
-						$this->getMod()->getUrl_AdminPage(),
+						$con->plugin_urls->adminHome(),
 						sprintf( __( "Please authenticate with the %s Security Admin system and try again.", 'wp-simple-firewall' ),
-							$this->getCon()->getHumanName() )
+							$con->getHumanName() )
 					)
 				)
 			);
@@ -78,10 +86,16 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		];
 	}
 
+	public function hasActiveSession() :bool {
+		return $this->getCon()->this_req->is_security_admin && $this->getSecAdminTimeRemaining() > 0;
+	}
+
 	public function isEnabledSecAdmin() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $this->getMod()->isModOptEnabled() && $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0;
+		return $this->getMod()->isModOptEnabled()
+			   && $opts->hasSecurityPIN()
+			   && $this->getSecAdminTimeout() > 0;
 	}
 
 	private function enqueueJS() {
@@ -89,8 +103,6 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				/** @var ModCon $mod */
-				$mod = $this->getMod();
 				/** @var Options $opts */
 				$opts = $this->getOptions();
 
@@ -100,16 +112,19 @@ class SecurityAdminController extends ExecOnceModConsumer {
 					'shield_vars_secadmin',
 					[
 						'ajax'    => [
-							'sec_admin_check'  => $mod->getAjaxActionData( 'sec_admin_check' ),
-							'sec_admin_login'  => $mod->getAjaxActionData( 'sec_admin_login' ),
-							'req_email_remove' => $mod->getAjaxActionData( 'req_email_remove' ),
+							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::class ),
+							'sec_admin_login'  => ActionData::Build( SecurityAdminLogin::class ),
+							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::class ),
 						],
 						'flags'   => [
 							'restrict_options' => !$isSecAdmin && $opts->isRestrictWpOptions(),
-							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin() && $isSecAdmin
+							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin()
+												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
+							'confirm_disable'    => sprintf( __( "An confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
+								Obfuscate::Email( $this->getMod()->getPluginReportEmail() ) ),
 							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
 							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
 							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
@@ -144,14 +159,21 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	 */
 	public function getSecAdminTimeRemaining() :int {
 		$remaining = 0;
-		$session = $this->getMod()->getSessionWP();
-		if ( $session->valid ) {
-			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
-			if ( !$this->isRegisteredSecAdminUser() && $secAdminAt > 0 ) {
-				$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
+
+		$modPlugin = $this->getCon()->getModule_Plugin();
+		/** @deprecated 17.0 - no need for this IF */
+		if ( method_exists( $modPlugin, 'getSessionCon' ) ) {
+			$session = $modPlugin->getSessionCon()->current();
+			if ( $session->valid ) {
+				$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
+				if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
+					$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
+				}
 			}
+			$remaining = (int)max( 0, $remaining );
 		}
-		return (int)max( 0, $remaining );
+
+		return $remaining;
 	}
 
 	public function isCurrentUserRegisteredSecAdmin() :bool {
@@ -172,44 +194,31 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	}
 
 	public function isCurrentlySecAdmin() :bool {
-		// TODO: replace with isCurrentUserRegisteredSecAdmin()
-		return $this->isRegisteredSecAdminUser( Services::WpUsers()->getCurrentWpUser() )
-			   || $this->getSecAdminTimeRemaining() > 0;
+		return $this->isCurrentUserRegisteredSecAdmin() || $this->getSecAdminTimeRemaining() > 0;
 	}
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
-		return $isPluginAdmin &&
-			   ( $this->getCon()->this_req->is_security_admin || $this->verifyPinRequest() );
+		return $isPluginAdmin && $this->getCon()->this_req->is_security_admin;
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function renderPinLoginForm() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $mod->renderTemplate( '/components/security_admin/login_box.twig', [
-			'flags'   => [
-				'restrict_options' => $opts->isRestrictWpOptions()
-			],
-			'strings' => [
-				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
-			],
-			'ajax'    => [
-				'sec_admin_login' => $mod->getAjaxActionData( 'sec_admin_login', true ),
-			]
-		] );
+		return '';
 	}
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo $this->renderPinLoginForm();
+		echo $this->getCon()->action_router->render( FormSecurityAdminLoginBox::SLUG );
 	}
 
 	public function verifyPinRequest() :bool {
 		if ( !isset( $this->validPinRequest ) ) {
-			$this->validPinRequest = ( new Ops\VerifyPinRequest() )
-				->setMod( $this->getMod() )
-				->run();
+			$this->validPinRequest = $this->isCurrentlySecAdmin()
+									 || ( new Ops\VerifyPinRequest() )
+										 ->setMod( $this->getMod() )
+										 ->run( (string)Services::Request()->post( 'sec_admin_key' ) );
 		}
 		return $this->validPinRequest;
 	}

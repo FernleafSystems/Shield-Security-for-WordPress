@@ -10,7 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	Options,
 	Scan\Queue\CleanQueue,
-	Scan\Queue\ProcessQueueWpcli
+	Scan\Queue\ProcessQueueWpcli,
+	Scan\Results\Update
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -32,7 +33,7 @@ class ScansController extends ExecOnceModConsumer {
 			$scanCon->execute();
 		}
 		$this->setupCron();
-		$this->setupCronHooks(); // Plugin crons
+		$this->setupCronHooks();
 		$this->handlePostScanCron();
 	}
 
@@ -42,27 +43,70 @@ class ScansController extends ExecOnceModConsumer {
 			->execute();
 	}
 
+	public function AFS() :Controller\Afs {
+		return $this->getScanCon( Controller\Afs::SCAN_SLUG );
+	}
+
+	public function APC() :Controller\Apc {
+		return $this->getScanCon( Controller\Apc::SCAN_SLUG );
+	}
+
+	public function WPV() :Controller\Wpv {
+		return $this->getScanCon( Controller\Wpv::SCAN_SLUG );
+	}
+
 	/**
 	 * @return Controller\Base[]
 	 */
 	public function getAllScanCons() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $slug ) {
-			try {
-				$this->getScanCon( $slug );
+		if ( method_exists( $this, 'getScans' ) ) {
+			foreach ( $this->getScans() as $scan ) {
+				if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
+					$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->getMod() );
+				}
 			}
-			catch ( \Exception $e ) {
+			return $this->scanCons;
+		}
+		else {
+			/** @var Options $opts */
+			$opts = $this->getOptions();
+			foreach ( $opts->getScanSlugs() as $slug ) {
+				try {
+					$this->getScanCon( $slug );
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		}
 		return $this->scanCons;
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getScanSlugs() :array {
+		return array_keys( $this->getAllScanCons() );
+	}
+
+	/**
+	 * @return string[]|Controller\Base[]
+	 */
+	public function getScans() :array {
+		return [
+			Controller\Afs::class,
+			Controller\Apc::class,
+			Controller\Wpv::class,
+		];
+	}
+
+	/**
 	 * @return Controller\Base|mixed
 	 */
 	public function getScanCon( string $slug ) {
-		if ( !isset( $this->scanCons[ $slug ] ) ) {
+		if ( method_exists( $this, 'getScans' ) ) {
+			return $this->getAllScanCons()[ $slug ];
+		}
+		elseif ( !isset( $this->scanCons[ $slug ] ) ) {
 			$class = __NAMESPACE__.'\\Controller\\'.ucwords( $slug );
 			if ( @class_exists( $class ) ) {
 				/** @var Controller\Base $obj */
@@ -70,6 +114,7 @@ class ScansController extends ExecOnceModConsumer {
 				$this->scanCons[ $slug ] = $obj->setMod( $this->getMod() );
 			}
 		}
+
 		return $this->scanCons[ $slug ];
 	}
 
@@ -87,12 +132,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	private function runAutoRepair() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		foreach ( $opts->getScanSlugs() as $slug ) {
-			$scanCon = $mod->getScanCon( $slug );
+		foreach ( $this->getAllScanCons() as $scanCon ) {
 			$scanCon->runCronAutoRepair();
 			$scanCon->cleanStalesResults();
 		}
@@ -103,24 +143,12 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	private function cronScan() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		if ( $this->getCanScansExecute() ) {
-			$scans = [];
-			foreach ( $opts->getScanSlugs() as $slug ) {
-				$scanCon = $mod->getScanCon( $slug );
-				if ( $scanCon->isReady() ) {
-					$scans[] = $slug;
-				}
-			}
-
+			/** @var Options $opts */
+			$opts = $this->getOptions();
 			$opts->setIsScanCron( true );
-			$mod->saveModOptions()
-				->getScansCon()
-				->startNewScans( $scans );
+			$this->getMod()->saveModOptions();
+			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
 			error_log( 'Shield scans cannot execute.' );
@@ -142,12 +170,6 @@ class ScansController extends ExecOnceModConsumer {
 		return $reasons;
 	}
 
-	public function startAllScans() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$this->startNewScans( $opts->getScanSlugs() );
-	}
-
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
@@ -155,15 +177,15 @@ class ScansController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 
 		$toScan = [];
-		foreach ( $scans as $slug ) {
+		foreach ( $scans as $slugOrCon ) {
 			try {
-				$thisScanCon = $this->getScanCon( $slug );
-				if ( $thisScanCon->isReady() ) {
-					$toScan[] = $slug;
+				$scanCon = is_string( $slugOrCon ) ? $this->getScanCon( $slugOrCon ) : $slugOrCon;
+				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
+					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
-						$thisScanCon->resetIgnoreStatus();
+						$this->resetIgnoreStatus( $slugOrCon );
 					}
-					$opts->addRemoveScanToBuild( $slug );
+					$opts->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -227,5 +249,12 @@ class ScansController extends ExecOnceModConsumer {
 
 	protected function getCronName() :string {
 		return $this->getCon()->prefix( 'all-scans' );
+	}
+
+	protected function resetIgnoreStatus( $scanCon ) {
+		( new Update() )
+			->setMod( $this->getMod() )
+			->setScanController( $scanCon )
+			->clearIgnored();
 	}
 }

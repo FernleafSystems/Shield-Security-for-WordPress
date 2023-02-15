@@ -6,6 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallAggressive extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_aggressive';
-	const SCAN_CATEGORY = 'aggressive';
+	public const SLUG = 'shield/firewall_aggressive';
+	public const SCAN_CATEGORY = 'aggressive';
 }

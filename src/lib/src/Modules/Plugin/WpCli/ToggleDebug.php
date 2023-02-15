@@ -33,7 +33,7 @@ class ToggleDebug extends BaseWpCliCmd {
 	}
 
 	/**
-	 * @param $null
+	 * @param       $null
 	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */

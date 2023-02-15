@@ -63,7 +63,7 @@
 				'button.action.delete',
 				function ( evt ) {
 					evt.preventDefault();
-					if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+					if ( confirm( icwp_wpsf_vars_plugin.strings.are_you_sure ) ) {
 						base.bulkAction.call( base, 'delete', [ $( this ).data( 'rid' ) ] );
 					}
 				}
@@ -93,33 +93,32 @@
 				'.action.view-file',
 				function ( evt ) {
 					evt.preventDefault();
-					let reqData = base.getBaseAjaxData();
-					reqData.sub_action = 'view_file';
-					reqData.rid = $( this ).data( 'rid' );
 
-					iCWP_WPSF_BodyOverlay.show();
-
-					$.post( ajaxurl, reqData, function ( response ) {
+					Shield_AjaxRender
+					.send_ajax_req( {
+						render_slug: 'scanitemanalysis_container',
+						rid: $( this ).data( 'rid' )
+					} )
+					.then( ( response ) => {
 						if ( response.success ) {
 							let $fileViewModal = jQuery( '#ShieldModalContainer' );
-							// jQuery( '.modal-title', $fileViewModal ).html( response.data.vars.path );
-							jQuery( '.modal-content', $fileViewModal ).html( response.data.vars.contents );
+							jQuery( '.modal-content', $fileViewModal ).html( response.data.html );
 							$fileViewModal.modal( 'show' );
 							$fileViewModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
 								hljs.highlightElement( el );
 							} );
 						}
 						else {
-							let msg = 'Communications error with site.';
-							if ( response.data.message !== undefined ) {
-								msg = response.data.message;
-							}
-							alert( msg );
+							alert( response.data.message );
+							// console.log( response );
 						}
 					} )
-					 .always( function () {
-						 iCWP_WPSF_BodyOverlay.hide();
-					 } );
+					.catch( ( error ) => {
+						console.log( error );
+					} )
+					.finally( ( response ) => {
+						iCWP_WPSF_BodyOverlay.hide();
+					} );
 				}
 			);
 
@@ -257,7 +256,7 @@
 								name: 'selected-ignore',
 								className: 'action selected-action ignore',
 								action: function ( e, dt, node, config ) {
-									if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+									if ( confirm( icwp_wpsf_vars_plugin.strings.are_you_sure ) ) {
 										base.bulkAction.call( base, 'ignore' );
 									}
 								}
@@ -271,7 +270,7 @@
 									if ( base.$table.rows( { selected: true } ).count() > 20 ) {
 										alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
 									}
-									else if ( confirm( icwp_wpsf_vars_insights.strings.absolutely_sure ) ) {
+									else if ( confirm( icwp_wpsf_vars_plugin.strings.absolutely_sure ) ) {
 										base.bulkAction.call( base, 'repair-delete' );
 									}
 								}

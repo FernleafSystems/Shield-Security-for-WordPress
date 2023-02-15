@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\PublicKeyRetrievalFailure;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
@@ -13,23 +14,20 @@ class BaseOps {
 	use ModConsumer;
 
 	/**
-	 * @var Databases\FileLocker\EntryVO[]
-	 */
-	private static $aFileLockRecords;
-
-	/**
 	 * @var FileLocker\File
 	 */
 	protected $file;
 
-	/**
-	 * @return Databases\FileLocker\EntryVO|null
-	 */
-	protected function findLockRecordForFile() {
+	protected function findLockRecordForFile() :?FileLockerDB\Record {
 		$theLock = null;
+
+		$locks = ( new LoadFileLocks() )
+			->setMod( $this->getMod() )
+			->ofType( $this->file->type );
+
 		foreach ( $this->file->getPossiblePaths() as $path ) {
-			foreach ( $this->getFileLocks() as $maybeLock ) {
-				if ( $maybeLock->file === $path ) {
+			foreach ( $locks as $maybeLock ) {
+				if ( $maybeLock->path === $path ) {
 					$theLock = $maybeLock;
 					break;
 				}
@@ -39,7 +37,7 @@ class BaseOps {
 	}
 
 	/**
-	 * @return Databases\FileLocker\EntryVO[]
+	 * @return FileLockerDB\Record[]
 	 */
 	protected function getFileLocks() :array {
 		return ( new LoadFileLocks() )
@@ -48,17 +46,24 @@ class BaseOps {
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws PublicKeyRetrievalFailure
 	 */
 	protected function getPublicKey() :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$getter = ( new GetPublicKey() )->setMod( $this->getMod() );
 		$getter->last_error = $mod->getFileLocker()->getState()[ 'last_error' ] ?? '';
+
 		$key = $getter->retrieve();
 		if ( empty( $key ) || !is_array( $key ) ) {
-			throw new \Exception( 'Failed to obtain public key from API.' );
+			throw new PublicKeyRetrievalFailure( 'Failed to obtain public key from API.' );
 		}
+
+		$thePublicKey = reset( $key );
+		if ( empty( $thePublicKey ) || !is_string( $thePublicKey ) ) {
+			throw new PublicKeyRetrievalFailure( 'Public key was empty' );
+		}
+
 		return $key;
 	}
 

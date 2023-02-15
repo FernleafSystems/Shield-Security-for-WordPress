@@ -1,54 +1,30 @@
 {
-  "properties":       {
+  "properties":  {
     "slug":                  "reporting",
     "load_priority":         12,
     "name":                  "Reporting",
     "storage_key":           "reporting",
     "tagline":               "Shield Reporting",
-    "show_central":          true,
+    "show_central":          false,
     "show_module_menu_item": false,
-    "show_module_options":   true,
+    "show_module_options":   false,
     "premium":               false,
     "access_restricted":     true,
-    "run_if_whitelisted":    true,
+    "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
-    "run_if_wpcli":          true,
+    "run_if_wpcli":          false,
     "tracking_exclude":      true
   },
-  "wpcli":            {
-    "enabled": true
+  "wpcli":       {
+    "enabled": false
   },
-  "menu_items":       [
-  ],
-  "custom_redirects": [
-  ],
-  "sections":         [
-    {
-      "slug":        "section_timings",
-      "primary":     true,
-      "title":       "Report Frequencies",
-      "title_short": "Report Frequencies",
-      "beacon_id":   136,
-      "summary":     [
-        "Purpose - Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
-      ]
-    },
-    {
-      "slug":        "section_enable_mod_reporting",
-      "title":       "Enable Module: Reports",
-      "title_short": "Disable Module",
-      "beacon_id":   136,
-      "summary":     [
-        "Purpose - Helps you see at a glance how effective the plugin has been.",
-        "Recommendation - Keep the Reporting feature turned on."
-      ]
-    },
+  "sections":    [
     {
       "slug":   "section_non_ui",
       "hidden": true
     }
   ],
-  "options":          [
+  "options":     [
     {
       "key":         "enable_reporting",
       "section":     "section_enable_mod_reporting",
@@ -131,11 +107,41 @@
       "description":   "Decide when you should be sent non-critical information and reports about your site security."
     }
   ],
-  "definitions":      {
-    "db_classes":       {
+  "definitions": {
+    "db_handler_classes": {
+      "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Reporting\\DB\\Report\\Ops\\Handler"
+    },
+    "db_classes":         {
       "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Reports\\Handler"
     },
-    "db_table_reports": {
+    "db_table_report":    {
+      "autoexpire":      30,
+      "slug":            "report",
+      "has_updated_at":  false,
+      "has_deleted_at":  false,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "type":            {
+          "macro_type": "char",
+          "length":     3,
+          "comment":    "Report Type"
+        },
+        "interval_length": {
+          "macro_type": "varchar",
+          "length":     10,
+          "comment":    "Report Interval"
+        }
+      },
+      "cols_timestamps": {
+        "interval_end_at": {
+          "comment": "Interval End"
+        },
+        "created_at":      {
+          "comment": "Report Sent At"
+        }
+      }
+    },
+    "db_table_reports":   {
       "slug":            "reports",
       "autoexpire":      30,
       "cols_custom":     {
@@ -146,21 +152,6 @@
       "cols_timestamps": {
         "interval_end_at": "Reporting Interval End",
         "sent_at":         "Report Sent"
-      }
-    },
-    "events":           {
-      "report_generated": {
-        "audit_params": [
-          "type",
-          "interval"
-        ],
-        "level":        "debug"
-      },
-      "report_sent":      {
-        "audit_params": [
-          "medium"
-        ],
-        "level":        "debug"
       }
     }
   }

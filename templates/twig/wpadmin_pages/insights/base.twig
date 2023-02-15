@@ -3,6 +3,15 @@
 {% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
 
 {% block page_head %}
+
+	{% if flags.is_ip_whitelisted or flags.is_ip_blocked %}
+		<div class="row">
+			<div class="col bg-warning">
+				<p class="my-2 text-center">{{ flags.is_ip_whitelisted ? strings.you_are_whitelisted|raw : strings.you_are_blocked|raw }}</p>
+			</div>
+		</div>
+	{% endif %}
+
 	<div class="row justify-content-between mb-3 {% if not flags.is_mode_live %}bg-warning{% endif %}"
 	     id="apto-PageHeader">
 
@@ -13,14 +22,6 @@
 					{% if not flags.is_mode_live %}<small class="text-white fs-6">(Staging or Debug Mode)</small>{% endif %}
 				{% endblock page_head_titlemenu %}
 			</h5>
-		</div>
-
-		<div class="col d-flex flex-column align-items-center" id="SuperSearchBox">
-			<p class="mb-1">What do you want to do?</p>
-			<div>
-				<select class="supersearchbox" style="max-width: 100%; width: 100%" id="SearchBoxSelect"></select>
-{#				<span class="page-header-icon ms-1" for="SearchBoxSelect">{{ imgs.svgs.search|raw }}</span>#}
-			</div>
 		</div>
 
 		<div class="col d-flex justify-content-end align-items-center">

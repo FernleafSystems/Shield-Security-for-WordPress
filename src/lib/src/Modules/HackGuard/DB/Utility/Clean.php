@@ -3,12 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	DB\Scans\Ops as ScansDB,
-	ModCon,
-	Options
+	ModCon
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 class Clean extends ExecOnceModConsumer {
 
@@ -31,17 +30,14 @@ class Clean extends ExecOnceModConsumer {
 	private function deleteEarlierScans() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		$dbhScan = $mod->getDbH_Scans();
 
 		$scanIDsToKeep = [];
-		foreach ( $opts->getScanSlugs() as $scanSlug ) {
+		foreach ( $mod->getScansCon()->getScanSlugs() as $scanSlug ) {
 			/** @var ScansDB\Select $select */
-			$select = $dbhScan->getQuerySelector();
+			$select = $mod->getDbH_Scans()->getQuerySelector();
 			$scanRecords = $select->filterByFinished()
 								  ->filterByScan( $scanSlug )
-								  ->setOrderBy( 'finished_at', 'DESC' )
+								  ->setOrderBy( 'finished_at' )
 								  ->setLimit( 1 )
 								  ->queryWithResult();
 			if ( is_array( $scanRecords ) && count( $scanRecords ) === 1 ) {

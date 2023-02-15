@@ -120,7 +120,7 @@ class FileScanner {
 		catch ( \InvalidArgumentException $e ) {
 		}
 
-		/** TODO */
+		/** TODO
 		if ( false && empty( $item ) && !$validFile ) {
 			try {
 				( new AfsScan\Scans\RealtimeFile( $fullPath ) )
@@ -134,6 +134,7 @@ class FileScanner {
 				$item->is_realtime = true;
 			}
 		}
+		 */
 
 		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.
 		if ( empty( $item ) && $validFile ) {

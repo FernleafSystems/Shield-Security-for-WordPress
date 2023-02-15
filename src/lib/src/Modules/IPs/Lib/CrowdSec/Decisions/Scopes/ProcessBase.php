@@ -15,7 +15,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 
 	use ModConsumer;
 
-	const SCOPE = '';
+	public const SCOPE = '';
 
 	/**
 	 * @var array

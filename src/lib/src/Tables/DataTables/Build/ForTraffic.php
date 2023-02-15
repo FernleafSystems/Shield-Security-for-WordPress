@@ -20,6 +20,7 @@ class ForTraffic extends Base {
 			'code',
 			'offense',
 			'country',
+			'day',
 		];
 	}
 
@@ -142,6 +143,18 @@ class ForTraffic extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => false,
+			],
+			'day'      => [
+				'data'          => 'day',
+				'title'         => __( 'Day' ),
+				'className'     => 'day',
+				'orderable'     => false,
+				'orderSequence' => [ 'desc' ],
+				'searchable'    => false,
+				'visible'       => false,
+				'searchPanes'   => [
+					'show' => true,
+				],
 			],
 			'date'     => [
 				'data'          => [

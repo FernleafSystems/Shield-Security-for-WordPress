@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
+	Options,
+	Strings
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 use ZxcvbnPhp\Zxcvbn;
@@ -15,36 +18,46 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 
 	use WpLoginCapture;
 
-	protected function canRun() :bool {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isPasswordPoliciesEnabled();
-	}
-
 	protected function run() {
+
 		$this->setupLoginCaptureHooks();
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
-		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
-		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
-		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
+
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->isPasswordPoliciesEnabled() ) {
+			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100 );
+			add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100 );
+			add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100 );
+		}
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$password = $this->getLoginPassword();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
-		if ( Services::Request()->isPost() && !empty( $password ) ) {
-			try {
-				$this->applyPasswordChecks( $password );
-				$failed = false;
-			}
-			catch ( \Exception $e ) {
-				// We don't fail when the PWNED API is not available.
-				$failed = ( $e->getCode() != 999 );
-			}
+		$failed = false;
 
-			$this->getCon()
-				 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
+		if ( $opts->isPasswordPoliciesEnabled() ) {
+			$password = $this->getLoginPassword();
+			if ( Services::Request()->isPost() && !empty( $password ) ) {
+				try {
+					$this->applyPasswordChecks( $password );
+				}
+				catch ( Exceptions\PwnedApiFailedException $e ) {
+					// We don't fail when the PWNED API is not available.
+				}
+				catch ( Exceptions\PasswordTooWeakException | Exceptions\PasswordIsPwnedException $e ) {
+					$failed = true;
+				}
+				$this->getCon()
+					 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
+			}
+		}
+
+		if ( !$failed ) {
+			$this->getCon()->getUserMeta( $user )->updatePasswordStartedAt( $user->user_pass );
 		}
 	}
 
@@ -68,7 +81,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	private function processExpiredPassword() {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isPassExpirationEnabled() ) {
 			$startedAt = $this->getCon()->getCurrentUserMeta()->record->pass_started_at;
@@ -102,10 +115,10 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * IMPORTANT: User must be logged-in for this to work correctly
 	 * We have a 2 minute delay between redirects because some custom user forms redirect to custom
 	 * password reset pages. This prevents users following this flow.
-	 * @param string $msg
 	 * @uses wp_redirect()
 	 */
 	private function redirectToResetPassword( string $msg ) {
+		$con = $this->getCon();
 		$now = Services::Request()->ts();
 
 		$meta = $this->getCon()->getCurrentUserMeta();
@@ -119,9 +132,8 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 			if ( $user && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $action, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
-				$this->getMod()
-					 ->setFlashAdminNotice( $msg, $user, true, true );
-				$this->getCon()->fireEvent( 'password_policy_force_change', [
+				$con->getAdminNotices()->addFlash( $msg, $user, true, true );
+				$con->fireEvent( 'password_policy_force_change', [
 					'audit_params' => [
 						'user_login' => $user->user_login
 					]
@@ -136,32 +148,34 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @return \WP_Error
 	 */
 	public function checkPassword( $wpErrors ) {
-		$aExistingCodes = $wpErrors->get_error_code();
-		if ( empty( $aExistingCodes ) ) {
+
+		if ( is_wp_error( $wpErrors ) && empty( $wpErrors->get_error_code() ) ) {
 			$password = $this->getLoginPassword();
 			if ( !empty( $password ) ) {
 				$failureMsg = '';
 				try {
 					$this->applyPasswordChecks( $password );
-					$checksPassed = true;
+					$checksFailed = false;
 				}
-				catch ( \Exception $e ) {
-					$checksPassed = ( $e->getCode() === 999 );
+				catch ( Exceptions\PwnedApiFailedException $e ) {
+					$checksFailed = false;
+					// We don't fail when the PWNED API is not available.
+				}
+				catch ( Exceptions\PasswordTooWeakException | Exceptions\PasswordIsPwnedException $e ) {
+					$checksFailed = true;
 					$failureMsg = $e->getMessage();
 				}
 
-				if ( $checksPassed ) {
-					if ( Services::WpUsers()->isUserLoggedIn() ) {
-						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
-					}
-				}
-				else {
+				if ( $checksFailed ) {
 					$msg = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
 					if ( !empty( $failureMsg ) ) {
 						$msg .= sprintf( '<br/>%s: %s', __( 'Reason', 'wp-simple-firewall' ), $failureMsg );
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
 					$this->getCon()->fireEvent( 'password_policy_block' );
+				}
+				elseif ( Services::WpUsers()->isUserLoggedIn() ) {
+					$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 				}
 			}
 		}
@@ -170,16 +184,14 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param string $password
-	 * @throws \Exception
+	 * @throws Exceptions\PasswordIsPwnedException
+	 * @throws Exceptions\PasswordTooWeakException
+	 * @throws Exceptions\PwnedApiFailedException
 	 */
 	private function applyPasswordChecks( string $password ) {
-		/** @var UserManagement\Options $opts */
+		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		if ( $opts->getPassMinLength() > 0 ) {
-			$this->testPasswordMeetsMinimumLength( $password, $opts->getPassMinLength() );
-		}
 		if ( $opts->getPassMinStrength() > 0 ) {
 			$this->testPasswordMeetsMinimumStrength( $password, $opts->getPassMinStrength() );
 		}
@@ -189,109 +201,78 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @param string $password
-	 * @param int    $min
-	 * @return bool
-	 * @throws \Exception
+	 * @throws Exceptions\PasswordTooWeakException
 	 */
-	private function testPasswordMeetsMinimumLength( string $password, int $min ) {
-		$length = strlen( $password );
-		if ( $length < $min ) {
-			throw new \Exception( sprintf( __( 'Password length (%s) too short (min: %s characters)', 'wp-simple-firewall' ), $length, $min ) );
-		}
-		return true;
-	}
-
-	/**
-	 * @param string $password
-	 * @param int    $min
-	 * @return bool
-	 * @throws \Exception
-	 */
-	private function testPasswordMeetsMinimumStrength( string $password, int $min ) {
+	private function testPasswordMeetsMinimumStrength( string $password, int $min ) :bool {
 		$score = (int)( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
 		if ( $score < $min ) {
-			/** @var UserManagement\ModCon $mod */
-			$mod = $this->getMod();
-			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-				$mod->getPassStrengthName( $score ),
-				$mod->getPassStrengthName( $min )
-			) );
+			/** @var Strings $str */
+			$str = $this->getMod()->getStrings();
+			throw new Exceptions\PasswordTooWeakException(
+				sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
+					$str->getPassStrengthName( $score ),
+					$str->getPassStrengthName( $min )
+				)
+			);
 		}
+
 		return true;
 	}
 
 	/**
-	 * @param string $password
-	 * @return bool
-	 * @throws \Exception
+	 * @throws Exceptions\PasswordIsPwnedException
+	 * @throws Exceptions\PwnedApiFailedException
 	 */
-	private function sendRequestToPwnedRange( string $password ) {
-		$oHttpReq = Services::HttpRequest();
+	private function sendRequestToPwnedRange( string $password ) :int {
+		$req = Services::HttpRequest();
 
-		$sPassHash = strtoupper( hash( 'sha1', $password ) );
-		$sSubHash = substr( $sPassHash, 0, 5 );
+		$passwordSHA1 = strtoupper( hash( 'sha1', $password ) );
+		$substrPasswordSHA1 = substr( $passwordSHA1, 0, 5 );
 
-		$success = $oHttpReq->get(
-			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
+		$success = $req->get(
+			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
 			]
 		);
 
-		$sError = '';
-		$nErrorCode = 2; // Default To Error
+		$error = '';
 		if ( !$success ) {
-			$sError = 'API request failed';
-			$nErrorCode = 999; // We don't fail PWNED passwords on failed API requests.
+			$error = 'API request failed';
 		}
 		else {
-			$nHttpCode = $oHttpReq->lastResponse->getCode();
-			if ( empty( $nHttpCode ) ) {
-				$sError = 'Unexpected Error: No response code available from the Pwned API';
+			$httpCode = (int)$req->lastResponse->getCode();
+			if ( empty( $httpCode ) ) {
+				$error = 'No response code available from the Pwned API';
 			}
-			elseif ( $nHttpCode != 200 ) {
-				$sError = 'Unexpected Error: The response from the Pwned API was unexpected';
+			elseif ( $httpCode !== 200 ) {
+				$error = 'The response from the Pwned API was unexpected';
 			}
-			elseif ( empty( $oHttpReq->lastResponse->body ) ) {
-				$sError = 'Unexpected Error: The response from the Pwned API was empty';
-			}
-			else {
-				$nPwnedCount = 0;
-				foreach ( array_map( 'trim', explode( "\n", trim( $oHttpReq->lastResponse->body ) ) ) as $sRow ) {
-					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
-						$nPwnedCount = substr( $sRow, 36 );
-						break;
-					}
-				}
-				if ( $nPwnedCount > 0 ) {
-					$sError = __( 'Please use a different password.', 'wp-simple-firewall' )
-							  .'<br/>'.__( 'This password has been pwned.', 'wp-simple-firewall' )
-							  .' '.sprintf(
-								  '(<a href="%s" target="_blank">%s</a>)',
-								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-								  sprintf( __( '%s times', 'wp-simple-firewall' ), $nPwnedCount )
-							  );
-				}
-				else {
-					// Success: Password is not pwned
-					$nErrorCode = 0;
-				}
+			elseif ( strlen( (string)$req->lastResponse->body ) === 0 ) {
+				$error = 'The response from the Pwned API was empty';
 			}
 		}
 
-		if ( $nErrorCode != 0 ) {
-			throw new \Exception( '[Pwned Request] '.$sError, $nErrorCode );
+		if ( !empty( $error ) ) {
+			throw new Exceptions\PwnedApiFailedException( '[Pwned Password API Request] '.$error );
 		}
 
-		return true;
-	}
+		$body = strtoupper( trim( $req->lastResponse->body ) )."\n";
+		if ( preg_match( sprintf( '#%s:([0-9]+)\s#', substr( $passwordSHA1, 5 ) ), $body, $matches ) ) {
+			$countPwned = $matches[ 1 ];
+			throw new Exceptions\PasswordIsPwnedException(
+				implode( ' ', [
+					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
+					sprintf( '(<a href="%s" target="_blank">%s</a>)',
+						'https://shsec.io/la',
+						sprintf( _n( '%s time', '%s times', $countPwned, 'wp-simple-firewall' ), $countPwned )
+					)
+				] ),
+				$countPwned
+			);
+		}
 
-	/**
-	 * @param \WP_User $user
-	 * @param bool     $failed
-	 */
-	private function setPasswordFailedFlag( \WP_User $user, bool $failed = false ) {
+		return 0;
 	}
 }

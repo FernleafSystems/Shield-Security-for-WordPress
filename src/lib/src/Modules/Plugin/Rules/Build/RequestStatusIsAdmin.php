@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class RequestStatusIsAdmin extends RequestStatusBase {
 
-	const SLUG = 'shield/request_status_is_admin';
+	public const SLUG = 'shield/request_status_is_admin';
 
 	protected function getName() :string {
 		return 'Is Admin?';

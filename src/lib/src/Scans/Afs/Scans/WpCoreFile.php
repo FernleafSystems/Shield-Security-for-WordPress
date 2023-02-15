@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
+use FernleafSystems\Wordpress\Services\Services;
 
 class WpCoreFile extends BaseScan {
 

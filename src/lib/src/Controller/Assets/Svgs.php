@@ -10,7 +10,7 @@ class Svgs {
 	use PluginControllerConsumer;
 
 	public function raw( string $image ) :string {
-		return Services::WpFs()->getFileContent( $this->getCon()->paths->forImage( $image ) );
+		return (string)Services::WpFs()->getFileContent( $this->getCon()->paths->forSVG( $image ) );
 	}
 
 	public function url( string $image ) :string {

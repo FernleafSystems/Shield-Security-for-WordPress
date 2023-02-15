@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
@@ -13,10 +14,21 @@ class BuildSearchPanesData {
 	public function build() :array {
 		return [
 			'options' => [
+				'day'   => $this->buildForDay(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
 			]
 		];
+	}
+
+	private function buildForDay() :array {
+		/** @var ModCon $mod */
+		$mod = $this->getMod();
+		return ( new BuildDataForDays() )->build(
+			$mod->getDbH_Logs()
+				->getQuerySelector()
+				->getDistinctForColumn( 'created_at' )
+		);
 	}
 
 	private function buildForIPs() :array {
@@ -31,7 +43,7 @@ class BuildSearchPanesData {
 				}
 				return $ip;
 			},
-			$this->runQuery( 'INET6_NTOA(ips.ip) as ip' )
+			$this->runQuery( 'INET6_NTOA(`ips`.`ip`) as `ip`' )
 		) ) );
 	}
 
@@ -47,7 +59,7 @@ class BuildSearchPanesData {
 				}
 				return $evt;
 			},
-			$this->runQuery( '`log`.event_slug as event' )
+			$this->runQuery( '`log`.`event_slug` as event' )
 		) ) );
 	}
 

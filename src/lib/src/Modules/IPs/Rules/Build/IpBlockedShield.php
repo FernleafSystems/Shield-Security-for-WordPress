@@ -15,7 +15,7 @@ class IpBlockedShield extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	const SLUG = 'shield/is_ip_blocked_shield';
+	public const SLUG = 'shield/is_ip_blocked_shield';
 
 	protected function getName() :string {
 		return 'Is IP Shield Blocked';

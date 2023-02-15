@@ -1,4 +1,10 @@
 <p>--</p>
+{% if flags.email_flags.is_admin_email %}
+	<p>
+		&rarr; <a href="{{ hrefs.configure_recipient }}" target="_blank">{{ strings.configure_recipient }}</a>
+	</p>
+{% endif %}
+
 {% if flags.is_pro %}
 	{% if not flags.is_whitelabelled %}
 		<p>Thank you for choosing Shield Security PRO.</p>
@@ -14,14 +20,14 @@
 		</ul>
 		<p>&hellip; <a href="{{ hrefs.much_more }}" target="_blank">{{ strings.much_more }}</a>&#33;</p>
 		<p><a href="{{ hrefs.upgrade }}"
-			  target="_blank"
-			  style="border: 1px solid #070;display: inline-block;padding: 10px 20px;border-radius: 10px;color: #070;text-decoration: none;margin-left: 20px;font-weight: bolder;"
+		      target="_blank"
+		      style="border: 1px solid #070;display: inline-block;padding: 10px 20px;border-radius: 10px;color: #070;text-decoration: none;margin-left: 20px;font-weight: bolder;"
 			>{{ strings.upgrade|raw }}</a></p>
 	</div>
 {% endif %}
 
 <p>
 	{{ strings.sent_from }}
-	<br/>{{ strings.delays }}
-	<br/>{{ strings.time_sent }}
+	<br />{{ strings.delays }}
+	<br />{{ strings.time_sent }}
 </p>

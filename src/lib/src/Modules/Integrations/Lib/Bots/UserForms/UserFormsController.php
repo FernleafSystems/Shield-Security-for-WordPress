@@ -17,9 +17,6 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 		return 'user_form_providers';
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function enumProviders() :array {
 		return [
 			'buddyboss'               => Handlers\Buddyboss::class,
@@ -30,6 +27,7 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 			'memberpress'             => Handlers\MemberPress::class,
 			'paidmembersubscriptions' => Handlers\PaidMemberSubscriptions::class,
 			'profilebuilder'          => Handlers\ProfileBuilder::class,
+			'restrictcontentpro'      => Handlers\RestrictContentPro::class,
 			'ultimatemember'          => Handlers\UltimateMember::class,
 			'woocommerce'             => Handlers\WooCommerce::class,
 			'wordpress'               => Handlers\WordPress::class,

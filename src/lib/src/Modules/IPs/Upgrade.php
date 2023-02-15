@@ -6,11 +6,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgrade_1600() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		if ( method_exists( $mod, 'runIpMigrator' ) ) {
-			$mod->runIpMigrator();
-		}
-	}
 }

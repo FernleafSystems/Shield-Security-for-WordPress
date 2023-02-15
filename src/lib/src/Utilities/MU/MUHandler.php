@@ -9,7 +9,7 @@ class MUHandler {
 
 	use PluginControllerConsumer;
 
-	const PLUGIN_FILE_NAME = 'a-shield-mu.php';
+	public const PLUGIN_FILE_NAME = 'a-shield-mu.php';
 
 	public function isActiveMU() :bool {
 		return Services::WpFs()->isFile( $this->getMuFilePath() );
@@ -70,8 +70,8 @@ class MUHandler {
 
 	protected function testLoopback() :bool {
 		$status = Services::Rest()->callInternal( [
-				'route' => '/wp-site-health/v1/tests/loopback-requests'
-			] )->get_data()[ 'status' ] ?? '';
+			'route' => '/wp-site-health/v1/tests/loopback-requests'
+		] )->get_data()[ 'status' ] ?? '';
 		return $status === 'good';
 	}
 

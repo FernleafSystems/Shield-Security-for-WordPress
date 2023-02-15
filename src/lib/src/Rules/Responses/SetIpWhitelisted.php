@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 
 class SetIpWhitelisted extends Base {
 
-	const SLUG = 'set_ip_whitelisted';
+	public const SLUG = 'set_ip_whitelisted';
 
 	protected function execResponse() :bool {
 		$con = $this->getCon();

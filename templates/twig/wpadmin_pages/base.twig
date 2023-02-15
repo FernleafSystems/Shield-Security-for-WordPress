@@ -1,62 +1,62 @@
 {% block inline_styles %}
 {% endblock %}
 
-<div class="container-fluid {{ classes.top_container|default('') }}">
-	<div id="odp-body-container" class="odp-admin-page {{ classes.page_container|default('') }}">
-		{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
-		<div id="odp-PageContainer">
-		{% block body %}
-			<div class="row" id="odp-PageHead">
-				<div class="col">
-					{% block page_head %}Override this block for the header area{% endblock %}
-				</div>
-			</div>
+{% block top_container %}
+	<div class="container-fluid {{ classes.top_container|default('') }}">
+		<div id="odp-body-container" class="odp-admin-page {{ classes.page_container|default('') }}">
+			{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
+			<div id="odp-PageContainer">
+				{% block body %}
+					<div class="row" id="odp-PageHead">
+						<div class="col">
+							{% block page_head %}Override this block for the header area{% endblock %}
+						</div>
+					</div>
 
-			<div class="row" id="odp-PageMain">
-				<div class="col">
-
-					<div class="row">
-
+					<div class="row" id="odp-PageMain">
             {% if flags.show_sidebar_nav|default(true) %}
 							<div id="apto-PageMainSide" class="col-2 col-lg-1">
+
+								{% include '/wpadmin_pages/components/search/super_search.twig' %}
+
 								{% block page_main_side %}
 									{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
 								{% endblock %}
 							</div>
 						{% endif %}
 
-						{% if flags.show_sidebar_nav|default(true) %}
-							<div id="apto-PageMainBody" class="col-6 col-sm-8 col-md-9 col-xl-10">
-						{% else %}
-							<div id="apto-PageMainBody" class="col-12">
-						{% endif %}
-							{% block page_main %}
-								<div class="row">
-									<div class="col">
-									</div>
+						<div id="apto-PageMainBody"
+						     class="{% if flags.show_sidebar_nav|default(true) %}col-6 col-sm-8 col-md-9 col-xl-10{% else %}col-12{% endif %}"
+						>
+							<div class="row row-cols-1">
+								<div class="col" id="apto-PageMainBody-Inner">
+									{% block page_main %}
+									{% endblock %}
 								</div>
-							{% endblock %}
+							</div>
 						</div>
-
 					</div>
 
-				</div>
-			</div>
+					<div class="row" id="odp-PageFoot">
+						<div class="col">
+							{% block page_foot %}Override this block for the footer area{% endblock %}
+						</div>
+					</div>
+				{% endblock %}
 
-			<div class="row" id="odp-PageFoot">
-				<div class="col">
-					{% block page_foot %}Override this block for the footer area{% endblock %}
-				</div>
 			</div>
-		{% endblock %}
-
 		</div>
 	</div>
-</div>
+	</div>
 
+{% endblock %}
+
+{% block html_placeholders %}
 	{% include '/components/html/offcanvas.twig' %}
-	{% include '/components/html/dialog.twig' %}
+	{% include '/components/html/modal_super_search.twig' %}
+	{% include '/components/html/wait_spinner.twig' %}
+	{% include '/components/html/loading_placeholder.twig' %}
+{% endblock %}
 
-	{% block inline_scripts %}
-	{% endblock %}
-</div>
+{% block inline_scripts %}
+{% endblock %}

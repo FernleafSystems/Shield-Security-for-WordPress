@@ -2,8 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
+	AttemptToAccessNonExistingRuleException,
+	NoConditionActionDefinedException,
+	NoSuchConditionHandlerException,
+	RuleNotYetRunException
+};
 
 class ConditionsProcessor extends BaseProcessor {
 
@@ -40,11 +44,7 @@ class ConditionsProcessor extends BaseProcessor {
 						$matched = !$matched;
 					}
 				}
-				catch ( Exceptions\RuleNotYetRunException $e ) {
-					error_log( $e->getMessage() );
-					return false;
-				}
-				catch ( Exceptions\AttemptToAccessNonExistingRuleException $e ) {
+				catch ( RuleNotYetRunException | AttemptToAccessNonExistingRuleException $e ) {
 					error_log( $e->getMessage() );
 					return false;
 				}
@@ -59,11 +59,7 @@ class ConditionsProcessor extends BaseProcessor {
 					}
 					$this->consolidatedMeta[ $subCondition[ 'condition' ] ] = $handler->getConditionTriggerMetaData();
 				}
-				catch ( Exceptions\NoSuchConditionHandlerException $e ) {
-					error_log( $e->getMessage() );
-					continue;
-				}
-				catch ( Exceptions\NoConditionActionDefinedException $e ) {
+				catch ( NoSuchConditionHandlerException | NoConditionActionDefinedException $e ) {
 					error_log( $e->getMessage() );
 					continue;
 				}
@@ -88,13 +84,13 @@ class ConditionsProcessor extends BaseProcessor {
 	}
 
 	/**
-	 * @throws Exceptions\AttemptToAccessNonExistingRuleException
-	 * @throws Exceptions\RuleNotYetRunException
+	 * @throws AttemptToAccessNonExistingRuleException
+	 * @throws RuleNotYetRunException
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
 		$result = $this->rulesCon->getRule( $rule )->result;
 		if ( is_null( $result ) ) {
-			throw new Exceptions\RuleNotYetRunException( 'Rule not yet run: '.$rule );
+			throw new RuleNotYetRunException( 'Rule not yet run: '.$rule );
 		}
 		return $result;
 	}

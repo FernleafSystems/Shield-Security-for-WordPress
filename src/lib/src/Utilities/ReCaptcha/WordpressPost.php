@@ -11,7 +11,7 @@ class WordpressPost implements RequestMethod {
 	 * URL to which requests are sent via wp_remote_post.
 	 * @const string
 	 */
-	const SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+	public const SITE_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
 
 	/**
 	 * Submit the wp_remote_post request with the specified parameters.

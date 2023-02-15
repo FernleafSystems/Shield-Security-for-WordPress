@@ -3,7 +3,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 	let currentMenuLoadItem;
 
 	var handleDynamicLoad = function ( evt, response ) {
-		document.querySelector( '#apto-PageMainBody' ).innerHTML = response.data.html;
+		document.querySelector( '#apto-PageMainBody-Inner' ).innerHTML = response.data.html;
 
 		let urlHash = window.location.hash ? window.location.hash : '';
 		// Using links to specific config sections, we extract the section and trigger the tab show()
@@ -20,8 +20,7 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 		 *  We need to take into account the window's hash link. We do this by checking
 		 *  for its existence on-page and only add it back to the URL if it's applicable.
 		 */
-		let currentTargetHref = jQuery( currentMenuLoadItem ).data( 'target_href' );
-		let replaceStateUrl = currentTargetHref ? currentTargetHref : response.data.page_url;
+		let replaceStateUrl = response.data.page_url;
 		let hashOnPageElement = document.getElementById( urlHash.replace( /#/, '' ) );
 		if ( hashOnPageElement ) {
 			replaceStateUrl += urlHash;
@@ -49,14 +48,13 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 	};
 
 	let renderDynamicPageLoad = function ( params ) {
-		sendReq( params );
-	};
-
-	let sendReq = function ( params ) {
-		document.querySelector( '#apto-PageMainBody' ).innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';
-		shield_vars_navigation.ajax.dynamic_load.load_params = params;
+		let placeholder = document.getElementById( 'ShieldLoadingPlaceholder' ).cloneNode( true );
+		placeholder.id = '';
+		placeholder.classList.remove( 'd-none' );
+		document.querySelector( '#apto-PageMainBody-Inner' ).innerHTML = placeholder.innerHTML;
+		shield_vars_navigation.ajax.dynamic_load.dynamic_load_params = params;
 		iCWP_WPSF_StandardAjax.send_ajax_req(
-			shield_vars_navigation.ajax.dynamic_load, false, 'dynamic_load'
+			shield_vars_navigation.ajax.dynamic_load, true, 'dynamic_load'
 		);
 	};
 
@@ -69,14 +67,14 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 			jQuery( document ).on( 'click', 'a.dynamic_body_load', function ( evt ) {
 				evt.preventDefault();
 				currentMenuLoadItem = evt.currentTarget;
-				renderDynamicPageLoad( jQuery( currentMenuLoadItem ).data() );
+				renderDynamicPageLoad( jQuery( currentMenuLoadItem ).data( 'dynamic_page_load' ) );
 				return false;
 			} );
 
 			let activePageLink = jQuery( '#NavSideBar a.active.body_content_link.dynamic_body_load' );
 			if ( activePageLink.length === 1 ) {
 				currentMenuLoadItem = activePageLink[ 0 ];
-				renderDynamicPageLoad( jQuery( activePageLink ).data() );
+				renderDynamicPageLoad( jQuery( activePageLink ).data( 'dynamic_page_load' ) );
 			}
 		} );
 	};

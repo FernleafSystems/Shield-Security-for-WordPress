@@ -6,6 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class FirewallDirTraversal extends BuildFirewallBase {
 
-	const SLUG = 'shield/firewall_dir_traversal';
-	const SCAN_CATEGORY = 'dir_traversal';
+	public const SLUG = 'shield/firewall_dir_traversal';
+	public const SCAN_CATEGORY = 'dir_traversal';
 }

@@ -9,14 +9,11 @@ class IsForceOff extends Base {
 
 	use RequestIP;
 
-	const SLUG = 'is_force_off';
+	public const SLUG = 'is_force_off';
 
 	protected function execConditionCheck() :bool {
 		$con = $this->getCon();
-		if ( !isset( $con->this_req->is_force_off ) ) {
-			$con->this_req->is_force_off = $this->findForceOffFile() !== false;
-		}
-		return $con->this_req->is_force_off;
+		return $con->this_req->is_force_off ?? $con->this_req->is_force_off = $this->findForceOffFile() !== false;
 	}
 
 	/**

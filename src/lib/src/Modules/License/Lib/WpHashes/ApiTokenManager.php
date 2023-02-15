@@ -20,7 +20,7 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 					$this->setCanRequestOverride( true )->getToken();
 					break;
 				case 'lic_fail_deactivate':
-					$this->storeToken( [] );
+					$this->clearToken();
 					break;
 				default:
 					break;
@@ -62,7 +62,7 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 			}
 		}
 		else {
-			$this->storeToken( [] );
+			$this->clearToken();
 		}
 
 		return empty( $token[ 'token' ] ) ? '' : $token[ 'token' ];
@@ -129,12 +129,12 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->getExpiresAt();
 	}
 
-	/**
-	 * @return $this
-	 */
 	private function storeToken( array $token = [] ) {
 		$this->getOptions()->setOpt( 'wphashes_api_token', $token );
-		return $this;
+	}
+
+	private function clearToken() {
+		$this->storeToken( [] );
 	}
 
 	/**

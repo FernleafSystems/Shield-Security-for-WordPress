@@ -2,35 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class Import {
 
 	use ModConsumer;
 
-	public function run( string $method = 'site' ) {
-		try {
-			switch ( $method ) {
-				case 'file':
-					$this->fromFileUpload();
-					break;
-				case 'site':
-				default:
-					$this->fromSite();
-					break;
-			}
-		}
-		catch ( \Exception $e ) {
-		}
-		die();
-	}
-
 	/**
-	 * @param string $path
-	 * @param bool   $delete
 	 * @throws \Exception
 	 */
 	public function fromFile( string $path, bool $delete = true ) {
@@ -85,32 +66,30 @@ class Import {
 		}
 
 		$FS = Services::WpFs();
-		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
-			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
+		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] ) || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
 		}
-		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
-			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
-			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
-			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
-		) {
+
+		if ( isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
+			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
+		}
+
+		if ( $_FILES[ 'import_file' ][ 'size' ] == 0 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0 ) {
+			throw new \Exception( __( "The file appears to be empty or couldn't be uploaded properly", 'wp-simple-firewall' ) );
 		}
 
 		$this->fromFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
 	/**
-	 * @param bool|null $isEnableNetwork
-	 * @return int
 	 * @throws \Exception
 	 */
-	public function fromSite( string $masterURL = '', string $secretKey = '', $isEnableNetwork = null ) {
+	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
-		$DP = Services::Data();
 
 		if ( empty( $masterURL ) ) {
 			$masterURL = $opts->getImportExportMasterImportUrl();
@@ -141,7 +120,7 @@ class Import {
 		if ( !$hasParts ) {
 			throw new \Exception( "Couldn't parse the URL.", 4 );
 		}
-		$masterURL = $DP->validateSimpleHttpUrl( $masterURL ); // final clean
+		$masterURL = Services::Data()->validateSimpleHttpUrl( $masterURL ); // final clean
 		if ( empty( $masterURL ) ) {
 			throw new \Exception( "Couldn't validate the URL.", 4 );
 		}
@@ -150,20 +129,24 @@ class Import {
 		$opts->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
 		$mod->saveModOptions();
 
-		$data = [
-			'shield_action' => 'importexport_export',
-			'secret'        => $secretKey,
-			'url'           => Services::WpGeneral()->getHomeUrl(),
-			'id'            => $this->getImportID(),
-		];
 		// Don't send the network setup request if it's the cron.
-		if ( !is_null( $isEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
-			$data[ 'network' ] = $isEnableNetwork ? 'Y' : 'N';
+		$data = [
+			'secret' => $secretKey,
+			'url'    => Services::WpGeneral()->getHomeUrl(),
+			'id'     => $this->getImportID(),
+		];
+		if ( !is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
+			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
 		}
 
 		{ // Make the request
-			add_filter( 'http_request_host_is_external', '__return_true', 11 );
-			$response = @json_decode( Services::HttpRequest()->getContent( URL::Build( $masterURL, $data ) ), true );
+			$targetExportURL = $this->getCon()->plugin_urls->noncedPluginAction(
+				PluginImportExport_Export::class,
+				$masterURL,
+				$data
+			);
+			add_filter( 'http_request_host_is_external', '\__return_true', 11 );
+			$response = @json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
 			remove_filter( 'http_request_host_is_external', '__return_true', 11 );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
@@ -188,25 +171,23 @@ class Import {
 
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
-		if ( is_null( $isEnableNetwork ) ) {
+		if ( is_null( $enableNetwork ) ) {
 			if ( $hadMasterSiteUrl && !$opts->hasImportExportMasterImportUrl() ) {
 				$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
 			}
 		}
-		elseif ( $isEnableNetwork === true ) {
+		elseif ( $enableNetwork === true ) {
 			$opts->setOpt( 'importexport_masterurl', $masterURL );
 			$this->getCon()->fireEvent(
 				'master_url_set',
 				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
 		}
-		elseif ( $isEnableNetwork === false ) {
+		elseif ( $enableNetwork === false ) {
 			$opts->setOpt( 'importexport_masterurl', '' );
 		}
 		// store & clean the master URL
 		$mod->saveModOptions();
-
-		return 0;
 	}
 
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
@@ -214,15 +195,15 @@ class Import {
 		$anythingChanged = false;
 		foreach ( $this->getCon()->modules as $mod ) {
 			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
-				$oTheseOpts = $mod->getOptions();
-				$oTheseOpts->setMultipleOptions(
+				$theseOpts = $mod->getOptions();
+				$theseOpts->setMultipleOptions(
 					array_diff_key(
 						$data[ $mod->getOptionsStorageKey() ] ?? [],
-						array_flip( $oTheseOpts->getXferExcluded() )
+						array_flip( $theseOpts->getXferExcluded() )
 					)
 				);
 
-				$anythingChanged = $anythingChanged || $oTheseOpts->getNeedSave();
+				$anythingChanged = $anythingChanged || $theseOpts->getNeedSave();
 				$mod->saveModOptions( true );
 			}
 		}

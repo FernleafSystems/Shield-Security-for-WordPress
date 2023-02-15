@@ -8,7 +8,7 @@
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "user_management",
-    "tagline":               "Control user sessions, duration, timeouts and account sharing",
+    "tagline":               "Control user sessions, duration, timeouts and account sharing.",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
@@ -47,9 +47,6 @@
     },
     {
       "slug":        "section_passwords",
-      "reqs":        {
-        "wp_min": "4.4"
-      },
       "title":       "Password Policies",
       "title_short": "Password Policies",
       "beacon_id":   256,
@@ -110,7 +107,6 @@
     {
       "key":         "enable_user_login_email_notification",
       "section":     "section_admin_login_notification",
-      "premium":     true,
       "sensitive":   false,
       "default":     "N",
       "type":        "checkbox",
@@ -272,18 +268,6 @@
       "description": "Prevents users from using any passwords found on the public available list of pwned passwords."
     },
     {
-      "key":         "pass_min_length",
-      "section":     "section_passwords",
-      "premium":     true,
-      "type":        "integer",
-      "default":     12,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Minimum Length",
-      "summary":     "Minimum Password Length",
-      "description": "All passwords that a user sets must be at least this many characters in length."
-    },
-    {
       "key":           "pass_min_strength",
       "section":       "section_passwords",
       "premium":       true,
@@ -318,18 +302,6 @@
       "description":   "All passwords that a user sets must meet this minimum strength."
     },
     {
-      "key":         "pass_force_existing",
-      "section":     "section_passwords",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Apply To Existing Users",
-      "summary":     "Apply Password Policies To Existing Users and Their Passwords",
-      "description": "Forces existing users to update their passwords if they don't meet requirements, after they next login ."
-    },
-    {
       "key":         "pass_expire",
       "section":     "section_passwords",
       "premium":     true,
@@ -341,6 +313,18 @@
       "name":        "Password Expiration",
       "summary":     "Passwords Expire After This Many Days",
       "description": "Users will be forced to reset their passwords after the number of days specified."
+    },
+    {
+      "key":         "pass_force_existing",
+      "section":     "section_passwords",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Apply To Existing Users",
+      "summary":     "Apply Password Policies To Existing Users and Their Passwords",
+      "description": "Forces existing users to update their passwords if they don't meet requirements, after they next login ."
     },
     {
       "key":         "manual_suspend",

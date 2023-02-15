@@ -3,6 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -48,10 +53,10 @@ class UI extends Base\UI {
 					'scripts' => []
 				],
 				'ajax'    => [
-					'sec_admin_login' => $con->getModule_SecAdmin()->getSecAdminLoginAjaxData(),
+					'sec_admin_login' => ActionData::Build( Actions\SecurityAdminLogin::class ),
 				],
 				'flags'   => [
-					'has_session'             => $mod->getSessionWP()->valid,
+					'has_session'             => true,
 					'display_helpdesk_widget' => !$isWhitelabelled,
 					'is_whitelabelled'        => $isWhitelabelled
 				],
@@ -65,7 +70,7 @@ class UI extends Base\UI {
 						'odp-outercontainer',
 						$this->getCon()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 						$mod->getModSlug(),
-						Services::Request()->query( 'inav', '' )
+						Services::Request()->query( Constants::NAV_ID, '' )
 					] ) )
 				],
 			]

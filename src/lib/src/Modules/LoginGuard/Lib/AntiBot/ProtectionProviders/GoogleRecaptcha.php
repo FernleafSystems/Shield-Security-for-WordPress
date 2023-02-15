@@ -15,10 +15,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 			 ->setToEnqueue();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function performCheck( $form ) {
+	public function performCheck( $formProvider ) {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 			try {
@@ -40,28 +37,22 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		return new TestRequest();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function buildFormInsert( $formProvider ) {
+	public function buildFormInsert( $formProvider ) :string {
 		return $this->getCaptchaHtml();
 	}
 
-	/**
-	 * @return string
-	 */
-	private function getCaptchaHtml() {
+	private function getCaptchaHtml() :string {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		if ( $mod->getCaptchaCfg()->invisible ) {
-			$sExtraStyles = '';
+			$extraStyles = '';
 		}
 		else {
-			$sExtraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.895);-webkit-transform:scale(0.895);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
+			$extraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.895);-webkit-transform:scale(0.895);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		}
-		return $sExtraStyles.$this->getCon()
-								  ->getModule_Plugin()
-								  ->getCaptchaEnqueue()
-								  ->getCaptchaHtml();
+		return $extraStyles.$this->getCon()
+								 ->getModule_Plugin()
+								 ->getCaptchaEnqueue()
+								 ->getCaptchaHtml();
 	}
 }

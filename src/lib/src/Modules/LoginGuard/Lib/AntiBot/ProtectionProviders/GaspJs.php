@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -50,10 +51,7 @@ class GaspJs extends BaseProtectionProvider {
 		} );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function performCheck( $form ) {
+	public function performCheck( $formProvider ) {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
@@ -66,8 +64,8 @@ class GaspJs extends BaseProtectionProvider {
 
 		$gasp = $req->post( $mod->getGaspKey() );
 
-		$username = $form->getUserToAudit();
-		$action = $form->getActionToAudit();
+		$username = $formProvider->getUserToAudit();
+		$action = $formProvider->getActionToAudit();
 
 		$valid = false;
 		$errorMsg = '';
@@ -105,15 +103,8 @@ class GaspJs extends BaseProtectionProvider {
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function buildFormInsert( $formProvider ) {
-		return $this->getMod()->renderTemplate( '/snippets/anti_bot/gasp_js.twig', [
-			'strings' => [
-				'loading' => __( 'Loading', 'wp-simple-firewall' )
-			]
-		] );
+	public function buildFormInsert( $formProvider ) :string {
+		return $this->getCon()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}
 
 	protected function isFactorJsRequired() :bool {

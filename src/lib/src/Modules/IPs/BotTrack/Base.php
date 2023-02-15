@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
-	const OPT_KEY = '';
+	public const OPT_KEY = '';
 
 	protected function run() {
 		$this->process();

@@ -55,7 +55,7 @@ class Options extends BaseShield\Options {
 
 	public function getAutoCleanDays() :int {
 		$days = $this->getOpt( 'audit_trail_auto_clean' );
-		if ( !$this->isPremium() ) {
+		if ( !$this->getCon()->isPremiumActive() ) {
 			$this->setOpt( 'audit_trail_auto_clean', min( $days, 7 ) );
 		}
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );

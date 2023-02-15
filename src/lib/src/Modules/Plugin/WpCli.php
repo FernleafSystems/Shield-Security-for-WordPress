@@ -2,17 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-
-class WpCli extends BaseShield\WpCli {
+class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\WpCli {
 
 	protected function enumCmdHandlers() :array {
 		return [
-			Plugin\WpCli\ForceOff::class,
-			Plugin\WpCli\Reset::class,
-			Plugin\WpCli\Export::class,
-			Plugin\WpCli\Import::class,
+			WpCli\ForceOff::class,
+			WpCli\Reset::class,
+			WpCli\Export::class,
+			WpCli\Import::class,
 		];
 	}
 }

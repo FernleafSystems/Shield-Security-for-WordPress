@@ -12,10 +12,7 @@ class ModCon extends BaseShield\ModCon {
 	private $requestLogger;
 
 	public function getRequestLogger() :Lib\RequestLogger {
-		if ( !isset( $this->requestLogger ) ) {
-			$this->requestLogger = ( new Lib\RequestLogger() )->setMod( $this );
-		}
-		return $this->requestLogger;
+		return $this->requestLogger ?? $this->requestLogger = ( new Lib\RequestLogger() )->setMod( $this );
 	}
 
 	protected function enumRuleBuilders() :array {

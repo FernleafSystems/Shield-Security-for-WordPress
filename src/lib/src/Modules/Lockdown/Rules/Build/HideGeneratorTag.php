@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 
 class HideGeneratorTag extends BuildRuleCoreShieldBase {
 
-	const SLUG = 'shield/hide_generator_tag';
+	public const SLUG = 'shield/hide_generator_tag';
 
 	protected function getName() :string {
 		return 'Hide Generator Tag';

@@ -17,9 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  */
 class EntryVO extends Base\EntryVO {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
@@ -34,9 +31,6 @@ class EntryVO extends Base\EntryVO {
 		return $value;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __set( string $key, $value ) {
 		switch ( $key ) {
 			case 'content':

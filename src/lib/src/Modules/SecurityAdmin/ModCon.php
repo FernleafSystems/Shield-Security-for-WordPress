@@ -3,12 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
-	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
+	public const SLUG = 'admin_access_restriction';
 
 	/**
 	 * @var Lib\WhiteLabel\WhitelabelController
@@ -22,24 +23,16 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
-			$this->getSecurityAdminController()->isEnabledSecAdmin() ? Rules\Build\IsSecurityAdmin::class : null,
+			Rules\Build\IsSecurityAdmin::class,
 		];
 	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
-		if ( !$this->whitelabelCon instanceof Lib\WhiteLabel\WhitelabelController ) {
-			$this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )
-				->setMod( $this );
-		}
-		return $this->whitelabelCon;
+		return $this->whitelabelCon ?? $this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )->setMod( $this );
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
-		if ( !$this->securityAdminCon instanceof Lib\SecurityAdmin\SecurityAdminController ) {
-			$this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )
-				->setMod( $this );
-		}
-		return $this->securityAdminCon;
+		return $this->securityAdminCon ?? $this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )->setMod( $this );
 	}
 
 	public function runDailyCron() {
@@ -60,8 +53,11 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function getSecAdminLoginAjaxData() :array {
-		return $this->getAjaxActionData( 'sec_admin_login' );
+		return ActionData::Build( Actions\SecurityAdminLogin::class );
 	}
 
 	protected function preProcessOptions() {
@@ -77,29 +73,7 @@ class ModCon extends BaseShield\ModCon {
 				->run( $opts->getSecurityAdminUsers() )
 		);
 
-		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
-			$opts->clearSecurityAdminKey();
-			( new Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
-				->setMod( $this )
-				->turnOff();
-			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
-			$opts->setOpt( 'sec_admin_users', [] );
-		}
-
 		$this->runMuHandler();
-	}
-
-	protected function handleModAction( string $action ) {
-		switch ( $action ) {
-			case  'remove_secadmin_confirm':
-				( new Lib\SecurityAdmin\Ops\RemoveSecAdmin() )
-					->setMod( $this )
-					->remove();
-				break;
-			default:
-				parent::handleModAction( $action );
-				break;
-		}
 	}
 
 	/**
@@ -144,7 +118,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 16.1
+	 * @deprecated 17.0
 	 */
 	public function preDeactivatePlugin() {
 	}

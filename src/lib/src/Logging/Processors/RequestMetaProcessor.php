@@ -2,14 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestMetaProcessor extends BaseMetaProcessor {
 
-	/**
-	 * @inheritDoc
-	 */
 	public function __invoke( array $records ) {
 		$WP = Services::WpGeneral();
 		$isWpCli = $WP->isWpCli();
@@ -45,7 +43,10 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		elseif ( $WP->isLoginRequest() ) {
 			$type = Handler::TYPE_LOGIN;
 		}
-		elseif ( $WP->isLoginUrl() && $req->isPost() && $req->query( 'shield_action' ) === 'wp_login_2fa_verify' ) {
+		elseif ( $WP->isLoginUrl()
+				 && $req->isPost()
+				 && $req->query( ActionData::FIELD_EXECUTE ) === ActionData::FIELD_SHIELD.'-wp_login_2fa_verify'
+		) {
 			$type = Handler::TYPE_2FA;
 		}
 		elseif ( Services::WpComments()->isCommentSubmission() ) {

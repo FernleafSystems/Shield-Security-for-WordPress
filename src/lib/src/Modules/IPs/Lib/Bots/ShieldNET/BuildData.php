@@ -36,7 +36,7 @@ class BuildData {
 				$record = [];
 				if ( !empty( $data[ 'signals' ] ) ) {
 					try {
-						list( $id, $name ) = ( new IpID( $data[ 'ip' ] ) )->run();
+						[ $id, $name ] = ( new IpID( $data[ 'ip' ] ) )->run();
 						if ( $id === IpID::UNKNOWN ) {
 							$record = $data;
 						}
