@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
-use function path_join;
-
 class WildCardOptions {
 
 	public const FILE_PATH_REL = 0;
@@ -74,6 +72,7 @@ class WildCardOptions {
 
 			case self::URL_PATH:
 				$optValues = array_map( function ( $path ) {
+					$path = preg_replace( '#^https?://[^/]+/#i', '', $path );
 					if ( strpos( $path, '*' ) !== 0 ) {
 						$path = '/'.ltrim( $path, '/' );
 					}
@@ -93,7 +92,7 @@ class WildCardOptions {
 
 		switch ( $type ) {
 			case self::FILE_PATH_REL:
-				$fullValue = path_join( ABSPATH, $valueRegEx );
+				$fullValue = \path_join( ABSPATH, $valueRegEx );
 				break;
 
 			case self::URL_PATH:

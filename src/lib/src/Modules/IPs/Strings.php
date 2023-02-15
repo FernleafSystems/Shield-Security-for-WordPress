@@ -266,6 +266,8 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( string $key ) :array {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 		$pluginName = $this->getCon()->getHumanName();
 		$modName = $mod->getMainFeatureName();
 
@@ -385,7 +387,7 @@ class Strings extends Base\Strings {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						implode( ', ', $this->getOptions()->getDef( 'allowable_ext_404s' ) )
+						implode( ', ', $opts->botSignalsGetAllowable404s() )
 					),
 				];
 				break;
@@ -429,9 +431,13 @@ class Strings extends Base\Strings {
 				$summary = __( 'Identify Bot Attempts To Load WordPress In A Non-Standard Way', 'wp-simple-firewall' );
 				$desc = [
 					__( "Detect when a bot tries to load WordPress directly from a file that isn't normally used to load WordPress.", 'wp-simple-firewall' ),
-					__( 'WordPress should only be loaded in a limited number of ways.', 'wp-simple-firewall' ),
+					__( "WordPress is normally loaded in a limited number of ways and when it's loaded in other ways it may point to probing by a malicious bot.", 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
-						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) )
+						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this under normal circumstances.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) ),
+					sprintf( '%s: %s',
+						__( "Currently permitted scripts", 'wp-simple-firewall' ),
+						sprintf( '<ul><li><code>%s</code></li></ul>', implode( '</code></li><li><code>', $opts->botSignalsGetAllowableScripts() ) )
+					)
 				];
 				break;
 
