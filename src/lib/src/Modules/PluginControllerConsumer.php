@@ -8,22 +8,20 @@ trait PluginControllerConsumer {
 
 	/**
 	 * @var Controller
+	 * @deprecated 17.1
 	 */
 	private $oPlugCon;
 
-	/**
-	 * @return Controller
-	 */
-	public function getCon() {
-		return $this->oPlugCon ?? shield_security_get_plugin()->getController();
+	public function getCon() :Controller {
+		return shield_security_get_plugin()->getController();
 	}
 
 	/**
 	 * @param Controller $con
 	 * @return $this
+	 * @deprecated 17.1
 	 */
 	public function setCon( $con ) {
-		$this->oPlugCon = $con;
 		return $this;
 	}
 }

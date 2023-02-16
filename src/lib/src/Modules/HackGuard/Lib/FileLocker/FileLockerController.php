@@ -54,8 +54,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
-				'href'     => $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) :
-					$con->getModule_Insights()->getUrl_ScansResults(),
+				'href'     => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
 				'warnings' => $problems
 			];
 		}
@@ -273,31 +272,5 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 		}
 
 		return !empty( $state[ 'cipher' ] );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function checkLockConfig() {
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function isFileLockerStateChanged() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function canSslEncryption() :bool {
-		return Services::Encrypt()->isSupportedOpenSslDataEncryption();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function deleteAllLocks() {
 	}
 }

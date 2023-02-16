@@ -135,11 +135,4 @@ class Controller {
 		}
 		return $this;
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	protected function renderNotice( NoticeVO $notice ) :string {
-		return '';
-	}
 }

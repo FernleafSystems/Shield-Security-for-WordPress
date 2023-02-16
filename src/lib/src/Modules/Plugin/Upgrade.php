@@ -14,40 +14,7 @@ class Upgrade extends Base\Upgrade {
 		$mod->deleteAllPluginCrons();
 	}
 
-	protected function upgrade_1700() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$legacyReportingMod = $this->getCon()->getModule_Reporting();
-
-		// migrate options.
-		foreach ( [ 'frequency_alert', 'frequency_info' ] as $optKey ) {
-			$mod->getOptions()->setOpt( $optKey, $legacyReportingMod->getOptions()->getOpt( $optKey ) );
-		}
-
-		// move over historical reports.
-		/** @var LegacyReportsDB\Select $selector */
-		$legacyDBH = $legacyReportingMod->getDbHandler_Reports();
-		$selector = $legacyDBH->getQuerySelector();
-		/** @var LegacyReportsDB\EntryVO[] $latest */
-		$latest = $selector->setLimit( 20 )
-						   ->setOrderBy( 'sent_at' )
-						   ->setResultsAsVo( true )
-						   ->query();
-
-		foreach ( $latest as $entry ) {
-			/** @var Db\Report\Ops\Record $record */
-			$record = $mod->getDbH_ReportLogs()->getRecord();
-			$record->type = $entry->type;
-			$record->interval_length = $entry->frequency;
-			$record->interval_end_at = $entry->interval_end_at;
-			$record->created_at = $entry->sent_at;
-		}
-
-		// remove the legacy table.
-		$legacyDBH->tableDelete();
-	}
-
-	protected function upgrade_1610() {
+	protected function upgrade_1710() {
 		// remove old tables
 		$WPDB = Services::WpDb();
 		foreach (
@@ -57,6 +24,7 @@ class Upgrade extends Base\Upgrade {
 				'spambot_comments_filter',
 				'statistics',
 				'ip_lists',
+				'reports',
 				'sessions'
 			] as $table
 		) {

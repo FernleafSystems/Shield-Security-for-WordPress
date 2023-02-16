@@ -17,13 +17,6 @@ class Options extends Base\Options {
 		return (int)round( ( Services::Request()->ts() - $installedAt )/DAY_IN_SECONDS );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function isPremium() :bool {
-		return $this->getCon()->isPremiumActive();
-	}
-
 	public function isShowPluginNotices() :bool {
 		return $this->isShowPromoAdminNotices();
 	}

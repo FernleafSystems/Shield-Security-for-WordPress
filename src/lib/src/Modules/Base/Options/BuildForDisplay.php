@@ -254,11 +254,4 @@ class BuildForDisplay {
 		}
 		return $option;
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function setIsWhitelabelled( bool $isOrNot ) :self {
-		return $this;
-	}
 }

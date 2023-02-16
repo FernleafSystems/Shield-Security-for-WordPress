@@ -85,10 +85,4 @@ class InsertNotBotJs extends ExecOnceModConsumer {
 			return $enqueues;
 		} );
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function nonceJs() {
-	}
 }

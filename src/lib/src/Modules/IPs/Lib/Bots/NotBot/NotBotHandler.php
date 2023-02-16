@@ -55,31 +55,4 @@ class NotBotHandler extends ExecOnceModConsumer {
 	public function getHashForVisitorTS( int $ts ) {
 		return hash_hmac( 'sha1', $ts.$this->getCon()->this_req->ip, $this->getCon()->getInstallationID()[ 'id' ] );
 	}
-
-	/**
-	 * @return array{ts: int, hash: string}
-	 * @deprecated 17.0
-	 */
-	private function getCookieParts() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function registerFrontPageLoad() {
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function registerLoginPageLoad() {
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function registerAsNotBot() :bool {
-		return true;
-	}
 }

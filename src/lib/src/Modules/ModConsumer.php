@@ -9,7 +9,7 @@ trait ModConsumer {
 
 	/**
 	 * @var Modules\Base\ModCon
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	private $oMod;
 
@@ -36,7 +36,7 @@ trait ModConsumer {
 			catch ( \Exception $e ) {
 			}
 		}
-		return $this->mod ?? $this->oMod;
+		return $this->mod;
 	}
 
 	/**
@@ -61,7 +61,6 @@ trait ModConsumer {
 	 */
 	public function setMod( $mod ) {
 		$this->mod = $mod;
-		$this->oMod = $mod;
 		return $this;
 	}
 }

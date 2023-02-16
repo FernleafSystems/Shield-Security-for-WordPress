@@ -74,12 +74,4 @@ class LoadConfig {
 	public function fromFile() :array {
 		return Read::FromFile( $this->path );
 	}
-
-	/**
-	 * @return array|null
-	 * @deprecated 17.0
-	 */
-	public function fromWp() {
-		return Services::WpGeneral()->getOption( $this->store_key );
-	}
 }

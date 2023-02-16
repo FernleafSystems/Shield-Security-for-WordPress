@@ -160,20 +160,15 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	public function getSecAdminTimeRemaining() :int {
 		$remaining = 0;
 
-		$modPlugin = $this->getCon()->getModule_Plugin();
-		/** @deprecated 17.0 - no need for this IF */
-		if ( method_exists( $modPlugin, 'getSessionCon' ) ) {
-			$session = $modPlugin->getSessionCon()->current();
-			if ( $session->valid ) {
-				$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
-				if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
-					$remaining = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt );
-				}
+		$session = $this->getCon()->getModule_Plugin()->getSessionCon()->current();
+		if ( $session->valid ) {
+			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
+			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
+				$remaining = (int)max( 0, $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt ) );
 			}
-			$remaining = (int)max( 0, $remaining );
 		}
 
-		return $remaining;
+		return (int)max( 0, $remaining );
 	}
 
 	public function isCurrentUserRegisteredSecAdmin() :bool {
@@ -199,13 +194,6 @@ class SecurityAdminController extends ExecOnceModConsumer {
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
 		return $isPluginAdmin && $this->getCon()->this_req->is_security_admin;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function renderPinLoginForm() :string {
-		return '';
 	}
 
 	public function printPinLoginForm() {

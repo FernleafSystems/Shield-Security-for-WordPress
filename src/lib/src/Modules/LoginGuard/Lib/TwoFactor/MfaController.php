@@ -121,16 +121,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function onWpLoaded() {
-		if ( method_exists( $this, 'getMfaProfilesCon' ) ) {
-			$this->getMfaProfilesCon()->execute();
-		}
-		else {
-			/** @deprecated 17.0 */
-			( new MfaProfilesController() )
-				->setMod( $this->getMod() )
-				->setMfaController( $this )
-				->execute();
-		}
+		$this->getMfaProfilesCon()->execute();
 		$this->addToUserStatusColumn();
 	}
 

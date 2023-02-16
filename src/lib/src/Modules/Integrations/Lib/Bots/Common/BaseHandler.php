@@ -27,22 +27,8 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 		return $slug;
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getHandlerSlug() :string {
-		try {
-			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
-		}
-		catch ( \Exception $e ) {
-			$slug = '';
-		}
-		return $slug;
-	}
-
 	public function getHandlerName() :string {
 		$name = 'Undefined Name';
-		$slug = method_exists( $this, 'Slug' ) ? static::Slug() : $this->getHandlerSlug();
 
 		$valueOptions = $this->getOptions()
 							 ->getOptDefinition(
@@ -50,7 +36,7 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 							 )[ 'value_options' ];
 
 		foreach ( $valueOptions as $valueOption ) {
-			if ( $valueOption[ 'value_key' ] === $slug ) {
+			if ( $valueOption[ 'value_key' ] === static::Slug() ) {
 				$name = __( $valueOption[ 'text' ], 'wp-simple-firewall' );
 				break;
 			}
@@ -84,9 +70,8 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	}
 
 	public function isEnabled() :bool {
-		$slug = method_exists( $this, 'Slug' ) ? static::Slug() : $this->getHandlerSlug();
 		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
-			   && in_array( $slug, $this->getHandlerController()->getSelectedProviders() );
+			   && in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
 	}
 
 	public static function IsProviderInstalled() :bool {

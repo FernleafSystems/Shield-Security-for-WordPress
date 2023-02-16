@@ -132,34 +132,6 @@ class Store {
 	}
 
 	/**
-	 * @return $this
-	 * @deprecated 17.0
-	 */
-	private function loadSnapDataIfExists() {
-		try {
-			$this->snapData = $this->readSnapData();
-		}
-		catch ( \Exception $e ) {
-			$this->snapData = [];
-		}
-		return $this;
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 17.0
-	 */
-	private function loadSnapMetaIfExists() {
-		try {
-			$this->snapMeta = $this->readSnapMeta();
-		}
-		catch ( \Exception $e ) {
-			$this->snapMeta = [];
-		}
-		return $this;
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	private function readSnapData() :array {

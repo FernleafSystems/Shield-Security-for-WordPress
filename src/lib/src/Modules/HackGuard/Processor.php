@@ -28,8 +28,7 @@ class Processor extends BaseShield\Processor {
 			/** @var ModCon $mod */
 			$mod = $this->getMod();
 			$thisGroup = [
-				'href'  => $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) :
-					$con->getModule_Insights()->getUrl_ScansResults(),
+				'href'  => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
 				'items' => [],
 			];
 			foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {

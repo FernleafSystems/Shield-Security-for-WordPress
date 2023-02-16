@@ -199,13 +199,6 @@ class Enqueue {
 		}
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	private function getCustomEnqueues() :array {
-		return apply_filters( 'shield/custom_enqueues', [ self::CSS => [], self::JS => [], ], $this->adminHookSuffix );
-	}
-
 	private function prefixKeys( array $keys ) :array {
 		return array_map( function ( $handle ) {
 			return strpos( $handle, 'wp-' ) === 0 ? preg_replace( '#^wp-#', '', $handle ) : $this->normaliseHandle( $handle );

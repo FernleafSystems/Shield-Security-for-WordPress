@@ -53,13 +53,6 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getSecAdminLoginAjaxData() :array {
-		return ActionData::Build( Actions\SecurityAdminLogin::class );
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -115,11 +108,5 @@ class ModCon extends BaseShield\ModCon {
 			$posts = array_unique( array_merge( $posts, [ 'publish', 'delete' ] ) );
 			$opts->setOpt( 'admin_access_restrict_posts', $posts );
 		}
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function preDeactivatePlugin() {
 	}
 }

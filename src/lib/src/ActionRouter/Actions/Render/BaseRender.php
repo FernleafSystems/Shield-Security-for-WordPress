@@ -120,11 +120,7 @@ abstract class BaseRender extends BaseAction {
 		$WP = Services::WpGeneral();
 		$con = $this->getCon();
 		$thisReq = $con->this_req;
-		$urls = $con->plugin_urls;
 		$urlBuilder = $con->urls;
-
-		$modPlugin = $con->getModule_Plugin();
-		$sessionCon = method_exists( $modPlugin, 'getSessionCon' ) ? $modPlugin->getSessionCon() : null;
 
 		/** @var Options $pluginOptions */
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
@@ -147,7 +143,7 @@ abstract class BaseRender extends BaseAction {
 				] ) )
 			],
 			'flags'   => [
-				'has_session'             => empty( $sessionCon ) ? $modPlugin->getSessionWP()->valid : $sessionCon->current()->valid,
+				'has_session'             => $con->getModule_Plugin()->getSessionCon()->current()->valid,
 				'display_helpdesk_widget' => !$isWhitelabelled,
 				'is_whitelabelled'        => $isWhitelabelled,
 				'is_ip_whitelisted'       => $ipStatus->isBypass(),
@@ -188,17 +184,16 @@ abstract class BaseRender extends BaseAction {
 				'scripts' => []
 			],
 			'hrefs'   => [
+				'ajax' => $WP->ajaxURL(),
+
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'helpdesk'       => $con->labels->url_helpdesk,
 				'plugin_home'    => $con->labels->PluginURI,
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 
-				'dashboard_home' => $urls ? $urls->adminHome() : $con->getPluginUrl_DashboardHome(),
+				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
-
-				/** @deprecated 17.0 */
-				'ajax'           => method_exists( $WP, 'ajaxURL' ) ? $WP->ajaxURL() : '',
 			],
 			'imgs'    => [
 				'svgs'           => [

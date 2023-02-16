@@ -135,11 +135,10 @@ class Options extends BaseShield\Options {
 
 	/**
 	 * @return string[]
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	public function getScanSlugs() :array {
-		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
-		return method_exists( $scansCon, 'getScans' ) ? $scansCon->getScanSlugs() : $this->getDef( 'all_scan_slugs' );
+		return $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 	}
 
 	/**
@@ -184,7 +183,7 @@ class Options extends BaseShield\Options {
 	 * @return $this
 	 */
 	public function setScansToBuild( array $scans ) {
-		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getScanSlugs() ) ) );
+		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs() ) ) );
 		$this->getMod()->saveModOptions();
 		return $this;
 	}

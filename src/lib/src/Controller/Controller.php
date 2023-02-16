@@ -280,12 +280,6 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 17.0
-	 */
-	private function loadServices() {
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	private function checkMinimumRequirements() {
@@ -574,10 +568,7 @@ class Controller extends DynPropertiesClass {
 		}
 
 		if ( empty( $IDs[ $url ][ 'id' ] ) || !\Ramsey\Uuid\Uuid::isValid( $IDs[ $url ][ 'id' ] ) ) {
-			$id = $this->getSiteInstallationId();
-			if ( strlen( $id ) !== 36 || !\Ramsey\Uuid\Uuid::isValid( $id ) ) {
-				$id = ( new \FernleafSystems\Wordpress\Services\Utilities\Uuid() )->V4();
-			}
+			$id = ( new \FernleafSystems\Wordpress\Services\Utilities\Uuid() )->V4();
 			$IDs[ $url ] = [
 				'id'         => strtolower( $id ),
 				'ts'         => Services::Request()->ts(),
@@ -593,7 +584,7 @@ class Controller extends DynPropertiesClass {
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	public function getSiteInstallationId() {
 		$WP = Services::WpGeneral();
@@ -652,9 +643,7 @@ class Controller extends DynPropertiesClass {
 		$this->cron_daily = ( new Shield\Crons\DailyCron() )->setCon( $this );
 		$this->cron_daily->execute();
 
-		( new Shield\Utilities\RootHtaccess() )
-			->setCon( $this )
-			->execute();
+		( new Shield\Utilities\RootHtaccess() )->execute();
 	}
 
 	/**
@@ -669,40 +658,6 @@ class Controller extends DynPropertiesClass {
 			$this->oNotices = ( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
 		}
 		return $this->oNotices;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getShieldActionNonceData( string $shieldAction, array $aux = [] ) :array {
-		return ActionData::Build( $shieldAction, true, $aux );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getShieldActionNoncedUrl( string $shieldAction, string $url = null, array $aux = [] ) :string {
-		return $this->plugin_urls->noncedPluginAction( $shieldAction, $url, $aux );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
-		return $pluginMeta;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function onWpPluginActionLinks( $actionLinks ) {
-		return $actionLinks;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function onWpPluginUpdateMessage() {
 	}
 
 	/**
@@ -1002,15 +957,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getCfgProperty( 'slug_plugin' );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getPluginUrl_DashboardHome() :string {
-		$urls = $this->plugin_urls;
-		return $urls ? $urls->adminHome()
-			: $this->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OVERVIEW );
-	}
-
 	public function getPath_Languages() :string {
 		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
 	}
@@ -1055,21 +1001,6 @@ class Controller extends DynPropertiesClass {
 	public function getVersionNumeric() :int {
 		$parts = explode( '.', $this->getVersion() );
 		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getShieldAction() :string {
-		$action = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
-		return empty( $action ) ? '' : $action;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function isPremiumExtensionsEnabled() :bool {
-		return (bool)$this->getCfgProperty( 'enable_premium' );
 	}
 
 	public function isPremiumActive() :bool {
@@ -1162,13 +1093,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'headers' );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getModule_Insights() :Shield\Modules\Insights\ModCon {
-		return $this->getModule( 'insights' );
-	}
-
 	public function getModule_Integrations() :Shield\Modules\Integrations\ModCon {
 		return $this->getModule( 'integrations' );
 	}
@@ -1189,19 +1113,8 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( Shield\Modules\Plugin\ModCon::SLUG );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getModule_Reporting() :Shield\Modules\Reporting\ModCon {
-		return $this->getModule( 'reporting' );
-	}
-
 	public function getModule_SecAdmin() :Shield\Modules\SecurityAdmin\ModCon {
 		return $this->getModule( 'admin_access_restriction' );
-	}
-
-	public function getModule_Sessions() :Shield\Modules\Sessions\ModCon {
-		return $this->getModule( 'sessions' );
 	}
 
 	public function getModule_Traffic() :Shield\Modules\Traffic\ModCon {
@@ -1333,16 +1246,5 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getNonceActionData( string $action ) :array {
-		return [
-			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $action,
-			'exec_nonce' => wp_create_nonce( $action ),
-		];
 	}
 }

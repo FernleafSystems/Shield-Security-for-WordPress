@@ -75,14 +75,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'scanresults' );
 	}
 
-	/**
-	 * @return Scan\Controller\Base|mixed
-	 * @deprecated 17.0
-	 */
-	public function getScanCon( string $slug ) {
-		return $this->getScansCon()->getScanCon( $slug );
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
@@ -150,13 +142,6 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
-		return $this->getDbH( 'filelocker' );
-	}
-
 	protected function cleanupDatabases() {
 		( new Shield\Modules\HackGuard\DB\Utility\Clean() )
 			->setMod( $this )
@@ -194,13 +179,5 @@ class ModCon extends BaseShield\ModCon {
 		( new Lib\Utility\CleanOutOldGuardFiles() )
 			->setMod( $this )
 			->execute();
-	}
-
-	/**
-	 * @inheritDoc
-	 * @deprecated 17.0
-	 */
-	public function getDbHandlers( $bInitAll = false ) {
-		return [];
 	}
 }

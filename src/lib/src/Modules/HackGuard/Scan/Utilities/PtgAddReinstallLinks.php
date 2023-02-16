@@ -72,10 +72,4 @@ class PtgAddReinstallLinks {
 
 		return $links;
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function printPluginReinstallDialogs() {
-	}
 }

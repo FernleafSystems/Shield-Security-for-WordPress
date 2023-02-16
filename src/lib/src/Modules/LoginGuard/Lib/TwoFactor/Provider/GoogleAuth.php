@@ -84,22 +84,6 @@ class GoogleAuth extends AbstractShieldProvider {
 		return 'data:image/png;base64, '.$this->getGaRegisterChartUrlShieldNet();
 	}
 
-	/**
-	 * @throws \Exception
-	 * @deprecated 17.0
-	 */
-	private function getGaRegisterChartUrl( Secret $secret ) :string {
-		$rawImage = Services::HttpRequest()
-							->getContent(
-								( new GoogleQrImageGenerator() )->generateUri( $secret ),
-								[ 'timeout' => 3 ]
-							);
-		if ( empty( $rawImage ) ) {
-			throw new \Exception( "Couldn't load Google chart" );
-		}
-		return base64_encode( $rawImage );
-	}
-
 	private function getGaRegisterChartUrlShieldNet() :string {
 		$secret = $this->getGaSecret();
 		return ( new GenerateGoogleAuthQrCode() )

@@ -42,7 +42,6 @@ class PluginDelete {
 				$con->getModule_HackGuard(),
 				$con->getModule_IPs(),
 				$con->getModule_Plugin(),
-				$con->getModule_Sessions(),
 			]
 		);
 

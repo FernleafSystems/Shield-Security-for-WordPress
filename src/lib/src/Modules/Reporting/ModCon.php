@@ -10,19 +10,4 @@ class ModCon extends BaseShield\ModCon {
 	protected function isReadyToExecute() :bool {
 		return false;
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getDbHandler_Reports() :Databases\Reports\Handler {
-		return $this->getDbH( 'reports' );
-	}
-
-	/**
-	 * @inheritDoc
-	 * @deprecated 17.0
-	 */
-	public function getDbHandlers( $bInitAll = false ) {
-		return [];
-	}
 }

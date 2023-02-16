@@ -596,26 +596,6 @@
         }
       }
     },
-    "db_classes":                  {
-      "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler"
-    },
-    "db_table_filelocker":         {
-      "slug":            "filelocker",
-      "has_updated_at":  true,
-      "cols_custom":     {
-        "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
-        "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
-        "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
-        "content":       "MEDIUMBLOB COMMENT 'Content'",
-        "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'"
-      },
-      "cols_timestamps": {
-        "detected_at": "Change Last Detected",
-        "reverted_at": "Reverted To Backup",
-        "notified_at": "Notification Sent"
-      }
-    },
-    "table_name_filelocker":       "filelocker",
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "default_whitelist_paths":     [

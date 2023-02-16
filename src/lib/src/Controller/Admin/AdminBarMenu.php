@@ -26,7 +26,6 @@ class AdminBarMenu {
 
 	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) {
 		$con = $this->getCon();
-		$urls = $con->plugin_urls;
 
 		$groups = array_filter( apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] ) );
 		$totalWarnings = 0;
@@ -56,7 +55,7 @@ class AdminBarMenu {
 				'title' => sprintf( '%s %s', $con->getHumanName(),
 					empty( $totalWarnings ) ? '' : sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $totalWarnings )
 				),
-				'href'  => $urls ? $urls->adminHome() : $con->getPluginUrl_DashboardHome()
+				'href'  => $con->plugin_urls->adminHome()
 			] );
 		}
 	}

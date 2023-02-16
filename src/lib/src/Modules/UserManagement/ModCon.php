@@ -9,13 +9,6 @@ class ModCon extends BaseShield\ModCon {
 
 	private $userSuspensionController;
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getUserSuspendController() :UserSuspendController {
-		return $this->userSuspensionController ?? $this->userSuspensionController = ( new UserSuspendController() )->setMod( $this );
-	}
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

@@ -30,30 +30,4 @@ class Base {
 		}
 		return self::$storageDir->getTempDir();
 	}
-
-	/**
-	 * @deprecated 16.1.14
-	 */
-	private function generateNewDirName() :string {
-		return $this->getCon()->cache_dir_handler->buildSubDir( 'ptguard-'.wp_generate_password( 16, false ) );
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 16.1.14
-	 */
-	private function findTempDir() :string {
-		$FS = Services::WpFs();
-		$dir = null;
-		foreach ( $FS->getAllFilesInDir( $this->getCon()->cache_dir_handler->dir() ) as $fileItem ) {
-			if ( strpos( basename( $fileItem ), 'ptguard' ) === 0 && $FS->isDir( $fileItem ) ) {
-				$dir = $fileItem;
-				break;
-			}
-		}
-		if ( empty( $dir ) ) {
-			throw new \Exception( "Dir doesn't exist" );
-		}
-		return $dir;
-	}
 }

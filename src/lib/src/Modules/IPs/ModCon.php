@@ -14,20 +14,8 @@ class ModCon extends BaseShield\ModCon {
 
 	/**
 	 * @var Lib\OffenseTracker
-	 * @deprecated 17.0
-	 */
-	private $oOffenseTracker;
-
-	/**
-	 * @var Lib\OffenseTracker
 	 */
 	private $offenseTracker;
-
-	/**
-	 * @var Lib\BlacklistHandler
-	 * @deprecated 17.0
-	 */
-	private $oBlacklistHandler;
 
 	/**
 	 * @var Lib\Bots\BotSignalsController
@@ -47,13 +35,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->crowdSecCon ?? $this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getBlacklistHandler() :Lib\BlacklistHandler {
-		return $this->oBlacklistHandler ?? $this->oBlacklistHandler = ( new Lib\BlacklistHandler() )->setMod( $this );
-	}
-
 	public function loadOffenseTracker() :Lib\OffenseTracker {
 		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker( $this->getCon() );
 	}
@@ -70,13 +51,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getDbHandler_IPs() :Shield\Databases\IPs\Handler {
-		return $this->getDbH( 'ip_lists' );
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -187,12 +161,6 @@ class ModCon extends BaseShield\ModCon {
 				'last_access_at'
 			)
 			->query();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function runIpMigrator() {
 	}
 
 	public function runHourlyCron() {
