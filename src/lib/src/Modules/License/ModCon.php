@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
+	public const SLUG = 'license';
+
 	/**
 	 * @var Lib\LicenseHandler
 	 */

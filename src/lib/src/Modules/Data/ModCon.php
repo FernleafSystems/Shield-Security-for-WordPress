@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'data';
+
 	public function getDbH_IPs() :DB\IPs\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'ips' );
 	}

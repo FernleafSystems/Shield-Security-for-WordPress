@@ -396,7 +396,7 @@ abstract class BaseRender extends BaseAction {
 				sprintf( __( '%s options and modules', 'wp-simple-firewall' ), $con->getHumanName() ),
 				sprintf( __( '%s tools and features', 'wp-simple-firewall' ), $con->getHumanName() ),
 				__( 'IP addresses', 'wp-simple-firewall' ),
-				__( 'help resources', 'wp-simple-firewall' ),
+				__( 'Help docs & resources', 'wp-simple-firewall' ),
 			],
 		];
 	}

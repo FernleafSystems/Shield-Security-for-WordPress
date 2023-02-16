@@ -16,8 +16,6 @@ class ModuleOptionsSave extends BaseAction {
 
 		$success = ( new HandleOptionsSaveRequest() )->handleSave();
 
-		// The appropriate module is set during the handleSave(). if it's Security Admin and the PIN
-
 		$this->response()->action_response_data = [
 			'success'     => $success,
 			'html'        => '',

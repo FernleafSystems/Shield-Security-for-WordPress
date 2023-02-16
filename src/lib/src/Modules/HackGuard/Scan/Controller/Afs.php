@@ -98,7 +98,7 @@ class Afs extends BaseForFiles {
 		$plugin = $WPP->getPluginAsVo( $file );
 		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
 			try {
-				( new Lib\Snapshots\StoreAction\Build() )
+				( new Lib\Snapshots\StoreAction\Delete() )
 					->setMod( $this->getMod() )
 					->setAsset( $plugin )
 					->run();
