@@ -807,6 +807,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return Shield\Modules\Base\UI
+	 * @deprecated 17.0
 	 */
 	public function getUIHandler() {
 		if ( !isset( $this->UI ) ) {

@@ -27,7 +27,6 @@ class BuildForDisplay {
 	public function standard() :array {
 		$con = $this->getCon();
 		$mod = $this->getMod();
-		$UI = $mod->getUIHandler();
 
 		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
@@ -79,7 +78,7 @@ class BuildForDisplay {
 					}
 					$sections[ $sectionKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
 					$sections[ $sectionKey ][ 'warnings' ] = array_merge( $warning, $notices->warnings( $sect[ 'slug' ] ) );
-					$sections[ $sectionKey ][ 'critical_warnings' ] = $UI->getSectionCriticalWarnings( $sect[ 'slug' ] );
+					$sections[ $sectionKey ][ 'critical_warnings' ] = $notices->critical( $sect[ 'slug' ] );
 				}
 			}
 		}

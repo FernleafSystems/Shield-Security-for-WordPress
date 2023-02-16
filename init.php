@@ -30,7 +30,7 @@ class ICWP_WPSF_Shield_Security {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function start() {
 		$this->con->boot();
