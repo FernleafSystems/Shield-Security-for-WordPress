@@ -26,14 +26,13 @@ class BuildForDisplay {
 	 */
 	public function standard() :array {
 		$con = $this->getCon();
-		$mod = $this->getMod();
 
 		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		$opts = $this->getOptions();
 		$sections = $this->buildAvailableSections();
-		$notices = ( new SectionNotices() )->setCon( $con );
+		$notices = new SectionNotices();
 
 		foreach ( $sections as $sectionKey => $sect ) {
 

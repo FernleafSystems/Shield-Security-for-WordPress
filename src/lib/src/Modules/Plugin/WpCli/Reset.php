@@ -31,9 +31,7 @@ class Reset extends Base\WpCli\BaseWpCliCmd {
 		if ( !$this->isForceFlag( $args ) ) {
 			WP_CLI::confirm( __( 'Are you sure you want to reset the Shield plugin to defaults?', 'wp-simple-firewall' ) );
 		}
-		( new ResetPlugin() )
-			->setCon( $this->getCon() )
-			->run();
+		( new ResetPlugin() )->run();
 		WP_CLI::success( __( 'Plugin reset to defaults.', 'wp-simple-firewall' ) );
 	}
 }

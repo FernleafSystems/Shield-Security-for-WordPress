@@ -14,9 +14,7 @@ class PluginAutoDbRepair extends BaseAction {
 		$con = $this->getCon();
 
 		// 1. Forcefully re-run all checks:
-		$checks = ( new PreModulesBootCheck() )
-			->setCon( $con )
-			->run( true );
+		$checks = ( new PreModulesBootCheck() )->run( true );
 		$dbMisconfigured = count( $checks[ 'dbs' ] ) !== count( array_filter( $checks[ 'dbs' ] ) );
 
 		if ( $dbMisconfigured ) {

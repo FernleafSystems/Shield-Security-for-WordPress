@@ -15,7 +15,7 @@ class ProgressMeters extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig';
 
 	protected function getRenderData() :array {
-		$componentBuilder = ( new Handler() )->setCon( $this->getCon() );
+		$componentBuilder = new Handler();
 
 		$meters = [];
 		$AR = $this->getCon()->action_router;

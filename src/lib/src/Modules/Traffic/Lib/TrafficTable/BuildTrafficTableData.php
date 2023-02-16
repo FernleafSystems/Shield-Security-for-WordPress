@@ -292,7 +292,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 	private function getCountryIP( string $ip ) :IPGeoVO {
 		if ( empty( $this->geoLookup ) ) {
-			$this->geoLookup = ( new Lookup() )->setCon( $this->getCon() );
+			$this->geoLookup = new Lookup();
 		}
 		return $this->geoLookup
 			->setIP( $ip )

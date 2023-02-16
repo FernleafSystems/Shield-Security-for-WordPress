@@ -17,7 +17,6 @@ class PageMerlin extends BasePluginAdminPage {
 		return [
 			'content' => [
 				'steps' => ( new MerlinController() )
-					->setCon( $this->getCon() )
 					->buildSteps( empty( $subNavSection ) ? 'guided_setup_wizard' : $subNavSection )
 			],
 			'flags'   => [

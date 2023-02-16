@@ -35,9 +35,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 				} );
 			}
 
-			( new AssetsCustomizer() )
-				->setCon( $this->getCon() )
-				->execute();
+			( new AssetsCustomizer() )->execute();
 		}
 	}
 

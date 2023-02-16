@@ -16,9 +16,8 @@ class Builder {
 			$rules[ $rule->slug ] = $rule;
 		}
 
-		$sorter = ( new SortRulesByDependencies( $rules ) )->setCon( $this->getRulesCon()->getCon() );
 		try {
-			$rules = $sorter->run();
+			$rules = ( new SortRulesByDependencies( $rules ) )->run();
 		}
 		catch ( MutuallyDependentRulesException $e ) {
 			error_log( $e->getMessage() );

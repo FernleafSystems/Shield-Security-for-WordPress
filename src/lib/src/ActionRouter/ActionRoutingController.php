@@ -22,13 +22,8 @@ class ActionRoutingController {
 
 	protected function run() {
 		$this->captureRedirects();
-
-		( new CaptureShieldAction() )
-			->setCon( $this->getCon() )
-			->execute();
-		( new CaptureAjaxAction() )
-			->setCon( $this->getCon() )
-			->execute();
+		( new CaptureShieldAction() )->execute();
+		( new CaptureAjaxAction() )->execute();
 	}
 
 	/**
@@ -52,9 +47,7 @@ class ActionRoutingController {
 		}
 
 		try {
-			$response = ( new ActionProcessor() )
-				->setCon( $this->getCon() )
-				->processAction( $slug, $data );
+			$response = ( new ActionProcessor() )->processAction( $slug, $data );
 		}
 		catch ( Exceptions\SecurityAdminRequiredException $sare ) {
 			if ( Services::WpGeneral()->isAjax() ) {
@@ -69,7 +62,7 @@ class ActionRoutingController {
 			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $slug, var_export( $data, true ) ) );
 		}
 
-		$adapter->setCon( $this->getCon() )->adapt( $response );
+		$adapter->adapt( $response );
 		return $response;
 	}
 

@@ -57,9 +57,7 @@ class Sync {
 					case Plugin\ModCon::SLUG:
 						try {
 							$data[ $mod->cfg->slug ][ 'grades' ] = [
-								'integrity' => ( new Handler() )
-									->setCon( $this->getCon() )
-									->getMeter( MeterSummary::class )
+								'integrity' => ( new Handler() )->getMeter( MeterSummary::class )
 							];
 						}
 						catch ( \Exception $e ) {

@@ -23,7 +23,6 @@ class General extends Base {
 		$ip = $this->action_data[ 'ip' ];
 
 		$geo = ( new Lookup() )
-			->setCon( $con )
 			->setIP( $ip )
 			->lookup();
 

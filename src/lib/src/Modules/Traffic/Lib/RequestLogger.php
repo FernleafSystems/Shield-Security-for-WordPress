@@ -48,11 +48,8 @@ class RequestLogger extends ExecOnceModConsumer {
 
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'request', [], array_map( function ( $class ) {
-				/** @var Processors\BaseMetaProcessor $p */
-				$p = new $class();
-				$p->setCon( $this->getCon() );
-				return $p;
+			$this->logger = new Logger( 'request', [], array_map( function ( $processorClass ) {
+				return new $processorClass();
 			}, $this->enumMetaProcessors() ) );
 		}
 		return $this->logger;

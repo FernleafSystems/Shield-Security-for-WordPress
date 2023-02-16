@@ -38,9 +38,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_plugin_tests() {
-		( new RunTests() )
-			->setCon( $this->getCon() )
-			->run();
+		( new RunTests() )->run();
 	}
 
 	private function dbg_telemetry() {

@@ -64,7 +64,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function __construct( Shield\Controller\Controller $pluginCon, Config\ModConfigVO $cfg ) {
-		$this->setCon( $pluginCon );
 		$this->cfg = $cfg;
 	}
 
@@ -477,9 +476,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->getOptions()->getOpt( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )
-			->setCon( $this->getCon() )
-			->applyFromArray( is_array( $a ) ? $a : [] );
+		return ( new Lib\Components\UiTrack() )->applyFromArray( is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {

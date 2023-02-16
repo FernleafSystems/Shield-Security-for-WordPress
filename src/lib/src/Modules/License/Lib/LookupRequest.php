@@ -20,7 +20,7 @@ class LookupRequest {
 		$lookup->item_id = $opts->getDef( 'license_item_id' );
 		$lookup->install_id = $con->getInstallationID()[ 'id' ];
 		$lookup->url = Services::WpGeneral()->getHomeUrl( '', true );
-		$lookup->nonce = ( new HandshakingNonce() )->setCon( $con )->create();
+		$lookup->nonce = ( new HandshakingNonce() )->create();
 		$lookup->meta = [
 			'version_shield' => $con->getVersion(),
 			'version_php'    => Services::Data()->getPhpVersionCleaned()

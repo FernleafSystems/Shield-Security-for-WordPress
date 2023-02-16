@@ -21,7 +21,7 @@ class Processor extends BaseShield\Processor {
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
 		if ( $con->isValidAdminArea() ) {
-			$recentStats = ( new RecentStats() )->setCon( $con );
+			$recentStats = new RecentStats();
 			$IPs = $recentStats->getRecentlyBlockedIPs();
 
 			if ( !empty( $IPs ) ) {

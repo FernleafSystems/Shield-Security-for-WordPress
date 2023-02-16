@@ -9,6 +9,10 @@ class BuildScores extends BaseBuildScores {
 	 */
 	private $logic;
 
+	public function __construct() {
+		$this->logic = new ScoreLogic();
+	}
+
 	public function build() :array {
 		$scores = [];
 		foreach ( $this->getAllFields() as $field ) {
@@ -21,7 +25,7 @@ class BuildScores extends BaseBuildScores {
 	}
 
 	private function calcFieldScore( string $field ) :int {
-		$logic = $this->getScoringLogic()->getFieldScoreLogic( $field );
+		$logic = $this->logic->getFieldScoreLogic( $field );
 
 		// -1 represents the default if none of the following boundaries are satisfied
 		$score = $logic[ -1 ] ?? 0;
@@ -43,12 +47,5 @@ class BuildScores extends BaseBuildScores {
 		}
 
 		return (int)$score;
-	}
-
-	private function getScoringLogic() :ScoreLogic {
-		if ( !$this->logic instanceof ScoreLogic ) {
-			$this->logic = ( new ScoreLogic() )->setCon( $this->getCon() );
-		}
-		return $this->logic;
 	}
 }

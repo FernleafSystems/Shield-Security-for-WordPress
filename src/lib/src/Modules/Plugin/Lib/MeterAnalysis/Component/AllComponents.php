@@ -15,9 +15,8 @@ class AllComponents extends Base {
 	}
 
 	public function score() :int {
-		return (int)round( ( new Handler() )
-							   ->setCon( $this->getCon() )
-							   ->getMeter( MeterOverallConfig::class )[ 'totals' ][ 'percentage' ]*static::WEIGHT/100 );
+		return (int)round(
+			( new Handler() )->getMeter( MeterOverallConfig::class )[ 'totals' ][ 'percentage' ]*static::WEIGHT/100 );
 	}
 
 	public function title() :string {

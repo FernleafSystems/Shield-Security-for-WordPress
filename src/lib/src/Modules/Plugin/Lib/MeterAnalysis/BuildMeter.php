@@ -21,7 +21,7 @@ class BuildMeter {
 
 	public function build( string $meterClass ) :array {
 		/** @var Meter\MeterBase $meter */
-		$meter = ( new $meterClass() )->setCon( $this->getCon() );
+		$meter = new $meterClass();
 		return $this->postProcessMeter( [
 			'title'       => $meter->title(),
 			'subtitle'    => $meter->subtitle(),

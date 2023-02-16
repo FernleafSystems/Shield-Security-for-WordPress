@@ -25,6 +25,24 @@ trait ModConsumer {
 		return $this->getMod()->getCon();
 	}
 
+	public function con() :Controller {
+		return shield_security_get_plugin()->getController();
+	}
+
+	/**
+	 * @return Base\ModCon|mixed
+	 */
+	public function mod() {
+		if ( defined( static::class.'::MOD' ) ) {
+			try {
+				return $this->con()->modules[ static::MOD ];
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+		return $this->mod;
+	}
+
 	/**
 	 * @return Base\ModCon|mixed
 	 */
@@ -49,6 +67,7 @@ trait ModConsumer {
 	/**
 	 * @param Controller $con
 	 * @return $this
+	 * @deprecated 17.1
 	 */
 	public function setCon( $con ) {
 		$this->getMod()->setCon( $con );

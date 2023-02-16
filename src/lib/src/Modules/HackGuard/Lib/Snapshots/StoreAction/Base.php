@@ -19,14 +19,14 @@ class Base {
 	}
 
 	protected function getTempDir() :string {
-		{ // TODO: remove this
+		{ // @deprecated 17.1? TODO: remove this
 			if ( !empty( self::$tempDir ) ) {
 				return self::$tempDir;
 			}
 		}
 
 		if ( empty( self::$storageDir ) ) {
-			self::$storageDir = ( new StorageDir() )->setCon( $this->getCon() );
+			self::$storageDir = new StorageDir();
 		}
 		return self::$storageDir->getTempDir();
 	}

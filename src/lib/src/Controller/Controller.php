@@ -46,7 +46,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
  * @property Shield\Rules\RulesController                           $rules
  * @property Shield\Utilities\MU\MUHandler                          $mu_handler
- * @property Shield\Utilities\Nonce\Handler                         $nonce_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property Shield\Users\UserMetas                                 $user_metas
  * @property array|Shield\Modules\Base\ModCon[]                     $modules
@@ -82,11 +81,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function loadEventsService() :Shield\Modules\Events\Lib\EventsService {
-		if ( !isset( $this->service_events ) ) {
-			$this->service_events = ( new Shield\Modules\Events\Lib\EventsService() )
-				->setCon( $this );
-		}
-		return $this->service_events;
+		return $this->service_events ?? $this->service_events = new Shield\Modules\Events\Lib\EventsService();
 	}
 
 	/**
@@ -116,9 +111,7 @@ class Controller extends DynPropertiesClass {
 		$this->loadConfig();
 		$this->checkMinimumRequirements();
 
-		( new Shield\Controller\I18n\LoadTextDomain() )
-			->setCon( $this )
-			->run();
+		( new Shield\Controller\I18n\LoadTextDomain() )->run();
 	}
 
 	/**
@@ -147,7 +140,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'this_req':
 				if ( is_null( $val ) ) {
-					$val = new Shield\Request\ThisRequest( $this );
+					$val = new Shield\Request\ThisRequest();
 					$this->this_req = $val;
 				}
 				break;
@@ -185,9 +178,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'is_mode_debug':
 				if ( is_null( $val ) ) {
-					$val = ( new Shield\Controller\Modes\DebugMode() )
-						->setCon( $this )
-						->isModeActive();
+					$val = ( new Shield\Controller\Modes\DebugMode() )->isModeActive();
 					$this->is_mode_debug = $val;
 				}
 				break;
@@ -200,60 +191,49 @@ class Controller extends DynPropertiesClass {
 
 			case 'is_mode_staging':
 				if ( is_null( $val ) ) {
-					$val = ( new Shield\Controller\Modes\StagingMode() )
-						->setCon( $this )
-						->isModeActive();
+					$val = ( new Shield\Controller\Modes\StagingMode() )->isModeActive();
 					$this->is_mode_staging = $val;
-				}
-				break;
-
-			case 'nonce_handler':
-				if ( is_null( $val ) ) {
-					$val = ( new Shield\Utilities\Nonce\Handler() )
-						->setCon( $this );
-					$this->nonce_handler = $val;
 				}
 				break;
 
 			case 'mu_handler':
 				if ( is_null( $val ) ) {
-					$val = ( new Shield\Utilities\MU\MUHandler() )
-						->setCon( $this );
+					$val = new Shield\Utilities\MU\MUHandler();
 					$this->mu_handler = $val;
 				}
 				break;
 
 			case 'action_router':
 				if ( is_null( $val ) ) {
-					$val = ( new Shield\ActionRouter\ActionRoutingController() )->setCon( $this );
+					$val = new Shield\ActionRouter\ActionRoutingController();
 					$this->action_router = $val;
 				}
 				break;
 
 			case 'plugin_urls':
 				if ( !$val instanceof Shield\Controller\Plugin\PluginURLs ) {
-					$val = ( new Shield\Controller\Plugin\PluginURLs() )->setCon( $this );
+					$val = new Shield\Controller\Plugin\PluginURLs();
 					$this->plugin_urls = $val;
 				}
 				break;
 
 			case 'paths':
 				if ( !$val instanceof Shield\Controller\Assets\Paths ) {
-					$val = ( new Shield\Controller\Assets\Paths() )->setCon( $this );
+					$val = new Shield\Controller\Assets\Paths();
 					$this->paths = $val;
 				}
 				break;
 
 			case 'svgs':
 				if ( !$val instanceof Shield\Controller\Assets\Svgs ) {
-					$val = ( new Shield\Controller\Assets\Svgs() )->setCon( $this );
+					$val = new Shield\Controller\Assets\Svgs();
 					$this->svgs = $val;
 				}
 				break;
 
 			case 'urls':
 				if ( !$val instanceof Shield\Controller\Assets\Urls ) {
-					$val = ( new Shield\Controller\Assets\Urls() )->setCon( $this );
+					$val = new Shield\Controller\Assets\Urls();
 					$this->urls = $val;
 				}
 				break;
@@ -267,7 +247,8 @@ class Controller extends DynPropertiesClass {
 
 			case 'user_metas':
 				if ( empty( $val ) ) {
-					$val = ( new Shield\Users\UserMetas() )->setCon( $this );
+					$val = new Shield\Users\UserMetas();
+					$this->user_metas = $val;
 				}
 				break;
 
@@ -377,11 +358,9 @@ class Controller extends DynPropertiesClass {
 		$this->loadModules();
 
 		// Upgrade modules
-		( new Shield\Controller\Utilities\Upgrade() )
-			->setCon( $this )
-			->execute();
+		( new Shield\Controller\Utilities\Upgrade() )->execute();
 
-		$this->rules = ( new Shield\Rules\RulesController() )->setCon( $this );
+		$this->rules = new Shield\Rules\RulesController();
 		$this->rules->execute();
 
 		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
@@ -423,9 +402,7 @@ class Controller extends DynPropertiesClass {
 				$this->modules = $modules;
 			}
 
-			$this->prechecks = ( new Checks\PreModulesBootCheck() )
-				->setCon( $this )
-				->run();
+			$this->prechecks = ( new Checks\PreModulesBootCheck() )->run();
 
 			// Register the Controller hooks
 			$this->doRegisterHooks();
@@ -450,9 +427,7 @@ class Controller extends DynPropertiesClass {
 			$this->plugin_deactivating = true;
 			do_action( $this->prefix( 'deactivate_plugin' ) );
 
-			( new PluginDeactivate() )
-				->setCon( $this )
-				->execute();
+			( new PluginDeactivate() )->execute();
 
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 				$this->deletePlugin();
@@ -463,9 +438,7 @@ class Controller extends DynPropertiesClass {
 	public function deletePlugin() {
 		$this->plugin_deleting = true;
 		do_action( $this->prefix( 'delete_plugin' ) );
-		( new Plugin\PluginDelete() )
-			->setCon( $this )
-			->execute();
+		( new Plugin\PluginDelete() )->execute();
 	}
 
 	public function onWpActivatePlugin() {
@@ -504,12 +477,8 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function onWpAdminInit() {
-		( new Admin\DashboardWidget() )
-			->setCon( $this )
-			->execute();
-		( new Admin\PluginsPageSupplements() )
-			->setCon( $this )
-			->execute();
+		( new Admin\DashboardWidget() )->execute();
+		( new Admin\PluginsPageSupplements() )->execute();
 
 		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
 			 && function_exists( 'wp_add_privacy_policy_content' ) ) {
@@ -545,9 +514,7 @@ class Controller extends DynPropertiesClass {
 		catch ( ActionException $e ) {
 		}
 
-		( new Shield\Controller\Assets\Enqueue() )
-			->setCon( $this )
-			->execute();
+		( new Shield\Controller\Assets\Enqueue() )->execute();
 	}
 
 	/**
@@ -629,18 +596,14 @@ class Controller extends DynPropertiesClass {
 		$this->getInstallationID();
 		$this->getAdminNotices();
 		$this->initCrons();
-		( new Utilities\CaptureMyUpgrade() )
-			->setCon( $this )
-			->execute();
-		( new Admin\AdminBarMenu() )
-			->setCon( $this )
-			->execute();
+		( new Utilities\CaptureMyUpgrade() )->execute();
+		( new Admin\AdminBarMenu() )->execute();
 	}
 
 	protected function initCrons() {
-		$this->cron_hourly = ( new Shield\Crons\HourlyCron() )->setCon( $this );
+		$this->cron_hourly = new Shield\Crons\HourlyCron();
 		$this->cron_hourly->execute();
-		$this->cron_daily = ( new Shield\Crons\DailyCron() )->setCon( $this );
+		$this->cron_daily = new Shield\Crons\DailyCron();
 		$this->cron_daily->execute();
 
 		( new Shield\Utilities\RootHtaccess() )->execute();
@@ -655,7 +618,7 @@ class Controller extends DynPropertiesClass {
 				remove_all_filters( 'admin_notices' );
 				remove_all_filters( 'network_admin_notices' );
 			}
-			$this->oNotices = ( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
+			$this->oNotices = new Shield\Utilities\AdminNotices\Controller();
 		}
 		return $this->oNotices;
 	}
@@ -809,9 +772,10 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function loadConfig() {
-		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )
-			->setCon( $this )
-			->run();
+		$this->cfg = ( new Config\Ops\LoadConfig(
+			$this->paths->forPluginItem( 'plugin.json' ),
+			$this->getConfigStoreKey() )
+		)->run();
 		$this->cfg->load_source = 'json';
 
 		$this->plugin_urls;
@@ -832,9 +796,7 @@ class Controller extends DynPropertiesClass {
 		// First load all module Configs
 		foreach ( $this->cfg->modules as $slug ) {
 			try {
-				$modCfg = ( new LoadConfig( $slug, $modConfigs[ $slug ] ?? null ) )
-					->setCon( $this )
-					->run();
+				$modCfg = ( new LoadConfig( $slug, $modConfigs[ $slug ] ?? null ) )->run();
 			}
 			catch ( \Exception $e ) {
 				throw new Exceptions\PluginConfigInvalidException( sprintf( "Exception loading config for module '%s': %s",
@@ -1146,8 +1108,7 @@ class Controller extends DynPropertiesClass {
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();
-		$locator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
-		foreach ( $locator->run() as $dir ) {
+		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {
 			$render->setTwigTemplateRoot( $dir );
 		}
 		$render->setTemplateRoot( $this->getPath_Templates() );

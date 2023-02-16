@@ -16,9 +16,7 @@ class SuperSearchResults extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/components/search/super_search_results.twig';
 
 	protected function getRenderData() :array {
-		$results = ( new SelectSearchData() )
-			->setCon( $this->getCon() )
-			->build( $this->action_data[ 'search' ] );
+		$results = ( new SelectSearchData() )->build( $this->action_data[ 'search' ] );
 		return [
 			'flags'   => [
 				'has_results' => !empty( $results ),

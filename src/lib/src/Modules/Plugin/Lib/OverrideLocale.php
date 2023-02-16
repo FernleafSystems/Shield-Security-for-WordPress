@@ -25,9 +25,7 @@ class OverrideLocale extends ExecOnceModConsumer {
 					},
 					100, 2
 				);
-				( new LoadTextDomain() )
-					->setCon( $this->getCon() )
-					->run();
+				( new LoadTextDomain() )->run();
 			}
 			else {
 				$this->getOptions()->setOpt( 'locale_override', '' );

@@ -11,9 +11,9 @@ class IsRequestToInvalidPlugin extends Base {
 	public const SLUG = 'is_request_to_invalid_plugin';
 
 	protected function execConditionCheck() :bool {
-		$asset = ( new IsRequestToPluginAsset() )->setCon( $this->getCon() );
+		$asset = new IsRequestToPluginAsset();
 		$asset->request_path = $this->getRequestPath();
-		$validAsset = ( new IsRequestToValidPluginAsset() )->setCon( $this->getCon() );
+		$validAsset = new IsRequestToValidPluginAsset();
 		$validAsset->request_path = $this->getRequestPath();
 		return $asset->run() && !$validAsset->run();
 	}

@@ -77,9 +77,7 @@ class DashboardWidget extends BaseRender {
 		if ( $refresh || empty( $vars ) ) {
 			$vars = [
 				'generated_at'       => Services::Request()->ts(),
-				'security_progress'  => ( new Handler() )
-					->setCon( $con )
-					->getMeter( MeterSummary::class ),
+				'security_progress'  => ( new Handler() )->getMeter( MeterSummary::class ),
 				'jump_links'         => [
 					[
 						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
