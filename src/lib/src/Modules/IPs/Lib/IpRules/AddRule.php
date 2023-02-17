@@ -162,7 +162,7 @@ class AddRule {
 
 			case $dbh::T_MANUAL_BLOCK:
 				if ( $ruleStatus->isBypass() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is on the bypass list and cannot be manually blocked.', $ip ) );
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );

@@ -7,8 +7,8 @@ Tags: limit login, malware scan, firewall, file scan, two factor authentication,
 Requires at least: 4.7
 Requires PHP: 7.2
 Recommended PHP: 7.4
-Tested up to: 6.1
-Stable tag: 17.0.1
+Tested up to: 6.2
+Stable tag: 17.0.2
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 

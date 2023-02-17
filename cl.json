@@ -1,7 +1,7 @@
 {
   "17.0": {
     "version":     "17.0",
-    "released_at": 1676460000,
+    "released_at": 1676640000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease170",
       "upgrade": "https://shsec.io/shieldupgradeguide170"
@@ -22,7 +22,7 @@
       },
       {
         "type":        "new",
-        "pro_only":    false,
+        "pro_only":    true,
         "title":       "WeForms Integration",
         "description": [
           "We've added native support for protection against contact form SPAM directed against WeForms."
@@ -64,7 +64,7 @@
       },
       {
         "type":        "improved",
-        "pro_only":    false,
+        "pro_only":    true,
         "title":       "Better Plugin Search",
         "description": [
           "We've improved the UI for searching the plugin alongside adding the ability to search for partial IP addresses."
@@ -109,13 +109,6 @@
         "description": [
           "Shield has an option to enforce minimum password strengths, and also an option to enforce minimum length.",
           "There is no real need to enforce a password length, when an overall password strength meter is also applied."
-        ]
-      },
-      {
-        "type":     "fixed",
-        "pro_only": false,
-        "title":    "Various Fixes",
-        "list":     [
         ]
       }
     ],
