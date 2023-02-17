@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	ModConsumer,
+	IPs
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
@@ -17,7 +20,9 @@ use IPLib\Factory;
 
 class IpRuleStatus {
 
-	use Modules\ModConsumer;
+	use ModConsumer;
+
+	public const MOD = IPs\ModCon::SLUG;
 
 	private $ipOrRange;
 
@@ -88,7 +93,7 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	private function getRulesForAutoBlock() :array {
-		/** @var Modules\IPs\Options $opts */
+		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
 		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );

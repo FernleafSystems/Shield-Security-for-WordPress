@@ -33,17 +33,17 @@ class BadgeWidget extends \WP_Widget {
 	}
 
 	/**
-	 * @param array  $aWidgetArguments
-	 * @param string $sTitle
-	 * @param string $sContent
+	 * @param array  $widgetArgs
+	 * @param string $title
+	 * @param string $content
 	 * @return string
 	 */
-	protected function standardRender( $aWidgetArguments, $sTitle = '', $sContent = '' ) {
-		echo $aWidgetArguments[ 'before_widget' ];
-		if ( !empty( $sTitle ) ) {
-			echo $aWidgetArguments[ 'before_title' ].$sTitle.$aWidgetArguments[ 'after_title' ];
+	protected function standardRender( $widgetArgs, $title = '', $content = '' ) {
+		echo $widgetArgs[ 'before_widget' ];
+		if ( !empty( $title ) ) {
+			echo $widgetArgs[ 'before_title' ].$title.$widgetArgs[ 'after_title' ];
 		}
-		return $sContent.$aWidgetArguments[ 'after_widget' ];
+		return $content.$widgetArgs[ 'after_widget' ];
 	}
 
 	/**

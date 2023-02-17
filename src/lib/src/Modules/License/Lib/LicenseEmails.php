@@ -18,7 +18,7 @@ class LicenseEmails {
 
 		$canSend = Services::Request()
 						   ->carbon()
-						   ->subDay( 1 )->timestamp > $opts->getOpt( 'last_warning_email_sent_at' );
+						   ->subDay()->timestamp > $opts->getOpt( 'last_warning_email_sent_at' );
 
 		if ( $canSend ) {
 			$opts->setOptAt( 'last_warning_email_sent_at' );
@@ -46,7 +46,7 @@ class LicenseEmails {
 
 		$canSend = Services::Request()
 						   ->carbon()
-						   ->subDay( 1 )->timestamp > $opts->getOpt( 'last_deactivated_email_sent_at' );
+						   ->subDay()->timestamp > $opts->getOpt( 'last_deactivated_email_sent_at' );
 
 		if ( $canSend ) {
 			$opts->setOptAt( 'last_deactivated_email_sent_at' );

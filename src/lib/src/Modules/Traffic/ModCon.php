@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'traffic';
+
 	/**
 	 * @var Lib\RequestLogger
 	 */

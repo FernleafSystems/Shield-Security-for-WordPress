@@ -65,6 +65,8 @@ class Enqueue {
 				'bootstrap',
 				'wp-notes',
 				'wpforo',
+				'fs_common',
+				'this-day-in-history',
 				'mo_oauth_admin_settings_style',
 				'mo_oauth_admin_settings_phone_style',
 				'mo_oauth_admin_settings_datatable',

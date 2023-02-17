@@ -20,9 +20,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		$this->setupCronHooks();
 
 		add_action( 'init', function () {
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$mod->getWpHashesTokenManager()->execute();
+			$this->getCon()->getModule_License()->getWpHashesTokenManager()->execute();
 		} );
 
 		add_action( 'wp_loaded', function () {

@@ -17,6 +17,8 @@ class AddRule {
 	use Modules\ModConsumer;
 	use Modules\IPs\Components\IpAddressConsumer;
 
+	public const MOD = Modules\IPs\ModCon::SLUG;
+
 	/**
 	 * @throws \Exception
 	 */
@@ -100,7 +102,7 @@ class AddRule {
 			}
 		}
 
-		$ruleStatus = ( new IpRuleStatus( $this->getIP() ) )->setMod( $mod );
+		$ruleStatus = new IpRuleStatus( $this->getIP() );
 
 		switch ( $listType ) {
 
@@ -109,25 +111,19 @@ class AddRule {
 					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
-					( new DeleteRule() )
-						->setMod( $mod )
-						->byRecord( $ruleStatus->getRuleForAutoBlock() );
+					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
 					foreach ( $ruleStatus->getRulesForManualBlock() as $rule ) {
 						if ( !$rule->is_range ) {
-							( new DeleteRule() )
-								->setMod( $mod )
-								->byRecord( $rule );
+							( new DeleteRule() )->byRecord( $rule );
 						}
 					}
 				}
 				if ( $ruleStatus->hasCrowdsecBlock() ) {
 					foreach ( $ruleStatus->getRulesForCrowdsec() as $rule ) {
 						if ( !$rule->is_range ) {
-							( new DeleteRule() )
-								->setMod( $mod )
-								->byRecord( $rule );
+							( new DeleteRule() )->byRecord( $rule );
 						}
 					}
 				}
@@ -144,9 +140,7 @@ class AddRule {
 					throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) );
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
-					( new DeleteRule() )
-						->setMod( $mod )
-						->byRecord( $ruleStatus->getRuleForAutoBlock() );
+					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
 				}
 				break;
 
@@ -168,22 +162,18 @@ class AddRule {
 
 			case $dbh::T_MANUAL_BLOCK:
 				if ( $ruleStatus->isBypass() ) {
-					throw new \Exception( sprintf( 'IP (%s) is already on the bypass list.', $ip ) );
+					throw new \Exception( sprintf( 'IP (%s) is on the bypass list and cannot be manually blocked.', $ip ) );
 				}
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );
 				}
 				if ( $ruleStatus->hasCrowdsecBlock() ) {
-					( new DeleteRule() )
-						->setMod( $mod )
-						->byRecords( $ruleStatus->getRulesForCrowdsec() );
+					( new DeleteRule() )->byRecords( $ruleStatus->getRulesForCrowdsec() );
 				}
 
 				// 1. You can manually block an IP on the Auto list (it'll be replaced)
 				if ( $ruleStatus->isAutoBlacklisted() ) {
-					( new DeleteRule() )
-						->setMod( $mod )
-						->byRecord( $ruleStatus->getRuleForAutoBlock() );
+					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
 				}
 
 				if ( $parsedRange->getSize() > 1 && $ruleStatus->hasManualBlock() ) {
@@ -197,9 +187,7 @@ class AddRule {
 
 						// 3. If you're manually adding a range and an existing single entry or range is covered by that range, it is replaced.
 						if ( !$existingRule->is_range || $parsedRange->containsRange( $parsedExistingRange ) ) {
-							( new DeleteRule() )
-								->setMod( $mod )
-								->byRecord( $existingRule );
+							( new DeleteRule() )->byRecord( $existingRule );
 						}
 					}
 				}

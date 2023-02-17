@@ -110,7 +110,6 @@ class Controller extends DynPropertiesClass {
 		$this->base_file = plugin_basename( $this->getRootFile() );
 		$this->modules = [];
 
-		$this->loadServices();
 		if ( $this->mu_handler->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
 			Services::WpPlugins()->activate( $this->base_file );
 		}
@@ -281,10 +280,9 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @throws \Exception
+	 * @deprecated 17.0
 	 */
 	private function loadServices() {
-		Services::GetInstance();
 	}
 
 	/**

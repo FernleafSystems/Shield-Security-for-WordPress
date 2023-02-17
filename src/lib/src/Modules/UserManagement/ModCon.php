@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\U
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'user_management';
+
 	private $userSuspensionController;
 
 	/**

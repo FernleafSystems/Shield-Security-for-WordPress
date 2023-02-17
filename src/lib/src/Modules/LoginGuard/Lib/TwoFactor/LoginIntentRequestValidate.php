@@ -26,9 +26,7 @@ class LoginIntentRequestValidate {
 	 * @throws TooManyAttemptsException
 	 */
 	public function run( string $plainNonce, bool $isCancel = false ) :string {
-		/** @var Shield\Modules\LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$mfaCon = $mod->getMfaController();
+		$mfaCon = $this->getCon()->getModule_LoginGuard()->getMfaController();
 		$user = $this->getWpUser();
 
 		if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {

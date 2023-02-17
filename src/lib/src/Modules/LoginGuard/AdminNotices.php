@@ -24,9 +24,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_EmailVerificationSent( NoticeVO $notice ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
