@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'comments_filter';
+
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

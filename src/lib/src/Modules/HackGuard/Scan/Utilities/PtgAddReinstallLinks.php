@@ -24,7 +24,8 @@ class PtgAddReinstallLinks {
 
 	protected function run() {
 		add_action( 'plugin_action_links', function ( $links, $file ) {
-			if ( is_array( $links ) && is_string( $file ) ) {
+			$con = $this->getScanController()->getCon();
+			if ( $con->this_req->is_security_admin && is_array( $links ) && is_string( $file ) ) {
 				$links = $this->addActionLinkRefresh( $links, $file );
 			}
 			return $links;
@@ -66,8 +67,10 @@ class PtgAddReinstallLinks {
 		$plugin = $WPP->getPluginAsVo( $file );
 		if ( !empty( $plugin ) && $plugin->asset_type === 'plugin'
 			 && $plugin->isWpOrg() && !$WPP->isUpdateAvailable( $file ) ) {
-			$template = '<a href="javascript:void(0)">%s</a>';
-			$links[ 'icwp-reinstall' ] = sprintf( $template, __( 'Re-Install', 'wp-simple-firewall' ) );
+			$links[ 'shield-reinstall' ] = sprintf( '<a href="javascript:void(0)" data-file="%s">%s</a>',
+				esc_attr( $file ),
+				__( 'Re-Install', 'wp-simple-firewall' )
+			);
 		}
 
 		return $links;

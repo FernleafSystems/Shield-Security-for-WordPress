@@ -12,7 +12,7 @@ trait ScanActionConsumer {
 	private $oScanActionVO;
 
 	/**
-	 * @return BaseScanActionVO
+	 * @return BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
 		return $this->oScanActionVO;

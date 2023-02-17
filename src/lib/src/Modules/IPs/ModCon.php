@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
+	public const SLUG = 'ips';
 	public const LIST_MANUAL_WHITE = 'MW';
 	public const LIST_MANUAL_BLACK = 'MB';
 	public const LIST_AUTO_BLACK = 'AB';
@@ -106,6 +107,7 @@ class ModCon extends BaseShield\ModCon {
 						'/',
 						$WP->getHomeUrl(),
 						$WP->getWpUrl(),
+						$WP->getAdminUrl( 'admin.php' ),
 					]
 				) ),
 				Shield\Modules\Base\Options\WildCardOptions::URL_PATH

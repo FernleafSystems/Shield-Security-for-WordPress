@@ -23,6 +23,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
+	public const MOD = LoginGuard\ModCon::SLUG;
+
 	/**
 	 * @var \WP_User
 	 */
@@ -34,9 +36,6 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 
 	public function runCapture() {
 		$con = $this->getCon();
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$mfaCon = $mod->getMfaController();
 		$req = Services::Request();
 
 		try {
@@ -79,8 +78,9 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		catch ( OtpVerificationFailedException | CouldNotValidate2FA $e ) {
 			// Allow a further attempt to 2FA
 			try {
+				$useShieldLoginIntentPage = $con->getModule_LoginGuard()->getMfaController()->useLoginIntentPage();
 				$con->action_router->action( StandardFullPageDisplay::SLUG, [
-					'render_slug' => $mfaCon->useLoginIntentPage() ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
+					'render_slug' => $useShieldLoginIntentPage ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
 						'include_body'      => true,
@@ -95,6 +95,8 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 			catch ( ActionException $e ) {
 				die( $e->getMessage() );
 			}
+		}
+		catch ( ActionException $e ) {
 		}
 	}
 
@@ -111,14 +113,10 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 	 */
 	private function capture() {
 		$con = $this->getCon();
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 		$req = Services::Request();
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
-			->setMod( $mod )
+			->setMod( $this->getMod() )
 			->setWpUser( $this->user )
 			->run( (string)$req->post( 'login_nonce' ), $req->post( 'cancel' ) == '1' );
 

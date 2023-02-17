@@ -16,9 +16,7 @@ class MfaLoginVerifyStep extends BaseAction {
 			$success = true;
 
 			add_action( 'wp_loaded', function () {
-				( new LoginIntentRequestCapture() )
-					->setMod( $this->getCon()->getModule_LoginGuard() )
-					->runCapture();
+				( new LoginIntentRequestCapture() )->runCapture();
 				// TODO: move the render that's embedded in the capture.
 			}, 8 ); // before rename login render
 		}

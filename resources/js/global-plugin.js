@@ -99,9 +99,8 @@ var iCWP_WPSF_StandardAjax = new function () {
 /** only run when HackGuard module is processing enqueues **/
 if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 	var iCWP_WPSF_HackGuard_Reinstall = new function () {
-
-		var sActiveFile;
-		var bActivate;
+		var activeFile;
+		var doActivate;
 
 		this.initialise = function () {
 			jQuery( document ).ready( function () {
@@ -115,7 +114,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 					}
 				} );
 
-				jQuery( document ).on( "click", 'tr.reinstallable .row-actions .icwp-reinstall a', promptReinstall );
+				jQuery( document ).on( "click", 'tr.reinstallable .row-actions .shield-reinstall a', promptReinstall );
 				jQuery( document ).on( "click", 'tr.reinstallable .row-actions .activate a', promptActivate );
 
 				var oShareSettings = {
@@ -144,7 +143,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 					}
 				};
 
-				var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
+				let $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
 				oShareSettings[ 'buttons' ] = [
 					{
 						text: icwp_wpsf_vars_hp.strings.okay_reinstall,
@@ -186,18 +185,18 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 			} );
 		};
 
-		var promptReinstall = function ( event ) {
-			event.preventDefault();
-			bActivate = 0;
-			sActiveFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
+		var promptReinstall = function ( evt ) {
+			evt.preventDefault();
+			doActivate = 0;
+			activeFile = jQuery( evt.currentTarget ).data( 'file' );
 			jQuery( '#icwpWpsfReinstall' ).dialog( 'open' );
 			return false;
 		};
 
 		var promptActivate = function ( event ) {
 			event.preventDefault();
-			bActivate = 1;
-			sActiveFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
+			doActivate = 1;
+			activeFile = jQuery( event.target ).closest( 'tr' ).data( 'plugin' );
 			jQuery( '#icwpWpsfActivateReinstall' ).dialog( 'open' );
 			return false;
 		};
@@ -205,16 +204,18 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 		var reinstall_plugin = function ( bReinstall ) {
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_hp.ajax_plugin_reinstall;
-			$aData[ 'file' ] = sActiveFile;
-			$aData[ 'reinstall' ] = bReinstall;
-			$aData[ 'activate' ] = bActivate;
+			let data = icwp_wpsf_vars_hp.ajax_plugin_reinstall;
+			data[ 'file' ] = activeFile;
+			data[ 'reinstall' ] = bReinstall;
+			data[ 'activate' ] = doActivate;
 
-			jQuery.post( ajaxurl, $aData, function ( oResponse ) {
+			jQuery.post( ajaxurl, data, function ( response ) {
 
 			} ).always( function () {
+					alert( 'Completed. Click OK to reload the page.' )
+					activeFile = null;
+					doActivate = null;
 					location.reload();
-					bActivate = null;
 				}
 			);
 

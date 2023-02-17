@@ -15,6 +15,8 @@ class DeleteRule {
 	use Shield\Modules\ModConsumer;
 	use IPs\Components\IpAddressConsumer;
 
+	public const MOD = IPs\ModCon::SLUG;
+
 	public function byRecords( array $records ) {
 		foreach ( $records as $record ) {
 			$this->byRecord( $record );

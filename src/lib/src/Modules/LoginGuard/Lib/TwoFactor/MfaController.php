@@ -114,10 +114,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function getMfaProfilesCon() :MfaProfilesController {
-		if ( !isset( $this->mfaProfilesCon ) ) {
-			$this->mfaProfilesCon = ( new MfaProfilesController() )->setMod( $this->getMod() );
-		}
-		return $this->mfaProfilesCon;
+		return $this->mfaProfilesCon ?? $this->mfaProfilesCon = new MfaProfilesController();
 	}
 
 	public function onWpLoaded() {

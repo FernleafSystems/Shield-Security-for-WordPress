@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
+	public const MOD = LoginGuard\ModCon::SLUG;
 	use MfaControllerConsumer;
 
 	private $rendered = false;

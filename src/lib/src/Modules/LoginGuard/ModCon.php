@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaCo
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
+	public const SLUG = 'login_protect';
+
 	/**
 	 * @var Lib\TwoFactor\MfaController
 	 */

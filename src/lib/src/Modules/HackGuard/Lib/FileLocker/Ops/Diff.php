@@ -45,7 +45,6 @@ class Diff extends BaseOps {
 	/**
 	 * @param string $original
 	 * @param string $current
-	 * @return string
 	 * @throws \Exception
 	 */
 	private function useWpHashes( $original, $current ) :string {
@@ -64,7 +63,6 @@ class Diff extends BaseOps {
 	/**
 	 * @param string $original
 	 * @param string $current
-	 * @return string
 	 */
 	private function useWpDiff( $original, $current ) :string {
 		return wp_text_diff( $original, $current );
