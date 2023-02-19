@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\Security
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\Delete;
 use FernleafSystems\Wordpress\Services\Services;
 
-class HackGuardPluginReinstall extends ScansBase {
+class PluginReinstall extends ScansBase {
 
 	use SecurityAdminNotRequired;
 
@@ -17,7 +17,6 @@ class HackGuardPluginReinstall extends ScansBase {
 
 		$req = Services::Request();
 
-		$activate = $req->post( 'activate' );
 		$file = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
 
 		if ( $req->post( 'reinstall' ) ) {
@@ -34,10 +33,6 @@ class HackGuardPluginReinstall extends ScansBase {
 				catch ( \Exception $e ) {
 				}
 			}
-		}
-
-		if ( $activate ) {
-			Services::WpPlugins()->activate( $file );
 		}
 
 		$this->response()->success = $success;

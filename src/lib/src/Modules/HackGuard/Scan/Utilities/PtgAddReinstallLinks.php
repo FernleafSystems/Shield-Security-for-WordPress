@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utiliti
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\HackGuardPluginReinstall;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginReinstall;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ReinstallDialog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
@@ -44,7 +44,7 @@ class PtgAddReinstallLinks {
 					'global-plugin',
 					'icwp_wpsf_vars_hp',
 					[
-						'ajax_plugin_reinstall' => ActionData::Build( HackGuardPluginReinstall::class ),
+						'ajax_plugin_reinstall' => ActionData::Build( PluginReinstall::class ),
 						'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
 						'strings'               => [
 							'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
@@ -67,10 +67,7 @@ class PtgAddReinstallLinks {
 		$plugin = $WPP->getPluginAsVo( $file );
 		if ( !empty( $plugin ) && $plugin->asset_type === 'plugin'
 			 && $plugin->isWpOrg() && !$WPP->isUpdateAvailable( $file ) ) {
-			$links[ 'shield-reinstall' ] = sprintf( '<a href="javascript:void(0)" data-file="%s">%s</a>',
-				esc_attr( $file ),
-				__( 'Re-Install', 'wp-simple-firewall' )
-			);
+			$links[ 'shield-reinstall' ] = sprintf( '<a href="javascript:void(0)">%s</a>', __( 'Re-Install', 'wp-simple-firewall' ) );
 		}
 
 		return $links;
