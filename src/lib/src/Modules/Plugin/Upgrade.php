@@ -2,17 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as LegacyReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Upgrade extends Base\Upgrade {
-
-	protected function runEveryUpgrade() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->deleteAllPluginCrons();
-	}
 
 	protected function upgrade_1710() {
 		// remove old tables
@@ -24,7 +17,6 @@ class Upgrade extends Base\Upgrade {
 				'spambot_comments_filter',
 				'statistics',
 				'ip_lists',
-				'reports',
 				'sessions'
 			] as $table
 		) {

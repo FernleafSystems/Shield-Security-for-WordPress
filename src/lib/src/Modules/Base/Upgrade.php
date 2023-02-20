@@ -6,13 +6,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsu
 
 class Upgrade extends ExecOnceModConsumer {
 
+	protected $previous;
+
+	protected function canRun() :bool {
+		return !empty( $this->previous ) && version_compare( $this->previous, $this->getCon()->getVersion(), '<' );
+	}
+
 	protected function run() {
 		$this->upgradeModule();
-		$this->runEveryUpgrade();
 		$this->upgradeCommon();
 	}
 
-	protected function runEveryUpgrade() {
+	/**
+	 * @return static
+	 */
+	public function setPrevious( string $previous ) {
+		$this->previous = $previous;
+		return $this;
 	}
 
 	protected function upgradeCommon() {
@@ -25,12 +35,11 @@ class Upgrade extends ExecOnceModConsumer {
 	 */
 	protected function upgradeModule() {
 		$con = $this->getCon();
-		$previous = $con->cfg->previous_version;
 		$upgrades = $con->cfg->version_upgrades;
 		asort( $upgrades );
 		foreach ( $upgrades as $version ) {
 			$upgradeMethod = 'upgrade_'.str_replace( '.', '', $version );
-			if ( version_compare( $previous, $version, '<' ) && method_exists( $this, $upgradeMethod ) ) {
+			if ( version_compare( $this->previous, $version, '<' ) && method_exists( $this, $upgradeMethod ) ) {
 				$this->{$upgradeMethod}();
 			}
 		}
