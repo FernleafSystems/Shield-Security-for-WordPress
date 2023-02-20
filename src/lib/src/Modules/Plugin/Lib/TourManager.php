@@ -14,47 +14,31 @@ class TourManager {
 
 	public function getAllTours() :array {
 		return [
-			'dashboard_v1',
 			'navigation_v1',
 		];
 	}
 
-	public function isCompleted( string $tourKey ) :bool {
-		try {
-			$tours = $this->loadUserTourStates();
-			$shown = isset( $tours[ $tourKey ] ) && $tours[ $tourKey ] > 0;
-		}
-		catch ( \Exception $e ) {
-			$shown = true; // in-case there's a meta saving issue.
-		}
-		return $shown;
-	}
-
 	public function setCompleted( string $tourKey ) {
 		$tourKey = sanitize_key( $tourKey );
-		if ( !empty( $tourKey ) ) {
-			try {
-				$tours = $this->loadUserTourStates();
-				$tours[ $tourKey ] = Services::Request()->ts();
-				$this->getCon()->getCurrentUserMeta()->tours = $tours;
-			}
-			catch ( \Exception $e ) {
-			}
+		$meta = $this->getCon()->getCurrentUserMeta();
+		if ( !empty( $tourKey ) && !empty( $meta ) ) {
+			$meta->tours = array_intersect_key(
+				array_merge( $this->getAllTours(), [
+					$tourKey => Services::Request()->ts()
+				] ),
+				array_flip( $this->getAllTours() )
+			);
 		}
 	}
 
 	public function getUserTourStates() :array {
-		try {
-			$tours = $this->loadUserTourStates();
-		}
-		catch ( \Exception $e ) {
-			$tours = [];
-		}
-		return $tours;
+		$meta = $this->getCon()->getCurrentUserMeta();
+		return ( !empty( $meta ) && is_array( $meta->tours ) ) ? $meta->tours : [];
 	}
 
 	/**
 	 * @throws \Exception
+	 * @deprecated 17.0
 	 */
 	private function loadUserTourStates() :array {
 		$meta = $this->getCon()->getCurrentUserMeta();

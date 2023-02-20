@@ -19,7 +19,7 @@ jQuery.fn.icwpWpsfTours = function ( options ) {
 	var buildStepsForTour = function ( tourKey ) {
 		let steps = [];
 		let tourItems = document.querySelectorAll( '.tour-' + tourKey );
-		for ( var i = 0; i < tourItems.length; i++ ) {
+		for ( let i = 0; i < tourItems.length; i++ ) {
 			let step = {
 				element: tourItems[ i ],
 				intro: tourItems[ i ].dataset.intro
@@ -27,7 +27,10 @@ jQuery.fn.icwpWpsfTours = function ( options ) {
 			if ( typeof tourItems[ i ].dataset.introtitle !== typeof undefined ) {
 				step.title = tourItems[ i ].dataset.introtitle;
 			}
-			steps.push(step);
+			if ( typeof tourItems[ i ].dataset.introposition !== typeof undefined ) {
+				step.position = tourItems[ i ].dataset.introposition;
+			}
+			steps.push( step );
 		}
 		return steps;
 	}
