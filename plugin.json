@@ -143,7 +143,7 @@
           ]
         },
         "introjs":                           {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/introjs.min.css"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css"
         },
         "shield/userprofile":                {
           "deps":   [],
@@ -243,7 +243,7 @@
           ]
         },
         "introjs":                           {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/3.3.1/intro.min.js"
+          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"
         },
         "shield/charts":                     {
           "deps": [

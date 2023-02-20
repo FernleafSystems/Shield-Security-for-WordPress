@@ -99,7 +99,8 @@ class NavMenuBuilder {
 			'href'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
 			'active'    => $this->inav() === PluginURLs::NAV_IP_RULES,
 			'introjs'   => [
-				'body' => __( "Protection begins by detecting bad bots - Review and Analyse all visitor IPs that have an impact on your site.", 'wp-simple-firewall' ),
+				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
+				'body'  => __( "Protection start by detecting bad bots - Review all IP Rules that have an impact on your site visitors.", 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -114,7 +115,8 @@ class NavMenuBuilder {
 			'href'    => $con->plugin_urls->adminTopNav( $slug ),
 			'active'  => $this->inav() === $slug,
 			'introjs' => [
-				'body' => __( "Track and review all important actions taken on your site - see the Who, What and When.", 'wp-simple-firewall' ),
+				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
+				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -128,7 +130,8 @@ class NavMenuBuilder {
 			'img_hover' => $con->svgs->raw( 'shield-fill' ),
 			'href'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 			'introjs'   => [
-				'body' => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
+				'title' => __( 'Security Scans', 'wp-simple-firewall' ),
+				'body'  => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
 			],
 		];
@@ -142,7 +145,8 @@ class NavMenuBuilder {
 			'img'     => $con->svgs->raw( 'speedometer' ),
 			'href'    => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
 			'introjs' => [
-				'body' => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
+				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
+				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
 					$con->getHumanName() ),
 			],
 		];
@@ -190,7 +194,8 @@ class NavMenuBuilder {
 			'title'     => __( 'Config', 'wp-simple-firewall' ),
 			'img'       => $this->getCon()->svgs->raw( 'sliders' ),
 			'introjs'   => [
-				'body' => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ),
+				'title' => __( 'Plugin Configuration', 'wp-simple-firewall' ),
+				'body'  => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ),
 					$this->getCon()->getHumanName() ),
 			],
 			'sub_items' => $subItems,
@@ -253,7 +258,8 @@ class NavMenuBuilder {
 			'title'     => __( 'Tools', 'wp-simple-firewall' ),
 			'img'       => $this->getCon()->svgs->raw( 'tools' ),
 			'introjs'   => [
-				'body' => __( "Important security tools, such a import/export, whitelabel and admin notes.", 'wp-simple-firewall' ),
+				'title' => __( 'Security Tools', 'wp-simple-firewall' ),
+				'body'  => __( "Important security tools, such a import/export, whitelabel and admin notes.", 'wp-simple-firewall' ),
 			],
 			'sub_items' => [
 				[
@@ -317,7 +323,8 @@ class NavMenuBuilder {
 			'href'    => $con->plugin_urls->adminTopNav( $slug ),
 			'active'  => $this->inav() === $slug,
 			'introjs' => [
-				'body' => __( "Monitor and watch traffic as it hits your site.", 'wp-simple-firewall' ),
+				'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
+				'body'  => __( "Dig deeper into your WordPress traffic as it hits your site.", 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -330,7 +337,8 @@ class NavMenuBuilder {
 			'img'     => $con->svgs->raw( 'person-badge' ),
 			'href'    => $con->plugin_urls->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
 			'introjs' => [
-				'body' => __( 'View sessions, and configure session timeouts and passwords requirements.', 'wp-simple-firewall' ),
+				'title' => __( 'User Management', 'wp-simple-firewall' ),
+				'body'  => __( 'View sessions, and configure session timeouts and passwords requirements.', 'wp-simple-firewall' ),
 			],
 			//			'sub_items' => [
 			//				[

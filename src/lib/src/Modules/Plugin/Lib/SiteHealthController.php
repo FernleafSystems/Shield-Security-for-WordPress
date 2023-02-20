@@ -13,14 +13,14 @@ class SiteHealthController extends ExecOnceModConsumer {
 	public const TAB_SLUG = 'shield_security';
 
 	protected function canRun() :bool {
-		return Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.8' );
+		$WP = Services::WpGeneral();
+		return $WP->getWordpressIsAtLeastVersion( '5.8' )
+			   && !$WP->isAjax()
+			   && ( is_admin() || is_network_admin() )
+			   && Services::Request()->isGet();
 	}
 
 	protected function run() {
-		add_action( 'admin_init', [ $this, 'hook' ] );
-	}
-
-	public function hook() {
 		add_filter( 'site_health_navigation_tabs', function ( $tabs ) {
 			$slugs = array_keys( $tabs );
 			if ( in_array( '', $slugs, true ) ) {
@@ -34,12 +34,8 @@ class SiteHealthController extends ExecOnceModConsumer {
 		}, 11 );
 		add_action( 'site_health_tab_content', function ( $tab ) {
 			if ( $tab === self::TAB_SLUG ) {
-				$this->renderTab();
+				echo $this->getCon()->action_router->render( Analysis::SLUG );
 			}
 		} );
-	}
-
-	private function renderTab() {
-		echo $this->getCon()->action_router->render( Analysis::SLUG );
 	}
 }

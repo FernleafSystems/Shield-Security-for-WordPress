@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -1223,11 +1224,13 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param \WP_User $user
+	 * @param ?\WP_User $user
 	 * @return Shield\Users\ShieldUserMeta|null
+	 * @deprecated 17.0
 	 */
-	public function getUserMeta( $user ) {
-		return $user instanceof \WP_User ? $this->user_metas->forUser( $user ) : null;
+	public function getUserMeta( $user ) :?ShieldUserMeta {
+		$metas = $this->user_metas;
+		return method_exists( $metas, 'for' ) ? $metas->for( $user ) : $metas->forUser( $user );
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
