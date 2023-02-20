@@ -3,53 +3,37 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Upgrade {
 
-	use Shield\Modules\PluginControllerConsumer;
+	use Modules\PluginControllerConsumer;
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		$con = $this->getCon();
-		return ( $con->cfg->previous_version !== $con->getVersion() ) && !$this->isAlreadyUpgrading();
-	}
-
-	protected function isAlreadyUpgrading() :bool {
-		$FS = Services::WpFs();
-		$upgradeFlag = $this->getCon()->cache_dir_handler->cacheItemPath( 'upgrading.flag' );
-		return !empty( $upgradeFlag )
-			   && $FS->isFile( $upgradeFlag )
-			   && ( Services::Request()->ts() - 600 ) < $FS->getModifiedTime( $upgradeFlag );
+		$previous = $this->getCon()->cfg->previous_version;
+		return !empty( $previous ) && version_compare( $previous, $this->getCon()->getVersion(), '<' );
 	}
 
 	protected function run() {
 		$con = $this->getCon();
-		$FS = Services::WpFs();
 
-		$filePath = $con->cache_dir_handler->cacheItemPath( 'upgrading.flag' );
+		$hook = $con->prefix( 'plugin-upgrade' );
+		if ( !wp_next_scheduled( $hook, [ $con->cfg->previous_version ] ) ) {
+			$con->getModule_Plugin()->deleteAllPluginCrons();
+			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $con->cfg->previous_version ] );
+		}
 
-		$FS->touch( $filePath, Services::Request()->ts() );
-
-		$this->upgradeModules();
+		add_action( $hook, function ( $previousVersion ) {
+			foreach ( $this->getCon()->modules as $mod ) {
+				$H = $mod->getUpgradeHandler();
+				if ( $H instanceof Modules\Base\Upgrade ) {
+					$H->setPrevious( $previousVersion )->execute();
+				}
+			}
+		} );
 
 		$con->cfg->previous_version = $con->getVersion();
-
-		if ( $FS->isFile( $filePath ) ) {
-			add_action( $con->prefix( 'plugin_shutdown' ), function () {
-				$con = $this->getCon();
-				Services::WpFs()->deleteFile( $con->cache_dir_handler->cacheItemPath( 'upgrading.flag' ) );
-			} );
-		}
-	}
-
-	private function upgradeModules() {
-		foreach ( $this->getCon()->modules as $mod ) {
-			$H = $mod->getUpgradeHandler();
-			if ( $H instanceof Shield\Modules\Base\Upgrade ) {
-				$H->execute();
-			}
-		}
 	}
 }

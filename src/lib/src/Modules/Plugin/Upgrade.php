@@ -8,12 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function runEveryUpgrade() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->deleteAllPluginCrons();
-	}
-
 	protected function upgrade_1700() {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
