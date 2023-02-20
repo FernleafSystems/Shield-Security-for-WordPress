@@ -13,16 +13,17 @@ class Upgrade {
 
 	protected function canRun() :bool {
 		$previous = $this->getCon()->cfg->previous_version;
-		return !empty( $previous ) && version_compare( $previous, $this->getCon()->getVersion(), '<' );
+		return !empty( $previous );
 	}
 
 	protected function run() {
 		$con = $this->getCon();
+		$prev = $this->getCon()->cfg->previous_version;
 
 		$hook = $con->prefix( 'plugin-upgrade' );
-		if ( !wp_next_scheduled( $hook, [ $con->cfg->previous_version ] ) ) {
+		if ( version_compare( $prev, $con->getVersion(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
 			$con->getModule_Plugin()->deleteAllPluginCrons();
-			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $con->cfg->previous_version ] );
+			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $prev ] );
 		}
 
 		add_action( $hook, function ( $previousVersion ) {

@@ -86,6 +86,12 @@ class ModCon extends BaseShield\ModCon {
 			$deleter->filterByType( $this->getDbH_IPRules()::T_CROWDSEC )->query();
 		}
 
+		if ( $opts->isOptChanged( 'transgression_limit' ) && !$opts->isEnabledAutoBlackList() ) {
+			/** @var DB\IpRules\Ops\Delete $deleter */
+			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
+			$deleter->filterByType( $this->getDbH_IPRules()::T_AUTO_BLOCK )->query();
+		}
+
 		$this->cleanPathWhitelist();
 	}
 

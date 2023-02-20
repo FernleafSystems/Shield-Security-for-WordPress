@@ -776,7 +776,6 @@ class Controller extends DynPropertiesClass {
 			$this->paths->forPluginItem( 'plugin.json' ),
 			$this->getConfigStoreKey() )
 		)->run();
-		$this->cfg->load_source = 'json';
 
 		$this->plugin_urls;
 		$this->loadModConfigs();

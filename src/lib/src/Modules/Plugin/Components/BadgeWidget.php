@@ -30,21 +30,6 @@ class BadgeWidget extends \WP_Widget {
 	}
 
 	/**
-	 * @param array  $widgetArgs
-	 * @param string $title
-	 * @param string $content
-	 * @return string
-	 * @deprecated 17.0
-	 */
-	protected function standardRender( $widgetArgs, $title = '', $content = '' ) {
-		echo $widgetArgs[ 'before_widget' ];
-		if ( !empty( $title ) ) {
-			echo $widgetArgs[ 'before_title' ].$title.$widgetArgs[ 'after_title' ];
-		}
-		return $content.$widgetArgs[ 'after_widget' ];
-	}
-
-	/**
 	 * @param array $args
 	 * @param array $instance
 	 * @throws \Exception

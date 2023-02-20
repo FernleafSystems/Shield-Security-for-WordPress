@@ -40,6 +40,14 @@
       {
         "type":        "improved",
         "pro_only":    false,
+        "title":       "NotBot JS Improvements",
+        "description": [
+          "Following some feedback and issues reported with SiteGround, we've made a few enhancement to the NotBot JS code."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
         "title":       "Filter Tables By Date",
         "description": [
           "The Activity Log and Traffic Log can now be filtered by date, letting you quickly find the logs you need."
@@ -77,6 +85,14 @@
         "description": [
           "We've made our implementation of the Pwned Passwords API more forgiving of API errors.",
           "Instead of blocking passwords when there's an error with the API, we bypass the test altogether allowing the request to succeed."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Plugin Re-Install Feature Improved",
+        "description": [
+          "Depending on your particular plugin soup, the plugin reinstall feature could fail."
         ]
       },
       {
