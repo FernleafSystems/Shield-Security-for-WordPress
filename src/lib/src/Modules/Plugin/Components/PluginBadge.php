@@ -36,8 +36,8 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		if ( !empty( $mod ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			register_widget( new BadgeWidget( $mod ) );
+		if ( !empty( $this->getMod() ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
+			register_widget( new BadgeWidget( $this->getMod() ) );
 		}
 	}
 
@@ -60,14 +60,16 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function setBadgeStateClosed() :bool {
-		return (bool)Services::Response()
-							 ->cookieSet(
-								 $this->getCookieIdBadgeState(),
-								 'closed',
-								 DAY_IN_SECONDS
-							 );
+		return (bool)Services::Response()->cookieSet(
+			$this->getCookieIdBadgeState(),
+			'closed',
+			DAY_IN_SECONDS
+		);
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	public function setIsDisplayPluginBadge( bool $isDisplay ) {
 		$this->getOptions()->setOpt( 'display_plugin_badge', $isDisplay ? 'Y' : 'N' );
 	}

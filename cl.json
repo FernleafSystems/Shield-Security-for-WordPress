@@ -1,7 +1,7 @@
 {
   "17.0": {
     "version":     "17.0",
-    "released_at": 1676640000,
+    "released_at": 1676900000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease170",
       "upgrade": "https://shsec.io/shieldupgradeguide170"
@@ -35,6 +35,14 @@
         "title":       "Much Improved IP Rules Management",
         "description": [
           "IP Rules management could be slow as the IP rules table grew, but we've done a lot of work to speed this up."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "NotBot JS Improvements",
+        "description": [
+          "Following some feedback and issues reported with SiteGround, we've made a few enhancement to the NotBot JS code."
         ]
       },
       {
@@ -77,6 +85,14 @@
         "description": [
           "We've made our implementation of the Pwned Passwords API more forgiving of API errors.",
           "Instead of blocking passwords when there's an error with the API, we bypass the test altogether allowing the request to succeed."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Plugin Re-Install Feature Improved",
+        "description": [
+          "Depending on your particular plugin soup, the plugin reinstall feature could fail."
         ]
       },
       {

@@ -21,17 +21,14 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 	private $isFrontend = false;
 
 	protected function run() {
-		$con = $this->getCon();
-
 		// shortcode for placing user authentication handling anywhere
-		if ( $con->isPremiumActive() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
 				return $this->renderUserProfileMFA( is_array( $attributes ) ? $attributes : [] );
 			} );
 		}
 
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
-
 			add_action( 'wp', function () {
 				$this->enqueueAssets( true );
 			} );

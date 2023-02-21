@@ -114,7 +114,6 @@ class PluginTelemetry {
 				'slug'             => $con->getPluginSlug(),
 				'installation_id'  => $con->getInstallationID()[ 'id' ],
 				'unique_site_hash' => sha1( network_home_url( '/' ) ),
-				'cfg_load_source'  => $con->cfg->load_source,
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
 				'version'          => $con->getVersion(),

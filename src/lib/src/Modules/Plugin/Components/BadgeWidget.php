@@ -9,23 +9,20 @@ class BadgeWidget extends \WP_Widget {
 
 	use ModConsumer;
 
-	/**
-	 * BadgeWidget constructor.
-	 * @param ModCon $mod
-	 */
+	public const MOD = ModCon::SLUG;
+
 	public function __construct( $mod ) {
 		if ( empty( $mod ) ) {
 			return;
 		}
 		$this->setMod( $mod );
-		$oCon = $this->getCon();
 
-		$sName = $oCon->getHumanName();
 		parent::__construct(
-			$oCon->prefixOption( 'plugin_badge' ),
-			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $sName ),
+			$this->getCon()->prefixOption( 'plugin_badge' ),
+			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
 			[
-				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ), $sName ),
+				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName() ),
 			]
 		);
 
@@ -37,6 +34,7 @@ class BadgeWidget extends \WP_Widget {
 	 * @param string $title
 	 * @param string $content
 	 * @return string
+	 * @deprecated 17.0
 	 */
 	protected function standardRender( $widgetArgs, $title = '', $content = '' ) {
 		echo $widgetArgs[ 'before_widget' ];
@@ -47,32 +45,22 @@ class BadgeWidget extends \WP_Widget {
 	}
 
 	/**
-	 * @param array $new_instance
-	 * @param array $old_instance
-	 * @return array
-	 */
-	public function update( $new_instance, $old_instance ) {
-		return parent::update( $new_instance, $old_instance );
-//			$aInstance = array(
-//				'title' => empty( $aNewInstance['title'] ) ? '' : strip_tags( $aNewInstance['title'] )
-//			);
-//			return $aInstance;
-	}
-
-	/**
-	 * @param array $aWidgetArguments
-	 * @param array $aWidgetInstance
+	 * @param array $args
+	 * @param array $instance
 	 * @throws \Exception
 	 */
-	public function widget( $aWidgetArguments, $aWidgetInstance ) {
-		echo $this->standardRender( $aWidgetArguments, __( 'Site Secured', 'wp-simple-firewall' ), $this->renderBadge() );
+	public function widget( $args, $instance ) {
+		if ( is_array( $args ) ) {
+			echo sprintf( '%s%s%s%s',
+				$args[ 'before_widget' ],
+				!empty( $title ) ? ( $args[ 'before_title' ] ?? '' ).__( 'Site Secured', 'wp-simple-firewall' ).( $args[ 'after_title' ] ?? '' ) : '',
+				$this->renderBadge(),
+				$args[ 'after_widget' ]
+			);
+		}
 	}
 
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function renderBadge() {
+	public function renderBadge() :string {
 		return ( new PluginBadge() )
 			->setMod( $this->getMod() )
 			->render();
