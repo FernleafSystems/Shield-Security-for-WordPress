@@ -34,12 +34,15 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		// Display manually suspended on the user list table; TODO: at auto suspended
 		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-			$last2fa = $this->getCon()->getUserMeta( $user )->record->last_2fa_verified_at;
-			$content[] = sprintf( '<em>%s</em>: %s', __( '2FA At', 'wp-simple-firewall' ),
-				empty( $last2fa ) ? __( 'Never', 'wp-simple-firewall' ) : Services::Request()
-																				  ->carbon()
-																				  ->setTimestamp( $last2fa )
-																				  ->diffForHumans()
+			$twoFAat = (int)$this->getCon()->getUserMeta( $user )->record->last_2fa_verified_at;
+			$carbon = Services::Request()
+							  ->carbon()
+							  ->setTimestamp( $twoFAat );
+
+			$content[] = sprintf( '<em title="%s">%s</em>: %s',
+				$twoFAat > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
+				__( '2FA At', 'wp-simple-firewall' ),
+				$twoFAat > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
 			);
 
 			$providers = array_map(
