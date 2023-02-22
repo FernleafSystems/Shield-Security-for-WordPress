@@ -62,7 +62,7 @@
       "title_short": "CrowdSec"
     },
     {
-      "slug":        "section_behaviours",
+      "slug":        "section_bot_behaviours",
       "title":       "Identify Common Bot Behaviours",
       "title_short": "Bot Behaviours",
       "beacon_id":   124,
@@ -274,148 +274,8 @@
       "description": "CrowdSec Enroll ID."
     },
     {
-      "key":           "track_404",
-      "section":       "section_behaviours",
-      "premium":       true,
-      "default":       "log",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "log",
-          "text":      "Activity Log Only"
-        },
-        {
-          "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
-        },
-        {
-          "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
-        },
-        {
-          "value_key": "block",
-          "text":      "Immediate Block"
-        }
-      ],
-      "link_info":     "https://shsec.io/fo",
-      "link_blog":     "https://shsec.io/f7",
-      "beacon_id":     123,
-      "name":          "404 Detect",
-      "summary":       "Identify A Bot When It Hits A 404",
-      "description":   "Detect When A Visitor Browses To A Non-Existent Page."
-    },
-    {
-      "key":           "track_linkcheese",
-      "section":       "section_behaviours",
-      "premium":       true,
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "log",
-          "text":      "Activity Log Only"
-        },
-        {
-          "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
-        },
-        {
-          "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
-        },
-        {
-          "value_key": "block",
-          "text":      "Immediate Block"
-        }
-      ],
-      "link_info":     "https://shsec.io/fo",
-      "link_blog":     "https://shsec.io/f6",
-      "beacon_id":     206,
-      "name":          "Link Cheese",
-      "summary":       "Tempt A Bot With A Fake Link To Follow",
-      "description":   "Detect A Bot That Follows A 'no-follow' Link."
-    },
-    {
-      "key":           "track_xmlrpc",
-      "section":       "section_behaviours",
-      "premium":       true,
-      "default":       "log",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "log",
-          "text":      "Activity Log Only"
-        },
-        {
-          "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
-        },
-        {
-          "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
-        },
-        {
-          "value_key": "block",
-          "text":      "Immediate Block"
-        }
-      ],
-      "link_info":     "https://shsec.io/fo",
-      "link_blog":     "https://shsec.io/f7",
-      "beacon_id":     123,
-      "name":          "XML-RPC Access",
-      "summary":       "Identify A Bot When It Accesses XML-RPC",
-      "description":   "If you don't use XML-RPC, why would anyone access it?"
-    },
-    {
-      "key":           "track_invalidscript",
-      "section":       "section_behaviours",
-      "premium":       true,
-      "default":       "log",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "log",
-          "text":      "Activity Log Only"
-        },
-        {
-          "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
-        },
-        {
-          "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
-        },
-        {
-          "value_key": "block",
-          "text":      "Immediate Block"
-        }
-      ],
-      "link_info":     "https://shsec.io/fo",
-      "link_blog":     "https://shsec.io/f7",
-      "beacon_id":     123,
-      "name":          "Invalid Script Load",
-      "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
-      "description":   "WordPress should only be loaded in a limited number of ways."
-    },
-    {
       "key":           "track_loginfailed",
-      "section":       "section_behaviours",
+      "section":       "section_bot_behaviours",
       "default":       "transgression-single",
       "type":          "select",
       "value_options": [
@@ -449,7 +309,7 @@
     },
     {
       "key":           "track_logininvalid",
-      "section":       "section_behaviours",
+      "section":       "section_bot_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",
@@ -484,7 +344,7 @@
     },
     {
       "key":           "track_fakewebcrawler",
-      "section":       "section_behaviours",
+      "section":       "section_bot_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",
@@ -518,8 +378,148 @@
       "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
     },
     {
+      "key":           "track_xmlrpc",
+      "section":       "section_bot_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Activity Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "https://shsec.io/fo",
+      "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     123,
+      "name":          "XML-RPC Access",
+      "summary":       "Identify A Bot When It Accesses XML-RPC",
+      "description":   "If you don't use XML-RPC, why would anyone access it?"
+    },
+    {
+      "key":           "track_404",
+      "section":       "section_bot_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Activity Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "https://shsec.io/fo",
+      "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     123,
+      "name":          "404 Detect",
+      "summary":       "Identify A Bot When It Hits A 404",
+      "description":   "Detect When A Visitor Browses To A Non-Existent Page."
+    },
+    {
+      "key":           "track_linkcheese",
+      "section":       "section_bot_behaviours",
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Activity Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "https://shsec.io/fo",
+      "link_blog":     "https://shsec.io/f6",
+      "beacon_id":     206,
+      "name":          "Link Cheese",
+      "summary":       "Tempt A Bot With A Fake Link To Follow",
+      "description":   "Detect A Bot That Follows A 'no-follow' Link."
+    },
+    {
+      "key":           "track_invalidscript",
+      "section":       "section_bot_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Activity Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "https://shsec.io/fo",
+      "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     123,
+      "name":          "Invalid Script Load",
+      "summary":       "Identify A Bot Attempts To Load WordPress In A Non-Standard Way",
+      "description":   "WordPress should only be loaded in a limited number of ways."
+    },
+    {
       "key":           "track_useragent",
-      "section":       "section_behaviours",
+      "section":       "section_bot_behaviours",
       "premium":       true,
       "default":       "log",
       "type":          "select",
