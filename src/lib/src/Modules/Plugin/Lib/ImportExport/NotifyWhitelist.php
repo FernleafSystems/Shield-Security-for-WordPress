@@ -2,26 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
-use FernleafSystems\Wordpress\Services\Services;
 
 class NotifyWhitelist extends ExecOnceModConsumer {
 
-	protected function run() {
+	public const MOD = ModCon::SLUG;
+
+	protected function canRun() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( !empty( $opts->getImportExportWhitelist() ) ) {
+		return !empty( $opts->getImportExportWhitelist() );
+	}
 
+	protected function run() {
+		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->getCon()->prefix() );
+		add_action( $this->getCon()->prefix( 'importexport_notify' ), function () use ( $q ) {
+			/** @var Options $opts */
+			$opts = $this->getOptions();
 			foreach ( $opts->getImportExportWhitelist() as $url ) {
-				Services::HttpRequest()->get(
-					$this->getCon()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $url ),
-					[ 'blocking' => false ]
-				);
+				$q->push_to_queue( $url );
 			}
-
-			$this->getCon()->fireEvent( 'import_notify_sent' );
-		}
+			$q->save()->dispatch();
+		} );
 	}
 }

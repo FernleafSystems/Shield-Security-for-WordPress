@@ -126,7 +126,7 @@ class Import {
 		}
 
 		// Begin the handshake process.
-		$opts->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
+		$opts->setOpt( 'importexport_handshake_expires_at', Services::Request()->carbon()->addMinutes( 20 ) );
 		$mod->saveModOptions();
 
 		// Don't send the network setup request if it's the cron.

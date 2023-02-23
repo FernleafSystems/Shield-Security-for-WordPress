@@ -72,6 +72,14 @@
       },
       {
         "type":        "improved",
+        "pro_only":    false,
+        "title":       "Much Improved Automatic Import/Export",
+        "description": [
+          "The process of automatic notification of client sites to import configurations from the master site has been much improved."
+        ]
+      },
+      {
+        "type":        "improved",
         "pro_only":    true,
         "title":       "Better Plugin Search",
         "description": [

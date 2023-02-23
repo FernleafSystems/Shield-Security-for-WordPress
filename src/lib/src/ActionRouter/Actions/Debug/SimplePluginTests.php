@@ -29,6 +29,15 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
+	private function dbg_importnotify() {
+		try {
+			( new Modules\Plugin\Lib\ImportExport\NotifyWhitelist() )->execute();
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
+	}
+
 	private function dbg_emailverify() {
 		try {
 			var_dump( ( new Email() )->getEmailVerification( 'paul@asdf.co.adf' ) );

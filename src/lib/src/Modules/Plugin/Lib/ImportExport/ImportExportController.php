@@ -31,12 +31,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 
 		$this->getImportExportSecretKey();
 
-		// Cron
-		add_action( $con->prefix( 'importexport_notify' ), function () {
-			( new NotifyWhitelist() )
-				->setMod( $this->getMod() )
-				->execute();
-		} );
+		( new NotifyWhitelist() )->execute();
 
 		add_action( 'shield/plugin_activated', function () {
 			$this->importFromFlag();
@@ -114,34 +109,20 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	}
 
 	/**
-	 * We've been notified that there's an update to pull in from the master site so we set a cron to do this.
+	 * We've been notified that there's an update to pull in from the master site, so we set a cron to do this.
 	 */
 	public function runOptionsUpdateNotified() {
-		$con = $this->getCon();
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
-		$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
+		$cronHook = $this->getCon()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( wp_next_scheduled( $cronHook ) ) {
 			wp_clear_scheduled_hook( $cronHook );
 		}
 
 		if ( !wp_next_scheduled( $cronHook ) ) {
-
-			wp_schedule_single_event( Services::Request()->ts() + 60, $cronHook );
-
-			preg_match( '#.*WordPress/.*\s+(.*)\s?#', Services::Request()->getUserAgent(), $aMatches );
-			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
-				$url = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
-				if ( !empty( $url ) ) {
-					$url = 'Site: '.$url;
-				}
-			}
-			else {
-				$url = '';
-			}
-
-			$con->fireEvent(
+			wp_schedule_single_event( Services::Request()->ts() + rand( 30, 180 ), $cronHook );
+			$this->getCon()->fireEvent(
 				'import_notify_received',
 				[ 'audit_params' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
 			);
