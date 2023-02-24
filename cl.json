@@ -71,6 +71,23 @@
         ]
       },
       {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Whitelist/Bypass IP Are Included In Exports",
+        "description": [
+          "It is now possible to share Bypass IPs from a master site to its client site using the import/export feature.",
+          "Only IP addresses added after the upgrade will be included in any subsequent exports."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Much Improved Automatic Import/Export",
+        "description": [
+          "The process of automatic notification of client sites to import configurations from the master site has been much improved."
+        ]
+      },
+      {
         "type":        "improved",
         "pro_only":    true,
         "title":       "Better Plugin Search",
@@ -124,7 +141,7 @@
         "title":       "Removed Password Policy Option: Minimum Password Length",
         "description": [
           "Shield has an option to enforce minimum password strengths, and also an option to enforce minimum length.",
-          "There is no real need to enforce a password length, when an overall password strength meter is also applied."
+          "Enforcing password length is unnecessary when a more holistic password strength meter is also applied."
         ]
       }
     ],

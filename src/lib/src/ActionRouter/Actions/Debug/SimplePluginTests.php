@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class SimplePluginTests extends BaseAction {
 
@@ -26,6 +27,24 @@ class SimplePluginTests extends BaseAction {
 	protected function postExec() {
 		var_dump( $this->response()->action_response_data[ 'debug_output' ] );
 		die( 'end tests' );
+	}
+
+	private function dbg_importnotify() {
+		try {
+			( new Modules\Plugin\Lib\ImportExport\NotifyWhitelist() )->execute();
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
+	}
+
+	private function dbg_emailverify() {
+		try {
+			var_dump( ( new Email() )->getEmailVerification( 'paul@asdf.co.adf' ) );
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
 	}
 
 	private function dbg_reporting() {
