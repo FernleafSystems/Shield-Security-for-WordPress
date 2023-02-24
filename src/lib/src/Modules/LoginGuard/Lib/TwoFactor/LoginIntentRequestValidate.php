@@ -70,7 +70,7 @@ class LoginIntentRequestValidate {
 		}
 
 		// Always remove intents after success.
-		$this->getCon()->getUserMeta( $user )->login_intents = [];
+		$this->getCon()->user_metas->for( $user )->login_intents = [];
 
 		return $validatedSlug;
 	}

@@ -85,7 +85,7 @@ class Email extends AbstractShieldProvider {
 		$mod = $this->getMod();
 		$mfaCon = $mod->getMfaController();
 		$user = $this->getUser();
-		$userMeta = $con->getUserMeta( $user );
+		$userMeta = $con->user_metas->for( $user );
 		$sureCon = $con->getModule_Comms()->getSureSendController();
 		$useSureSend = $sureCon->isEnabled2Fa() && $sureCon->canUserSend( $user );
 

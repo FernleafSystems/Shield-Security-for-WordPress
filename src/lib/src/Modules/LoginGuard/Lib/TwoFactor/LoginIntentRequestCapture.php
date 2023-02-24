@@ -59,18 +59,18 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		}
 		catch ( LoginCancelException $e ) {
 			// This should always be a user since we can only throw this exception after loading the user
-			$con->getUserMeta( $this->user )->login_intents = [];
+			$con->user_metas->for( $this->user )->login_intents = [];
 			$redirect = $req->post( 'cancel_href' );
 			empty( $redirect ) ? Services::Response()->redirectToLogin() : Services::Response()->redirect( $redirect );
 		}
 		catch ( TooManyAttemptsException $e ) {
-			$con->getUserMeta( $this->user )->login_intents = [];
+			$con->user_metas->for( $this->user )->login_intents = [];
 			Services::Response()->redirectToLogin( [
 				'shield_msg' => 'too_many_attempts'
 			] );
 		}
 		catch ( NoActiveProvidersForUserException $e ) {
-			$con->getUserMeta( $this->user )->login_intents = [];
+			$con->user_metas->for( $this->user )->login_intents = [];
 			Services::Response()->redirectToLogin( [
 				'shield_msg' => 'no_providers'
 			] );

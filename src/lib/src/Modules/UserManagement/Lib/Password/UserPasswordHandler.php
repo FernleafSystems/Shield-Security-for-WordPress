@@ -48,16 +48,16 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				catch ( Exceptions\PwnedApiFailedException $e ) {
 					// We don't fail when the PWNED API is not available.
 				}
-				catch ( Exceptions\PasswordTooWeakException | Exceptions\PasswordIsPwnedException $e ) {
+				catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
 					$failed = true;
 				}
-				$this->getCon()
-					 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
+				$this->getCon()->user_metas->for( $user )->pass_check_failed_at = $failed ?
+					Services::Request()->ts() : 0;
 			}
 		}
 
 		if ( !$failed ) {
-			$this->getCon()->getUserMeta( $user )->updatePasswordStartedAt( $user->user_pass );
+			$this->getCon()->user_metas->for( $user )->updatePasswordStartedAt( $user->user_pass );
 		}
 	}
 
@@ -69,12 +69,9 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		}
 	}
 
-	/**
-	 * This hook is only available on WP 4.4+
-	 */
 	public function onPasswordReset( $user ) {
 		if ( $user instanceof \WP_User && $user->ID > 0 ) {
-			$meta = $this->getCon()->getUserMeta( $user );
+			$meta = $this->getCon()->user_metas->for( $user );
 			unset( $meta->pass_hash );
 			$meta->updatePasswordStartedAt( $user->user_pass );
 		}
@@ -161,7 +158,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 					$checksFailed = false;
 					// We don't fail when the PWNED API is not available.
 				}
-				catch ( Exceptions\PasswordTooWeakException | Exceptions\PasswordIsPwnedException $e ) {
+				catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
 					$checksFailed = true;
 					$failureMsg = $e->getMessage();
 				}

@@ -38,7 +38,7 @@ class Processor extends BaseShield\Processor {
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {
-			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $userID ) );
+			$this->getCon()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
 		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
@@ -105,7 +105,7 @@ class Processor extends BaseShield\Processor {
 					$user = Services::WpUsers()->getUserById( $userID );
 					if ( $user instanceof \WP_User ) {
 
-						$lastLoginAt = (int)$this->getCon()->getUserMeta( $user )->record->last_login_at;
+						$lastLoginAt = (int)$this->getCon()->user_metas->for( $user )->record->last_login_at;
 						$carbon = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $lastLoginAt );

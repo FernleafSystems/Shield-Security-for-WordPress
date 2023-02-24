@@ -35,16 +35,4 @@ class TourManager {
 		$meta = $this->getCon()->getCurrentUserMeta();
 		return ( !empty( $meta ) && is_array( $meta->tours ) ) ? $meta->tours : [];
 	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 17.0
-	 */
-	private function loadUserTourStates() :array {
-		$meta = $this->getCon()->getCurrentUserMeta();
-		if ( empty( $meta ) ) {
-			throw new \Exception( 'Not logged in or invalid user meta' );
-		}
-		return is_array( $meta->tours ) ? $meta->tours : [];
-	}
 }

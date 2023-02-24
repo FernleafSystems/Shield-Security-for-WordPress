@@ -39,7 +39,7 @@ class Controller {
 	 */
 	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
 		$con = $this->getCon();
-		$meta = $user instanceof \WP_User ? $con->getUserMeta( $user ) : $con->getCurrentUserMeta();
+		$meta = $user instanceof \WP_User ? $con->user_metas->for( $user ) : $con->getCurrentUserMeta();
 
 		$msg = trim( sanitize_text_field( $msg ) );
 		if ( !empty( $msg ) && $meta instanceof UserMeta ) {

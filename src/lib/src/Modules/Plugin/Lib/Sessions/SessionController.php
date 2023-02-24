@@ -96,7 +96,7 @@ class SessionController extends ExecOnceModConsumer {
 
 						// Update User Last Seen IP.
 						try {
-							$userMeta = $con->getUserMeta( $WPUsers->getUserById( $userID ) );
+							$userMeta = $con->user_metas->for( $WPUsers->getUserById( $userID ) );
 							if ( !empty( $userMeta ) ) {
 								$userMeta->record->ip_ref = ( new IPRecords() )
 									->setMod( $con->getModule_Data() )

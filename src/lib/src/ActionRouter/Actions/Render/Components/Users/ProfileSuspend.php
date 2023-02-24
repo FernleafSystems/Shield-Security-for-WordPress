@@ -16,7 +16,7 @@ class ProfileSuspend extends BaseRender {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
-		$meta = $con->getUserMeta( Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] ) );
+		$meta = $con->user_metas->for( Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] ) );
 		return [
 			'strings' => [
 				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),

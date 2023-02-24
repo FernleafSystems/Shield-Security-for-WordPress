@@ -41,7 +41,7 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 					'attempts' => 0,
 				];
 
-				$con->getUserMeta( $user )->login_intents = $intents;
+				$con->user_metas->for( $user )->login_intents = $intents;
 
 				$loggedInCookie = $this->getLoggedInCookie();
 				if ( !empty( $loggedInCookie ) ) {

@@ -1093,19 +1093,19 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @return Shield\Users\ShieldUserMeta
+	 * @deprecated 17.0
 	 */
 	public function getCurrentUserMeta() {
-		return $this->getUserMeta( Services::WpUsers()->getCurrentWpUser() );
+		return $this->user_metas->for( Services::WpUsers()->getCurrentWpUser() );
 	}
 
 	/**
 	 * @param ?\WP_User $user
 	 * @return Shield\Users\ShieldUserMeta|null
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	public function getUserMeta( $user ) :?ShieldUserMeta {
-		$metas = $this->user_metas;
-		return method_exists( $metas, 'for' ) ? $metas->for( $user ) : $metas->forUser( $user );
+		return $this->user_metas->for( $user );
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {

@@ -13,7 +13,7 @@ class SendSms extends BaseShieldNetApi {
 	 * @throws \Exception
 	 */
 	public function send2FA( \WP_User $to, string $code ) :bool {
-		$meta = $this->getCon()->getUserMeta( $to );
+		$meta = $this->getCon()->user_metas->for( $to );
 		return $this->run(
 			'2fa',
 			$meta->sms_registration[ 'country' ],
