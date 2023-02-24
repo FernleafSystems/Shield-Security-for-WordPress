@@ -38,10 +38,7 @@ class HandleOptionsSaveRequest {
 
 			$this->storeOptions();
 
-			// auto-import notify: ONLY when the options are being updated with a MANUAL save.
-			if ( !wp_next_scheduled( $con->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( Services::Request()->ts() + 30, $con->prefix( 'importexport_notify' ) );
-			}
+			do_action( 'shield/after_form_submit_options_save', $this->mod, $form );
 
 			$success = true;
 		}
@@ -61,7 +58,7 @@ class HandleOptionsSaveRequest {
 	/**
 	 * @throws \Exception
 	 */
-	private function storeOptions( ) {
+	private function storeOptions() {
 		// standard options use b64 and fail-over to lz-string
 		$form = $this->getForm();
 

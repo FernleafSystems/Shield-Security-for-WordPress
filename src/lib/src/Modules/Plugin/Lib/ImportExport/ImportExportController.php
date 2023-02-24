@@ -116,10 +116,6 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		$opts = $this->getOptions();
 
 		$cronHook = $this->getCon()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
-		if ( wp_next_scheduled( $cronHook ) ) {
-			wp_clear_scheduled_hook( $cronHook );
-		}
-
 		if ( !wp_next_scheduled( $cronHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + rand( 30, 180 ), $cronHook );
 			$this->getCon()->fireEvent(

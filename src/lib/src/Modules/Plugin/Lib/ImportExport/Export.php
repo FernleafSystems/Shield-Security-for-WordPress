@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -111,6 +112,28 @@ class Export {
 			$mod = $this->getCon()->modules[ $modSlug ];
 			$all[ $mod->getOptionsStorageKey() ] = $modOptions;
 		}
+
+		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
+			$modIPs = $this->getCon()->getModule_IPs();
+			$loader = ( new LoadIpRules() )->setMod( $modIPs );
+			$loader->wheres = [
+				sprintf( "`ir`.`type`='%s'", $modIPs->getDbH_IPRules()::T_MANUAL_BYPASS ),
+				"`ir`.`can_export`='1'"
+			];
+			$loader->limit = 100;
+
+			$all[ 'ip_rules' ] = array_map(
+				function ( $rule ) {
+					return [
+						'ip'    => $rule->ipAsSubnetRange(),
+						'label' => $rule->label,
+						'type'  => $rule->type,
+					];
+				},
+				$loader->select()
+			);
+		}
+
 		return $all;
 	}
 

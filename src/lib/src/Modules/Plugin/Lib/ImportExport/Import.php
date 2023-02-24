@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -205,6 +206,24 @@ class Import {
 
 				$anythingChanged = $anythingChanged || $theseOpts->getNeedSave();
 				$mod->saveModOptions( true );
+			}
+		}
+
+		if ( !empty( $data[ 'ip_rules' ] ) ) {
+			$dbh = $this->getCon()->getModule_IPs()->getDbH_IPRules();
+			$now = Services::Request()->ts();
+			foreach ( $data[ 'ip_rules' ] as $rule ) {
+				try {
+					if ( ( $rule[ 'type' ] ?? '' ) === $dbh::T_MANUAL_BYPASS ) {
+						( new AddRule() )
+							->setIP( $rule[ 'ip' ] )
+							->toManualWhitelist( sprintf( '%s- %s', __( 'Imported', 'wp-simple-firewall' ), $rule[ 'label' ] ), [
+								'imported_at' => $now,
+							] );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		}
 

@@ -57,10 +57,11 @@ class AddRule {
 	/**
 	 * @throws \Exception
 	 */
-	public function toManualWhitelist( string $label = '' ) :IpRulesDB\Record {
-		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BYPASS, [
-			'label' => $label
-		] );
+	public function toManualWhitelist( string $label = '', array $data = [] ) :IpRulesDB\Record {
+		$data[ 'label' ] = $label;
+		$data[ 'can_export' ] = true;
+
+		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BYPASS, $data );
 		$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $IP;
 	}
@@ -75,7 +76,7 @@ class AddRule {
 	/**
 	 * @throws \Exception
 	 */
-	private function add( string $listType, array $data = [] ) :IpRulesDB\Record {
+	private function add( string $type, array $data = [] ) :IpRulesDB\Record {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbH_IPRules();
@@ -88,12 +89,12 @@ class AddRule {
 		if ( !in_array( $parsedRange->getRangeType(), [ Type::T_PUBLIC, Type::T_PRIVATENETWORK ] ) ) {
 			throw new \Exception( sprintf( "A non-public/private IP address provided: %s", $ip ) );
 		}
-		if ( $parsedRange->getSize() > 1 && $listType === $dbh::T_AUTO_BLOCK ) {
+		if ( $parsedRange->getSize() > 1 && $type === $dbh::T_AUTO_BLOCK ) {
 			throw new \Exception( "Automatic blocking of IP ranges isn't supported at this time." );
 		}
 
 		// Never block our own server IP
-		if ( in_array( $listType, [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
+		if ( in_array( $type, [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
 			foreach ( Services::IP()->getServerPublicIPs() as $serverPublicIP ) {
 				$serverAddress = Factory::parseAddressString( $serverPublicIP );
 				if ( !empty( $serverAddress ) && $parsedRange->contains( $serverAddress ) ) {
@@ -104,7 +105,7 @@ class AddRule {
 
 		$ruleStatus = new IpRuleStatus( $this->getIP() );
 
-		switch ( $listType ) {
+		switch ( $type ) {
 
 			case $dbh::T_MANUAL_BYPASS:
 				if ( $ruleStatus->isBypass() ) {
@@ -195,7 +196,7 @@ class AddRule {
 				break;
 
 			default:
-				throw new \Exception( sprintf( "An invalid list type provided: %s", $listType ) );
+				throw new \Exception( sprintf( "An invalid list type provided: %s", $type ) );
 		}
 
 		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )
@@ -208,9 +209,12 @@ class AddRule {
 		$tmp->ip_ref = $ipRecord->id;
 		$tmp->cidr = explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
 		$tmp->is_range = $parsedRange->getSize() > 1;
-		$tmp->type = $listType;
+		$tmp->type = $type;
+		/** Only whitelisted IPs may be exported */
+		$tmp->can_export = $type === $dbh::T_MANUAL_BYPASS && ( $data[ 'can_export' ] ?? false );
+		$tmp->imported_at = ( $type === $dbh::T_MANUAL_BYPASS && isset( $data[ 'imported_at' ] ) ) ? $data[ 'imported_at' ] : 0;
 		$tmp->label = preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
-		if ( $tmp->blocked_at == 0 && in_array( $listType, [ $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
+		if ( $tmp->blocked_at == 0 && in_array( $type, [ $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
 			$tmp->blocked_at = Services::Request()->ts();
 		}
 

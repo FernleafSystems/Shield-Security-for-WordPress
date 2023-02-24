@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
 class LoadIpRules extends BaseLoadRecordsForIPJoins {
 
+	public const MOD = ModCon::SLUG;
+
 	/**
 	 * @return IpRuleRecord[]
 	 */

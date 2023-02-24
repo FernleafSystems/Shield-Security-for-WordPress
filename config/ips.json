@@ -780,6 +780,11 @@
           "macro_type": "varchar",
           "length":     255,
           "comment":    "IP Description"
+        },
+        "can_export": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Can This IP Be Exported"
         }
       },
       "cols_timestamps": {
@@ -797,6 +802,9 @@
         },
         "expires_at":              {
           "comment": "The IP Rule on this lists expires at this time."
+        },
+        "imported_at":              {
+          "comment": "This IP rule was imported from a master site."
         }
       }
     },
