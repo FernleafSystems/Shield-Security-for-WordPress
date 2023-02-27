@@ -120,8 +120,6 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	}
 
 	public function handleExpiredItems() {
-		( new CleanQueue() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new CleanQueue() )->execute();
 	}
 }

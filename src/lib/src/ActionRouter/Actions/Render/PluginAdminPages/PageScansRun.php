@@ -32,9 +32,7 @@ class PageScansRun extends BasePluginAdminPage {
 		$con = $this->getCon();
 		$mod = $con->getModule_HackGuard();
 
-		( new CleanQueue() )
-			->setMod( $mod )
-			->execute();
+		( new CleanQueue() )->execute();
 
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();

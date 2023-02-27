@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class CleanQueue extends ExecOnceModConsumer {
 
+	public const MOD = ModCon::SLUG;
+
 	protected function run() {
 		$this->resetStaleScanItems();
 		$this->deleteStaleScans();

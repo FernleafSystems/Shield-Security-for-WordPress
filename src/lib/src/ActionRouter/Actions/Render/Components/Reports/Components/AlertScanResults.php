@@ -3,8 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Afs,
+	Apc,
+	Wpv
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Reporters\Helpers\ScanCounts;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AlertScanResults extends BaseBuilderForScans {
@@ -15,11 +20,12 @@ class AlertScanResults extends BaseBuilderForScans {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 
-		$counts = array_filter(
-			( new ScanCounts() )
-				->setMod( $con->getModule_HackGuard() )
-				->standard()
-		);
+		$c = new Counts();
+		$counts = array_filter( [
+			Apc::SCAN_SLUG => $c->countAbandoned(),
+			Afs::SCAN_SLUG => $c->countThemeFiles() + $c->countPluginFiles() + $c->countMalware() + $c->countWPFiles(),
+			Wpv::SCAN_SLUG => $c->countVulnerableAssets(),
+		] );
 
 		$scanCounts = [];
 		if ( !empty( $counts ) ) {

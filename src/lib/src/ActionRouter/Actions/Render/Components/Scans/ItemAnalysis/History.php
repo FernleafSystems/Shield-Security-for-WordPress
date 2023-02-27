@@ -18,7 +18,6 @@ class History extends Base {
 		$item = $this->getScanItem();
 
 		$results = ( new RetrieveItems() )
-			->setMod( $mod )
 			->addWheres( [
 				sprintf( "`ri`.`item_id`='%s'", $item->VO->item_id )
 			] )

@@ -1,7 +1,7 @@
 {
   "17.0": {
     "version":     "17.0",
-    "released_at": 1677500000,
+    "released_at": 1677582000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease170",
       "upgrade": "https://shsec.io/shieldupgradeguide170"
@@ -17,8 +17,7 @@
         "description": [
           "We've made huge progress forward in improving the Shield Dashboard interface making it easier to get to exactly where you need to.",
           "Shield is a big plugin, so organising all the tools and features is a challenge, but this is our best UI yet!"
-        ],
-        "href":        ""
+        ]
       },
       {
         "type":        "new",
@@ -26,8 +25,7 @@
         "title":       "WeForms Integration",
         "description": [
           "We've added native support for protection against contact form SPAM directed against WeForms."
-        ],
-        "href":        ""
+        ]
       },
       {
         "type":        "improved",

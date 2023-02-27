@@ -102,6 +102,8 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 		let activeFile;
 		let doActivate;
 		let hrefActivate;
+		let dialogReinstall;
+		let dialogActivateReinstall;
 
 		this.initialise = function () {
 			jQuery( document ).ready( function () {
@@ -116,6 +118,8 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 
 				jQuery( document ).on( "click", 'tr.reinstallable .row-actions .shield-reinstall a', promptReinstall );
 				jQuery( document ).on( "click", 'tr.reinstallable .row-actions .activate a', promptActivate );
+				dialogActivateReinstall = jQuery( '#icwpWpsfActivateReinstall' );
+				dialogReinstall = jQuery( '#icwpWpsfReinstall' );
 
 				let commonSettings = {
 					title: 'Re-Install Plugin',
@@ -143,7 +147,6 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 					}
 				};
 
-				let $dialogReinstall = jQuery( '#icwpWpsfReinstall' );
 				commonSettings[ 'buttons' ] = [
 					{
 						text: icwp_wpsf_vars_hp.strings.okay_reinstall,
@@ -161,9 +164,8 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 						}
 					}
 				];
-				$dialogReinstall.dialog( commonSettings );
+				dialogReinstall.dialog( commonSettings );
 
-				let $dialogActivateReinstall = jQuery( '#icwpWpsfActivateReinstall' );
 				commonSettings[ 'buttons' ] = [
 					{
 						text: icwp_wpsf_vars_hp.strings.reinstall_first,
@@ -181,7 +183,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 						}
 					}
 				];
-				$dialogActivateReinstall.dialog( commonSettings );
+				dialogActivateReinstall.dialog( commonSettings );
 			} );
 		};
 
@@ -191,7 +193,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 			doActivate = 0;
 			activeFile = $current.data( 'plugin' );
 			hrefActivate = jQuery( 'span.activate > a', $current ).attr( 'href' )
-			jQuery( '#icwpWpsfReinstall' ).dialog( 'open' );
+			dialogReinstall.dialog( 'open' );
 			return false;
 		};
 
@@ -201,7 +203,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 			doActivate = 1;
 			activeFile = $current.data( 'plugin' );
 			hrefActivate = jQuery( 'span.activate > a', $current ).attr( 'href' )
-			jQuery( '#icwpWpsfActivateReinstall' ).dialog( 'open' );
+			dialogActivateReinstall.dialog( 'open' );
 			return false;
 		};
 
@@ -215,9 +217,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 			jQuery.post( ajaxurl, data, function ( response ) {
 
 			} ).always( function () {
-					if ( hrefActivate ) {
-						doActivate ? window.location.assign( hrefActivate ) : window.location.reload();
-					}
+					(hrefActivate && doActivate) ? window.location.assign( hrefActivate ) : window.location.reload();
 				}
 			);
 

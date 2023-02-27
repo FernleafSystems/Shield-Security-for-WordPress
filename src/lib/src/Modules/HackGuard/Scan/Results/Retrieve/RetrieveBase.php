@@ -20,6 +20,7 @@ abstract class RetrieveBase extends DynPropertiesClass {
 	use ModConsumer;
 	use ScanControllerConsumer;
 
+	public const MOD = ModCon::SLUG;
 	public const ABBR_RESULTITEMMETA = '`rim`';
 
 	protected $additionalWheres = [];

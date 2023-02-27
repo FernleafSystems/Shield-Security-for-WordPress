@@ -18,9 +18,7 @@ abstract class Base extends BaseScans {
 		if ( !isset( static::$ScanItem ) ) {
 			try {
 				/** @var ResultItem $item */
-				$item = ( new RetrieveItems() )
-					->setMod( $this->getCon()->getModule_HackGuard() )
-					->byID( (int)$this->action_data[ 'rid' ] );
+				$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] );
 			}
 			catch ( \Exception $e ) {
 				throw new ActionException( 'Not a valid scan item record' );
