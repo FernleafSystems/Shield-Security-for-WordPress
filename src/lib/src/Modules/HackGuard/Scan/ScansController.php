@@ -183,7 +183,7 @@ class ScansController extends ExecOnceModConsumer {
 				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
 					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
-						$this->resetIgnoreStatus( $slugOrCon );
+						$this->resetIgnoreStatus( $scanCon );
 					}
 					$opts->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
