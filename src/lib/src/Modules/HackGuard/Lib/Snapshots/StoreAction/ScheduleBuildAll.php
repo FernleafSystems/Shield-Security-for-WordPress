@@ -13,14 +13,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScheduleBuildAll extends Base {
 
 	public function schedule() {
-		if ( $this->isTempDirAvailable() && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-			$hook = $this->getCronHook();
+		if ( $this->isTempDirAvailable() ) {
+			$hook = $this->getCon()->prefix( 'ptg_build_snapshots' );
 			if ( is_main_network() ) {
 				add_action( $hook, function () {
 					$this->build();
 				} );
 			}
-			if ( wp_next_scheduled( $hook ) === false ) {
+			if ( wp_next_scheduled( $hook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
 				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
 			}
 		}
@@ -87,6 +87,9 @@ class ScheduleBuildAll extends Base {
 		);
 	}
 
+	/**
+	 * @deprecated 17.0
+	 */
 	private function getCronHook() :string {
 		return $this->getCon()->prefix( 'ptg_build_snapshots' );
 	}

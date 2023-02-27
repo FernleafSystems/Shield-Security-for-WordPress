@@ -14,6 +14,10 @@ class UserMetas {
 	 */
 	private $user;
 
+	public function current() :?ShieldUserMeta {
+		return $this->for( Services::WpUsers()->getCurrentWpUser() );
+	}
+
 	public function for( ?\WP_User $user ) :?ShieldUserMeta {
 		$meta = null;
 		if ( $user instanceof \WP_User ) {
