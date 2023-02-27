@@ -3,6 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
+	Apc,
+	Wpv
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ScansCheck,
 	ScansStart
@@ -42,14 +47,36 @@ class PageScansResults extends BasePluginAdminPage {
 		$mod = $con->getModule_HackGuard();
 		$scansCon = $mod->getScansCon();
 
-		( new CleanQueue() )
-			->setMod( $mod )
-			->execute();
+		( new CleanQueue() )->execute();
 		foreach ( $scansCon->getAllScanCons() as $scanCon ) {
 			$scanCon->cleanStalesResults();
 		}
 
+		$vulnerableOrAbandonedPlugins = 0;
+		$vulnerableOrAbandonedThemes = 0;
 		$counter = $scansCon->getScanResultsCount();
+		if ( $counter->countVulnerableAssets() > 0 ) {
+			foreach ( $scansCon->WPV()->getAllResults()->getAllItems() as $result ) {
+				/** @var Wpv\ResultItem $result */
+				if ( $result->VO->item_type === Handler::ITEM_TYPE_PLUGIN ) {
+					$vulnerableOrAbandonedPlugins++;
+				}
+				elseif ( $result->VO->item_type === Handler::ITEM_TYPE_THEME ) {
+					$vulnerableOrAbandonedThemes++;
+				}
+			}
+		}
+		if ( $counter->countAbandoned() > 0 ) {
+			foreach ( $scansCon->APC()->getAllResults()->getAllItems() as $result ) {
+				/** @var Apc\ResultItem $result */
+				if ( $result->VO->item_type === Handler::ITEM_TYPE_PLUGIN ) {
+					$vulnerableOrAbandonedPlugins++;
+				}
+				elseif ( $result->VO->item_type === Handler::ITEM_TYPE_THEME ) {
+					$vulnerableOrAbandonedThemes++;
+				}
+			}
+		}
 
 		// Can Scan Checks:
 		$reasonsCantScan = $scansCon->getReasonsScansCantExecute();
@@ -101,16 +128,16 @@ class PageScansResults extends BasePluginAdminPage {
 				'cannot_scan_reasons' => $reasonsCantScan,
 				'sections'            => [
 					'plugins'   => [
-						'count' => $counter->countPluginFiles()
+						'count' => $counter->countPluginFiles() + $vulnerableOrAbandonedPlugins,
 					],
 					'themes'    => [
-						'count' => $counter->countThemeFiles()
+						'count' => $counter->countThemeFiles() + $vulnerableOrAbandonedThemes,
 					],
 					'wordpress' => [
-						'count' => $counter->countWPFiles()
+						'count' => $counter->countWPFiles(),
 					],
 					'malware'   => [
-						'count' => $counter->countMalware()
+						'count' => $counter->countMalware(),
 					],
 				]
 			],

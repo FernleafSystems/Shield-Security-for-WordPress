@@ -38,9 +38,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new CleanQueue() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new CleanQueue() )->execute();
 	}
 
 	public function AFS() :Controller\Afs {

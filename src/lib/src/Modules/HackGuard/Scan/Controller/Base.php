@@ -6,10 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Retrieve\RetrieveCount,
-	Retrieve\RetrieveItems,
-	Update
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
+	RetrieveCount,
+	RetrieveItems
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
@@ -110,7 +109,6 @@ abstract class Base extends ExecOnceModConsumer {
 		}
 		else {
 			$results = ( new RetrieveItems() )
-				->setMod( $this->getMod() )
 				->setScanController( $this )
 				->retrieveForAutoRepair();
 		}
@@ -126,7 +124,6 @@ abstract class Base extends ExecOnceModConsumer {
 			if ( !$this->isRestricted() ) {
 				try {
 					$this->latestResults = ( new RetrieveItems() )
-						->setMod( $this->getMod() )
 						->setScanController( $this )
 						->retrieveLatest();
 				}
@@ -135,13 +132,6 @@ abstract class Base extends ExecOnceModConsumer {
 			}
 		}
 		return $this->latestResults;
-	}
-
-	/**
-	 * @return Scans\Base\ResultsSet|mixed
-	 */
-	public function getLatestResults() {
-		return $this->getNewResultsSet();
 	}
 
 	/**
@@ -208,7 +198,7 @@ abstract class Base extends ExecOnceModConsumer {
 			try {
 				$this->getItemActionHandler()
 					 ->setScanItem( $item )
-					 ->repair( false );
+					 ->repair();
 			}
 			catch ( \Exception $e ) {
 			}

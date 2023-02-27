@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 /**
  * TODO: FIX!
+ * @deprecated 17.0
  */
 class ScanCounts {
 

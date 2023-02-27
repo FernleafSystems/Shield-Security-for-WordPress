@@ -39,9 +39,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 
 	protected function getRecordRetriever() :RetrieveItems {
 		$mod = $this->getCon()->getModule_HackGuard();
-		$retriever = ( new RetrieveItems() )
-			->setMod( $mod )
-			->setScanController( $mod->getScansCon()->AFS() );
+		$retriever = ( new RetrieveItems() )->setScanController( $mod->getScansCon()->AFS() );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
 

@@ -61,9 +61,7 @@ class ScanResultsTableAction extends ScansBase {
 		$successfulItems = [];
 		foreach ( $items as $itemID ) {
 			try {
-				$item = ( new RetrieveItems() )
-					->setMod( $mod )
-					->byID( $itemID );
+				$item = ( new RetrieveItems() )->byID( $itemID );
 				$scanSlugs[] = $item->VO->scan;
 				if ( $mod->getScansCon()->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
 					$successfulItems[] = $item->VO->scanresult_id;
