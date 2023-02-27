@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 
 class VerifyPinRequest {
 
 	use ModConsumer;
+
+	public const MOD = ModCon::SLUG;
 
 	public function run( string $pin ) :bool {
 		$valid = false;

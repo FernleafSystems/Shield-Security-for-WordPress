@@ -35,10 +35,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 	}
 
 	public function getTotalSize() {
-		if ( !isset( $this->total ) ) {
-			$this->total = $this->getLoader()->countAll();
-		}
-		return $this->total;
+		return $this->total ?? $this->total = $this->getLoader()->countAll();
 	}
 
 	/**

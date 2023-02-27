@@ -602,13 +602,10 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\WpCli
+	 * @return Shield\Modules\Base\WpCli|mixed
 	 */
 	public function getWpCli() {
-		if ( !isset( $this->wpCli ) ) {
-			$this->wpCli = $this->loadModElement( 'WpCli' );
-		}
-		return $this->wpCli;
+		return $this->wpCli ?? $this->wpCli = $this->loadModElement( 'WpCli' );
 	}
 
 	/**
@@ -619,10 +616,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getAdminNotices() {
-		if ( !isset( $this->adminNotices ) ) {
-			$this->adminNotices = $this->loadModElement( 'AdminNotices' );
-		}
-		return $this->adminNotices;
+		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
 	}
 
 	/**

@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
 	ModCon,
 	Options
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Exceptions\AttemptingToCreateDuplicateReportException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -21,6 +22,7 @@ class CreateReportVO {
 	private $rep;
 
 	/**
+	 * @throws AttemptingToCreateDuplicateReportException
 	 * @throws \Exception
 	 */
 	public function create( string $reportType ) :ReportVO {
@@ -62,9 +64,7 @@ class CreateReportVO {
 	}
 
 	/**
-	 * Here we test whether the report time boundary overlaps with the boundaries of the previous report.
-	 * If it does overlap, we're creating a duplicate report.
-	 *
+	 * @throws AttemptingToCreateDuplicateReportException
 	 * @throws \Exception
 	 */
 	private function setIntervalBoundaries() :self {
@@ -121,7 +121,7 @@ class CreateReportVO {
 		}
 
 		if ( $this->rep->previous instanceof ReportsDB\Record && $end <= $this->rep->previous->interval_end_at ) {
-			throw new \Exception( 'Attempting to create a duplicate report based on interval.' );
+			throw new AttemptingToCreateDuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
 		}
 
 		if ( $end > $currentIntervalStart->timestamp ) { // sanity check

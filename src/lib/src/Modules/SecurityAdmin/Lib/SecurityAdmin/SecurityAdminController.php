@@ -200,14 +200,4 @@ class SecurityAdminController extends ExecOnceModConsumer {
 		add_thickbox();
 		echo $this->getCon()->action_router->render( FormSecurityAdminLoginBox::SLUG );
 	}
-
-	public function verifyPinRequest() :bool {
-		if ( !isset( $this->validPinRequest ) ) {
-			$this->validPinRequest = $this->isCurrentlySecAdmin()
-									 || ( new Ops\VerifyPinRequest() )
-										 ->setMod( $this->getMod() )
-										 ->run( (string)Services::Request()->post( 'sec_admin_key' ) );
-		}
-		return $this->validPinRequest;
-	}
 }
