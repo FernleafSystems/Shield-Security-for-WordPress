@@ -16,7 +16,7 @@ class WpvAddPluginRows {
 	/**
 	 * @var int
 	 */
-	private $nColumnsCount;
+	private $colsCount;
 
 	/**
 	 * @var int
@@ -55,7 +55,7 @@ class WpvAddPluginRows {
 			add_action( "after_plugin_row_$file", function ( $pluginFile ) {
 				echo $this->getScanController()->getCon()->action_router->render( PluginVulnerabilityWarning::SLUG, [
 					'plugin_file'   => $pluginFile,
-					'columns_count' => $this->nColumnsCount
+					'columns_count' => $this->colsCount
 				] );
 			}, 100 );
 		}
@@ -118,8 +118,8 @@ class WpvAddPluginRows {
 	 * @return array
 	 */
 	public function fCountColumns( $cols ) {
-		if ( !isset( $this->nColumnsCount ) ) {
-			$this->nColumnsCount = count( $cols );
+		if ( !isset( $this->colsCount ) ) {
+			$this->colsCount = count( $cols );
 		}
 		return $cols;
 	}

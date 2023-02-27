@@ -49,10 +49,7 @@ class HandleOptionsSaveRequest {
 	}
 
 	private function getForm() :array {
-		if ( !isset( $this->form ) ) {
-			$this->form = FormParams::Retrieve( FormParams::ENC_BASE64 );
-		}
-		return $this->form;
+		return $this->form ?? $this->form = FormParams::Retrieve( FormParams::ENC_BASE64 );
 	}
 
 	/**

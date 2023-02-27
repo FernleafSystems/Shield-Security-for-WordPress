@@ -166,13 +166,10 @@ abstract class Base extends ExecOnceModConsumer {
 	abstract protected function newItemActionHandler();
 
 	/**
-	 * @return BaseScanActionVO|mixed
+	 * @return Scans\Afs\ScanActionVO|Scans\Apc\ScanActionVO|BaseScanActionVO|Scans\Wpv\ScanActionVO|null
 	 */
 	public function getScanActionVO() {
-		if ( empty( $this->scanActionVO ) ) {
-			$this->scanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
-		}
-		return $this->scanActionVO;
+		return $this->scanActionVO ?? $this->scanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
 	}
 
 	public function getScanName() :string {

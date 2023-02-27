@@ -62,6 +62,9 @@ class ReportGenerator {
 					] );
 				}
 			}
+			catch ( Reports\Exceptions\AttemptingToCreateDuplicateReportException $e ) {
+//				error_log( $e->getMessage() );
+			}
 			catch ( \Exception $e ) {
 				error_log( $e->getMessage() );
 			}

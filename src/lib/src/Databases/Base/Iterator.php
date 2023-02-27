@@ -84,10 +84,7 @@ class Iterator extends AbstractPagedIterator {
 	 * @return int
 	 */
 	public function getTotalSize() {
-		if ( !isset( $this->totalSize ) ) {
-			$this->totalSize = $this->runQueryCount();
-		}
-		return $this->totalSize;
+		return $this->totalSize ?? $this->totalSize = $this->runQueryCount();
 	}
 
 	/**
