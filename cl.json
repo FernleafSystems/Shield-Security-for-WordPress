@@ -1,7 +1,7 @@
 {
   "17.0": {
     "version":     "17.0",
-    "released_at": 1676900000,
+    "released_at": 1677500000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease170",
       "upgrade": "https://shsec.io/shieldupgradeguide170"
@@ -35,6 +35,14 @@
         "title":       "Much Improved IP Rules Management",
         "description": [
           "IP Rules management could be slow as the IP rules table grew, but we've done a lot of work to speed this up."
+        ]
+      },
+      {
+        "type":        "improved",
+        "pro_only":    true,
+        "title":       "Much Improved File Locker",
+        "description": [
+          "The OpenSSL encryption process has been hugely improved in order to run better on newer systems that don't support legacy encryption ciphers."
         ]
       },
       {
