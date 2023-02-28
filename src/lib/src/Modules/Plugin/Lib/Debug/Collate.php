@@ -218,8 +218,7 @@ class Collate {
 			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )
 				->setMod( $this->getCon()->getModule_IPs() )
 				->test() ? 'Yes' : 'No',
-			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()
-													->canHandshake() ? 'Yes' : 'No',
+			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
