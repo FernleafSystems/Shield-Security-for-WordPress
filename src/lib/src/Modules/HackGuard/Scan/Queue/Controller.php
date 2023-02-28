@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
+	ModConsumer,
 	Options
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Controller {
 
@@ -17,12 +17,12 @@ class Controller {
 	/**
 	 * @var Build\QueueBuilder
 	 */
-	private $oQueueBuilder;
+	private $queueBuilder;
 
 	/**
 	 * @var QueueProcessor
 	 */
-	private $oQueueProcessor;
+	private $queueProcessor;
 
 	public function __construct() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -37,11 +37,8 @@ class Controller {
 	 * @return bool[]
 	 */
 	public function getScansRunningStates() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$scans = array_fill_keys( $mod->getScansCon()->getScanSlugs(), false );
-		foreach ( ( new ScansStatus() )->setMod( $this->getMod() )->enqueued() as $enqueued ) {
+		$scans = array_fill_keys( $this->mod()->getScansCon()->getScanSlugs(), false );
+		foreach ( ( new ScansStatus() )->enqueued() as $enqueued ) {
 			$scans[ $enqueued ] = true;
 		}
 		return $scans;
@@ -87,19 +84,10 @@ class Controller {
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {
-		if ( empty( $this->oQueueBuilder ) ) {
-			$this->oQueueBuilder = ( new Build\QueueBuilder( 'shield_scanqbuild' ) )
-				->setMod( $this->getMod() );
-		}
-		return $this->oQueueBuilder;
+		return $this->queueBuilder ?? $this->queueBuilder = new Build\QueueBuilder( 'shield_scanqbuild' );
 	}
 
 	public function getQueueProcessor() :QueueProcessor {
-		if ( empty( $this->oQueueProcessor ) ) {
-			$this->oQueueProcessor = ( new QueueProcessor( 'shield_scanq' ) )
-				->setMod( $this->getMod() )
-				->setExpirationInterval( MINUTE_IN_SECONDS*10 );
-		}
-		return $this->oQueueProcessor;
+		return $this->queueProcessor ?? $this->queueProcessor = ( new QueueProcessor( 'shield_scanq' ) )->setExpirationInterval( MINUTE_IN_SECONDS*10 );
 	}
 }

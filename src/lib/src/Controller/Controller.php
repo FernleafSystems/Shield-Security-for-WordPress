@@ -105,14 +105,6 @@ class Controller extends DynPropertiesClass {
 		$this->root_file = $rootFile;
 		$this->base_file = plugin_basename( $this->getRootFile() );
 		$this->modules = [];
-
-		if ( $this->mu_handler->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
-			Services::WpPlugins()->activate( $this->base_file );
-		}
-		$this->loadConfig();
-		$this->checkMinimumRequirements();
-
-		( new Shield\Controller\I18n\LoadTextDomain() )->run();
 	}
 
 	/**
@@ -356,6 +348,14 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function boot() {
+		if ( $this->mu_handler->isActiveMU() && !Services::WpPlugins()->isActive( $this->base_file ) ) {
+			Services::WpPlugins()->activate( $this->base_file );
+		}
+		$this->loadConfig();
+		$this->checkMinimumRequirements();
+
+		( new Shield\Controller\I18n\LoadTextDomain() )->run();
+
 		$this->loadModules();
 
 		// Upgrade modules

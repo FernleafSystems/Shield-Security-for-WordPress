@@ -8,15 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Reque
 class Start extends Base {
 
 	protected function process() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
 		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
 			throw new \Exception( 'Scans are already running.' );
 		}
-		$mod->getScansCon()->startNewScans( $req->scan_slugs );
+		$this->mod()->getScansCon()->startNewScans( $req->scan_slugs );
 
 		return $this->getScansStatus();
 	}

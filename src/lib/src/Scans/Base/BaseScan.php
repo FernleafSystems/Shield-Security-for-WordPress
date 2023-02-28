@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseScan {
 
 	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-	use Shield\Modules\ModConsumer;
+	use Shield\Modules\HackGuard\ModConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**

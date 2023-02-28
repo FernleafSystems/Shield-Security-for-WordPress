@@ -70,8 +70,7 @@ class RetrieveItems extends RetrieveBase {
 	 * @throws \Exception
 	 */
 	public function byID( int $scanResultID ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$WPDB = Services::WpDb();
 
 		// Need to determine the scan from the scan result.
@@ -80,8 +79,8 @@ class RetrieveItems extends RetrieveBase {
 					INNER JOIN `%s` as `sr`
 						ON `sr`.scan_ref = `scans`.id AND `sr`.id = %s 
 					LIMIT 1;",
-			$mod->getDbH_Scans()->getTableSchema()->table,
-			$mod->getDbH_ScanResults()->getTableSchema()->table,
+			$this->mod()->getDbH_Scans()->getTableSchema()->table,
+			$this->mod()->getDbH_ScanResults()->getTableSchema()->table,
 			$scanResultID
 		) );
 		if ( empty( $scan ) ) {
@@ -219,15 +218,13 @@ class RetrieveItems extends RetrieveBase {
 	 * @param ScanResultVO[] $results
 	 */
 	private function addMetaToResults( array $results ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
 		$resultItemIDs = array_map( function ( $res ) {
 			return $res->resultitem_id;
 		}, $results );
 
 		/** @var ResultItemMetaDB\Ops\Select $rimSelector */
-		$rimSelector = $mod->getDbH_ResultItemMeta()->getQuerySelector();
+		$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
 		/** @var ResultItemMetaDB\Ops\Record[] $metas */
 		$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
@@ -243,8 +240,7 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`

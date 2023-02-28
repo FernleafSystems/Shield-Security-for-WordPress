@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
@@ -16,7 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class Base extends ExecOnceModConsumer {
+abstract class Base {
+
+	use ExecOnce;
+	use HackGuard\ModConsumer;
 
 	public const SCAN_SLUG = '';
 
@@ -40,9 +43,7 @@ abstract class Base extends ExecOnceModConsumer {
 		add_action(
 			$this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() ),
 			function () {
-				/** @var HackGuard\ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getScansCon()->startNewScans( [ $this->getSlug() ] );
+				$this->mod()->getScansCon()->startNewScans( [ $this->getSlug() ] );
 			}
 		);
 	}
@@ -69,7 +70,6 @@ abstract class Base extends ExecOnceModConsumer {
 			else {
 				$count = ( new RetrieveCount() )
 					->setScanController( $this )
-					->setMod( $this->getMod() )
 					->count();
 			}
 			self::$resultsCounts[ $this->getSlug() ] = $count;
@@ -78,9 +78,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function getScansController() :HackGuard\Scan\ScansController {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getScansCon();
+		return $this->mod()->getScansCon();
 	}
 
 	/**
@@ -146,7 +144,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	public function getItemActionHandler() {
 		return $this->newItemActionHandler()
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->setScanController( $this );
 	}
 
@@ -164,7 +162,7 @@ abstract class Base extends ExecOnceModConsumer {
 
 	public function getScanName() :string {
 		/** @var HackGuard\Strings $strings */
-		$strings = $this->getMod()->getStrings();
+		$strings = $this->mod()->getStrings();
 		return $strings->getScanStrings()[ $this->getSlug() ][ 'name' ];
 	}
 
@@ -181,9 +179,7 @@ abstract class Base extends ExecOnceModConsumer {
 	}
 
 	public function isReady() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->isModuleEnabled() && $this->isEnabled() && !$this->isRestricted();
+		return $this->mod()->isModuleEnabled() && $this->isEnabled() && !$this->isRestricted();
 	}
 
 	public function isRestricted() :bool {

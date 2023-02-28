@@ -27,9 +27,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
-		$patterns = ( new Utilities\Patterns() )
-			->setMod( $this->getMod() )
-			->retrieve();
+		$patterns = ( new Utilities\Patterns() )->retrieve();
 		$action->patterns_simple = $patterns[ 'simple' ];
 		$action->patterns_regex = $patterns[ 'regex' ];
 		$action->patterns_fullregex = $patterns[ 'fullregex' ] ?? [];

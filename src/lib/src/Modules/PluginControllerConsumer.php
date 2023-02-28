@@ -16,6 +16,9 @@ trait PluginControllerConsumer {
 		return shield_security_get_plugin()->getController();
 	}
 
+	/**
+	 * @since 17.1
+	 */
 	public function con() :Controller {
 		return shield_security_get_plugin()->getController();
 	}

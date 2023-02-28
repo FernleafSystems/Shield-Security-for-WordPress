@@ -149,9 +149,7 @@ class PageScansResults extends BasePluginAdminPage {
 			'strings' => [
 				'title' => __( 'File Locker', 'wp-simple-firewall' ),
 			],
-			'count'   => count( ( new LoadFileLocks() )
-				->setMod( $this->getCon()->getModule_HackGuard() )
-				->withProblems() )
+			'count'   => count( ( new LoadFileLocks() )->withProblems() )
 		];
 	}
 }

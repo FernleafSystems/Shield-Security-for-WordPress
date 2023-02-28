@@ -11,34 +11,29 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ProcessQueueItem {
 
-	use Shield\Modules\ModConsumer;
+	use Shield\Modules\HackGuard\ModConsumer;
 
 	public function run( QueueItemVO $item ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$mod->getDbH_ScanItems()
-			->getQueryUpdater()
-			->updateById( $item->qitem_id, [
-				'started_at' => Services::Request()->ts()
-			] );
+		$this->mod()
+			 ->getDbH_ScanItems()
+			 ->getQueryUpdater()
+			 ->updateById( $item->qitem_id, [
+				 'started_at' => Services::Request()->ts()
+			 ] );
 
 		try {
 			$results = $this->runScanOnItem( $item );
 
-			( new Store() )
-				->setMod( $this->getMod() )
-				->store( $item, $results );
+			( new Store() )->store( $item, $results );
 
-			$mod->getDbH_ScanItems()
-				->getQueryUpdater()
-				->updateById( $item->qitem_id, [
-					'finished_at' => Services::Request()->ts()
-				] );
+			$this->mod()
+				 ->getDbH_ScanItems()
+				 ->getQueryUpdater()
+				 ->updateById( $item->qitem_id, [
+					 'finished_at' => Services::Request()->ts()
+				 ] );
 
-			( new SetScanCompleted() )
-				->setMod( $this->getMod() )
-				->run();
+			( new SetScanCompleted() )->run();
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
@@ -54,7 +49,7 @@ class ProcessQueueItem {
 
 		$this->getScanner( $action )
 			 ->setScanActionVO( $action )
-			 ->setMod( $this->getMod() )
+			 ->setMod( $this->mod() )
 			 ->run();
 
 		if ( $action->usleep > 0 ) {
@@ -69,13 +64,10 @@ class ProcessQueueItem {
 	 * @return Shield\Scans\Base\BaseScan
 	 */
 	private function getScanner( $action ) {
-		/** @var Shield\Modules\HackGuard\ModCon $mod */
-		$mod = $this->getMod();
 		$class = $action->getScanNamespace().'Scan';
 		/** @var Shield\Scans\Base\BaseScan $o */
 		$o = new $class();
-		return $o->setScanController( $mod->getScansCon()->getScanCon( $action->scan ) )
-				 ->setMod( $mod )
+		return $o->setScanController( $this->mod()->getScansCon()->getScanCon( $action->scan ) )
 				 ->setScanActionVO( $action );
 	}
 }

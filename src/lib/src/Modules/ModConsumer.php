@@ -32,20 +32,6 @@ trait ModConsumer {
 	/**
 	 * @return Base\ModCon|mixed
 	 */
-	public function mod() {
-		if ( defined( static::class.'::MOD' ) ) {
-			try {
-				return $this->con()->modules[ static::MOD ];
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $this->mod;
-	}
-
-	/**
-	 * @return Base\ModCon|mixed
-	 */
 	public function getMod() {
 		if ( defined( static::class.'::MOD' ) ) {
 			try {

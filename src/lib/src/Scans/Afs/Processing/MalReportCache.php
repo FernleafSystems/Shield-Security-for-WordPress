@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MalReportCache {
@@ -19,7 +19,7 @@ class MalReportCache {
 	public function updateWithReport() {
 		if ( !$this->isReported() ) {
 
-			$this->getOptions()->setOpt( 'mal_fp_reports', array_filter(
+			$this->opts()->setOpt( 'mal_fp_reports', array_filter(
 				array_merge( $this->getMalFalsePositiveReports(), [
 					$this->workingReportHash => Services::Request()->ts()
 				] ),

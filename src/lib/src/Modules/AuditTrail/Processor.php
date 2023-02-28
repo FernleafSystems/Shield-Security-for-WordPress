@@ -7,19 +7,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
 
+	use ModConsumer;
+
 	protected function run() {
 		$this->initAuditors();
 		$this->getSubProAuditor()->execute();
 	}
 
 	private function initAuditors() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getAuditLogger()->setIfCommit( true );
+		$this->mod()->getAuditLogger()->setIfCommit( true );
 		foreach ( $this->getAuditors() as $auditorClass ) {
 			/** @var Auditors\Base $auditor */
 			$auditor = new $auditorClass();
-			$auditor->setMod( $this->getMod() )->execute();
+			$auditor->execute();
 		}
 	}
 
@@ -39,6 +39,6 @@ class Processor extends BaseShield\Processor {
 	 * @return \ICWP_WPSF_Processor_AuditTrail_Auditor|mixed
 	 */
 	public function getSubProAuditor() {
-		return new \ICWP_WPSF_Processor_AuditTrail_Auditor( $this->getMod() );
+		return new \ICWP_WPSF_Processor_AuditTrail_Auditor( $this->mod() );
 	}
 }

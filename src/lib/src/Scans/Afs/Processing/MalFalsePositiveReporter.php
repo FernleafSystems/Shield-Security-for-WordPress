@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\ConvertLineEndings;
@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 class MalFalsePositiveReporter {
 
-	use Modules\ModConsumer;
+	use ModConsumer;
 
 	public const HASH_ALGO = 'sha1';
 
@@ -20,9 +20,7 @@ class MalFalsePositiveReporter {
 	}
 
 	public function reportFileLines( string $fullPath, array $lines, bool $isFalsePositive = true ) {
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isMalUseNetworkIntelligence() ) {
+		if ( $this->opts()->isMalUseNetworkIntelligence() ) {
 			$fileLines = array_intersect_key(
 				explode( "\n", Services::WpFs()->getFileContent( $fullPath ) ),
 				$lines
@@ -51,9 +49,7 @@ class MalFalsePositiveReporter {
 						( new Malware\Whitelist\ReportFalsePositive( $apiToken ) )
 							->report( $fullPath, static::HASH_ALGO, $isFalsePositive );
 			if ( $reported ) {
-				$this->getReportCache()
-					 ->setReportHash( $reportHash )
-					 ->updateWithReport();
+				( new MalReportCache() )->setReportHash( $reportHash )->updateWithReport();
 			}
 		}
 		return $reported;
@@ -77,9 +73,7 @@ class MalFalsePositiveReporter {
 					$reported = ( new Malware\Signatures\ReportFalsePositive( $token ) )
 						->report( $fullPath, $line, $isFalsePositive );
 					if ( $reported ) {
-						$this->getReportCache()
-							 ->setReportHash( $reportHash )
-							 ->updateWithReport();
+						( new MalReportCache() )->setReportHash( $reportHash )->updateWithReport();
 					}
 				}
 			}
@@ -91,17 +85,11 @@ class MalFalsePositiveReporter {
 	}
 
 	private function canSendReport( string $reportHash ) :bool {
-		/** @var Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $this->getCon()->is_mode_live
-			   && version_compare( $this->getCon()->getVersion(), '16.2', '>=' )
-			   && $opts->isMalUseNetworkIntelligence()
-			   && !$this->getReportCache()
-						->setReportHash( $reportHash )
-						->isReported();
-	}
-
-	private function getReportCache() :MalReportCache {
-		return ( new MalReportCache() )->setMod( $this->getMod() );
+		return $this->getCon()->is_mode_live &&
+			   version_compare( $this->getCon()->getVersion(), '16.2', '>=' ) &&
+			   $this->opts()->isMalUseNetworkIntelligence() &&
+			   !( new MalReportCache() )
+				   ->setReportHash( $reportHash )
+				   ->isReported();
 	}
 }

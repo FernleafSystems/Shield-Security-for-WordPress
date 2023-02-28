@@ -2,21 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	Options,
+	ModConsumer,
 	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli,
 	Scan\Results\Update
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class ScansController extends ExecOnceModConsumer {
+class ScansController {
 
+	use ExecOnce;
+	use ModConsumer;
 	use StandardCron;
 	use PluginCronsConsumer;
 
@@ -59,7 +60,7 @@ class ScansController extends ExecOnceModConsumer {
 	public function getAllScanCons() :array {
 		foreach ( $this->getScans() as $scan ) {
 			if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
-				$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->getMod() );
+				$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->mod() );
 			}
 		}
 		return $this->scanCons;
@@ -91,7 +92,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function getScanResultsCount() :Results\Counts {
-		return $this->scanResultsStatus ?? $this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->getMod() );
+		return $this->scanResultsStatus ?? $this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->mod() );
 	}
 
 	private function handlePostScanCron() {
@@ -113,10 +114,8 @@ class ScansController extends ExecOnceModConsumer {
 
 	private function cronScan() {
 		if ( $this->getCanScansExecute() ) {
-			/** @var Options $opts */
-			$opts = $this->getOptions();
-			$opts->setIsScanCron( true );
-			$this->getMod()->saveModOptions();
+			$this->opts()->setIsScanCron( true );
+			$this->mod()->saveModOptions();
 			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
@@ -140,11 +139,6 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		$toScan = [];
 		foreach ( $scans as $slugOrCon ) {
 			try {
@@ -152,9 +146,11 @@ class ScansController extends ExecOnceModConsumer {
 				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
 					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
-						$this->resetIgnoreStatus( $scanCon );
+						( new Update() )
+							->setScanController( $scanCon )
+							->clearIgnored();
 					}
-					$opts->addRemoveScanToBuild( $scanCon->getSlug() );
+					$this->opts()->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -163,14 +159,13 @@ class ScansController extends ExecOnceModConsumer {
 
 		if ( !empty( $toScan ) ) {
 			if ( Services::WpGeneral()->isWpCli() ) {
-				( new ProcessQueueWpcli() )
-					->setMod( $this->getMod() )
-					->execute();
+				( new ProcessQueueWpcli() )->execute();
 			}
 			else {
-				$mod->getScanQueueController()
-					->getQueueBuilder()
-					->dispatch();
+				$this->mod()
+					 ->getScanQueueController()
+					 ->getQueueBuilder()
+					 ->dispatch();
 			}
 		}
 
@@ -182,9 +177,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	protected function getCronFrequency() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getScanFrequency();
+		return $this->opts()->getScanFrequency();
 	}
 
 	public function getFirstRunTimestamp() :int {
@@ -218,12 +211,5 @@ class ScansController extends ExecOnceModConsumer {
 
 	protected function getCronName() :string {
 		return $this->getCon()->prefix( 'all-scans' );
-	}
-
-	protected function resetIgnoreStatus( $scanCon ) {
-		( new Update() )
-			->setMod( $this->getMod() )
-			->setScanController( $scanCon )
-			->clearIgnored();
 	}
 }

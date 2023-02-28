@@ -10,7 +10,7 @@ if ( isset( $oICWP_Wpsf ) ) {
 	return;
 }
 
-class ICWP_WPSF_Shield_Security {
+class ICWP_WPSF_Shield_Security extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	/**
 	 * @var ICWP_WPSF_Shield_Security
@@ -32,7 +32,7 @@ class ICWP_WPSF_Shield_Security {
 	/**
 	 * @throws \Exception
 	 */
-	public function start() {
+	protected function run() {
 		$this->con->boot();
 	}
 
@@ -63,7 +63,7 @@ Services::GetInstance();
 try {
 	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $rootFile );
 	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
-	$oICWP_Wpsf->start();
+	$oICWP_Wpsf->execute();
 }
 catch ( Shield\Controller\Exceptions\VersionMismatchException $e ) {
 	add_action( 'admin_notices', function () use ( $e ) {

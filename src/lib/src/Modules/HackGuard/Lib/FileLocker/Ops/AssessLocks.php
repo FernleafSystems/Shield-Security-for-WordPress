@@ -3,16 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
 
 	public function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var FileLockerDB\Update $updater */
-		$updater = $mod->getDbH_FileLocker()->getQueryUpdater();
+		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
 
 		$this->removeDuplicates();
 
@@ -42,11 +39,10 @@ class AssessLocks extends BaseOps {
 		$paths = [];
 		foreach ( $this->getFileLocks() as $lock ) {
 			if ( in_array( $lock->path, $paths ) ) {
-				/** @var ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getDbH_FileLocker()
-					->getQueryDeleter()
-					->deleteById( $lock->id );
+				$this->mod()
+					 ->getDbH_FileLocker()
+					 ->getQueryDeleter()
+					 ->deleteById( $lock->id );
 			}
 			else {
 				$paths[] = $lock->path;

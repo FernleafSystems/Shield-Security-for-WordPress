@@ -17,9 +17,7 @@ class PtgAddReinstallLinks {
 
 	protected function canRun() :bool {
 		$scanCon = $this->getScanController();
-		/** @var HackGuard\Options $opts */
-		$opts = $scanCon->getOptions();
-		return $scanCon->isReady() && $opts->isPtgReinstallLinks();
+		return $scanCon->isReady() && $scanCon->opts()->isPtgReinstallLinks();
 	}
 
 	protected function run() {

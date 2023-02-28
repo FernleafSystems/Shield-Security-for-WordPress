@@ -78,18 +78,12 @@ class Afs extends BaseForFiles {
 	}
 
 	public function onWpLoaded() {
-		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )
-			->setMod( $this->getMod() )
-			->schedule();
+		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->schedule();
 	}
 
 	public function runHourlyCron() {
-		( new Lib\Snapshots\StoreAction\CleanStale() )
-			->setMod( $this->getMod() )
-			->run();
-		( new Lib\Snapshots\StoreAction\TouchAll() )
-			->setMod( $this->getMod() )
-			->run();
+		( new Lib\Snapshots\StoreAction\CleanStale() )->run();
+		( new Lib\Snapshots\StoreAction\TouchAll() )->run();
 	}
 
 	public function actionPluginReinstall( string $file ) :bool {
@@ -99,7 +93,6 @@ class Afs extends BaseForFiles {
 		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
 			try {
 				( new Lib\Snapshots\StoreAction\Delete() )
-					->setMod( $this->getMod() )
 					->setAsset( $plugin )
 					->run();
 				$success = true;
@@ -141,19 +134,17 @@ class Afs extends BaseForFiles {
 	 * @param Scans\Afs\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$FS = Services::WpFs();
+		$dbhResultItems = $this->mod()->getDbH_ResultItems();
 		/** @var Update $updater */
-		$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+		$updater = $dbhResultItems->getQueryUpdater();
 
-		if ( ( $item->is_unrecognised || $item->is_mal ) && !$FS->isFile( $item->path_full ) ) {
+		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isFile( $item->path_full ) ) {
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {
 			$CFH = Services::CoreFileHashes();
 			if ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
-				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
 			elseif ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
 				$updater->setItemRepaired( $item->VO->resultitem_id );
@@ -161,12 +152,10 @@ class Afs extends BaseForFiles {
 		}
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
-				$verifiedHash = ( new Lib\Hashes\Query() )
-					->setMod( $this->getMod() )
-					->verifyHash( $item->path_full );
+				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
 				if ( $item->is_checksumfail && $verifiedHash ) {
 					/** @var Update $updater */
-					$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+					$updater = $dbhResultItems->getQueryUpdater();
 					$updater->setItemRepaired( $item->VO->resultitem_id );
 				}
 			}
@@ -175,7 +164,7 @@ class Afs extends BaseForFiles {
 			}
 			catch ( Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
 				// asset has probably been since removed
-				$mod->getDbH_ResultItems()->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
 			catch ( Lib\Hashes\Exceptions\UnrecognisedAssetFile $e ) {
 				// unrecognised file
@@ -235,10 +224,10 @@ class Afs extends BaseForFiles {
 	 * @return Scans\Afs\ScanActionVO
 	 */
 	public function buildScanAction() {
-		return ( new Scans\Afs\BuildScanAction() )
+		( new Scans\Afs\BuildScanAction() )
 			->setScanController( $this )
-			->build()
-			->getScanActionVO();
+			->build();
+		return $this->getScanActionVO();
 	}
 
 	/**
@@ -247,8 +236,6 @@ class Afs extends BaseForFiles {
 	 */
 	public function purge() {
 		parent::purge();
-		( new Lib\Snapshots\StoreAction\DeleteAll() )
-			->setMod( $this->getMod() )
-			->run();
+		( new Lib\Snapshots\StoreAction\DeleteAll() )->run();
 	}
 }

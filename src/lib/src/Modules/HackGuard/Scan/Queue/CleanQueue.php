@@ -2,17 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
 	ScanItems as ScanItemsDB,
 	Scans as ScansDB
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanQueue extends ExecOnceModConsumer {
+class CleanQueue {
 
-	public const MOD = ModCon::SLUG;
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 		$this->resetStaleScanItems();
@@ -21,14 +22,11 @@ class CleanQueue extends ExecOnceModConsumer {
 	}
 
 	private function resetStaleScanItems() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_ScanItems();
 		Services::WpDb()->doSql(
 			sprintf( "UPDATE `%s` 
 				SET `started_at`=0
 				WHERE `started_at` > 0 AND `started_at` < %s",
-				$dbh->getTableSchema()->table,
+				$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
 				Services::Request()->carbon()->subMinutes( 5 )->timestamp
 			)
 		);
@@ -40,13 +38,12 @@ class CleanQueue extends ExecOnceModConsumer {
 	}
 
 	private function deleteStaleResultItems() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$resultItemIds = $mod->getDbH_ScanResults()
-							 ->getQuerySelector()
-							 ->getDistinctForColumn( 'resultitem_ref' );
+		$resultItemIds = $this->mod()
+							  ->getDbH_ScanResults()
+							  ->getQuerySelector()
+							  ->getDistinctForColumn( 'resultitem_ref' );
 		if ( !empty( $resultItemIds ) ) {
-			$dbhResultsItems = $mod->getDbH_ResultItems();
+			$dbhResultsItems = $this->mod()->getDbH_ResultItems();
 			// 1. Get IDs for all scan items
 			Services::WpDb()->doSql(
 				sprintf( "DELETE FROM `%s` WHERE `id` NOT IN (%s)",
@@ -61,10 +58,8 @@ class CleanQueue extends ExecOnceModConsumer {
 	 * Stale: Scan has been ready for 20 minutes
 	 */
 	private function deleteStaleScansForTime() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var ScansDB\Ops\Delete $deleter */
-		$deleter = $mod->getDbH_Scans()->getQueryDeleter();
+		$deleter = $this->mod()->getDbH_Scans()->getQueryDeleter();
 
 		// Scan created but hasn't been set to ready within 10 minutes.
 		$deleter->filterByNotReady()
@@ -86,8 +81,7 @@ class CleanQueue extends ExecOnceModConsumer {
 	 * Scan set to ready but no scan items available.
 	 */
 	private function deleteScansWithNoScanItems() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var ScansDB\Ops\Select $selector */
 		$selector = $mod->getDbH_Scans()->getQuerySelector();
 		/** @var ScansDB\Ops\Record[] $scans */

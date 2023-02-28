@@ -13,9 +13,6 @@ abstract class BaseForAssets extends Base {
 	 * @param Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		if ( strpos( $item->VO->item_id, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->VO->item_id );
 		}
@@ -25,16 +22,14 @@ abstract class BaseForAssets extends Base {
 
 		if ( empty( $asset ) ) {
 			/** @var ResultItems\Ops\Update $updater */
-			$updater = $mod->getDbH_ResultItems()->getQueryUpdater();
+			$updater = $this->mod()->getDbH_ResultItems()->getQueryUpdater();
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 	}
 
 	public function buildScanResult( array $rawResult ) :ResultItems\Ops\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var ResultItems\Ops\Record $record */
-		$record = $mod->getDbH_ResultItems()->getRecord();
+		$record = $this->mod()->getDbH_ResultItems()->getRecord();
 		$record->item_id = $rawResult[ 'slug' ];
 		$record->item_type = strpos( $rawResult[ 'slug' ], '/' ) ?
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :

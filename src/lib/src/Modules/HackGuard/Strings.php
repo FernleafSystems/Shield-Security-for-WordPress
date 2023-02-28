@@ -245,9 +245,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "The PHP OpenSSL Extension is required, along with the RC4 Cipher.", 'wp-simple-firewall' ) ),
 				];
 
-				$locks = ( new LoadFileLocks() )
-					->setMod( $this->getMod() )
-					->loadLocks();
+				$locks = ( new LoadFileLocks() )->loadLocks();
 				if ( !empty( $locks ) ) {
 					$desc[] = __( 'Locked Files', 'wp-simple-firewall' ).':';
 					foreach ( $locks as $lock ) {

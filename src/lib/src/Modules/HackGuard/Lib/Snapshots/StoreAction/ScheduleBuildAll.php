@@ -30,12 +30,10 @@ class ScheduleBuildAll extends Base {
 		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
 			try {
 				( new Build() )
-					->setMod( $this->getMod() )
 					->setAsset( $asset )
 					->run();
 
 				$store = ( new Load() )
-					->setMod( $this->getMod() )
 					->setAsset( $asset )
 					->run();
 
@@ -47,9 +45,7 @@ class ScheduleBuildAll extends Base {
 					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
 						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
 						if ( $store->setSnapMeta( $meta )->saveMeta() ) {
-							( new SubmitHashes() )
-								->setMod( $this->getMod() )
-								->run( $asset );
+							( new SubmitHashes() )->run( $asset );
 						}
 					}
 				}
@@ -66,15 +62,10 @@ class ScheduleBuildAll extends Base {
 	 */
 	private function getAssetsThatNeedBuilt() :array {
 		return array_filter(
-
-			( new FindAssetsToSnap() )
-				->setMod( $this->getMod() )
-				->run(),
-
+			( new FindAssetsToSnap() )->run(),
 			function ( $asset ) {
 				try {
 					( new Load() )
-						->setMod( $this->getMod() )
 						->setAsset( $asset )
 						->run();
 					$needBuilt = false;

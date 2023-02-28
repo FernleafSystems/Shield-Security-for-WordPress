@@ -9,7 +9,6 @@ class Delete extends BaseAction {
 	public function run() {
 		try {
 			$store = ( new Load() )
-				->setMod( $this->getMod() )
 				->setAsset( $this->getAsset() )
 				->run();
 			foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {

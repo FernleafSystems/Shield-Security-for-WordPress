@@ -2,18 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 class Patterns {
 
-	use Modules\ModConsumer;
+	use ModConsumer;
 
 	/**
 	 * @return string[][]
 	 */
-	public function retrieve() {
+	public function retrieve() :array {
 		$cacher = new Cache\CacheDefVO();
 		$cacher->dir = $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
 		if ( !empty( $cacher->dir ) ) {
@@ -34,11 +34,9 @@ class Patterns {
 
 			// Fallback to original method
 			if ( !is_array( $patterns ) || empty( $patterns[ 'simple' ] ) || empty( $patterns[ 'regex' ] ) ) {
-				/** @var Modules\HackGuard\Options $opts */
-				$opts = $this->getOptions();
 				$patterns = [
-					'simple' => $opts->getMalSignaturesSimple(),
-					'regex'  => $opts->getMalSignaturesRegex(),
+					'simple' => $this->opts()->getMalSignaturesSimple(),
+					'regex'  => $this->opts()->getMalSignaturesRegex(),
 				];
 			}
 
@@ -50,6 +48,6 @@ class Patterns {
 			}
 		}
 
-		return $cacher->data;
+		return is_array( $cacher->data ) ? $cacher->data : [];
 	}
 }

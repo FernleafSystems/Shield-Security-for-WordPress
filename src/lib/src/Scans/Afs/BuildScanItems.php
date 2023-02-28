@@ -2,16 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	ModConsumer,
+	Options
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanItems {
 
 	use ModConsumer;
-	use ScanActionConsumer;
 
 	public function run() :array {
 		$this->preBuild();
@@ -38,7 +38,7 @@ class BuildScanItems {
 
 	protected function preBuild() {
 		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
+		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 
 		if ( empty( $action->scan_root_dirs ) || !is_array( $action->scan_root_dirs ) ) {
 			$action->scan_root_dirs = [
@@ -49,9 +49,7 @@ class BuildScanItems {
 			];
 		}
 		if ( !is_array( $action->paths_whitelisted ) ) {
-			/** @var Options $opts */
-			$opts = $this->getMod()->getOptions();
-			$action->paths_whitelisted = $opts->getWhitelistedPathsAsRegex();
+			$action->paths_whitelisted = $this->opts()->getWhitelistedPathsAsRegex();
 		}
 	}
 
@@ -73,7 +71,7 @@ class BuildScanItems {
 
 	private function buildFilesFromDisk() :array {
 		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
+		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 
 		$files = [];
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
@@ -118,7 +116,7 @@ class BuildScanItems {
 		$whitelisted = false;
 
 		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
+		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 		foreach ( $action->paths_whitelisted as $wlPathRegEx ) {
 			if ( preg_match( $wlPathRegEx, $path ) ) {
 				$whitelisted = true;

@@ -3,9 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -28,12 +28,11 @@ class LoadLogs extends DynPropertiesClass {
 	public function run( bool $includeMeta = true ) :array {
 		$this->includeMeta = $includeMeta;
 
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$stdKeys = array_flip( array_unique( array_merge(
-			$mod->getDbH_Logs()
-				->getTableSchema()
-				->getColumnNames(),
+			$this->mod()
+				 ->getDbH_Logs()
+				 ->getTableSchema()
+				 ->getColumnNames(),
 			$this->getCon()
 				 ->getModule_Data()
 				 ->getDbH_IPs()

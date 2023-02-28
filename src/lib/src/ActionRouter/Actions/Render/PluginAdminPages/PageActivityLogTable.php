@@ -31,9 +31,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'Track and monitor activity on your site by users, visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'datatables_init' => ( new ForActivityLog() )
-					->setMod( $this->getCon()->getModule_AuditTrail() )
-					->build()
+				'datatables_init' => ( new ForActivityLog() )->build()
 			],
 		];
 	}

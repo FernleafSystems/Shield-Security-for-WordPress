@@ -3,9 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -29,8 +28,7 @@ class Update {
 	}
 
 	private function getBaseQuery() :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		return sprintf( "UPDATE `%s` as ri
 						INNER JOIN `%s` as `sr`
 							ON `ri`.id = `sr`.resultitem_ref

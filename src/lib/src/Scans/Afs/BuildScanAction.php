@@ -8,19 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class BuildScanAction extends Base\BuildScanAction {
 
 	protected function buildScanItems() {
-		$this->getScanActionVO()->items = ( new BuildScanItems() )
-			->setMod( $this->getScanController()->getMod() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->run();
+		$this->getScanActionVO()->items = ( new BuildScanItems() )->run();
 	}
 
 	protected function setCustomFields() {
-		/** @var Options $opts */
-		$opts = $this->getScanController()->getOptions();
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 		$action->file_exts = $this->getFileExts();
-		$action->realtime_scan_last_at = $opts->getLastRealtimeScanAt( true );
+		$action->realtime_scan_last_at = $this->getScanController()->opts()->getLastRealtimeScanAt( true );
 	}
 
 	protected function getFileExts() :array {
