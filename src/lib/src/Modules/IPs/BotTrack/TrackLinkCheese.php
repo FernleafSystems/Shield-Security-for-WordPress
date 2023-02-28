@@ -41,11 +41,16 @@ class TrackLinkCheese extends Base {
 
 	/**
 	 * @param string $robotsText
-	 * @return string
 	 */
 	public function appendRobotsTxt( $robotsText ) :string {
-		$template = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s/\n" : "Disallow: /*?*%s=\n";
-		return rtrim( $robotsText, "\n" )."\n".sprintf( $template, $this->getCheeseWord() );
+		$WP = Services::WpGeneral();
+		return sprintf( "%s\n\n%s\n",
+			rtrim( $robotsText, "\n" ),
+			implode( "\n", [
+				'User-agent: *',
+				sprintf( $WP->isPermalinksEnabled() ? "Disallow: /%s/" : "Disallow: /*?*%s=", $this->getCheeseWord() )
+			] )
+		);
 	}
 
 	private function isCheese() :bool {
