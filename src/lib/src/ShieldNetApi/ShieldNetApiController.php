@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -35,11 +36,14 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * away with nulling the plugin for some PRO features, but you can't 'null' our API, sorry.
 	 */
 	public function canHandshake() :bool {
-		$now = Services::Request()->ts();
+		$req = Services::Request();
+		$now = $req->ts();
 
 		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > MONTH_IN_SECONDS )
 					  && $now - MINUTE_IN_SECONDS*min( $this->vo->handshake_fail_count, 60 ) > $this->vo->last_handshake_attempt_at;
-		if ( $canAttempt ) {
+		if ( $canAttempt && $req->query( ActionData::FIELD_EXECUTE ) !== 'snapi_handshake' ) {
+			$this->vo->last_handshake_attempt_at = $now;
+			$this->storeVoData();
 
 			$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
 				->setMod( $this->getMod() )
@@ -53,7 +57,6 @@ class ShieldNetApiController extends DynPropertiesClass {
 				$this->vo->handshake_fail_count++;
 			}
 
-			$this->vo->last_handshake_attempt_at = $now;
 			$this->storeVoData();
 		}
 
