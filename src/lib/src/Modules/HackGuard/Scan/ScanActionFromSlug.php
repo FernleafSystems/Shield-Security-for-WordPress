@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class ScanActionFromSlug {
 
 	/**
-	 * @return Scans\Base\BaseScanActionVO
+	 * @return Scans\Afs\ScanActionVO|Scans\Apc\ScanActionVO|Scans\Wpv\ScanActionVO
 	 */
 	public static function GetAction( string $slug ) {
 		$VO = null;

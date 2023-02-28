@@ -38,9 +38,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new CleanQueue() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new CleanQueue() )->execute();
 	}
 
 	public function AFS() :Controller\Afs {
@@ -119,10 +117,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function getScanResultsCount() :Results\Counts {
-		if ( !isset( $this->scanResultsStatus ) ) {
-			$this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->getMod() );
-		}
-		return $this->scanResultsStatus;
+		return $this->scanResultsStatus ?? $this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->getMod() );
 	}
 
 	private function handlePostScanCron() {
@@ -183,7 +178,7 @@ class ScansController extends ExecOnceModConsumer {
 				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
 					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
-						$this->resetIgnoreStatus( $slugOrCon );
+						$this->resetIgnoreStatus( $scanCon );
 					}
 					$opts->addRemoveScanToBuild( $scanCon->getSlug() );
 				}

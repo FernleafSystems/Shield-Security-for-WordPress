@@ -454,20 +454,40 @@ class SelectSearchData {
 
 		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
 		$strOpts = $modStrings->getOptionStrings( $optKey );
+
+		$allWords = array_filter( array_map( 'trim',
+			explode( ' ', preg_replace( '#\(\):-#', ' ', strip_tags( implode( ' ', array_merge(
+				[
+					$strOpts[ 'name' ],
+					$strOpts[ 'summary' ],
+					( is_array( $strOpts[ 'description' ] ) ? implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
+					$strSection[ 'title' ],
+					$strSection[ 'title_short' ],
+				],
+				$strSection[ 'summary' ]
+			) ) ) ) )
+		) );
+
 		return implode( ' ',
 			array_unique( array_filter(
-				array_map( 'trim', explode( ' ', preg_replace( '#\(\):-#', ' ', strip_tags( implode( ' ', array_merge(
-					[
-						$strOpts[ 'name' ],
-						$strOpts[ 'summary' ],
-						( is_array( $strOpts[ 'description' ] ) ? implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
-						$strSection[ 'title' ],
-						$strSection[ 'title_short' ],
-					],
-					$strSection[ 'summary' ]
-				) ) ) ) ) ),
+				array_merge(
+					$allWords,
+					array_map(
+						function ( $word ) {
+							return preg_match( '#s$#i', $word ) ? null : $word.'s';
+						},
+						$allWords
+					),
+					array_map(
+						function ( $word ) {
+							$trimmed = rtrim( $word, 's' );
+							return $trimmed === $word ? null : $trimmed;
+						},
+						$allWords
+					)
+				),
 				function ( $word ) {
-					return strlen( $word ) > 2;
+					return !empty( $word ) && strlen( $word ) > 2;
 				}
 			) )
 		);

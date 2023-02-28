@@ -132,14 +132,14 @@ class CacheDirHandler {
 		$candidates = [
 			WP_CONTENT_DIR,
 			path_join( ABSPATH, 'wp-content' ),
-			path_join( WP_CONTENT_DIR, 'tmp' ),
 			path_join( WP_CONTENT_DIR, 'cache' ),
+			path_join( WP_CONTENT_DIR, 'tmp' ),
 			path_join( WP_CONTENT_DIR, 'uploads' ),
 			'/tmp'
 		];
 
 		if ( !empty( $this->lastKnownBaseDir ) ) {
-			array_unshift( $candidates, $this->lastKnownBaseDir );
+			/**	array_unshift( $candidates, $this->lastKnownBaseDir ); This seems to cause more trouble than it's worth **/
 		}
 
 		return array_filter(
@@ -150,7 +150,7 @@ class CacheDirHandler {
 				$candidates
 			) ),
 			function ( $path ) {
-				return Services::WpFs()->isDir( $path ) && wp_is_writable( $path );
+				return Services::WpFs()->isAccessibleDir( $path ) && wp_is_writable( $path );
 			}
 		);
 	}

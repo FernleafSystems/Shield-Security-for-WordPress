@@ -40,6 +40,7 @@ class DocsChangelog extends Actions\Render\BaseRender {
 					'improved' => 'info',
 					'changed'  => 'warning',
 					'fixed'    => 'danger',
+					'removed'  => 'danger',
 				]
 			],
 		];

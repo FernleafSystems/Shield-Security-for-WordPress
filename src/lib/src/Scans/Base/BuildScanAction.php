@@ -16,8 +16,7 @@ abstract class BuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build() {
-		$scanCon = $this->getScanController();
-		$this->setScanActionVO( $scanCon->getScanActionVO() );
+		$this->setScanActionVO( $this->getScanController()->getScanActionVO() );
 
 		$this->setCustomFields();
 		$this->buildScanItems();

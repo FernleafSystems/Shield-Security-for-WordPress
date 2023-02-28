@@ -13,7 +13,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
  * @property int    $blocked_at
  * @property int    $unblocked_at
  * @property int    $last_unblock_attempt_at
+ * @property bool   $can_export
  * @property int    $expires_at
+ * @property int    $imported_at
  * @property int    $updated_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
@@ -27,7 +29,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		elseif ( in_array( $key, [ 'ip_ref', 'cidr', 'offenses' ] ) ) {
 			$value = (int)$value;
 		}
-		elseif ( $key === 'is_range' ) {
+		elseif ( in_array( $key, [ 'is_range', 'can_export' ] ) ) {
 			$value = (bool)$value;
 		}
 

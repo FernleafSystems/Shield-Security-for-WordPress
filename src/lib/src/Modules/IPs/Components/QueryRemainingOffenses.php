@@ -2,25 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class QueryRemainingOffenses {
 
-	use Shield\Modules\ModConsumer;
+	use ModConsumer;
 	use IpAddressConsumer;
 
+	public const MOD = IPs\ModCon::SLUG;
+
 	public function run() :int {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-
-		$offenses = ( new IpRuleStatus( $this->getIP() ) )
-			->setMod( $mod )
-			->getOffenses();
-
 		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
-		return $opts->getOffenseLimit() - $offenses - 1;
+		return $opts->getOffenseLimit() - ( new IpRuleStatus( $this->getIP() ) )->getOffenses() - 1;
 	}
 }

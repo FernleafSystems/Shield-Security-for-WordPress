@@ -232,7 +232,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_behaviours':
+			case 'section_bot_behaviours':
 				$titleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
 				$title = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
 				$summary = [
@@ -413,7 +413,7 @@ class Strings extends Base\Strings {
 
 			case 'track_logininvalid' :
 				$name = __( 'Invalid Usernames', 'wp-simple-firewall' );
-				$summary = __( "Detect Attempted Logins With Usernames That Don't Exist", 'wp-simple-firewall' );
+				$summary = __( "Detect Failed Login Attempts With Usernames That Don't Exist", 'wp-simple-firewall' );
 				$desc = [
 					__( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' ),
 					__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' )
@@ -423,7 +423,7 @@ class Strings extends Base\Strings {
 			case 'track_loginfailed' :
 				$name = __( 'Failed Login', 'wp-simple-firewall' );
 				$summary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
-				$desc = [ __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' ) ];
+				$desc = [ __( "Penalise a visitor when they try to login using a valid username but with the wrong password.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'track_invalidscript' :

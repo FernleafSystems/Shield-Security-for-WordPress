@@ -49,8 +49,7 @@ class ProcessQueueItem {
 	 * @throws \Exception
 	 */
 	private function runScanOnItem( QueueItemVO $item ) :array {
-		$action = ScanActionFromSlug::GetAction( $item->scan )
-									->applyFromArray( $item->meta );
+		$action = ScanActionFromSlug::GetAction( $item->scan )->applyFromArray( $item->meta );
 		$action->items = $item->items;
 
 		$this->getScanner( $action )

@@ -58,7 +58,7 @@ class Strings extends Base\Strings {
 			'import_notify_received'    => [
 				'name'  => __( 'Import Notify Received', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Received notification that options import required.', 'wp-simple-firewall' ),
+					__( 'Scheduled an automatic import after receiving notice that an options import was required from the master site.', 'wp-simple-firewall' ),
 					__( 'Current master site: {{master_site}}', 'wp-simple-firewall' ),
 				],
 			],
@@ -71,7 +71,7 @@ class Strings extends Base\Strings {
 			'options_imported'          => [
 				'name'  => __( 'Options Imported', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Options exported from site: {{site}}', 'wp-simple-firewall' ),
+					__( 'Options imported from site: {{site}}', 'wp-simple-firewall' ),
 				],
 			],
 			'whitelist_site_added'      => [
@@ -234,8 +234,6 @@ class Strings extends Base\Strings {
 		$con = $this->getCon();
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :

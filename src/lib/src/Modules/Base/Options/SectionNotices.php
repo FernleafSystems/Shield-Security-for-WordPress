@@ -247,7 +247,7 @@ class SectionNotices {
 				}
 				break;
 
-			case 'section_behaviours':
+			case 'section_bot_behaviours':
 				/** @var IPs\Options $opts */
 				$opts = $con->getModule_IPs()->getOptions();
 				if ( !$opts->isEnabledAutoBlackList() ) {
