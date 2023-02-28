@@ -1093,10 +1093,10 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @return Shield\Users\ShieldUserMeta
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	public function getCurrentUserMeta() {
-		return $this->user_metas->for( Services::WpUsers()->getCurrentWpUser() );
+		return $this->user_metas->current( Services::WpUsers()->getCurrentWpUser() );
 	}
 
 	/**

@@ -24,7 +24,7 @@ class ActionData {
 			self::FIELD_NONCE   => wp_create_nonce( self::FIELD_SHIELD.'-'.$actionClass::SLUG ),
 		], $aux );
 		if ( $isAjax ) {
-			$data[ self::FIELD_AJAXURL ] = method_exists( $WP, 'ajaxURL' ) ? $WP->ajaxURL() : admin_url( 'admin-ajax.php' );
+			$data[ self::FIELD_AJAXURL ] = $WP->ajaxURL();
 		}
 		return $data;
 	}

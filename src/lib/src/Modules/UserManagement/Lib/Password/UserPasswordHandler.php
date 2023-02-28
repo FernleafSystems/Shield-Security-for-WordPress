@@ -81,7 +81,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isPassExpirationEnabled() ) {
-			$startedAt = $this->getCon()->getCurrentUserMeta()->record->pass_started_at;
+			$startedAt = $this->getCon()->user_metas->current()->record->pass_started_at;
 			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
 				$this->getCon()->fireEvent( 'password_expired', [
 					'audit_params' => [
@@ -96,7 +96,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	private function processFailedCheckPassword() {
-		$meta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->user_metas->current();
 
 		$checkFailed = $this->getOptions()->isOpt( 'pass_force_existing', 'Y' )
 					   && $meta->pass_check_failed_at > 0;
@@ -118,7 +118,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		$now = Services::Request()->ts();
 
-		$meta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->user_metas->current();
 		if ( $now - $meta->pass_reset_last_redirect_at > MINUTE_IN_SECONDS*2 ) {
 
 			$meta->pass_reset_last_redirect_at = $now;
@@ -172,7 +172,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
 				elseif ( Services::WpUsers()->isUserLoggedIn() ) {
-					$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
+					$this->getCon()->user_metas->current()->pass_check_failed_at = 0;
 				}
 			}
 		}

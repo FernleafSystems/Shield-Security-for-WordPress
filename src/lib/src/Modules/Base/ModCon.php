@@ -177,13 +177,7 @@ abstract class ModCon extends DynPropertiesClass {
 				/** @var Shield\Databases\Base\Handler $dbh */
 				$dbh = new $aDbClasses[ $dbhKey ]( $dbhKey );
 				try {
-					// TODO remove 10.3: method_exists + table init
-					if ( method_exists( $dbh, 'execute' ) ) {
-						$dbh->setMod( $this )->execute();
-					}
-					else {
-						$dbh->setMod( $this )->tableInit();
-					}
+					$dbh->setMod( $this )->execute();
 				}
 				catch ( \Exception $e ) {
 				}

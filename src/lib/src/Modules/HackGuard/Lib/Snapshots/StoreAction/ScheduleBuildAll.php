@@ -86,11 +86,4 @@ class ScheduleBuildAll extends Base {
 			}
 		);
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function getCronHook() :string {
-		return $this->getCon()->prefix( 'ptg_build_snapshots' );
-	}
 }

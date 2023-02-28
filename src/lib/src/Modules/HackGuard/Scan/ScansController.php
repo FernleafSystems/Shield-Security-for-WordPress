@@ -54,26 +54,12 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Controller\Base[]
+	 * @return Controller\Base[]|mixed
 	 */
 	public function getAllScanCons() :array {
-		if ( method_exists( $this, 'getScans' ) ) {
-			foreach ( $this->getScans() as $scan ) {
-				if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
-					$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->getMod() );
-				}
-			}
-			return $this->scanCons;
-		}
-		else {
-			/** @var Options $opts */
-			$opts = $this->getOptions();
-			foreach ( $opts->getScanSlugs() as $slug ) {
-				try {
-					$this->getScanCon( $slug );
-				}
-				catch ( \Exception $e ) {
-				}
+		foreach ( $this->getScans() as $scan ) {
+			if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
+				$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->getMod() );
 			}
 		}
 		return $this->scanCons;
@@ -98,22 +84,10 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Controller\Base|mixed
+	 * @return Controller\Afs|Controller\Apc|Controller\Wpv|Controller\Base
 	 */
 	public function getScanCon( string $slug ) {
-		if ( method_exists( $this, 'getScans' ) ) {
-			return $this->getAllScanCons()[ $slug ];
-		}
-		elseif ( !isset( $this->scanCons[ $slug ] ) ) {
-			$class = __NAMESPACE__.'\\Controller\\'.ucwords( $slug );
-			if ( @class_exists( $class ) ) {
-				/** @var Controller\Base $obj */
-				$obj = new $class();
-				$this->scanCons[ $slug ] = $obj->setMod( $this->getMod() );
-			}
-		}
-
-		return $this->scanCons[ $slug ];
+		return $this->getAllScanCons()[ $slug ];
 	}
 
 	public function getScanResultsCount() :Results\Counts {

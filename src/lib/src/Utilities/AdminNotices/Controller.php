@@ -39,7 +39,7 @@ class Controller {
 	 */
 	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
 		$con = $this->getCon();
-		$meta = $user instanceof \WP_User ? $con->user_metas->for( $user ) : $con->getCurrentUserMeta();
+		$meta = $user instanceof \WP_User ? $con->user_metas->for( $user ) : $con->user_metas->current();
 
 		$msg = trim( sanitize_text_field( $msg ) );
 		if ( !empty( $msg ) && $meta instanceof UserMeta ) {
@@ -115,8 +115,8 @@ class Controller {
 	 */
 	private function retrieveFlashMessage() {
 		$msg = null;
-		$meta = $this->getCon()->getCurrentUserMeta();
-		if ( $meta instanceof UserMeta && is_array( $meta->flash_msg ) ) {
+		$meta = $this->getCon()->user_metas->current();
+		if ( !empty( $meta ) && is_array( $meta->flash_msg ) ) {
 			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()
 																	  ->ts() < $meta->flash_msg[ 'expires_at' ] ) {
 				$msg = $meta->flash_msg;
@@ -129,8 +129,8 @@ class Controller {
 	}
 
 	private function clearFlashMessage() :self {
-		$meta = $this->getCon()->getCurrentUserMeta();
-		if ( $meta instanceof UserMeta && !empty( $meta->flash_msg ) ) {
+		$meta = $this->getCon()->user_metas->current();
+		if ( !empty( $meta ) ) {
 			$meta->flash_msg = null;
 		}
 		return $this;
