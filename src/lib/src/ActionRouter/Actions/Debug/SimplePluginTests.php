@@ -29,6 +29,9 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
+	private function dbg_rand() {
+	}
+
 	private function dbg_importnotify() {
 		try {
 			( new Modules\Plugin\Lib\ImportExport\NotifyWhitelist() )->execute();

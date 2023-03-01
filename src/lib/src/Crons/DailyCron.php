@@ -19,18 +19,24 @@ class DailyCron extends BaseCron {
 	}
 
 	public function getFirstRunTimestamp() :int {
-		$hour = (int)apply_filters( 'shield/daily_cron_hour', 7 );
-		if ( $hour < 0 || $hour > 23 ) {
-			$hour = 7;
+		$hour = ( rand( -3, 7 ) + 24 )%24;
+		if ( $hour === 0 ) {
+			$hour += rand( 1, 7 );
 		}
+
+		$chosenHour = (int)apply_filters( 'shield/daily_cron_hour', $hour );
+		if ( $chosenHour < 0 || $chosenHour > 23 ) {
+			$chosenHour = $hour;
+		}
+
 		$carbon = Services::Request()
 						  ->carbon( true )
 						  ->minute( rand( 1, 59 ) )
-						  ->second( 0 );
-		if ( $carbon->hour >= $hour ) {
-			$carbon->addDays( 1 );
+						  ->second( rand( 1, 59 ) );
+		if ( $carbon->hour >= $chosenHour ) {
+			$carbon->addDay();
 		}
-		return $carbon->hour( $hour )->timestamp;
+		return $carbon->hour( $chosenHour )->timestamp;
 	}
 
 	/**

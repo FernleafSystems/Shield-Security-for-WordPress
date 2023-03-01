@@ -153,8 +153,8 @@
     ],
     "patches":     [
       {
-        "version":     "6",
-        "released_at": 1677623814,
+        "version":     "7",
+        "released_at": 1677674000,
         "items":       [
           {
             "title": "Ensure Link Cheese robots.txt contains the necessary user-agent directive.",
@@ -162,6 +162,10 @@
           },
           {
             "title": "Fix bug with handshake API.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Fix bug with Reports migration upon upgrade.",
             "type":  "fixed"
           }
         ]
