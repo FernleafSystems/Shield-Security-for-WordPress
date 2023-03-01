@@ -24,7 +24,7 @@ class Upgrade extends Base\Upgrade {
 		$selector = $legacyDBH->getQuerySelector();
 		/** @var LegacyReportsDB\EntryVO[] $latest */
 		$latest = $selector->setLimit( 20 )
-						   ->setOrderBy( 'sent_at' )
+						   ->setOrderBy( 'created_at' )
 						   ->setResultsAsVo( true )
 						   ->query();
 
@@ -34,7 +34,8 @@ class Upgrade extends Base\Upgrade {
 			$record->type = $entry->type;
 			$record->interval_length = $entry->frequency;
 			$record->interval_end_at = $entry->interval_end_at;
-			$record->created_at = $entry->sent_at;
+			$record->created_at = $entry->created_at;
+			$mod->getDbH_ReportLogs()->getQueryInserter()->insert( $record );
 		}
 
 		// remove the legacy table.
