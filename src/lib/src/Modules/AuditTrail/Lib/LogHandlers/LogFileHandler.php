@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
@@ -12,14 +11,8 @@ class LogFileHandler extends StreamHandler {
 	use ModConsumer;
 
 	public function __construct( $level = Logger::DEBUG, $bubble = true, $filePermission = null, $useLocking = false ) {
-		parent::__construct( $this->getLogFilePath(), $level, $bubble, $filePermission, $useLocking );
+		parent::__construct( $this->opts()->getLogFilePath(), $level, $bubble, $filePermission, $useLocking );
 		$this->rotateLogs();
-	}
-
-	public function getLogFilePath() :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getLogFilePath();
 	}
 
 	private function rotateLogs() {

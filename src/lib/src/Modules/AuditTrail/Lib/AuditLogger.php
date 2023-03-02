@@ -4,15 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LogFileHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
+	LocalDbWriter,
+	LogFileHandler
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
 
 class AuditLogger extends EventsListener {
+
+	use ModConsumer;
 
 	/**
 	 * @var array[]
@@ -25,33 +29,37 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$con = $this->getCon();
-		$mod = $con->getModule_AuditTrail();
-		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $this->opts();
 
-		if ( $opts->isLogToDB() ) {
-			$this->getLogger()
-				 ->pushHandler(
-					 new FilterHandler( ( new LocalDbWriter() )->setMod( $mod ), $opts->getLogLevelsDB() )
-				 );
-			// The Request Logger is required to link up the DB entries.
-			$con->getModule_Traffic()->getRequestLogger()->execute();
-		}
+		if ( $this->isMonologLibrarySupported() ) {
 
-		if ( $con->cache_dir_handler->exists() && $opts->isLogToFile() ) {
-			try {
-				$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $opts->getLogLevelsFile() );
-				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
-					$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
+			if ( $opts->isLogToDB() ) {
+				$this->getLogger()
+					 ->pushHandler(
+						 new FilterHandler( new LocalDbWriter(), $opts->getLogLevelsDB() )
+					 );
+				// The Request Logger is required to link up the DB entries.
+				$this->getCon()->getModule_Traffic()->getRequestLogger()->execute();
+			}
+
+			if ( $this->getCon()->cache_dir_handler->exists() && $opts->isLogToFile() ) {
+				try {
+					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $opts->getLogLevelsFile() );
+					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
+						$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
+					}
+					$this->getLogger()->pushHandler( $fileHandlerWithFilter );
 				}
-				$this->getLogger()->pushHandler( $fileHandlerWithFilter );
+				catch ( \Exception $e ) {
+				}
 			}
-			catch ( \Exception $e ) {
-			}
-		}
 
-		$this->pushCustomHandlers();
+			$this->pushCustomHandlers();
+		}
+	}
+
+	public function isMonologLibrarySupported() :bool {
+		return Logger::API === 2;
 	}
 
 	private function pushCustomHandlers() {
