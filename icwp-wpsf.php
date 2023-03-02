@@ -42,11 +42,12 @@ elseif ( version_compare( PHP_VERSION, '8.3', '>=' ) ) {
 }
 elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
+	require_once( dirname( __FILE__ ).'/plugin_autoload.php' );
+
 	add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 	function icwp_wpsf_init() {
 		$rootFile = __FILE__;
-		require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
-		require_once( dirname( __FILE__ ).'/init.php' );
+		require_once( dirname( __FILE__ ).'/plugin_init.php' );
 	}
 
 	function icwp_wpsf_onactivate() {
