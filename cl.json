@@ -153,6 +153,17 @@
     ],
     "patches":     [
       {
+        "version":     "8",
+        "released_at": 1677842000,
+        "items":       [
+          {
+            "title": "Attempt to prevent errors being thrown with conflicting Monolog libraries.",
+            "type":  "fixed",
+            "href":  "https://shsec.io/lb"
+          }
+        ]
+      },
+      {
         "version":     "7",
         "released_at": 1677674000,
         "items":       [

@@ -9,7 +9,7 @@ class PluginBadge extends Base {
 	use Traits\OptConfigBased;
 
 	public const SLUG = 'plugin_badge';
-	public const WEIGHT = 3;
+	public const WEIGHT = 1;
 
 	protected function getOptConfigKey() :string {
 		return 'display_plugin_badge';
