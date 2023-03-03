@@ -16,6 +16,10 @@ class RequestLogger extends ExecOnceModConsumer {
 	 */
 	private $logger;
 
+	protected function canRun() :bool {
+		return Logger::API >= 2;
+	}
+
 	protected function run() {
 		$this->getLogger()
 			 ->pushHandler( ( new LogHandlers\LocalDbWriter() )->setMod( $this->getMod() ) );
