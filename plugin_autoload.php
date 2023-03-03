@@ -45,6 +45,8 @@ call_user_func( function () {
 		\Monolog\Processor\PsrLogMessageProcessor::class,
 		\Monolog\Processor\UidProcessor::class,
 		\Monolog\Processor\WebProcessor::class,
+		\Carbon\AbstractTranslator::class,
+		\Carbon\LazyTranslator::class,
 		\Carbon\Carbon::class,
 		\Carbon\CarbonImmutable::class,
 		\Carbon\CarbonInterface::class,
