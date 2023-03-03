@@ -8,7 +8,7 @@ Requires at least: 4.7
 Requires PHP: 7.2
 Recommended PHP: 7.4
 Tested up to: 6.2
-Stable tag: 17.0.7
+Stable tag: 17.0.8
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 
@@ -16,8 +16,8 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
 
 ### Features You'll Absolutely Love
 
-* Exclusive [AntiBot Detection Engine](https://shsec.io/ju) - The most powerful Bot Detection security system on any WordPress security plugin.
-* [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security system to block bad bots.
+* Exclusive [AntiBot Detection Engine](https://shsec.io/ju) - a powerful alternative for Google reCAPTCHA and CloudFlare Turnstile.
+* [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security intelligence to block bad bots.
 * **Instant Bad Bot Blocking with [our exclusive CrowdSec integration](https://shsec.io/l5)**
 * Easy To Understand Dashboard points you to quick wins and areas you can quickly improve
 * Block Bots On Important Forms:
