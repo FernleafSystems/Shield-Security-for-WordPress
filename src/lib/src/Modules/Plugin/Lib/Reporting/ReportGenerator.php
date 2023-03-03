@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as Repo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Exceptions\{
+	AttemptingToCreateDuplicateReportException,
+	AttemptingToCreateDisabledReportException
+};
 
 class ReportGenerator {
 
@@ -33,7 +37,7 @@ class ReportGenerator {
 
 	public function adHoc() :string {
 		$r = $this->renderFinalReports( $this->buildReports() );
-		$this->sendEmail($r);
+		$this->sendEmail( $r );
 		return $r;
 	}
 
@@ -62,7 +66,7 @@ class ReportGenerator {
 					] );
 				}
 			}
-			catch ( Reports\Exceptions\AttemptingToCreateDuplicateReportException $e ) {
+			catch ( AttemptingToCreateDuplicateReportException|AttemptingToCreateDisabledReportException $e ) {
 //				error_log( $e->getMessage() );
 			}
 			catch ( \Exception $e ) {

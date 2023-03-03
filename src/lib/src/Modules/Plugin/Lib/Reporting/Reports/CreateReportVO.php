@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
 	DB\Report\Ops as ReportsDB,
 	Lib\Reporting\Constants,
 	ModCon,
-	Options
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Exceptions\AttemptingToCreateDuplicateReportException;
+	Options};
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -22,7 +20,8 @@ class CreateReportVO {
 	private $rep;
 
 	/**
-	 * @throws AttemptingToCreateDuplicateReportException
+	 * @throws Exceptions\AttemptingToCreateDuplicateReportException
+	 * @throws Exceptions\AttemptingToCreateDisabledReportException
 	 * @throws \Exception
 	 */
 	public function create( string $reportType ) :ReportVO {
@@ -64,7 +63,8 @@ class CreateReportVO {
 	}
 
 	/**
-	 * @throws AttemptingToCreateDuplicateReportException
+	 * @throws Exceptions\AttemptingToCreateDuplicateReportException
+	 * @throws Exceptions\AttemptingToCreateDisabledReportException
 	 * @throws \Exception
 	 */
 	private function setIntervalBoundaries() :self {
@@ -117,11 +117,11 @@ class CreateReportVO {
 
 			case 'disabled':
 			default:
-				throw new \Exception( 'Attempting to create a report for a disabled interval.' );
+				throw new Exceptions\AttemptingToCreateDisabledReportException( 'Attempting to create a report for a disabled interval.' );
 		}
 
 		if ( $this->rep->previous instanceof ReportsDB\Record && $end <= $this->rep->previous->interval_end_at ) {
-			throw new AttemptingToCreateDuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
+			throw new Exceptions\AttemptingToCreateDuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
 		}
 
 		if ( $end > $currentIntervalStart->timestamp ) { // sanity check
