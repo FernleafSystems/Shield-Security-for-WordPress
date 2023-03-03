@@ -57,7 +57,7 @@ class AuditLogger extends EventsListener {
 	}
 
 	public function isMonologLibrarySupported() :bool {
-		return Logger::API === 2;
+		return Logger::API >= 2;
 	}
 
 	private function pushCustomHandlers() {
