@@ -154,7 +154,7 @@
     "patches":     [
       {
         "version":     "10",
-        "released_at": 1677878600,
+        "released_at": 1677878650,
         "items":       [
           {
             "title": "Revert attempt to solve problem of critical errors.",
