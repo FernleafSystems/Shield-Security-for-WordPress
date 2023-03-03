@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotB
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
+use Monolog\Logger;
 
 class SectionNotices {
 
@@ -109,6 +110,14 @@ class SectionNotices {
 		$warnings = [];
 
 		switch ( $section ) {
+
+			case 'section_localdb':
+			case 'section_at_file':
+				if ( !$this->getCon()->getModule_AuditTrail()->getAuditLogger()->isMonologLibrarySupported() ) {
+					$warnings[] = __( 'There is a conflicting Monolog library on this site, so the activity log may not run.', 'wp-simple-firewall' )
+								  .'<br/>'.sprintf( 'The conflicting library is here: <code>%s</code>', str_replace( ABSPATH, '', ( new \ReflectionClass( Logger::class ) )->getFileName() ) );
+				}
+				break;
 
 			case 'section_whitelabel':
 				if ( !$con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {

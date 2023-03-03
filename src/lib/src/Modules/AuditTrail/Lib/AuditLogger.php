@@ -30,28 +30,34 @@ class AuditLogger extends EventsListener {
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 
-		if ( $opts->isLogToDB() ) {
-			$this->getLogger()
-				 ->pushHandler(
-					 new FilterHandler( ( new LocalDbWriter() )->setMod( $mod ), $opts->getLogLevelsDB() )
-				 );
-			// The Request Logger is required to link up the DB entries.
-			$con->getModule_Traffic()->getRequestLogger()->execute();
-		}
+		if ( $this->isMonologLibrarySupported() ) {
+			if ( $opts->isLogToDB() ) {
+				$this->getLogger()
+					 ->pushHandler(
+						 new FilterHandler( ( new LocalDbWriter() )->setMod( $mod ), $opts->getLogLevelsDB() )
+					 );
+				// The Request Logger is required to link up the DB entries.
+				$con->getModule_Traffic()->getRequestLogger()->execute();
+			}
 
-		if ( $con->cache_dir_handler->exists() && $opts->isLogToFile() ) {
-			try {
-				$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
-				if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
-					$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
+			if ( $con->cache_dir_handler->exists() && $opts->isLogToFile() ) {
+				try {
+					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
+					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
+						$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
+					}
+					$this->getLogger()->pushHandler( $fileHandlerWithFilter );
 				}
-				$this->getLogger()->pushHandler( $fileHandlerWithFilter );
+				catch ( \Exception $e ) {
+				}
 			}
-			catch ( \Exception $e ) {
-			}
-		}
 
-		$this->pushCustomHandlers();
+			$this->pushCustomHandlers();
+		}
+	}
+
+	public function isMonologLibrarySupported() :bool {
+		return Logger::API === 2;
 	}
 
 	private function pushCustomHandlers() {
