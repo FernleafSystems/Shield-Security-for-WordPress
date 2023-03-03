@@ -1,6 +1,7 @@
 <?php declare( strict_types=1 );
 
 require_once( __DIR__.'/src/lib/vendor/autoload.php' );
+/*
 call_user_func( function () {
 	array_map(
 		function ( $class ) {
@@ -45,8 +46,6 @@ call_user_func( function () {
 		\Monolog\Processor\PsrLogMessageProcessor::class,
 		\Monolog\Processor\UidProcessor::class,
 		\Monolog\Processor\WebProcessor::class,
-		\Carbon\AbstractTranslator::class,
-		\Carbon\LazyTranslator::class,
 		\Carbon\Carbon::class,
 		\Carbon\CarbonImmutable::class,
 		\Carbon\CarbonInterface::class,
@@ -58,3 +57,4 @@ call_user_func( function () {
 		\Carbon\TranslatorImmutable::class,
 	] );
 } );
+*/
