@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
@@ -24,7 +25,7 @@ class AuditLogger extends EventsListener {
 	 */
 	private $logger;
 
-	protected function init() {
+	protected function initLogger() {
 		$con = $this->getCon();
 		$mod = $con->getModule_AuditTrail();
 		/** @var Options $opts */
@@ -57,7 +58,16 @@ class AuditLogger extends EventsListener {
 	}
 
 	public function isMonologLibrarySupported() :bool {
-		return Logger::API >= 2;
+		try {
+			( new Monolog() )
+				->setCon( $this->getCon() )
+				->assess();
+			$supported = true;
+		}
+		catch ( \Exception $e ) {
+			$supported = false;
+		}
+		return $supported;
 	}
 
 	private function pushCustomHandlers() {
@@ -108,7 +118,8 @@ class AuditLogger extends EventsListener {
 	}
 
 	protected function onShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
+		if ( !$this->getCon()->plugin_deleting && $this->isMonologLibrarySupported() ) {
+			$this->initLogger();
 			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
 				$this->getLogger()->log(
 					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],

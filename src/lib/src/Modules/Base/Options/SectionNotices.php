@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Integrations,
 	Integrations\Lib\Bots\Common\BaseHandler,
@@ -15,7 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotB
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
-use Monolog\Logger;
 
 class SectionNotices {
 
@@ -113,9 +113,15 @@ class SectionNotices {
 
 			case 'section_localdb':
 			case 'section_at_file':
-				if ( !$this->getCon()->getModule_AuditTrail()->getAuditLogger()->isMonologLibrarySupported() ) {
-					$warnings[] = __( 'There is a conflicting Monolog library on this site, so the activity log may not run.', 'wp-simple-firewall' )
-								  .'<br/>'.sprintf( 'The conflicting library is here: <code>%s</code>', str_replace( ABSPATH, '', ( new \ReflectionClass( Logger::class ) )->getFileName() ) );
+			case 'section_traffic_options':
+				try {
+					( new Monolog() )
+						->setCon( $this->getCon() )
+						->assess();
+				}
+				catch ( \Exception $e ) {
+					$warnings[] = __( "Logging isn't currently available on this site.", 'wp-simple-firewall' )
+								  .'<br/>'.sprintf( '%s: %s', __( 'Reason', 'wp-simple-firewall' ), $e->getMessage() );
 				}
 				break;
 
