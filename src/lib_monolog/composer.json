@@ -1,0 +1,24 @@
+{
+  "name":              "apto-shield/requirements_monolog",
+  "description":       "shield requirement",
+  "authors":           [
+    {
+      "name":     "Paul Goodchild",
+      "email":    "paul@paulgoodchild.me",
+      "homepage": "https://paulgoodchild.me"
+    }
+  ],
+  "config":            {
+    "platform": {
+      "php": "7.2"
+    }
+  },
+  "require":           {
+    "php":             ">=7.2",
+    "monolog/monolog": "^2.8"
+  },
+  "require-dev":       {
+  },
+  "minimum-stability": "dev",
+  "prefer-stable":     true
+}

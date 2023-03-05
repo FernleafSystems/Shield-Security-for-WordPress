@@ -4,12 +4,14 @@
 
 {% block page_head %}
 
-	{% if flags.is_ip_whitelisted or flags.is_ip_blocked %}
-		<div class="row">
-			<div class="col bg-warning">
-				<p class="my-2 text-center">{{ flags.is_ip_whitelisted ? strings.you_are_whitelisted|raw : strings.you_are_blocked|raw }}</p>
+	{% if strings.top_page_warnings|default([]) is not empty %}
+		{% for warning in strings.top_page_warnings %}
+			<div class="row">
+				<div class="col bg-{{ warning.type }}">
+					{% for each_line in warning.text %}<p class="my-1 text-center">{{ each_line }}</p>{% endfor %}
+				</div>
 			</div>
-		</div>
+		{% endfor %}
 	{% endif %}
 
 	<div class="row justify-content-between mb-3 {% if not flags.is_mode_live %}bg-warning{% endif %}"

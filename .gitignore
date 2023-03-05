@@ -2,6 +2,7 @@
 /config/deprecated/
 /vendor/
 /src/lib/vendor/
+/src/lib_monolog/vendor/
 composer.lock
 /node_modules/
 /package-lock.json

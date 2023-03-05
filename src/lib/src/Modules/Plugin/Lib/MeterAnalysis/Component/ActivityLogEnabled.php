@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 
 class ActivityLogEnabled extends Base {
@@ -12,10 +13,21 @@ class ActivityLogEnabled extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_AuditTrail();
-		/** @var Options $opts */
-		$opts = $mod->getOptions();
-		return $mod->isModOptEnabled() && $opts->isLogToDB();
+		try {
+			$mod = $this->getCon()->getModule_AuditTrail();
+			/** @var Options $opts */
+			$opts = $mod->getOptions();
+
+			( new Monolog() )
+				->setCon( $this->getCon() )
+				->assess();
+			$protected = $mod->isModOptEnabled() && $opts->isLogToDB();
+		}
+		catch ( \Exception $e ) {
+			$protected = false;
+		}
+
+		return $protected;
 	}
 
 	protected function getOptConfigKey() :string {
