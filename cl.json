@@ -153,12 +153,13 @@
     ],
     "patches":     [
       {
-        "version":     "10",
-        "released_at": 1677878650,
+        "version":     "11",
+        "released_at": 1678025000,
         "items":       [
           {
-            "title": "Revert attempt to solve problem of critical errors.",
-            "type":  "fixed"
+            "title": "Prevent fatal errors in the event of a Monolog library conflict, but completely disable Activity Logging.",
+            "type":  "fixed",
+            "href":  "https://shsec.io/lc"
           }
         ]
       },

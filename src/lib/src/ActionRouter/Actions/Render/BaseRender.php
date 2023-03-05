@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminLo
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
@@ -384,11 +385,6 @@ abstract class BaseRender extends BaseAction {
 			'um_last_activity_uri'     => __( 'Last Activity URI', 'wp-simple-firewall' ),
 			'um_login_ip'              => __( 'Login IP', 'wp-simple-firewall' ),
 
-			'you_are_whitelisted' => sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-				sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) ),
-			'you_are_blocked'     => sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
-				sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) ),
-
 			'search_shield'            => sprintf( __( 'Search %s', 'wp-simple-firewall' ), $con->getHumanName() ),
 			'search_modal_placeholder' => __( 'Search using whole words of at least 3 characters.', 'wp-simple-firewall' ),
 			'search_modal_you_could'   => __( 'You could search for', 'wp-simple-firewall' ),
@@ -398,12 +394,54 @@ abstract class BaseRender extends BaseAction {
 				__( 'IP addresses', 'wp-simple-firewall' ),
 				__( 'Help docs & resources', 'wp-simple-firewall' ),
 			],
+			'top_page_warnings'        => $this->buildTopPageWarnings(),
 		];
+	}
+
+	protected function buildTopPageWarnings() :array {
+		$con = $this->getCon();
+		$thisReq = $con->this_req;
+		$warnings = [];
+
+		$ipStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $con->getModule_IPs() );
+		if ( $ipStatus->isBypass() ) {
+			$warnings[] = [
+				'type' => 'warning', // Boostrap,
+				'text' => sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
+					sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
+			];
+		}
+		elseif ( $ipStatus->isBlocked() ) {
+			$warnings[] = [
+				'type' => 'danger', // Boostrap,
+				'text' => [
+					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
+				]
+			];
+		}
+
+		try {
+			( new Monolog() )
+				->setCon( $con )
+				->assess();
+		}
+		catch ( \Exception $e ) {
+			$warnings[] = [
+				'type' => 'warning', // Boostrap,
+				'text' => [
+					__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
+					$e->getMessage(),
+				]
+			];
+		}
+
+		return $warnings;
 	}
 
 	protected function getTwigEnvironmentVars() :array {
 		return [
-			'strict_variables' => true,
+			'strict_variables' => false,
 		];
 	}
 }

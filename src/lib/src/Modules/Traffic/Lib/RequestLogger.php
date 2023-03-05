@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
@@ -17,20 +18,36 @@ class RequestLogger extends ExecOnceModConsumer {
 	private $logger;
 
 	protected function canRun() :bool {
-		return Logger::API >= 2;
+		return $this->isMonologLibrarySupported();
 	}
 
 	protected function run() {
-		$this->getLogger()
-			 ->pushHandler( ( new LogHandlers\LocalDbWriter() )->setMod( $this->getMod() ) );
-
-		$this->pushCustomHandlers();
 
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-			if ( $this->isRequestToBeLogged() ) {
+			if ( $this->isMonologLibrarySupported() && $this->isRequestToBeLogged() ) {
+				$this->initLogger();
 				$this->getLogger()->log( 'debug', 'log request' );
 			}
 		}, 1000 ); // high enough to come after audit trail
+	}
+
+	public function isMonologLibrarySupported() :bool {
+		try {
+			( new Monolog() )
+				->setCon( $this->getCon() )
+				->assess();
+			$supported = true;
+		}
+		catch ( \Exception $e ) {
+			$supported = false;
+		}
+		return $supported;
+	}
+
+	private function initLogger() {
+		$this->getLogger()
+			 ->pushHandler( ( new LogHandlers\LocalDbWriter() )->setMod( $this->getMod() ) );
+		$this->pushCustomHandlers();
 	}
 
 	private function pushCustomHandlers() {
