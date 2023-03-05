@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "17.0.11",
-    "release_timestamp":       1678025000,
-    "build":                   "202303.0501",
+    "version":                 "17.0.12",
+    "release_timestamp":       1678025001,
+    "build":                   "202303.0502",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -12,7 +12,7 @@
     "show_dashboard_widget":   true,
     "show_admin_bar_menu":     true,
     "autoupdate":              "confidence",
-    "autoupdate_days":         2,
+    "autoupdate_days":         7,
     "options_encoding":        "json",
     "enable_premium":          true
   },
