@@ -29,6 +29,32 @@ class AuditLogger extends EventsListener {
 	 */
 	private $logger;
 
+	protected function init() {
+		$con = $this->getCon();
+		/** @var Options $opts */
+		$opts = $con->getModule_AuditTrail()->getOptions();
+		if ( $opts->isLogToDB() ) {
+			// The Request Logger is required to link up the DB entries.
+			$con->getModule_Traffic()->getRequestLogger()->execute();
+		}
+	}
+
+	/**
+	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
+	 */
+	protected function onShutdown() {
+		if ( !$this->getCon()->plugin_deleting && $this->isMonologLibrarySupported() ) {
+			$this->initLogger();
+			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
+				$this->getLogger()->log(
+					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
+					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
+					$auditLog
+				);
+			}
+		}
+	}
+
 	protected function initLogger() {
 		$opts = $this->opts();
 
@@ -39,8 +65,6 @@ class AuditLogger extends EventsListener {
 					 ->pushHandler(
 						 new FilterHandler( new LocalDbWriter(), $opts->getLogLevelsDB() )
 					 );
-				// The Request Logger is required to link up the DB entries.
-				$this->getCon()->getModule_Traffic()->getRequestLogger()->execute();
 			}
 
 			if ( $this->getCon()->cache_dir_handler->exists() && $opts->isLogToFile() ) {
@@ -112,19 +136,6 @@ class AuditLogger extends EventsListener {
 			}
 			else {
 				$this->auditLogs[ $evt ] = $meta;
-			}
-		}
-	}
-
-	protected function onShutdown() {
-		if ( !$this->getCon()->plugin_deleting && $this->isMonologLibrarySupported() ) {
-			$this->initLogger();
-			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
-				$this->getLogger()->log(
-					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
-					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
-					$auditLog
-				);
 			}
 		}
 	}

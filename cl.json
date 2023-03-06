@@ -153,11 +153,11 @@
     ],
     "patches":     [
       {
-        "version":     "11",
+        "version":     "11-14",
         "released_at": 1678025000,
         "items":       [
           {
-            "title": "Prevent fatal errors in the event of a Monolog library conflict, but completely disable Activity Logging.",
+            "title": "Prevent fatal errors in the event of a Monolog library conflict, but disable Activity Logging features to facilitate this.",
             "type":  "fixed",
             "href":  "https://shsec.io/lc"
           }
