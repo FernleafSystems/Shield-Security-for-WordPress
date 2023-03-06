@@ -17,20 +17,28 @@ class RequestLogger extends ExecOnceModConsumer {
 	 */
 	private $logger;
 
-	protected function canRun() :bool {
-		return $this->isMonologLibrarySupported();
-	}
-
+	/**
+	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
+	 */
 	protected function run() {
-
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-			if ( $this->isMonologLibrarySupported() && $this->isRequestToBeLogged() ) {
-				$this->initLogger();
-				$this->getLogger()->log( 'debug', 'log request' );
+			if ( $this->isRequestToBeLogged() ) {
+				try {
+					( new Monolog() )
+						->setCon( $this->getCon() )
+						->assess();
+					$this->initLogger();
+					$this->getLogger()->log( 'debug', 'log request' );
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		}, 1000 ); // high enough to come after audit trail
 	}
 
+	/**
+	 * @deprecated 17.0.14
+	 */
 	public function isMonologLibrarySupported() :bool {
 		try {
 			( new Monolog() )
@@ -63,8 +71,8 @@ class RequestLogger extends ExecOnceModConsumer {
 	private function isRequestToBeLogged() :bool {
 		/** @var Traffic\Options $opts */
 		$opts = $this->getOptions();
-		return !$this->getCon()->plugin_deleting
-			   && apply_filters( 'shield/is_log_traffic', $opts->isTrafficLoggerEnabled() && !$this->isCustomExcluded() && !$this->isRequestTypeExcluded() );
+		$logTraffic = $opts->isTrafficLoggerEnabled() && !$this->isCustomExcluded() && !$this->isRequestTypeExcluded();
+		return !$this->getCon()->plugin_deleting && apply_filters( 'shield/is_log_traffic', $logTraffic );
 	}
 
 	public function getLogger() :Logger {
