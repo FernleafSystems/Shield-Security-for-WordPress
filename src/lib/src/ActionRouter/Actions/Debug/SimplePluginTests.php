@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\QueryMalwareStatus;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class SimplePluginTests extends BaseAction {
@@ -30,6 +32,14 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_rand() {
+	}
+
+	private function dbg_submitmalwarereports() {
+		( new ReportToMalai() )->run();
+
+//		$res = ( new QueryMalwareStatus() )->retrieve( '405558D45DAC03062A76FFE384DDC3DD8ED7FC3B5932E100791AEF8F8E5C5D7E' );
+//		$reports = ( new ReportToMalai() )->run( 20 );
+//		var_dump( $reports );
 	}
 
 	private function dbg_importnotify() {

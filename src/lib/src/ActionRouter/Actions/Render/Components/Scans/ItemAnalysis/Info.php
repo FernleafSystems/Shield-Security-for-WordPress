@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Malware\Ops\Record;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
 
@@ -86,13 +87,29 @@ class Info extends Base {
 				$description[] = __( "It's located in a WordPress theme directory, and is a recognised as a valid file for that theme version.", 'wp-simple-firewall' );
 			}
 		}
+
 		if ( $item->is_checksumfail ) {
 			$description[] = __( 'File contents have been modified when compared against the official release for that version.', 'wp-simple-firewall' );
 		}
+
 		if ( $item->is_mal ) {
+			if ( isset( $item->malware_record_id ) ) {
+				/** @var Record $record */
+				$record = $this->getCon()
+							   ->getModule_HackGuard()
+							   ->getDbH_Malware()
+							   ->getQuerySelector()
+							   ->byId( $item->malware_record_id );
+				$confidence = $record->local_fp_confidence;
+			}
+			else {
+				/** @deprecated 17.1 */
+				$confidence = $item->mal_fp_confidence;
+			}
+
 			$description[] = __( 'Contents could potentially contain malicious PHP malware.', 'wp-simple-firewall' );
 			$description[] = sprintf( __( 'The false positive score of this file is %s.', 'wp-simple-firewall' ),
-				sprintf( '<code>%s</code>', $item->mal_fp_confidence ) );
+				sprintf( '<code>%s</code>', $confidence ) );
 			$description[] = __( "The lower the score the less we know about the file or the more likely it contains malicious code.", 'wp-simple-firewall' );
 		}
 

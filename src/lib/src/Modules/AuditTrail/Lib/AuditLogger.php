@@ -5,19 +5,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
 	LocalDbWriter,
 	LogFileHandler
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
 
 class AuditLogger extends EventsListener {
-
-	use ModConsumer;
 
 	/**
 	 * @var array[]
@@ -56,7 +54,9 @@ class AuditLogger extends EventsListener {
 	}
 
 	protected function initLogger() {
-		$opts = $this->opts();
+		$con = $this->getCon();
+		/** @var Options $opts */
+		$opts = $con->getModule_AuditTrail()->getOptions();
 
 		if ( $this->isMonologLibrarySupported() ) {
 

@@ -298,18 +298,6 @@
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-      "key":         "mal_autorepair_surgical",
-      "section":     "section_non_ui",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Surgical Auto-Repair",
-      "summary":     "Automatically Attempt To Surgically Remove Malware Code",
-      "description": "Attempts to automatically remove code from infected files."
-    },
-    {
       "key":         "ptg_reinstall_links",
       "section":     "section_scan_options",
       "premium":     true,
@@ -400,7 +388,57 @@
       "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
       "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
       "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
-      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler",
+      "malware":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Malware\\Ops\\Handler"
+    },
+    "db_table_malware":            {
+      "autoexpire":      0,
+      "slug":            "malware",
+      "has_updated_at":  true,
+      "has_deleted_at":  false,
+      "col_older_than":  "updated_at",
+      "cols_custom":     {
+        "hash_sha256":         {
+          "macro_type": "sha256",
+          "comment":    "Item hash SHA256"
+        },
+        "file_path":           {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "The relative path of the malware-containing file."
+        },
+        "code_type":           {
+          "macro_type": "char",
+          "length":     5,
+          "default":    "php",
+          "comment":    "The language"
+        },
+        "sig":                 {
+          "macro_type": "varchar",
+          "length":     128,
+          "comment":    "The malware signature pattern that triggered the discovery"
+        },
+        "local_fp_confidence": {
+          "macro_type": "unsigned_int",
+          "type":       "tinyint",
+          "length":     3,
+          "default":    0,
+          "comment":    "Locally determine Malware False-Positive Confidence Level"
+        },
+        "file_content":        {
+          "macro_type": "text",
+          "type":       "mediumtext",
+          "comment":    "The actual file content"
+        }
+      },
+      "cols_timestamps": {
+        "last_seen_at": {
+          "comment": "Last Seen In Scan"
+        },
+        "reported_at":  {
+          "comment": "Last Reported"
+        }
+      }
     },
     "db_table_file_locker":        {
       "autoexpire":      0,

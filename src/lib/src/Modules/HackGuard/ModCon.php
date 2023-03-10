@@ -51,6 +51,10 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'file_locker' );
 	}
 
+	public function getDbH_Malware() :DB\Malware\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'malware' );
+	}
+
 	public function getDbH_Scans() :DB\Scans\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'scans' );
 	}

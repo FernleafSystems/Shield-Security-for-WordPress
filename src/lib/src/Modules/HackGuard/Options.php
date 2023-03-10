@@ -93,24 +93,8 @@ class Options extends BaseShield\Options {
 		return is_array( $sigs ) ? $sigs : [];
 	}
 
-	public function isMalAutoRepairSurgical() :bool {
-		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
-	}
-
-	public function isMalUseNetworkIntelligence() :bool {
-		return $this->getMalConfidenceBoundary() > 0;
-	}
-
 	public function isAutoFilterResults() :bool {
 		return (bool)apply_filters( 'shield/scan_auto_filter_results', true );
-	}
-
-	public function isPtgReinstallLinks() :bool {
-		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->getCon()->isPremiumActive();
-	}
-
-	public function isRepairFileAuto() :bool {
-		return count( $this->getRepairAreas() ) > 0;
 	}
 
 	public function isRepairFilePlugin() :bool {

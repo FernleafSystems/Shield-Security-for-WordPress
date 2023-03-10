@@ -3,9 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs as AfsScan;
 
 class FileScanner {
 
@@ -13,10 +11,7 @@ class FileScanner {
 	use Shield\Modules\ModConsumer;
 	use Shield\Scans\Common\ScanActionConsumer;
 
-	/**
-	 * @return ResultItem|null
-	 */
-	public function scan( string $fullPath ) {
+	public function scan( string $fullPath ) :?ResultItem {
 		/** @var AfsCon $scanCon */
 		$scanCon = $this->getScanController();
 		/** @var ScanActionVO $action */
@@ -86,54 +81,52 @@ class FileScanner {
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
 		}
 
-		try {
-			if ( $scanCon->isEnabledMalwareScan() && ( empty( $item ) || !$item->is_missing ) ) {
+		if ( $scanCon->isEnabledMalwareScan() && ( empty( $item ) || !$item->is_missing ) ) {
+			try {
 				( new Scans\MalwareFile( $fullPath ) )
-					->setMod( $this->getMod() )
 					->setScanActionVO( $action )
 					->scan();
 			}
-		}
-		catch ( Exceptions\MalwareFileException $mfe ) {
-			if ( empty( $item ) ) {
-				$item = $this->getResultItem( $fullPath );
-			}
-			$item->is_mal = true;
+			catch ( Exceptions\MalwareFileException $mfe ) {
+				$item = $item ?? $this->getResultItem( $fullPath );
+				$item->is_mal = true;
 
-			foreach ( $mfe->getScanFileData() as $malMetaKey => $malMetaValue ) {
-				$item->{$malMetaKey} = $malMetaValue;
+				try {
+					if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
+						throw new \Exception( 'Cannot proceed without a malware signature' );
+					}
+					$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
+						$item->path_fragment,
+						$mfe->getScanFileData()[ 'mal_sig' ],
+						$validFile
+					);
+					$item->malware_record_id = $malRecord->id;
+					$item->auto_filter = $malRecord->local_fp_confidence > $action->confidence_threshold;
+				}
+				catch ( \Exception $e ) {
+					/** We can't proceed without a linked local Malware Record */
+					$item = null;
+					error_log( $e->getMessage() );
+				}
 			}
-			if ( $validFile ) {
-				$item->mal_fp_confidence = 100;
+			catch ( \InvalidArgumentException $e ) {
 			}
-
-			// Updates the FP scores stored within mal_meta
-			( new AfsScan\Processing\MalwareFalsePositive() )
-				->setMod( $this->getMod() )
-				->setScanActionVO( $this->getScanActionVO() )
-				->run( $item );
-
-			if ( $item->mal_fp_confidence > $action->confidence_threshold ) {
-				$item->auto_filter = true;
-			}
-		}
-		catch ( \InvalidArgumentException $e ) {
 		}
 
 		/** TODO
-		if ( false && empty( $item ) && !$validFile ) {
-			try {
-				( new AfsScan\Scans\RealtimeFile( $fullPath ) )
-					->setMod( $this->getMod() )
-					->setScanActionVO( $action )
-					->scan();
-			}
-			catch ( AfsScan\Exceptions\RealtimeFileDiscoveredException $rte ) {
-				error_log( $fullPath );
-				$item = $this->getResultItem( $fullPath );
-				$item->is_realtime = true;
-			}
-		}
+		 * if ( false && empty( $item ) && !$validFile ) {
+		 * try {
+		 * ( new AfsScan\Scans\RealtimeFile( $fullPath ) )
+		 * ->setMod( $this->getMod() )
+		 * ->setScanActionVO( $action )
+		 * ->scan();
+		 * }
+		 * catch ( AfsScan\Exceptions\RealtimeFileDiscoveredException $rte ) {
+		 * error_log( $fullPath );
+		 * $item = $this->getResultItem( $fullPath );
+		 * $item->is_realtime = true;
+		 * }
+		 * }
 		 */
 
 		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.

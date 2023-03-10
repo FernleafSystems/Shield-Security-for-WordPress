@@ -17,7 +17,9 @@ class PtgAddReinstallLinks {
 
 	protected function canRun() :bool {
 		$scanCon = $this->getScanController();
-		return $scanCon->isReady() && $scanCon->opts()->isPtgReinstallLinks();
+		return $scanCon->isReady()
+			   && $scanCon->getCon()->isPremiumActive()
+			   && $scanCon->opts()->isOpt( 'ptg_reinstall_links', 'Y' );
 	}
 
 	protected function run() {

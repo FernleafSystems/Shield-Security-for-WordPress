@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModConsumer,
 	Scan\Queue\CleanQueue,
@@ -40,6 +41,7 @@ class ScansController {
 
 	public function runHourlyCron() {
 		( new CleanQueue() )->execute();
+		( new ReportToMalai() )->run();
 	}
 
 	public function AFS() :Controller\Afs {
@@ -97,6 +99,7 @@ class ScansController {
 
 	private function handlePostScanCron() {
 		add_action( $this->getCon()->prefix( 'post_scan' ), function () {
+			( new ReportToMalai() )->run();
 			$this->runAutoRepair();
 		} );
 	}

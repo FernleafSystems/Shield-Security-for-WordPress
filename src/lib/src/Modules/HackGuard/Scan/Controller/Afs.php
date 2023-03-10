@@ -16,8 +16,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Afs extends BaseForFiles {
 
-	public const SCAN_SLUG = 'afs';
 	use PluginCronsConsumer;
+
+	public const SCAN_SLUG = 'afs';
 
 	protected function run() {
 		parent::run();
@@ -190,7 +191,7 @@ class Afs extends BaseForFiles {
 	public function isCronAutoRepair() :bool {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return $opts->isRepairFileAuto();
+		return count( $opts->getRepairAreas() ) > 0;
 	}
 
 	public function isEnabled() :bool {

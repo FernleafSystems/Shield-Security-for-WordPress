@@ -49,15 +49,8 @@ class RepairItem {
 					if ( !empty( $theme ) && $theme->isWpOrg() ) {
 						$success = $this->repairItemInTheme();
 					}
-					elseif ( $this->opts()->isMalAutoRepairSurgical() ) {
-						$success = $this->repairSurgicalItem();
-					}
 				}
 			}
-		}
-
-		if ( $success && $item->is_mal ) {
-			( new MalFalsePositiveReporter() )->reportResultItem( $item, false );
 		}
 
 		return $success;
@@ -154,24 +147,6 @@ class RepairItem {
 		}
 		catch ( \InvalidArgumentException $e ) {
 			$success = false;
-		}
-		return $success;
-	}
-
-	private function repairSurgicalItem() :bool {
-		/** @var ResultItem $item */
-		$item = $this->getScanItem();
-
-		$success = false;
-		foreach ( array_keys( $item->mal_fp_lines ) as $lineNumber ) {
-			try {
-				( new RemoveLineFromFile() )->run( $item->path_full, $lineNumber );
-				$success = true;
-			}
-			catch ( \Exception $e ) {
-				$success = false;
-				break;
-			}
 		}
 		return $success;
 	}

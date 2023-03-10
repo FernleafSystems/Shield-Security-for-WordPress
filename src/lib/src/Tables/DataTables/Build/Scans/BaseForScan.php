@@ -109,28 +109,6 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'mal_fp_confidence' => [
-				'data'        => 'mal_fp_confidence',
-				'title'       => __( 'False Positive Confidence' ),
-				'className'   => 'mal_fp_confidence',
-				'orderable'   => false,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
-					'show' => false
-				],
-			],
-			'line_numbers'      => [
-				'data'        => 'line_numbers',
-				'title'       => __( 'Line Numbers' ),
-				'className'   => 'line_numbers',
-				'orderable'   => false,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
-					'show' => false
-				],
-			],
 		];
 	}
 }
