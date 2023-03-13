@@ -25,9 +25,7 @@ class ThemeFile extends BasePluginThemeFile {
 
 			if ( $this->isSupportedFileExt() ) {
 				try {
-					$verifiedHash = ( new Query() )
-						->setMod( $this->getMod() )
-						->verifyHash( $this->pathFull );
+					$verifiedHash = ( new Query() )->verifyHash( $this->pathFull );
 					if ( !$verifiedHash ) {
 						throw new Exceptions\ThemeFileChecksumFailException(
 							$this->pathFull,

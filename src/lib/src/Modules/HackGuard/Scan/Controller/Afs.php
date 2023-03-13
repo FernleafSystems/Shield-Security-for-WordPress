@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
-	ModCon,
 	Options,
 	Scan
 };

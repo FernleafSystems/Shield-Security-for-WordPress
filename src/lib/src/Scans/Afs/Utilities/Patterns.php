@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwarePatterns;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 class Patterns {
@@ -11,14 +12,14 @@ class Patterns {
 	use ModConsumer;
 
 	/**
-	 * @return string[][]
+	 * @return array{raw: string[], iraw: string[], re: string[], functions: string[], keywords: string[]}
 	 */
 	public function retrieve() :array {
 		$cacher = new Cache\CacheDefVO();
 		$cacher->dir = $this->getCon()->cache_dir_handler->buildSubDir( 'scans' );
 		if ( !empty( $cacher->dir ) ) {
-			$cacher->file_fragment = 'cache_patterns.txt';
-			$cacher->expiration = \HOUR_IN_SECONDS;
+			$cacher->file_fragment = 'malcache_patterns_v2.txt';
+			$cacher->expiration = \DAY_IN_SECONDS;
 			( new Cache\LoadFromCache() )
 				->setCacheDef( $cacher )
 				->load();
@@ -30,13 +31,16 @@ class Patterns {
 						  ->getWpHashesTokenManager()
 						  ->getToken();
 			// First attempt to download from WP Hashes API.
-			$patterns = ( new Malware\Patterns\Retrieve( $token ) )->getPatterns();
+			$patterns = ( new MalwarePatterns( $token ) )->retrieve();
 
 			// Fallback to original method
-			if ( !is_array( $patterns ) || empty( $patterns[ 'simple' ] ) || empty( $patterns[ 'regex' ] ) ) {
+			if ( empty( $patterns[ 'raw' ] ) || empty( $patterns[ 're' ] ) ) {
 				$patterns = [
-					'simple' => $this->opts()->getMalSignaturesSimple(),
-					'regex'  => $this->opts()->getMalSignaturesRegex(),
+					'raw'       => $this->opts()->getMalSignaturesSimple(),
+					're'        => $this->opts()->getMalSignaturesRegex(),
+					'iraw'      => [],
+					'functions' => [],
+					'keywords'  => [],
 				];
 			}
 

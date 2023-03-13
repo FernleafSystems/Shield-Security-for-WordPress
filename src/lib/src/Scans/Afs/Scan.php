@@ -13,24 +13,22 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function preScan() {
 		parent::preScan();
 
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
+		$opts = $this->opts();
 		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) ) {
-			( new Processing\FileScanOptimiser() )
-				->setMod( $this->getMod() )
-				->filterFilesFromAction( $action );
+			( new Processing\FileScanOptimiser() )->filterFilesFromAction( $action );
 		}
 
 		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
 		$patterns = ( new Utilities\Patterns() )->retrieve();
-		$action->patterns_simple = $patterns[ 'simple' ];
-		$action->patterns_regex = $patterns[ 'regex' ];
-		$action->patterns_fullregex = $patterns[ 'fullregex' ] ?? [];
+		$action->patterns_raw = $patterns[ 'raw' ];
+		$action->patterns_iraw = $patterns[ 'iraw' ];
+		$action->patterns_regex = $patterns[ 're' ];
+		$action->patterns_functions = $patterns[ 'functions' ];
+		$action->patterns_keywords = $patterns[ 'keywords' ];
 	}
 
 	protected function scanSlice() {
@@ -42,7 +40,6 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			},
 			// run the scan and get results:
 			( new ScanFromFileMap() )
-				->setMod( $this->getMod() )
 				->setScanController( $this->getScanController() )
 				->setScanActionVO( $action )
 				->run()
@@ -57,9 +54,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$action = $this->getScanActionVO();
 
 		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) && is_array( $action->valid_files ) ) {
-			( new Processing\FileScanOptimiser() )
-				->setMod( $this->getMod() )
-				->addFiles( $action->valid_files );
+			( new Processing\FileScanOptimiser() )->addFiles( $action->valid_files );
 		}
 	}
 }

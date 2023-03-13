@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Code\AssessPhpFile;
@@ -16,8 +15,7 @@ class ScanFromFileMap {
 	use ScanActionConsumer;
 
 	public function run() :ResultsSet {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$action = $this->getScanActionVO();
 		$results = $this->getScanController()->getNewResultsSet();
@@ -32,7 +30,7 @@ class ScanFromFileMap {
 
 					$item = ( new FileScanner() )
 						->setScanController( $this->getScanController() )
-						->setMod( $this->getMod() )
+						->setMod( $this->mod() )
 						->setScanActionVO( $action )
 						->scan( $fullPath );
 					if ( !empty( $item ) ) {

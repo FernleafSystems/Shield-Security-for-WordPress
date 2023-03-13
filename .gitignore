@@ -1,6 +1,7 @@
 .idea/
 /config/deprecated/
 /vendor/
+/src/lib/strauss.phar
 /src/lib/vendor/
 /src/lib_monolog/vendor/
 composer.lock
