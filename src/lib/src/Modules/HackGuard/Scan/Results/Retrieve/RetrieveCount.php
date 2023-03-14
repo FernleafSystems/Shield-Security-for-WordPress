@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class RetrieveCount extends RetrieveBase {
 
 	public const CONTEXT_ACTIVE_PROBLEMS = 0;
+	public const CONTEXT_NOT_YET_NOTIFIED = 1;
 
 	public function buildQuery( array $selectFields = [] ) :string {
 		return sprintf(
@@ -30,6 +31,16 @@ class RetrieveCount extends RetrieveBase {
 			] );
 
 			switch ( $context ) {
+
+				case self::CONTEXT_NOT_YET_NOTIFIED:
+					$specificWheres = [
+						"`ri`.`auto_filtered_at`=0",
+						"`ri`.`ignored_at`=0",
+						"`ri`.`item_repaired_at`=0",
+						"`ri`.`item_deleted_at`=0",
+						"`ri`.`notified_at`=0",
+					];
+					break;
 
 				case self::CONTEXT_ACTIVE_PROBLEMS:
 				default:

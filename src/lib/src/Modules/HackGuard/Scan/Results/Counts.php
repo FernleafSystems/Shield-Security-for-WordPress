@@ -16,6 +16,12 @@ class Counts {
 
 	private $counts = [];
 
+	private $context;
+
+	public function __construct( int $context = RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ) {
+		$this->context = $context;
+	}
+
 	public function all() :array {
 		array_map(
 			function ( string $type ) {
@@ -93,8 +99,7 @@ class Counts {
 				default:
 					die( 'unsupported result type' );
 			}
-
-			$this->counts[ $resultType ] = $resultsCount->count();
+			$this->counts[ $resultType ] = $resultsCount->count( $this->context );
 		}
 
 		return $this->counts[ $resultType ];
