@@ -16,16 +16,16 @@ class Container extends Base {
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
 			'content' => [
-				'tab_filecontents' => $con->action_router->render( Content::SLUG, [
-					'scan_item' => $item
-				] ),
-				'tab_diff'         => $con->action_router->render( Diff::SLUG, [
+				'tab_info'         => $con->action_router->render( Info::SLUG, [
 					'scan_item' => $item
 				] ),
 				'tab_history'      => $con->action_router->render( History::SLUG, [
 					'scan_item' => $item
 				] ),
-				'tab_info'         => $con->action_router->render( Info::SLUG, [
+				'tab_filecontents' => $con->action_router->render( Content::SLUG, [
+					'scan_item' => $item
+				] ),
+				'tab_diff'         => $con->action_router->render( Diff::SLUG, [
 					'scan_item' => $item
 				] ),
 			],

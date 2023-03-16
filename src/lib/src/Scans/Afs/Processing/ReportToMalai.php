@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\ObtainAcceptableHashes;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\ReportMalware;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Malware\Ops as MalwareDB;
 
 class ReportToMalai {
@@ -38,10 +37,10 @@ class ReportToMalai {
 		}
 
 		if ( !empty( $reports ) ) {
-			( new ReportMalware() )->report(
+			( new Malai\MalwareReport() )->report(
 				array_intersect_key(
 					$reports,
-					array_flip( ( new ObtainAcceptableHashes() )->getAcceptableHashes( array_keys( $reports ) ) )
+					array_flip( ( new Malai\ObtainAcceptableHashes() )->getAcceptableHashes( array_keys( $reports ) ) )
 				)
 			);
 		}

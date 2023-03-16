@@ -429,13 +429,22 @@
           "macro_type": "text",
           "type":       "mediumtext",
           "comment":    "The actual file content"
+        },
+        "malai_status":        {
+          "macro_type": "varchar",
+          "length":     20,
+          "default":    "''",
+          "comment":    "The status of the file from malai"
         }
       },
       "cols_timestamps": {
-        "last_seen_at": {
+        "last_seen_at":         {
           "comment": "Last Seen In Scan"
         },
-        "reported_at":  {
+        "last_malai_status_at": {
+          "comment": "Last Check With Malai For Status"
+        },
+        "reported_at":          {
           "comment": "Last Reported"
         }
       }
