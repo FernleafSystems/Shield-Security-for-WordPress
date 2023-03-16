@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatusLabels;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
@@ -37,7 +37,7 @@ class Info extends Base {
 					'malai_status'         => $this->getMalaiStatus(),
 					'malai_status_notes'   => [
 						__( "'False Positive' means the code looks like malware, but it isn't." ),
-						__( "'Predicted' means the malware status has been assess by AI but hasn't been manually reviewed (yet)." ),
+						__( "'Predicted' means the malware status has only been assessed by the mal{ai} engine, but hasn't been manually reviewed (yet)." ),
 					],
 					'file_status'          => sprintf( '%s: %s',
 						__( 'File Status', 'wp-simple-firewall' ),
@@ -67,7 +67,7 @@ class Info extends Base {
 		$item = $this->getScanItem();
 		if ( $item->is_mal && !empty( $item->getMalwareRecord() ) ) {
 			$malaiStatus = ( new RetrieveMalwareMalaiStatus() )->single( $item->getMalwareRecord() );
-			$status = ( new MalwareStatusLabels() )->nameFromStatusLabel( $malaiStatus );
+			$status = ( new MalwareStatus() )->nameFromStatusLabel( $malaiStatus );
 		}
 		else {
 			$status = '';
@@ -120,18 +120,18 @@ class Info extends Base {
 
 		if ( $item->is_mal ) {
 			$record = $item->getMalwareRecord();
-			if ( $record->malai_status === MalwareStatusLabels::STATUS_MALWARE ) {
+			if ( $record->malai_status === MalwareStatus::STATUS_MALWARE ) {
 				$description[] = sprintf( '<span class="text-danger">%s</span>',
 					__( 'This file is confirmed to be malware!', 'wp-simple-firewall' ).
 					' '.__( 'Please take remedial action as soon as possible.', 'wp-simple-firewall' )
 				);
 			}
-			elseif ( $record->malai_status === MalwareStatusLabels::STATUS_CLEAN ) {
+			elseif ( $record->malai_status === MalwareStatus::STATUS_CLEAN ) {
 				$description[] = sprintf( '<span class="text-success">%s</span>',
 					__( 'This file is confirmed to be clean and free from malware.', 'wp-simple-firewall' )
 				);
 			}
-			elseif ( $record->malai_status === MalwareStatusLabels::STATUS_FP ) {
+			elseif ( $record->malai_status === MalwareStatus::STATUS_FP ) {
 				$description[] = sprintf( '<span class="text-info">%s</span>',
 					__( "This file is confirmed a malware false positive - it contains code that looks like malware, but it is clean.", 'wp-simple-firewall' )
 				);
@@ -139,7 +139,7 @@ class Info extends Base {
 			else {
 				$description[] = sprintf( '<span class="text-warning">%s</span>',
 					__( 'This file is triggers the malware scanner but the status is not confirmed.', 'wp-simple-firewall' )
-					.' '.__( 'Please take a moment to review the contents of the file as it may contain malicious code.', 'wp-simple-firewall' )				);
+					.' '.__( 'Please take a moment to review the contents of the file as it may contain malicious code.', 'wp-simple-firewall' ) );
 			}
 		}
 
@@ -166,7 +166,7 @@ class Info extends Base {
 		elseif ( $item->is_checksumfail ) {
 			$status[] = __( 'Modified', 'wp-simple-firewall' );
 		}
-		else {
+		elseif ( empty( $status ) ) {
 			$status[] = __( 'Unknown', 'wp-simple-firewall' );
 		}
 
