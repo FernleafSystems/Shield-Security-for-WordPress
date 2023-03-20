@@ -125,20 +125,6 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		}
 	}
 
-	/**
-	 * This is called from a remote site when this site sends out an export request to another
-	 * site but without a secret key i.e. it assumes it's on the white list. We give a 30 second
-	 * window for the handshake to complete.  We do not explicitly fail.
-	 */
-	public function confirmExportHandshake() {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
-		if ( Services::Request()->ts() < (int)$opts->getOpt( 'importexport_handshake_expires_at' ) ) {
-			echo json_encode( [ 'success' => true ] );
-			die();
-		}
-	}
-
 	public function runDailyCron() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
