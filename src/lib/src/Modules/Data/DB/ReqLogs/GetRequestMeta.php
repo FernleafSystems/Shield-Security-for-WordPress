@@ -22,13 +22,13 @@ class GetRequestMeta {
 			'rid'  => [
 				'name'      => __( 'Request ID', 'wp-simple-firewall' ),
 				'formatter' => function ( $metaDatum ) {
-					return sprintf( '<code>%s</code>', $metaDatum );
+					return sprintf( '<code>%s</code>', esc_html( $metaDatum ) );
 				},
 			],
 			'type' => [
 				'name'      => __( 'Request Type', 'wp-simple-firewall' ),
 				'formatter' => function ( $metaDatum ) {
-					return Handler::GetTypeName( $metaDatum );
+					return esc_html( Handler::GetTypeName( $metaDatum ) );
 				}
 			],
 			'uid'  => [
@@ -62,8 +62,8 @@ class GetRequestMeta {
 			if ( !empty( $meta[ $metaKey ] ) ) {
 				$lines[] = sprintf(
 					'<li><strong>%s</strong>: <span>%s</span></li>',
-					( $metaDef[ 'name' ] ?? $metaKey ),
-					isset( $metaDef[ 'formatter' ] ) ? $metaDef[ 'formatter' ]( $meta[ $metaKey ] ) : $meta[ $metaKey ]
+					esc_html( $metaDef[ 'name' ] ?? $metaKey ),
+					isset( $metaDef[ 'formatter' ] ) ? $metaDef[ 'formatter' ]( $meta[ $metaKey ] ) : esc_html( $meta[ $metaKey ] )
 				);
 			}
 		}
