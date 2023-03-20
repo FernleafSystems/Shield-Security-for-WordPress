@@ -153,6 +153,20 @@
     ],
     "patches":     [
       {
+        "version":     "18",
+        "released_at": 1679350000,
+        "items":       [
+          {
+            "title": "Address an 'Unauthenticated XSS' security issue where an attacker could inject scripts via the HTTP User-Agent header. Further details to follow.",
+            "type":  "security"
+          },
+          {
+            "title": "Address a minor 'Insufficient Authorization' security issue where arbitrary activity logs could be created via the WP plugin/theme file editor. Further details to follow",
+            "type":  "security"
+          }
+        ]
+      },
+      {
         "version":     "17",
         "released_at": 1679316600,
         "items":       [
