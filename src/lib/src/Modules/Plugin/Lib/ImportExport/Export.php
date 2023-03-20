@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
@@ -195,14 +197,52 @@ class Export {
 	}
 
 	private function isUrlOnWhitelist( string $url ) :bool {
+		$isWhitelisted = false;
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
-		return !empty( $url ) && in_array( $url, $opts->getImportExportWhitelist() );
+		$urlComponents = $this->parseURL( $url );
+		if ( !empty( $urlComponents[ 'host' ] ) ) {
+
+			$whiteURLs = array_map(
+				function ( $whitelistedURL ) {
+					return $this->parseURL( $whitelistedURL );
+				},
+				$opts->getImportExportWhitelist()
+			);
+
+			foreach ( $whiteURLs as $whiteURL ) {
+				if ( $whiteURL[ 'host' ] === $urlComponents[ 'host' ]
+					 && $whiteURL[ 'path' ] === $urlComponents[ 'path' ] ) {
+					$isWhitelisted = true;
+					break;
+				}
+			}
+		}
+
+		return $isWhitelisted;
+	}
+
+	/**
+	 * @return array{host:string, path:string}
+	 */
+	private function parseURL( string $url ) :array {
+		$components = [
+			'host' => '',
+			'path' => '',
+		];
+		$parsed = wp_parse_url( $url );
+		if ( !empty( $parsed ) ) {
+			$components[ 'host' ] = empty( $parsed[ 'host' ] ) ? '' : $parsed[ 'host' ];
+			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : trim( $parsed[ 'path' ], '/' );
+		}
+		return $components;
 	}
 
 	private function handshake( string $url ) :bool {
-		$reqURL = URL::Build( $url, [ 'shield_action' => 'importexport_handshake' ] );
-		$dec = @json_decode( Services::HttpRequest()->getContent( $reqURL ), true );
+		$raw = Services::HttpRequest()->getContent(
+			URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) )
+		);
+		$dec = @json_decode( $raw, true );
 		return is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}
 }
