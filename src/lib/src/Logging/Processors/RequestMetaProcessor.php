@@ -64,7 +64,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			'type' => $type,
 		];
 		if ( !$isWpCli ) {
-			$data[ 'ua' ] = $req->getUserAgent();
+			$data[ 'ua' ] = sanitize_text_field( $req->getUserAgent() );
 			$data[ 'code' ] = http_response_code();
 			$data[ 'verb' ] = strtoupper( $req->getMethod() );
 		}
