@@ -14,7 +14,7 @@ class ActionData {
 	public const FIELD_NONCE = 'exnonce';
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
-	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [] ) :array {
+	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
 		$WP = Services::WpGeneral();
 		/** @var Shield\ActionRouter\Actions\BaseAction $actionClass */
 
@@ -26,6 +26,11 @@ class ActionData {
 		if ( $isAjax ) {
 			$data[ self::FIELD_AJAXURL ] = $WP->ajaxURL();
 		}
+
+		if ( $uniq ) {
+			$data[ 'uniq' ] = wp_generate_password( 4, false );
+		}
+
 		return $data;
 	}
 

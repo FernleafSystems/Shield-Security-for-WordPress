@@ -92,6 +92,8 @@ class Import {
 		/** @var Plugin\ModCon $mod */
 		$mod = $this->getMod();
 
+		$req = Services::Request();
+
 		if ( empty( $masterURL ) ) {
 			$masterURL = $opts->getImportExportMasterImportUrl();
 		}
@@ -127,7 +129,7 @@ class Import {
 		}
 
 		// Begin the handshake process.
-		$opts->setOpt( 'importexport_handshake_expires_at', Services::Request()->carbon()->addMinutes( 20 ) );
+		$opts->setOpt( 'importexport_handshake_expires_at', $req->carbon()->addMinutes( 20 )->timestamp );
 		$mod->saveModOptions();
 
 		// Don't send the network setup request if it's the cron.
