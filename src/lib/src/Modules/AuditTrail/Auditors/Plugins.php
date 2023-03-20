@@ -51,9 +51,17 @@ class Plugins extends Base {
 		}
 	}
 
+	/**
+	 * @see \wp_edit_theme_plugin_file()
+	 */
 	public function auditEditedFile() {
 		$req = Services::Request();
-		if ( !empty( $req->post( 'plugin' ) ) ) {
+		if ( $req->isPost()
+			 && !empty( $req->post( 'plugin' ) )
+			 && Services::WpPlugins()->isInstalled( $req->post( 'plugin' ) )
+			 && current_user_can( 'edit_plugins' )
+			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-plugin_'.$req->post( 'file' ) )
+		) {
 			$this->getCon()->fireEvent(
 				'plugin_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
