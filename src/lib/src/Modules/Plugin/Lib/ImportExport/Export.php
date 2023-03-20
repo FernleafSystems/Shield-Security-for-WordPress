@@ -74,12 +74,16 @@ class Export {
 			}
 		}
 
-		echo json_encode( [
+		/**
+		 * Send a JSON error response with 403 to also help break caches.
+		 */
+		wp_send_json( [
 			'success' => $success,
 			'code'    => $code,
 			'message' => $msg,
 			'data'    => $data,
-		] );
+		], 403 );
+		/** it dies within wp_send_json_error(); but just to make sure regardless */
 		die();
 	}
 
