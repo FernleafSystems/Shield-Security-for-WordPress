@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Wpv
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,7 +21,7 @@ class AlertScanResults extends BaseBuilderForScans {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 
-		$c = new Counts();
+		$c = new Counts( RetrieveCount::CONTEXT_NOT_YET_NOTIFIED );
 		$counts = array_filter( [
 			Apc::SCAN_SLUG => $c->countAbandoned(),
 			Afs::SCAN_SLUG => $c->countThemeFiles() + $c->countPluginFiles() + $c->countMalware() + $c->countWPFiles(),

@@ -153,6 +153,20 @@
     ],
     "patches":     [
       {
+        "version":     "16",
+        "released_at": 1679310000,
+        "items":       [
+          {
+            "title": "Improve automated import/export for sites that rely heavily on server caching.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Prevent reports resending alerts about previously notified scan results.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "11-14",
         "released_at": 1678025000,
         "items":       [

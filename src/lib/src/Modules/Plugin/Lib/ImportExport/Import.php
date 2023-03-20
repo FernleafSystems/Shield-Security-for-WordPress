@@ -140,12 +140,16 @@ class Import {
 			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
 		}
 
-		{ // Make the request
+		// Bust caches on the target export site
+		$data[ 'uniq' ] = wp_generate_password( 4, false );
+
+		{ // Send the export request
 			$targetExportURL = $this->getCon()->plugin_urls->noncedPluginAction(
 				PluginImportExport_Export::class,
 				$masterURL,
 				$data
 			);
+
 			add_filter( 'http_request_host_is_external', '\__return_true', 11 );
 			$response = @json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
 			remove_filter( 'http_request_host_is_external', '__return_true', 11 );
