@@ -153,12 +153,16 @@
     ],
     "patches":     [
       {
-        "version":     "19",
-        "released_at": 1679660000,
+        "version":     "20",
+        "released_at": 1679660001,
         "items":       [
           {
             "title": "Further enhancements to the automated import/export subsystem.",
             "type":  "improved"
+          },
+          {
+            "title": "WordPress.org build failed for .19, so had to release .20 to create a new version.",
+            "type":  "fixed"
           }
         ]
       },
