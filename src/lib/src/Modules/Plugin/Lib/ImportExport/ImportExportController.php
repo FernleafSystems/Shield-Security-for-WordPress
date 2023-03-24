@@ -40,13 +40,9 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		if ( $opts->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
 			add_action( $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
-				try {
-					( new Import() )
-						->setMod( $this->getMod() )
-						->fromSite();
-				}
-				catch ( \Exception $e ) {
-				}
+				( new Import() )
+					->setMod( $this->getMod() )
+					->autoImportFromMaster();
 			} );
 		}
 	}
@@ -85,7 +81,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
 			$ID = sha1( $this->getCon()->getInstallationID()[ 'id' ].wp_rand( 0, PHP_INT_MAX ) );
 			$opts->setOpt( 'importexport_secretkey', $ID )
-				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
+				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
 		return $ID;
 	}
@@ -126,14 +122,8 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	}
 
 	public function runDailyCron() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		try {
-			( new Import() )
-				->setMod( $this->getMod() )
-				->fromSite( $opts->getImportExportMasterImportUrl() );
-		}
-		catch ( \Exception $e ) {
-		}
+		( new Import() )
+			->setMod( $this->getMod() )
+			->autoImportFromMaster();
 	}
 }
