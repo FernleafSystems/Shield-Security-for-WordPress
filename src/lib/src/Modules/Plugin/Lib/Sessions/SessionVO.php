@@ -22,7 +22,7 @@ class SessionVO extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'valid':
-			$value = (bool)$value;
+				$value = (bool)$value;
 				break;
 
 			default:
