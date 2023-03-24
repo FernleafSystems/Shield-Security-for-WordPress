@@ -40,13 +40,9 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		if ( $opts->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
 			add_action( $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
-				try {
-					( new Import() )
-						->setMod( $this->getMod() )
-						->fromSite();
-				}
-				catch ( \Exception $e ) {
-				}
+				( new Import() )
+					->setMod( $this->getMod() )
+					->autoImportFromMaster();
 			} );
 		}
 	}
@@ -126,14 +122,8 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	}
 
 	public function runDailyCron() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		try {
-			( new Import() )
-				->setMod( $this->getMod() )
-				->fromSite( $opts->getImportExportMasterImportUrl() );
-		}
-		catch ( \Exception $e ) {
-		}
+		( new Import() )
+			->setMod( $this->getMod() )
+			->autoImportFromMaster();
 	}
 }
