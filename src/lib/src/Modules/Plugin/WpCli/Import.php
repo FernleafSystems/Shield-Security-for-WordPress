@@ -71,15 +71,27 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 
+		$importer = ( new Lib\ImportExport\Import() )->setMod( $this->getMod() );
 		try {
 			if ( filter_var( $source, FILTER_VALIDATE_URL ) ) {
-				$this->runImportFromSite( $args );
+
+				$secret = $args[ 'site-secret' ] ?? '';
+				$slave = isset( $args[ 'slave' ] ) ? strtolower( $args[ 'slave' ] ) : '';
+				if ( empty( $secret ) ) {
+					WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
+					if ( $slave === 'add' ) {
+						throw new \Exception( "You have elected to set this site up as a slave without providing the `site-secret`.", 'wp-simple-firewall' );
+					}
+				}
+
+				$importer->fromSite(
+					$source,
+					(string)$secret,
+					$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
+				);
 			}
 			else {
-				$this->runImportFromFile(
-					$source,
-					(bool)WP_CLI\Utils\get_flag_value( $args, 'delete-file', false )
-				);
+				$importer->fromFile( $source, (bool)WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
 			}
 		}
 		catch ( \Exception $e ) {
@@ -93,37 +105,5 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		WP_CLI::success( __( 'Plugin settings imported successfully.', 'wp-simple-firewall' ) );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function runImportFromFile( string $path, bool $deleteFile = false ) {
-		( new Lib\ImportExport\Import() )
-			->setMod( $this->getMod() )
-			->fromFile( $path, $deleteFile );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function runImportFromSite( array $args ) {
-
-		$secret = $args[ 'site-secret' ] ?? '';
-		$slave = isset( $args[ 'slave' ] ) ? strtolower( $args[ 'slave' ] ) : '';
-		if ( empty( $secret ) ) {
-			WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
-			if ( $slave === 'add' ) {
-				throw new \Exception( "You have elected to set this site up as a slave without providing the `site-secret`.", 'wp-simple-firewall' );
-			}
-		}
-
-		( new Lib\ImportExport\Import() )
-			->setMod( $this->getMod() )
-			->fromSite(
-				(string)$args[ 'source' ],
-				(string)$secret,
-				$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
-			);
 	}
 }

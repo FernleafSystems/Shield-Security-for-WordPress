@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Import {
@@ -83,10 +84,22 @@ class Import {
 		$this->fromFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
+	public function autoImportFromMaster() {
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->hasImportExportMasterImportUrl() ) {
+			try {
+				$this->fromSite( $opts->getImportExportMasterImportUrl() );
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+	}
+
 	/**
 	 * @throws \Exception
 	 */
-	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) {
+	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
@@ -99,16 +112,10 @@ class Import {
 		}
 
 		$originalMasterSiteURL = $opts->getImportExportMasterImportUrl();
-		$hadMasterSiteUrl = $opts->hasImportExportMasterImportUrl();
 		$secretKey = sanitize_key( $secretKey );
 
-		if ( !$hadMasterSiteUrl ) {
-			if ( empty( $secretKey ) ) {
-				throw new \Exception( 'Empty secret key', 1 );
-			}
-			if ( strlen( $secretKey ) !== 40 ) {
-				throw new \Exception( "Secret key isn't of the correct format", 2 );
-			}
+		if ( !empty( $secretKey ) && strlen( $secretKey ) !== 40 ) {
+			throw new \Exception( "Secret key isn't of the correct format", 2 );
 		}
 
 		// Ensure we have entries for 'scheme' and 'host'
@@ -154,7 +161,7 @@ class Import {
 
 			add_filter( 'http_request_host_is_external', '\__return_true', 11 );
 			$response = @json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
-			remove_filter( 'http_request_host_is_external', '__return_true', 11 );
+			remove_filter( 'http_request_host_is_external', '\__return_true', 11 );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}
@@ -178,12 +185,7 @@ class Import {
 
 		// Fix for the overwriting of the Master Site URL with an empty string.
 		// Only do so if we're not turning it off. i.e on or no-change
-		if ( is_null( $enableNetwork ) ) {
-			if ( $hadMasterSiteUrl && !$opts->hasImportExportMasterImportUrl() ) {
-				$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
-			}
-		}
-		elseif ( $enableNetwork === true ) {
+		if ( $enableNetwork === true ) {
 			$opts->setOpt( 'importexport_masterurl', $masterURL );
 			$this->getCon()->fireEvent(
 				'master_url_set',
@@ -192,6 +194,10 @@ class Import {
 		}
 		elseif ( $enableNetwork === false ) {
 			$opts->setOpt( 'importexport_masterurl', '' );
+		}
+		else {
+			// restore the original setting
+			$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
 		}
 		// store & clean the master URL
 		$mod->saveModOptions();
