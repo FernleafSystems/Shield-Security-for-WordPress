@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromSite;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class PageImportExport extends BasePluginAdminPage {
 
@@ -22,20 +23,24 @@ class PageImportExport extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
+		/** @var Options $opts */
+		$opts = $con->getModule_Plugin()->getOptions();
 		return [
 			'ajax'    => [
 				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::class ),
 			],
 			'flags'   => [
 				'can_importexport' => $con->isPremiumActive(),
+				'has_master_url'   => $opts->hasImportExportMasterImportUrl(),
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
 			],
 			'vars'    => [
-				'file_upload_nonce' => ActionData::Build( PluginImportFromFileUpload::class, true, [
+				'file_upload_nonce'  => ActionData::Build( PluginImportFromFileUpload::class, true, [
 					'notification_type' => 'wp_admin_notice'
 				] ),
+				'current_master_url' => $opts->getImportExportMasterImportUrl(),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Import Configuration', 'wp-simple-firewall' ),
@@ -50,6 +55,9 @@ class PageImportExport extends BasePluginAdminPage {
 				'be_sure'            => __( 'Please be sure that this is what you want.', 'wp-simple-firewall' ),
 				'not_undone'         => __( "This action can't be undone.", 'wp-simple-firewall' ),
 				'title_import_site'  => __( "Import From Site", 'wp-simple-firewall' ),
+
+				'currently_in_network' => __( "This site appears to be part of a Shield Network.", 'wp-simple-firewall' ),
+				'master_url_is'        => __( "Master Site URL", 'wp-simple-firewall' ),
 
 				'title_download_file'    => __( 'Download Options Export File', 'wp-simple-firewall' ),
 				'subtitle_download_file' => __( 'Use this file to copy options from this site into another site', 'wp-simple-firewall' ),

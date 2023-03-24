@@ -1,6 +1,13 @@
 <div class="row" id="SectionImportExportFile">
 
 	<div class="col mt-4">
+
+		{% if flags.has_master_url %}
+			<div class="alert alert-info">
+				{{ strings.currently_in_network }} {{ strings.master_url_is }}: <code>{{ vars.current_master_url }}</code>
+			</div>
+		{% endif %}
+
 		<h6 class="mb-3">{{ strings.title_import_site }}</h6>
 
 		<form id="ImportSiteForm" class="form-horizontal icwp-wizard-form">
@@ -10,7 +17,10 @@
 				<label class="col-form-label" for="MasterSiteUrl">{{ strings.master_site_url }}</label>
 				<div class="">
 					<input type="url" class="form-control"
-					       name="MasterSiteUrl" id="MasterSiteUrl" placeholder="https://www...">
+					       name="MasterSiteUrl"
+					       id="MasterSiteUrl"
+					       value="{{ vars.current_master_url }}"
+					       placeholder="{{ flags.has_master_url ? vars.current_master_url : 'https://www...' }}" />
 					<span id="helpBlock"
 					      class="form-text text-muted">{{ strings.remember_include|raw }}</span>
 				</div>
@@ -75,10 +85,10 @@
 
 <script>
 	jQuery( document ).ready( function () {
-		jQuery( 'form#ImportSiteForm' ).icwpWpsfImportExport(
-			{
-				'ajax_import_from_site':{{ ajax.import_from_site|raw }}
-			}
-		);
-	} );
+	  jQuery( 'form#ImportSiteForm' ).icwpWpsfImportExport(
+		  {
+			  'ajax_import_from_site':{{ ajax.import_from_site|raw }}
+		  }
+	  );
+  } );
 </script>
