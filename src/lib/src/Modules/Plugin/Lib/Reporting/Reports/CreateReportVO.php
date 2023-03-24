@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
 	DB\Report\Ops as ReportsDB,
 	Lib\Reporting\Constants,
 	ModCon,
-	Options};
+	Options
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
