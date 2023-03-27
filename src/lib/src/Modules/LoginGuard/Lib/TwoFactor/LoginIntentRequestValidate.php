@@ -53,7 +53,7 @@ class LoginIntentRequestValidate {
 					break;
 				}
 			}
-			catch ( Exceptions\OtpNotPresentException | Exceptions\ProviderNotActiveForUserException $e ) {
+			catch ( Exceptions\OtpNotPresentException|Exceptions\ProviderNotActiveForUserException $e ) {
 				// Nothing to do here.
 			}
 			catch ( Exceptions\OtpVerificationFailedException $e ) {

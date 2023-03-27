@@ -75,7 +75,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 				'shield_msg' => 'no_providers'
 			] );
 		}
-		catch ( OtpVerificationFailedException | CouldNotValidate2FA $e ) {
+		catch ( OtpVerificationFailedException|CouldNotValidate2FA $e ) {
 			// Allow a further attempt to 2FA
 			try {
 				$useShieldLoginIntentPage = $con->getModule_LoginGuard()->getMfaController()->useLoginIntentPage();

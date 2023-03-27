@@ -27,7 +27,7 @@ class BaseForScan extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'rid'               => [
+			'rid'          => [
 				'data'        => 'rid',
 				'title'       => 'ID',
 				'orderable'   => true,
@@ -37,7 +37,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file'              => [
+			'file'         => [
 				'data'        => 'file',
 				'title'       => __( 'File' ),
 				'className'   => 'file',
@@ -48,7 +48,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file_as_href'      => [
+			'file_as_href' => [
 				'data'        => [
 					'_'    => 'file_as_href',
 					'sort' => 'file',
@@ -62,7 +62,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file_type'         => [
+			'file_type'    => [
 				'data'        => 'file_type',
 				'title'       => __( 'Type' ),
 				'className'   => 'file_type',
@@ -73,7 +73,7 @@ class BaseForScan extends Base {
 					'show' => true
 				],
 			],
-			'status'            => [
+			'status'       => [
 				'data'        => 'status',
 				'title'       => __( 'Status' ),
 				'className'   => 'status',
@@ -84,7 +84,7 @@ class BaseForScan extends Base {
 					'show' => true
 				],
 			],
-			'detected'          => [
+			'detected'     => [
 				'data'        => [
 					'_'    => 'detected_since',
 					'sort' => 'created_at',
@@ -98,7 +98,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'actions'           => [
+			'actions'      => [
 				'data'        => 'actions',
 				'title'       => __( 'Actions' ),
 				'className'   => 'actions',

@@ -32,12 +32,12 @@ class Info extends Base {
 				],
 				'strings' => [
 					'info'                 => __( 'Info' ),
-					'heading_malai_status' => sprintf( __( 'Malware status report from %s' ), 'Mal{ai} ' ),
+					'heading_malai_status' => sprintf( __( 'Malware status report from %s' ), 'MAL{ai} ' ),
 					'malware_status_of'    => __( 'Malware status of this file is currently', 'wp-simple-firewall' ),
 					'malai_status'         => $this->getMalaiStatus(),
 					'malai_status_notes'   => [
 						__( "'False Positive' means the code looks like malware, but it isn't." ),
-						__( "'Predicted' means the malware status has only been assessed by the mal{ai} engine, but hasn't been manually reviewed (yet)." ),
+						__( "'Predicted' means the malware status has only been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet)." ),
 					],
 					'file_status'          => sprintf( '%s: %s',
 						__( 'File Status', 'wp-simple-firewall' ),
@@ -66,8 +66,9 @@ class Info extends Base {
 	private function getMalaiStatus() :string {
 		$item = $this->getScanItem();
 		if ( $item->is_mal && !empty( $item->getMalwareRecord() ) ) {
-			$malaiStatus = ( new RetrieveMalwareMalaiStatus() )->single( $item->getMalwareRecord() );
-			$status = ( new MalwareStatus() )->nameFromStatusLabel( $malaiStatus );
+			$status = ( new MalwareStatus() )->nameFromStatusLabel(
+				( new RetrieveMalwareMalaiStatus() )->single( $item->getMalwareRecord() )
+			);
 		}
 		else {
 			$status = '';
@@ -115,14 +116,14 @@ class Info extends Base {
 		}
 
 		if ( $item->is_checksumfail ) {
-			$description[] = __( 'File contents have been modified when compared against the official release for that version.', 'wp-simple-firewall' );
+			$description[] = __( 'When the current file contents were compared against the official release, changes were detected.', 'wp-simple-firewall' );
 		}
 
 		if ( $item->is_mal ) {
 			$record = $item->getMalwareRecord();
 			if ( $record->malai_status === MalwareStatus::STATUS_MALWARE ) {
 				$description[] = sprintf( '<span class="text-danger">%s</span>',
-					__( 'This file is confirmed to be malware!', 'wp-simple-firewall' ).
+					__( "This file contains malicious code - it's malware!", 'wp-simple-firewall' ).
 					' '.__( 'Please take remedial action as soon as possible.', 'wp-simple-firewall' )
 				);
 			}

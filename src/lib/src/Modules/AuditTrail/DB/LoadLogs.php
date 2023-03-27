@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 

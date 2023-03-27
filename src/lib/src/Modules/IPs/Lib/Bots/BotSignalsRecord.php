@@ -2,18 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops as UserMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	Components\IpAddressConsumer,
 	DB\BotSignal,
 	DB\BotSignal\BotSignalRecord,
 	DB\BotSignal\LoadBotSignalRecords,
 	DB\IpRules\IpRuleRecord,
 	Lib\IpRules\IpRuleStatus,
-	ModCon
+	ModConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BotSignalsRecord {
@@ -22,11 +21,9 @@ class BotSignalsRecord {
 	use IpAddressConsumer;
 
 	public function delete() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$thisReq = $this->getCon()->this_req;
 		/** @var BotSignal\Ops\Select $select */
-		$select = $mod->getDbH_BotSignal()->getQueryDeleter();
+		$select = $this->mod()->getDbH_BotSignal()->getQueryDeleter();
 
 		if ( $thisReq->ip === $this->getIP() ) {
 			unset( $thisReq->botsignal_record );
@@ -34,7 +31,7 @@ class BotSignalsRecord {
 
 		try {
 			return $select->filterByIP(
-				( new IPs\IPRecords() )
+				( new IPRecords() )
 					->setMod( $this->getCon()->getModule_Data() )
 					->loadIP( $this->getIP() )->id
 			)->query();
@@ -45,8 +42,6 @@ class BotSignalsRecord {
 	}
 
 	public function retrieveNotBotAt() :int {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return (int)Services::WpDb()->getVar(
 			sprintf( "SELECT `bs`.`notbot_at`
 						FROM `%s` as `bs`
@@ -55,7 +50,7 @@ class BotSignalsRecord {
 							AND `ips`.`ip`=INET6_ATON('%s')
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
-				$mod->getDbH_BotSignal()->getTableSchema()->table,
+				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$this->getIP()
 			)
@@ -63,20 +58,26 @@ class BotSignalsRecord {
 	}
 
 	public function retrieve( bool $createNew = true ) :BotSignalRecord {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$thisReq = $this->getCon()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
 			return $thisReq->botsignal_record;
 		}
 
-		$r = $this->dbLoad();
+		try {
+			$r = ( new LoadBotSignalRecords() )
+				->setIP( $this->getIP() )
+				->loadRecord();
+		}
+		catch ( \Exception $e ) {
+			$r = null;
+		}
+
 		if ( empty( $r ) ) {
 			if ( $createNew ) {
 				$r = new BotSignalRecord();
 				try {
-					$r->ip_ref = ( new IPs\IPRecords() )
+					$r->ip_ref = ( new IPRecords() )
 						->setMod( $this->getCon()->getModule_Data() )
 						->loadIP( $this->getIP() )->id;
 				}
@@ -89,7 +90,7 @@ class BotSignalsRecord {
 			}
 		}
 
-		$ruleStatus = ( new IpRuleStatus( $this->getIP() ) )->setMod( $this->getMod() );
+		$ruleStatus = new IpRuleStatus( $this->getIP() );
 		if ( $ruleStatus->hasRules() ) {
 			if ( $r->bypass_at === 0 && $ruleStatus->isBypass() ) {
 				/** @var IpRuleRecord $ruleRecord */
@@ -109,9 +110,10 @@ class BotSignalsRecord {
 		}
 
 		if ( $r->notbot_at === 0 && $thisReq->ip === $this->getIP() ) {
-			$r->notbot_at = $mod->getBotSignalsController()
-								->getHandlerNotBot()
-								->hasCookie() ? Services::Request()->ts() : 0;
+			$r->notbot_at = $this->mod()
+								 ->getBotSignalsController()
+								 ->getHandlerNotBot()
+								 ->hasCookie() ? Services::Request()->ts() : 0;
 		}
 
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
@@ -128,7 +130,7 @@ class BotSignalsRecord {
 		}
 
 		/** Clean out old signals that have no bearing on bot calculations */
-		foreach ( $mod->getDbH_BotSignal()->getTableSchema()->getColumnNames() as $col ) {
+		foreach ( $this->mod()->getDbH_BotSignal()->getTableSchema()->getColumnNames() as $col ) {
 			if ( preg_match( '#_at$#i', $col )
 				 && !in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
 				 && Services::Request()->carbon()->subMonth()->timestamp > $r->{$col} ) {
@@ -143,11 +145,11 @@ class BotSignalsRecord {
 
 	/**
 	 * @return BotSignal\BotSignalRecord|null
+	 * @deprecated 17.1
 	 */
-	private function dbLoad() {
+	private function dbLoad() :?BotSignalRecord {
 		try {
 			$record = ( new LoadBotSignalRecords() )
-				->setMod( $this->getMod() )
 				->setIP( $this->getIP() )
 				->loadRecord();
 		}
@@ -159,23 +161,23 @@ class BotSignalsRecord {
 	}
 
 	public function store( BotSignalRecord $record ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
 		if ( !isset( $record->id ) ) {
 			if ( $record->ip_ref == -1 ) {
 				unset( $record->ip_ref );
 			}
-			$success = $mod->getDbH_BotSignal()
-						   ->getQueryInserter()
-						   ->insert( $record );
+			$success = $this->mod()
+							->getDbH_BotSignal()
+							->getQueryInserter()
+							->insert( $record );
 		}
 		else {
 			$data = $record->getRawData();
 			$data[ 'updated_at' ] = Services::Request()->ts();
-			$success = $mod->getDbH_BotSignal()
-						   ->getQueryUpdater()
-						   ->updateById( $record->id, $data );
+			$success = $this->mod()
+							->getDbH_BotSignal()
+							->getQueryUpdater()
+							->updateById( $record->id, $data );
 		}
 
 		$thisReq = $this->getCon()->this_req;
@@ -187,14 +189,11 @@ class BotSignalsRecord {
 	}
 
 	/**
-	 * @param int|null $ts
 	 * @throws \LogicException
 	 */
-	public function updateSignalField( string $field, $ts = null ) :BotSignalRecord {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+	public function updateSignalField( string $field, ?int $ts = null ) :BotSignalRecord {
 
-		if ( !$mod->getDbH_BotSignal()->getTableSchema()->hasColumn( $field ) ) {
+		if ( !$this->mod()->getDbH_BotSignal()->getTableSchema()->hasColumn( $field ) ) {
 			throw new \LogicException( sprintf( '"%s" is not a valid column on Bot Signals', $field ) );
 		}
 

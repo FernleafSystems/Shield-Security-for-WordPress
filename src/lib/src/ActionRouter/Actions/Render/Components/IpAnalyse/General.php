@@ -42,7 +42,6 @@ class General extends Base {
 		}
 
 		$botScore = ( new CalculateVisitorBotScores() )
-			->setMod( $mod )
 			->setIP( $ip )
 			->probability();
 		$isBot = $mod->getBotSignalsController()->isBot( $ip, false );
@@ -56,7 +55,7 @@ class General extends Base {
 			->setIP( $ip )
 			->retrieve();
 
-		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $mod );
+		$ruleStatus = new IpRuleStatus( $ip );
 		return [
 			'flags'   => [
 				'has_geo' => !empty( $geo->getRawData() ),

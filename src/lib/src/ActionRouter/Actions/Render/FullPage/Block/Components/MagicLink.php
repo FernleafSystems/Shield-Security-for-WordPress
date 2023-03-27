@@ -19,7 +19,7 @@ class MagicLink extends Base {
 	protected function getRenderData() :array {
 		$con = $this->getCon();
 		$available = $this->hasActiveWPUser()
-					 && ( new AutoUnblockMagicLink() )->setMod( $con->getModule_IPs() )->isUnblockAvailable()
+					 && ( new AutoUnblockMagicLink() )->isUnblockAvailable()
 					 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() );
 		return [
 			'flags'   => [

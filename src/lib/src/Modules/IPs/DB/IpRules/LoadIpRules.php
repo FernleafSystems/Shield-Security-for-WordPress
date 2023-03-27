@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
 class LoadIpRules extends BaseLoadRecordsForIPJoins {
 
-	public const MOD = ModCon::SLUG;
+	use ModConsumer;
 
 	/**
 	 * @return IpRuleRecord[]
@@ -30,8 +30,6 @@ class LoadIpRules extends BaseLoadRecordsForIPJoins {
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getDbH_IPRules()->getTableSchema();
+		return $this->mod()->getDbH_IPRules()->getTableSchema();
 	}
 }

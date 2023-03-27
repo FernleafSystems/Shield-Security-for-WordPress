@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class Scan extends Shield\Scans\Base\BaseScan {
 
@@ -48,12 +47,9 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	}
 
 	protected function postScan() {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-
-		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) && is_array( $action->valid_files ) ) {
+		if ( $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) && is_array( $action->valid_files ) ) {
 			( new Processing\FileScanOptimiser() )->addFiles( $action->valid_files );
 		}
 	}

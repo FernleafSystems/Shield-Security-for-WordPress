@@ -23,7 +23,6 @@ abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Rou
 	}
 
 	protected function verifyPermission( \WP_REST_Request $req ) {
-		( $this->isShieldServiceAuthorised() && $this->isRequestFromShieldService() );
 		/** @var \WP_Error|bool $verify */
 		$verify = apply_filters( 'shield/rest_api_verify_permission', parent::verifyPermission( $req ), $req );
 		if ( ( ( is_wp_error( $verify ) && $verify->has_errors() ) || $verify === false )

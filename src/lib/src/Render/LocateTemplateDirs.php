@@ -27,7 +27,7 @@ class LocateTemplateDirs {
 	 * @return string[]
 	 */
 	protected function getCustomTemplateDirs() :array {
-		$dir = $this->getCon()->getPluginSpec_Path( 'custom_templates' );
+		$dir = $this->getCon()->cfg->paths[ 'custom_templates' ];
 		$dirs = apply_filters( 'shield/custom_template_dirs',
 			array_unique( [
 				path_join( get_stylesheet_directory(), $dir ),

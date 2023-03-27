@@ -167,7 +167,9 @@ class Options extends BaseShield\Options {
 	 * @return $this
 	 */
 	public function setScansToBuild( array $scans ) {
-		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs() ) ) );
+		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getCon()->getModule_HackGuard()
+																					   ->getScansCon()
+																					   ->getScanSlugs() ) ) );
 		$this->getMod()->saveModOptions();
 		return $this;
 	}

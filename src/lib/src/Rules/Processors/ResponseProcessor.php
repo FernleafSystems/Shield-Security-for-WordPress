@@ -33,7 +33,7 @@ class ResponseProcessor extends BaseProcessor {
 					$eventFireResponseProcessed = true;
 				}
 			}
-			catch ( NoResponseActionDefinedException | NoSuchResponseHandlerException $e ) {
+			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
 				error_log( $e->getMessage() );
 			}
 		}

@@ -169,9 +169,6 @@ class FileLockerController {
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
 	 */
 	private function runLocksCreation() {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
 		$now = Services::Request()->ts();
 		$filesToLock = ( new Ops\GetFileLocksToCreate() )->run();
 
@@ -215,7 +212,7 @@ class FileLockerController {
 	}
 
 	public function getState() :array {
-		$state = $this->getOptions()->getOpt( 'filelocker_state' );
+		$state = $this->opts()->getOpt( 'filelocker_state' );
 		return array_merge(
 			[
 				'abspath'                      => ABSPATH,

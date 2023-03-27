@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;

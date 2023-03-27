@@ -26,7 +26,6 @@ class Init {
 			add_action( 'mainwp_child_site_stats', function () {
 				try {
 					( new AddRule() )
-						->setMod( $this->getCon()->getModule_IPs() )
 						->setIP( $this->getCon()->this_req->ip )
 						->toManualWhitelist( 'MainWP Server (automatically added)' );
 				}

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\Patterns;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;

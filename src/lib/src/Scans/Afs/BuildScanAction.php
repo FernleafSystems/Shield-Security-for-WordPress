@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 class BuildScanAction extends Base\BuildScanAction {
@@ -20,7 +19,7 @@ class BuildScanAction extends Base\BuildScanAction {
 
 	protected function getFileExts() :array {
 		$scanCon = $this->getScanController();
-		$ext = apply_filters( 'shield/scan_ptg_file_exts', $scanCon->getOptions()->getDef( 'file_scan_extensions' ) );
-		return is_array( $ext ) ? $ext : $scanCon->getOptions()->getDef( 'file_scan_extensions' );
+		$ext = apply_filters( 'shield/scan_ptg_file_exts', $scanCon->opts()->getDef( 'file_scan_extensions' ) );
+		return is_array( $ext ) ? $ext : $scanCon->opts()->getDef( 'file_scan_extensions' );
 	}
 }

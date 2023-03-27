@@ -14,7 +14,7 @@ class IsIpBlacklisted extends Base {
 	protected function execConditionCheck() :bool {
 		$thisReq = $this->getCon()->this_req;
 		if ( !isset( $thisReq->is_ip_blacklisted ) ) {
-			$status = ( new IpRuleStatus( $this->getRequestIP() ) )->setMod( $this->getCon()->getModule_IPs() );
+			$status = new IpRuleStatus( $this->getRequestIP() );
 			$thisReq->is_ip_blacklisted = $status->isBlockedByShield() || $status->isAutoBlacklisted();
 		}
 		return $thisReq->is_ip_blacklisted;

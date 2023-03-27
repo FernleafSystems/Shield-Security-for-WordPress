@@ -5,12 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseAutoUnblock {
 
-	use ModConsumer;
+	use IPs\ModConsumer;
 
 	public function canRunAutoUnblockProcess() :bool {
 		return $this->isUnblockAvailable();
@@ -68,50 +67,42 @@ abstract class BaseAutoUnblock {
 	 * @throws \Exception
 	 */
 	protected function updateLastAttemptAt() {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getDbH_IPRules()
-			->getQueryUpdater()
-			->updateById( $this->getIpRecord()->id, [
-				'last_unblock_attempt_at' => Services::Request()->ts(),
-			] );
+		$this->mod()
+			 ->getDbH_IPRules()
+			 ->getQueryUpdater()
+			 ->updateById( $this->getIpRecord()->id, [
+				 'last_unblock_attempt_at' => Services::Request()->ts(),
+			 ] );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function unblockIP() :bool {
-		/** @var IPs\ModCon $mod */
-		$mod = $this->getMod();
-
 		$record = $this->getIpRecord();
 
-		if ( empty( $record ) ) {
-			$unblocked = false;
+		try {
+			( new BotSignalsRecord() )
+				->setIP( $this->getCon()->this_req->ip )
+				->updateSignalField( 'unblocked_at' );
 		}
-		else {
-			try {
-				( new BotSignalsRecord() )
-					->setMod( $this->getMod() )
-					->setIP( $this->getCon()->this_req->ip )
-					->updateSignalField( 'unblocked_at' );
-			}
-			catch ( \LogicException $e ) {
-				error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
-			}
-			catch ( \Exception $e ) {
+		catch ( \LogicException $e ) {
+			error_log( 'Error updating bot signal with column problem: '.$e->getMessage() );
+		}
+		catch ( \Exception $e ) {
 //					error_log( 'Error updating bot signal: '.$e->getMessage() );
-			}
-
-			$unblocked = $mod->getDbH_IPRules()
-							 ->getQueryUpdater()
-							 ->updateById( $record->id, [
-								 'offenses'       => 0,
-								 'unblocked_at'   => Services::Request()->ts(),
-								 'last_access_at' => Services::Request()->ts(),
-							 ] );
-			$this->fireEvent();
 		}
+
+		$unblocked = $this->mod()
+						  ->getDbH_IPRules()
+						  ->getQueryUpdater()
+						  ->updateById( $record->id, [
+							  'offenses'       => 0,
+							  'unblocked_at'   => Services::Request()->ts(),
+							  'last_access_at' => Services::Request()->ts(),
+						  ] );
+
+		$this->fireEvent();
 
 		return $unblocked;
 	}

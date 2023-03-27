@@ -34,7 +34,7 @@ class IpAnalyseAction extends BaseAction {
 			$msg = __( "IP provided was invalid.", 'wp-simple-firewall' );
 		}
 		else {
-			$ruleStatus = ( new IpRules\IpRuleStatus( $ip ) )->setMod( $mod );
+			$ruleStatus = new IpRules\IpRuleStatus( $ip );
 
 			switch ( $req->post( 'ip_action' ) ) {
 
@@ -44,9 +44,7 @@ class IpAnalyseAction extends BaseAction {
 						if ( empty( $autoBlockIP ) ) {
 							throw new \Exception( "IP isn't on the auto block list." );
 						}
-						$success = ( new IpRules\DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $autoBlockIP );
+						$success = ( new IpRules\DeleteRule() )->byRecord( $autoBlockIP );
 						$msg = $success ? __( 'Offenses reset to zero.', 'wp-simple-firewall' )
 							: __( "Offenses couldn't be reset at this time.", 'wp-simple-firewall' );
 					}
@@ -61,7 +59,6 @@ class IpAnalyseAction extends BaseAction {
 							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
 						}
 						( new IpRules\AddRule() )
-							->setMod( $mod )
 							->setIP( $ip )
 							->toManualBlacklist();
 						$success = true;
@@ -74,9 +71,7 @@ class IpAnalyseAction extends BaseAction {
 
 				case 'unblock':
 					foreach ( $ruleStatus->getRulesForBlock() as $record ) {
-						$success = ( new IpRules\DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $record );
+						$success = ( new IpRules\DeleteRule() )->byRecord( $record );
 					}
 					$msg = $success ? __( 'IP address unblocked.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be unblocked at this time.", 'wp-simple-firewall' );
@@ -85,7 +80,6 @@ class IpAnalyseAction extends BaseAction {
 				case 'bypass':
 					try {
 						( new IpRules\AddRule() )
-							->setMod( $mod )
 							->setIP( $ip )
 							->toManualWhitelist();
 						$success = true;
@@ -98,9 +92,7 @@ class IpAnalyseAction extends BaseAction {
 
 				case 'unbypass':
 					foreach ( $ruleStatus->getRulesForBypass() as $record ) {
-						$success = ( new IpRules\DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $record );
+						$success = ( new IpRules\DeleteRule() )->byRecord( $record );
 					}
 					$msg = $success ? __( 'IP address removed from Bypass list.', 'wp-simple-firewall' )
 						: __( "IP address couldn't be removed from Bypass list at this time.", 'wp-simple-firewall' );
@@ -109,12 +101,9 @@ class IpAnalyseAction extends BaseAction {
 				case 'delete_notbot':
 					$abRule = $ruleStatus->getRuleForAutoBlock();
 					if ( !empty( $abRule ) ) {
-						( new IpRules\DeleteRule() )
-							->setMod( $mod )
-							->byRecord( $abRule );
+						( new IpRules\DeleteRule() )->byRecord( $abRule );
 					}
 					$success = ( new BotSignalsRecord() )
-						->setMod( $mod )
 						->setIP( $ip )
 						->delete();
 					$msg = $success ? __( 'IP NotBot Score Reset.', 'wp-simple-firewall' )

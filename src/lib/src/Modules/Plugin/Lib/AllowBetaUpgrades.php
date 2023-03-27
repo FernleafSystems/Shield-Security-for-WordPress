@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
 
@@ -14,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
  */
 class AllowBetaUpgrades extends ExecOnceModConsumer {
 
+	use ModConsumer;
 	use PluginCronsConsumer;
 
 	public const MOD = ModCon::SLUG;
@@ -25,7 +27,7 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
 		return $this->getCon()->isPremiumActive()
-			   && apply_filters( 'shield/enable_beta', $this->getOptions()->isOpt( 'enable_beta', 'Y' ) );
+			   && apply_filters( 'shield/enable_beta', $this->opts()->isOpt( 'enable_beta', 'Y' ) );
 	}
 
 	protected function run() {

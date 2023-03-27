@@ -14,7 +14,6 @@ class BotEventListener extends ExecOnceModConsumer {
 			if ( $eventTrigger === $event ) {
 				try {
 					( new BotSignalsRecord() )
-						->setMod( $this->getMod() )
 						->setIP( $ip )
 						->updateSignalField( $column );
 				}

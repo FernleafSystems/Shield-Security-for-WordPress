@@ -4,18 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
-	Ops as IpRulesDB
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	Components\IpAddressConsumer,
+	DB\IpRules\Ops as IpRulesDB,
+	ModConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Factory;
 use IPLib\Range\Type;
 
 class AddRule {
 
-	use Modules\ModConsumer;
-	use Modules\IPs\Components\IpAddressConsumer;
+	use ModConsumer;
+	use IpAddressConsumer;
 
 	public const MOD = Modules\IPs\ModCon::SLUG;
 
@@ -31,9 +32,7 @@ class AddRule {
 			$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		}
 		catch ( \Exception $e ) {
-			$IP = ( new IpRuleStatus( $this->getIP() ) )
-				->setMod( $this->getMod() )
-				->getRuleForAutoBlock();
+			$IP = ( new IpRuleStatus( $this->getIP() ) )->getRuleForAutoBlock();
 		}
 
 		if ( empty( $IP ) ) {
@@ -77,9 +76,7 @@ class AddRule {
 	 * @throws \Exception
 	 */
 	private function add( string $type, array $data = [] ) :IpRulesDB\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
+		$dbh = $this->mod()->getDbH_IPRules();
 
 		$ip = $this->getIP();
 		$parsedRange = Factory::parseRangeString( $ip );

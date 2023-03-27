@@ -21,12 +21,10 @@ class BotSignals extends Base {
 
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )
-			->setMod( $mod )
 			->setIP( $this->action_data[ 'ip' ] )
 			->scores();
 		try {
 			$record = ( new BotSignalsRecord() )
-				->setMod( $mod )
 				->setIP( $this->action_data[ 'ip' ] )
 				->retrieve();
 		}

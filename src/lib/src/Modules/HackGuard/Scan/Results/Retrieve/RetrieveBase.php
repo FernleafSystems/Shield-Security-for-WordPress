@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	Scans as ScansDB
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
 	ModConsumer
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
+	Scans as ScansDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;

@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Services\Services;

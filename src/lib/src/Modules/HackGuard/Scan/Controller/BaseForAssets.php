@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,7 +30,7 @@ abstract class BaseForAssets extends Base {
 		/** @var ResultItems\Ops\Record $record */
 		$record = $this->mod()->getDbH_ResultItems()->getRecord();
 		$record->item_id = $rawResult[ 'slug' ];
-		$record->item_type = strpos( $rawResult[ 'slug' ], '/' ) ?
+		$record->item_type = \strpos( $rawResult[ 'slug' ], '/' ) ?
 			ResultItems\Ops\Handler::ITEM_TYPE_PLUGIN :
 			ResultItems\Ops\Handler::ITEM_TYPE_THEME;
 

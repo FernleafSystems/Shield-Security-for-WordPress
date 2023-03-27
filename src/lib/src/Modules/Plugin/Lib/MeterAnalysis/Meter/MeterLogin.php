@@ -38,6 +38,7 @@ class MeterLogin extends MeterBase {
 			implode( ' ', [
 				__( "Another crucial element of user login security is 2-Factor Authentication.", 'wp-simple-firewall' ),
 				sprintf( __( "%s offers email, Yubikey, Google Authenticator and U2F.", 'wp-simple-firewall' ), $name ),
+				__( "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility.", 'wp-simple-firewall' ),
 			] ),
 		];
 	}

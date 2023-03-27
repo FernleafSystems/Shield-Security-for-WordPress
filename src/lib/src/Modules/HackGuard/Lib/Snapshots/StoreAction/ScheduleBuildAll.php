@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced\SubmitHashes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -45,7 +44,7 @@ class ScheduleBuildAll extends Base {
 					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
 						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
 						if ( $store->setSnapMeta( $meta )->saveMeta() ) {
-							( new SubmitHashes() )->run( $asset );
+//							( new SubmitHashes() )->run( $asset );
 						}
 					}
 				}

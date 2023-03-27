@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModCon,
-	ModConsumer,
-	Options
+	ModConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
@@ -78,9 +77,7 @@ class Controller {
 	}
 
 	public function hasRunningScans() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return count( $this->getRunningScans() ) > 0 || count( $opts->getScansToBuild() ) > 0;
+		return count( $this->getRunningScans() ) > 0 || count( $this->opts()->getScansToBuild() ) > 0;
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {

@@ -44,7 +44,7 @@ class ConditionsProcessor extends BaseProcessor {
 						$matched = !$matched;
 					}
 				}
-				catch ( RuleNotYetRunException | AttemptToAccessNonExistingRuleException $e ) {
+				catch ( RuleNotYetRunException|AttemptToAccessNonExistingRuleException $e ) {
 					error_log( $e->getMessage() );
 					return false;
 				}
@@ -59,7 +59,7 @@ class ConditionsProcessor extends BaseProcessor {
 					}
 					$this->consolidatedMeta[ $subCondition[ 'condition' ] ] = $handler->getConditionTriggerMetaData();
 				}
-				catch ( NoSuchConditionHandlerException | NoConditionActionDefinedException $e ) {
+				catch ( NoSuchConditionHandlerException|NoConditionActionDefinedException $e ) {
 					error_log( $e->getMessage() );
 					continue;
 				}

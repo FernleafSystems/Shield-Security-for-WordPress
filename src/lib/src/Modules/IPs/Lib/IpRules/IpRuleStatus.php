@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	ModConsumer,
-	IPs
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
@@ -20,7 +17,7 @@ use IPLib\Factory;
 
 class IpRuleStatus {
 
-	use ModConsumer;
+	use IPs\ModConsumer;
 
 	public const MOD = IPs\ModCon::SLUG;
 
@@ -93,23 +90,18 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	private function getRulesForAutoBlock() :array {
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
-
 		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
 		if ( count( $rules ) === 1 ) {
 			$record = current( $rules );
-			if ( $record->last_access_at < ( Services::Request()->ts() - $opts->getAutoExpireTime() ) ) {
+			if ( $record->last_access_at < ( Services::Request()->ts() - $this->opts()->getAutoExpireTime() ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
 		elseif ( count( $rules ) > 1 ) {
 			// Should only have 1 auto-block rule. So we merge & delete all the older rules.
 			try {
-				( new MergeAutoBlockRules() )
-					->setMod( $this->getMod() )
-					->byRecords( $rules );
+				( new MergeAutoBlockRules() )->byRecords( $rules );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -126,9 +118,7 @@ class IpRuleStatus {
 					->run();
 				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
 					foreach ( $rules as $rule ) {
-						( new DeleteRule() )
-							->setMod( $this->getMod() )
-							->byRecord( $rule );
+						( new DeleteRule() )->byRecord( $rule );
 					}
 					self::ClearStatusForIP( $this->getIP() );
 					$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
@@ -185,7 +175,6 @@ class IpRuleStatus {
 	public function hasHighReputation() :bool {
 		return $this->hasAutoBlock()
 			   && ( new IsHighReputationIP() )
-				   ->setMod( $this->getMod() )
 				   ->setIP( $this->getRuleForAutoBlock()->ip )
 				   ->query();
 	}
@@ -278,9 +267,7 @@ class IpRuleStatus {
 			}
 
 			foreach ( $toDelete as $deleteKey => $deleteRecord ) {
-				( new DeleteRule() )
-					->setMod( $this->getMod() )
-					->byRecord( $deleteRecord );
+				( new DeleteRule() )->byRecord( $deleteRecord );
 				$this->removeRecordFromCache( $deleteRecord );
 				unset( $rules[ $deleteKey ] );
 			}
@@ -299,23 +286,26 @@ class IpRuleStatus {
 
 		$records = [];
 
-		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
-		$loader->wheres = [
-			sprintf( '(%s) OR (%s)',
-				sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
-				"`ir`.`is_range`='1'"
-			)
-		];
+		if ( \method_exists( $this, 'mod' ) && $this->mod()->getDbH_IPRules()->isReady() ) {
 
-		foreach ( $loader->select() as $record ) {
-			if ( $record->is_range ) {
-				$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
-				if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
+			$loader = new LoadIpRules();
+			$loader->wheres = [
+				sprintf( '(%s) OR (%s)',
+					sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
+					"`ir`.`is_range`='1'"
+				)
+			];
+
+			foreach ( $loader->select() as $record ) {
+				if ( $record->is_range ) {
+					$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
+					if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
+						$records[] = $record;
+					}
+				}
+				else {
 					$records[] = $record;
 				}
-			}
-			else {
-				$records[] = $record;
 			}
 		}
 

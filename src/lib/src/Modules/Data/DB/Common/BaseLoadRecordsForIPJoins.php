@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -19,7 +19,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
 	abstract public function select() :array;
@@ -30,7 +30,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			sprintf( $this->getRawQuery(),
 				'COUNT(*)',
 				$this->getTableSchemaForJoinedTable()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
 				'',
 				'',
@@ -46,7 +46,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 						INNER JOIN `%s` as `ips` ON `ips`.id = `%s`.ip_ref;',
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->getJoinedTableAbbreviation(),
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$this->getJoinedTableAbbreviation()
 			)
 		);
@@ -63,8 +63,6 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	protected function selectRaw() :array {
-		$modData = $this->getCon()->getModule_Data();
-
 		$selectFields = array_merge(
 			$this->getSelectFieldsForIPTable(),
 			array_map(
@@ -81,7 +79,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			sprintf( $this->getRawQuery(),
 				implode( ', ', $selectFields ),
 				$this->getTableSchemaForJoinedTable()->table,
-				$modData->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
 				sprintf( 'ORDER BY %s %s', $this->getOrderByColumn(), $this->order_dir ?? 'DESC' ),
 				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',

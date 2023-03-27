@@ -21,10 +21,7 @@ class BlockRequestCrowdsec extends ExecOnceModConsumer {
 		/** @var ModCon $mod */
 		$mod = $this->getMod();
 
-		$csRecords = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )
-			->setMod( $this->getMod() )
-			->getRulesForCrowdsec();
-		foreach ( $csRecords as $record ) {
+		foreach ( ( new IpRuleStatus( $this->getCon()->this_req->ip ) )->getRulesForCrowdsec() as $record ) {
 			/** @var IpRulesDB\Update $updater */
 			$updater = $mod->getDbH_IPRules()->getQueryUpdater();
 			$updater->updateLastAccessAt( $record );

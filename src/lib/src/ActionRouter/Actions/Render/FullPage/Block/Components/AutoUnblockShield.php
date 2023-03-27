@@ -16,9 +16,7 @@ class AutoUnblockShield extends Base {
 		$con = $this->getCon();
 		return [
 			'flags'   => [
-				'is_available' => ( new AutoUnblockVisitor() )
-					->setMod( $con->getModule_IPs() )
-					->isUnblockAvailable()
+				'is_available' => ( new AutoUnblockVisitor() )->isUnblockAvailable()
 			],
 			'hrefs'   => [
 				'home' => Services::WpGeneral()->getHomeUrl( '/' )

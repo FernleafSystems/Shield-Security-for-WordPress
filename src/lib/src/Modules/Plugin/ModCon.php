@@ -218,26 +218,22 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$WP = Services::WpGeneral();
-		$ts = Services::Request()->ts();
-
 		$key = $this->getCon()->prefixOption( 'install_date' );
-
-		$nWpDate = $WP->getOption( $key );
-		if ( empty( $nWpDate ) ) {
-			$nWpDate = $ts;
+		$wpDate = Services::WpGeneral()->getOption( $key );
+		if ( empty( $wpDate ) ) {
+			$wpDate = Services::Request()->ts();
 		}
 
-		$nPluginDate = $this->getInstallDate();
-		if ( $nPluginDate == 0 ) {
-			$nPluginDate = $ts;
+		$date = $this->getInstallDate();
+		if ( $date == 0 ) {
+			$date = Services::Request()->ts();
 		}
 
-		$nFinal = min( $nPluginDate, $nWpDate );
-		$WP->updateOption( $key, $nFinal );
-		$this->getOptions()->setOpt( 'installation_time', $nPluginDate );
+		$finalDate = min( $date, $wpDate );
+		Services::WpGeneral()->updateOption( $key, $finalDate );
+		$this->getOptions()->setOpt( 'installation_time', $date );
 
-		return $nFinal;
+		return $finalDate;
 	}
 
 	/**

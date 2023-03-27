@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
 use Elliotchance\Iterator\AbstractPagedIterator;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
 class IpRulesIterator extends AbstractPagedIterator {
 
@@ -50,7 +50,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 
 	public function getLoader() :LoadIpRules {
 		if ( !$this->loader instanceof LoadIpRules ) {
-			$this->loader = ( new LoadIpRules() )->setMod( $this->getCon()->getModule_IPs() );
+			$this->loader = new LoadIpRules();
 		}
 		return $this->loader;
 	}

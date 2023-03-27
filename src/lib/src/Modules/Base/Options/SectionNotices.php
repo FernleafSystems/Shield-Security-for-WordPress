@@ -28,10 +28,7 @@ class SectionNotices {
 
 		switch ( $section ) {
 			case 'section_rename_wplogin':
-				$isBypass = ( new IpRuleStatus( $con->this_req->ip ) )
-					->setMod( $con->getModule_IPs() )
-					->isBypass();
-				if ( $isBypass ) {
+				if ( ( new IpRuleStatus( $con->this_req->ip ) )->isBypass() ) {
 					$critical[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s" ),
 						basename( Services::WpGeneral()->getLoginUrl() ) );
 				}

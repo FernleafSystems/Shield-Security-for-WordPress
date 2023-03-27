@@ -303,14 +303,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
 			}
 
-			$currentMajor = intval( substr( $con->getVersion(), 0, strpos( $con->getVersion(), '.' ) ) );
+			$currentMajor = intval( \substr( $con->getVersion(), 0, \strpos( $con->getVersion(), '.' ) ) );
 			if ( !empty( $versions ) && !empty( $currentMajor ) ) {
 
 				$majorVersionsNewerThanCurrent = array_filter(
 					array_unique( array_map(
 						function ( $version ) {
 							/** 1. Convert all versions to major releases */
-							return intval( substr( $version, 0, strpos( $version, '.' ) ) );
+							return intval( substr( $version, 0, \strpos( $version, '.' ) ) );
 						},
 						$versions
 					) ),

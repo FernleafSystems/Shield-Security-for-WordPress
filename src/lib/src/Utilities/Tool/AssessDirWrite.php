@@ -36,7 +36,7 @@ class AssessDirWrite {
 
 		$FS = Services::WpFs();
 
-		$testDir = path_join( $this->dir, 'test-dir' );
+		$testDir = \path_join( $this->dir, 'test-dir' );
 		if ( $FS->isFile( $testDir ) ) {
 			$FS->deleteFile( $testDir );
 		}
@@ -46,7 +46,7 @@ class AssessDirWrite {
 
 		$FS->mkdir( $testDir );
 		if ( $FS->isDir( $testDir ) ) {
-			$file = path_join( $testDir, uniqid() );
+			$file = \path_join( $testDir, uniqid() );
 			$FS->touch( $file );
 			$canTouchFile = $FS->isFile( $file );
 			$FS->deleteFile( $file );
@@ -61,7 +61,7 @@ class AssessDirWrite {
 		$FS = Services::WpFs();
 
 		$canWrite = false;
-		$testFile = path_join( $this->dir, 'test_write_file.txt' );
+		$testFile = \path_join( $this->dir, 'test_write_file.txt' );
 		$uniq = uniqid();
 		$FS->putFileContent( $testFile, $uniq );
 		if ( $FS->isFile( $testFile ) ) {

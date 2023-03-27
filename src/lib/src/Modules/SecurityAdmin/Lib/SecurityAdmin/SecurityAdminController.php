@@ -17,8 +17,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class SecurityAdminController extends ExecOnceModConsumer {
 
-	private $validPinRequest;
-
 	protected function canRun() :bool {
 		return !$this->getCon()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
 	}

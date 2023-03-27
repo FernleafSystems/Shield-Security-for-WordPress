@@ -258,7 +258,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			}
 			else {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
-				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
+				$ipRuleStatus = new IpRuleStatus( $ip );
 				if ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}

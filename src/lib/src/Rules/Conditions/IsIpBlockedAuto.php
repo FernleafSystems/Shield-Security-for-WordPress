@@ -13,8 +13,6 @@ class IsIpBlockedAuto extends Base {
 
 	protected function execConditionCheck() :bool {
 		/** Note: Don't be tempted to set the flag on $this_req for auto block as we must first consider High Reputation */
-		return ( new IpRuleStatus( $this->getRequestIP() ) )
-			->setMod( $this->getCon()->getModule_IPs() )
-			->hasAutoBlock();
+		return ( new IpRuleStatus( $this->getRequestIP() ) )->hasAutoBlock();
 	}
 }

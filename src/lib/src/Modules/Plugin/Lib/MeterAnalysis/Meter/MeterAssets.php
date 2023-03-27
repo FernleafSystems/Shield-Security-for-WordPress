@@ -18,7 +18,7 @@ class MeterAssets extends MeterBase {
 
 	public function description() :array {
 		return [
-			__( "Your #1 risk of security vulnerabilities comes from WordPress Plugins (not WordPres itself).", 'wp-simple-firewall' ),
+			__( "Your #1 risk of security vulnerabilities comes from WordPress Plugins (not WordPress itself).", 'wp-simple-firewall' ),
 			implode( ' ', [
 				__( "Good plugin and theme hygiene is crucial to keeping your WordPress site healthy and free of vulnerabilities.", 'wp-simple-firewall' ),
 				__( "To stay healthy involves actively scanning files for unexpected changes and detection of files that don't belong.", 'wp-simple-firewall' ),

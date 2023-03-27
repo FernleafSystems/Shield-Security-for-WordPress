@@ -124,10 +124,8 @@ class ProcessIPs extends ProcessBase {
 	}
 
 	protected function removeDuplicatesFromNewStreamLegacy() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
-		$loader = ( new LoadIpRules() )->setMod( $mod );
+		$loader = new LoadIpRules();
 		$loader->wheres = [
 			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
 		];
@@ -161,9 +159,6 @@ class ProcessIPs extends ProcessBase {
 	 * Loop through all existing CS rules and if a new rule/decision already exists, remove it from the new stream.
 	 */
 	protected function removeDuplicatesFromNewStream() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$preExisting = [];
 
 		$page = 0;
@@ -179,7 +174,7 @@ class ProcessIPs extends ProcessBase {
 				} ) );
 
 				if ( !empty( $singles ) ) {
-					$loader = ( new LoadIpRules() )->setMod( $mod );
+					$loader = new LoadIpRules();
 					$loader->wheres = [
 						sprintf( "`ips`.`ip` IN (%s)",
 							implode( ', ', array_map( function ( $ip ) {
@@ -233,7 +228,7 @@ class ProcessIPs extends ProcessBase {
 		}, $this->deletedDecisions );
 
 		$rulesIterator = new IpRulesIterator();
-		$loader = $rulesIterator->setMod( $mod )->getLoader();
+		$loader = $rulesIterator->getLoader();
 		$loader->wheres = [
 			sprintf( "`ir`.`type`='%s'", Handler::T_CROWDSEC )
 		];

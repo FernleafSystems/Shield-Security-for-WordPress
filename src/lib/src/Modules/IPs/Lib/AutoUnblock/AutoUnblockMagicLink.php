@@ -3,15 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UnblockMagicLink;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 
 	public function isUnblockAvailable() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledMagicEmailLinkRecover() && parent::isUnblockAvailable();
+		return $this->opts()->isEnabledMagicEmailLinkRecover() && parent::isUnblockAvailable();
 	}
 
 	protected function getUnblockMethodName() :string {
@@ -23,17 +20,17 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 	 */
 	public function processEmailSend() {
 		$con = $this->getCon();
-		$req = Services::Request();
 		$user = Services::WpUsers()->getCurrentWpUser();
 		if ( !$user instanceof \WP_User ) {
 			throw new \Exception( 'There is no user currently logged-in.' );
 		}
-		$reqIP = $req->request( 'ip' );
+
+		$reqIP = Services::Request()->request( 'ip' );
 		if ( empty( $reqIP ) || !Services::IP()->IpIn( $reqIP, [ $this->getCon()->this_req->ip ] ) ) {
 			throw new \Exception( 'IP does not match.' );
 		}
 
-		$this->getMod()
+		$this->mod()
 			 ->getEmailProcessor()
 			 ->send(
 				 $user->user_email,

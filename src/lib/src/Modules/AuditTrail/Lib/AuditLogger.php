@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
 	LocalDbWriter,
 	LogFileHandler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\FilterHandler;

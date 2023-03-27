@@ -6,13 +6,13 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	ModConsumer,
 	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli,
 	Scan\Results\Update
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScansController {

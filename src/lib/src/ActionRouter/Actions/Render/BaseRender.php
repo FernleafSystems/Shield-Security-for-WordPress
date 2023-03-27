@@ -126,7 +126,7 @@ abstract class BaseRender extends BaseAction {
 		/** @var Options $pluginOptions */
 		$pluginOptions = $con->getModule_Plugin()->getOptions();
 
-		$ipStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $con->getModule_IPs() );
+		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
 		$isWhitelabelled = $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 		return [
@@ -225,7 +225,6 @@ abstract class BaseRender extends BaseAction {
 	private function getDisplayStrings() :array {
 		$WP = Services::WpGeneral();
 		$con = $this->getCon();
-		$thisReq = $con->this_req;
 		$name = $con->getHumanName();
 
 		$proFeatures = [
@@ -398,7 +397,7 @@ abstract class BaseRender extends BaseAction {
 		$thisReq = $con->this_req;
 		$warnings = [];
 
-		$ipStatus = ( new IpRuleStatus( $thisReq->ip ) )->setMod( $con->getModule_IPs() );
+		$ipStatus = new IpRuleStatus( $thisReq->ip );
 		if ( $ipStatus->isBypass() ) {
 			$warnings[] = [
 				'type' => 'warning', // Boostrap,
@@ -417,9 +416,7 @@ abstract class BaseRender extends BaseAction {
 		}
 
 		try {
-			( new Monolog() )
-				->setCon( $con )
-				->assess();
+			( new Monolog() )->assess();
 		}
 		catch ( \Exception $e ) {
 			$warnings[] = [

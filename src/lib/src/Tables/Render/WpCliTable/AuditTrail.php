@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpCliTable;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\BuildAuditTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 
 class AuditTrail {
 

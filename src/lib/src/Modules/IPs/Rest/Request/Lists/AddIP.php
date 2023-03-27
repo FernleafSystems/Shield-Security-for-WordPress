@@ -13,9 +13,7 @@ class AddIP extends Base {
 		$mod = $this->getMod();
 		$req = $this->getRequestVO();
 
-		$adder = ( new Lib\IpRules\AddRule() )
-			->setMod( $mod )
-			->setIP( $req->ip );
+		$adder = ( new Lib\IpRules\AddRule() )->setIP( $req->ip );
 
 		try {
 			if ( in_array( $req->list, [ 'block', 'black' ] ) ) {

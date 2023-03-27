@@ -80,7 +80,7 @@ class BuildSearchPanesData {
 		$ips = Transient::Get( 'apto-shield-iprulestable-ips', [] );
 		if ( empty( $ips ) ) {
 			$rulesIterator = new IpRulesIterator();
-			$loader = $rulesIterator->setMod( $mod )->getLoader();
+			$loader = $rulesIterator->getLoader();
 			$loader->joined_table_select_fields = [ 'cidr', 'is_range' ];
 
 			$ips = [];
@@ -100,10 +100,8 @@ class BuildSearchPanesData {
 
 	private function buildForIpWithoutIterator() :array {
 		error_log( __FUNCTION__.var_export( time(), true ) );
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
-		$results = ( new LoadIpRules() )->setMod( $mod );
+		$results = new LoadIpRules();
 		$results->joined_table_select_fields = [ 'cidr' ];
 		return array_values( array_filter( array_map(
 			function ( $result ) {

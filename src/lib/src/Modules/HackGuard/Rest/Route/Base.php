@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Route;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Route\RouteBase;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 
 abstract class Base extends RouteBase {
 

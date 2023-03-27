@@ -64,9 +64,7 @@ class CleanIpRules extends ExecOnceModConsumer {
 		array_map(
 			function ( $ip ) {
 				try {
-					( new MergeAutoBlockRules() )
-						->setMod( $this->getMod() )
-						->byIP( $ip );
+					( new MergeAutoBlockRules() )->byIP( $ip );
 				}
 				catch ( \Exception $e ) {
 					error_log( 'clean duplicate IPs for: '.$ip );
@@ -106,15 +104,12 @@ class CleanIpRules extends ExecOnceModConsumer {
 	}
 
 	private function getIpCountsForType( string $type ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$ipCounts = [];
 
 		$page = 0;
 		$pageSize = 250;
 		do {
-			$loader = ( new LoadIpRules() )->setMod( $mod );
+			$loader = new LoadIpRules();
 			$loader->wheres = [
 				sprintf( "`ir`.`type`='%s'", $type )
 			];

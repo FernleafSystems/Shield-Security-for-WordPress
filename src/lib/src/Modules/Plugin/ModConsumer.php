@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 trait ModConsumer {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
 		return $this->con()->getModule_Plugin();
@@ -20,5 +20,13 @@ trait ModConsumer {
 	 */
 	public function getMod() {
 		return $this->mod();
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 17.1
+	 */
+	public function setMod( $null ) {
+		return $this;
 	}
 }

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
-	Options,
 	Scan
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
@@ -108,8 +107,7 @@ class Afs extends BaseForFiles {
 	 * @return Scans\Afs\ResultsSet
 	 */
 	protected function getItemsToAutoRepair() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$repairResults = $this->getNewResultsSet();
 
@@ -175,9 +173,7 @@ class Afs extends BaseForFiles {
 	}
 
 	public function getQueueGroupSize() :int {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
+		return $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
 	}
 
 	/**
@@ -188,15 +184,11 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return count( $opts->getRepairAreas() ) > 0;
+		return count( $this->opts()->getRepairAreas() ) > 0;
 	}
 
 	public function isEnabled() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledAutoFileScanner();
+		return $this->opts()->isEnabledAutoFileScanner();
 	}
 
 	public function isEnabledMalwareScan() :bool {

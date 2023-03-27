@@ -5,14 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
 	ActionRoutingController,
 	Actions,
 	Exceptions\ActionException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
@@ -803,7 +801,7 @@ class Controller extends DynPropertiesClass {
 					$slug, $e->getMessage() ) );
 			}
 
-			if ( empty( $modCfg ) || empty( $modCfg->properties ) ) {
+			if ( !isset( $modCfg->properties ) || !is_array( $modCfg->properties ) ) {
 				throw new Exceptions\PluginConfigInvalidException( sprintf( "Loading config for module '%s' failed.", $slug ) );
 			}
 
@@ -829,6 +827,7 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @return string|null
+	 * @deprecated 17.1
 	 */
 	public function getPluginSpec_Path( string $key ) {
 		return $this->cfg->paths[ $key ] ?? null;
@@ -920,11 +919,11 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getPath_Languages() :string {
-		return trailingslashit( path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ) );
+		return trailingslashit( \path_join( $this->getRootDir(), $this->cfg->paths[ 'languages' ] ) );
 	}
 
 	public function getPath_Templates() :string {
-		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
+		return trailingslashit( \path_join( $this->getRootDir(), $this->cfg->paths[ 'templates' ] ) );
 	}
 
 	/**

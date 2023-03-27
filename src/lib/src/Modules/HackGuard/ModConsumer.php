@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 trait ModConsumer {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
 		return $this->con()->getModule_HackGuard();
@@ -20,5 +20,21 @@ trait ModConsumer {
 	 */
 	public function getMod() {
 		return $this->mod();
+	}
+
+	/**
+	 * @return Options
+	 * @deprecated 17.1
+	 */
+	public function getOptions() {
+		return $this->opts();
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 17.1
+	 */
+	public function setMod( $null ) {
+		return $this;
 	}
 }

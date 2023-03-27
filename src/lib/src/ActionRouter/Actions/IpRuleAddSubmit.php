@@ -35,21 +35,16 @@ class IpRuleAddSubmit extends BaseAction {
 
 			$formIP = preg_replace( '#[^a-f\d:./]#i', '', $form[ 'ip' ] );
 			$range = Factory::parseRangeString( $formIP );
-			$iBypass = ( new IpRules\IpRuleStatus( $con->this_req->ip ) )
-				->setMod( $mod )
-				->isBypass();
 
 			// You can't manually block your own IP if your IP isn't whitelisted.
 			if ( $form[ 'type' ] === $dbh::T_MANUAL_BLOCK
 				 && !empty( $range )
-				 && !$iBypass
+				 && !( new IpRules\IpRuleStatus( $con->this_req->ip ) )->isBypass()
 				 && Factory::parseAddressString( $con->this_req->ip )->matches( $range ) ) {
 				throw new \Exception( "Manually blocking your own IP address isn't supported." );
 			}
 
-			$ipAdder = ( new IpRules\AddRule() )
-				->setMod( $mod )
-				->setIP( $formIP );
+			$ipAdder = ( new IpRules\AddRule() )->setIP( $formIP );
 			switch ( $form[ 'type' ] ) {
 				case $dbh::T_MANUAL_BYPASS:
 					$IP = $ipAdder->toManualWhitelist( $label );

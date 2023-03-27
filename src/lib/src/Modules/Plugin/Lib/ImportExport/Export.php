@@ -120,10 +120,9 @@ class Export {
 		}
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
-			$modIPs = $this->getCon()->getModule_IPs();
-			$loader = ( new LoadIpRules() )->setMod( $modIPs );
+			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type`='%s'", $modIPs->getDbH_IPRules()::T_MANUAL_BYPASS ),
+				sprintf( "`ir`.`type`='%s'", $this->getCon()->getModule_IPs()->getDbH_IPRules()::T_MANUAL_BYPASS ),
 				"`ir`.`can_export`='1'"
 			];
 			$loader->limit = 100;

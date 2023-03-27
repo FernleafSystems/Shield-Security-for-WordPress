@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 
 class ModCon extends BaseShield\ModCon {
 

@@ -3,17 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModConsumer,
-	Lib
+	Lib,
+	ModConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	Processing\MalFalsePositiveReporter,
 	ResultItem
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\{
 	Services,
-	Utilities\File\RemoveLineFromFile,
 	Utilities\WpOrg
 };
 
