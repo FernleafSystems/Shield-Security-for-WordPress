@@ -117,6 +117,55 @@
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
+      "key":           "file_scan_areas",
+      "section":       "section_file_guard",
+      "type":          "multiple_select",
+      "default":       [
+        "wp",
+        "malware_php",
+        "plugins",
+        "themes"
+      ],
+      "value_options": [
+        {
+          "value_key": "wp",
+          "text":      "WP core files (excludes /wp-content/)",
+          "premium":   false
+        },
+        {
+          "value_key": "malware_php",
+          "text":      "PHP Malware (all PHP files)",
+          "premium":   true
+        },
+        {
+          "value_key": "plugins",
+          "text":      "Plugins",
+          "premium":   true
+        },
+        {
+          "value_key": "themes",
+          "text":      "Themes",
+          "premium":   true
+        },
+        {
+          "value_key": "wpcontent",
+          "text":      "wp-content directory",
+          "premium":   true
+        },
+        {
+          "value_key": "wproot",
+          "text":      "WP root directory",
+          "premium":   true
+        }
+      ],
+      "link_info":     "https://shsec.io/wpsf36",
+      "link_blog":     "https://shsec.io/wpsf37",
+      "beacon_id":     228,
+      "name":          "File Scan Areas",
+      "summary":       "Which Files Should Be Scanned",
+      "description":   "Specific file scan areas."
+    },
+    {
       "key":           "file_repair_areas",
       "section":       "section_file_guard",
       "type":          "multiple_select",
@@ -131,11 +180,13 @@
         },
         {
           "value_key": "plugin",
-          "text":      "Plugin Files"
+          "text":      "Plugin Files",
+          "premium":   true
         },
         {
           "value_key": "theme",
-          "text":      "Theme Files"
+          "text":      "Theme Files",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/wpsf36",

@@ -222,6 +222,53 @@ class Strings extends Base\Strings {
 				}
 				break;
 
+			case 'file_scan_areas' :
+				$name = __( 'File Scan Areas', 'wp-simple-firewall' );
+				$summary = __( 'Select Which Areas Should Be Scanned', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Each scan area performs a specific task, as follows:', 'wp-simple-firewall' ),
+					sprintf( '- <strong>%s</strong>: %s', __( 'WP core files', 'wp-simple-firewall' ),
+						implode( ' ', [
+							__( "Scans all WP files that are installed for your WordPress version.", 'wp-simple-firewall' ),
+							__( "It also looks for files that shouldn't be in a WP Core directory.", 'wp-simple-firewall' ),
+							sprintf( __( "Doesn't scan the %s directory.", 'wp-simple-firewall' ), '<code>/wp-content/</code>' )
+						] )
+					),
+					sprintf( '- <strong>%s</strong>: %s', __( 'PHP Malware', 'wp-simple-firewall' ),
+						implode( ' ', [
+							__( "Scans all PHP files for malware patterns.", 'wp-simple-firewall' ),
+						] )
+					),
+					sprintf( '- <strong>%s</strong>: %s', __( 'Plugins' ),
+						implode( '<br/>', [
+							__( "Scans plugins files for modified or unrecognised files.", 'wp-simple-firewall' ),
+							sprintf( '<em>%s</em> - %s', __( 'Exclusive To Shield', 'wp-simple-firewall' ), __( "Premium plugins are also supported!", 'wp-simple-firewall' ) ),
+						] )
+					),
+					sprintf( '- <strong>%s</strong>: %s', __( 'Themes' ),
+						implode( '<br/>', [
+							__( "Scans active theme directories for modified or unrecognised files.", 'wp-simple-firewall' ),
+							sprintf( '<em>%s</em> - %s', __( 'Exclusive To Shield', 'wp-simple-firewall' ), __( "Premium themes are also supported!", 'wp-simple-firewall' ) ),
+						] )
+					),
+					sprintf( '- <strong>%s</strong>: %s', sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
+						implode( ' ', [
+							sprintf( __( "The %s directory is the wild-west and many plugins and themes store files in there.", 'wp-simple-firewall' ), '<code>wp-content</code>' ),
+							__( "So it's nearly impossible to tell which files should and shouldn't be there.", 'wp-simple-firewall' ),
+							__( "But we have some rules that we can use to try and detect unmonitored files, but you will probably see some false positives.", 'wp-simple-firewall' ),
+						] )
+					),
+					sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory' ),
+						implode( ' ', [
+							sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), 'WP root', '<code>/wp-content/</code>' ),
+							__( "With it often being very untidy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
+							__( "But we have some rules that we can use to try and detect unmonitored files, but you will probably see some false positives.", 'wp-simple-firewall' ),
+						] )
+					),
+					__( 'The more areas that are selected, the longer the file scan will take to complete.', 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'file_repair_areas' :
 				$name = __( 'Automatic File Repair', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Repair Files That Have Changes Or Malware Infection', 'wp-simple-firewall' );
