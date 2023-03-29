@@ -53,7 +53,6 @@ class ItemRepairHandler {
 			default:
 				throw new \Exception( 'We never reach this point' );
 		}
-		return $rep->setMod( $this->getMod() )
-				   ->setScanItem( $this->getScanItem() );
+		return $rep->setScanItem( $this->getScanItem() );
 	}
 }

@@ -21,8 +21,6 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 	}
 
 	protected function upgrade_1617() {
-		( new MoveHashFiles() )
-			->setMod( $this->getMod() )
-			->run();
+		( new MoveHashFiles() )->run();
 	}
 }

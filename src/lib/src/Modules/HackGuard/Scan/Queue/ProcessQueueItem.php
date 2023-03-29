@@ -48,7 +48,6 @@ class ProcessQueueItem {
 
 		$this->getScanner( $action )
 			 ->setScanActionVO( $action )
-			 ->setMod( $this->mod() )
 			 ->run();
 
 		if ( $action->usleep > 0 ) {

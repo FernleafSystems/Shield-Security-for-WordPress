@@ -83,9 +83,7 @@ class Plugins extends PluginThemesBase {
 		$carbon = Services::Request()->carbon();
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $plugin->file );
-		$countGuardFiles = ( new LoadTableDataPlugin( $plugin ) )
-			->setMod( $this->getCon()->getModule_HackGuard() )
-			->countAll();
+		$countGuardFiles = ( new LoadTableDataPlugin( $plugin ) )->countAll();
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
 

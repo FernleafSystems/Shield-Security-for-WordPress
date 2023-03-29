@@ -62,7 +62,7 @@ class ScansController {
 	public function getAllScanCons() :array {
 		foreach ( $this->getScans() as $scan ) {
 			if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
-				$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->mod() );
+				$this->scanCons[ $scan::SCAN_SLUG ] = new $scan();
 			}
 		}
 		return $this->scanCons;
@@ -94,7 +94,7 @@ class ScansController {
 	}
 
 	public function getScanResultsCount() :Results\Counts {
-		return $this->scanResultsStatus ?? $this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->mod() );
+		return $this->scanResultsStatus ?? $this->scanResultsStatus = new Results\Counts();
 	}
 
 	private function handlePostScanCron() {

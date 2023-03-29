@@ -44,12 +44,8 @@ class ProcessQueueWpcli {
 
 		do {
 			try {
-				$qItem = ( new QueueItems() )
-					->setMod( $mod )
-					->next();
-				( new ProcessQueueItem() )
-					->setMod( $mod )
-					->run( $qItem );
+				$qItem = ( new QueueItems() )->next();
+				( new ProcessQueueItem() )->run( $qItem );
 			}
 			catch ( NoQueueItems $e ) {
 				$qItem = null;
@@ -57,9 +53,7 @@ class ProcessQueueWpcli {
 			$progress->tick();
 		} while ( !empty( $qItem ) );
 
-		( new CompleteQueue() )
-			->setMod( $mod )
-			->complete();
+		( new CompleteQueue() )->complete();
 
 		$progress->finish();
 		WP_CLI::log( 'Scans Complete.' );

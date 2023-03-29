@@ -25,19 +25,15 @@ class FileScanner {
 		try {
 			$validFile =
 				( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
-						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
 				( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
-						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
 				( $scanCon->isEnabledPluginThemeScan() && ( new Scans\PluginFile( $fullPath ) )
-						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() ) ||
 				( $scanCon->isEnabledPluginThemeScan() && ( new Scans\ThemeFile( $fullPath ) )
-						->setMod( $this->getMod() )
 						->setScanActionVO( $action )
 						->scan() );
 		}

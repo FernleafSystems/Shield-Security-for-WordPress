@@ -80,9 +80,7 @@ class Themes extends PluginThemesBase {
 		$carbon = Services::Request()->carbon();
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $theme->stylesheet );
-		$countGuardFiles = ( new LoadTableDataTheme( $theme ) )
-			->setMod( $this->getCon()->getModule_HackGuard() )
-			->countAll();
+		$countGuardFiles = ( new LoadTableDataTheme( $theme ) )->countAll();
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
 

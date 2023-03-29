@@ -66,9 +66,7 @@ class Sync {
 
 					case HackGuard\ModCon::SLUG:
 						$data[ $mod->cfg->slug ][ 'scan_issues' ] = array_filter(
-							( new HackGuard\Scan\Results\Counts() )
-								->setMod( $mod )
-								->all()
+							( new HackGuard\Scan\Results\Counts() )->all()
 						);
 						break;
 

@@ -36,15 +36,15 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
-		return $this->oFileLocker ?? $this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
+		return $this->oFileLocker ?? $this->oFileLocker = new Lib\FileLocker\FileLockerController();
 	}
 
 	public function getScansCon() :Scan\ScansController {
-		return $this->scanCon ?? $this->scanCon = ( new Scan\ScansController() )->setMod( $this );
+		return $this->scanCon ?? $this->scanCon = new Scan\ScansController();
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		return $this->scanQueueCon ?? $this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
+		return $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller();
 	}
 
 	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
@@ -176,7 +176,6 @@ class ModCon extends BaseShield\ModCon {
 		$carbon = Services::Request()->carbon();
 		if ( $carbon->isSunday() ) {
 			( new Shield\Scans\Afs\Processing\FileScanOptimiser() )
-				->setMod( $this )
 				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		}
 
