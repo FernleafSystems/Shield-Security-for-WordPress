@@ -25,6 +25,8 @@ class ScanFromFileMap {
 		if ( is_array( $action->items ) ) {
 			foreach ( $action->items as $fullPath ) {
 
+				$fullPath = base64_decode( $fullPath );
+
 				// We can exclude files that are empty of relevant code
 				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
 

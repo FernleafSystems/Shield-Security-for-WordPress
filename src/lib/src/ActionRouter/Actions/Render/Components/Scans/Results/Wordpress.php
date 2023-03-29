@@ -14,8 +14,8 @@ class Wordpress extends Base {
 		$wpData = $this->buildWordpressData();
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
-				'no_files'    => __( "Previous scans didn't detect any modified, missing or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
-				'files_found' => __( "Previous scans detected 1 or more modified, missing or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
+				'no_files'    => __( "Previous scans didn't detect any modified, missing, unrecognised or unidentified files in the WordPress core directories.", 'wp-simple-firewall' ),
+				'files_found' => __( "Previous scans detected 1 or more modified, missing, unrecognised or unidentified files in the WordPress core directories.", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'count_items'     => $wpData[ 'vars' ][ 'count_items' ],

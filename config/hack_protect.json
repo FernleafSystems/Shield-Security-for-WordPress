@@ -424,6 +424,7 @@
       "php",
       "php5",
       "php7",
+      "ico",
       "js",
       "json",
       "css",
@@ -704,6 +705,8 @@
       "wp-content/themes-before-restore/*",
       "wp-content/uploads/bb-plugin/cache/*",
       "wp-content/uploads/cache/wpml/twig/*",
+      "*/rosell-dk/image-mime-type-guesser/tests/images/*",
+      "*/rosell-dk/image-mime-type-sniffer/tests/images/*",
       "wp-content/cache/*",
       "*/src/lib/src/Rules/rules.json",
       "*/error_log",
@@ -715,11 +718,11 @@
       "readme.html",
       "license.txt",
       "licens-sv_SE.txt",
-      "wp-config-sample.php",
       "wp-content/"
     ],
     "wcf_exclusions_missing_only": [
       "wp-admin/install.php",
+      "wp-config-sample.php",
       "xmlrpc.php"
     ],
     "events":                      {

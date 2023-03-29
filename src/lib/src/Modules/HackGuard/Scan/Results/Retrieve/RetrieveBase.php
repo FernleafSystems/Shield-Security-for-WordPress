@@ -5,11 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	ModConsumer
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
-	Scans as ScansDB
+	ModConsumer,
+	DB\Scans\Ops as ScansDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
@@ -22,7 +19,6 @@ abstract class RetrieveBase extends DynPropertiesClass {
 	use ModConsumer;
 	use ScanControllerConsumer;
 
-	public const MOD = ModCon::SLUG;
 	public const ABBR_RESULTITEMMETA = '`rim`';
 
 	protected $additionalWheres = [];
@@ -33,7 +29,7 @@ abstract class RetrieveBase extends DynPropertiesClass {
 
 	protected function getLatestScanID() :int {
 		if ( !isset( $this->latestScanID ) ) {
-			/** @var ScansDB\Ops\Select $scansSelector */
+			/** @var ScansDB\Select $scansSelector */
 			$scansSelector = $this->mod()->getDbH_Scans()->getQuerySelector();
 			$latest = $scansSelector->getLatestForScan( $this->getScanController()->getSlug() );
 			$this->latestScanID = empty( $latest ) ? -1 : $latest->id;

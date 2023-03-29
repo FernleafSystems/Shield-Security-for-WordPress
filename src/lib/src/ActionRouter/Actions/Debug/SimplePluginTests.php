@@ -6,12 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\Patterns;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwareScanPatterns;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiAvailability;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwareScan;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\QueryMalwareStatus;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class SimplePluginTests extends BaseAction {
@@ -36,7 +33,6 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_rand() {
-		var_dump( ( new ApiAvailability() )->isAvailable() );
 	}
 
 	private function dbg_submitmalwarereports() {
@@ -62,7 +58,7 @@ class SimplePluginTests extends BaseAction {
 		}
 
 		die();
-		$patterns = ( new Patterns() )->retrieve();
+		$patterns = ( new MalwareScanPatterns() )->retrieve();
 
 		$locator = ( new LocateNeedles() )->setPath( path_join( ABSPATH, 'wp-content/maltestxyz.php' ) );
 		foreach ( $patterns[ 'raw' ] as $sig ) {

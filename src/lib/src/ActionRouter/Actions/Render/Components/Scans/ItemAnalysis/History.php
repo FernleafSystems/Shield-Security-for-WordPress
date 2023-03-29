@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,7 +33,7 @@ class History extends Base {
 					if ( $column === 'created_at' ) {
 						$this->history[ $ts ][] = sprintf(
 							__( "File detected as %s by %s scanner.", 'wp-simple-firewall' ),
-							sprintf( '<strong>%s</strong>', $this->getItemFileStatus() ),
+							sprintf( '<strong>%s</strong>', $item->getStatusForHuman() ),
 							sprintf( '<strong>%s</strong>', $mod->getScansCon()
 																->getScanCon( $item->VO->scan )
 																->getScanName() )
@@ -55,29 +54,6 @@ class History extends Base {
 				'history' => $this->convertHistoryToHuman(),
 			],
 		];
-	}
-
-	/**
-	 * @throws ActionException
-	 */
-	private function getItemFileStatus() :string {
-		$item = $this->getScanItem();
-		if ( $item->is_unrecognised ) {
-			$status = __( 'Unrecognised', 'wp-simple-firewall' );
-		}
-		elseif ( $item->is_mal ) {
-			$status = __( 'Potential Malware', 'wp-simple-firewall' );
-		}
-		elseif ( $item->is_missing ) {
-			$status = __( 'Missing', 'wp-simple-firewall' );
-		}
-		elseif ( $item->is_checksumfail ) {
-			$status = __( 'Modified', 'wp-simple-firewall' );
-		}
-		else {
-			$status = __( 'Unknown', 'wp-simple-firewall' );
-		}
-		return $status;
 	}
 
 	private function convertHistoryToHuman() :array {

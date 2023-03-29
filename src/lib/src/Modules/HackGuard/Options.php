@@ -15,6 +15,25 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'file_locker', [] );
 	}
 
+	public function getFileScanAreas() :array {
+		if ( !is_array( $this->getOpt( 'file_scan_areas', [] ) ) ) {
+			$this->resetOptToDefault( 'file_scan_areas' );
+		}
+
+		$areas = $this->getOpt( 'file_scan_areas', [] );
+		if ( !$this->con()->isPremiumActive() ) {
+			$available = [];
+			foreach ( $this->getOptProperty( 'file_scan_areas', 'value_options' ) as $valueOption ) {
+				if ( empty( $valueOption[ 'premium' ] ) ) {
+					$available[] = $valueOption[ 'value_key' ];
+				}
+			}
+			$areas = array_diff( $areas, $available );
+		}
+
+		return $areas;
+	}
+
 	public function getRepairAreas() :array {
 		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
 	}

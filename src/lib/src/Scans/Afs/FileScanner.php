@@ -19,8 +19,6 @@ class FileScanner {
 
 		$item = null;
 
-		$fullPath = base64_decode( $fullPath );
-
 		$validFile = false;
 		try {
 			$validFile =
@@ -30,10 +28,16 @@ class FileScanner {
 				( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( $scanCon->isEnabledPluginThemeScan() && ( new Scans\PluginFile( $fullPath ) )
+				( $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
 						->setScanActionVO( $action )
 						->scan() ) ||
-				( $scanCon->isEnabledPluginThemeScan() && ( new Scans\ThemeFile( $fullPath ) )
+				( $scanCon->isScanEnabledPlugins() && ( new Scans\PluginFile( $fullPath ) )
+						->setScanActionVO( $action )
+						->scan() ) ||
+				( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
+						->setScanActionVO( $action )
+						->scan() );
+				( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
 						->setScanActionVO( $action )
 						->scan() );
 		}
@@ -75,6 +79,18 @@ class FileScanner {
 			$item->is_in_theme = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
+		}
+		catch ( Exceptions\WpRootFileUnidentifiedException $e ) {
+			$item = $this->getResultItem( $fullPath );
+			$item->is_in_core = true;
+			$item->is_in_wproot = true;
+			$item->is_unidentified = true;
+		}
+		catch ( Exceptions\WpContentFileUnidentifiedException $e ) {
+			$item = $this->getResultItem( $fullPath );
+			$item->is_in_core = true;
+			$item->is_in_wpcontent = true;
+			$item->is_unidentified = true;
 		}
 
 		if ( $scanCon->isEnabledMalwareScan() && ( empty( $item ) || !$item->is_missing ) ) {

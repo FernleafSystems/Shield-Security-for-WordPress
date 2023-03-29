@@ -54,10 +54,8 @@ class Controller {
 	 * @return float
 	 */
 	public function getScanJobProgress() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var ScanItemsDB\Ops\Select $selector */
-		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
+		$selector = $this->mod()->getDbH_ScanItems()->getQuerySelector();
 
 		$countsAll = $selector->countAllForEachScan();
 		$countsUnfinished = $selector->countUnfinishedForEachScan();

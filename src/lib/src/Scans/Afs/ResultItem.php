@@ -12,8 +12,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property bool   $is_in_core
  * @property bool   $is_in_plugin
  * @property bool   $is_in_theme
+ * @property bool   $is_in_wproot
+ * @property bool   $is_in_wpcontent
  * @property bool   $is_checksumfail
  * @property bool   $is_unrecognised
+ * @property bool   $is_unidentified
  * @property bool   $is_missing
  * @property bool   $is_mal
  * @property bool   $is_realtime
@@ -28,6 +31,28 @@ class ResultItem extends Base\ResultItem {
 	 * @var ?Record
 	 */
 	private $record = null;
+
+	public function getStatusForHuman() :string {
+		if ( $this->is_unrecognised ) {
+			$status = __( 'Unrecognised', 'wp-simple-firewall' );
+		}
+		elseif ( $this->is_mal ) {
+			$status = __( 'Potential Malware', 'wp-simple-firewall' );
+		}
+		elseif ( $this->is_missing ) {
+			$status = __( 'Missing', 'wp-simple-firewall' );
+		}
+		elseif ( $this->is_checksumfail ) {
+			$status = __( 'Modified', 'wp-simple-firewall' );
+		}
+		elseif ( $this->is_unidentified ) {
+			$status = __( 'Unidentified', 'wp-simple-firewall' );
+		}
+		else {
+			$status = __( 'Unknown', 'wp-simple-firewall' );
+		}
+		return $status;
+	}
 
 	public function getDescriptionForAudit() :string {
 		return $this->path_fragment;

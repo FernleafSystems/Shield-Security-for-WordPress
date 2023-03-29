@@ -22,7 +22,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
-		$patterns = ( new Utilities\Patterns() )->retrieve();
+		$patterns = ( new Utilities\MalwareScanPatterns() )->retrieve();
 		$action->patterns_raw = $patterns[ 'raw' ];
 		$action->patterns_iraw = $patterns[ 'iraw' ];
 		$action->patterns_regex = $patterns[ 're' ];

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoadTableDataWordpress extends BaseLoadTableData {
@@ -12,8 +12,7 @@ class LoadTableDataWordpress extends BaseLoadTableData {
 		$RS = $this->getRecordRetriever()->retrieveForResultsTables();
 		try {
 			$files = array_map(
-				function ( $item ) {
-					/** @var Scans\Afs\ResultItem $item */
+				function ( ResultItem $item ) {
 					$data = $item->getRawData();
 
 					$data[ 'rid' ] = $item->VO->scanresult_id;
@@ -28,17 +27,18 @@ class LoadTableDataWordpress extends BaseLoadTableData {
 
 					if ( $item->is_checksumfail ) {
 						$data[ 'status_slug' ] = 'modified';
-						$data[ 'status' ] = __( 'Modified', 'wp-simple-firewall' );
 					}
 					elseif ( $item->is_missing ) {
 						$data[ 'status_slug' ] = 'missing';
-						$data[ 'status' ] = __( 'Missing', 'wp-simple-firewall' );
+					}
+					elseif ( $item->is_unidentified ) {
+						$data[ 'status_slug' ] = 'unidentified';
 					}
 					else {
 						$data[ 'status_slug' ] = 'unrecognised';
-						$data[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
 					}
-					$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, $data[ 'status' ] );
+
+					$data[ 'status' ] = $this->getColumnContent_FileStatus( $item, $item->getStatusForHuman() );
 
 					$data[ 'file_type' ] = strtoupper( Services::Data()->getExtension( $item->path_full ) );
 					$data[ 'actions' ] = implode( ' ', $this->getActions( $data[ 'status_slug' ], $item ) );

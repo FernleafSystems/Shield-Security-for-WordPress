@@ -97,6 +97,7 @@
 				{% for option_value, option_value_settings in option.value_options %}
 						<option
 								value="{{ option_value }}"
+								{% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
 								{% if option.value matches "'^"~option_value~"$'" %}selected{% endif %}
 						>{{ option_value_settings.name|raw }}</option>
 				{% endfor %}
@@ -111,14 +112,16 @@
 					       id="Opt-{{ option.key }}_{{ option_value }}"
 					       name="{{ option.key }}[]"
 					       value="{{ option_value }}"
-					       {% if not option_value_settings.is_enabled %}disabled="disabled"{% endif %}
+					       {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
 							{% if option_value in option.value %}
 								checked="checked"
 							{% endif %}
 							{% if option.disabled %}disabled="disabled"{% endif %}
 					/>
 					<label class="form-check-label"
-					       for="Opt-{{ option.key }}_{{ option_value }}">
+					       for="Opt-{{ option.key }}_{{ option_value }}"
+					       {% if not option_value_settings.is_available %}title="Available with ShieldPRO"{% endif %}
+					>
 							{% if option_value in option.value %}
 								<strong>{{ option_value_settings.name|raw }}</strong>
 							{% else %}

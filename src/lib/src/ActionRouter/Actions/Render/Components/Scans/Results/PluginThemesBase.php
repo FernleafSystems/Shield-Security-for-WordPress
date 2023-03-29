@@ -9,17 +9,13 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class PluginThemesBase extends Base {
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
 				'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
 				'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'ptg_is_restricted' => $con->getModule_HackGuard()
-										   ->getScansCon()
-										   ->AFS()
-										   ->isRestrictedPluginThemeScan(),
+				'ptg_is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForPluginTheme() )->build()

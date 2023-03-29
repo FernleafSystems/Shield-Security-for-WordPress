@@ -192,20 +192,27 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabledMalwareScan() :bool {
-		return $this->isEnabled() && !$this->isRestrictedMalwareScan();
+		return $this->isEnabled() && in_array( 'malware_php', $this->opts()->getFileScanAreas() );
 	}
 
-	public function isEnabledPluginThemeScan() :bool {
-		return $this->isEnabled() && !$this->isRestrictedPluginThemeScan()
+	public function isScanEnabledPlugins() :bool {
+		return $this->isEnabled()
+			   && in_array( 'plugins', $this->opts()->getFileScanAreas() )
 			   && $this->getCon()->cache_dir_handler->exists();
 	}
 
-	public function isRestrictedMalwareScan() :bool {
-		return !$this->getCon()->isPremiumActive();
+	public function isScanEnabledThemes() :bool {
+		return $this->isEnabled()
+			   && in_array( 'themes', $this->opts()->getFileScanAreas() )
+			   && $this->getCon()->cache_dir_handler->exists();
 	}
 
-	public function isRestrictedPluginThemeScan() :bool {
-		return !$this->getCon()->isPremiumActive();
+	public function isScanEnabledWpContent() :bool {
+		return $this->isEnabled() && in_array( 'wpcontent', $this->opts()->getFileScanAreas() );
+	}
+
+	public function isScanEnabledWpRoot() :bool {
+		return $this->isEnabled() && in_array( 'wproot', $this->opts()->getFileScanAreas() );
 	}
 
 	protected function isPremiumOnly() :bool {
@@ -213,7 +220,7 @@ class Afs extends BaseForFiles {
 	}
 
 	/**
-	 * @return Scans\Afs\ScanActionVO
+	 * @throws \Exception
 	 */
 	public function buildScanAction() {
 		( new Scans\Afs\BuildScanAction() )

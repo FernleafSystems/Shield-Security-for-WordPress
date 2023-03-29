@@ -39,7 +39,7 @@ class BuildForDisplay {
 			if ( !empty( $sect[ 'options' ] ) ) {
 
 				foreach ( $sect[ 'options' ] as $optKey => $option ) {
-					$option[ 'is_value_default' ] = ( $option[ 'value' ] === $option[ 'default' ] );
+					$option[ 'is_value_default' ] = $option[ 'value' ] === $option[ 'default' ];
 					$isOptPremium = $option[ 'premium' ] ?? false;
 					$bIsAdv = $option[ 'advanced' ] ?? false;
 					if ( ( !$isOptPremium || $isPremium ) && ( !$bIsAdv || $showAdvanced ) ) {
@@ -124,28 +124,36 @@ class BuildForDisplay {
 				continue;
 			}
 
-			$optDef = array_merge(
-				[
-					'link_info'     => '',
-					'link_blog'     => '',
-					'value_options' => [],
-					'premium'       => false,
-					'advanced'      => false,
-					'beacon_id'     => false
-				],
-				$optDef
-			);
+			$optDef = array_merge( [
+				'link_info'     => '',
+				'link_blog'     => '',
+				'value_options' => [],
+				'premium'       => false,
+				'advanced'      => false,
+				'beacon_id'     => false
+			], $optDef );
+
 			$optDef[ 'value' ] = $opts->getOpt( $optDef[ 'key' ] );
 
 			if ( in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
-				$convertedOptions = [];
+				$available = [];
+				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
-					$convertedOptions[ $valueOpt[ 'value_key' ] ] = [
-						'name'       => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_enabled' => $this->con()->isPremiumActive() || !( $valueOpt[ 'premium' ] ?? false ),
+					$converted[ $valueOpt[ 'value_key' ] ] = [
+						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
+						'is_available' => $this->con()->isPremiumActive() || !( $valueOpt[ 'premium' ] ?? false ),
 					];
+
+					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
+						$available[] = $valueOpt[ 'value_key' ];
+					}
 				}
-				$optDef[ 'value_options' ] = $convertedOptions;
+				$optDef[ 'value_options' ] = $converted;
+
+				/** For multi-selects, only show available options as checked on. */
+				if ( is_array( $optDef[ 'value' ] ) ) {
+					$optDef[ 'value' ] = array_intersect( $optDef[ 'value' ], $available );
+				}
 			}
 
 			if ( $this->getCon()->labels->is_whitelabelled ) {
@@ -231,7 +239,7 @@ class BuildForDisplay {
 			case 'file_locker':
 				if ( !Services::Data()->isWindows() ) {
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
-					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_enabled' ] = false;
+					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
 				}
 				break;
 

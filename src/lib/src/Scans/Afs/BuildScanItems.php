@@ -31,7 +31,7 @@ class BuildScanItems {
 			function ( $path ) {
 				return base64_encode( $path );
 			},
-			$files
+			array_values( $files )
 		);
 	}
 
@@ -39,7 +39,7 @@ class BuildScanItems {
 		/** @var ScanActionVO $action */
 		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 
-		if ( empty( $action->scan_root_dirs ) || !is_array( $action->scan_root_dirs ) ) {
+		if ( !is_array( $action->scan_root_dirs ) ) {
 			$action->scan_root_dirs = [
 				ABSPATH                           => 1,
 				\path_join( ABSPATH, WPINC )      => 0,

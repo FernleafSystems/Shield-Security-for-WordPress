@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
@@ -70,10 +70,9 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param Scans\Base\ResultItem $item
 	 * @throws \Exception
 	 */
-	protected function getActions( string $status, $item ) :array {
+	protected function getActions( string $status, ResultItem $item ) :array {
 		$con = $this->getCon();
 		$actionHandler = $this->mod()
 							  ->getScansCon()
@@ -129,11 +128,11 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		return $actions;
 	}
 
-	protected function getColumnContent_File( Scans\Afs\ResultItem $item ) :string {
+	protected function getColumnContent_File( ResultItem $item ) :string {
 		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
 	}
 
-	protected function getColumnContent_FileStatus( Scans\Afs\ResultItem $item, string $status ) :string {
+	protected function getColumnContent_FileStatus( ResultItem $item, string $status ) :string {
 		$content = $status;
 
 		$FS = Services::WpFs();
@@ -157,7 +156,7 @@ abstract class BaseLoadTableData extends DynPropertiesClass {
 		return $content;
 	}
 
-	protected function getColumnContent_FileAsHref( Scans\Afs\ResultItem $item ) :string {
+	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
 		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
 			$item->VO->scanresult_id,
