@@ -450,7 +450,7 @@
       "wpms_pages":   [
         "settings.php"
       ],
-      "wp_options":   [
+      "wp_options": [
         "blogname",
         "blogdescription",
         "siteurl",
@@ -460,7 +460,8 @@
         "users_can_register",
         "comments_notify",
         "comment_moderation",
-        "blog_public"
+        "blog_public",
+        "default_role"
       ],
       "wp_pages":     [
         "options-general.php",

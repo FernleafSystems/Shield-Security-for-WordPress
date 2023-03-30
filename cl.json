@@ -1,4 +1,50 @@
 {
+  "18.0": {
+    "version":     "18.0",
+    "released_at": 1677582000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease180",
+      "upgrade": "https://shsec.io/shieldupgradeguide180"
+    },
+    "title":       "Bringing Artificial Intelligence To Malware Detection",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Mal{ai} - Artificial Intelligence for Malware Detection",
+        "description": [
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Added Extra Protection To Security Admin",
+        "description": [
+          "default_user_role."
+        ]
+      },
+      {
+        "type":        "changed",
+        "title":       "Minimum WordPress Version: 4.7",
+        "description": [
+          "Based on Shield telemetry data, we're pushing our minimum supported WordPress version up to 4.7.",
+          "We'll continue to push this upwards as usage data suggests it make sense to do so."
+        ]
+      },
+      {
+        "type":        "removed",
+        "title":       "Removed Password Policy Option: Minimum Password Length",
+        "description": [
+          "Shield has an option to enforce minimum password strengths, and also an option to enforce minimum length.",
+          "Enforcing password length is unnecessary when a more holistic password strength meter is also applied."
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "17.0": {
     "version":     "17.0",
     "released_at": 1677582000,

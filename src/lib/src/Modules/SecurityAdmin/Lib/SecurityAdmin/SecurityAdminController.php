@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
@@ -10,12 +12,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminRequestRemoveByEmail
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
-class SecurityAdminController extends ExecOnceModConsumer {
+class SecurityAdminController {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function canRun() :bool {
 		return !$this->getCon()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
@@ -33,26 +37,26 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	 * Restrictions should only be applied after INIT
 	 */
 	public function setupRestrictions() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
+		if ( !$this->con()->isPluginAdmin() ) {
 			foreach ( $this->enumRestrictionZones() as $zone ) {
-				( new $zone() )->setMod( $this->getMod() )->execute();
+				( new $zone() )->execute();
 			}
-			if ( !$this->getCon()->isThisPluginModuleRequest() ) {
+			if ( !$this->con()->isThisPluginModuleRequest() ) {
 				add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
 			}
 
 			add_action( 'pre_uninstall_plugin', function ( $pluginFile ) {
 				// This can only protect against rogue, programmatic uninstalls, not when Shield is inactive.
-				if ( $pluginFile === $this->getCon()->base_file ) {
+				if ( $pluginFile === $this->con()->base_file ) {
 					$this->blockRemoval();
 				}
 			} );
-			add_action( $this->getCon()->prefix( 'pre_deactivate_plugin' ), [ $this, 'blockRemoval' ] );
+			add_action( $this->con()->prefix( 'pre_deactivate_plugin' ), [ $this, 'blockRemoval' ] );
 		}
 	}
 
 	public function blockRemoval() {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( !$con->isPluginAdmin() ) {
 			if ( !Services::WpUsers()->isUserAdmin() ) {
 				$con->fireEvent( 'attempt_deactivation' );
@@ -101,7 +105,6 @@ class SecurityAdminController extends ExecOnceModConsumer {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				/** @var Options $opts */
 				$opts = $this->getOptions();
 
 				$isSecAdmin = $this->getCon()->this_req->is_security_admin;
@@ -178,7 +181,6 @@ class SecurityAdminController extends ExecOnceModConsumer {
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser( $user = null ) :bool {
-		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();

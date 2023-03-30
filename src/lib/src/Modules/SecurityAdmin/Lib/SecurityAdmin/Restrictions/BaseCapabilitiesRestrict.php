@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Restrictions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
-
 class BaseCapabilitiesRestrict extends Base {
 
 	public const AREA_SLUG = '';
@@ -38,7 +36,6 @@ class BaseCapabilitiesRestrict extends Base {
 	}
 
 	protected function getRestrictedCapabilities() :array {
-		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$caps = $opts->getOpt( 'admin_access_restrict_'.static::AREA_SLUG, [] );
 		return is_array( $caps ) ? $caps : [];

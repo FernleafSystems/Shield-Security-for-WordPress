@@ -2,15 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Restrictions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Users extends Base {
 
 	protected function canRun() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isSecAdminRestrictUsersEnabled();
+		return $this->opts()->isSecAdminRestrictUsersEnabled();
 	}
 
 	protected function run() {
