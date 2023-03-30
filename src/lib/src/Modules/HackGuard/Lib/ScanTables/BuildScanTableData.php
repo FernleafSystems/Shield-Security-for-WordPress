@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -91,23 +92,36 @@ class BuildScanTableData extends BaseBuildTableData {
 		return $loader->run();
 	}
 
-	/**
-	 * @return TableData\BaseLoadTableData
-	 */
-	protected function getRecordsLoader() {
+	protected function getRecordsLoader() :LoadFileScanResultsTableData {
+		$loader = new LoadFileScanResultsTableData();
 		switch ( $this->type ) {
 			case 'plugin':
-				$loader = new TableData\LoadTableDataPlugin( Services::WpPlugins()->getPluginAsVo( $this->file ) );
+				$loader->custom_record_retriever_wheres = [
+					sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
+					sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $this->file ),
+				];
 				break;
 			case 'theme':
-				$loader = new TableData\LoadTableDataTheme( Services::WpThemes()->getThemeAsVo( $this->file ) );
+				$theme = Services::WpThemes()->getThemeAsVo( $this->file );
+				if ( !empty( $theme ) ) {
+					$loader->custom_record_retriever_wheres = [
+						sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
+						sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $theme->stylesheet ),
+					];
+				}
 				break;
 			case 'malware':
-				$loader = new TableData\LoadTableDataMalware();
+				$loader->custom_record_retriever_wheres = [
+					sprintf( "%s.`meta_key`='is_mal'", RetrieveBase::ABBR_RESULTITEMMETA ),
+					sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
+				];
 				break;
 			case 'wordpress':
 			default:
-				$loader = new TableData\LoadTableDataWordpress();
+				$loader->custom_record_retriever_wheres = [
+					sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
+					sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
+				];
 				break;
 		}
 

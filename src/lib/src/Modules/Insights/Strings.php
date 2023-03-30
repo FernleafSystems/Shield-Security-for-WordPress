@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-
-class Strings extends Base\Strings {
+/**
+ * @deprecated 18.0
+ */
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
 }

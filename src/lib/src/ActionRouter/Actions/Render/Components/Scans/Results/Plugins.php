@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData\LoadTableDataPlugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadFileScanResultsTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData\LoadFileScanResultsTableDataPlugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
@@ -83,7 +85,13 @@ class Plugins extends PluginThemesBase {
 		$carbon = Services::Request()->carbon();
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $plugin->file );
-		$countGuardFiles = ( new LoadTableDataPlugin( $plugin ) )->countAll();
+
+		$resultsLoader = new LoadFileScanResultsTableData();
+		$resultsLoader->custom_record_retriever_wheres = [
+			sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
+			sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $plugin->file ),
+		];
+		$countGuardFiles = $resultsLoader->countAll();
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $plugin->file );
 

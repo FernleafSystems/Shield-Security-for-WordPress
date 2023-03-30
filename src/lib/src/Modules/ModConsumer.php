@@ -29,6 +29,10 @@ trait ModConsumer {
 		return shield_security_get_plugin()->getController();
 	}
 
+	public function mod() {
+		return $this->getMod();
+	}
+
 	/**
 	 * @return Base\ModCon|mixed
 	 */

@@ -8,7 +8,7 @@ trait PluginControllerConsumer {
 
 	/**
 	 * @var Controller
-	 * @deprecated 17.1
+	 * @deprecated 18.0
 	 */
 	private $oPlugCon;
 
@@ -17,7 +17,7 @@ trait PluginControllerConsumer {
 	}
 
 	/**
-	 * @since 17.1
+	 * @since 18.0
 	 */
 	public function con() :Controller {
 		return shield_security_get_plugin()->getController();
