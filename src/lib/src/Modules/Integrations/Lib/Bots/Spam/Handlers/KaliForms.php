@@ -16,8 +16,4 @@ class KaliForms extends Base {
 			return $data;
 		}, 1000 );
 	}
-
-	public static function IsProviderInstalled() :bool {
-		return defined( '\KALIFORMS_PLUGIN_FILE' ) && @class_exists( '\KaliForms\Inc\KaliForms' );
-	}
 }

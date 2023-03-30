@@ -24,7 +24,7 @@ class RestrictContentPro extends Base {
 		}
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\RCP_Requirements_Check' ) && function_exists( '\rcp_errors' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return \function_exists( '\rcp_errors' );
 	}
 }

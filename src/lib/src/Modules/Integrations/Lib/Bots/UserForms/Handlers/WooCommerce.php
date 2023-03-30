@@ -54,8 +54,4 @@ class WooCommerce extends Base {
 		}
 		return $wpError;
 	}
-
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\WooCommerce' );
-	}
 }

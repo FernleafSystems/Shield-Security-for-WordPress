@@ -401,8 +401,10 @@ abstract class BaseRender extends BaseAction {
 		if ( $ipStatus->isBypass() ) {
 			$warnings[] = [
 				'type' => 'warning', // Boostrap,
-				'text' => sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
+				'text' => [
+					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
+				]
 			];
 		}
 		elseif ( $ipStatus->isBlocked() ) {

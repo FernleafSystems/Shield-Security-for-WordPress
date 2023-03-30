@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
 abstract class BaseHandler {
 
@@ -13,7 +14,7 @@ abstract class BaseHandler {
 	private static $isBot = null;
 
 	protected function canRun() :bool {
-		return static::IsProviderInstalled();
+		return static::ProviderMeetsRequirements();
 	}
 
 	/**
@@ -77,11 +78,20 @@ abstract class BaseHandler {
 			   && in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
 	}
 
+	public static function IsProviderAvailable() :bool {
+		return static::IsProviderInstalled() && static::ProviderMeetsRequirements();
+	}
+
 	public static function IsProviderInstalled() :bool {
-		return false;
+		$slug = static::Slug();
+		return $slug === 'wordpress' || ( new Find() )->isPluginActive( $slug );
+	}
+
+	protected static function ProviderMeetsRequirements() :bool {
+		return true;
 	}
 
 	protected function isProOnly() :bool {
-		return true;
+		return static::Slug() !== 'wordpress';
 	}
 }

@@ -18,8 +18,7 @@ class NinjaForms extends Base {
 	protected function run() {
 
 		add_filter( 'ninja_forms_register_actions', function ( $actions ) {
-			$actions[ 'shieldantibot' ] = ( new NinjaForms_ShieldSpamAction() )
-				->setHandler( $this );
+			$actions[ 'shieldantibot' ] = ( new NinjaForms_ShieldSpamAction() )->setHandler( $this );
 			return $actions;
 		}, 1000 );
 
@@ -33,9 +32,5 @@ class NinjaForms extends Base {
 			];
 			return $actions;
 		}, 1000 );
-	}
-
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\Ninja_Forms' );
 	}
 }

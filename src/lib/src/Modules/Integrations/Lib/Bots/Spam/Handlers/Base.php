@@ -27,6 +27,6 @@ abstract class Base extends BaseHandler {
 
 	protected function getCommonSpamMessage() :string {
 		return sprintf( __( "This appears to be spam as it failed %s AntiBot protection checks.", 'wp-simple-firewall' ),
-			$this->getCon()->getHumanName() );
+			$this->con()->getHumanName() );
 	}
 }

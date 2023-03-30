@@ -9,7 +9,7 @@ class WPForms extends Base {
 	protected function run() {
 		add_filter( 'wpforms_process_before_form_data',
 			function ( $formData, $formEntry ) {
-				$this->workingFormID = absint( $formEntry[ 'id' ] );
+				$this->workingFormID = \absint( $formEntry[ 'id' ] );
 				return $formData;
 			},
 			1000, 2
@@ -25,9 +25,5 @@ class WPForms extends Base {
 
 			return $errors;
 		}, 1000, 2 );
-	}
-
-	public static function IsProviderInstalled() :bool {
-		return defined( '\WPFORMS_VERSION' ) && function_exists( '\wpforms' );
 	}
 }

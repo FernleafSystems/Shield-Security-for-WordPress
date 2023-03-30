@@ -40,7 +40,7 @@ class UltimateMember extends Base {
 		}
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return function_exists( '\UM' ) && @class_exists( '\UM' ) && method_exists( '\UM', 'form' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return \method_exists( '\UM', 'form' );
 	}
 }

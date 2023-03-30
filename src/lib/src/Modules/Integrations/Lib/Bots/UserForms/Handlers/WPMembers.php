@@ -38,8 +38,4 @@ class WPMembers extends Base {
 			$wpmem_themsg = $this->getErrorMessage();
 		}
 	}
-
-	public static function IsProviderInstalled() :bool {
-		return defined( '\WPMEM_VERSION' ) && function_exists( '\wpmem_init' );
-	}
 }

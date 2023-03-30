@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
 class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionController {
 
@@ -22,19 +23,19 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 	 */
 	public function enumProviders() :array {
 		return [
-			'buddyboss'               => Handlers\Buddyboss::class,
-			'buddypress'              => Handlers\Buddypress::class,
-			'easydigitaldownloads'    => Handlers\EasyDigitalDownloads::class,
-			'learnpress'              => Handlers\LearnPress::class,
-			'lifterlms'               => Handlers\LifterLMS::class,
-			'memberpress'             => Handlers\MemberPress::class,
-			'paidmembersubscriptions' => Handlers\PaidMemberSubscriptions::class,
-			'profilebuilder'          => Handlers\ProfileBuilder::class,
-			'restrictcontentpro'      => Handlers\RestrictContentPro::class,
-			'ultimatemember'          => Handlers\UltimateMember::class,
-			'woocommerce'             => Handlers\WooCommerce::class,
-			'wordpress'               => Handlers\WordPress::class,
-			'wpmembers'               => Handlers\WPMembers::class,
+			Find::BUDDYBOSS                 => Handlers\Buddyboss::class,
+			Find::BUDDYPRESS                => Handlers\Buddypress::class,
+			Find::EASY_DIGITAL_DOWNLOADS    => Handlers\EasyDigitalDownloads::class,
+			Find::LEARNPRESS                => Handlers\LearnPress::class,
+			Find::LIFTERLMS                 => Handlers\LifterLMS::class,
+			Find::MEMBERPRESS               => Handlers\MemberPress::class,
+			Find::PAID_MEMBER_SUBSCRIPTIONS => Handlers\PaidMemberSubscriptions::class,
+			Find::PROFILE_BUILDER           => Handlers\ProfileBuilder::class,
+			Find::RESTRICT_CONTENT_PRO      => Handlers\RestrictContentPro::class,
+			Find::ULTIMATE_MEMBER           => Handlers\UltimateMember::class,
+			Find::WOOCOMMERCE               => Handlers\WooCommerce::class,
+			'wordpress'                     => Handlers\WordPress::class,
+			Find::WP_MEMBERS                => Handlers\WPMembers::class,
 		];
 	}
 }

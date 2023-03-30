@@ -16,9 +16,8 @@ class HappyForms extends Base {
 		);
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return function_exists( '\HappyForms' ) && @class_exists( '\HappyForms' )
-			   && function_exists( '\happyforms_get_version' )
-			   && version_compare( (string)happyforms_get_version(), '1.15', '>=' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return \function_exists( '\happyforms_get_version' )
+			   && \version_compare( (string)happyforms_get_version(), '1.15', '>=' );
 	}
 }

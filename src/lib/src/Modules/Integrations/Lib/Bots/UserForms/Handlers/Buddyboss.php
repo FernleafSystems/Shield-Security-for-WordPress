@@ -18,9 +18,8 @@ class Buddyboss extends Base {
 		}
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\BuddyPress' )
-			   && method_exists( '\BuddyPress', 'instance' )
+	protected static function ProviderMeetsRequirements() :bool {
+		return method_exists( '\BuddyPress', 'instance' )
 			   && function_exists( '\buddypress' )
 			   && \BuddyPress::instance()->buddyboss === true;
 	}

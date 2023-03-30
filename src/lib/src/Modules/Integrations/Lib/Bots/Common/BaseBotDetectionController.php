@@ -24,7 +24,7 @@ abstract class BaseBotDetectionController {
 			$this->installedProviders = array_filter(
 				$this->enumProviders(),
 				function ( string $provider ) {
-					return $provider::IsProviderInstalled();
+					return $provider::IsProviderAvailable();
 				}
 			);
 		}

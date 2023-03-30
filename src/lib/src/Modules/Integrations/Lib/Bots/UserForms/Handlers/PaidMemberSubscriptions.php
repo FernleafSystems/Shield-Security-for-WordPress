@@ -15,7 +15,7 @@ class PaidMemberSubscriptions extends Base {
 		}
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\Paid_Member_Subscriptions' ) && function_exists( '\pms_errors' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return \function_exists( '\pms_errors' );
 	}
 }

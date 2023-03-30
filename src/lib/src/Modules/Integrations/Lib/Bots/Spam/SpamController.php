@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
 class SpamController extends BaseBotDetectionController {
 
@@ -15,22 +16,22 @@ class SpamController extends BaseBotDetectionController {
 	 */
 	public function enumProviders() :array {
 		return [
-			'calderaforms'    => Handlers\CalderaForms::class,
-			'contactform7'    => Handlers\ContactForm7::class,
-			'elementorpro'    => Handlers\ElementorPro::class,
-			'fluentforms'     => Handlers\FluentForms::class,
-			'formidableforms' => Handlers\FormidableForms::class,
-			'forminator'      => Handlers\Forminator::class,
-			'gravityforms'    => Handlers\GravityForms::class,
-			'groundhogg'      => Handlers\Groundhogg::class,
-			'happyforms'      => Handlers\HappyForms::class,
-			'kaliforms'       => Handlers\KaliForms::class,
-			'ninjaforms'      => Handlers\NinjaForms::class,
-			'superforms'      => Handlers\SuperForms::class,
-			'supportcandy'    => Handlers\SupportCandy::class,
-			'weforms'         => Handlers\WeForms::class,
-			'wpforms'         => Handlers\WPForms::class,
-			'wpforo'          => Handlers\WpForo::class,
+			Find::CALDERA_FORMS    => Handlers\CalderaForms::class,
+			Find::CONTACT_FORM_7   => Handlers\ContactForm7::class,
+			Find::ELEMENTOR_PRO    => Handlers\ElementorPro::class,
+			Find::FLUENT_FORMS     => Handlers\FluentForms::class,
+			Find::FORMIDABLE_FORMS => Handlers\FormidableForms::class,
+			Find::FORMINATOR       => Handlers\Forminator::class,
+			Find::GRAVITY_FORMS    => Handlers\GravityForms::class,
+			Find::GROUNDHOGG       => Handlers\Groundhogg::class,
+			Find::HAPPY_FORMS      => Handlers\HappyForms::class,
+			Find::KALI_FORMS       => Handlers\KaliForms::class,
+			Find::NINJA_FORMS      => Handlers\NinjaForms::class,
+			Find::SUPER_FORMS      => Handlers\SuperForms::class,
+			Find::SUPPORT_CANDY    => Handlers\SupportCandy::class,
+			Find::WEFORMS          => Handlers\WeForms::class,
+			Find::WP_FORMS         => Handlers\WPForms::class,
+			Find::WP_FORO          => Handlers\WpForo::class,
 		];
 	}
 }

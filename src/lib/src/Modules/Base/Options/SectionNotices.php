@@ -214,7 +214,7 @@ class SectionNotices {
 						$mod->getController_SpamForms()->enumProviders()
 					),
 					function ( $provider ) {
-						return !$provider->isEnabled() && $provider::IsProviderInstalled();
+						return !$provider->isEnabled() && $provider::IsProviderAvailable();
 					}
 				);
 

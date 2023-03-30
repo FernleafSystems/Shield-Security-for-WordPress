@@ -10,9 +10,7 @@ class GravityForms extends Base {
 		}, 1000 );
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\GFForms' )
-			   && isset( \GFForms::$version )
-			   && version_compare( \GFForms::$version, '2.4.17', '>=' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return isset( \GFForms::$version ) && version_compare( \GFForms::$version, '2.4.17', '>=' );
 	}
 }

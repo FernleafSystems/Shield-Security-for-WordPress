@@ -11,11 +11,7 @@ class EasyDigitalDownloads extends Base {
 	public function checkRegister_EDD() {
 		if ( $this->setAuditAction( 'register' )->isBotBlockRequired() ) {
 			$this->fireEventBlockRegister();
-			edd_set_error( uniqid(), $this->getErrorMessage() );
+			\edd_set_error( \uniqid(), $this->getErrorMessage() );
 		}
-	}
-
-	public static function IsProviderInstalled() :bool {
-		return function_exists( '\edd_set_error' ) && @class_exists( '\Easy_Digital_Downloads' );
 	}
 }

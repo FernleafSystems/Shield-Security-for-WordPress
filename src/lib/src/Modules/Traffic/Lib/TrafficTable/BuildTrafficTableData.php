@@ -132,7 +132,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	protected function getRecordsLoader() :LoadRequestLogs {
-		return ( new LoadRequestLogs() )->setMod( $this->getCon()->getModule_Data() );
+		return new LoadRequestLogs();
 	}
 
 	protected function getSearchableColumns() :array {

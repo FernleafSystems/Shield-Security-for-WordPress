@@ -15,8 +15,7 @@ class CalderaForms extends Base {
 		}, 1000, 2 );
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return function_exists( '\caldera_forms_load' ) && defined( 'CF_DB' )
-			   && defined( 'CFCORE_VER' ) && version_compare( CFCORE_VER, '1.9.6', '>=' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return \defined( '\CFCORE_VER' ) && \version_compare( \CFCORE_VER, '1.9.6', '>=' );
 	}
 }

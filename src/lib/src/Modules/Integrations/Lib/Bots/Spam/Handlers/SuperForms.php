@@ -12,9 +12,7 @@ class SuperForms extends Base {
 		}, 1000 );
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\SUPER_Forms' )
-			   && isset( \SUPER_Forms::$version )
-			   && version_compare( \SUPER_Forms::$version, '4.9', '>=' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return isset( \SUPER_Forms::$version ) && \version_compare( \SUPER_Forms::$version, '4.9', '>=' );
 	}
 }

@@ -46,7 +46,8 @@
     "16.1.2",
     "16.1.7",
     "17.0.0",
-    "17.1.0"
+    "17.1.0",
+    "18.0.0"
   ],
   "paths":            {
     "config":           "config",
@@ -449,7 +450,6 @@
     "license",
     "lockdown",
     "login_protect",
-    "reporting",
     "traffic",
     "user_management"
   ]
