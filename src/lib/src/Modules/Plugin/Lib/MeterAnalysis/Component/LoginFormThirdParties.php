@@ -20,7 +20,7 @@ class LoginFormThirdParties extends Base {
 	private function getUnprotectedProvidersByName() :array {
 		return array_filter( array_map(
 			function ( string $providerClass ) {
-				$provider = ( new $providerClass() )->setMod( $this->getCon()->getModule_Integrations() );
+				$provider = new $providerClass();
 				return $provider->isEnabled() ? null : $provider->getHandlerName();
 			},
 			$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled()

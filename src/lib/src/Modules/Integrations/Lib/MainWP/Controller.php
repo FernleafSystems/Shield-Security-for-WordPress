@@ -2,12 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 
-class Controller extends ExecOnceModConsumer {
+class Controller {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	public const MIN_VERSION_MAINWP = '4.1';
 
@@ -43,9 +47,7 @@ class Controller extends ExecOnceModConsumer {
 			throw new \Exception( 'MainWP Child not active' );
 		}
 
-		( new Client\Actions\Init() )
-			->setMod( $this->getMod() )
-			->run();
+		( new Client\Actions\Init() )->run();
 
 		$con->mwpVO = $mwpVO;
 	}
@@ -64,9 +66,7 @@ class Controller extends ExecOnceModConsumer {
 			throw new \Exception( 'MainWP not active' );
 		}
 
-		$mwpVO->child_key = ( new Server\Init() )
-			->setMod( $this->getMod() )
-			->run();
+		$mwpVO->child_key = ( new Server\Init() )->run();
 		$mwpVO->child_file = $con->getRootFile();
 
 		$mwpVO->is_server = true;

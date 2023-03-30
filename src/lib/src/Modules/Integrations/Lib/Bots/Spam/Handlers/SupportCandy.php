@@ -16,7 +16,7 @@ class SupportCandy extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return @class_exists( 'Support_Candy' )
+		return @class_exists( '\Support_Candy' )
 			   && defined( 'WPSC_VERSION' ) && version_compare( WPSC_VERSION, '2.2.3', '>=' );
 	}
 }

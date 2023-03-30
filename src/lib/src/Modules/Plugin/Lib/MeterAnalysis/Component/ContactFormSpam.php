@@ -15,7 +15,7 @@ class ContactFormSpam extends Base {
 		$modIntegrations = $this->getCon()->getModule_Integrations();
 		return array_filter( array_map(
 			function ( string $providerClass ) {
-				$provider = ( new $providerClass() )->setMod( $this->getCon()->getModule_Integrations() );
+				$provider = new $providerClass();
 				return $provider->isEnabled() ? null : $provider->getHandlerName();
 			},
 			$modIntegrations->getController_SpamForms()->getInstalled()

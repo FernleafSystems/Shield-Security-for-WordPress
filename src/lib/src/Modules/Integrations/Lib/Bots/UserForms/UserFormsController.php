@@ -17,6 +17,9 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 		return 'user_form_providers';
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function enumProviders() :array {
 		return [
 			'buddyboss'               => Handlers\Buddyboss::class,

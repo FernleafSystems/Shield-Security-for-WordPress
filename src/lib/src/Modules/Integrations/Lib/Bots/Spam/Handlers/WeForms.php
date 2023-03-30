@@ -17,7 +17,7 @@ class WeForms extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return @class_exists( 'WeForms' )
+		return @class_exists( '\WeForms' )
 			   && defined( 'WEFORMS_VERSION' ) && version_compare( WEFORMS_VERSION, '1.6', '>=' );
 	}
 }

@@ -2,9 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 
-abstract class BaseHandler extends ExecOnceModConsumer {
+abstract class BaseHandler {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	private static $isBot = null;
 
@@ -30,10 +34,9 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	public function getHandlerName() :string {
 		$name = 'Undefined Name';
 
-		$valueOptions = $this->getOptions()
-							 ->getOptDefinition(
-								 $this->getHandlerController()->getSelectedProvidersOptKey()
-							 )[ 'value_options' ];
+		$valueOptions = $this->opts()->getOptDefinition(
+			$this->getHandlerController()->getSelectedProvidersOptKey()
+		)[ 'value_options' ];
 
 		foreach ( $valueOptions as $valueOption ) {
 			if ( $valueOption[ 'value_key' ] === static::Slug() ) {

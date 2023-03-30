@@ -12,8 +12,8 @@ class WpForo extends Base {
 				if ( is_array( $args ) ) {
 					$status = $args[ 'status' ] ?? null;
 					if ( $status !== 1 && $this->isBotBlockRequired() ) {
-						if ( !empty( WPF()->current_userid ) ) {
-							WPF()->moderation->ban_for_spam( WPF()->current_userid );
+						if ( !empty( \WPF()->current_userid ) ) {
+							\WPF()->moderation->ban_for_spam( \WPF()->current_userid );
 						}
 						$args[ 'status' ] = 1; // 1 signifies not approved
 					}
@@ -34,6 +34,6 @@ class WpForo extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return function_exists( 'WPF' ) && @class_exists( 'wpForo' ) && !empty( WPF()->tools_antispam[ 'spam_filter' ] );
+		return function_exists( '\WPF' ) && @class_exists( '\wpForo' ) && !empty( \WPF()->tools_antispam[ 'spam_filter' ] );
 	}
 }

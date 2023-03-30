@@ -24,6 +24,6 @@ class ProfileBuilder extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return defined( 'PROFILE_BUILDER_VERSION' );
+		return \defined( 'PROFILE_BUILDER_VERSION' );
 	}
 }

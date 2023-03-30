@@ -40,6 +40,6 @@ class WPMembers extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' );
+		return defined( '\WPMEM_VERSION' ) && function_exists( '\wpmem_init' );
 	}
 }

@@ -28,6 +28,6 @@ class WPForms extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return defined( 'WPFORMS_VERSION' ) && function_exists( 'wpforms' );
+		return defined( '\WPFORMS_VERSION' ) && function_exists( '\wpforms' );
 	}
 }

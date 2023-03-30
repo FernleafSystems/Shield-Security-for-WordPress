@@ -226,8 +226,9 @@ class Strings extends Base\Strings {
 					__( 'Each scan area performs a specific task, as follows:', 'wp-simple-firewall' ),
 					sprintf( '- <strong>%s</strong>: %s', __( 'WP core files', 'wp-simple-firewall' ),
 						implode( ' ', [
-							__( "Scans all WP files that are installed for your WordPress version.", 'wp-simple-firewall' ),
-							__( "It also looks for files that shouldn't be in a WP Core directory.", 'wp-simple-firewall' ),
+							__( "Scans all WP files for your current WordPress version.", 'wp-simple-firewall' ),
+							sprintf( __( "It also looks for files that shouldn't be in core WP directories (%s).", 'wp-simple-firewall' ),
+								'<code>/wp-admin/</code>, <code>/wp-includes/</code>' ),
 							sprintf( __( "Doesn't look within the %s directory.", 'wp-simple-firewall' ), '<code>/wp-content/</code>' )
 						] )
 					),

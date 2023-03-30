@@ -20,6 +20,6 @@ class FormidableForms extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return function_exists( 'load_formidable_forms' ) && @class_exists( '\FrmHooksController' );
+		return function_exists( '\load_formidable_forms' ) && @class_exists( '\FrmHooksController' );
 	}
 }

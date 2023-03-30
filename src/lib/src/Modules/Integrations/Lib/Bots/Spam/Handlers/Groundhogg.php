@@ -11,6 +11,6 @@ class Groundhogg extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return defined( 'GROUNDHOGG_VERSION' ) && version_compare( GROUNDHOGG_VERSION, '2.4.5.5', '>=' );
+		return defined( '\GROUNDHOGG_VERSION' ) && version_compare( GROUNDHOGG_VERSION, '2.4.5.5', '>=' );
 	}
 }

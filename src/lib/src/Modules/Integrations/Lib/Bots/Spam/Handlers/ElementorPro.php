@@ -16,6 +16,6 @@ class ElementorPro extends Base {
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return defined( 'ELEMENTOR_PRO_VERSION' ) && @function_exists( 'elementor_pro_load_plugin' );
+		return defined( '\ELEMENTOR_PRO_VERSION' ) && @function_exists( '\elementor_pro_load_plugin' );
 	}
 }

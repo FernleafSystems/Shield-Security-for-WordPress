@@ -2,9 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 
-abstract class BaseBotDetectionController extends ExecOnceModConsumer {
+abstract class BaseBotDetectionController {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	private $installedProviders;
 
@@ -30,7 +34,7 @@ abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 	protected function run() {
 		array_map(
 			function ( string $providerClass ) {
-				( new $providerClass() )->setMod( $this->getMod() )->execute();
+				( new $providerClass() )->execute();
 			},
 			array_intersect_key( $this->getInstalled(), array_flip( $this->getSelectedProviders() ) )
 		);
@@ -40,7 +44,7 @@ abstract class BaseBotDetectionController extends ExecOnceModConsumer {
 	 * @return string[]
 	 */
 	public function getSelectedProviders() :array {
-		return $this->getOptions()->getOpt( $this->getSelectedProvidersOptKey(), [] );
+		return $this->opts()->getOpt( $this->getSelectedProvidersOptKey(), [] );
 	}
 
 	abstract public function getSelectedProvidersOptKey() :string;
