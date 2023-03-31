@@ -78,8 +78,6 @@ class PageScansResults extends BasePluginAdminPage {
 			}
 		}
 
-		// Can Scan Checks:
-		$reasonsCantScan = $scansCon->getReasonsScansCantExecute();
 		return [
 			'ajax'        => [
 				'scans_start' => ActionData::BuildJson( ScansStart::class ),
@@ -98,7 +96,6 @@ class PageScansResults extends BasePluginAdminPage {
 			'file_locker' => $this->getFileLockerVars(),
 			'flags'       => [
 				'is_premium'      => $con->isPremiumActive(),
-				'can_scan'        => count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
 			'hrefs'       => [
@@ -125,7 +122,6 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			'vars'        => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
-				'cannot_scan_reasons' => $reasonsCantScan,
 				'sections'            => [
 					'plugins'   => [
 						'count' => $counter->countPluginFiles() + $vulnerableOrAbandonedPlugins,

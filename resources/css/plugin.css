@@ -1007,12 +1007,51 @@ button.bs-placeholder {
 #ShieldGeneralPurposeDialog .card-header {
 	background: transparent;
 }
+th.actions,
+td.actions {
+	width: 150px !important;
+	max-width: 160px;
+}
+th.detected,
+td.detected {
+	width: 80px;
+	max-width: 80px;
+}
+th.status,
 td.status {
-	min-width: 150px;
+	max-width: 170px;
+	width: 170px;
 }
 td.status ul,
 td.mal_details ul {
+	margin-bottom: 2px;
 	padding-left: 0;
+}
+th.mal_details,
+td.mal_details {
+	min-width: 100px;
+}
+th.status_file_size,
+td.status_file_size  {
+	width: 60px !important;
+	max-width: 60px;
+}
+td.status_file_type  {
+	min-width: 30px;
+	max-width: 30px;
+	width: 30px !important;
+	text-align: center;
+}
+th.file_as_href,
+td.file_as_href {
+	font-family: monospace;
+	font-size: 14px;
+	word-break: break-all;
+	min-width: 150px;
+}
+td.status_file_size  {
+	width: 60px !important;
+	max-width: 60px;
 }
 
 #apto-PageHeader {

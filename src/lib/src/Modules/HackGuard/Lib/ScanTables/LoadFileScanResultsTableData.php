@@ -55,17 +55,19 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getDataFromItem( ResultItem $item ) :array {
 		$data = array_merge( $item->getRawData(), [
-			'rid'            => $item->VO->scanresult_id,
-			'file'           => $item->path_fragment,
-			'created_at'     => $item->VO->created_at,
-			'detected_since' => Services::Request()
-										->carbon( true )
-										->setTimestamp( $item->VO->created_at )
-										->diffForHumans(),
-			'file_as_href'   => $this->getColumnContent_File( $item ),
-			'file_type'      => strtoupper( Services::Data()->getExtension( $item->path_full ) ),
-			'status'         => $this->getColumnContent_FileStatus( $item ),
-			'actions'        => implode( ' ', $this->getActions( $item ) ),
+			'rid'              => $item->VO->scanresult_id,
+			'file'             => $item->path_fragment,
+			'created_at'       => $item->VO->created_at,
+			'detected_since'   => Services::Request()
+										  ->carbon( true )
+										  ->setTimestamp( $item->VO->created_at )
+										  ->diffForHumans(),
+			'file_as_href'     => $this->getColumnContent_FileAsHref( $item ),
+			'file_type'        => strtoupper( Services::Data()->getExtension( $item->path_full ) ),
+			'status_file_size' => $this->column_fileSize( $item ),
+			'status_file_type' => $this->column_fileType( $item ),
+			'status'           => $this->getColumnContent_FileStatus( $item ),
+			'actions'          => implode( ' ', $this->getActions( $item ) ),
 		] );
 
 		if ( $item->is_mal ) {
@@ -73,7 +75,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			if ( !empty( $malRecord ) ) {
 				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $malRecord->sig ) );
 				$data[ 'mal_details' ] = $this->getColumnContent_MalwareDetailsForRecord(
-					$malRecord,
+					$item,
 					$data[ 'mal_sig' ]
 				);
 			}
@@ -196,7 +198,38 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $actions;
 	}
 
-	protected function getColumnContent_MalwareDetailsForRecord( Record $record, string $sig ) :string {
+	protected function column_fileSize( ResultItem $item ) :string {
+		$FS = Services::WpFs();
+		return $FS->isAccessibleFile( $item->path_full ) ?
+			FormatBytes::Format( $FS->getFileSize( $item->path_full ) ) : '-';
+	}
+
+	protected function column_fileType( ResultItem $item ) :string {
+		$extension = strtoupper( Paths::Ext( $item->path_full ) );
+		if ( strpos( $extension, 'PHP' ) !== false ) {
+			$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
+				$this->con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
+		}
+		elseif ( $extension === 'JS' ) {
+			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
+				$this->con()->urls->forImage( 'icons/icon-javascript.png' ), $extension, $extension );
+		}
+		elseif ( $extension === 'CSS' ) {
+			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
+				$this->con()->urls->forImage( 'icons/icon-css.png' ), $extension, $extension );
+		}
+		elseif ( $extension === 'ICO' ) {
+			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
+				$this->con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
+		}
+		else {
+			$type = $extension;
+		}
+		return $type;
+	}
+
+	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ) :string {
+		$record = $item->getMalwareRecord();
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
 			implode( '</li><li>', [
 				sprintf( '%s: <span class="badge text-bg-%s">%s</span>',
@@ -205,6 +238,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 					( new MalwareStatus() )->nameFromStatusLabel( $record->malai_status )
 				),
 				sprintf( '%s: %s', __( 'Pattern Detected' ), $sig ),
+				sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
+					Services::Request()
+							->carbon()
+							->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
+						   ->diffForHumans()
+				)
 			] )
 		);
 	}
@@ -226,41 +265,13 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		$FS = Services::WpFs();
 
 		if ( $FS->isFile( $item->path_full ) ) {
-			$extension = strtoupper( Paths::Ext( $item->path_full ) );
-			if ( strpos( $extension, 'PHP' ) !== false ) {
-				$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
-					$this->con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
-			}
-			elseif ( $extension === 'JS' ) {
-				$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-					$this->con()->urls->forImage( 'icons/icon-javascript.png' ), $extension, $extension );
-			}
-			elseif ( $extension === 'CSS' ) {
-				$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-					$this->con()->urls->forImage( 'icons/icon-css.png' ), $extension, $extension );
-			}
-			elseif ( $extension === 'ICO' ) {
-				$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-					$this->con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
-			}
-			else {
-				$type = $extension;
-			}
-
 			$carbon = Services::Request()->carbon( true );
 			$content = sprintf( '%s<ul style="list-style: square inside"><li>%s</li></ul>',
-				$item->getStatusForHuman(),
+				sprintf( '<span class="badge text-bg-secondary">%s</span>', $item->getStatusForHuman() ),
 				implode( '</li><li>', [
 					sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 						$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )
 							   ->diffForHumans()
-					),
-					sprintf( '%s: %s', __( 'Size', 'wp-simple-firewall' ),
-						FormatBytes::Format( $FS->getFileSize( $item->path_full ) )
-					),
-					sprintf( '%s: %s',
-						__( 'Type', 'wp-simple-firewall' ),
-						$type
 					)
 				] )
 			);

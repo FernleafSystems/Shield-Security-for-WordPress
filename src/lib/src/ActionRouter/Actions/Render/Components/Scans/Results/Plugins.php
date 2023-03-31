@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadFileScanResultsTableData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData\LoadFileScanResultsTableDataPlugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -98,15 +97,14 @@ class Plugins extends PluginThemesBase {
 		$isCheckActive = apply_filters( 'shield/scans_check_plugin_active', true );
 		$isCheckUpdates = apply_filters( 'shield/scans_check_plugin_update', true );
 
-		$flags = [
+		$flags = array_merge( [
 			'has_update'      => $plugin->hasUpdate(),
 			'has_guard_files' => $countGuardFiles > 0,
 			'is_abandoned'    => !empty( $abandoned ),
 			'is_active'       => $plugin->active,
 			'is_vulnerable'   => !empty( $vulnerabilities ),
-			'is_wporg'        => $plugin->isWpOrg(),
-			'has_tag'         => $plugin->isWpOrg() && $plugin->svn_uses_tags,
-		];
+		], $this->getCachedFlags( $plugin ) );
+
 		$flags[ 'has_issue' ] = $flags[ 'is_abandoned' ]
 								|| $flags[ 'has_guard_files' ]
 								|| $flags[ 'is_vulnerable' ];

@@ -4,9 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForPluginTheme;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 abstract class PluginThemesBase extends Base {
+
+	private static $wpOrgDataCache = false;
 
 	protected function getRenderData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
@@ -49,5 +54,27 @@ abstract class PluginThemesBase extends Base {
 			$abandoned = new Scans\Apc\ResultsSet();
 		}
 		return $abandoned;
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $item
+	 */
+	protected function getCachedFlags( $item ) :array {
+		if ( !is_array( self::$wpOrgDataCache ) ) {
+			self::$wpOrgDataCache = Transient::Get( 'apto-shield-plugintheme-flags-cache' );
+			if ( !is_array( self::$wpOrgDataCache ) ) {
+				self::$wpOrgDataCache = [];
+			}
+		}
+
+		if ( !isset( self::$wpOrgDataCache[ $item->unique_id ] ) ) {
+			self::$wpOrgDataCache[ $item->unique_id ] = [
+				'is_wporg' => $item->isWpOrg(),
+				'has_tag'  => $item->isWpOrg() && $item->svn_uses_tags,
+			];
+			Transient::Set( 'apto-shield-plugintheme-flags-cache', self::$wpOrgDataCache, \HOUR_IN_SECONDS );
+		}
+
+		return self::$wpOrgDataCache[ $item->unique_id ];
 	}
 }
