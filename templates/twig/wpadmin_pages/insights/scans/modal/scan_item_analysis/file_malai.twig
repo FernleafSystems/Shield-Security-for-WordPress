@@ -1,0 +1,41 @@
+<div class="row">
+	<div class="col scan-item-malaiquery">
+		<h4>{{ strings.title }}</h4>
+		<p>{{ strings.subtitle }}</p>
+		<ul>
+			{% for line in strings.introduction %}
+				<li>{{ line|raw }}</li>
+			{% endfor %}
+		</ul>
+		<ul>
+			{% for line in strings.important %}
+				<li class="text-danger">{{ line|raw }}</li>
+			{% endfor %}
+		</ul>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col scan-item-malaiquery">
+
+		<form id="FileScanMalaiQuery" autocomplete="off" method="post"
+		      action="#"
+		      enctype="multipart/form-data">
+			{% for input_name,input_value in vars.malai_query_nonce %}
+				<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
+			{% endfor %}
+			<div class="my-2">
+				<label for="_confirm" class="col-form-label">
+					<input type="checkbox" class="form-control text-end"
+					       name="confirm" id="_confirm" value="Y" />
+					{{ strings.i_accept }}
+					<br />
+				</label>
+			</div>
+			<div class="text-start">
+				<input id="SubmitForm" class="btn btn-primary" type="submit"
+				       value="{{ strings.run_malai_query }}" />
+			</div>
+		</form>
+	</div>
+</div>

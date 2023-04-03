@@ -435,7 +435,7 @@ abstract class BaseRender extends BaseAction {
 
 	protected function getTwigEnvironmentVars() :array {
 		return [
-			'strict_variables' => true,
+			'strict_variables' => false,
 		];
 	}
 }

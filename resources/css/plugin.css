@@ -971,6 +971,7 @@ body.folded #FooterBannerGoPro {
 	-webkit-user-select: none;
 }
 
+.scan-item-malaiquery ul,
 .scan-item-history ul {
 	list-style: inside disc;
 }
