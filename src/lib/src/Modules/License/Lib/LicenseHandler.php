@@ -2,14 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
+class LicenseHandler {
 
+	use ExecOnce;
+	use ModConsumer;
 	use PluginCronsConsumer;
 
 	protected function run() {
@@ -20,7 +22,7 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 		$this->setupCronHooks();
 
 		add_action( 'init', function () {
-			$this->getCon()->getModule_License()->getWpHashesTokenManager()->execute();
+			$this->mod()->getWpHashesTokenManager()->execute();
 		} );
 
 		add_action( 'wp_loaded', function () {
@@ -33,16 +35,17 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getWpHashesTokenManager()->getToken();
+		$this->mod()->getWpHashesTokenManager()->getToken();
 	}
 
-	public function scheduleAdHocCheck( int $delay = 20 ) {
+	public function scheduleAdHocCheck( ?int $delay = null ) {
 		$con = $this->getCon();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
+			if ( empty( $delay ) ) {
+				$delay = rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
+			}
 			wp_schedule_single_event(
-				Services::Request()->ts() + $delay,
+				Services::Request()->ts() + \max( \MINUTE_IN_SECONDS, $delay ),
 				$con->prefix( 'adhoc_cron_license_check' )
 			);
 		}
@@ -57,14 +60,11 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	 * on the wrong hostname.
 	 */
 	private function runAdhocLicenseCheck() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$licHost = wp_parse_url( $this->getLicense()->url, PHP_URL_HOST );
 		$reqHost = Services::Request()->getHost();
 		if ( !$this->hasValidWorkingLicense() || empty( $licHost ) || empty( $reqHost ) || ( $licHost === $reqHost ) ) {
 			try {
-				$mod->getLicenseHandler()->verify( true );
+				$this->verify( true );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -76,8 +76,8 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function clearLicense() {
-		$this->getMod()->clearLastErrors();
-		$this->getOptions()->setOpt( 'license_data', [] );
+		$this->mod()->clearLastErrors();
+		$this->opts()->setOpt( 'license_data', [] );
 	}
 
 	/**
@@ -86,11 +86,9 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
-			$this->getOptions()->setOptAt( 'license_deactivated_at' );
+			$this->opts()->setOptAt( 'license_deactivated_at' );
 			if ( $sendEmail ) {
-				( new LicenseEmails() )
-					->setMod( $this->getMod() )
-					->sendLicenseDeactivatedEmail();
+				( new LicenseEmails() )->sendLicenseDeactivatedEmail();
 			}
 			$this->getCon()->fireEvent( 'lic_fail_deactivate' );
 		}
@@ -99,20 +97,20 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function getActivatedAt() :int {
-		return (int)$this->getOptions()->getOpt( 'license_activated_at' );
+		return (int)$this->opts()->getOpt( 'license_activated_at' );
 	}
 
 	protected function getDeactivatedAt() :int {
-		return (int)$this->getOptions()->getOpt( 'license_deactivated_at' );
+		return (int)$this->opts()->getOpt( 'license_deactivated_at' );
 	}
 
 	public function getLicense() :ShieldLicense {
-		$data = $this->getOptions()->getOpt( 'license_data', [] );
+		$data = $this->opts()->getOpt( 'license_data', [] );
 		return ( new ShieldLicense() )->applyFromArray( is_array( $data ) ? $data : [] );
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {
-		return (int)( Services::Request()->ts() - $this->getOptions()->getOpt( 'license_last_checked_at' ) );
+		return (int)( Services::Request()->ts() - $this->opts()->getOpt( 'license_last_checked_at' ) );
 	}
 
 	/**
@@ -123,12 +121,9 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	 * @return int
 	 */
 	public function getRegistrationExpiresAt() :int {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$verifiedExpiredDays = $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays();
 
-		$lic = $mod->getLicenseHandler()->getLicense();
+		$lic = $this->getLicense();
 		return (int)min(
 			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*DAY_IN_SECONDS,
 			$lic->last_verified_at + $verifiedExpiredDays*DAY_IN_SECONDS
@@ -184,19 +179,16 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return $this
 	 * @throws \Exception
 	 */
-	public function verify( bool $onDemand = false, bool $scheduleAnyway = false ) {
+	public function verify( bool $onDemand = false, bool $scheduleAnyway = false ) :self {
 		if ( $this->canCheck() ) {
 			if ( $onDemand ) {
 				Services::WpCron()->deleteCronJob( $this->getCon()->prefix( 'adhoc_cron_license_check' ) );
-				( new Verify() )
-					->setMod( $this->getMod() )
-					->run();
+				( new Verify() )->run();
 			}
 			elseif ( $scheduleAnyway || $this->isVerifyRequired() ) {
-				$this->scheduleAdHocCheck( rand( MINUTE_IN_SECONDS, MINUTE_IN_SECONDS*30 ) );
+				$this->scheduleAdHocCheck();
 			}
 		}
 		else {
@@ -222,6 +214,6 @@ class LicenseHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function getLicExpireGraceDays() :int {
-		return $this->getOptions()->getDef( 'lic_verify_expire_grace_days' );
+		return $this->opts()->getDef( 'lic_verify_expire_grace_days' );
 	}
 }

@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseEmails {
@@ -12,16 +11,14 @@ class LicenseEmails {
 	use ModConsumer;
 
 	public function sendLicenseWarningEmail() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$opts = $this->getOptions();
+		$mod = $this->mod();
 
 		$canSend = Services::Request()
 						   ->carbon()
-						   ->subDay()->timestamp > $opts->getOpt( 'last_warning_email_sent_at' );
+						   ->subDay()->timestamp > $this->opts()->getOpt( 'last_warning_email_sent_at' );
 
 		if ( $canSend ) {
-			$opts->setOptAt( 'last_warning_email_sent_at' );
+			$this->opts()->setOptAt( 'last_warning_email_sent_at' );
 			$mod->saveModOptions();
 
 			$mod->getEmailProcessor()
@@ -40,16 +37,14 @@ class LicenseEmails {
 	}
 
 	public function sendLicenseDeactivatedEmail() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$opts = $this->getOptions();
+		$mod = $this->mod();
 
 		$canSend = Services::Request()
 						   ->carbon()
-						   ->subDay()->timestamp > $opts->getOpt( 'last_deactivated_email_sent_at' );
+						   ->subDay()->timestamp > $this->opts()->getOpt( 'last_deactivated_email_sent_at' );
 
 		if ( $canSend ) {
-			$opts->setOptAt( 'last_deactivated_email_sent_at' );
+			$this->opts()->setOptAt( 'last_deactivated_email_sent_at' );
 			$mod->saveModOptions();
 
 			$mod->getEmailProcessor()

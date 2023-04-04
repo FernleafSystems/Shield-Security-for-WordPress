@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Verify {
@@ -14,19 +13,15 @@ class Verify {
 	 * @throws \Exception
 	 */
 	public function run() {
-		/** @var License\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var License\Options $opts */
-		$opts = $this->getOptions();
+		$mod = $this->mod();
+		$opts = $this->opts();
 		$licHandler = $mod->getLicenseHandler();
 
 		$this->preVerify();
 
 		$existing = $licHandler->getLicense();
 
-		$license = ( new LookupRequest() )
-			->setMod( $mod )
-			->lookup();
+		$license = ( new LookupRequest() )->lookup();
 
 		$isSuccessfulApiRequest = false;
 
@@ -64,9 +59,7 @@ class Verify {
 				 *
 				 * We don't remove the license yet, but we warn the user
 				 */
-				( new LicenseEmails() )
-					->setMod( $mod )
-					->sendLicenseWarningEmail();
+				( new LicenseEmails() )->sendLicenseWarningEmail();
 			}
 		}
 		else { // all else fails, clear any license details entirely
@@ -76,7 +69,7 @@ class Verify {
 
 		$existing->last_request_at = Services::Request()->ts();
 		$opts->setOpt( 'license_data', $existing->getRawData() );
-		$this->getMod()->saveModOptions();
+		$this->mod()->saveModOptions();
 
 		if ( !$isSuccessfulApiRequest ) {
 			throw new \Exception( 'License API HTTP Request Failed.' );
@@ -85,7 +78,7 @@ class Verify {
 
 	private function preVerify() {
 		Services::WpFs()->touch( $this->getCon()->paths->forFlag( 'license_check' ) );
-		$this->getOptions()->setOptAt( 'license_last_checked_at' );
-		$this->getMod()->saveModOptions();
+		$this->opts()->setOptAt( 'license_last_checked_at' );
+		$this->mod()->saveModOptions();
 	}
 }

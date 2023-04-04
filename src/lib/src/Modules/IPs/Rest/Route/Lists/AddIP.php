@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists;
 
 class AddIP extends ListsBase {
 
-	const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
+	const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
 
 	protected function getRouteArgsCustom() :array {
 		return [
