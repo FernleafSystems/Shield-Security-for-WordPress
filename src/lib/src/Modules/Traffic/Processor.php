@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 class Processor extends Modules\BaseShield\Processor {
 
+	use ModConsumer;
+
 	protected function run() {
 		$this->getCon()
 			 ->getModule_Traffic()

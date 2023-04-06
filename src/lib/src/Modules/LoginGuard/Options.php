@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\MfaController;
 
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function getBotProtectionLocations() :array {
 		return $this->getOpt( 'bot_protection_locations' );

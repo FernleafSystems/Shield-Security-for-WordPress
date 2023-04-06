@@ -18,15 +18,11 @@ class ProcessIPs extends ProcessBase {
 	public const SCOPE = CrowdSecConstants::SCOPE_IP;
 
 	protected function preRun() {
-		( new CleanIpRules() )
-			->setMod( $this->getMod() )
-			->expired_Crowdsec();
+		( new CleanIpRules() )->expired_Crowdsec();
 	}
 
 	protected function postRun() {
-		( new CleanIpRules() )
-			->setMod( $this->getMod() )
-			->duplicates_Crowdsec();
+		( new CleanIpRules() )->duplicates_Crowdsec();
 	}
 
 	/**

@@ -33,7 +33,8 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrafficLoggerEnabled() :bool {
-		return $this->isOpt( 'enable_traffic', 'Y' ) && $this->isOpt( 'enable_logger', 'Y' )
+		return $this->isOpt( 'enable_traffic', 'Y' )
+			   && $this->isOpt( 'enable_logger', 'Y' )
 			   && $this->getAutoCleanDays() > 0;
 	}
 

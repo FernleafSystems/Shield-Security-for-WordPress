@@ -2,13 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanIpRules extends ExecOnceModConsumer {
+class CleanIpRules {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 		$this->expired();
@@ -31,30 +33,23 @@ class CleanIpRules extends ExecOnceModConsumer {
 	}
 
 	public function expired_AutoBlock() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		// Expired AutoBlock
 		/** @var Ops\Delete $deleter */
-		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
+		$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
 		$deleter
 			->filterByType( Handler::T_AUTO_BLOCK )
 			->addWhereOlderThan(
 				Services::Request()
 						->carbon()
-						->subSeconds( $opts->getAutoExpireTime() )->timestamp,
+						->subSeconds( $this->opts()->getAutoExpireTime() )->timestamp,
 				'last_access_at'
 			)
 			->query();
 	}
 
 	public function expired_Crowdsec() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Ops\Delete $deleter */
-		$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
+		$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
 		$deleter->filterByType( Handler::T_CROWDSEC )
 				->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 				->query();
@@ -80,8 +75,6 @@ class CleanIpRules extends ExecOnceModConsumer {
 	 * Find all records that reference duplicate IP addresses and delete surplus.
 	 */
 	public function duplicates_Crowdsec() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
 		$allCounts = array_filter( $this->getIpCountsForType( Handler::T_CROWDSEC ), function ( $IDs ) {
 			return count( $IDs ) > 1;
@@ -95,7 +88,7 @@ class CleanIpRules extends ExecOnceModConsumer {
 
 		if ( !empty( $deleteIDs ) ) {
 			/** @var Ops\Delete $deleter */
-			$deleter = $mod->getDbH_IPRules()->getQueryDeleter();
+			$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
 			$deleter
 				->filterByType( Handler::T_AUTO_BLOCK )
 				->addWhereIn( 'id', $deleteIDs )

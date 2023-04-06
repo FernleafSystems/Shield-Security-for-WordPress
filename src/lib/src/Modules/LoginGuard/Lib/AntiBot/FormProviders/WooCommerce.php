@@ -2,15 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-
 class WooCommerce extends BaseFormProvider {
 
-	public function run() {
+	protected function run() {
 		parent::run();
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isProtect( 'checkout_woo' ) ) {
+		if ( $this->opts()->isProtect( 'checkout_woo' ) ) {
 			$this->woocheckout();
 		}
 	}
@@ -47,35 +43,31 @@ class WooCommerce extends BaseFormProvider {
 	 * @return void
 	 */
 	public function formInsertsPrint_WooLogin() {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$sInserts = $this->buildFormInsert();
-		if ( $mod->getCaptchaCfg()->invisible ) {
-			$sInserts .= '<input type="hidden" name="login" value="Log in" />';
+		$inserts = $this->buildFormInsert();
+		if ( $this->mod()->getCaptchaCfg()->invisible ) {
+			$inserts .= '<input type="hidden" name="login" value="Log in" />';
 		}
-		echo $sInserts;
+		echo $inserts;
 	}
 
 	/**
 	 * @return void
 	 */
 	public function formInsertsPrint_WooRegister() {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$sInserts = $this->buildFormInsert();
-		if ( $mod->getCaptchaCfg()->invisible ) {
-			$sInserts .= '<input type="hidden" name="register" value="Register" />';
+		$inserts = $this->buildFormInsert();
+		if ( $this->mod()->getCaptchaCfg()->invisible ) {
+			$inserts .= '<input type="hidden" name="register" value="Register" />';
 		}
-		echo $sInserts;
+		echo $inserts;
 	}
 
 	/**
 	 * see form-billing.php
-	 * @param \WC_Checkout $oCheckout
+	 * @param \WC_Checkout $checkout
 	 * @return void
 	 */
-	public function formInsertsPrintCheckout( $oCheckout ) {
-		if ( $oCheckout instanceof \WC_Checkout && $oCheckout->is_registration_enabled() ) {
+	public function formInsertsPrintCheckout( $checkout ) {
+		if ( $checkout instanceof \WC_Checkout && $checkout->is_registration_enabled() ) {
 			$this->printFormInsert();
 		}
 	}

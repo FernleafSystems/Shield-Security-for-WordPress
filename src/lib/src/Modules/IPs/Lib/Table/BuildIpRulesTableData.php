@@ -9,12 +9,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildIpRulesTableData extends BaseBuildTableData {
+
+	use ModConsumer;
 
 	/**
 	 * @var Lookup
@@ -26,9 +28,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )
-			->setMod( $this->getMod() )
-			->build();
+		return ( new BuildSearchPanesData() )->build();
 	}
 
 	/**
@@ -117,9 +117,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new ForIpRules() )
-				->setMod( $this->getMod() )
-				->buildRaw()[ 'columns' ]
+			( new ForIpRules() )->buildRaw()[ 'columns' ]
 		) );
 	}
 
@@ -127,7 +125,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	 * @return IpRuleRecord[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
-		$cleaner = ( new CleanIpRules() )->setMod( $this->getMod() );
+		$cleaner = new CleanIpRules();
 		$cleaner->expired();
 		$cleaner->duplicates_AutoBlock();
 
@@ -141,8 +139,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Status( IpRuleRecord $record ) :string {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$content = [
 			sprintf( '%s: <code>%s</code>', __( 'Rule Type', 'wp-simple-firewall' ), Handler::GetTypeName( $record->type ) )

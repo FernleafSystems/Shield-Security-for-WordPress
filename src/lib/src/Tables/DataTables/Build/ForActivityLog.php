@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
+
 class ForActivityLog extends Base {
+
+	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'date';

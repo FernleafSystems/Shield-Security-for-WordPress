@@ -55,14 +55,11 @@ class GaspJs extends BaseProtectionProvider {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
-
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
 		$req = Services::Request();
 
 		$this->setFactorTested( true );
 
-		$gasp = $req->post( $mod->getGaspKey() );
+		$gasp = $req->post( $this->mod()->getGaspKey() );
 
 		$username = $formProvider->getUserToAudit();
 		$action = $formProvider->getActionToAudit();
