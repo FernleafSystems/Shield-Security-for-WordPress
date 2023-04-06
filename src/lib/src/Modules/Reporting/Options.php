@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class Options extends BaseShield\Options {
+/**
+ * @deprecated 18.0
+ */
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 }

@@ -117,6 +117,55 @@
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
+      "key":           "file_scan_areas",
+      "section":       "section_file_guard",
+      "type":          "multiple_select",
+      "default":       [
+        "wp",
+        "malware_php",
+        "plugins",
+        "themes"
+      ],
+      "value_options": [
+        {
+          "value_key": "wp",
+          "text":      "WP core files (excludes /wp-content/)",
+          "premium":   false
+        },
+        {
+          "value_key": "malware_php",
+          "text":      "PHP Malware (all PHP files)",
+          "premium":   true
+        },
+        {
+          "value_key": "plugins",
+          "text":      "Plugins",
+          "premium":   true
+        },
+        {
+          "value_key": "themes",
+          "text":      "Themes",
+          "premium":   true
+        },
+        {
+          "value_key": "wpcontent",
+          "text":      "wp-content directory",
+          "premium":   true
+        },
+        {
+          "value_key": "wproot",
+          "text":      "WP root directory",
+          "premium":   true
+        }
+      ],
+      "link_info":     "https://shsec.io/wpsf36",
+      "link_blog":     "https://shsec.io/wpsf37",
+      "beacon_id":     743,
+      "name":          "File Scan Areas",
+      "summary":       "Which Files Should Be Scanned",
+      "description":   "Specific file scan areas."
+    },
+    {
       "key":           "file_repair_areas",
       "section":       "section_file_guard",
       "type":          "multiple_select",
@@ -131,11 +180,13 @@
         },
         {
           "value_key": "plugin",
-          "text":      "Plugin Files"
+          "text":      "Plugin Files",
+          "premium":   true
         },
         {
           "value_key": "theme",
-          "text":      "Theme Files"
+          "text":      "Theme Files",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/wpsf36",
@@ -298,18 +349,6 @@
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-      "key":         "mal_autorepair_surgical",
-      "section":     "section_non_ui",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Surgical Auto-Repair",
-      "summary":     "Automatically Attempt To Surgically Remove Malware Code",
-      "description": "Attempts to automatically remove code from infected files."
-    },
-    {
       "key":         "ptg_reinstall_links",
       "section":     "section_scan_options",
       "premium":     true,
@@ -385,6 +424,7 @@
       "php",
       "php5",
       "php7",
+      "ico",
       "js",
       "json",
       "css",
@@ -400,7 +440,63 @@
       "scanitems":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanItems\\Ops\\Handler",
       "resultitems":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItems\\Ops\\Handler",
       "resultitem_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ResultItemMeta\\Ops\\Handler",
-      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler"
+      "scanresults":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\ScanResults\\Ops\\Handler",
+      "malware":         "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\Malware\\Ops\\Handler"
+    },
+    "db_table_malware":            {
+      "autoexpire":      0,
+      "slug":            "malware",
+      "has_updated_at":  true,
+      "has_deleted_at":  false,
+      "col_older_than":  "updated_at",
+      "cols_custom":     {
+        "hash_sha256":         {
+          "macro_type": "sha256",
+          "comment":    "Item hash SHA256"
+        },
+        "file_path":           {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "The relative path of the malware-containing file."
+        },
+        "code_type":           {
+          "macro_type": "char",
+          "length":     5,
+          "default":    "php",
+          "comment":    "The language"
+        },
+        "sig":                 {
+          "macro_type": "varchar",
+          "length":     128,
+          "comment":    "The malware signature pattern that triggered the discovery"
+        },
+        "is_valid_file":       {
+          "macro_type": "bool",
+          "comment":    "Is the file validated locally"
+        },
+        "malai_status":        {
+          "macro_type": "varchar",
+          "length":     20,
+          "default":    "''",
+          "comment":    "The status of the file from malai"
+        },
+        "file_content":        {
+          "macro_type": "text",
+          "type":       "mediumtext",
+          "comment":    "The actual file content"
+        }
+      },
+      "cols_timestamps": {
+        "last_seen_at":         {
+          "comment": "Last Seen In Scan"
+        },
+        "last_malai_status_at": {
+          "comment": "Last Check With Malai For Status"
+        },
+        "reported_at":          {
+          "comment": "Last Reported"
+        }
+      }
     },
     "db_table_file_locker":        {
       "autoexpire":      0,
@@ -596,26 +692,6 @@
         }
       }
     },
-    "db_classes":                  {
-      "filelocker": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\FileLocker\\Handler"
-    },
-    "db_table_filelocker":         {
-      "slug":            "filelocker",
-      "has_updated_at":  true,
-      "cols_custom":     {
-        "file":          "varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH'",
-        "hash_original": "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original'",
-        "hash_current":  "varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current'",
-        "content":       "MEDIUMBLOB COMMENT 'Content'",
-        "public_key_id": "TINYINT(2) UNSIGNED NOT NULL COMMENT 'Public Key ID'"
-      },
-      "cols_timestamps": {
-        "detected_at": "Change Last Detected",
-        "reverted_at": "Reverted To Backup",
-        "notified_at": "Notification Sent"
-      }
-    },
-    "table_name_filelocker":       "filelocker",
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "default_whitelist_paths":     [
@@ -626,6 +702,8 @@
       "wp-content/themes-before-restore/*",
       "wp-content/uploads/bb-plugin/cache/*",
       "wp-content/uploads/cache/wpml/twig/*",
+      "*/rosell-dk/image-mime-type-guesser/tests/images/*",
+      "*/rosell-dk/image-mime-type-sniffer/tests/images/*",
       "wp-content/cache/*",
       "*/src/lib/src/Rules/rules.json",
       "*/error_log",
@@ -637,11 +715,11 @@
       "readme.html",
       "license.txt",
       "licens-sv_SE.txt",
-      "wp-config-sample.php",
       "wp-content/"
     ],
     "wcf_exclusions_missing_only": [
       "wp-admin/install.php",
+      "wp-config-sample.php",
       "xmlrpc.php"
     ],
     "events":                      {

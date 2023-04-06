@@ -52,7 +52,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 			// Display manually suspended on the user list table; TODO: at auto suspended
 			add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-				$meta = $this->getCon()->getUserMeta( $user );
+				$meta = $this->getCon()->user_metas->for( $user );
 				if ( $meta->record->hard_suspended_at > 0 ) {
 					$content[] = sprintf( '<em>%s</em>: %s',
 						__( 'Suspended', 'wp-simple-firewall' ),
@@ -192,7 +192,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
 		$con = $this->getCon();
-		$meta = $con->getUserMeta( $user );
+		$meta = $con->user_metas->for( $user );
 		$isSuspended = $meta->record->hard_suspended_at > 0;
 
 		if ( $add && !$isSuspended ) {

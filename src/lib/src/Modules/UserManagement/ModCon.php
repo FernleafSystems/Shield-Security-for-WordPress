@@ -3,20 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 
 class ModCon extends BaseShield\ModCon {
 
 	public const SLUG = 'user_management';
 
 	private $userSuspensionController;
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getUserSuspendController() :UserSuspendController {
-		return $this->userSuspensionController ?? $this->userSuspensionController = ( new UserSuspendController() )->setMod( $this );
-	}
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */

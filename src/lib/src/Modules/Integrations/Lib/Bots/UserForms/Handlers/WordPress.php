@@ -76,12 +76,4 @@ class WordPress extends Base {
 		}
 		return $wpError;
 	}
-
-	public static function IsProviderInstalled() :bool {
-		return true;
-	}
-
-	protected function isProOnly() :bool {
-		return false;
-	}
 }

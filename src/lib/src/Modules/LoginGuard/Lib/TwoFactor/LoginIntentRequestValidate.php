@@ -53,7 +53,7 @@ class LoginIntentRequestValidate {
 					break;
 				}
 			}
-			catch ( Exceptions\OtpNotPresentException | Exceptions\ProviderNotActiveForUserException $e ) {
+			catch ( Exceptions\OtpNotPresentException|Exceptions\ProviderNotActiveForUserException $e ) {
 				// Nothing to do here.
 			}
 			catch ( Exceptions\OtpVerificationFailedException $e ) {
@@ -70,7 +70,7 @@ class LoginIntentRequestValidate {
 		}
 
 		// Always remove intents after success.
-		$this->getCon()->getUserMeta( $user )->login_intents = [];
+		$this->getCon()->user_metas->for( $user )->login_intents = [];
 
 		return $validatedSlug;
 	}

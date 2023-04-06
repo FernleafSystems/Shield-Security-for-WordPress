@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
@@ -54,9 +53,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	public function getHandlerController() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getController_UserForms();
+		return $this->mod()->getController_UserForms();
 	}
 
 	/**

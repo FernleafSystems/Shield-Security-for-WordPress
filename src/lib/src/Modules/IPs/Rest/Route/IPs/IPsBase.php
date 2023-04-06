@@ -9,14 +9,4 @@ abstract class IPsBase extends Base {
 	public function getRoutePathPrefix() :string {
 		return '/ips';
 	}
-
-	protected function getRouteArgSchema( string $key ) :array {
-		switch ( $key ) {
-
-			default:
-				$sch = parent::getRouteArgSchema( $key );
-				break;
-		}
-		return $sch;
-	}
 }

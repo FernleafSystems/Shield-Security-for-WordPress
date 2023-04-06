@@ -11,9 +11,9 @@ class IsRequestToInvalidTheme extends Base {
 	public const SLUG = 'is_request_to_invalid_theme';
 
 	protected function execConditionCheck() :bool {
-		$asset = ( new IsRequestToThemeAsset() )->setCon( $this->getCon() );
+		$asset = new IsRequestToThemeAsset();
 		$asset->request_path = $this->getRequestPath();
-		$validAsset = ( new IsRequestToValidThemeAsset() )->setCon( $this->getCon() );
+		$validAsset = new IsRequestToValidThemeAsset();
 		$validAsset->request_path = $this->getRequestPath();
 		return $asset->run() && !$validAsset->run();
 	}

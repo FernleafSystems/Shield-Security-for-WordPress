@@ -13,7 +13,6 @@ abstract class IpAutoUnblockBase extends BaseAction {
 		$unblockerClass = $this->getAutoUnblockerClass();
 		/** @var BaseAutoUnblock $unBlocker */
 		$unBlocker = new $unblockerClass();
-		$unBlocker = $unBlocker->setMod( $this->getCon()->getModule_IPs() );
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {
 			Services::Response()->redirectToHome();
 		}

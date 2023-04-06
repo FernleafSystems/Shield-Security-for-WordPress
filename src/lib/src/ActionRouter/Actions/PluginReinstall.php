@@ -25,7 +25,6 @@ class PluginReinstall extends ScansBase {
 			if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
 				try {
 					( new Delete() )
-						->setMod( $this->getMod() )
 						->setAsset( $plugin )
 						->run();
 					$success = true;

@@ -22,10 +22,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$this->getCon()
-			 ->getUserMeta( $user )
-			->record
-			->last_login_at = Services::Request()->ts();
+		$this->getCon()->user_metas->for( $user )->record->last_login_at = Services::Request()->ts();
 		$this->sendLoginNotifications( $user );
 	}
 

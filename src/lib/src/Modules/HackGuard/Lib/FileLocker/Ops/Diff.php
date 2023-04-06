@@ -23,9 +23,7 @@ class Diff extends BaseOps {
 			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}
 
-		$original = ( new ReadOriginalFileContent() )
-			->setMod( $this->getMod() )
-			->run( $lock );
+		$original = ( new ReadOriginalFileContent() )->run( $lock );
 
 		/**
 		 * The WP Diff is empty if the only difference is white space

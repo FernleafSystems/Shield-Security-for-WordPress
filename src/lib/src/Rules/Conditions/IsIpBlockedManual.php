@@ -13,8 +13,6 @@ class IsIpBlockedManual extends Base {
 
 	protected function execConditionCheck() :bool {
 		return $this->getCon()->this_req->is_ip_blocked_shield_manual =
-			( new IpRuleStatus( $this->getRequestIP() ) )
-				->setMod( $this->getCon()->getModule_IPs() )
-				->hasManualBlock();
+			( new IpRuleStatus( $this->getRequestIP() ) )->hasManualBlock();
 	}
 }

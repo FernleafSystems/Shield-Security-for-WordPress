@@ -21,20 +21,26 @@ class GetList extends Base {
 			case 'black':
 			case 'block':
 				$types = [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK ];
+				break;
 			default:
+				$types = [];
 				break;
 		}
 
-		$loader = ( new LoadIpRules() )->setMod( $this->getMod() );
-		$loader->wheres = [
-			sprintf( "`ir`.`type` IN ('%s')", implode( "','", $types ) )
-		];
+		$records = [];
+		if ( !empty( $types ) ) {
+			$loader = new LoadIpRules();
+			$loader->wheres = [
+				sprintf( "`ir`.`type` IN ('%s')", implode( "','", $types ) )
+			];
+			$records = $loader->select();
+		}
 
 		return array_map(
 			function ( $record ) {
 				return $this->convertIpRuleToArray( $record );
 			},
-			$loader->select()
+			$records
 		);
 	}
 }

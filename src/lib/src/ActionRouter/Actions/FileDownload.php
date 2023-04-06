@@ -60,7 +60,6 @@ class FileDownload extends BaseAction {
 
 			case 'scan_file':
 				$fileDetails = ( new FileDownloadHandler() )
-					->setMod( $con->getModule_HackGuard() )
 					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
 				break;
 

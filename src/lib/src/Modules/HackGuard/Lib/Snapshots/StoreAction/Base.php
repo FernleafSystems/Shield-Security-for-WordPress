@@ -4,18 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StorageDir;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 
 class Base {
 
 	use ModConsumer;
 
 	public const MOD = ModCon::SLUG;
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private static $tempDir;
 
 	private static $storageDir;
 
@@ -24,6 +19,6 @@ class Base {
 	}
 
 	protected function getTempDir() :string {
-		return ( self::$storageDir ?? self::$storageDir = ( new StorageDir() )->setCon( $this->getCon() ) )->getTempDir();
+		return ( self::$storageDir ?? self::$storageDir = ( new StorageDir() ) )->getTempDir();
 	}
 }

@@ -9,8 +9,4 @@ class Forminator extends Base {
 			return $wasSpam || $this->isBotBlockRequired();
 		}, 1000 );
 	}
-
-	public static function IsProviderInstalled() :bool {
-		return defined( 'FORMINATOR_VERSION' ) && @class_exists( '\Forminator' );
-	}
 }

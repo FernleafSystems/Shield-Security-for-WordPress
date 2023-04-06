@@ -26,9 +26,7 @@ class PluginFile extends BasePluginThemeFile {
 			if ( $this->isSupportedFileExt() ) {
 
 				try {
-					$verifiedHash = ( new Query() )
-						->setMod( $this->getMod() )
-						->verifyHash( $this->pathFull );
+					$verifiedHash = ( new Query() )->verifyHash( $this->pathFull );
 					if ( !$verifiedHash ) {
 						throw new Exceptions\PluginFileChecksumFailException(
 							$this->pathFull,

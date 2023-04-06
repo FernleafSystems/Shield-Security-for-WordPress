@@ -97,9 +97,7 @@ class BuildSearchPanesData {
 					'value' => $ip,
 				];
 			},
-			( new LoadRequestLogs() )
-				->setMod( $this->getCon()->getModule_Data() )
-				->getDistinctIPs()
+			( new LoadRequestLogs() )->getDistinctIPs()
 		);
 	}
 

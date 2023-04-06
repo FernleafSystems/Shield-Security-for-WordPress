@@ -21,7 +21,7 @@ abstract class Base extends ExecOnceModConsumer {
 	 */
 	public function checkUser( $user ) {
 		if ( $user instanceof \WP_User ) {
-			$meta = $this->getCon()->getUserMeta( $user );
+			$meta = $this->getCon()->user_metas->for( $user );
 			if ( !empty( $meta ) ) {
 				$user = $this->processUser( $user, $meta );
 			}

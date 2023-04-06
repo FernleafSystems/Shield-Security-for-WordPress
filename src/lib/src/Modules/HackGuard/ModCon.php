@@ -36,19 +36,23 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFileLocker() :Lib\FileLocker\FileLockerController {
-		return $this->oFileLocker ?? $this->oFileLocker = ( new Lib\FileLocker\FileLockerController() )->setMod( $this );
+		return $this->oFileLocker ?? $this->oFileLocker = new Lib\FileLocker\FileLockerController();
 	}
 
 	public function getScansCon() :Scan\ScansController {
-		return $this->scanCon ?? $this->scanCon = ( new Scan\ScansController() )->setMod( $this );
+		return $this->scanCon ?? $this->scanCon = new Scan\ScansController();
 	}
 
 	public function getScanQueueController() :Scan\Queue\Controller {
-		return $this->scanQueueCon ?? $this->scanQueueCon = ( new Scan\Queue\Controller() )->setMod( $this );
+		return $this->scanQueueCon ?? $this->scanQueueCon = new Scan\Queue\Controller();
 	}
 
 	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'file_locker' );
+	}
+
+	public function getDbH_Malware() :DB\Malware\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'malware' );
 	}
 
 	public function getDbH_Scans() :DB\Scans\Ops\Handler {
@@ -73,14 +77,6 @@ class ModCon extends BaseShield\ModCon {
 		$this->getDbH_Scans();
 		$this->getDbH_ResultItems();
 		return $this->getDbHandler()->loadDbH( 'scanresults' );
-	}
-
-	/**
-	 * @return Scan\Controller\Base|mixed
-	 * @deprecated 17.0
-	 */
-	public function getScanCon( string $slug ) {
-		return $this->getScansCon()->getScanCon( $slug );
 	}
 
 	protected function preProcessOptions() {
@@ -150,13 +146,6 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getDbHandler_FileLocker() :Databases\FileLocker\Handler {
-		return $this->getDbH( 'filelocker' );
-	}
-
 	protected function cleanupDatabases() {
 		( new Shield\Modules\HackGuard\DB\Utility\Clean() )
 			->setMod( $this )
@@ -187,20 +176,11 @@ class ModCon extends BaseShield\ModCon {
 		$carbon = Services::Request()->carbon();
 		if ( $carbon->isSunday() ) {
 			( new Shield\Scans\Afs\Processing\FileScanOptimiser() )
-				->setMod( $this )
 				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		}
 
 		( new Lib\Utility\CleanOutOldGuardFiles() )
 			->setMod( $this )
 			->execute();
-	}
-
-	/**
-	 * @inheritDoc
-	 * @deprecated 17.0
-	 */
-	public function getDbHandlers( $bInitAll = false ) {
-		return [];
 	}
 }

@@ -39,7 +39,7 @@ class ActivityLogTableAction extends BaseAction {
 	}
 
 	private function retrieveTableData() :array {
-		$builder = ( new BuildAuditTableData() )->setMod( $this->getCon()->getModule_AuditTrail() );
+		$builder = new BuildAuditTableData();
 		$builder->table_data = (array)Services::Request()->post( 'table_data', [] );
 		return [
 			'success'        => true,

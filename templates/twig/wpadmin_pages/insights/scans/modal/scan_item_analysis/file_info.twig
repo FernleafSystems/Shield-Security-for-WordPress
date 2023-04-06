@@ -1,16 +1,37 @@
 <div class="row">
 	<div class="col scan-item-history">
-		<h4 class="mb-3">File: <span style="font-family: monospace">
-				{{ vars.path_fragment }}</span></h4>
+		<h4 class="mb-3">File: <span style="font-family: monospace">{{ vars.path_fragment }}</span></h4>
+
+		<h6>{{ strings.info }}</h6>
 		<ul style="list-style: inside disc">
 			<li>{{ strings.file_full_path|raw }}</li>
 			<li>{{ strings.file_status|raw }}</li>
 		</ul>
+
 		<h6>{{ strings.file_description }}</h6>
 		<ul>
 			{% for line in vars.file_description %}
 				<li>{{ line|raw }}</li>
 			{% endfor %}
 		</ul>
+		{% if flags.show_malai_status %}
+			<h6>{{ strings.heading_malai_status }}</h6>
+			<ul>
+				<li>{{ strings.malware_status_of }}: <code>{{ strings.malai_status }}</code></li>
+				{% for line in strings.malai_status_notes %}
+					<li>{{ strings.note }}: {{ line|raw }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
+		{% if strings.recommendations_lines|default([]) is not empty %}
+			<h6>{{ strings.recommendations }}</h6>
+			<ul>
+				{% for line in strings.recommendations_lines %}
+					<li>{{ line|raw }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
 	</div>
 </div>

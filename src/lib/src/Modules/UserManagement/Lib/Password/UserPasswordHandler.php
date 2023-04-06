@@ -48,16 +48,16 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 				catch ( Exceptions\PwnedApiFailedException $e ) {
 					// We don't fail when the PWNED API is not available.
 				}
-				catch ( Exceptions\PasswordTooWeakException | Exceptions\PasswordIsPwnedException $e ) {
+				catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
 					$failed = true;
 				}
-				$this->getCon()
-					 ->getUserMeta( $user )->pass_check_failed_at = $failed ? Services::Request()->ts() : 0;
+				$this->getCon()->user_metas->for( $user )->pass_check_failed_at = $failed ?
+					Services::Request()->ts() : 0;
 			}
 		}
 
 		if ( !$failed ) {
-			$this->getCon()->getUserMeta( $user )->updatePasswordStartedAt( $user->user_pass );
+			$this->getCon()->user_metas->for( $user )->updatePasswordStartedAt( $user->user_pass );
 		}
 	}
 
@@ -69,12 +69,9 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		}
 	}
 
-	/**
-	 * This hook is only available on WP 4.4+
-	 */
 	public function onPasswordReset( $user ) {
 		if ( $user instanceof \WP_User && $user->ID > 0 ) {
-			$meta = $this->getCon()->getUserMeta( $user );
+			$meta = $this->getCon()->user_metas->for( $user );
 			unset( $meta->pass_hash );
 			$meta->updatePasswordStartedAt( $user->user_pass );
 		}
@@ -84,7 +81,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->isPassExpirationEnabled() ) {
-			$startedAt = $this->getCon()->getCurrentUserMeta()->record->pass_started_at;
+			$startedAt = $this->getCon()->user_metas->current()->record->pass_started_at;
 			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
 				$this->getCon()->fireEvent( 'password_expired', [
 					'audit_params' => [
@@ -99,7 +96,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	private function processFailedCheckPassword() {
-		$meta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->user_metas->current();
 
 		$checkFailed = $this->getOptions()->isOpt( 'pass_force_existing', 'Y' )
 					   && $meta->pass_check_failed_at > 0;
@@ -121,7 +118,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		$con = $this->getCon();
 		$now = Services::Request()->ts();
 
-		$meta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->user_metas->current();
 		if ( $now - $meta->pass_reset_last_redirect_at > MINUTE_IN_SECONDS*2 ) {
 
 			$meta->pass_reset_last_redirect_at = $now;
@@ -161,7 +158,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 					$checksFailed = false;
 					// We don't fail when the PWNED API is not available.
 				}
-				catch ( Exceptions\PasswordTooWeakException | Exceptions\PasswordIsPwnedException $e ) {
+				catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
 					$checksFailed = true;
 					$failureMsg = $e->getMessage();
 				}
@@ -175,7 +172,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
 				elseif ( Services::WpUsers()->isUserLoggedIn() ) {
-					$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
+					$this->getCon()->user_metas->current()->pass_check_failed_at = 0;
 				}
 			}
 		}

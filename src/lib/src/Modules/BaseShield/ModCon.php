@@ -8,23 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 class ModCon extends Base\ModCon {
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getSessionWP() :Shield\Modules\Sessions\Lib\SessionVO {
-		return $this->getCon()
-					->getModule_Sessions()
-					->getSessionCon()
-					->getCurrentWP();
-	}
-
-	public function getSession() :Shield\Modules\Plugin\Lib\Sessions\SessionVO {
-		return $this->getCon()
-					->getModule_Plugin()
-					->getSessionCon()
-					->current();
-	}
-
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
 		$plugMod = $this->getCon()->getModule_Plugin();
 		/** @var Shield\Modules\Plugin\Options $plugOpts */
@@ -51,13 +34,6 @@ class ModCon extends Base\ModCon {
 		return $this->getCon()
 					->getModule_Plugin()
 					->getPluginReportEmail();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getIfSupport3rdParty() :bool {
-		return $this->getCon()->isPremiumActive();
 	}
 
 	/**

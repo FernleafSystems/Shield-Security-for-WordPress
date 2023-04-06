@@ -14,14 +14,10 @@ class DocsChangelog extends Actions\Render\BaseRender {
 
 	protected function getRenderData() :array {
 		try {
-			$changelog = ( new Retrieve() )
-				->setCon( $this->getCon() )
-				->fromRepo();
+			$changelog = ( new Retrieve() )->fromRepo();
 		}
 		catch ( \Exception $e ) {
-			$changelog = ( new Retrieve() )
-				->setCon( $this->getCon() )
-				->fromFile();
+			$changelog = ( new Retrieve() )->fromFile();
 		}
 		return [
 			'changelog' => $changelog,

@@ -2,36 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	DB\ScanItems\Ops as ScanItemsDB,
-	Options,
 	Scan\Exceptions\NoQueueItems
 };
 use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
-class ProcessQueueWpcli extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class ProcessQueueWpcli {
+
+	use ExecOnce;
+	use Shield\Modules\HackGuard\ModConsumer;
 
 	protected function canRun() :bool {
 		return Services::WpGeneral()->isWpCli();
 	}
 
 	protected function run() {
-		$mod = $this->getCon()->getModule_HackGuard();
-		$scansCon = $mod->getScansCon();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$mod = $this->mod();
 
-		foreach ( array_keys( $opts->getScansToBuild() ) as $scan ) {
-			$opts->addRemoveScanToBuild( $scan, false );
+		foreach ( array_keys( $this->opts()->getScansToBuild() ) as $scan ) {
+			$this->opts()->addRemoveScanToBuild( $scan, false );
 			$mod->saveModOptions();
 			try {
 				WP_CLI::log( sprintf( 'Building scan items for scan: %s',
-					$scansCon->getScanCon( $scan )->getScanName() ) );
-				( new QueueInit() )
-					->setMod( $mod )
-					->init( $scan );
+					$mod->getScansCon()->getScanCon( $scan )->getScanName() ) );
+				( new QueueInit() )->init( $scan );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -46,12 +44,8 @@ class ProcessQueueWpcli extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 		do {
 			try {
-				$qItem = ( new QueueItems() )
-					->setMod( $mod )
-					->next();
-				( new ProcessQueueItem() )
-					->setMod( $mod )
-					->run( $qItem );
+				$qItem = ( new QueueItems() )->next();
+				( new ProcessQueueItem() )->run( $qItem );
 			}
 			catch ( NoQueueItems $e ) {
 				$qItem = null;
@@ -59,9 +53,7 @@ class ProcessQueueWpcli extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$progress->tick();
 		} while ( !empty( $qItem ) );
 
-		( new CompleteQueue() )
-			->setMod( $mod )
-			->complete();
+		( new CompleteQueue() )->complete();
 
 		$progress->finish();
 		WP_CLI::log( 'Scans Complete.' );

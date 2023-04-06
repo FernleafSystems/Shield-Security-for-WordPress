@@ -13,11 +13,10 @@ class SetIpBlockedShield extends Base {
 
 	protected function execResponse() :bool {
 		$con = $this->getCon();
-		$modIP = $this->getCon()->getModule_IPs();
 
 		$con->this_req->is_ip_blocked_shield = true;
 
-		$ipStatus = ( new IpRuleStatus( $con->this_req->ip ) )->setMod( $modIP );
+		$ipStatus = new IpRuleStatus( $con->this_req->ip );
 		if ( $ipStatus->hasManualBlock() ) {
 			$con->this_req->is_ip_blocked_shield_manual = true;
 			$IP = current( $ipStatus->getRulesForManualBlock() );
@@ -31,7 +30,10 @@ class SetIpBlockedShield extends Base {
 			throw new \Exception( 'SetIpBlocked: should never get here' );
 		}
 		/** @var Update $upd */
-		$upd = $modIP->getDbH_IPRules()->getQueryUpdater();
+		$upd = $this->getCon()
+					->getModule_IPs()
+					->getDbH_IPRules()
+					->getQueryUpdater();
 		$upd->updateLastAccessAt( $IP );
 
 		add_action( 'init', function () {

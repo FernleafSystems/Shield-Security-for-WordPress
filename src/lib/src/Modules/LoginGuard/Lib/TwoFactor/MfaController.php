@@ -34,7 +34,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		// Display manually suspended on the user list table; TODO: at auto suspended
 		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-			$twoFAat = (int)$this->getCon()->getUserMeta( $user )->record->last_2fa_verified_at;
+			$twoFAat = (int)$this->getCon()->user_metas->for( $user )->record->last_2fa_verified_at;
 			$carbon = Services::Request()
 							  ->carbon()
 							  ->setTimestamp( $twoFAat );
@@ -121,16 +121,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function onWpLoaded() {
-		if ( method_exists( $this, 'getMfaProfilesCon' ) ) {
-			$this->getMfaProfilesCon()->execute();
-		}
-		else {
-			/** @deprecated 17.0 */
-			( new MfaProfilesController() )
-				->setMod( $this->getMod() )
-				->setMfaController( $this )
-				->execute();
-		}
+		$this->getMfaProfilesCon()->execute();
 		$this->addToUserStatusColumn();
 	}
 
@@ -276,7 +267,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 * @return array[]
 	 */
 	public function getActiveLoginIntents( \WP_User $user ) :array {
-		$meta = $this->getCon()->getUserMeta( $user );
+		$meta = $this->getCon()->user_metas->for( $user );
 		return array_filter(
 			is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			function ( $intent ) {

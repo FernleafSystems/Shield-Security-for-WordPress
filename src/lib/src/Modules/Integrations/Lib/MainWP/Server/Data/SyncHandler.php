@@ -2,14 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 use MainWP\Dashboard\MainWP_DB;
 
-class SyncHandler extends ExecOnceModConsumer {
+class SyncHandler {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 		add_action( 'mainwp_sync_others_data', function ( $othersData, $website ) {
-			$othersData[ $this->getCon()->prefix( 'mainwp-sync' ) ] = 'shield';
+			$othersData[ $this->con()->prefix( 'mainwp-sync' ) ] = 'shield';
 			return $othersData;
 		}, 10, 2 );
 		add_action( 'mainwp_site_synced', function ( $website, $info ) {
@@ -21,11 +25,10 @@ class SyncHandler extends ExecOnceModConsumer {
 	 * @param object $website
 	 */
 	private function syncSite( $website, array $info ) {
-		$con = $this->getCon();
 		MainWP_DB::instance()->update_website_option(
 			$website,
-			$con->prefix( 'mainwp-sync' ),
-			$info[ $con->prefix( 'mainwp-sync' ) ] ?? '[]'
+			$this->con()->prefix( 'mainwp-sync' ),
+			$info[ $this->con()->prefix( 'mainwp-sync' ) ] ?? '[]'
 		);
 	}
 }

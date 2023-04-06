@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class QueueInit {
@@ -22,25 +21,17 @@ class QueueInit {
 	}
 
 	private function preInit() {
-		( new CleanQueue() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new CleanQueue() )->execute();
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	private function createScans( string $slug ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$scanRecord = ( new CreateNewScan() )
-			->setMod( $mod )
-			->run( $slug );
-
+		$scanRecord = ( new CreateNewScan() )->run( $slug );
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )
-			->setScanController( $mod->getScansCon()->getScanCon( $slug ) )
+			->setScanController( $this->mod()->getScansCon()->getScanCon( $slug ) )
 			->run();
 	}
 }

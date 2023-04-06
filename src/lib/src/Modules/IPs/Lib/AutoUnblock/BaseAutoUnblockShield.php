@@ -8,10 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 class BaseAutoUnblockShield extends BaseAutoUnblock {
 
 	protected function getIpRecord() :IpRuleRecord {
-		$theRecord = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )
-			->setMod( $this->getMod() )
-			->getRuleForAutoBlock();
-
+		$theRecord = ( new IpRuleStatus( $this->getCon()->this_req->ip ) )->getRuleForAutoBlock();
 		if ( empty( $theRecord ) ) {
 			throw new \Exception( "IP isn't on the automatic block list." );
 		}

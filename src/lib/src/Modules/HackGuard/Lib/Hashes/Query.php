@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Excepti
 	NoneAssetFileException,
 	UnrecognisedAssetFile
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -19,8 +18,6 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 };
 
 class Query {
-
-	use ModConsumer;
 
 	/**
 	 * @throws AssetHashesNotFound
@@ -39,9 +36,7 @@ class Query {
 			$fragment = ( new Theme\Files() )->getRelativeFilePathFromItsInstallDir( $path );
 		}
 
-		$assetHashes = ( new Retrieve() )
-			->setMod( $this->getMod() )
-			->byVO( $vo );
+		$assetHashes = ( new Retrieve() )->byVO( $vo );
 		$hash = $assetHashes[ $fragment ] ?? ( $assetHashes[ strtolower( $fragment ) ] ?? null );
 		if ( empty( $hash ) ) {
 			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );
@@ -55,7 +50,7 @@ class Query {
 	 * @throws NoneAssetFileException
 	 */
 	private function findAssetFromPath( string $path ) {
-		$vo = ( new Plugin\Files() )->findPluginFromFile( $path );;
+		$vo = ( new Plugin\Files() )->findPluginFromFile( $path );
 		if ( empty( $vo ) ) {
 			$vo = ( new Theme\Files() )->findThemeFromFile( $path );
 			if ( empty( $vo ) ) {

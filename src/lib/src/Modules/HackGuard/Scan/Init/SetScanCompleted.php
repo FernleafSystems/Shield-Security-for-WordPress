@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -15,10 +14,7 @@ class SetScanCompleted {
 	use ModConsumer;
 
 	public function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		foreach ( ( new ScansStatus() )->setMod( $mod )->enqueued() as $scan ) {
+		foreach ( ( new ScansStatus() )->enqueued() as $scan ) {
 			$count = (int)Services::WpDb()->getVar(
 				sprintf( "SELECT count(*)
 						FROM `%s` as scans
@@ -28,24 +24,25 @@ class SetScanCompleted {
 						WHERE `scans`.`scan`='%s'
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0;",
-					$mod->getDbH_Scans()->getTableSchema()->table,
-					$mod->getDbH_ScanItems()->getTableSchema()->table,
+					$this->mod()->getDbH_Scans()->getTableSchema()->table,
+					$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
 					$scan
 				)
 			);
 			if ( $count === 0 ) {
-				$mod->getDbH_Scans()
-					->getQueryUpdater()
-					->setUpdateWheres( [
-						'scan'        => $scan,
-						'finished_at' => 0,
-					] )
-					->setUpdateData( [
-						'finished_at' => Services::Request()->ts()
-					] )
-					->query();
+				$this->mod()
+					 ->getDbH_Scans()
+					 ->getQueryUpdater()
+					 ->setUpdateWheres( [
+						 'scan'        => $scan,
+						 'finished_at' => 0,
+					 ] )
+					 ->setUpdateData( [
+						 'finished_at' => Services::Request()->ts()
+					 ] )
+					 ->query();
 
-				$scanCon = $mod->getScansCon()->getScanCon( $scan );
+				$scanCon = $this->mod()->getScansCon()->getScanCon( $scan );
 				$this->getCon()->fireEvent( 'scan_run', [
 					'audit_params' => [
 						'scan' => $scanCon->getScanName()

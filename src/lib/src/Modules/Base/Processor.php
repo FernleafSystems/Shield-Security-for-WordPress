@@ -27,12 +27,6 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 		}
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function onWpAdminInit() {
-	}
-
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		return $groups;
 	}

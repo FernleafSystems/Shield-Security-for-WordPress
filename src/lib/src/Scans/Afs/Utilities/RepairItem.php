@@ -2,25 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalFalsePositiveReporter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
+	Lib,
+	ModConsumer
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
+	Processing\MalFalsePositiveReporter,
+	ResultItem
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\{
 	Services,
-	Utilities\File\RemoveLineFromFile,
 	Utilities\WpOrg
 };
 
-class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
+class RepairItem {
 
-	use Shield\Modules\ModConsumer;
-	use Shield\Scans\Common\ScanItemConsumer;
+	use ModConsumer;
+	use ScanItemConsumer;
 
 	public function repairItem() :bool {
-		/** @var Afs\ResultItem $item */
+		/** @var ResultItem $item */
 		$item = $this->getScanItem();
-		/** @var Shield\Modules\HackGuard\Options $opts */
-		$opts = $this->getOptions();
 		$success = false;
 
 		try {
@@ -45,17 +48,8 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 					if ( !empty( $theme ) && $theme->isWpOrg() ) {
 						$success = $this->repairItemInTheme();
 					}
-					elseif ( $opts->isMalAutoRepairSurgical() ) {
-						$success = $this->repairSurgicalItem();
-					}
 				}
 			}
-		}
-
-		if ( $success && $item->is_mal ) {
-			( new MalFalsePositiveReporter() )
-				->setMod( $this->getMod() )
-				->reportResultItem( $item, false );
 		}
 
 		return $success;
@@ -65,7 +59,7 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 	 * @throws \Exception
 	 */
 	public function canRepair() :bool {
-		/** @var Afs\ResultItem $item */
+		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 
 		$canRepair = false;
@@ -97,9 +91,7 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 				}
 
 				try {
-					$canRepair = ( new Shield\Modules\HackGuard\Lib\Hashes\Query() )
-						->setMod( $this->getMod() )
-						->fileExistsInHash( $item->path_fragment );
+					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $item->path_fragment );
 				}
 				catch ( \Exception $e ) {
 					$canRepair = false;
@@ -133,9 +125,7 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 				}
 
 				try {
-					$canRepair = ( new Shield\Modules\HackGuard\Lib\Hashes\Query() )
-						->setMod( $this->getMod() )
-						->fileExistsInHash( $item->path_fragment );
+					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $item->path_fragment );
 				}
 				catch ( \Exception $e ) {
 					$canRepair = false;
@@ -147,7 +137,7 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 	}
 
 	private function repairCoreItem() :bool {
-		/** @var Afs\ResultItem $item */
+		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 
 		$files = Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
@@ -160,26 +150,8 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 		return $success;
 	}
 
-	private function repairSurgicalItem() :bool {
-		/** @var Afs\ResultItem $item */
-		$item = $this->getScanItem();
-
-		$success = false;
-		foreach ( array_keys( $item->mal_fp_lines ) as $lineNumber ) {
-			try {
-				( new RemoveLineFromFile() )->run( $item->path_full, $lineNumber );
-				$success = true;
-			}
-			catch ( \Exception $e ) {
-				$success = false;
-				break;
-			}
-		}
-		return $success;
-	}
-
 	private function repairItemInPlugin() :bool {
-		/** @var Afs\ResultItem $item */
+		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 
 		$success = false;
@@ -197,7 +169,7 @@ class RepairItem extends Shield\Scans\Base\Utilities\RepairItemBase {
 	}
 
 	private function repairItemInTheme() :bool {
-		/** @var Afs\ResultItem $item */
+		/** @var ResultItem $item */
 		$item = $this->getScanItem();
 
 		$success = false;

@@ -87,14 +87,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 * @deprecated 17.0
-	 */
-	protected function getAdditionalDisplayStrings() :array {
-		return [];
-	}
-
 	public function getSectionStrings( string $section ) :array {
 		switch ( $section ) {
 

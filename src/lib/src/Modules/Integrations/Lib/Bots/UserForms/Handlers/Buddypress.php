@@ -14,8 +14,4 @@ class Buddypress extends Base {
 			wp_die( $this->getErrorMessage() );
 		}
 	}
-
-	public static function IsProviderInstalled() :bool {
-		return @class_exists( '\BuddyPress' );
-	}
 }

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Common\BaseLoadRecordsForIPJoins;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
 
 class LoadRequestLogs extends BaseLoadRecordsForIPJoins {
 
@@ -39,8 +38,6 @@ class LoadRequestLogs extends BaseLoadRecordsForIPJoins {
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return $mod->getDbH_ReqLogs()->getTableSchema();
+		return $this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema();
 	}
 }

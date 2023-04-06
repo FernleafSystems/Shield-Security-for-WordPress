@@ -107,7 +107,7 @@ class RulesController {
 	}
 
 	private function processRule( RuleVO $rule ) {
-		$conditionPro = ( new ConditionsProcessor( $rule, $this ) )->setCon( $this->getCon() );
+		$conditionPro = new ConditionsProcessor( $rule, $this );
 		if ( !isset( $rule->result ) ) {
 			$rule->result = $conditionPro->runAllRuleConditions();
 			if ( $rule->result ) {
@@ -166,17 +166,16 @@ class RulesController {
 	}
 
 	/**
+	 * @return Conditions\Base|mixed
 	 * @throws NoConditionActionDefinedException
 	 * @throws NoSuchConditionHandlerException
 	 */
-	public function getConditionHandler( array $condition ) :Conditions\Base {
+	public function getConditionHandler( array $condition ) {
 		if ( empty( $condition[ 'condition' ] ) ) {
 			throw new NoConditionActionDefinedException( 'No Condition Handler available for: '.var_export( $condition, true ) );
 		}
 		$class = $this->locateConditionHandlerClass( $condition[ 'condition' ] );
-		/** @var Conditions\Base $cond */
-		$cond = new $class( $condition[ 'params' ] ?? [] );
-		return $cond->setCon( $this->getCon() );
+		return new $class( $condition[ 'params' ] ?? [] );
 	}
 
 	/**
@@ -192,22 +191,20 @@ class RulesController {
 	}
 
 	public function getDefaultEventFireResponseHandler() :Responses\EventFire {
-		/** @var Responses\Base $d */
-		return ( new EventFire( [] ) )->setCon( $this->getCon() );
+		return new EventFire( [] );
 	}
 
 	/**
+	 * @return Responses\Base|mixed
 	 * @throws NoResponseActionDefinedException
 	 * @throws NoSuchResponseHandlerException
 	 */
-	public function getResponseHandler( array $response ) :Responses\Base {
+	public function getResponseHandler( array $response ) {
 		if ( empty( $response[ 'response' ] ) ) {
 			throw new NoResponseActionDefinedException( 'No Response Handler available for: '.var_export( $response, true ) );
 		}
 		$theResponseClass = $this->locateResponseHandlerClass( $response[ 'response' ] );
-		/** @var Responses\Base $d */
-		$d = new $theResponseClass( $response[ 'params' ] ?? [] );
-		return $d->setCon( $this->getCon() );
+		return new $theResponseClass( $response[ 'params' ] ?? [] );
 	}
 
 	/**

@@ -25,13 +25,13 @@ class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		if ( $FS->isFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {
-				$add = ( new IPs\Lib\IpRules\AddRule() )->setMod( $this->getMod() );
+				$adder = new IPs\Lib\IpRules\AddRule();
 				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
-					$add->setIP( $ip );
+					$adder->setIP( $ip );
 					try {
 						in_array( $type, [ 'white', 'bypass' ] ) ?
-							$add->toManualWhitelist( 'file import' )
-							: $add->toManualBlacklist( 'file import' );
+							$adder->toManualWhitelist( 'file import' )
+							: $adder->toManualBlacklist( 'file import' );
 					}
 					catch ( \Exception $e ) {
 					}

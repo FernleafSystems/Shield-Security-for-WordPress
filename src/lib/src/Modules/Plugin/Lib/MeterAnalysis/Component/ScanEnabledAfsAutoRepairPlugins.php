@@ -23,7 +23,7 @@ class ScanEnabledAfsAutoRepairPlugins extends Base {
 			   && $opts->isRepairFilePlugin()
 			   && $mod->getScansCon()
 					  ->AFS()
-					  ->isEnabledPluginThemeScan();
+					  ->isScanEnabledPlugins();
 	}
 
 	public function title() :string {

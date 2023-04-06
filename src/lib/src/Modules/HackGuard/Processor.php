@@ -6,16 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
 
+	use ModConsumer;
+
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
-		$mod->getScansCon()->execute();
-
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( count( $opts->getFilesToLock() ) > 0 ) {
-			$mod->getFileLocker()->execute();
+		$this->mod()->getScansCon()->execute();
+		if ( count( $this->opts()->getFilesToLock() ) > 0 ) {
+			$this->mod()->getFileLocker()->execute();
 		}
 	}
 
@@ -25,14 +21,11 @@ class Processor extends BaseShield\Processor {
 		if ( $con->isValidAdminArea() ) {
 			$urls = $con->plugin_urls;
 
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
 			$thisGroup = [
-				'href'  => $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) :
-					$con->getModule_Insights()->getUrl_ScansResults(),
+				'href'  => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
 				'items' => [],
 			];
-			foreach ( $mod->getScansCon()->getAllScanCons() as $scanCon ) {
+			foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {
 				if ( $scanCon->isEnabled() ) {
 					$thisGroup[ 'items' ] = array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
 				}

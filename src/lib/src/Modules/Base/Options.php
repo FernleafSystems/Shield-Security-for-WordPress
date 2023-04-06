@@ -323,13 +323,6 @@ class Options {
 		}, $this->getVisibleOptions() );
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getAdditionalMenuItems() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'menu_items' ] ?? [];
-	}
-
 	public function getNeedSave() :bool {
 		return $this->bNeedSave;
 	}

@@ -86,7 +86,7 @@ class ModCon extends BaseShield\ModCon {
 			];
 		}
 
-		$cacheDirFinder = ( new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' ) )->setCon( $this->getCon() );
+		$cacheDirFinder = new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' );
 		$workableDir = $cacheDirFinder->dir();
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : dirname( $workableDir );
 
@@ -218,26 +218,22 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$WP = Services::WpGeneral();
-		$ts = Services::Request()->ts();
-
 		$key = $this->getCon()->prefixOption( 'install_date' );
-
-		$nWpDate = $WP->getOption( $key );
-		if ( empty( $nWpDate ) ) {
-			$nWpDate = $ts;
+		$wpDate = Services::WpGeneral()->getOption( $key );
+		if ( empty( $wpDate ) ) {
+			$wpDate = Services::Request()->ts();
 		}
 
-		$nPluginDate = $this->getInstallDate();
-		if ( $nPluginDate == 0 ) {
-			$nPluginDate = $ts;
+		$date = $this->getInstallDate();
+		if ( $date == 0 ) {
+			$date = Services::Request()->ts();
 		}
 
-		$nFinal = min( $nPluginDate, $nWpDate );
-		$WP->updateOption( $key, $nFinal );
-		$this->getOptions()->setOpt( 'installation_time', $nPluginDate );
+		$finalDate = min( $date, $wpDate );
+		Services::WpGeneral()->updateOption( $key, $finalDate );
+		$this->getOptions()->setOpt( 'installation_time', $date );
 
-		return $nFinal;
+		return $finalDate;
 	}
 
 	/**
@@ -259,13 +255,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getTourManager() :Lib\TourManager {
-		return new Lib\TourManager();
 	}
 
 	public function setActivatedAt() {
@@ -321,47 +310,5 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return !$opts->isPluginGloballyDisabled();
-	}
-
-	/**
-	 * Ensure we always a valid installation ID.
-	 *
-	 * @return string
-	 * @deprecated but still used because it aligns with stats collection
-	 * @deprecated 17.0
-	 */
-	public function getPluginInstallationId() {
-		return $this->getCon()->getInstallationID()[ 'id' ];
-	}
-
-	/**
-	 * @param string $newID - leave empty to reset if the current isn't valid
-	 * @return string
-	 * @deprecated 17.0
-	 */
-	protected function setPluginInstallationId( $newID = null ) {
-		return $newID;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	protected function genInstallId() :string {
-		return $this->getCon()->getInstallationID()[ 'id' ];
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	protected function getNamespaceBase() :string {
-		return 'Plugin';
-	}
-
-	/**
-	 * @param string $id
-	 * @deprecated 17.0
-	 */
-	protected function isValidInstallId( $id ) :bool {
-		return false;
 	}
 }

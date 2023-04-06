@@ -34,11 +34,9 @@ class EventsToSignals extends EventsListener {
 				}
 
 				// Certain events should only be sent if the NotBot isn't set for this IP i.e. captcha failure
-				$modIPs = $this->getCon()->getModule_IPs();
 				if ( !$def[ 'only_send_on_notbot_fail' ]
 					 ||
 					 ( new BotSignalsRecord() )
-						 ->setMod( $modIPs )
 						 ->setIP( Services::Request()->ip() )
 						 ->retrieve()->notbot_at === 0 ) {
 
@@ -60,7 +58,6 @@ class EventsToSignals extends EventsListener {
 			$modIPs = $this->getCon()->getModule_IPs();
 
 			$notBotFail = ( new BotSignalsRecord() )
-							  ->setMod( $modIPs )
 							  ->setIP( Services::Request()->ip() )
 							  ->retrieve()->notbot_at === 0;
 

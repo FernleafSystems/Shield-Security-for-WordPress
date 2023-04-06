@@ -17,11 +17,11 @@ trait QueueBuilderConsumer {
 	}
 
 	/**
-	 * @param QueueBuilder $oQP
+	 * @param QueueBuilder $QB
 	 * @return $this
 	 */
-	public function setQueueBuilder( QueueBuilder $oQP ) {
-		$this->oQueueBuilder = $oQP;
+	public function setQueueBuilder( QueueBuilder $QB ) {
+		$this->oQueueBuilder = $QB;
 		return $this;
 	}
 }

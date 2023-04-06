@@ -31,7 +31,6 @@ class ProcessOffense extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 		try {
 			$IP = ( new IPs\Lib\IpRules\AddRule() )
-				->setMod( $mod )
 				->setIP( $this->getIP() )
 				->toAutoBlacklist();
 

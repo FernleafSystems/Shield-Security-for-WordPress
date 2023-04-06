@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\{
 	Client\Auth\ReproduceClientAuthByKey,
 	Controller
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 class Init {
 
@@ -26,8 +26,7 @@ class Init {
 			add_action( 'mainwp_child_site_stats', function () {
 				try {
 					( new AddRule() )
-						->setMod( $this->getCon()->getModule_IPs() )
-						->setIP( $this->getCon()->this_req->ip )
+						->setIP( $this->con()->this_req->ip )
 						->toManualWhitelist( 'MainWP Server (automatically added)' );
 				}
 				catch ( \Exception $e ) {
@@ -38,9 +37,7 @@ class Init {
 			add_filter( 'mainwp_site_sync_others_data', function ( $information, $othersData ) {
 				$con = $this->getCon();
 				if ( isset( $othersData[ $con->prefix( 'mainwp-sync' ) ] ) ) {
-					$information[ $con->prefix( 'mainwp-sync' ) ] = wp_json_encode( ( new Sync() )
-						->setMod( $this->getMod() )
-						->run() );
+					$information[ $con->prefix( 'mainwp-sync' ) ] = wp_json_encode( ( new Sync() )->run() );
 				}
 				return $information;
 			}, 10, 2 );

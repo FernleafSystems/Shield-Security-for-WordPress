@@ -106,7 +106,7 @@ class Components {
 			}
 			/** @var Component\Base $compObj */
 			$compObj = new $class();
-			self::$built[ $class ] = $compObj->setCon( $this->getCon() )->build();
+			self::$built[ $class ] = $compObj->build();
 		}
 		return self::$built[ $class ];
 	}

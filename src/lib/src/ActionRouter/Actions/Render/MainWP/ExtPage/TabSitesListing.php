@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\SiteCustomAction;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TabSitesListing extends BaseSubPage {
@@ -55,8 +53,8 @@ class TabSitesListing extends BaseSubPage {
 
 		return [
 			'vars' => [
-				'sites'        => $sites,
-				'stats_head'   => $statsHead,
+				'sites'      => $sites,
+				'stats_head' => $statsHead,
 			],
 		];
 	}

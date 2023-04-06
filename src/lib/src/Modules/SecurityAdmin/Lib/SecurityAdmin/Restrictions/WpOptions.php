@@ -2,15 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Restrictions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class WpOptions extends Base {
 
 	protected function canRun() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isRestrictWpOptions() && !Services::WpGeneral()->isLoginRequest();
+		return $this->opts()->isRestrictWpOptions() && !Services::WpGeneral()->isLoginRequest();
 	}
 
 	protected function run() {
@@ -29,11 +26,11 @@ class WpOptions extends Base {
 	 * @return mixed
 	 */
 	public function blockOptionsSaves( $newValue, $key, $oldValue ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 
-		if ( !$this->getCon()->isPluginAdmin() && is_string( $key )
-			 && ( in_array( $key, $opts->getOptionsToRestrict() ) || $this->isPluginOption( $key ) ) ) {
+		$opts = \method_exists( $this, 'opts' ) ? $this->opts() : $this->getOptions();
+		if ( !$this->getCon()->isPluginAdmin()
+			 && ( in_array( $key, $opts->getOptionsToRestrict() ) || $this->isPluginOption( $key ) )
+		) {
 			$newValue = $oldValue;
 		}
 

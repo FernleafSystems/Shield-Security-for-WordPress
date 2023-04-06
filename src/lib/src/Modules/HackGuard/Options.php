@@ -15,6 +15,25 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'file_locker', [] );
 	}
 
+	public function getFileScanAreas() :array {
+		if ( !is_array( $this->getOpt( 'file_scan_areas', [] ) ) ) {
+			$this->resetOptToDefault( 'file_scan_areas' );
+		}
+
+		$areas = $this->getOpt( 'file_scan_areas', [] );
+		if ( !$this->con()->isPremiumActive() ) {
+			$available = [];
+			foreach ( $this->getOptProperty( 'file_scan_areas', 'value_options' ) as $valueOption ) {
+				if ( empty( $valueOption[ 'premium' ] ) ) {
+					$available[] = $valueOption[ 'value_key' ];
+				}
+			}
+			$areas = array_diff( $areas, $available );
+		}
+
+		return $areas;
+	}
+
 	public function getRepairAreas() :array {
 		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
 	}
@@ -93,24 +112,8 @@ class Options extends BaseShield\Options {
 		return is_array( $sigs ) ? $sigs : [];
 	}
 
-	public function isMalAutoRepairSurgical() :bool {
-		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
-	}
-
-	public function isMalUseNetworkIntelligence() :bool {
-		return $this->getMalConfidenceBoundary() > 0;
-	}
-
 	public function isAutoFilterResults() :bool {
 		return (bool)apply_filters( 'shield/scan_auto_filter_results', true );
-	}
-
-	public function isPtgReinstallLinks() :bool {
-		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->getCon()->isPremiumActive();
-	}
-
-	public function isRepairFileAuto() :bool {
-		return count( $this->getRepairAreas() ) > 0;
 	}
 
 	public function isRepairFilePlugin() :bool {
@@ -135,11 +138,10 @@ class Options extends BaseShield\Options {
 
 	/**
 	 * @return string[]
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	public function getScanSlugs() :array {
-		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
-		return method_exists( $scansCon, 'getScans' ) ? $scansCon->getScanSlugs() : $this->getDef( 'all_scan_slugs' );
+		return $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 	}
 
 	/**
@@ -184,7 +186,9 @@ class Options extends BaseShield\Options {
 	 * @return $this
 	 */
 	public function setScansToBuild( array $scans ) {
-		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getScanSlugs() ) ) );
+		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getCon()->getModule_HackGuard()
+																					   ->getScansCon()
+																					   ->getScanSlugs() ) ) );
 		$this->getMod()->saveModOptions();
 		return $this;
 	}

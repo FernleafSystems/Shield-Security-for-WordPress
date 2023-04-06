@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LogFileHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
+	LocalDbWriter,
+	LogFileHandler
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
 use Monolog\Formatter\JsonFormatter;
@@ -53,21 +55,21 @@ class AuditLogger extends EventsListener {
 
 	protected function initLogger() {
 		$con = $this->getCon();
-		$mod = $con->getModule_AuditTrail();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $con->getModule_AuditTrail()->getOptions();
 
 		if ( $this->isMonologLibrarySupported() ) {
+
 			if ( $opts->isLogToDB() ) {
 				$this->getLogger()
 					 ->pushHandler(
-						 new FilterHandler( ( new LocalDbWriter() )->setMod( $mod ), $opts->getLogLevelsDB() )
+						 new FilterHandler( new LocalDbWriter(), $opts->getLogLevelsDB() )
 					 );
 			}
 
-			if ( $con->cache_dir_handler->exists() && $opts->isLogToFile() ) {
+			if ( $this->getCon()->cache_dir_handler->exists() && $opts->isLogToFile() ) {
 				try {
-					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler( $mod ), $opts->getLogLevelsFile() );
+					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $opts->getLogLevelsFile() );
 					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
 						$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 					}
@@ -107,10 +109,7 @@ class AuditLogger extends EventsListener {
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
 			$this->logger = new Logger( 'audit', [], array_map( function ( $class ) {
-				/** @var Processors\BaseMetaProcessor $p */
-				$p = new $class();
-				$p->setCon( $this->getCon() );
-				return $p;
+				return new $class();
 			}, $this->enumMetaProcessors() ) );
 		}
 		return $this->logger;

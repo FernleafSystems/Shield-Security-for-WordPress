@@ -18,9 +18,7 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 		$mod = $con->getModule_HackGuard();
 
 		$lockerCon = $mod->getFileLocker();
-		$lockLoader = ( new LoadFileLocks() )->setMod( $mod );
-		$problemLocks = $lockLoader->withProblems();
-		$goodLocks = $lockLoader->withoutProblems();
+		$problemLocks = ( new LoadFileLocks() )->withProblems();
 
 		return [
 			'ajax'    => [
@@ -37,7 +35,7 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 			],
 			'vars'    => [
 				'file_locks' => [
-					'good'        => $goodLocks,
+					'good'        => ( new LoadFileLocks() )->withoutProblems(),
 					'bad'         => $problemLocks,
 					'count_items' => count( $problemLocks ),
 				],

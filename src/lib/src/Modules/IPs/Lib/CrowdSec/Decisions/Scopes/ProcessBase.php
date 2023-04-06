@@ -116,7 +116,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		$carbon = Services::Request()->carbon();
 		switch ( $matches[ 2 ] ) {
 			case 'h':
-				$expiresAt = $carbon->startOfHour()->addHours( $matches[ 1 ] )->timestamp;
+				$expiresAt = $carbon->startOfHour()->addHours( (int)$matches[ 1 ] )->timestamp;
 				break;
 			default:
 				throw new \Exception( sprintf( "Unsupported decision format notation: '%s'", $matches[ 2 ] ) );

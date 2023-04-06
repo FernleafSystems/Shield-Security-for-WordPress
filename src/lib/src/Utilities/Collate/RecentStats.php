@@ -35,7 +35,7 @@ class RecentStats {
 
 	public function getRecentlyBlockedIPs() :array {
 		if ( !isset( self::$recentlyBlocked ) ) {
-			$loader = ( new LoadIpRules() )->setMod( $this->getCon()->getModule_IPs() );
+			$loader = new LoadIpRules();
 			$loader->order_by = 'blocked_at';
 			$loader->order_dir = 'DESC';
 			$loader->limit = 10;
@@ -50,7 +50,7 @@ class RecentStats {
 
 	public function getRecentlyOffendedIPs() :array {
 		if ( !isset( self::$recentlyOffended ) ) {
-			$loader = ( new LoadIpRules() )->setMod( $this->getCon()->getModule_IPs() );
+			$loader = new LoadIpRules();
 			$loader->order_by = 'last_access_at';
 			$loader->order_dir = 'DESC';
 			$loader->limit = 10;
@@ -64,7 +64,7 @@ class RecentStats {
 	}
 
 	public function getRecentUserSessions() :array {
-		return self::$recentUserSessions ?? self::$recentUserSessions = ( new FindSessions() )->mostRecent() ;
+		return self::$recentUserSessions ?? self::$recentUserSessions = ( new FindSessions() )->mostRecent();
 	}
 
 	public function getRecentEvents() :array {

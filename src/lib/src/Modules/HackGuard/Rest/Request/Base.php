@@ -3,26 +3,24 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest\Request\Process;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
 abstract class Base extends Process {
+
+	use ModConsumer;
 
 	protected function newReqVO() {
 		return new RequestVO();
 	}
 
 	protected function getScansStatus() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		/** @var Strings $strings */
-		$strings = $mod->getStrings();
+		$strings = $this->mod()->getStrings();
+		$queueCon = $this->mod()->getScanQueueController();
 
-		$statusChecker = ( new ScansStatus() )->setMod( $mod );
-		$queueCon = $mod->getScanQueueController();
-
-		$current = $statusChecker->current();
+		$current = ( new ScansStatus() )->current();
 		$hasCurrent = !empty( $current );
 		if ( $hasCurrent ) {
 			$currentScan = $strings->getScanName( $current );
@@ -31,7 +29,7 @@ abstract class Base extends Process {
 			$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
 		}
 
-		$enqueued = $statusChecker->enqueued();
+		$enqueued = ( new ScansStatus() )->enqueued();
 
 		return [
 			'enqueued_count'  => count( $enqueued ),

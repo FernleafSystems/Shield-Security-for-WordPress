@@ -5,7 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwareScanPatterns;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class SimplePluginTests extends BaseAction {
@@ -30,6 +33,57 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_rand() {
+	}
+
+	private function dbg_submitmalwarereports() {
+		$FS = Services::WpFs();
+
+//		$path = path_join( ABSPATH, 'wp-includes/class-wp-query.php' );
+//		$status = ( new MalwareScan() )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
+//
+//		var_dump($status);
+//		die();
+
+		$count = 0;
+		foreach ( $FS->getFilesInDir( ABSPATH, 0 ) as $splFile ) {
+			$path = $splFile->getPathname();
+			if ( \str_ends_with( $path, '.php' ) ) {
+				$status = ( new MalwareScan() )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
+				var_dump( $status.': '.str_replace( ABSPATH, '', $path ) );
+				$count++;
+			}
+			if ( $count > 10 ) {
+				break;
+			}
+		}
+
+		die();
+		$patterns = ( new MalwareScanPatterns() )->retrieve();
+
+		$locator = ( new LocateNeedles() )->setPath( path_join( ABSPATH, 'wp-content/maltestxyz.php' ) );
+		foreach ( $patterns[ 'raw' ] as $sig ) {
+			if ( $locator->raw( $sig ) ) {
+				var_dump( $sig );
+			}
+		}
+		foreach ( $patterns[ 'iraw' ] as $sig ) {
+			if ( $locator->iRaw( $sig ) ) {
+				var_dump( $sig );
+			}
+		}
+		foreach ( $patterns[ 're' ] as $sig ) {
+			if ( $locator->regex( $sig ) ) {
+				var_dump( $sig );
+			}
+		}
+
+//		var_dump( ( new Patterns() )->retrieve() );
+
+//		( new ReportToMalai() )->run();
+
+//		$res = ( new QueryMalwareStatus() )->retrieve( '405558D45DAC03062A76FFE384DDC3DD8ED7FC3B5932E100791AEF8F8E5C5D7E' );
+//		$reports = ( new ReportToMalai() )->run( 20 );
+//		var_dump( $reports );
 	}
 
 	private function dbg_importnotify() {
@@ -60,9 +114,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_plugin_tests() {
-		( new RunTests() )
-			->setCon( $this->getCon() )
-			->run();
+		( new RunTests() )->run();
 	}
 
 	private function dbg_telemetry() {

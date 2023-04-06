@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
@@ -58,8 +57,6 @@ class BuildSearchPanesData {
 	}
 
 	private function runQueryForFileTypes() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$results = Services::WpDb()->selectCustom(
 			sprintf( "SELECT DISTINCT `ri`.`item_id`
 						FROM `%s` as `ri`
@@ -70,7 +67,7 @@ class BuildSearchPanesData {
 							AND `ri`.`item_deleted_at`=0
 							AND `ri`.`deleted_at`=0
 				",
-				$mod->getDbH_ResultItems()->getTableSchema()->table
+				$this->mod()->getDbH_ResultItems()->getTableSchema()->table
 			)
 		);
 		return is_array( $results ) ? $results : [];

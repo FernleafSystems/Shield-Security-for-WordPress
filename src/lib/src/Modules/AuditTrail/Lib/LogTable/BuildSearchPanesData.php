@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -22,12 +21,11 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return ( new BuildDataForDays() )->build(
-			$mod->getDbH_Logs()
-				->getQuerySelector()
-				->getDistinctForColumn( 'created_at' )
+			$this->mod()
+				 ->getDbH_Logs()
+				 ->getQuerySelector()
+				 ->getDistinctForColumn( 'created_at' )
 		);
 	}
 
@@ -64,8 +62,6 @@ class BuildSearchPanesData {
 	}
 
 	private function runQuery( string $select ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$results = Services::WpDb()->selectCustom(
 			sprintf( 'SELECT DISTINCT %s
 						FROM `%s` as `log`
@@ -75,7 +71,7 @@ class BuildSearchPanesData {
 							ON ips.id = req.ip_ref 
 				',
 				$select,
-				$mod->getDbH_Logs()->getTableSchema()->table,
+				$this->mod()->getDbH_Logs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)

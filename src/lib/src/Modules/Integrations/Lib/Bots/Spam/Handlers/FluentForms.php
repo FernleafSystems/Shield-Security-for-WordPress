@@ -19,10 +19,7 @@ class FluentForms extends Base {
 			}, 9, 0 );
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return defined( 'FLUENTFORM' )
-			   && @class_exists( '\FluentForm\App' )
-			   && @method_exists( '\FluentForm\App', 'getApplication' )
-			   && @method_exists( \FluentForm\App::getApplication(), 'addPublicAjaxAction' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return @\method_exists( '\FluentForm\App', 'getApplication' );
 	}
 }

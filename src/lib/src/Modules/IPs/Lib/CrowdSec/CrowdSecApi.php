@@ -207,6 +207,7 @@ class CrowdSecApi {
 
 	/**
 	 * @throws Exceptions\MachineLoginFailedException
+	 * @throws \Carbon\Exceptions\InvalidFormatException
 	 */
 	public function machineLogin() {
 		$auth = $this->getCsAuth();

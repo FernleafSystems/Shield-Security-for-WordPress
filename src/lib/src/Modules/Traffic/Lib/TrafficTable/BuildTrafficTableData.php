@@ -132,7 +132,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	protected function getRecordsLoader() :LoadRequestLogs {
-		return ( new LoadRequestLogs() )->setMod( $this->getCon()->getModule_Data() );
+		return new LoadRequestLogs();
 	}
 
 	protected function getSearchableColumns() :array {
@@ -258,7 +258,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			}
 			else {
 				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
-				$ipRuleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getCon()->getModule_IPs() );
+				$ipRuleStatus = new IpRuleStatus( $ip );
 				if ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );
 				}
@@ -292,7 +292,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 	private function getCountryIP( string $ip ) :IPGeoVO {
 		if ( empty( $this->geoLookup ) ) {
-			$this->geoLookup = ( new Lookup() )->setCon( $this->getCon() );
+			$this->geoLookup = new Lookup();
 		}
 		return $this->geoLookup
 			->setIP( $ip )

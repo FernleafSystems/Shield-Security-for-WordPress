@@ -4,11 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property bool $is_booted
@@ -36,11 +33,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $oProcessor;
 
 	/**
-	 * @var Shield\Modules\Base\UI
-	 */
-	private $UI;
-
-	/**
 	 * @var Shield\Modules\Base\Options
 	 */
 	private $opts;
@@ -49,11 +41,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @var Shield\Modules\Base\WpCli
 	 */
 	private $wpCli;
-
-	/**
-	 * @var Shield\Modules\Base\AdminPage
-	 */
-	private $adminPage;
 
 	/**
 	 * @var Shield\Databases\Base\Handler[]
@@ -74,7 +61,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function __construct( Shield\Controller\Controller $pluginCon, Config\ModConfigVO $cfg ) {
-		$this->setCon( $pluginCon );
 		$this->cfg = $cfg;
 	}
 
@@ -188,13 +174,7 @@ abstract class ModCon extends DynPropertiesClass {
 				/** @var Shield\Databases\Base\Handler $dbh */
 				$dbh = new $aDbClasses[ $dbhKey ]( $dbhKey );
 				try {
-					// TODO remove 10.3: method_exists + table init
-					if ( method_exists( $dbh, 'execute' ) ) {
-						$dbh->setMod( $this )->execute();
-					}
-					else {
-						$dbh->setMod( $this )->tableInit();
-					}
+					$dbh->setMod( $this )->execute();
 				}
 				catch ( \Exception $e ) {
 				}
@@ -288,8 +268,6 @@ abstract class ModCon extends DynPropertiesClass {
 		if ( is_admin() || is_network_admin() ) {
 			$this->getAdminNotices()->execute();
 		}
-
-		$this->loadDebug();
 	}
 
 	/**
@@ -343,45 +321,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		$con = $this->getCon();
-		$urls = $con->plugin_urls;
-		return $urls ? $urls->modCfg( $this )
-			: $con->getModule_Insights()->getUrl_SubInsightsPage( PluginURLs::NAV_OPTIONS_CONFIG, $this->cfg->slug );
-	}
-
-	/**
-	 * @deprecated 17.0 - only on the base modcon
-	 */
-	public function getUrl_AdminPage() :string {
-		return $this->getUrl_OptionsConfigPage();
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 17.0
-	 */
-	protected function verifyModActionRequest() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getUrl_DirectLinkToOption( string $key ) :string {
-		$def = $this->getOptions()->getOptDefinition( $key );
-		return empty( $def[ 'section' ] ) ?
-			$this->getUrl_OptionsConfigPage()
-			: $this->getUrl_DirectLinkToSection( $def[ 'section' ] );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getUrl_DirectLinkToSection( string $section ) :string {
-		if ( $section == 'primary' ) {
-			$section = $this->getOptions()->getPrimarySection()[ 'slug' ];
-		}
-		return $this->getUrl_OptionsConfigPage().'#tab-'.$section;
+		return $this->getCon()->plugin_urls->modCfg( $this );
 	}
 
 	/**
@@ -467,20 +407,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 17.0
-	 */
-	public function getSlug() :string {
-		return $this->cfg->slug;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getIfShowModuleMenuItem() :bool {
-		return $this->cfg->properties[ 'show_module_menu_item' ];
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function clearLastErrors() {
@@ -532,24 +458,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 17.0
-	 */
-	public function isModuleRequest() :bool {
-		return $this->getModSlug() === Services::Request()->request( 'mod_slug' );
-	}
-
-	/**
-	 * @return array|string
-	 * @deprecated 17.0
-	 */
-	public function getAjaxActionData( string $action = '', bool $asJson = false ) {
-		$data = Shield\ActionRouter\ActionData::Build( $action, true, [
-			'mod_slug' => $this->getModSlug()
-		] );
-		return $asJson ? json_encode( (object)$data ) : $data;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	public function getDismissedNotices() :array {
@@ -559,9 +467,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->getOptions()->getOpt( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )
-			->setCon( $this->getCon() )
-			->applyFromArray( is_array( $a ) ? $a : [] );
+		return ( new Lib\Components\UiTrack() )->applyFromArray( is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {
@@ -620,47 +526,6 @@ abstract class ModCon extends DynPropertiesClass {
 		$this->getOptions()->deleteStorage();
 	}
 
-	/**
-	 * @param string        $msg
-	 * @param \WP_User|null $user
-	 * @param bool          $isError
-	 * @param bool          $bShowOnLogin
-	 * @return $this
-	 * @deprecated 17.0
-	 */
-	public function setFlashAdminNotice( $msg, $user = null, $isError = false, $bShowOnLogin = false ) {
-		$this->getCon()
-			 ->getAdminNotices()
-			 ->addFlash(
-				 sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
-				 $user,
-				 $isError,
-				 $bShowOnLogin
-			 );
-		return $this;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function isPremium() :bool {
-		return $this->getCon()->isPremiumActive();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function isThisModulePage() :bool {
-		return $this->getCon()->isModulePage() && Services::Request()->query( 'page' ) == $this->getModSlug();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function isPage_Insights() :bool {
-		return false;
-	}
-
 	protected function buildContextualHelp() {
 		if ( !function_exists( 'get_current_screen' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/screen.php' );
@@ -687,47 +552,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function isAccessRestricted() :bool {
 		return $this->cfg->properties[ 'access_restricted' ] && !$this->getCon()->isPluginAdmin();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function canDisplayOptionsForm() :bool {
-		return !$this->cfg->properties[ 'access_restricted' ] || $this->getCon()->isPluginAdmin();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getScriptLocalisations() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getCustomScriptEnqueues() :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function renderTemplate( string $template, array $data = [] ) :string {
-		$con = $this->getCon();
-
-		if ( $con->action_router instanceof Shield\ActionRouter\ActionRoutingController ) {
-			$data[ 'render_action_template' ] = $template;
-			return $con->action_router->render(
-				Actions\Render\GenericRender::SLUG,
-				$data
-			);
-		}
-
-		return $this->getRenderer()
-					->setTemplate( $template )
-					->setRenderData( $data )
-					->render();
 	}
 
 	public function getMainWpData() :array {
@@ -769,16 +593,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return AdminPage
-	 */
-	public function getAdminPage() {
-		if ( !isset( $this->adminPage ) ) {
-			$this->adminPage = $this->loadModElement( 'AdminPage' );
-		}
-		return $this->adminPage;
-	}
-
-	/**
 	 * @return Shield\Modules\Base\WpCli|mixed
 	 */
 	public function getWpCli() {
@@ -792,44 +606,8 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->loadStrings()->setMod( $this );
 	}
 
-	/**
-	 * @return mixed|Shield\Modules\Base\Renderer
-	 * @deprecated 17.0
-	 */
-	public function getRenderer() {
-		/** @var Renderer $r */
-		$r = $this->loadModElement( 'Renderer' );
-		return $r->setMod( $this );
-	}
-
-	/**
-	 * @return Shield\Modules\Base\UI
-	 * @deprecated 17.0
-	 */
-	public function getUIHandler() {
-		if ( !isset( $this->UI ) ) {
-			$this->UI = $this->loadModElement( 'UI' );
-		}
-		return $this->UI;
-	}
-
 	public function getAdminNotices() {
 		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	protected function loadAjaxHandler() {
-		try {
-			$class = $this->findElementClass( 'AjaxHandler', true );
-			/** @var Shield\Modules\ModConsumer $AH */
-			if ( !empty( $class ) && @class_exists( $class ) ) {
-				new $class( $this );
-			}
-		}
-		catch ( \Exception $e ) {
-		}
 	}
 
 	/**
@@ -909,26 +687,6 @@ abstract class ModCon extends DynPropertiesClass {
 			$this->getNamespace(),
 			$this->getBaseNamespace()
 		];
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function createFileDownloadLink( string $downloadID, array $additionalParams = [] ) :string {
-		return '';
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getNonceActionData( string $action = '' ) :array {
-		return [];
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	protected function loadDebug() {
 	}
 
 	/**

@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	LicenseCheckDebug,
 	LicenseClear,
-	LicenseLookup,
-	LicenseCheckDebug
+	LicenseLookup
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
 use FernleafSystems\Wordpress\Services\Services;

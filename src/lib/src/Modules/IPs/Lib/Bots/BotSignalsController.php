@@ -49,7 +49,6 @@ class BotSignalsController extends ExecOnceModConsumer {
 		if ( $botScoreMinimum > 0 ) {
 
 			$score = ( new Calculator\CalculateVisitorBotScores() )
-				->setMod( $this->getMod() )
 				->setIP( empty( $IP ) ? $this->getCon()->this_req->ip : $IP )
 				->probability();
 

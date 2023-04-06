@@ -21,4 +21,8 @@ class ResultItem extends DynPropertiesClass {
 	public function getDescriptionForAudit() :string {
 		return 'No description';
 	}
+
+	public function getStatusForHuman() :string {
+		return 'No Status';
+	}
 }

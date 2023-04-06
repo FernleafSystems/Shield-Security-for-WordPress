@@ -29,6 +29,16 @@
 					{{ strings.tab_diff }}
 				</a>
 			</li>
+
+			{% if flags.can_query_malai %}
+				<li class="nav-item">
+					<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabMalai"
+					   data-bs-toggle="tab">
+						{{ strings.tab_malai }}
+					</a>
+				</li>
+			{% endif %}
+
 		</ul>
 	</div>
 </div>
@@ -45,7 +55,7 @@
 
 	<div class="tab-pane" id="tabHistory" role="tabpanel" aria-labelledby="tabHistory">
 		<div class="row">
-			<div class="col pt-3" id="TabHistory">
+			<div class="col pt-3">
 				{{ content.tab_history|raw }}
 			</div>
 		</div>
@@ -61,9 +71,20 @@
 
 	<div class="tab-pane" id="tabDiff" role="tabpanel" aria-labelledby="tabDiff">
 		<div class="row">
-			<div class="col pt-3" id="TabHistory">
+			<div class="col pt-3">
 				{{ content.tab_diff|raw }}
 			</div>
 		</div>
 	</div>
+
+	{% if flags.can_query_malai %}
+		<div class="tab-pane" id="tabMalai" role="tabpanel" aria-labelledby="tabMalai">
+			<div class="row">
+				<div class="col pt-3">
+					{{ content.tab_malai|raw }}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
 </div>

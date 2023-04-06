@@ -4,10 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHand
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use Monolog\Handler\AbstractProcessingHandler;
 
@@ -21,9 +20,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	private $log;
 
 	protected function write( array $record ) :void {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$this->log = $record;
 
 		try {
@@ -51,9 +47,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			foreach ( $metas as $metaKey => $metaValue ) {
 				$metaRecord->meta_key = $metaKey;
 				$metaRecord->meta_value = $metaValue;
-				$mod->getDbH_Meta()
-					->getQueryInserter()
-					->insert( $metaRecord );
+				$this->mod()
+					 ->getDbH_Meta()
+					 ->getQueryInserter()
+					 ->insert( $metaRecord );
 			}
 			$this->triggerRequestLogger();
 		}
@@ -66,8 +63,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	protected function updateRecentLogEntry() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$modData = $this->getCon()->getModule_Data();
 
 		$ipRecordID = ( new IPRecords() )
@@ -86,7 +81,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		/** @var Logs\Ops\Select $select */
-		$select = $mod->getDbH_Logs()->getQuerySelector();
+		$select = $this->mod()->getDbH_Logs()->getQuerySelector();
 		/** @var Logs\Ops\Record $existingLog */
 		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
 							  ->filterByRequestRefs( $reqIDs )
@@ -100,12 +95,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				sprintf( "UPDATE `%s` SET `meta_value` = `meta_value`+1
 					WHERE `log_ref`=%s
 						AND `meta_key`='audit_count'
-				", $mod->getDbH_Meta()->getTableSchema()->table, $existingLog->id )
+				", $this->mod()->getDbH_Meta()->getTableSchema()->table, $existingLog->id )
 			);
 			// this can fail under load, but doesn't actually matter:
-			$mod->getDbH_Logs()
-				->getQueryUpdater()
-				->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
+			$this->mod()
+				 ->getDbH_Logs()
+				 ->getQueryUpdater()
+				 ->updateById( $existingLog->id, [ 'updated_at' => Services::Request()->ts() ] );
 		}
 		return !empty( $existingLog );
 	}
@@ -114,8 +110,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord() :Logs\Ops\Record {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 
 		$record = new Logs\Ops\Record();
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
@@ -130,17 +124,19 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadReq( $this->log[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
 			->id;
 
-		$success = $mod->getDbH_Logs()
-					   ->getQueryInserter()
-					   ->insert( $record );
+		$success = $this->mod()
+						->getDbH_Logs()
+						->getQueryInserter()
+						->insert( $record );
 		if ( !$success ) {
 			throw new \Exception( 'Failed to insert' );
 		}
 
 		/** @var Logs\Ops\Record $log */
-		$log = $mod->getDbH_Logs()
-				   ->getQuerySelector()
-				   ->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
+		$log = $this->mod()
+					->getDbH_Logs()
+					->getQuerySelector()
+					->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 		if ( empty( $log ) ) {
 			throw new \Exception( 'Could not load log record' );
 		}

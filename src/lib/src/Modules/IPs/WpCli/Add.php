@@ -34,9 +34,7 @@ class Add extends BaseAddRemove {
 		try {
 			$this->checkList( $args[ 'list' ] ?? '' );
 
-			$adder = ( new AddRule() )
-				->setMod( $this->getMod() )
-				->setIP( $args[ 'ip' ] );
+			$adder = ( new AddRule() )->setIP( $args[ 'ip' ] );
 
 			in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
 				$adder->toManualWhitelist( $args[ 'label' ] ?? '' )

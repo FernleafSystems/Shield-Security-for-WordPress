@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class ModCon extends BaseShield\ModCon {
@@ -51,13 +49,6 @@ class ModCon extends BaseShield\ModCon {
 		catch ( \Exception $e ) {
 		}
 		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getSecAdminLoginAjaxData() :array {
-		return ActionData::Build( Actions\SecurityAdminLogin::class );
 	}
 
 	protected function preProcessOptions() {
@@ -115,11 +106,5 @@ class ModCon extends BaseShield\ModCon {
 			$posts = array_unique( array_merge( $posts, [ 'publish', 'delete' ] ) );
 			$opts->setOpt( 'admin_access_restrict_posts', $posts );
 		}
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function preDeactivatePlugin() {
 	}
 }

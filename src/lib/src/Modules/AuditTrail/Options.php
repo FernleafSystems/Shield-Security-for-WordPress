@@ -66,7 +66,6 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isLogToFile() :bool {
-		return !in_array( 'disabled', $this->getLogLevelsFile() )
-			   && !empty( $this->getLogFilePath() );
+		return !in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $this->getLogFilePath() );
 	}
 }

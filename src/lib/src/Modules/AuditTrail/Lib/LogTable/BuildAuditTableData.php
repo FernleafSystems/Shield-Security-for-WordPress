@@ -5,11 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildAuditTableData extends BaseBuildTableData {
+
+	use ModConsumer;
 
 	/**
 	 * @var LogRecord
@@ -21,9 +24,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )
-			->setMod( $this->getMod() )
-			->build();
+		return ( new BuildSearchPanesData() )->build();
 	}
 
 	/**
@@ -100,9 +101,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new ForActivityLog() )
-				->setMod( $this->getMod() )
-				->buildRaw()[ 'columns' ]
+			( new ForActivityLog() )->buildRaw()[ 'columns' ]
 		) );
 	}
 
@@ -125,7 +124,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 	}
 
 	protected function getRecordsLoader() :LoadLogs {
-		return ( new LoadLogs() )->setMod( $this->getMod() );
+		return new LoadLogs();
 	}
 
 	private function getColumnContent_UserID() :string {

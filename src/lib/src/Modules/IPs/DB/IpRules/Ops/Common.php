@@ -4,13 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops;
 
 trait Common {
 
-	/**
-	 * @deprecated
-	 */
-	public function filterByIP( int $ipRef ) {
-		return $this->addWhereEquals( 'ip_ref', $ipRef );
-	}
-
 	public function filterByIPRef( int $ipRef ) {
 		return $this->addWhereEquals( 'ip_ref', $ipRef );
 	}

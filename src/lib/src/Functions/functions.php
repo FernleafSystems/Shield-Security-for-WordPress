@@ -12,14 +12,12 @@ function get_plugin() :\ICWP_WPSF_Shield_Security {
 
 function get_visitor_scores( $IP = null ) :array {
 	return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
-		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
 		->setIP( $IP ?? Services::Request()->ip() )
 		->scores();
 }
 
 function get_visitor_score( $IP = null ) :int {
 	return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
-		->setMod( shield_security_get_plugin()->getController()->getModule_IPs() )
 		->setIP( $IP ?? Services::Request()->ip() )
 		->probability();
 }
@@ -39,8 +37,7 @@ function test_ip_is_bot( $IP = null ) :bool {
 function get_ip_state( string $ip = '' ) :string {
 	$state = 'none';
 	try {
-		$ipRuleStatus = ( new IpRuleStatus( empty( $ip ) ? Services::Request()->ip() : $ip ) )
-			->setMod( get_plugin()->getController()->getModule_IPs() );
+		$ipRuleStatus = new IpRuleStatus( empty( $ip ) ? Services::Request()->ip() : $ip );
 		if ( $ipRuleStatus->isBypass() ) {
 			$state = 'bypass';
 		}

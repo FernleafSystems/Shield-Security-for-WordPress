@@ -19,7 +19,7 @@ class ScanEnabledMal extends ScanEnabledBase {
 			return $mod->isModOptEnabled() &&
 				   $mod->getScansCon()
 					   ->AFS()
-					   ->isEnabledMalwareScan();
+					   ->isEnabledMalwareScanPHP();
 		}
 		catch ( \Exception $e ) {
 			return false;

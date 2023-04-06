@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RetrieveCount extends RetrieveBase {
@@ -13,7 +12,7 @@ class RetrieveCount extends RetrieveBase {
 
 	public function buildQuery( array $selectFields = [] ) :string {
 		return sprintf(
-			$this->getBaseQuery( false ),
+			$this->getBaseQuery(),
 			implode( ',', $selectFields ),
 			implode( ' AND ', $this->getWheres() )
 		);
@@ -61,8 +60,7 @@ class RetrieveCount extends RetrieveBase {
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		return sprintf( "SELECT %%s
 						FROM `%s` as sr
 						INNER JOIN `%s` as `scans`

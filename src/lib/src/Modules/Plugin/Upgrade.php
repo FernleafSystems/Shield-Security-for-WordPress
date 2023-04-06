@@ -2,47 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as LegacyReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgrade_1700() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$legacyReportingMod = $this->getCon()->getModule_Reporting();
-
-		// migrate options.
-		foreach ( [ 'frequency_alert', 'frequency_info' ] as $optKey ) {
-			$mod->getOptions()->setOpt( $optKey, $legacyReportingMod->getOptions()->getOpt( $optKey ) );
-		}
-
-		// move over historical reports.
-		/** @var LegacyReportsDB\Select $selector */
-		$legacyDBH = $legacyReportingMod->getDbHandler_Reports();
-		$selector = $legacyDBH->getQuerySelector();
-		/** @var LegacyReportsDB\EntryVO[] $latest */
-		$latest = $selector->setLimit( 20 )
-						   ->setOrderBy( 'created_at' )
-						   ->setResultsAsVo( true )
-						   ->query();
-
-		foreach ( $latest as $entry ) {
-			/** @var Db\Report\Ops\Record $record */
-			$record = $mod->getDbH_ReportLogs()->getRecord();
-			$record->type = $entry->type;
-			$record->interval_length = $entry->frequency;
-			$record->interval_end_at = $entry->interval_end_at;
-			$record->created_at = $entry->created_at;
-			$mod->getDbH_ReportLogs()->getQueryInserter()->insert( $record );
-		}
-
-		// remove the legacy table.
-		$legacyDBH->tableDelete();
-	}
-
-	protected function upgrade_1610() {
+	protected function upgrade_1800() {
 		// remove old tables
 		$WPDB = Services::WpDb();
 		foreach (

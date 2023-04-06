@@ -12,9 +12,7 @@ class PluginSuperSearch extends BaseAction {
 	protected function exec() {
 		$this->response()->action_response_data = [
 			'success' => true,
-			'results' => ( new SelectSearchData() )
-				->setCon( $this->getCon() )
-				->build( Services::Request()->request( 'search' ) ),
+			'results' => ( new SelectSearchData() )->build( Services::Request()->request( 'search' ) ),
 		];
 	}
 }

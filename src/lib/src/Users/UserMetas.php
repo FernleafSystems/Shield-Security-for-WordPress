@@ -37,28 +37,6 @@ class UserMetas {
 		return $meta;
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function forUser( ?\WP_User $user ) :?ShieldUserMeta {
-		$meta = null;
-		if ( $user instanceof \WP_User ) {
-			$this->user = $user;
-			try {
-				$meta = Shield\Users\ShieldUserMeta::Load( $this->getCon()->prefix(), (int)$user->ID );
-				if ( !isset( $meta->record ) ) {
-					$this->loadMetaRecord( $meta );
-					$this->setup( $meta );
-					// TODO: a query to delete all of these
-					Services::WpUsers()->deleteUserMeta( $this->getCon()->prefix( 'meta-version' ), $user->ID );
-				}
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $meta;
-	}
-
 	private function setup( Shield\Users\ShieldUserMeta $meta ) {
 		$rec = $meta->record;
 

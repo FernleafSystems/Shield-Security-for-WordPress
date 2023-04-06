@@ -11,10 +11,7 @@ class MoveHashFiles extends BaseAction {
 	public function run() {
 		$FS = Services::WpFs();
 		if ( $this->isTempDirAvailable() ) {
-			$assets = ( new FindAssetsToSnap() )
-				->setMod( $this->getMod() )
-				->run();
-			foreach ( $assets as $asset ) {
+			foreach ( ( new FindAssetsToSnap() )->run() as $asset ) {
 				$oldStore = ( new Store( $asset, false ) )->setWorkingDir( $this->getTempDir() );
 				$newStore = ( new Store( $asset, true ) )->setWorkingDir( $this->getTempDir() );
 				if ( $FS->isFile( $oldStore->getSnapStorePath() ) ) {

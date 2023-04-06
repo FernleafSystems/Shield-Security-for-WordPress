@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "17.0.20",
-    "release_timestamp":       1679660001,
-    "build":                   "202303.2402",
+    "version":                 "18.0.0",
+    "release_timestamp":       1680780000,
+    "build":                   "202304.0601",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -12,7 +12,7 @@
     "show_dashboard_widget":   true,
     "show_admin_bar_menu":     true,
     "autoupdate":              "confidence",
-    "autoupdate_days":         7,
+    "autoupdate_days":         5,
     "options_encoding":        "json",
     "enable_premium":          true
   },
@@ -43,11 +43,11 @@
     }
   },
   "version_upgrades": [
-    "14.1.1",
-    "14.1.4",
     "16.1.2",
     "16.1.7",
-    "17.0.0"
+    "17.0.0",
+    "17.1.0",
+    "18.0.0"
   ],
   "paths":            {
     "config":           "config",
@@ -444,13 +444,11 @@
     "firewall",
     "hack_protect",
     "headers",
-    "insights",
     "integrations",
     "ips",
     "license",
     "lockdown",
     "login_protect",
-    "reporting",
     "traffic",
     "user_management"
   ]

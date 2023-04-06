@@ -41,7 +41,7 @@ class Apc extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->getOptions()->isOpt( 'enabled_scan_apc', 'Y' );
+		return $this->opts()->isOpt( 'enabled_scan_apc', 'Y' );
 	}
 
 	protected function isPremiumOnly() :bool {

@@ -26,21 +26,20 @@ class BuildForDisplay {
 	 */
 	public function standard() :array {
 		$con = $this->getCon();
-		$mod = $this->getMod();
 
 		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
 		$opts = $this->getOptions();
 		$sections = $this->buildAvailableSections();
-		$notices = ( new SectionNotices() )->setCon( $con );
+		$notices = new SectionNotices();
 
 		foreach ( $sections as $sectionKey => $sect ) {
 
 			if ( !empty( $sect[ 'options' ] ) ) {
 
 				foreach ( $sect[ 'options' ] as $optKey => $option ) {
-					$option[ 'is_value_default' ] = ( $option[ 'value' ] === $option[ 'default' ] );
+					$option[ 'is_value_default' ] = $option[ 'value' ] === $option[ 'default' ];
 					$isOptPremium = $option[ 'premium' ] ?? false;
 					$bIsAdv = $option[ 'advanced' ] ?? false;
 					if ( ( !$isOptPremium || $isPremium ) && ( !$bIsAdv || $showAdvanced ) ) {
@@ -125,25 +124,36 @@ class BuildForDisplay {
 				continue;
 			}
 
-			$optDef = array_merge(
-				[
-					'link_info'     => '',
-					'link_blog'     => '',
-					'value_options' => [],
-					'premium'       => false,
-					'advanced'      => false,
-					'beacon_id'     => false
-				],
-				$optDef
-			);
+			$optDef = array_merge( [
+				'link_info'     => '',
+				'link_blog'     => '',
+				'value_options' => [],
+				'premium'       => false,
+				'advanced'      => false,
+				'beacon_id'     => false
+			], $optDef );
+
 			$optDef[ 'value' ] = $opts->getOpt( $optDef[ 'key' ] );
 
 			if ( in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
-				$convertedOptions = [];
-				foreach ( $optDef[ 'value_options' ] as $selectValues ) {
-					$convertedOptions[ $selectValues[ 'value_key' ] ] = __( $selectValues[ 'text' ], 'wp-simple-firewall' );
+				$available = [];
+				$converted = [];
+				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
+					$converted[ $valueOpt[ 'value_key' ] ] = [
+						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
+						'is_available' => $this->con()->isPremiumActive() || !( $valueOpt[ 'premium' ] ?? false ),
+					];
+
+					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
+						$available[] = $valueOpt[ 'value_key' ];
+					}
 				}
-				$optDef[ 'value_options' ] = $convertedOptions;
+				$optDef[ 'value_options' ] = $converted;
+
+				/** For multi-selects, only show available options as checked on. */
+				if ( is_array( $optDef[ 'value' ] ) ) {
+					$optDef[ 'value' ] = array_intersect( $optDef[ 'value' ], $available );
+				}
 			}
 
 			if ( $this->getCon()->labels->is_whitelabelled ) {
@@ -228,37 +238,38 @@ class BuildForDisplay {
 
 			case 'file_locker':
 				if ( !Services::Data()->isWindows() ) {
-					$option[ 'value_options' ][ 'root_webconfig' ] .= sprintf( ' (%s)', __( 'unavailable', 'wp-simple-firewall' ) );
+					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
+					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
 				}
 				break;
 
+			case 'file_scan_areas':
+				$option[ 'value_options' ][ 'wp' ][ 'name' ] = sprintf( '%s (%s)', esc_html( __( 'WP core files', 'wp-simple-firewall' ) ),
+					sprintf( __( 'excludes %s', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ) );
+				$option[ 'value_options' ][ 'wpcontent' ][ 'name' ] = sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' );
+				break;
+
 			case 'visitor_address_source':
-				$newOptions = [];
 				$ipDetector = Services::IP()->getIpDetector();
-				foreach ( $option[ 'value_options' ] as $valKey => $source ) {
-					if ( $valKey == 'AUTO_DETECT_IP' ) {
-						$newOptions[ $valKey ] = $source;
-					}
-					else {
-						$IPs = implode( ', ', $ipDetector->getIpsFromSource( $source ) );
-						if ( !empty( $IPs ) ) {
-							$newOptions[ $valKey ] = sprintf( '%s (%s)', $source, $IPs );
+				foreach ( array_keys( $option[ 'value_options' ] ) as $valKey ) {
+					if ( $valKey !== 'AUTO_DETECT_IP' ) {
+						$IPs = implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
+						if ( empty( $IPs ) ) {
+							unset( $option[ 'value_options' ][ $valKey ] );
+						}
+						else {
+							$option[ 'value_options' ][ $valKey ][ 'name' ] = sprintf( '%s (%s)',
+								$option[ 'value_options' ][ $valKey ][ 'name' ],
+								$IPs
+							);
 						}
 					}
 				}
-				$option[ 'value_options' ] = $newOptions;
 				break;
 
 			default:
 				break;
 		}
 		return $option;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function setIsWhitelabelled( bool $isOrNot ) :self {
-		return $this;
 	}
 }

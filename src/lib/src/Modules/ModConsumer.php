@@ -9,7 +9,7 @@ trait ModConsumer {
 
 	/**
 	 * @var Modules\Base\ModCon
-	 * @deprecated 17.0
+	 * @deprecated 17.1
 	 */
 	private $oMod;
 
@@ -25,6 +25,14 @@ trait ModConsumer {
 		return $this->getMod()->getCon();
 	}
 
+	public function con() :Controller {
+		return shield_security_get_plugin()->getController();
+	}
+
+	public function mod() {
+		return $this->getMod();
+	}
+
 	/**
 	 * @return Base\ModCon|mixed
 	 */
@@ -36,7 +44,7 @@ trait ModConsumer {
 			catch ( \Exception $e ) {
 			}
 		}
-		return $this->mod ?? $this->oMod;
+		return $this->mod;
 	}
 
 	/**
@@ -49,6 +57,7 @@ trait ModConsumer {
 	/**
 	 * @param Controller $con
 	 * @return $this
+	 * @deprecated 17.1
 	 */
 	public function setCon( $con ) {
 		$this->getMod()->setCon( $con );
@@ -61,7 +70,6 @@ trait ModConsumer {
 	 */
 	public function setMod( $mod ) {
 		$this->mod = $mod;
-		$this->oMod = $mod;
 		return $this;
 	}
 }

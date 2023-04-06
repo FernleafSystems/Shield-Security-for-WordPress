@@ -108,7 +108,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	}
 
 	protected function getRecordsLoader() :LoadIpRules {
-		return ( new LoadIpRules() )->setMod( $this->getMod() );
+		return new LoadIpRules();
 	}
 
 	protected function getSearchableColumns() :array {
@@ -165,8 +165,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 					switch ( $record->type ) {
 						case Handler::T_AUTO_BLOCK:
-							$ipStatus = ( new IpRuleStatus( $record->ip ) )->setMod( $this->getMod() );
-							if ( $ipStatus->hasHighReputation() ) {
+							if ( ( new IpRuleStatus( $record->ip ) )->hasHighReputation() ) {
 								$color = 'warning';
 								$blockedStatus = sprintf( '%s (%s: %s)',
 									__( 'Blocked/High Reputation', 'wp-simple-firewall' ), __( 'expires', 'wp-simple-firewall' ),
@@ -242,7 +241,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 	private function getCountryIP( string $ip ) :IPGeoVO {
 		if ( empty( $this->geoLookup ) ) {
-			$this->geoLookup = ( new Lookup() )->setCon( $this->getCon() );
+			$this->geoLookup = new Lookup();
 		}
 		return $this->geoLookup
 			->setIP( $ip )

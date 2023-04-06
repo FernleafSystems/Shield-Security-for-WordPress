@@ -26,15 +26,13 @@ class Remove extends BaseAddRemove {
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			$ruleStatus = ( new IPs\Lib\IpRules\IpRuleStatus( $args[ 'ip' ] ) )->setMod( $this->getMod() );
+			$ruleStatus = new IPs\Lib\IpRules\IpRuleStatus( $args[ 'ip' ] );
 			$records = in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
 				$ruleStatus->getRulesForBypass() : $ruleStatus->getRulesForBlock();
 
 			$success = false;
 			foreach ( $records as $record ) {
-				$success = ( new IPs\Lib\IpRules\DeleteRule() )
-					->setMod( $this->getMod() )
-					->byRecord( $record );
+				$success = ( new IPs\Lib\IpRules\DeleteRule() )->byRecord( $record );
 			}
 
 			$success ?

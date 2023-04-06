@@ -2,21 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	Options,
+	ModConsumer,
 	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli,
 	Scan\Results\Update
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ScansController extends ExecOnceModConsumer {
+class ScansController {
 
+	use ExecOnce;
+	use ModConsumer;
 	use StandardCron;
 	use PluginCronsConsumer;
 
@@ -39,6 +41,7 @@ class ScansController extends ExecOnceModConsumer {
 
 	public function runHourlyCron() {
 		( new CleanQueue() )->execute();
+		( new ReportToMalai() )->run();
 	}
 
 	public function AFS() :Controller\Afs {
@@ -54,26 +57,12 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Controller\Base[]
+	 * @return Controller\Base[]|mixed
 	 */
 	public function getAllScanCons() :array {
-		if ( method_exists( $this, 'getScans' ) ) {
-			foreach ( $this->getScans() as $scan ) {
-				if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
-					$this->scanCons[ $scan::SCAN_SLUG ] = ( new $scan() )->setMod( $this->getMod() );
-				}
-			}
-			return $this->scanCons;
-		}
-		else {
-			/** @var Options $opts */
-			$opts = $this->getOptions();
-			foreach ( $opts->getScanSlugs() as $slug ) {
-				try {
-					$this->getScanCon( $slug );
-				}
-				catch ( \Exception $e ) {
-				}
+		foreach ( $this->getScans() as $scan ) {
+			if ( empty( $this->scanCons[ $scan::SCAN_SLUG ] ) ) {
+				$this->scanCons[ $scan::SCAN_SLUG ] = new $scan();
 			}
 		}
 		return $this->scanCons;
@@ -98,30 +87,19 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	/**
-	 * @return Controller\Base|mixed
+	 * @return Controller\Afs|Controller\Apc|Controller\Wpv|Controller\Base
 	 */
 	public function getScanCon( string $slug ) {
-		if ( method_exists( $this, 'getScans' ) ) {
-			return $this->getAllScanCons()[ $slug ];
-		}
-		elseif ( !isset( $this->scanCons[ $slug ] ) ) {
-			$class = __NAMESPACE__.'\\Controller\\'.ucwords( $slug );
-			if ( @class_exists( $class ) ) {
-				/** @var Controller\Base $obj */
-				$obj = new $class();
-				$this->scanCons[ $slug ] = $obj->setMod( $this->getMod() );
-			}
-		}
-
-		return $this->scanCons[ $slug ];
+		return $this->getAllScanCons()[ $slug ];
 	}
 
 	public function getScanResultsCount() :Results\Counts {
-		return $this->scanResultsStatus ?? $this->scanResultsStatus = ( new Results\Counts() )->setMod( $this->getMod() );
+		return $this->scanResultsStatus ?? $this->scanResultsStatus = new Results\Counts();
 	}
 
 	private function handlePostScanCron() {
 		add_action( $this->getCon()->prefix( 'post_scan' ), function () {
+			( new ReportToMalai() )->run();
 			$this->runAutoRepair();
 		} );
 	}
@@ -139,10 +117,8 @@ class ScansController extends ExecOnceModConsumer {
 
 	private function cronScan() {
 		if ( $this->getCanScansExecute() ) {
-			/** @var Options $opts */
-			$opts = $this->getOptions();
-			$opts->setIsScanCron( true );
-			$this->getMod()->saveModOptions();
+			$this->opts()->setIsScanCron( true );
+			$this->mod()->saveModOptions();
 			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {
@@ -166,11 +142,6 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		$toScan = [];
 		foreach ( $scans as $slugOrCon ) {
 			try {
@@ -178,9 +149,11 @@ class ScansController extends ExecOnceModConsumer {
 				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
 					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
-						$this->resetIgnoreStatus( $scanCon );
+						( new Update() )
+							->setScanController( $scanCon )
+							->clearIgnored();
 					}
-					$opts->addRemoveScanToBuild( $scanCon->getSlug() );
+					$this->opts()->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -189,14 +162,13 @@ class ScansController extends ExecOnceModConsumer {
 
 		if ( !empty( $toScan ) ) {
 			if ( Services::WpGeneral()->isWpCli() ) {
-				( new ProcessQueueWpcli() )
-					->setMod( $this->getMod() )
-					->execute();
+				( new ProcessQueueWpcli() )->execute();
 			}
 			else {
-				$mod->getScanQueueController()
-					->getQueueBuilder()
-					->dispatch();
+				$this->mod()
+					 ->getScanQueueController()
+					 ->getQueueBuilder()
+					 ->dispatch();
 			}
 		}
 
@@ -208,9 +180,7 @@ class ScansController extends ExecOnceModConsumer {
 	}
 
 	protected function getCronFrequency() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getScanFrequency();
+		return $this->opts()->getScanFrequency();
 	}
 
 	public function getFirstRunTimestamp() :int {
@@ -244,12 +214,5 @@ class ScansController extends ExecOnceModConsumer {
 
 	protected function getCronName() :string {
 		return $this->getCon()->prefix( 'all-scans' );
-	}
-
-	protected function resetIgnoreStatus( $scanCon ) {
-		( new Update() )
-			->setMod( $this->getMod() )
-			->setScanController( $scanCon )
-			->clearIgnored();
 	}
 }

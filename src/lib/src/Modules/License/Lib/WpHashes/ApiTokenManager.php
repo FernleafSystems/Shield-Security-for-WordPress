@@ -2,11 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\WPHashes\SolicitToken;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
+class ApiTokenManager {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	/**
 	 * @var bool
@@ -35,12 +39,10 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 	 * Please don't change it, as the only result is invalid requests against our API.
 	 * Eventually we will completely block their IP addresses and this will result in blocks for the
 	 * API requests which don't even require an API Token
-	 *
-	 * @return string
 	 */
-	public function getToken() {
+	public function getToken() :string {
 
-		if ( $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid() ) {
+		if ( $this->mod()->getLicenseHandler()->getLicense()->isValid() ) {
 			$token = $this->loadToken();
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$token = $this->loadToken();
@@ -57,7 +59,7 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 				catch ( \Exception $e ) {
 				}
 				$token[ 'attempt_at' ] = Services::Request()->ts();
-				$token[ 'next_attempt_from' ] = Services::Request()->ts() + HOUR_IN_SECONDS;
+				$token[ 'next_attempt_from' ] = Services::Request()->ts() + \HOUR_IN_SECONDS;
 				$this->storeToken( $token );
 			}
 		}
@@ -69,7 +71,7 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function hasToken() :bool {
-		return strlen( $this->getToken() ) == 40 && !$this->isExpired();
+		return strlen( $this->getToken() ) === 40 && !$this->isExpired();
 	}
 
 	/**
@@ -84,7 +86,7 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 				'next_attempt_from' => 0,
 				'valid_license'     => false,
 			],
-			$this->getOptions()->getOpt( 'wphashes_api_token', [] )
+			$this->opts()->getOpt( 'wphashes_api_token', [] )
 		);
 	}
 
@@ -100,24 +102,15 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 		return $this->canRequestOverride;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getExpiresAt() {
+	public function getExpiresAt() :int {
 		return $this->loadToken()[ 'expires_at' ];
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getNextAttemptAllowedFrom() {
+	public function getNextAttemptAllowedFrom() :int {
 		return $this->loadToken()[ 'next_attempt_from' ];
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getPreviousAttemptAt() {
+	public function getPreviousAttemptAt() :int {
 		return $this->loadToken()[ 'attempt_at' ];
 	}
 
@@ -129,18 +122,15 @@ class ApiTokenManager extends Modules\Base\Common\ExecOnceModConsumer {
 		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->getExpiresAt();
 	}
 
-	private function storeToken( array $token = [] ) {
-		$this->getOptions()->setOpt( 'wphashes_api_token', $token );
+	private function storeToken( array $token ) {
+		$this->opts()->setOpt( 'wphashes_api_token', $token );
 	}
 
 	private function clearToken() {
 		$this->storeToken( [] );
 	}
 
-	/**
-	 * @return $this
-	 */
-	public function setCanRequestOverride( bool $canRequest ) {
+	public function setCanRequestOverride( bool $canRequest ) :self {
 		$this->canRequestOverride = $canRequest;
 		return $this;
 	}

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,9 +17,7 @@ class PopulateScanItems {
 	 */
 	public function run() {
 		$scanCon = $this->getScanController();
-		/** @var ModCon $mod */
-		$mod = $scanCon->getMod();
-		$dbhItems = $mod->getDbH_ScanItems();
+		$dbhItems = $scanCon->mod()->getDbH_ScanItems();
 
 		$scanRecord = $this->getRecord();
 		$scanAction = $scanCon->buildScanAction();
@@ -30,11 +27,12 @@ class PopulateScanItems {
 		unset( $scanAction->items );
 
 		$scanRecord->meta = $scanAction->getRawData();
-		$mod->getDbH_Scans()
-			->getQueryUpdater()
-			->updateById( $scanRecord->id, [
-				'meta' => $scanRecord->getRawData()[ 'meta' ]
-			] );
+		$scanCon->mod()
+				->getDbH_Scans()
+				->getQueryUpdater()
+				->updateById( $scanRecord->id, [
+					'meta' => $scanRecord->getRawData()[ 'meta' ]
+				] );
 
 		$sliceSize = $scanCon->getQueueGroupSize();
 
@@ -50,10 +48,11 @@ class PopulateScanItems {
 		// Marks the scan record as ready to run. It cannot run until this flag is set.
 		// This prevents a timing issue where we're populating scan items but the scan could get picked up and executed.
 		// TODO: review whether this entirely necessary depending on how scans are kicked off.
-		$mod->getDbH_Scans()
-			->getQueryUpdater()
-			->updateRecord( $scanRecord, [
-				'ready_at' => Services::Request()->ts()
-			] );
+		$scanCon->mod()
+				->getDbH_Scans()
+				->getQueryUpdater()
+				->updateRecord( $scanRecord, [
+					'ready_at' => Services::Request()->ts()
+				] );
 	}
 }

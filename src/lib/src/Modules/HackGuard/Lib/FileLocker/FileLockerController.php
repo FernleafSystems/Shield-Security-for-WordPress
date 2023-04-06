@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
@@ -17,7 +17,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
-class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
+class FileLockerController {
+
+	use ExecOnce;
+	use HackGuard\ModConsumer;
 
 	public const CRON_DELAY = 60;
 
@@ -27,45 +30,40 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 
 	public function isEnabled() :bool {
 		$con = $this->getCon();
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
 		return $con->isPremiumActive()
-			   && ( count( $opts->getFilesToLock() ) > 0 )
-			   && $mod->getDbH_FileLocker()->isReady()
+			   && ( count( $this->opts()->getFilesToLock() ) > 0 )
+			   && $this->mod()->getDbH_FileLocker()->isReady()
 			   && $con->getModule_Plugin()
 					  ->getShieldNetApiController()
 					  ->canHandshake();
 	}
 
 	protected function run() {
-		$con = $this->getCon();
 		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
-		add_filter( $con->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
-		$problems = $this->countProblems();
-		if ( $problems > 0 ) {
+		$count = count( ( new Ops\LoadFileLocks() )->withProblems() );
+		if ( $count > 0 ) {
 			$con = $this->getCon();
 			$urls = $con->plugin_urls;
 			$items[] = [
 				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
-							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $problems ),
-				'href'     => $urls ? $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ) :
-					$con->getModule_Insights()->getUrl_ScansResults(),
-				'warnings' => $problems
+							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $count ),
+				'href'     => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
+				'warnings' => $count
 			];
 		}
 		return $items;
 	}
 
+	/**
+	 * @deprecated 17.1
+	 */
 	public function countProblems() :int {
-		return count( ( new Ops\LoadFileLocks() )
-			->setMod( $this->getMod() )
-			->withProblems() );
+		return count( ( new Ops\LoadFileLocks() )->withProblems() );
 	}
 
 	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {
@@ -94,9 +92,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 			$content = Services::WpFs()->getFileContent( $lock->path );
 		}
 		elseif ( $type == 'original' ) {
-			$content = ( new Ops\ReadOriginalFileContent() )
-				->setMod( $this->getMod() )
-				->run( $lock );
+			$content = ( new Ops\ReadOriginalFileContent() )->run( $lock );
 		}
 		else {
 			throw new \Exception( 'Invalid file locker type download' );
@@ -113,18 +109,14 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function purge() {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getDbH_FileLocker()->tableDelete();
+		$this->mod()->getDbH_FileLocker()->tableDelete();
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function getFileLock( int $ID ) :FileLockerDB\Record {
-		$lock = ( new Ops\LoadFileLocks() )
-					->setMod( $this->getMod() )
-					->loadLocks()[ $ID ] ?? null;
+		$lock = ( new Ops\LoadFileLocks() )->loadLocks()[ $ID ] ?? null;
 		if ( empty( $lock ) ) {
 			throw new \Exception( 'Not a valid Lock File record' );
 		}
@@ -132,28 +124,22 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function runAnalysis() {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
 
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-			$opts->setOpt( 'file_locker', [] );
+			$this->opts()->setOpt( 'file_locker', [] );
 			$this->setState( [] );
 			$this->purge();
 		}
 		else {
 			// 1. Look for any changes in config: has a lock type been removed?
-			foreach ( ( new Ops\LoadFileLocks() )->setMod( $this->getMod() )->loadLocks() as $lock ) {
-				if ( !in_array( $lock->type, $opts->getFilesToLock() ) ) {
-					( new Ops\DeleteFileLock() )
-						->setMod( $this->getMod() )
-						->delete( $lock );
+			foreach ( ( new Ops\LoadFileLocks() )->loadLocks() as $lock ) {
+				if ( !in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
+					( new Ops\DeleteFileLock() )->delete( $lock );
 				}
 			}
 
 			// 2. Assess existing locks for file modifications.
-			( new Ops\AssessLocks() )
-				->setMod( $this->getMod() )
-				->run();
+			( new Ops\AssessLocks() )->run();
 
 			// 3. Create any outstanding locks.
 			if ( is_main_network() ) {
@@ -163,21 +149,18 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function maybeRunLocksCreation() {
-		if ( !empty( ( new Ops\GetFileLocksToCreate() )->setMod( $this->getMod() )->run() ) ) {
+		if ( !empty( ( new Ops\GetFileLocksToCreate() )->run() ) ) {
 			$con = $this->getCon();
+			$hook = $con->prefix( 'create_file_locks' );
 
-			if ( !Services::WpGeneral()->isCron() ) {
-				if ( !wp_next_scheduled( $con->prefix( 'create_file_locks' ) ) ) {
-					wp_schedule_single_event(
-						Services::Request()->ts() + self::CRON_DELAY,
-						$con->prefix( 'create_file_locks' )
-					);
-				}
+			if ( wp_next_scheduled( $hook ) ) {
+				add_action( $hook, function () {
+					$this->runLocksCreation();
+				} );
 			}
-
-			add_action( $con->prefix( 'create_file_locks' ), function () {
-				$this->runLocksCreation();
-			} );
+			elseif ( !Services::WpGeneral()->isCron() ) {
+				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $hook );
+			}
 		}
 	}
 
@@ -186,11 +169,8 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
 	 */
 	private function runLocksCreation() {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-
 		$now = Services::Request()->ts();
-		$filesToLock = ( new Ops\GetFileLocksToCreate() )->setMod( $this->getMod() )->run();
+		$filesToLock = ( new Ops\GetFileLocksToCreate() )->run();
 
 		$state = $this->getState();
 		if ( !empty( $filesToLock )
@@ -204,18 +184,18 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 					}
 
 					( new Ops\CreateFileLocks() )
-						->setMod( $this->getMod() )
 						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $fileType ) )
 						->create();
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';
 				}
-				catch ( NoFileLockPathsExistException | LockDbInsertFailure
-				| FileContentsEncodingFailure | FileContentsEncryptionFailure
-				| NoCipherAvailableException | PublicKeyRetrievalFailure
-				| UnsupportedFileLockType $e ) {
+				catch ( NoFileLockPathsExistException|LockDbInsertFailure
+				|FileContentsEncodingFailure|FileContentsEncryptionFailure
+				|NoCipherAvailableException|PublicKeyRetrievalFailure
+				|UnsupportedFileLockType $e ) {
 					// Remove the key if there are no files on-disk to lock
-					$opts->setOpt( 'file_locker', array_diff( $opts->getFilesToLock(), [ $fileType ] ) );
+					$this->opts()->setOpt( 'file_locker', array_diff( $this->opts()
+																		   ->getFilesToLock(), [ $fileType ] ) );
 					error_log( $e->getMessage() );
 				}
 				catch ( \Exception $e ) {
@@ -232,7 +212,7 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function getState() :array {
-		$state = $this->getOptions()->getOpt( 'filelocker_state' );
+		$state = $this->opts()->getOpt( 'filelocker_state' );
 		return array_merge(
 			[
 				'abspath'                      => ABSPATH,
@@ -247,8 +227,8 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function setState( array $state ) {
-		$this->getOptions()->setOpt( 'filelocker_state', $state );
-		$this->getMod()->saveModOptions();
+		$this->opts()->setOpt( 'filelocker_state', $state );
+		$this->mod()->saveModOptions();
 	}
 
 	/**
@@ -273,31 +253,5 @@ class FileLockerController extends Modules\Base\Common\ExecOnceModConsumer {
 		}
 
 		return !empty( $state[ 'cipher' ] );
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function checkLockConfig() {
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	private function isFileLockerStateChanged() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function canSslEncryption() :bool {
-		return Services::Encrypt()->isSupportedOpenSslDataEncryption();
-	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function deleteAllLocks() {
 	}
 }

@@ -9,9 +9,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  * @property string[] $file_exts
  * @property string[] $scan_root_dirs
  * @property string[] $paths_whitelisted
- * @property string[] $patterns_fullregex
  * @property string[] $patterns_regex
- * @property string[] $patterns_simple
+ * @property string[] $patterns_raw
+ * @property string[] $patterns_iraw
+ * @property string[] $patterns_functions
+ * @property string[] $patterns_keywords
  * @property int      $confidence_threshold
  * @property string[] $valid_files
  */

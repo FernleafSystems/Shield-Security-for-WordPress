@@ -82,9 +82,7 @@ class MerlinController {
 
 		return array_map(
 			function ( string $handlerClass ) {
-				/** @var Steps\Base $handler */
-				$handler = new $handlerClass();
-				return $handler->setCon( $this->getCon() );
+				return new $handlerClass();
 			},
 			$handlers
 		);

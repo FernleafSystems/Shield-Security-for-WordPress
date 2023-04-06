@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems\Ops as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
-	use Shield\Modules\ModConsumer;
+	use HackGuard\ModConsumer;
 
 	public function dispatch() {
 		// Perform remote post.
@@ -25,14 +24,12 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		$batch = new \stdClass();
 
 		try {
-			$qItem = ( new QueueItems() )
-				->setMod( $this->getMod() )
-				->next();
+			$qItem = ( new QueueItems() )->next();
 
 			$batch->key = $qItem->qitem_id;
 			$batch->data = [ $qItem ];
 		}
-		catch ( Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems $e ) {
+		catch ( HackGuard\Scan\Exceptions\NoQueueItems $e ) {
 			// This should never happen as "is_empty()" is called before
 			error_log( $e->getMessage() );
 		}
@@ -52,9 +49,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return QueueItemVO
 	 */
 	protected function task( $item ) {
-		( new ProcessQueueItem() )
-			->setMod( $this->getMod() )
-			->run( $item );
+		( new ProcessQueueItem() )->run( $item );
 		return $item;
 	}
 
@@ -66,10 +61,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-
-		( new CompleteQueue() )
-			->setMod( $this->getMod() )
-			->complete();
+		( new CompleteQueue() )->complete();
 	}
 
 	/**
@@ -79,11 +71,10 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function delete( $key ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getDbH_ScanItems()
-			->getQueryDeleter()
-			->deleteById( $key );
+		$this->mod()
+			 ->getDbH_ScanItems()
+			 ->getQueryDeleter()
+			 ->deleteById( $key );
 		return $this;
 	}
 
@@ -93,9 +84,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		return !( new QueueItems() )
-			->setMod( $this->getMod() )
-			->hasNextItem();
+		return !( new QueueItems() )->hasNextItem();
 	}
 
 	/**

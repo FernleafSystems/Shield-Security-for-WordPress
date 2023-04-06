@@ -2,13 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Base;
 
 class BaseForScan extends Base {
 
-	public const MOD = ModCon::SLUG;
+	use ModConsumer;
 
 	protected function getOrderColumnSlug() :string {
 		return 'detected';
@@ -17,6 +16,8 @@ class BaseForScan extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'rid',
+			'status_file_type',
+			'status_file_size',
 			'file_as_href',
 			'status',
 			'file_type',
@@ -27,7 +28,7 @@ class BaseForScan extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'rid'               => [
+			'rid'          => [
 				'data'        => 'rid',
 				'title'       => 'ID',
 				'orderable'   => true,
@@ -37,7 +38,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file'              => [
+			'file'         => [
 				'data'        => 'file',
 				'title'       => __( 'File' ),
 				'className'   => 'file',
@@ -48,7 +49,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file_as_href'      => [
+			'file_as_href'     => [
 				'data'        => [
 					'_'    => 'file_as_href',
 					'sort' => 'file',
@@ -62,7 +63,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file_type'         => [
+			'file_type'        => [
 				'data'        => 'file_type',
 				'title'       => __( 'Type' ),
 				'className'   => 'file_type',
@@ -73,7 +74,29 @@ class BaseForScan extends Base {
 					'show' => true
 				],
 			],
-			'status'            => [
+			'status_file_type' => [
+				'data'        => 'status_file_type',
+				'title'       => __( 'Type' ),
+				'className'   => 'status_file_type',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
+			],
+			'status_file_size' => [
+				'data'        => 'status_file_size',
+				'title'       => __( 'Size' ),
+				'className'   => 'status_file_size',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [
+					'show' => false
+				],
+			],
+			'status'           => [
 				'data'        => 'status',
 				'title'       => __( 'Status' ),
 				'className'   => 'status',
@@ -84,7 +107,7 @@ class BaseForScan extends Base {
 					'show' => true
 				],
 			],
-			'detected'          => [
+			'detected'         => [
 				'data'        => [
 					'_'    => 'detected_since',
 					'sort' => 'created_at',
@@ -98,32 +121,10 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'actions'           => [
+			'actions'      => [
 				'data'        => 'actions',
 				'title'       => __( 'Actions' ),
 				'className'   => 'actions',
-				'orderable'   => false,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
-					'show' => false
-				],
-			],
-			'mal_fp_confidence' => [
-				'data'        => 'mal_fp_confidence',
-				'title'       => __( 'False Positive Confidence' ),
-				'className'   => 'mal_fp_confidence',
-				'orderable'   => false,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
-					'show' => false
-				],
-			],
-			'line_numbers'      => [
-				'data'        => 'line_numbers',
-				'title'       => __( 'Line Numbers' ),
-				'className'   => 'line_numbers',
 				'orderable'   => false,
 				'searchable'  => false,
 				'visible'     => true,

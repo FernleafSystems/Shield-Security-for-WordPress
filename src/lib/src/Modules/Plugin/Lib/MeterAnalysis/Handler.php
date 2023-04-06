@@ -56,9 +56,7 @@ class Handler {
 		}
 
 		if ( empty( self::$BuiltMeters[ $theSlug ] ) ) {
-			self::$BuiltMeters[ $theSlug ] = ( new BuildMeter() )
-				->setCon( $this->getCon() )
-				->build( self::METERS[ $theSlug ] );
+			self::$BuiltMeters[ $theSlug ] = ( new BuildMeter() )->build( self::METERS[ $theSlug ] );
 		}
 
 		$meter = self::$BuiltMeters[ $theSlug ];

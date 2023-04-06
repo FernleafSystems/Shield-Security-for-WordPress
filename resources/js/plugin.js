@@ -597,3 +597,55 @@ jQueryDoc.ready( function () {
 		}
 	} );
 } );
+
+(function ( $ ) {
+	$( document ).ready( function () {
+
+		let requestRunning = false;
+
+		jQuery( document ).on( "submit", 'form#FileScanMalaiQuery', function ( evt ) {
+			evt.preventDefault();
+
+			if ( requestRunning ) {
+				return false;
+			}
+			requestRunning = true;
+
+			let ready = true;
+
+			let $form = $( this );
+			$( 'input[type=checkbox]', $form ).each( function () {
+				if ( !$( this ).is( ':checked' ) ) {
+					ready = ready && false;
+				}
+			} );
+
+			if ( !ready ) {
+				alert( 'Please check the box to agree.' );
+				requestRunning = false;
+			}
+			else {
+				iCWP_WPSF_BodyOverlay.show();
+				jQuery.ajax(
+					{
+						type: 'POST',
+						url: ajaxurl,
+						data: $( this ).serialize(),
+						dataType: 'text',
+						success: function ( raw ) {
+							let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
+							alert( resp.data.message );
+						},
+					}
+				).fail( function ( jqXHR, textStatus ) {
+				} ).always( function () {
+					requestRunning = false;
+					iCWP_WPSF_BodyOverlay.hide();
+				} );
+			}
+
+			return false;
+
+		} );
+	} );
+})( jQuery );

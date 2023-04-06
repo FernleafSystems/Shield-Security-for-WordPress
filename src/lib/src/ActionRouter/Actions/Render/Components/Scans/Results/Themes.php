@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\TableData\LoadTableDataTheme;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\LoadFileScanResultsTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
@@ -80,23 +81,26 @@ class Themes extends PluginThemesBase {
 		$carbon = Services::Request()->carbon();
 
 		$abandoned = $this->getAbandoned()->getItemForSlug( $theme->stylesheet );
-		$countGuardFiles = ( new LoadTableDataTheme( $theme ) )
-			->setMod( $this->getCon()->getModule_HackGuard() )
-			->countAll();
+
+		$resultsLoader = new LoadFileScanResultsTableData();
+		$resultsLoader->custom_record_retriever_wheres = [
+			sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
+			sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $theme->stylesheet ),
+		];
+		$countGuardFiles = $resultsLoader->countAll();
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
 
-		$flags = [
+		$flags = array_merge( [
 			'has_update'      => $theme->hasUpdate(),
 			'is_abandoned'    => !empty( $abandoned ),
 			'has_guard_files' => $countGuardFiles > 0,
 			'is_active'       => $theme->active || $theme->is_parent,
 			'is_ignored'      => $theme->active || $theme->is_parent,
 			'is_vulnerable'   => !empty( $vulnerabilities ),
-			'is_wporg'        => $theme->isWpOrg(),
 			'is_child'        => $theme->is_child,
 			'is_parent'       => $theme->is_parent,
-		];
+		], $this->getCachedFlags( $theme ) );
 
 		$isCheckActive = apply_filters( 'shield/scans_check_theme_active', true );
 		$isCheckUpdates = apply_filters( 'shield/scans_check_theme_update', true );
@@ -111,7 +115,7 @@ class Themes extends PluginThemesBase {
 									  ( $isCheckUpdates && $flags[ 'has_update' ] )
 								  );
 
-		if ( $theme->isWpOrg() && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
+		if ( $flags[ 'is_wporg' ] && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
 			$wpOrgThemes = implode( '|', array_map( function ( $ver ) {
 				return 'twenty'.$ver;
 			}, [

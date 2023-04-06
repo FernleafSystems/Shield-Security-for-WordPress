@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
+	ModConsumer,
 	Scan\Queue\QueueItemVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\{
 	ResultItems as ResultItemsDB,
 	ScanResults as ScanResultsDB
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Store {
@@ -19,8 +18,7 @@ class Store {
 	use ModConsumer;
 
 	public function store( QueueItemVO $queueItem, array $results ) {
-		$mod = $this->getCon()->getModule_HackGuard();
-		$scansCon = $mod->getScansCon();
+		$mod = $this->mod();
 
 		$dbhResItems = $mod->getDbH_ResultItems();
 		$dbhResItemMetas = $mod->getDbH_ResultItemMeta();
@@ -31,7 +29,7 @@ class Store {
 
 		foreach ( $results as $result ) {
 
-			$scanResult = $scansCon->getScanCon( $queueItem->scan )->buildScanResult( $result );
+			$scanResult = $mod->getScansCon()->getScanCon( $queueItem->scan )->buildScanResult( $result );
 
 			/** @var ResultItemsDB\Ops\Record $resultRecord */
 			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )
@@ -75,12 +73,11 @@ class Store {
 	}
 
 	private function markQueueItemAsFinished( QueueItemVO $queueItem ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$mod->getDbH_ScanItems()
-			->getQueryUpdater()
-			->updateById( $queueItem->qitem_id, [
-				'finished_at' => Services::Request()->ts()
-			] );
+		$this->mod()
+			 ->getDbH_ScanItems()
+			 ->getQueryUpdater()
+			 ->updateById( $queueItem->qitem_id, [
+				 'finished_at' => Services::Request()->ts()
+			 ] );
 	}
 }

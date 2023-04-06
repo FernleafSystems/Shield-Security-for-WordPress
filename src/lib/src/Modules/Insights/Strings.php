@@ -2,15 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Insights;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+/**
+ * @deprecated 18.0
+ */
+class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Strings {
 
-class Strings extends Base\Strings {
-
-	/**
-	 * @inheritDoc
-	 * @deprecated 17.0
-	 */
-	protected function getAdditionalDisplayStrings() :array {
-		return [];
-	}
 }

@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 
-class ExtensionSettingsPage extends ExecOnceModConsumer {
+class ExtensionSettingsPage {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
-			$con = $this->getCon();
-			if ( $con->getModule_Integrations()->getControllerMWP()->isServerExtensionLoaded()
-				 && 'mainwp_page_'.$con->mwpVO->extension->page === $hook ) {
+			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded()
+				 && 'mainwp_page_'.$this->getCon()->mwpVO->extension->page === $hook ) {
 
 				$enqueues[ Enqueue::JS ][] = 'shield/integrations/mainwp-server';
 				$enqueues[ Enqueue::CSS ][] = 'shield/integrations/mainwp-server';

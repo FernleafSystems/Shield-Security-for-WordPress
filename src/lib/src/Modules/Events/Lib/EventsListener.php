@@ -15,7 +15,6 @@ abstract class EventsListener {
 	private $commit;
 
 	public function __construct( Controller\Controller $con, bool $commit = false ) {
-		$this->setCon( $con );
 		$this->commit = $commit;
 
 		add_action( 'shield/event', function ( $event, $meta = [], $def = [] ) {

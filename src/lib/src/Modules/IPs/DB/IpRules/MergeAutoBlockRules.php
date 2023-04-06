@@ -2,40 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	DB\IpRules\Ops\Update,
-	ModCon,
-	Options
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MergeAutoBlockRules extends ExecOnceModConsumer {
+class MergeAutoBlockRules {
+
+	use ModConsumer;
 
 	/**
-	 * @return IpRuleRecord|null
 	 * @throws \Exception
 	 */
-	public function byIP( string $ip ) {
-		$loader = ( new LoadIpRules() )
-			->setMod( $this->getMod() )
-			->setIP( $ip );
+	public function byIP( string $ip ) :void {
+		$loader = ( new LoadIpRules() )->setIP( $ip );
 		$loader->wheres = [
 			"`ir`.`is_range`='0'"
 		];
-		return $this->byRecords( $loader->select() );
+		$this->byRecords( $loader->select() );
 	}
 
 	/**
-	 * @param IpRuleRecord[] $records
-	 * @return IpRuleRecord|null
 	 * @throws \Exception
 	 */
-	public function byRecords( array $records ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+	public function byRecords( array $records ) :void {
+		$dbh = $this->mod()->getDbH_IPRules();
 
 		if ( count( $records ) < 2 ) {
 			throw new \Exception( 'At least 2 records are required to merge.' );
@@ -66,25 +55,20 @@ class MergeAutoBlockRules extends ExecOnceModConsumer {
 		}
 
 		if ( !empty( $toKeep ) && !empty( $idsToDelete ) ) {
-			$mod->getDbH_IPRules()
-				->getQueryDeleter()
+			$dbh->getQueryDeleter()
 				->addWhereIn( 'id', $idsToDelete )
 				->query();
 
 			$updateData = [
 				'offenses' => $toKeep->offenses + $extraOffenses,
 			];
-			if ( $updateData[ 'offenses' ] >= $opts->getOffenseLimit() && $toKeep->blocked_at <= $toKeep->unblocked_at ) {
+			if ( $updateData[ 'offenses' ] >= $this->opts()->getOffenseLimit()
+				 && $toKeep->blocked_at <= $toKeep->unblocked_at ) {
 				$updateData[ 'blocked_at' ] = Services::Request()->ts();
 			}
 
-			/** @var Update $updater */
-			$updater = $mod->getDbH_IPRules()->getQueryUpdater();
-			$updater->updateRecord( $toKeep, $updateData );
-
-			$toKeep = $mod->getDbH_IPRules()->getQuerySelector()->byId( $toKeep->id );
+			$dbh->getQueryUpdater()->updateRecord( $toKeep, $updateData );
+			$dbh->getQuerySelector()->byId( $toKeep->id );
 		}
-
-		return $toKeep;
 	}
 }

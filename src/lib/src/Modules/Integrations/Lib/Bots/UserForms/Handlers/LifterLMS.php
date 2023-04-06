@@ -39,8 +39,7 @@ class LifterLMS extends Base {
 		return $valid;
 	}
 
-	public static function IsProviderInstalled() :bool {
-		return defined( 'LLMS_PLUGIN_FILE' ) && @class_exists( 'LifterLMS' )
-			   && defined( 'LLMS_VERSION' ) && version_compare( LLMS_VERSION, '4.20', '>' );
+	protected static function ProviderMeetsRequirements() :bool {
+		return \defined( '\LLMS_VERSION' ) && \version_compare( \LLMS_VERSION, '4.20', '>' );
 	}
 }

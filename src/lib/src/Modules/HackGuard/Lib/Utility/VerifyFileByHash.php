@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\CoreFileHashes;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
@@ -82,9 +82,6 @@ class VerifyFileByHash {
 	}
 
 	private function getCoreFileHashes() :CoreFileHashes {
-		if ( empty( $this->coreFileHashes ) ) {
-			$this->coreFileHashes = new CoreFileHashes();
-		}
-		return $this->coreFileHashes;
+		return $this->coreFileHashes ?? $this->coreFileHashes = new CoreFileHashes();
 	}
 }

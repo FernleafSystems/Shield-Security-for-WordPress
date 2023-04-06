@@ -144,14 +144,6 @@ class Strings extends Base\Strings {
 		];
 	}
 
-	/**
-	 * @inheritDoc
-	 * @deprecated 17.0
-	 */
-	protected function getAdditionalDisplayStrings() :array {
-		return [];
-	}
-
 	public function getSectionStrings( string $section ) :array {
 		$name = $this->getCon()->getHumanName();
 
@@ -355,7 +347,7 @@ class Strings extends Base\Strings {
 					__( "We don't recommend setting this unless you're sure of the consequences for all users.", 'wp-simple-firewall' ),
 					__( "If you provide a locale for which there are no translations, defaults will apply.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
-						implode( ', ', ( new GetAllAvailableLocales() )->setCon( $this->getCon() )->run() ) ),
+						implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
 				];
 				break;
 

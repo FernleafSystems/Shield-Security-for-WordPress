@@ -26,23 +26,18 @@ class GetIP extends Base {
 		$strings = $this->getMod()->getStrings();
 		$names = $strings->getBotSignalNames();
 
-		$signals = [];
-		$scoreCalc = ( new CalculateVisitorBotScores() )
-			->setMod( $this->getMod() )
-			->setIP( $req->ip );
-		$scores = $scoreCalc->scores();
 		try {
 			$record = ( new BotSignalsRecord() )
-				->setMod( $this->getMod() )
 				->setIP( $req->ip )
 				->retrieve();
 		}
 		catch ( \Exception $e ) {
 			$record = null;
-			$signals = [];
 		}
 
-		foreach ( $scores as $scoreKey => $scoreValue ) {
+		$signals = [];
+		$scoreCalc = ( new CalculateVisitorBotScores() )->setIP( $req->ip );
+		foreach ( $scoreCalc->scores() as $scoreKey => $scoreValue ) {
 			$column = $scoreKey.'_at';
 			if ( $scoreValue !== 0 ) {
 				if ( empty( $record ) || empty( $record->{$column} ) ) {
@@ -85,7 +80,7 @@ class GetIP extends Base {
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
-		$ruleStatus = ( new IpRuleStatus( $req->ip ) )->setMod( $this->getMod() );
+		$ruleStatus = new IpRuleStatus( $req->ip );
 		if ( $ruleStatus->isBypass() ) {
 			$ip = current( $ruleStatus->getRulesForBypass() );
 		}

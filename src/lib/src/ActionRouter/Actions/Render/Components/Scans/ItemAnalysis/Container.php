@@ -16,21 +16,25 @@ class Container extends Base {
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 		return [
 			'content' => [
+				'tab_info'         => $con->action_router->render( Info::SLUG, [
+					'scan_item' => $item
+				] ),
+				'tab_history'      => $con->action_router->render( History::SLUG, [
+					'scan_item' => $item
+				] ),
 				'tab_filecontents' => $con->action_router->render( Content::SLUG, [
 					'scan_item' => $item
 				] ),
 				'tab_diff'         => $con->action_router->render( Diff::SLUG, [
 					'scan_item' => $item
 				] ),
-				'tab_history'      => $con->action_router->render( History::SLUG, [
-					'scan_item' => $item
-				] ),
-				'tab_info'         => $con->action_router->render( Info::SLUG, [
+				'tab_malai'        => $con->action_router->render( Malai::SLUG, [
 					'scan_item' => $item
 				] ),
 			],
 			'flags'   => [
-				'can_download' => Services::WpFs()->isFile( $fullPath ),
+				'can_download'    => Services::WpFs()->isAccessibleFile( $fullPath ),
+				'can_query_malai' => $this->con()->isPremiumActive() && !$item->is_mal,
 			],
 			'hrefs'   => [
 				'file_download' => $con->plugin_urls->fileDownload( 'scan_file', [ 'rid' => $item->VO->scanresult_id ] ),
@@ -46,6 +50,7 @@ class Container extends Base {
 				'tab_diff'         => 'Diff',
 				'tab_history'      => 'History',
 				'tab_info'         => 'Info',
+				'tab_malai'        => 'MAL{ai} Lookup',
 				'file_download'    => __( 'Download File', 'wp-simple-firewall' ),
 			],
 		];

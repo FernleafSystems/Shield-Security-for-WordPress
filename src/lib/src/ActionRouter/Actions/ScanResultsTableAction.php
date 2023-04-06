@@ -138,7 +138,7 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function retrieveTableData() :array {
 		$req = Services::Request();
-		$builder = ( new BuildScanTableData() )->setMod( $this->getCon()->getModule_HackGuard() );
+		$builder = new BuildScanTableData();
 		$builder->table_data = (array)$req->post( 'table_data', [] );
 		$builder->type = (string)$req->post( 'type', '' );
 		$builder->file = (string)$req->post( 'file', '' );

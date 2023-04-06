@@ -3,11 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
-	Apc,
-	Wpv
-};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ScansCheck,
 	ScansStart
@@ -20,8 +15,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
+	Apc,
+	Wpv
+};
 
 class PageScansResults extends BasePluginAdminPage {
 
@@ -78,8 +78,6 @@ class PageScansResults extends BasePluginAdminPage {
 			}
 		}
 
-		// Can Scan Checks:
-		$reasonsCantScan = $scansCon->getReasonsScansCantExecute();
 		return [
 			'ajax'        => [
 				'scans_start' => ActionData::BuildJson( ScansStart::class ),
@@ -98,7 +96,6 @@ class PageScansResults extends BasePluginAdminPage {
 			'file_locker' => $this->getFileLockerVars(),
 			'flags'       => [
 				'is_premium'      => $con->isPremiumActive(),
-				'can_scan'        => count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
 			'hrefs'       => [
@@ -125,7 +122,6 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			'vars'        => [
 				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
-				'cannot_scan_reasons' => $reasonsCantScan,
 				'sections'            => [
 					'plugins'   => [
 						'count' => $counter->countPluginFiles() + $vulnerableOrAbandonedPlugins,
@@ -149,9 +145,7 @@ class PageScansResults extends BasePluginAdminPage {
 			'strings' => [
 				'title' => __( 'File Locker', 'wp-simple-firewall' ),
 			],
-			'count'   => count( ( new LoadFileLocks() )
-				->setMod( $this->getCon()->getModule_HackGuard() )
-				->withProblems() )
+			'count'   => count( ( new LoadFileLocks() )->withProblems() )
 		];
 	}
 }

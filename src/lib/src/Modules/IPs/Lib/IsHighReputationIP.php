@@ -2,21 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	Components\IpAddressConsumer,
+	ModConsumer
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 
 class IsHighReputationIP {
 
 	use ModConsumer;
-	use IPs\Components\IpAddressConsumer;
+	use IpAddressConsumer;
 
 	public function query() :bool {
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
-		return ( new IPs\Lib\Bots\Calculator\CalculateVisitorBotScores() )
-				   ->setMod( $this->getMod() )
+		return ( new CalculateVisitorBotScores() )
 				   ->setIP( $this->getIP() )
 				   ->total() >
-			   (int)apply_filters( 'shield/high_reputation_ip_minimum', $opts->getAntiBotHighReputationMinimum() );
+			   apply_filters( 'shield/high_reputation_ip_minimum', $this->opts()->getAntiBotHighReputationMinimum() );
 	}
 }

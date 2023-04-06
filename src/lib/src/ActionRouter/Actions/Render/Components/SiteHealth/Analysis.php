@@ -17,11 +17,7 @@ class Analysis extends BaseRender {
 
 	protected function getRenderData() :array {
 		$con = $this->getCon();
-
-		$allComponents = ( new Handler() )
-							 ->setCon( $this->getCon() )
-							 ->getMeter( MeterOverallConfig::SLUG, false )[ 'components' ];
-
+		$allComponents = ( new Handler() )->getMeter( MeterOverallConfig::SLUG, false )[ 'components' ];
 		return [
 			'hrefs'   => [
 				'dashboard_home' => $con->plugin_urls->adminHome(),

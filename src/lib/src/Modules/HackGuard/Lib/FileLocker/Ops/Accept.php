@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Accept extends BaseOps {
@@ -12,16 +11,11 @@ class Accept extends BaseOps {
 	 * @throws \Exception
 	 */
 	public function run( FileLockerDB\Record $lock ) :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$publicKey = $this->getPublicKey();
-		$raw = ( new BuildEncryptedFilePayload() )
-			->setMod( $mod )
-			->build( (string)$lock->path, reset( $publicKey ) );
+		$raw = ( new BuildEncryptedFilePayload() )->build( (string)$lock->path, reset( $publicKey ) );
 
 		/** @var FileLockerDB\Update $updater */
-		$updater = $mod->getDbH_FileLocker()->getQueryUpdater();
+		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
 		$success = $updater->updateEntry( $lock, [
 			'hash_original' => hash_file( 'sha1', $lock->path ),
 			'content'       => base64_encode( $raw ),

@@ -8,7 +8,7 @@
 		{% for warning in strings.top_page_warnings %}
 			<div class="row">
 				<div class="col bg-{{ warning.type }}">
-					{% for each_line in warning.text %}<p class="my-1 text-center">{{ each_line }}</p>{% endfor %}
+					{% for each_line in warning.text %}<p class="my-1 text-center">{{ each_line|raw }}</p>{% endfor %}
 				</div>
 			</div>
 		{% endfor %}

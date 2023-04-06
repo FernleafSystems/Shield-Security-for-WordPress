@@ -130,7 +130,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	protected function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
 		$dismissed = false;
 
-		$meta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->user_metas->current();
 		if ( !empty( $meta ) ) {
 			$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
@@ -157,7 +157,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	public function setNoticeDismissed( NoticeVO $notice ) {
 		$ts = Services::Request()->ts();
 
-		$meta = $this->getCon()->getCurrentUserMeta();
+		$meta = $this->getCon()->user_metas->current();
 		$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
 		if ( $notice->per_user ) {

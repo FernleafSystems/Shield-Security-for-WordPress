@@ -15,12 +15,11 @@ class ScansCheck extends ScansBase {
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 
-		$statusChecker = ( new ScansStatus() )->setMod( $mod );
 		$queueCon = $mod->getScanQueueController();
-		$current = $statusChecker->current();
+		$current = ( new ScansStatus() )->current();
 		$currentScan = !empty( $current ) ? $strings->getScanName( $current ) : __( 'No scan running.', 'wp-simple-firewall' );
 
-		$running = $statusChecker->enqueued();
+		$running = ( new ScansStatus() )->enqueued();
 
 		$this->response()->action_response_data = [
 			'success' => true,

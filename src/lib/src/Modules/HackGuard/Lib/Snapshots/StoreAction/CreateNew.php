@@ -12,7 +12,6 @@ class CreateNew extends BaseAction {
 	 */
 	public function run() :Snapshots\Store {
 		( new Delete() )
-			->setMod( $this->getMod() )
 			->setAsset( $this->getAsset() )
 			->run();
 		return $this->getNewStore();

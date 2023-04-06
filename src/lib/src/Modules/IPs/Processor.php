@@ -21,11 +21,10 @@ class Processor extends BaseShield\Processor {
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		$con = $this->getCon();
 		if ( $con->isValidAdminArea() ) {
-			$recentStats = ( new RecentStats() )->setCon( $con );
+			$recentStats = new RecentStats();
 			$IPs = $recentStats->getRecentlyBlockedIPs();
 
-			/** @deprecated 17.0 isset( $con->plugin_urls ) */
-			if ( !empty( $IPs ) && isset( $con->plugin_urls ) ) {
+			if ( !empty( $IPs ) ) {
 				$groups[] = [
 					'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
 					'href'  => $con->plugin_urls->adminIpRules(),
@@ -40,8 +39,7 @@ class Processor extends BaseShield\Processor {
 			}
 
 			$IPs = $recentStats->getRecentlyOffendedIPs();
-			/** @deprecated 17.0 isset( $con->plugin_urls ) */
-			if ( !empty( $IPs ) && isset( $con->plugin_urls ) ) {
+			if ( !empty( $IPs ) ) {
 				$groups[] = [
 					'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
 					'href'  => $con->plugin_urls->adminIpRules(),

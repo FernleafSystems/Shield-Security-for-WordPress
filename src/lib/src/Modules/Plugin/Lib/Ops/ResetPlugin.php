@@ -11,7 +11,7 @@ class ResetPlugin {
 	public function run() {
 		foreach ( $this->getCon()->modules as $mod ) {
 			$mod->getOptions()
-				->setOptionsValues( [] )
+				->setOptionsValues()
 				->deleteStorage();
 			$mod->saveModOptions();
 		}

@@ -11,9 +11,7 @@ class MerlinAction extends BaseAction {
 
 	protected function exec() {
 		try {
-			$response = ( new MerlinController() )
-				->setCon( $this->getCon() )
-				->processFormSubmit( FormParams::Retrieve() );
+			$response = ( new MerlinController() )->processFormSubmit( FormParams::Retrieve() );
 			$success = $response->success;
 			$msg = $response->getRelevantMsg();
 		}

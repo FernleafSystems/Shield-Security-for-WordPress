@@ -31,7 +31,6 @@ class Build extends BaseAction {
 
 		if ( !empty( $hashes ) ) {
 			$store = ( new CreateNew() )
-				->setMod( $this->getMod() )
 				->setAsset( $asset )
 				->run();
 			$store->setSnapData( $hashes )

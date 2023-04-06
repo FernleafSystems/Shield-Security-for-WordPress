@@ -37,9 +37,7 @@ class HumanDictionary {
 			array_flip( $opts->getHumanSpamFilterItems() )
 		);
 
-		$spam = ( new TestContent() )
-			->setCon( $this->getCon() )
-			->findSpam( $items, true );
+		$spam = ( new TestContent() )->findSpam( $items, true );
 
 		if ( !empty( $spam ) ) {
 			$key = key( reset( $spam ) );

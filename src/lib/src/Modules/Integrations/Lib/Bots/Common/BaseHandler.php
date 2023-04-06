@@ -2,14 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 
-abstract class BaseHandler extends ExecOnceModConsumer {
+abstract class BaseHandler {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	private static $isBot = null;
 
 	protected function canRun() :bool {
-		return static::IsProviderInstalled();
+		return static::ProviderMeetsRequirements();
 	}
 
 	/**
@@ -27,30 +32,15 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 		return $slug;
 	}
 
-	/**
-	 * @deprecated 17.0
-	 */
-	public function getHandlerSlug() :string {
-		try {
-			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
-		}
-		catch ( \Exception $e ) {
-			$slug = '';
-		}
-		return $slug;
-	}
-
 	public function getHandlerName() :string {
 		$name = 'Undefined Name';
-		$slug = method_exists( $this, 'Slug' ) ? static::Slug() : $this->getHandlerSlug();
 
-		$valueOptions = $this->getOptions()
-							 ->getOptDefinition(
-								 $this->getHandlerController()->getSelectedProvidersOptKey()
-							 )[ 'value_options' ];
+		$valueOptions = $this->opts()->getOptDefinition(
+			$this->getHandlerController()->getSelectedProvidersOptKey()
+		)[ 'value_options' ];
 
 		foreach ( $valueOptions as $valueOption ) {
-			if ( $valueOption[ 'value_key' ] === $slug ) {
+			if ( $valueOption[ 'value_key' ] === static::Slug() ) {
 				$name = __( $valueOption[ 'text' ], 'wp-simple-firewall' );
 				break;
 			}
@@ -84,16 +74,24 @@ abstract class BaseHandler extends ExecOnceModConsumer {
 	}
 
 	public function isEnabled() :bool {
-		$slug = method_exists( $this, 'Slug' ) ? static::Slug() : $this->getHandlerSlug();
 		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
-			   && in_array( $slug, $this->getHandlerController()->getSelectedProviders() );
+			   && in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
+	}
+
+	public static function IsProviderAvailable() :bool {
+		return static::IsProviderInstalled() && static::ProviderMeetsRequirements();
 	}
 
 	public static function IsProviderInstalled() :bool {
-		return false;
+		$slug = static::Slug();
+		return $slug === 'wordpress' || ( new Find() )->isPluginActive( $slug );
+	}
+
+	protected static function ProviderMeetsRequirements() :bool {
+		return true;
 	}
 
 	protected function isProOnly() :bool {
-		return true;
+		return static::Slug() !== 'wordpress';
 	}
 }

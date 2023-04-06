@@ -28,10 +28,7 @@ class SectionNotices {
 
 		switch ( $section ) {
 			case 'section_rename_wplogin':
-				$isBypass = ( new IpRuleStatus( $con->this_req->ip ) )
-					->setMod( $con->getModule_IPs() )
-					->isBypass();
-				if ( $isBypass ) {
+				if ( ( new IpRuleStatus( $con->this_req->ip ) )->isBypass() ) {
 					$critical[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s" ),
 						basename( Services::WpGeneral()->getLoginUrl() ) );
 				}
@@ -115,9 +112,7 @@ class SectionNotices {
 			case 'section_at_file':
 			case 'section_traffic_options':
 				try {
-					( new Monolog() )
-						->setCon( $this->getCon() )
-						->assess();
+					( new Monolog() )->assess();
 				}
 				catch ( \Exception $e ) {
 					$warnings[] = __( "Logging isn't currently available on this site.", 'wp-simple-firewall' )
@@ -179,7 +174,7 @@ class SectionNotices {
 				$installedButNotEnabledProviders = array_filter(
 					$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled(),
 					function ( string $provider ) {
-						return !( new $provider() )->setMod( $this->getCon()->getModule_Integrations() )->isEnabled();
+						return !( new $provider() )->isEnabled();
 					}
 				);
 
@@ -213,14 +208,13 @@ class SectionNotices {
 				/** @var BaseHandler[] $installedButNotEnabledProviders */
 				$installedButNotEnabledProviders = array_filter(
 					array_map(
-						function ( $providerClass ) use ( $mod ) {
-							return ( new $providerClass() )->setMod( $mod );
+						function ( $providerClass ) {
+							return new $providerClass();
 						},
 						$mod->getController_SpamForms()->enumProviders()
 					),
 					function ( $provider ) {
-						/** @var BaseHandler $provider */
-						return !$provider->isEnabled() && $provider::IsProviderInstalled();
+						return !$provider->isEnabled() && $provider::IsProviderAvailable();
 					}
 				);
 

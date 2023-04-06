@@ -139,7 +139,7 @@ class CacheDirHandler {
 		];
 
 		if ( !empty( $this->lastKnownBaseDir ) ) {
-			/**	array_unshift( $candidates, $this->lastKnownBaseDir ); This seems to cause more trouble than it's worth **/
+			/**    array_unshift( $candidates, $this->lastKnownBaseDir ); This seems to cause more trouble than it's worth **/
 		}
 
 		return array_filter(

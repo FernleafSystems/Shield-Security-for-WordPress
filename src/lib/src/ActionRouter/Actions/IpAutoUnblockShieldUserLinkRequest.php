@@ -13,7 +13,7 @@ class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 	public const SLUG = 'ip_auto_unblock_shield_user_link_request';
 
 	protected function exec() {
-		$unBlocker = ( new AutoUnblockMagicLink() )->setMod( $this->getCon()->getModule_IPs() );
+		$unBlocker = new AutoUnblockMagicLink();
 		if ( $unBlocker->canRunAutoUnblockProcess() ) {
 			try {
 				$unBlocker->processEmailSend();

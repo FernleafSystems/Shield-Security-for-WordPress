@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Reque
 class GetAll extends Base {
 
 	protected function process() :array {
-		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 

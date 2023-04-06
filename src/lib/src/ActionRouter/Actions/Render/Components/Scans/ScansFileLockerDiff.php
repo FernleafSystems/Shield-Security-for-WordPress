@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Diff;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\FormatBytes;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,10 +31,7 @@ class ScansFileLockerDiff extends BaseScans {
 					'has_diff' => $isDifferent,
 				],
 				'html'    => [
-					'diff' => $isDifferent ?
-						( new FileLocker\Ops\PerformAction() )
-							->setMod( $mod )
-							->run( $lock, 'diff' ) : '',
+					'diff' => $isDifferent ? ( new Diff() )->run( $lock ) : '',
 				],
 				'vars'    => [
 					'rid' => $RID,
@@ -94,9 +92,7 @@ class ScansFileLockerDiff extends BaseScans {
 			$data[ 'vars' ][ 'file_name' ] = basename( $lock->path );
 
 			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( strlen(
-				( new FileLocker\Ops\ReadOriginalFileContent() )
-					->setMod( $mod )
-					->run( $lock ) // potential exception
+				( new FileLocker\Ops\ReadOriginalFileContent() )->run( $lock ) // potential exception
 			), 3 );
 
 			$data[ 'success' ] = true;

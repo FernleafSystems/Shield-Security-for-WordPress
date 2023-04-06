@@ -37,7 +37,6 @@ class BlockFirewall extends BaseBlock {
 		$str = $con->getModule_Firewall()->getStrings();
 
 		$remainingOffenses = max( 0, ( new QueryRemainingOffenses() )
-			->setMod( $con->getModule_IPs() )
 			->setIP( $con->this_req->ip )
 			->run() );
 

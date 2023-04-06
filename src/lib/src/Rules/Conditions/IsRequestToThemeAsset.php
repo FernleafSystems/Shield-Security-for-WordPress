@@ -11,7 +11,7 @@ class IsRequestToThemeAsset extends Base {
 	public const SLUG = 'is_request_to_theme_asset';
 
 	protected function execConditionCheck() :bool {
-		$pathMatcher = ( new MatchRequestPath() )->setCon( $this->getCon() );
+		$pathMatcher = new MatchRequestPath();
 		$pathMatcher->request_path = $this->getRequestPath();
 		$pathMatcher->is_match_regex = true;
 		$pathMatcher->match_paths = [

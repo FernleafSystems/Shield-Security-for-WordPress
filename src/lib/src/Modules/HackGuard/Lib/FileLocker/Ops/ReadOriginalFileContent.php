@@ -44,7 +44,7 @@ class ReadOriginalFileContent extends BaseOps {
 			$decoded = json_decode( $lock->content, true );
 			$VO = ( new OpenSslEncryptVo() )->applyFromArray( is_array( $decoded ) ? $decoded : [] );
 			$content = ( new DecryptFile() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod() )
 				->retrieve( $VO, (int)$lock->public_key_id );
 			if ( is_null( $content ) ) {
 				throw new \Exception( 'There was a problem decrypting the file contents.' );

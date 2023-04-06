@@ -14,7 +14,7 @@ class MfaSkip {
 		/** @var LoginGuard\Options $opts */
 		$opts = $this->getOptions();
 
-		$meta = $this->getCon()->getUserMeta( $user );
+		$meta = $this->getCon()->user_metas->for( $user );
 		$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
@@ -39,7 +39,7 @@ class MfaSkip {
 
 		if ( $opts->isMfaSkip() ) {
 			$agentHash = $this->getAgentHash();
-			$meta = $this->getCon()->getUserMeta( $user );
+			$meta = $this->getCon()->user_metas->for( $user );
 			$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 			$canSkip = isset( $hashes[ $agentHash ] )
 					   && ( (int)$hashes[ $agentHash ] + $opts->getMfaSkip() ) > $req->ts();

@@ -13,8 +13,6 @@ class Wpv extends BaseForAssets {
 
 	protected function run() {
 		parent::run();
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
 
 		add_action( 'upgrader_process_complete', function () {
 			$this->scheduleOnDemandScan();
@@ -28,7 +26,7 @@ class Wpv extends BaseForAssets {
 				->execute();
 		}, 10, 2 );
 
-		if ( $opts->isWpvulnAutoupdatesEnabled() ) {
+		if ( $this->opts()->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
 		}
 	}
@@ -75,15 +73,11 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isCronAutoRepair() :bool {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isWpvulnAutoupdatesEnabled();
+		return $this->opts()->isWpvulnAutoupdatesEnabled();
 	}
 
 	public function isEnabled() :bool {
-		/** @var HackGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $this->getCon()->isPremiumActive() && $opts->isOpt( 'enable_wpvuln_scan', 'Y' );
+		return $this->getCon()->isPremiumActive() && $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 
 	/**

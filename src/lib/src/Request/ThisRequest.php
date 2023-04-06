@@ -34,10 +34,6 @@ class ThisRequest extends DynPropertiesClass {
 
 	use Shield\Modules\PluginControllerConsumer;
 
-	public function __construct( Shield\Controller\Controller $con ) {
-		$this->setCon( $con );
-	}
-
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {

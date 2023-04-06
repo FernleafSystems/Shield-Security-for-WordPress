@@ -59,8 +59,9 @@ abstract class MeterBase {
 	}
 
 	public function buildComponents() :array {
-		$builder = ( new Components() )->setCon( $this->getCon() );
 		$components = [];
+
+		$builder = new Components();
 		foreach ( array_intersect( array_filter( $this->getComponents() ), $builder::COMPONENTS ) as $class ) {
 			try {
 				$built = $builder->buildComponent( $class );

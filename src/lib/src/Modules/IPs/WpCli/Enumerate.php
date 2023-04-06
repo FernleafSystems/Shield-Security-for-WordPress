@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 use WP_CLI;
 
@@ -47,7 +46,7 @@ class Enumerate extends Base {
 				$lists = [ $dbh::T_CROWDSEC ];
 			}
 
-			$loader = ( new LoadIpRules() )->setMod( $mod );
+			$loader = new LoadIpRules();
 			$loader->wheres = [
 				sprintf( "`ir`.`type` IN ('%s')", implode( "','", $lists ) )
 			];

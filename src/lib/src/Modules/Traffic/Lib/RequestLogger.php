@@ -36,22 +36,6 @@ class RequestLogger extends ExecOnceModConsumer {
 		}, 1000 ); // high enough to come after audit trail
 	}
 
-	/**
-	 * @deprecated 17.0.14
-	 */
-	public function isMonologLibrarySupported() :bool {
-		try {
-			( new Monolog() )
-				->setCon( $this->getCon() )
-				->assess();
-			$supported = true;
-		}
-		catch ( \Exception $e ) {
-			$supported = false;
-		}
-		return $supported;
-	}
-
 	private function initLogger() {
 		$this->getLogger()
 			 ->pushHandler( ( new LogHandlers\LocalDbWriter() )->setMod( $this->getMod() ) );
@@ -77,11 +61,8 @@ class RequestLogger extends ExecOnceModConsumer {
 
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'request', [], array_map( function ( $class ) {
-				/** @var Processors\BaseMetaProcessor $p */
-				$p = new $class();
-				$p->setCon( $this->getCon() );
-				return $p;
+			$this->logger = new Logger( 'request', [], array_map( function ( $processorClass ) {
+				return new $processorClass();
 			}, $this->enumMetaProcessors() ) );
 		}
 		return $this->logger;

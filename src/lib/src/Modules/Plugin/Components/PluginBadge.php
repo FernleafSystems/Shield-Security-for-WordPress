@@ -66,11 +66,4 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 			DAY_IN_SECONDS
 		);
 	}
-
-	/**
-	 * @deprecated 17.0
-	 */
-	public function setIsDisplayPluginBadge( bool $isDisplay ) {
-		$this->getOptions()->setOpt( 'display_plugin_badge', $isDisplay ? 'Y' : 'N' );
-	}
 }

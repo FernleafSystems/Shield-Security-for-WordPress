@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	NoFileLockPathsExistException,
 	PublicKeyRetrievalFailure
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModCon;
 
 class CreateFileLocks extends BaseOps {
 
@@ -41,9 +40,6 @@ class CreateFileLocks extends BaseOps {
 	 * @throws FileContentsEncryptionFailure
 	 */
 	private function createLockForPath( string $path ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$record = new FileLockerDB\Record();
 		$record->type = $this->file->type;
 		$record->path = $path;
@@ -51,13 +47,11 @@ class CreateFileLocks extends BaseOps {
 
 		$publicKey = $this->getPublicKey();
 		$record->public_key_id = key( $publicKey );
-		$record->cipher = $mod->getFileLocker()->getState()[ 'cipher' ];
-		$record->content = ( new BuildEncryptedFilePayload() )
-			->setMod( $mod )
-			->build( $path, reset( $publicKey ) );
+		$record->cipher = $this->mod()->getFileLocker()->getState()[ 'cipher' ];
+		$record->content = ( new BuildEncryptedFilePayload() )->build( $path, reset( $publicKey ) );
 
 		/** @var FileLockerDB\Insert $inserter */
-		$inserter = $mod->getDbH_FileLocker()->getQueryInserter();
+		$inserter = $this->mod()->getDbH_FileLocker()->getQueryInserter();
 		if ( !$inserter->insert( $record ) ) {
 			throw new LockDbInsertFailure( sprintf( 'Failed to insert file locker record for path: "%s"', $path ) );
 		}

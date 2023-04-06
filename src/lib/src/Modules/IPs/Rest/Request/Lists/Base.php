@@ -13,7 +13,7 @@ abstract class Base extends Process {
 	 * @throws ApiException
 	 */
 	protected function getIpData( string $ip, string $list ) :array {
-		$ruleStatus = ( new IpRuleStatus( $ip ) )->setMod( $this->getMod() );
+		$ruleStatus = new IpRuleStatus( $ip );
 
 		if ( $list === 'block' ) {
 			$IP = $ruleStatus->getRuleForAutoBlock();
