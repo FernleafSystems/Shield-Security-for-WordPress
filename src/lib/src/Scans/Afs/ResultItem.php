@@ -19,7 +19,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property bool   $is_unidentified
  * @property bool   $is_missing
  * @property bool   $is_mal
- * @property bool   $is_realtime
  * @property int    $malware_record_id
  * @property string $ptg_slug
  */
@@ -71,6 +70,7 @@ class ResultItem extends Base\ResultItem {
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
+
 		switch ( $key ) {
 			case 'path_full':
 				if ( empty( $value ) ) {

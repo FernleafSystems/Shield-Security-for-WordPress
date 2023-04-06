@@ -470,23 +470,20 @@
           "length":     128,
           "comment":    "The malware signature pattern that triggered the discovery"
         },
-        "local_fp_confidence": {
-          "macro_type": "unsigned_int",
-          "type":       "tinyint",
-          "length":     3,
-          "default":    0,
-          "comment":    "Locally determine Malware False-Positive Confidence Level"
-        },
-        "file_content":        {
-          "macro_type": "text",
-          "type":       "mediumtext",
-          "comment":    "The actual file content"
+        "is_valid_file":       {
+          "macro_type": "bool",
+          "comment":    "Is the file validated locally"
         },
         "malai_status":        {
           "macro_type": "varchar",
           "length":     20,
           "default":    "''",
           "comment":    "The status of the file from malai"
+        },
+        "file_content":        {
+          "macro_type": "text",
+          "type":       "mediumtext",
+          "comment":    "The actual file content"
         }
       },
       "cols_timestamps": {

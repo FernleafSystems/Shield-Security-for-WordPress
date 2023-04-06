@@ -93,7 +93,7 @@ class FileScanner {
 			$item->is_unidentified = true;
 		}
 
-		if ( $scanCon->isEnabledMalwareScan() && ( empty( $item ) || !$item->is_missing ) ) {
+		if ( $scanCon->isEnabledMalwareScanPHP() && ( empty( $item ) || !$item->is_missing ) ) {
 			try {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setScanActionVO( $action )
@@ -114,7 +114,7 @@ class FileScanner {
 						$validFile
 					);
 					$item->malware_record_id = $malRecord->id;
-					$item->auto_filter = $malRecord->local_fp_confidence > $action->confidence_threshold;
+					$item->auto_filter = $validFile > $action->confidence_threshold;
 				}
 				catch ( \Exception $e ) {
 					/** We can't proceed without a linked local Malware Record */
@@ -125,22 +125,6 @@ class FileScanner {
 			catch ( \InvalidArgumentException $e ) {
 			}
 		}
-
-		/** TODO
-		 * if ( false && empty( $item ) && !$validFile ) {
-		 * try {
-		 * ( new AfsScan\Scans\RealtimeFile( $fullPath ) )
-		 * ->setMod( $this->getMod() )
-		 * ->setScanActionVO( $action )
-		 * ->scan();
-		 * }
-		 * catch ( AfsScan\Exceptions\RealtimeFileDiscoveredException $rte ) {
-		 * error_log( $fullPath );
-		 * $item = $this->getResultItem( $fullPath );
-		 * $item->is_realtime = true;
-		 * }
-		 * }
-		 */
 
 		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.
 		if ( empty( $item ) && $validFile ) {

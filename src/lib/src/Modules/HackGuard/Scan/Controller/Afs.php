@@ -191,7 +191,7 @@ class Afs extends BaseForFiles {
 		return $this->opts()->isEnabledAutoFileScanner();
 	}
 
-	public function isEnabledMalwareScan() :bool {
+	public function isEnabledMalwareScanPHP() :bool {
 		return $this->isEnabled() && in_array( 'malware_php', $this->opts()->getFileScanAreas() );
 	}
 

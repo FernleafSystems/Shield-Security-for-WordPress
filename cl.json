@@ -1,7 +1,7 @@
 {
   "18.0": {
     "version":     "18.0",
-    "released_at": 1677582000,
+    "released_at": 1680780000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease180",
       "upgrade": "https://shsec.io/shieldupgradeguide180"
@@ -12,9 +12,19 @@
     "items":       [
       {
         "type":        "new",
-        "pro_only":    false,
+        "pro_only":    true,
         "title":       "Mal{ai} - Artificial Intelligence for Malware Detection",
         "description": [
+        ],
+        "href":        "https://shsec.io/le"
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "File Scan Areas Option",
+        "description": [
+          "We've added new scan areas, in particularly the entire /wp-content/ directory, and the WP installation root directory.",
+          "You can now select these to be scanned - you will have more results, but you'll have more visibility on the file residing on your site."
         ]
       },
       {
@@ -22,23 +32,21 @@
         "pro_only":    false,
         "title":       "Added Extra Protection To Security Admin",
         "description": [
-          "default_user_role."
+          "We've added some protection against adjustments to the WP Default User Role option within the Security Admin system."
         ]
       },
       {
-        "type":        "changed",
-        "title":       "Minimum WordPress Version: 4.7",
+        "type":        "improvements",
+        "title":       "Scan Results Display",
         "description": [
-          "Based on Shield telemetry data, we're pushing our minimum supported WordPress version up to 4.7.",
-          "We'll continue to push this upwards as usage data suggests it make sense to do so."
+          "We've continued with our tweaking of the Scan Results pages, making them faster to load and easier to read."
         ]
       },
       {
-        "type":        "removed",
-        "title":       "Removed Password Policy Option: Minimum Password Length",
+        "type":        "improvements",
+        "title":       "Plugin Code and Performance",
         "description": [
-          "Shield has an option to enforce minimum password strengths, and also an option to enforce minimum length.",
-          "Enforcing password length is unnecessary when a more holistic password strength meter is also applied."
+          "We've continued our code clean-up and code enhancements, following our previous major release."
         ]
       }
     ],
