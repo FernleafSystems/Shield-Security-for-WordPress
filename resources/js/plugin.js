@@ -512,6 +512,15 @@ jQueryDoc.ready( function () {
 		return false;
 	} );
 
+	jQuery( document ).on( 'click', '.option-video', function ( evt ) {
+		evt.preventDefault();
+		BigPicture( {
+			el: evt.target,
+			vimeoSrc: jQuery( evt.currentTarget ).data( 'vimeoid' ),
+		} );
+		return false;
+	} );
+
 	jQuery( document ).ajaxComplete( function () {
 		let popoverTriggerList = [].slice.call( document.querySelectorAll( '[data-bs-toggle="popover"]' ) )
 		popoverTriggerList.map( function ( popoverTriggerEl ) {

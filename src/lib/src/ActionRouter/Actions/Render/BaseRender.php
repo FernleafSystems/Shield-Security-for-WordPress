@@ -203,6 +203,8 @@ abstract class BaseRender extends BaseAction {
 					'helpdesk'    => $con->svgs->raw( 'life-preserver.svg' ),
 					'ignore'      => $con->svgs->raw( 'eye-slash-fill.svg' ),
 					'info_square' => $con->svgs->raw( 'info-square.svg' ),
+					'wordpress'   => $con->svgs->raw( 'wordpress.svg' ),
+					'video'       => $con->svgs->raw( 'youtube.svg' ),
 					'megaphone'   => $con->svgs->raw( 'megaphone.svg' ),
 					'search'      => $con->svgs->raw( 'search.svg' ),
 					'settings'    => $con->svgs->raw( 'gear.svg' ),

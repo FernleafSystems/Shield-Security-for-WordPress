@@ -212,7 +212,8 @@
             "shield/ipanalyse",
             "shield/tables",
             "base64.min",
-            "lz-string.min"
+            "lz-string.min",
+            "bigpicture"
           ]
         },
         "base64.min":                        {
@@ -244,6 +245,12 @@
         },
         "introjs":                           {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"
+        },
+        "bigpicture":                        {
+          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bigpicture/2.6.2/BigPicture.min.js",
+          "deps": [
+            "wp-jquery"
+          ]
         },
         "shield/charts":                     {
           "deps": [
@@ -284,7 +291,7 @@
             "wp-jquery"
           ]
         },
-        "shield/datatables/activity_log":     {
+        "shield/datatables/activity_log":    {
           "deps": [
             "shield/datatables/common"
           ]
