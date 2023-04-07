@@ -15,12 +15,9 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
-		$opts = $this->opts();
-		if ( $opts->isOpt( 'optimise_scan_speed', 'Y' ) ) {
+		if ( $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) ) {
 			( new Processing\FileScanOptimiser() )->filterFilesFromAction( $action );
 		}
-
-		$action->confidence_threshold = $opts->getMalConfidenceBoundary();
 
 		$patterns = ( new Utilities\MalwareScanPatterns() )->retrieve();
 		$action->patterns_raw = $patterns[ 'raw' ];

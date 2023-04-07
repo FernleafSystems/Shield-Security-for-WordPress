@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 	Afs\ResultItem,
 	Base\FileResultItem
@@ -50,7 +50,7 @@ class ItemDeleteHandler {
 		if ( !$this->deleteSupported() ) {
 			throw new \Exception( sprintf( "Deletion isn't support for scan %s", $item->VO->scan ) );
 		}
-		if ( !$item->is_unrecognised ) {
+		if ( !( $item->is_unrecognised || $item->is_unidentified || $item->is_mal ) ) {
 			throw new \Exception( sprintf( "File '%s' isn't unrecognised.", $item->path_fragment ) );
 		}
 		if ( !Services::WpFs()->isFile( $item->path_full ) ) {

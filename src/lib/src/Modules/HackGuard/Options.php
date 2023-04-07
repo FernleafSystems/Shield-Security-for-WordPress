@@ -67,6 +67,9 @@ class Options extends BaseShield\Options {
 		);
 	}
 
+	/**
+	 * @deprecated 18.0
+	 */
 	public function getMalConfidenceBoundary() :int {
 		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
 	}
