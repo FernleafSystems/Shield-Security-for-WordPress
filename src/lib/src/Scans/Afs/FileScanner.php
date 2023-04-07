@@ -114,7 +114,7 @@ class FileScanner {
 						$validFile
 					);
 					$item->malware_record_id = $malRecord->id;
-					$item->auto_filter = $validFile > $action->confidence_threshold;
+					$item->auto_filter = $validFile;
 				}
 				catch ( \Exception $e ) {
 					/** We can't proceed without a linked local Malware Record */

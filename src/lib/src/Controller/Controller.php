@@ -47,7 +47,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property Shield\Users\UserMetas                                 $user_metas
- * @property array|Shield\Modules\Base\ModCon[]                     $modules
+ * @property Shield\Modules\Base\ModCon[]                           $modules
  * @property Shield\Crons\HourlyCron                                $cron_hourly
  * @property Shield\Crons\DailyCron                                 $cron_daily
  * @property string[]                                               $reqs_not_met
@@ -385,19 +385,42 @@ class Controller extends DynPropertiesClass {
 
 			$this->modules_loaded = true;
 
+			$enum = [
+				'admin_access_restriction' => Shield\Modules\SecurityAdmin\ModCon::class,
+				'audit_trail'              => Shield\Modules\AuditTrail\ModCon::class,
+				'autoupdates'              => Shield\Modules\Autoupdates\ModCon::class,
+				'comments_filter'          => Shield\Modules\CommentsFilter\ModCon::class,
+				'comms'                    => Shield\Modules\Comms\ModCon::class,
+				'data'                     => Shield\Modules\Data\ModCon::class,
+				'email'                    => Shield\Modules\Email\ModCon::class,
+				'events'                   => Shield\Modules\Events\ModCon::class,
+				'firewall'                 => Shield\Modules\Firewall\ModCon::class,
+				'hack_protect'             => Shield\Modules\HackGuard\ModCon::class,
+				'headers'                  => Shield\Modules\Headers\ModCon::class,
+				'integrations'             => Shield\Modules\Integrations\ModCon::class,
+				'ips'                      => Shield\Modules\IPs\ModCon::class,
+				'license'                  => Shield\Modules\License\ModCon::class,
+				'lockdown'                 => Shield\Modules\Lockdown\ModCon::class,
+				'login_protect'            => Shield\Modules\LoginGuard\ModCon::class,
+				'plugin'                   => Shield\Modules\Plugin\ModCon::class,
+				'traffic'                  => Shield\Modules\Traffic\ModCon::class,
+				'user_management'          => Shield\Modules\UserManagement\ModCon::class,
+			];
+
 			$modules = $this->modules ?? [];
 			foreach ( $this->cfg->mods_cfg as $cfg ) {
 
 				$slug = $cfg->properties[ 'slug' ];
-
-				$className = $this->getModulesNamespace().sprintf( '\\%s\\ModCon',
-						$cfg->properties[ 'namespace' ] ?? str_replace( ' ', '', ucwords( str_replace( '_', ' ', $slug ) ) ) );
-				if ( !class_exists( $className ) ) {
-					// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
-					throw new \Exception( sprintf( 'Class for module "%s" is missing', $className ) );
+				if ( !isset( $enum[ $slug ] ) ) {
+					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
+					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $enum[ $slug ] ) );
+				}
+				if ( !\class_exists( $enum[ $slug ] ) ) {
+					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
+					throw new \Exception( sprintf( 'Class for module "%s" is missing.', $enum[ $slug ] ) );
 				}
 
-				$modules[ $slug ] = new $className( $this, $cfg );
+				$modules[ $slug ] = new $enum[ $slug ]( $cfg );
 				$this->modules = $modules;
 			}
 

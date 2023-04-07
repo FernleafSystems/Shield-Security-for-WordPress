@@ -293,6 +293,7 @@
       "link_info":   "https://shsec.io/5v",
       "link_blog":   "https://shsec.io/wpsf20",
       "beacon_id":   130,
+      "vimeo_id":    "",
       "name":        "Show Plugin Badge",
       "summary":     "Display Plugin Security Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
@@ -378,6 +379,7 @@
     {
       "key":         "locale_override",
       "section":     "section_defaults",
+      "beacon_id":   393,
       "advanced":    true,
       "default":     "",
       "type":        "text",

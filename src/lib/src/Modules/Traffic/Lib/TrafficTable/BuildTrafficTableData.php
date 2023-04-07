@@ -8,12 +8,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class BuildTrafficTableData extends BaseBuildTableData {
+
+	use ModConsumer;
 
 	/**
 	 * @var LogRecord
@@ -34,9 +37,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	protected function getSearchPanesData() :array {
-		return ( new BuildSearchPanesData() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->build();
+		return ( new BuildSearchPanesData() )->build();
 	}
 
 	/**
@@ -141,9 +142,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new ForTraffic() )
-				->setMod( $this->getMod() )
-				->buildRaw()[ 'columns' ]
+			( new ForTraffic() )->buildRaw()[ 'columns' ]
 		) );
 	}
 

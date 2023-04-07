@@ -2,14 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller as ScanController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 	Afs,
-	Common\ScanItemConsumer,
-	Mal,
-	Ptg,
-	Wcf
+	Common\ScanItemConsumer
 };
 
 class ItemRepairHandler {
@@ -39,17 +36,13 @@ class ItemRepairHandler {
 	}
 
 	/**
-	 * @return RepairItemBase
 	 * @throws \Exception
 	 */
-	private function getRepairer() {
-
+	private function getRepairer() :Afs\Utilities\RepairItem {
 		switch ( $this->getScanItem()->VO->scan ) {
-
 			case ScanController\Afs::SCAN_SLUG:
 				$rep = new Afs\Utilities\RepairItem();
 				break;
-
 			default:
 				throw new \Exception( 'We never reach this point' );
 		}

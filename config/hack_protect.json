@@ -223,6 +223,7 @@
       "link_info":     "https://shsec.io/h7",
       "link_blog":     "https://shsec.io/h8",
       "beacon_id":     226,
+      "vimeo_id":      "815602380",
       "name":          "File Locker",
       "summary":       "Lock Files Against Tampering and Changes",
       "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
@@ -450,37 +451,37 @@
       "has_deleted_at":  false,
       "col_older_than":  "updated_at",
       "cols_custom":     {
-        "hash_sha256":         {
+        "hash_sha256":   {
           "macro_type": "sha256",
           "comment":    "Item hash SHA256"
         },
-        "file_path":           {
+        "file_path":     {
           "macro_type": "varchar",
           "length":     256,
           "comment":    "The relative path of the malware-containing file."
         },
-        "code_type":           {
+        "code_type":     {
           "macro_type": "char",
           "length":     5,
           "default":    "php",
           "comment":    "The language"
         },
-        "sig":                 {
+        "sig":           {
           "macro_type": "varchar",
           "length":     128,
           "comment":    "The malware signature pattern that triggered the discovery"
         },
-        "is_valid_file":       {
+        "is_valid_file": {
           "macro_type": "bool",
           "comment":    "Is the file validated locally"
         },
-        "malai_status":        {
+        "malai_status":  {
           "macro_type": "varchar",
           "length":     20,
           "default":    "''",
           "comment":    "The status of the file from malai"
         },
-        "file_content":        {
+        "file_content":  {
           "macro_type": "text",
           "type":       "mediumtext",
           "comment":    "The actual file content"

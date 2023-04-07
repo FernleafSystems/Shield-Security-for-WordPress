@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use IPLib\Factory;
 
 class IPRecords {
@@ -24,9 +23,7 @@ class IPRecords {
 			}
 			$ip = explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
-			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$dbh = $mod->getDbH_IPs();
+			$dbh = $this->getCon()->getModule_Data()->getDbH_IPs();
 			/** @var Ops\Select $select */
 			$select = $dbh->getQuerySelector();
 			$record = $select->filterByIPHuman( $ip )->first();
@@ -49,9 +46,7 @@ class IPRecords {
 	}
 
 	public function addIP( string $ip ) {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPs();
+		$dbh = $this->getCon()->getModule_Data()->getDbH_IPs();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

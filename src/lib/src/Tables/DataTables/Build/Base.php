@@ -2,12 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 abstract class Base {
-
-	use ModConsumer;
 
 	abstract protected function getColumnDefs() :array;
 

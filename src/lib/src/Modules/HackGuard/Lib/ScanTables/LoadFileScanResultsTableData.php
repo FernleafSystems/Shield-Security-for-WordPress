@@ -243,6 +243,14 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
 				$this->con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
 		}
+		elseif ( $extension === 'SVG' ) {
+			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
+				$this->con()->urls->svg( 'filetype-svg' ), $extension, $extension );
+		}
+		elseif ( $extension === 'JSON' ) {
+			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
+				$this->con()->urls->forImage( 'icons/icon-json.png' ), $extension, $extension );
+		}
 		else {
 			$type = $extension;
 		}

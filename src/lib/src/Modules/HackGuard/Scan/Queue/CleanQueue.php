@@ -27,7 +27,7 @@ class CleanQueue {
 				SET `started_at`=0
 				WHERE `started_at` > 0 AND `started_at` < %s",
 				$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
-				Services::Request()->carbon()->subMinutes( 5 )->timestamp
+				Services::Request()->carbon()->subMinutes( 2 )->timestamp
 			)
 		);
 	}
@@ -67,12 +67,12 @@ class CleanQueue {
 					Services::Request()->carbon()->subMinutes( 5 )->timestamp
 				)->query();
 
-		// Scan set to ready for longer than 20 minutes but never finished.
+		// Scan set to ready for longer than 9 minutes but never finished.
 		$deleter->reset()
 				->filterByNotFinished()
 				->filterByReady()
 				->addWhereOlderThan(
-					Services::Request()->carbon()->subMinutes( 10 )->timestamp,
+					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
 					'ready_at'
 				)->query();
 	}

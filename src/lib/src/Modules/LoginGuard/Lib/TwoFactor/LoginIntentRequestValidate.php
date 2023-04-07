@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
 	InvalidLoginIntentException,
@@ -11,11 +10,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	OtpVerificationFailedException,
 	TooManyAttemptsException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpUserConsumer;
 
 class LoginIntentRequestValidate {
 
-	use Shield\Modules\ModConsumer;
-	use Shield\Utilities\Consumer\WpUserConsumer;
+	use ModConsumer;
+	use WpUserConsumer;
 
 	/**
 	 * @throws CouldNotValidate2FA
@@ -26,7 +27,7 @@ class LoginIntentRequestValidate {
 	 * @throws TooManyAttemptsException
 	 */
 	public function run( string $plainNonce, bool $isCancel = false ) :string {
-		$mfaCon = $this->getCon()->getModule_LoginGuard()->getMfaController();
+		$mfaCon = $this->con()->getModule_LoginGuard()->getMfaController();
 		$user = $this->getWpUser();
 
 		if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {
@@ -70,13 +71,13 @@ class LoginIntentRequestValidate {
 		}
 
 		// Always remove intents after success.
-		$this->getCon()->user_metas->for( $user )->login_intents = [];
+		$this->con()->user_metas->for( $user )->login_intents = [];
 
 		return $validatedSlug;
 	}
 
 	protected function auditLoginIntent( bool $success, string $providerName ) {
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
 				'audit_params' => [

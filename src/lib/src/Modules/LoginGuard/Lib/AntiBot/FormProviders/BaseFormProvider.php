@@ -2,12 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseFormProvider extends ExecOnceModConsumer {
+
+	use ExecOnce;
+	use LoginGuard\ModConsumer;
 
 	/**
 	 * @var string
@@ -54,15 +58,13 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isProtectLogin() ) {
+		if ( $this->opts()->isProtectLogin() ) {
 			$this->login();
 		}
-		if ( $opts->isProtectRegister() ) {
+		if ( $this->opts()->isProtectRegister() ) {
 			$this->register();
 		}
-		if ( $opts->isProtectLostPassword() ) {
+		if ( $this->opts()->isProtectLostPassword() ) {
 			$this->lostpassword();
 		}
 	}

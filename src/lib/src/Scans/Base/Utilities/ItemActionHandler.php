@@ -3,14 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ItemActionHandler {
 
-	use ModConsumer;
+	use HackGuard\ModConsumer;
 	use ScanItemConsumer;
 	use HackGuard\Scan\Controller\ScanControllerConsumer;
 
@@ -45,20 +44,18 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function delete() :bool {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
 		$item = $this->getScanItem();
 
 		$item->deleted = ( new ItemDeleteHandler() )
-			->setMod( $this->getMod() )
-			->setScanItem( $this->getScanItem() )
+			->setScanItem( $item )
 			->delete(); // Exception if can't delete
 		if ( $item->deleted ) {
-			$mod->getDbH_ResultItems()
-				->getQueryUpdater()
-				->updateById( $item->VO->resultitem_id, [
-					'item_deleted_at' => Services::Request()->ts()
-				] );
+			$this->mod()
+				 ->getDbH_ResultItems()
+				 ->getQueryUpdater()
+				 ->updateById( $item->VO->resultitem_id, [
+					 'item_deleted_at' => Services::Request()->ts()
+				 ] );
 			$item->repair_event_status = 'delete_success';
 		}
 
@@ -71,7 +68,6 @@ abstract class ItemActionHandler {
 	 */
 	public function ignore() :bool {
 		return ( new ItemIgnoreHandler() )
-			->setMod( $this->getMod() )
 			->setScanItem( $this->getScanItem() )
 			->ignore();
 	}
@@ -87,8 +83,6 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function repair( bool $allowDelete = false ) :bool {
-		/** @var HackGuard\ModCon $mod */
-		$mod = $this->getMod();
 		$item = $this->getScanItem();
 
 		$repairer = $this->getRepairHandler();
@@ -106,9 +100,10 @@ abstract class ItemActionHandler {
 			if ( $item->repaired ) {
 				$updateInfo[ 'item_repaired_at' ] = Services::Request()->ts();
 			}
-			$mod->getDbH_ResultItems()
-				->getQueryUpdater()
-				->updateById( $item->VO->resultitem_id, $updateInfo );
+			$this->mod()
+				 ->getDbH_ResultItems()
+				 ->getQueryUpdater()
+				 ->updateById( $item->VO->resultitem_id, $updateInfo );
 
 			$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
 
@@ -122,9 +117,7 @@ abstract class ItemActionHandler {
 	}
 
 	public function getRepairHandler() :ItemRepairHandler {
-		return ( new ItemRepairHandler() )
-			->setMod( $this->getMod() )
-			->setScanItem( $this->getScanItem() );
+		return ( new ItemRepairHandler() )->setScanItem( $this->getScanItem() );
 	}
 
 	protected function fireRepairEvent() {

@@ -60,7 +60,7 @@ abstract class ModCon extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	public function __construct( Shield\Controller\Controller $pluginCon, Config\ModConfigVO $cfg ) {
+	public function __construct( Config\ModConfigVO $cfg ) {
 		$this->cfg = $cfg;
 	}
 
@@ -142,11 +142,11 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param bool $bInitAll
+	 * @param bool $initAll
 	 * @return Shield\Databases\Base\Handler[]
 	 */
-	public function getDbHandlers( $bInitAll = false ) {
-		if ( $bInitAll ) {
+	public function getDbHandlers( $initAll = false ) {
+		if ( $initAll ) {
 			foreach ( $this->getAllDbClasses() as $dbSlug => $dbClass ) {
 				$this->getDbH( $dbSlug );
 			}
@@ -586,10 +586,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
-		if ( empty( $this->opts ) ) {
-			$this->opts = $this->loadModElement( 'Options' );
-		}
-		return $this->opts;
+		return $this->opts ?? $this->opts = $this->loadModElement( 'Options' );
 	}
 
 	/**
@@ -614,10 +611,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return Shield\Modules\Base\Databases|mixed
 	 */
 	public function getDbHandler() {
-		if ( empty( $this->dbHandler ) ) {
-			$this->dbHandler = $this->loadModElement( 'Databases' );
-		}
-		return $this->dbHandler;
+		return $this->dbHandler ?? $this->dbHandler = $this->loadModElement( 'Databases' );
 	}
 
 	/**

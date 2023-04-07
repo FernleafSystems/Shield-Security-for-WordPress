@@ -10,8 +10,6 @@ use Dolondro\GoogleAuthenticator\{
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\GenerateGoogleAuthQrCode;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -37,7 +35,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	protected function getUserProfileFormRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$validatedProfile = $this->hasValidatedProfile();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
@@ -78,22 +76,6 @@ class GoogleAuth extends AbstractShieldProvider {
 			'issuer' => $sec->getIssuer(),
 			'label'  => $sec->getLabel(),
 		] );
-	}
-
-	private function getQrImage() :string {
-		return 'data:image/png;base64, '.$this->getGaRegisterChartUrlShieldNet();
-	}
-
-	private function getGaRegisterChartUrlShieldNet() :string {
-		$secret = $this->getGaSecret();
-		return ( new GenerateGoogleAuthQrCode() )
-			->setMod( $this->getCon()->getModule_Plugin() )
-			->getCode(
-				$secret->getSecretKey(),
-				$secret->getIssuer(),
-				$secret->getLabel(),
-				'png'
-			);
 	}
 
 	public function removeGA() :StdResponse {
@@ -184,9 +166,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledGoogleAuthenticator();
+		return $this->getOptions()->isEnabledGoogleAuthenticator();
 	}
 
 	public function getProviderName() :string {

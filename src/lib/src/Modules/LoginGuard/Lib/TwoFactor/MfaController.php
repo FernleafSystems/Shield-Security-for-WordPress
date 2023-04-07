@@ -3,13 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class MfaController {
+
+	use ExecOnce;
+	use LoginGuard\ModConsumer;
 
 	/**
 	 * These values MUST align with the option 'mfa_verify_page'
@@ -31,10 +34,10 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function addToUserStatusColumn() {
-		// Display manually suspended on the user list table; TODO: at auto suspended
+		// Display manually suspended on the user list table; TODO: add auto suspended
 		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-			$twoFAat = (int)$this->getCon()->user_metas->for( $user )->record->last_2fa_verified_at;
+			$twoFAat = $this->getCon()->user_metas->for( $user )->record->last_2fa_verified_at;
 			$carbon = Services::Request()
 							  ->carbon()
 							  ->setTimestamp( $twoFAat );
@@ -107,9 +110,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function onWpInit() {
-		( new LoginRequestCapture() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new LoginRequestCapture() )->execute();
 	}
 
 	public function useLoginIntentPage() :bool {
@@ -139,7 +140,9 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			array_map(
 				function ( $provider ) {
 					if ( $provider instanceof Provider\AbstractShieldProvider ) {
-						$provider->setMod( $this->getMod() );
+						if ( \method_exists( $provider, 'setMod' ) ) {
+							$provider->setMod( $this->getMod() );
+						}
 					}
 					return $provider;
 				},
@@ -211,8 +214,7 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			$this->getProviders(),
 			function ( $provider ) use ( $user, $onlyActive ) {
 				$provider->setUser( $user );
-				return $provider->isProviderAvailableToUser()
-					   && ( !$onlyActive || $provider->isProfileActive() );
+				return $provider->isProviderAvailableToUser() && ( !$onlyActive || $provider->isProfileActive() );
 			}
 		);
 
@@ -271,7 +273,6 @@ class MfaController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		return array_filter(
 			is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			function ( $intent ) {
-				/** @var LoginGuard\Options $opts */
 				$opts = $this->getOptions();
 
 				$active = false;

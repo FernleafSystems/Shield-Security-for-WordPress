@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTab
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -28,12 +27,11 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return ( new BuildDataForDays() )->build(
-			$mod->getDbH_ReqLogs()
-				->getQuerySelector()
-				->getDistinctForColumn( 'created_at' )
+			$this->mod()
+				 ->getDbH_ReqLogs()
+				 ->getQuerySelector()
+				 ->getDistinctForColumn( 'created_at' )
 		);
 	}
 
@@ -105,12 +103,10 @@ class BuildSearchPanesData {
 	 * https://stackoverflow.com/questions/12188027/mysql-select-distinct-multiple-columns#answer-12188117
 	 */
 	private function compositeDistinctQuery( array $columns ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		$results = Services::WpDb()->selectCustom( sprintf( 'SELECT %s',
-				implode( ', ', array_map( function ( $col ) use ( $mod ) {
+				implode( ', ', array_map( function ( $col ) {
 					return sprintf( '(SELECT group_concat(DISTINCT %s) FROM %s) as %s',
-						$col, $mod->getDbH_ReqLogs()->getTableSchema()->table, $col );
+						$col, $this->mod()->getDbH_ReqLogs()->getTableSchema()->table, $col );
 				}, $columns ) ) )
 		);
 		return empty( $results ) ? [] : array_filter( $results[ 0 ] );

@@ -3,10 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRulesIterator;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -29,12 +27,11 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return ( new BuildDataForDays() )->build(
-			$mod->getDbH_IPRules()
-				->getQuerySelector()
-				->getDistinctForColumn( 'last_access_at' )
+			$this->mod()
+				 ->getDbH_IPRules()
+				 ->getQuerySelector()
+				 ->getDistinctForColumn( 'last_access_at' )
 		);
 	}
 
@@ -52,11 +49,10 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForIpType() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$results = Services::WpDb()->selectCustom(
-			sprintf( "SELECT DISTINCT `ir`.`type` FROM `%s` as `ir`;", $mod->getDbH_IPRules()->getTableSchema()->table )
+			sprintf( "SELECT DISTINCT `ir`.`type` FROM `%s` as `ir`;",
+				$this->mod()->getDbH_IPRules()->getTableSchema()->table
+			)
 		);
 		return array_filter( array_map(
 			function ( $result ) {
@@ -74,9 +70,6 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForIP() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-
 		$ips = Transient::Get( 'apto-shield-iprulestable-ips', [] );
 		if ( empty( $ips ) ) {
 			$rulesIterator = new IpRulesIterator();
@@ -96,29 +89,5 @@ class BuildSearchPanesData {
 			Transient::Set( 'apto-shield-iprulestable-ips', $ips, 10 );
 		}
 		return $ips;
-	}
-
-	private function buildForIpWithoutIterator() :array {
-		error_log( __FUNCTION__.var_export( time(), true ) );
-
-		$results = new LoadIpRules();
-		$results->joined_table_select_fields = [ 'cidr' ];
-		return array_values( array_filter( array_map(
-			function ( $result ) {
-				$range = Factory::parseRangeString( sprintf( '%s/%s', $result->ip, $result->cidr ) );
-				if ( empty( $range ) ) {
-					$IP = null;
-				}
-				else {
-					$IP = [
-						'label' => $range->getSize() === 1 ? $result->ip : $range->asSubnet()->toString(),
-						'value' => $result->id,
-					];
-				}
-
-				return $IP;
-			},
-			$results->select()
-		) ) );
 	}
 }

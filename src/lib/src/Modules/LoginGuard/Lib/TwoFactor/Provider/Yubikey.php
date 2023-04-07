@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -48,7 +47,7 @@ class Yubikey extends AbstractShieldProvider {
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
+						$this->con()->getHumanName() ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				],
 			]
@@ -71,7 +70,7 @@ class Yubikey extends AbstractShieldProvider {
 				$valid = true;
 				break;
 			}
-			if ( !$this->getCon()->isPremiumActive() ) { // Test 1 key if not Pro
+			if ( !$this->con()->isPremiumActive() ) { // Test 1 key if not Pro
 				break;
 			}
 		}
@@ -80,8 +79,6 @@ class Yubikey extends AbstractShieldProvider {
 	}
 
 	private function sendYubiOtpRequest( string $otp ) :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 		$otp = trim( $otp );
 		$success = false;
 
@@ -90,7 +87,7 @@ class Yubikey extends AbstractShieldProvider {
 			$parts = [
 				'otp'   => $otp,
 				'nonce' => md5( uniqid( Services::Request()->getID() ) ),
-				'id'    => $opts->getYubikeyAppId()
+				'id'    => $this->opts()->getYubikeyAppId()
 			];
 
 			$response = Services::HttpRequest()->getContent( URL::Build( self::URL_YUBIKEY_VERIFY, $parts ) );
@@ -172,9 +169,7 @@ class Yubikey extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledYubikey();
+		return $this->getOptions()->isEnabledYubikey();
 	}
 
 	protected function hasValidSecret() :bool {

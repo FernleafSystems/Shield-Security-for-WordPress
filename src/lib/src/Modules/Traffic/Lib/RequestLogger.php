@@ -2,15 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use Monolog\Logger;
 
-class RequestLogger extends ExecOnceModConsumer {
+class RequestLogger {
+
+	use ExecOnce;
+	use Traffic\ModConsumer;
 
 	/**
 	 * @var Logger
@@ -24,9 +27,7 @@ class RequestLogger extends ExecOnceModConsumer {
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 			if ( $this->isRequestToBeLogged() ) {
 				try {
-					( new Monolog() )
-						->setCon( $this->getCon() )
-						->assess();
+					( new Monolog() )->assess();
 					$this->initLogger();
 					$this->getLogger()->log( 'debug', 'log request' );
 				}
@@ -53,10 +54,10 @@ class RequestLogger extends ExecOnceModConsumer {
 	}
 
 	private function isRequestToBeLogged() :bool {
-		/** @var Traffic\Options $opts */
-		$opts = $this->getOptions();
-		$logTraffic = $opts->isTrafficLoggerEnabled() && !$this->isCustomExcluded() && !$this->isRequestTypeExcluded();
-		return !$this->getCon()->plugin_deleting && apply_filters( 'shield/is_log_traffic', $logTraffic );
+		return !$this->getCon()->plugin_deleting
+			   && apply_filters( 'shield/is_log_traffic', $this->getOptions()->isTrafficLoggerEnabled()
+														  && !$this->isCustomExcluded()
+														  && !$this->isRequestTypeExcluded() );
 	}
 
 	public function getLogger() :Logger {
@@ -80,9 +81,7 @@ class RequestLogger extends ExecOnceModConsumer {
 	private function isRequestTypeExcluded() :bool {
 		$srvProviders = Services::ServiceProviders();
 		$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-		/** @var Traffic\Options $opts */
-		$opts = $this->getOptions();
-		$excl = $opts->getReqTypeExclusions();
+		$excl = $this->getOptions()->getReqTypeExclusions();
 		$isLoggedIn = Services::WpUsers()->isUserLoggedIn();
 
 		$exclude = ( in_array( 'logged_in', $excl ) && $isLoggedIn )
@@ -98,15 +97,13 @@ class RequestLogger extends ExecOnceModConsumer {
 	}
 
 	private function isCustomExcluded() :bool {
-		/** @var Traffic\Options $opts */
-		$opts = $this->getOptions();
 		$req = Services::Request();
 
 		$agent = $req->getUserAgent();
 		$path = $req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 
 		$exclude = false;
-		foreach ( $opts->getCustomExclusions() as $excl ) {
+		foreach ( $this->getOptions()->getCustomExclusions() as $excl ) {
 			if ( stripos( $agent, $excl ) !== false || stripos( $path, $excl ) !== false ) {
 				$exclude = true;
 				break;

@@ -37,8 +37,6 @@ class Email extends AbstractShieldProvider {
 	}
 
 	public function getFormField() :array {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
 		return [
 			'slug'        => static::ProviderSlug(),
 			'name'        => $this->getLoginIntentFormParameter(),
@@ -50,7 +48,9 @@ class Email extends AbstractShieldProvider {
 			'help_link'   => 'https://shsec.io/3t',
 			'size'        => 6,
 			'datas'       => [
-				'auto_send'              => $mod->getMfaController()->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
+				'auto_send'              => $this->mod()
+												 ->getMfaController()
+												 ->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
 				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::class ),
 			],
 			'supp'        => [
@@ -60,19 +60,15 @@ class Email extends AbstractShieldProvider {
 	}
 
 	public function hasValidatedProfile() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 		$validated = parent::hasValidatedProfile();
 		$this->setProfileValidated(
-			$this->isEnforced() || ( $validated && $opts->isEnabledEmailAuthAnyUserSet() )
+			$this->isEnforced() || ( $validated && $this->getOptions()->isEnabledEmailAuthAnyUserSet() )
 		);
 		return parent::hasValidatedProfile();
 	}
 
 	public function isEnforced() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return count( array_intersect( $opts->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
+		return count( array_intersect( $this->getOptions()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
 	protected function hasValidSecret() :bool {
@@ -80,10 +76,8 @@ class Email extends AbstractShieldProvider {
 	}
 
 	public function sendEmailTwoFactorVerify( string $plainNonce ) :bool {
-		$con = $this->getCon();
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		$mfaCon = $mod->getMfaController();
+		$con = $this->con();
+		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
 		$userMeta = $con->user_metas->for( $user );
 		$sureCon = $con->getModule_Comms()->getSureSendController();
@@ -103,7 +97,7 @@ class Email extends AbstractShieldProvider {
 			$otp = $this->generate2faCode( $hashedNonce );
 
 			$success = ( $useSureSend && $this->send2faEmailSureSend( $otp ) )
-					   || $this->getMod()
+					   || $this->mod()
 							   ->getEmailProcessor()
 							   ->send(
 								   $user->user_email,
@@ -124,7 +118,7 @@ class Email extends AbstractShieldProvider {
 
 	private function send2faEmailSureSend( string $code ) :bool {
 		return ( new SendEmail() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->send2FA( $this->getUser(), $code );
 	}
 
@@ -137,29 +131,22 @@ class Email extends AbstractShieldProvider {
 					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
 					'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
 					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() )
+						$this->con()->getHumanName() )
 				]
 			]
 		);
 	}
 
 	public function isProviderEnabled() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEmailAuthenticationActive();
+		return $this->getOptions()->isEmailAuthenticationActive();
 	}
 
 	public function isProviderAvailableToUser() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 		return parent::isProviderAvailableToUser()
-			   && ( $this->isEnforced() || $opts->isEnabledEmailAuthAnyUserSet() );
+			   && ( $this->isEnforced() || $this->getOptions()->isEnabledEmailAuthAnyUserSet() );
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-
 		$secrets = $this->getSecret();
 		if ( !is_array( $secrets ) ) {
 			$secrets = [];
@@ -171,7 +158,7 @@ class Email extends AbstractShieldProvider {
 		// Clean old secrets linked to expired login intents
 		$this->setSecret( array_intersect_key(
 			$secrets,
-			$mod->getMfaController()->getActiveLoginIntents( $this->getUser() )
+			$this->mod()->getMfaController()->getActiveLoginIntents( $this->getUser() )
 		) );
 		return $otp;
 	}

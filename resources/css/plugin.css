@@ -558,8 +558,8 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 	background-color: rgba(0, 128, 0, 0.20);
 }
 a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-link):not(.table-link):not(.meter-analysis-link):not(.page-header-item)::after {
-	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
-	margin: 0 3px;
+	/*content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);*/
+	/*margin: 0 3px;*/
 }
 #footer-thankyou {
 	display: none;

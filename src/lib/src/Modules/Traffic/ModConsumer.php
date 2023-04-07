@@ -1,13 +1,14 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 trait ModConsumer {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return $this->con()->getModule_IPs();
+		return \method_exists( $this, 'con' ) ? $this->con()->getModule_Traffic()
+			: $this->getCon()->getModule_Traffic();
 	}
 
 	public function opts() :Options {

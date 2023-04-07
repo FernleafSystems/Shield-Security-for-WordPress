@@ -43,9 +43,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'View and explore details of HTTP requests made to your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'datatables_init' => ( new ForTraffic() )
-					->setMod( $con->getModule_Traffic() )
-					->build()
+				'datatables_init' => ( new ForTraffic() )->build()
 			],
 		];
 	}
