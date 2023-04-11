@@ -3,18 +3,19 @@
 {% block inner_page_header %}
 
 	{% if strings.inner_page_title|default('') is not empty %}
-		<div class="row border-bottom mb-3 inner-page-header">
+		<div class="row border-bottom mb-2 inner-page-header">
 			<div class="col">
-				<h4 class="mb-3">
+				<h4 class="mb-1">
 					{{ strings.inner_page_title|default('No inner page title set') }}
 					{% block inner_page_title_after %}{% endblock %}
-					{% if strings.inner_page_subtitle|default('') is not empty %}
-						<br />
-						<small class="inner-page-subtitle">
-							{{ strings.inner_page_subtitle|default('') }}
-						</small>
-					{% endif %}
 				</h4>
+				{% if strings.inner_page_subtitle|default('') is not empty %}
+					<p class="mb-2">
+						<small class="inner-page-subtitle">
+						{{ strings.inner_page_subtitle|default('') }}
+						</small>
+					</p>
+				{% endif %}
 
 			</div>
 			<div class="col-2 text-end inner-page-config">

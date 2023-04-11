@@ -58,13 +58,9 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	/**
-	 * @param array $null
-	 * @param array $aA
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdDisplay( array $null, array $aA ) {
-		( new Tables\Render\WpCliTable\AuditTrail() )
-			->setMod( $this->getMod() )
-			->render();
+	public function cmdDisplay( array $null, array $a ) {
+		( new Tables\Render\WpCliTable\ActivityLog() )->render();
 	}
 }

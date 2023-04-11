@@ -103,7 +103,7 @@
 				$.extend(
 					base.options.table_init,
 					{
-						dom: 'BPrpftip',
+						dom: 'PrBpftip',
 						serverSide: true,
 						ajax: function ( data, callback, settings ) {
 							let reqData = base.getBaseAjaxData();
@@ -148,7 +148,7 @@
 							],
 							dom: {
 								button: {
-									className: 'btn'
+									className: 'btn btn-sm'
 								}
 							}
 						},

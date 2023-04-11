@@ -15,7 +15,7 @@ class ForActivityLog extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'severity',
-			'ip_linked',
+			'identity',
 			'ip',
 			'event',
 			'level',
@@ -101,14 +101,15 @@ class ForActivityLog extends Base {
 					'show' => true,
 				],
 			],
-			'ip_linked'  => [
-				'data'        => 'ip_linked',
-				'title'       => __( 'IP' ),
-				'className'   => 'ip_linked',
-				'orderable'   => false,
-				'searchable'  => false,
-				'visible'     => true,
-				'searchPanes' => [
+			'identity'         => [
+				'data'           => 'identity',
+				'title'          => __( 'Identity' ),
+				'className'      => 'identity',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => true,
+				'visible'        => true,
+				'searchPanes'    => [
 					'show' => false,
 				],
 			],
@@ -128,14 +129,14 @@ class ForActivityLog extends Base {
 				'orderable'      => false,
 				'searchable'     => true,
 				'search_builder' => false,
-				'visible'        => true,
+				'visible'        => false,
 				'searchPanes'    => [
-					'show' => false
+					'show' => false,
 				],
 			],
 			'message'    => [
 				'data'        => 'message',
-				'title'       => __( 'Message' ),
+				'title'       => __( 'Log Message' ),
 				'className'   => 'message',
 				'orderable'   => false,
 				'searchable'  => true,

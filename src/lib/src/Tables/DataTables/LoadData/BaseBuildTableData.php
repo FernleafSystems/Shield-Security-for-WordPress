@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -11,6 +12,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
  * @property array $table_data
  */
 abstract class BaseBuildTableData extends DynPropertiesClass {
+
+	use PluginControllerConsumer;
 
 	abstract protected function countTotalRecords() :int;
 
@@ -199,7 +202,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
 				$this->con()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
-				'render_ip_analysis',
+				'render_ip_analysis ipv'.Services::IP()->version( $ip ),
 				$ip,
 				$ip
 			);

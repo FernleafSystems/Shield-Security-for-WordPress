@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Activity extends Base {
@@ -13,9 +13,7 @@ class Activity extends Base {
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();
-		$logLoader = ( new LoadLogs() )
-			->setMod( $this->getCon()->getModule_AuditTrail() )
-			->setIP( $this->action_data[ 'ip' ] );
+		$logLoader = ( new LoadLogs() )->setIP( $this->action_data[ 'ip' ] );
 		$logLoader->limit = 100;
 
 		$logs = [];
@@ -24,7 +22,7 @@ class Activity extends Base {
 			if ( $srvEvents->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();
 
-				$asArray[ 'event' ] = implode( ' ', AuditMessageBuilder::BuildFromLogRecord( $record ) );
+				$asArray[ 'event' ] = implode( ' ', ActivityLogMessageBuilder::BuildFromLogRecord( $record ) );
 				$asArray[ 'created_at' ] = $WP->getTimeStringForDisplay( $record->created_at );
 				$asArray[ 'created_at_ago' ] = $this->getTimeAgo( $record->created_at );
 

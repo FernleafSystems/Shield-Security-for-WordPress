@@ -8,7 +8,7 @@
     "show_module_menu_item": true,
     "show_module_options":   true,
     "storage_key":           "plugin",
-    "tagline":               "Plugin settings that adjust how the plugin operates.",
+    "tagline":               "General plugin settings that apply across the entire plugin operation.",
     "auto_enabled":          true,
     "show_central":          true,
     "access_restricted":     true,
