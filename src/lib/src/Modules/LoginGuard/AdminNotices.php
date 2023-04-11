@@ -10,13 +10,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function processNotice( NoticeVO $notice ) {
-
 		switch ( $notice->id ) {
-
 			case 'email-verification-sent':
 				$this->buildNotice_EmailVerificationSent( $notice );
 				break;
-
 			default:
 				parent::processNotice( $notice );
 				break;

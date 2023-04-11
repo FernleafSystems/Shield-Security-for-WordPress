@@ -15,16 +15,12 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShi
 			return;
 		}
 
-		( new Lib\Rename\RenameLogin() )
-			->setMod( $mod )
-			->execute();
+		( new Lib\Rename\RenameLogin() )->execute();
 
 		$mod->getMfaController()->execute();
 
 		add_action( 'init', function () {
-			( new Lib\AntiBot\AntibotSetup() )
-				->setMod( $this->getMod() )
-				->execute();
+			( new Lib\AntiBot\AntibotSetup() )->execute();
 		}, HookTimings::INIT_ANTIBOT_SETUP );
 	}
 }

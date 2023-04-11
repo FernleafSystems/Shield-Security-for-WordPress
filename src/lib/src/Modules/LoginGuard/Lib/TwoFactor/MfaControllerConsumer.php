@@ -22,11 +22,10 @@ trait MfaControllerConsumer {
 	}
 
 	/**
-	 * @param MfaController $oCon
 	 * @return $this
 	 */
-	public function setMfaController( MfaController $oCon ) {
-		$this->oMfaController = $oCon;
+	public function setMfaController( MfaController $con ) {
+		$this->oMfaController = $con;
 		return $this;
 	}
 }

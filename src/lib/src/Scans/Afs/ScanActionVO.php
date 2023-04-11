@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  * @property string[] $patterns_iraw
  * @property string[] $patterns_functions
  * @property string[] $patterns_keywords
- * @property int      $confidence_threshold
  * @property string[] $valid_files
  */
 class ScanActionVO extends BaseScanActionVO {

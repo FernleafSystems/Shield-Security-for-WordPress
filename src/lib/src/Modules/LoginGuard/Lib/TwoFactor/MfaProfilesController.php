@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
@@ -11,7 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class MfaProfilesController {
+
+	use ExecOnce;
+	use LoginGuard\ModConsumer;
 
 	public const MOD = LoginGuard\ModCon::SLUG;
 
@@ -35,13 +39,11 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 				$this->enqueueAssets( false );
 
-				/** @var LoginGuard\Options $opts */
-				$opts = $this->getOptions();
-				if ( in_array( 'dedicated', $opts->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( in_array( 'dedicated', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserLoginSecurityPage();
 				}
 
-				if ( in_array( 'profile', $opts->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( in_array( 'profile', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserProfileSections();
 				}
 			}
@@ -101,11 +103,9 @@ class MfaProfilesController extends Shield\Modules\Base\Common\ExecOnceModConsum
 				} );
 
 				add_filter( 'shield/custom_localisations', function ( array $localz ) {
-					/** @var LoginGuard\ModCon $mod */
-					$mod = $this->getMod();
 					$user = Services::WpUsers()->getCurrentWpUser();
-					$providers = $user instanceof \WP_User ? $mod->getMfaController()
-																 ->getProvidersAvailableToUser( $user ) : [];
+					$providers = $user instanceof \WP_User ?
+						$this->mod()->getMfaController()->getProvidersAvailableToUser( $user ) : [];
 					$localz[] = [
 						'shield/userprofile',
 						'shield_vars_userprofile',

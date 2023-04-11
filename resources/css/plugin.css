@@ -203,8 +203,8 @@ label input[type=checkbox] {
 .icon-flag {
 	vertical-align: text-bottom;
 }
-/** TABLE: Audit trail **/
-#table_id-audit_trail textarea,
+/** TABLE: Activity Log **/
+#table_id-activity_log textarea,
 td.column-message textarea {
 	width: 100%;
 	background: transparent;
@@ -218,14 +218,6 @@ td.column-message textarea {
 div.dtsp-topRow.dtsp-bordered.dtsp-bordered,
 div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
 	border: 1px solid transparent;
-}
-
-.shield-section-datatable div.dtsp-panesContainer div.dtsp-titleRow > button {
-	font-size: 12px;
-	padding: 5px;
-}
-.shield-section-datatable div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane {
-	margin-top: 5px !important;
 }
 /** INSIGHTS **/
 /* TABLES */
@@ -413,7 +405,7 @@ table.odp-table.scan-table td.column-path code {
 	margin-bottom: 0;
 }
 #navbar-bannerlogo {
-	height: 40px;
+	width: 100%;
 	display: inline-block;
 	background-repeat: no-repeat;
 }
@@ -558,8 +550,8 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 	background-color: rgba(0, 128, 0, 0.20);
 }
 a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-link):not(.table-link):not(.meter-analysis-link):not(.page-header-item)::after {
-	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
-	margin: 0 3px;
+	/*content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);*/
+	/*margin: 0 3px;*/
 }
 #footer-thankyou {
 	display: none;
@@ -825,7 +817,7 @@ body.folded #FooterBannerGoPro {
 	background-color: rgba(255, 255, 255, 0.4);
 	border: 1px solid rgba(0, 0, 0, 0.05);
 	border-radius: 12px;
-	padding: 20px 30px 30px;
+	padding: 14px 20px 20px;
 }
 #apto-PageMainBody-Inner p,
 #apto-PageMainBody-Inner li,

@@ -75,9 +75,7 @@ class BuildScanTableData extends BaseBuildTableData {
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
-			( new BaseForScan() )
-				->setMod( $this->mod() )
-				->buildRaw()[ 'columns' ]
+			( new BaseForScan() )->buildRaw()[ 'columns' ]
 		) );
 	}
 

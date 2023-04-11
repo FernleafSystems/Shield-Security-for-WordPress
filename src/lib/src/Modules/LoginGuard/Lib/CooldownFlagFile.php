@@ -2,21 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CooldownFlagFile {
 
-	use Modules\ModConsumer;
+	use ModConsumer;
 
 	public function isWithinCooldownPeriod() :bool {
 		return $this->getCooldownRemaining() > 0;
 	}
 
 	public function getCooldownRemaining() :int {
-		/** @var Modules\LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return (int)max( 0, $opts->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
+		return (int)max( 0, $this->opts()->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
 	}
 
 	public function getFlagFilePath() :string {

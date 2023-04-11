@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
  */
 abstract class BaseBuildTableData extends DynPropertiesClass {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	abstract protected function countTotalRecords() :int;
 
@@ -170,7 +170,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
 				$recordDeleteID,
 				__( 'Delete IP', 'wp-simple-firewall' ),
-				$this->getCon()->svgs->raw( 'trash3-fill.svg' )
+				$this->con()->svgs->raw( 'trash3-fill.svg' )
 			);
 
 			$content = implode( '', array_filter( [
@@ -200,9 +200,9 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		elseif ( Services::IP()->isValidIp( $ip ) ) {
 			$content = sprintf(
 				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
-				$this->getCon()->plugin_urls->ipAnalysis( $ip ),
+				$this->con()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
-				'render_ip_analysis',
+				'render_ip_analysis ipv'.Services::IP()->version( $ip ),
 				$ip,
 				$ip
 			);

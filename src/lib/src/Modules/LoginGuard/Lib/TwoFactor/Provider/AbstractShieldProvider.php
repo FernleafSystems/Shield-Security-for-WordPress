@@ -3,12 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class AbstractShieldProvider extends AbstractOtpProvider {
-
-	use Modules\ModConsumer;
 
 	public function getJavascriptVars() :array {
 		return [];
@@ -45,7 +42,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	public function removeFromProfile() {
-		$this->getCon()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
+		$this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
 		$this->setProfileValidated( false );
 	}
 
@@ -53,7 +50,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return $this
 	 */
 	public function setProfileValidated( bool $validated ) {
-		$this->getCon()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} = $validated;
+		$this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} = $validated;
 		return $this;
 	}
 
@@ -62,7 +59,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return $this
 	 */
 	protected function setSecret( $secret ) {
-		$this->getCon()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
+		$this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
 		return $this;
 	}
 
@@ -78,7 +75,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return $this
 	 */
 	public function postSuccessActions() {
-		$this->getCon()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
+		$this->con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
 		return $this;
 	}
 
@@ -107,7 +104,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	protected function auditLogin( bool $success ) {
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
 				'audit_params' => [
@@ -119,18 +116,18 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	public function getLoginIntentFormParameter() :string {
-		return $this->getCon()->prefixOption( static::ProviderSlug().'_otp' );
+		return $this->con()->prefixOption( static::ProviderSlug().'_otp' );
 	}
 
 	public function renderUserProfileConfigFormField() :string {
-		return $this->getCon()->action_router->render(
+		return $this->con()->action_router->render(
 			Render\Components\UserMfa\ConfigFormForProvider::SLUG,
 			$this->getUserProfileFormRenderData()
 		);
 	}
 
 	protected function renderLoginIntentFormFieldForShield() :string {
-		return $this->getCon()->action_router->render(
+		return $this->con()->action_router->render(
 			Render\GenericRender::SLUG,
 			[
 				'render_action_template' => sprintf( '/components/login_intent/login_field_%s.twig', static::ProviderSlug() ),
@@ -142,7 +139,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	protected function renderLoginIntentFormFieldForWpLoginReplica() :string {
-		return $this->getCon()->action_router->render(
+		return $this->con()->action_router->render(
 			Render\GenericRender::SLUG,
 			[
 				'render_action_template' => sprintf( '/components/wplogin_replica/login_field_%s.twig', static::ProviderSlug() ),

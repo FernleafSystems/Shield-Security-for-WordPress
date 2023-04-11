@@ -157,6 +157,11 @@ class NavMenuBuilder {
 
 		$slug = 'configuration';
 
+		$baseClasses = [
+			'dynamic_body_load',
+			'body_content_link'
+		];
+
 		$subItems = [];
 		foreach ( $con->modules as $module ) {
 			$cfg = $module->cfg;
@@ -165,9 +170,14 @@ class NavMenuBuilder {
 					'mod_slug'      => $cfg->slug,
 					'slug'          => $slug.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
+					'tooltip'       => $module->isModOptEnabled() ?
+						sprintf( 'Configure options for %s', __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ) )
+						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
 					'href'          => $con->plugin_urls->modCfg( $module ),
 					// 'href'          => $this->getOffCanvasJavascriptLinkForModule( $module ),
-					'classes'       => [ 'dynamic_body_load', 'body_content_link' ],
+					'classes'       => array_filter( array_merge( $baseClasses, [
+						$module->isModOptEnabled() ? '' : 'text-warning text-strikethrough'
+					] ) ),
 					'data'          => [
 						'dynamic_page_load' => json_encode( [
 							'dynamic_load_slug' => Config::SLUG,

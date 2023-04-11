@@ -8,17 +8,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSkip {
 
-	use Shield\Modules\ModConsumer;
+	use LoginGuard\ModConsumer;
 
 	public function addMfaSkip( \WP_User $user ) {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-
 		$meta = $this->getCon()->user_metas->for( $user );
 		$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
-		$maxExpires = $opts->getMfaSkip();
+		$maxExpires = $this->opts()->getMfaSkip();
 		if ( $maxExpires > 0 ) {
 			$hashes = array_filter( $hashes,
 				function ( $ts ) use ( $maxExpires ) {

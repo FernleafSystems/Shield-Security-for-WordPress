@@ -16,7 +16,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	private $mfaCon;
 
 	public function getMfaController() :Lib\TwoFactor\MfaController {
-		return $this->mfaCon ?? $this->mfaCon = ( new Lib\TwoFactor\MfaController() )->setMod( $this );
+		return $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController();
 	}
 
 	protected function preProcessOptions() {

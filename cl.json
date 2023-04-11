@@ -1,7 +1,7 @@
 {
   "18.0": {
     "version":     "18.0",
-    "released_at": 1680780000,
+    "released_at": 1681228000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease180",
       "upgrade": "https://shsec.io/shieldupgradeguide180"
@@ -13,7 +13,7 @@
       {
         "type":        "new",
         "pro_only":    true,
-        "title":       "Mal{ai} - Artificial Intelligence for Malware Detection",
+        "title":       "MAL{ai} - Artificial Intelligence for WordPress Malware Detection",
         "description": [
         ],
         "href":        "https://shsec.io/le"
@@ -24,7 +24,7 @@
         "title":       "File Scan Areas Option",
         "description": [
           "We've added new scan areas, in particularly the entire /wp-content/ directory, and the WP installation root directory.",
-          "You can now select these to be scanned - you will have more results, but you'll have more visibility on the file residing on your site."
+          "You can now select these to be scanned - you'll have more results to review, but you'll have more visibility on the files sitting on your site."
         ]
       },
       {
@@ -33,6 +33,15 @@
         "title":       "Added Extra Protection To Security Admin",
         "description": [
           "We've added some protection against adjustments to the WP Default User Role option within the Security Admin system."
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    false,
+        "title":       "Improved, More Compact Plugin Layout",
+        "description": [
+          "We've received a number of piece of feedback about the latest plugin layout and have restructured some elements to be more compact.",
+          "This cleanup ensures we waste less space on the screen and can display more content that you need to see."
         ]
       },
       {

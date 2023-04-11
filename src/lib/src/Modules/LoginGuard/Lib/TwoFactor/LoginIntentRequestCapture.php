@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\StandardFullPageDisplay,
@@ -21,7 +22,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class LoginIntentRequestCapture {
+
+	use ExecOnce;
+	use LoginGuard\ModConsumer;
 
 	public const MOD = LoginGuard\ModCon::SLUG;
 
@@ -116,7 +120,6 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 		$req = Services::Request();
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
-			->setMod( $this->getMod() )
 			->setWpUser( $this->user )
 			->run( (string)$req->post( 'login_nonce' ), $req->post( 'cancel' ) == '1' );
 
@@ -124,9 +127,7 @@ class LoginIntentRequestCapture extends Shield\Modules\Base\Common\ExecOnceModCo
 			wp_set_auth_cookie( $this->user->ID, (bool)$req->post( 'rememberme' ) );
 
 			if ( $req->post( 'skip_mfa' ) === 'Y' ) {
-				( new MfaSkip() )
-					->setMod( $this->getMod() )
-					->addMfaSkip( $this->user );
+				( new MfaSkip() )->addMfaSkip( $this->user );
 			}
 
 			$con->fireEvent( '2fa_success' );

@@ -4,21 +4,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\Rename;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RenameLogin {
 
-	use Modules\ModConsumer;
+	use LoginGuard\ModConsumer;
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 		return !Services::IP()->isLoopback()
-			   && !empty( $opts->getCustomLoginPath() )
+			   && !empty( $this->opts()->getCustomLoginPath() )
 			   && !$this->getCon()->this_req->is_ip_whitelisted
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
@@ -64,13 +60,10 @@ class RenameLogin {
 	}
 
 	private function hasPluginConflict() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-
 		$msg = '';
 		$isConflicted = false;
 
-		$path = $opts->getCustomLoginPath();
+		$path = $this->opts()->getCustomLoginPath();
 
 		$WP = Services::WpGeneral();
 		if ( $WP->isMultisite() ) {
@@ -95,7 +88,7 @@ class RenameLogin {
 		}
 
 		if ( $isConflicted ) {
-			$this->getCon()
+			$this->con()
 				 ->getAdminNotices()
 				 ->addFlash(
 					 sprintf( '<strong>%s</strong>: %s', __( 'Warning', 'wp-simple-firewall' ), $msg ),
@@ -110,7 +103,7 @@ class RenameLogin {
 	private function hasUnsupportedConfiguration() :bool {
 		$unsupported = empty( Services::Request()->getPath() );
 		if ( $unsupported ) {
-			$this->getCon()
+			$this->con()
 				 ->getAdminNotices()
 				 ->addFlash(
 					 sprintf(
@@ -128,8 +121,7 @@ class RenameLogin {
 	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's a request to the admin area and the user isn't logged in (and it's not ajax)
-		$doBlock = is_admin() && !Services::WpGeneral()->isAjax()
-				   && !Services::WpUsers()->isUserLoggedIn();
+		$doBlock = is_admin() && !Services::WpGeneral()->isAjax() && !Services::WpUsers()->isUserLoggedIn();
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$doBlock ) {

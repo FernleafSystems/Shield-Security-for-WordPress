@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\StandardFullPageDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\{
@@ -12,8 +13,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class LoginRequestCapture {
 
+	use ExecOnce;
+	use LoginGuard\ModConsumer;
 	use Shield\Utilities\Consumer\WpLoginCapture;
 
 	protected function run() {
@@ -21,15 +24,12 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$con = $this->getCon();
-		/** @var LoginGuard\ModCon $mod */
-		$mod = $this->getMod();
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		$mfaCon = $mod->getMfaController();
+		$con = $this->con();
+		$mfaCon = $this->mod()->getMfaController();
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 
 			if ( !$this->canUserMfaSkip( $user ) ) {
+				$opts = $this->opts();
 
 				$loginNonce = bin2hex( random_bytes( 32 ) );
 				$loginNonceHashed = wp_hash_password( $loginNonce.$user->ID );
@@ -76,10 +76,9 @@ class LoginRequestCapture extends Shield\Modules\Base\Common\ExecOnceModConsumer
 	}
 
 	private function canUserMfaSkip( \WP_User $user ) :bool {
-		$canSkip = ( new MfaSkip() )
-			->setMod( $this->getMod() )
-			->canMfaSkip( $user );
-		return (bool)apply_filters( 'shield/2fa_skip', apply_filters( 'odp-shield-2fa_skip', $canSkip ) );
+		return (bool)apply_filters( 'shield/2fa_skip',
+			apply_filters( 'odp-shield-2fa_skip', ( new MfaSkip() )->canMfaSkip( $user ) )
+		);
 	}
 
 	/**

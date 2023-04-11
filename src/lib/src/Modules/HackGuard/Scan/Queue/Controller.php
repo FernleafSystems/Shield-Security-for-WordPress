@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ScanItems as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 

@@ -32,7 +32,7 @@ class Sms extends AbstractShieldProvider {
 	 * @throws \Exception
 	 */
 	public function verifyProvisionalRegistration( string $country, string $phone, string $code ) :bool {
-		$meta = $this->getCon()->user_metas->for( $this->getUser() );
+		$meta = $this->con()->user_metas->for( $this->getUser() );
 		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
 		if ( @$reg[ 'country' ] === $country && @$reg[ 'phone' ] === $phone
@@ -62,7 +62,7 @@ class Sms extends AbstractShieldProvider {
 	 */
 	public function addProvisionalRegistration( string $country, string $phone ) :string {
 		$user = $this->getUser();
-		$meta = $this->getCon()->user_metas->for( $user );
+		$meta = $this->con()->user_metas->for( $user );
 		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
 		$country = strtoupper( $country );
@@ -89,7 +89,7 @@ class Sms extends AbstractShieldProvider {
 		];
 
 		( new SendSms() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->send2FA( $user, $meta->sms_registration[ 'code' ] );
 
 		return $meta->sms_registration[ 'code' ];
@@ -99,20 +99,20 @@ class Sms extends AbstractShieldProvider {
 	 * @throws \Exception
 	 */
 	public function startLoginIntent() {
-		$meta = $this->getCon()->user_metas->for( $this->getUser() );
+		$meta = $this->con()->user_metas->for( $this->getUser() );
 
 		$reg = $meta->sms_registration;
 		$reg[ 'code' ] = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
 		$meta->sms_registration = $reg;
 
 		( new SendSms() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->send2FA( $this->getUser(), $meta->sms_registration[ 'code' ] );
 	}
 
 	public function postSuccessActions() {
 		parent::postSuccessActions();
-		$meta = $this->getCon()->user_metas->for( $this->getUser() );
+		$meta = $this->con()->user_metas->for( $this->getUser() );
 		$reg = $meta->sms_registration;
 		unset( $reg[ 'code' ] );
 		$meta->sms_registration = $reg;
@@ -120,7 +120,7 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		$meta = $this->getCon()->user_metas->for( $this->getUser() );
+		$meta = $this->con()->user_metas->for( $this->getUser() );
 		return !empty( $meta->sms_registration[ 'code' ] )
 			   && $meta->sms_registration[ 'code' ] === strtoupper( $otp );
 	}
@@ -147,19 +147,19 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	public function removeFromProfile() {
-		$this->getCon()->user_metas->for( $this->getUser() )->sms_registration = [];
+		$this->con()->user_metas->for( $this->getUser() )->sms_registration = [];
 		parent::removeFromProfile();
 	}
 
 	protected function getUserProfileFormRenderData() :array {
 		$user = $this->getUser();
 		$countries = ( new GetAvailableCountries() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->run();
 
 		$validatedNumber = '';
 		if ( $this->hasValidatedProfile() ) {
-			$smsReg = $this->getCon()->user_metas->for( $user )->sms_registration;
+			$smsReg = $this->con()->user_metas->for( $user )->sms_registration;
 			$validatedNumber = sprintf( '[%s] (+%s) %s',
 				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
 		}
@@ -178,7 +178,7 @@ class Sms extends AbstractShieldProvider {
 					'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
 													 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
 					'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
+						$this->con()->getHumanName() ),
 					'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
@@ -190,9 +190,7 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledSmsAuth();
+		return $this->getOptions()->isEnabledSmsAuth();
 	}
 
 	public function isProfileActive() :bool {

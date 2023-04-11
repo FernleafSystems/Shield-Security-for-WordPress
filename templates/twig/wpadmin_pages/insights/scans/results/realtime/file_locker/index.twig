@@ -1,3 +1,5 @@
+{% import '/common/macros.twig' as icwp_macros %}
+
 <div class="row insights_widget" id="SectionScanResultsFileLocker">
 	<div class="col">
 		<div class="card card-scan_results">
@@ -5,9 +7,19 @@
 			<div class="card-body">
 
 				{% if flags.is_restricted %}
+
+					<div class="row">
+						<div class="col mt-4 mb-2">
+							<h6 class="text-center">
+								{{ icwp_macros.svg(imgs.svgs.video) }}
+								<a href="#" class="option-video" data-vimeoid="815602380">What is the FileLocker feature</a>?
+							</h6>
+						</div>
+					</div>
+
 					<div class="row">
 						<div class="col">
-							<div class="alert alert-warning m-0">
+							<div class="alert alert-warning my-3">
 								<h6 class="alert-heading">{{ strings.not_available }}</h6>
 								<p class="mb-0">
 									<a href="{{ hrefs.go_pro }}" target="_blank" class="alert-link"
@@ -16,6 +28,7 @@
 							</div>
 						</div>
 					</div>
+
 				{% else %}
 					{% if flags.is_enabled %}
 						<div class="col mt-3 mb-3">
@@ -43,15 +56,26 @@
 							</div>
 						</div>
 					{% else %}
+
+						<div class="row">
+							<div class="col mt-4 mb-2">
+								<h6 class="text-center">
+									{{ icwp_macros.svg(imgs.svgs.video) }}
+									<a href="#" class="option-video" data-vimeoid="815602380">What is the FileLocker feature</a>?
+								</h6>
+							</div>
+						</div>
+
 						<div class="row">
 							<div class="col">
-								<div class="alert alert-success m-0">
+								<div class="alert alert-success my-3">
 									<h6 class="alert-heading">{{ strings.not_enabled }}</h6>
 									<p class="m-0"><a class="alert-link" href="{{ hrefs.please_enable }}"
 										>{{ strings.please_enable }}</a></p>
 								</div>
 							</div>
 						</div>
+
 					{% endif %}
 				{% endif %}
 			</div>

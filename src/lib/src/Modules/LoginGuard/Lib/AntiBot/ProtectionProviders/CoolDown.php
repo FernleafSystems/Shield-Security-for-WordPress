@@ -13,7 +13,7 @@ class CoolDown extends BaseProtectionProvider {
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
 			// And finally return a WP_Error which will be reflected back to the user.
-			$cooldown = ( new CooldownFlagFile() )->setMod( $this->getMod() );
+			$cooldown = new CooldownFlagFile();
 			if ( $cooldown->isWithinCooldownPeriod() ) {
 				$error = __( "Request Cooldown in effect.", 'wp-simple-firewall' ).' '
 						 .sprintf(

@@ -36,8 +36,9 @@ class Info extends Base {
 					'malware_status_of'     => __( 'Malware status of this file is currently', 'wp-simple-firewall' ),
 					'malai_status'          => $this->getMalaiStatus(),
 					'malai_status_notes'    => [
-						__( "'False Positive' means the code looks like malware, but it isn't." ),
-						__( "'Predicted' means the malware status has only been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet)." ),
+						__( "[Known] means that the code has been reviewed and is known and confirmed to be either clean or malware." ),
+						__( "[False Positive] means the code looks like malware, but it's actually clean'." ),
+						__( "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet)." ),
 					],
 					'file_status'           => sprintf( '%s: %s',
 						__( 'File Status', 'wp-simple-firewall' ),

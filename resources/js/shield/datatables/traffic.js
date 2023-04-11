@@ -99,7 +99,7 @@
 			this.$table = this.$el.DataTable(
 				$.extend( base.options.datatables_init,
 					{
-						dom: 'BPfrptip',
+						dom: 'PrBpftip',
 						serverSide: true,
 						searchDelay: 600,
 						ajax: function ( data, callback, settings ) {
@@ -144,7 +144,7 @@
 							],
 							dom: {
 								button: {
-									className: 'btn'
+									className: 'btn btn-sm'
 								}
 							}
 						},

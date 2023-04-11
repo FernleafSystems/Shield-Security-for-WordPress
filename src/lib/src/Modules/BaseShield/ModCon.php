@@ -2,16 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-class ModCon extends Base\ModCon {
+abstract class ModCon extends Base\ModCon {
 
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
-		$plugMod = $this->getCon()->getModule_Plugin();
-		/** @var Shield\Modules\Plugin\Options $plugOpts */
-		$plugOpts = $plugMod->getOptions();
+		/** @var Plugin\Options $plugOpts */
+		$plugOpts = $this->getCon()->getModule_Plugin()->getOptions();
 		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
 		$cfg->invisible = $cfg->theme === 'invisible';
 
