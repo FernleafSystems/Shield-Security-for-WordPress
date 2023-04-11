@@ -1,21 +1,37 @@
 ﻿
-th.message {
-	min-width: 500px !important;
-}
 th.date {
-	width: 140px !important;
-	max-width: 140px !important;
+	width: 130px !important;
+	min-width: 130px !important;
+	max-width: 130px !important;
 }
 td.meta,
 th.meta {
 	width: 40px !important;
 	max-width: 40px !important;
 }
+td.ip_linked a.ipv6 {
+	letter-spacing: -1px;
+}
+th.ip_linked,
+td.ip_linked {
+	max-width: 150px !important;
+}
 td.severity,
 th.severity {
 	text-align: center;
 	width: 40px !important;
 	max-width: 40px !important;
+}
+th.message,
+td.message {
+	min-width: 200px !important;
+	max-width: 400px !important;
+}
+#apto-PageMainBody-Inner td.message > p {
+	font-size: 12px;
+	overflow: auto;
+	max-height: 100px;
+	word-break: break-word;
 }
 td.message > .message-header {
 	font-weight: bolder;
@@ -49,12 +65,12 @@ td.severity .severity-icon > svg {
 }
 .shield-section-datatable div.dtsp-topRow.dtsp-bordered:hover {
 }
-.shield-section-datatable table.dataTable.table-striped>tbody>tr.selected>* {
+.shield-section-datatable table.dataTable.table-striped > tbody > tr.selected > * {
 	background-color: #bad3ba;
 	box-shadow: none;
 	color: inherit;
 }
-.shield-section-datatable table.dataTable.table-striped>tbody>tr.odd.selected>* {
+.shield-section-datatable table.dataTable.table-striped > tbody > tr.odd.selected > * {
 	background-color: #9db69d;
 }
 

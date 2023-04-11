@@ -135,7 +135,7 @@
 			this.$table = this.$el.DataTable(
 				$.extend( base.options.datatables_init,
 					{
-						dom: 'BPfrptip',
+						dom: 'PfrBptip',
 						serverSide: true,
 						searchDelay: 600,
 						ajax: function ( data, callback, settings ) {

@@ -16,8 +16,51 @@ class BuildSearchPanesData {
 				'day'   => $this->buildForDay(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
+//				'user'  => $this->buildForUser(),
 			]
 		];
+	}
+
+	private function buildForUser() :array {
+		$WPDB = Services::WpDb();
+		$results = $WPDB->selectCustom(
+			sprintf( "SELECT DISTINCT `log_meta`.`meta_value` as `uid`
+						FROM `%s` as `log_meta`
+						WHERE `log_meta`.`meta_key`='uid'
+				",
+				$this->mod()->getDbH_Meta()->getTableSchema()->table
+			)
+		);
+		$IDs = array_values( array_filter( array_map(
+			function ( $result ) {
+				return is_numeric( $result[ 'uid' ] ?? null ) ? (int)$result[ 'uid' ] : null;
+			},
+			is_array( $results ) ? $results : []
+		) ) );
+
+		$usersResult = $WPDB->selectCustom(
+			sprintf( "SELECT `user_login`, `user_email`, `ID` as `id`
+						FROM `%s` WHERE `id` IN (%s) limit 1000;",
+				$WPDB->getTable_Users(),
+				implode( ',', $IDs )
+			)
+		);
+
+		$users = [];
+		if ( is_array( $usersResult ) ) {
+			foreach ( $usersResult as $user ) {
+				$users[] = [
+					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
+					'value' => $user['id'],
+				];
+				$users[] = [
+					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
+					'value' => $user['id']+1,
+				];
+			}
+		}
+
+		return $users;
 	}
 
 	private function buildForDay() :array {
@@ -72,8 +115,8 @@ class BuildSearchPanesData {
 				',
 				$select,
 				$this->mod()->getDbH_Logs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
+				$this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
 		return is_array( $results ) ? $results : [];

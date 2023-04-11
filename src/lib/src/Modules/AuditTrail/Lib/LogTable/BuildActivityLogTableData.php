@@ -9,8 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-class BuildAuditTableData extends BaseBuildTableData {
+class BuildActivityLogTableData extends BaseBuildTableData {
 
 	use ModConsumer;
 
@@ -37,8 +38,8 @@ class BuildAuditTableData extends BaseBuildTableData {
 				$data = $this->log->getRawData();
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'ip_linked' ] = $this->getColumnContent_LinkedIP( (string)$this->log->ip );
-				$data[ 'event' ] = $this->getCon()->loadEventsService()->getEventName( $this->log->event_slug );
+				$data[ 'identity' ] = $this->getColumnContent_Identity();
+				$data[ 'event' ] = $this->con()->loadEventsService()->getEventName( $this->log->event_slug );
 				$this->log->created_at = max( $this->log->updated_at, $this->log->created_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
@@ -68,14 +69,20 @@ class BuildAuditTableData extends BaseBuildTableData {
 						break;
 					case 'event':
 						if ( count( $selected ) > 1 ) {
-							$wheres[] = sprintf( "log.event_slug IN ('%s')", implode( '`,`', $selected ) );
+							$wheres[] = sprintf( "`log`.`event_slug` IN ('%s')", implode( '`,`', $selected ) );
 						}
 						else {
-							$wheres[] = sprintf( "log.event_slug='%s'", array_pop( $selected ) );
+							$wheres[] = sprintf( "`log`.`event_slug`='%s'", array_pop( $selected ) );
 						}
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", array_pop( $selected ) );
+						break;
+					case 'user':
+						if ( count( $selected ) > 0 ) {
+							error_log( var_export( $selected, true ) );
+							$wheres[] = sprintf( "`meta`.`meta_key`='uid' AND `meta`.`meta_value` IN (%s)", implode( ',', array_values( $selected ) ) );
+						}
 						break;
 					default:
 						break;
@@ -118,7 +125,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 		return array_filter(
 			$loader->run(),
 			function ( $logRecord ) {
-				return $this->getCon()->loadEventsService()->eventExists( $logRecord->event_slug );
+				return $this->con()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}
 		);
 	}
@@ -131,20 +138,56 @@ class BuildAuditTableData extends BaseBuildTableData {
 		return $this->log->meta_data[ 'uid' ] ?? '-';
 	}
 
+	protected function getColumnContent_Identity() :string {
+		$ip = (string)$this->log->ip;
+		if ( !empty( $ip ) ) {
+			try {
+				$ipID = ( new IpID( $ip ) )->run();
+				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
+					$id = __( 'This Server', 'wp-simple-firewall' );
+				}
+				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
+					$id = __( 'Your Current IP', 'wp-simple-firewall' );
+				}
+				elseif ( $ipID[ 0 ] === IpID::UNKNOWN ) {
+					$id = __( 'Unidentified', 'wp-simple-firewall' );
+				}
+				else {
+					$id = sprintf( '<code>%s</code>', $ipID[ 1 ] );
+				}
+			}
+			catch ( \Exception $e ) {
+				$id = '';
+			}
+
+			$loggedIn = is_numeric( $this->getColumnContent_UserID() );
+			$content = implode( '', array_filter( [
+				sprintf( '%s',
+					$loggedIn ?
+						sprintf( '%s and authenticated as %s', $id, $this->getColumnContent_User() )
+						: sprintf( '%s and not authenticated', $id )
+				),
+				sprintf( '<h6 class="text-nowrap mb-0">%s</h6>',
+					$this->getIpAnalysisLink( $ip )
+				),
+			] ) );
+		}
+		else {
+			$content = 'No IP';
+		}
+		return $content;
+	}
+
 	private function getColumnContent_User() :string {
 		$content = '-';
 		$uid = $this->log->meta_data[ 'uid' ] ?? '';
 		if ( !empty( $uid ) ) {
 			if ( is_numeric( $uid ) ) {
-				$user = Services::WpUsers()->getUserById( $uid );
-				if ( !empty( $user ) ) {
-					$content = sprintf( '<a href="%s" target="_blank">%s</a>',
-						Services::WpUsers()->getAdminUrl_ProfileEdit( $user ),
-						$user->user_login );
-				}
-				else {
-					$content = sprintf( 'Unavailable (ID:%s)', $uid );
-				}
+				$WPU = Services::WpUsers();
+				$user = $WPU->getUserById( $uid );
+				$content = empty( $user ) ?
+					sprintf( 'Unavailable (ID:%s)', $uid ) :
+					sprintf( '<a href="%s" target="_blank">%s</a>', $WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 			}
 			else {
 				$content = $uid === 'cron' ? 'WP Cron' : 'WP-CLI';
@@ -154,10 +197,11 @@ class BuildAuditTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Message() :string {
-		$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log );
-		return sprintf( '<span class="message-header">%s</span><textarea readonly rows="%s">%s</textarea>',
-			$this->getCon()->loadEventsService()->getEventName( $this->log->event_slug ),
-			count( $msg ) + 1, sanitize_textarea_field( implode( "\n", $msg ) ) );
+		$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
+		return sprintf( '<span class="message-header">%s</span><p class="m-0">%s</p>',
+			$this->con()->loadEventsService()->getEventName( $this->log->event_slug ),
+			sanitize_textarea_field( implode( "<br/>", $msg ) )
+		);
 	}
 
 	private function getColumnContent_Meta() :string {
@@ -166,13 +210,13 @@ class BuildAuditTableData extends BaseBuildTableData {
 			' data-toggle="popover"'.
 			' data-rid="%s">%s</button>', $this->log->rid,
 			sprintf( '<span class="meta-icon">%s</span>',
-				$this->getCon()->svgs->raw( 'tags.svg' )
+				$this->con()->svgs->raw( 'tags.svg' )
 			)
 		);
 	}
 
 	private function getColumnContent_Level() :string {
-		return $this->getCon()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ];
+		return $this->con()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ];
 	}
 
 	private function getColumnContent_SeverityIcon() :string {
@@ -195,7 +239,7 @@ class BuildAuditTableData extends BaseBuildTableData {
 							],
 						][ $level ];
 		return sprintf( '<span class="severity-%s severity-icon">%s</span>', $level,
-			$this->getCon()->svgs->raw( $levelDetails[ 'icon' ] )
+			$this->con()->svgs->raw( $levelDetails[ 'icon' ] )
 		);
 	}
 }

@@ -46,9 +46,7 @@ class FileDownload extends BaseAction {
 			case 'db_log':
 				$fileDetails = [
 					'name'    => sprintf( 'log_file-%s.json', date( 'Ymd_His' ) ),
-					'content' => ( new GetLogFileContent() )
-						->setMod( $con->getModule_AuditTrail() )
-						->run()
+					'content' => ( new GetLogFileContent() )->run()
 				];
 				break;
 

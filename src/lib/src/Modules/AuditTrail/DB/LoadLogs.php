@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -71,8 +70,7 @@ class LoadLogs extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	private function selectRaw() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$selectFields = [
 			'log.id',
@@ -107,12 +105,10 @@ class LoadLogs extends DynPropertiesClass {
 	}
 
 	public function countAll() :int {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
 		return (int)Services::WpDb()->getVar(
 			sprintf( $this->getRawQuery( false ),
 				'COUNT(*)',
-				$mod->getDbH_Logs()->getTableSchema()->table,
+				$this->mod()->getDbH_Logs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),

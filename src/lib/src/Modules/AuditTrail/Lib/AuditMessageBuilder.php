@@ -8,14 +8,14 @@ use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
 
 class AuditMessageBuilder {
 
-	public static function BuildFromLogRecord( LogRecord $log ) :array {
-		return explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [] ) );
+	public static function BuildFromLogRecord( LogRecord $log, string $logSeparator = "\n" ) :array {
+		return explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [], $logSeparator ) );
 	}
 
-	public static function Build( string $event, array $substitutions = [] ) :string {
+	public static function Build( string $event, array $substitutions = [], string $logSeparator = "\n" ) :string {
 		$srvEvents = get_plugin()->getController()->loadEventsService();
 
-		$raw = implode( "\n", $srvEvents->getEventAuditStrings( $event ) );
+		$raw = implode( $logSeparator, $srvEvents->getEventAuditStrings( $event ) );
 
 		$stringSubs = [];
 		foreach ( $substitutions as $subKey => $subValue ) {
@@ -26,7 +26,7 @@ class AuditMessageBuilder {
 
 		$auditCount = (int)( $substitutions[ 'audit_count' ] ?? 1 );
 		if ( $srvEvents->getEventDef( $event )[ 'audit_countable' ] && $auditCount > 1 ) {
-			$log .= "\n".sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
+			$log .= $logSeparator.sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $auditCount );
 		}
 
 		return $log;

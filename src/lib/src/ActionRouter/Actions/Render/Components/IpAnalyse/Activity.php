@@ -13,9 +13,7 @@ class Activity extends Base {
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();
-		$logLoader = ( new LoadLogs() )
-			->setMod( $this->getCon()->getModule_AuditTrail() )
-			->setIP( $this->action_data[ 'ip' ] );
+		$logLoader = ( new LoadLogs() )->setIP( $this->action_data[ 'ip' ] );
 		$logLoader->limit = 100;
 
 		$logs = [];
