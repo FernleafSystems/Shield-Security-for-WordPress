@@ -405,7 +405,7 @@ table.odp-table.scan-table td.column-path code {
 	margin-bottom: 0;
 }
 #navbar-bannerlogo {
-	height: 40px;
+	width: 100%;
 	display: inline-block;
 	background-repeat: no-repeat;
 }

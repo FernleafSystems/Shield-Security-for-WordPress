@@ -32,9 +32,11 @@ th.meta {
 	width: 40px !important;
 	max-width: 40px !important;
 }
-td.ip_linked a.ipv6 {
+td.identity a.ipv6 {
 	letter-spacing: -1px;
 }
+th.identity,
+td.identity,
 th.ip_linked,
 td.ip_linked {
 	max-width: 150px !important;

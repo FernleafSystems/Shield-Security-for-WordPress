@@ -17,6 +17,7 @@
             {% if flags.show_sidebar_nav|default(true) %}
 							<div id="apto-PageMainSide" class="col-2 col-lg-1">
 
+								{% include '/wpadmin_pages/components/page/logo_sidebar.twig' %}
 								{% include '/wpadmin_pages/components/search/super_search.twig' %}
 
 								{% block page_main_side %}
@@ -26,7 +27,7 @@
 						{% endif %}
 
 						<div id="apto-PageMainBody"
-						     class="{% if flags.show_sidebar_nav|default(true) %}col-6 col-sm-8 col-md-9 col-xl-10{% else %}col-12{% endif %}"
+						     class="mt-2 {% if flags.show_sidebar_nav|default(true) %}col-6 col-sm-8 col-md-9 col-xl-10{% else %}col-12{% endif %}"
 						>
 							<div class="row row-cols-1">
 								<div class="col" id="apto-PageMainBody-Inner">

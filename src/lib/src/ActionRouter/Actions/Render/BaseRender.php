@@ -195,6 +195,8 @@ abstract class BaseRender extends BaseAction {
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
+
+				'facebook_group' => 'https://shsec.io/pluginshieldsecuritygroupfb',
 			],
 			'imgs'    => [
 				'svgs'           => [
@@ -203,12 +205,16 @@ abstract class BaseRender extends BaseAction {
 					'helpdesk'    => $con->svgs->raw( 'life-preserver.svg' ),
 					'ignore'      => $con->svgs->raw( 'eye-slash-fill.svg' ),
 					'info_square' => $con->svgs->raw( 'info-square.svg' ),
-					'wordpress'   => $con->svgs->raw( 'wordpress.svg' ),
-					'video'       => $con->svgs->raw( 'youtube.svg' ),
 					'megaphone'   => $con->svgs->raw( 'megaphone.svg' ),
+					'video'       => $con->svgs->raw( 'youtube.svg' ),
 					'search'      => $con->svgs->raw( 'search.svg' ),
 					'settings'    => $con->svgs->raw( 'gear.svg' ),
+					'email'       => $con->svgs->raw( 'envelope-fill.svg' ),
 					'triangle'    => $con->svgs->raw( 'triangle-fill.svg' ),
+					'home'        => $con->svgs->raw( 'house-door.svg' ),
+					'facebook'    => $con->svgs->raw( 'facebook.svg' ),
+					'twitter'     => $con->svgs->raw( 'twitter.svg' ),
+					'wordpress'   => $con->svgs->raw( 'wordpress.svg' ),
 				],
 				'favicon'        => $urlBuilder->forImage( 'pluginlogo_24x24.png' ),
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
