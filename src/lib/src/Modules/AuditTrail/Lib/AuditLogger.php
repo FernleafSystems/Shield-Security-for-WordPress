@@ -46,7 +46,7 @@ class AuditLogger extends EventsListener {
 			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
 				$this->getLogger()->log(
 					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
-					AuditMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
+					ActivityLogMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
 					$auditLog
 				);
 			}

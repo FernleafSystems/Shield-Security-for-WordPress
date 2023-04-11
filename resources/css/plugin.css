@@ -219,14 +219,6 @@ div.dtsp-topRow.dtsp-bordered.dtsp-bordered,
 div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
 	border: 1px solid transparent;
 }
-
-.shield-section-datatable div.dtsp-panesContainer div.dtsp-titleRow > button {
-	font-size: 12px;
-	padding: 5px;
-}
-.shield-section-datatable div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane {
-	margin-top: 5px !important;
-}
 /** INSIGHTS **/
 /* TABLES */
 #odp-PageContainer .card {

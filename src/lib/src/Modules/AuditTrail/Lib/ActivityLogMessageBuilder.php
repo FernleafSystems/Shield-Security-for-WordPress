@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 
 use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
 
-class AuditMessageBuilder {
+class ActivityLogMessageBuilder {
 
 	public static function BuildFromLogRecord( LogRecord $log, string $logSeparator = "\n" ) :array {
 		return explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [], $logSeparator ) );

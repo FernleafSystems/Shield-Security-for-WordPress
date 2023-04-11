@@ -1,4 +1,27 @@
-﻿
+﻿.shield-section-datatable .dtsp-panesContainer {
+	margin-bottom: 3px;
+}
+.shield-section-datatable div.dtsp-panesContainer div.dtsp-title {
+	padding: 6px;
+}
+.shield-section-datatable div.dtsp-panesContainer div.dtsp-titleRow {
+	display: none;
+}
+.shield-section-datatable div.dtsp-panesContainer div.dtsp-titleRow > button {
+	font-size: 12px;
+	padding: 5px;
+}
+.shield-section-datatable div.dtsp-panesContainer div.dtsp-searchPanes div.dtsp-searchPane {
+	margin-top: 0 !important;
+}
+.shield-section-datatable div.dataTables_paginate {
+	float: right;
+}
+.shield-section-datatable div.dataTables_filter {
+	text-align: right;
+	display: block;
+	clear: both;
+}
 th.date {
 	width: 130px !important;
 	min-width: 130px !important;
@@ -15,6 +38,10 @@ td.ip_linked a.ipv6 {
 th.ip_linked,
 td.ip_linked {
 	max-width: 150px !important;
+}
+.shield-section-datatable th.severity {
+	padding: 0.5rem 0.2rem;
+	text-align: center;
 }
 td.severity,
 th.severity {

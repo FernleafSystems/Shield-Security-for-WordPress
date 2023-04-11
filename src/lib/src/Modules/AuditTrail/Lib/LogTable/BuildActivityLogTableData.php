@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -197,7 +197,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Message() :string {
-		$msg = AuditMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
+		$msg = ActivityLogMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
 		return sprintf( '<span class="message-header">%s</span><p class="m-0">%s</p>',
 			$this->con()->loadEventsService()->getEventName( $this->log->event_slug ),
 			sanitize_textarea_field( implode( "<br/>", $msg ) )
