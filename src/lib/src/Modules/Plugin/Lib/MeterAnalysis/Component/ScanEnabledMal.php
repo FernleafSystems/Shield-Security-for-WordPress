@@ -6,6 +6,7 @@ class ScanEnabledMal extends ScanEnabledBase {
 
 	use Traits\OptConfigBased;
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'scan_enabled_mal';
 	public const WEIGHT = 4;
 

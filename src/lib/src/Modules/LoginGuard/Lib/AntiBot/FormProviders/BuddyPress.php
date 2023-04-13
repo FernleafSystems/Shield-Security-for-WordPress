@@ -10,7 +10,7 @@ class BuddyPress extends BaseFormProvider {
 	}
 
 	/**
-	 * @use die()
+	 * @uses \die()
 	 */
 	public function checkRegister() {
 		$this->checkThenDie();

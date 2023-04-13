@@ -22,16 +22,6 @@ abstract class MeterBase {
 		return [];
 	}
 
-	public function buildMeter() :array {
-		return $this->postProcessMeter( [
-			'title'       => $this->title(),
-			'subtitle'    => $this->subtitle(),
-			'warning'     => $this->warning(),
-			'description' => $this->description(),
-			'components'  => $this->buildComponents(),
-		] );
-	}
-
 	public function warning() :array {
 		$con = $this->getCon();
 		$pluginMod = $con->getModule_Plugin();
@@ -59,10 +49,20 @@ abstract class MeterBase {
 	}
 
 	public function buildComponents() :array {
+		$prefs = $this->con()->getModule_Plugin()->getOptions()->getOpt( 'sec_overview_prefs' );
+		$viewAsShieldPro = $this->con()->isPremiumActive() || ( $prefs[ 'view_as' ] ?? '' ) === 'pro';
+
 		$components = [];
 
 		$builder = new Components();
-		foreach ( array_intersect( array_filter( $this->getComponents() ), $builder::COMPONENTS ) as $class ) {
+		$componentClasses = array_filter(
+			array_intersect( $this->getComponents(), $builder::COMPONENTS ),
+			function ( $componentClass ) use ( $viewAsShieldPro ) {
+				return $viewAsShieldPro || !$componentClass::PRO_ONLY;
+			}
+		);
+
+		foreach ( $componentClasses as $class ) {
 			try {
 				$built = $builder->buildComponent( $class );
 				$components[ $built[ 'slug' ] ] = $built;
@@ -73,6 +73,9 @@ abstract class MeterBase {
 		return $components;
 	}
 
+	/**
+	 * @return Plugin\Lib\MeterAnalysis\Component\Base[]|string[]
+	 */
 	protected function getComponents() :array {
 		return [];
 	}

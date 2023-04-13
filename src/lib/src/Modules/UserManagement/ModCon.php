@@ -8,8 +8,6 @@ class ModCon extends BaseShield\ModCon {
 
 	public const SLUG = 'user_management';
 
-	private $userSuspensionController;
-
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

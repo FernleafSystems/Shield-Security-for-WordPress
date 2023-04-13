@@ -18,7 +18,7 @@ class ProgressMeters extends BaseRender {
 		$componentBuilder = new Handler();
 
 		$meters = [];
-		$AR = $this->getCon()->action_router;
+		$AR = $this->con()->action_router;
 		foreach ( $componentBuilder->getAllMeters() as $meterSlug => $meter ) {
 			if ( !in_array( $meterSlug, [ MeterSummary::SLUG, MeterOverallConfig::SLUG ] ) ) {
 				$meters[ $meterSlug ] = $AR->render( MeterCard::SLUG, [

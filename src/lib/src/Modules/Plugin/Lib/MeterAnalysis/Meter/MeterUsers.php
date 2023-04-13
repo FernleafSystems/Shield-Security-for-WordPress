@@ -43,10 +43,9 @@ class MeterUsers extends MeterBase {
 			Component\UserPasswordPwned::class,
 			Component\UserPasswordStrength::class,
 			Component\HttpHeaders::class,
-			Component\PluginBadge::class,
 		];
 		if ( !$this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-			$components[] = 'plugin_badge';
+			$components[] = Component\PluginBadge::class;
 		}
 		return $components;
 	}

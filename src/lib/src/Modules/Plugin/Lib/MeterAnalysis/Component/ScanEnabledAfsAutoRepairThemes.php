@@ -8,6 +8,7 @@ class ScanEnabledAfsAutoRepairThemes extends Base {
 
 	use Traits\OptConfigBased;
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'scan_enabled_afs_autorepair_themes';
 	public const WEIGHT = 2;
 

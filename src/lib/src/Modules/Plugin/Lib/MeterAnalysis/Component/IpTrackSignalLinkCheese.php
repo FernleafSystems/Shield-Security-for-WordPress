@@ -4,8 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class IpTrackSignalLinkCheese extends IpTrackSignalBase {
 
-	protected const SIGNAL_KEY = 'track_linkcheese';
+	public const PRO_ONLY = true;
 	public const WEIGHT = 2;
+	protected const SIGNAL_KEY = 'track_linkcheese';
 
 	public function title() :string {
 		return sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Link-Cheese', 'wp-simple-firewall' ) );

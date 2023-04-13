@@ -396,49 +396,7 @@ abstract class BaseRender extends BaseAction {
 				__( 'IP addresses', 'wp-simple-firewall' ),
 				__( 'Help docs & resources', 'wp-simple-firewall' ),
 			],
-			'top_page_warnings'        => $this->buildTopPageWarnings(),
 		];
-	}
-
-	protected function buildTopPageWarnings() :array {
-		$con = $this->getCon();
-		$thisReq = $con->this_req;
-		$warnings = [];
-
-		$ipStatus = new IpRuleStatus( $thisReq->ip );
-		if ( $ipStatus->isBypass() ) {
-			$warnings[] = [
-				'type' => 'warning', // Boostrap,
-				'text' => [
-					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
-				]
-			];
-		}
-		elseif ( $ipStatus->isBlocked() ) {
-			$warnings[] = [
-				'type' => 'danger', // Boostrap,
-				'text' => [
-					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
-				]
-			];
-		}
-
-		try {
-			( new Monolog() )->assess();
-		}
-		catch ( \Exception $e ) {
-			$warnings[] = [
-				'type' => 'warning', // Boostrap,
-				'text' => [
-					__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
-					$e->getMessage(),
-				]
-			];
-		}
-
-		return $warnings;
 	}
 
 	protected function getTwigEnvironmentVars() :array {

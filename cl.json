@@ -1,7 +1,7 @@
 {
   "18.0": {
     "version":     "18.0",
-    "released_at": 1681228000,
+    "released_at": 1681725600,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease180",
       "upgrade": "https://shsec.io/shieldupgradeguide180"
@@ -33,6 +33,14 @@
         "title":       "Added Extra Protection To Security Admin",
         "description": [
           "We've added some protection against adjustments to the WP Default User Role option within the Security Admin system."
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Added Extra Protection To Security Admin",
+        "description": [
+          "Added the option to view your Security Overview as either ShieldFREE or ShieldPRO."
         ]
       },
       {

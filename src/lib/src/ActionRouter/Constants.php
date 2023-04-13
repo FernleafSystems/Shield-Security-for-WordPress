@@ -88,6 +88,7 @@ class Constants {
 		Actions\ScansStart::class,
 		Actions\ScansFileLockerAction::class,
 		Actions\ScanResultsTableAction::class,
+		Actions\SecurityOverviewViewAs::class,
 		Actions\TrafficLogTableAction::class,
 		Actions\UserSessionDelete::class,
 		Actions\UserSessionsTableRender::class,

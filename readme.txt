@@ -8,7 +8,7 @@ Requires at least: 4.7
 Requires PHP: 7.2
 Recommended PHP: 7.4
 Tested up to: 6.2
-Stable tag: 18.0.1
+Stable tag: 18.0.2
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 
@@ -20,6 +20,7 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security intelligence to block bad bots.
 * **Instant Bad Bot Blocking with [our exclusive CrowdSec integration](https://shsec.io/l5)**
 * Easy To Understand Dashboard points you to quick wins and areas you can quickly improve
+* [ShieldPRO] [Artificial Intelligence based PHP Malware Detection](https://shsec.io/lf)
 * Block Bots On Important Forms:
     * Login Forms
     * User Registration Forms
