@@ -30,29 +30,24 @@ class Build extends BaseAction {
 		}
 
 		if ( !empty( $hashes ) ) {
-			$store = ( new CreateNew() )
+			( new CreateNew() )
 				->setAsset( $asset )
-				->run();
-			$store->setSnapData( $hashes )
-				  ->setSnapMeta( $meta )
-				  ->save();
+				->run()
+				->setSnapData( $hashes )
+				->setSnapMeta( $meta )
+				->save();
 		}
 	}
 
 	private function generateMeta() :array {
 		$asset = $this->getAsset();
-		$meta = [
+		return [
 			'ts'           => Services::Request()->ts(),
 			'snap_version' => $this->getCon()->getVersion(),
 			'cs_hashes_at' => 0,
+			'unique_id'    => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
+			'name'         => $asset->asset_type === 'plugin' ? $asset->Name : $asset->wp_theme->get( 'Name' ),
+			'version'      => $asset->version,
 		];
-		$meta[ 'unique_id' ] = $asset->asset_type === 'plugin' ?
-			$asset->file
-			: $asset->stylesheet;
-		$meta[ 'name' ] = $asset->asset_type === 'plugin' ?
-			$asset->Name
-			: $asset->wp_theme->get( 'Name' );
-		$meta[ 'version' ] = $asset->version;
-		return $meta;
 	}
 }

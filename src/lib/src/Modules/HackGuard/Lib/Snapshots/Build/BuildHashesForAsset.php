@@ -19,7 +19,7 @@ class BuildHashesForAsset {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return string[]
 	 */
-	public function build( $asset ) {
+	public function build( $asset ) :array {
 		return ( new BuildHashesFromDir() )
 			->setHashAlgo( $this->getHashAlgo() )
 			->setDepth( 0 )
@@ -27,19 +27,15 @@ class BuildHashesForAsset {
 			->build( $asset->getInstallDir() );
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getHashAlgo() {
+	public function getHashAlgo() :string {
 		return empty( $this->hashAlgo ) ? 'md5' : $this->hashAlgo;
 	}
 
 	/**
-	 * @param string $sHashAlgo
 	 * @return static
 	 */
-	public function setHashAlgo( $sHashAlgo ) {
-		$this->hashAlgo = $sHashAlgo;
+	public function setHashAlgo( string $hashAlgo ) {
+		$this->hashAlgo = $hashAlgo;
 		return $this;
 	}
 }

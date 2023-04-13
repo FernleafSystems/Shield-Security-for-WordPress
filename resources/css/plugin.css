@@ -1183,3 +1183,6 @@ td.status_file_size  {
 		left: 100%;
 	}
 }
+.update-nag {
+	display: none;
+}

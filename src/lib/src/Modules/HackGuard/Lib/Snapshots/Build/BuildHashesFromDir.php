@@ -9,34 +9,32 @@ class BuildHashesFromDir {
 	/**
 	 * @var int
 	 */
-	protected $nDepth = 0;
+	protected $depth = 0;
 
 	/**
 	 * @var string[]
 	 */
-	protected $aFileExts = [];
+	protected $fileExtensions = [];
 
 	/**
 	 * @var string
 	 */
-	private $sHashAlgo = 'md5';
+	private $hashAlgo = 'md5';
 
 	/**
-	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param string $dir
+	 * All file keys are their normalised file paths, stripped of ABSPATH.
 	 * @return string[]
 	 */
-	public function build( $dir, bool $binary = false ) {
+	public function build( string $dir, bool $binary = false ) :array {
 		$snaps = [];
 		try {
 			$dir = wp_normalize_path( $dir );
-			$sAlgo = $this->getHashAlgo();
-			$oDirIt = StandardDirectoryIterator::create( $dir, $this->nDepth, $this->aFileExts );
-			foreach ( $oDirIt as $file ) {
+			$algo = $this->getHashAlgo();
+			foreach ( StandardDirectoryIterator::create( $dir, $this->depth, $this->fileExtensions ) as $file ) {
 				/** @var \SplFileInfo $file */
 				$fullPath = $file->getPathname();
 				$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
-				$snaps[ strtolower( $key ) ] = hash_file( $sAlgo, $fullPath, $binary );
+				$snaps[ strtolower( $key ) ] = hash_file( $algo, $fullPath, $binary );
 			}
 		}
 		catch ( \Exception $e ) {
@@ -44,37 +42,32 @@ class BuildHashesFromDir {
 		return $snaps;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getHashAlgo() {
-		return empty( $this->sHashAlgo ) ? 'md5' : $this->sHashAlgo;
+	public function getHashAlgo() :string {
+		return empty( $this->hashAlgo ) ? 'md5' : $this->hashAlgo;
 	}
 
 	/**
-	 * @param int $nDepth
 	 * @return $this
 	 */
-	public function setDepth( $nDepth ) {
-		$this->nDepth = max( 0, (int)$nDepth );
+	public function setDepth( int $depth ) {
+		$this->depth = max( 0, $depth );
 		return $this;
 	}
 
 	/**
-	 * @param string[] $aExts
+	 * @param string[] $exts
 	 * @return $this
 	 */
-	public function setFileExts( $aExts ) {
-		$this->aFileExts = $aExts;
+	public function setFileExts( array $exts ) {
+		$this->fileExtensions = $exts;
 		return $this;
 	}
 
 	/**
-	 * @param string $sHashAlgo
 	 * @return static
 	 */
-	public function setHashAlgo( $sHashAlgo ) {
-		$this->sHashAlgo = $sHashAlgo;
+	public function setHashAlgo( string $hashAlgo ) {
+		$this->hashAlgo = $hashAlgo;
 		return $this;
 	}
 }

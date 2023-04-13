@@ -121,8 +121,8 @@ class PageScansResults extends BasePluginAdminPage {
 				'review_scanner_config' => __( "Review Scanner Module configuration", 'wp-simple-firewall' ),
 			],
 			'vars'        => [
-				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
-				'sections'            => [
+				'initial_check' => $mod->getScanQueueController()->hasRunningScans(),
+				'sections'      => [
 					'plugins'   => [
 						'count' => $counter->countPluginFiles() + $vulnerableOrAbandonedPlugins,
 					],
