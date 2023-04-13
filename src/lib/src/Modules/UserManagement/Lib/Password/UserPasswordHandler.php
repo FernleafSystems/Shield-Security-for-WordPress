@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Password;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\{
-	Options,
+	ModConsumer,
 	Strings
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
@@ -14,8 +14,10 @@ use ZxcvbnPhp\Zxcvbn;
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
  */
-class UserPasswordHandler extends ExecOnceModConsumer {
+class UserPasswordHandler {
 
+	use ExecOnce;
+	use ModConsumer;
 	use WpLoginCapture;
 
 	protected function run() {
@@ -23,9 +25,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		$this->setupLoginCaptureHooks();
 		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
 
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isPasswordPoliciesEnabled() ) {
+		if ( $this->opts()->isPasswordPoliciesEnabled() ) {
 			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100 );
 			add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100 );
@@ -34,12 +34,9 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		$failed = false;
 
-		if ( $opts->isPasswordPoliciesEnabled() ) {
+		if ( $this->opts()->isPasswordPoliciesEnabled() ) {
 			$password = $this->getLoginPassword();
 			if ( Services::Request()->isPost() && !empty( $password ) ) {
 				try {
@@ -78,9 +75,8 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	}
 
 	private function processExpiredPassword() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isPassExpirationEnabled() ) {
+		$opts = $this->opts();
+		if ( $this->opts()->isPassExpirationEnabled() ) {
 			$startedAt = $this->getCon()->user_metas->current()->record->pass_started_at;
 			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
 				$this->getCon()->fireEvent( 'password_expired', [
@@ -88,17 +84,19 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 						'user_login' => Services::WpUsers()->getCurrentWpUsername()
 					]
 				] );
-				$this->redirectToResetPassword(
-					sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getPassExpireDays() )
-				);
+				if ( !Services::WpGeneral()->isAjax() ) {
+					$this->redirectToResetPassword(
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getPassExpireDays() )
+					);
+				}
 			}
 		}
 	}
 
 	private function processFailedCheckPassword() {
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 
-		$checkFailed = $this->getOptions()->isOpt( 'pass_force_existing', 'Y' )
+		$checkFailed = $this->opts()->isOpt( 'pass_force_existing', 'Y' )
 					   && $meta->pass_check_failed_at > 0;
 
 		if ( $checkFailed ) {
@@ -186,8 +184,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 	 * @throws Exceptions\PwnedApiFailedException
 	 */
 	private function applyPasswordChecks( string $password ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->getPassMinStrength() > 0 ) {
 			$this->testPasswordMeetsMinimumStrength( $password, $opts->getPassMinStrength() );
@@ -205,7 +202,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 
 		if ( $score < $min ) {
 			/** @var Strings $str */
-			$str = $this->getMod()->getStrings();
+			$str = $this->mod()->getStrings();
 			throw new Exceptions\PasswordTooWeakException(
 				sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 					$str->getPassStrengthName( $score ),
@@ -228,7 +225,7 @@ class UserPasswordHandler extends ExecOnceModConsumer {
 		$substrPasswordSHA1 = substr( $passwordSHA1, 0, 5 );
 
 		$success = $req->get(
-			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
+			sprintf( '%s/%s', $this->opts()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
 			]

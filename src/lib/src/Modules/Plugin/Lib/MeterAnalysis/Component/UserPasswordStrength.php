@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
 
 class UserPasswordStrength extends UserPasswordPoliciesBase {
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'user_pass_strength';
 
 	protected function getOptConfigKey() :string {

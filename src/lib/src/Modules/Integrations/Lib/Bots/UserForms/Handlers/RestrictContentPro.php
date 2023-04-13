@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 class RestrictContentPro extends Base {
 
 	protected function login() {
-		add_action( 'rcp_login_form_errors', [ $this, 'checkLogin' ] );
+		\add_action( 'rcp_login_form_errors', [ $this, 'checkLogin' ] );
 	}
 
 	protected function lostpassword() {
-		add_action( 'rcp_retrieve_password_form_errors', [ $this, 'checkLostPassword' ] );
+		\add_action( 'rcp_retrieve_password_form_errors', [ $this, 'checkLostPassword' ] );
 	}
 
 	public function checkLogin() {

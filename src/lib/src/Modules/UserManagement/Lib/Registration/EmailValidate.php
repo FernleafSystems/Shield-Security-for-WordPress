@@ -2,18 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
-class EmailValidate extends ExecOnceModConsumer {
+class EmailValidate {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	private $track;
 
 	protected function run() {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->isValidateEmailOnRegistration() ) {
+		if ( $this->opts()->isValidateEmailOnRegistration() ) {
 			add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
 		}
 	}
@@ -23,9 +24,9 @@ class EmailValidate extends ExecOnceModConsumer {
 	 * @return array
 	 */
 	public function validateNewUserEmail( $userData ) {
-		$email = $userData[ 'user_email' ];
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
+
+		$email = $userData[ 'user_email' ] ?? '';
 
 		if ( !is_array( $this->track ) ) {
 			$this->track = [];

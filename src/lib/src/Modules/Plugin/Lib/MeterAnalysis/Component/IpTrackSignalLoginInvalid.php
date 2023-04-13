@@ -4,8 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class IpTrackSignalLoginInvalid extends IpTrackSignalBase {
 
-	protected const SIGNAL_KEY = 'track_logininvalid';
+	public const PRO_ONLY = true;
 	public const WEIGHT = 6;
+	protected const SIGNAL_KEY = 'track_logininvalid';
 
 	public function title() :string {
 		return sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'Invalid Logins', 'wp-simple-firewall' ) );

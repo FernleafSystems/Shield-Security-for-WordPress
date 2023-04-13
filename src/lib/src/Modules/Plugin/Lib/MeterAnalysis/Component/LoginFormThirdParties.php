@@ -8,6 +8,7 @@ class LoginFormThirdParties extends Base {
 
 	use Traits\OptConfigBased;
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'login_forms_third_parties';
 
 	protected function getOptConfigKey() :string {

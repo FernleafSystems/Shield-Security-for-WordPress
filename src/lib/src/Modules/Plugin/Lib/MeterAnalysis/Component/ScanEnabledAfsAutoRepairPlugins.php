@@ -8,6 +8,7 @@ class ScanEnabledAfsAutoRepairPlugins extends Base {
 
 	use Traits\OptConfigBased;
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'scan_enabled_afs_autorepair_plugins';
 	public const WEIGHT = 3;
 

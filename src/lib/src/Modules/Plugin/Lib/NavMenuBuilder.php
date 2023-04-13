@@ -176,7 +176,7 @@ class NavMenuBuilder {
 					'href'          => $con->plugin_urls->modCfg( $module ),
 					// 'href'          => $this->getOffCanvasJavascriptLinkForModule( $module ),
 					'classes'       => array_filter( array_merge( $baseClasses, [
-						$module->isModOptEnabled() ? '' : 'text-warning text-strikethrough'
+						$module->isModOptEnabled() ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
 						'dynamic_page_load' => json_encode( [

@@ -2,10 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 
-abstract class Base extends ExecOnceModConsumer {
+abstract class Base {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	public const HOOK_PRIORITY = 1000; // so only authenticated user is notified of account state.
 
