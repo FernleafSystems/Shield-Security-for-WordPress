@@ -30,7 +30,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
-		return $this->securityAdminCon ?? $this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )->setMod( $this );
+		return $this->securityAdminCon ?? $this->securityAdminCon = new Lib\SecurityAdmin\SecurityAdminController();
 	}
 
 	public function runDailyCron() {

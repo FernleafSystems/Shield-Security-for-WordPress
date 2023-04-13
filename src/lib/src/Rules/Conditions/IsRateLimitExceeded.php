@@ -20,9 +20,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 
 	protected function execConditionCheck() :bool {
 		$ip = $this->getRequestIP();
-		$ip = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $ip, false );
+		$ip = ( new IPRecords() )->loadIP( $ip, false );
 		$now = Services::Request()->carbon();
 		/** @var Select $selector */
 		$selector = $this->getCon()

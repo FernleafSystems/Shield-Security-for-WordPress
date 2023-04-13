@@ -36,9 +36,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 					'ajax'       => [
 						'table_action' => ActionData::Build( IpRulesTableAction::class ),
 					],
-					'table_init' => ( new ForIpRules() )
-						->setMod( $this->getCon()->getModule_IPs() )
-						->buildRaw(),
+					'table_init' => ( new ForIpRules() )->buildRaw(),
 				] ),
 			]
 		];

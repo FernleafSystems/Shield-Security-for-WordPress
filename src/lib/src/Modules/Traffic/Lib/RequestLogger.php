@@ -38,8 +38,7 @@ class RequestLogger {
 	}
 
 	private function initLogger() {
-		$this->getLogger()
-			 ->pushHandler( ( new LogHandlers\LocalDbWriter() )->setMod( $this->getMod() ) );
+		$this->getLogger()->pushHandler( new LogHandlers\LocalDbWriter() );
 		$this->pushCustomHandlers();
 	}
 
@@ -55,7 +54,7 @@ class RequestLogger {
 
 	private function isRequestToBeLogged() :bool {
 		return !$this->getCon()->plugin_deleting
-			   && apply_filters( 'shield/is_log_traffic', $this->getOptions()->isTrafficLoggerEnabled()
+			   && apply_filters( 'shield/is_log_traffic', $this->opts()->isTrafficLoggerEnabled()
 														  && !$this->isCustomExcluded()
 														  && !$this->isRequestTypeExcluded() );
 	}
@@ -81,7 +80,7 @@ class RequestLogger {
 	private function isRequestTypeExcluded() :bool {
 		$srvProviders = Services::ServiceProviders();
 		$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-		$excl = $this->getOptions()->getReqTypeExclusions();
+		$excl = $this->opts()->getReqTypeExclusions();
 		$isLoggedIn = Services::WpUsers()->isUserLoggedIn();
 
 		$exclude = ( in_array( 'logged_in', $excl ) && $isLoggedIn )
@@ -103,7 +102,7 @@ class RequestLogger {
 		$path = $req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 
 		$exclude = false;
-		foreach ( $this->getOptions()->getCustomExclusions() as $excl ) {
+		foreach ( $this->opts()->getCustomExclusions() as $excl ) {
 			if ( stripos( $agent, $excl ) !== false || stripos( $path, $excl ) !== false ) {
 				$exclude = true;
 				break;

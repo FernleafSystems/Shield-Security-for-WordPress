@@ -42,8 +42,7 @@ class MetaRecords {
 		$record = $dbh->getRecord();
 		$record->user_id = $userID;
 		$record->ip_ref = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( (string)$this->getCon()->this_req->ip, true )
+			->loadIP( (string)$this->getCon()->this_req->ip )
 			->id;
 		return $insert->insert( $record );
 	}

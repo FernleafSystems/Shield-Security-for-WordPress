@@ -142,9 +142,7 @@ abstract class Base {
 	 * @return Scans\Base\Utilities\ItemActionHandler
 	 */
 	public function getItemActionHandler() {
-		return $this->newItemActionHandler()
-					->setMod( $this->mod() )
-					->setScanController( $this );
+		return $this->newItemActionHandler()->setScanController( $this );
 	}
 
 	/**

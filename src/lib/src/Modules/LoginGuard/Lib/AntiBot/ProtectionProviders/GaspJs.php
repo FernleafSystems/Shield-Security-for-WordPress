@@ -21,10 +21,8 @@ class GaspJs extends BaseProtectionProvider {
 			$enqueues[ Enqueue::JS ][] = 'shield/loginbot';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				/** @var LoginGuard\ModCon $mod */
-				$mod = $this->getMod();
-				/** @var LoginGuard\Options $opts */
-				$opts = $this->getOptions();
+				$mod = $this->mod();
+				$opts = $this->opts();
 
 				$localz[] = [
 					'shield/loginbot',
@@ -105,8 +103,6 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	protected function isFactorJsRequired() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return parent::isFactorJsRequired() || !empty( $opts->getAntiBotFormSelectors() );
+		return parent::isFactorJsRequired() || !empty( $this->opts()->getAntiBotFormSelectors() );
 	}
 }

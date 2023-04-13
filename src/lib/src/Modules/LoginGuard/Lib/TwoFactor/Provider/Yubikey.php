@@ -169,7 +169,7 @@ class Yubikey extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->getOptions()->isEnabledYubikey();
+		return $this->opts()->isEnabledYubikey();
 	}
 
 	protected function hasValidSecret() :bool {

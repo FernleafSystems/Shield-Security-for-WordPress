@@ -34,9 +34,7 @@ class Lookup {
 				throw new \Exception( 'Not a valid public IP address' );
 			}
 
-			$ipRecord = ( new IPRecords() )
-				->setMod( $this->getCon()->getModule_Data() )
-				->loadIP( $this->getIP(), false );
+			$ipRecord = ( new IPRecords() )->loadIP( $this->getIP(), false );
 
 			if ( is_null( $ipRecord->geo )
 				 || Services::Request()->carbon()->subMonth()->timestamp > ( $ipRecord->geo[ 'ts' ] ?? 0 ) ) {

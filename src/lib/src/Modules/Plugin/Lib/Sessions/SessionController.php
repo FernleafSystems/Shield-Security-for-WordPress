@@ -99,7 +99,6 @@ class SessionController extends ExecOnceModConsumer {
 							$userMeta = $con->user_metas->for( $WPUsers->getUserById( $userID ) );
 							if ( !empty( $userMeta ) ) {
 								$userMeta->record->ip_ref = ( new IPRecords() )
-									->setMod( $con->getModule_Data() )
 									->loadIP( $session[ 'ip' ] )
 									->id;
 							}

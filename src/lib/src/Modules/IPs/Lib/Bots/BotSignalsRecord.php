@@ -30,11 +30,7 @@ class BotSignalsRecord {
 		}
 
 		try {
-			return $select->filterByIP(
-				( new IPRecords() )
-					->setMod( $this->getCon()->getModule_Data() )
-					->loadIP( $this->getIP() )->id
-			)->query();
+			return $select->filterByIP( ( new IPRecords() )->loadIP( $this->getIP() )->id )->query();
 		}
 		catch ( \Exception $e ) {
 			return false;
@@ -77,9 +73,7 @@ class BotSignalsRecord {
 			if ( $createNew ) {
 				$r = new BotSignalRecord();
 				try {
-					$r->ip_ref = ( new IPRecords() )
-						->setMod( $this->getCon()->getModule_Data() )
-						->loadIP( $this->getIP() )->id;
+					$r->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
 				}
 				catch ( \Exception $e ) {
 					$r->ip_ref = -1;
@@ -141,23 +135,6 @@ class BotSignalsRecord {
 		$this->store( $r );
 
 		return $r;
-	}
-
-	/**
-	 * @return BotSignal\BotSignalRecord|null
-	 * @deprecated 17.1
-	 */
-	private function dbLoad() :?BotSignalRecord {
-		try {
-			$record = ( new LoadBotSignalRecords() )
-				->setIP( $this->getIP() )
-				->loadRecord();
-		}
-		catch ( \Exception $e ) {
-			$record = null;
-		}
-
-		return $record;
 	}
 
 	public function store( BotSignalRecord $record ) :bool {

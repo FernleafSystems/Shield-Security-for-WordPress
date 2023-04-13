@@ -68,13 +68,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @deprecated 18.0
-	 */
-	public function getMalConfidenceBoundary() :int {
-		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
-	}
-
-	/**
 	 * @return string[]
 	 */
 	public function getMalSignaturesSimple() :array {
@@ -137,14 +130,6 @@ class Options extends BaseShield\Options {
 
 	public function getScanFrequency() :int {
 		return (int)$this->getOpt( 'scan_frequency', 1 );
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 17.1
-	 */
-	public function getScanSlugs() :array {
-		return $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 	}
 
 	/**

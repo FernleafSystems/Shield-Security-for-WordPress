@@ -569,51 +569,6 @@ class Controller extends DynPropertiesClass {
 		return $IDs[ $url ];
 	}
 
-	/**
-	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
-	 * Certain plugins can modify the ID at different points in the load.
-	 * @return string - the unique, never-changing site install ID.
-	 * @deprecated 17.1
-	 */
-	public function getSiteInstallationId() {
-		$WP = Services::WpGeneral();
-		$optKey = $this->prefixOption( 'install_id' );
-
-		$mStoredID = $WP->getOption( $optKey );
-		if ( !empty( $mStoredID ) && is_string( $mStoredID ) && strlen( $mStoredID ) === 36 ) {
-			return $mStoredID; // It's using the new ID
-		}
-
-		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
-			$ID = $mStoredID[ 'id' ];
-			$update = true;
-		}
-		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
-			$ID = explode( ':', $mStoredID, 2 )[ 1 ];
-			$update = true;
-		}
-		else {
-			$ID = $mStoredID;
-			$update = false;
-		}
-
-		if ( empty( $ID ) || !is_string( $ID ) || ( strlen( $ID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $ID ) ) ) {
-			try {
-				$ID = \Ramsey\Uuid\Uuid::uuid4()->toString();
-			}
-			catch ( \Exception $e ) {
-				$ID = sha1( uniqid( $WP->getHomeUrl( '', true ), true ) );
-			}
-			$update = true;
-		}
-
-		if ( $update ) {
-			$WP->updateOption( $optKey, $ID );
-		}
-
-		return $ID;
-	}
-
 	public function onWpLoaded() {
 		$this->getInstallationID();
 		$this->getAdminNotices();
@@ -846,14 +801,6 @@ class Controller extends DynPropertiesClass {
 		if ( count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== count( $modConfigs ) ) {
 			throw new Exceptions\PluginConfigInvalidException( "Building and storing module configurations failed." );
 		}
-	}
-
-	/**
-	 * @return string|null
-	 * @deprecated 17.1
-	 */
-	public function getPluginSpec_Path( string $key ) {
-		return $this->cfg->paths[ $key ] ?? null;
 	}
 
 	/**
@@ -1111,23 +1058,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getModulesNamespace() :string {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
-	}
-
-	/**
-	 * @return Shield\Users\ShieldUserMeta
-	 * @deprecated 17.1
-	 */
-	public function getCurrentUserMeta() {
-		return $this->user_metas->current( Services::WpUsers()->getCurrentWpUser() );
-	}
-
-	/**
-	 * @param ?\WP_User $user
-	 * @return Shield\Users\ShieldUserMeta|null
-	 * @deprecated 17.1
-	 */
-	public function getUserMeta( $user ) :?ShieldUserMeta {
-		return $this->user_metas->for( $user );
 	}
 
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {

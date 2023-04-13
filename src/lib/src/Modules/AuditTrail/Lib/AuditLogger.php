@@ -85,9 +85,7 @@ class AuditLogger extends EventsListener {
 
 	public function isMonologLibrarySupported() :bool {
 		try {
-			( new Monolog() )
-				->setCon( $this->getCon() )
-				->assess();
+			( new Monolog() )->assess();
 			$supported = true;
 		}
 		catch ( \Exception $e ) {

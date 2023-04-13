@@ -114,7 +114,7 @@ class MfaController {
 	}
 
 	public function useLoginIntentPage() :bool {
-		return $this->getOptions()->isOpt( 'mfa_verify_page', 'custom_shield' );
+		return $this->opts()->isOpt( 'mfa_verify_page', 'custom_shield' );
 	}
 
 	public function getMfaProfilesCon() :MfaProfilesController {
@@ -131,23 +131,10 @@ class MfaController {
 	 */
 	public function getProviders() :array {
 		if ( !is_array( $this->providers ) ) {
-
 			$this->providers = [];
 			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
 				$this->providers[ $providerClass::ProviderSlug() ] = new $providerClass();
 			}
-
-			array_map(
-				function ( $provider ) {
-					if ( $provider instanceof Provider\AbstractShieldProvider ) {
-						if ( \method_exists( $provider, 'setMod' ) ) {
-							$provider->setMod( $this->getMod() );
-						}
-					}
-					return $provider;
-				},
-				$this->providers
-			);
 		}
 		return $this->providers;
 	}
@@ -273,7 +260,7 @@ class MfaController {
 		return array_filter(
 			is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			function ( $intent ) {
-				$opts = $this->getOptions();
+				$opts = $this->opts();
 
 				$active = false;
 				if ( is_array( $intent ) ) {

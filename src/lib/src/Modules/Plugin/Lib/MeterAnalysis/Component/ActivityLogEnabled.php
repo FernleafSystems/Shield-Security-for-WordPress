@@ -18,9 +18,7 @@ class ActivityLogEnabled extends Base {
 			/** @var Options $opts */
 			$opts = $mod->getOptions();
 
-			( new Monolog() )
-				->setCon( $this->getCon() )
-				->assess();
+			( new Monolog() )->assess();
 			$protected = $mod->isModOptEnabled() && $opts->isLogToDB();
 		}
 		catch ( \Exception $e ) {

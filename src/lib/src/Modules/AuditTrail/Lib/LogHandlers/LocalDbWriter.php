@@ -66,7 +66,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$modData = $this->getCon()->getModule_Data();
 
 		$ipRecordID = ( new IPRecords() )
-			->setMod( $modData )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
@@ -116,11 +115,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		$ipRecordID = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
 			->id;
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
 			->loadReq( $this->log[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
 			->id;
 

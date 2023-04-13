@@ -26,7 +26,7 @@ class SecurityAdminController {
 	}
 
 	protected function run() {
-		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ], 0 );
+		add_filter( $this->con()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ], 0 );
 		add_action( 'admin_init', function () {
 			$this->enqueueJS();
 		} );
@@ -93,10 +93,8 @@ class SecurityAdminController {
 	}
 
 	public function isEnabledSecAdmin() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $this->getMod()->isModOptEnabled()
-			   && $opts->hasSecurityPIN()
+		return $this->mod()->isModOptEnabled()
+			   && $this->opts()->hasSecurityPIN()
 			   && $this->getSecAdminTimeout() > 0;
 	}
 
@@ -105,8 +103,6 @@ class SecurityAdminController {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$opts = $this->getOptions();
-
 				$isSecAdmin = $this->getCon()->this_req->is_security_admin;
 				$localz[] = [
 					'shield/secadmin',
@@ -118,14 +114,14 @@ class SecurityAdminController {
 							'req_email_remove' => ActionData::Build( SecurityAdminRequestRemoveByEmail::class ),
 						],
 						'flags'   => [
-							'restrict_options' => !$isSecAdmin && $opts->isRestrictWpOptions(),
+							'restrict_options' => !$isSecAdmin && $this->opts()->isRestrictWpOptions(),
 							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin()
 												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
 							'confirm_disable'    => sprintf( __( "An confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
-								Obfuscate::Email( $this->getMod()->getPluginReportEmail() ) ),
+								Obfuscate::Email( $this->mod()->getPluginReportEmail() ) ),
 							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
 							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
 							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
@@ -140,7 +136,7 @@ class SecurityAdminController {
 						],
 						'vars'    => [
 							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
-							'wp_options_to_restrict' => $opts->getOptionsToRestrict(),
+							'wp_options_to_restrict' => $this->opts()->getOptionsToRestrict(),
 						],
 					]
 				];
@@ -152,7 +148,7 @@ class SecurityAdminController {
 	}
 
 	public function getSecAdminTimeout() :int {
-		return (int)$this->getOptions()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+		return (int)$this->opts()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
 	}
 
 	/**
@@ -181,11 +177,10 @@ class SecurityAdminController {
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser( $user = null ) :bool {
-		$opts = $this->getOptions();
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 		}
-		return $user instanceof \WP_User && in_array( $user->user_login, $opts->getSecurityAdminUsers() );
+		return $user instanceof \WP_User && in_array( $user->user_login, $this->opts()->getSecurityAdminUsers() );
 	}
 
 	public function isCurrentlySecAdmin() :bool {

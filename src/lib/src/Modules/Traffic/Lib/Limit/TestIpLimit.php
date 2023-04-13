@@ -21,9 +21,7 @@ class TestIpLimit {
 		$opts = $this->getOptions();
 
 		if ( !empty( $this->getIP() ) ) {
-			$ip = ( new IPRecords() )
-				->setMod( $this->getCon()->getModule_Data() )
-				->loadIP( $this->getIP(), false );
+			$ip = ( new IPRecords() )->loadIP( $this->getIP(), false );
 			$now = Services::Request()->carbon();
 			/** @var ReqLogs\Ops\Select $selector */
 			$selector = $this->getCon()

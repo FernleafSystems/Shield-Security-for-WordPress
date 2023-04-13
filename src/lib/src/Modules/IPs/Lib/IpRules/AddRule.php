@@ -196,9 +196,7 @@ class AddRule {
 				throw new \Exception( sprintf( "An invalid list type provided: %s", $type ) );
 		}
 
-		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP() );
+		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )->loadIP( $this->getIP() );
 
 		/** @var IpRulesDB\Record $tmp */
 		$tmp = $dbh->getRecord();

@@ -59,13 +59,6 @@ class FileLockerController {
 		return $items;
 	}
 
-	/**
-	 * @deprecated 17.1
-	 */
-	public function countProblems() :int {
-		return count( ( new Ops\LoadFileLocks() )->withProblems() );
-	}
-
 	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {

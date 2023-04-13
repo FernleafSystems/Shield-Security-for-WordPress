@@ -17,7 +17,7 @@ trait ModConsumer {
 
 	/**
 	 * @return ModCon
-	 * @deprecated 17.1
+	 * @deprecated 18.1
 	 */
 	public function getMod() {
 		return $this->mod();
@@ -25,17 +25,9 @@ trait ModConsumer {
 
 	/**
 	 * @return Options
-	 * @deprecated 17.1
+	 * @deprecated 18.1
 	 */
 	public function getOptions() {
 		return $this->opts();
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 17.1
-	 */
-	public function setMod( $null ) {
-		return $this;
 	}
 }

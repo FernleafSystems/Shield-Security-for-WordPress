@@ -9,12 +9,6 @@ trait ModConsumer {
 
 	/**
 	 * @var Modules\Base\ModCon
-	 * @deprecated 17.1
-	 */
-	private $oMod;
-
-	/**
-	 * @var Modules\Base\ModCon
 	 */
 	private $mod;
 
@@ -52,16 +46,6 @@ trait ModConsumer {
 	 */
 	public function getOptions() {
 		return $this->getMod()->getOptions();
-	}
-
-	/**
-	 * @param Controller $con
-	 * @return $this
-	 * @deprecated 17.1
-	 */
-	public function setCon( $con ) {
-		$this->getMod()->setCon( $con );
-		return $this;
 	}
 
 	/**

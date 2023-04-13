@@ -283,7 +283,7 @@ class U2F extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->getOptions()->isEnabledU2F();
+		return $this->opts()->isEnabledU2F();
 	}
 
 	public function getProviderName() :string {
