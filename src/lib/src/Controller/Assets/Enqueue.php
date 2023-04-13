@@ -61,7 +61,7 @@ class Enqueue {
 
 		if ( $this->getCon()->getIsPage_PluginAdmin() ) {
 			$default = [
-				'cerber_css', // Really? on every WP admin page?
+				'cerber_css',
 				'bootstrap',
 				'wp-notes',
 				'wpforo',
@@ -70,6 +70,15 @@ class Enqueue {
 				'mo_oauth_admin_settings_style',
 				'mo_oauth_admin_settings_phone_style',
 				'mo_oauth_admin_settings_datatable',
+				'workreap',
+				'core_functions', //workreap
+				'wc_connect_banner',
+				'wc-stripe-blocks-checkout-style',
+				'wcpay-admin-css',
+				'ce4wp',
+				'mailjet',
+				'monsterinsights',
+				'udb-admin',
 			];
 		}
 		else {

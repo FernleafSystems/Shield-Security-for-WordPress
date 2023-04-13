@@ -8,6 +8,7 @@ class ScanEnabledWpvAutoupdate extends Base {
 
 	use Traits\OptConfigBased;
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'scan_enabled_wpv_autoupdate';
 
 	protected function getOptConfigKey() :string {

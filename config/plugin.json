@@ -616,6 +616,13 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "sec_overview_prefs",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {

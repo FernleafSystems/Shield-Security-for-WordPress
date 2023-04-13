@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,9 +29,7 @@ class PasswordExpiry extends Base {
 	}
 
 	private function isPassExpired( ShieldUserMeta $meta ) :bool {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		return !empty( $meta->record->pass_started_at )
-			   && ( Services::Request()->ts() - $meta->record->pass_started_at > $opts->getPassExpireTimeout() );
+		return !empty( $meta->record->pass_started_at ) &&
+			   ( Services::Request()->ts() - $meta->record->pass_started_at > $this->opts()->getPassExpireTimeout() );
 	}
 }

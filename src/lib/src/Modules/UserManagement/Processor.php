@@ -32,9 +32,7 @@ class Processor extends BaseShield\Processor {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// This controller handles visitor whitelisted status internally.
-		( new UserSuspendController() )
-			->setMod( $mod )
-			->execute();
+		( new UserSuspendController() )->execute();
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {
@@ -42,15 +40,9 @@ class Processor extends BaseShield\Processor {
 		} );
 
 		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
-			( new Lib\Session\UserSessionHandler() )
-				->setMod( $this->getMod() )
-				->execute();
-			( new Lib\Password\UserPasswordHandler() )
-				->setMod( $this->getMod() )
-				->execute();
-			( new Lib\Registration\EmailValidate() )
-				->setMod( $this->getMod() )
-				->execute();
+			( new Lib\Session\UserSessionHandler() )->execute();
+			( new Lib\Password\UserPasswordHandler() )->execute();
+			( new Lib\Registration\EmailValidate() )->execute();
 		}
 	}
 

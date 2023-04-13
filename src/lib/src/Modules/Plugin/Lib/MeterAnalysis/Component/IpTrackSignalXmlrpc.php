@@ -4,8 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class IpTrackSignalXmlrpc extends IpTrackSignalBase {
 
-	protected const SIGNAL_KEY = 'track_xmlrpc';
+	public const PRO_ONLY = true;
 	public const WEIGHT = 6;
+	protected const SIGNAL_KEY = 'track_xmlrpc';
 
 	public function title() :string {
 		return sprintf( '%s - %s', __( 'Bot Tracking', 'wp-simple-firewall' ), __( 'XML-RPC Access', 'wp-simple-firewall' ) );

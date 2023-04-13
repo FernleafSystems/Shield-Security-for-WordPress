@@ -36,6 +36,14 @@
         ]
       },
       {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Added Extra Protection To Security Admin",
+        "description": [
+          "Added the option to view your Security Overview as either ShieldFREE or ShieldPRO."
+        ]
+      },
+      {
         "type":        "improvements",
         "pro_only":    false,
         "title":       "Improved, More Compact Plugin Layout",

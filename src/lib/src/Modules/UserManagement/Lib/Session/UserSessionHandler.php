@@ -2,15 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UserSessionHandler extends ExecOnceModConsumer {
+class UserSessionHandler {
 
+	use ExecOnce;
+	use ModConsumer;
 	use WpLoginCapture;
 
 	protected function run() {
@@ -49,11 +50,9 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	}
 
 	private function sendLoginNotifications( \WP_User $user ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 		$adminEmails = $this->getAdminLoginNotificationEmails();
 		$sendAdmin = count( $adminEmails ) > 0;
-		$sendUser = $opts->isOpt( 'enable_user_login_email_notification', 'Y' );
+		$sendUser = $this->opts()->isOpt( 'enable_user_login_email_notification', 'Y' );
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
@@ -82,7 +81,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	public function getAdminLoginNotificationEmails() :array {
 		$emails = [];
 
-		$rawEmails = $this->getOptions()->getOpt( 'enable_admin_login_email_notification', '' );
+		$rawEmails = $this->opts()->getOpt( 'enable_admin_login_email_notification', '' );
 		if ( !empty( $rawEmails ) ) {
 			$emails = array_values( array_unique( array_filter(
 				array_map(
@@ -100,8 +99,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 				$emails = array_slice( $emails, 0, 1 );
 			}
 
-			$this->getOptions()
-				 ->setOpt( 'enable_admin_login_email_notification', implode( ', ', $emails ) );
+			$this->opts()->setOpt( 'enable_admin_login_email_notification', implode( ', ', $emails ) );
 		}
 
 		return $emails;
@@ -139,36 +137,35 @@ class UserSessionHandler extends ExecOnceModConsumer {
 
 			$homeURL = Services::WpGeneral()->getHomeUrl();
 
-			$emailer = $this->getMod()
-							->getEmailProcessor();
 			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
-				$emailer->sendEmailWithWrap(
-					$to,
-					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
-					[
-						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
-							$con->getHumanName(),
-							$pluginName
-						),
-						'',
-						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
-						'',
-						__( 'Details for this user are below:', 'wp-simple-firewall' ),
-						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
-						'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-						'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
-						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
-						'',
-						__( 'Thanks.', 'wp-simple-firewall' )
-					]
-				);
+				$this->mod()
+					 ->getEmailProcessor()
+					 ->sendEmailWithWrap(
+						 $to,
+						 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
+						 [
+							 sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
+								 $con->getHumanName(),
+								 $pluginName
+							 ),
+							 '',
+							 sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
+							 '',
+							 __( 'Details for this user are below:', 'wp-simple-firewall' ),
+							 '- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
+							 '- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+							 '- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
+							 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
+							 '',
+							 __( 'Thanks.', 'wp-simple-firewall' )
+						 ]
+					 );
 			}
 		}
 	}
 
 	private function sendUserLoginEmailNotification( \WP_User $user ) {
-		$con = $this->getCon();
-		$this->getMod()
+		$this->mod()
 			 ->getEmailProcessor()
 			 ->send(
 				 $user->user_email,
@@ -176,7 +173,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 				 $this->getCon()->action_router->render( UserLoginNotice::SLUG, [
 					 'home_url'  => Services::WpGeneral()->getHomeUrl(),
 					 'username'  => $user->user_login,
-					 'ip'        => $con->this_req->ip,
+					 'ip'        => $this->con()->this_req->ip,
 					 'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
 				 ] )
 			 );
@@ -223,8 +220,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	 * @throws \Exception
 	 */
 	private function assessSession() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$sess = $this->getCon()
 					 ->getModule_Plugin()
@@ -255,9 +251,7 @@ class UserSessionHandler extends ExecOnceModConsumer {
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->hasMaxSessionTimeout() ? min( $timeout, $opts->getMaxSessionTime() ) : $timeout;
+		return $this->opts()->hasMaxSessionTimeout() ? min( $timeout, $this->opts()->getMaxSessionTime() ) : $timeout;
 	}
 
 	/**

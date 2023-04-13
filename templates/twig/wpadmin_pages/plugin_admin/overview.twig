@@ -1,5 +1,14 @@
 {% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
 
 {% block inner_page_body %}
+	{% if flags.is_show_view_as_message %}
+		<div class="row justify-content-center">
+			<div class="col-auto">
+				<div class="alert alert-dark d-inline-block text-center">
+					{{ strings.view_as_message }}
+				</div>
+			</div>
+		</div>
+	{% endif %}
 	{{ content.progress_meters|raw }}
 {% endblock %}

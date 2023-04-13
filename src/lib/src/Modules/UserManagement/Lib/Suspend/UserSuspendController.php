@@ -2,41 +2,33 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class UserSuspendController extends ExecOnceModConsumer {
 
+	use ExecOnce;
+	use ModConsumer;
+
 	protected function canRun() :bool {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isSuspendEnabled() && $this->getCon()->isPremiumActive();
+		return $this->opts()->isSuspendEnabled() && $this->con()->isPremiumActive();
 	}
 
 	protected function run() {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
-
-		if ( !$this->getCon()->this_req->is_ip_whitelisted ) {
-
-			if ( $opts->isSuspendManualEnabled() ) {
-				( new Suspended() )
-					->setMod( $this->getMod() )
-					->execute();
+		if ( !$this->con()->this_req->is_ip_whitelisted ) {
+			if ( $this->opts()->isSuspendManualEnabled() ) {
+				( new Suspended() )->execute();
 			}
-			if ( $opts->isSuspendAutoIdleEnabled() ) {
-				( new Idle() )
-					->setMod( $this->getMod() )
-					->execute();
+			if ( $this->opts()->isSuspendAutoIdleEnabled() ) {
+				( new Idle() )->execute();
 			}
-			if ( $opts->isSuspendAutoPasswordEnabled() ) {
-				( new PasswordExpiry() )
-					->setMod( $this->getMod() )
-					->execute();
+			if ( $this->opts()->isSuspendAutoPasswordEnabled() ) {
+				( new PasswordExpiry() )->execute();
 			}
 		}
 
@@ -73,8 +65,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 	 * filter the User Tables
 	 */
 	private function addSuspendedUserFilters() {
-		/** @var UserManagement\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$ts = Services::Request()->ts();
 
 		$userMetaDB = $this->getCon()
@@ -94,10 +85,9 @@ class UserSuspendController extends ExecOnceModConsumer {
 			// Filter the user list database query
 			add_filter( 'users_list_table_query_args', function ( $args ) use ( $manual, $idle, $passwords ) {
 				$req = Services::Request();
-				if ( is_array( $args ) ) {
-					/** @var UserManagement\Options $opts */
-					$opts = $this->getOptions();
+				$ts = Services::Request()->ts();
 
+				if ( is_array( $args ) ) {
 					/** @var Select $metaSelect */
 					$metaSelect = $this->getCon()
 									   ->getModule_Data()
@@ -110,11 +100,11 @@ class UserSuspendController extends ExecOnceModConsumer {
 					}
 					elseif ( $idle > 0 && $req->query( 'shield_users_idle' ) ) {
 						$filtered = true;
-						$metaSelect->filterByPassExpired( Services::Request()->ts() - $opts->getPassExpireTimeout() );
+						$metaSelect->filterByPassExpired( $ts - $this->opts()->getPassExpireTimeout() );
 					}
 					elseif ( $passwords > 0 && $req->query( 'shield_users_pass' ) ) {
 						$filtered = true;
-						$metaSelect->filterByIdle( Services::Request()->ts() - $opts->getSuspendAutoIdleTime() );
+						$metaSelect->filterByIdle( $ts - $this->opts()->getSuspendAutoIdleTime() );
 					}
 					else {
 						$filtered = false;

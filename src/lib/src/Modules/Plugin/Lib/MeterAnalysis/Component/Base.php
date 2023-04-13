@@ -9,6 +9,7 @@ abstract class Base {
 	use PluginControllerConsumer;
 
 	public const SLUG = '';
+	public const PRO_ONLY = false;
 	public const WEIGHT = 3;
 
 	protected $isProtected = null;
@@ -30,6 +31,7 @@ abstract class Base {
 			'is_applicable'     => $this->isApplicable(),
 			'is_critical'       => $this->isCritical(),
 			'is_optcfg'         => $this->isOptConfigBased(),
+			'is_proonly'        => $this->isOptConfigBased(),
 		];
 	}
 
@@ -71,6 +73,10 @@ abstract class Base {
 
 	protected function isOptConfigBased() :bool {
 		return false;
+	}
+
+	protected function isProOnly() :bool {
+		return static::PRO_ONLY;
 	}
 
 	protected function testIfProtected() :bool {

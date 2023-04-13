@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class ScanResultsPtg extends ScanResultsBase {
 
+	public const PRO_ONLY = true;
 	public const SLUG = 'scan_results_ptg';
 
 	protected function countResults() :int {
