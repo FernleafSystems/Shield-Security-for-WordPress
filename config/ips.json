@@ -308,79 +308,8 @@
       "description":   "Penalise a visitor who fails to login using a valid username."
     },
     {
-      "key":           "track_logininvalid",
-      "section":       "section_bot_behaviours",
-      "premium":       true,
-      "default":       "log",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "log",
-          "text":      "Activity Log Only"
-        },
-        {
-          "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
-        },
-        {
-          "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
-        },
-        {
-          "value_key": "block",
-          "text":      "Immediate Block"
-        }
-      ],
-      "link_info":     "https://shsec.io/fn",
-      "link_blog":     "https://shsec.io/f7",
-      "beacon_id":     122,
-      "name":          "Invalid Usernames",
-      "summary":       "Detect Invalid Username Logins",
-      "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
-    },
-    {
-      "key":           "track_fakewebcrawler",
-      "section":       "section_bot_behaviours",
-      "premium":       true,
-      "default":       "log",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "log",
-          "text":      "Activity Log Only"
-        },
-        {
-          "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
-        },
-        {
-          "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
-        },
-        {
-          "value_key": "block",
-          "text":      "Immediate Block"
-        }
-      ],
-      "link_info":     "https://shsec.io/f5",
-      "link_blog":     "https://shsec.io/f7",
-      "beacon_id":     124,
-      "name":          "Fake Web Crawler",
-      "summary":       "Detect Fake Search Engine Crawlers",
-      "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
-    },
-    {
       "key":           "track_xmlrpc",
       "section":       "section_bot_behaviours",
-      "premium":       true,
       "default":       "log",
       "type":          "select",
       "value_options": [
@@ -413,6 +342,82 @@
       "description":   "If you don't use XML-RPC, why would anyone access it?"
     },
     {
+      "key":           "track_logininvalid",
+      "section":       "section_bot_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Activity Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter",
+          "premium":   true
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter",
+          "premium":   true
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block",
+          "premium":   true
+        }
+      ],
+      "link_info":     "https://shsec.io/fn",
+      "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     122,
+      "name":          "Invalid Usernames",
+      "summary":       "Detect Invalid Username Logins",
+      "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
+    },
+    {
+      "key":           "track_fakewebcrawler",
+      "section":       "section_bot_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Activity Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Offense Counter",
+          "premium":   true
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double-Increment Offense Counter",
+          "premium":   true
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block",
+          "premium":   true
+        }
+      ],
+      "link_info":     "https://shsec.io/f5",
+      "link_blog":     "https://shsec.io/f7",
+      "beacon_id":     124,
+      "name":          "Fake Web Crawler",
+      "summary":       "Detect Fake Search Engine Crawlers",
+      "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
+    },
+    {
       "key":           "track_404",
       "section":       "section_bot_behaviours",
       "premium":       true,
@@ -429,15 +434,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
+          "text":      "Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
+          "text":      "Double-Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "block",
-          "text":      "Immediate Block"
+          "text":      "Immediate Block",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/fo",
@@ -464,15 +472,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
+          "text":      "Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
+          "text":      "Double-Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "block",
-          "text":      "Immediate Block"
+          "text":      "Immediate Block",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/fo",
@@ -499,15 +510,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
+          "text":      "Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
+          "text":      "Double-Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "block",
-          "text":      "Immediate Block"
+          "text":      "Immediate Block",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/fo",
@@ -534,11 +548,13 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Offense Counter"
+          "text":      "Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double-Increment Offense Counter"
+          "text":      "Double-Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "block",
@@ -750,33 +766,33 @@
       "has_updated_at":  true,
       "col_older_than":  "updated_at",
       "cols_custom":     {
-        "ip_ref":   {
+        "ip_ref":     {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_ips"
           }
         },
-        "cidr":     {
+        "cidr":       {
           "macro_type": "unsigned_int",
           "length":     3,
           "comment":    "CIDR"
         },
-        "is_range": {
+        "is_range":   {
           "macro_type": "bool",
           "default":    0,
           "comment":    "Is IP Range"
         },
-        "offenses": {
+        "offenses":   {
           "macro_type": "unsigned_int",
           "length":     3,
           "comment":    "Offenses Count"
         },
-        "type":     {
+        "type":       {
           "macro_type": "char",
           "length":     2,
           "comment":    "List"
         },
-        "label":    {
+        "label":      {
           "macro_type": "varchar",
           "length":     255,
           "comment":    "IP Description"
@@ -803,7 +819,7 @@
         "expires_at":              {
           "comment": "The IP Rule on this lists expires at this time."
         },
-        "imported_at":              {
+        "imported_at":             {
           "comment": "This IP rule was imported from a master site."
         }
       }

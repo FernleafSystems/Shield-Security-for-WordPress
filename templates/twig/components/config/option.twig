@@ -92,7 +92,7 @@
 			<select name="{{ option.key }}"
 			        class="form-select"
 			        id="Opt-{{ option.key }}"
-					{% if option.disabled %}{% endif %}
+			        {% if option.disabled %}disabled="disabled"{% endif %}
 					    aria-label="Select for: {{ option.name }}">
 				{% for option_value, option_value_settings in option.value_options %}
 					<option

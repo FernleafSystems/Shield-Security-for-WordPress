@@ -31,8 +31,6 @@ jQuery.fn.icwpWpsfPluginNavigation = function ( options ) {
 			replaceStateUrl
 		);
 
-		document.getElementById( 'PageTitle' ).innerHTML = response.data.page_title;
-
 		let activeLinks = document.querySelectorAll( '#NavSideBar a.nav-link.active' );
 		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
