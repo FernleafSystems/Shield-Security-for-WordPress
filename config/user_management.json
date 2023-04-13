@@ -17,7 +17,7 @@
     "run_if_wpcli":          false,
     "order":                 40
   },
-  "menus":         {
+  "menus":       {
     "config_menu_priority": 31
   },
   "wpcli":       {
@@ -191,15 +191,18 @@
         },
         {
           "value_key": "log",
-          "text":      "Log Only"
+          "text":      "Log Only",
+          "premium":   true
         },
         {
           "value_key": "offense",
-          "text":      "Increment Offense Counter"
+          "text":      "Increment Offense Counter",
+          "premium":   true
         },
         {
           "value_key": "block",
-          "text":      "Immediate Block and Kill"
+          "text":      "Immediate Block and Kill",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/gk",
@@ -276,23 +279,28 @@
       "value_options": [
         {
           "value_key": "0",
-          "text":      "Very Weak"
+          "text":      "Very Weak",
+          "premium":   true
         },
         {
           "value_key": "1",
-          "text":      "Weak"
+          "text":      "Weak",
+          "premium":   true
         },
         {
           "value_key": "2",
-          "text":      "Medium"
+          "text":      "Medium",
+          "premium":   true
         },
         {
           "value_key": "3",
-          "text":      "Strong"
+          "text":      "Strong",
+          "premium":   true
         },
         {
           "value_key": "4",
-          "text":      "Very Strong"
+          "text":      "Very Strong",
+          "premium":   true
         }
       ],
       "link_info":     "",
@@ -385,8 +393,8 @@
     }
   ],
   "definitions": {
-    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range",
-    "events":                        {
+    "pwned_api_url_password_range": "https://api.pwnedpasswords.com/range",
+    "events":                       {
       "session_notfound":             {
         "audit_params": [
           "user_login"

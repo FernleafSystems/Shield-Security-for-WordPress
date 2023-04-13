@@ -315,31 +315,38 @@
         },
         {
           "value_key": "2",
-          "text":      "Twice (scan every 12hrs)"
+          "text":      "Twice (scan every 12hrs)",
+          "premium":   true
         },
         {
           "value_key": "3",
-          "text":      "3 Times (scan every 8hrs)"
+          "text":      "3 Times (scan every 8hrs)",
+          "premium":   true
         },
         {
           "value_key": "4",
-          "text":      "4 Times (scan every 6hrs)"
+          "text":      "4 Times (scan every 6hrs)",
+          "premium":   true
         },
         {
           "value_key": "6",
-          "text":      "6 Times (scan every 4hrs)"
+          "text":      "6 Times (scan every 4hrs)",
+          "premium":   true
         },
         {
           "value_key": "8",
-          "text":      "8 Times (scan every 3hrs)"
+          "text":      "8 Times (scan every 3hrs)",
+          "premium":   true
         },
         {
           "value_key": "12",
-          "text":      "12 Times (scan every 2hrs)"
+          "text":      "12 Times (scan every 2hrs)",
+          "premium":   true
         },
         {
           "value_key": "24",
-          "text":      "24 Times (scan every hour)"
+          "text":      "24 Times (scan every hour)",
+          "premium":   true
         }
       ],
       "link_info":     "https://shsec.io/b2",
