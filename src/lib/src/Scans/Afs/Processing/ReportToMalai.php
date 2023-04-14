@@ -37,10 +37,14 @@ class ReportToMalai {
 		}
 
 		if ( !empty( $reports ) ) {
-			( new Malai\MalwareReport() )->report(
+			$token = $this->con()
+						  ->getModule_License()
+						  ->getWpHashesTokenManager()
+						  ->getToken();
+			( new Malai\MalwareReport( $token ) )->report(
 				array_intersect_key(
 					$reports,
-					array_flip( ( new Malai\ObtainAcceptableHashes() )->getAcceptableHashes( array_keys( $reports ) ) )
+					array_flip( ( new Malai\ObtainAcceptableHashes( $token ) )->getAcceptableHashes( array_keys( $reports ) ) )
 				)
 			);
 		}
