@@ -53,7 +53,6 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 			( new HackGuard\Scan\Queue\QueueInit() )->init( (string)$slug );
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
 		}
 
 		// deletes the scan from the to-be-built array
