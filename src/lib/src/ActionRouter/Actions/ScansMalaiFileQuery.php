@@ -27,10 +27,14 @@ class ScansMalaiFileQuery extends ScansBase {
 				throw new \Exception( 'File is empty.' );
 			}
 
-			$status = ( new MalwareScan() )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
+			$token = $this->con()
+						  ->getModule_License()
+						  ->getWpHashesTokenManager()
+						  ->getToken();
+			$status = ( new MalwareScan( $token ) )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
 			if ( empty( $status ) ) {
 				sleep( 3 );
-				$status = ( new MalwareScan() )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
+				$status = ( new MalwareScan( $token ) )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
 			}
 
 			$msg = sprintf( '%s: %s',

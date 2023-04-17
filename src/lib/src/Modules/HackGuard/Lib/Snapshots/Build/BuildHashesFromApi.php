@@ -38,13 +38,12 @@ class BuildHashesFromApi {
 					$items = $apiInfo[ 'supported_premium' ][ 'themes' ];
 				}
 
-				foreach ( $items as $aMaybeItem ) {
+				foreach ( $items as $maybeItem ) {
 
-					if ( $aMaybeItem[ 'slug' ] == $slug
-						 || $aMaybeItem[ 'name' ] == $name || $aMaybeItem[ 'file' ] == $file ) {
+					if ( $maybeItem[ 'slug' ] == $slug || $maybeItem[ 'name' ] == $name || $maybeItem[ 'file' ] == $file ) {
 						$apiSupport = true;
 						if ( $asset->asset_type === 'plugin' && empty( $asset->slug ) ) {
-							$asset->slug = $aMaybeItem[ 'slug' ];
+							$asset->slug = $maybeItem[ 'slug' ];
 						}
 						break;
 					}
@@ -63,7 +62,7 @@ class BuildHashesFromApi {
 	 * @return string[]|null
 	 * @throws \Exception
 	 */
-	private function retrieveForAsset( $asset ) {
+	private function retrieveForAsset( $asset ) :?array {
 
 		if ( $asset->asset_type === 'plugin' ) {
 			$hashes = ( new Hashes\Plugin() )
@@ -82,6 +81,6 @@ class BuildHashesFromApi {
 			throw new \Exception( 'Not a supported asset type' );
 		}
 
-		return $hashes;
+		return is_array( $hashes ) ? $hashes : null;
 	}
 }

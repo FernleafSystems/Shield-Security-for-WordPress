@@ -104,7 +104,7 @@ class ActionRoutingController {
 
 			$redirectTo = null;
 
-			if ( $con->isModulePage() ) {
+			if ( $con->isPluginAdminPageRequest() ) {
 
 				$page = (string)$req->query( 'page' );
 				$navID = (string)$req->query( Constants::NAV_ID );
