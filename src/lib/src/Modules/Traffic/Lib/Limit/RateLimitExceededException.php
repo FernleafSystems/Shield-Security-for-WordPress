@@ -8,7 +8,7 @@ class RateLimitExceededException extends \Exception {
 
 	private $requestCount = 0;
 
-	public function __construct( string $message = "", int $requestCount = 0 ) {
+	public function __construct( string $message = '', int $requestCount = 0 ) {
 		$this->requestCount = $requestCount;
 		parent::__construct( $message );
 	}

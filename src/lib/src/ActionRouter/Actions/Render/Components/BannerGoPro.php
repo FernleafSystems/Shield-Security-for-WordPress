@@ -19,7 +19,8 @@ class BannerGoPro extends BaseRender {
 		$nav = $this->action_data[ Constants::NAV_ID ] ?? '';
 		return [
 			'flags' => [
-				'show_promo' => $con->isModulePage()
+				'show_promo' => \method_exists( $con, 'isPluginAdminPageRequest' )
+								&& $con->isPluginAdminPageRequest()
 								&& !$con->isPremiumActive()
 								&& ( !in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ),
 			],

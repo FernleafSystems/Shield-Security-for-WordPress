@@ -16,8 +16,7 @@ class CleanStale extends Base {
 			$boundary = Services::Request()
 								->carbon()
 								->subDay()->timestamp;
-			$IT = StandardDirectoryIterator::create( $this->getTempDir() );
-			foreach ( $IT as $file ) {
+			foreach ( StandardDirectoryIterator::create( $this->getTempDir() ) as $file ) {
 				/** @var \SplFileInfo $file */
 				if ( $boundary > $file->getMTime() ) {
 					Services::WpFs()->deleteFile( $file->getPathname() );

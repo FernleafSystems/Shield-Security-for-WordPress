@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	SecurityAdmin,
-	HackGuard
+	HackGuard,
+	SecurityAdmin
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,7 +16,7 @@ class PageConfig extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$URLs = $con->plugin_urls;
 		$hrefs = [];
 		switch ( $this->action_data[ 'mod_slug' ] ) {

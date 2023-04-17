@@ -73,7 +73,6 @@ class PageAdminPlugin extends BaseRender {
 
 	protected function buildTopPageWarnings() :array {
 		$con = $this->con();
-		$req = Services::Request();
 		$thisReq = $con->this_req;
 		$warnings = [];
 

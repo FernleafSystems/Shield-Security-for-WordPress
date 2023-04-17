@@ -437,9 +437,10 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * All our module page names are prefixed
+	 * @see PluginAdminPageHandler - All Plugin admin pages go through the plugin modules, see:
 	 */
-	public function isThisPluginModuleRequest() :bool {
-		return strpos( Services::Request()->query( 'page' ), $this->prefix() ) === 0;
+	public function isPluginAdminPageRequest() :bool {
+		return Services::Request()->query( 'page' ) === $this->getModule_Plugin()->getModSlug();
 	}
 
 	public function onWpDeactivatePlugin() {
@@ -524,7 +525,7 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpInit() {
 		$this->getMeetsBasePermissions();
-		if ( $this->isModulePage() ) {
+		if ( $this->isPluginAdminPageRequest() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
 
@@ -830,10 +831,6 @@ class Controller extends DynPropertiesClass {
 			return true;
 		}
 		return false;
-	}
-
-	public function isModulePage() :bool {
-		return strpos( (string)Services::Request()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**
@@ -1161,5 +1158,19 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
+	}
+
+	/**
+	 * @deprecated 18.0
+	 */
+	public function isThisPluginModuleRequest() :bool {
+		return $this->isPluginAdminPageRequest();
+	}
+
+	/**
+	 * @deprecated 18.0
+	 */
+	public function isModulePage() :bool {
+		return \method_exists( $this, 'isPluginAdminPageRequest' ) && $this->isPluginAdminPageRequest();
 	}
 }
