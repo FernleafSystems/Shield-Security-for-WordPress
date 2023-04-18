@@ -25,8 +25,10 @@ class BotSignalsController {
 	 */
 	private $eventListener;
 
+	private $isBots = [];
+
 	protected function canRun() :bool {
-		return $this->getCon()->this_req->ip_is_public;
+		return $this->con()->this_req->ip_is_public;
 	}
 
 	protected function run() {
@@ -41,33 +43,47 @@ class BotSignalsController {
 		$this->registerLoginPageLoad();
 	}
 
-	public function isBot( string $IP = '', bool $allowEventFire = true ) :bool {
-		$opts = \method_exists( $this, 'opts' ) ? $this->opts() : $this->getOptions();
+	public function isBot( string $IP = '', bool $allowEventFire = true, bool $forceCheck = false ) :bool {
 
-		$isBot = false;
-		$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum', $opts->getAntiBotMinimum() );
+		if ( !isset( $this->isBots[ $IP ] ) || $forceCheck ) {
 
-		if ( $botScoreMinimum > 0 ) {
+			$this->isBots[ $IP ] = false;
 
-			$score = ( new Calculator\CalculateVisitorBotScores() )
-				->setIP( empty( $IP ) ? $this->getCon()->this_req->ip : $IP )
-				->probability();
+			$opts = \method_exists( $this, 'opts' ) ? $this->opts() : $this->getOptions();
 
-			$isBot = $score < $botScoreMinimum;
+			if ( !$opts->isEnabledAntiBotEngine() ) {
+				$this->con()->fireEvent( 'ade_check_option_disabled' );
+			}
+			elseif ( !$this->mod()->isModOptEnabled() ) {
+				$this->con()->fireEvent( 'ade_check_module_disabled' );
+			}
+			else {
+				$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum', $opts->getAntiBotMinimum() );
 
-			if ( $allowEventFire ) {
-				$this->getCon()->fireEvent(
-					'antibot_'.( $isBot ? 'fail' : 'pass' ),
-					[
-						'audit_params' => [
-							'score'   => $score,
-							'minimum' => $botScoreMinimum,
-						]
-					]
-				);
+				if ( $botScoreMinimum > 0 ) {
+
+					$score = ( new Calculator\CalculateVisitorBotScores() )
+						->setIP( empty( $IP ) ? $this->getCon()->this_req->ip : $IP )
+						->probability();
+
+					$this->isBots[ $IP ] = $score < $botScoreMinimum;
+
+					if ( $allowEventFire ) {
+						$this->getCon()->fireEvent(
+							'antibot_'.( $this->isBots[ $IP ] ? 'fail' : 'pass' ),
+							[
+								'audit_params' => [
+									'score'   => $score,
+									'minimum' => $botScoreMinimum,
+								]
+							]
+						);
+					}
+				}
 			}
 		}
-		return $isBot;
+
+		return $this->isBots[ $IP ] ?? false;
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {

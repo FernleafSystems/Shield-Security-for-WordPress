@@ -978,6 +978,16 @@
         ],
         "offense":      true
       },
+      "ade_check_option_disabled":   {
+        "level":   "notice",
+        "audit":   true,
+        "offense": false
+      },
+      "ade_check_module_disabled":   {
+        "level":   "notice",
+        "audit":   true,
+        "offense": false
+      },
       "bottrack_invalidscript":      {
         "audit_params": [
           "script"

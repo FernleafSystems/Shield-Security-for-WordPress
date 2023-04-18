@@ -68,6 +68,16 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "5",
+        "released_at": 1679660001,
+        "items":       [
+          {
+            "title": "ADE Not-Bot checking will only run if the IP module and NotBot options are enabled. Otherwise, no bot assessment will be performed.",
+            "type":  "improved"
+          }
+        ]
+      }
     ]
   },
   "17.0": {

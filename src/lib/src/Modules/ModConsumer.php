@@ -33,6 +33,10 @@ trait ModConsumer {
 		return $this->getMod();
 	}
 
+	public function opts() {
+		return $this->getOptions();
+	}
+
 	/**
 	 * @return Base\ModCon|mixed
 	 */
