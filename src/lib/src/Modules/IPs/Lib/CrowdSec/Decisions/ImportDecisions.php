@@ -2,26 +2,25 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\DownloadDecisionsStreamFailedException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ImportDecisions extends ExecOnceModConsumer {
+class ImportDecisions {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function canRun() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$csCon = $mod->getCrowdSecCon();
+		$csCon = $this->mod()->getCrowdSecCon();
 		return ( Services::Request()->ts() - $this->getImportInterval() > $csCon->cfg()->decisions_update_attempt_at )
 			   && $csCon->getApi()->isReady();
 	}
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$csCon = $mod->getCrowdSecCon();
+		$csCon = $this->mod()->getCrowdSecCon();
 
 		$cfg = $csCon->cfg();
 		$cfg->decisions_update_attempt_at = Services::Request()->ts();
@@ -35,9 +34,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 	}
 
 	public function runImport() {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$api = $mod->getCrowdSecCon()->getApi();
+		$api = $this->mod()->getCrowdSecCon()->getApi();
 		// We currently only import decisions that have a TTL of at least 5 days.
 		$minimumExpiresAt = Services::Request()
 									->carbon()
@@ -48,7 +45,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 				try {
 					$processor = new $supportedScopeProcessor();
 					$processor->minimum_expires_at = $minimumExpiresAt;
-					$processor->setMod( $this->getMod() )->run( $decisionStream );
+					$processor->run( $decisionStream );
 				}
 				catch ( \Exception $e ) {
 				}
@@ -73,9 +70,7 @@ class ImportDecisions extends ExecOnceModConsumer {
 	 * @throws DownloadDecisionsStreamFailedException
 	 */
 	private function downloadDecisions() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$api = $mod->getCrowdSecCon()->getApi();
+		$api = $this->mod()->getCrowdSecCon()->getApi();
 		return ( new DecisionsDownload( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run();
 	}
 

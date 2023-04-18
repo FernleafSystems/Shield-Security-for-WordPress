@@ -30,7 +30,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
-		return $this->crowdSecCon ?? $this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
+		return $this->crowdSecCon ?? $this->crowdSecCon = new Lib\CrowdSec\CrowdSecController();
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {

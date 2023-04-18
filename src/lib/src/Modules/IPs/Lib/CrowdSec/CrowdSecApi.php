@@ -4,12 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CrowdSecApi {
 
-	use ModConsumer;
+	use IPs\ModConsumer;
 
 	public const MAX_FAILED_LOGINS = 5;
 	public const STATE_NO_URL = 'no_url';
