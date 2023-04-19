@@ -15,9 +15,9 @@ class WpCoreFile extends BaseScan {
 		$valid = false;
 
 		$WPH = Services::CoreFileHashes();
-		if ( $WPH->isCoreFile( $this->pathFull ) && !$this->isExcluded( $this->pathFragment ) ) {
+		if ( $WPH->isCoreFile( $this->pathFull ) && !$this->isExcluded() ) {
 			if ( !Services::WpFs()->isFile( $this->pathFull ) ) {
-				if ( !$this->isExcludedMissing( $this->pathFragment ) ) {
+				if ( !$this->isExcludedMissing() ) {
 					throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
 				}
 			}
@@ -30,14 +30,14 @@ class WpCoreFile extends BaseScan {
 		return $valid;
 	}
 
-	private function isExcluded( string $pathFragment ) :bool {
+	protected function isExcluded() :bool {
 		$exclusionsRegex = $this->getScanFileExclusions();
-		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $pathFragment );
+		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $this->pathFragment );
 	}
 
-	private function isExcludedMissing( string $pathFragment ) :bool {
+	private function isExcludedMissing() :bool {
 		$exclusionsRegex = $this->getScanExclusionsForMissingItems();
-		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $pathFragment );
+		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $this->pathFragment );
 	}
 
 	private function getScanFileExclusions() :string {

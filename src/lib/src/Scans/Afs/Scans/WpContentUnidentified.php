@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFileExcluded;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 /**
@@ -64,16 +63,21 @@ class WpContentUnidentified extends BaseScan {
 			   ] ) ), $ext );
 	}
 
-	private function isExcluded() :bool {
-
+	protected function getExcludes() :array {
 		$wpContentPaths = [
 			'/advanced-cache.php',
 			'/autoptimize_404_handler.php',
 			'/breeze-config/breeze-config.php',
 			'/uploads/wph/environment.php',
+			'/wflogs/rules.php',
+			'/wflogs/config-livewaf.php',
 		];
 		$wpContentPathsRegex = [
 			'/uploads/siteground\-optimizer\-assets/siteground\-optimizer\-combined\-js\-[a-zA-Z\d]{32}\.js$',
+			'/uploads/.*/backupbuddy_dat\.php$',
+			'/.*settings_backup\-.*\.php$',
+			'/uploads/.*\.ufm.php$',
+			'/jetpack-waf/.*automatic-rules\.php$',
 		];
 
 		$excludes = [
@@ -91,6 +95,6 @@ class WpContentUnidentified extends BaseScan {
 			}
 		}
 
-		return ( new IsFileExcluded() )->check( $this->pathFull, $excludes );
+		return $excludes;
 	}
 }

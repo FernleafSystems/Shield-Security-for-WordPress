@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFileExcluded;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
@@ -39,9 +38,11 @@ class WpRootUnidentified extends BaseScan {
 			   ] ) ), $ext );
 	}
 
-	private function isExcluded() :bool {
-		return ( new IsFileExcluded() )->check( $this->pathFull, [
+	protected function getExcludes() :array {
+		return [
 			'wp-config.php',
-		] );
+			'cloner.php',
+			'#widget\-.*\.php#i',
+		];
 	}
 }

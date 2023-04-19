@@ -97,7 +97,6 @@ class FileScanner {
 			try {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setScanActionVO( $action )
-					->setFileValidStatus( $validFile )
 					->scan();
 			}
 			catch ( Exceptions\MalwareFileException $mfe ) {
