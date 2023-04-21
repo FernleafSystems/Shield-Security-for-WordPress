@@ -160,7 +160,7 @@ class Afs extends BaseForFiles {
 			catch ( Lib\Hashes\Exceptions\AssetHashesNotFound $e ) {
 				// hashes are unavailable, so we do nothing
 			}
-			catch ( Lib\Hashes\Exceptions\NoneAssetFileException $e ) {
+			catch ( Lib\Hashes\Exceptions\NonAssetFileException $e ) {
 				// asset has probably been since removed
 				$dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
 			}
