@@ -38,7 +38,7 @@ class WpRootUnidentified extends BaseScan {
 			   ] ) ), $ext );
 	}
 
-	protected function getExcludes() :array {
+	protected function getPathExcludes() :array {
 		return [
 			'wp-config.php',
 			'cloner.php',

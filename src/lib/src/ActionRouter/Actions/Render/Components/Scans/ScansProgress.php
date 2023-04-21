@@ -11,8 +11,8 @@ class ScansProgress extends BaseScans {
 		return [
 			'strings' => [
 				'current_scan' => __( 'Current Scan', 'wp-simple-firewall' ),
-				'patience_1'   => __( 'Please be patient.', 'wp-simple-firewall' ),
-				'patience_2'   => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
+				'patience_1'   => __( 'File scanning is an intensive operation and takes time.', 'wp-simple-firewall' ),
+				'patience_2'   => __( 'We appreciate your patience.', 'wp-simple-firewall' ),
 				'completed'    => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
 			],
 			'vars'    => [

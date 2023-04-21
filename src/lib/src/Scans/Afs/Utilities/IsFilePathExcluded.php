@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities;
 
-class IsFileExcluded {
+class IsFilePathExcluded {
 
 	public function check( string $path, ?array $exclusions = null ) :bool {
 		$path = wp_normalize_path( $path );

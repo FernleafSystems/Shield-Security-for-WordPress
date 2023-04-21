@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFileExcluded;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFileContentExcluded;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFilePathExcluded;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 
 abstract class BaseScan {
@@ -33,11 +34,12 @@ abstract class BaseScan {
 	}
 
 	protected function isExcluded() :bool {
-		$excludes = $this->getExcludes();
-		return !empty( $excludes ) && ( new IsFileExcluded() )->check( $this->pathFull, $excludes );
+		$pathExcludes = $this->getPathExcludes();
+		return ( !empty( $pathExcludes ) && ( new IsFilePathExcluded() )->check( $this->pathFull, $pathExcludes ) )
+			   || ( new IsFileContentExcluded() )->check( $this->pathFull );
 	}
 
-	protected function getExcludes() :array {
+	protected function getPathExcludes() :array {
 		return [];
 	}
 

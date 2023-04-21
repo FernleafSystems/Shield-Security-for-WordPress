@@ -63,7 +63,7 @@ class WpContentUnidentified extends BaseScan {
 			   ] ) ), $ext );
 	}
 
-	protected function getExcludes() :array {
+	protected function getPathExcludes() :array {
 		$wpContentPaths = [
 			'/advanced-cache.php',
 			'/autoptimize_404_handler.php',

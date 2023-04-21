@@ -440,7 +440,8 @@
       "html",
       "svg",
       "twig",
-      "hbs"
+      "hbs",
+      "mo"
     ],
     "db_handler_classes":          {
       "file_locker":     "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\DB\\FileLocker\\Ops\\Handler",
