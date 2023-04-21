@@ -2,12 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class NotBotHandler extends ExecOnceModConsumer {
+class NotBotHandler {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	public const LIFETIME = 600;
 	public const SLUG = 'notbot';
@@ -16,15 +20,9 @@ class NotBotHandler extends ExecOnceModConsumer {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );
 	}
 
-	protected function isForced() :bool {
-		return $this->getOptions()->isOpt( 'force_notbot', 'Y' );
-	}
-
 	protected function run() {
-		( new InsertNotBotJs() )
-			->setMod( $this->getMod() )
-			->execute();
-		if ( $this->isForced() ) {
+		( new InsertNotBotJs() )->execute();
+		if ( $this->opts()->isOpt( 'force_notbot', 'Y' ) ) {
 			$this->sendNotBotNonceCookie();
 		}
 	}

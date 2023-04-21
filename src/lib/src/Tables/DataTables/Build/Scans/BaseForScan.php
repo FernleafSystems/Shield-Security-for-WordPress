@@ -56,7 +56,7 @@ class BaseForScan extends Base {
 				],
 				'title'       => __( 'File' ),
 				'className'   => 'file_as_href',
-				'orderable'   => true,
+				'orderable'   => false,
 				'searchable'  => true,
 				'visible'     => true,
 				'searchPanes' => [

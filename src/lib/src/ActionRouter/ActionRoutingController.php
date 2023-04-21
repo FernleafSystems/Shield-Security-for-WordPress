@@ -103,14 +103,14 @@ class ActionRoutingController {
 		if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 
 			$redirectTo = null;
+			$page = (string)$req->query( 'page' );
 
-			if ( $con->isPluginAdminPageRequest() ) {
+			if ( strpos( $page, $con->prefix() ) === 0 ) {
 
-				$page = (string)$req->query( 'page' );
 				$navID = (string)$req->query( Constants::NAV_ID );
 				$subNavID = (string)$req->query( Constants::NAV_SUB_ID );
 
-				if ( $page == $urls->rootAdminPageSlug() ) {
+				if ( $page === $urls->rootAdminPageSlug() ) {
 					if ( empty( $navID ) ) {
 						$redirectTo = $urls->adminHome();
 					}

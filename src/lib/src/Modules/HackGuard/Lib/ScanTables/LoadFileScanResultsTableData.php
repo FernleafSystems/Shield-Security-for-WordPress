@@ -231,11 +231,26 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ) :string {
 		$record = $item->getMalwareRecord();
+
+		switch ( $record->malai_status ) {
+			case MalwareStatus::STATUS_MALWARE:
+			case MalwareStatus::STATUS_PREDICTED_MALWARE:
+				$colourStyle = 'danger';
+				break;
+			case MalwareStatus::STATUS_CLEAN:
+			case MalwareStatus::STATUS_FP:
+				$colourStyle = 'success';
+				break;
+			default:
+				$colourStyle = 'warning';
+				break;
+		}
+
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
 			implode( '</li><li>', [
 				sprintf( '%s: <span class="badge text-bg-%s">%s</span>',
 					__( 'MAL{ai} Malware Status' ),
-					$record->malai_status === MalwareStatus::STATUS_MALWARE ? 'danger' : 'warning',
+					$colourStyle,
 					( new MalwareStatus() )->nameFromStatusLabel( $record->malai_status )
 				),
 				sprintf( '%s: %s', __( 'Pattern Detected' ), $sig ),
@@ -243,7 +258,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 					Services::Request()
 							->carbon()
 							->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
-						   ->diffForHumans()
+							->diffForHumans()
 				)
 			] )
 		);

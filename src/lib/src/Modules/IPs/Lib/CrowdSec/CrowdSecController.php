@@ -2,12 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
 class CrowdSecController extends ExecOnceModConsumer {
 
+	use ExecOnce;
+	use ModConsumer;
 	use PluginCronsConsumer;
 
 	/**
@@ -16,21 +19,17 @@ class CrowdSecController extends ExecOnceModConsumer {
 	public $cfg;
 
 	protected function canRun() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->isEnabledCrowdSecAutoBlock();
+		return $this->opts()->isEnabledCrowdSecAutoBlock();
 	}
 
 	protected function run() {
 		$this->setupCronHooks();
 
-		new Signals\EventsToSignals( $this->getCon(), $this->getCon()->is_mode_live );
+		new Signals\EventsToSignals( $this->con(), $this->con()->is_mode_live );
 
-		add_action( $this->getCon()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
+		add_action( $this->con()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
 			// This cron is initiated from within SignalsBuilder
-			( new Signals\PushSignalsToCS() )
-				->setMod( $this->getMod() )
-				->execute();
+			( new Signals\PushSignalsToCS() )->execute();
 		} );
 	}
 
@@ -48,8 +47,6 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new Decisions\ImportDecisions() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new Decisions\ImportDecisions() )->execute();
 	}
 }

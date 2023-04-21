@@ -2,14 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PushSignalsToCS extends ExecOnceModConsumer {
+class PushSignalsToCS {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	public const LIMIT = 100;
 
@@ -24,7 +28,6 @@ class PushSignalsToCS extends ExecOnceModConsumer {
 	}
 
 	protected function canRun() :bool {
-		/** @var ModCon $mod */
 		$mod = $this->getMod();
 		return $this->getCon()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
 	}

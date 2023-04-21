@@ -102,7 +102,7 @@ class Info extends Base {
 				);
 			}
 			elseif ( $record->malai_status === MalwareStatus::STATUS_FP ) {
-				$description[] = sprintf( '<span class="text-info">%s</span>',
+				$description[] = sprintf( '<span class="text-success">%s</span>',
 					__( "This file is confirmed a malware false positive - it contains code that looks like malware, but it is clean.", 'wp-simple-firewall' )
 				);
 			}

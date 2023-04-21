@@ -2,10 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
-class BotEventListener extends ExecOnceModConsumer {
+class BotEventListener {
+
+	use ExecOnce;
+	use ModConsumer;
+
+	protected function canRun() :bool {
+		return !$this->getCon()->this_req->is_trusted_bot && $this->mod()->getDbH_BotSignal()->isReady();
+	}
+
+	protected function run() {
+		add_action( 'shield/event', function ( $event ) {
+			$this->fireEventForIP( $this->getCon()->this_req->ip, $event );
+		} );
+	}
 
 	public function fireEventForIP( $ip, $event ) {
 		$events = $this->getEventsToColumn();
@@ -25,18 +38,6 @@ class BotEventListener extends ExecOnceModConsumer {
 				}
 			}
 		}
-	}
-
-	protected function canRun() :bool {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		return !$this->getCon()->this_req->is_trusted_bot && $mod->getDbH_BotSignal()->isReady();
-	}
-
-	protected function run() {
-		add_action( 'shield/event', function ( $event ) {
-			$this->fireEventForIP( $this->getCon()->this_req->ip, $event );
-		} );
 	}
 
 	/**

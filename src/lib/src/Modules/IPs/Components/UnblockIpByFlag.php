@@ -2,17 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
-class UnblockIpByFlag extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class UnblockIpByFlag {
 
-	use Shield\Modules\ModConsumer;
+	use ExecOnce;
+	use IPs\ModConsumer;
 
 	protected function canRun() :bool {
-		return !empty( Services::WpFs()->findFileInDir( 'unblock', $this->getCon()->paths->forFlag() ) );
+		return !empty( Services::WpFs()->findFileInDir( 'unblock', $this->con()->paths->forFlag() ) );
 	}
 
 	protected function run() {

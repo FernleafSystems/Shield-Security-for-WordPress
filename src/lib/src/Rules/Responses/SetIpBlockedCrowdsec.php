@@ -13,9 +13,7 @@ class SetIpBlockedCrowdsec extends Base {
 		$this->getCon()->this_req->is_ip_blocked_crowdsec = true;
 
 		add_action( 'init', function () {
-			( new BlockRequestCrowdsec() )
-				->setMod( $this->getCon()->getModule_IPs() )
-				->execute();
+			( new BlockRequestCrowdsec() )->execute();
 		}, HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC );
 
 		return true;

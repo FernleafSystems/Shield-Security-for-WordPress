@@ -26,11 +26,11 @@ class ModCon extends BaseShield\ModCon {
 	private $crowdSecCon;
 
 	public function getBotSignalsController() :Lib\Bots\BotSignalsController {
-		return $this->botSignalsCon ?? $this->botSignalsCon = ( new Lib\Bots\BotSignalsController() )->setMod( $this );
+		return $this->botSignalsCon ?? $this->botSignalsCon = new Lib\Bots\BotSignalsController();
 	}
 
 	public function getCrowdSecCon() :Lib\CrowdSec\CrowdSecController {
-		return $this->crowdSecCon ?? $this->crowdSecCon = ( new Lib\CrowdSec\CrowdSecController() )->setMod( $this );
+		return $this->crowdSecCon ?? $this->crowdSecCon = new Lib\CrowdSec\CrowdSecController();
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {

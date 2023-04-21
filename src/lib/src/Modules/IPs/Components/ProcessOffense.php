@@ -2,16 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
-class ProcessOffense extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class ProcessOffense {
 
+	use ExecOnce;
+	use IPs\ModConsumer;
 	use IpAddressConsumer;
 
 	protected function run() {
-		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		try {
 			$offenseTracker = $mod->loadOffenseTracker();
@@ -23,10 +25,8 @@ class ProcessOffense extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) {
 		$con = $this->getCon();
-		/** @var IPs\ModCon $mod */
 		$mod = $this->getMod();
 		$dbh = $mod->getDbH_IPRules();
-		/** @var IPs\Options $opts */
 		$opts = $this->getOptions();
 
 		try {

@@ -440,7 +440,7 @@ class Controller extends DynPropertiesClass {
 	 * @see PluginAdminPageHandler - All Plugin admin pages go through the plugin modules, see:
 	 */
 	public function isPluginAdminPageRequest() :bool {
-		return Services::Request()->query( 'page' ) === $this->getModule_Plugin()->getModSlug();
+		return Services::Request()->query( 'page' ) === $this->plugin_urls->rootAdminPageSlug();
 	}
 
 	public function onWpDeactivatePlugin() {
