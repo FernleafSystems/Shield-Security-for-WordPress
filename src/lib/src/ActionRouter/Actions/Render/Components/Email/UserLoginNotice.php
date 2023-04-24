@@ -22,7 +22,7 @@ class UserLoginNotice extends EmailBase {
 					'details_url'      => sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $this->action_data[ 'home_url' ] ),
 					'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $this->action_data[ 'username' ] ),
 					'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] ),
-					'details_time'     => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->action_data[ 'timestamp' ] ),
+					'details_time'     => sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $this->action_data[ 'timestamp' ] ),
 				]
 			]
 		];

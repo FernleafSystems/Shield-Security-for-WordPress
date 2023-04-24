@@ -76,8 +76,6 @@ class Query {
 	}
 
 	/**
-	 * @param string $fullPath
-	 * @return bool
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
