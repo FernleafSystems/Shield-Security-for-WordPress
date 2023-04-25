@@ -9,8 +9,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	Query
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files;
 
 class PluginFile extends BasePluginThemeFile {
+
+	protected function canScan() :bool {
+		$can = parent::canScan();
+		if ( $can ) {
+			$this->asset = ( new Files() )->findPluginFromFile( $this->pathFull );
+			$can = !empty( $this->asset );
+		}
+		return $can;
+	}
 
 	/**
 	 * @throws Exceptions\PluginFileUnrecognisedException
@@ -19,22 +29,16 @@ class PluginFile extends BasePluginThemeFile {
 	protected function runScan() :bool {
 		try {
 			if ( !( new Query() )->verifyHash( $this->pathFull ) ) {
-				throw new Exceptions\PluginFileChecksumFailException(
-					$this->pathFull,
-					[
-						'slug' => $this->asset->unique_id,
-					]
-				);
+				throw new Exceptions\PluginFileChecksumFailException( $this->pathFull, [
+					'slug' => $this->asset->unique_id,
+				] );
 			}
 			$valid = true;
 		}
 		catch ( UnrecognisedAssetFile $e ) {
-			throw new Exceptions\PluginFileUnrecognisedException(
-				$this->pathFull,
-				[
-					'slug' => $this->asset->unique_id,
-				]
-			);
+			throw new Exceptions\PluginFileUnrecognisedException( $this->pathFull, [
+				'slug' => $this->asset->unique_id,
+			] );
 		}
 		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
 			$valid = false;

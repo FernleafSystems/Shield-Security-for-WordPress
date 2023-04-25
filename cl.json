@@ -70,7 +70,7 @@
     "patches":     [
       {
         "version":     "5",
-        "released_at": 1679660001,
+        "released_at": 1682412400,
         "items":       [
           {
             "title": "Added support for scanning .mo after MAL{ai} malware analysis indicate this is a common injection file type.",

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Integrations,
 	Integrations\Lib\Bots\Common\BaseHandler,
 	IPs,
 	IPs\Lib\IpRules\IpRuleStatus,
@@ -170,6 +169,12 @@ class SectionNotices {
 				if ( empty( $opts->getBotProtectionLocations() ) ) {
 					$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
 				}
+				elseif ( !$con->getModule_IPs()->isModOptEnabled() ) {
+					$warnings[] = sprintf(
+						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_IPs(), 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
+					);
+				}
 
 				$installedButNotEnabledProviders = array_filter(
 					$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled(),
@@ -190,43 +195,58 @@ class SectionNotices {
 				break;
 
 			case 'section_user_forms':
-				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->getOptions();
-				if ( !$opts->isEnabledAntiBot() ) {
-					$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
-						__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" target="_blank">%s</a>',
-							$con->plugin_urls->modCfg( $con->getModule_LoginGuard() ),
-							__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
+				if ( !$con->getModule_IPs()->isModOptEnabled() ) {
+					$warnings[] = sprintf(
+						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_IPs(), 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
+				}
+				else {
+					/** @var LoginGuard\Options $opts */
+					$opts = $con->getModule_LoginGuard()->getOptions();
+					if ( !$opts->isEnabledAntiBot() ) {
+						$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
+							__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
+							sprintf( '<a href="%s" target="_blank">%s</a>',
+								$con->plugin_urls->modCfg( $con->getModule_LoginGuard() ),
+								__( 'Click here to review those settings.', 'wp-simple-firewall' ) )
+						);
+					}
 				}
 				break;
 
 			case 'section_spam':
-				/** @var Integrations\ModCon $mod */
-				$mod = $con->getModule_Integrations();
-				/** @var BaseHandler[] $installedButNotEnabledProviders */
-				$installedButNotEnabledProviders = array_filter(
-					array_map(
-						function ( $providerClass ) {
-							return new $providerClass();
-						},
-						$mod->getController_SpamForms()->enumProviders()
-					),
-					function ( $provider ) {
-						return !$provider->isEnabled() && $provider::IsProviderAvailable();
-					}
-				);
-
-				if ( !empty( $installedButNotEnabledProviders ) ) {
-					$warnings[] = sprintf( __( "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
-						$con->getHumanName(),
-						implode( ', ', array_map(
-							function ( $provider ) {
-								return $provider->getHandlerName();
-							}, $installedButNotEnabledProviders
-						) )
+				if ( !$con->getModule_IPs()->isModOptEnabled() ) {
+					$warnings[] = sprintf(
+						__( "WordPress login forms aren't protected against bots because you've disabled %s, which controls the ADE Bot Detection system.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_IPs(), 'section_enable_plugin_feature_ips' ), 'the IP Blocking module' )
 					);
+				}
+				else {
+					$mod = $con->getModule_Integrations();
+					/** @var BaseHandler[] $installedButNotEnabledProviders */
+					$installedButNotEnabledProviders = array_filter(
+						array_map(
+							function ( $providerClass ) {
+								return new $providerClass();
+							},
+							$mod->getController_SpamForms()->enumProviders()
+						),
+						function ( $provider ) {
+							return !$provider->isEnabled() && $provider::IsProviderAvailable();
+						}
+					);
+
+					if ( !empty( $installedButNotEnabledProviders ) ) {
+						$warnings[] = sprintf( __( "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
+							$con->getHumanName(),
+							implode( ', ', array_map(
+								function ( $provider ) {
+									return $provider->getHandlerName();
+								}, $installedButNotEnabledProviders
+							) )
+						);
+					}
 				}
 				break;
 
