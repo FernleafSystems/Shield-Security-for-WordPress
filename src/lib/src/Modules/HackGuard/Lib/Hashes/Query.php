@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\{
 	AssetHashesNotFound,
-	NoneAssetFileException,
+	NonAssetFileException,
 	UnrecognisedAssetFile
 };
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -21,7 +21,7 @@ class Query {
 
 	/**
 	 * @throws AssetHashesNotFound
-	 * @throws NoneAssetFileException
+	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \Exception
 	 */
@@ -47,14 +47,14 @@ class Query {
 
 	/**
 	 * @return WpPluginVo|WpThemeVo
-	 * @throws NoneAssetFileException
+	 * @throws NonAssetFileException
 	 */
 	private function findAssetFromPath( string $path ) {
 		$vo = ( new Plugin\Files() )->findPluginFromFile( $path );
 		if ( empty( $vo ) ) {
 			$vo = ( new Theme\Files() )->findThemeFromFile( $path );
 			if ( empty( $vo ) ) {
-				throw new NoneAssetFileException( 'Not a plugin or theme file path' );
+				throw new NonAssetFileException( 'Not a plugin or theme file path' );
 			}
 		}
 		return $vo;
@@ -62,7 +62,7 @@ class Query {
 
 	/**
 	 * @throws AssetHashesNotFound
-	 * @throws NoneAssetFileException
+	 * @throws NonAssetFileException
 	 * @throws \Exception
 	 */
 	public function fileExistsInHash( string $path ) :bool {
@@ -76,10 +76,8 @@ class Query {
 	}
 
 	/**
-	 * @param string $fullPath
-	 * @return bool
 	 * @throws AssetHashesNotFound
-	 * @throws NoneAssetFileException
+	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
 	 */

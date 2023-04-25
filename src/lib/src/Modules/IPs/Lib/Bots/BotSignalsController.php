@@ -2,16 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	BotTrack,
-	ModCon,
-	Options
+	ModConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BotSignalsController extends ExecOnceModConsumer {
+class BotSignalsController {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	/**
 	 * @var NotBotHandler
@@ -23,15 +25,17 @@ class BotSignalsController extends ExecOnceModConsumer {
 	 */
 	private $eventListener;
 
+	private $isBots = [];
+
 	protected function canRun() :bool {
-		return $this->getCon()->this_req->ip_is_public;
+		return $this->con()->this_req->ip_is_public;
 	}
 
 	protected function run() {
 		$this->getEventListener()->execute();
 		add_action( 'init', function () {
 			foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
-				( new $botTrackerClass() )->setMod( $this->getMod() )->execute();
+				( new $botTrackerClass() )->setMod( $this->mod() )->execute();
 			}
 		} );
 		$this->getHandlerNotBot()->execute();
@@ -39,52 +43,61 @@ class BotSignalsController extends ExecOnceModConsumer {
 		$this->registerLoginPageLoad();
 	}
 
-	public function isBot( string $IP = '', bool $allowEventFire = true ) :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
+	public function isBot( string $IP = '', bool $allowEventFire = true, bool $forceCheck = false ) :bool {
 
-		$isBot = false;
-		$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum', $opts->getAntiBotMinimum() );
+		if ( !isset( $this->isBots[ $IP ] ) || $forceCheck ) {
 
-		if ( $botScoreMinimum > 0 ) {
+			$this->isBots[ $IP ] = false;
 
-			$score = ( new Calculator\CalculateVisitorBotScores() )
-				->setIP( empty( $IP ) ? $this->getCon()->this_req->ip : $IP )
-				->probability();
+			$opts = \method_exists( $this, 'opts' ) ? $this->opts() : $this->getOptions();
 
-			$isBot = $score < $botScoreMinimum;
+			if ( !$opts->isEnabledAntiBotEngine() ) {
+				$this->con()->fireEvent( 'ade_check_option_disabled' );
+			}
+			elseif ( !$this->mod()->isModOptEnabled() ) {
+				$this->con()->fireEvent( 'ade_check_module_disabled' );
+			}
+			else {
+				$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum', $opts->getAntiBotMinimum() );
 
-			if ( $allowEventFire ) {
-				$this->getCon()->fireEvent(
-					'antibot_'.( $isBot ? 'fail' : 'pass' ),
-					[
-						'audit_params' => [
-							'score'   => $score,
-							'minimum' => $botScoreMinimum,
-						]
-					]
-				);
+				if ( $botScoreMinimum > 0 ) {
+
+					$score = ( new Calculator\CalculateVisitorBotScores() )
+						->setIP( empty( $IP ) ? $this->getCon()->this_req->ip : $IP )
+						->probability();
+
+					$this->isBots[ $IP ] = $score < $botScoreMinimum;
+
+					if ( $allowEventFire ) {
+						$this->getCon()->fireEvent(
+							'antibot_'.( $this->isBots[ $IP ] ? 'fail' : 'pass' ),
+							[
+								'audit_params' => [
+									'score'   => $score,
+									'minimum' => $botScoreMinimum,
+								]
+							]
+						);
+					}
+				}
 			}
 		}
-		return $isBot;
+
+		return $this->isBots[ $IP ] ?? false;
 	}
 
 	public function getHandlerNotBot() :NotBot\NotBotHandler {
-		return $this->handlerNotBot ?? $this->handlerNotBot = ( new NotBotHandler() )->setMod( $this->getMod() );
+		return $this->handlerNotBot ?? $this->handlerNotBot = new NotBotHandler();
 	}
 
 	public function getEventListener() :BotEventListener {
-		return $this->eventListener ?? $this->eventListener = ( new BotEventListener() )->setMod( $this->getMod() );
+		return $this->eventListener ?? $this->eventListener = new BotEventListener();
 	}
 
 	/**
 	 * @return string[]
 	 */
 	private function enumerateBotTrackers() :array {
-		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 
 		$trackers = [
 			BotTrack\TrackCommentSpam::class
@@ -93,15 +106,15 @@ class BotSignalsController extends ExecOnceModConsumer {
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
 			if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
-				if ( $opts->isEnabledTrackLoginFailed() ) {
+				if ( $this->opts()->isEnabledTrackLoginFailed() ) {
 					$trackers[] = BotTrack\TrackLoginFailed::class;
 				}
-				if ( $opts->isEnabledTrackLoginInvalid() ) {
+				if ( $this->opts()->isEnabledTrackLoginInvalid() ) {
 					$trackers[] = BotTrack\TrackLoginInvalid::class;
 				}
 			}
 
-			if ( $opts->isEnabledTrackLinkCheese() && $mod->canLinkCheese() ) {
+			if ( $this->opts()->isEnabledTrackLinkCheese() && $this->mod()->canLinkCheese() ) {
 				$trackers[] = BotTrack\TrackLinkCheese::class;
 			}
 		}

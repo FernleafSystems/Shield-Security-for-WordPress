@@ -7,37 +7,35 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpCoreFile extends BaseScan {
 
+	protected function canScan() :bool {
+		return parent::canScan() && Services::CoreFileHashes()->isCoreFile( $this->pathFull );
+	}
+
 	/**
 	 * @throws Exceptions\WpCoreFileChecksumFailException
 	 * @throws Exceptions\WpCoreFileMissingException
 	 */
-	public function scan() :bool {
-		$valid = false;
-
-		$WPH = Services::CoreFileHashes();
-		if ( $WPH->isCoreFile( $this->pathFull ) && !$this->isExcluded( $this->pathFragment ) ) {
-			if ( !Services::WpFs()->isFile( $this->pathFull ) ) {
-				if ( !$this->isExcludedMissing( $this->pathFragment ) ) {
-					throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
-				}
+	protected function runScan() :bool {
+		if ( !Services::WpFs()->isFile( $this->pathFull ) ) {
+			if ( !$this->isExcludedMissing() ) {
+				throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
 			}
-			elseif ( !$WPH->isCoreFileHashValid( $this->pathFull ) ) {
-				throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull );
-			}
-			$valid = true;
+		}
+		elseif ( !Services::CoreFileHashes()->isCoreFileHashValid( $this->pathFull ) ) {
+			throw new Exceptions\WpCoreFileChecksumFailException( $this->pathFull );
 		}
 
-		return $valid;
+		return true;
 	}
 
-	private function isExcluded( string $pathFragment ) :bool {
+	protected function isFileExcluded() :bool {
 		$exclusionsRegex = $this->getScanFileExclusions();
-		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $pathFragment );
+		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $this->pathFragment );
 	}
 
-	private function isExcludedMissing( string $pathFragment ) :bool {
+	private function isExcludedMissing() :bool {
 		$exclusionsRegex = $this->getScanExclusionsForMissingItems();
-		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $pathFragment );
+		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $this->pathFragment );
 	}
 
 	private function getScanFileExclusions() :string {

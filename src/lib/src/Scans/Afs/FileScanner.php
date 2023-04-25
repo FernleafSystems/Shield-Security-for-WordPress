@@ -24,22 +24,22 @@ class FileScanner {
 			$validFile =
 				( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->scan() ) ||
+						->isFileValid() ) ||
 				( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->scan() ) ||
+						->isFileValid() ) ||
 				( $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
 						->setScanActionVO( $action )
-						->scan() ) ||
+						->isFileValid() ) ||
 				( $scanCon->isScanEnabledPlugins() && ( new Scans\PluginFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->scan() ) ||
+						->isFileValid() ) ||
 				( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->scan() );
+						->isFileValid() );
 				( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
 						->setScanActionVO( $action )
-						->scan() );
+						->isFileValid() );
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
 			$item = $this->getResultItem( $fullPath );
@@ -92,13 +92,15 @@ class FileScanner {
 			$item->is_in_wpcontent = true;
 			$item->is_unidentified = true;
 		}
+		catch ( \Exception $e ) {
+			//Never reached
+		}
 
 		if ( $scanCon->isEnabledMalwareScanPHP() && ( empty( $item ) || !$item->is_missing ) ) {
 			try {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setScanActionVO( $action )
-					->setFileValidStatus( $validFile )
-					->scan();
+					->isFileValid();
 			}
 			catch ( Exceptions\MalwareFileException $mfe ) {
 				$item = $item ?? $this->getResultItem( $fullPath );

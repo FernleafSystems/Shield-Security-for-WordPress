@@ -38,7 +38,7 @@
       {
         "type":        "new",
         "pro_only":    false,
-        "title":       "Added Extra Protection To Security Admin",
+        "title":       "Toggle Security Analysis Overview",
         "description": [
           "Added the option to view your Security Overview as either ShieldFREE or ShieldPRO."
         ]
@@ -68,6 +68,28 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "5",
+        "released_at": 1682412400,
+        "items":       [
+          {
+            "title": "Added support for scanning .mo after MAL{ai} malware analysis indicate this is a common injection file type.",
+            "type":  "new"
+          },
+          {
+            "title": "ADE Not-Bot checking will only run if the IP module and NotBot options are enabled. Otherwise, no bot assessment will be performed.",
+            "type":  "improved"
+          },
+          {
+            "title": "Apply some automatic malware scanning exclusions.",
+            "type":  "improved"
+          },
+          {
+            "title": "UI and menu fixes.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "17.0": {

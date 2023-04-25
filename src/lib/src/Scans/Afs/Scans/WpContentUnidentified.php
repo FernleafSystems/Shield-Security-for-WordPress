@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFileExcluded;
-use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 /**
  * Must come after the WP, Plugin and Theme scans.
@@ -14,12 +12,25 @@ class WpContentUnidentified extends BaseScan {
 	/**
 	 * @throws Exceptions\WpContentFileUnidentifiedException
 	 */
-	public function scan() :bool {
+	protected function runScan() :bool {
 		// Is it in the WP root dir?
-		if ( $this->inWpContentDir() && $this->isExtensionIncluded() && !$this->isExcluded() ) {
+		if ( $this->inWpContentDir() ) {
 			throw new Exceptions\WpContentFileUnidentifiedException( $this->pathFull );
 		}
 		return false;
+	}
+
+	// TODO: empty file extension support
+	protected function getSupportedFileExtensions() :array {
+		return [
+			'ico',
+			'js',
+			'mo',
+			'php',
+			'php5',
+			'php7',
+			'phtm',
+		];
 	}
 
 	private function inWpContentDir() :bool {
@@ -53,27 +64,21 @@ class WpContentUnidentified extends BaseScan {
 		return $in;
 	}
 
-	private function isExtensionIncluded() :bool {
-		$ext = Paths::Ext( $this->pathFull );
-		return empty( $ext ) ||
-			   preg_match( sprintf( '#^(%s)$#i', implode( '|', [
-				   'ico',
-				   'php',
-				   'phtm',
-				   'js',
-			   ] ) ), $ext );
-	}
-
-	private function isExcluded() :bool {
-
+	protected function getPathExcludes() :array {
 		$wpContentPaths = [
 			'/advanced-cache.php',
 			'/autoptimize_404_handler.php',
 			'/breeze-config/breeze-config.php',
 			'/uploads/wph/environment.php',
+			'/wflogs/rules.php',
+			'/wflogs/config-livewaf.php',
 		];
 		$wpContentPathsRegex = [
 			'/uploads/siteground\-optimizer\-assets/siteground\-optimizer\-combined\-js\-[a-zA-Z\d]{32}\.js$',
+			'/uploads/.*/backupbuddy_dat\.php$',
+			'/.*settings_backup\-.*\.php$',
+			'/uploads/.*\.ufm.php$',
+			'/jetpack-waf/.*automatic-rules\.php$',
 		];
 
 		$excludes = [
@@ -91,6 +96,6 @@ class WpContentUnidentified extends BaseScan {
 			}
 		}
 
-		return ( new IsFileExcluded() )->check( $this->pathFull, $excludes );
+		return $excludes;
 	}
 }

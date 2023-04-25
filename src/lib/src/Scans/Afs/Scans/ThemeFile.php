@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	Exceptions\AssetHashesNotFound,
-	Exceptions\NoneAssetFileException,
+	Exceptions\NonAssetFileException,
 	Exceptions\UnrecognisedAssetFile,
 	Query
 };
@@ -13,49 +13,35 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme\Files;
 
 class ThemeFile extends BasePluginThemeFile {
 
+	protected function canScan() :bool {
+		$can = parent::canScan();
+		if ( $can ) {
+			$this->asset = ( new Files() )->findThemeFromFile( $this->pathFull );
+			$can = !empty( $this->asset );
+		}
+		return $can;
+	}
+
 	/**
 	 * @throws Exceptions\ThemeFileUnrecognisedException
 	 * @throws Exceptions\ThemeFileChecksumFailException
 	 */
-	public function scan() :bool {
-		$valid = false;
-
-		$asset = ( new Files() )->findThemeFromFile( $this->pathFull );
-		if ( !empty( $asset ) ) {
-
-			if ( $this->isSupportedFileExt() ) {
-				try {
-					$verifiedHash = ( new Query() )->verifyHash( $this->pathFull );
-					if ( !$verifiedHash ) {
-						throw new Exceptions\ThemeFileChecksumFailException(
-							$this->pathFull,
-							[
-								'slug' => $asset->unique_id,
-							]
-						);
-					}
-					$valid = true;
-				}
-				catch ( AssetHashesNotFound $e ) {
-					// We don't have any hashes to use
-				}
-				catch ( NoneAssetFileException $e ) {
-					// Never reached since we've already located the asset
-				}
-				catch ( UnrecognisedAssetFile $e ) {
-					throw new Exceptions\ThemeFileUnrecognisedException(
-						$this->pathFull,
-						[
-							'slug' => $asset->unique_id,
-						]
-					);
-				}
-				catch ( \InvalidArgumentException $e ) {
-				}
+	protected function runScan() :bool {
+		try {
+			if ( !( new Query() )->verifyHash( $this->pathFull ) ) {
+				throw new Exceptions\ThemeFileChecksumFailException( $this->pathFull, [
+					'slug' => $this->asset->unique_id,
+				] );
 			}
-			else {
-				$valid = true;
-			}
+			$valid = true;
+		}
+		catch ( UnrecognisedAssetFile $e ) {
+			throw new Exceptions\ThemeFileUnrecognisedException( $this->pathFull, [
+				'slug' => $this->asset->unique_id,
+			] );
+		}
+		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
+			$valid = false;
 		}
 
 		return $valid;

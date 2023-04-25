@@ -50,10 +50,10 @@ abstract class BaseHandler {
 
 	protected function isBot() :bool {
 		if ( is_null( self::$isBot ) ) {
-			self::$isBot = $this->getCon()
+			self::$isBot = $this->con()
 								->getModule_IPs()
 								->getBotSignalsController()
-								->isBot( $this->getCon()->this_req->ip );
+								->isBot( $this->con()->this_req->ip );
 			$this->fireBotEvent();
 		}
 		return self::$isBot;
@@ -74,7 +74,7 @@ abstract class BaseHandler {
 	}
 
 	public function isEnabled() :bool {
-		return ( $this->getCon()->isPremiumActive() || !$this->isProOnly() )
+		return ( $this->con()->isPremiumActive() || !$this->isProOnly() )
 			   && in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
 	}
 
