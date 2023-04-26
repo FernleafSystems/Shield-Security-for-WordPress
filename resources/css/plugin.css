@@ -1180,9 +1180,10 @@ td.status_file_size  {
 		left: -45%;
 	}
 	100%{
-		left: 100%;
 	}
 }
-.update-nag {
+/** Hide notices from WP & plugins **/
+.update-nag,
+.ngg_admin_notice {
 	display: none;
 }
