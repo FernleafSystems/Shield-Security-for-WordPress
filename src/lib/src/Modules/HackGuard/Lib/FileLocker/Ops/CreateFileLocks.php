@@ -48,7 +48,7 @@ class CreateFileLocks extends BaseOps {
 		$publicKey = $this->getPublicKey();
 		$record->public_key_id = key( $publicKey );
 		$record->cipher = $this->mod()->getFileLocker()->getState()[ 'cipher' ];
-		$record->content = ( new BuildEncryptedFilePayload() )->build( $path, reset( $publicKey ) );
+		$record->content = ( new BuildEncryptedFilePayload() )->build( $path, reset( $publicKey ), $record->cipher );
 
 		/** @var FileLockerDB\Insert $inserter */
 		$inserter = $this->mod()->getDbH_FileLocker()->getQueryInserter();
