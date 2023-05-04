@@ -15,10 +15,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
-			case 'databases-not-ready':
-				$this->buildNotice_DatabasesNotReady( $notice );
-				break;
-
 			case 'rules-not-running':
 				$this->buildNotice_RulesNotRunning( $notice );
 				break;
@@ -55,27 +51,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				parent::processNotice( $notice );
 				break;
 		}
-	}
-
-	private function buildNotice_DatabasesNotReady( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s Databases May Need To Be Repaired", 'wp-simple-firewall' ), $name ) ),
-				'lines'        => [
-					__( 'To save you manual work, the plugin tries to manage its database tables automatically for you. But sometimes the automated process may run into trouble.', 'wp-simple-firewall' ),
-					__( "If this message persists for more than ~30 seconds, please use the link below to repair the plugin's database tables.", 'wp-simple-firewall' )
-					.' '.__( "This will result in a loss of all activity and traffic logs.", 'wp-simple-firewall' )
-				],
-				'click_repair' => __( 'Click here to repair the database tables', 'wp-simple-firewall' )
-			],
-			'ajax'              => [
-				'auto_db_repair' => ActionData::BuildJson( Actions\PluginAutoDbRepair::class )
-			]
-		];
 	}
 
 	private function buildNotice_RulesNotRunning( NoticeVO $notice ) {
@@ -253,10 +228,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
-			case 'databases-not-ready':
-				$needed = $this->isNeeded_DatabasesNotReady();
-				break;
-
 			case 'rules-not-running':
 				$needed = $this->isNeeded_RulesNotRunning();
 				break;
@@ -286,11 +257,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 		}
 		return $needed;
-	}
-
-	private function isNeeded_DatabasesNotReady() :bool {
-		$dbs = $this->getCon()->prechecks[ 'dbs' ];
-		return count( $dbs ) !== count( array_filter( $dbs ) );
 	}
 
 	private function isNeeded_PluginTooOld() :bool {

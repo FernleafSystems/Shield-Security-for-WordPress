@@ -25,14 +25,6 @@
     "enabled": true
   },
   "admin_notices": {
-    "databases-not-ready":        {
-      "id":               "databases-not-ready",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": false,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
     "plugin-too-old":             {
       "id":               "plugin-too-old",
       "schedule":         "conditions",

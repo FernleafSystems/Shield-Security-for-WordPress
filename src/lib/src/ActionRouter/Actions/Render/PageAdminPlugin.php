@@ -19,7 +19,7 @@ class PageAdminPlugin extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/index.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$req = Services::Request();
 
 		$nav = $con->getModule_Plugin()->isAccessRestricted()
@@ -46,7 +46,7 @@ class PageAdminPlugin extends BaseRender {
 				'page_container' => 'page-insights page-'.$nav
 			],
 			'content' => [
-				'rendered_page_body' => $this->getCon()->action_router->render( $delegateAction::SLUG, [
+				'rendered_page_body' => $this->con()->action_router->render( $delegateAction::SLUG, [
 					Constants::NAV_ID     => $nav,
 					Constants::NAV_SUB_ID => $subNav,
 				] ),
@@ -79,7 +79,7 @@ class PageAdminPlugin extends BaseRender {
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 		if ( $ipStatus->isBypass() ) {
 			$warnings[] = [
-				'type' => 'warning', // Boostrap,
+				'type' => 'warning', // Bootstrap,
 				'text' => [
 					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
@@ -88,7 +88,7 @@ class PageAdminPlugin extends BaseRender {
 		}
 		elseif ( $ipStatus->isBlocked() ) {
 			$warnings[] = [
-				'type' => 'danger', // Boostrap,
+				'type' => 'danger', // Bootstrap,
 				'text' => [
 					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
@@ -105,6 +105,24 @@ class PageAdminPlugin extends BaseRender {
 				'text' => [
 					__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
 					$e->getMessage(),
+				]
+			];
+		}
+
+
+		$dbPreChecks = $this->con()->prechecks[ 'dbs' ];
+		if ( count( $dbPreChecks ) !== count( array_filter( $dbPreChecks ) ) ) {
+			$warnings[] = [
+				'type' => 'danger',
+				'text' => [
+					sprintf(
+						'%s %s',
+						__( "The Shield database needs to be repaired as certain features won't be available without a valid database.", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" data-notice_action="auto_db_repair" class="shield_admin_notice_action text-white">%s</a>',
+							'#' ,
+							__( 'Run Database Repair', 'wp-simple-firewall' )
+						)
+					)
 				]
 			];
 		}
