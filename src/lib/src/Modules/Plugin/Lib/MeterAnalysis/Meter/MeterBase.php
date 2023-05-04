@@ -23,7 +23,7 @@ abstract class MeterBase {
 	}
 
 	public function warning() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$pluginMod = $con->getModule_Plugin();
 		/** @var Plugin\Options $pluginOpts */
 		$pluginOpts = $pluginMod->getOptions();

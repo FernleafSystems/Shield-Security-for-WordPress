@@ -15,11 +15,11 @@ class OverrideLocale extends ExecOnceModConsumer {
 		if ( !empty( $locale ) ) {
 
 			if ( preg_match( '#^[a-z]{2,3}(_[A-Z]{2,3})?$#', $locale ) ) {
-				unload_textdomain( $this->getCon()->getTextDomain() );
+				unload_textdomain( $this->con()->getTextDomain() );
 				add_filter(
 					'plugin_locale',
 					function ( $locale, $domain = '' ) {
-						return ( $domain === $this->getCon()->getTextDomain() ) ?
+						return ( $domain === $this->con()->getTextDomain() ) ?
 							$this->getOptions()->getOpt( 'locale_override' )
 							: $locale;
 					},

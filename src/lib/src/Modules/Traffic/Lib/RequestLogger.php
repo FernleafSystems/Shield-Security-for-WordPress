@@ -24,7 +24,7 @@ class RequestLogger {
 	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
 	 */
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
+		add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {
 			if ( $this->isRequestToBeLogged() ) {
 				try {
 					( new Monolog() )->assess();
@@ -48,12 +48,12 @@ class RequestLogger {
 			function ( $handler ) {
 				$this->getLogger()->pushHandler( $handler );
 			},
-			( $this->getCon()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
+			( $this->con()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
 		);
 	}
 
 	private function isRequestToBeLogged() :bool {
-		return !$this->getCon()->plugin_deleting
+		return !$this->con()->plugin_deleting
 			   && apply_filters( 'shield/is_log_traffic', $this->opts()->isTrafficLoggerEnabled()
 														  && !$this->isCustomExcluded()
 														  && !$this->isRequestTypeExcluded() );

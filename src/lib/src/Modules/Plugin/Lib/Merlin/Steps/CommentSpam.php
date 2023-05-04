@@ -29,7 +29,7 @@ class CommentSpam extends Base {
 			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
-		$mod = $this->getCon()->getModule_Comments();
+		$mod = $this->con()->getModule_Comments();
 
 		$toEnable = $value === 'Y';
 		if ( $toEnable ) { // we don't disable the whole module

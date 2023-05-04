@@ -31,7 +31,7 @@ class LoadBotSignalRecords {
 						ORDER BY `bs`.updated_at DESC
 						LIMIT 1;",
 				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$this->getIP()
 			)
 		);

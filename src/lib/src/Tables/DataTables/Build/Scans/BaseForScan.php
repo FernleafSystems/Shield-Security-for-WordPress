@@ -28,7 +28,7 @@ class BaseForScan extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
-			'rid'          => [
+			'rid'              => [
 				'data'        => 'rid',
 				'title'       => 'ID',
 				'orderable'   => true,
@@ -38,7 +38,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'file'         => [
+			'file'             => [
 				'data'        => 'file',
 				'title'       => __( 'File' ),
 				'className'   => 'file',
@@ -121,7 +121,7 @@ class BaseForScan extends Base {
 					'show' => false
 				],
 			],
-			'actions'      => [
+			'actions'          => [
 				'data'        => 'actions',
 				'title'       => __( 'Actions' ),
 				'className'   => 'actions',

@@ -91,7 +91,7 @@ class ModCon extends BaseShield\ModCon {
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : dirname( $workableDir );
 
 		$opts->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
-		$this->getCon()->cache_dir_handler = $cacheDirFinder;
+		$this->con()->cache_dir_handler = $cacheDirFinder;
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -120,7 +120,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function deleteAllPluginCrons() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$wpCrons = Services::WpCron();
 
 		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
@@ -136,7 +136,7 @@ class ModCon extends BaseShield\ModCon {
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
@@ -169,11 +169,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return $this->getCon()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
+		return $this->con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
 	}
 
 	public function getPluginReportEmail() :string {
-		$con = $this->getCon();
+		$con = $this->con();
 		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
 		if ( $con->isPremiumActive() ) {
 			$e = apply_filters( $con->prefix( 'report_email' ), $e );
@@ -203,7 +203,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFirstInstallDate() :int {
-		return (int)Services::WpGeneral()->getOption( $this->getCon()->prefixOption( 'install_date' ) );
+		return (int)Services::WpGeneral()->getOption( $this->con()->prefixOption( 'install_date' ) );
 	}
 
 	public function getInstallDate() :int {
@@ -218,7 +218,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$key = $this->getCon()->prefixOption( 'install_date' );
+		$key = $this->con()->prefixOption( 'install_date' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
 			$wpDate = Services::Request()->ts();
@@ -297,11 +297,10 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			$con = $this->getCon();
-			$AR = $con->action_router;
-			if ( !empty( $AR ) && $con->isModulePage() ) {
-				echo $AR->render( BannerGoPro::SLUG );
-				echo $AR->render( ToastPlaceholder::SLUG );
+			$con = $this->con();
+			if ( $con->isPluginAdminPageRequest() ) {
+				echo $con->action_router->render( BannerGoPro::SLUG );
+				echo $con->action_router->render( ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
 	}

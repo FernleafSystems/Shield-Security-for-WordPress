@@ -20,14 +20,14 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function getLoginIntentMinutes() :int {
 		return (int)max( 1, apply_filters(
-			$this->getCon()->prefix( 'login_intent_timeout' ),
+			$this->con()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
 	}
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return $this->getCon()->isPremiumActive() ? $ids : [];
+		return $this->con()->isPremiumActive() ? $ids : [];
 	}
 
 	public function getCooldownInterval() :int {
@@ -59,7 +59,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getMfaSkip() :int { // seconds
-		return DAY_IN_SECONDS*( $this->getCon()->isPremiumActive() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
+		return DAY_IN_SECONDS*( $this->con()->isPremiumActive() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
 	}
 
 	public function getYubikeyAppId() :string {
@@ -96,11 +96,11 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function isEnabledEmailAuthAnyUserSet() :bool {
 		return $this->isEmailAuthenticationActive()
-			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->getCon()->isPremiumActive();
+			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->con()->isPremiumActive();
 	}
 
 	public function isEnabledBackupCodes() :bool {
-		return $this->getCon()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
+		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	public function isEnabledGoogleAuthenticator() :bool {
@@ -108,7 +108,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function isEnabledU2F() :bool {
-		return $this->getCon()->isPremiumActive() && $this->isOpt( 'enable_u2f', 'Y' );
+		return $this->con()->isPremiumActive() && $this->isOpt( 'enable_u2f', 'Y' );
 	}
 
 	public function isProtectLogin() :bool {

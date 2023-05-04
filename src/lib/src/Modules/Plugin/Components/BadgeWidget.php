@@ -18,11 +18,11 @@ class BadgeWidget extends \WP_Widget {
 		$this->setMod( $mod );
 
 		parent::__construct(
-			$this->getCon()->prefixOption( 'plugin_badge' ),
-			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
+			$this->con()->prefixOption( 'plugin_badge' ),
+			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $this->con()->getHumanName() ),
 			[
 				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
+					$this->con()->getHumanName() ),
 			]
 		);
 
@@ -47,7 +47,7 @@ class BadgeWidget extends \WP_Widget {
 
 	public function renderBadge() :string {
 		return ( new PluginBadge() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->render();
 	}
 }

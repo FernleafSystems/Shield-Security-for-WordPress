@@ -20,7 +20,7 @@ class Upgrade extends Base\Upgrade {
 				'sessions'
 			] as $table
 		) {
-			$table = sprintf( '%s%s%s', $WPDB->getPrefix(), $this->getCon()->getOptionStoragePrefix(), $table );
+			$table = sprintf( '%s%s%s', $WPDB->getPrefix(), $this->con()->getOptionStoragePrefix(), $table );
 			if ( $WPDB->tableExists( $table ) ) {
 				$WPDB->doDropTable( $table );
 			}

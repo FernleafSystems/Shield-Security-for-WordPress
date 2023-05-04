@@ -76,7 +76,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		$aData = ( new Lib\ImportExport\Export() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->toStandardArray();
 		if ( !$FS->putFileContent( $file, implode( "\n", $aData ) ) ) {
 			WP_CLI::error( __( "The system reports that writing the export file failed.", 'wp-simple-firewall' ) );

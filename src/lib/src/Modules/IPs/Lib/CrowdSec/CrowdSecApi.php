@@ -67,7 +67,7 @@ class CrowdSecApi {
 		elseif ( $csAuth[ 'auth_expire' ] - Services::Request()->ts() < 0 ) {
 			$state = self::STATE_AUTH_EXPIRED;
 		}
-		elseif ( empty( $this->getOptions()->getOpt( 'cs_enroll_id' ) ) ) {
+		elseif ( empty( $this->opts()->getOpt( 'cs_enroll_id' ) ) ) {
 			$state = self::STATE_READY_NO_ENROLL_ID;
 		}
 		elseif ( empty( $csAuth[ 'machine_enrolled' ] ) ) {
@@ -167,7 +167,7 @@ class CrowdSecApi {
 		}
 		$this->storeCsAuth( $auth );
 
-		$machStartID = str_replace( '-', '', $this->getCon()->getInstallationID()[ 'id' ] );
+		$machStartID = str_replace( '-', '', $this->con()->getInstallationID()[ 'id' ] );
 		if ( empty( $auth[ 'machine_id' ] ) || strpos( $auth[ 'machine_id' ], $machStartID ) !== 0 ) {
 			$auth = [
 				'auth_start_at' => $now,
@@ -190,7 +190,7 @@ class CrowdSecApi {
 			try {
 				( new Api\MachineRegister( $this->getApiUserAgent() ) )->run( $auth[ 'machine_id' ], $auth[ 'password' ] );
 				$auth[ 'machine_registered' ] = true;
-				$this->getCon()->fireEvent( 'crowdsec_mach_register', [
+				$this->con()->fireEvent( 'crowdsec_mach_register', [
 					'audit_params' => [
 						'machine_id' => $auth[ 'machine_id' ],
 						'url'        => $auth[ 'url' ],
@@ -229,7 +229,7 @@ class CrowdSecApi {
 				$auth[ 'failed_login_count' ] = 0;
 				$this->storeCsAuth( $auth );
 
-				$this->getCon()->fireEvent( 'crowdsec_auth_acquire', [
+				$this->con()->fireEvent( 'crowdsec_auth_acquire', [
 					'audit_params' => [
 						'expiration' => $login[ 'expire' ], // format: 2022-06-09T14:15:50Z
 					]
@@ -249,18 +249,15 @@ class CrowdSecApi {
 	 * @throws Exceptions\MachineEnrollFailedException
 	 */
 	public function machineEnroll() {
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
-
 		$auth = $this->getCsAuth();
 
 		// Enroll if we have the ID
-		$enrollID = preg_replace( '#[^a-z\d]#i', '', (string)$opts->getOpt( 'cs_enroll_id' ) );
+		$enrollID = preg_replace( '#[^a-z\d]#i', '', (string)$this->opts()->getOpt( 'cs_enroll_id' ) );
 		if ( !empty( $enrollID ) && empty( $auth[ 'machine_enrolled' ] ) ) {
 
 			$defaultTags = [ 'shield', 'wp', ];
 			$defaultName = preg_replace( '#^http(s)?://#i', '', Services::WpGeneral()->getWpUrl() );
-			if ( $this->getCon()->isPremiumActive() ) {
+			if ( $this->con()->isPremiumActive() ) {
 				$enrollTags = apply_filters( 'shield/crowdsec/enroll_tags', $defaultTags );
 				$enrollName = (string)apply_filters( 'shield/crowdsec/enroll_name', $defaultName );
 				if ( empty( $enrollName ) ) {
@@ -280,7 +277,7 @@ class CrowdSecApi {
 			$auth[ 'machine_enrolled' ] = true;
 			$this->storeCsAuth( $auth );
 
-			$this->getCon()->fireEvent( 'crowdsec_mach_enroll', [
+			$this->con()->fireEvent( 'crowdsec_mach_enroll', [
 				'audit_params' => [
 					'id'   => $enrollID,
 					'name' => $enrollName,
@@ -290,18 +287,18 @@ class CrowdSecApi {
 	}
 
 	private function getScenarios() :array {
-		$scenarios = $this->getCon()
+		$scenarios = $this->con()
 						  ->getModule_License()
 						  ->getLicenseHandler()
 						  ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
-		if ( $this->getCon()->isPremiumActive() ) {
+		if ( $this->con()->isPremiumActive() ) {
 			$filteredScenarios = apply_filters( 'shield/crowdsec/login_scenarios', $scenarios );
 			if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
 				$scenarios = $filteredScenarios;
 			}
 		}
 
-		return empty( $scenarios ) ? $this->getOptions()->getDef( 'crowdsec' )[ 'scenarios' ][ 'free' ] : $scenarios;
+		return empty( $scenarios ) ? $this->opts()->getDef( 'crowdsec' )[ 'scenarios' ][ 'free' ] : $scenarios;
 	}
 
 	private function getCsAuth() :array {
@@ -309,7 +306,7 @@ class CrowdSecApi {
 	}
 
 	private function getCsAuths() :array {
-		$auths = Services::WpGeneral()->getOption( $this->getCon()->prefix( 'cs_auths' ) );
+		$auths = Services::WpGeneral()->getOption( $this->con()->prefix( 'cs_auths' ) );
 		return is_array( $auths ) ? $auths : [];
 	}
 
@@ -322,18 +319,17 @@ class CrowdSecApi {
 				return empty( $auth[ 'auth_expire' ] )
 					   || Services::Request()->ts() - $auth[ 'auth_expire' ] < WEEK_IN_SECONDS*12;
 			} );
-			Services::WpGeneral()->updateOption( $this->getCon()->prefix( 'cs_auths' ), $auths );
+			Services::WpGeneral()->updateOption( $this->con()->prefix( 'cs_auths' ), $auths );
 
-			/** @var IPs\ModCon $mod */
-			$mod = $this->getMod();
-			$cfg = $mod->getCrowdSecCon()->cfg();
+			$csCon = $this->mod()->getCrowdSecCon();
+			$cfg = $csCon->cfg();
 			$cfg->cs_auths = $auths;
-			$mod->getCrowdSecCon()->storeCfg( $cfg );
+			$csCon->storeCfg( $cfg );
 		}
 	}
 
 	public function getApiUserAgent() :string {
-		$con = $this->getCon();
+		$con = $this->con();
 		return sprintf( '%s/v%s', $con->isPremiumActive() ? 'ShieldSecurityPro' : 'ShieldSecurity', $con->getVersion() );
 	}
 

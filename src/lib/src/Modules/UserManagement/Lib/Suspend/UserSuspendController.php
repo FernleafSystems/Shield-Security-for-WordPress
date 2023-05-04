@@ -44,7 +44,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 			// Display manually suspended on the user list table; TODO: at auto suspended
 			add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-				$meta = $this->getCon()->user_metas->for( $user );
+				$meta = $this->con()->user_metas->for( $user );
 				if ( $meta->record->hard_suspended_at > 0 ) {
 					$content[] = sprintf( '<em>%s</em>: %s',
 						__( 'Suspended', 'wp-simple-firewall' ),
@@ -68,7 +68,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$opts = $this->opts();
 		$ts = Services::Request()->ts();
 
-		$userMetaDB = $this->getCon()
+		$userMetaDB = $this->con()
 						   ->getModule_Data()
 						   ->getDbH_UserMeta();
 
@@ -89,7 +89,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 
 				if ( is_array( $args ) ) {
 					/** @var Select $metaSelect */
-					$metaSelect = $this->getCon()
+					$metaSelect = $this->con()
 									   ->getModule_Data()
 									   ->getDbH_UserMeta()
 									   ->getQuerySelector();
@@ -161,7 +161,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
-		echo $this->getCon()->action_router->render( ProfileSuspend::SLUG, [
+		echo $this->con()->action_router->render( ProfileSuspend::SLUG, [
 			'user_id' => $user->ID
 		] );
 	}
@@ -170,7 +170,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 		$WPU = Services::WpUsers();
 		$user = $WPU->getUserById( $uid );
 
-		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $this->getCon()->isPluginAdmin() ) ) {
+		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $this->con()->isPluginAdmin() ) ) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			$this->addRemoveHardSuspendUser( $user, $isSuspend );
 
@@ -181,7 +181,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 	}
 
 	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		$meta = $con->user_metas->for( $user );
 		$isSuspended = $meta->record->hard_suspended_at > 0;
 

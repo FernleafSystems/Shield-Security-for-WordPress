@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaU2fAdd,
 	MfaU2fRemove
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
 use u2flib_server\SignRequest;

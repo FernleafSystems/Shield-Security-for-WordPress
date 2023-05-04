@@ -21,7 +21,7 @@ class ScoreLogic {
 			$logic = Transient::Get( 'shield-bot-scoring-logic' );
 			if ( empty( $logic ) ) {
 				$logicLoader = ( new BotScoringLogic() )
-					->setMod( $this->getCon()->getModule_Plugin() );
+					->setMod( $this->con()->getModule_Plugin() );
 				$logicLoader->shield_net_params_required = false;
 				$logic = $logicLoader->retrieve();
 				if ( !empty( $logic ) ) {

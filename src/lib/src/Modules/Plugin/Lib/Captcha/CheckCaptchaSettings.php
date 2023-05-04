@@ -19,14 +19,14 @@ class CheckCaptchaSettings {
 	public function verifyProSettings() {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( !$this->getCon()->isPremiumActive() && $oOpts->getOpt( 'google_recaptcha_style' ) !== 'light' ) {
+		if ( !$this->con()->isPremiumActive() && $oOpts->getOpt( 'google_recaptcha_style' ) !== 'light' ) {
 			$oOpts->setOpt( 'google_recaptcha_style', 'light' );
 		}
 	}
 
 	public function verifyKeys() {
 		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$oCfg = $mod->getCaptchaCfg();
@@ -52,7 +52,7 @@ class CheckCaptchaSettings {
 	 */
 	private function verifyHcaptcha() {
 		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$oCfg = $mod->getCaptchaCfg();
 		return substr_count( $oCfg->key, '-' ) > 1
 			   && strpos( $oCfg->secret, '0x' ) === 0;
@@ -63,7 +63,7 @@ class CheckCaptchaSettings {
 	 */
 	private function verifyRecaptcha() :bool {
 		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$sResponse = Services::HttpRequest()->getContent(
 			URL::Build( 'https://www.google.com/recaptcha/api/siteverify', [

@@ -16,7 +16,7 @@ class IpRulesTableAction extends BaseAction {
 			switch ( $action ) {
 
 				case 'retrieve_table_data':
-					$builder = new BuildIpRulesTableData() ;
+					$builder = new BuildIpRulesTableData();
 					$builder->table_data = Services::Request()->post( 'table_data', [] );
 					$response = [
 						'success'        => true,

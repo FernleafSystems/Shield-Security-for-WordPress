@@ -21,7 +21,7 @@ class SectionNotices {
 	use PluginControllerConsumer;
 
 	public function critical( string $section ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$critical = [];
 
@@ -40,7 +40,7 @@ class SectionNotices {
 	}
 
 	public function notices( string $section ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$notices = [];
 		switch ( $section ) {
@@ -101,7 +101,7 @@ class SectionNotices {
 	}
 
 	public function warnings( string $section ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$warnings = [];
 
@@ -177,7 +177,7 @@ class SectionNotices {
 				}
 
 				$installedButNotEnabledProviders = array_filter(
-					$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled(),
+					$this->con()->getModule_Integrations()->getController_UserForms()->getInstalled(),
 					function ( string $provider ) {
 						return !( new $provider() )->isEnabled();
 					}

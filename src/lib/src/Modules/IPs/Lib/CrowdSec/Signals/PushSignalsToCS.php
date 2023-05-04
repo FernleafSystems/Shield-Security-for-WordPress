@@ -28,13 +28,13 @@ class PushSignalsToCS {
 	}
 
 	protected function canRun() :bool {
-		$mod = $this->getMod();
-		return $this->getCon()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
+		$mod = $this->mod();
+		return $this->con()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
 	}
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$api = $mod->getCrowdSecCon()->getApi();
 
 		$recordsCount = 0;
@@ -53,7 +53,7 @@ class PushSignalsToCS {
 		} while ( !empty( $records ) );
 
 		if ( !empty( $recordsCount ) ) {
-			$this->getCon()->fireEvent( 'crowdsec_signals_pushed', [
+			$this->con()->fireEvent( 'crowdsec_signals_pushed', [
 				'audit_params' => [
 					'count' => $recordsCount
 				]
@@ -67,7 +67,7 @@ class PushSignalsToCS {
 	 */
 	private function convertRecordsToPayload( array $records ) :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$api = $mod->getCrowdSecCon()->getApi();
 		return array_map(
 			function ( $record ) use ( $api ) {
@@ -116,7 +116,7 @@ class PushSignalsToCS {
 	 */
 	private function getRecordsByScope() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbhSignals = $mod->getDbH_CrowdSecSignals();
 
 		if ( !isset( $this->distinctScopes ) ) {
@@ -152,7 +152,7 @@ class PushSignalsToCS {
 	 */
 	private function getRecordsGroupedByIP() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbhSignals = $mod->getDbH_CrowdSecSignals();
 
 		if ( !isset( $this->distinctIPs ) ) {
@@ -180,7 +180,7 @@ class PushSignalsToCS {
 
 	private function deleteRecords( array $records ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$mod->getDbH_CrowdSecSignals()
 			->getQueryDeleter()
 			->filterByIDs( array_map(

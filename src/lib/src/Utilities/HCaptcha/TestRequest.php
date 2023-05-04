@@ -16,7 +16,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 	 */
 	protected function runTest() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$sCaptchaResponse = Services::Request()->post( 'h-captcha-response' );
 
@@ -29,7 +29,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 					'body' => [
 						'secret'   => $mod->getCaptchaCfg()->secret,
 						'response' => $sCaptchaResponse,
-						'remoteip' => $this->getCon()->this_req->ip,
+						'remoteip' => $this->con()->this_req->ip,
 					]
 				] )
 							  && !empty( $HTTPReq->lastResponse->body );

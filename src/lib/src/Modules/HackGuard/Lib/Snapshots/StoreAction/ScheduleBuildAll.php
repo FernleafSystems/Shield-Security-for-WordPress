@@ -14,7 +14,7 @@ class ScheduleBuildAll extends Base {
 
 	public function schedule() {
 		if ( $this->isTempDirAvailable() ) {
-			$hook = $this->getCon()->prefix( 'ptg_build_snapshots' );
+			$hook = $this->con()->prefix( 'ptg_build_snapshots' );
 			if ( is_main_network() ) {
 				add_action( $hook, function () {
 					$this->build();
@@ -37,7 +37,7 @@ class ScheduleBuildAll extends Base {
 					->setAsset( $asset )
 					->run();
 
-				if ( $this->getCon()->isPremiumActive()
+				if ( $this->con()->isPremiumActive()
 					 && $store->verify()
 					 && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
 

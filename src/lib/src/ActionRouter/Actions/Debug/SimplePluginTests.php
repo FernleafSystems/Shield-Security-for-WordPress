@@ -154,9 +154,7 @@ class SimplePluginTests extends BaseAction {
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
 //				->setMod( $this->con()->getModule_IPs() )
 //				->execute();
-			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
-				->setMod( $modIPs )
-				->runImport();
+			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )->runImport();
 //			var_dump( $d );
 //			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload(
 //				$csCon->getApi()->getAuthorizationToken(),

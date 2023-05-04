@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
-use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -893,13 +892,6 @@ class Controller extends DynPropertiesClass {
 		return trailingslashit( \path_join( $this->getRootDir(), $this->cfg->paths[ 'templates' ] ) );
 	}
 
-	/**
-	 * @description 17.0
-	 */
-	private function getPathPluginSpec( bool $asJSON = true ) :string {
-		return path_join( $this->getRootDir(), 'plugin.json' );
-	}
-
 	public function getRootDir() :string {
 		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
@@ -1161,14 +1153,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.0
+	 * @deprecated 18.1
 	 */
 	public function isThisPluginModuleRequest() :bool {
 		return $this->isPluginAdminPageRequest();
 	}
 
 	/**
-	 * @deprecated 18.0
+	 * @deprecated 18.1
 	 */
 	public function isModulePage() :bool {
 		return \method_exists( $this, 'isPluginAdminPageRequest' ) && $this->isPluginAdminPageRequest();

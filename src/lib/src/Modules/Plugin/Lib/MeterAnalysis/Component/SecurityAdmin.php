@@ -14,7 +14,7 @@ class SecurityAdmin extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_SecAdmin();
+		$mod = $this->con()->getModule_SecAdmin();
 		return $mod->isModOptEnabled() && $mod->getSecurityAdminController()->isEnabledSecAdmin();
 	}
 

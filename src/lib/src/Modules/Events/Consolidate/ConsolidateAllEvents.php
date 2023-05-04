@@ -22,7 +22,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoHourly( string $event ) {
-		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
+		$dbh = $this->con()->getModule_Events()->getDbHandler_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -72,7 +72,7 @@ class ConsolidateAllEvents {
 	 */
 	protected function consolidateEventIntoDaily( string $event ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbh = $mod->getDbHandler_Events();
 
 		$time = Services::Request()
@@ -121,7 +121,7 @@ class ConsolidateAllEvents {
 	 * Processes event for the previous 8 weeks.
 	 */
 	protected function consolidateEventIntoWeekly( string $event ) {
-		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
+		$dbh = $this->con()->getModule_Events()->getDbHandler_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -166,7 +166,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoMonthly( string $event ) {
-		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
+		$dbh = $this->con()->getModule_Events()->getDbHandler_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -210,11 +210,11 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoYearly( string $event ) {
-		$dbh = $this->getCon()->getModule_Events()->getDbHandler_Events();
+		$dbh = $this->con()->getModule_Events()->getDbHandler_Events();
 
 		$time = Services::Request()
 						->carbon()
-						->subYear( 2 )
+						->subYear()
 						->startOfYear();
 
 		/** @var Events\Select $selector */
@@ -261,7 +261,7 @@ class ConsolidateAllEvents {
 	 */
 	protected function getAllEvents() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var Events\Select $select */
 		$select = $mod->getDbHandler_Events()->getQuerySelector();
 		return array_filter(

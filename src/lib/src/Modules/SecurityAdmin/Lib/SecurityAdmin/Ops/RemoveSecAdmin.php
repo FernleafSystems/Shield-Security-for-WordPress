@@ -12,7 +12,7 @@ class RemoveSecAdmin {
 	use ModConsumer;
 
 	public function remove( bool $quietly = false ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mod = $con->getModule_SecAdmin();
 
 		/** @var SecurityAdmin\Options $opts */
@@ -36,7 +36,7 @@ class RemoveSecAdmin {
 	}
 
 	public function sendConfirmationEmail() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mod = $con->getModule_SecAdmin();
 
 		$confirmationHref = $con->plugin_urls->noncedPluginAction(
@@ -68,10 +68,10 @@ class RemoveSecAdmin {
 	}
 
 	private function sendNotificationEmail() {
-		$this->getMod()
+		$this->mod()
 			 ->getEmailProcessor()
 			 ->sendEmailWithWrap(
-				 $this->getMod()->getPluginReportEmail(),
+				 $this->mod()->getPluginReportEmail(),
 				 __( 'Security Admin restrictions have been removed', 'wp-simple-firewall' ),
 				 [
 					 __( 'This is an email notification to inform you that the Security Admin restriction has been removed.', 'wp-simple-firewall' ),

@@ -22,8 +22,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function cleanupDatabases() {
-		( new Lib\CleanDatabases() )
-			->setMod( $this )
-			->execute();
+		( new Lib\CleanDatabases() )->execute();
 	}
 }

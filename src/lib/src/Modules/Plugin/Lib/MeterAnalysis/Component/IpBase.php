@@ -7,7 +7,7 @@ abstract class IpBase extends Base {
 	use Traits\OptConfigBased;
 
 	protected function testIfProtected() :bool {
-		return $this->getCon()->getModule_IPs()->isModOptEnabled();
+		return $this->con()->getModule_IPs()->isModOptEnabled();
 	}
 
 	protected function getOptConfigKey() :string {

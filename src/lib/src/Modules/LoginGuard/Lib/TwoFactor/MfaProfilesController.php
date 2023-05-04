@@ -25,7 +25,7 @@ class MfaProfilesController {
 
 	protected function run() {
 		// shortcode for placing user authentication handling anywhere
-		if ( $this->getCon()->isPremiumActive() ) {
+		if ( $this->con()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
 				return $this->renderUserProfileMFA( is_array( $attributes ) ? $attributes : [] );
 			} );
@@ -52,14 +52,14 @@ class MfaProfilesController {
 
 	private function provideUserLoginSecurityPage() {
 		add_action( 'admin_menu', function () {
-			$con = $this->getCon();
+			$con = $this->con();
 			add_users_page(
 				sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), $con->getHumanName() ),
 				__( 'Login Security', 'wp-simple-firewall' ),
 				'read',
 				'shield-login-security',
 				function () {
-					echo $this->getCon()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::SLUG );
+					echo $this->con()->action_router->render( Actions\Render\Components\UserMfa\ConfigPage::SLUG );
 				},
 				4
 			);
@@ -76,7 +76,7 @@ class MfaProfilesController {
 		add_action( 'edit_user_profile', function ( $user ) {
 			if ( $user instanceof \WP_User ) {
 				$this->rendered = true;
-				echo $this->getCon()->action_router->render( Actions\Render\Components\UserMfa\ConfigEdit::SLUG, [
+				echo $this->con()->action_router->render( Actions\Render\Components\UserMfa\ConfigEdit::SLUG, [
 					'user_id' => $user->ID
 				] );
 			}
@@ -133,12 +133,12 @@ class MfaProfilesController {
 
 	public function renderUserProfileMFA( array $attributes = [] ) :string {
 		$this->rendered = true;
-		return $this->getCon()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
+		return $this->con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
 			array_merge(
 				[
 					'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 					'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() )
+						$this->con()->getHumanName() )
 				],
 				$attributes
 			)

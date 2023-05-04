@@ -34,12 +34,12 @@ class SessionController extends ExecOnceModConsumer {
 	protected function captureLogin( \WP_User $user ) {
 		if ( !empty( $this->getLoggedInCookie() ) ) {
 			$this->current();
-			$this->getCon()->fireEvent( 'login_success' );
+			$this->con()->fireEvent( 'login_success' );
 		}
 	}
 
 	public function current() :SessionVO {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( !isset( $this->current ) ) {
 			$this->current = new SessionVO();
 		}
@@ -160,7 +160,7 @@ class SessionController extends ExecOnceModConsumer {
 			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
 			if ( !empty( $userID ) ) {
 				\WP_Session_Tokens::get_instance( $userID )->destroy( $current->token );
-				$this->getCon()->fireEvent( 'session_terminate_current', [
+				$this->con()->fireEvent( 'session_terminate_current', [
 					'audit_params' => [
 						'user_login' => $user->user_login,
 						'session_id' => $current->token,

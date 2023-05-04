@@ -50,7 +50,7 @@ class ApiTokenManager {
 					$token = array_merge( $token,
 						array_intersect_key(
 							( new SolicitToken() )
-								->setMod( $this->getCon()->getModule_Plugin() )
+								->setMod( $this->con()->getModule_Plugin() )
 								->send(),
 							array_flip( [ 'token', 'expires_at', 'valid_license' ] )
 						)
@@ -94,7 +94,7 @@ class ApiTokenManager {
 		return $this->getCanRequestOverride() ||
 			   (
 				   Services::Request()->ts() >= $this->getNextAttemptAllowedFrom()
-				   && $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
+				   && $this->con()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
 			   );
 	}
 

@@ -9,7 +9,7 @@ class WpIsAjax extends Base {
 	public const SLUG = 'wp_is_ajax';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = $this->getCon()->this_req;
+		$thisReq = $this->con()->this_req;
 		if ( !isset( $thisReq->wp_is_ajax ) ) {
 			$thisReq->wp_is_ajax = Services::WpGeneral()->isAjax();
 		}

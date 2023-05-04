@@ -15,7 +15,7 @@ class CustomChartData extends BaseBuildChartData {
 		}
 
 		$theEvent = current( $req->events );
-		$possibleEvents = array_keys( $this->getCon()->loadEventsService()->getEvents() );
+		$possibleEvents = array_keys( $this->con()->loadEventsService()->getEvents() );
 		switch ( $theEvent ) {
 			case 'comment_block':
 				$req->events = array_filter(

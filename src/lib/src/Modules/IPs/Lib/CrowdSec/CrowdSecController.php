@@ -34,16 +34,16 @@ class CrowdSecController extends ExecOnceModConsumer {
 	}
 
 	public function cfg() :CrowdSecCfg {
-		return ( new CrowdSecCfg() )->applyFromArray( $this->getOptions()->getOpt( 'crowdsec_cfg' ) );
+		return ( new CrowdSecCfg() )->applyFromArray( $this->opts()->getOpt( 'crowdsec_cfg' ) );
 	}
 
 	public function getApi() :CrowdSecApi {
-		return ( new CrowdSecApi() )->setMod( $this->getMod() );
+		return new CrowdSecApi();
 	}
 
 	public function storeCfg( CrowdSecCfg $cfg ) {
-		$this->getOptions()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
-		$this->getMod()->saveModOptions();
+		$this->opts()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
+		$this->mod()->saveModOptions();
 	}
 
 	public function runHourlyCron() {

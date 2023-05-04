@@ -60,7 +60,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 											 'display'          => false,
 											 'min_install_days' => 0,
 											 'twig'             => true,
-											 'mod'              => $this->getMod()->cfg->slug,
+											 'mod'              => $this->mod()->cfg->slug,
 										 ],
 										 $noticeDef
 									 );
@@ -71,10 +71,10 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function preProcessNotice( NoticeVO $notice ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		$opts = $this->getOptions();
 
-		if ( $notice->plugin_page_only && !$con->isModulePage() ) {
+		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
 		}
 		elseif ( $notice->type == 'promo' && !$opts->isShowPromoAdminNotices() ) {
@@ -113,7 +113,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	protected function isNoticeDismissed( NoticeVO $notice ) :bool {
 		$dismissedUser = $this->isNoticeDismissedForCurrentUser( $notice );
 
-		$allDisd = $this->getMod()->getDismissedNotices();
+		$allDisd = $this->mod()->getDismissedNotices();
 		$dismissedMod = isset( $allDisd[ $notice->id ] ) && $allDisd[ $notice->id ] > 0;
 
 		if ( !$notice->per_user && $dismissedUser && !$dismissedMod ) {
@@ -130,7 +130,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	protected function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
 		$dismissed = false;
 
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		if ( !empty( $meta ) ) {
 			$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
@@ -157,7 +157,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	public function setNoticeDismissed( NoticeVO $notice ) {
 		$ts = Services::Request()->ts();
 
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
 		if ( $notice->per_user ) {
@@ -166,7 +166,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 			}
 		}
 		else {
-			$mod = $this->getMod();
+			$mod = $this->mod();
 			$allDismissed = $mod->getDismissedNotices();
 			$allDismissed[ $notice->id ] = $ts;
 			$mod->setDismissedNotices( $allDismissed );

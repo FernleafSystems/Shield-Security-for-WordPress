@@ -13,7 +13,7 @@ abstract class Base extends Process {
 
 	protected function getLicenseDetails() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 		$licHandler = $mod->getLicenseHandler();

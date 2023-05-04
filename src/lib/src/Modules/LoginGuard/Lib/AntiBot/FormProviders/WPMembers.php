@@ -12,7 +12,7 @@ class WPMembers extends BaseFormProvider {
 	}
 
 	protected function lostpassword() {
-		add_action( 'wpmem_pwdreset_args', [ $this, 'checkLostPassword' ], 5, 1 );
+		add_action( 'wpmem_pwdreset_args', [ $this, 'checkLostPassword' ], 5 );
 	}
 
 	/**

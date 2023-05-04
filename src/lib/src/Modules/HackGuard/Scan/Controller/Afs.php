@@ -33,7 +33,7 @@ class Afs extends BaseForFiles {
 		$status = $this->getScansController()->getScanResultsCount();
 
 		$template = [
-			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+			'id'    => $this->con()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
@@ -198,13 +198,13 @@ class Afs extends BaseForFiles {
 	public function isScanEnabledPlugins() :bool {
 		return $this->isEnabled()
 			   && in_array( 'plugins', $this->opts()->getFileScanAreas() )
-			   && $this->getCon()->cache_dir_handler->exists();
+			   && $this->con()->cache_dir_handler->exists();
 	}
 
 	public function isScanEnabledThemes() :bool {
 		return $this->isEnabled()
 			   && in_array( 'themes', $this->opts()->getFileScanAreas() )
-			   && $this->getCon()->cache_dir_handler->exists();
+			   && $this->con()->cache_dir_handler->exists();
 	}
 
 	public function isScanEnabledWpContent() :bool {

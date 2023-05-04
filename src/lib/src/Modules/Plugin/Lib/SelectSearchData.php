@@ -49,7 +49,7 @@ class SelectSearchData {
 		);
 
 		$results = [];
-		$dbhIPs = $this->getCon()->getModule_Data()->getDbH_IPs();
+		$dbhIPs = $this->con()->getModule_Data()->getDbH_IPs();
 		foreach ( $ipTerms as $ipTerm ) {
 			$ips = $dbhIPs->getQuerySelector()
 						  ->addRawWhere( [
@@ -84,7 +84,7 @@ class SelectSearchData {
 							'id'          => 'ip_'.$ip,
 							'text'        => $ip,
 							'link'        => [
-								'href'    => $this->getCon()->plugin_urls->ipAnalysis( $ip ),
+								'href'    => $this->con()->plugin_urls->ipAnalysis( $ip ),
 								'classes' => [ 'render_ip_analysis' ],
 								'data'    => [
 									'ip' => $ip
@@ -92,7 +92,7 @@ class SelectSearchData {
 							],
 							'ip'          => $ip,
 							'is_external' => false,
-							'icon'        => $this->getCon()->svgs->raw( 'diagram-2-fill.svg' ),
+							'icon'        => $this->con()->svgs->raw( 'diagram-2-fill.svg' ),
 						];
 					},
 					array_unique( $results )
@@ -158,7 +158,7 @@ class SelectSearchData {
 	}
 
 	private function getExternalSearch() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			[
 				'text'     => __( 'External Links', 'wp-simple-firewall' ),
@@ -239,7 +239,7 @@ class SelectSearchData {
 	}
 
 	private function getToolsSearch() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$pageURLs = $con->plugin_urls;
 		return [
 			[
@@ -359,7 +359,7 @@ class SelectSearchData {
 	}
 
 	private function getIntegrationsSearch() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$modIntegrations = $con->getModule_Integrations();
 
 		$integrations = [
@@ -411,7 +411,7 @@ class SelectSearchData {
 	}
 
 	private function getConfigSearch() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$search = [];
 		foreach ( $con->modules as $module ) {

@@ -43,7 +43,7 @@ class SetScanCompleted {
 					 ->query();
 
 				$scanCon = $this->mod()->getScansCon()->getScanCon( $scan );
-				$this->getCon()->fireEvent( 'scan_run', [
+				$this->con()->fireEvent( 'scan_run', [
 					'audit_params' => [
 						'scan' => $scanCon->getScanName()
 					]
@@ -72,7 +72,7 @@ class SetScanCompleted {
 
 			$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
 
-			$this->getCon()->fireEvent( 'scan_items_found', [
+			$this->con()->fireEvent( 'scan_items_found', [
 				'audit_params' => [
 					'scan'  => $scanCon->getScanName(),
 					'items' => $items

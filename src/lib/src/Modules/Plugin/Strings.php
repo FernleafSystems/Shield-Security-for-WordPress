@@ -145,7 +145,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$name = $this->getCon()->getHumanName();
+		$name = $this->con()->getHumanName();
 
 		switch ( $section ) {
 
@@ -171,10 +171,10 @@ class Strings extends Base\Strings {
 				$summary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
 					sprintf( 'Your reporting email address is: %s',
-						'<code>'.$this->getMod()->getPluginReportEmail().'</code>' )
+						'<code>'.$this->mod()->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
-						$this->getCon()->plugin_urls->modCfgOption( 'block_send_email_address' ),
+						$this->con()->plugin_urls->modCfgOption( 'block_send_email_address' ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),
@@ -223,9 +223,9 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :

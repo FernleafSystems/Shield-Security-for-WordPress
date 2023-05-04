@@ -30,15 +30,14 @@ class LogFileRotate extends ExecOnceModConsumer {
 
 		$startOfDay = Services::Request()->carbon( true )->startOfDay()->timestamp;
 
-		if ( $FS->isFile( $this->logFile )
-			 && $FS->getModifiedTime( $this->logFile ) < $startOfDay ) {
-			$this->rotateLogs( (int)apply_filters( 'shield/file_log_rotation_limit', 5 ) );
+		if ( $FS->isFile( $this->logFile ) && $FS->getModifiedTime( $this->logFile ) < $startOfDay ) {
+			$this->rotateLogs();
 		}
 	}
 
 	protected function rotateLogs() {
 		$FS = Services::WpFs();
-		$limit = (int)max( 1, $this->limit );
+		$limit = (int)\max( 1, apply_filters( 'shield/file_log_rotation_limit', $this->limit ) );
 
 		$basePath = $this->logFile;
 		for ( $i = $limit ; $i >= 0 ; $i-- ) {

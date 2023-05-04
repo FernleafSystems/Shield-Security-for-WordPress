@@ -10,7 +10,7 @@ class Options extends BaseShield\Options {
 	public function getLogFilePath() :string {
 		try {
 			$dir = ( new LogFileDirCreate() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod() )
 				->run();
 		}
 		catch ( \Exception $e ) {
@@ -55,7 +55,7 @@ class Options extends BaseShield\Options {
 
 	public function getAutoCleanDays() :int {
 		$days = $this->getOpt( 'audit_trail_auto_clean' );
-		if ( !$this->getCon()->isPremiumActive() ) {
+		if ( !$this->con()->isPremiumActive() ) {
 			$this->setOpt( 'audit_trail_auto_clean', min( $days, 7 ) );
 		}
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );

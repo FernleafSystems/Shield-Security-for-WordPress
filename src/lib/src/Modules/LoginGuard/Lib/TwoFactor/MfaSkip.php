@@ -11,7 +11,7 @@ class MfaSkip {
 	use LoginGuard\ModConsumer;
 
 	public function addMfaSkip( \WP_User $user ) {
-		$meta = $this->getCon()->user_metas->for( $user );
+		$meta = $this->con()->user_metas->for( $user );
 		$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
@@ -32,7 +32,7 @@ class MfaSkip {
 
 		if ( $this->opts()->isMfaSkip() ) {
 			$agentHash = $this->getAgentHash();
-			$meta = $this->getCon()->user_metas->for( $user );
+			$meta = $this->con()->user_metas->for( $user );
 			$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 			$canSkip = isset( $hashes[ $agentHash ] )
 					   && ( (int)$hashes[ $agentHash ] + $this->opts()->getMfaSkip() ) > Services::Request()->ts();
@@ -48,7 +48,7 @@ class MfaSkip {
 
 	private function getDefaultHashParams() :array {
 		return [
-			'ip'         => $this->getCon()->this_req->ip,
+			'ip'         => $this->con()->this_req->ip,
 			'user_agent' => Services::Request()->getUserAgent()
 		];
 	}

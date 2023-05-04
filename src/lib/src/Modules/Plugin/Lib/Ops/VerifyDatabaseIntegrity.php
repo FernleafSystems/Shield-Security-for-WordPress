@@ -21,7 +21,7 @@ class VerifyDatabaseIntegrity {
 		$WPDB = Services::WpDb();
 
 		$tablesToDelete = [];
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $this->con()->modules as $mod ) {
 			try {
 				$dbhs = $mod->getDbHandler()->loadAllDbHandlers();
 			}

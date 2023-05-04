@@ -12,7 +12,7 @@ class CommentSpamHuman extends Base {
 	public const WEIGHT = 2;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_Comments();
+		$mod = $this->con()->getModule_Comments();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isEnabledHumanCheck();

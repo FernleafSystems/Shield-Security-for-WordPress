@@ -18,7 +18,7 @@ class Clean extends ExecOnceModConsumer {
 
 	private function deleteScansThatNeverCompleted() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		/** @var ScansDB\Delete $deleter */
 		$deleter = $mod->getDbH_Scans()->getQueryDeleter();
@@ -29,7 +29,7 @@ class Clean extends ExecOnceModConsumer {
 
 	private function deleteEarlierScans() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$scanIDsToKeep = [];
 		foreach ( $mod->getScansCon()->getScanSlugs() as $scanSlug ) {

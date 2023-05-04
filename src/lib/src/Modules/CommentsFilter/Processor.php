@@ -12,7 +12,7 @@ class Processor extends BaseShield\Processor {
 		$opts = $this->getOptions();
 		$WPU = Services::WpUsers();
 
-		$commentsFilterBypass = $this->getCon()->this_req->request_bypasses_all_restrictions ||
+		$commentsFilterBypass = $this->con()->this_req->request_bypasses_all_restrictions ||
 								( $WPU->isUserLoggedIn() &&
 								  ( new Scan\IsEmailTrusted() )->trusted(
 									  (string)$WPU->getCurrentWpUser()->user_email,
@@ -23,14 +23,14 @@ class Processor extends BaseShield\Processor {
 		if ( !$commentsFilterBypass ) {
 
 			( new Scan\CommentAdditiveCleaner() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod() )
 				->execute();
 
 			if ( Services::Request()->isPost() ) {
 				( new Scan\Scanner() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->execute();
-				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
+				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100 );
 			}
 		}
 	}
@@ -42,7 +42,7 @@ class Processor extends BaseShield\Processor {
 	 * @return array
 	 */
 	public function clearCommentNotificationEmail( $emails ) {
-		$status = apply_filters( $this->getCon()->prefix( 'cf_status' ), '' );
+		$status = apply_filters( $this->con()->prefix( 'cf_status' ), '' );
 		return in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
 	}
 }

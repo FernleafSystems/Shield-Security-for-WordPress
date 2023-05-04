@@ -28,7 +28,7 @@ class Enqueue {
 	 * TODO: Consider how to move this to our standardised Enqueue system.
 	 */
 	public function onWpEnqueueJs() {
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$cfg = $mod->getCaptchaCfg();
 
 		$uriJS = URL::Build( $cfg->url_api, [
@@ -60,10 +60,10 @@ class Enqueue {
 	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
-		$cfg = $this->getMod()->getCaptchaCfg();
+		$cfg = $this->mod()->getCaptchaCfg();
 
 		if ( $this->bEnqueue ) {
-			echo $this->getCon()->action_router->render( RecaptchaJs::SLUG, [
+			echo $this->con()->action_router->render( RecaptchaJs::SLUG, [
 				'sitekey' => $cfg->key,
 				'size'    => $cfg->invisible ? 'invisible' : '',
 				'theme'   => $cfg->theme,

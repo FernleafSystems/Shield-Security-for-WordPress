@@ -35,7 +35,7 @@ class ModCon extends BaseShield\ModCon {
 			$opts->getCustomExclusions()
 		) ) );
 
-		if ( !$this->getCon()->isPremiumActive() && $opts->isOpt( 'enable_limiter', 'Y' ) ) {
+		if ( !$this->con()->isPremiumActive() && $opts->isOpt( 'enable_limiter', 'Y' ) ) {
 			$opts->isOpt( 'enable_limiter', 'N' );
 		}
 
@@ -48,7 +48,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function isReadyToExecute() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		return $con->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
 	}

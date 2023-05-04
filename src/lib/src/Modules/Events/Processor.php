@@ -20,8 +20,8 @@ class Processor extends BaseShield\Processor {
 	public function loadStatsWriter() :Events\Lib\StatsWriter {
 		if ( !isset( $this->oStatsWriter ) ) {
 			/** @var ModCon $mod */
-			$mod = $this->getMod();
-			$this->oStatsWriter = ( new Events\Lib\StatsWriter( $this->getCon() ) )
+			$mod = $this->mod();
+			$this->oStatsWriter = ( new Events\Lib\StatsWriter( $this->con() ) )
 				->setDbHandler( $mod->getDbHandler_Events() );
 		}
 		return $this->oStatsWriter;
@@ -29,7 +29,7 @@ class Processor extends BaseShield\Processor {
 
 	public function runDailyCron() {
 		( new Events\Consolidate\ConsolidateAllEvents() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->run();
 	}
 }

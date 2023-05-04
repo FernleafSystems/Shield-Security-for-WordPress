@@ -23,7 +23,7 @@ class UserSessionHandler {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$this->getCon()->user_metas->for( $user )->record->last_login_at = Services::Request()->ts();
+		$this->con()->user_metas->for( $user )->record->last_login_at = Services::Request()->ts();
 		$this->sendLoginNotifications( $user );
 	}
 
@@ -36,7 +36,7 @@ class UserSessionHandler {
 
 		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
 			 && $user instanceof \WP_User
-			 && $this->getCon()->getModule_Plugin()->getSessionCon()->current()->valid
+			 && $this->con()->getModule_Plugin()->getSessionCon()->current()->valid
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
@@ -64,7 +64,7 @@ class UserSessionHandler {
 			$this->sendAdminLoginEmailNotification( $user );
 		}
 		if ( $sendUser ) {
-			$hasLoginIntent = $this->getCon()
+			$hasLoginIntent = $this->con()
 								   ->getModule_LoginGuard()
 								   ->getMfaController()
 								   ->isSubjectToLoginIntent( $user );
@@ -95,7 +95,7 @@ class UserSessionHandler {
 				}
 			) ) );
 
-			if ( count( $emails ) > 1 && !$this->getCon()->isPremiumActive() ) {
+			if ( count( $emails ) > 1 && !$this->con()->isPremiumActive() ) {
 				$emails = array_slice( $emails, 0, 1 );
 			}
 
@@ -106,7 +106,7 @@ class UserSessionHandler {
 	}
 
 	private function sendAdminLoginEmailNotification( \WP_User $user ) {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$userCapToRolesMap = [
 			'network_admin' => 'manage_network',
@@ -170,7 +170,7 @@ class UserSessionHandler {
 			 ->send(
 				 $user->user_email,
 				 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-				 $this->getCon()->action_router->render( UserLoginNotice::SLUG, [
+				 $this->con()->action_router->render( UserLoginNotice::SLUG, [
 					 'home_url'  => Services::WpGeneral()->getHomeUrl(),
 					 'username'  => $user->user_login,
 					 'ip'        => $this->con()->this_req->ip,
@@ -186,7 +186,7 @@ class UserSessionHandler {
 	}
 
 	private function checkCurrentSession() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$srvIP = Services::IP();
 
 		try {
@@ -222,7 +222,7 @@ class UserSessionHandler {
 	private function assessSession() {
 		$opts = $this->opts();
 
-		$sess = $this->getCon()
+		$sess = $this->con()
 					 ->getModule_Plugin()
 					 ->getSessionCon()
 					 ->current();
@@ -241,7 +241,7 @@ class UserSessionHandler {
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->IpIn( $this->getCon()->this_req->ip, [ $sess->ip ] ) ) {
+		if ( $opts->isLockToIp() && !$srvIP->IpIn( $this->con()->this_req->ip, [ $sess->ip ] ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}
@@ -282,7 +282,7 @@ class UserSessionHandler {
 				case 'session_notfound':
 					$msg = sprintf(
 						__( 'You do not currently have a %s user session.', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName()
+						$this->con()->getHumanName()
 					);
 					break;
 

@@ -25,7 +25,7 @@ class BuildForDisplay {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function standard() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
@@ -58,7 +58,7 @@ class BuildForDisplay {
 					try {
 						$sect = array_merge(
 							$sect,
-							$this->getMod()
+							$this->mod()
 								 ->getStrings()
 								 ->getSectionStrings( $sect[ 'slug' ] )
 						);
@@ -103,7 +103,7 @@ class BuildForDisplay {
 
 			if ( !empty( $section[ 'options' ] ) ) {
 
-				if ( $this->getCon()->labels->is_whitelabelled ) {
+				if ( $this->con()->labels->is_whitelabelled ) {
 					$section[ 'beacon_id' ] = false;
 				}
 
@@ -156,7 +156,7 @@ class BuildForDisplay {
 				}
 			}
 
-			if ( $this->getCon()->labels->is_whitelabelled ) {
+			if ( $this->con()->labels->is_whitelabelled ) {
 				$optDef[ 'beacon_id' ] = false;
 			}
 
@@ -207,13 +207,13 @@ class BuildForDisplay {
 				break;
 
 			case 'text':
-				$value = stripslashes( $this->getMod()->getTextOpt( $option[ 'key' ] ) );
+				$value = stripslashes( $this->mod()->getTextOpt( $option[ 'key' ] ) );
 				break;
 		}
 
 		$params = [
 			'value'    => is_scalar( $value ) ? esc_attr( $value ) : $value,
-			'disabled' => !$this->getCon()
+			'disabled' => !$this->con()
 								->isPremiumActive() && ( isset( $option[ 'premium' ] ) && $option[ 'premium' ] ),
 		];
 		$params[ 'enabled' ] = !$params[ 'disabled' ];
@@ -221,7 +221,7 @@ class BuildForDisplay {
 
 		// add strings
 		try {
-			$optStrings = $this->getMod()->getStrings()->getOptionStrings( $option[ 'key' ] );
+			$optStrings = $this->mod()->getStrings()->getOptionStrings( $option[ 'key' ] );
 			if ( !is_array( $optStrings[ 'description' ] ) ) {
 				$optStrings[ 'description' ] = [ $optStrings[ 'description' ] ];
 			}

@@ -9,7 +9,7 @@ class Strings {
 	use ModConsumer;
 
 	public function getModTagLine() :string {
-		return __( $this->getMod()->cfg->properties[ 'tagline' ], 'wp-simple-firewall' );
+		return __( $this->mod()->cfg->properties[ 'tagline' ], 'wp-simple-firewall' );
 	}
 
 	/**

@@ -8,7 +8,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$mod->getSecurityAdminController()->execute();
 		$mod->getWhiteLabelController()->execute();
 	}

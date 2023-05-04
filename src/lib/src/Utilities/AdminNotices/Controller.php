@@ -38,13 +38,13 @@ class Controller {
 	 * @return $this
 	 */
 	public function addFlash( string $msg, $user = null, $isError = false, $bShowOnLoginPage = false ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		$meta = $user instanceof \WP_User ? $con->user_metas->for( $user ) : $con->user_metas->current();
 
 		$msg = \trim( sanitize_text_field( $msg ) );
 		if ( !empty( $msg ) && $meta instanceof UserMeta ) {
 			$meta->flash_msg = [
-				'message'    => sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
+				'message'    => sprintf( '[%s] %s', $this->con()->getHumanName(), $msg ),
 				'expires_at' => Services::Request()->ts() + 20,
 				'error'      => $isError,
 				'show_login' => $bShowOnLoginPage,
@@ -63,7 +63,7 @@ class Controller {
 
 	protected function displayNotices() {
 		foreach ( $this->collectAllPluginNotices() as $notice ) {
-			echo $this->getCon()->action_router->render( AdminNotice::SLUG, [
+			echo $this->con()->action_router->render( AdminNotice::SLUG, [
 				'raw_notice_data' => $notice->getRawData()
 			] );
 		}
@@ -117,7 +117,7 @@ class Controller {
 	 */
 	private function retrieveFlashMessage() {
 		$msg = null;
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		if ( !empty( $meta ) && is_array( $meta->flash_msg ) ) {
 			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()
 																	  ->ts() < $meta->flash_msg[ 'expires_at' ] ) {
@@ -131,7 +131,7 @@ class Controller {
 	}
 
 	private function clearFlashMessage() :self {
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		if ( !empty( $meta ) ) {
 			$meta->flash_msg = null;
 		}

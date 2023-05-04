@@ -21,10 +21,10 @@ class ToggleSecAdminStatus {
 	}
 
 	private function toggle( bool $onOrOff ) :bool {
-		$sessionCon = $this->getCon()->getModule_Plugin()->getSessionCon();
+		$sessionCon = $this->con()->getModule_Plugin()->getSessionCon();
 		if ( $sessionCon->current()->valid ) {
 			$sessionCon->updateSessionParameter( 'secadmin_at', $onOrOff ? Services::Request()->ts() : 0 );
-			$this->getCon()->this_req->is_security_admin = $onOrOff;
+			$this->con()->this_req->is_security_admin = $onOrOff;
 		}
 		return $sessionCon->current()->valid;
 	}

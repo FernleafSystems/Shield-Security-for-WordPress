@@ -9,7 +9,7 @@ class Retrieve extends Process {
 
 	protected function process() :array {
 		return ( new Collate() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->run();
 	}
 }

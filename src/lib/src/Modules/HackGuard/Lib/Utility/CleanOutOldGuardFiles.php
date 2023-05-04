@@ -13,7 +13,7 @@ class CleanOutOldGuardFiles extends ExecOnceModConsumer {
 
 		$firstAcceptableDir = null;
 		$count = 0;
-		$root = $this->getCon()->cache_dir_handler->dir();
+		$root = $this->con()->cache_dir_handler->dir();
 		if ( !empty( $root ) ) {
 			foreach ( $FS->getAllFilesInDir( $root ) as $fileItem ) {
 				if ( $FS->isDir( $fileItem ) ) {

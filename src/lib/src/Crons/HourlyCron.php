@@ -21,8 +21,8 @@ class HourlyCron extends BaseCron {
 	public function getFirstRunTimestamp() :int {
 		return Services::Request()
 					   ->carbon( true )
-					   ->addHours( 1 )
-					   ->minute( rand( 1, 59 ) )
+					   ->addHour()
+					   ->minute( \rand( 1, 59 ) )
 					   ->second( 0 )->timestamp;
 	}
 

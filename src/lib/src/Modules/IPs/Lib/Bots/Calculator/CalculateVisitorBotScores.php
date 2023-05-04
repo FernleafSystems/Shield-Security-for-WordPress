@@ -43,7 +43,7 @@ class CalculateVisitorBotScores {
 	private function loadRecord() :BotSignalRecord {
 		$ip = $this->getIP();
 		if ( empty( $ip ) ) {
-			$ip = $this->getCon()->this_req->ip;
+			$ip = $this->con()->this_req->ip;
 		}
 
 		try {

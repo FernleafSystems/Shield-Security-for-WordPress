@@ -20,7 +20,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 			[
 				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
 				'href' => $this->con()->plugin_urls->offCanvasConfigRender( $this->con()
-																					->getModule_IPs()->cfg->slug ),
+																				 ->getModule_IPs()->cfg->slug ),
 			],
 		];
 	}

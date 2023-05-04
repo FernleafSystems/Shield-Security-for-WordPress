@@ -102,7 +102,7 @@ class BuildScanItems {
 		 * and this is PRO-only anyway.
 		 */
 		return (
-				   !$this->getCon()->isPremiumActive()
+				   !$this->con()->isPremiumActive()
 				   && \strpos( wp_normalize_path( $file->getPathname() ), '/wp-content/' ) !== false
 			   )
 			   ||

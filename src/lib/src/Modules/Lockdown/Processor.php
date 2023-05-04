@@ -9,7 +9,7 @@ class Processor extends BaseShield\Processor {
 
 	public function runDailyCron() {
 		( new Lib\CleanRubbish() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->execute();
 	}
 
@@ -29,7 +29,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$WPRest = Services::Rest();
 
 		$namespace = $WPRest->getNamespace();
@@ -38,11 +38,11 @@ class Processor extends BaseShield\Processor {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), $this->getCon()
+				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), $this->con()
 																																   ->getHumanName() ),
 				[ 'status' => rest_authorization_required_code() ] );
 
-			$this->getCon()
+			$this->con()
 				 ->fireEvent(
 					 'block_anonymous_restapi',
 					 [ 'audit_params' => [ 'namespace' => $namespace ] ]

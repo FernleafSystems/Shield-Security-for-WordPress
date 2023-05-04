@@ -23,7 +23,7 @@ class GetIP extends Base {
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 		/** @var Strings $strings */
-		$strings = $this->getMod()->getStrings();
+		$strings = $this->mod()->getStrings();
 		$names = $strings->getBotSignalNames();
 
 		try {
@@ -66,7 +66,7 @@ class GetIP extends Base {
 			'human_probability' => $scoreCalc->probability(),
 			'score_local'       => $scoreCalc->total(),
 			'score_shieldnet'   => ( new GetIPReputation() )
-									   ->setMod( $this->getCon()->getModule_Plugin() )
+									   ->setMod( $this->con()->getModule_Plugin() )
 									   ->setIP( $req->ip )
 									   ->retrieve()[ 'reputation_score' ] ?? '-',
 			'signals'           => $signalsAsHuman,
@@ -75,7 +75,7 @@ class GetIP extends Base {
 
 	private function getIpListInfo() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbh = $mod->getDbH_IPRules();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();

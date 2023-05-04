@@ -15,24 +15,24 @@ class LearnPress extends BaseFormProvider {
 
 	protected function register() {
 		add_action( 'learn-press/after-form-register-fields', [ $this, 'printFormInsert' ], 100 );
-		add_filter( 'learn-press/register-validate-field', [ $this, 'checkRegister' ], 100, 1 );
+		add_filter( 'learn-press/register-validate-field', [ $this, 'checkRegister' ], 100 );
 	}
 
 	/**
-	 * @param string|\WP_Error $sFieldNameOrError
+	 * @param string|\WP_Error $fieldNameOrError
 	 * @return string|\WP_Error
 	 */
-	public function checkLogin( $sFieldNameOrError ) {
-		if ( !empty( $sFieldNameOrError ) && !is_wp_error( $sFieldNameOrError ) ) {
+	public function checkLogin( $fieldNameOrError ) {
+		if ( !empty( $fieldNameOrError ) && !is_wp_error( $fieldNameOrError ) ) {
 			try {
 				$this->setActionToAudit( 'learnpress-login' )
 					 ->checkProviders();
 			}
 			catch ( \Exception $e ) {
-				$sFieldNameOrError = new \WP_Error( 'shield-fail-login', $e->getMessage() );
+				$fieldNameOrError = new \WP_Error( 'shield-fail-login', $e->getMessage() );
 			}
 		}
-		return $sFieldNameOrError;
+		return $fieldNameOrError;
 	}
 
 	/**

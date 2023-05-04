@@ -58,12 +58,12 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 
 		return $WP->isPermalinksEnabled() ?
-			trim( $req->getPath(), '/' ) === trim( (string)parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' )
+			trim( $req->getPath(), '/' ) === trim( (string)\parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' )
 			: $req->query( $this->getCheeseWord() ) == '1';
 	}
 
 	public function insertMouseTrap() {
-		echo sprintf(
+		echo \sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
 			'icwpWpsfLinkCheese',
 			$this->buildTrapHref(),
@@ -81,6 +81,6 @@ class TrackLinkCheese extends Base {
 	}
 
 	private function getCheeseWord() :string {
-		return $this->getCon()->prefix( self::CHEESE_WORD );
+		return $this->con()->prefix( self::CHEESE_WORD );
 	}
 }

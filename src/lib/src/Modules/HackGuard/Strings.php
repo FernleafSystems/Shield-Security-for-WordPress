@@ -95,7 +95,7 @@ class Strings extends Base\Strings {
 	 */
 	public function getSectionStrings( string $section ) :array {
 
-		$sModName = $this->getMod()->getMainFeatureName();
+		$sModName = $this->mod()->getMainFeatureName();
 
 		switch ( $section ) {
 
@@ -161,7 +161,7 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {
@@ -213,7 +213,7 @@ class Strings extends Base\Strings {
 				];
 				$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
 					sprintf( __( "See the 'File Scan Areas' option to direct how and where the file scanner will operate.", 'wp-simple-firewall' ), 'ShieldPRO' ) );
-				if ( !$this->getCon()->isPremiumActive() ) {
+				if ( !$this->con()->isPremiumActive() ) {
 					$desc[] = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( 'To include Plugins, Themes, & PHP Malware in your scans, please upgrade to %s.', 'wp-simple-firewall' ), 'ShieldPRO' ) );
 				}

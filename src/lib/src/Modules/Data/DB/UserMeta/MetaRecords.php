@@ -15,7 +15,7 @@ class MetaRecords {
 	 */
 	public function loadMeta( int $userID, bool $autoCreate = true ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbh = $mod->getDbH_UserMeta();
 		/** @var Ops\Select $select */
 		$select = $dbh->getQuerySelector();
@@ -34,7 +34,7 @@ class MetaRecords {
 
 	public function addMeta( int $userID ) :bool {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbh = $mod->getDbH_UserMeta();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
@@ -42,7 +42,7 @@ class MetaRecords {
 		$record = $dbh->getRecord();
 		$record->user_id = $userID;
 		$record->ip_ref = ( new IPRecords() )
-			->loadIP( (string)$this->getCon()->this_req->ip )
+			->loadIP( (string)$this->con()->this_req->ip )
 			->id;
 		return $insert->insert( $record );
 	}

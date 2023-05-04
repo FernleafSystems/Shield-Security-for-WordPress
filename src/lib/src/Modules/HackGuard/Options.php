@@ -55,7 +55,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getWhitelistedPathsAsRegex() :array {
 		$paths = $this->getDef( 'default_whitelist_paths' );
-		if ( $this->getCon()->isPremiumActive() ) {
+		if ( $this->con()->isPremiumActive() ) {
 			$paths = array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
 		}
 
@@ -86,7 +86,7 @@ class Options extends BaseShield\Options {
 	 */
 	private function getMalSignatures( string $fileName, string $url ) :array {
 		$FS = Services::WpFs();
-		$file = $this->getCon()->cache_dir_handler->cacheItemPath( $fileName );
+		$file = $this->con()->cache_dir_handler->cacheItemPath( $fileName );
 		if ( !empty( $file ) && $FS->exists( $file ) ) {
 			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
 		}
@@ -174,10 +174,10 @@ class Options extends BaseShield\Options {
 	 * @return $this
 	 */
 	public function setScansToBuild( array $scans ) {
-		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getCon()->getModule_HackGuard()
+		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->con()->getModule_HackGuard()
 																					   ->getScansCon()
 																					   ->getScanSlugs() ) ) );
-		$this->getMod()->saveModOptions();
+		$this->mod()->saveModOptions();
 		return $this;
 	}
 

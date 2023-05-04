@@ -46,7 +46,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 			$this->storeVoData();
 
 			$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod() )
 				->run();
 
 			if ( $handshakeSuccess ) {
@@ -66,7 +66,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	public function storeVoData() {
 		$this->vo->data_last_saved_at = Services::Request()->ts();
 		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawData() );
-		$this->getMod()->saveModOptions();
+		$this->mod()->saveModOptions();
 	}
 
 	/**
@@ -96,7 +96,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function runHourlyCron() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$modPlugin = $con->getModule_Plugin();
 		/** @var Plugin\Options $modOpts */
 		$modOpts = $modPlugin->getOptions();
@@ -114,11 +114,11 @@ class ShieldNetApiController extends DynPropertiesClass {
 			$this->storeVoData();
 
 			$data = ( new BuildData() )
-				->setMod( $this->getCon()->getModule_IPs() )
+				->setMod( $this->con()->getModule_IPs() )
 				->build();
 			if ( !empty( $data ) ) {
 				( new SendIPReputation() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->send( $data );
 			}
 		}

@@ -23,7 +23,7 @@ class ReportGenerator {
 		$reports = $this->buildReports();
 		foreach ( $reports as $report ) {
 			$this->storeReportRecord( $report );
-			$this->getCon()->fireEvent( 'report_generated', [
+			$this->con()->fireEvent( 'report_generated', [
 				'audit_params' => [
 					'type'     => $this->getReportTypeName( $report->type ),
 					'interval' => $report->interval,
@@ -50,15 +50,15 @@ class ReportGenerator {
 		foreach ( array_keys( $this->getReportTypes() ) as $reportType ) {
 			try {
 				$report = ( new Reports\CreateReportVO() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->create( $reportType );
 				( new Reports\StandardReportBuilder() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->build( $report );
 
 				if ( strlen( $report->content ) > 0 ) {
 					$reports[] = $report;
-					$this->getCon()->fireEvent( 'report_generated', [
+					$this->con()->fireEvent( 'report_generated', [
 						'audit_params' => [
 							'type'     => $this->getReportTypeName( $report->type ),
 							'interval' => $report->interval,
@@ -90,7 +90,7 @@ class ReportGenerator {
 				break;
 		}
 
-		return $this->getCon()->action_router->render(
+		return $this->con()->action_router->render(
 			$renderer,
 			[
 				'home_url' => Services::WpGeneral()->getHomeUrl(),
@@ -105,7 +105,7 @@ class ReportGenerator {
 	}
 
 	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		$reportsDB = $this->getCon()->getModule_Plugin()->getDbH_ReportLogs();
+		$reportsDB = $this->con()->getModule_Plugin()->getDbH_ReportLogs();
 		/** @var ReportsDB\Record $record */
 		$record = $reportsDB->getRecord();
 		$record->type = $report->type;
@@ -116,15 +116,15 @@ class ReportGenerator {
 
 	private function sendEmail( string $report ) {
 		try {
-			$this->getMod()
+			$this->mod()
 				 ->getEmailProcessor()
 				 ->send(
-					 $this->getMod()->getPluginReportEmail(),
-					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
+					 $this->mod()->getPluginReportEmail(),
+					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->con()->getHumanName(),
 					 $report
 				 );
 
-			$this->getCon()->fireEvent( 'report_sent', [
+			$this->con()->fireEvent( 'report_sent', [
 				'audit_params' => [
 					'medium' => 'email',
 				]

@@ -16,7 +16,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		if ( $con->isValidAdminArea() ) {
 			$urls = $con->plugin_urls;

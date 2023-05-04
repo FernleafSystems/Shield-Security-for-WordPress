@@ -7,7 +7,7 @@ abstract class ScanEnabledBase extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_HackGuard();
+		$mod = $this->con()->getModule_HackGuard();
 		return $mod->isModOptEnabled() &&
 			   $mod->getScansCon()
 				   ->getScanCon( explode( '_', static::SLUG )[ 2 ] )

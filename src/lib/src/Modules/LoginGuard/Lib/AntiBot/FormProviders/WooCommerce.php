@@ -89,7 +89,7 @@ class WooCommerce extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$userOrError = $this->giveMeWpError( $userOrError );
-			$userOrError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
+			$userOrError->add( $this->con()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $userOrError;
 	}
@@ -107,7 +107,7 @@ class WooCommerce extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$wpError = $this->giveMeWpError( $wpError );
-			$wpError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
+			$wpError->add( $this->con()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $wpError;
 	}
@@ -125,7 +125,7 @@ class WooCommerce extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$wpError = $this->giveMeWpError( $wpError );
-			$wpError->add( $this->getCon()->prefix( uniqid() ), $e->getMessage() );
+			$wpError->add( $this->con()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $wpError;
 	}

@@ -15,7 +15,7 @@ class VerifyConfig {
 
 		$allSections = [];
 		$allOpts = [];
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $this->con()->modules as $mod ) {
 			$opts = $mod->getOptions();
 			$sections = array_keys( $opts->getSections( true ) );
 			$duplicates = array_diff( array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );

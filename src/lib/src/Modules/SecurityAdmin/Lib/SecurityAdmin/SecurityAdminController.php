@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\Components\FormSecurityAdminLoginBox,
 	SecurityAdminCheck,
@@ -12,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminRequestRemoveByEmail
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
@@ -22,7 +21,7 @@ class SecurityAdminController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !$this->getCon()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
+		return !$this->con()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
 	}
 
 	protected function run() {
@@ -41,7 +40,7 @@ class SecurityAdminController {
 			foreach ( $this->enumRestrictionZones() as $zone ) {
 				( new $zone() )->execute();
 			}
-			if ( !$this->con()->isThisPluginModuleRequest() ) {
+			if ( !$this->con()->isPluginAdminPageRequest() ) {
 				add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
 			}
 
@@ -89,7 +88,7 @@ class SecurityAdminController {
 	}
 
 	public function hasActiveSession() :bool {
-		return $this->getCon()->this_req->is_security_admin && $this->getSecAdminTimeRemaining() > 0;
+		return $this->con()->this_req->is_security_admin && $this->getSecAdminTimeRemaining() > 0;
 	}
 
 	public function isEnabledSecAdmin() :bool {
@@ -103,7 +102,7 @@ class SecurityAdminController {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$isSecAdmin = $this->getCon()->this_req->is_security_admin;
+				$isSecAdmin = $this->con()->this_req->is_security_admin;
 				$localz[] = [
 					'shield/secadmin',
 					'shield_vars_secadmin',
@@ -115,7 +114,7 @@ class SecurityAdminController {
 						],
 						'flags'   => [
 							'restrict_options' => !$isSecAdmin && $this->opts()->isRestrictWpOptions(),
-							'run_checks'       => $this->getCon()->getIsPage_PluginAdmin()
+							'run_checks'       => $this->con()->getIsPage_PluginAdmin()
 												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
@@ -157,7 +156,7 @@ class SecurityAdminController {
 	public function getSecAdminTimeRemaining() :int {
 		$remaining = 0;
 
-		$session = $this->getCon()->getModule_Plugin()->getSessionCon()->current();
+		$session = $this->con()->getModule_Plugin()->getSessionCon()->current();
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
@@ -188,11 +187,11 @@ class SecurityAdminController {
 	}
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
-		return $isPluginAdmin && $this->getCon()->this_req->is_security_admin;
+		return $isPluginAdmin && $this->con()->this_req->is_security_admin;
 	}
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo $this->getCon()->action_router->render( FormSecurityAdminLoginBox::SLUG );
+		echo $this->con()->action_router->render( FormSecurityAdminLoginBox::SLUG );
 	}
 }

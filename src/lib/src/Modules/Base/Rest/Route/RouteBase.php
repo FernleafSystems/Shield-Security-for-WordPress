@@ -18,7 +18,7 @@ abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Rou
 	protected function getRequestProcessor() {
 		/** @var Process $proc */
 		$proc = parent::getRequestProcessor();
-		return $proc->setMod( $this->getMod() );
+		return $proc->setMod( $this->mod() );
 	}
 
 	protected function verifyPermission( \WP_REST_Request $req ) {

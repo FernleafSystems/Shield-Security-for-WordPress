@@ -26,7 +26,7 @@ class NavMenuBuilder {
 			$this->docs(),
 		];
 
-		$isSecAdmin = $this->getCon()->isPluginAdmin();
+		$isSecAdmin = $this->con()->isPluginAdmin();
 		foreach ( $menu as $key => $item ) {
 			$item = Services::DataManipulation()->mergeArraysRecursive( [
 				'slug'      => 'no-slug',
@@ -89,7 +89,7 @@ class NavMenuBuilder {
 	}
 
 	private function ips() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$slug = PluginURLs::NAV_IP_RULES;
 		return [
 			'slug'      => $slug,
@@ -106,12 +106,12 @@ class NavMenuBuilder {
 	}
 
 	private function audit() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$slug = PluginURLs::NAV_ACTIVITY_LOG;
 		return [
 			'slug'    => $slug.'-log',
 			'title'   => __( 'Activity', 'wp-simple-firewall' ),
-			'img'     => $this->getCon()->svgs->raw( 'person-lines-fill' ),
+			'img'     => $this->con()->svgs->raw( 'person-lines-fill' ),
 			'href'    => $con->plugin_urls->adminTopNav( $slug ),
 			'active'  => $this->inav() === $slug,
 			'introjs' => [
@@ -122,7 +122,7 @@ class NavMenuBuilder {
 	}
 
 	private function scans() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'slug'      => 'scans',
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
@@ -132,13 +132,13 @@ class NavMenuBuilder {
 			'introjs'   => [
 				'title' => __( 'Security Scans', 'wp-simple-firewall' ),
 				'body'  => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
+					$this->con()->getHumanName() ),
 			],
 		];
 	}
 
 	private function overview() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'slug'    => 'overview',
 			'title'   => __( 'Overview', 'wp-simple-firewall' ),
@@ -153,7 +153,7 @@ class NavMenuBuilder {
 	}
 
 	private function configuration() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$slug = 'configuration';
 
@@ -202,11 +202,11 @@ class NavMenuBuilder {
 		return [
 			'slug'      => $slug,
 			'title'     => __( 'Config', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->svgs->raw( 'sliders' ),
+			'img'       => $this->con()->svgs->raw( 'sliders' ),
 			'introjs'   => [
 				'title' => __( 'Plugin Configuration', 'wp-simple-firewall' ),
 				'body'  => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
+					$this->con()->getHumanName() ),
 			],
 			'sub_items' => $subItems,
 		];
@@ -216,13 +216,13 @@ class NavMenuBuilder {
 		return [
 			'slug'  => 'docs',
 			'title' => __( 'Docs', 'wp-simple-firewall' ),
-			'img'   => $this->getCon()->svgs->raw( 'book-half' ),
-			'href'  => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
+			'img'   => $this->con()->svgs->raw( 'book-half' ),
+			'href'  => $this->con()->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
 		];
 	}
 
 	private function gopro() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( $con->isPremiumActive() ) {
 			$subItems = [];
 		}
@@ -260,13 +260,13 @@ class NavMenuBuilder {
 	}
 
 	private function tools() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$pageURLs = $con->plugin_urls;
 		$slug = 'tools';
 		return [
 			'slug'      => $slug,
 			'title'     => __( 'Tools', 'wp-simple-firewall' ),
-			'img'       => $this->getCon()->svgs->raw( 'tools' ),
+			'img'       => $this->con()->svgs->raw( 'tools' ),
 			'introjs'   => [
 				'title' => __( 'Security Tools', 'wp-simple-firewall' ),
 				'body'  => __( "Important security tools, such a import/export, whitelabel and admin notes.", 'wp-simple-firewall' ),
@@ -324,7 +324,7 @@ class NavMenuBuilder {
 	}
 
 	private function traffic() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$slug = PluginURLs::NAV_TRAFFIC_VIEWER;
 		return [
 			'slug'    => $slug.'-log',
@@ -340,7 +340,7 @@ class NavMenuBuilder {
 	}
 
 	private function users() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'slug'    => 'users',
 			'title'   => __( 'Users', 'wp-simple-firewall' ),

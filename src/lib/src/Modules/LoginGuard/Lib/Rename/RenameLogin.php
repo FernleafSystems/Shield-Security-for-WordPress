@@ -15,7 +15,7 @@ class RenameLogin {
 	protected function canRun() :bool {
 		return !Services::IP()->isLoopback()
 			   && !empty( $this->opts()->getCustomLoginPath() )
-			   && !$this->getCon()->this_req->is_ip_whitelisted
+			   && !$this->con()->this_req->is_ip_whitelisted
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 
@@ -221,7 +221,7 @@ class RenameLogin {
 	 */
 	protected function doWpLoginFailedRedirect404() {
 
-		$this->getCon()->fireEvent( 'hide_login_url' );
+		$this->con()->fireEvent( 'hide_login_url' );
 
 		$redirectPath = $this->opts()->getHiddenLoginRedirect();
 		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );

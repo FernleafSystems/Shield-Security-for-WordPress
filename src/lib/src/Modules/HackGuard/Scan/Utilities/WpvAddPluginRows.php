@@ -40,7 +40,7 @@ class WpvAddPluginRows {
 			$opt = 'disabled';
 		}
 		return ( $opt != 'disabled' ) && Services::WpUsers()->isUserAdmin()
-			   && ( ( $opt != 'securityadmin' ) || $scanCon->getCon()->isPluginAdmin() );
+			   && ( ( $opt != 'securityadmin' ) || $scanCon->con()->isPluginAdmin() );
 	}
 
 	private function addPluginVulnerabilityRows() {
@@ -53,7 +53,7 @@ class WpvAddPluginRows {
 
 		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
 			add_action( "after_plugin_row_$file", function ( $pluginFile ) {
-				echo $this->getScanController()->getCon()->action_router->render( PluginVulnerabilityWarning::SLUG, [
+				echo $this->getScanController()->con()->action_router->render( PluginVulnerabilityWarning::SLUG, [
 					'plugin_file'   => $pluginFile,
 					'columns_count' => $this->colsCount
 				] );

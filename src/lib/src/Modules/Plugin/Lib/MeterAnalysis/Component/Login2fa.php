@@ -12,7 +12,7 @@ class Login2fa extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_LoginGuard();
+		$mod = $this->con()->getModule_LoginGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled()

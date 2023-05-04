@@ -36,7 +36,7 @@ class Sessions extends BaseBuild {
 			if ( empty( $UIDs ) ) {
 				// Select the most recently active based on updated Shield User Meta
 				/** @var Select $metaSelect */
-				$metaSelect = $this->getCon()
+				$metaSelect = $this->con()
 								   ->getModule_Data()
 								   ->getDbH_UserMeta()
 								   ->getQuerySelector();
@@ -108,7 +108,7 @@ class Sessions extends BaseBuild {
 
 		$srvIP = Services::IP();
 		$WPU = Services::WpUsers();
-		$you = $this->getCon()->this_req->ip;
+		$you = $this->con()->this_req->ip;
 		foreach ( $this->getEntriesRaw() as $key => $e ) {
 
 			try {

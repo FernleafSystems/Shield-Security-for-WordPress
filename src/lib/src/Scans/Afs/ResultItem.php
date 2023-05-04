@@ -59,7 +59,7 @@ class ResultItem extends Base\ResultItem {
 
 	public function getMalwareRecord() :?Record {
 		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
-			$this->record = $this->getCon()
+			$this->record = $this->con()
 								 ->getModule_HackGuard()
 								 ->getDbH_Malware()
 								 ->getQuerySelector()

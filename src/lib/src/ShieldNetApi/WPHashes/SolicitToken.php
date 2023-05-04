@@ -20,6 +20,6 @@ class SolicitToken extends Common\BaseShieldNetApi {
 	}
 
 	protected function getApiRequestUrl() :string {
-		return sprintf( '%s/%s', parent::getApiRequestUrl(), $this->getCon()->getInstallationID()[ 'id' ] );
+		return sprintf( '%s/%s', parent::getApiRequestUrl(), $this->con()->getInstallationID()[ 'id' ] );
 	}
 }

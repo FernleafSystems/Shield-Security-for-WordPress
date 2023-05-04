@@ -9,7 +9,7 @@ class LicenseCheck extends Base {
 
 	protected function process() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		try {
 			$mod->getLicenseHandler()->verify( true );
 		}

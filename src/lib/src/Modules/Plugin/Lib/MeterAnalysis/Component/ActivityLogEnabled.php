@@ -14,7 +14,7 @@ class ActivityLogEnabled extends Base {
 
 	protected function testIfProtected() :bool {
 		try {
-			$mod = $this->getCon()->getModule_AuditTrail();
+			$mod = $this->con()->getModule_AuditTrail();
 			/** @var Options $opts */
 			$opts = $mod->getOptions();
 

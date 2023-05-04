@@ -34,7 +34,7 @@ class Verify {
 			}
 			$mod->clearLastErrors();
 			$opts->setOpt( 'license_data', $existing->getRawData() ); // need to do this before event
-			$this->getCon()->fireEvent( 'lic_check_success' );
+			$this->con()->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $license->isReady() ) {
 			$isSuccessfulApiRequest = true;
@@ -77,7 +77,7 @@ class Verify {
 	}
 
 	private function preVerify() {
-		Services::WpFs()->touch( $this->getCon()->paths->forFlag( 'license_check' ) );
+		Services::WpFs()->touch( $this->con()->paths->forFlag( 'license_check' ) );
 		$this->opts()->setOptAt( 'license_last_checked_at' );
 		$this->mod()->saveModOptions();
 	}

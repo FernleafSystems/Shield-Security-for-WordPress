@@ -44,7 +44,7 @@ class Lookup {
 				}
 
 				$ipRecord->geo = $this->redirectliIpLookup();
-				$this->getCon()
+				$this->con()
 					 ->getModule_Data()
 					 ->getDbH_IPs()
 					 ->getQueryUpdater()

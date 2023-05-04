@@ -16,7 +16,7 @@ trait ModConsumer {
 	 * @return Controller
 	 */
 	public function getCon() {
-		return $this->getMod()->getCon();
+		return $this->mod()->con();
 	}
 
 	public function con() :Controller {
@@ -49,7 +49,7 @@ trait ModConsumer {
 	 * @return Modules\Base\Options
 	 */
 	public function getOptions() {
-		return $this->getMod()->getOptions();
+		return $this->mod()->getOptions();
 	}
 
 	/**

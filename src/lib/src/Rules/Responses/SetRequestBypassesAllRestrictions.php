@@ -7,7 +7,7 @@ class SetRequestBypassesAllRestrictions extends Base {
 	public const SLUG = 'set_request_bypasses_all_restrictions';
 
 	protected function execResponse() :bool {
-		$this->getCon()->this_req->request_bypasses_all_restrictions = true;
+		$this->con()->this_req->request_bypasses_all_restrictions = true;
 		return true;
 	}
 }

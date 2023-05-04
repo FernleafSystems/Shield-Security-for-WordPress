@@ -37,7 +37,7 @@ class MfaController {
 		// Display manually suspended on the user list table; TODO: add auto suspended
 		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-			$twoFAat = $this->getCon()->user_metas->for( $user )->record->last_2fa_verified_at;
+			$twoFAat = $this->con()->user_metas->for( $user )->record->last_2fa_verified_at;
 			$carbon = Services::Request()
 							  ->carbon()
 							  ->setTimestamp( $twoFAat );
@@ -227,7 +227,7 @@ class MfaController {
 	}
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
-		return !$this->getCon()->this_req->request_bypasses_all_restrictions
+		return !$this->con()->this_req->request_bypasses_all_restrictions
 			   && count( $this->getProvidersActiveForUser( $user ) ) > 0;
 	}
 
@@ -256,7 +256,7 @@ class MfaController {
 	 * @return array[]
 	 */
 	public function getActiveLoginIntents( \WP_User $user ) :array {
-		$meta = $this->getCon()->user_metas->for( $user );
+		$meta = $this->con()->user_metas->for( $user );
 		return array_filter(
 			is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			function ( $intent ) {
@@ -288,7 +288,7 @@ class MfaController {
 	public function verifyLoginNonce( \WP_User $user, string $plainNonce ) :bool {
 		$valid = !empty( $this->findHashedNonce( $user, $plainNonce ) );
 		if ( !$valid ) {
-			$this->getCon()->fireEvent( '2fa_nonce_verify_fail', [
+			$this->con()->fireEvent( '2fa_nonce_verify_fail', [
 				'audit_params' => [
 					'user_login' => $user->user_login,
 				]

@@ -189,7 +189,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$this->addMetaToResults( $scanResults );
 
-		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
+		$scansCon = $this->con()->getModule_HackGuard()->getScansCon();
 		foreach ( $scanResults as $vo ) {
 
 			// we haven't specified a type of scan, so we're collecting all results.

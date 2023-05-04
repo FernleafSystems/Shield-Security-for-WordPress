@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\Options {
 
 	public function getInstallationDays() :int {
-		$installedAt = $this->getCon()
+		$installedAt = $this->con()
 							->getModule_Plugin()
 							->getInstallDate();
 		if ( empty( $installedAt ) ) {
@@ -22,7 +22,7 @@ class Options extends Base\Options {
 	}
 
 	public function isShowPromoAdminNotices() :bool {
-		return $this->getCon()
+		return $this->con()
 					->getModule_Plugin()
 					->getOptions()
 					->isOpt( 'enable_upgrade_admin_notice', 'Y' );

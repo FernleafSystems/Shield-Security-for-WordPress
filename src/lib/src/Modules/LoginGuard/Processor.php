@@ -8,10 +8,10 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShi
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		// XML-RPC Compatibility
-		if ( $this->getCon()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
+		if ( $this->con()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 

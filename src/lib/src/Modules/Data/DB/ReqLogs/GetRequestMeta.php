@@ -75,7 +75,7 @@ class GetRequestMeta {
 	 */
 	private function getRawMeta() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var Ops\Select $selector */
 		$selector = $mod->getDbH_ReqLogs()->getQuerySelector();
 		$record = $selector->filterByReqID( $this->reqID )->first();

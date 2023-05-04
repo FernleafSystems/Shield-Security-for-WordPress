@@ -11,7 +11,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$this->removePluginConflicts();
 		( new Lib\OverrideLocale() )->execute();
@@ -26,7 +26,7 @@ class Processor extends BaseShield\Processor {
 			$mod->getImpExpController()->execute();
 		}
 
-		add_filter( $this->getCon()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+		add_filter( $this->con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
@@ -34,7 +34,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function runDailyCron() {
-		$this->getCon()->fireEvent( 'test_cron_run' );
+		$this->con()->fireEvent( 'test_cron_run' );
 		( new CleanStorage() )->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
 	}

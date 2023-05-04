@@ -26,7 +26,7 @@ abstract class BaseAutoUnblock {
 	}
 
 	public function isUnblockAvailable() :bool {
-		$thisReq = $this->getCon()->this_req;
+		$thisReq = $this->con()->this_req;
 		try {
 			$available = $thisReq->ip
 						 && ( $thisReq->is_ip_blocked_crowdsec || $thisReq->is_ip_blocked_shield_auto );
@@ -83,7 +83,7 @@ abstract class BaseAutoUnblock {
 
 		try {
 			( new BotSignalsRecord() )
-				->setIP( $this->getCon()->this_req->ip )
+				->setIP( $this->con()->this_req->ip )
 				->updateSignalField( 'unblocked_at' );
 		}
 		catch ( \LogicException $e ) {
@@ -108,9 +108,9 @@ abstract class BaseAutoUnblock {
 	}
 
 	protected function fireEvent() {
-		$this->getCon()->fireEvent( 'ip_unblock_auto', [
+		$this->con()->fireEvent( 'ip_unblock_auto', [
 			'audit_params' => [
-				'ip'     => $this->getCon()->this_req->ip,
+				'ip'     => $this->con()->this_req->ip,
 				'method' => $this->getUnblockMethodName()
 			]
 		] );

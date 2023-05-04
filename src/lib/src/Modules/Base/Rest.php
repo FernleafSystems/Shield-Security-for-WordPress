@@ -20,7 +20,7 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 		$routes = parent::buildRoutes();
 		return array_map(
 			function ( $route ) {
-				return $route->setMod( $this->getMod() );
+				return $route->setMod( $this->mod() );
 			},
 			$routes
 		);
@@ -32,6 +32,6 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 	 */
 	protected function isPublishRoutes() :bool {
 		return parent::isPublishRoutes()
-			   && ( $this->getCon()->isPremiumActive() || !( $this->pro_only ?? true ) );
+			   && ( $this->con()->isPremiumActive() || !( $this->pro_only ?? true ) );
 	}
 }

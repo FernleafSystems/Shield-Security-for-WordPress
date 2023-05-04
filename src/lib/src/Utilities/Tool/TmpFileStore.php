@@ -14,8 +14,8 @@ class TmpFileStore {
 	private static $slugs = [];
 
 	protected function run() {
-		if ( $this->getCon()->cache_dir_handler->exists() ) {
-			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
+		if ( $this->con()->cache_dir_handler->exists() ) {
+			add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {
 				$FS = Services::WpFs();
 				foreach ( self::$slugs as $file ) {
 					$FS->deleteFile( $file );
@@ -46,6 +46,6 @@ class TmpFileStore {
 	}
 
 	private function getTmpDir() :string {
-		return $this->getCon()->cache_dir_handler->buildSubDir( 'tmp_files' );
+		return $this->con()->cache_dir_handler->buildSubDir( 'tmp_files' );
 	}
 }

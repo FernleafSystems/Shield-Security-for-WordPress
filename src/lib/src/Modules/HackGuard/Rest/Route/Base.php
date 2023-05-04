@@ -13,7 +13,7 @@ abstract class Base extends RouteBase {
 	protected function getRouteArgSchema( string $key ) :array {
 		switch ( $key ) {
 			case 'scan_slugs':
-				$possible = $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
+				$possible = $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 				$sch = [
 					'title'       => 'Scan Slugs',
 					'description' => sprintf( 'Comma-separated scan slugs to include (allowed: %s).', implode( ', ', $possible ) ),
@@ -34,7 +34,7 @@ abstract class Base extends RouteBase {
 		switch ( $reqArgKey ) {
 
 			case 'scan_slugs':
-				$possible = $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
+				$possible = $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 				$value = array_intersect( $possible, $value );
 				if ( empty( $value ) ) {
 					$value = $possible;
@@ -53,7 +53,7 @@ abstract class Base extends RouteBase {
 		switch ( $reqArgKey ) {
 
 			case 'scan_slugs':
-				$possible = $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
+				$possible = $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 				$slugsSent = array_filter( is_array( $value ) ? $value : explode( ',', $value ) );
 				if ( !empty( $slugsSent ) && count( array_diff( $slugsSent, $possible ) ) > 0 ) {
 					throw new \Exception( sprintf( 'Invalid scan slugs provided. Please only supply: %s', implode( ', ', $possible ) ) );

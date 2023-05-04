@@ -13,18 +13,18 @@ class Storage {
 		if ( $preDelete ) {
 			$this->deleteOptions();
 		}
-		return (bool)Services::WpGeneral()->updateOption( $this->getMod()->getOptionsStorageKey(), $optsValues );
+		return (bool)Services::WpGeneral()->updateOption( $this->mod()->getOptionsStorageKey(), $optsValues );
 	}
 
 	public function deleteOptions() {
-		Services::WpGeneral()->deleteOption( $this->getMod()->getOptionsStorageKey() );
+		Services::WpGeneral()->deleteOption( $this->mod()->getOptionsStorageKey() );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function loadOptions() :array {
-		if ( $this->getCon()->plugin_reset ) {
+		if ( $this->con()->plugin_reset ) {
 			throw new \Exception( 'Resetting plugin - not loading stored options' );
 		}
 		return $this->loadFromWP();
@@ -34,7 +34,7 @@ class Storage {
 	 * @throws \Exception
 	 */
 	private function loadFromWP() :array {
-		$values = Services::WpGeneral()->getOption( $this->getMod()->getOptionsStorageKey(), [] );
+		$values = Services::WpGeneral()->getOption( $this->mod()->getOptionsStorageKey(), [] );
 		if ( empty( $values ) || !is_array( $values ) ) {
 			throw new \Exception( 'no values stored' );
 		}

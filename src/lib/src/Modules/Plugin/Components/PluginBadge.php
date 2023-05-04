@@ -36,13 +36,13 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		if ( !empty( $this->getMod() ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			register_widget( new BadgeWidget( $this->getMod() ) );
+		if ( !empty( $this->mod() ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
+			register_widget( new BadgeWidget( $this->mod() ) );
 		}
 	}
 
 	private function getCookieIdBadgeState() :string {
-		return $this->getCon()->prefix( 'badgeState' );
+		return $this->con()->prefix( 'badgeState' );
 	}
 
 	public function includeJquery() {
@@ -54,7 +54,7 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function render( bool $isFloating = false ) :string {
-		return $this->getCon()->action_router->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
+		return $this->con()->action_router->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
 			'is_floating' => $isFloating,
 		] );
 	}

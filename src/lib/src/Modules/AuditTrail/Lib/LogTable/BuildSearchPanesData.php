@@ -16,7 +16,7 @@ class BuildSearchPanesData {
 				'day'   => $this->buildForDay(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
-//				'user'  => $this->buildForUser(),
+				//				'user'  => $this->buildForUser(),
 			]
 		];
 	}
@@ -51,11 +51,11 @@ class BuildSearchPanesData {
 			foreach ( $usersResult as $user ) {
 				$users[] = [
 					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
-					'value' => $user['id'],
+					'value' => $user[ 'id' ],
 				];
 				$users[] = [
 					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
-					'value' => $user['id']+1,
+					'value' => $user[ 'id' ] + 1,
 				];
 			}
 		}
@@ -94,7 +94,7 @@ class BuildSearchPanesData {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
 					$evt = [
-						'label' => $this->getCon()->service_events->getEventName( $evt ),
+						'label' => $this->con()->service_events->getEventName( $evt ),
 						'value' => $evt,
 					];
 				}

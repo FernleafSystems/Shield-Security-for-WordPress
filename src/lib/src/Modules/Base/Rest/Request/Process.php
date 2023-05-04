@@ -14,7 +14,7 @@ abstract class Process extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Reque
 	protected function getRequestVO() {
 		/** @var RequestVO $req */
 		$req = parent::getRequestVO();
-		return $req->setMod( $this->getMod() );
+		return $req->setMod( $this->mod() );
 	}
 
 	/**

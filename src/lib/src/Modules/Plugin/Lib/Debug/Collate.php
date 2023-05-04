@@ -156,7 +156,7 @@ class Collate {
 	}
 
 	private function getShieldIntegrity() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$data = [];
 
 		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
@@ -203,7 +203,7 @@ class Collate {
 	}
 
 	private function getShieldCapabilities() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$modPlug = $con->getModule_Plugin();
 
 		try {
@@ -216,7 +216,7 @@ class Collate {
 		$data = [
 			'Can Loopback Request'       => $loopback,
 			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )
-				->setMod( $this->getCon()->getModule_IPs() )
+				->setMod( $this->con()->getModule_IPs() )
 				->test() ? 'Yes' : 'No',
 			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
@@ -230,7 +230,7 @@ class Collate {
 	}
 
 	private function getShieldSummary() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$modLicense = $con->getModule_License();
 		$modPlugin = $con->getModule_Plugin();
 		$wpHashes = $modLicense->getWpHashesTokenManager();

@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class CaptureAjaxAction extends CaptureActionBase {
 
 	protected function canRun() :bool {
-		return $this->getCon()->this_req->wp_is_ajax && parent::canRun();
+		return $this->con()->this_req->wp_is_ajax && parent::canRun();
 	}
 
 	protected function theRun() {
@@ -32,7 +32,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 	}
 
 	private function ajaxAction() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$req = Services::Request();
 		try {

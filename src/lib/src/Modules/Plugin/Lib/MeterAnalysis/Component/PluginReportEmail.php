@@ -13,7 +13,7 @@ class PluginReportEmail extends Base {
 
 	protected function testIfProtected() :bool {
 		return Services::Data()->validEmail(
-			$this->getCon()->getModule_Plugin()->getOptions()->getOpt( 'block_send_email_address' )
+			$this->con()->getModule_Plugin()->getOptions()->getOpt( 'block_send_email_address' )
 		);
 	}
 

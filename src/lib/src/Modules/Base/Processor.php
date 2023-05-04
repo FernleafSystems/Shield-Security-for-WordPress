@@ -22,8 +22,8 @@ abstract class Processor extends Shield\Modules\Base\Common\ExecOnceModConsumer 
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getCon()->getModule_Plugin()->getOptions()->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
-			add_filter( $this->getCon()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
+		if ( $this->con()->getModule_Plugin()->getOptions()->isOpt( 'enable_upgrade_admin_notice', 'Y' ) ) {
+			add_filter( $this->con()->prefix( 'admin_bar_menu_groups' ), [ $this, 'addAdminBarMenuGroup' ] );
 		}
 	}
 

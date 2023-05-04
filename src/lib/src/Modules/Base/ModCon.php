@@ -406,7 +406,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function clearLastErrors() {
-		return $this->setLastErrors( [] );
+		return $this->setLastErrors();
 	}
 
 	/**
@@ -421,7 +421,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function hasLastErrors() :bool {
-		return count( $this->getLastErrors( false ) ) > 0;
+		return count( $this->getLastErrors() ) > 0;
 	}
 
 	public function getTextOpt( string $key ) :string {
@@ -623,7 +623,7 @@ abstract class ModCon extends DynPropertiesClass {
 	private function loadModElement( string $class ) {
 		$element = false;
 		try {
-			$C = $this->findElementClass( $class, true );
+			$C = $this->findElementClass( $class );
 			/** @var Shield\Modules\ModConsumer $element */
 			$element = @\class_exists( $C ) ? new $C() : false;
 			if ( \method_exists( $element, 'setMod' ) ) {

@@ -9,7 +9,7 @@ abstract class ModCon extends Base\ModCon {
 
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
 		/** @var Plugin\Options $plugOpts */
-		$plugOpts = $this->getCon()->getModule_Plugin()->getOptions();
+		$plugOpts = $this->con()->getModule_Plugin()->getOptions();
 		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
 		$cfg->invisible = $cfg->theme === 'invisible';
 
@@ -23,13 +23,13 @@ abstract class ModCon extends Base\ModCon {
 			error_log( 'CAPTCHA Provider not supported: '.$cfg->provider );
 		}
 
-		$cfg->js_handle = $this->getCon()->prefix( $cfg->provider );
+		$cfg->js_handle = $this->con()->prefix( $cfg->provider );
 
 		return $cfg;
 	}
 
 	public function getPluginReportEmail() :string {
-		return $this->getCon()
+		return $this->con()
 					->getModule_Plugin()
 					->getPluginReportEmail();
 	}
@@ -38,7 +38,7 @@ abstract class ModCon extends Base\ModCon {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		$req = $this->getCon()->this_req;
+		$req = $this->con()->this_req;
 		return ( !$req->request_bypasses_all_restrictions || $this->cfg->properties[ 'run_if_whitelisted' ] )
 			   && ( !$req->is_trusted_bot || $this->cfg->properties[ 'run_if_verified_bot' ] )
 			   && ( !$req->wp_is_wpcli || $this->cfg->properties[ 'run_if_wpcli' ] )
@@ -46,7 +46,7 @@ abstract class ModCon extends Base\ModCon {
 	}
 
 	public function isXmlrpcBypass() :bool {
-		return $this->getCon()
+		return $this->con()
 					->getModule_Plugin()
 					->isXmlrpcBypass();
 	}
@@ -67,7 +67,7 @@ abstract class ModCon extends Base\ModCon {
 		// Ensure order of namespaces is 'Module', 'BaseShield', then 'Base'
 		return [
 			$this->getNamespace(),
-			$this->getCon()->getModulesNamespace().'\\BaseShield',
+			$this->con()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
 	}

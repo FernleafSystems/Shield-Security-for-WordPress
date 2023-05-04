@@ -29,7 +29,7 @@ class FileLockerController {
 	}
 
 	public function isEnabled() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		return $con->isPremiumActive()
 			   && ( count( $this->opts()->getFilesToLock() ) > 0 )
 			   && $this->mod()->getDbH_FileLocker()->isReady()
@@ -40,16 +40,16 @@ class FileLockerController {
 
 	protected function run() {
 		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
-		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+		add_filter( $this->con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
 		$count = count( ( new Ops\LoadFileLocks() )->withProblems() );
 		if ( $count > 0 ) {
-			$con = $this->getCon();
+			$con = $this->con();
 			$urls = $con->plugin_urls;
 			$items[] = [
-				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
+				'id'       => $this->con()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $count ),
 				'href'     => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
@@ -62,7 +62,7 @@ class FileLockerController {
 	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
-			$links[ $type ] = $this->getCon()->plugin_urls->fileDownload( 'filelocker', [
+			$links[ $type ] = $this->con()->plugin_urls->fileDownload( 'filelocker', [
 				'type' => $type,
 				'rid'  => $lock->id,
 				'rand' => uniqid(),
@@ -143,7 +143,7 @@ class FileLockerController {
 
 	private function maybeRunLocksCreation() {
 		if ( !empty( ( new Ops\GetFileLocksToCreate() )->run() ) ) {
-			$con = $this->getCon();
+			$con = $this->con();
 			$hook = $con->prefix( 'create_file_locks' );
 
 			if ( wp_next_scheduled( $hook ) ) {

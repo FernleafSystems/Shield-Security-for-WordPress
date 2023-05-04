@@ -23,7 +23,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 		$ip = ( new IPRecords() )->loadIP( $ip, false );
 		$now = Services::Request()->carbon();
 		/** @var Select $selector */
-		$selector = $this->getCon()
+		$selector = $this->con()
 						 ->getModule_Data()
 						 ->getDbH_ReqLogs()
 						 ->getQuerySelector();

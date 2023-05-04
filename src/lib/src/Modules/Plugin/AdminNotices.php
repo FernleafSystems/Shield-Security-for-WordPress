@@ -30,7 +30,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
+		$name = $this->con()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -48,8 +48,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$name = $this->getCon()->getHumanName();
+		$mod = $this->mod();
+		$name = $this->con()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -93,7 +93,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 

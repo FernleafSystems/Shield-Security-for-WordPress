@@ -15,7 +15,7 @@ class UserSuspendInactive extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_UserManagement();
+		$mod = $this->con()->getModule_UserManagement();
 		return $mod->isModOptEnabled() && $mod->getOptions()->getOpt( 'auto_idle_days' ) > 0;
 	}
 
@@ -25,7 +25,7 @@ class UserSuspendInactive extends Base {
 
 	public function descProtected() :string {
 		return sprintf( __( 'Inactive user accounts are automatically suspended after %s.', 'wp-simple-firewall' ),
-			$this->getCon()->getModule_UserManagement()->getOptions()->getOpt( 'auto_idle_days' ) );
+			$this->con()->getModule_UserManagement()->getOptions()->getOpt( 'auto_idle_days' ) );
 	}
 
 	public function descUnprotected() :string {

@@ -2,9 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
-class TrackCommentSpam extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class TrackCommentSpam {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function canRun() :bool {
 		return is_admin() || is_network_admin();
@@ -14,22 +18,20 @@ class TrackCommentSpam extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		add_action( 'spammed_comment', function ( $id ) {
 			$comment = get_comment( $id );
 			if ( $comment instanceof \WP_Comment && !empty( $comment->comment_author_IP ) ) {
-				/** @var Shield\Modules\IPs\ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getBotSignalsController()
-					->getEventListener()
-					->fireEventForIP( $comment->comment_author_IP, 'comment_markspam' );
+				$this->mod()
+					 ->getBotSignalsController()
+					 ->getEventListener()
+					 ->fireEventForIP( $comment->comment_author_IP, 'comment_markspam' );
 			}
 		} );
 
 		add_action( 'unspammed_comment', function ( $id ) {
 			$comment = get_comment( $id );
 			if ( $comment instanceof \WP_Comment && !empty( $comment->comment_author_IP ) ) {
-				/** @var Shield\Modules\IPs\ModCon $mod */
-				$mod = $this->getMod();
-				$mod->getBotSignalsController()
-					->getEventListener()
-					->fireEventForIP( $comment->comment_author_IP, 'comment_unmarkspam' );
+				$this->mod()
+					 ->getBotSignalsController()
+					 ->getEventListener()
+					 ->fireEventForIP( $comment->comment_author_IP, 'comment_unmarkspam' );
 			}
 		} );
 	}

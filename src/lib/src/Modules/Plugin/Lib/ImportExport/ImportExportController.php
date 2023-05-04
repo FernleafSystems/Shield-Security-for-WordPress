@@ -15,7 +15,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	public const MOD = ModCon::SLUG;
 
 	protected function canRun() :bool {
-		return $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) && $this->getCon()->isPremiumActive();
+		return $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) && $this->con()->isPremiumActive();
 	}
 
 	protected function run() {
@@ -24,7 +24,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	}
 
 	private function setupHooks() {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
@@ -40,7 +40,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 			// For auto update whitelist notifications:
 			add_action( $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
 				( new Import() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->autoImportFromMaster();
 			} );
 		}
@@ -54,7 +54,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 			$urls = $opts->getImportExportWhitelist();
 			$urls[] = $url;
 			$opts->setOpt( 'importexport_whitelist', $urls );
-			$this->getMod()->saveModOptions();
+			$this->mod()->saveModOptions();
 		}
 	}
 
@@ -69,7 +69,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 				unset( $urls[ $key ] );
 			}
 			$opts->setOpt( 'importexport_whitelist', $urls );
-			$this->getMod()->saveModOptions();
+			$this->mod()->saveModOptions();
 		}
 	}
 
@@ -78,7 +78,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		$opts = $this->getOptions();
 		$ID = $opts->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = sha1( $this->getCon()->getInstallationID()[ 'id' ].wp_rand( 0, PHP_INT_MAX ) );
+			$ID = sha1( $this->con()->getInstallationID()[ 'id' ].wp_rand( 0, PHP_INT_MAX ) );
 			$opts->setOpt( 'importexport_secretkey', $ID )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
@@ -96,8 +96,8 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 	private function importFromFlag() {
 		try {
 			( new Import() )
-				->setMod( $this->getMod() )
-				->fromFile( $this->getCon()->paths->forFlag( 'import.json' ) );
+				->setMod( $this->mod() )
+				->fromFile( $this->con()->paths->forFlag( 'import.json' ) );
 		}
 		catch ( \Exception $e ) {
 		}
@@ -110,10 +110,10 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 
-		$cronHook = $this->getCon()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
+		$cronHook = $this->con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( !wp_next_scheduled( $cronHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + rand( 30, 180 ), $cronHook );
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'import_notify_received',
 				[ 'audit_params' => [ 'master_site' => $opts->getImportExportMasterImportUrl() ] ]
 			);
@@ -122,7 +122,7 @@ class ImportExportController extends Shield\Modules\Base\Common\ExecOnceModConsu
 
 	public function runDailyCron() {
 		( new Import() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->autoImportFromMaster();
 	}
 }

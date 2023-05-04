@@ -16,7 +16,7 @@ class MemberPress extends BaseFormProvider {
 	}
 
 	protected function register() {
-		add_action( 'mepr-checkout-before-submit', [ $this, 'printFormInsert' ], 10 );
+		add_action( 'mepr-checkout-before-submit', [ $this, 'printFormInsert' ] );
 		add_filter( 'mepr-validate-signup', [ $this, 'checkRegister' ], 10, 2 );
 	}
 

@@ -15,7 +15,7 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 	 */
 	protected function addCmds() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$scansCon = $mod->getScansCon();
 
 		$params = [];
@@ -47,7 +47,7 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdScanRun( array $null, array $args ) {
-		$scansCon = $this->getCon()->getModule_HackGuard()->getScansCon();
+		$scansCon = $this->con()->getModule_HackGuard()->getScansCon();
 
 		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : array_keys( $args );
 		if ( empty( $scans ) ) {

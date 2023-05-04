@@ -32,7 +32,7 @@ class Options extends BaseShield\Options {
 	 * @return int
 	 */
 	public function getDelayUpdatesPeriod() {
-		return $this->getCon()->isPremiumActive() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
+		return $this->con()->isPremiumActive() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
 	}
 
 	/**

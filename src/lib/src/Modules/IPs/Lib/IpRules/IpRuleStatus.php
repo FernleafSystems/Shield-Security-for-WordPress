@@ -286,7 +286,7 @@ class IpRuleStatus {
 
 		$records = [];
 
-		if ( \method_exists( $this, 'mod' ) && $this->mod()->getDbH_IPRules()->isReady() ) {
+		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [

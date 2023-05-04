@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha\TestRequest;
 class GoogleRecaptcha extends BaseProtectionProvider {
 
 	public function setup() {
-		$this->getCon()
+		$this->con()
 			 ->getModule_Plugin()
 			 ->getCaptchaEnqueue()
 			 ->setMod( $this->mod() )
@@ -47,7 +47,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		else {
 			$extraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.895);-webkit-transform:scale(0.895);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		}
-		return $extraStyles.$this->getCon()
+		return $extraStyles.$this->con()
 								 ->getModule_Plugin()
 								 ->getCaptchaEnqueue()
 								 ->getCaptchaHtml();

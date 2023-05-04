@@ -24,7 +24,7 @@ class TestIpLimit {
 			$ip = ( new IPRecords() )->loadIP( $this->getIP(), false );
 			$now = Services::Request()->carbon();
 			/** @var ReqLogs\Ops\Select $selector */
-			$selector = $this->getCon()
+			$selector = $this->con()
 							 ->getModule_Data()
 							 ->getDbH_ReqLogs()
 							 ->getQuerySelector();

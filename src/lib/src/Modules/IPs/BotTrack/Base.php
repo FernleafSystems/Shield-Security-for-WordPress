@@ -2,11 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class Base extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+abstract class Base {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	public const OPT_KEY = '';
 
@@ -15,14 +18,13 @@ abstract class Base extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function doTransgression( bool $fireEventOnly = false ) {
-		/** @var IPs\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$count = 0;
 		$block = false;
 
 		if ( !$fireEventOnly ) {
-			$block = $opts->isTrackOptImmediateBlock( static::OPT_KEY );
+			$block = $this->opts()->isTrackOptImmediateBlock( static::OPT_KEY );
 			if ( $block ) {
 				$count = 1;
 			}
@@ -35,7 +37,7 @@ abstract class Base extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	protected function fireEvent( $offenseCount = 0, $isBlock = false ) {
-		$this->getCon()
+		$this->con()
 			 ->fireEvent(
 				 'bot'.static::OPT_KEY,
 				 [

@@ -34,7 +34,7 @@ class Export {
 
 	public function toJson() {
 		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$ieCon = $mod->getImpExpController();
 		$req = Services::Request();
 
@@ -52,7 +52,7 @@ class Export {
 			$data = $this->getExportData();
 			$msg = 'Options Exported Successfully';
 
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'options_exported',
 				[ 'audit_params' => [ 'site' => $url ] ]
 			);
@@ -62,14 +62,14 @@ class Export {
 
 			if ( $networkOpt === 'Y' ) {
 				$ieCon->addUrlToImportExportWhitelistUrls( $url );
-				$this->getCon()->fireEvent(
+				$this->con()->fireEvent(
 					'whitelist_site_added',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
 			}
 			elseif ( !empty( $networkOpt ) ) {
 				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
-				$this->getCon()->fireEvent(
+				$this->con()->fireEvent(
 					'whitelist_site_removed',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
@@ -115,14 +115,14 @@ class Export {
 	public function getExportData() :array {
 		$all = [];
 		foreach ( $this->getRawOptionsExport() as $modSlug => $modOptions ) {
-			$mod = $this->getCon()->modules[ $modSlug ];
+			$mod = $this->con()->modules[ $modSlug ];
 			$all[ $mod->getOptionsStorageKey() ] = $modOptions;
 		}
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type`='%s'", $this->getCon()->getModule_IPs()->getDbH_IPRules()::T_MANUAL_BYPASS ),
+				sprintf( "`ir`.`type`='%s'", $this->con()->getModule_IPs()->getDbH_IPRules()::T_MANUAL_BYPASS ),
 				"`ir`.`can_export`='1'"
 			];
 			$loader->limit = 100;
@@ -144,7 +144,7 @@ class Export {
 
 	public function getRawOptionsExport( bool $filterExcluded = true ) :array {
 		$all = [];
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $this->con()->modules as $mod ) {
 			$opts = $mod->getOptions();
 			$xfr = $opts->getTransferableOptions();
 			if ( $filterExcluded ) {
@@ -171,7 +171,7 @@ class Export {
 	 */
 	private function verifyUrl( string $url, string $id, string $secret ) :bool {
 		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$urlIDs = $this->getOptions()->getOpt( 'import_url_ids' );
 		if ( !is_array( $urlIDs ) ) {
@@ -189,7 +189,7 @@ class Export {
 		if ( $verified && !empty( $id ) ) {
 			$urlIDs[ md5( $url ) ] = $id;
 			$this->getOptions()->setOpt( 'import_url_ids', $urlIDs );
-			$this->getMod()->saveModOptions();
+			$this->mod()->saveModOptions();
 		}
 
 		return $verified;

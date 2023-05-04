@@ -9,7 +9,7 @@ class IpBlocking extends Base {
 	public const SLUG = 'ip_blocking';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
-		$mod = $this->getCon()->getModule_IPs();
+		$mod = $this->con()->getModule_IPs();
 		$opts = $mod->getOptions();
 
 		$offenses = $form[ 'offenses' ] ?? '';
@@ -55,7 +55,7 @@ class IpBlocking extends Base {
 
 	protected function getStepRenderData() :array {
 		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->getCon()->getModule_IPs()->getOptions();
+		$opts = $this->con()->getModule_IPs()->getOptions();
 		return [
 			'strings' => [
 				'step_title' => __( 'Automatically Block Malicious IP Addresses', 'wp-simple-firewall' ),
