@@ -16,7 +16,7 @@ class Handler {
 				ForceOff::class,
 				ConflictAkismet::class,
 				LicenseStatus::class,
-				SelfUpdateAvailable::class,
+				SelfVersion::class,
 				ConflictMonolog::class,
 				DbPrechecks::class,
 				RulesEngine::class,

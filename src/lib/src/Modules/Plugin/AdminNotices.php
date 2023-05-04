@@ -6,59 +6,27 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {
-
-			case 'plugin-too-old':
-				$this->buildNotice_PluginTooOld( $notice );
-				break;
-
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $notice );
 				break;
-
 			case 'allow-tracking':
 				$this->buildNotice_AllowTracking( $notice );
 				break;
-
 			case 'rate-plugin':
 				$this->buildNotice_RatePlugin( $notice );
 				break;
-
+			case 'plugin-too-old':
+				break;
 			default:
 				parent::processNotice( $notice );
 				break;
 		}
-	}
-
-	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
-				'lines'        => [
-					sprintf(
-						__( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ),
-						$name
-					),
-					__( "We recommended keeping your Shield plugin up-to-date with the latest features.", 'wp-simple-firewall' )
-					.' '.__( "We can't support old versions of Shield and certain features may not be working properly as our API develops.", 'wp-simple-firewall' ),
-				],
-				'click_update' => __( 'Click here to go to the WordPress updates page', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'click_update' => Services::WpGeneral()->getAdminUrl_Updates()
-			]
-		];
 	}
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
@@ -130,19 +98,15 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$opts = $this->getOptions();
 
 		switch ( $notice->id ) {
-
-			case 'plugin-too-old':
-				$needed = $this->isNeeded_PluginTooOld();
-				break;
-
 			case 'override-forceoff':
 				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
-
 			case 'allow-tracking':
 				$needed = !$opts->isTrackingPermissionSet();
 				break;
-
+			case 'plugin-too-old':
+				$needed = false;
+				break;
 			default:
 				$needed = parent::isDisplayNeeded( $notice );
 				break;
@@ -150,38 +114,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		return $needed;
 	}
 
+	/**
+	 * @deprecated 18.1
+	 */
 	private function isNeeded_PluginTooOld() :bool {
-		$needed = false;
-		$con = $this->getCon();
-		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
-			$versions = Transient::Get( $con->prefix( 'releases' ) );
-			if ( !is_array( $versions ) ) {
-				$versions = ( new Shield\Utilities\Adhoc\ListTagsFromGithub() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
-				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
-			}
+		return false;
+	}
 
-			$currentMajor = intval( \substr( $con->getVersion(), 0, \strpos( $con->getVersion(), '.' ) ) );
-			if ( !empty( $versions ) && !empty( $currentMajor ) ) {
-
-				$majorVersionsNewerThanCurrent = array_filter(
-					array_unique( array_map(
-						function ( $version ) {
-							/** 1. Convert all versions to major releases */
-							return intval( substr( $version, 0, \strpos( $version, '.' ) ) );
-						},
-						$versions
-					) ),
-					function ( $version ) use ( $currentMajor ) {
-						/** 2. Find all major versions newer than current */
-						return $version > $currentMajor;
-					}
-				);
-
-				/** 3. Suggest upgrade needed  */
-				$needed = count( $majorVersionsNewerThanCurrent ) >= 2;
-			}
-		}
-
-		return $needed;
+	/**
+	 * @deprecated 18.1
+	 */
+	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
 	}
 }

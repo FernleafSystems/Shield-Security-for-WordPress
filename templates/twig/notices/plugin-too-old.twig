@@ -1,8 +1,0 @@
-{% extends "/notices/base-error.twig" %}
-
-{% block notice_body %}
-	{% for line in strings.lines %}
-		<p>{{ line }}</p>
-	{% endfor %}
-	<p><a href="{{ hrefs.click_update }}">{{ strings.click_update }}</a></p>
-{% endblock %}

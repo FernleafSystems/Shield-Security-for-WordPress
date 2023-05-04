@@ -151,7 +151,7 @@ abstract class ModCon extends DynPropertiesClass {
 				$this->getDbH( $dbSlug );
 			}
 		}
-		return is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
+		return \is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
 	}
 
 	/**
@@ -263,10 +263,6 @@ abstract class ModCon extends DynPropertiesClass {
 		if ( $con->isPremiumActive() ) {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
-		}
-
-		if ( is_admin() || is_network_admin() ) {
-			$this->getAdminNotices()->execute();
 		}
 	}
 
@@ -629,8 +625,8 @@ abstract class ModCon extends DynPropertiesClass {
 		try {
 			$C = $this->findElementClass( $class, true );
 			/** @var Shield\Modules\ModConsumer $element */
-			$element = @class_exists( $C ) ? new $C() : false;
-			if ( method_exists( $element, 'setMod' ) ) {
+			$element = @\class_exists( $C ) ? new $C() : false;
+			if ( \method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
 			}
 		}
