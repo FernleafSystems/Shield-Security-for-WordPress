@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc;
 
 use FernleafSystems\Wordpress\Services\Services;
 

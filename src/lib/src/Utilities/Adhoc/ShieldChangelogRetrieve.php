@@ -1,12 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
-class Retrieve {
+class ShieldChangelogRetrieve {
 
 	use PluginControllerConsumer;
 

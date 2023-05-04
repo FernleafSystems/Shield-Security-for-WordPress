@@ -5,9 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssessPluginIssues;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -72,62 +71,12 @@ class PageAdminPlugin extends BaseRender {
 	}
 
 	protected function buildTopPageWarnings() :array {
-		$con = $this->con();
-		$thisReq = $con->this_req;
-		$warnings = [];
-
-		$ipStatus = new IpRuleStatus( $thisReq->ip );
-		if ( $ipStatus->isBypass() ) {
-			$warnings[] = [
-				'type' => 'warning', // Bootstrap,
-				'text' => [
-					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
-				]
-			];
-		}
-		elseif ( $ipStatus->isBlocked() ) {
-			$warnings[] = [
-				'type' => 'danger', // Bootstrap,
-				'text' => [
-					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
-				]
-			];
-		}
-
-		try {
-			( new Monolog() )->assess();
-		}
-		catch ( \Exception $e ) {
-			$warnings[] = [
-				'type' => 'warning', // Boostrap,
-				'text' => [
-					__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
-					$e->getMessage(),
-				]
-			];
-		}
-
-
-		$dbPreChecks = $this->con()->prechecks[ 'dbs' ];
-		if ( count( $dbPreChecks ) !== count( array_filter( $dbPreChecks ) ) ) {
-			$warnings[] = [
-				'type' => 'danger',
-				'text' => [
-					sprintf(
-						'%s %s',
-						__( "The Shield database needs to be repaired as certain features won't be available without a valid database.", 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" data-notice_action="auto_db_repair" class="shield_admin_notice_action text-white">%s</a>',
-							'#' ,
-							__( 'Run Database Repair', 'wp-simple-firewall' )
-						)
-					)
-				]
-			];
-		}
-
-		return $warnings;
+		return array_filter(
+			( new AssessPluginIssues() )->run(),
+			function ( array $issue ) {
+				return \in_array( 'shield_admin_top_page', $issue[ 'locations' ] );
+			}
+		);
 	}
 
 	/**

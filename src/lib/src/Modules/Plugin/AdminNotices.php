@@ -265,7 +265,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
 			$versions = Transient::Get( $con->prefix( 'releases' ) );
 			if ( !is_array( $versions ) ) {
-				$versions = ( new Shield\Utilities\Github\ListTags() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
+				$versions = ( new Shield\Utilities\Adhoc\ListTagsFromGithub() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
 				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
 			}
 
@@ -295,7 +295,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function isNeeded_RulesNotRunning() :bool {
-		$con = $this->getCon();
-		return !$con->rules->isRulesEngineReady() || !$con->rules->processComplete;
+		return !$this->con()->rules->isRulesEngineReady() || !$this->con()->rules->processComplete;
 	}
 }
