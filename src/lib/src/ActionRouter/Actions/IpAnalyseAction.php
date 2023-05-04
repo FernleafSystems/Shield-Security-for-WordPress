@@ -12,7 +12,7 @@ class IpAnalyseAction extends BaseAction {
 	public const SLUG = 'ip_analyse_action';
 
 	protected function exec() {
-		$mod = $this->getCon()->getModule_IPs();
+		$mod = $this->con()->getModule_IPs();
 		$resp = $this->response();
 		$req = Services::Request();
 

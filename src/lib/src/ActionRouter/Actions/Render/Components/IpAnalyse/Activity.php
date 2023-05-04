@@ -17,7 +17,7 @@ class Activity extends Base {
 		$logLoader->limit = 100;
 
 		$logs = [];
-		$srvEvents = $this->getCon()->loadEventsService();
+		$srvEvents = $this->con()->loadEventsService();
 		foreach ( $logLoader->run() as $key => $record ) {
 			if ( $srvEvents->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();

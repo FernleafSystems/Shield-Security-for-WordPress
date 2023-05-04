@@ -10,7 +10,7 @@ class Container extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/modal_content.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$item = $this->getScanItem();
 
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;

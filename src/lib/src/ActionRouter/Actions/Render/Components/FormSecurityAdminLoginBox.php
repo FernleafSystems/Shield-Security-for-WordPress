@@ -17,7 +17,7 @@ class FormSecurityAdminLoginBox extends BaseRender {
 
 	protected function getRenderData() :array {
 		/** @var Options $opts */
-		$opts = $this->getCon()->getModule_SecAdmin()->getOptions();
+		$opts = $this->con()->getModule_SecAdmin()->getOptions();
 		return [
 			'flags'   => [
 				'restrict_options' => $opts->isRestrictWpOptions()

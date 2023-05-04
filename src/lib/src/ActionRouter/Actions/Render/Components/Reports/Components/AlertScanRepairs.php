@@ -13,7 +13,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 	public const TEMPLATE = '/components/reports/components/alert_scanrepairs.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var DBEvents\Select $selectorEvents */
 		$selectorEvents = $con->getModule_Events()
 							  ->getDbHandler_Events()

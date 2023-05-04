@@ -41,7 +41,7 @@ class PageStats extends BasePluginAdminPage {
 	private function buildStats() :array {
 		$allStats = [];
 
-		$srvEvents = $this->getCon()->loadEventsService();
+		$srvEvents = $this->con()->loadEventsService();
 		foreach ( $this->getAllEvents() as $eventSection ) {
 			$stats = [];
 			foreach ( $eventSection[ 'events' ] as $event ) {
@@ -65,7 +65,7 @@ class PageStats extends BasePluginAdminPage {
 	}
 
 	private function buildSums( string $event ) :array {
-		$mod = $this->getCon()->getModule_Events();
+		$mod = $this->con()->getModule_Events();
 		/** @var Select $selector */
 		$selector = $mod->getDbHandler_Events()->getQuerySelector();
 		$carbon = Services::Request()->carbon( true );

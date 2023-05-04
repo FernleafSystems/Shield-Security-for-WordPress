@@ -11,7 +11,7 @@ class DismissAdminNotice extends BaseAction {
 	protected function exec() {
 		$noticeID = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
 		// TODO: put all the notices into a single (plugin) module. This means transferring the dismissed_notices option
-		foreach ( $this->getCon()->modules as $module ) {
+		foreach ( $this->con()->modules as $module ) {
 			$notices = $module->getAdminNotices();
 			foreach ( $notices->getAdminNotices() as $notice ) {
 				if ( $noticeID == $notice->id ) {

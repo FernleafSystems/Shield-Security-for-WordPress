@@ -12,7 +12,7 @@ class DocsEvents extends Actions\Render\BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/docs/events.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$srvEvents = $con->loadEventsService();
 
 		$eventsSortedByLevel = [

@@ -12,7 +12,7 @@ class InfoKeyStats extends BaseBuilder {
 	protected function getRenderData() :array {
 		$counts = array_filter( array_map(
 			function ( string $event ) {
-				$con = $this->getCon();
+				$con = $this->con();
 
 				$countData = null;
 

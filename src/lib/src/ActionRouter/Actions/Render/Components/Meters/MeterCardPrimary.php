@@ -7,7 +7,7 @@ class MeterCardPrimary extends MeterCard {
 	public const SLUG = 'render_progress_meter_card_primary';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$data = parent::getRenderData();
 		$data[ 'vars' ][ 'display' ] = [
 			'progress_chart_size'           => 180,

@@ -24,7 +24,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $secOpts */
 		$secOpts = $con->getModule_SecAdmin()->getOptions();
 		return [

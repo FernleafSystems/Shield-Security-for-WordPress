@@ -11,7 +11,7 @@ class ModConfig extends OffCanvasBase {
 	public const SLUG = 'offcanvas_modconfig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$module = null;
 		$itemType = null;

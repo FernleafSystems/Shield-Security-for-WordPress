@@ -14,7 +14,7 @@ class ConfigEdit extends UserMfaBase {
 	public const TEMPLATE = '/admin/user/profile/mfa/remove_for_other_user.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
 		$pluginName = $con->getHumanName();

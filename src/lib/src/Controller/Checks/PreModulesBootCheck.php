@@ -13,7 +13,7 @@ class PreModulesBootCheck {
 	use PluginControllerConsumer;
 
 	public function run( bool $ensureFreshResults = false ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$checks = [
 			'dbs' => [

@@ -51,7 +51,7 @@ class ActivityLogTableAction extends BaseAction {
 		return [
 			'success' => true,
 			'html'    => ( new GetRequestMeta() )
-				->setMod( $this->getCon()->getModule_Data() )
+				->setMod( $this->con()->getModule_Data() )
 				->retrieve( Services::Request()->post( 'rid' ) )
 		];
 	}

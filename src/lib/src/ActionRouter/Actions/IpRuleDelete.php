@@ -16,7 +16,7 @@ class IpRuleDelete extends BaseAction {
 			$msg = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
 		else {
-			$success = $this->getCon()
+			$success = $this->con()
 							->getModule_IPs()
 							->getDbH_IPRules()
 							->getQueryDeleter()

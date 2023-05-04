@@ -17,7 +17,7 @@ class Traffic extends Base {
 		try {
 			$ip = ( new IPRecords() )->loadIP( $this->action_data[ 'ip' ], false );
 			/** @var ReqLogs\Ops\Select $selector */
-			$selector = $this->getCon()
+			$selector = $this->con()
 							 ->getModule_Data()
 							 ->getDbH_ReqLogs()
 							 ->getQuerySelector();

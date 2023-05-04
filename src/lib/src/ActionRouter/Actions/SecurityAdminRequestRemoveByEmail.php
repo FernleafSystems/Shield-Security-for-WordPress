@@ -12,7 +12,7 @@ class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 
 	protected function exec() {
 		( new RemoveSecAdmin() )
-			->setMod( $this->getCon()->getModule_SecAdmin() )
+			->setMod( $this->con()->getModule_SecAdmin() )
 			->sendConfirmationEmail();
 		$this->response()->action_response_data = [
 			'success' => true,

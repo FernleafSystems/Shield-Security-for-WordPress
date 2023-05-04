@@ -13,7 +13,7 @@ class History extends Base {
 	private $history = [];
 
 	protected function getRenderData() :array {
-		$mod = $this->getCon()->getModule_HackGuard();
+		$mod = $this->con()->getModule_HackGuard();
 		$item = $this->getScanItem();
 
 		$results = ( new RetrieveItems() )

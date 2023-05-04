@@ -22,7 +22,7 @@ abstract class BasePluginAdminPage extends BaseRender {
 	}
 
 	protected function getCommonAdminPageRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$urls = $con->plugin_urls;
 
 		$hrefs = $this->getPageContextualHrefs();

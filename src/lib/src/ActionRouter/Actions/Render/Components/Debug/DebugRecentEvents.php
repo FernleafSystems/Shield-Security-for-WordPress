@@ -18,7 +18,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 			'strings' => [
 				'title_recent'        => __( 'Recent Events Log', 'wp-simple-firewall' ),
 				'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ),
-					$this->getCon()->getHumanName() ),
+					$this->con()->getHumanName() ),
 			],
 			'vars'    => [
 				'insight_events' => $this->getData()
@@ -27,7 +27,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	}
 
 	private function getData() :array {
-		$srvEvents = $this->getCon()->loadEventsService();
+		$srvEvents = $this->con()->loadEventsService();
 
 		$theStats = array_filter(
 			$srvEvents->getEvents(),
@@ -37,7 +37,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 		);
 
 		/** @var Events\Select $selector */
-		$selector = $this->getCon()
+		$selector = $this->con()
 						 ->getModule_Events()
 						 ->getDbHandler_Events()
 						 ->getQuerySelector();

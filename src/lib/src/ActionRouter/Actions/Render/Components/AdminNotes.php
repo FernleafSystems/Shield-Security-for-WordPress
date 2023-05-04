@@ -11,7 +11,7 @@ class AdminNotes extends BaseRender {
 	public const TEMPLATE = '/snippets/prerendered.twig';
 
 	protected function getRenderData() :array {
-		$mod = $this->getCon()->getModule_Plugin();
+		$mod = $this->con()->getModule_Plugin();
 		return [
 			'content' => ( new Build\AdminNotes() )
 				->setMod( $mod )

@@ -26,7 +26,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	protected function exec() {
 		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
 
-			if ( apply_filters( 'shield/show_admin_menu', $this->getCon()->cfg->menu[ 'show' ] ?? true ) ) {
+			if ( apply_filters( 'shield/show_admin_menu', $this->con()->cfg->menu[ 'show' ] ?? true ) ) {
 				add_action( 'admin_menu', function () {
 					$this->createAdminMenu();
 				} );
@@ -40,7 +40,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	private function createAdminMenu() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$menu = $con->cfg->menu;
 
 		if ( $menu[ 'top_level' ] ) {
@@ -77,7 +77,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	protected function addSubMenuItems() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$navs = [
 			PluginURLs::NAV_OVERVIEW       => __( 'Security Dashboard', 'wp-simple-firewall' ),
@@ -87,7 +87,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			PluginURLs::NAV_TRAFFIC_VIEWER => __( 'Traffic', 'wp-simple-firewall' ),
 			PluginURLs::NAV_OPTIONS_CONFIG => __( 'Configuration', 'wp-simple-firewall' ),
 		];
-		if ( !$this->getCon()->isPremiumActive() ) {
+		if ( !$this->con()->isPremiumActive() ) {
 			$navs[ PluginURLs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );
 		}
 
@@ -102,7 +102,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 			add_submenu_page(
 				$this->getPrimaryMenuSlug(),
-				sprintf( '%s | %s', $submenuTitle, $this->getCon()->getHumanName() ),
+				sprintf( '%s | %s', $submenuTitle, $this->con()->getHumanName() ),
 				$doMarkupTitle ? $markupTitle : $submenuTitle,
 				$con->getBasePermissions(),
 				$con->prefix( $submenuNavID ),
@@ -112,10 +112,10 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	public function displayModuleAdminPage() {
-		echo $this->getCon()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
+		echo $this->con()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
 	}
 
 	private function getPrimaryMenuSlug() :string {
-		return $this->getCon()->getModule_Plugin()->getModSlug();
+		return $this->con()->getModule_Plugin()->getModSlug();
 	}
 }

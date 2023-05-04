@@ -10,7 +10,7 @@ class PageReports extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
 
 	protected function getRenderData() :array {
-		$AR = $this->getCon()->action_router;
+		$AR = $this->con()->action_router;
 		return [
 			'content' => [
 				'summary_stats' => $AR->render( Reports\ChartsSummary::SLUG ),

@@ -11,7 +11,7 @@ class FirewallBlockAlert extends EmailBase {
 	public const TEMPLATE = '/email/firewall_block.twig';
 
 	protected function getBodyData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$ip = $this->action_data[ 'ip' ];
 		$blockMeta = $this->action_data[ 'block_meta' ];
 

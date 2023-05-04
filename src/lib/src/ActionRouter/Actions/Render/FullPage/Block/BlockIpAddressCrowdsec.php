@@ -20,7 +20,7 @@ class BlockIpAddressCrowdsec extends BlockIpAddressShield {
 	}
 
 	protected function renderAutoUnblock() :string {
-		return $this->getCon()->action_router->render( Components\AutoUnblockCrowdsec::SLUG );
+		return $this->con()->action_router->render( Components\AutoUnblockCrowdsec::SLUG );
 	}
 
 	protected function renderEmailMagicLinkContent() :string {

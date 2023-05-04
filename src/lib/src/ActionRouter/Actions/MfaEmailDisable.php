@@ -10,7 +10,7 @@ class MfaEmailDisable extends MfaUserConfigBase {
 
 	protected function exec() {
 		/** @var Options $opts */
-		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
+		$opts = $this->con()->getModule_LoginGuard()->getOptions();
 		$opts->setOpt( 'enable_email_authentication', 'N' );
 		$this->response()->action_response_data = [
 			'success'     => true,

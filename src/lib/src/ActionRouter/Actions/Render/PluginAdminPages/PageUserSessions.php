@@ -15,8 +15,8 @@ class PageUserSessions extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_sessions.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->getCon();
-		$urls = $this->getCon()->plugin_urls;
+		$con = $this->con();
+		$urls = $this->con()->plugin_urls;
 		return [
 			[
 				'text' => __( 'User Controls', 'wp-simple-firewall' ),
@@ -54,7 +54,7 @@ class PageUserSessions extends BasePluginAdminPage {
 
 	private function getDistinctUsernames() :array {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select $metaSelect */
-		$metaSelect = $this->getCon()
+		$metaSelect = $this->con()
 						   ->getModule_Data()
 						   ->getDbH_UserMeta()
 						   ->getQuerySelector();
