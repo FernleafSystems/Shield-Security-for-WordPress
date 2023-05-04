@@ -12,7 +12,7 @@ class MfaSmsVerify extends MfaUserConfigBase {
 	protected function exec() {
 		$req = Services::Request();
 
-		$available = $this->getCon()
+		$available = $this->con()
 						  ->getModule_LoginGuard()
 						  ->getMfaController()
 						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );

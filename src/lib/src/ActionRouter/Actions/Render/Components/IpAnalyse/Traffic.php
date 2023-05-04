@@ -16,10 +16,10 @@ class Traffic extends Base {
 		$logLimit = (int)max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
 		try {
 			$ip = ( new IPRecords() )
-				->setMod( $this->getCon()->getModule_Data() )
+				->setMod( $this->con()->getModule_Data() )
 				->loadIP( $this->action_data[ 'ip' ], false );
 			/** @var ReqLogs\Ops\Select $selector */
-			$selector = $this->getCon()
+			$selector = $this->con()
 							 ->getModule_Data()
 							 ->getDbH_ReqLogs()
 							 ->getQuerySelector();

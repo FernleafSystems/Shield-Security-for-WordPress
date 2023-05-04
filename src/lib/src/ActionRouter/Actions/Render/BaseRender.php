@@ -44,7 +44,7 @@ abstract class BaseRender extends BaseAction {
 	 * @throws ActionException
 	 */
 	protected function buildRenderOutput( array $renderData = [] ) :string {
-		$con = $this->getCon();
+		$con = $this->con();
 		$template = $this->getRenderTemplate();
 		if ( empty( $template ) ) {
 			throw new ActionException( 'No template provided for render' );
@@ -118,7 +118,7 @@ abstract class BaseRender extends BaseAction {
 
 	public function getCommonDisplayData() :array {
 		$WP = Services::WpGeneral();
-		$con = $this->getCon();
+		$con = $this->con();
 		$thisReq = $con->this_req;
 		$urlBuilder = $con->urls;
 
@@ -138,7 +138,7 @@ abstract class BaseRender extends BaseAction {
 			'classes' => [
 				'top_container' => implode( ' ', array_filter( [
 					'odp-outercontainer',
-					$this->getCon()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
+					$this->con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 					Services::Request()->query( Constants::NAV_ID, '' )
 				] ) )
 			],
@@ -231,7 +231,7 @@ abstract class BaseRender extends BaseAction {
 
 	private function getDisplayStrings() :array {
 		$WP = Services::WpGeneral();
-		$con = $this->getCon();
+		$con = $this->con();
 		$name = $con->getHumanName();
 
 		$proFeatures = [
@@ -249,7 +249,7 @@ abstract class BaseRender extends BaseAction {
 		$proFeaturesDisplay = array_slice( $proFeatures, 0, 6 );
 		$proFeaturesDisplay[] = __( 'and much more!' );
 
-		$isAdvanced = $this->getCon()->getModule_Plugin()->isShowAdvanced();
+		$isAdvanced = $this->con()->getModule_Plugin()->isShowAdvanced();
 
 		return [
 			'btn_save'          => __( 'Save Options' ),

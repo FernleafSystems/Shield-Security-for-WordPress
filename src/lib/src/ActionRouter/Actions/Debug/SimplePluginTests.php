@@ -127,7 +127,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function crowdsec() {
-		$modIPs = $this->getCon()->getModule_IPs();
+		$modIPs = $this->con()->getModule_IPs();
 		$csCon = $modIPs->getCrowdSecCon();
 		$API = $csCon->getApi();
 
@@ -135,7 +135,7 @@ class SimplePluginTests extends BaseAction {
 //		var_dump($auth);
 
 		try {
-//			$res = $this->getCon()
+//			$res = $this->con()
 //						->getModule_License()
 //						->getLicenseHandler()
 //						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
@@ -152,7 +152,7 @@ class SimplePluginTests extends BaseAction {
 //			var_dump( $modIPs->getCrowdSecCon()->cfg );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
-//				->setMod( $this->getCon()->getModule_IPs() )
+//				->setMod( $this->con()->getModule_IPs() )
 //				->execute();
 			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
 				->setMod( $modIPs )

@@ -39,8 +39,8 @@ class ChartsCustom extends Base {
 	 */
 	private function buildPossibleEvents() :array {
 		return array_intersect_key(
-			$this->getCon()->loadEventsService()->getEventNames(),
-			array_flip( $this->getCon()
+			$this->con()->loadEventsService()->getEventNames(),
+			array_flip( $this->con()
 							 ->getModule_Events()
 							 ->getDbHandler_Events()
 							 ->getQuerySelector()

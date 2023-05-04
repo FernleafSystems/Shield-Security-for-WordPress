@@ -9,19 +9,19 @@ class Config extends Base {
 	public const SLUG = 'dynamic_load_config';
 
 	protected function getPageUrl() :string {
-		$con = $this->getCon();
+		$con = $this->con();
 		return $con->plugin_urls->modCfg( $con->modules[ $this->action_data[ 'mod_slug' ] ] );
 	}
 
 	protected function getPageTitle() :string {#
 		return sprintf( '%s > %s',
 			__( 'Configuration', 'wp-simple-firewall' ),
-			$this->getCon()->modules[ $this->action_data[ 'mod_slug' ] ]->getMainFeatureName()
+			$this->con()->modules[ $this->action_data[ 'mod_slug' ] ]->getMainFeatureName()
 		);
 	}
 
 	protected function getContent() :string {
-		return $this->getCon()->action_router->render( PageConfig::SLUG, $this->action_data );
+		return $this->con()->action_router->render( PageConfig::SLUG, $this->action_data );
 	}
 
 	protected function getRequiredDataKeys() :array {

@@ -20,7 +20,7 @@ abstract class PluginThemesBase extends Base {
 				'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'ptg_is_restricted' => !$this->getCon()->isPremiumActive(),
+				'ptg_is_restricted' => !$this->con()->isPremiumActive(),
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForPluginTheme() )->build()
@@ -30,7 +30,7 @@ abstract class PluginThemesBase extends Base {
 
 	protected function getVulnerabilities() :Scans\Wpv\ResultsSet {
 		try {
-			$vulnerable = $this->getCon()
+			$vulnerable = $this->con()
 							   ->getModule_HackGuard()
 							   ->getScansCon()
 							   ->WPV()
@@ -44,7 +44,7 @@ abstract class PluginThemesBase extends Base {
 
 	protected function getAbandoned() :Scans\Apc\ResultsSet {
 		try {
-			$abandoned = $this->getCon()
+			$abandoned = $this->con()
 							  ->getModule_HackGuard()
 							  ->getScansCon()
 							  ->APC()

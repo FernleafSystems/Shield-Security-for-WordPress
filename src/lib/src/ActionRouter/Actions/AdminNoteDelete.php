@@ -17,7 +17,7 @@ class AdminNoteDelete extends BaseAction {
 		}
 		else {
 			try {
-				$resp->success = $this->getCon()
+				$resp->success = $this->con()
 									  ->getModule_Plugin()
 									  ->getDbHandler_Notes()
 									  ->getQueryDeleter()

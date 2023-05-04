@@ -10,7 +10,7 @@ class AdminNoteInsert extends BaseAction {
 	public const SLUG = 'admin_note_insert';
 
 	public function exec() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$resp = $this->response();
 
 		$note = trim( FormParams::Retrieve()[ 'admin_note' ] ?? '' );

@@ -13,7 +13,7 @@ class AutoUnblockShield extends Base {
 	public const TEMPLATE = '/pages/block/autorecover.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'flags'   => [
 				'is_available' => ( new AutoUnblockVisitor() )->isUnblockAvailable()

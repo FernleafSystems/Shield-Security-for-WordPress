@@ -13,7 +13,7 @@ class ScansFileLockerAction extends ScansBase {
 	public const SLUG = 'filelocker_fileaction';
 
 	protected function exec() {
-		$mod = $this->getCon()->getModule_HackGuard();
+		$mod = $this->con()->getModule_HackGuard();
 		$FLCon = $mod->getFileLocker();
 		$req = Services::Request();
 		$success = false;

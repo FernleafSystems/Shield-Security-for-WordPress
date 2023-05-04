@@ -15,7 +15,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_traffic.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			[
 				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
@@ -25,7 +25,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $con->getModule_Traffic()->getOptions();
 		return [

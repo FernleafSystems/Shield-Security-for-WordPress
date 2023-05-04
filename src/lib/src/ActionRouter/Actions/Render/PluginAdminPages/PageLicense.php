@@ -17,7 +17,7 @@ class PageLicense extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/license.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mod = $con->getModule_License();
 		$opts = $mod->getOptions();
 		$WP = Services::WpGeneral();
@@ -201,7 +201,7 @@ class PageLicense extends BasePluginAdminPage {
 	}
 
 	private function getAllIntegrationNames() :array {
-		$modIntegrations = $this->getCon()->getModule_Integrations();
+		$modIntegrations = $this->con()->getModule_Integrations();
 		return array_map(
 			function ( $providerClass ) use ( $modIntegrations ) {
 				/** @var BaseHandler $provider */

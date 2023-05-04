@@ -11,15 +11,15 @@ class Handler {
 				return ( new $class() )->check();
 			},
 			[
-				IpStatus::class,
-				GloballyDisabled::class,
-				ForceOff::class,
 				ConflictAkismet::class,
-				LicenseStatus::class,
-				SelfVersion::class,
 				ConflictMonolog::class,
 				DbPrechecks::class,
+				ForceOff::class,
+				GloballyDisabled::class,
+				IpStatus::class,
+				LicenseStatus::class,
 				RulesEngine::class,
+				SelfVersion::class,
 			]
 		) );
 

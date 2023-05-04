@@ -11,7 +11,7 @@ class MfaYubikeyToggle extends MfaUserConfigBase {
 
 	protected function exec() {
 		/** @var Yubikey $provider */
-		$provider = $this->getCon()
+		$provider = $this->con()
 						 ->getModule_LoginGuard()
 						 ->getMfaController()
 						 ->getProvidersAvailableToUser( $this->getActiveWPUser() )[ Yubikey::ProviderSlug() ];

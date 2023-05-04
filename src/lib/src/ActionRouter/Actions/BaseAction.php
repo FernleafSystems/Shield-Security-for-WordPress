@@ -68,7 +68,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @throws UserAuthRequiredException
 	 */
 	protected function checkAccess() {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( $con->this_req->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
 			throw new IpBlockedException( sprintf( 'IP Address blocked so cannot process action: %s', static::SLUG ) );
 		}
@@ -114,7 +114,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	protected function getMinimumUserAuthCapability() :string {
-		return $this->getCon()->cfg->properties[ 'base_permissions' ] ?? 'manage_options';
+		return $this->con()->cfg->properties[ 'base_permissions' ] ?? 'manage_options';
 	}
 
 	protected function canBypassIpAddressBlock() :bool {
@@ -122,7 +122,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	protected function isNonceVerifyRequired() :bool {
-		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? $this->getCon()->this_req->wp_is_ajax );
+		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? $this->con()->this_req->wp_is_ajax );
 	}
 
 	protected function isUserAuthRequired() :bool {

@@ -13,7 +13,7 @@ class BotSignals extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig';
 
 	protected function getRenderData() :array {
-		$mod = $this->getCon()->getModule_IPs();
+		$mod = $this->con()->getModule_IPs();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 		$WP = Services::WpGeneral();

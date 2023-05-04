@@ -99,7 +99,7 @@ class BaseSubPage extends BaseMWP {
 	protected function buildEntireSiteData( array $site ) :array {
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
-		$con = $this->getCon();
+		$con = $this->con();
 		$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
 		$sync = LoadShieldSyncData::Load( $mwpSite );
 		$meta = $sync->meta;
@@ -222,7 +222,7 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getExtensionRootUri() :string {
 		$req = Services::Request();
-		$mwp = $this->getCon()->mwpVO->official_extension_data;
+		$mwp = $this->con()->mwpVO->official_extension_data;
 		return URL::Build( $req->getPath(), [
 			'page' => $mwp[ 'page' ] ?? 'Extensions-Wp-Simple-Firewall',
 		] );
@@ -233,7 +233,7 @@ class BaseSubPage extends BaseMWP {
 	}
 
 	protected function getSites() :string {
-		$mwp = $this->getCon()->mwpVO;
+		$mwp = $this->con()->mwpVO;
 		return apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 	}
 

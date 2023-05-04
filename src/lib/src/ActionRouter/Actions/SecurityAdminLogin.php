@@ -14,7 +14,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 	public const SLUG = 'sec_admin_login';
 
 	protected function exec() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$resp = $this->response();
 
 		$html = '';

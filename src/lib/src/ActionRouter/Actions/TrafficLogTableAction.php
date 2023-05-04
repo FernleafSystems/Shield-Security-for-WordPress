@@ -33,7 +33,7 @@ class TrafficLogTableAction extends BaseAction {
 	}
 
 	private function retrieveTableData() :array {
-		$builder = ( new BuildTrafficTableData() )->setMod( $this->getCon()->getModule_Traffic() );
+		$builder = ( new BuildTrafficTableData() )->setMod( $this->con()->getModule_Traffic() );
 		$builder->table_data = Services::Request()->post( 'table_data', [] );
 		return [
 			'success'        => true,

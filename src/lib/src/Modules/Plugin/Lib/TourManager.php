@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TourManager {
@@ -20,7 +20,7 @@ class TourManager {
 
 	public function setCompleted( string $tourKey ) {
 		$tourKey = sanitize_key( $tourKey );
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		if ( !empty( $tourKey ) && !empty( $meta ) ) {
 			$meta->tours = array_intersect_key(
 				array_merge( $this->getAllTours(), [
@@ -32,7 +32,7 @@ class TourManager {
 	}
 
 	public function getUserTourStates() :array {
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		return ( !empty( $meta ) && is_array( $meta->tours ) ) ? $meta->tours : [];
 	}
 }

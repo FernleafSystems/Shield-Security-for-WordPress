@@ -19,7 +19,7 @@ abstract class BaseForm extends Base {
 	}
 
 	protected function getCommonFormData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mod = $con->getModule_LoginGuard();
 		/** @var LoginGuard\Options $opts */
 		$opts = $mod->getOptions();
@@ -116,7 +116,7 @@ abstract class BaseForm extends Base {
 	}
 
 	protected function getLoginIntentExpiresAt() :int {
-		$mod = $this->getCon()->getModule_LoginGuard();
+		$mod = $this->con()->getModule_LoginGuard();
 		$mfaCon = $mod->getMfaController();
 		/** @var LoginGuard\Options $opts */
 		$opts = $mod->getOptions();

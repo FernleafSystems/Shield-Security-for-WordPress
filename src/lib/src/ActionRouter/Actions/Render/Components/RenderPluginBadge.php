@@ -19,7 +19,7 @@ class RenderPluginBadge extends BaseRender {
 	public const TEMPLATE = '/snippets/plugin_badge_widget.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
 
 		if ( $wlCon->isEnabled() && $wlCon->isReplacePluginBadge() ) {

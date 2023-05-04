@@ -13,7 +13,7 @@ class IpAnalysis extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		return $this->getCon()->action_router->render(
+		return $this->con()->action_router->render(
 			Container::SLUG,
 			[
 				'ip' => $this->action_data[ 'ip' ]

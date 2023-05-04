@@ -9,7 +9,7 @@ class ScansStart extends ScansBase {
 	public const SLUG = 'scans_start';
 
 	protected function exec() {
-		$mod = $this->getCon()->getModule_HackGuard();
+		$mod = $this->con()->getModule_HackGuard();
 		$success = false;
 		$reloadPage = false;
 		$msg = __( 'No scans were selected', 'wp-simple-firewall' );

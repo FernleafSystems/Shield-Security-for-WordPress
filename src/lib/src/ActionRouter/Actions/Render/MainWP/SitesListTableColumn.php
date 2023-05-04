@@ -51,11 +51,11 @@ class SitesListTableColumn extends BaseRender {
 				'status_key'   => $statusKey,
 				'status_name'  => current( $status ),
 				'issues_count' => $issuesCount,
-				'version'      => $this->getCon()->getVersion()
+				'version'      => $this->con()->getVersion()
 			],
 			'hrefs'   => [
 				'this_extension' => Services::WpGeneral()
-											->getUrl_AdminPage( $this->getCon()->mwpVO->official_extension_data[ 'page' ] ),
+											->getUrl_AdminPage( $this->con()->mwpVO->official_extension_data[ 'page' ] ),
 			],
 			'strings' => [
 				'tooltip_inactive'         => __( "Shield plugin is installed, but not active.", 'wp-simple-firewall' ),

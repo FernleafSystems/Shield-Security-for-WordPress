@@ -10,7 +10,7 @@ class PluginImportExport_UpdateNotified extends BaseAction {
 	public const SLUG = 'importexport_updatenotified';
 
 	protected function exec() {
-		$this->getCon()->getModule_Plugin()->getImpExpController()->runOptionsUpdateNotified();
+		$this->con()->getModule_Plugin()->getImpExpController()->runOptionsUpdateNotified();
 		$this->response()->action_response_data = [
 			'success' => true,
 		];

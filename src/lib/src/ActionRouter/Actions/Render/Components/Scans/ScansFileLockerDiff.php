@@ -14,7 +14,7 @@ class ScansFileLockerDiff extends BaseScans {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig';
 
 	protected function getRenderData() :array {
-		$mod = $this->getCon()->getModule_HackGuard();
+		$mod = $this->con()->getModule_HackGuard();
 		$FLCon = $mod->getFileLocker();
 		$FS = Services::WpFs();
 

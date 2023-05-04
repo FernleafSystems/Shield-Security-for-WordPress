@@ -9,7 +9,7 @@ class ModuleOptionsSave extends BaseAction {
 	public const SLUG = 'mod_options_save';
 
 	protected function exec() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$secAdminCon = $con->getModule_SecAdmin()->getSecurityAdminController();
 
 		$wasSecAdminEnabled = $secAdminCon->isEnabledSecAdmin();

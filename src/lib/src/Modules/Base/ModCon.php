@@ -88,7 +88,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function setupHooks() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -225,7 +225,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getCon()->is_rest_enabled ) {
+		if ( $this->con()->is_rest_enabled ) {
 			$this->initRestApi();
 		}
 	}
@@ -249,7 +249,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpInit() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		add_action( 'cli_init', function () {
 			try {
@@ -276,7 +276,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onLoadOptionsScreen() {
-		if ( $this->getCon()->isValidAdminArea() ) {
+		if ( $this->con()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
 		}
 	}
@@ -299,13 +299,13 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onPluginShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
+		if ( !$this->con()->plugin_deleting ) {
 			$this->saveModOptions();
 		}
 	}
 
 	public function getOptionsStorageKey() :string {
-		return $this->getCon()->prefixOption( $this->sOptionsStoreKey ?? $this->cfg->properties[ 'storage_key' ] )
+		return $this->con()->prefixOption( $this->sOptionsStoreKey ?? $this->cfg->properties[ 'storage_key' ] )
 			   .'_options';
 	}
 
@@ -317,7 +317,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()->plugin_urls->modCfg( $this );
+		return $this->con()->plugin_urls->modCfg( $this );
 	}
 
 	/**
@@ -327,7 +327,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 10.2
 	 */
 	public function getEmailHandler() {
-		return $this->getCon()->getModule_Email();
+		return $this->con()->getModule_Email();
 	}
 
 	/**
@@ -347,7 +347,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModuleEnabled() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $con->getModule_Plugin()->getOptions();
 
@@ -361,7 +361,7 @@ abstract class ModCon extends DynPropertiesClass {
 		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
-		elseif ( $this->getCon()->this_req->is_force_off ) {
+		elseif ( $this->con()->this_req->is_force_off ) {
 			$enabled = false;
 		}
 		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
@@ -399,7 +399,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? $this->getCon()->prefix( $this->cfg->slug ) : $this->cfg->slug;
+		return $prefix ? $this->con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
 	}
 
 	/**
@@ -484,7 +484,7 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 
 		$this->doPrePluginOptionsSave();
-		if ( apply_filters( $this->getCon()->prefix( 'force_options_resave' ), false ) ) {
+		if ( apply_filters( $this->con()->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
 				 ->setNeedSave( true );
 		}
@@ -492,7 +492,7 @@ abstract class ModCon extends DynPropertiesClass {
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		if ( $this->getOptions()->getNeedSave() ) {
 			$this->bImportExportWhitelistNotify = true;
-			do_action( $this->getCon()->prefix( 'pre_options_store' ), $this );
+			do_action( $this->con()->prefix( 'pre_options_store' ), $this );
 		}
 		$this->store();
 		return $this;
@@ -502,7 +502,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	private function store() {
-		$con = $this->getCon();
+		$con = $this->con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()
 			 ->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
@@ -543,11 +543,11 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getIsShowMarketing() :bool {
-		return (bool)apply_filters( 'shield/show_marketing', !$this->getCon()->isPremiumActive() );
+		return (bool)apply_filters( 'shield/show_marketing', !$this->con()->isPremiumActive() );
 	}
 
 	public function isAccessRestricted() :bool {
-		return $this->cfg->properties[ 'access_restricted' ] && !$this->getCon()->isPluginAdmin();
+		return $this->cfg->properties[ 'access_restricted' ] && !$this->con()->isPluginAdmin();
 	}
 
 	public function getMainWpData() :array {

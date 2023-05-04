@@ -11,7 +11,7 @@ class IpRuleAddSubmit extends BaseAction {
 	public const SLUG = 'ip_rule_add_submit';
 
 	protected function exec() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mod = $con->getModule_IPs();
 		$dbh = $mod->getDbH_IPRules();
 		$form = Services::Request()->post( 'form_data' );
