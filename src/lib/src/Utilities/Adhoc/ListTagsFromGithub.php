@@ -1,10 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Github;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class ListTags {
+class ListTagsFromGithub {
 
 	public const BASE_URL = 'https://api.github.com/repos/%s/tags';
 

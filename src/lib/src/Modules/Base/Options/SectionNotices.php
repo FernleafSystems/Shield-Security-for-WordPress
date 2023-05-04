@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	PluginControllerConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 

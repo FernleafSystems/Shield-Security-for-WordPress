@@ -25,28 +25,12 @@
     "enabled": true
   },
   "admin_notices": {
-    "databases-not-ready":        {
-      "id":               "databases-not-ready",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": false,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
     "plugin-too-old":             {
       "id":               "plugin-too-old",
       "schedule":         "conditions",
       "valid_admin":      true,
       "plugin_page_only": false,
       "can_dismiss":      true,
-      "type":             "error"
-    },
-    "rules-not-running":          {
-      "id":               "rules-not-running",
-      "schedule":         "conditions",
-      "valid_admin":      false,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
       "type":             "error"
     },
     "override-forceoff":          {
@@ -56,28 +40,6 @@
       "plugin_page_only": false,
       "can_dismiss":      false,
       "type":             "error"
-    },
-    "plugin-disabled":            {
-      "id":               "plugin-disabled",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
-    "update-available":           {
-      "id":               "update-available",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
-    "plugin-mailing-list-signup": {
-      "id":               "plugin-mailing-list-signup",
-      "min_install_days": 5,
-      "type":             "promo",
-      "drip_form_id":     "250437573"
     },
     "allow-tracking":             {
       "id":               "allow-tracking",

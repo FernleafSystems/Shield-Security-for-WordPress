@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwareScanPatterns;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwareScan;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class SimplePluginTests extends BaseAction {
@@ -33,6 +34,10 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_rand() {
+	}
+
+	private function dbg_apitoken() {
+		$this->con()->getModule_License()->getWpHashesTokenManager()->setCanRequestOverride( true )->getToken();
 	}
 
 	private function dbg_submitmalwarereports() {

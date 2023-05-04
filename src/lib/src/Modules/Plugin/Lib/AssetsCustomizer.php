@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions,
 	Constants
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	PluginDeleteForceOff,
+	PluginAutoDbRepair
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -233,8 +237,8 @@ class AssetsCustomizer {
 					],
 					'notices'          => [
 						'ajax' => [
-							'auto_db_repair'  => ActionData::Build( Actions\PluginAutoDbRepair::class ),
-							'delete_forceoff' => ActionData::Build( Actions\PluginDeleteForceOff::class ),
+							PluginAutoDbRepair::SLUG   => ActionData::Build( PluginAutoDbRepair::class ),
+							PluginDeleteForceOff::SLUG => ActionData::Build( PluginDeleteForceOff::class ),
 						]
 					]
 				],

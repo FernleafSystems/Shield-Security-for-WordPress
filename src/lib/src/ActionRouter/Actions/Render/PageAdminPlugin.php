@@ -5,9 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,7 +18,7 @@ class PageAdminPlugin extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/index.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$req = Services::Request();
 
 		$nav = $con->getModule_Plugin()->isAccessRestricted()
@@ -46,7 +45,7 @@ class PageAdminPlugin extends BaseRender {
 				'page_container' => 'page-insights page-'.$nav
 			],
 			'content' => [
-				'rendered_page_body' => $this->getCon()->action_router->render( $delegateAction::SLUG, [
+				'rendered_page_body' => $this->con()->action_router->render( $delegateAction::SLUG, [
 					Constants::NAV_ID     => $nav,
 					Constants::NAV_SUB_ID => $subNav,
 				] ),
@@ -72,44 +71,12 @@ class PageAdminPlugin extends BaseRender {
 	}
 
 	protected function buildTopPageWarnings() :array {
-		$con = $this->con();
-		$thisReq = $con->this_req;
-		$warnings = [];
-
-		$ipStatus = new IpRuleStatus( $thisReq->ip );
-		if ( $ipStatus->isBypass() ) {
-			$warnings[] = [
-				'type' => 'warning', // Boostrap,
-				'text' => [
-					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
-				]
-			];
-		}
-		elseif ( $ipStatus->isBlocked() ) {
-			$warnings[] = [
-				'type' => 'danger', // Boostrap,
-				'text' => [
-					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $thisReq->ip ), $thisReq->ip, $thisReq->ip ) )
-				]
-			];
-		}
-
-		try {
-			( new Monolog() )->assess();
-		}
-		catch ( \Exception $e ) {
-			$warnings[] = [
-				'type' => 'warning', // Boostrap,
-				'text' => [
-					__( 'You have a PHP library conflict with the Monolog library. Likely another plugin is using an incompatible version of the library.', 'wp-simple-firewall' ),
-					$e->getMessage(),
-				]
-			];
-		}
-
-		return $warnings;
+		return array_filter(
+			( new Handler() )->build(),
+			function ( array $issue ) {
+				return \in_array( 'shield_admin_top_page', $issue[ 'locations' ] );
+			}
+		);
 	}
 
 	/**

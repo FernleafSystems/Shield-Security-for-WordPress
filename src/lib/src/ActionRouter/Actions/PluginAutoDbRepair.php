@@ -11,7 +11,7 @@ class PluginAutoDbRepair extends BaseAction {
 	public const SLUG = 'auto_db_repair';
 
 	protected function exec() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		// 1. Forcefully re-run all checks:
 		$checks = ( new PreModulesBootCheck() )->run( true );

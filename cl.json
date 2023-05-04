@@ -69,6 +69,16 @@
     ],
     "patches":     [
       {
+        "version":     "7",
+        "released_at": 1682498715,
+        "items":       [
+          {
+            "title": "FileLocker would fail to lock files in certain scenarios.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "6",
         "released_at": 1682498715,
         "items":       [

@@ -24,8 +24,8 @@ class Controller {
 	 */
 	public function onLoginMessage( $loginMsg ) {
 		$msg = $this->retrieveFlashMessage();
-		if ( is_array( $msg ) && isset( $msg[ 'show_login' ] ) && $msg[ 'show_login' ] ) {
-			$loginMsg .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $msg[ 'message' ] ) );
+		if ( \is_array( $msg ) && isset( $msg[ 'show_login' ] ) && $msg[ 'show_login' ] ) {
+			$loginMsg .= \sprintf( '<p class="message">%s</p>', sanitize_text_field( $msg[ 'message' ] ) );
 			$this->clearFlashMessage();
 		}
 		return $loginMsg;
@@ -41,7 +41,7 @@ class Controller {
 		$con = $this->getCon();
 		$meta = $user instanceof \WP_User ? $con->user_metas->for( $user ) : $con->user_metas->current();
 
-		$msg = trim( sanitize_text_field( $msg ) );
+		$msg = \trim( sanitize_text_field( $msg ) );
 		if ( !empty( $msg ) && $meta instanceof UserMeta ) {
 			$meta->flash_msg = [
 				'message'    => sprintf( '[%s] %s', $this->getCon()->getHumanName(), $msg ),
@@ -75,8 +75,10 @@ class Controller {
 	protected function collectAllPluginNotices() :array {
 		/** @var NoticeVO[] $notices */
 		$notices = [];
-		foreach ( $this->getCon()->modules as $mod ) {
-			$notices = array_merge( $notices, $mod->getAdminNotices()->getNotices() );
+		foreach ( $this->con()->modules as $mod ) {
+			if ( !empty( $mod->getOptions()->getAdminNotices() ) ) {
+				$notices = array_merge( $notices, $mod->getAdminNotices()->getNotices() );
+			}
 		}
 		$notices[] = $this->getFlashNotice();
 		return array_filter(
