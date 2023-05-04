@@ -41,8 +41,6 @@
       }
     }
   ],
-  "admin_notices":    {
-  },
   "sections":         [
     {
       "slug":        "section_localdb",

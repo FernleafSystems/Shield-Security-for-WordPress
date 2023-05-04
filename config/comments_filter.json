@@ -28,14 +28,6 @@
   "wpcli":         {
     "enabled": true
   },
-  "admin_notices": {
-    "akismet-running": {
-      "id":               "akismet-running",
-      "plugin_admin":     "yes",
-      "plugin_page_only": true,
-      "type":             "warning"
-    }
-  },
   "sections":      [
     {
       "primary":     true,

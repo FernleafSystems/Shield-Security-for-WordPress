@@ -1185,10 +1185,11 @@ td.status_file_size {
 #ShieldTopPageWarnings {
 	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.4);
 }
-.shield-top_page_warning.bg-danger {
+.shield-top_page_warning.bg-danger,
+.shield-top_page_warning.bg-danger a {
 	color: white;
 }
-.shield-top_page_warning.bg-danger a {
+.shield-top_page_warning a {
 	text-decoration: underline;
 }
 

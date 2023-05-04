@@ -15,28 +15,12 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
-			case 'rules-not-running':
-				$this->buildNotice_RulesNotRunning( $notice );
-				break;
-
 			case 'plugin-too-old':
 				$this->buildNotice_PluginTooOld( $notice );
 				break;
 
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $notice );
-				break;
-
-			case 'plugin-disabled':
-				$this->buildNotice_PluginDisabled( $notice );
-				break;
-
-			case 'update-available':
-				$this->buildNotice_UpdateAvailable( $notice );
-				break;
-
-			case 'plugin-mailing-list-signup':
-				$this->buildNotice_PluginMailingListSignup( $notice );
 				break;
 
 			case 'allow-tracking':
@@ -51,25 +35,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				parent::processNotice( $notice );
 				break;
 		}
-	}
-
-	private function buildNotice_RulesNotRunning( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title' => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s's Rules Engine Isn't Running", 'wp-simple-firewall' ), $name ) ),
-				'lines' => [
-					sprintf(
-						__( "The Rules Engine that processes requests and protects your site doesn't appear to be operating normally.", 'wp-simple-firewall' ),
-						$name
-					),
-					__( "This could be a webhosting configuration issue, but please reach out to our support desk for help to isolate the issue.", 'wp-simple-firewall' ),
-				],
-			],
-		];
 	}
 
 	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
@@ -110,68 +75,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				),
 				'delete'  => __( 'Click here to automatically delete the file', 'wp-simple-firewall' )
 			],
-		];
-	}
-
-	private function buildNotice_PluginDisabled( NoticeVO $notice ) {
-		$con = $this->getCon();
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'          => sprintf( '%s: %s',
-					__( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $con->getHumanName() )
-				),
-				'message'        => implode( ' ', [
-					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
-					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
-				] ),
-				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'jump_to_enable' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
-			]
-		];
-	}
-
-	private function buildNotice_PluginMailingListSignup( NoticeVO $notice ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$name = $this->getCon()->getHumanName();
-		$user = Services::WpUsers()->getCurrentWpUser();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'yes'     => "Yes please! I'd love to join in and learn more",
-				'dismiss' => "No thanks",
-				'summary' => sprintf( 'The %s team is helping raise awareness of WP Security issues
-				and to provide guidance with the %s plugin.', $name, $name ),
-			],
-			'hrefs'             => [
-				'form' => 'https://shsec.io/shieldpluginnewsletter'
-			],
-			'install_days'      => $opts->getInstallationDays(),
-			'vars'              => [
-				'name'       => $user->first_name,
-				'user_email' => $user->user_email,
-			]
-		];
-	}
-
-	private function buildNotice_UpdateAvailable( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'        => sprintf( __( 'Update available for the %s plugin', 'wp-simple-firewall' ), $name ),
-				'click_update' => __( 'Please click to update immediately', 'wp-simple-firewall' ),
-				'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'upgrade_link' => Services::WpPlugins()->getUrl_Upgrade( $this->getCon()->base_file )
-			]
 		];
 	}
 
@@ -228,24 +131,12 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 		switch ( $notice->id ) {
 
-			case 'rules-not-running':
-				$needed = $this->isNeeded_RulesNotRunning();
-				break;
-
 			case 'plugin-too-old':
 				$needed = $this->isNeeded_PluginTooOld();
 				break;
 
 			case 'override-forceoff':
-				$needed = $con->this_req->is_force_off;
-				break;
-
-			case 'plugin-disabled':
-				$needed = $opts->isPluginGloballyDisabled();
-				break;
-
-			case 'update-available':
-				$needed = Services::WpPlugins()->isUpdateAvailable( $con->base_file );
+				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
 
 			case 'allow-tracking':
@@ -292,9 +183,5 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 
 		return $needed;
-	}
-
-	private function isNeeded_RulesNotRunning() :bool {
-		return !$this->con()->rules->isRulesEngineReady() || !$this->con()->rules->processComplete;
 	}
 }
