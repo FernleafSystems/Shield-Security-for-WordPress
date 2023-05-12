@@ -74,11 +74,12 @@ jQuery( document ).ready( function () {
 					alert( msg );
 				}
 			}
-		).always( function () {
-				$body.removeClass( 'shield-busy' );
-				$this.attr( 'disabled', false );
-			}
-		);
+		).fail( function ( data ) {
+			alert( 'OTP email sending was unsuccessful: ' + data.responseJSON.data.message );
+		} ).always( function () {
+			$body.removeClass( 'shield-busy' );
+			$this.attr( 'disabled', false );
+		} );
 	};
 
 	let $emailInput = jQuery( 'input[type=text]#icwp_wpsf_email_otp' );
