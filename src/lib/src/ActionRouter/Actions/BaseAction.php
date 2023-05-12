@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
 	IpBlockedException,
@@ -153,9 +154,9 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	public function verifyNonce() :bool {
 		$req = Services::Request();
-		return wp_verify_nonce(
-				   $req->request( ActionData::FIELD_NONCE ),
-				   ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE )
-			   ) === 1;
+		return Nonce::Verify(
+			ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE ),
+			$req->request( ActionData::FIELD_NONCE )
+		);
 	}
 }
