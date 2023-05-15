@@ -1,4 +1,26 @@
 {
+  "18.1": {
+    "version":     "18.1",
+    "released_at": 1681725600,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease181",
+      "upgrade": "https://shsec.io/shieldupgradeguide181"
+    },
+    "title":       "",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Add Bot-Protection Support for 'Classified Listing' plugin",
+        "description": [
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.0": {
     "version":     "18.0",
     "released_at": 1681725600,

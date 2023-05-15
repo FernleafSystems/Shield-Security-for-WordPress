@@ -25,6 +25,7 @@ class UserFormsController extends Integrations\Lib\Bots\Common\BaseBotDetectionC
 		return [
 			Find::BUDDYBOSS                 => Handlers\Buddyboss::class,
 			Find::BUDDYPRESS                => Handlers\Buddypress::class,
+			Find::CLASSIFIED_LISTING        => Handlers\ClassifiedListing::class,
 			Find::EASY_DIGITAL_DOWNLOADS    => Handlers\EasyDigitalDownloads::class,
 			Find::LEARNPRESS                => Handlers\LearnPress::class,
 			Find::LIFTERLMS                 => Handlers\LifterLMS::class,
