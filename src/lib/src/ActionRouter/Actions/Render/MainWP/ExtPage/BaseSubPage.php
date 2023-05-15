@@ -181,7 +181,7 @@ class BaseSubPage extends BaseMWP {
 			'newWindow'  => 'yes',
 			'websiteid'  => $siteID,
 			'_opennonce' => wp_create_nonce( 'mainwp-admin-nonce' ),
-			'location'   => base64_encode( str_replace( Services::WpGeneral()->getAdminUrl(), '', $page ) )
+			'location'   => \base64_encode( \str_replace( Services::WpGeneral()->getAdminUrl(), '', $page ) )
 		] );
 	}
 
