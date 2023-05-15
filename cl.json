@@ -13,8 +13,9 @@
       {
         "type":        "new",
         "pro_only":    true,
-        "title":       "Add Bot-Protection Support for 'Classified Listing' plugin",
+        "title":       "Add Bot-Protection Support for more 3rd party plugins",
         "description": [
+          "Plugins include: 'Classified Listing', 'ProfilePress'"
         ]
       }
     ],

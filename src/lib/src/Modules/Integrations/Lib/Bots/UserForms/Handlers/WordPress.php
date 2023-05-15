@@ -21,7 +21,7 @@ class WordPress extends Base {
 
 	/**
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
-	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
+	 * its own authentication (theirs is priority 30, so we could go in at around 20).
 	 * @param null|\WP_User|\WP_Error $userOrError
 	 * @param string                  $username
 	 * @return \WP_User|\WP_Error
