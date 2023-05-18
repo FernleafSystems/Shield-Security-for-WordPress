@@ -107,14 +107,14 @@ abstract class ModCon extends DynPropertiesClass {
 
 	protected function collateRuleBuilders() {
 		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
-			return array_merge( $builders, array_map(
+			return \array_merge( $builders, \array_map(
 				function ( $class ) {
 					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
 					$theClass = new $class();
 					$theClass->setMod( $this );
 					return $theClass;
 				},
-				array_filter( $this->enumRuleBuilders() )
+				\array_filter( $this->enumRuleBuilders() )
 			) );
 		} );
 	}
@@ -161,7 +161,7 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function getDbH( $dbhKey ) {
 		$dbh = false;
 
-		if ( !is_array( $this->aDbHandlers ) ) {
+		if ( !\is_array( $this->aDbHandlers ) ) {
 			$this->aDbHandlers = [];
 		}
 
@@ -190,7 +190,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	private function getAllDbClasses() {
 		$classes = $this->getOptions()->getDef( 'db_classes' );
-		return is_array( $classes ) ? $classes : [];
+		return \is_array( $classes ) ? $classes : [];
 	}
 
 	/**
@@ -237,7 +237,7 @@ abstract class ModCon extends DynPropertiesClass {
 				try {
 					$restClass = $this->findElementClass( 'Rest' );
 					/** @var Shield\Modules\Base\Rest $rest */
-					if ( @class_exists( $restClass ) ) {
+					if ( @\class_exists( $restClass ) ) {
 						$rest = new $restClass( $cfg );
 						$rest->setMod( $this )->init();
 					}
@@ -414,10 +414,10 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getLastErrors( bool $asString = false, string $glue = " " ) {
 		$errors = $this->getOptions()->getOpt( 'last_errors' );
-		if ( !is_array( $errors ) ) {
+		if ( !\is_array( $errors ) ) {
 			$errors = [];
 		}
-		return $asString ? implode( $glue, $errors ) : $errors;
+		return $asString ? \implode( $glue, $errors ) : $errors;
 	}
 
 	public function hasLastErrors() :bool {
@@ -441,8 +441,8 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function setLastErrors( $mErrors = [] ) {
-		if ( !is_array( $mErrors ) ) {
-			if ( is_string( $mErrors ) ) {
+		if ( !\is_array( $mErrors ) ) {
+			if ( \is_string( $mErrors ) ) {
 				$mErrors = [ $mErrors ];
 			}
 			else {
@@ -458,12 +458,12 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getDismissedNotices() :array {
 		$notices = $this->getOptions()->getOpt( 'dismissed_notices' );
-		return is_array( $notices ) ? $notices : [];
+		return \is_array( $notices ) ? $notices : [];
 	}
 
 	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->getOptions()->getOpt( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )->applyFromArray( is_array( $a ) ? $a : [] );
+		return ( new Lib\Components\UiTrack() )->applyFromArray( \is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {
@@ -644,13 +644,13 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function findElementClass( string $element, $bThrowException = true ) {
 		$theClass = null;
 
-		$roots = array_map( function ( $root ) {
-			return rtrim( $root, '\\' ).'\\';
+		$roots = \array_map( function ( $root ) {
+			return \rtrim( $root, '\\' ).'\\';
 		}, $this->getNamespaceRoots() );
 
 		foreach ( $roots as $NS ) {
 			$maybe = $NS.$element;
-			if ( @class_exists( $maybe ) ) {
+			if ( @\class_exists( $maybe ) ) {
 				if ( ( new \ReflectionClass( $maybe ) )->isInstantiable() ) {
 					$theClass = $maybe;
 					break;
@@ -658,7 +658,7 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		}
 
-		if ( $bThrowException && is_null( $theClass ) ) {
+		if ( $bThrowException && \is_null( $theClass ) ) {
 			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
 		}
 		return $theClass;
