@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\MerlinController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 
 class PageMerlin extends BasePluginAdminPage {
 
@@ -14,10 +16,15 @@ class PageMerlin extends BasePluginAdminPage {
 	 * TODO: Fix 2: $subNavSection
 	 */
 	protected function getRenderData() :array {
+		try {
+			$steps = ( new MerlinController() )->buildSteps( $this->action_data[ 'nav_sub' ] );
+		}
+		catch ( \Exception $ae ) {
+			throw new ActionException( $ae->getMessage() );
+		}
 		return [
 			'content' => [
-				'steps' => ( new MerlinController() )
-					->buildSteps( empty( $subNavSection ) ? 'guided_setup_wizard' : $subNavSection )
+				'steps' => $steps
 			],
 			'flags'   => [
 				'show_sidebar_nav' => 0

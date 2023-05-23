@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -292,7 +293,7 @@ class NavMenuBuilder {
 				[
 					'slug'   => $slug.'-'.PluginURLs::NAV_WIZARD,
 					'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_WIZARD ),
+					'href'   => $pageURLs->wizard( Wizards::WIZARD_WELCOME ),
 					'active' => $this->inav() === PluginURLs::NAV_WIZARD
 				],
 				[

@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
  * @property int      $pass_check_failed_at
  * @property bool     $wc_social_login_valid
  * @property array    $tours
+ * @property array    $flags
  * /*** VIRTUAL ***
  * @property int      $last_verified_at
  * /*** REMOVED ***
@@ -51,11 +52,18 @@ class ShieldUserMeta extends UserMeta {
 					$this->record->first_seen_at
 				] );
 				break;
+			case 'flags':
+			case 'login_intents':
+			case 'tours':
+				if ( !\is_array( $value ) ) {
+					$value = [];
+				}
+				break;
 			default:
 				break;
 		}
 
-		if ( function_exists( 'str_ends_with' ) && str_ends_with( $key, '_at' ) ) {
+		if ( \function_exists( 'str_ends_with' ) && \str_ends_with( $key, '_at' ) ) {
 			$value = (int)$value;
 		}
 

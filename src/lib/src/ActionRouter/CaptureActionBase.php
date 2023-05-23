@@ -20,11 +20,11 @@ class CaptureActionBase {
 		$req = Services::Request();
 		return $req->request( ActionData::FIELD_ACTION ) === ActionData::FIELD_SHIELD
 			   && !empty( $req->request( ActionData::FIELD_EXECUTE ) )
-			   && preg_match( '#^[a-z0-9_.:\-]+$#', $req->request( ActionData::FIELD_EXECUTE ) );
+			   && \preg_match( '#^[a-z0-9_.:\-]+$#', $req->request( ActionData::FIELD_EXECUTE ) );
 	}
 
 	protected function extractActionSlug() :string {
-		preg_match( '#^([a-z0-9_.:\-]+)$#', Services::Request()->request( ActionData::FIELD_EXECUTE ), $matches );
+		\preg_match( '#^([a-z0-9_.:\-]+)$#', Services::Request()->request( ActionData::FIELD_EXECUTE ), $matches );
 		return $matches[ 1 ];
 	}
 
