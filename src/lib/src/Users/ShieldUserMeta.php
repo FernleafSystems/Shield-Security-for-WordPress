@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Record;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
+use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
 /**
+ * @property string   $UID
  * @property array    $login_intents
  * @property array    $email_secret
  * @property bool     $email_validated
@@ -57,6 +59,12 @@ class ShieldUserMeta extends UserMeta {
 			case 'tours':
 				if ( !\is_array( $value ) ) {
 					$value = [];
+				}
+				break;
+			case 'UID':
+				if ( empty( $value ) ) {
+					$value = ( new Uuid() )->V4();
+					$this->UID = $value;
 				}
 				break;
 			default:
