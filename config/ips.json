@@ -620,7 +620,8 @@
         "wp-trackback.php",
         "xmlrpc.php",
         "admin.php",
-        "matomo.php"
+        "matomo.php",
+        "umbrella-application.php"
       ]
     },
     "rest_api":                  {
