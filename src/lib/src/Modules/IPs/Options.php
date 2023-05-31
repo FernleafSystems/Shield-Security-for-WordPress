@@ -27,10 +27,10 @@ class Options extends BaseShield\Options {
 
 	public function botSignalsGetAllowableScripts() :array {
 		$def = $this->getDef( 'bot_signals' )[ 'allowable_invalid_scripts' ] ?? [];
-		return array_unique( array_filter(
+		return \array_unique( \array_filter(
 			apply_filters( 'shield/bot_signals_allowable_invalid_scripts', $def ),
 			function ( $script ) {
-				return !empty( $script ) && is_string( $script ) && strpos( $script, '.php' );
+				return !empty( $script ) && \is_string( $script ) && \strpos( $script, '.php' );
 			}
 		) );
 	}
