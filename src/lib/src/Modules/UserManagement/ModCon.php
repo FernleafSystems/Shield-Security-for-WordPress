@@ -17,9 +17,9 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$opts->setOpt( 'auto_idle_roles',
-			array_unique( array_filter( array_map(
+			\array_unique( \array_filter( \array_map(
 				function ( $role ) {
-					return preg_replace( '#[^\s\da-z_-]#i', '', trim( strtolower( $role ) ) );
+					return \preg_replace( '#[^\s\da-z_-]#i', '', \trim( \strtolower( $role ) ) );
 				},
 				$opts->getSuspendAutoIdleUserRoles()
 			) ) )
@@ -29,6 +29,6 @@ class ModCon extends BaseShield\ModCon {
 		if ( !empty( $checks ) ) {
 			$checks[] = 'syntax';
 		}
-		$opts->setOpt( 'email_checks', array_unique( $checks ) );
+		$opts->setOpt( 'email_checks', \array_unique( $checks ) );
 	}
 }

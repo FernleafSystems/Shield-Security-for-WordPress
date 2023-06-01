@@ -111,7 +111,7 @@ class Processor extends BaseShield\Processor {
 							)
 						], $user );
 
-						$content = implode( '<br/>', array_filter( array_map( 'trim', $additionalContent ) ) );
+						$content = \implode( '<br/>', \array_filter( \array_map( '\trim', $additionalContent ) ) );
 					}
 				}
 

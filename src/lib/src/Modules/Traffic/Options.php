@@ -9,14 +9,14 @@ class Options extends BaseShield\Options {
 	public function getAutoCleanDays() :int {
 		$days = $this->getOpt( 'auto_clean' );
 		if ( !$this->con()->isPremiumActive() ) {
-			$this->setOpt( 'auto_clean', min( $days, 7 ) );
+			$this->setOpt( 'auto_clean', \min( $days, 7 ) );
 		}
 		return (int)$this->getOpt( 'auto_clean' );
 	}
 
 	public function getCustomExclusions() :array {
 		$ex = $this->getOpt( 'custom_exclusions' );
-		return is_array( $ex ) ? $ex : [];
+		return \is_array( $ex ) ? $ex : [];
 	}
 
 	public function getLimitRequestCount() :int {
@@ -29,7 +29,7 @@ class Options extends BaseShield\Options {
 
 	public function getReqTypeExclusions() :array {
 		$ex = $this->getOpt( 'type_exclusions' );
-		return is_array( $ex ) ? $ex : [];
+		return \is_array( $ex ) ? $ex : [];
 	}
 
 	public function isTrafficLoggerEnabled() :bool {

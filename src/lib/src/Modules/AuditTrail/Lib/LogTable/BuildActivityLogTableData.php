@@ -57,12 +57,12 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	}
 
 	/**
-	 * The Wheres need to align with the structure of the Query called from getRecords()
+	 * The `Where`s need to align with the structure of the Query called from getRecords()
 	 */
 	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
+			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'day':
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'log' );
@@ -104,7 +104,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
@@ -122,7 +122,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$loader->offset = $offset;
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->getOrderBy();
-		return array_filter(
+		return \array_filter(
 			$loader->run(),
 			function ( $logRecord ) {
 				return $this->con()->loadEventsService()->eventExists( $logRecord->event_slug );
@@ -160,8 +160,8 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				$id = '';
 			}
 
-			$loggedIn = is_numeric( $this->getColumnContent_UserID() );
-			$content = implode( '', array_filter( [
+			$loggedIn = \is_numeric( $this->getColumnContent_UserID() );
+			$content = \implode( '', \array_filter( [
 				sprintf( '%s',
 					$loggedIn ?
 						sprintf( '%s and authenticated as %s', $id, $this->getColumnContent_User() )
@@ -182,7 +182,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$content = '-';
 		$uid = $this->log->meta_data[ 'uid' ] ?? '';
 		if ( !empty( $uid ) ) {
-			if ( is_numeric( $uid ) ) {
+			if ( \is_numeric( $uid ) ) {
 				$WPU = Services::WpUsers();
 				$user = $WPU->getUserById( $uid );
 				$content = empty( $user ) ?
