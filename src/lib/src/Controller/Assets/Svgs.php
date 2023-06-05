@@ -14,6 +14,6 @@ class Svgs {
 	}
 
 	public function url( string $image ) :string {
-		return $this->getCon()->urls->forImage( $image );
+		return $this->con()->urls->forImage( $image );
 	}
 }
