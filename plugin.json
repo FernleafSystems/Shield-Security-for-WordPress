@@ -109,7 +109,7 @@
           ]
         },
         "datatables":                        {
-          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.2/b-2.3.4/sp-2.1.1/sl-1.6.0/datatables.min.css",
+          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.4/b-2.3.6/sp-2.1.2/sl-1.6.2/datatables.min.css",
           "deps": [
             "bootstrap"
           ]
@@ -192,7 +192,7 @@
           ]
         },
         "datatables":                        {
-          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.2/b-2.3.4/sp-2.1.1/sl-1.6.0/datatables.min.js",
+          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.4/b-2.3.6/sp-2.1.2/sl-1.6.2/datatables.min.js",
           "deps": [
             "bootstrap",
             "wp-jquery"
