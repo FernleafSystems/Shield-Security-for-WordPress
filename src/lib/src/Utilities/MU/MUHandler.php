@@ -12,7 +12,7 @@ class MUHandler {
 	public const PLUGIN_FILE_NAME = 'a-shield-mu.php';
 
 	public function isActiveMU() :bool {
-		return Services::WpFs()->isFile( $this->getMuFilePath() );
+		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class MUHandler {
 		$content = $this->buildContent();
 		$FS->putFileContent( $file, $content );
 
-		if ( !$FS->isFile( $file ) ) {
+		if ( !$FS->isAccessibleFile( $file ) ) {
 			throw new \Exception( sprintf( 'Could not create MU File: %s', $file ) );
 		}
 		if ( $FS->getFileContent( $file ) !== $content ) {

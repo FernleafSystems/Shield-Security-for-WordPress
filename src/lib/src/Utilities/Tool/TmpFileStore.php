@@ -30,10 +30,10 @@ class TmpFileStore {
 	public function load( string $slug ) {
 		$data = null;
 		$tmpFile = path_join( $this->getTmpDir(), $slug );
-		if ( Services::WpFs()->isFile( $tmpFile ) ) {
+		if ( Services::WpFs()->isAccessibleFile( $tmpFile ) ) {
 			$contents = Services::WpFs()->getFileContent( $tmpFile );
 			if ( !empty( $contents ) ) {
-				$data = unserialize( $contents );
+				$data = \unserialize( $contents );
 			}
 		}
 		return $data;
@@ -41,7 +41,7 @@ class TmpFileStore {
 
 	public function store( string $slug, $data ) {
 		$fullPath = path_join( $this->getTmpDir(), $slug );
-		Services::WpFs()->putFileContent( $fullPath, serialize( $data ) );
+		Services::WpFs()->putFileContent( $fullPath, \serialize( $data ) );
 		self::$slugs[] = $fullPath;
 	}
 

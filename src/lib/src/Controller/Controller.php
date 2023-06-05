@@ -146,7 +146,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'plugin_reset':
 				if ( is_null( $val ) ) {
-					$val = $FS->isFile( $this->paths->forFlag( 'reset' ) );
+					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
@@ -257,7 +257,7 @@ class Controller extends DynPropertiesClass {
 		$FS = Services::WpFs();
 
 		$flag = $this->paths->forFlag( 'reqs_met.flag' );
-		if ( !$FS->isFile( $flag )
+		if ( !$FS->isAccessibleFile( $flag )
 			 || Services::Request()->carbon()->subHour()->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 

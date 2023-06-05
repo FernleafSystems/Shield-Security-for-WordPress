@@ -23,7 +23,7 @@ class FileDownloadHandler {
 
 		$path = path_join( ABSPATH, $item->VO->item_id );
 		$FS = Services::WpFs();
-		if ( !$FS->isFile( $path ) ) {
+		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new \Exception( "File doesn't exist." );
 		}
 		if ( $FS->getFileSize( $path ) === 0 ) {
@@ -31,7 +31,7 @@ class FileDownloadHandler {
 		}
 
 		return [
-			'name'    => basename( $path ),
+			'name'    => \basename( $path ),
 			'content' => $FS->getFileContent( $path )
 		];
 	}

@@ -37,7 +37,7 @@ class AssessDirWrite {
 		$FS = Services::WpFs();
 
 		$testDir = \path_join( $this->dir, 'test-dir' );
-		if ( $FS->isFile( $testDir ) ) {
+		if ( $FS->isAccessibleFile( $testDir ) ) {
 			$FS->deleteFile( $testDir );
 		}
 		if ( $FS->isDir( $testDir ) ) {
@@ -48,11 +48,11 @@ class AssessDirWrite {
 		if ( $FS->isDir( $testDir ) ) {
 			$file = \path_join( $testDir, uniqid() );
 			$FS->touch( $file );
-			$canTouchFile = $FS->isFile( $file );
+			$canTouchFile = $FS->isAccessibleFile( $file );
 			$FS->deleteFile( $file );
 			$FS->deleteDir( $testDir );
-			clearstatcache();
-			$canWrite = $canTouchFile && !$FS->isDir( $testDir );
+			\clearstatcache();
+			$canWrite = $canTouchFile && !$FS->isAccessibleDir( $testDir );
 		}
 		return $canWrite;
 	}
@@ -64,7 +64,7 @@ class AssessDirWrite {
 		$testFile = \path_join( $this->dir, 'test_write_file.txt' );
 		$uniq = uniqid();
 		$FS->putFileContent( $testFile, $uniq );
-		if ( $FS->isFile( $testFile ) ) {
+		if ( $FS->isAccessibleFile( $testFile ) ) {
 			$canWrite = $FS->getFileContent( $testFile ) == $uniq;
 			$FS->deleteFile( $testFile );
 			$canWrite = $canWrite && !$FS->exists( $testFile );

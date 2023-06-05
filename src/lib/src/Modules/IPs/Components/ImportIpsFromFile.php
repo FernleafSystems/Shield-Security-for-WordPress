@@ -22,14 +22,14 @@ class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$FS = Services::WpFs();
 
 		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->con()->paths->forFlag() );
-		if ( $FS->isFile( $fileImport ) ) {
+		if ( $FS->isAccessibleFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {
 				$adder = new IPs\Lib\IpRules\AddRule();
-				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
+				foreach ( \array_map( 'trim', \explode( "\n", $content ) ) as $ip ) {
 					$adder->setIP( $ip );
 					try {
-						in_array( $type, [ 'white', 'bypass' ] ) ?
+						\in_array( $type, [ 'white', 'bypass' ] ) ?
 							$adder->toManualWhitelist( 'file import' )
 							: $adder->toManualBlacklist( 'file import' );
 					}

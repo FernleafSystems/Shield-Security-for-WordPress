@@ -40,7 +40,7 @@ class CacheDirHandler {
 					}
 
 					$assessedFlag = path_join( $maybeDir, 'assessed.flag' );
-					if ( !$FS->isFile( $assessedFlag )
+					if ( !$FS->isAccessibleFile( $assessedFlag )
 						 || Services::Request()->ts() - $FS->getModifiedTime( $assessedFlag ) > HOUR_IN_SECONDS ) {
 
 						$assess = ( new AssessDirWrite( $maybeDir ) )->test();

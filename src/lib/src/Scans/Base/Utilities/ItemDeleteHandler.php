@@ -27,7 +27,7 @@ class ItemDeleteHandler {
 		$item = $this->getScanItem();
 		if ( $this->canDelete() ) {
 			$FS->deleteFile( $item->path_full );
-			$success = !$FS->isFile( $item->path_full );
+			$success = !$FS->isAccessibleFile( $item->path_full );
 		}
 
 		return $success;
@@ -53,7 +53,7 @@ class ItemDeleteHandler {
 		if ( !( $item->is_unrecognised || $item->is_unidentified || $item->is_mal ) ) {
 			throw new \Exception( sprintf( "File '%s' isn't unrecognised.", $item->path_fragment ) );
 		}
-		if ( !Services::WpFs()->isFile( $item->path_full ) ) {
+		if ( !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
 			throw new \Exception( sprintf( "File '%s' doesn't exist.", $item->path_fragment ) );
 		}
 

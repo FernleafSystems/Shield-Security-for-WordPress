@@ -136,7 +136,7 @@ class Afs extends BaseForFiles {
 		/** @var Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 
-		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isFile( $item->path_full ) ) {
+		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {

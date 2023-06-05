@@ -17,7 +17,7 @@ class Diff extends Base {
 		$item = $this->getScanItem();
 		$pathFull = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 
-		if ( $item->is_missing || !Services::WpFs()->isFile( $pathFull ) ) {
+		if ( $item->is_missing || !Services::WpFs()->isAccessibleFile( $pathFull ) ) {
 			throw new ActionException( 'Diff is unavailable for missing files.' );
 		}
 
@@ -39,7 +39,7 @@ class Diff extends Base {
 		}
 
 		$FS = Services::WpFs();
-		if ( empty( $originalFileDownload ) || !$FS->isFile( $originalFileDownload ) ) {
+		if ( empty( $originalFileDownload ) || !$FS->isAccessibleFile( $originalFileDownload ) ) {
 			throw new ActionException( "A File Diff can't be created as there is no official file available for us to compare with." );
 		}
 

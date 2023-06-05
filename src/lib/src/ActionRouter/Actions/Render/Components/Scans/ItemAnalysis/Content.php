@@ -16,7 +16,7 @@ class Content extends Base {
 
 		$path = \path_join( ABSPATH, $item->path_fragment );
 		$FS = Services::WpFs();
-		if ( !$FS->isFile( $path ) ) {
+		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new ActionException( 'File does not exist.' );
 		}
 

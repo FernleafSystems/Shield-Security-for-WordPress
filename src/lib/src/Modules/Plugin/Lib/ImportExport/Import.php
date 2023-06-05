@@ -19,7 +19,7 @@ class Import {
 	public function fromFile( string $path, bool $delete = true ) {
 		$FS = Services::WpFs();
 
-		if ( !$FS->isFile( $path ) ) {
+		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new \Exception( "The import file specified isn't a valid file." );
 		}
 
@@ -36,10 +36,10 @@ class Import {
 		}
 
 		{//filter any comment lines
-			$parts = array_filter(
-				array_map( 'trim', explode( "\n", $content ) ),
+			$parts = \array_filter(
+				\array_map( 'trim', \explode( "\n", $content ) ),
 				function ( $line ) {
-					return ( strpos( $line, '{' ) === 0 );
+					return \strpos( $line, '{' ) === 0;
 				}
 			);
 			if ( empty( $parts ) ) {
@@ -47,8 +47,8 @@ class Import {
 			}
 		}
 		{//parse the options json
-			$data = @json_decode( array_shift( $parts ), true );
-			if ( empty( $data ) || !is_array( $data ) ) {
+			$data = @\json_decode( \array_shift( $parts ), true );
+			if ( empty( $data ) || !\is_array( $data ) ) {
 				throw new \Exception( __( "Options data in the file wasn't of the correct format.", 'wp-simple-firewall' ) );
 			}
 		}
@@ -73,7 +73,7 @@ class Import {
 		}
 
 		if ( isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
-			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
+			 || !$FS->isAccessibleFile( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
 		}
 
