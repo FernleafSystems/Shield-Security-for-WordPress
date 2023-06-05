@@ -9,13 +9,65 @@
     "title":       "",
     "description": [
     ],
-    "items":       [
+    "items": [
       {
         "type":        "new",
         "pro_only":    true,
         "title":       "Add Bot-Protection Support for more 3rd party plugins",
         "description": [
           "Plugins include: 'Classified Listing', 'ProfilePress'"
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Support and integration with WP Umbrella",
+        "description": [
+          "Ensures that requests coming from WP Umbrella aren't ever interrupted or trigger Shield's defenses."
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    false,
+        "title":       "Big underlying code cleanup and improvements..",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    false,
+        "title":       "Upgraded Assets, such as Bootstrap to the latest available.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    true,
+        "title":       "Improved fallback support for Bing Search Engine Bots.",
+        "description": [
+          "If your site is having temporary rDNS lookup issues and can't verify the Bing bot, we've provided some fallback mechanisms."
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    true,
+        "title":       "Improvements to Plugin Notifications.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fix",
+        "pro_only":    true,
+        "title":       "Bug: Filelocker wasn't always creating the file lock correctly.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fix",
+        "pro_only":    true,
+        "title":       "Bug: Incorrectly identifying Contact Form 7.",
+        "description": [
+          "Shield would report Contact Form 7 is installed, when it isn't."
         ]
       }
     ],
