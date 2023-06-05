@@ -18,7 +18,7 @@ class Enqueue {
 
 	protected function canRun() :bool {
 		$WP = Services::WpGeneral();
-		return !$WP->isAjax() && !$WP->isCron() && !empty( $this->getCon()->cfg->includes[ 'register' ] );
+		return !$WP->isAjax() && !$WP->isCron() && !empty( $this->con()->cfg->includes[ 'register' ] );
 	}
 
 	protected function run() {
@@ -59,7 +59,7 @@ class Enqueue {
 	private function removeConflictingAdminAssets( $depContainer ) {
 		$toDequeue = [];
 
-		if ( $this->getCon()->getIsPage_PluginAdmin() ) {
+		if ( $this->con()->getIsPage_PluginAdmin() ) {
 			$default = [
 				'cerber_css',
 				'bootstrap',
@@ -85,14 +85,14 @@ class Enqueue {
 			$default = [];
 		}
 
-		$filtered = apply_filters( 'shield/conflict_assets_to_dequeue', $default, $depContainer );
-		$conflictHandlesRegEx = implode( '|', array_map( 'preg_quote', is_array( $filtered ) ? $filtered : $default ) );
+		$filtered = \apply_filters( 'shield/conflict_assets_to_dequeue', $default, $depContainer );
+		$conflictHandlesRegEx = \implode( '|', \array_map( 'preg_quote', \is_array( $filtered ) ? $filtered : $default ) );
 
 		if ( !empty( $conflictHandlesRegEx ) ) {
 			foreach ( $depContainer->queue as $script ) {
 				$handle = (string)$depContainer->registered[ $script ]->handle;
-				if ( strpos( $handle, $this->getCon()->prefix() ) === false
-					 && preg_match( sprintf( '/(%s)/i', $conflictHandlesRegEx ), $handle ) ) {
+				if ( \strpos( $handle, $this->con()->prefix() ) === false
+					 && \preg_match( sprintf( '/(%s)/i', $conflictHandlesRegEx ), $handle ) ) {
 					$toDequeue[] = $handle;
 				}
 			}
@@ -101,7 +101,7 @@ class Enqueue {
 	}
 
 	protected function dequeue() {
-		$customDequeues = apply_filters( 'shield/custom_dequeues', [
+		$customDequeues = \apply_filters( 'shield/custom_dequeues', [
 			self::CSS => [],
 			self::JS  => [],
 		] );
@@ -130,7 +130,7 @@ class Enqueue {
 		// Combine enqueues and enqueue assets
 		foreach ( [ self::CSS, self::JS ] as $type ) {
 			if ( !empty( $customAssets[ $type ] ) ) {
-				$assets[ $type ] = array_unique( array_merge( $assets[ $type ], $customAssets[ $type ] ) );
+				$assets[ $type ] = \array_unique( \array_merge( $assets[ $type ], $customAssets[ $type ] ) );
 			}
 			$this->runEnqueueOnAssets( $type, $assets[ $type ] );
 		}
@@ -141,11 +141,11 @@ class Enqueue {
 
 	private function localise() {
 		foreach ( apply_filters( 'shield/custom_localisations', [], $this->adminHookSuffix ) as $local ) {
-			if ( is_array( $local ) && count( $local ) === 3 ) {
+			if ( \is_array( $local ) && \count( $local ) === 3 ) {
 				wp_localize_script( $this->normaliseHandle( $local[ 0 ] ), $local[ 1 ], $local[ 2 ] );
 			}
 			else {
-				error_log( 'Invalid localisation: '.var_export( $local, true ) );
+				\error_log( 'Invalid localisation: '.\var_export( $local, true ) );
 			}
 		}
 	}
@@ -156,7 +156,7 @@ class Enqueue {
 	 * plugin to cater for most shared assets.
 	 */
 	private function registerAssets() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$assetKeys = [
 			self::CSS => [],
@@ -166,10 +166,10 @@ class Enqueue {
 		$incl = $con->cfg->includes[ 'register' ];
 
 		$includesService = Services::Includes();
-		foreach ( array_keys( $assetKeys ) as $type ) {
+		foreach ( \array_keys( $assetKeys ) as $type ) {
 
 			foreach ( $incl[ $type ] as $key => $spec ) {
-				if ( !in_array( $key, $assetKeys[ $type ] ) ) {
+				if ( !\in_array( $key, $assetKeys[ $type ] ) ) {
 
 					$deps = $spec[ 'deps' ] ?? [];
 
@@ -183,8 +183,8 @@ class Enqueue {
 						);
 					}
 					else {
-						if ( strpos( $key, 'jquery/' ) ) {
-							array_unshift( $deps, 'wp-jquery' );
+						if ( \strpos( $key, 'jquery/' ) ) {
+							\array_unshift( $deps, 'wp-jquery' );
 						}
 
 						$reg = wp_register_script(
@@ -211,34 +211,34 @@ class Enqueue {
 	}
 
 	private function prefixKeys( array $keys ) :array {
-		return array_map( function ( $handle ) {
-			return strpos( $handle, 'wp-' ) === 0 ? preg_replace( '#^wp-#', '', $handle ) : $this->normaliseHandle( $handle );
+		return \array_map( function ( $handle ) {
+			return \strpos( $handle, 'wp-' ) === 0 ? \preg_replace( '#^wp-#', '', $handle ) : $this->normaliseHandle( $handle );
 		}, $keys );
 	}
 
 	private function normaliseHandle( string $handle ) :string {
-		return str_replace( '/', '-', $this->getCon()->prefix(
+		return \str_replace( '/', '-', $this->con()->prefix(
 			\FernleafSystems\Wordpress\Services\Utilities\File\Paths::RemoveExt( $handle )
 		) );
 	}
 
 	private function getAdminAssetsToEnq() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$admin = $con->cfg->includes[ 'admin' ];
 		if ( $con->getIsPage_PluginAdmin() ) {
 			$plugin = $con->cfg->includes[ 'plugin_admin' ];
-			$admin[ 'css' ] = array_unique( array_merge( $admin[ 'css' ], $plugin[ 'css' ] ) );
-			$admin[ 'js' ] = array_unique( array_merge( $admin[ 'js' ], $plugin[ 'js' ] ) );
+			$admin[ 'css' ] = \array_unique( \array_merge( $admin[ 'css' ], $plugin[ 'css' ] ) );
+			$admin[ 'js' ] = \array_unique( \array_merge( $admin[ 'js' ], $plugin[ 'js' ] ) );
 		}
 		return $admin;
 	}
 
 	private function getFrontendAssetsToEnq() :array {
-		return $this->getCon()->cfg->includes[ 'frontend' ] ?? [];
+		return $this->con()->cfg->includes[ 'frontend' ] ?? [];
 	}
 
 	private function runEnqueueOnAssets( string $type, array $asset ) {
-		array_map(
+		\array_map(
 			function ( $asset ) use ( $type ) {
 				if ( $type == self::CSS ) {
 					wp_enqueue_style( $asset );

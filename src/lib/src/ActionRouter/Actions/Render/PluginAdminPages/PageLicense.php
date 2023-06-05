@@ -118,7 +118,7 @@ class PageLicense extends BasePluginAdminPage {
 				'title' => __( 'Support for WooCommerce, Contact Form 7, Elementor PRO, Ninja Form & more', 'wp-simple-firewall' ),
 				'lines' => [
 					__( 'Provide tighter security for your WooCommerce customers and protect against Contact Form SPAM.', 'wp-simple-firewall' ),
-					__( 'Includes protection for: ', 'wp-simple-firewall' ).implode( ', ', $this->getAllIntegrationNames() )
+					__( 'Includes protection for: ', 'wp-simple-firewall' ).\implode( ', ', $this->getAllIntegrationNames() )
 				],
 			],
 			[
@@ -202,13 +202,11 @@ class PageLicense extends BasePluginAdminPage {
 
 	private function getAllIntegrationNames() :array {
 		$modIntegrations = $this->con()->getModule_Integrations();
-		return array_map(
-			function ( $providerClass ) use ( $modIntegrations ) {
-				/** @var BaseHandler $provider */
-				$provider = ( new $providerClass() )->setMod( $modIntegrations );
-				return $provider->getHandlerName();
+		return \array_map(
+			function ( $provider ) use ( $modIntegrations ) {
+				return ( new $provider() )->getHandlerName();
 			},
-			array_merge(
+			\array_merge(
 				$modIntegrations->getController_UserForms()->enumProviders(),
 				$modIntegrations->getController_SpamForms()->enumProviders()
 			)

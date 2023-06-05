@@ -35,7 +35,7 @@ class Storage {
 	 */
 	private function loadFromWP() :array {
 		$values = Services::WpGeneral()->getOption( $this->mod()->getOptionsStorageKey(), [] );
-		if ( empty( $values ) || !is_array( $values ) ) {
+		if ( empty( $values ) || !\is_array( $values ) ) {
 			throw new \Exception( 'no values stored' );
 		}
 		return $values;

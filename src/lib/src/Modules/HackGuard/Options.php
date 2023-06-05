@@ -56,10 +56,10 @@ class Options extends BaseShield\Options {
 	public function getWhitelistedPathsAsRegex() :array {
 		$paths = $this->getDef( 'default_whitelist_paths' );
 		if ( $this->con()->isPremiumActive() ) {
-			$paths = array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
+			$paths = \array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
 		}
 
-		return array_map(
+		return \array_map(
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
 			},

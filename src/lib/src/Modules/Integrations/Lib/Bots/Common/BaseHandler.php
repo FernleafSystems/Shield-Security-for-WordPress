@@ -75,7 +75,7 @@ abstract class BaseHandler {
 
 	public function isEnabled() :bool {
 		return ( $this->con()->isPremiumActive() || !$this->isProOnly() )
-			   && in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
+			   && \in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
 	}
 
 	public static function IsProviderAvailable() :bool {

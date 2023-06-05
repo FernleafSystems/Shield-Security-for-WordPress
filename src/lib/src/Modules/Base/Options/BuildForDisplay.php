@@ -56,7 +56,7 @@ class BuildForDisplay {
 				}
 				else {
 					try {
-						$sect = array_merge(
+						$sect = \array_merge(
 							$sect,
 							$this->mod()
 								 ->getStrings()
@@ -76,7 +76,7 @@ class BuildForDisplay {
 						$warning[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
 					}
 					$sections[ $sectionKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
-					$sections[ $sectionKey ][ 'warnings' ] = array_merge( $warning, $notices->warnings( $sect[ 'slug' ] ) );
+					$sections[ $sectionKey ][ 'warnings' ] = \array_merge( $warning, $notices->warnings( $sect[ 'slug' ] ) );
 					$sections[ $sectionKey ][ 'critical_warnings' ] = $notices->critical( $sect[ 'slug' ] );
 				}
 			}
@@ -92,7 +92,7 @@ class BuildForDisplay {
 
 		foreach ( $opts->getSections() as $section ) {
 
-			$section = array_merge(
+			$section = \array_merge(
 				[
 					'primary'   => false,
 					'options'   => $this->buildOptionsForSection( $section[ 'slug' ] ),
@@ -135,7 +135,7 @@ class BuildForDisplay {
 
 			$optDef[ 'value' ] = $opts->getOpt( $optDef[ 'key' ] );
 
-			if ( in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
+			if ( \in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
@@ -151,7 +151,7 @@ class BuildForDisplay {
 				$optDef[ 'value_options' ] = $converted;
 
 				/** For multi-selects, only show available options as checked on. */
-				if ( is_array( $optDef[ 'value' ] ) ) {
+				if ( \is_array( $optDef[ 'value' ] ) ) {
 					$optDef[ 'value' ] = array_intersect( $optDef[ 'value' ], $available );
 				}
 			}
@@ -178,51 +178,50 @@ class BuildForDisplay {
 				break;
 
 			case 'array':
-				if ( empty( $value ) || !is_array( $value ) ) {
+				if ( empty( $value ) || !\is_array( $value ) ) {
 					$value = [];
 				}
 
-				$option[ 'rows' ] = count( $value ) + 2;
-				$value = stripslashes( implode( "\n", $value ) );
+				$option[ 'rows' ] = \count( $value ) + 2;
+				$value = \stripslashes( \implode( "\n", $value ) );
 
 				break;
 
 			case 'comma_separated_lists':
-
 				$converted = [];
-				if ( !empty( $value ) && is_array( $value ) ) {
+				if ( !empty( $value ) && \is_array( $value ) ) {
 					foreach ( $value as $page => $params ) {
-						$converted[] = $page.', '.implode( ", ", $params );
+						$converted[] = $page.', '.\implode( ", ", $params );
 					}
 				}
-				$option[ 'rows' ] = count( $converted ) + 1;
-				$value = implode( "\n", $converted );
+				$option[ 'rows' ] = \count( $converted ) + 1;
+				$value = \implode( "\n", $converted );
 
 				break;
 
 			case 'multiple_select':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;
 
 			case 'text':
-				$value = stripslashes( $this->mod()->getTextOpt( $option[ 'key' ] ) );
+				$value = \stripslashes( $this->mod()->getTextOpt( $option[ 'key' ] ) );
 				break;
 		}
 
 		$params = [
-			'value'    => is_scalar( $value ) ? esc_attr( $value ) : $value,
+			'value'    => \is_scalar( $value ) ? esc_attr( $value ) : $value,
 			'disabled' => !$this->con()
 								->isPremiumActive() && ( isset( $option[ 'premium' ] ) && $option[ 'premium' ] ),
 		];
 		$params[ 'enabled' ] = !$params[ 'disabled' ];
-		$option = array_merge( [ 'rows' => '2' ], $option, $params );
+		$option = \array_merge( [ 'rows' => '2' ], $option, $params );
 
 		// add strings
 		try {
 			$optStrings = $this->mod()->getStrings()->getOptionStrings( $option[ 'key' ] );
-			if ( !is_array( $optStrings[ 'description' ] ) ) {
+			if ( !\is_array( $optStrings[ 'description' ] ) ) {
 				$optStrings[ 'description' ] = [ $optStrings[ 'description' ] ];
 			}
 			$option = Services::DataManipulation()->mergeArraysRecursive( $option, $optStrings );
@@ -251,7 +250,7 @@ class BuildForDisplay {
 
 			case 'visitor_address_source':
 				$ipDetector = Services::IP()->getIpDetector();
-				foreach ( array_keys( $option[ 'value_options' ] ) as $valKey ) {
+				foreach ( \array_keys( $option[ 'value_options' ] ) as $valKey ) {
 					if ( $valKey !== 'AUTO_DETECT_IP' ) {
 						$IPs = implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
 						if ( empty( $IPs ) ) {

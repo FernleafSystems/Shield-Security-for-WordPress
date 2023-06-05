@@ -29,7 +29,7 @@ class SectionNotices {
 			case 'section_rename_wplogin':
 				if ( ( new IpRuleStatus( $con->this_req->ip ) )->isBypass() ) {
 					$critical[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s" ),
-						basename( Services::WpGeneral()->getLoginUrl() ) );
+						\basename( Services::WpGeneral()->getLoginUrl() ) );
 				}
 				break;
 			default:
@@ -225,10 +225,10 @@ class SectionNotices {
 				else {
 					$mod = $con->getModule_Integrations();
 					/** @var BaseHandler[] $installedButNotEnabledProviders */
-					$installedButNotEnabledProviders = array_filter(
-						array_map(
-							function ( $providerClass ) {
-								return new $providerClass();
+					$installedButNotEnabledProviders = \array_filter(
+						\array_map(
+							function ( $provider ) {
+								return new $provider();
 							},
 							$mod->getController_SpamForms()->enumProviders()
 						),
@@ -240,7 +240,7 @@ class SectionNotices {
 					if ( !empty( $installedButNotEnabledProviders ) ) {
 						$warnings[] = sprintf( __( "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
 							$con->getHumanName(),
-							implode( ', ', array_map(
+							\implode( ', ', \array_map(
 								function ( $provider ) {
 									return $provider->getHandlerName();
 								}, $installedButNotEnabledProviders

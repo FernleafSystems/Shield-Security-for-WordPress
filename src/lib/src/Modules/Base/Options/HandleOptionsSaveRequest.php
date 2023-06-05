@@ -59,7 +59,7 @@ class HandleOptionsSaveRequest {
 		// standard options use b64 and fail-over to lz-string
 		$form = $this->getForm();
 
-		$optsAndTypes = array_map(
+		$optsAndTypes = \array_map(
 			function ( $optDef ) {
 				return $optDef[ 'type' ];
 			},
@@ -68,9 +68,9 @@ class HandleOptionsSaveRequest {
 		foreach ( $optsAndTypes as $optKey => $optType ) {
 
 			$optValue = $form[ $optKey ] ?? null;
-			if ( is_null( $optValue ) ) {
+			if ( \is_null( $optValue ) ) {
 
-				if ( in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
+				if ( \in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
 				elseif ( $optType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
@@ -86,13 +86,13 @@ class HandleOptionsSaveRequest {
 			else { //handle any pre-processing we need to.
 
 				if ( $optType == 'text' || $optType == 'email' ) {
-					$optValue = trim( $optValue );
+					$optValue = \trim( $optValue );
 				}
 				if ( $optType == 'integer' ) {
-					$optValue = intval( $optValue );
+					$optValue = \intval( $optValue );
 				}
 				elseif ( $optType == 'password' ) {
-					$sTempValue = trim( $optValue );
+					$sTempValue = \trim( $optValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
 					}
@@ -102,10 +102,10 @@ class HandleOptionsSaveRequest {
 						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
 
-					$optValue = md5( $sTempValue );
+					$optValue = \md5( $sTempValue );
 				}
 				elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
-					$optValue = array_filter( explode( "\n", esc_textarea( $optValue ) ), 'trim' );
+					$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), 'trim' );
 				}
 				elseif ( $optType == 'comma_separated_lists' ) {
 					$optValue = Services::Data()->extractCommaSeparatedList( $optValue );
@@ -114,7 +114,7 @@ class HandleOptionsSaveRequest {
 			}
 
 			// Prevent overwriting of non-editable fields
-			if ( !in_array( $optType, [ 'noneditable_text' ] ) ) {
+			if ( !\in_array( $optType, [ 'noneditable_text' ] ) ) {
 				$this->mod->getOptions()->setOpt( $optKey, $optValue );
 			}
 		}
