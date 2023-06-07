@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseWpCliCmd extends ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return $this->getMod()
+		return $this->mod()
 					->getWpCli()
 					->getCfg()[ 'enabled' ];
 	}
@@ -37,7 +37,7 @@ abstract class BaseWpCliCmd extends ExecOnceModConsumer {
 	 * @return string[]
 	 */
 	protected function getCmdBase() :array {
-		$cfg = $this->getMod()->getWpCli()->getCfg();
+		$cfg = $this->mod()->getWpCli()->getCfg();
 		return [
 			$cfg[ 'cmd_root' ],
 			$cfg[ 'cmd_base' ]

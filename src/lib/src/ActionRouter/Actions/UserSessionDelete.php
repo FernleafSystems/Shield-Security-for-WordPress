@@ -9,7 +9,7 @@ class UserSessionDelete extends SecurityAdminBase {
 	public const SLUG = 'user_session_delete';
 
 	protected function exec() {
-		$sessionCon = $this->getCon()->getModule_Plugin()->getSessionCon();
+		$sessionCon = $this->con()->getModule_Plugin()->getSessionCon();
 		$success = false;
 
 		[ $userID, $uniqueID ] = explode( '-', Services::Request()->post( 'rid', '' ) );

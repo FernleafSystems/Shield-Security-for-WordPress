@@ -20,7 +20,7 @@ class DisableXmlrpc extends Base {
 	public function disableXmlrpc() {
 		if ( !$this->processed ) {
 			$this->processed = true;
-			$this->getCon()->fireEvent( 'block_xml' );
+			$this->con()->fireEvent( 'block_xml' );
 		}
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
 	}

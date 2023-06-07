@@ -10,15 +10,15 @@ class ShieldPro extends Base {
 	public const WEIGHT = 5;
 
 	protected function isApplicable() :bool {
-		return !$this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
+		return !$this->con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled();
 	}
 
 	protected function testIfProtected() :bool {
-		return $this->getCon()->isPremiumActive();
+		return $this->con()->isPremiumActive();
 	}
 
 	public function hrefFull() :string {
-		return $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE );
+		return $this->con()->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE );
 	}
 
 	public function title() :string {

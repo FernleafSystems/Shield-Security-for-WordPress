@@ -9,7 +9,7 @@ class MfaSmsIntentSend extends MfaUserConfigBase {
 	public const SLUG = 'intent_sms_send';
 
 	protected function exec() {
-		$available = $this->getCon()
+		$available = $this->con()
 						  ->getModule_LoginGuard()
 						  ->getMfaController()
 						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );

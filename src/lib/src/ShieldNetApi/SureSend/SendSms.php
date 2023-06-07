@@ -13,14 +13,14 @@ class SendSms extends BaseShieldNetApi {
 	 * @throws \Exception
 	 */
 	public function send2FA( \WP_User $to, string $code ) :bool {
-		$meta = $this->getCon()->user_metas->for( $to );
+		$meta = $this->con()->user_metas->for( $to );
 		return $this->run(
 			'2fa',
 			$meta->sms_registration[ 'country' ],
 			$meta->sms_registration[ 'phone' ],
 			[
 				'code'     => $code,
-				'ip'       => $this->getCon()->this_req->ip,
+				'ip'       => $this->con()->this_req->ip,
 				'username' => sanitize_key( $to->user_login ),
 			]
 		);
@@ -47,7 +47,7 @@ class SendSms extends BaseShieldNetApi {
 		$raw = $this->sendReq();
 		$success = is_array( $raw ) && empty( $raw[ 'error' ] );
 
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
 				'audit_params' => [

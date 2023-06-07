@@ -33,7 +33,7 @@ class Afs extends BaseForFiles {
 		$status = $this->getScansController()->getScanResultsCount();
 
 		$template = [
-			'id'    => $this->getCon()->prefix( 'problems-'.$this->getSlug() ),
+			'id'    => $this->con()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
@@ -136,7 +136,7 @@ class Afs extends BaseForFiles {
 		/** @var Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 
-		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isFile( $item->path_full ) ) {
+		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
 			$updater->setItemDeleted( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {
@@ -198,13 +198,13 @@ class Afs extends BaseForFiles {
 	public function isScanEnabledPlugins() :bool {
 		return $this->isEnabled()
 			   && in_array( 'plugins', $this->opts()->getFileScanAreas() )
-			   && $this->getCon()->cache_dir_handler->exists();
+			   && $this->con()->cache_dir_handler->exists();
 	}
 
 	public function isScanEnabledThemes() :bool {
 		return $this->isEnabled()
 			   && in_array( 'themes', $this->opts()->getFileScanAreas() )
-			   && $this->getCon()->cache_dir_handler->exists();
+			   && $this->con()->cache_dir_handler->exists();
 	}
 
 	public function isScanEnabledWpContent() :bool {

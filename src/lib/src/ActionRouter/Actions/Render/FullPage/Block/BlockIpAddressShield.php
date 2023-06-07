@@ -14,7 +14,7 @@ class BlockIpAddressShield extends BaseBlock {
 	public const TEMPLATE = '/pages/block/block_page_ip.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$autoUnblock = trim( $this->renderAutoUnblock() );
 		$magicLink = trim( $this->renderEmailMagicLinkContent() );
@@ -41,7 +41,7 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function renderAutoUnblock() :string {
-		return $this->getCon()->action_router->render( Components\AutoUnblockShield::SLUG );
+		return $this->con()->action_router->render( Components\AutoUnblockShield::SLUG );
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
@@ -57,7 +57,7 @@ class BlockIpAddressShield extends BaseBlock {
 
 	protected function getRestrictionDetailsPoints() :array {
 		/** @var IPs\Options $opts */
-		$opts = $this->getCon()->getModule_IPs()->getOptions();
+		$opts = $this->con()->getModule_IPs()->getOptions();
 		return array_merge(
 			[
 				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()
@@ -70,6 +70,6 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function renderEmailMagicLinkContent() :string {
-		return $this->getCon()->action_router->render( Components\MagicLink::SLUG );
+		return $this->con()->action_router->render( Components\MagicLink::SLUG );
 	}
 }

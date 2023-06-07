@@ -16,7 +16,7 @@ class WpCoreFile extends BaseScan {
 	 * @throws Exceptions\WpCoreFileMissingException
 	 */
 	protected function runScan() :bool {
-		if ( !Services::WpFs()->isFile( $this->pathFull ) ) {
+		if ( !Services::WpFs()->isAccessibleFile( $this->pathFull ) ) {
 			if ( !$this->isExcludedMissing() ) {
 				throw new Exceptions\WpCoreFileMissingException( $this->pathFull );
 			}

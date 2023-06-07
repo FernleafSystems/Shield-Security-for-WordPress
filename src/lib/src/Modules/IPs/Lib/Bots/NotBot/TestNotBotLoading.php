@@ -16,7 +16,7 @@ class TestNotBotLoading {
 	}
 
 	public function testInternally() :bool {
-		$urlToFind = explode( '?', $this->getCon()->urls->forJs( 'shield/notbot' ) )[ 0 ];
+		$urlToFind = explode( '?', $this->con()->urls->forJs( 'shield/notbot' ) )[ 0 ];
 		return preg_match(
 				   sprintf( '#%s#i', preg_quote( $urlToFind, '#' ) ),
 				   Services::HttpRequest()->getContent(
@@ -28,7 +28,7 @@ class TestNotBotLoading {
 
 	public function testViaShieldNet() :bool {
 		return ( new DetectNotBot() )
-			->setMod( $this->getCon()->getModule_Plugin() )
-			->run( explode( '?', $this->getCon()->urls->forJs( 'shield/notbot' ) )[ 0 ] );
+			->setMod( $this->con()->getModule_Plugin() )
+			->run( explode( '?', $this->con()->urls->forJs( 'shield/notbot' ) )[ 0 ] );
 	}
 }

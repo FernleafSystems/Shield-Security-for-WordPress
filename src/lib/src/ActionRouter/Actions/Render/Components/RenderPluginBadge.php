@@ -19,7 +19,7 @@ class RenderPluginBadge extends BaseRender {
 	public const TEMPLATE = '/snippets/plugin_badge_widget.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$wlCon = $con->getModule_SecAdmin()->getWhiteLabelController();
 
 		if ( $wlCon->isEnabled() && $wlCon->isReplacePluginBadge() ) {
@@ -42,18 +42,26 @@ class RenderPluginBadge extends BaseRender {
 			}
 		}
 
+		$protectedBy = sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
+			'<br/><span class="plugin-badge-name">'.$name.'</span>' );
+
 		$badgeAttrs = [
 			'name'         => $name,
 			'url'          => $badgeUrl,
 			'logo'         => $logo,
-			'protected_by' => apply_filters( 'icwp_shield_plugin_badge_text',
-				sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-					'<br/><span class="plugin-badge-name">'.$name.'</span>' )
-			),
+			'protected_by' => apply_filters( 'icwp_shield_plugin_badge_text', $protectedBy ),
 			'custom_css'   => '',
+			'nofollow'     => false,
 		];
 		if ( $con->isPremiumActive() ) {
-			$badgeAttrs = apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $this->action_data[ 'is_floating' ] );
+			$filteredBadgeAttrs = apply_filters( 'shield/plugin_badge_attributes',
+				/** @deprecated */
+				apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $this->action_data[ 'is_floating' ] ),
+				$this->action_data[ 'is_floating' ]
+			);
+			if ( \is_array( $filteredBadgeAttrs ) ) {
+				$badgeAttrs = $filteredBadgeAttrs;
+			}
 		}
 
 		return [
@@ -64,7 +72,7 @@ class RenderPluginBadge extends BaseRender {
 				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
 			],
 			'flags'   => [
-				'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
+				'nofollow'    => !empty( $badgeAttrs[ 'nofollow' ] ),
 				'is_floating' => $this->action_data[ 'is_floating' ]
 			],
 			'hrefs'   => [

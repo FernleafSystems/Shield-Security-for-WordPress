@@ -215,8 +215,8 @@ class Strings extends Base\Strings {
 
 	public function getSectionStrings( string $section ) :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$sPlugName = $this->getCon()->getHumanName();
+		$mod = $this->mod();
+		$sPlugName = $this->con()->getHumanName();
 		$sModName = $mod->getMainFeatureName();
 
 		switch ( $section ) {
@@ -279,10 +279,10 @@ class Strings extends Base\Strings {
 	 */
 	public function getOptionStrings( string $key ) :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$pluginName = $this->getCon()->getHumanName();
+		$pluginName = $this->con()->getHumanName();
 		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {

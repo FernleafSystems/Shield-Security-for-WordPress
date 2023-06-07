@@ -17,7 +17,7 @@ class Posts extends Base {
 	public function auditDeletedPost( $postID ) {
 		$post = Services::WpPost()->getById( $postID );
 		if ( $post instanceof \WP_Post && !$this->isIgnoredPostType( $post ) ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'post_deleted',
 				[ 'audit_params' => [ 'title' => $post->post_title ] ]
 			);
@@ -58,7 +58,7 @@ class Posts extends Base {
 			$event = 'post_updated';
 		}
 
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			$event,
 			[
 				'audit_params' => [

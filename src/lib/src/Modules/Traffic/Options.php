@@ -8,15 +8,15 @@ class Options extends BaseShield\Options {
 
 	public function getAutoCleanDays() :int {
 		$days = $this->getOpt( 'auto_clean' );
-		if ( !$this->getCon()->isPremiumActive() ) {
-			$this->setOpt( 'auto_clean', min( $days, 7 ) );
+		if ( !$this->con()->isPremiumActive() ) {
+			$this->setOpt( 'auto_clean', \min( $days, 7 ) );
 		}
 		return (int)$this->getOpt( 'auto_clean' );
 	}
 
 	public function getCustomExclusions() :array {
 		$ex = $this->getOpt( 'custom_exclusions' );
-		return is_array( $ex ) ? $ex : [];
+		return \is_array( $ex ) ? $ex : [];
 	}
 
 	public function getLimitRequestCount() :int {
@@ -29,7 +29,7 @@ class Options extends BaseShield\Options {
 
 	public function getReqTypeExclusions() :array {
 		$ex = $this->getOpt( 'type_exclusions' );
-		return is_array( $ex ) ? $ex : [];
+		return \is_array( $ex ) ? $ex : [];
 	}
 
 	public function isTrafficLoggerEnabled() :bool {
@@ -39,7 +39,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrafficLimitEnabled() :bool {
-		return $this->getCon()->isPremiumActive()
+		return $this->con()->isPremiumActive()
 			   && $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}

@@ -57,14 +57,14 @@ class Scanner extends ExecOnceModConsumer {
 			if ( count( $errorCodes ) > 0 ) {
 
 				foreach ( $errorCodes as $errorCode ) {
-					$this->getCon()
+					$this->con()
 						 ->fireEvent(
 							 'spam_block_'.$errorCode,
 							 [ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
 						 );
 				}
 
-				$this->getCon()->fireEvent( 'comment_spam_block' );
+				$this->con()->fireEvent( 'comment_spam_block' );
 
 				// if we're configured to actually block...
 				if ( $opts->isEnabledAntiBot() && in_array( 'antibot', $errorCodes ) ) {
@@ -99,7 +99,7 @@ class Scanner extends ExecOnceModConsumer {
 	private function runScans( array $commData ) :\WP_Error {
 		$errors = new \WP_Error();
 
-		$isBot = $this->getCon()
+		$isBot = $this->con()
 					  ->getModule_IPs()
 					  ->getBotSignalsController()
 					  ->isBot();
@@ -108,7 +108,7 @@ class Scanner extends ExecOnceModConsumer {
 		}
 		else {
 			$humanDict = ( new HumanDictionary() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod() )
 				->scan( $commData );
 
 			if ( is_wp_error( $humanDict ) ) {
@@ -118,7 +118,7 @@ class Scanner extends ExecOnceModConsumer {
 			else {
 				// If the comment passes the dictionary spam lookup, maybe they have earlier detected spam
 				$humanRepeat = ( new HumanRepeat() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->scan( $commData );
 				if ( is_wp_error( $humanRepeat ) ) {
 					$code = $humanRepeat->get_error_code();
@@ -159,7 +159,7 @@ class Scanner extends ExecOnceModConsumer {
 				sprintf(
 					"## Comment SPAM Protection: %s %s ##\n",
 					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName(), $humanStatus ),
+						$this->con()->getHumanName(), $humanStatus ),
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
 				$this->spamStatus,
@@ -173,7 +173,7 @@ class Scanner extends ExecOnceModConsumer {
 
 			if ( !empty( $this->spamCodes ) ) {
 				foreach ( $this->spamCodes as $spamCode ) {
-					add_comment_meta( $commentID, $this->getCon()->prefix( 'spam_'.$spamCode ), '1' );
+					add_comment_meta( $commentID, $this->con()->prefix( 'spam_'.$spamCode ), '1' );
 				}
 			}
 		}

@@ -43,7 +43,7 @@ class ClientPluginStatus {
 				$status = self::MWP_NOT_ON;
 			}
 			else {
-				$versionStatus = version_compare( $this->getCon()->getVersion(), $m->version );
+				$versionStatus = version_compare( $this->con()->getVersion(), $m->version );
 				if ( $versionStatus === -1 ) {
 					$status = self::VERSION_NEWER_THAN_SERVER;
 				}
@@ -70,7 +70,7 @@ class ClientPluginStatus {
 	public function getInstalledPlugin() {
 		$thePlugin = null;
 
-		$baseName = basename( $this->getCon()->base_file );
+		$baseName = basename( $this->con()->base_file );
 		foreach ( $this->getMwpSite()->plugins as $plugin ) {
 			if ( basename( $plugin[ 'slug' ] ) === $baseName ) {
 				$thePlugin = $plugin;

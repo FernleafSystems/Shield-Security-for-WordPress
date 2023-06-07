@@ -14,7 +14,7 @@ class Read {
 		$FS = Services::WpFs();
 		foreach ( [ 'json', 'php' ] as $ext ) {
 			$cfgFile = Paths::AddExt( $path, $ext );
-			if ( $FS->isFile( $cfgFile ) ) {
+			if ( $FS->isAccessibleFile( $cfgFile ) ) {
 				$content = $FS->getFileContent( $cfgFile );
 				if ( empty( $content ) ) {
 					$content = $FS->getFileContentUsingInclude( $cfgFile );
@@ -30,12 +30,12 @@ class Read {
 	 */
 	public static function FromString( string $def ) :array {
 		$spec = [];
-		$def = trim( $def );
+		$def = \trim( $def );
 
 		if ( !empty( $def ) ) {
-			$spec = json_decode( $def, true );
+			$spec = \json_decode( $def, true );
 		}
-		if ( empty( $spec ) || !is_array( $spec ) ) {
+		if ( empty( $spec ) || !\is_array( $spec ) ) {
 			throw new \Exception( 'Could not parse the definition file.' );
 		}
 

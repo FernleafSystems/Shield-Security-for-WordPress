@@ -17,11 +17,11 @@ class SecurityAdmin extends Base {
 		if ( $pin !== ( $form[ 'SecAdminPINConfirm' ] ?? '' ) ) {
 			throw new \Exception( 'The Security PINs provided do not match.' );
 		}
-		if ( !$this->getCon()->isPluginAdmin() ) {
+		if ( !$this->con()->isPluginAdmin() ) {
 			throw new \Exception( "You don't have permission to update the Security PIN." );
 		}
 
-		$mod = $this->getCon()->getModule_SecAdmin();
+		$mod = $this->con()->getModule_SecAdmin();
 		$mod->setIsMainFeatureEnabled( true );
 		$mod->getOptions()->setOpt( 'admin_access_key', md5( $pin ) );
 		( new Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
@@ -48,7 +48,7 @@ class SecurityAdmin extends Base {
 	}
 
 	public function skipStep() :bool {
-		return $this->getCon()
+		return $this->con()
 					->getModule_SecAdmin()
 					->getSecurityAdminController()
 					->isEnabledSecAdmin();

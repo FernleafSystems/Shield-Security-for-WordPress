@@ -190,7 +190,7 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->getOptions()->isEnabledSmsAuth();
+		return $this->opts()->isEnabledSmsAuth();
 	}
 
 	public function isProfileActive() :bool {

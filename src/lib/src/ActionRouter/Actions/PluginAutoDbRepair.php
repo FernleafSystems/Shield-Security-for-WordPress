@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Checks\PreModulesBootCheck;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAutoDbRepair extends BaseAction {
@@ -11,11 +10,11 @@ class PluginAutoDbRepair extends BaseAction {
 	public const SLUG = 'auto_db_repair';
 
 	protected function exec() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		// 1. Forcefully re-run all checks:
-		$checks = ( new PreModulesBootCheck() )->run( true );
-		$dbMisconfigured = count( $checks[ 'dbs' ] ) !== count( array_filter( $checks[ 'dbs' ] ) );
+		$checks = $con->prechecks;
+		$dbMisconfigured = \count( $checks[ 'dbs' ] ) !== \count( \array_filter( $checks[ 'dbs' ] ) );
 
 		if ( $dbMisconfigured ) {
 			$modHG = $con->getModule_HackGuard();

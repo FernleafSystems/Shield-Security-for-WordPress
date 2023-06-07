@@ -59,7 +59,7 @@ class ResultItem extends Base\ResultItem {
 
 	public function getMalwareRecord() :?Record {
 		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
-			$this->record = $this->getCon()
+			$this->record = $this->con()
 								 ->getModule_HackGuard()
 								 ->getDbH_Malware()
 								 ->getQuerySelector()
@@ -80,10 +80,6 @@ class ResultItem extends Base\ResultItem {
 			case 'mal_sig':
 				$value = base64_decode( $value );
 				break;
-			case 'mal_fp_confidence':
-				/** @deprecated 17.1 */
-				$value = (int)( $value );
-				break;
 			default:
 				break;
 		}
@@ -99,10 +95,6 @@ class ResultItem extends Base\ResultItem {
 		switch ( $key ) {
 			case 'mal_sig':
 				$value = base64_encode( $value );
-				break;
-			case 'mal_fp_confidence':
-				/** @deprecated 17.1 */
-				$value = (int)( $value );
 				break;
 			default:
 				break;

@@ -12,7 +12,7 @@ class MUHandler {
 	public const PLUGIN_FILE_NAME = 'a-shield-mu.php';
 
 	public function isActiveMU() :bool {
-		return Services::WpFs()->isFile( $this->getMuFilePath() );
+		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class MUHandler {
 		$content = $this->buildContent();
 		$FS->putFileContent( $file, $content );
 
-		if ( !$FS->isFile( $file ) ) {
+		if ( !$FS->isAccessibleFile( $file ) ) {
 			throw new \Exception( sprintf( 'Could not create MU File: %s', $file ) );
 		}
 		if ( $FS->getFileContent( $file ) !== $content ) {
@@ -81,14 +81,14 @@ class MUHandler {
 
 	private function getMuDir() :string {
 		return defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR :
-			path_join( dirname( $this->getCon()->getRootDir(), 2 ), 'mu-plugins' );
+			path_join( dirname( $this->con()->getRootDir(), 2 ), 'mu-plugins' );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	private function buildContent() :string {
-		$con = $this->getCon();
+		$con = $this->con();
 		$FS = Services::WpFs();
 		$templateFile = path_join( __DIR__, '.mu-template.txt' );
 		$template = $FS->getFileContent( $templateFile );

@@ -23,12 +23,12 @@ class UserMetas {
 		if ( $user instanceof \WP_User ) {
 			$this->user = $user;
 			try {
-				$meta = Shield\Users\ShieldUserMeta::Load( $this->getCon()->prefix(), (int)$user->ID );
+				$meta = Shield\Users\ShieldUserMeta::Load( $this->con()->prefix(), (int)$user->ID );
 				if ( !isset( $meta->record ) ) {
 					$this->loadMetaRecord( $meta );
 					$this->setup( $meta );
 					// TODO: a query to delete all of these
-					Services::WpUsers()->deleteUserMeta( $this->getCon()->prefix( 'meta-version' ), $user->ID );
+					Services::WpUsers()->deleteUserMeta( $this->con()->prefix( 'meta-version' ), $user->ID );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -56,7 +56,7 @@ class UserMetas {
 	}
 
 	private function loadMetaRecord( Shield\Users\ShieldUserMeta $meta ) {
-		$modData = $this->getCon()->getModule_Data();
+		$modData = $this->con()->getModule_Data();
 		$dbh = $modData->getDbH_UserMeta();
 
 		$metaLoader = ( new Shield\Modules\Data\DB\UserMeta\MetaRecords() )->setMod( $modData );

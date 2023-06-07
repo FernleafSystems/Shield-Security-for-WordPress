@@ -90,7 +90,7 @@ class Strings extends Base\Strings {
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_login_protection' :
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->mod()
 																						->getMainFeatureName() );
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$summary = [
@@ -166,9 +166,9 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {

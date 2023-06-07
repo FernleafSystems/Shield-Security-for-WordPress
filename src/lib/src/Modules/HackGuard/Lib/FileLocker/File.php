@@ -25,7 +25,7 @@ class File extends DynPropertiesClass {
 		switch ( $key ) {
 			case 'max_paths':
 			case 'max_level':
-				$value = (int)max( 1, $value );
+				$value = (int)\max( 1, $value );
 				break;
 		}
 		return $value;
@@ -35,10 +35,10 @@ class File extends DynPropertiesClass {
 	 * @return string[]
 	 */
 	public function getExistingPossiblePaths() :array {
-		return array_filter(
+		return \array_filter(
 			$this->getPossiblePaths(),
 			function ( $path ) {
-				return !empty( $path ) && Services::WpFs()->isFile( $path );
+				return !empty( $path ) && Services::WpFs()->isAccessibleFile( $path );
 			}
 		);
 	}
@@ -49,18 +49,18 @@ class File extends DynPropertiesClass {
 	public function getPossiblePaths() :array {
 		$paths = [];
 		$dirCount = 0;
-		$workingDir = realpath( $this->dir );
+		$workingDir = \realpath( $this->dir );
 		do {
 			if ( empty( $workingDir ) ) {
 				break;
 			}
 			$paths[] = path_join( $workingDir, $this->file );
 
-			$workingDir = dirname( $workingDir );
+			$workingDir = \dirname( $workingDir );
 			$dirCount++;
 		} while (
 			$dirCount < $this->max_levels
-			&& ( empty( $this->max_paths ) || count( $paths ) <= $this->max_paths )
+			&& ( empty( $this->max_paths ) || \count( $paths ) <= $this->max_paths )
 		);
 
 		return $paths;

@@ -125,7 +125,7 @@ class Options {
 	 */
 	public function getOptionsForTracking() :array {
 		$opts = [];
-		if ( !$this->getMod()->cfg->properties[ 'tracking_exclude' ] ) {
+		if ( !$this->mod()->cfg->properties[ 'tracking_exclude' ] ) {
 
 			$options = $this->getAllOptionsValues();
 			foreach ( $this->getOptionsKeys() as $key ) {
@@ -397,7 +397,7 @@ class Options {
 	}
 
 	public function cfg() :ModConfigVO {
-		return $this->getMod()->cfg;
+		return $this->mod()->cfg;
 	}
 
 	public function getRawData_FullFeatureConfig() :array {
@@ -488,7 +488,7 @@ class Options {
 
 		try {
 			$newValue = ( new OptValueSanitize() )
-				->setMod( $this->getMod() )
+				->setMod( $this->mod() )
 				->run( $key, $newValue );
 			$verified = true;
 		}
@@ -648,7 +648,7 @@ class Options {
 
 	private function getOptsStorage() :Options\Storage {
 		if ( empty( $this->optsStorage ) ) {
-			$this->optsStorage = ( new Options\Storage() )->setMod( $this->getMod() );
+			$this->optsStorage = ( new Options\Storage() )->setMod( $this->mod() );
 		}
 		return $this->optsStorage;
 	}

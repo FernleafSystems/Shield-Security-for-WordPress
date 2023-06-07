@@ -11,7 +11,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$this->removePluginConflicts();
 		( new Lib\OverrideLocale() )->execute();
@@ -26,7 +26,7 @@ class Processor extends BaseShield\Processor {
 			$mod->getImpExpController()->execute();
 		}
 
-		add_filter( $this->getCon()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+		add_filter( $this->con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
@@ -34,7 +34,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function runDailyCron() {
-		$this->getCon()->fireEvent( 'test_cron_run' );
+		$this->con()->fireEvent( 'test_cron_run' );
 		( new CleanStorage() )->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
 	}
@@ -43,10 +43,10 @@ class Processor extends BaseShield\Processor {
 	 * Lets you remove certain plugin conflicts that might interfere with this plugin
 	 */
 	protected function removePluginConflicts() {
-		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
+		if ( \class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
-		if ( @function_exists( '\wp_cache_setting' ) ) {
+		if ( @\function_exists( '\wp_cache_setting' ) ) {
 			@\wp_cache_setting( 'wp_super_cache_late_init', 1 );
 		}
 	}

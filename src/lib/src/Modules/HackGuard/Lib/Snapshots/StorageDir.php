@@ -19,7 +19,7 @@ class StorageDir {
 				$dir = $this->locateTempDir();
 			}
 			catch ( \Exception $e ) {
-				$dir = $this->getCon()->cache_dir_handler->buildSubDir( 'ptguard-'.wp_generate_password( self::SUFFIX_LENGTH, false ) );
+				$dir = $this->con()->cache_dir_handler->buildSubDir( 'ptguard-'.wp_generate_password( self::SUFFIX_LENGTH, false ) );
 			}
 			$this->tempDir = $dir;
 		}
@@ -32,7 +32,7 @@ class StorageDir {
 	private function locateTempDir() :string {
 		$FS = Services::WpFs();
 		$dir = null;
-		foreach ( $FS->getAllFilesInDir( $this->getCon()->cache_dir_handler->dir() ) as $fileItem ) {
+		foreach ( $FS->getAllFilesInDir( $this->con()->cache_dir_handler->dir() ) as $fileItem ) {
 			if ( $FS->isDir( $fileItem ) && preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', self::SUFFIX_LENGTH ), basename( $fileItem ) ) ) {
 				$dir = $fileItem;
 				break;

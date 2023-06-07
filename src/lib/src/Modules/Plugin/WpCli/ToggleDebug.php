@@ -38,7 +38,7 @@ class ToggleDebug extends BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdDebugMode( $null, $args ) {
-		$debugMode = ( new DebugMode() )->setCon( $this->getCon() );
+		$debugMode = new \FernleafSystems\Wordpress\Plugin\Shield\Controller\Modes\DebugMode();
 
 		switch ( $args[ 'action' ] ) {
 			case 'query':

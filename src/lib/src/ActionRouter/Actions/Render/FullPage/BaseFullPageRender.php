@@ -18,7 +18,7 @@ abstract class BaseFullPageRender extends BaseRender {
 	}
 
 	protected function getCommonFullPageRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$WP = Services::WpGeneral();
 		return [
 			'flags'   => [
@@ -53,7 +53,7 @@ abstract class BaseFullPageRender extends BaseRender {
 	}
 
 	protected function getScripts() :array {
-		$urlBuilder = $this->getCon()->urls;
+		$urlBuilder = $this->con()->urls;
 		return [
 			10 => [
 				'src' => Services::Includes()->getUrl_Jquery(),
@@ -71,7 +71,7 @@ abstract class BaseFullPageRender extends BaseRender {
 	}
 
 	protected function getStyles() :array {
-		$urlBuilder = $this->getCon()->urls;
+		$urlBuilder = $this->con()->urls;
 		return [
 			20 => [
 				'href' => $urlBuilder->forCss( 'bootstrap' ),

@@ -34,11 +34,11 @@ class HumanRepeat {
 				'relation'   => 'OR',
 				'meta_query' => [
 					[
-						'key'   => $this->getCon()->prefix( 'spam_human' ),
+						'key'   => $this->con()->prefix( 'spam_human' ),
 						'value' => '1'
 					],
 					[
-						'key'   => $this->getCon()->prefix( 'spam_humanrepeated' ),
+						'key'   => $this->con()->prefix( 'spam_humanrepeated' ),
 						'value' => '1'
 					],
 				]

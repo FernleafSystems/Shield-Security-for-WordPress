@@ -9,7 +9,7 @@ class ShieldMetaProcessor extends BaseMetaProcessor {
 	 */
 	public function __invoke( array $record ) {
 		$record[ 'extra' ][ 'meta_shield' ] = array_filter( [
-			'offense' => $this->getCon()
+			'offense' => $this->con()
 							  ->getModule_IPs()
 							  ->loadOffenseTracker()
 							  ->getOffenseCount() > 0 ? 1 : 0,

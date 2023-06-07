@@ -24,14 +24,14 @@ class Strings extends Base\Strings {
 				'name'  => __( 'Unauthorized Deactivation Attempt', 'wp-simple-firewall' ),
 				'audit' => [
 					sprintf( __( 'An attempt to deactivate the %s plugin by a non-admin was intercepted.', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ),
+						$this->con()->getHumanName() ),
 				],
 			],
 		];
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$name = $this->getCon()->getHumanName();
+		$name = $this->con()->getHumanName();
 
 		switch ( $section ) {
 
@@ -94,7 +94,7 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( string $key ) :array {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$plugName = $this->getCon()->getHumanName();
+		$plugName = $this->con()->getHumanName();
 
 		switch ( $key ) {
 

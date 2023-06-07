@@ -16,7 +16,7 @@ class ModCon extends BaseShield\ModCon {
 	private $auditLogger;
 
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		$this->getCon()->getModule_Data()->getDbH_ReqLogs();
+		$this->con()->getModule_Data()->getDbH_ReqLogs();
 		return $this->getDbHandler()->loadDbH( 'at_logs' );
 	}
 
@@ -33,7 +33,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getAuditLogger() :Lib\AuditLogger {
-		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger( $this->getCon() );
+		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger( $this->con() );
 	}
 
 	/**
@@ -54,7 +54,7 @@ class ModCon extends BaseShield\ModCon {
 
 		$user = Services::WpUsers()->getUserByEmail( $email );
 		if ( !empty( $user ) ) {
-			$con = $this->getCon();
+			$con = $this->con();
 			$WP = Services::WpGeneral();
 			$exportData = array_map(
 				function ( $log ) use ( $WP ) {
@@ -114,7 +114,7 @@ class ModCon extends BaseShield\ModCon {
 				$deleter->addWhereEquals( 'meta_key', 'email' )
 						->addWhereEquals( 'meta_data', $user->user_email )
 						->query();
-				$data[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
+				$data[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->con()->getHumanName() );
 			}
 		}
 		catch ( \Exception $e ) {

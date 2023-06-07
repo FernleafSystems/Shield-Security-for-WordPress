@@ -17,7 +17,7 @@ class TrafficRateLimiting extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_Traffic();
+		$mod = $this->con()->getModule_Traffic();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isTrafficLimitEnabled();

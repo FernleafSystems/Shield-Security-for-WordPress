@@ -93,7 +93,7 @@ class Strings extends Base\Strings {
 			case 'section_enable_plugin_feature_user_accounts_management' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ),
-					$this->getMod()->getMainFeatureName() );
+					$this->mod()->getMainFeatureName() );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
@@ -159,7 +159,7 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		$opts = $this->getOptions();
-		$name = $this->getMod()->getMainFeatureName();
+		$name = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {
 

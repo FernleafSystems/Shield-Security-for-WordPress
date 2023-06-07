@@ -6,12 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 
 trait PluginControllerConsumer {
 
-	/**
-	 * @var Controller
-	 * @deprecated 18.0
-	 */
-	private $oPlugCon;
-
 	public function getCon() :Controller {
 		return shield_security_get_plugin()->getController();
 	}
@@ -26,7 +20,7 @@ trait PluginControllerConsumer {
 	/**
 	 * @param Controller $con
 	 * @return $this
-	 * @deprecated 17.1
+	 * @deprecated 18.1
 	 */
 	public function setCon( $con ) {
 		return $this;

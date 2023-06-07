@@ -11,7 +11,7 @@ class TabSitesListing extends BaseSubPage {
 	public const TAB = 'sites';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mwp = $con->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();

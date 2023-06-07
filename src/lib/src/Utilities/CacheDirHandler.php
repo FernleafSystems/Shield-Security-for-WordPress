@@ -30,7 +30,7 @@ class CacheDirHandler {
 
 			$this->cacheDir = '';
 			foreach ( $this->getBaseDirCandidates() as $baseDir ) {
-				$maybeDir = path_join( $baseDir, $this->getCon()->cfg->paths[ 'cache' ] );
+				$maybeDir = path_join( $baseDir, $this->con()->cfg->paths[ 'cache' ] );
 				try {
 					if ( $maybeDir === '/' ) {
 						throw new \Exception( 'Should never have the root as the cache dir.' ); // just to be ultra safe.
@@ -40,7 +40,7 @@ class CacheDirHandler {
 					}
 
 					$assessedFlag = path_join( $maybeDir, 'assessed.flag' );
-					if ( !$FS->isFile( $assessedFlag )
+					if ( !$FS->isAccessibleFile( $assessedFlag )
 						 || Services::Request()->ts() - $FS->getModifiedTime( $assessedFlag ) > HOUR_IN_SECONDS ) {
 
 						$assess = ( new AssessDirWrite( $maybeDir ) )->test();

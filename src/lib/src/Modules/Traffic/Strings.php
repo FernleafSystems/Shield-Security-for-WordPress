@@ -18,7 +18,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$modName = $this->getMod()->getMainFeatureName();
+		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $section ) {
 
@@ -64,7 +64,7 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$modName = $mod->getMainFeatureName();
 
 		switch ( $key ) {

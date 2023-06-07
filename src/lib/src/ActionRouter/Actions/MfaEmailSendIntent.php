@@ -21,7 +21,7 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
 				/** @var Email $p */
-				$p = $this->getCon()
+				$p = $this->con()
 						  ->getModule_LoginGuard()
 						  ->getMfaController()
 						  ->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;

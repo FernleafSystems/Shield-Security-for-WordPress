@@ -20,16 +20,6 @@
   "wpcli":            {
     "enabled": true
   },
-  "admin_notices":    {
-    "wphashes-token-fail": {
-      "id":               "wphashes-token-fail",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "error"
-    }
-  },
   "custom_redirects": [
     {
       "source_mod_page": "pro-redirect",

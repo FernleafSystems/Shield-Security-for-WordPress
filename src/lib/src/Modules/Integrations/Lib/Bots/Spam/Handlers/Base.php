@@ -11,7 +11,7 @@ abstract class Base extends BaseHandler {
 	}
 
 	protected function fireBotEvent() {
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			sprintf( 'spam_form_%s', $this->isBot() ? 'fail' : 'pass' ),
 			[
 				'audit_params' => [

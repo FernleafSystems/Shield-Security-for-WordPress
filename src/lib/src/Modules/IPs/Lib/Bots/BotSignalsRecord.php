@@ -21,20 +21,16 @@ class BotSignalsRecord {
 	use IpAddressConsumer;
 
 	public function delete() :bool {
-		$thisReq = $this->getCon()->this_req;
-		/** @var BotSignal\Ops\Select $select */
-		$select = $this->mod()->getDbH_BotSignal()->getQueryDeleter();
+		$thisReq = $this->con()->this_req;
+		/** @var BotSignal\Ops\Delete $deleter */
+		$deleter = $this->mod()->getDbH_BotSignal()->getQueryDeleter();
 
 		if ( $thisReq->ip === $this->getIP() ) {
 			unset( $thisReq->botsignal_record );
 		}
 
 		try {
-			return $select->filterByIP(
-				( new IPRecords() )
-					->setMod( $this->getCon()->getModule_Data() )
-					->loadIP( $this->getIP() )->id
-			)->query();
+			return $deleter->filterByIP( ( new IPRecords() )->loadIP( $this->getIP() )->id )->query();
 		}
 		catch ( \Exception $e ) {
 			return false;
@@ -43,7 +39,7 @@ class BotSignalsRecord {
 
 	public function retrieveNotBotAt() :int {
 		return (int)Services::WpDb()->getVar(
-			sprintf( "SELECT `bs`.`notbot_at`
+			\sprintf( "SELECT `bs`.`notbot_at`
 						FROM `%s` as `bs`
 						INNER JOIN `%s` as `ips`
 							ON `ips`.id = `bs`.`ip_ref` 
@@ -51,14 +47,14 @@ class BotSignalsRecord {
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
 				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$this->getIP()
 			)
 		);
 	}
 
 	public function retrieve( bool $createNew = true ) :BotSignalRecord {
-		$thisReq = $this->getCon()->this_req;
+		$thisReq = $this->con()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
 			return $thisReq->botsignal_record;
@@ -77,9 +73,7 @@ class BotSignalsRecord {
 			if ( $createNew ) {
 				$r = new BotSignalRecord();
 				try {
-					$r->ip_ref = ( new IPRecords() )
-						->setMod( $this->getCon()->getModule_Data() )
-						->loadIP( $this->getIP() )->id;
+					$r->ip_ref = ( new IPRecords() )->loadIP( $this->getIP() )->id;
 				}
 				catch ( \Exception $e ) {
 					$r->ip_ref = -1;
@@ -118,7 +112,7 @@ class BotSignalsRecord {
 
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
-			$userMetaSelect = $this->getCon()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			$userMetaSelect = $this->con()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
@@ -143,23 +137,6 @@ class BotSignalsRecord {
 		return $r;
 	}
 
-	/**
-	 * @return BotSignal\BotSignalRecord|null
-	 * @deprecated 17.1
-	 */
-	private function dbLoad() :?BotSignalRecord {
-		try {
-			$record = ( new LoadBotSignalRecords() )
-				->setIP( $this->getIP() )
-				->loadRecord();
-		}
-		catch ( \Exception $e ) {
-			$record = null;
-		}
-
-		return $record;
-	}
-
 	public function store( BotSignalRecord $record ) :bool {
 
 		if ( !isset( $record->id ) ) {
@@ -180,7 +157,7 @@ class BotSignalsRecord {
 							->updateById( $record->id, $data );
 		}
 
-		$thisReq = $this->getCon()->this_req;
+		$thisReq = $this->con()->this_req;
 		if ( $thisReq->ip === $record->ip ) {
 			$thisReq->botsignal_record = $record;
 		}

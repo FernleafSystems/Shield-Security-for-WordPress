@@ -11,7 +11,7 @@ class LockdownAuthorDiscovery extends Base {
 	public const SLUG = 'lockdown_author_discovery';
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_Lockdown();
+		$mod = $this->con()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isBlockAuthorDiscovery();

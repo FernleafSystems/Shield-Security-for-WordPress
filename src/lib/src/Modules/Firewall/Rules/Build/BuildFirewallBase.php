@@ -17,7 +17,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 	protected function getName() :string {
 		return sprintf( '%s: %s', __( 'Firewall', 'wp-simple-firewall' ),
-			$this->getMod()
+			$this->mod()
 				 ->getStrings()
 				 ->getOptionStrings( 'block_'.static::SCAN_CATEGORY )[ 'name' ] );
 	}
@@ -33,14 +33,10 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getDescription() :string {
-		return sprintf( __( 'Check request parameters that trigger "%s" patterns.', 'wp-simple-firewall' ),
-			$this->getName() );
+		return sprintf( __( 'Check request parameters that trigger "%s" patterns.', 'wp-simple-firewall' ), $this->getName() );
 	}
 
 	protected function getConditions() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		$conditions = [
 			'logic' => static::LOGIC_AND,
 			'group' => [
@@ -69,7 +65,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			];
 		}
 
-		if ( $opts->isIgnoreAdmin() ) {
+		if ( $this->getOptions()->isOpt( 'whitelist_admins', 'Y' ) ) {
 			$conditions[ 'group' ][] = [
 				'condition'    => Conditions\IsUserAdminNormal::SLUG,
 				'invert_match' => true,

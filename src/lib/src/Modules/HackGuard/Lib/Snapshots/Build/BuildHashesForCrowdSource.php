@@ -24,15 +24,15 @@ class BuildHashesForCrowdSource {
 			if ( empty( $exts ) ) {
 				throw new \Exception( 'File extensions are empty' );
 			}
-			foreach ( StandardDirectoryIterator::create( $dir, 0, [] ) as $file ) {
+			foreach ( StandardDirectoryIterator::create( $dir ) as $file ) {
 				/** @var \SplFileInfo $file */
 				if ( in_array( strtolower( $file->getExtension() ), $exts ) ) {
 					$fullPath = $file->getPathname();
-					$key = strtolower( str_replace( $dir, '', wp_normalize_path( $fullPath ) ) );
-					$hashes[ $key ] = hash( 'sha1', $converter->fileDosToLinux( $fullPath ) );
+					$key = \strtolower( \str_replace( $dir, '', wp_normalize_path( $fullPath ) ) );
+					$hashes[ $key ] = \hash( 'sha1', $converter->fileDosToLinux( $fullPath ) );
 				}
 			}
-			ksort( $hashes, SORT_NATURAL );
+			\ksort( $hashes, SORT_NATURAL );
 		}
 		catch ( \Exception $e ) {
 			$hashes = [];

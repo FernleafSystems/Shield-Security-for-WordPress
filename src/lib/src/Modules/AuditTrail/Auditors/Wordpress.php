@@ -15,7 +15,7 @@ class Wordpress extends Base {
 	 * @param string $newVersion
 	 */
 	public function auditCoreUpdated( $newVersion ) {
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			'core_updated',
 			[
 				'audit_params' => [
@@ -31,7 +31,7 @@ class Wordpress extends Base {
 	 * @param string $new
 	 */
 	public function auditPermalinkStructure( $old, $new ) {
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			'permalinks_structure',
 			[
 				'audit_params' => [

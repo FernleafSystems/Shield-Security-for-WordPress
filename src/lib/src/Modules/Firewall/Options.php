@@ -11,10 +11,16 @@ class Options extends BaseShield\Options {
 		return is_array( $w ) ? $w : [];
 	}
 
+	/**
+	 * @deprecated 18.1
+	 */
 	public function isIgnoreAdmin() :bool {
 		return $this->isOpt( 'whitelist_admins', 'Y' );
 	}
 
+	/**
+	 * @deprecated 18.1
+	 */
 	public function isSendBlockEmail() :bool {
 		return $this->isOpt( 'block_send_email', 'Y' );
 	}

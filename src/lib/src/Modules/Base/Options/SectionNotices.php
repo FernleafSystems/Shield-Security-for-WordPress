@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	PluginControllerConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\WorldTimeApi;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
@@ -21,7 +21,7 @@ class SectionNotices {
 	use PluginControllerConsumer;
 
 	public function critical( string $section ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$critical = [];
 
@@ -29,7 +29,7 @@ class SectionNotices {
 			case 'section_rename_wplogin':
 				if ( ( new IpRuleStatus( $con->this_req->ip ) )->isBypass() ) {
 					$critical[] = sprintf( __( "Your IP address is whitelisted! This setting doesn't apply to YOU, so you must always use the normal login page: %s" ),
-						basename( Services::WpGeneral()->getLoginUrl() ) );
+						\basename( Services::WpGeneral()->getLoginUrl() ) );
 				}
 				break;
 			default:
@@ -40,7 +40,7 @@ class SectionNotices {
 	}
 
 	public function notices( string $section ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$notices = [];
 		switch ( $section ) {
@@ -101,7 +101,7 @@ class SectionNotices {
 	}
 
 	public function warnings( string $section ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$warnings = [];
 
@@ -177,7 +177,7 @@ class SectionNotices {
 				}
 
 				$installedButNotEnabledProviders = array_filter(
-					$this->getCon()->getModule_Integrations()->getController_UserForms()->getInstalled(),
+					$this->con()->getModule_Integrations()->getController_UserForms()->getInstalled(),
 					function ( string $provider ) {
 						return !( new $provider() )->isEnabled();
 					}
@@ -225,10 +225,10 @@ class SectionNotices {
 				else {
 					$mod = $con->getModule_Integrations();
 					/** @var BaseHandler[] $installedButNotEnabledProviders */
-					$installedButNotEnabledProviders = array_filter(
-						array_map(
-							function ( $providerClass ) {
-								return new $providerClass();
+					$installedButNotEnabledProviders = \array_filter(
+						\array_map(
+							function ( $provider ) {
+								return new $provider();
 							},
 							$mod->getController_SpamForms()->enumProviders()
 						),
@@ -240,7 +240,7 @@ class SectionNotices {
 					if ( !empty( $installedButNotEnabledProviders ) ) {
 						$warnings[] = sprintf( __( "%s has an integration available to protect the forms of a 3rd party plugin you're using: %s", 'wp-simple-firewall' ),
 							$con->getHumanName(),
-							implode( ', ', array_map(
+							\implode( ', ', \array_map(
 								function ( $provider ) {
 									return $provider->getHandlerName();
 								}, $installedButNotEnabledProviders

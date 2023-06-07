@@ -28,7 +28,7 @@ class WhitelistNotifyQueue extends BackgroundProcess {
 	 */
 	protected function task( $item ) {
 		Services::HttpRequest()->get(
-			$this->getCon()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $item )
+			$this->con()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $item )
 		);
 		return false;
 	}
@@ -41,6 +41,6 @@ class WhitelistNotifyQueue extends BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-		$this->getCon()->fireEvent( 'import_notify_sent' );
+		$this->con()->fireEvent( 'import_notify_sent' );
 	}
 }

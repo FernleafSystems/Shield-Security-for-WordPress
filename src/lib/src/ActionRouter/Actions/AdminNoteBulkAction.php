@@ -23,7 +23,7 @@ class AdminNoteBulkAction extends BaseAction {
 		}
 		else {
 			/** @var Delete $deleter */
-			$deleter = $this->getCon()->getModule_Plugin()->getDbHandler_Notes()->getQueryDeleter();
+			$deleter = $this->con()->getModule_Plugin()->getDbHandler_Notes()->getQueryDeleter();
 			foreach ( $IDs as $id ) {
 				if ( is_numeric( $id ) ) {
 					$deleter->deleteById( $id );

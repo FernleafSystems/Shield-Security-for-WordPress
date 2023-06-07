@@ -14,7 +14,7 @@ class ProcessOffense {
 	use IpAddressConsumer;
 
 	protected function run() {
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		try {
 			$offenseTracker = $mod->loadOffenseTracker();
 			$this->incrementOffenses( $offenseTracker->getOffenseCount(), $offenseTracker->isBlocked() );
@@ -24,11 +24,6 @@ class ProcessOffense {
 	}
 
 	public function incrementOffenses( int $incrementBy, bool $blockIP = false, bool $fireEvents = true ) {
-		$con = $this->getCon();
-		$mod = $this->getMod();
-		$dbh = $mod->getDbH_IPRules();
-		$opts = $this->getOptions();
-
 		try {
 			$IP = ( new IPs\Lib\IpRules\AddRule() )
 				->setIP( $this->getIP() )
@@ -37,18 +32,18 @@ class ProcessOffense {
 			$currentCount = $IP->offenses;
 
 			$newCount = $IP->offenses + $incrementBy;
-			$toBlock = $blockIP || ( $newCount >= $opts->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
+			$toBlock = $blockIP || ( $newCount >= $this->opts()->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
 
 			if ( $toBlock ) {
 				$newCount = (int)max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
 			}
 
 			/** @var IpRulesDB\Update $updater */
-			$updater = $dbh->getQueryUpdater();
+			$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
 			$updater->updateTransgressions( $IP, $newCount );
 
 			if ( $fireEvents ) {
-				$con->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
+				$this->con()->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 					[
 						'audit_params' => [
 							'from' => $currentCount,
@@ -65,11 +60,11 @@ class ProcessOffense {
 			 */
 			if ( $toBlock ) {
 				/** @var IpRulesDB\Update $updater */
-				$updater = $dbh->getQueryUpdater();
+				$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
 				$updater->setBlocked( $IP );
 
 				if ( $fireEvents ) {
-					$con->fireEvent( 'ip_offense',
+					$this->con()->fireEvent( 'ip_offense',
 						[
 							'suppress_audit' => true,
 							'audit_params'   => [

@@ -10,7 +10,7 @@ class MfaU2fAdd extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_u2f_add';
 
 	protected function exec() {
-		$available = $this->getCon()
+		$available = $this->con()
 						  ->getModule_LoginGuard()
 						  ->getMfaController()
 						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );

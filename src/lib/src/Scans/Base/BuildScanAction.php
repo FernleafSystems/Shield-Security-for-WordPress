@@ -34,7 +34,7 @@ abstract class BuildScanAction {
 			$action->started_at = 0;
 			$action->finished_at = 0;
 			$action->usleep = (int)( 1000000*max( 0, apply_filters(
-					$this->getScanController()->getCon()->prefix( 'scan_block_sleep' ),
+					$this->getScanController()->con()->prefix( 'scan_block_sleep' ),
 					$action::DEFAULT_SLEEP_SECONDS, $action->scan
 				) ) );
 		}

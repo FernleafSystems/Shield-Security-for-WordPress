@@ -166,7 +166,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->getOptions()->isEnabledGoogleAuthenticator();
+		return $this->opts()->isEnabledGoogleAuthenticator();
 	}
 
 	public function getProviderName() :string {

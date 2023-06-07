@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class InsertNotBotJs {
+
 	use ExecOnce;
 	use ModConsumer;
 
@@ -20,7 +21,7 @@ class InsertNotBotJs {
 		return $req->query( 'force_notbot' ) == 1
 			   || $this->isForcedForOptimisationPlugins()
 			   || ( $req->ts() - ( new BotSignalsRecord() )
-					->setIP( $this->getCon()->this_req->ip )
+					->setIP( $this->con()->this_req->ip )
 					->retrieveNotBotAt() ) > MINUTE_IN_SECONDS*45;
 	}
 
@@ -30,7 +31,7 @@ class InsertNotBotJs {
 	private function isForcedForOptimisationPlugins() :bool {
 		return (bool)apply_filters(
 			'shield/notbot_force_load',
-			$this->getOptions()->isOpt( 'force_notbot', 'Y' )
+			$this->opts()->isOpt( 'force_notbot', 'Y' )
 			||
 			!empty( array_intersect(
 				array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
@@ -74,7 +75,7 @@ class InsertNotBotJs {
 							),
 						],
 						'flags' => [
-							'run' => !in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+							'run' => !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
 						],
 						'vars'  => [
 							'ajaxurl' => admin_url( 'admin-ajax.php' ),

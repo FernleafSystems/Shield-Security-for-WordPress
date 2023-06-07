@@ -15,14 +15,14 @@ class UnblockMagicLink extends EmailBase {
 	public const TEMPLATE = '/email/uaum_init.twig';
 
 	protected function getBodyData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )->user_login;
 		$ip = $this->action_data[ 'ip' ];
 		$homeURL = $this->action_data[ 'home_url' ];
 
 		return [
 			'flags'   => [
-				'show_login_link' => !$this->getCon()->isRelabelled()
+				'show_login_link' => !$this->con()->isRelabelled()
 			],
 			'hrefs'   => [
 				'unblock' => $con->plugin_urls->noncedPluginAction(

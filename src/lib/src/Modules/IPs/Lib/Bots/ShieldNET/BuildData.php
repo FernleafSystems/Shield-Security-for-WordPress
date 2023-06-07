@@ -84,7 +84,7 @@ class BuildData {
 	private function markRecordsAsSent( array $records ) {
 		if ( !empty( $records ) ) {
 			/** @var ModCon $mod */
-			$mod = $this->getMod();
+			$mod = $this->mod();
 			Services::WpDb()
 					->doSql(
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
@@ -104,7 +104,7 @@ class BuildData {
 	 */
 	private function getRecords() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$serverIPs = array_map(
 			function ( $ip ) {
@@ -122,7 +122,7 @@ class BuildData {
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 200;",
 				$mod->getDbH_BotSignal()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", implode( ",", $serverIPs ) )
 			)
 		);

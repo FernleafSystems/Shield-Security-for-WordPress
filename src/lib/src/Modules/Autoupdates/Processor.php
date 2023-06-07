@@ -36,9 +36,9 @@ class Processor extends BaseShield\Processor {
 
 		if ( !$opts->isDisableAllAutoUpdates() ) {
 			//more parameter options here for later
-			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $priority, 1 );
-			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $priority, 1 );
-			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $priority, 1 );
+			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $priority );
+			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $priority );
+			add_filter( 'auto_plugin_theme_update_email', [ $this, 'autoupdate_email_override' ], $priority );
 
 			add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
 			add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
@@ -239,7 +239,7 @@ class Processor extends BaseShield\Processor {
 			elseif ( $opts->isAutoupdateAllPlugins() ) {
 				$doUpdate = true;
 			}
-			elseif ( $file === $this->getCon()->base_file ) {
+			elseif ( $file === $this->con()->base_file ) {
 				$auto = $opts->getSelfAutoUpdateOpt();
 				if ( $auto === 'immediate' ) {
 					$doUpdate = true;
@@ -356,7 +356,7 @@ class Processor extends BaseShield\Processor {
 		$body = [
 			sprintf(
 				__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName()
+				$this->con()->getHumanName()
 			),
 			''
 		];
@@ -437,7 +437,7 @@ class Processor extends BaseShield\Processor {
 
 		$body[] = __( 'Thank you.', 'wp-simple-firewall' );
 
-		$this->getMod()
+		$this->mod()
 			 ->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $this->getOptions()->getOpt( 'override_email_address' ),

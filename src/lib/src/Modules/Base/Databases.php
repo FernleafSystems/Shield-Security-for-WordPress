@@ -15,7 +15,7 @@ class Databases {
 	 * @return string[]
 	 */
 	protected function getDbHandlerClasses() :array {
-		$c = $this->getMod()->getOptions()->getDef( 'db_handler_classes' );
+		$c = $this->mod()->getOptions()->getDef( 'db_handler_classes' );
 		return is_array( $c ) ? $c : [];
 	}
 
@@ -34,7 +34,7 @@ class Databases {
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;
 

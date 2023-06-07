@@ -22,7 +22,7 @@ class GetAll extends Base {
 
 		$results = [];
 		foreach ( $req->scan_slugs as $scanSlug ) {
-			$RS = $this->getCon()
+			$RS = $this->con()
 					   ->getModule_HackGuard()
 					   ->getScansCon()
 					   ->getScanCon( $scanSlug )

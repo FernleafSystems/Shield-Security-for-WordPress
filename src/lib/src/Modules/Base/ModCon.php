@@ -88,7 +88,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function setupHooks() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -107,14 +107,14 @@ abstract class ModCon extends DynPropertiesClass {
 
 	protected function collateRuleBuilders() {
 		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
-			return array_merge( $builders, array_map(
+			return \array_merge( $builders, \array_map(
 				function ( $class ) {
 					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
 					$theClass = new $class();
 					$theClass->setMod( $this );
 					return $theClass;
 				},
-				array_filter( $this->enumRuleBuilders() )
+				\array_filter( $this->enumRuleBuilders() )
 			) );
 		} );
 	}
@@ -151,7 +151,7 @@ abstract class ModCon extends DynPropertiesClass {
 				$this->getDbH( $dbSlug );
 			}
 		}
-		return is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
+		return \is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
 	}
 
 	/**
@@ -161,7 +161,7 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function getDbH( $dbhKey ) {
 		$dbh = false;
 
-		if ( !is_array( $this->aDbHandlers ) ) {
+		if ( !\is_array( $this->aDbHandlers ) ) {
 			$this->aDbHandlers = [];
 		}
 
@@ -190,7 +190,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	private function getAllDbClasses() {
 		$classes = $this->getOptions()->getDef( 'db_classes' );
-		return is_array( $classes ) ? $classes : [];
+		return \is_array( $classes ) ? $classes : [];
 	}
 
 	/**
@@ -225,7 +225,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getCon()->is_rest_enabled ) {
+		if ( $this->con()->is_rest_enabled ) {
 			$this->initRestApi();
 		}
 	}
@@ -237,7 +237,7 @@ abstract class ModCon extends DynPropertiesClass {
 				try {
 					$restClass = $this->findElementClass( 'Rest' );
 					/** @var Shield\Modules\Base\Rest $rest */
-					if ( @class_exists( $restClass ) ) {
+					if ( @\class_exists( $restClass ) ) {
 						$rest = new $restClass( $cfg );
 						$rest->setMod( $this )->init();
 					}
@@ -249,7 +249,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpInit() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		add_action( 'cli_init', function () {
 			try {
@@ -264,10 +264,6 @@ abstract class ModCon extends DynPropertiesClass {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
 		}
-
-		if ( is_admin() || is_network_admin() ) {
-			$this->getAdminNotices()->execute();
-		}
 	}
 
 	/**
@@ -280,7 +276,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onLoadOptionsScreen() {
-		if ( $this->getCon()->isValidAdminArea() ) {
+		if ( $this->con()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
 		}
 	}
@@ -303,13 +299,13 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onPluginShutdown() {
-		if ( !$this->getCon()->plugin_deleting ) {
+		if ( !$this->con()->plugin_deleting ) {
 			$this->saveModOptions();
 		}
 	}
 
 	public function getOptionsStorageKey() :string {
-		return $this->getCon()->prefixOption( $this->sOptionsStoreKey ?? $this->cfg->properties[ 'storage_key' ] )
+		return $this->con()->prefixOption( $this->sOptionsStoreKey ?? $this->cfg->properties[ 'storage_key' ] )
 			   .'_options';
 	}
 
@@ -321,7 +317,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->getCon()->plugin_urls->modCfg( $this );
+		return $this->con()->plugin_urls->modCfg( $this );
 	}
 
 	/**
@@ -331,7 +327,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 10.2
 	 */
 	public function getEmailHandler() {
-		return $this->getCon()->getModule_Email();
+		return $this->con()->getModule_Email();
 	}
 
 	/**
@@ -351,7 +347,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModuleEnabled() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $con->getModule_Plugin()->getOptions();
 
@@ -365,7 +361,7 @@ abstract class ModCon extends DynPropertiesClass {
 		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
-		elseif ( $this->getCon()->this_req->is_force_off ) {
+		elseif ( $this->con()->this_req->is_force_off ) {
 			$enabled = false;
 		}
 		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
@@ -403,14 +399,14 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? $this->getCon()->prefix( $this->cfg->slug ) : $this->cfg->slug;
+		return $prefix ? $this->con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function clearLastErrors() {
-		return $this->setLastErrors( [] );
+		return $this->setLastErrors();
 	}
 
 	/**
@@ -418,14 +414,14 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getLastErrors( bool $asString = false, string $glue = " " ) {
 		$errors = $this->getOptions()->getOpt( 'last_errors' );
-		if ( !is_array( $errors ) ) {
+		if ( !\is_array( $errors ) ) {
 			$errors = [];
 		}
-		return $asString ? implode( $glue, $errors ) : $errors;
+		return $asString ? \implode( $glue, $errors ) : $errors;
 	}
 
 	public function hasLastErrors() :bool {
-		return count( $this->getLastErrors( false ) ) > 0;
+		return count( $this->getLastErrors() ) > 0;
 	}
 
 	public function getTextOpt( string $key ) :string {
@@ -445,8 +441,8 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function setLastErrors( $mErrors = [] ) {
-		if ( !is_array( $mErrors ) ) {
-			if ( is_string( $mErrors ) ) {
+		if ( !\is_array( $mErrors ) ) {
+			if ( \is_string( $mErrors ) ) {
 				$mErrors = [ $mErrors ];
 			}
 			else {
@@ -462,12 +458,12 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function getDismissedNotices() :array {
 		$notices = $this->getOptions()->getOpt( 'dismissed_notices' );
-		return is_array( $notices ) ? $notices : [];
+		return \is_array( $notices ) ? $notices : [];
 	}
 
 	public function getUiTrack() :Lib\Components\UiTrack {
 		$a = $this->getOptions()->getOpt( 'ui_track' );
-		return ( new Lib\Components\UiTrack() )->applyFromArray( is_array( $a ) ? $a : [] );
+		return ( new Lib\Components\UiTrack() )->applyFromArray( \is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {
@@ -488,7 +484,7 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 
 		$this->doPrePluginOptionsSave();
-		if ( apply_filters( $this->getCon()->prefix( 'force_options_resave' ), false ) ) {
+		if ( apply_filters( $this->con()->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
 				 ->setNeedSave( true );
 		}
@@ -496,7 +492,7 @@ abstract class ModCon extends DynPropertiesClass {
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		if ( $this->getOptions()->getNeedSave() ) {
 			$this->bImportExportWhitelistNotify = true;
-			do_action( $this->getCon()->prefix( 'pre_options_store' ), $this );
+			do_action( $this->con()->prefix( 'pre_options_store' ), $this );
 		}
 		$this->store();
 		return $this;
@@ -506,7 +502,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	private function store() {
-		$con = $this->getCon();
+		$con = $this->con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()
 			 ->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
@@ -547,11 +543,11 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getIsShowMarketing() :bool {
-		return (bool)apply_filters( 'shield/show_marketing', !$this->getCon()->isPremiumActive() );
+		return (bool)apply_filters( 'shield/show_marketing', !$this->con()->isPremiumActive() );
 	}
 
 	public function isAccessRestricted() :bool {
-		return $this->cfg->properties[ 'access_restricted' ] && !$this->getCon()->isPluginAdmin();
+		return $this->cfg->properties[ 'access_restricted' ] && !$this->con()->isPluginAdmin();
 	}
 
 	public function getMainWpData() :array {
@@ -627,10 +623,10 @@ abstract class ModCon extends DynPropertiesClass {
 	private function loadModElement( string $class ) {
 		$element = false;
 		try {
-			$C = $this->findElementClass( $class, true );
+			$C = $this->findElementClass( $class );
 			/** @var Shield\Modules\ModConsumer $element */
-			$element = @class_exists( $C ) ? new $C() : false;
-			if ( method_exists( $element, 'setMod' ) ) {
+			$element = @\class_exists( $C ) ? new $C() : false;
+			if ( \method_exists( $element, 'setMod' ) ) {
 				$element->setMod( $this );
 			}
 		}
@@ -648,13 +644,13 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function findElementClass( string $element, $bThrowException = true ) {
 		$theClass = null;
 
-		$roots = array_map( function ( $root ) {
-			return rtrim( $root, '\\' ).'\\';
+		$roots = \array_map( function ( $root ) {
+			return \rtrim( $root, '\\' ).'\\';
 		}, $this->getNamespaceRoots() );
 
 		foreach ( $roots as $NS ) {
 			$maybe = $NS.$element;
-			if ( @class_exists( $maybe ) ) {
+			if ( @\class_exists( $maybe ) ) {
 				if ( ( new \ReflectionClass( $maybe ) )->isInstantiable() ) {
 					$theClass = $maybe;
 					break;
@@ -662,7 +658,7 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		}
 
-		if ( $bThrowException && is_null( $theClass ) ) {
+		if ( $bThrowException && \is_null( $theClass ) ) {
 			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
 		}
 		return $theClass;

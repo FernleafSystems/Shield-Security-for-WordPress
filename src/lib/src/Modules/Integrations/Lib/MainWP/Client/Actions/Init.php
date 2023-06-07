@@ -35,7 +35,7 @@ class Init {
 
 			// Augment Sync data with Shield Sync Data
 			add_filter( 'mainwp_site_sync_others_data', function ( $information, $othersData ) {
-				$con = $this->getCon();
+				$con = $this->con();
 				if ( isset( $othersData[ $con->prefix( 'mainwp-sync' ) ] ) ) {
 					$information[ $con->prefix( 'mainwp-sync' ) ] = wp_json_encode( ( new Sync() )->run() );
 				}
@@ -44,11 +44,11 @@ class Init {
 
 			// Execute custom actions via MainWP API.
 			add_filter( 'mainwp_child_extra_execution', function ( $information, $post ) {
-				$con = $this->getCon();
+				$con = $this->con();
 
 				if ( !empty( $post[ $con->prefix( 'mwp-action' ) ] ) ) {
 					try {
-						$response = $this->getCon()
+						$response = $this->con()
 							->action_router
 							->action(
 								$post[ $con->prefix( 'mwp-action' ) ],

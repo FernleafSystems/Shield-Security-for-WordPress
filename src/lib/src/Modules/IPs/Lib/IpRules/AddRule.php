@@ -29,7 +29,7 @@ class AddRule {
 				'label'          => 'auto',
 				'last_access_at' => Services::Request()->ts(),
 			] );
-			$this->getCon()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
+			$this->con()->fireEvent( 'ip_block_auto', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		}
 		catch ( \Exception $e ) {
 			$IP = ( new IpRuleStatus( $this->getIP() ) )->getRuleForAutoBlock();
@@ -49,7 +49,7 @@ class AddRule {
 		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BLOCK, [
 			'label' => $label,
 		] );
-		$this->getCon()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
+		$this->con()->fireEvent( 'ip_block_manual', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $IP;
 	}
 
@@ -61,7 +61,7 @@ class AddRule {
 		$data[ 'can_export' ] = true;
 
 		$IP = $this->add( IpRulesDB\Handler::T_MANUAL_BYPASS, $data );
-		$this->getCon()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
+		$this->con()->fireEvent( 'ip_bypass_add', [ 'audit_params' => [ 'ip' => $this->getIP() ] ] );
 		return $IP;
 	}
 
@@ -196,9 +196,7 @@ class AddRule {
 				throw new \Exception( sprintf( "An invalid list type provided: %s", $type ) );
 		}
 
-		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
-			->loadIP( $this->getIP() );
+		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )->loadIP( $this->getIP() );
 
 		/** @var IpRulesDB\Record $tmp */
 		$tmp = $dbh->getRecord();

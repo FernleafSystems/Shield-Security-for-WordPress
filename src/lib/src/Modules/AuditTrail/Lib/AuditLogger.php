@@ -28,7 +28,7 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $con->getModule_AuditTrail()->getOptions();
 		if ( $opts->isLogToDB() ) {
@@ -41,7 +41,7 @@ class AuditLogger extends EventsListener {
 	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
 	 */
 	protected function onShutdown() {
-		if ( !$this->getCon()->plugin_deleting && $this->isMonologLibrarySupported() ) {
+		if ( !$this->con()->plugin_deleting && $this->isMonologLibrarySupported() ) {
 			$this->initLogger();
 			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
 				$this->getLogger()->log(
@@ -54,7 +54,7 @@ class AuditLogger extends EventsListener {
 	}
 
 	protected function initLogger() {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $con->getModule_AuditTrail()->getOptions();
 
@@ -67,7 +67,7 @@ class AuditLogger extends EventsListener {
 					 );
 			}
 
-			if ( $this->getCon()->cache_dir_handler->exists() && $opts->isLogToFile() ) {
+			if ( $this->con()->cache_dir_handler->exists() && $opts->isLogToFile() ) {
 				try {
 					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $opts->getLogLevelsFile() );
 					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
@@ -85,9 +85,7 @@ class AuditLogger extends EventsListener {
 
 	public function isMonologLibrarySupported() :bool {
 		try {
-			( new Monolog() )
-				->setCon( $this->getCon() )
-				->assess();
+			( new Monolog() )->assess();
 			$supported = true;
 		}
 		catch ( \Exception $e ) {
@@ -102,7 +100,7 @@ class AuditLogger extends EventsListener {
 			function ( $handler ) {
 				$this->getLogger()->pushHandler( $handler );
 			},
-			( $this->getCon()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
+			( $this->con()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
 		);
 	}
 

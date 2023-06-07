@@ -8,7 +8,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	public const TEMPLATE = '/pages/shield_login_intent.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'strings' => [
 				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
@@ -31,7 +31,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	}
 
 	protected function getScripts() :array {
-		$urlBuilder = $this->getCon()->urls;
+		$urlBuilder = $this->con()->urls;
 		$scripts = parent::getScripts();
 		$scripts[ 50 ] = [
 			'src' => $urlBuilder->forJs( 'u2f-bundle' ),
@@ -47,7 +47,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	protected function getStyles() :array {
 		$styles = parent::getStyles();
 		$styles[ 51 ] = [
-			'href' => $this->getCon()->urls->forCss( 'shield/login2fa' ),
+			'href' => $this->con()->urls->forCss( 'shield/login2fa' ),
 			'id'   => 'shield/login2fa',
 		];
 		return $styles;

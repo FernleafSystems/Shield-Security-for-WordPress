@@ -17,7 +17,7 @@ class FreeTrial extends Base {
 				'features'   => 'https://getshieldsecurity.com/features/',
 			],
 			'imgs'    => [
-				'free_trial' => $this->getCon()->svgs->raw( 'shield-fill-plus.svg' ),
+				'free_trial' => $this->con()->svgs->raw( 'shield-fill-plus.svg' ),
 			],
 			'strings' => [
 				'step_title' => 'Try ShieldPRO For Free',
@@ -26,6 +26,6 @@ class FreeTrial extends Base {
 	}
 
 	public function skipStep() :bool {
-		return $this->getCon()->isPremiumActive();
+		return $this->con()->isPremiumActive();
 	}
 }

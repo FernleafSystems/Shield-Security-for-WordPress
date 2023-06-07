@@ -17,10 +17,10 @@ class TestRequest {
 	public function test() {
 		try {
 			$this->runTest();
-			$this->getCon()->fireEvent( 'recaptcha_success' );
+			$this->con()->fireEvent( 'recaptcha_success' );
 		}
 		catch ( \Exception $e ) {
-			$this->getCon()->fireEvent( 'recaptcha_fail' );
+			$this->con()->fireEvent( 'recaptcha_fail' );
 			throw $e;
 		}
 		return true;
@@ -31,7 +31,7 @@ class TestRequest {
 	 * @throws \Exception
 	 */
 	protected function runTest() {
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$captchaResponse = Services::Request()->post( 'g-recaptcha-response' );
 
@@ -40,7 +40,7 @@ class TestRequest {
 		}
 		else {
 			$response = ( new ReCaptcha( $mod->getCaptchaCfg()->secret, new WordpressPost() ) )
-				->verify( $captchaResponse, $this->getCon()->this_req->ip );
+				->verify( $captchaResponse, $this->con()->this_req->ip );
 			if ( empty( $response ) || !$response->isSuccess() ) {
 				$aMsg = [
 					__( 'Whoops.', 'wp-simple-firewall' ),

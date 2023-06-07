@@ -23,7 +23,7 @@ class UserSessionHandler {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$this->getCon()->user_metas->for( $user )->record->last_login_at = Services::Request()->ts();
+		$this->con()->user_metas->for( $user )->record->last_login_at = Services::Request()->ts();
 		$this->sendLoginNotifications( $user );
 	}
 
@@ -36,7 +36,7 @@ class UserSessionHandler {
 
 		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
 			 && $user instanceof \WP_User
-			 && $this->getCon()->getModule_Plugin()->getSessionCon()->current()->valid
+			 && $this->con()->getModule_Plugin()->getSessionCon()->current()->valid
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
@@ -51,12 +51,12 @@ class UserSessionHandler {
 
 	private function sendLoginNotifications( \WP_User $user ) {
 		$adminEmails = $this->getAdminLoginNotificationEmails();
-		$sendAdmin = count( $adminEmails ) > 0;
+		$sendAdmin = \count( $adminEmails ) > 0;
 		$sendUser = $this->opts()->isOpt( 'enable_user_login_email_notification', 'Y' );
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
-		if ( $sendAdmin && $sendUser && in_array( strtolower( $user->user_email ), $adminEmails ) ) {
+		if ( $sendAdmin && $sendUser && \in_array( \strtolower( $user->user_email ), $adminEmails ) ) {
 			$sendUser = false;
 		}
 
@@ -64,7 +64,7 @@ class UserSessionHandler {
 			$this->sendAdminLoginEmailNotification( $user );
 		}
 		if ( $sendUser ) {
-			$hasLoginIntent = $this->getCon()
+			$hasLoginIntent = $this->con()
 								   ->getModule_LoginGuard()
 								   ->getMfaController()
 								   ->isSubjectToLoginIntent( $user );
@@ -83,20 +83,20 @@ class UserSessionHandler {
 
 		$rawEmails = $this->opts()->getOpt( 'enable_admin_login_email_notification', '' );
 		if ( !empty( $rawEmails ) ) {
-			$emails = array_values( array_unique( array_filter(
-				array_map(
+			$emails = \array_values( \array_unique( \array_filter(
+				\array_map(
 					function ( $email ) {
-						return trim( strtolower( $email ) );
+						return \trim( \strtolower( $email ) );
 					},
-					explode( ',', $rawEmails )
+					\explode( ',', $rawEmails )
 				),
 				function ( $email ) {
 					return Services::Data()->validEmail( $email );
 				}
 			) ) );
 
-			if ( count( $emails ) > 1 && !$this->getCon()->isPremiumActive() ) {
-				$emails = array_slice( $emails, 0, 1 );
+			if ( \count( $emails ) > 1 && !$this->con()->isPremiumActive() ) {
+				$emails = \array_slice( $emails, 0, 1 );
 			}
 
 			$this->opts()->setOpt( 'enable_admin_login_email_notification', implode( ', ', $emails ) );
@@ -106,7 +106,7 @@ class UserSessionHandler {
 	}
 
 	private function sendAdminLoginEmailNotification( \WP_User $user ) {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$userCapToRolesMap = [
 			'network_admin' => 'manage_network',
@@ -117,12 +117,12 @@ class UserSessionHandler {
 			'subscriber'    => 'read',
 		];
 
-		$roleToCheck = strtolower( apply_filters(
+		$roleToCheck = \strtolower( apply_filters(
 			$con->prefix( 'login-notification-email-role' ), 'administrator' ) );
-		if ( !array_key_exists( $roleToCheck, $userCapToRolesMap ) ) {
+		if ( !\array_key_exists( $roleToCheck, $userCapToRolesMap ) ) {
 			$roleToCheck = 'administrator';
 		}
-		$pluginName = ucwords( str_replace( '_', ' ', $roleToCheck ) ).'+';
+		$pluginName = \ucwords( \str_replace( '_', ' ', $roleToCheck ) ).'+';
 
 		$isUserSignificantEnough = false;
 		foreach ( $userCapToRolesMap as $sRole => $sCap ) {
@@ -170,7 +170,7 @@ class UserSessionHandler {
 			 ->send(
 				 $user->user_email,
 				 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-				 $this->getCon()->action_router->render( UserLoginNotice::SLUG, [
+				 $this->con()->action_router->render( UserLoginNotice::SLUG, [
 					 'home_url'  => Services::WpGeneral()->getHomeUrl(),
 					 'username'  => $user->user_login,
 					 'ip'        => $this->con()->this_req->ip,
@@ -186,7 +186,7 @@ class UserSessionHandler {
 	}
 
 	private function checkCurrentSession() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$srvIP = Services::IP();
 
 		try {
@@ -222,7 +222,7 @@ class UserSessionHandler {
 	private function assessSession() {
 		$opts = $this->opts();
 
-		$sess = $this->getCon()
+		$sess = $this->con()
 					 ->getModule_Plugin()
 					 ->getSessionCon()
 					 ->current();
@@ -241,7 +241,7 @@ class UserSessionHandler {
 		}
 
 		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->IpIn( $this->getCon()->this_req->ip, [ $sess->ip ] ) ) {
+		if ( $opts->isLockToIp() && !$srvIP->IpIn( $this->con()->this_req->ip, [ $sess->ip ] ) ) {
 			throw new \Exception( 'session_iplock' );
 		}
 	}
@@ -282,7 +282,7 @@ class UserSessionHandler {
 				case 'session_notfound':
 					$msg = sprintf(
 						__( 'You do not currently have a %s user session.', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName()
+						$this->con()->getHumanName()
 					);
 					break;
 

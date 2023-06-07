@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaU2fAdd,
 	MfaU2fRemove
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
 use u2flib_server\SignRequest;
@@ -283,7 +282,7 @@ class U2F extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->getOptions()->isEnabledU2F();
+		return $this->opts()->isEnabledU2F();
 	}
 
 	public function getProviderName() :string {

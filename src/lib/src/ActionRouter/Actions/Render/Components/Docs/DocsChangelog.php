@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Docs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Changelog\Retrieve;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\ShieldChangelogRetrieve;
 
 class DocsChangelog extends Actions\Render\BaseRender {
 
@@ -14,10 +14,10 @@ class DocsChangelog extends Actions\Render\BaseRender {
 
 	protected function getRenderData() :array {
 		try {
-			$changelog = ( new Retrieve() )->fromRepo();
+			$changelog = ( new ShieldChangelogRetrieve() )->fromRepo();
 		}
 		catch ( \Exception $e ) {
-			$changelog = ( new Retrieve() )->fromFile();
+			$changelog = ( new ShieldChangelogRetrieve() )->fromFile();
 		}
 		return [
 			'changelog' => $changelog,

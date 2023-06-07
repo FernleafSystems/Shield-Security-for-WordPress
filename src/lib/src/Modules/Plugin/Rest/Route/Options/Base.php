@@ -20,7 +20,7 @@ abstract class Base extends RouteBase {
 				'value',
 				'module',
 			],
-			array_keys( $this->getMod()->getOptions()->getOptDefinition( 'global_enable_plugin_features' ) )
+			array_keys( $this->mod()->getOptions()->getOptDefinition( 'global_enable_plugin_features' ) )
 		) );
 
 		return [
@@ -68,7 +68,7 @@ abstract class Base extends RouteBase {
 	protected function getAllPossibleOptKeys() :array {
 		if ( !isset( self::$allOpts ) ) {
 			$allOpts = [];
-			foreach ( ( new Export() )->setMod( $this->getMod() )->getRawOptionsExport() as $modOpts ) {
+			foreach ( ( new Export() )->setMod( $this->mod() )->getRawOptionsExport() as $modOpts ) {
 				$allOpts = array_merge( $allOpts, array_keys( $modOpts ) );
 			}
 			natsort( $allOpts );

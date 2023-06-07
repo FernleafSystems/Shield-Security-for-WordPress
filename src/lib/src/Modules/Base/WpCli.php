@@ -19,7 +19,7 @@ class WpCli extends ExecOnceModConsumer {
 			array_map(
 				function ( $handlerClass ) {
 					return ( new $handlerClass() )
-						->setMod( $this->getMod() )
+						->setMod( $this->mod() )
 						->execute();
 				},
 				$this->getAllCmdHandlers()
@@ -51,8 +51,8 @@ class WpCli extends ExecOnceModConsumer {
 		return array_merge(
 			[
 				'enabled'          => false,
-				'cmd_root'         => $this->getCon()->getPluginPrefix(),
-				'cmd_base'         => $this->getMod()->cfg->slug,
+				'cmd_root'         => $this->con()->getPluginPrefix(),
+				'cmd_base'         => $this->mod()->cfg->slug,
 				'inc_mod_standard' => false,
 			],
 			$this->getOptions()->getRawData_FullFeatureConfig()[ 'wpcli' ] ?? []

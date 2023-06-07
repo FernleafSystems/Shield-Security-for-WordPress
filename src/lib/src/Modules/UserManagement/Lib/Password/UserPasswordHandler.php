@@ -48,13 +48,13 @@ class UserPasswordHandler {
 				catch ( Exceptions\PasswordTooWeakException|Exceptions\PasswordIsPwnedException $e ) {
 					$failed = true;
 				}
-				$this->getCon()->user_metas->for( $user )->pass_check_failed_at = $failed ?
+				$this->con()->user_metas->for( $user )->pass_check_failed_at = $failed ?
 					Services::Request()->ts() : 0;
 			}
 		}
 
 		if ( !$failed ) {
-			$this->getCon()->user_metas->for( $user )->updatePasswordStartedAt( $user->user_pass );
+			$this->con()->user_metas->for( $user )->updatePasswordStartedAt( $user->user_pass );
 		}
 	}
 
@@ -68,7 +68,7 @@ class UserPasswordHandler {
 
 	public function onPasswordReset( $user ) {
 		if ( $user instanceof \WP_User && $user->ID > 0 ) {
-			$meta = $this->getCon()->user_metas->for( $user );
+			$meta = $this->con()->user_metas->for( $user );
 			unset( $meta->pass_hash );
 			$meta->updatePasswordStartedAt( $user->user_pass );
 		}
@@ -77,9 +77,9 @@ class UserPasswordHandler {
 	private function processExpiredPassword() {
 		$opts = $this->opts();
 		if ( $this->opts()->isPassExpirationEnabled() ) {
-			$startedAt = $this->getCon()->user_metas->current()->record->pass_started_at;
+			$startedAt = $this->con()->user_metas->current()->record->pass_started_at;
 			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
-				$this->getCon()->fireEvent( 'password_expired', [
+				$this->con()->fireEvent( 'password_expired', [
 					'audit_params' => [
 						'user_login' => Services::WpUsers()->getCurrentWpUsername()
 					]
@@ -113,10 +113,10 @@ class UserPasswordHandler {
 	 * @uses wp_redirect()
 	 */
 	private function redirectToResetPassword( string $msg ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		$now = Services::Request()->ts();
 
-		$meta = $this->getCon()->user_metas->current();
+		$meta = $this->con()->user_metas->current();
 		if ( $now - $meta->pass_reset_last_redirect_at > MINUTE_IN_SECONDS*2 ) {
 
 			$meta->pass_reset_last_redirect_at = $now;
@@ -167,10 +167,10 @@ class UserPasswordHandler {
 						$msg .= sprintf( '<br/>%s: %s', __( 'Reason', 'wp-simple-firewall' ), $failureMsg );
 					}
 					$wpErrors->add( 'shield_password_policy', $msg );
-					$this->getCon()->fireEvent( 'password_policy_block' );
+					$this->con()->fireEvent( 'password_policy_block' );
 				}
 				elseif ( Services::WpUsers()->isUserLoggedIn() ) {
-					$this->getCon()->user_metas->current()->pass_check_failed_at = 0;
+					$this->con()->user_metas->current()->pass_check_failed_at = 0;
 				}
 			}
 		}
@@ -227,7 +227,7 @@ class UserPasswordHandler {
 		$success = $req->get(
 			sprintf( '%s/%s', $this->opts()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
 			[
-				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
+				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->con()->getVersion() ) ]
 			]
 		);
 

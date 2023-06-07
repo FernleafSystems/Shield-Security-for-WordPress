@@ -37,9 +37,9 @@ class FileScanner {
 				( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
 						->setScanActionVO( $action )
 						->isFileValid() );
-				( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() );
+			( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() );
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
 			$item = $this->getResultItem( $fullPath );

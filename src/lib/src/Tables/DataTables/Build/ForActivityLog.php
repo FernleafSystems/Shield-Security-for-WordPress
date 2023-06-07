@@ -101,7 +101,7 @@ class ForActivityLog extends Base {
 					'show' => true,
 				],
 			],
-			'identity'         => [
+			'identity'   => [
 				'data'           => 'identity',
 				'title'          => __( 'Identity' ),
 				'className'      => 'identity',

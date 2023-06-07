@@ -71,7 +71,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 
-		$importer = ( new Lib\ImportExport\Import() )->setMod( $this->getMod() );
+		$importer = ( new Lib\ImportExport\Import() )->setMod( $this->mod() );
 		try {
 			if ( filter_var( $source, FILTER_VALIDATE_URL ) ) {
 

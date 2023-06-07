@@ -14,10 +14,10 @@ class MoveHashFiles extends BaseAction {
 			foreach ( ( new FindAssetsToSnap() )->run() as $asset ) {
 				$oldStore = ( new Store( $asset, false ) )->setWorkingDir( $this->getTempDir() );
 				$newStore = ( new Store( $asset, true ) )->setWorkingDir( $this->getTempDir() );
-				if ( $FS->isFile( $oldStore->getSnapStorePath() ) ) {
+				if ( $FS->isAccessibleFile( $oldStore->getSnapStorePath() ) ) {
 					$FS->move( $oldStore->getSnapStorePath(), $newStore->getSnapStorePath() );
 				}
-				if ( $FS->isFile( $oldStore->getSnapStoreMetaPath() ) ) {
+				if ( $FS->isAccessibleFile( $oldStore->getSnapStoreMetaPath() ) ) {
 					$FS->move( $oldStore->getSnapStoreMetaPath(), $newStore->getSnapStoreMetaPath() );
 				}
 			}

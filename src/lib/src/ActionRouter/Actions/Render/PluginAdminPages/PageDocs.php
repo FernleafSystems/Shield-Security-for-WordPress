@@ -12,14 +12,14 @@ class PageDocs extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/insights/docs/index.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'content' => [
 				'tab_updates' => $con->action_router->render( Actions\Render\Components\Docs\DocsChangelog::SLUG ),
 				'tab_events'  => $con->action_router->render( Actions\Render\Components\Docs\DocsEvents::SLUG ),
 			],
 			'flags'   => [
-				'is_pro' => $this->getCon()->isPremiumActive(),
+				'is_pro' => $this->con()->isPremiumActive(),
 			],
 			'hrefs'   => [
 				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',

@@ -1,4 +1,80 @@
 {
+  "18.1": {
+    "version":     "18.1",
+    "released_at": 1686134000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease181",
+      "upgrade": "https://shsec.io/shieldupgradeguide181"
+    },
+    "title":       "",
+    "description": [
+    ],
+    "items": [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Add Bot-Protection Support for more 3rd party plugins",
+        "description": [
+          "Plugins include: 'Classified Listing', 'ProfilePress'"
+        ]
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Support and integration with WP Umbrella",
+        "description": [
+          "Ensures that requests coming from WP Umbrella are never interrupted or trigger Shield's defenses."
+        ],
+        "href":        "https://shsec.io/wpumbrella"
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    false,
+        "title":       "Huge underlying code cleanup and improvements..",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    false,
+        "title":       "Upgraded Assets, such as Bootstrap to the latest available.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    true,
+        "title":       "Improved fallback support for Bing Search Engine Bots.",
+        "description": [
+          "If your site is having temporary rDNS lookup issues and can't verify the Bing bot, we've provided some fallback mechanisms."
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    true,
+        "title":       "Improvements to Plugin Notifications.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fix",
+        "pro_only":    true,
+        "title":       "Bug: Filelocker wasn't always creating the file lock correctly.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "fix",
+        "pro_only":    true,
+        "title":       "Bug: Incorrectly identifying Contact Form 7.",
+        "description": [
+          "Shield would report Contact Form 7 is installed, when it wasn't."
+        ]
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.0": {
     "version":     "18.0",
     "released_at": 1681725600,
@@ -68,6 +144,16 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "7",
+        "released_at": 1682498715,
+        "items":       [
+          {
+            "title": "FileLocker would fail to lock files in certain scenarios.",
+            "type":  "fixed"
+          }
+        ]
+      },
       {
         "version":     "6",
         "released_at": 1682498715,

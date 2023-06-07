@@ -23,7 +23,7 @@ class LicenseScheduleCheck extends LicenseBase {
 		catch ( \Exception $e ) {
 		}
 
-		$this->getCon()
+		$this->con()
 			 ->getModule_License()
 			 ->getLicenseHandler()
 			 ->scheduleAdHocCheck( $delay );

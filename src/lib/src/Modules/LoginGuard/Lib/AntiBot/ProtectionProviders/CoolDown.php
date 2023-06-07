@@ -21,7 +21,7 @@ class CoolDown extends BaseProtectionProvider {
 							 $cooldown->getCooldownRemaining()
 						 );
 
-				$this->getCon()->fireEvent( 'cooldown_fail' );
+				$this->con()->fireEvent( 'cooldown_fail' );
 				$this->processFailure();
 				throw new \Exception( $error );
 			}

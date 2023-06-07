@@ -37,16 +37,14 @@ class LocateNeedles {
 	}
 
 	/**
-	 * @param string $path
-	 * @return $this
 	 * @throws \InvalidArgumentException
 	 * @throws \Exception
 	 */
 	public function setPath( string $path ) :self {
-		if ( !Services::WpFs()->isFile( $path ) ) {
+		if ( !Services::WpFs()->isAccessibleFile( $path ) ) {
 			throw new \InvalidArgumentException( "File doesn't exist" );
 		}
-		if ( !is_readable( $path ) ) {
+		if ( !\is_readable( $path ) ) {
 			throw new \Exception( "File isn't readable" );
 		}
 		$this->reset();

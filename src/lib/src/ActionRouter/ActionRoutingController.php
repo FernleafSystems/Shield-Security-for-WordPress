@@ -81,7 +81,7 @@ class ActionRoutingController {
 		}
 		catch ( Exceptions\SecurityAdminRequiredException $e ) {
 //			error_log( 'render::SecurityAdminRequiredException: '.$slug );
-			$output = $this->getCon()->action_router->render( PageSecurityAdminRestricted::SLUG );
+			$output = $this->con()->action_router->render( PageSecurityAdminRestricted::SLUG );
 		}
 		catch ( Exceptions\UserAuthRequiredException $uare ) {
 //			error_log( 'render::UserAuthRequiredException: '.$slug );
@@ -96,7 +96,7 @@ class ActionRoutingController {
 	}
 
 	private function captureRedirects() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$urls = $con->plugin_urls;
 		$req = Services::Request();
 

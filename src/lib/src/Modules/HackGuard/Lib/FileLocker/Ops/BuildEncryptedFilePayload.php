@@ -14,7 +14,7 @@ class BuildEncryptedFilePayload extends BaseOps {
 	 * @throws FileContentsEncodingFailure
 	 * @throws FileContentsEncryptionFailure
 	 */
-	public function build( string $path, string $publicKey ) :string {
+	public function build( string $path, string $publicKey, ?string $cipher = null ) :string {
 		$srvEnc = Services::Encrypt();
 
 		// Ensure the contents are never empty,
@@ -23,7 +23,7 @@ class BuildEncryptedFilePayload extends BaseOps {
 			$contents = ' ';
 		}
 
-		$payload = $srvEnc->sealData( $contents, $publicKey );
+		$payload = $srvEnc->sealData( $contents, $publicKey, empty( $cipher ) ? 'rc4' : $cipher );
 		if ( !$payload->success ) {
 			throw new FileContentsEncryptionFailure( 'File contents could not be encrypted with message: '.$payload->message );
 		}

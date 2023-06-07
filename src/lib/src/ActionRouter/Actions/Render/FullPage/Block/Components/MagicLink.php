@@ -17,7 +17,7 @@ class MagicLink extends Base {
 	public const TEMPLATE = '/pages/block/magic_link.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$available = $this->hasActiveWPUser()
 					 && ( new AutoUnblockMagicLink() )->isUnblockAvailable()
 					 && apply_filters( $con->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() );

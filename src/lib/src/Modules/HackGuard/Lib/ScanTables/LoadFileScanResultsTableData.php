@@ -4,10 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTabl
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItemMeta\Ops as ResultItemMetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\CreateLocalMalwareRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
@@ -73,38 +71,10 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 		if ( $item->is_mal ) {
 			$malRecord = $item->getMalwareRecord();
-
-			if ( empty( $malRecord ) && !empty( $data[ 'mal_sig' ] ) ) {
-				try {
-					/**
-					 * @deprecated 18.0: this is used to update old malware scan results to use the newer Malware Records DB
-					 */
-					$malRecord = ( new CreateLocalMalwareRecords() )->run( $item->path_fragment, $data[ 'mal_sig' ] );
-					$item->malware_record_id = $malRecord->id;
-					/** @var ResultItemMetaDB\Insert $metaInserter */
-					$metaInserter = $this->mod()->getDbH_ResultItemMeta()->getQueryInserter();
-					$metaInserter->setInsertData( [
-						'ri_ref'     => $item->VO->resultitem_id,
-						'meta_key'   => 'malware_record_id',
-						'meta_value' => $item->malware_record_id,
-					] )->query();
-				}
-				catch ( \Exception $e ) {
-				}
-			}
-
 			if ( !empty( $malRecord ) ) {
 				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $malRecord->sig ) );
 				$data[ 'mal_details' ] = $this->getColumnContent_MalwareDetailsForRecord(
 					$item,
-					$data[ 'mal_sig' ]
-				);
-			}
-			else {
-				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $item->mal_sig ) );
-				/** @deprecated 17.1 */
-				$data[ 'mal_details' ] = $this->getColumnContent_MalwareDetails(
-					(int)$item->mal_fp_confidence,
 					$data[ 'mal_sig' ]
 				);
 			}
@@ -308,12 +278,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	protected function getColumnContent_FileStatus( ResultItem $item ) :string {
 		$FS = Services::WpFs();
 
-		if ( $FS->isFile( $item->path_full ) ) {
+		if ( $FS->isAccessibleFile( $item->path_full ) ) {
 			$carbon = Services::Request()->carbon( true );
 			$content = sprintf( '%s<ul style="list-style: square inside"><li>%s</li></ul>',
-				sprintf( '<span class="badge text-bg-secondary">%s</span>', $item->getStatusForHuman() ),
-				implode( '</li><li>', [
-					sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
+				\sprintf( '<span class="badge text-bg-secondary">%s</span>', $item->getStatusForHuman() ),
+				\implode( '</li><li>', [
+					\sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 						$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )
 							   ->diffForHumans()
 					)

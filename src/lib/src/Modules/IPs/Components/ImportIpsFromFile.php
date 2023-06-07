@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function canRun() :bool {
-		return $this->getCon()->isPremiumActive();
+		return $this->con()->isPremiumActive();
 	}
 
 	protected function run() {
@@ -21,15 +21,15 @@ class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	private function runFileImport( string $type ) {
 		$FS = Services::WpFs();
 
-		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->getCon()->paths->forFlag() );
-		if ( $FS->isFile( $fileImport ) ) {
+		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->con()->paths->forFlag() );
+		if ( $FS->isAccessibleFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {
 				$adder = new IPs\Lib\IpRules\AddRule();
-				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
+				foreach ( \array_map( 'trim', \explode( "\n", $content ) ) as $ip ) {
 					$adder->setIP( $ip );
 					try {
-						in_array( $type, [ 'white', 'bypass' ] ) ?
+						\in_array( $type, [ 'white', 'bypass' ] ) ?
 							$adder->toManualWhitelist( 'file import' )
 							: $adder->toManualBlacklist( 'file import' );
 					}

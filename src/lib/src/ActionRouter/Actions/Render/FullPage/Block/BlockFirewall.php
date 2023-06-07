@@ -10,7 +10,7 @@ class BlockFirewall extends BaseBlock {
 	public const SLUG = 'render_block_firewall';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'strings' => [
 				'page_title' => sprintf( '%s | %s', __( 'Request Blocked by Firewall', 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -31,7 +31,7 @@ class BlockFirewall extends BaseBlock {
 	}
 
 	protected function getRestrictionDetailsPoints() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$blockMeta = $this->action_data[ 'block_meta_data' ];
 		/** @var Firewall\Strings $str */
 		$str = $con->getModule_Firewall()->getStrings();

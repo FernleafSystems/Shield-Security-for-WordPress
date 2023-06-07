@@ -19,7 +19,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 
 	protected function run() {
 		/** @var LoginGuard\Options $opts */
-		$opts = $this->getCon()->getModule_LoginGuard()->getOptions();
+		$opts = $this->con()->getModule_LoginGuard()->getOptions();
 		if ( $opts->isProtectLogin() ) {
 			$this->login();
 		}
@@ -73,7 +73,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function fireBotEvent() {
-		$this->getCon()->fireEvent(
+		$this->con()->fireEvent(
 			sprintf( 'user_form_bot_%s', $this->isBot() ? 'fail' : 'pass' ),
 			[
 				'audit_params' => [
@@ -86,28 +86,28 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function fireEventBlockLogin() {
-		$this->getCon()->fireEvent( 'login_block' );
+		$this->con()->fireEvent( 'login_block' );
 	}
 
 	protected function fireEventBlockRegister() {
-		$this->getCon()->fireEvent( 'block_register' );
+		$this->con()->fireEvent( 'block_register' );
 	}
 
 	protected function fireEventBlockLostpassword() {
-		$this->getCon()->fireEvent( 'block_lostpassword' );
+		$this->con()->fireEvent( 'block_lostpassword' );
 	}
 
 	protected function fireEventBlockCheckout() {
-		$this->getCon()->fireEvent( 'block_checkout' );
+		$this->con()->fireEvent( 'block_checkout' );
 	}
 
 	protected function isBotBlockEnabled() :bool {
 		/** @var LoginGuard\Options $loginOpts */
-		$loginOpts = $this->getCon()->getModule_LoginGuard()->getOptions();
+		$loginOpts = $this->con()->getModule_LoginGuard()->getOptions();
 		return $loginOpts->isEnabledAntiBot();
 	}
 
 	protected function getErrorMessage() :string {
-		return sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
+		return sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), $this->con()->getHumanName() );
 	}
 }

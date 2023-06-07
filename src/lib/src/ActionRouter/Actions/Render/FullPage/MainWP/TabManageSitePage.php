@@ -11,7 +11,7 @@ class TabManageSitePage extends BaseMainwpPage {
 	public const SLUG = 'render_page_mainwp_tab_manage_site';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'strings' => [
 				'page_title' => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -33,7 +33,7 @@ class TabManageSitePage extends BaseMainwpPage {
 
 	protected function renderMainBodyContent() :string {
 		try {
-			return $this->getCon()->action_router->action( MainwpServerClientActionHandler::SLUG, [
+			return $this->con()->action_router->action( MainwpServerClientActionHandler::SLUG, [
 				'site_id'            => $this->action_data[ 'site_id' ],
 				'site_action_slug'   => OptionsForm::SLUG,
 				'site_action_params' => [

@@ -15,7 +15,7 @@ class ToastPlaceholder extends BaseRender {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
-				'title' => $this->getCon()->getHumanName(),
+				'title' => $this->con()->getHumanName(),
 			],
 		];
 	}

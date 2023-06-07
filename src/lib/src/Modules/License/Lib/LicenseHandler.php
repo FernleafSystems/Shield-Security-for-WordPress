@@ -15,7 +15,7 @@ class LicenseHandler {
 	use PluginCronsConsumer;
 
 	protected function run() {
-		add_action( $this->getCon()->prefix( 'adhoc_cron_license_check' ), function () {
+		add_action( $this->con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );
 
@@ -39,7 +39,7 @@ class LicenseHandler {
 	}
 
 	public function scheduleAdHocCheck( ?int $delay = null ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 			if ( empty( $delay ) ) {
 				$delay = rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
@@ -90,10 +90,10 @@ class LicenseHandler {
 			if ( $sendEmail ) {
 				( new LicenseEmails() )->sendLicenseDeactivatedEmail();
 			}
-			$this->getCon()->fireEvent( 'lic_fail_deactivate' );
+			$this->con()->fireEvent( 'lic_fail_deactivate' );
 		}
 		// force all options to resave i.e. reset premium to defaults.
-		add_filter( $this->getCon()->prefix( 'force_options_resave' ), '__return_true' );
+		add_filter( $this->con()->prefix( 'force_options_resave' ), '__return_true' );
 	}
 
 	protected function getActivatedAt() :int {
@@ -184,7 +184,7 @@ class LicenseHandler {
 	public function verify( bool $onDemand = false, bool $scheduleAnyway = false ) :self {
 		if ( $this->canCheck() ) {
 			if ( $onDemand ) {
-				Services::WpCron()->deleteCronJob( $this->getCon()->prefix( 'adhoc_cron_license_check' ) );
+				Services::WpCron()->deleteCronJob( $this->con()->prefix( 'adhoc_cron_license_check' ) );
 				( new Verify() )->run();
 			}
 			elseif ( $scheduleAnyway || $this->isVerifyRequired() ) {
@@ -204,7 +204,7 @@ class LicenseHandler {
 
 	private function canLicenseCheck_FileFlag() :bool {
 		$FS = Services::WpFs();
-		$path = $this->getCon()->paths->forFlag( 'license_check' );
+		$path = $this->con()->paths->forFlag( 'license_check' );
 		$mtime = $FS->exists( $path ) ? $FS->getModifiedTime( $path ) : 0;
 		return ( Services::Request()->ts() - $mtime ) > MINUTE_IN_SECONDS;
 	}

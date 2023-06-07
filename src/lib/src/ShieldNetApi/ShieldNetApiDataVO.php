@@ -34,8 +34,7 @@ class ShieldNetApiDataVO extends DynPropertiesClass {
 				break;
 		}
 
-		if ( in_array( $key, [ 'handshake_fail_count' ] )
-			 || preg_match( '#_at$#', $key ) ) {
+		if ( \in_array( $key, [ 'handshake_fail_count' ] ) || preg_match( '#_at$#', $key ) ) {
 			$value = (int)$value;
 		}
 

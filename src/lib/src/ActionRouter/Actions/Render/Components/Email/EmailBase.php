@@ -19,7 +19,7 @@ abstract class EmailBase extends Base {
 
 	protected function getFooterData() :array {
 		return apply_filters( 'icwp_shield_email_footer', [
-			$this->getCon()->action_router->render( Footer::SLUG, [
+			$this->con()->action_router->render( Footer::SLUG, [
 				'email_flags' => $this->getEmailFlags(),
 			] )
 		] );

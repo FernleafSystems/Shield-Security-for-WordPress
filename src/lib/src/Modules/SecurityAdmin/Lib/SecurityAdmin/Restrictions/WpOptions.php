@@ -27,9 +27,8 @@ class WpOptions extends Base {
 	 */
 	public function blockOptionsSaves( $newValue, $key, $oldValue ) {
 
-		$opts = \method_exists( $this, 'opts' ) ? $this->opts() : $this->getOptions();
-		if ( !$this->getCon()->isPluginAdmin()
-			 && ( in_array( $key, $opts->getOptionsToRestrict() ) || $this->isPluginOption( $key ) )
+		if ( !$this->con()->isPluginAdmin()
+			 && ( in_array( $key, $this->opts()->getOptionsToRestrict() ) || $this->isPluginOption( $key ) )
 		) {
 			$newValue = $oldValue;
 		}
@@ -38,6 +37,6 @@ class WpOptions extends Base {
 	}
 
 	private function isPluginOption( string $key ) :bool {
-		return preg_match( sprintf( '/^%s.*_options$/', $this->getCon()->getOptionStoragePrefix() ), $key ) > 0;
+		return preg_match( sprintf( '/^%s.*_options$/', $this->con()->getOptionStoragePrefix() ), $key ) > 0;
 	}
 }

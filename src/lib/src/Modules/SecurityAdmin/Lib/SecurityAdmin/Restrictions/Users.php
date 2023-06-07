@@ -11,9 +11,9 @@ class Users extends Base {
 	}
 
 	protected function run() {
-		add_filter( 'editable_roles', [ $this, 'restrictEditableRoles' ], 100, 1 );
+		add_filter( 'editable_roles', [ $this, 'restrictEditableRoles' ], 100 );
 		add_filter( 'user_has_cap', [ $this, 'restrictAdminUserChanges' ], 100, 3 );
-		add_action( 'delete_user', [ $this, 'restrictAdminUserDelete' ], 100, 1 );
+		add_action( 'delete_user', [ $this, 'restrictAdminUserDelete' ], 100 );
 		add_action( 'add_user_role', [ $this, 'restrictAddUserRole' ], 100, 2 );
 		add_action( 'remove_user_role', [ $this, 'restrictRemoveUserRole' ], 100, 2 );
 		add_action( 'set_user_role', [ $this, 'restrictSetUserRole' ], 100, 3 );

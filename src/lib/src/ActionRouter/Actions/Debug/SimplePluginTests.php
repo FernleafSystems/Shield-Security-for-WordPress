@@ -9,7 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwareScanPatterns;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwareScan;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class SimplePluginTests extends BaseAction {
 
@@ -17,13 +19,13 @@ class SimplePluginTests extends BaseAction {
 
 	protected function exec() {
 		$testMethod = $this->action_data[ 'test' ];
-		if ( !method_exists( $this, $testMethod ) ) {
+		if ( !\method_exists( $this, $testMethod ) ) {
 			throw new ActionException( sprintf( 'There is no test method: %s', $testMethod ) );
 		}
-		ob_start();
+		\ob_start();
 		$this->{$testMethod}();
 		$this->response()->action_response_data = [
-			'debug_output' => ob_get_clean()
+			'debug_output' => \ob_get_clean()
 		];
 	}
 
@@ -32,7 +34,18 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
-	private function dbg_rand() {
+	private function dbg_ipid() {
+		try {
+			$id = ( new IpID( '207.46.13.207', 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)' ) )->run();
+			var_dump( $id );
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
+	}
+
+	private function dbg_apitoken() {
+		$this->con()->getModule_License()->getWpHashesTokenManager()->setCanRequestOverride( true )->getToken();
 	}
 
 	private function dbg_submitmalwarereports() {
@@ -122,7 +135,7 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function crowdsec() {
-		$modIPs = $this->getCon()->getModule_IPs();
+		$modIPs = $this->con()->getModule_IPs();
 		$csCon = $modIPs->getCrowdSecCon();
 		$API = $csCon->getApi();
 
@@ -130,7 +143,7 @@ class SimplePluginTests extends BaseAction {
 //		var_dump($auth);
 
 		try {
-//			$res = $this->getCon()
+//			$res = $this->con()
 //						->getModule_License()
 //						->getLicenseHandler()
 //						->getLicense()->crowdsec[ 'scenarios' ] ?? [];
@@ -147,11 +160,9 @@ class SimplePluginTests extends BaseAction {
 //			var_dump( $modIPs->getCrowdSecCon()->cfg );
 //			var_dump( $csCon->getApi()->getAuthorizationToken() );
 //			( new Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS() )
-//				->setMod( $this->getCon()->getModule_IPs() )
+//				->setMod( $this->con()->getModule_IPs() )
 //				->execute();
-			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )
-				->setMod( $modIPs )
-				->runImport();
+			( new Modules\IPs\Lib\CrowdSec\Decisions\ImportDecisions() )->runImport();
 //			var_dump( $d );
 //			$res = ( new Modules\IPs\Lib\CrowdSec\Api\DecisionsDownload(
 //				$csCon->getApi()->getAuthorizationToken(),

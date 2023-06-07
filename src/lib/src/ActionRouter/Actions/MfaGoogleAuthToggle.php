@@ -10,7 +10,7 @@ class MfaGoogleAuthToggle extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_toggle_ga';
 
 	protected function exec() {
-		$available = $this->getCon()
+		$available = $this->con()
 						  ->getModule_LoginGuard()
 						  ->getMfaController()
 						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );

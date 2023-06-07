@@ -50,7 +50,7 @@ class Select extends Base\Select {
 	 */
 	public function getLatestForEvent( string $event ) {
 		return $this->filterByEvent( $event )
-					->setOrderBy( 'created_at', 'DESC' )
+					->setOrderBy( 'created_at' )
 					->setResultsAsVo( true )
 					->first();
 	}
@@ -80,7 +80,7 @@ class Select extends Base\Select {
 	public function getLatestForAllEvents() :array {
 		$latest = [];
 		$this->setGroupBy( 'event' )
-			 ->setOrderBy( 'created_at', 'DESC' )
+			 ->setOrderBy( 'created_at' )
 			 ->addWhere( 'id', $this->getMaxIds(), 'IN' )
 			 ->setResultsAsVo( true );
 		foreach ( $this->query() as $entry ) {

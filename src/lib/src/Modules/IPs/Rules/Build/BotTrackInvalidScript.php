@@ -23,7 +23,7 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->getCon()->getModule_IPs()->getOptions();
+		$opts = $this->con()->getModule_IPs()->getOptions();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [

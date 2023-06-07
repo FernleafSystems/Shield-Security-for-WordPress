@@ -425,6 +425,8 @@ table.odp-table.scan-table td.column-path code {
 }
 .form-check .form-check-input {
 	margin-top: 0.25em;
+	/** @since BS 5.3.0 must set this as it conflicts with WP's own background: #fff CSS */
+	background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
 }
 /** copied from bootstrap to override WP admin styles */
 .icwpOptionsForm {
@@ -1025,11 +1027,11 @@ td.mal_details {
 	min-width: 100px;
 }
 th.status_file_size,
-td.status_file_size  {
+td.status_file_size {
 	width: 60px !important;
 	max-width: 60px;
 }
-td.status_file_type  {
+td.status_file_type {
 	min-width: 30px;
 	max-width: 30px;
 	width: 30px !important;
@@ -1042,7 +1044,7 @@ td.file_as_href {
 	word-break: break-all;
 	min-width: 150px;
 }
-td.status_file_size  {
+td.status_file_size {
 	width: 60px !important;
 	max-width: 60px;
 }
@@ -1154,7 +1156,7 @@ td.status_file_size  {
 	font-weight: normal;
 }
 
-.load-wrapper{
+.load-wrapper {
 	position: relative;
 	height: 100%;
 	width: 100%;
@@ -1163,26 +1165,44 @@ td.status_file_size  {
 	overflow: hidden;
 	border-radius: 5px;
 }
-.activity{
+.activity {
 	position: absolute;
 	left: -45%;
 	height: 100%;
 	width: 45%;
-	background-image: linear-gradient(to left, rgba(251,251,251, .05), rgba(251,251,251, .3), rgba(251,251,251, .6), rgba(251,251,251, .3), rgba(251,251,251, .05));
-	background-image: -moz-linear-gradient(to left, rgba(251,251,251, .05), rgba(251,251,251, .3), rgba(251,251,251, .6), rgba(251,251,251, .3), rgba(251,251,251, .05));
-	background-image: -webkit-linear-gradient(to left, rgba(251,251,251, .05), rgba(251,251,251, .3), rgba(251,251,251, .6), rgba(251,251,251, .3), rgba(251,251,251, .05));
+	background-image: linear-gradient(to left, rgba(251, 251, 251, .05), rgba(251, 251, 251, .3), rgba(251, 251, 251, .6), rgba(251, 251, 251, .3), rgba(251, 251, 251, .05));
+	background-image: -moz-linear-gradient(to left, rgba(251, 251, 251, .05), rgba(251, 251, 251, .3), rgba(251, 251, 251, .6), rgba(251, 251, 251, .3), rgba(251, 251, 251, .05));
+	background-image: -webkit-linear-gradient(to left, rgba(251, 251, 251, .05), rgba(251, 251, 251, .3), rgba(251, 251, 251, .6), rgba(251, 251, 251, .3), rgba(251, 251, 251, .05));
 	animation: loading 1.5s infinite;
 	z-index: 45;
 }
 
 @keyframes loading {
-	0%{
+	0% {
 		left: -45%;
 	}
-	100%{
-		left: 100%;
+	100% {
 	}
 }
-.update-nag {
+#ShieldTopPageWarnings {
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.4);
+}
+.shield-top_page_warning.bg-danger,
+.shield-top_page_warning.bg-danger a {
+	color: white;
+}
+.shield-top_page_warning a {
+	text-decoration: underline;
+}
+
+/** Hide notices from WP & plugins **/
+.update-nag,
+.ngg_admin_notice {
 	display: none;
+}
+#wf-onboarding-banner {
+	/** Seriously, Wordfence, will you ever sod away off */
+	display: none !important;
+	visibility: hidden !important;
+	z-index: -1 !important;
 }

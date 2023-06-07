@@ -18,7 +18,7 @@ class MfaLoginCode extends EmailBase {
 
 		return [
 			'flags'   => [
-				'show_login_link' => !$this->getCon()->isRelabelled(),
+				'show_login_link' => !$this->con()->isRelabelled(),
 			],
 			'vars'    => [
 				'code' => $this->action_data[ 'otp' ]

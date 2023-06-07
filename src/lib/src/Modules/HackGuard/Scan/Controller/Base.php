@@ -40,7 +40,7 @@ abstract class Base {
 
 	protected function run() {
 		add_action(
-			$this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() ),
+			$this->con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
 			function () {
 				$this->mod()->getScansCon()->startNewScans( [ $this->getSlug() ] );
 			}
@@ -142,9 +142,7 @@ abstract class Base {
 	 * @return Scans\Base\Utilities\ItemActionHandler
 	 */
 	public function getItemActionHandler() {
-		return $this->newItemActionHandler()
-					->setMod( $this->mod() )
-					->setScanController( $this );
+		return $this->newItemActionHandler()->setScanController( $this );
 	}
 
 	/**
@@ -182,7 +180,7 @@ abstract class Base {
 	}
 
 	public function isRestricted() :bool {
-		return $this->isPremiumOnly() && !$this->getCon()->isPremiumActive();
+		return $this->isPremiumOnly() && !$this->con()->isPremiumActive();
 	}
 
 	/**
@@ -245,7 +243,7 @@ abstract class Base {
 	}
 
 	protected function scheduleOnDemandScan() {
-		$hook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getSlug() );
+		$hook = $this->con()->prefix( 'ondemand_scan_'.$this->getSlug() );
 		if ( !wp_next_scheduled( $hook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + 10, $hook );
 		}

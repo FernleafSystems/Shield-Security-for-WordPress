@@ -7,7 +7,7 @@ class BlockAuthorFishing extends BaseBlock {
 	public const SLUG = 'render_block_author_fishing';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'strings' => [
 				'page_title' => sprintf( '%s | %s', __( 'Block Username Fishing', 'wp-simple-firewall' ), $con->getHumanName() ),
@@ -25,7 +25,7 @@ class BlockAuthorFishing extends BaseBlock {
 			)
 		];
 
-		if ( !$this->getCon()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !$this->con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$additional[ 'learn_more_link' ] = sprintf( '<a href="%s" target="_blank">%s</a>',
 				'https://shsec.io/7l',
 				__( 'Learn More', 'wp-simple-firewall' )

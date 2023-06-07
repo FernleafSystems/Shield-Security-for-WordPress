@@ -172,6 +172,10 @@
           "text":      "Easy Digital Downloads"
         },
         {
+          "value_key": "classifiedlisting",
+          "text":      "Classified Listing"
+        },
+        {
           "value_key": "learnpress",
           "text":      "LearnPress"
         },
@@ -190,6 +194,10 @@
         {
           "value_key": "profilebuilder",
           "text":      "Profile Builder"
+        },
+        {
+          "value_key": "profilepress",
+          "text":      "ProfilePress"
         },
         {
           "value_key": "restrictcontentpro",

@@ -18,7 +18,7 @@ class NotifyWhitelist extends ExecOnceModConsumer {
 	}
 
 	protected function run() {
-		$cronHook = $this->getCon()->prefix( 'importexport_notify' );
+		$cronHook = $this->con()->prefix( 'importexport_notify' );
 
 		add_action( 'shield/after_form_submit_options_save', function () use ( $cronHook ) {
 			// auto-import notify: ONLY when the options are being updated with a MANUAL save.
@@ -31,7 +31,7 @@ class NotifyWhitelist extends ExecOnceModConsumer {
 			}
 		} );
 
-		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->getCon()->prefix() );
+		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->con()->prefix() );
 		add_action( $cronHook, function () use ( $q ) {
 			/** @var Options $opts */
 			$opts = $this->getOptions();

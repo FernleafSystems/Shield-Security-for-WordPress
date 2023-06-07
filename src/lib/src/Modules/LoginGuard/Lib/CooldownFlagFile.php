@@ -18,7 +18,7 @@ class CooldownFlagFile {
 	}
 
 	public function getFlagFilePath() :string {
-		return $this->getCon()->cache_dir_handler->cacheItemPath( 'mode.login_throttled' );
+		return $this->con()->cache_dir_handler->cacheItemPath( 'mode.login_throttled' );
 	}
 
 	public function getSecondsSinceLastLogin() :int {

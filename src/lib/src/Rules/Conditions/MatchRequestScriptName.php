@@ -32,7 +32,7 @@ class MatchRequestScriptName extends Base {
 			}
 		}
 		else {
-			$matched = in_array( $scriptName, $this->match_script_names );
+			$matched = \in_array( $scriptName, $this->match_script_names );
 		}
 
 		// always add this in-case we need to invert_match

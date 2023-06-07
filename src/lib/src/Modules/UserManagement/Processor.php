@@ -16,7 +16,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -25,7 +25,7 @@ class Processor extends BaseShield\Processor {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( $this->getCon()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
+		if ( $this->con()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 
@@ -36,10 +36,10 @@ class Processor extends BaseShield\Processor {
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {
-			$this->getCon()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
+			$this->con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
-		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
+		if ( !$this->con()->this_req->request_bypasses_all_restrictions ) {
 			( new Lib\Session\UserSessionHandler() )->execute();
 			( new Lib\Password\UserPasswordHandler() )->execute();
 			( new Lib\Registration\EmailValidate() )->execute();
@@ -47,7 +47,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( $con->isValidAdminArea() ) {
 
 			$thisGroup = [
@@ -86,7 +86,7 @@ class Processor extends BaseShield\Processor {
 	public function addUserStatusLastLogin( $cols ) {
 
 		if ( is_array( $cols ) ) {
-			$customColName = $this->getCon()->prefix( 'col_user_status' );
+			$customColName = $this->con()->prefix( 'col_user_status' );
 			if ( !isset( $cols[ $customColName ] ) ) {
 				$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
 			}
@@ -97,7 +97,7 @@ class Processor extends BaseShield\Processor {
 					$user = Services::WpUsers()->getUserById( $userID );
 					if ( $user instanceof \WP_User ) {
 
-						$lastLoginAt = (int)$this->getCon()->user_metas->for( $user )->record->last_login_at;
+						$lastLoginAt = (int)$this->con()->user_metas->for( $user )->record->last_login_at;
 						$carbon = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $lastLoginAt );
@@ -111,7 +111,7 @@ class Processor extends BaseShield\Processor {
 							)
 						], $user );
 
-						$content = implode( '<br/>', array_filter( array_map( 'trim', $additionalContent ) ) );
+						$content = \implode( '<br/>', \array_filter( \array_map( '\trim', $additionalContent ) ) );
 					}
 				}
 

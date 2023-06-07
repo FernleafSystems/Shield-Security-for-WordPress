@@ -36,14 +36,14 @@ class ProcessIPs extends ProcessBase {
 	protected function processNew() :int {
 		$DB = Services::WpDb();
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$now = Services::Request()->ts();
 
 		$this->removeDuplicatesFromNewStream();
 
 		$total = 0;
 
-		$ipTableName = $this->getCon()
+		$ipTableName = $this->con()
 							->getModule_Data()
 							->getDbH_IPs()
 							->getTableSchema()->table;
@@ -216,7 +216,7 @@ class ProcessIPs extends ProcessBase {
 
 	protected function processDeleted() :int {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		/** @var RangeInterface[] $ipsToDelete */
 		$ipsToDelete = array_map( function ( $ip ) {

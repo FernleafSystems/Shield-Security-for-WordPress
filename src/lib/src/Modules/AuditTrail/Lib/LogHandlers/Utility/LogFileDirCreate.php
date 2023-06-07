@@ -21,7 +21,7 @@ class LogFileDirCreate {
 		}
 
 		$theLogsDir = null;
-		foreach ( $FS->getAllFilesInDir( $cacheDir, true ) as $possibleDir ) {
+		foreach ( $FS->getAllFilesInDir( $cacheDir ) as $possibleDir ) {
 			$possibleFullPath = path_join( $cacheDir, $possibleDir );
 			if ( strpos( basename( $possibleDir ), 'logs-' ) === 0 && $FS->isDir( $possibleDir ) ) {
 				$theLogsDir = $possibleFullPath;

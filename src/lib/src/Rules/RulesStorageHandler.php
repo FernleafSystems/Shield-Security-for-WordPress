@@ -59,6 +59,6 @@ class RulesStorageHandler {
 	}
 
 	private function getWpStorageKey() :string {
-		return $this->getRulesCon()->getCon()->prefix( 'rules' );
+		return $this->getRulesCon()->con()->prefix( 'rules' );
 	}
 }

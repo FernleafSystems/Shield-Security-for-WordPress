@@ -20,9 +20,9 @@ class PluginTelemetry {
 			$data = $this->collectTrackingData();
 			if ( !empty( $data ) ) {
 				$this->getOptions()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-				$this->getMod()->saveModOptions();
+				$this->mod()->saveModOptions();
 				( new SendPluginTelemetry() )
-					->setMod( $this->getMod() )
+					->setMod( $this->mod() )
 					->send( $data );
 			}
 		}
@@ -41,7 +41,7 @@ class PluginTelemetry {
 	 * @return array[]
 	 */
 	public function collectTrackingData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$data = $this->getBaseTrackingData();
 		foreach ( $con->modules as $mod ) {
@@ -74,7 +74,7 @@ class PluginTelemetry {
 		}
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
-			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->getCon()->getInstallationID()[ 'id' ];
+			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->con()->getInstallationID()[ 'id' ];
 		}
 
 		return $data;
@@ -106,7 +106,7 @@ class PluginTelemetry {
 	}
 
 	private function getBaseTrackingData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$WP = Services::WpGeneral();
 		$WPP = Services::WpPlugins();
 		return [

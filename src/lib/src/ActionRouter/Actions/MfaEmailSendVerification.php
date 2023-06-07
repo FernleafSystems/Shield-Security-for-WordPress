@@ -35,7 +35,7 @@ class MfaEmailSendVerification extends BaseAction {
 	}
 
 	private function sendEmailVerifyCanSend() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$con->getModule_Plugin()
 			->getEmailProcessor()
 			->sendEmailWithWrap(

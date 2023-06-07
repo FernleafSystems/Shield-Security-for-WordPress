@@ -30,7 +30,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
-		return $this->securityAdminCon ?? $this->securityAdminCon = ( new Lib\SecurityAdmin\SecurityAdminController() )->setMod( $this );
+		return $this->securityAdminCon ?? $this->securityAdminCon = new Lib\SecurityAdmin\SecurityAdminController();
 	}
 
 	public function runDailyCron() {
@@ -42,7 +42,7 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$mu = $this->getCon()->mu_handler;
+		$mu = $this->con()->mu_handler;
 		try {
 			$opts->isEnabledMU() ? $mu->convertToMU() : $mu->convertToStandard();
 		}

@@ -24,7 +24,7 @@ class Sync {
 	}
 
 	private function buildMetaData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return [
 			'is_pro'       => $con->isPremiumActive(),
 			'is_mainwp_on' => $con->isPremiumActive() && $this->opts()->isEnabledMainWP(),
@@ -40,7 +40,7 @@ class Sync {
 	 */
 	private function buildModulesData() :array {
 		$data = [];
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $this->con()->modules as $mod ) {
 			$options = $this->opts()->getTransferableOptions();
 			if ( !empty( $options ) ) {
 				$data[ $mod->cfg->slug ] = [

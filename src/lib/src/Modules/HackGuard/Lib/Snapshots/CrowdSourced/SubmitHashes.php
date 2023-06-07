@@ -45,7 +45,7 @@ class SubmitHashes {
 	}
 
 	private function canSubmitAsset() :bool {
-		return $this->getCon()->is_mode_live
+		return $this->con()->is_mode_live
 			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), (string)$this->asset->Version )
 			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), (string)$this->asset->slug );
 	}

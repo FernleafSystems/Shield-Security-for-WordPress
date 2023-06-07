@@ -34,7 +34,7 @@ class SiteHealthController extends ExecOnceModConsumer {
 		}, 11 );
 		add_action( 'site_health_tab_content', function ( $tab ) {
 			if ( $tab === self::TAB_SLUG ) {
-				echo $this->getCon()->action_router->render( Analysis::SLUG );
+				echo $this->con()->action_router->render( Analysis::SLUG );
 			}
 		} );
 	}

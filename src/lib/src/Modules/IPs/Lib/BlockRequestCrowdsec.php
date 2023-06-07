@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions,
 	Exceptions\ActionException
 };
-use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
@@ -22,7 +22,7 @@ class BlockRequestCrowdsec {
 
 	protected function run() {
 
-		foreach ( ( new IpRuleStatus( $this->getCon()->this_req->ip ) )->getRulesForCrowdsec() as $record ) {
+		foreach ( ( new IpRuleStatus( $this->con()->this_req->ip ) )->getRulesForCrowdsec() as $record ) {
 			/** @var IpRulesDB\Update $updater */
 			$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
 			$updater->updateLastAccessAt( $record );

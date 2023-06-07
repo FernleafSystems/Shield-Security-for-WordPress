@@ -9,7 +9,7 @@ abstract class ReportingBase extends BaseAction {
 	protected function renderChart( array $data ) {
 		try {
 			$chartData = ( new Charts\CustomChartData() )
-				->setMod( $this->getCon()->getModule_Plugin() )
+				->setMod( $this->con()->getModule_Plugin() )
 				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $data ) )
 				->build();
 			$msg = 'No message';

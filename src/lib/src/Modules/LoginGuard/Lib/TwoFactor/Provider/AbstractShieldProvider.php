@@ -15,12 +15,12 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return string|array|mixed
 	 */
 	protected function getSecret() {
-		$secret = $this->getCon()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'};
+		$secret = $this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'};
 		return empty( $secret ) ? '' : $secret;
 	}
 
 	public function hasValidatedProfile() :bool {
-		return $this->getCon()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} === true;
+		return $this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} === true;
 	}
 
 	protected function hasValidSecret() :bool {

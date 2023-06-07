@@ -13,6 +13,6 @@ class IpRuleAddForm extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		return $this->getCon()->action_router->render( FormIpRuleAdd::SLUG );
+		return $this->con()->action_router->render( FormIpRuleAdd::SLUG );
 	}
 }

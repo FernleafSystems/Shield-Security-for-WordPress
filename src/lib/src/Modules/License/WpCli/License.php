@@ -62,7 +62,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	private function runRemove( $bConfirm ) {
-		if ( !$this->getCon()->isPremiumActive() ) {
+		if ( !$this->con()->isPremiumActive() ) {
 			WP_CLI::success( __( 'No license to remove.', 'wp-simple-firewall' ) );
 		}
 		else {
@@ -70,7 +70,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 				WP_CLI::confirm( __( 'Are you sure you want to remove the ShieldPRO license?', 'wp-simple-firewall' ) );
 			}
 			/** @var ModCon $mod */
-			$mod = $this->getMod();
+			$mod = $this->mod();
 			$mod->getLicenseHandler()->clearLicense();
 			WP_CLI::success( __( 'License removed successfully.', 'wp-simple-firewall' ) );
 		}
@@ -81,7 +81,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 */
 	private function runStatus() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$mod->getLicenseHandler()->isActive() ?
 			WP_CLI::success( __( 'Active license found.', 'wp-simple-firewall' ) )
 			: WP_CLI::error( __( 'No active license present.', 'wp-simple-firewall' ) );
@@ -92,10 +92,10 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 */
 	private function runVerify() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		try {
-			if ( $this->getCon()->isPremiumActive() ) {
+			if ( $this->con()->isPremiumActive() ) {
 				WP_CLI::log( 'Premium license is already active. Re-checking...' );
 			}
 			$success = $mod
@@ -118,6 +118,6 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 * or you're premium and you haven't switched it off (parent).
 	 */
 	protected function canRun() :bool {
-		return !$this->getCon()->isPremiumActive() || parent::canRun();
+		return !$this->con()->isPremiumActive() || parent::canRun();
 	}
 }

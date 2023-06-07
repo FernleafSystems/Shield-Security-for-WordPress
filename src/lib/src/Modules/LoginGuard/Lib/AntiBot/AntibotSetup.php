@@ -22,7 +22,7 @@ class AntibotSetup {
 		$opts = $this->opts();
 
 		$providers = [];
-		if ( $opts->isEnabledCooldown() && $this->getCon()->cache_dir_handler->exists() ) {
+		if ( $opts->isEnabledCooldown() && $this->con()->cache_dir_handler->exists() ) {
 			$providers[] = new AntiBot\ProtectionProviders\CoolDown();
 		}
 
@@ -50,7 +50,7 @@ class AntibotSetup {
 				new AntiBot\FormProviders\WordPress()
 			];
 
-			if ( $this->getCon()->isPremiumActive() ) {
+			if ( $this->con()->isPremiumActive() ) {
 				if ( @class_exists( 'BuddyPress' ) ) {
 					$formProviders[] = new AntiBot\FormProviders\BuddyPress();
 				}

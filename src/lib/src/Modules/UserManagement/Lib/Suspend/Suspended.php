@@ -14,7 +14,7 @@ class Suspended extends Base {
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
 		if ( $meta->record->hard_suspended_at > 0 ) {
 			$user = new \WP_Error(
-				$this->getCon()->prefix( 'hard-suspended' ),
+				$this->con()->prefix( 'hard-suspended' ),
 				implode( ' ', [
 					__( 'Sorry, this account is suspended.', 'wp-simple-firewall' ),
 					__( 'Please contact your website administrator.', 'wp-simple-firewall' ),

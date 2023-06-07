@@ -19,15 +19,13 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 
 	protected function run() {
 		( new IPs\Components\UnblockIpByFlag() )->execute();
-		( new ProcessOffenses() )
-			->setMod( $this->getMod() )
-			->execute();
+		( new ProcessOffenses() )->execute();
 		$this->setupCronHooks();
 	}
 
 	public function runHourlyCron() {
 		( new IPs\Components\ImportIpsFromFile() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->execute();
 	}
 }

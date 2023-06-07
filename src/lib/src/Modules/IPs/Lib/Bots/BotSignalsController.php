@@ -35,7 +35,7 @@ class BotSignalsController {
 		$this->getEventListener()->execute();
 		add_action( 'init', function () {
 			foreach ( $this->enumerateBotTrackers() as $botTrackerClass ) {
-				( new $botTrackerClass() )->setMod( $this->mod() )->execute();
+				( new $botTrackerClass() )->execute();
 			}
 		} );
 		$this->getHandlerNotBot()->execute();
@@ -49,7 +49,7 @@ class BotSignalsController {
 
 			$this->isBots[ $IP ] = false;
 
-			$opts = \method_exists( $this, 'opts' ) ? $this->opts() : $this->getOptions();
+			$opts = $this->opts();
 
 			if ( !$opts->isEnabledAntiBotEngine() ) {
 				$this->con()->fireEvent( 'ade_check_option_disabled' );
@@ -63,13 +63,13 @@ class BotSignalsController {
 				if ( $botScoreMinimum > 0 ) {
 
 					$score = ( new Calculator\CalculateVisitorBotScores() )
-						->setIP( empty( $IP ) ? $this->getCon()->this_req->ip : $IP )
+						->setIP( empty( $IP ) ? $this->con()->this_req->ip : $IP )
 						->probability();
 
 					$this->isBots[ $IP ] = $score < $botScoreMinimum;
 
 					if ( $allowEventFire ) {
-						$this->getCon()->fireEvent(
+						$this->con()->fireEvent(
 							'antibot_'.( $this->isBots[ $IP ] ? 'fail' : 'pass' ),
 							[
 								'audit_params' => [
@@ -105,7 +105,7 @@ class BotSignalsController {
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
+			if ( !$this->con()->this_req->request_bypasses_all_restrictions ) {
 				if ( $this->opts()->isEnabledTrackLoginFailed() ) {
 					$trackers[] = BotTrack\TrackLoginFailed::class;
 				}
@@ -123,10 +123,10 @@ class BotSignalsController {
 	}
 
 	private function registerFrontPageLoad() {
-		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ), function () {
+		add_action( $this->con()->prefix( 'pre_plugin_shutdown' ), function () {
 			if ( Services::Request()->isGet() && did_action( 'wp' )
 				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
-				$this->getEventListener()->fireEventForIP( $this->getCon()->this_req->ip, 'frontpage_load' );
+				$this->getEventListener()->fireEventForIP( $this->con()->this_req->ip, 'frontpage_load' );
 			}
 		} );
 	}
@@ -135,7 +135,7 @@ class BotSignalsController {
 		add_action( 'login_footer', function () {
 			$req = Services::Request();
 			if ( $req->isGet() ) {
-				$this->getEventListener()->fireEventForIP( $this->getCon()->this_req->ip, 'loginpage_load' );
+				$this->getEventListener()->fireEventForIP( $this->con()->this_req->ip, 'loginpage_load' );
 			}
 		} );
 	}

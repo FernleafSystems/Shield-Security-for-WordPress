@@ -14,8 +14,8 @@ class TmpFileStore {
 	private static $slugs = [];
 
 	protected function run() {
-		if ( $this->getCon()->cache_dir_handler->exists() ) {
-			add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
+		if ( $this->con()->cache_dir_handler->exists() ) {
+			add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {
 				$FS = Services::WpFs();
 				foreach ( self::$slugs as $file ) {
 					$FS->deleteFile( $file );
@@ -30,10 +30,10 @@ class TmpFileStore {
 	public function load( string $slug ) {
 		$data = null;
 		$tmpFile = path_join( $this->getTmpDir(), $slug );
-		if ( Services::WpFs()->isFile( $tmpFile ) ) {
+		if ( Services::WpFs()->isAccessibleFile( $tmpFile ) ) {
 			$contents = Services::WpFs()->getFileContent( $tmpFile );
 			if ( !empty( $contents ) ) {
-				$data = unserialize( $contents );
+				$data = \unserialize( $contents );
 			}
 		}
 		return $data;
@@ -41,11 +41,11 @@ class TmpFileStore {
 
 	public function store( string $slug, $data ) {
 		$fullPath = path_join( $this->getTmpDir(), $slug );
-		Services::WpFs()->putFileContent( $fullPath, serialize( $data ) );
+		Services::WpFs()->putFileContent( $fullPath, \serialize( $data ) );
 		self::$slugs[] = $fullPath;
 	}
 
 	private function getTmpDir() :string {
-		return $this->getCon()->cache_dir_handler->buildSubDir( 'tmp_files' );
+		return $this->con()->cache_dir_handler->buildSubDir( 'tmp_files' );
 	}
 }

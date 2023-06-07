@@ -18,13 +18,13 @@ class PageDebug extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
-				'href' => URL::Build( $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
+				'href' => URL::Build( $this->con()->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
 			],
 		];
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$urls = $con->plugin_urls;
 
 		$availableTests = [];

@@ -15,16 +15,8 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @return ModCon
-	 * @deprecated 17.1
-	 */
-	public function getMod() {
-		return $this->mod();
-	}
-
-	/**
 	 * @return $this
-	 * @deprecated 17.1
+	 * @deprecated 18.1
 	 */
 	public function setMod( $null ) {
 		return $this;

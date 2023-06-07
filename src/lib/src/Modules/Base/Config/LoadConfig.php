@@ -29,16 +29,16 @@ class LoadConfig {
 	 * @throws \Exception
 	 */
 	public function run() :ModConfigVO {
-		$this->pathToCfg = $this->getCon()->paths->forModuleConfig( $this->slug );
+		$this->pathToCfg = $this->con()->paths->forModuleConfig( $this->slug );
 		if ( !Services::WpFs()->exists( $this->pathToCfg ) ) {
 			throw new \Exception( sprintf( 'Configuration file "%s" does not exist.', $this->pathToCfg ) );
 		}
 
-		$rebuild = $this->getCon()->cfg->rebuilt
+		$rebuild = $this->con()->cfg->rebuilt
 				   || !$this->cfg instanceof ModConfigVO
 				   || ( Services::WpFs()->getModifiedTime( $this->pathToCfg ) > $this->cfg->meta[ 'ts_mod' ] );
 		if ( $rebuild ) {
-			$this->getCon()->cfg->rebuilt = true;
+			$this->con()->cfg->rebuilt = true;
 		}
 		return $rebuild ? ( new ModConfigVO() )->applyFromArray( $this->fromFile() ) : $this->cfg;
 	}

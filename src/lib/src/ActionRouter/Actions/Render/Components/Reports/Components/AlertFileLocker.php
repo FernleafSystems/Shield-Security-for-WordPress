@@ -23,7 +23,7 @@ class AlertFileLocker extends BaseBuilderForScans {
 				'render_required' => $hasNotNotified,
 			],
 			'hrefs'   => [
-				'view_results' => $this->getCon()->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'view_results' => $this->con()->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
@@ -40,7 +40,7 @@ class AlertFileLocker extends BaseBuilderForScans {
 	private function markAlertsAsNotified() {
 		$locksLoader = new LoadFileLocks();
 		/** @var FileLockerDB\Update $updater */
-		$updater = $this->getCon()
+		$updater = $this->con()
 						->getModule_HackGuard()
 						->getDbH_FileLocker()
 						->getQueryUpdater();

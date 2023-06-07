@@ -23,7 +23,7 @@ class Upgrades extends Base {
 	}
 
 	public function auditUpgrade2( $true, $hooksExtra ) {
-		add_action( $this->getCon()->prefix( 'pre_plugin_shutdown' ),
+		add_action( $this->con()->prefix( 'pre_plugin_shutdown' ),
 			function () use ( $hooksExtra ) {
 				if ( !empty( $hooksExtra[ 'plugin' ] ) ) {
 					$this->handlePlugin( $hooksExtra[ 'plugin' ] );
@@ -71,7 +71,7 @@ class Upgrades extends Base {
 			$WPP = Services::WpPlugins();
 			$VO = $WPP->getPluginAsVo( $item, true );
 			if ( !empty( $VO ) ) {
-				$this->getCon()->fireEvent(
+				$this->con()->fireEvent(
 					'plugin_upgraded',
 					[
 						'audit_params' => [
@@ -94,7 +94,7 @@ class Upgrades extends Base {
 			$WPT = Services::WpThemes();
 			$VO = $WPT->getThemeAsVo( $item, true );
 			if ( !empty( $VO ) ) {
-				$this->getCon()->fireEvent(
+				$this->con()->fireEvent(
 					'theme_upgraded',
 					[
 						'audit_params' => [

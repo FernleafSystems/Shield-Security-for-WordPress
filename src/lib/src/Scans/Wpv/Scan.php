@@ -21,7 +21,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	}
 
 	private function scanItem( string $scanItem ) :array {
-		$apiToken = $this->getCon()
+		$apiToken = $this->con()
 						 ->getModule_License()
 						 ->getWpHashesTokenManager()
 						 ->getToken();

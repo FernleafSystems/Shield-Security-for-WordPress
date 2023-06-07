@@ -40,7 +40,7 @@ class ActionProcessor {
 		if ( empty( $action ) ) {
 			throw new ActionDoesNotExistException( 'There was no action handler available for '.$slug );
 		}
-		return ( new $action( $data ) )->setMod( $this->getCon()->getModule_Plugin() );
+		return ( new $action( $data ) )->setMod( $this->con()->getModule_Plugin() );
 	}
 
 	public function findActionFromSlug( string $slug ) :string {

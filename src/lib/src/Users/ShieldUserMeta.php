@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Users;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Record;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
+use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
 /**
+ * @property string   $UID
  * @property array    $login_intents
  * @property array    $email_secret
  * @property bool     $email_validated
@@ -26,6 +28,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Users\UserMeta;
  * @property int      $pass_check_failed_at
  * @property bool     $wc_social_login_valid
  * @property array    $tours
+ * @property array    $flags
  * /*** VIRTUAL ***
  * @property int      $last_verified_at
  * /*** REMOVED ***
@@ -51,11 +54,24 @@ class ShieldUserMeta extends UserMeta {
 					$this->record->first_seen_at
 				] );
 				break;
+			case 'flags':
+			case 'login_intents':
+			case 'tours':
+				if ( !\is_array( $value ) ) {
+					$value = [];
+				}
+				break;
+			case 'UID':
+				if ( empty( $value ) ) {
+					$value = ( new Uuid() )->V4();
+					$this->UID = $value;
+				}
+				break;
 			default:
 				break;
 		}
 
-		if ( function_exists( 'str_ends_with' ) && str_ends_with( $key, '_at' ) ) {
+		if ( \function_exists( 'str_ends_with' ) && \str_ends_with( $key, '_at' ) ) {
 			$value = (int)$value;
 		}
 

@@ -6,123 +6,31 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {
-
-			case 'databases-not-ready':
-				$this->buildNotice_DatabasesNotReady( $notice );
-				break;
-
-			case 'rules-not-running':
-				$this->buildNotice_RulesNotRunning( $notice );
-				break;
-
-			case 'plugin-too-old':
-				$this->buildNotice_PluginTooOld( $notice );
-				break;
-
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $notice );
 				break;
-
-			case 'plugin-disabled':
-				$this->buildNotice_PluginDisabled( $notice );
-				break;
-
-			case 'update-available':
-				$this->buildNotice_UpdateAvailable( $notice );
-				break;
-
-			case 'plugin-mailing-list-signup':
-				$this->buildNotice_PluginMailingListSignup( $notice );
-				break;
-
 			case 'allow-tracking':
 				$this->buildNotice_AllowTracking( $notice );
 				break;
-
 			case 'rate-plugin':
 				$this->buildNotice_RatePlugin( $notice );
 				break;
-
+			case 'plugin-too-old':
+				break;
 			default:
 				parent::processNotice( $notice );
 				break;
 		}
 	}
 
-	private function buildNotice_DatabasesNotReady( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s Databases May Need To Be Repaired", 'wp-simple-firewall' ), $name ) ),
-				'lines'        => [
-					__( 'To save you manual work, the plugin tries to manage its database tables automatically for you. But sometimes the automated process may run into trouble.', 'wp-simple-firewall' ),
-					__( "If this message persists for more than ~30 seconds, please use the link below to repair the plugin's database tables.", 'wp-simple-firewall' )
-					.' '.__( "This will result in a loss of all activity and traffic logs.", 'wp-simple-firewall' )
-				],
-				'click_repair' => __( 'Click here to repair the database tables', 'wp-simple-firewall' )
-			],
-			'ajax'              => [
-				'auto_db_repair' => ActionData::BuildJson( Actions\PluginAutoDbRepair::class )
-			]
-		];
-	}
-
-	private function buildNotice_RulesNotRunning( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title' => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s's Rules Engine Isn't Running", 'wp-simple-firewall' ), $name ) ),
-				'lines' => [
-					sprintf(
-						__( "The Rules Engine that processes requests and protects your site doesn't appear to be operating normally.", 'wp-simple-firewall' ),
-						$name
-					),
-					__( "This could be a webhosting configuration issue, but please reach out to our support desk for help to isolate the issue.", 'wp-simple-firewall' ),
-				],
-			],
-		];
-	}
-
-	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'        => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( "%s Plugin Is Too Old", 'wp-simple-firewall' ), $name ) ),
-				'lines'        => [
-					sprintf(
-						__( 'There are at least 2 major upgrades to the %s plugin since your version.', 'wp-simple-firewall' ),
-						$name
-					),
-					__( "We recommended keeping your Shield plugin up-to-date with the latest features.", 'wp-simple-firewall' )
-					.' '.__( "We can't support old versions of Shield and certain features may not be working properly as our API develops.", 'wp-simple-firewall' ),
-				],
-				'click_update' => __( 'Click here to go to the WordPress updates page', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'click_update' => Services::WpGeneral()->getAdminUrl_Updates()
-			]
-		];
-	}
-
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
+		$name = $this->con()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -138,72 +46,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
-	private function buildNotice_PluginDisabled( NoticeVO $notice ) {
-		$con = $this->getCon();
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'          => sprintf( '%s: %s',
-					__( 'Warning', 'wp-simple-firewall' ),
-					sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $con->getHumanName() )
-				),
-				'message'        => implode( ' ', [
-					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
-					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
-				] ),
-				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'jump_to_enable' => $con->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
-			]
-		];
-	}
-
-	private function buildNotice_PluginMailingListSignup( NoticeVO $notice ) {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$name = $this->getCon()->getHumanName();
-		$user = Services::WpUsers()->getCurrentWpUser();
-
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'yes'     => "Yes please! I'd love to join in and learn more",
-				'dismiss' => "No thanks",
-				'summary' => sprintf( 'The %s team is helping raise awareness of WP Security issues
-				and to provide guidance with the %s plugin.', $name, $name ),
-			],
-			'hrefs'             => [
-				'form' => 'https://shsec.io/shieldpluginnewsletter'
-			],
-			'install_days'      => $opts->getInstallationDays(),
-			'vars'              => [
-				'name'       => $user->first_name,
-				'user_email' => $user->user_email,
-			]
-		];
-	}
-
-	private function buildNotice_UpdateAvailable( NoticeVO $notice ) {
-		$name = $this->getCon()->getHumanName();
-		$notice->render_data = [
-			'notice_attributes' => [],
-			'strings'           => [
-				'title'        => sprintf( __( 'Update available for the %s plugin', 'wp-simple-firewall' ), $name ),
-				'click_update' => __( 'Please click to update immediately', 'wp-simple-firewall' ),
-				'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'upgrade_link' => Services::WpPlugins()->getUrl_Upgrade( $this->getCon()->base_file )
-			]
-		];
-	}
-
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
-		$name = $this->getCon()->getHumanName();
+		$mod = $this->mod();
+		$name = $this->con()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -247,40 +93,20 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
 		switch ( $notice->id ) {
-
-			case 'databases-not-ready':
-				$needed = $this->isNeeded_DatabasesNotReady();
-				break;
-
-			case 'rules-not-running':
-				$needed = $this->isNeeded_RulesNotRunning();
-				break;
-
-			case 'plugin-too-old':
-				$needed = $this->isNeeded_PluginTooOld();
-				break;
-
 			case 'override-forceoff':
-				$needed = $con->this_req->is_force_off;
+				$needed = $con->this_req->is_force_off && !$con->isPluginAdminPageRequest();
 				break;
-
-			case 'plugin-disabled':
-				$needed = $opts->isPluginGloballyDisabled();
-				break;
-
-			case 'update-available':
-				$needed = Services::WpPlugins()->isUpdateAvailable( $con->base_file );
-				break;
-
 			case 'allow-tracking':
 				$needed = !$opts->isTrackingPermissionSet();
 				break;
-
+			case 'plugin-too-old':
+				$needed = false;
+				break;
 			default:
 				$needed = parent::isDisplayNeeded( $notice );
 				break;
@@ -288,48 +114,16 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		return $needed;
 	}
 
-	private function isNeeded_DatabasesNotReady() :bool {
-		$dbs = $this->getCon()->prechecks[ 'dbs' ];
-		return count( $dbs ) !== count( array_filter( $dbs ) );
-	}
-
+	/**
+	 * @deprecated 18.1
+	 */
 	private function isNeeded_PluginTooOld() :bool {
-		$needed = false;
-		$con = $this->getCon();
-		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
-			$versions = Transient::Get( $con->prefix( 'releases' ) );
-			if ( !is_array( $versions ) ) {
-				$versions = ( new Shield\Utilities\Github\ListTags() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
-				Transient::Set( $con->prefix( 'releases' ), $versions, WEEK_IN_SECONDS );
-			}
-
-			$currentMajor = intval( \substr( $con->getVersion(), 0, \strpos( $con->getVersion(), '.' ) ) );
-			if ( !empty( $versions ) && !empty( $currentMajor ) ) {
-
-				$majorVersionsNewerThanCurrent = array_filter(
-					array_unique( array_map(
-						function ( $version ) {
-							/** 1. Convert all versions to major releases */
-							return intval( substr( $version, 0, \strpos( $version, '.' ) ) );
-						},
-						$versions
-					) ),
-					function ( $version ) use ( $currentMajor ) {
-						/** 2. Find all major versions newer than current */
-						return $version > $currentMajor;
-					}
-				);
-
-				/** 3. Suggest upgrade needed  */
-				$needed = count( $majorVersionsNewerThanCurrent ) >= 2;
-			}
-		}
-
-		return $needed;
+		return false;
 	}
 
-	private function isNeeded_RulesNotRunning() :bool {
-		$con = $this->getCon();
-		return !$con->rules->isRulesEngineReady() || !$con->rules->processComplete;
+	/**
+	 * @deprecated 18.1
+	 */
+	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
 	}
 }

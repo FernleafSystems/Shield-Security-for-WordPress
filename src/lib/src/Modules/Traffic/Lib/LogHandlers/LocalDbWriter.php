@@ -20,14 +20,12 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	protected function createPrimaryLogRecord( array $logData ) :bool {
-		$modData = $this->getCon()->getModule_Data();
+		$modData = $this->con()->getModule_Data();
 
 		$ipRecord = ( new IPRecords() )
-			->setMod( $modData )
 			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
 		$reqRecord = ( new ReqLogs\RequestRecords() )
-			->setMod( $modData )
 			->loadReq( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecord->id );
 
 		// anything stored in the primary log record doesn't need stored in meta

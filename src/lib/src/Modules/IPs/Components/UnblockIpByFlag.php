@@ -23,18 +23,18 @@ class UnblockIpByFlag {
 
 		$IPs = [];
 
-		$path = $FS->findFileInDir( 'unblock', $this->getCon()->paths->forFlag() );
-		if ( !empty( $path ) && $FS->isFile( $path ) ) {
+		$path = $FS->findFileInDir( 'unblock', $this->con()->paths->forFlag() );
+		if ( !empty( $path ) && $FS->isAccessibleFile( $path ) ) {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
 
-				foreach ( array_map( 'trim', explode( "\n", $content ) ) as $ip ) {
+				foreach ( \array_map( 'trim', \explode( "\n", $content ) ) as $ip ) {
 					if ( Services::IP()->isValidIp( $ip ) ) {
 						foreach ( ( new IpRuleStatus( $ip ) )->getRulesForBlock() as $record ) {
 							$removed = ( new IPs\Lib\IpRules\DeleteRule() )->byRecord( $record );
 							if ( $removed ) {
 								$IPs[] = $ip;
-								$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+								$this->con()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
 							}
 						}
 					}
@@ -44,7 +44,7 @@ class UnblockIpByFlag {
 		}
 
 		try {
-			$myIP = $this->getCon()->this_req->ip;
+			$myIP = $this->con()->this_req->ip;
 			if ( !empty( $IPs ) && !empty( $myIP ) && $srvIP->IpIn( $myIP, $IPs ) ) {
 				Services::Response()->redirectHere();
 			}

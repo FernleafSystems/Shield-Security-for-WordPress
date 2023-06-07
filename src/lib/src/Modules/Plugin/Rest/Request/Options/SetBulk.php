@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 class SetBulk extends Base {
 
 	protected function process() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 

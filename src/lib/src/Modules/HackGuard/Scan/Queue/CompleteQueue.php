@@ -17,7 +17,7 @@ class CompleteQueue {
 		$deleter = $this->mod()->getDbH_ScanItems()->getQueryDeleter();
 		$deleter->filterByFinished()->query();
 
-		$hook = $this->getCon()->prefix( 'post_scan' );
+		$hook = $this->con()->prefix( 'post_scan' );
 		if ( $this->opts()->getOpt( 'is_scan_cron' ) && !wp_next_scheduled( $hook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + 5, $hook );
 		}

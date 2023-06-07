@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,8 +13,9 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
  * Allows the plugin to access WordPress.org SVN updates/tags that haven't actually been released.
  * This way we can more easily test upgrades to ensure there are no upgrade errors etc. and make it easier for testers.
  */
-class AllowBetaUpgrades extends ExecOnceModConsumer {
+class AllowBetaUpgrades {
 
+	use ExecOnce;
 	use ModConsumer;
 	use PluginCronsConsumer;
 
@@ -26,13 +27,13 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 	private $beta;
 
 	protected function canRun() :bool {
-		return $this->getCon()->isPremiumActive()
+		return $this->con()->isPremiumActive()
 			   && apply_filters( 'shield/enable_beta', $this->opts()->isOpt( 'enable_beta', 'Y' ) );
 	}
 
 	protected function run() {
 		add_filter( 'pre_set_site_transient_update_plugins', function ( $updates ) {
-			$con = $this->getCon();
+			$con = $this->con();
 			// only offer "betas" when there is no "normal" upgrade already available
 			if ( is_object( $updates )
 				 && isset( $updates->response )
@@ -50,7 +51,7 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 
 	private function getBeta() {
 		if ( !isset( $this->beta ) ) {
-			$con = $this->getCon();
+			$con = $this->con();
 
 			$this->beta = false;
 
@@ -61,7 +62,7 @@ class AllowBetaUpgrades extends ExecOnceModConsumer {
 				function ( $betaVersion ) {
 					return is_string( $betaVersion )
 						   && preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-						   && version_compare( $betaVersion, $this->getCon()->getVersion(), '>' );
+						   && version_compare( $betaVersion, $this->con()->getVersion(), '>' );
 				}
 			);
 			if ( !empty( $betas ) ) {

@@ -13,27 +13,4 @@ trait ModConsumer {
 	public function opts() :Options {
 		return $this->mod()->getOptions();
 	}
-
-	/**
-	 * @return ModCon
-	 * @deprecated 17.1
-	 */
-	public function getMod() {
-		return $this->mod();
-	}
-
-	/**
-	 * @deprecated 18.0
-	 */
-	public function getOptions() :Options {
-		return $this->opts();
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 17.1
-	 */
-	public function setMod( $null ) {
-		return $this;
-	}
 }

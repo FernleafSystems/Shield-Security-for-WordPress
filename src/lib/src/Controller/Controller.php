@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
-use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -147,7 +146,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'plugin_reset':
 				if ( is_null( $val ) ) {
-					$val = $FS->isFile( $this->paths->forFlag( 'reset' ) );
+					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
@@ -258,7 +257,7 @@ class Controller extends DynPropertiesClass {
 		$FS = Services::WpFs();
 
 		$flag = $this->paths->forFlag( 'reqs_met.flag' );
-		if ( !$FS->isFile( $flag )
+		if ( !$FS->isAccessibleFile( $flag )
 			 || Services::Request()->carbon()->subHour()->timestamp > $FS->getModifiedTime( $flag ) ) {
 			$reqsMsg = [];
 
@@ -504,7 +503,7 @@ class Controller extends DynPropertiesClass {
 		( new Admin\PluginsPageSupplements() )->execute();
 
 		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
-			 && function_exists( 'wp_add_privacy_policy_content' ) ) {
+			 && \function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
 	}
@@ -515,10 +514,10 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function adjustNocacheHeaders( $headers ) {
-		if ( is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
-			$Hs = array_map( 'trim', explode( ',', $headers[ 'Cache-Control' ] ) );
+		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
+			$Hs = \array_map( 'trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
 			$Hs[] = 'no-store';
-			$headers[ 'Cache-Control' ] = implode( ', ', array_unique( $Hs ) );
+			$headers[ 'Cache-Control' ] = \implode( ', ', \array_unique( $Hs ) );
 		}
 		return $headers;
 	}
@@ -570,51 +569,6 @@ class Controller extends DynPropertiesClass {
 		return $IDs[ $url ];
 	}
 
-	/**
-	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
-	 * Certain plugins can modify the ID at different points in the load.
-	 * @return string - the unique, never-changing site install ID.
-	 * @deprecated 17.1
-	 */
-	public function getSiteInstallationId() {
-		$WP = Services::WpGeneral();
-		$optKey = $this->prefixOption( 'install_id' );
-
-		$mStoredID = $WP->getOption( $optKey );
-		if ( !empty( $mStoredID ) && is_string( $mStoredID ) && strlen( $mStoredID ) === 36 ) {
-			return $mStoredID; // It's using the new ID
-		}
-
-		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
-			$ID = $mStoredID[ 'id' ];
-			$update = true;
-		}
-		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
-			$ID = explode( ':', $mStoredID, 2 )[ 1 ];
-			$update = true;
-		}
-		else {
-			$ID = $mStoredID;
-			$update = false;
-		}
-
-		if ( empty( $ID ) || !is_string( $ID ) || ( strlen( $ID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $ID ) ) ) {
-			try {
-				$ID = \Ramsey\Uuid\Uuid::uuid4()->toString();
-			}
-			catch ( \Exception $e ) {
-				$ID = sha1( uniqid( $WP->getHomeUrl( '', true ), true ) );
-			}
-			$update = true;
-		}
-
-		if ( $update ) {
-			$WP->updateOption( $optKey, $ID );
-		}
-
-		return $ID;
-	}
-
 	public function onWpLoaded() {
 		$this->getInstallationID();
 		$this->getAdminNotices();
@@ -655,12 +609,11 @@ class Controller extends DynPropertiesClass {
 		$file = $this->base_file;
 		if ( !empty( $updates->response ) && isset( $updates->response[ $file ] ) ) {
 			$reqs = $this->cfg->upgrade_reqs;
-			if ( is_array( $reqs ) ) {
-				$DP = Services::Data();
+			if ( \is_array( $reqs ) ) {
 				foreach ( $reqs as $shieldVer => $verReqs ) {
-					$toHide = version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
+					$toHide = \version_compare( $updates->response[ $file ]->new_version, $shieldVer, '>=' )
 							  && (
-								  !$DP->getPhpVersionIsAtLeast( (string)$verReqs[ 'php' ] )
+								  !Services::Data()->getPhpVersionIsAtLeast( (string)$verReqs[ 'php' ] )
 								  || !Services::WpGeneral()->getWordpressIsAtLeastVersion( $verReqs[ 'wp' ] )
 								  || ( !empty( $verReqs[ 'mysql' ] ) && !$this->isMysqlVersionSupported( $verReqs[ 'mysql' ] ) )
 							  );
@@ -833,7 +786,7 @@ class Controller extends DynPropertiesClass {
 		}
 
 		// Order Modules
-		uasort( $modConfigs, function ( $a, $b ) {
+		\uasort( $modConfigs, function ( $a, $b ) {
 			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
 			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
 			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
@@ -844,17 +797,9 @@ class Controller extends DynPropertiesClass {
 
 		$this->cfg->mods_cfg = $modConfigs;
 		// Sanity checking: count to ensure that when we set the cfgs, they were correctly set.
-		if ( count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== count( $modConfigs ) ) {
+		if ( \count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== \count( $modConfigs ) ) {
 			throw new Exceptions\PluginConfigInvalidException( "Building and storing module configurations failed." );
 		}
-	}
-
-	/**
-	 * @return string|null
-	 * @deprecated 17.1
-	 */
-	public function getPluginSpec_Path( string $key ) {
-		return $this->cfg->paths[ $key ] ?? null;
 	}
 
 	/**
@@ -944,13 +889,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getPath_Templates() :string {
 		return trailingslashit( \path_join( $this->getRootDir(), $this->cfg->paths[ 'templates' ] ) );
-	}
-
-	/**
-	 * @description 17.0
-	 */
-	private function getPathPluginSpec( bool $asJSON = true ) :string {
-		return path_join( $this->getRootDir(), 'plugin.json' );
 	}
 
 	public function getRootDir() :string {
@@ -1110,23 +1048,6 @@ class Controller extends DynPropertiesClass {
 		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules';
 	}
 
-	/**
-	 * @return Shield\Users\ShieldUserMeta
-	 * @deprecated 17.1
-	 */
-	public function getCurrentUserMeta() {
-		return $this->user_metas->current( Services::WpUsers()->getCurrentWpUser() );
-	}
-
-	/**
-	 * @param ?\WP_User $user
-	 * @return Shield\Users\ShieldUserMeta|null
-	 * @deprecated 17.1
-	 */
-	public function getUserMeta( $user ) :?ShieldUserMeta {
-		return $this->user_metas->for( $user );
-	}
-
 	public function getRenderer() :\FernleafSystems\Wordpress\Services\Utilities\Render {
 		$render = Services::Render();
 		foreach ( ( new Shield\Render\LocateTemplateDirs() )->run() as $dir ) {
@@ -1231,14 +1152,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.0
+	 * @deprecated 18.1
 	 */
 	public function isThisPluginModuleRequest() :bool {
 		return $this->isPluginAdminPageRequest();
 	}
 
 	/**
-	 * @deprecated 18.0
+	 * @deprecated 18.1
 	 */
 	public function isModulePage() :bool {
 		return \method_exists( $this, 'isPluginAdminPageRequest' ) && $this->isPluginAdminPageRequest();

@@ -36,7 +36,7 @@ class ReportingController extends ExecOnceModConsumer {
 			function ( $builder ) {
 				/** @var BaseBuilder $builder */
 				$builder = new $builder();
-				return $builder->setMod( $this->getCon()->getModule_Plugin() );
+				return $builder->setMod( $this->con()->getModule_Plugin() );
 			},
 			array_filter(
 				Constants::COMPONENT_REPORT_BUILDERS,

@@ -55,23 +55,16 @@ class Options extends BaseShield\Options {
 	 */
 	public function getWhitelistedPathsAsRegex() :array {
 		$paths = $this->getDef( 'default_whitelist_paths' );
-		if ( $this->getCon()->isPremiumActive() ) {
-			$paths = array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
+		if ( $this->con()->isPremiumActive() ) {
+			$paths = \array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
 		}
 
-		return array_map(
+		return \array_map(
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL );
 			},
 			$paths
 		);
-	}
-
-	/**
-	 * @deprecated 18.0
-	 */
-	public function getMalConfidenceBoundary() :int {
-		return (int)apply_filters( 'shield/fp_confidence_boundary', 65 );
 	}
 
 	/**
@@ -93,7 +86,7 @@ class Options extends BaseShield\Options {
 	 */
 	private function getMalSignatures( string $fileName, string $url ) :array {
 		$FS = Services::WpFs();
-		$file = $this->getCon()->cache_dir_handler->cacheItemPath( $fileName );
+		$file = $this->con()->cache_dir_handler->cacheItemPath( $fileName );
 		if ( !empty( $file ) && $FS->exists( $file ) ) {
 			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
 		}
@@ -140,14 +133,6 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * @return string[]
-	 * @deprecated 17.1
-	 */
-	public function getScanSlugs() :array {
-		return $this->getCon()->getModule_HackGuard()->getScansCon()->getScanSlugs();
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function addRemoveScanToBuild( string $scan, bool $addScan = true ) {
@@ -189,10 +174,10 @@ class Options extends BaseShield\Options {
 	 * @return $this
 	 */
 	public function setScansToBuild( array $scans ) {
-		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->getCon()->getModule_HackGuard()
+		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->con()->getModule_HackGuard()
 																					   ->getScansCon()
 																					   ->getScanSlugs() ) ) );
-		$this->getMod()->saveModOptions();
+		$this->mod()->saveModOptions();
 		return $this;
 	}
 

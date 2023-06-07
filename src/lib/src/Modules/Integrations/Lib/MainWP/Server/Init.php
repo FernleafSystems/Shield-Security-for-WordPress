@@ -55,7 +55,7 @@ class Init {
 			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded() ) {
 				$columns[ 'shield' ] = 'Shield';
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
-					$item[ 'shield' ] = $this->getCon()->action_router->render( SitesListTableColumn::SLUG, [
+					$item[ 'shield' ] = $this->con()->action_router->render( SitesListTableColumn::SLUG, [
 						'raw_mainwp_site_data' => $item
 					] );
 					return $item;
@@ -110,7 +110,7 @@ class Init {
 	 */
 	private function blockPluginDisable( $isRequestAccepted ) {
 		if ( $isRequestAccepted ) {
-			$con = $this->getCon();
+			$con = $this->con();
 			$req = Services::Request();
 			if ( $req->post( 'action' ) === 'mainwp_extension_plugin_action'
 				 && $req->post( 'what' ) === 'disable'

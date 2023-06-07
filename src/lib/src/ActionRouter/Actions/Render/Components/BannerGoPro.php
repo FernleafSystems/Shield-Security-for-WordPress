@@ -15,7 +15,7 @@ class BannerGoPro extends BaseRender {
 	public const TEMPLATE = '/snippets/go_pro_banner.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$nav = $this->action_data[ Constants::NAV_ID ] ?? '';
 		return [
 			'flags' => [

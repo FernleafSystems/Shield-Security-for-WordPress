@@ -7,7 +7,7 @@ class IsSecurityAdmin extends Base {
 	public const SLUG = 'is_security_admin';
 
 	protected function execConditionCheck() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		$secAdminCon = $con->getModule_SecAdmin()->getSecurityAdminController();
 		if ( !isset( $con->this_req->is_security_admin ) ) {
 			$con->this_req->is_security_admin = (

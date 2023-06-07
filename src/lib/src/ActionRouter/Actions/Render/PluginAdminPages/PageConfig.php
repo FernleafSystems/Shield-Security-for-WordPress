@@ -55,7 +55,7 @@ class PageConfig extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		$mod = $con->modules[ $this->action_data[ 'mod_slug' ] ];
 		return [
 			'content' => [

@@ -53,7 +53,7 @@ class CreateReportVO {
 
 	private function setPreviousReport() :self {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		/** @var ReportsDB\Select $sel */
 		$sel = $mod->getDbH_ReportLogs()->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )

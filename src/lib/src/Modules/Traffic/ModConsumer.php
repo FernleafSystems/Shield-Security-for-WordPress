@@ -7,8 +7,7 @@ trait ModConsumer {
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return \method_exists( $this, 'con' ) ? $this->con()->getModule_Traffic()
-			: $this->getCon()->getModule_Traffic();
+		return $this->con()->getModule_Traffic();
 	}
 
 	public function opts() :Options {
@@ -17,7 +16,7 @@ trait ModConsumer {
 
 	/**
 	 * @return ModCon
-	 * @deprecated 17.1
+	 * @deprecated 18.1
 	 */
 	public function getMod() {
 		return $this->mod();
@@ -25,17 +24,9 @@ trait ModConsumer {
 
 	/**
 	 * @return Options
-	 * @deprecated 17.1
+	 * @deprecated 18.1
 	 */
 	public function getOptions() {
 		return $this->opts();
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 17.1
-	 */
-	public function setMod( $null ) {
-		return $this;
 	}
 }

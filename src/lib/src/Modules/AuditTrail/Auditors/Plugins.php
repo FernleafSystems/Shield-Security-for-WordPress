@@ -19,7 +19,7 @@ class Plugins extends Base {
 	public function auditInstall() {
 		$current = Services::WpPlugins()->getInstalledPluginFiles();
 		foreach ( array_diff( $current, $this->slugs ) as $new ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'plugin_installed',
 				[ 'audit_params' => [ 'plugin' => $new ] ]
 			);
@@ -32,7 +32,7 @@ class Plugins extends Base {
 	 */
 	public function auditActivatedPlugin( $plugin ) {
 		if ( !empty( $plugin ) ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'plugin_activated',
 				[ 'audit_params' => [ 'plugin' => $plugin ] ]
 			);
@@ -44,7 +44,7 @@ class Plugins extends Base {
 	 */
 	public function auditDeactivatedPlugin( $plugin ) {
 		if ( !empty( $plugin ) ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'plugin_deactivated',
 				[ 'audit_params' => [ 'plugin' => $plugin ] ]
 			);
@@ -62,7 +62,7 @@ class Plugins extends Base {
 			 && current_user_can( 'edit_plugins' )
 			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-plugin_'.$req->post( 'file' ) )
 		) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'plugin_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
 			);

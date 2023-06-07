@@ -14,7 +14,7 @@ class Container extends Base {
 		if ( !Services::IP()->isValidIp( $ip ) ) {
 			throw new \Exception( "A valid IP address wasn't provided." );
 		}
-		$actionRouter = $this->getCon()->action_router;
+		$actionRouter = $this->con()->action_router;
 		return [
 			'content' => [
 				'general'  => $actionRouter->render( General::SLUG, [

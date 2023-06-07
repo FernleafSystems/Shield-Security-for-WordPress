@@ -41,7 +41,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 		$FS = Services::WpFs();
 
 		$file = $args[ 'file' ];
-		$bForce = $this->isForceFlag( $args );
+		$isForce = $this->isForceFlag( $args );
 		if ( !path_is_absolute( $file ) ) {
 			$file = path_join( ABSPATH, $file );
 			WP_CLI::log( __( "File provied wasn't an absolute path, so we're using the following path to the export file" ) );
@@ -54,7 +54,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 
 		$dir = dirname( $file );
 		if ( !$FS->isDir( $dir ) ) {
-			if ( !$bForce ) {
+			if ( !$isForce ) {
 				WP_CLI::confirm( "The directory for the export file doesn't exist. Create it?" );
 			}
 			$FS->mkdir( $file );
@@ -63,12 +63,12 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 			}
 		}
 
-		if ( $FS->isFile( $file ) && !$bForce ) {
+		if ( $FS->isAccessibleFile( $file ) && !$isForce ) {
 			WP_CLI::confirm( "The export file already exists. Overwrite?" );
 		}
 
 		$FS->touch( $file );
-		if ( !$FS->isFile( $file ) ) {
+		if ( !$FS->isAccessibleFile( $file ) ) {
 			WP_CLI::error( __( "Couldn't create the export file.", 'wp-simple-firewall' ) );
 		}
 		if ( !is_writable( $file ) ) {
@@ -76,7 +76,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		$aData = ( new Lib\ImportExport\Export() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->toStandardArray();
 		if ( !$FS->putFileContent( $file, implode( "\n", $aData ) ) ) {
 			WP_CLI::error( __( "The system reports that writing the export file failed.", 'wp-simple-firewall' ) );

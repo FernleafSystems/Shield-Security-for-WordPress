@@ -7,7 +7,7 @@ class LicenseClear extends LicenseBase {
 	public const SLUG = 'license_clear';
 
 	protected function exec() {
-		$licHandler = $this->getCon()->getModule_License()->getLicenseHandler();
+		$licHandler = $this->con()->getModule_License()->getLicenseHandler();
 		$licHandler->deactivate( false );
 		$licHandler->clearLicense();
 		$this->response()->action_response_data = [

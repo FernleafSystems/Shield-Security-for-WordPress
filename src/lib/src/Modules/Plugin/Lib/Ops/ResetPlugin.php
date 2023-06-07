@@ -9,7 +9,7 @@ class ResetPlugin {
 	use PluginControllerConsumer;
 
 	public function run() {
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $this->con()->modules as $mod ) {
 			$mod->getOptions()
 				->setOptionsValues()
 				->deleteStorage();

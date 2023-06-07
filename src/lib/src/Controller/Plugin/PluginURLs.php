@@ -64,6 +64,13 @@ class PluginURLs {
 		] );
 	}
 
+	public function wizard( string $wizardKey ) :string {
+		return URL::Build( $this->rootAdminPage(), [
+			Constants::NAV_ID     => PluginURLs::NAV_WIZARD,
+			Constants::NAV_SUB_ID => sanitize_key( $wizardKey ),
+		] );
+	}
+
 	public function adminIpRules() :string {
 		return $this->adminTopNav( self::NAV_IP_RULES );
 	}

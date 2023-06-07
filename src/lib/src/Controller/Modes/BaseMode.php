@@ -16,7 +16,7 @@ abstract class BaseMode {
 		if ( !$this->isActiveViaModeFile() ) {
 			$FS->touch( $this->getPathToModeFile() );
 		}
-		return $FS->isFile( $this->getPathToModeFile() );
+		return $FS->isAccessibleFile( $this->getPathToModeFile() );
 	}
 
 	public function disableViaFile() :bool {
@@ -24,7 +24,7 @@ abstract class BaseMode {
 		if ( $this->isActiveViaModeFile() ) {
 			$FS->deleteFile( $this->getPathToModeFile() );
 		}
-		return !$FS->isFile( $this->getPathToModeFile() );
+		return !$FS->isAccessibleFile( $this->getPathToModeFile() );
 	}
 
 	public function isModeActive() :bool {
@@ -39,19 +39,18 @@ abstract class BaseMode {
 	}
 
 	public function isActiveViaModeFile() :bool {
-		$con = $this->getCon();
 		$FS = Services::WpFs();
 		$correctPath = $this->getPathToModeFile();
-		$baseFile = basename( $correctPath );
+		$baseFile = \basename( $correctPath );
 
 		// We first look for the presence of the file (which may not be named in all lower-case)
-		$foundFile = $FS->findFileInDir( $baseFile, $con->paths->forFlag(), false );
+		$foundFile = $FS->findFileInDir( $baseFile, $this->con()->paths->forFlag(), false );
 		if ( !empty( $foundFile )
-			 && $FS->isFile( $foundFile ) && !$FS->isFile( $correctPath )
-			 && basename( $correctPath ) !== basename( $foundFile ) ) {
+			 && $FS->isAccessibleFile( $foundFile ) && !$FS->isAccessibleFile( $correctPath )
+			 && $baseFile !== \basename( $foundFile ) ) {
 			$FS->move( $foundFile, $correctPath );
 		}
-		return $FS->isFile( $correctPath );
+		return $FS->isAccessibleFile( $correctPath );
 	}
 
 	protected function getPathToModeFile() :string {

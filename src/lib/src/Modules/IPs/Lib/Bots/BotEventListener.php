@@ -11,12 +11,12 @@ class BotEventListener {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !$this->getCon()->this_req->is_trusted_bot && $this->mod()->getDbH_BotSignal()->isReady();
+		return !$this->con()->this_req->is_trusted_bot && $this->mod()->getDbH_BotSignal()->isReady();
 	}
 
 	protected function run() {
 		add_action( 'shield/event', function ( $event ) {
-			$this->fireEventForIP( $this->getCon()->this_req->ip, $event );
+			$this->fireEventForIP( $this->con()->this_req->ip, $event );
 		} );
 	}
 

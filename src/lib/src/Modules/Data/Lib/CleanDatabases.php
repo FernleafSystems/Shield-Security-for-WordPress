@@ -2,16 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
+	Data\ModConsumer,
 	Traffic
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanDatabases extends ExecOnceModConsumer {
+class CleanDatabases {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 		$this->cleanRequestLogs();
@@ -19,7 +23,7 @@ class CleanDatabases extends ExecOnceModConsumer {
 	}
 
 	private function cleanOutUnreferencedIPs() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		$this->cleanRequestLogs();
 
@@ -65,7 +69,7 @@ class CleanDatabases extends ExecOnceModConsumer {
 		Services::WpDb()->doSql( sprintf(
 			'DELETE `meta` FROM `%s` as `meta`
 				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
-			$this->getCon()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
+			$this->con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
 			Services::WpDb()->getTable_Users()
 		) );
 //		$res = Services::WpDb()->selectCustom( sprintf(
@@ -77,7 +81,7 @@ class CleanDatabases extends ExecOnceModConsumer {
 	}
 
 	private function cleanRequestLogs() {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		// 1. Clean Requests & Audit Trail
 		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.

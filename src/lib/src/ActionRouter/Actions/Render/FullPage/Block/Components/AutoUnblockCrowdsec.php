@@ -12,7 +12,7 @@ class AutoUnblockCrowdsec extends AutoUnblockShield {
 	public const SLUG = 'render_autounblock_crowdsec';
 
 	protected function getRenderData() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $con->getModule_IPs()->getOptions();
 		return [

@@ -18,7 +18,7 @@ abstract class ScanEnabledFileLockerBase extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_HackGuard();
+		$mod = $this->con()->getModule_HackGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled()

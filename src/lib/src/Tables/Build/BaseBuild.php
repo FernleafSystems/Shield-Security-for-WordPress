@@ -189,7 +189,7 @@ class BaseBuild {
 
 	protected function getIpAnalysisLink( string $ip ) :string {
 		$srvIP = Services::IP();
-		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : $this->getCon()->plugin_urls->ipAnalysis( $ip );
+		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : $this->con()->plugin_urls->ipAnalysis( $ip );
 		return sprintf(
 			'<a href="%s" %s title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
 			$href,

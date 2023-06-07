@@ -8,7 +8,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/rules_summary.twig';
 
 	protected function getRenderData() :array {
-		$rules = $this->getCon()->rules->getRules();
+		$rules = $this->con()->rules->getRules();
 
 		$components = [
 			'hooks' => [

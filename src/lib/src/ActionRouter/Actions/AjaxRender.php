@@ -12,7 +12,7 @@ class AjaxRender extends BaseAction {
 	public const SLUG = 'ajax_render';
 
 	protected function exec() {
-		$response = $this->getCon()->action_router->action(
+		$response = $this->con()->action_router->action(
 			$this->action_data[ 'render_slug' ],
 			$this->getParamsMinusAjax()
 		);

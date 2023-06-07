@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 class ShieldActionResponseAdapter extends BaseAdapter {
 
 	public function adapt( ActionResponse $response ) {
-		$con = $this->getCon();
+		$con = $this->con();
 
 		switch ( $response->action_data[ 'notification_type' ] ?? '' ) {
 			case 'wp_admin_notice':

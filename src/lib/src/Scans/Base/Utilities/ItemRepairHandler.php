@@ -29,10 +29,7 @@ class ItemRepairHandler {
 	}
 
 	public function isRepairSupported() :bool {
-		return in_array(
-			$this->getScanItem()->VO->scan,
-			[ ScanController\Afs::SCAN_SLUG ]
-		);
+		return $this->getScanItem()->VO->scan === ScanController\Afs::SCAN_SLUG;
 	}
 
 	/**

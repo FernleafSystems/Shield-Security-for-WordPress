@@ -63,10 +63,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	protected function updateRecentLogEntry() :bool {
-		$modData = $this->getCon()->getModule_Data();
+		$modData = $this->con()->getModule_Data();
 
 		$ipRecordID = ( new IPRecords() )
-			->setMod( $modData )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
@@ -87,7 +86,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 							  ->filterByRequestRefs( $reqIDs )
 							  ->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
 							  ->setOrderBy( 'updated_at', 'DESC', true )
-							  ->setOrderBy( 'created_at', 'DESC' )
+							  ->setOrderBy( 'created_at' )
 							  ->first();
 
 		if ( !empty( $existingLog ) ) {
@@ -116,11 +115,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		$ipRecordID = ( new IPRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
 			->id;
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
-			->setMod( $this->getCon()->getModule_Data() )
 			->loadReq( $this->log[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
 			->id;
 

@@ -19,7 +19,7 @@ class VerifyPinRequest {
 			/** @var Options $opts */
 			$opts = $this->getOptions();
 			$valid = hash_equals( $opts->getSecurityPIN(), md5( $pin ) );
-			$this->getCon()->fireEvent( $valid ? 'key_success' : 'key_fail' );
+			$this->con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
 		}
 
 		return $valid;

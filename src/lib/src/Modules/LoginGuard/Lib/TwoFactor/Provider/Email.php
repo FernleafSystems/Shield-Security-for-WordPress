@@ -62,13 +62,13 @@ class Email extends AbstractShieldProvider {
 	public function hasValidatedProfile() :bool {
 		$validated = parent::hasValidatedProfile();
 		$this->setProfileValidated(
-			$this->isEnforced() || ( $validated && $this->getOptions()->isEnabledEmailAuthAnyUserSet() )
+			$this->isEnforced() || ( $validated && $this->opts()->isEnabledEmailAuthAnyUserSet() )
 		);
 		return parent::hasValidatedProfile();
 	}
 
 	public function isEnforced() :bool {
-		return count( array_intersect( $this->getOptions()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
+		return count( array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
 	protected function hasValidSecret() :bool {
@@ -138,12 +138,12 @@ class Email extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->getOptions()->isEmailAuthenticationActive();
+		return $this->opts()->isEmailAuthenticationActive();
 	}
 
 	public function isProviderAvailableToUser() :bool {
 		return parent::isProviderAvailableToUser()
-			   && ( $this->isEnforced() || $this->getOptions()->isEnabledEmailAuthAnyUserSet() );
+			   && ( $this->isEnforced() || $this->opts()->isEnabledEmailAuthAnyUserSet() );
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {

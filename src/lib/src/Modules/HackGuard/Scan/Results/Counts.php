@@ -104,11 +104,4 @@ class Counts {
 
 		return $this->counts[ $resultType ];
 	}
-
-	/**
-	 * @deprecated 17.0 - used by iControlWP!
-	 */
-	public function getCounts() :array {
-		return $this->all();
-	}
 }

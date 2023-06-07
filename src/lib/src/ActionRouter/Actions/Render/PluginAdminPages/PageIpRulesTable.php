@@ -19,8 +19,8 @@ class PageIpRulesTable extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
-				'href' => $this->getCon()->plugin_urls->offCanvasConfigRender( $this->getCon()
-																					->getModule_IPs()->cfg->slug ),
+				'href' => $this->con()->plugin_urls->offCanvasConfigRender( $this->con()
+																				 ->getModule_IPs()->cfg->slug ),
 			],
 		];
 	}
@@ -36,9 +36,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 					'ajax'       => [
 						'table_action' => ActionData::Build( IpRulesTableAction::class ),
 					],
-					'table_init' => ( new ForIpRules() )
-						->setMod( $this->getCon()->getModule_IPs() )
-						->buildRaw(),
+					'table_init' => ( new ForIpRules() )->buildRaw(),
 				] ),
 			]
 		];

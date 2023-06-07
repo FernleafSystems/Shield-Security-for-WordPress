@@ -13,7 +13,7 @@ class BaseShieldNetApiV2 extends BaseShieldNetApi {
 	 * @return string[]
 	 */
 	protected function getShieldNetApiParams() :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		return ( $this->shield_net_params_required || $con->isPremiumActive() ) ? [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
 			'install_id' => $con->getInstallationID()[ 'id' ],

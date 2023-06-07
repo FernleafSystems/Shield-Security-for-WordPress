@@ -9,11 +9,11 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$mod->getControllerMWP()->execute();
 
-		if ( !$this->getCon()->this_req->request_bypasses_all_restrictions ) {
+		if ( !$this->con()->this_req->request_bypasses_all_restrictions ) {
 			$mod->getController_SpamForms()->execute();
 
 			add_action( 'init', function () use ( $mod ) {

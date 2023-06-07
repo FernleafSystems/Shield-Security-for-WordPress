@@ -17,13 +17,13 @@ class PtgAddReinstallLinks {
 	protected function canRun() :bool {
 		$scanCon = $this->getScanController();
 		return $scanCon->isReady()
-			   && $scanCon->getCon()->isPremiumActive()
+			   && $scanCon->con()->isPremiumActive()
 			   && $scanCon->opts()->isOpt( 'ptg_reinstall_links', 'Y' );
 	}
 
 	protected function run() {
 		add_action( 'plugin_action_links', function ( $links, $file ) {
-			$con = $this->getScanController()->getCon();
+			$con = $this->getScanController()->con();
 			if ( $con->this_req->is_security_admin && is_array( $links ) && is_string( $file ) ) {
 				$links = $this->addActionLinkRefresh( $links, $file );
 			}
@@ -31,14 +31,14 @@ class PtgAddReinstallLinks {
 		}, 50, 2 );
 
 		add_action( 'admin_footer', function () {
-			$con = $this->getScanController()->getCon();
+			$con = $this->getScanController()->con();
 			if ( $con->this_req->is_security_admin && $con->action_router ) {
 				echo $con->action_router->render( ReinstallDialog::SLUG );
 			}
 		} );
 
 		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
-			$con = $this->getScanController()->getCon();
+			$con = $this->getScanController()->con();
 			if ( $hook === 'plugins.php' && $con->this_req->is_security_admin ) {
 				$localz[] = [
 					'global-plugin',

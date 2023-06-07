@@ -9,7 +9,7 @@ class Processor extends Modules\BaseShield\Processor {
 	use ModConsumer;
 
 	protected function run() {
-		$this->getCon()
+		$this->con()
 			 ->getModule_Traffic()
 			 ->getRequestLogger()
 			 ->execute();

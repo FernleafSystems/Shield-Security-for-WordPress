@@ -12,7 +12,7 @@ class IsIpBlacklisted extends Base {
 	public const SLUG = 'is_ip_blacklisted';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = $this->getCon()->this_req;
+		$thisReq = $this->con()->this_req;
 		if ( !isset( $thisReq->is_ip_blacklisted ) ) {
 			$status = new IpRuleStatus( $this->getRequestIP() );
 			$thisReq->is_ip_blacklisted = $status->isBlockedByShield() || $status->isAutoBlacklisted();

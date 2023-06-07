@@ -9,7 +9,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		( new Lib\BlacklistHandler() )->execute();
 		$mod->getBotSignalsController()->execute();
@@ -17,7 +17,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$con = $this->getCon();
+		$con = $this->con();
 		if ( $con->isValidAdminArea() ) {
 			$recentStats = new RecentStats();
 			$IPs = $recentStats->getRecentlyBlockedIPs();

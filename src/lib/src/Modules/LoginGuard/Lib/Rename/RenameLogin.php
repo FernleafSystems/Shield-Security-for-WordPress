@@ -15,7 +15,7 @@ class RenameLogin {
 	protected function canRun() :bool {
 		return !Services::IP()->isLoopback()
 			   && !empty( $this->opts()->getCustomLoginPath() )
-			   && !$this->getCon()->this_req->is_ip_whitelisted
+			   && !$this->con()->this_req->is_ip_whitelisted
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 
@@ -149,14 +149,12 @@ class RenameLogin {
 	 * @return string
 	 */
 	public function fCheckForLoginPhp( $location ) {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 
 		$redirectPath = wp_parse_url( $location, PHP_URL_PATH );
 		if ( strpos( $redirectPath, 'wp-login.php' ) !== false ) {
 
 			$queryArgs = explode( '?', $location );
-			$location = home_url( $opts->getCustomLoginPath() );
+			$location = home_url( $this->opts()->getCustomLoginPath() );
 			if ( !empty( $queryArgs[ 1 ] ) ) {
 				$location .= '?'.$queryArgs[ 1 ];
 			}
@@ -170,12 +168,9 @@ class RenameLogin {
 	 * @return string
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
 			$sRedirectPath = trim( parse_url( $location, PHP_URL_PATH ), '/' );
-			$bRedirectIsHiddenUrl = ( $sRedirectPath == $opts->getCustomLoginPath() );
+			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->opts()->getCustomLoginPath() );
 			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->doWpLoginFailedRedirect404();
 			}
@@ -217,9 +212,7 @@ class RenameLogin {
 	 * @return array
 	 */
 	public function fAddToEtMaintenanceExceptions( $urlExceptions ) {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		$urlExceptions[] = $opts->getCustomLoginPath();
+		$urlExceptions[] = $this->opts()->getCustomLoginPath();
 		return $urlExceptions;
 	}
 
@@ -227,12 +220,10 @@ class RenameLogin {
 	 * Will by default send a 404 response screen. Has a filter to specify redirect URL.
 	 */
 	protected function doWpLoginFailedRedirect404() {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
 
-		$this->getCon()->fireEvent( 'hide_login_url' );
+		$this->con()->fireEvent( 'hide_login_url' );
 
-		$redirectPath = $opts->getHiddenLoginRedirect();
+		$redirectPath = $this->opts()->getHiddenLoginRedirect();
 		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );
 		$redirectUrl = apply_filters( 'shield/renamewplogin_redirect_url',
 			apply_filters( 'icwp_shield_renamewplogin_redirect_url', $redirectUrl ) );

@@ -13,7 +13,7 @@ class Options extends BaseShield\Options {
 	public function getHumanSpamFilterItems() :array {
 		$default = $this->getOptDefault( 'human_spam_items' );
 		$items = apply_filters(
-			$this->getCon()->prefix( 'human_spam_items' ),
+			$this->con()->prefix( 'human_spam_items' ),
 			$this->getOpt( 'human_spam_items', [] )
 		);
 		return is_array( $items ) ? array_intersect( $default, $items ) : $default;
@@ -24,7 +24,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getTrustedRoles() :array {
 		$roles = [];
-		if ( $this->getCon()->isPremiumActive() ) {
+		if ( $this->con()->isPremiumActive() ) {
 			$roles = $this->getOpt( 'trusted_user_roles', [] );
 		}
 		return is_array( $roles ) ? $roles : [];

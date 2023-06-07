@@ -90,7 +90,7 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdModAction( $null, $args ) {
-		$oMod = $this->getMod();
+		$oMod = $this->mod();
 
 		switch ( $args[ 'action' ] ) {
 
@@ -101,14 +101,14 @@ class ModuleStandard extends BaseWpCliCmd {
 				break;
 
 			case 'enable':
-				$this->getMod()
+				$this->mod()
 					 ->setIsMainFeatureEnabled( true )
 					 ->saveModOptions();
 				\WP_CLI::success( 'Module enabled.' );
 				break;
 
 			case 'disable':
-				$this->getMod()
+				$this->mod()
 					 ->setIsMainFeatureEnabled( false )
 					 ->saveModOptions();
 				\WP_CLI::success( 'Module disabled.' );
@@ -153,7 +153,7 @@ class ModuleStandard extends BaseWpCliCmd {
 
 	public function cmdOptList( array $null, array $args ) {
 		$opts = $this->getOptions();
-		$strings = $this->getMod()->getStrings();
+		$strings = $this->mod()->getStrings();
 		$optsList = [];
 		foreach ( $opts->getOptionsForWpCli() as $key ) {
 			try {

@@ -12,7 +12,7 @@ class LockdownXmlrpc extends Base {
 	public const WEIGHT = 5;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->getCon()->getModule_Lockdown();
+		$mod = $this->con()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isXmlrpcDisabled();

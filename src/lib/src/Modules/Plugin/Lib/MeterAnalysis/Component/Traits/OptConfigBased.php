@@ -15,8 +15,8 @@ trait OptConfigBased {
 
 	protected function getOptLink( string $for, bool $offCanvasJS = false ) :string {
 		return $offCanvasJS ?
-			$this->getCon()->plugin_urls->offCanvasConfigRender( $for )
-			: $this->getCon()->plugin_urls->modCfgOption( $for );
+			$this->con()->plugin_urls->offCanvasConfigRender( $for )
+			: $this->con()->plugin_urls->modCfgOption( $for );
 	}
 
 	protected function hrefFull() :string {

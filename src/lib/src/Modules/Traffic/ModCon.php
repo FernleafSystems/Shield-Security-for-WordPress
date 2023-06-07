@@ -28,14 +28,14 @@ class ModCon extends BaseShield\ModCon {
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$opts->setOpt( 'custom_exclusions', array_filter( array_map(
+		$opts->setOpt( 'custom_exclusions', \array_filter( \array_map(
 			function ( $excl ) {
-				return trim( esc_js( $excl ) );
+				return \trim( esc_js( $excl ) );
 			},
 			$opts->getCustomExclusions()
 		) ) );
 
-		if ( !$this->getCon()->isPremiumActive() && $opts->isOpt( 'enable_limiter', 'Y' ) ) {
+		if ( !$this->con()->isPremiumActive() && $opts->isOpt( 'enable_limiter', 'Y' ) ) {
 			$opts->isOpt( 'enable_limiter', 'N' );
 		}
 
@@ -48,7 +48,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function isReadyToExecute() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		return $con->getModule_Data()->getDbH_ReqLogs()->isReady()
 			   && parent::isReadyToExecute();
 	}

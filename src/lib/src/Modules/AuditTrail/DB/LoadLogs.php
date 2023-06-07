@@ -32,7 +32,7 @@ class LoadLogs extends DynPropertiesClass {
 				 ->getDbH_Logs()
 				 ->getTableSchema()
 				 ->getColumnNames(),
-			$this->getCon()
+			$this->con()
 				 ->getModule_Data()
 				 ->getDbH_IPs()
 				 ->getTableSchema()
@@ -92,8 +92,8 @@ class LoadLogs extends DynPropertiesClass {
 			sprintf( $this->getRawQuery( $this->includeMeta ),
 				implode( ', ', $selectFields ),
 				$mod->getDbH_Logs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				$this->includeMeta ? $mod->getDbH_Meta()->getTableSchema()->table : '',
 				empty( $this->wheres ) ? '' : 'WHERE '.implode( ' AND ', $this->wheres ),
@@ -109,8 +109,8 @@ class LoadLogs extends DynPropertiesClass {
 			sprintf( $this->getRawQuery( false ),
 				'COUNT(*)',
 				$this->mod()->getDbH_Logs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				$this->getCon()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				'',
 				empty( $this->wheres ) ? '' : 'WHERE '.implode( ' AND ', $this->wheres ),

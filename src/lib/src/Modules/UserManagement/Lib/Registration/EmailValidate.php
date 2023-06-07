@@ -41,7 +41,7 @@ class EmailValidate {
 				$invalidBecause = 'syntax';
 			}
 			else {
-				$apiToken = $this->getCon()
+				$apiToken = $this->con()
 								 ->getModule_License()
 								 ->getWpHashesTokenManager()
 								 ->getToken();
@@ -61,7 +61,7 @@ class EmailValidate {
 
 			if ( !empty( $invalidBecause ) ) {
 				$opt = $opts->getValidateEmailOnRegistration();
-				$this->getCon()->fireEvent(
+				$this->con()->fireEvent(
 					'reg_email_invalid',
 					[
 						'audit_params'  => [

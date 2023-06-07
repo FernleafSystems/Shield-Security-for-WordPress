@@ -16,7 +16,7 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 	 */
 	protected function upgrade_16114() {
 		( new CleanOutOldGuardFiles() )
-			->setMod( $this->getMod() )
+			->setMod( $this->mod() )
 			->execute();
 	}
 

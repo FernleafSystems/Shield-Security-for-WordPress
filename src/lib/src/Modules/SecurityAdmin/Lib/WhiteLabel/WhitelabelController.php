@@ -15,14 +15,14 @@ class WhitelabelController extends ExecOnceModConsumer {
 
 	public function isEnabled() :bool {
 		/** @var SecurityAdmin\ModCon $mod */
-		$mod = $this->getMod();
-		return $this->getCon()->isPremiumActive()
+		$mod = $this->mod();
+		return $this->con()->isPremiumActive()
 			   && $this->getOptions()->isOpt( 'whitelabel_enable', 'Y' )
 			   && $mod->getSecurityAdminController()->isEnabledSecAdmin();
 	}
 
 	protected function run() {
-		$con = $this->getCon();
+		$con = $this->con();
 		add_filter( $con->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
@@ -31,7 +31,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 		$opts = $this->getOptions();
 		if ( $opts->isOpt( 'wl_hide_updates', 'Y' ) && is_admin()
 			 && !Services::WpGeneral()->isCron()
-			 && !$this->getCon()->isPluginAdmin() ) {
+			 && !$this->con()->isPluginAdmin() ) {
 
 			if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
 				add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
@@ -101,7 +101,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 	 */
 	public function adjustUpdateDataCount( $updateData ) {
 
-		$file = $this->getCon()->base_file;
+		$file = $this->con()->base_file;
 		if ( Services::WpPlugins()->isUpdateAvailable( $file ) ) {
 			$updateData[ 'counts' ][ 'total' ]--;
 			$updateData[ 'counts' ][ 'plugins' ]--;
@@ -131,7 +131,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 	 * @return array
 	 */
 	public function removePluginMetaLinks( $pluginMeta, $pluginBaseFile ) {
-		if ( $pluginBaseFile == $this->getCon()->base_file ) {
+		if ( $pluginBaseFile == $this->con()->base_file ) {
 			unset( $pluginMeta[ 2 ] ); // View details
 			unset( $pluginMeta[ 3 ] ); // Rate 5*
 		}
@@ -144,7 +144,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 	 * @return \stdClass
 	 */
 	public function hidePluginUpdatesFromUI( $plugins ) {
-		unset( $plugins->response[ $this->getCon()->base_file ] );
+		unset( $plugins->response[ $this->con()->base_file ] );
 		return $plugins;
 	}
 
@@ -163,10 +163,10 @@ class WhitelabelController extends ExecOnceModConsumer {
 			$url = $opts->getOpt( $key );
 		}
 		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && strpos( $url, '/' ) !== 0 ) {
-			$url = $this->getCon()->urls->forImage( $url );
+			$url = $this->con()->urls->forImage( $url );
 			if ( empty( $url ) ) {
 				$opts->resetOptToDefault( $key );
-				$url = $this->getCon()->urls->forImage( $opts->getOpt( $key ) );
+				$url = $this->con()->urls->forImage( $opts->getOpt( $key ) );
 			}
 		}
 

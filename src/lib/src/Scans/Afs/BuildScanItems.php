@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,8 +13,8 @@ class BuildScanItems {
 	public function run() :array {
 		$this->preBuild();
 
-		$files = array_filter(
-			array_unique( array_merge(
+		$files = \array_filter(
+			\array_unique( \array_merge(
 				$this->buildFilesFromDisk(),
 				$this->buildFilesFromWpHashes()
 			) ),
@@ -25,13 +23,13 @@ class BuildScanItems {
 			}
 		);
 
-		natsort( $files );
+		\natsort( $files );
 
-		return array_map(
+		return \array_map(
 			function ( $path ) {
-				return base64_encode( $path );
+				return \base64_encode( $path );
 			},
-			array_values( $files )
+			\array_values( $files )
 		);
 	}
 
@@ -39,7 +37,7 @@ class BuildScanItems {
 		/** @var ScanActionVO $action */
 		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 
-		if ( !is_array( $action->scan_root_dirs ) ) {
+		if ( !\is_array( $action->scan_root_dirs ) ) {
 			$action->scan_root_dirs = [
 				ABSPATH                           => 1,
 				\path_join( ABSPATH, WPINC )      => 0,
@@ -47,7 +45,7 @@ class BuildScanItems {
 				WP_CONTENT_DIR                    => 0,
 			];
 		}
-		if ( !is_array( $action->paths_whitelisted ) ) {
+		if ( !\is_array( $action->paths_whitelisted ) ) {
 			$action->paths_whitelisted = $this->opts()->getWhitelistedPathsAsRegex();
 		}
 	}
@@ -57,7 +55,7 @@ class BuildScanItems {
 
 		$coreHashes = Services::CoreFileHashes();
 		if ( $coreHashes->isReady() ) {
-			foreach ( array_keys( $coreHashes->getHashes() ) as $fragment ) {
+			foreach ( \array_keys( $coreHashes->getHashes() ) as $fragment ) {
 				// To reduce noise, we exclude plugins and themes (by default)
 				if ( \strpos( $fragment, 'wp-content/' ) === false ) {
 					$files[] = wp_normalize_path( path_join( ABSPATH, $fragment ) );
@@ -102,7 +100,7 @@ class BuildScanItems {
 		 * and this is PRO-only anyway.
 		 */
 		return (
-				   !$this->getCon()->isPremiumActive()
+				   !$this->con()->isPremiumActive()
 				   && \strpos( wp_normalize_path( $file->getPathname() ), '/wp-content/' ) !== false
 			   )
 			   ||
@@ -115,7 +113,7 @@ class BuildScanItems {
 		/** @var ScanActionVO $action */
 		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 		foreach ( $action->paths_whitelisted as $wlPathRegEx ) {
-			if ( preg_match( $wlPathRegEx, $path ) ) {
+			if ( \preg_match( $wlPathRegEx, $path ) ) {
 				$whitelisted = true;
 				break;
 			}

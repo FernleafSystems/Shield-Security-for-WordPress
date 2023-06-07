@@ -19,7 +19,7 @@ abstract class Base extends Process {
 		$req = $this->getRequestVO();
 		$all = [];
 		$filterFields = $req->filter_fields;
-		foreach ( ( new Export() )->setMod( $this->getMod() )->getRawOptionsExport() as $modOpts ) {
+		foreach ( ( new Export() )->setMod( $this->mod() )->getRawOptionsExport() as $modOpts ) {
 			foreach ( array_keys( $modOpts ) as $key ) {
 				if ( empty( $req->filter_keys ) || in_array( $key, $req->filter_keys ) ) {
 					$optDef = $this->getOptionData( $key );
@@ -35,7 +35,7 @@ abstract class Base extends Process {
 	 */
 	protected function getOptionData( string $key ) :array {
 		$def = [];
-		foreach ( $this->getCon()->modules as $module ) {
+		foreach ( $this->con()->modules as $module ) {
 			$opts = $module->getOptions();
 			$maybe = $opts->getOptDefinition( $key );
 			if ( !empty( $maybe ) ) {

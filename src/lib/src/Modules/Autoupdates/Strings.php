@@ -10,7 +10,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getSectionStrings( string $section ) :array {
-		$modName = $this->getMod()->getMainFeatureName();
+		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $section ) {
 
@@ -38,7 +38,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s',
 						__( 'Purpose', 'wp-simple-firewall' ),
 						sprintf( __( 'Allows the %s plugin to automatically update itself when an update is available.', 'wp-simple-firewall' ),
-							$this->getCon()->getHumanName() )
+							$this->con()->getHumanName() )
 					),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this option turned on.', 'wp-simple-firewall' ) )
 				];
@@ -77,8 +77,8 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		$modName = $this->getMod()->getMainFeatureName();
-		$pluginName = $this->getCon()->getHumanName();
+		$modName = $this->mod()->getMainFeatureName();
+		$pluginName = $this->con()->getHumanName();
 
 		switch ( $key ) {
 

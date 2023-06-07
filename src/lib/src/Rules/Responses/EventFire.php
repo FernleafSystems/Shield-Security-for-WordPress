@@ -30,10 +30,10 @@ class EventFire extends Base {
 
 //			error_log( var_export( $conditionMeta, true ) );
 //			error_log( var_export( $params, true ) );
-			$this->getCon()->fireEvent( $event, $params );
+			$this->con()->fireEvent( $event, $params );
 		}
 
-		$this->getCon()->fireEvent( 'shield/rules/response/'.$this->rule->slug );
+		$this->con()->fireEvent( 'shield/rules/response/'.$this->rule->slug );
 
 		return true;
 	}

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Search\SearchFile;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 class FileScanOptimiser {
 
@@ -14,17 +13,17 @@ class FileScanOptimiser {
 
 	public function addFiles( array $files ) {
 		$FS = Services::WpFs();
-		if ( $this->getCon()->cache_dir_handler->exists() && !empty( $files ) ) {
+		if ( $this->con()->cache_dir_handler->exists() && !empty( $files ) ) {
 			$pathToHashes = $this->pathToHashes();
 			if ( !$FS->exists( $pathToHashes ) ) {
 				$FS->touch( $pathToHashes );
 			}
 			if ( $FS->isAccessibleFile( $pathToHashes ) ) {
-				$fileHashes = array_unique( array_filter( array_map(
+				$fileHashes = \array_unique( \array_filter( \array_map(
 					function ( $file ) {
-						return hash_file( 'md5', $file );
+						return \hash_file( 'md5', $file );
 					},
-					array_filter(
+					\array_filter(
 						$files,
 						function ( $file ) {
 							return Services::WpFs()->isAccessibleFile( $file );
@@ -33,13 +32,13 @@ class FileScanOptimiser {
 				) ) );
 
 				try {
-					$allNotFoundHashes = array_diff(
+					$allNotFoundHashes = \array_diff(
 						$fileHashes,
-						array_keys( array_filter( ( new SearchFile( $pathToHashes ) )->multipleExists( $fileHashes ) ) )
+						\array_keys( array_filter( ( new SearchFile( $pathToHashes ) )->multipleExists( $fileHashes ) ) )
 					);
-					file_put_contents(
+					\file_put_contents(
 						$pathToHashes,
-						sprintf( '%s:%s', Services::Request()->ts(), implode( ',', $allNotFoundHashes )."\n" ),
+						\sprintf( '%s:%s', Services::Request()->ts(), \implode( ',', $allNotFoundHashes )."\n" ),
 						FILE_APPEND
 					);
 				}
@@ -50,19 +49,19 @@ class FileScanOptimiser {
 	}
 
 	public function filterFilesFromAction( ScanActionVO $action ) {
-		if ( is_array( $action->items ) ) {
-			$items = array_map(
+		if ( \is_array( $action->items ) ) {
+			$items = \array_map(
 				function ( $item ) {
-					return base64_decode( $item );
+					return \base64_decode( $item );
 				},
 				$action->items
 			);
 
-			$action->items = array_map(
+			$action->items = \array_map(
 				function ( $item ) {
 					return base64_encode( $item );
 				},
-				array_diff( $items, $this->findHashedFiles( $items ) )
+				\array_diff( $items, $this->findHashedFiles( $items ) )
 			);
 		}
 	}
@@ -73,9 +72,9 @@ class FileScanOptimiser {
 		$filesFound = [];
 
 		$pathToHashes = $this->pathToHashes();
-		if ( $FS->isFile( $pathToHashes ) && $FS->getFileSize( $pathToHashes ) > 0 ) {
+		if ( $FS->isAccessibleFile( $pathToHashes ) && $FS->getFileSize( $pathToHashes ) > 0 ) {
 
-			$filesThatExist = array_filter(
+			$filesThatExist = \array_filter(
 				$files,
 				function ( $file ) {
 					return Services::WpFs()->isAccessibleFile( $file );
@@ -84,14 +83,14 @@ class FileScanOptimiser {
 
 			$filesAndTheirHashes = [];
 			foreach ( $filesThatExist as $file ) {
-				$filesAndTheirHashes[ $file ] = hash_file( 'md5', $file );
+				$filesAndTheirHashes[ $file ] = \hash_file( 'md5', $file );
 			}
 
 			try {
-				$filesFound = array_keys( array_intersect(
+				$filesFound = \array_keys( \array_intersect(
 					$filesAndTheirHashes,
-					array_keys( array_filter(
-						( new SearchFile( $pathToHashes ) )->multipleExists( array_values( $filesAndTheirHashes ) )
+					\array_keys( \array_filter(
+						( new SearchFile( $pathToHashes ) )->multipleExists( \array_values( $filesAndTheirHashes ) )
 					) )
 				) );
 			}
@@ -109,35 +108,35 @@ class FileScanOptimiser {
 
 		if ( $FS->exists( $pathToHashes ) ) {
 
-			$source = fopen( $pathToHashes, 'r' );
-			$target = fopen( $pathToHashesTmp, 'w' );
+			$source = \fopen( $pathToHashes, 'r' );
+			$target = \fopen( $pathToHashesTmp, 'w' );
 
 			if ( !is_resource( $source ) && is_resource( $target ) ) {
-				fclose( $target );
+				\fclose( $target );
 				$FS->deleteFile( $pathToHashes );
 				$FS->deleteFile( $pathToHashesTmp );
 			}
 			elseif ( !is_resource( $target ) && is_resource( $source ) ) {
-				fclose( $source );
+				\fclose( $source );
 				$FS->deleteFile( $pathToHashes );
 			}
 			else {
 				while ( !feof( $source ) ) {
-					$line = fgets( $source );
-					if ( is_string( $line ) ) {
-						$colonAt = strpos( $line, ':' );
+					$line = \fgets( $source );
+					if ( \is_string( $line ) ) {
+						$colonAt = \strpos( $line, ':' );
 						if ( $colonAt !== false ) {
-							if ( substr( $line, 0, $colonAt ) > $ts ) {
-								fputs( $target, $line );
+							if ( \substr( $line, 0, $colonAt ) > $ts ) {
+								\fputs( $target, $line );
 							}
 						}
 					}
 				}
 				if ( is_resource( $source ) ) {
-					fclose( $source );
+					\fclose( $source );
 				}
 				if ( is_resource( $target ) ) {
-					fclose( $target );
+					\fclose( $target );
 				}
 
 				$FS->move( $pathToHashesTmp, $pathToHashes );
@@ -146,6 +145,6 @@ class FileScanOptimiser {
 	}
 
 	public function pathToHashes() :string {
-		return path_join( $this->getCon()->cache_dir_handler->dir(), 'file_scan_hashes.txt' );
+		return path_join( $this->con()->cache_dir_handler->dir(), 'file_scan_hashes.txt' );
 	}
 }

@@ -7,7 +7,7 @@ class SetSecurityAdmin extends Base {
 	public const SLUG = 'set_security_admin';
 
 	protected function execResponse() :bool {
-		$this->getCon()->this_req->is_security_admin = true;
+		$this->con()->this_req->is_security_admin = true;
 		return true;
 	}
 }

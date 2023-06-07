@@ -15,7 +15,7 @@ class OptUtils {
 	public static function ModFromOpt( string $optKey ) {
 		$con = Functions\get_plugin()->getController();
 		foreach ( $con->modules as $maybe ) {
-			if ( in_array( $optKey, $maybe->getOptions()->getOptionsKeys( $optKey ) ) ) {
+			if ( \in_array( $optKey, $maybe->getOptions()->getOptionsKeys() ) ) {
 				$mod = $maybe;
 				break;
 			}

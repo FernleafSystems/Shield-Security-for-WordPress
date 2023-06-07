@@ -10,7 +10,7 @@ class AddIP extends Base {
 
 	protected function process() :array {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$req = $this->getRequestVO();
 
 		$adder = ( new Lib\IpRules\AddRule() )->setIP( $req->ip );

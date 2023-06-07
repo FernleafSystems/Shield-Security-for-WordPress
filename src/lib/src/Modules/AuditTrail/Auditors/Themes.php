@@ -18,7 +18,7 @@ class Themes extends Base {
 	public function auditInstall() {
 		$current = Services::WpThemes()->getInstalledStylesheets();
 		foreach ( array_diff( $current, $this->slugs ) as $new ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'theme_installed',
 				[ 'audit_params' => [ 'theme' => $new ] ]
 			);
@@ -31,7 +31,7 @@ class Themes extends Base {
 	 */
 	public function auditSwitchTheme( $themeName ) {
 		if ( !empty( $themeName ) ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'theme_activated',
 				[ 'audit_params' => [ 'theme' => $themeName ] ]
 			);
@@ -51,7 +51,7 @@ class Themes extends Base {
 			 && current_user_can( 'edit_themes' )
 			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-theme_'.$theme.'_'.$req->post( 'file' ) )
 		) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'theme_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
 			);

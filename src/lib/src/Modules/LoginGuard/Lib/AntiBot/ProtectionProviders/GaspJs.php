@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class GaspJs extends BaseProtectionProvider {
@@ -21,10 +20,8 @@ class GaspJs extends BaseProtectionProvider {
 			$enqueues[ Enqueue::JS ][] = 'shield/loginbot';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				/** @var LoginGuard\ModCon $mod */
-				$mod = $this->getMod();
-				/** @var LoginGuard\Options $opts */
-				$opts = $this->getOptions();
+				$mod = $this->mod();
+				$opts = $this->opts();
 
 				$localz[] = [
 					'shield/loginbot',
@@ -67,7 +64,7 @@ class GaspJs extends BaseProtectionProvider {
 		$valid = false;
 		$errorMsg = '';
 		if ( empty( $gasp ) ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'botbox_fail',
 				[
 					'audit_params' => [
@@ -79,7 +76,7 @@ class GaspJs extends BaseProtectionProvider {
 			$errorMsg = __( "Please check that box to say you're human, and not a bot.", 'wp-simple-firewall' );
 		}
 		elseif ( !empty( $req->post( 'icwp_wpsf_login_email' ) ) ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'honeypot_fail',
 				[
 					'audit_params' => [
@@ -101,12 +98,10 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function buildFormInsert( $formProvider ) :string {
-		return $this->getCon()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
+		return $this->con()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}
 
 	protected function isFactorJsRequired() :bool {
-		/** @var LoginGuard\Options $opts */
-		$opts = $this->getOptions();
-		return parent::isFactorJsRequired() || !empty( $opts->getAntiBotFormSelectors() );
+		return parent::isFactorJsRequired() || !empty( $this->opts()->getAntiBotFormSelectors() );
 	}
 }

@@ -8,7 +8,7 @@ class ScanResultsApc extends ScanResultsBase {
 	public const WEIGHT = 4;
 
 	protected function countResults() :int {
-		return $this->getCon()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countAbandoned();
+		return $this->con()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countAbandoned();
 	}
 
 	public function title() :string {

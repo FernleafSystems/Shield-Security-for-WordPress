@@ -30,7 +30,7 @@ class Enumerate extends Base {
 
 	public function cmdPrint( array $null, array $args ) {
 		/** @var ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 		$dbh = $mod->getDbH_IPRules();
 
 		try {

@@ -19,7 +19,7 @@ class Import {
 	public function fromFile( string $path, bool $delete = true ) {
 		$FS = Services::WpFs();
 
-		if ( !$FS->isFile( $path ) ) {
+		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new \Exception( "The import file specified isn't a valid file." );
 		}
 
@@ -36,10 +36,10 @@ class Import {
 		}
 
 		{//filter any comment lines
-			$parts = array_filter(
-				array_map( 'trim', explode( "\n", $content ) ),
+			$parts = \array_filter(
+				\array_map( 'trim', \explode( "\n", $content ) ),
 				function ( $line ) {
-					return ( strpos( $line, '{' ) === 0 );
+					return \strpos( $line, '{' ) === 0;
 				}
 			);
 			if ( empty( $parts ) ) {
@@ -47,8 +47,8 @@ class Import {
 			}
 		}
 		{//parse the options json
-			$data = @json_decode( array_shift( $parts ), true );
-			if ( empty( $data ) || !is_array( $data ) ) {
+			$data = @\json_decode( \array_shift( $parts ), true );
+			if ( empty( $data ) || !\is_array( $data ) ) {
 				throw new \Exception( __( "Options data in the file wasn't of the correct format.", 'wp-simple-firewall' ) );
 			}
 		}
@@ -60,7 +60,7 @@ class Import {
 	 * @throws \Exception
 	 */
 	public function fromFileUpload() {
-		if ( !$this->getCon()->isPluginAdmin() ) {
+		if ( !$this->con()->isPluginAdmin() ) {
 			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
 		}
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
@@ -73,7 +73,7 @@ class Import {
 		}
 
 		if ( isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
-			 || !$FS->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
+			 || !$FS->isAccessibleFile( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
 			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
 		}
 
@@ -103,7 +103,7 @@ class Import {
 		/** @var Plugin\Options $opts */
 		$opts = $this->getOptions();
 		/** @var Plugin\ModCon $mod */
-		$mod = $this->getMod();
+		$mod = $this->mod();
 
 		$req = Services::Request();
 
@@ -153,7 +153,7 @@ class Import {
 		$data[ 'uniq' ] = wp_generate_password( 4, false );
 
 		{ // Send the export request
-			$targetExportURL = $this->getCon()->plugin_urls->noncedPluginAction(
+			$targetExportURL = $this->con()->plugin_urls->noncedPluginAction(
 				PluginImportExport_Export::class,
 				$masterURL,
 				$data
@@ -187,7 +187,7 @@ class Import {
 		// Only do so if we're not turning it off. i.e on or no-change
 		if ( $enableNetwork === true ) {
 			$opts->setOpt( 'importexport_masterurl', $masterURL );
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'master_url_set',
 				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
@@ -206,7 +206,7 @@ class Import {
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
 
 		$anythingChanged = false;
-		foreach ( $this->getCon()->modules as $mod ) {
+		foreach ( $this->con()->modules as $mod ) {
 			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
 				$theseOpts = $mod->getOptions();
 				$theseOpts->setMultipleOptions(
@@ -222,7 +222,7 @@ class Import {
 		}
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
-			$dbh = $this->getCon()->getModule_IPs()->getDbH_IPRules();
+			$dbh = $this->con()->getModule_IPs()->getDbH_IPRules();
 			$now = Services::Request()->ts();
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {
@@ -241,7 +241,7 @@ class Import {
 		}
 
 		if ( $anythingChanged ) {
-			$this->getCon()->fireEvent(
+			$this->con()->fireEvent(
 				'options_imported',
 				[ 'audit_params' => [ 'site' => $source ] ]
 			);
@@ -254,7 +254,7 @@ class Import {
 		if ( empty( $id ) ) {
 			$id = bin2hex( random_bytes( 8 ) );
 			$opts->setOpt( 'import_id', $id );
-			$this->getMod()->saveModOptions();
+			$this->mod()->saveModOptions();
 		}
 		return $id;
 	}

@@ -116,7 +116,7 @@ class IpRuleStatus {
 				[ $ipKey, ] = ( new IpID( $this->getIP() ) )
 					->setIgnoreUserAgent()
 					->run();
-				if ( in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
+				if ( \in_array( $ipKey, Services::ServiceProviders()->getSearchProviders() ) ) {
 					foreach ( $rules as $rule ) {
 						( new DeleteRule() )->byRecord( $rule );
 					}
@@ -286,7 +286,7 @@ class IpRuleStatus {
 
 		$records = [];
 
-		if ( \method_exists( $this, 'mod' ) && $this->mod()->getDbH_IPRules()->isReady() ) {
+		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [

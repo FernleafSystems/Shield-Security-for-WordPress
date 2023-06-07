@@ -35,7 +35,7 @@ class Strings extends Base\Strings {
 
 			case 'section_enable_plugin_feature_wordpress_lockdown' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMod()
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->mod()
 																						->getMainFeatureName() );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.', 'wp-simple-firewall' ) ),
@@ -86,7 +86,7 @@ class Strings extends Base\Strings {
 	 */
 	public function getOptionStrings( string $key ) :array {
 
-		$modName = $this->getMod()->getMainFeatureName();
+		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {
 
