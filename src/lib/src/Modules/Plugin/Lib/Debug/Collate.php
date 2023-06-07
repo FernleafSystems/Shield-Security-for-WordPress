@@ -259,7 +259,7 @@ class Collate {
 											->getAuthStatus()
 		];
 
-		/** @var Options $oOptsIP */
+		/** @var Options $optsPlugin */
 		$optsPlugin = $modPlugin->getOptions();
 		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
 		$ip = Services::Request()->ip();
@@ -270,8 +270,7 @@ class Collate {
 
 	private function getServiceIPs() :array {
 		return [
-			'ips' => var_export( Services::ServiceProviders()::GetProviderIPs(), true ),
-
+			'ips' => var_export( Services::ServiceProviders()->getProviders(), true ),
 		];
 	}
 
