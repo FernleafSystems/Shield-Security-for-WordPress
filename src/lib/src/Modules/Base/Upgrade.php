@@ -9,7 +9,7 @@ class Upgrade extends ExecOnceModConsumer {
 	protected $previous;
 
 	protected function canRun() :bool {
-		return !empty( $this->previous ) && version_compare( $this->previous, $this->con()->getVersion(), '<' );
+		return !empty( $this->previous ) && \version_compare( $this->previous, $this->con()->getVersion(), '<' );
 	}
 
 	protected function run() {
@@ -36,10 +36,10 @@ class Upgrade extends ExecOnceModConsumer {
 	protected function upgradeModule() {
 		$con = $this->con();
 		$upgrades = $con->cfg->version_upgrades;
-		asort( $upgrades );
+		\asort( $upgrades );
 		foreach ( $upgrades as $version ) {
-			$upgradeMethod = 'upgrade_'.str_replace( '.', '', $version );
-			if ( version_compare( $this->previous, $version, '<' ) && method_exists( $this, $upgradeMethod ) ) {
+			$upgradeMethod = 'upgrade_'.\str_replace( '.', '', $version );
+			if ( \version_compare( $this->previous, $version, '<' ) && \method_exists( $this, $upgradeMethod ) ) {
 				$this->{$upgradeMethod}();
 			}
 		}

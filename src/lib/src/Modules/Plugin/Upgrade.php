@@ -7,6 +7,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Upgrade extends Base\Upgrade {
 
+	protected function upgradeCommon() {
+		parent::upgradeCommon();
+		$SP = Services::ServiceProviders();
+		if ( \method_exists( $SP, 'clearProviders' ) ) {
+			$SP->clearProviders();
+		}
+	}
+
 	protected function upgrade_1800() {
 		// remove old tables
 		$WPDB = Services::WpDb();
