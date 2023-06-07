@@ -47,12 +47,13 @@ class ActivityLogTableAction extends BaseAction {
 		];
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function getRequestMeta() :array {
 		return [
 			'success' => true,
-			'html'    => ( new GetRequestMeta() )
-				->setMod( $this->con()->getModule_Data() )
-				->retrieve( Services::Request()->post( 'rid' ) )
+			'html'    => ( new GetRequestMeta() )->retrieve( (string)Services::Request()->post( 'rid' ) )
 		];
 	}
 }
