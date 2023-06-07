@@ -36,15 +36,8 @@
       },
       {
         "type":        "improvements",
-        "pro_only":    false,
-        "title":       "Upgraded Assets, such as Bootstrap to the latest available.",
-        "description": [
-        ]
-      },
-      {
-        "type":        "improvements",
         "pro_only":    true,
-        "title":       "Improved fallback support for Bing Search Engine Bots.",
+        "title":       "Improved fallback support for Bing Search Engine Bots and SEMRush.",
         "description": [
           "If your site is having temporary rDNS lookup issues and can't verify the Bing bot, we've provided some fallback mechanisms."
         ]

@@ -46,7 +46,8 @@
 				placement: 'left',
 				selector: 'td.meta > button[data-toggle="popover"]',
 				container: 'body',
-				content: function () {
+				title: 'Request Meta Info',
+				content: function ( evt ) {
 					let content = 'no meta';
 					let reqData = base.getBaseAjaxData();
 					reqData.sub_action = 'get_request_meta';

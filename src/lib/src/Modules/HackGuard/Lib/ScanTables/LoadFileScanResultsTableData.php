@@ -113,7 +113,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			}
 
 			$retriever->order_by = $by;
-			if ( !empty( $by ) && in_array( strtoupper( (string)$this->order_dir ), [ 'ASC', 'DESC' ] ) ) {
+			if ( !empty( $by ) && \in_array( \strtoupper( (string)$this->order_dir ), [ 'ASC', 'DESC' ] ) ) {
 				$retriever->order_dir = $this->order_dir;
 			}
 		}
@@ -124,7 +124,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			] );
 		}
 
-		if ( is_array( $this->custom_record_retriever_wheres ) ) {
+		if ( \is_array( $this->custom_record_retriever_wheres ) ) {
 			$retriever->addWheres( $this->custom_record_retriever_wheres );
 		}
 
@@ -143,7 +143,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		$fileFragment = $item->path_fragment;
 		if ( !empty( $fileFragment ) ) {
 			$actions[] = sprintf( '<button class="action view-file btn-dark %s" title="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
+				\implode( ' ', $defaultButtonClasses ),
 				__( 'View File Details', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
 				$con->svgs->raw( 'zoom-in.svg' )
@@ -152,7 +152,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 		if ( $item->is_unrecognised || $item->is_mal ) {
 			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
-				implode( ' ', $defaultButtonClasses ),
+				\implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
 				$con->svgs->raw( 'x-square.svg' )
@@ -245,7 +245,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
-			implode( '</li><li>', [
+			\implode( '</li><li>', [
 				sprintf( '%s: <span class="badge text-bg-%s">%s</span>',
 					__( 'MAL{ai} Malware Status' ),
 					$colourStyle,
@@ -264,7 +264,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ) :string {
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
-			implode( '</li><li>', [
+			\implode( '</li><li>', [
 				sprintf( '%s: %s', __( 'False Positive Confidence' ), $confidence ),
 				sprintf( '%s: %s', __( 'Pattern Detected' ), $sig ),
 			] )
