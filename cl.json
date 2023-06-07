@@ -1,7 +1,7 @@
 {
   "18.1": {
     "version":     "18.1",
-    "released_at": 1681725600,
+    "released_at": 1686134000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease181",
       "upgrade": "https://shsec.io/shieldupgradeguide181"
@@ -23,13 +23,14 @@
         "pro_only":    false,
         "title":       "Support and integration with WP Umbrella",
         "description": [
-          "Ensures that requests coming from WP Umbrella aren't ever interrupted or trigger Shield's defenses."
-        ]
+          "Ensures that requests coming from WP Umbrella are never interrupted or trigger Shield's defenses."
+        ],
+        "href":        "https://shsec.io/wpumbrella"
       },
       {
         "type":        "improvements",
         "pro_only":    false,
-        "title":       "Big underlying code cleanup and improvements..",
+        "title":       "Huge underlying code cleanup and improvements..",
         "description": [
         ]
       },
@@ -67,7 +68,7 @@
         "pro_only":    true,
         "title":       "Bug: Incorrectly identifying Contact Form 7.",
         "description": [
-          "Shield would report Contact Form 7 is installed, when it isn't."
+          "Shield would report Contact Form 7 is installed, when it wasn't."
         ]
       }
     ],

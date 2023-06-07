@@ -1200,3 +1200,9 @@ td.status_file_size {
 .ngg_admin_notice {
 	display: none;
 }
+#wf-onboarding-banner {
+	/** Seriously, Wordfence, will you ever sod away off */
+	display: none !important;
+	visibility: hidden !important;
+	z-index: -1 !important;
+}
