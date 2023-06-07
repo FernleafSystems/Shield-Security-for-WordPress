@@ -52,7 +52,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 			WP_CLI::error( __( "The file specified is an existing directory.", 'wp-simple-firewall' ) );
 		}
 
-		$dir = dirname( $file );
+		$dir = \dirname( $file );
 		if ( !$FS->isDir( $dir ) ) {
 			if ( !$isForce ) {
 				WP_CLI::confirm( "The directory for the export file doesn't exist. Create it?" );

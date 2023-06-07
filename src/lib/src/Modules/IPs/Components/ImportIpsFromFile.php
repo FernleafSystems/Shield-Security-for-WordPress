@@ -22,7 +22,7 @@ class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 		$FS = Services::WpFs();
 
 		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->con()->paths->forFlag() );
-		if ( $FS->isAccessibleFile( $fileImport ) ) {
+		if ( !empty( $fileImport ) && $FS->isAccessibleFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			if ( !empty( $content ) ) {
 				$adder = new IPs\Lib\IpRules\AddRule();

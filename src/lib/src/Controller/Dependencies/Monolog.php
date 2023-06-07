@@ -22,7 +22,7 @@ class Monolog {
 	 */
 	public function assess() :void {
 		if ( !@class_exists( '\Monolog\Logger' ) ) {
-			$newAutoLoad = path_join( dirname( $this->con()->root_file ), 'src/lib_monolog/vendor/autoload.php' );
+			$newAutoLoad = path_join( \dirname( $this->con()->root_file ), 'src/lib_monolog/vendor/autoload.php' );
 			if ( Services::WpFs()->isAccessibleFile( $newAutoLoad ) ) {
 				require_once( $newAutoLoad );
 			}
