@@ -46,7 +46,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function postScan() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		if ( $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) && is_array( $action->valid_files ) ) {
+		if ( $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) && \is_array( $action->valid_files ) ) {
 			( new Processing\FileScanOptimiser() )->addFiles( $action->valid_files );
 		}
 	}

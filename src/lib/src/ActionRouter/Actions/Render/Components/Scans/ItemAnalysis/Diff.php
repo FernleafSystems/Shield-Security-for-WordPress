@@ -38,24 +38,23 @@ class Diff extends Base {
 			}
 		}
 
-		$FS = Services::WpFs();
-		if ( empty( $originalFileDownload ) || !$FS->isAccessibleFile( $originalFileDownload ) ) {
+		if ( empty( $originalFileDownload ) || !Services::WpFs()->isAccessibleFile( $originalFileDownload ) ) {
 			throw new ActionException( "A File Diff can't be created as there is no official file available for us to compare with." );
 		}
 
 		$conv = new ConvertLineEndings();
 		$res = ( new DiffUtil() )->getDiff(
-			$conv->dosToLinux( (string)$FS->getFileContent( $originalFileDownload ) ),
+			$conv->dosToLinux( (string)Services::WpFs()->getFileContent( $originalFileDownload ) ),
 			$conv->fileDosToLinux( $pathFull )
 		);
 
-		if ( !is_array( $res ) || empty( $res[ 'html' ] ) ) {
+		if ( !\is_array( $res ) || empty( $res[ 'html' ] ) ) {
 			throw new ActionException( 'Could not get a valid diff for this file.' );
 		}
 
 		return [
-			'default_css' => base64_decode( $res[ 'html' ][ 'css_default' ] ),
-			'content'     => base64_decode( $res[ 'html' ][ 'content' ] ),
+			'default_css' => \base64_decode( $res[ 'html' ][ 'css_default' ] ),
+			'content'     => \base64_decode( $res[ 'html' ][ 'content' ] ),
 		];
 	}
 }

@@ -24,7 +24,7 @@ class LogFileRotate extends ExecOnceModConsumer {
 	 */
 	public function run() {
 		$FS = Services::WpFs();
-		if ( !$FS->mkdir( dirname( $this->logFile ) ) ) {
+		if ( !$FS->mkdir( \dirname( $this->logFile ) ) ) {
 			throw new \Exception( 'Could not create logs dir' );
 		}
 

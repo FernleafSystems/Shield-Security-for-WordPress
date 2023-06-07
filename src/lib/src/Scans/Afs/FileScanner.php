@@ -130,7 +130,7 @@ class FileScanner {
 
 		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.
 		if ( empty( $item ) && $validFile ) {
-			$validFiles = is_array( $action->valid_files ) ? $action->valid_files : [];
+			$validFiles = \is_array( $action->valid_files ) ? $action->valid_files : [];
 			$validFiles[] = $fullPath;
 			$action->valid_files = $validFiles;
 		}
