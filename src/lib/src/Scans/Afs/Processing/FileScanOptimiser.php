@@ -26,7 +26,7 @@ class FileScanOptimiser {
 					\array_filter(
 						$files,
 						function ( $file ) {
-							return Services::WpFs()->isAccessibleFile( $file );
+							return Services::WpFs()->isAccessibleFile( (string)$file );
 						}
 					)
 				) ) );
@@ -77,7 +77,7 @@ class FileScanOptimiser {
 			$filesThatExist = \array_filter(
 				$files,
 				function ( $file ) {
-					return Services::WpFs()->isAccessibleFile( $file );
+					return Services::WpFs()->isAccessibleFile( (string)$file );
 				}
 			);
 
