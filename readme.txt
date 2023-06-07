@@ -8,7 +8,7 @@ Requires at least: 4.7
 Requires PHP: 7.2
 Recommended PHP: 7.4
 Tested up to: 6.2
-Stable tag: 18.1.0
+Stable tag: 18.1.1
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 
@@ -88,7 +88,7 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
 
 Shield is the only security plugin for WordPress that fully prioritises protection and intrusion prevention before repair. With Shield, your site will start to block visitors as they probe your site looking for vulnerabilities, and before they can begin to do any damage.
 
-**No other standalone WordPress security plugin** (including Wordfence, WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield does both.
+**No other standalone WordPress security plugin** (including [Wordfence](https://shsec.io/shieldvswordfence), WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield does both.
 
 Our mission is to block bad IPs and requests before they can do any damage. Shield will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current solution, give Shield a try - we promise that you won't be disappointed.
 
