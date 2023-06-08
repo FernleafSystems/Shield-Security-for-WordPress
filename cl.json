@@ -1,7 +1,7 @@
 {
   "18.1": {
     "version":     "18.1",
-    "released_at": 1686144600,
+    "released_at": 1686215000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease181",
       "upgrade": "https://shsec.io/shieldupgradeguide181"
@@ -44,8 +44,15 @@
       },
       {
         "type":        "improvements",
-        "pro_only":    true,
+        "pro_only":    false,
         "title":       "Improvements to Plugin Notifications.",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improvements",
+        "pro_only":    false,
+        "title":       "Upgraded Assets, such as Bootstrap to the latest available.",
         "description": [
         ]
       },

@@ -47,11 +47,11 @@
 				selector: 'td.meta > button[data-toggle="popover"]',
 				container: 'body',
 				title: 'Request Meta Info',
-				content: function () {
+				content: function ( element ) {
 					let content = 'no meta';
 					let reqData = base.getBaseAjaxData();
 					reqData.sub_action = 'get_request_meta';
-					reqData.rid = $( this ).data( 'rid' );
+					reqData.rid = element.dataset.rid;
 					reqData.apto_wrap_response = 1;
 
 					jQuery.ajax( {
