@@ -973,6 +973,9 @@ body.folded #FooterBannerGoPro {
 .audit-meta ul {
 	padding: 0;
 }
+.audit-meta h3.popover-header {
+	background-color: rgba(0, 128, 0, 0.3);
+}
 
 .ui-dialog-titlebar .ui-dialog-titlebar-close {
 	float: right;
