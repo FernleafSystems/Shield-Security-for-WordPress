@@ -2,12 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Report;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseZoneReportPosts extends BaseZoneReport {
 
-	protected function getItemLink( array $item ) :array {
-		if ( empty( get_post( $item[ 'uniq' ] ) ) ) {
+	protected function getLinkForLog( LogRecord $log ) :array {
+		if ( empty( get_post( $log[ 'uniq' ] ) ) ) {
 			$link = [
 				'href' => Services::WpGeneral()->getAdminUrl( 'edit.php' ),
 				'text' => $this->getZoneName(),
@@ -15,15 +16,15 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 		}
 		else {
 			$link = [
-				'href' => get_edit_post_link( $item[ 'uniq' ] ),
+				'href' => get_edit_post_link( $log[ 'uniq' ] ),
 				'text' => __( 'Edit', 'wp-simple-firewall' ),
 			];
 		}
 		return $link;
 	}
 
-	protected function getItemName( array $item ) :string {
-		return $item[ 'title' ];
+	protected function getNameForLog( LogRecord $log ) :string {
+		return $log[ 'title' ];
 	}
 
 	protected function processDiffAdded( array $item ) :array {

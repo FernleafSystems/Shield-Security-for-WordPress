@@ -3,15 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChangeTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\{
-	ArrangeDiffByZone,
-	Diff,
-	RetrieveDiffs,
-	RetrieveSnapshot
-};
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\SnapshotVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportBuildChangeTrack extends BaseRender {
@@ -33,28 +25,26 @@ class ReportBuildChangeTrack extends BaseRender {
 					   ->setDate( $endDate[ 0 ], $endDate[ 1 ], $endDate[ 2 ] )
 					   ->endOfDay();
 
-		try {
-			$aggregatedDiff = $this->getDiffDataForDisplay(
-				( new Diff(
-					( new RetrieveSnapshot() )->latestFollowing( $startDate->timestamp ),
-					( new RetrieveSnapshot() )->latestPreceding( $endDate->timestamp )
-				) )->run()
-			);
-		}
-		catch ( \Exception $e ) {
-			throw new ActionException( $e->getMessage() );
-		}
+		$zonesForDisplay = [
+			'title'      => Services::Request()
+									->carbon( true )
+									->setTimestamp( $endDate->timestamp )
+									->toIso8601String(),
+			'slug'       => uniqid(),
+			'zones_data' => []
+		];
 
-		try {
-			$detailedDiffs = \array_reverse( \array_filter( \array_map(
-				function ( SnapshotVO $diff ) {
-					return $this->getDiffDataForDisplay( $diff );
-				},
-				( new RetrieveDiffs() )->between( $startDate->timestamp, $endDate->timestamp )
-			) ) );
-		}
-		catch ( \Exception $e ) {
-			throw new ActionException( $e->getMessage() );
+		foreach ( $this->con()->getModule_Plugin()->getChangeTrackCon()->getZones() as $reporter ) {
+			if ( \in_array( $reporter::Slug(), $formParams[ 'zones' ] ?? [] ) ) {
+				$reporter->setFrom( $startDate->timestamp );
+				$reporter->setUntil( $endDate->timestamp );
+				$zonesForDisplay[ 'zones_data' ][ $reporter::Slug() ] = [
+					'title'       => $reporter->getZoneName(),
+					'description' => $reporter->getZoneDescription(),
+					'summary'     => $reporter->buildChangeReportData( true ),
+					'detailed'    => $reporter->buildChangeReportData( false ),
+				];
+			}
 		}
 
 		return [
@@ -64,38 +54,8 @@ class ReportBuildChangeTrack extends BaseRender {
 			'strings' => [
 			],
 			'vars'    => [
-				'aggregated_diff' => $aggregatedDiff,
-				'detailed_diffs'  => $detailedDiffs,
+				'changes' => $zonesForDisplay,
 			],
 		];
-	}
-
-	private function getDiffDataForDisplay( SnapshotVO $diff ) :?array {
-		if ( count( $diff->data ) === 0 ) {
-			return null;
-		}
-
-		$zonesForDisplay = [
-			'title'      => Services::Request()
-									->carbon( true )
-									->setTimestamp( $diff->snapshot_at )
-									->toIso8601String(),
-			'slug'       => uniqid(),
-			'zones_data' => []
-		];
-
-		foreach ( ArrangeDiffByZone::run( $diff->data ) as $zoneSlug => $zoneDiff ) {
-			$zone = $this->con()->getModule_Plugin()->getChangeTrackCon()->getZone( $zoneSlug );
-			if ( !empty( $zone ) ) {
-				$reporter = $zone->getZoneReporter();
-				$zonesForDisplay[ 'zones_data' ][ $zoneSlug ] = [
-					'title'            => $reporter->getZoneName(),
-					'description'      => 'Zone Description',
-					'diff_for_display' => $reporter->processDiffForDisplay( $zoneDiff ),
-				];
-			}
-		}
-
-		return $zonesForDisplay;
 	}
 }

@@ -5,9 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * There are a few pathways to updating User passwords, so we try to capture them all, but not duplicate logs.
+ */
 class Users extends Base {
 
 	use WpLoginCapture;
+
+	private $passwordResetUserIDs = [];
 
 	protected function run() {
 		$this->setupLoginCaptureHooks();
@@ -24,7 +29,6 @@ class Users extends Base {
 				}
 			} );
 			add_action( 'application_password_did_authenticate', function ( $user ) {
-				/** @var \WP_Error $wpError */
 				if ( $user instanceof \WP_User ) {
 					$this->auditSuccessAppPassword( $user );
 				}
@@ -32,6 +36,12 @@ class Users extends Base {
 		}
 
 		add_action( 'wp_create_application_password', [ $this, 'auditAppPasswordNew' ], 30, 2 );
+
+		add_filter( 'wp_pre_insert_user_data', [ $this, 'capturePreUserUpdate' ], PHP_INT_MAX, 4 );
+
+		add_filter( 'send_password_change_email', [ $this, 'captureUserPasswordUpdate' ], PHP_INT_MAX, 2 );
+		add_action( 'wp_set_password', [ $this, 'captureUserPasswordSet' ], PHP_INT_MAX, 2 );
+		add_action( 'after_password_reset', [ $this, 'captureUserPasswordReset' ], PHP_INT_MAX );
 	}
 
 	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {
@@ -80,9 +90,9 @@ class Users extends Base {
 
 	/**
 	 * @param int $userID
-	 * @param int $nReassigned
+	 * @param int $reassignedID
 	 */
-	public function auditDeleteUser( $userID, $nReassigned ) {
+	public function auditDeleteUser( $userID, $reassignedID ) {
 		$WPU = Services::WpUsers();
 
 		$user = empty( $userID ) ? null : $WPU->getUserById( $userID );
@@ -98,7 +108,7 @@ class Users extends Base {
 			);
 		}
 
-		$reassigned = empty( $nReassigned ) ? null : $WPU->getUserById( $nReassigned );
+		$reassigned = empty( $reassignedID ) ? null : $WPU->getUserById( $reassignedID );
 		if ( $reassigned instanceof \WP_User ) {
 			$this->con()->fireEvent(
 				'user_deleted_reassigned',
@@ -136,6 +146,55 @@ class Users extends Base {
 			if ( isset( $wpErrorToEventMap[ $code ] ) ) {
 				$this->con()->fireEvent( $wpErrorToEventMap[ $code ] );
 			}
+		}
+	}
+
+	public function captureUserPasswordUpdate( $sendEmail, $userData ) {
+		if ( \is_array( $userData ) && isset( $userData[ 'ID' ] ) ) {
+			$user = Services::WpUsers()->getUserById( $userData[ 'ID' ] );
+			if ( $user instanceof \WP_User ) {
+				$this->fireEventUserPasswordUpdated( $user );
+			}
+		}
+		return $sendEmail;
+	}
+
+	public function captureUserPasswordSet( $password, $user_id ) {
+		$user = Services::WpUsers()->getUserById( $user_id );
+		if ( $user instanceof \WP_User ) {
+			$this->fireEventUserPasswordUpdated( $user );
+		}
+	}
+
+	public function captureUserPasswordReset( $user ) {
+		if ( $user instanceof \WP_User ) {
+			$this->fireEventUserPasswordUpdated( $user );
+		}
+	}
+
+	public function capturePreUserUpdate( $data, $update, $maybeUserID = null, $userdata = null ) {
+		if ( !empty( $maybeUserID ) ) {
+			$user = Services::WpUsers()->getUserById( $maybeUserID );
+			if ( empty( $user ) ) {
+				// Bail out.
+				error_log( 'Inconsistency: A user ID was passed to pre-update filter but no such user found: '.$maybeUserID );
+			}
+		}
+
+		return $data;
+	}
+
+	private function fireEventUserPasswordUpdated( \WP_User $user ) {
+		if ( !\in_array( $user->ID, $this->passwordResetUserIDs ) ) {
+			$this->passwordResetUserIDs[] = $user->ID;
+			$this->con()->fireEvent(
+				'user_password_updated',
+				[
+					'audit_params' => [
+						'user_login' => $user->user_login,
+					]
+				]
+			);
 		}
 	}
 }

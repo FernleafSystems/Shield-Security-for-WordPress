@@ -15,6 +15,15 @@
 			         placeholder="End Date" />
 			</div>
 			<div class="mb-3">
+				{% for zone_key,zone_name in vars.available_zones %}
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="checkbox" name="zones[]" id="zone-{{ zone_key }}"
+						       value="{{ zone_key }}" checked="checked" />
+						<label class="form-check-label" for="zone-{{ zone_key }}">{{ zone_name }}</label>
+					</div>
+				{% endfor %}
+			</div>
+			<div class="mb-3">
 			  <button type="submit" class=" btn btn-primary"
 			          {% if not flags.can_run_report %}disabled="disabled"{% endif %}>
 				  {% if flags.can_run_report %}{{ strings.build_change_report }}{% else %}Unavailable{% endif %}
@@ -47,7 +56,6 @@
 				  if ( requestRunning ) {
 					  return false;
 				  }
-				  requestRunning = true;
 
 				  let $form = $( this );
 
@@ -60,6 +68,8 @@
 					  alert( 'Please provide an end date' );
 				  }
 				  else {
+					  requestRunning = true;
+
 					  Shield_AjaxRender
 					  .send_ajax_req( {
 						  render_slug: '{{ ajax.build_change_report_slug }}',

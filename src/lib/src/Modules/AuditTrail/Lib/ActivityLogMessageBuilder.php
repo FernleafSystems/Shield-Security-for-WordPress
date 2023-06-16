@@ -9,13 +9,13 @@ use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
 class ActivityLogMessageBuilder {
 
 	public static function BuildFromLogRecord( LogRecord $log, string $logSeparator = "\n" ) :array {
-		return explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [], $logSeparator ) );
+		return \explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [], $logSeparator ) );
 	}
 
 	public static function Build( string $event, array $substitutions = [], string $logSeparator = "\n" ) :string {
 		$srvEvents = get_plugin()->getController()->loadEventsService();
 
-		$raw = implode( $logSeparator, $srvEvents->getEventAuditStrings( $event ) );
+		$raw = \implode( $logSeparator, $srvEvents->getEventAuditStrings( $event ) );
 
 		$stringSubs = [];
 		foreach ( $substitutions as $subKey => $subValue ) {

@@ -12,19 +12,25 @@ class Strings extends Base\Strings {
 			'plugin_activated'            => [
 				'name'  => __( 'Plugin Activated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was activated.', 'wp-simple-firewall' )
+					__( 'Plugin "{{plugin}}" was activated (v{{version}}).', 'wp-simple-firewall' )
 				],
 			],
 			'plugin_installed'            => [
 				'name'  => __( 'Plugin Installed', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was installed.', 'wp-simple-firewall' )
+					__( 'Plugin "{{plugin}}" was installed (v{{version}}).', 'wp-simple-firewall' )
+				],
+			],
+			'plugin_uninstalled'            => [
+				'name'  => __( 'Plugin Uninstalled', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin "{{plugin}}" was uninstalled (v{{version}}).', 'wp-simple-firewall' )
 				],
 			],
 			'plugin_deactivated'          => [
 				'name'  => __( 'Plugin Deactivated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Plugin "{{plugin}}" was deactivated.', 'wp-simple-firewall' )
+					__( 'Plugin "{{plugin}}" was deactivated (v{{version}}).', 'wp-simple-firewall' )
 				],
 			],
 			'plugin_upgraded'             => [
@@ -49,6 +55,12 @@ class Strings extends Base\Strings {
 				'name'  => __( 'Theme Installed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Theme "{{theme}}" was installed.', 'wp-simple-firewall' )
+				],
+			],
+			'theme_uninstalled'             => [
+				'name'  => __( 'Theme Uninstalled', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Theme "{{theme}}" was uninstalled (v{{version}}).', 'wp-simple-firewall' )
 				],
 			],
 			'theme_file_edited'           => [
@@ -134,6 +146,12 @@ class Strings extends Base\Strings {
 				'audit' => [
 					__( 'WordPress user deleted.', 'wp-simple-firewall' ),
 					__( 'Username was "{{user_login}}" with email address "{{email}}".', 'wp-simple-firewall' ),
+				],
+			],
+			'user_password_updated'     => [
+				'name'  => __( 'User Password Updated', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Password updated for user "{{user_login}}".', 'wp-simple-firewall' )
 				],
 			],
 			'user_deleted_reassigned'     => [

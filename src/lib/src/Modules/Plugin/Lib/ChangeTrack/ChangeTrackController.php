@@ -36,11 +36,14 @@ class ChangeTrackController {
 		return $this->getZones()[ $slug ] ?? null;
 	}
 
+	/**
+	 * @return mixed|Report\BaseZoneReport[]
+	 */
 	public function getZones() :array {
 		if ( !isset( $this->zones ) ) {
 			$this->zones = [];
 			foreach ( Constants::ZONES as $zone ) {
-				$this->zones[ $zone::SLUG ] = new $zone();
+				$this->zones[ $zone::Slug() ] = new $zone( 0, PHP_INT_MAX );
 			}
 		}
 		return $this->zones;

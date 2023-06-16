@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Report;
 
-class ZoneReportAdmins extends BaseZoneReportUsers {
+class ZoneReportUsers extends BaseZoneReportUsers {
 
 	public function getZoneName() :string {
-		return __( 'Admins' );
+		return __( 'Users' );
 	}
 
 	protected function loadLogs() :array {
@@ -13,7 +13,7 @@ class ZoneReportAdmins extends BaseZoneReportUsers {
 		return \array_filter(
 			$logs,
 			function ( $log ) {
-				return $this->isUserAdmin( $log->meta_data[ 'user_login' ] );
+				return !$this->isUserAdmin( $log->meta_data[ 'user_login' ] );
 			}
 		);
 	}

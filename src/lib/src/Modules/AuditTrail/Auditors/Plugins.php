@@ -14,15 +14,25 @@ class Plugins extends Base {
 		add_action( 'deactivated_plugin', [ $this, 'auditDeactivatedPlugin' ] );
 		add_action( 'activated_plugin', [ $this, 'auditActivatedPlugin' ] );
 		add_action( 'wp_ajax_edit-theme-plugin-file', [ $this, 'auditEditedFile' ], -1 ); // they hook on 1
+		add_action( 'pre_uninstall_plugin', [ $this, 'auditUninstalled' ] );
 	}
 
 	public function auditInstall() {
 		$current = Services::WpPlugins()->getInstalledPluginFiles();
-		foreach ( array_diff( $current, $this->slugs ) as $new ) {
-			$this->con()->fireEvent(
-				'plugin_installed',
-				[ 'audit_params' => [ 'plugin' => $new ] ]
-			);
+		foreach ( \array_diff( $current, $this->slugs ) as $new ) {
+			$vo = Services::WpPlugins()->getPluginAsVo( $new );
+			if ( !empty( $vo ) ) {
+				$this->con()->fireEvent(
+					'plugin_installed',
+					[
+						'audit_params' => [
+							'plugin'  => $new,
+							'version' => \ltrim( $vo->Version, 'v' ),
+							'name'    => $vo->Name,
+						]
+					]
+				);
+			}
 		}
 		$this->slugs = $current;
 	}
@@ -32,9 +42,34 @@ class Plugins extends Base {
 	 */
 	public function auditActivatedPlugin( $plugin ) {
 		if ( !empty( $plugin ) ) {
+			$vo = Services::WpPlugins()->getPluginAsVo( $plugin );
+			if ( !empty( $vo ) ) {
+				$this->con()->fireEvent(
+					'plugin_activated',
+					[
+						'audit_params' => [
+							'plugin'  => $plugin,
+							'version' => \ltrim( $vo->Version, 'v' ),
+							'name'    => $vo->Name,
+						]
+					]
+				);
+			}
+		}
+	}
+
+	public function auditUninstalled( $plugin ) {
+		$vo = Services::WpPlugins()->getPluginAsVo( $plugin );
+		if ( !empty( $vo ) ) {
 			$this->con()->fireEvent(
-				'plugin_activated',
-				[ 'audit_params' => [ 'plugin' => $plugin ] ]
+				'plugin_uninstalled',
+				[
+					'audit_params' => [
+						'plugin'  => $plugin,
+						'version' => \ltrim( $vo->Version, 'v' ),
+						'name'    => $vo->Name,
+					]
+				]
 			);
 		}
 	}
@@ -44,10 +79,19 @@ class Plugins extends Base {
 	 */
 	public function auditDeactivatedPlugin( $plugin ) {
 		if ( !empty( $plugin ) ) {
-			$this->con()->fireEvent(
-				'plugin_deactivated',
-				[ 'audit_params' => [ 'plugin' => $plugin ] ]
-			);
+			$vo = Services::WpPlugins()->getPluginAsVo( $plugin );
+			if ( !empty( $vo ) ) {
+				$this->con()->fireEvent(
+					'plugin_deactivated',
+					[
+						'audit_params' => [
+							'plugin'  => $plugin,
+							'version' => \ltrim( $vo->Version, 'v' ),
+							'name'    => $vo->Name,
+						]
+					]
+				);
+			}
 		}
 	}
 

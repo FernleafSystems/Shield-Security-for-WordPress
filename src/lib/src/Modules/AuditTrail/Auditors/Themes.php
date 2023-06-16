@@ -13,15 +13,26 @@ class Themes extends Base {
 		add_action( 'upgrader_process_complete', [ $this, 'auditInstall' ], 10, 0 );
 		add_action( 'switch_theme', [ $this, 'auditSwitchTheme' ] );
 		add_action( 'wp_ajax_edit-theme-plugin-file', [ $this, 'auditEditedFile' ], -1 ); // they hook on 1
+		add_action( 'deleted_theme', [ $this, 'auditUninstalled' ], 10, 2 );
 	}
 
 	public function auditInstall() {
 		$current = Services::WpThemes()->getInstalledStylesheets();
-		foreach ( array_diff( $current, $this->slugs ) as $new ) {
-			$this->con()->fireEvent(
-				'theme_installed',
-				[ 'audit_params' => [ 'theme' => $new ] ]
-			);
+		foreach ( \array_diff( $current, $this->slugs ) as $newStylesheet ) {
+			$vo = Services::WpThemes()->getThemeAsVo( $newStylesheet );
+			if ( !empty( $vo ) ) {
+				$this->con()->fireEvent(
+					'theme_installed',
+					[
+						'audit_params' =>
+							[
+								'theme'   => $newStylesheet,
+								'version' => $vo->Version,
+								'name'    => $vo->Name,
+							]
+					]
+				);
+			}
 		}
 		$this->slugs = $current;
 	}
@@ -31,10 +42,45 @@ class Themes extends Base {
 	 */
 	public function auditSwitchTheme( $themeName ) {
 		if ( !empty( $themeName ) ) {
-			$this->con()->fireEvent(
-				'theme_activated',
-				[ 'audit_params' => [ 'theme' => $themeName ] ]
-			);
+			$theme = Services::WpThemes()->getCurrent();
+			if ( $theme instanceof \WP_Theme ) {
+				$stylesheet = $theme->get_stylesheet();
+				$vo = Services::WpThemes()->getThemeAsVo( $stylesheet );
+				if ( !empty( $vo ) ) {
+					$this->con()->fireEvent(
+						'theme_activated',
+						[
+							'audit_params' => [
+								'theme'   => $stylesheet,
+								'version' => $vo->Version,
+								'name'    => $vo->Name,
+							]
+						]
+					);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param string $stylesheet
+	 */
+	public function auditUninstalled( $stylesheet, $wasDeleted ) {
+		if ( $wasDeleted && !empty( $stylesheet ) ) {
+			$vo = Services::WpThemes()->getThemeAsVo( $stylesheet );
+			if ( !empty( $vo ) ) {
+				$this->con()->fireEvent(
+					'theme_uninstalled',
+					[
+						'audit_params' =>
+							[
+								'theme'   => $stylesheet,
+								'version' => $vo->Version,
+								'name'    => $vo->Name,
+							]
+					]
+				);
+			}
 		}
 	}
 

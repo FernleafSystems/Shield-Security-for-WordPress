@@ -1,16 +1,20 @@
-{% if zone_data.diff_for_display is empty %}
+{% if zone_changes is empty %}
 	{% if flags.show_empty_zones %}
-		<h3 class="my-3">{{ zone_data.title }}</h3>
+		<h3 class="my-3">{{ zone_title }}</h3>
 		<div class="alert alert-secondary d-inline-block">
 			There were no changes detected for this zone.
 		</div>
 	{% endif %}
 {% else %}
-	<h3 class="my-3">{{ zone_data.title }}</h3>
-	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5 g-4">
-		{% for item in zone_data.diff_for_display %}
+	<h3 class="my-3">{{ zone_title }}</h3>
+	{% if is_summary %}
+		<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+	{% else %}
+		<div class="row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 g-4">
+	{% endif %}
+		{% for item in zone_changes %}
 			<div class="col">
-		    <div class="card h-100 ">
+		    <div class="card">
 		      <div class="card-body text-bg-light">
 			      <h6 class="card-title m-0">{{ item.name|raw }}</h6>
 		      </div>

@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\CollateSnapshots;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\AddDiffToFull;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\Diff;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwareScanPatterns;
@@ -15,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwareScan;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class SimplePluginTests extends BaseAction {
 
@@ -53,12 +49,19 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_changetrack() {
-		try {
-			$snapshot = ( new Modules\Plugin\Lib\ChangeTrack\Ops\RetrieveSnapshot() )->latest();
-			var_dump( $snapshot );
-		}
-		catch ( \Exception $e ) {
-		}
+		$mod = $this->con()->getModule_AuditTrail();
+		$dbh = $mod->getDbH_Logs();
+		$loader = new Modules\AuditTrail\DB\LoadLogs();
+		$loader->wheres = [
+			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
+				'plugin_activated',
+				'plugin_deactivated',
+				'plugin_installed',
+				'plugin_upgraded',
+			] ) ),
+		];
+		$logs = $loader->run();
+		var_dump( $logs );
 	}
 
 	private function dbg_submitmalwarereports() {

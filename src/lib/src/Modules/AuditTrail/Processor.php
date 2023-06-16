@@ -31,7 +31,8 @@ class Processor extends BaseShield\Processor {
 			Auditors\Wordpress::class,
 			Auditors\Posts::class,
 			Auditors\Emails::class,
-			Auditors\Upgrades::class
+			Auditors\Upgrades::class,
+			Auditors\Database::class,
 		];
 	}
 

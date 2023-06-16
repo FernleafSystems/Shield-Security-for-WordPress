@@ -2,21 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Report;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\ArrangeDiffByZone;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\SnapshotVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 
-class BaseZoneReport {
+abstract class BaseZoneReport {
 
-	private $zoneSlug;
+	use ModConsumer;
 
-	public function __construct( string $zoneSlug ) {
-		$this->zoneSlug = $zoneSlug;
-	}
+	protected $from;
 
-	public function buildZoneReportData( SnapshotVO $diff ) :array {
-		$zoneDiff = ArrangeDiffByZone::run( $diff->data )[ $this->zoneSlug ] ?? [];
-		return $this->processDiffForDisplay( $zoneDiff );
+	protected $until;
+
+	protected $logs = null;
+
+	protected $isSummary = true;
+
+	public function __construct( int $from, int $until ) {
+		$this->from = $from;
+		$this->until = $until;
 	}
 
 	public function getZoneDescription() :array {
@@ -25,77 +30,96 @@ class BaseZoneReport {
 		];
 	}
 
-	public function processDiffForDisplay( array $diff ) :array {
-		$items = [];
-		foreach ( Constants::DIFF_TYPES as $diffType ) {
+	public function buildChangeReportData( bool $isSummary ) :array {
+		$this->isSummary = $isSummary;
+		if ( !\is_array( $this->logs ) ) {
+			$this->logs = $this->loadLogs();
+		}
+		return $this->changesFromLogs();
+	}
 
-			foreach ( $diff[ $diffType ] ?? [] as $uniq => $item ) {
-				if ( !isset( $items[ $uniq ] ) ) {
-					$items[ $uniq ] = [
-						'uniq' => $uniq,
-						'rows' => [],
-					];
+	/**
+	 * @return LogRecord[]
+	 */
+	protected function loadLogs() :array {
+		$loader = new LoadLogs();
+		$loader->wheres = array_merge( $this->getLoadLogsWheres(), [
+			sprintf( "`log`.`created_at`>%s", $this->from ),
+			sprintf( "`log`.`created_at`<%s", $this->until ),
+		] );
+		return $loader->run();
+	}
+
+	abstract protected function getLoadLogsWheres() :array;
+
+	protected function changesFromLogs() :array {
+		$changes = [];
+		foreach ( \is_array( $this->logs ) ? $this->logs : [] as $log ) {
+			$uniq = $this->getUniqFromLog( $log );
+			if ( !isset( $changes[ $uniq ] ) ) {
+				$changes[ $uniq ] = [
+					'uniq' => $uniq,
+					'rows' => [],
+					'link' => $this->getLinkForLog( $log ),
+					'name' => $this->getNameForLog( $log ),
+				];
+			}
+
+			$changes[ $uniq ][ 'rows' ][] = $this->isSummary ? $this->buildSummaryForLog( $log ) : $this->buildDetailsForLog( $log );
+		}
+
+		if ( $this->isSummary ) {
+			foreach ( $changes as $uniq => &$itemChanges ) {
+				$uniqueChanges = [];
+				foreach ( $itemChanges[ 'rows' ] as $row ) {
+					if ( !isset( $uniqueChanges[ $row ] ) ) {
+						$uniqueChanges[ $row ] = 0;
+					}
+					$uniqueChanges[ $row ]++;
 				}
 
-				switch ( $diffType ) {
-					case Constants::DIFF_TYPE_ADDED:
-						if ( empty( $items[ $uniq ][ 'name' ] ) ) {
-							$items[ $uniq ][ 'name' ] = $this->getItemName( $item );
-							$items[ $uniq ][ 'link' ] = $this->getItemLink( $item );
-						}
-						$rows = $this->processDiffAdded( $item );
-						break;
-
-					case Constants::DIFF_TYPE_REMOVED:
-						if ( empty( $items[ $uniq ][ 'name' ] ) ) {
-							$items[ $uniq ][ 'name' ] = $this->getItemName( $item );
-							$items[ $uniq ][ 'link' ] = $this->getItemLink( $item );
-						}
-						$rows = $this->processDiffRemoved( $item );
-						break;
-
-					case Constants::DIFF_TYPE_CHANGED:
-						if ( empty( $items[ $uniq ][ 'name' ] ) ) {
-							$items[ $uniq ][ 'name' ] = $this->getItemName( $item[ 'old' ] );
-							$items[ $uniq ][ 'link' ] = $this->getItemLink( $item[ 'old' ] );
-						}
-						$rows = $this->processDiffChanged( $item[ 'old' ], $item[ 'new' ] );
-						break;
-
-					default:
-						$rows = [];
-						break;
+				$itemChanges[ 'rows' ] = [];
+				foreach ( $uniqueChanges as $uniqueChange => $count ) {
+					$itemChanges[ 'rows' ][] = $count > 1 ? sprintf( '%s (x%s)', $uniqueChange, $count ) : $uniqueChange;
 				}
-				$items[ $uniq ][ 'rows' ] = \array_merge( $items[ $uniq ][ 'rows' ], $rows );
 			}
 		}
-		return $items;
+
+		return $changes;
 	}
 
-	protected function processDiffAdded( array $item ) :array {
-		return [];
+	protected function buildSummaryForLog( LogRecord $log ) :string {
+		return \implode( '<br/>', ActivityLogMessageBuilder::BuildFromLogRecord( $log ) );
 	}
 
-	protected function processDiffRemoved( array $item ) :array {
-		return [];
+	protected function buildDetailsForLog( LogRecord $log ) :string {
+		return \implode( '<br/>', ActivityLogMessageBuilder::BuildFromLogRecord( $log ) );
 	}
 
-	protected function processDiffChanged( array $old, array $new ) :array {
-		return [];
-	}
+	abstract protected function getUniqFromLog( LogRecord $log ) :string;
 
-	protected function getItemName( array $item ) :string {
+	protected function getNameForLog( LogRecord $log ) :string {
 		return 'Unknown Item';
 	}
 
-	protected function getItemLink( array $item ) :array {
+	protected function getLinkForLog( LogRecord $log ) :array {
 		return [
 			'href' => '#',
 			'text' => 'Unknown Href',
 		];
 	}
 
-	public function getZoneName() :string {
-		return \ucfirst( $this->zoneSlug );
+	abstract public function getZoneName() :string;
+
+	public static function Slug() :string {
+		return ( new \ReflectionClass( static::class ) )->getShortName();
+	}
+
+	public function setFrom( int $form ) {
+		$this->from = $form;
+	}
+
+	public function setUntil( int $until ) {
+		$this->until = $until;
 	}
 }

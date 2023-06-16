@@ -249,21 +249,36 @@
     "events":             {
       "plugin_activated":            {
         "audit_params":   [
-          "plugin"
+          "plugin",
+          "version",
+          "name"
         ],
         "level":          "notice",
         "audit_multiple": true
       },
       "plugin_installed":            {
         "audit_params":   [
-          "plugin"
+          "plugin",
+          "version",
+          "name"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
+      "plugin_uninstalled":          {
+        "audit_params":   [
+          "plugin",
+          "version",
+          "name"
         ],
         "level":          "warning",
         "audit_multiple": true
       },
       "plugin_deactivated":          {
         "audit_params":   [
-          "plugin"
+          "plugin",
+          "version",
+          "name"
         ],
         "level":          "notice",
         "audit_multiple": true
@@ -285,22 +300,29 @@
       },
       "theme_activated":             {
         "audit_params": [
-          "theme"
+          "theme",
+          "version",
+          "name"
         ],
         "level":        "notice"
       },
       "theme_installed":             {
         "audit_params":   [
-          "theme"
+          "theme",
+          "version",
+          "name"
         ],
         "level":          "warning",
         "audit_multiple": true
       },
-      "theme_file_edited":           {
-        "audit_params": [
-          "file"
+      "theme_uninstalled":           {
+        "audit_params":   [
+          "theme",
+          "version",
+          "name"
         ],
-        "level":        "warning"
+        "level":          "warning",
+        "audit_multiple": true
       },
       "theme_upgraded":              {
         "audit_params":   [
@@ -310,6 +332,12 @@
         ],
         "level":          "notice",
         "audit_multiple": true
+      },
+      "theme_file_edited":           {
+        "audit_params": [
+          "file"
+        ],
+        "level":        "warning"
       },
       "core_updated":                {
         "audit_params": [
@@ -400,6 +428,12 @@
         "audit_multiple": true
       },
       "user_deleted_reassigned":     {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "notice"
+      },
+      "user_password_updated":       {
         "audit_params": [
           "user_login"
         ],

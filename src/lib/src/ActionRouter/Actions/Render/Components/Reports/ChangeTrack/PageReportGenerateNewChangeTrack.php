@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Changes\Ops as ChangesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as AuditDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageReportGenerateNewChangeTrack extends BaseRender {
@@ -14,17 +14,15 @@ class PageReportGenerateNewChangeTrack extends BaseRender {
 
 	protected function getRenderData() :array {
 		$req = Services::Request();
-		$dbh = $this->con()->getModule_Plugin()->getChangeTrackCon()->getDbH_Changes();
+		$dbh = $this->con()->getModule_AuditTrail()->getDbH_Logs();
 
-		/** @var ?ChangesDB\Record $firstSnap */
-		$firstSnap = $dbh->getQuerySelector()
-						 ->filterIsFull()
-						 ->setOrderBy( 'created_at', 'ASC', true )
+		/** @var AuditDB\Record $firstAudit */
+		$firstAudit = $dbh->getQuerySelector()
+						  ->setOrderBy( 'created_at', 'ASC', true )
+						  ->first();
+		$lastAudit = $dbh->getQuerySelector()
+						 ->setOrderBy( 'created_at', 'DESC', true )
 						 ->first();
-		/** @var ?ChangesDB\Record $lastSnap */
-		$lastSnap = $dbh->getQuerySelector()
-						->setOrderBy( 'created_at', 'DESC', true )
-						->first();
 
 		$c = $req->carbon( true );
 		return [
@@ -33,16 +31,22 @@ class PageReportGenerateNewChangeTrack extends BaseRender {
 				'build_change_report_slug' => ReportBuildChangeTrack::SLUG,
 			],
 			'flags'   => [
-				'can_run_report' => !empty( $firstSnap ) && $firstSnap->id !== $lastSnap->id,
+				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
 			],
 			'strings' => [
 				'build_change_report' => __( 'Build Change Report', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'earliest_date' => empty( $firstSnap ) ? $req->ts() :
-					$c->setTimestamp( $firstSnap->created_at )->toIso8601String(),
-				'latest_date'   => empty( $lastSnap ) ? $req->ts() :
-					$c->setTimestamp( $lastSnap->created_at )->toIso8601String()
+				'available_zones' => \array_map(
+					function ( $zone ) {
+						return $zone->getZoneName();
+					},
+					$this->con()->getModule_Plugin()->getChangeTrackCon()->getZones()
+				),
+				'earliest_date'   => empty( $firstAudit ) ? $req->ts() :
+					$c->setTimestamp( $firstAudit->created_at )->toIso8601String(),
+				'latest_date'     => empty( $lastAudit ) ? $req->ts() :
+					$c->setTimestamp( $lastAudit->created_at )->toIso8601String()
 			],
 		];
 	}

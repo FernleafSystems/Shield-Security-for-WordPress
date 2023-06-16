@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 
 class Base {
 
-	use Modules\AuditTrail\ModConsumer;
+	use ModConsumer;
 	use ExecOnce;
 }
