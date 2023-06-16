@@ -12,6 +12,14 @@ abstract class BasePluginAdminPage extends BaseRender {
 		return [];
 	}
 
+	protected function getInnerPageTitle() :string {
+		return '';
+	}
+
+	protected function getInnerPageSubTitle() :string {
+		return '';
+	}
+
 	/**
 	 * @throws ActionException
 	 */

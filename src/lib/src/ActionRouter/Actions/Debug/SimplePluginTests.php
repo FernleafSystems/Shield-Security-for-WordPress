@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\CollateSnapshots;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\AddDiffToFull;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ChangeTrack\Ops\Diff;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\LocateNeedles;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwareScanPatterns;
@@ -12,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malai\MalwareScan;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class SimplePluginTests extends BaseAction {
 
@@ -46,6 +50,15 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_apitoken() {
 		$this->con()->getModule_License()->getWpHashesTokenManager()->setCanRequestOverride( true )->getToken();
+	}
+
+	private function dbg_changetrack() {
+		try {
+			$snapshot = ( new Modules\Plugin\Lib\ChangeTrack\Ops\RetrieveSnapshot() )->latest();
+			var_dump( $snapshot );
+		}
+		catch ( \Exception $e ) {
+		}
 	}
 
 	private function dbg_submitmalwarereports() {

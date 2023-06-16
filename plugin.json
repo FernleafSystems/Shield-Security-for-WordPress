@@ -76,7 +76,8 @@
         "plugin",
         "jquery/featherlight",
         "introjs",
-        "shield/datatables"
+        "shield/datatables",
+        "tp/vanillajs-datepicker"
       ],
       "js":  [
         "select2",
@@ -90,7 +91,8 @@
         "shield/datatables/ip_rules",
         "shield/datatables/scans",
         "shield/datatables/traffic",
-        "tp/circular-progress"
+        "tp/circular-progress",
+        "tp/vanillajs-datepicker"
       ]
     },
     "frontend":     {
@@ -142,6 +144,11 @@
             "chartist"
           ]
         },
+        "tp/vanillajs-datepicker":              {
+          "url":  "https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.3/dist/css/datepicker-bs5.min.css",
+          "deps": [
+          ]
+        },
         "introjs":                           {
           "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css"
         },
@@ -182,6 +189,11 @@
         },
         "tp/circular-progress":              {
           "url":  "https://cdn.jsdelivr.net/gh/tomik23/circular-progress-bar@1.1.9/dist/circularProgressBar.min.js",
+          "deps": [
+          ]
+        },
+        "tp/vanillajs-datepicker":              {
+          "url":  "https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.3/dist/js/datepicker-full.min.js",
           "deps": [
           ]
         },

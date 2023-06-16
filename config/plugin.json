@@ -25,7 +25,7 @@
     "enabled": true
   },
   "admin_notices": {
-    "override-forceoff":          {
+    "override-forceoff": {
       "id":               "override-forceoff",
       "schedule":         "conditions",
       "valid_admin":      false,
@@ -33,13 +33,13 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "allow-tracking":             {
+    "allow-tracking":    {
       "id":               "allow-tracking",
       "plugin_admin":     true,
       "min_install_days": 3,
       "type":             "promo"
     },
-    "rate-plugin":                {
+    "rate-plugin":       {
       "id":               "rate-plugin",
       "min_install_days": 30,
       "type":             "promo"
@@ -597,7 +597,28 @@
       }
     },
     "db_handler_classes":  {
-      "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
+      "changes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Changes\\Ops\\Handler",
+      "report":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
+    },
+    "db_table_changes":    {
+      "autoexpire":      0,
+      "slug":            "changes",
+      "has_updated_at":  false,
+      "has_deleted_at":  false,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "data":    {
+          "macro_type": "meta",
+          "comment":    "Snapshot"
+        },
+        "is_diff": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Is Diff"
+        }
+      },
+      "cols_timestamps": {
+      }
     },
     "db_table_report":     {
       "autoexpire":      30,

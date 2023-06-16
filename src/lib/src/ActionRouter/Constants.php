@@ -141,6 +141,8 @@ class Constants {
 		Actions\Render\Components\OffCanvas\MeterAnalysis::class,
 		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\Options\OptionsForm::class,
+		Actions\Render\Components\Reports\ChangeTrack\PageReportGenerateNewChangeTrack::class,
+		Actions\Render\Components\Reports\ChangeTrack\ReportBuildChangeTrack::class,
 		Actions\Render\Components\Reports\Components\InfoKeyStats::class,
 		Actions\Render\Components\Reports\ReportsCollatorForAlerts::class,
 		Actions\Render\Components\Reports\ReportsCollatorForInfo::class,

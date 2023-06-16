@@ -1,0 +1,132 @@
+<div class="row">
+	<div class="col-6">
+		<h6 class="mt-2">
+			Select Date Range
+		</h6>
+		<p>Choose a start and end date to view all site changes detected between those days.</p>
+		<form id="ChangeTrackingReportForm">
+			<div class="input-group mb-3 date input-daterange" id="DateRangePicker">
+			  <input type="text" name="start_date" class="form-control datepicker-input"
+			         {% if not flags.can_run_report %}disabled="disabled"{% endif %}
+			         placeholder="Start Date" />
+			  <span class="input-group-text">to</span>
+			  <input type="text" name="end_date" class="form-control datepicker-input"
+			         {% if not flags.can_run_report %}disabled="disabled"{% endif %}
+			         placeholder="End Date" />
+			</div>
+			<div class="mb-3">
+			  <button type="submit" class=" btn btn-primary"
+			          {% if not flags.can_run_report %}disabled="disabled"{% endif %}>
+				  {% if flags.can_run_report %}{{ strings.build_change_report }}{% else %}Unavailable{% endif %}
+			  </button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div id="ChangeTrackingReport"></div>
+
+{% block inline_scripts %}
+
+	{% if flags.can_run_report %}
+		<script type="text/javascript">
+		  new DateRangePicker( document.getElementById( 'DateRangePicker' ), {
+		  format: 'yyyy-mm-dd',
+		  minDate: new Date( '{{ vars.earliest_date }}' ),
+		  maxDate: new Date( '{{ vars.latest_date }}' ),
+		  weekStart: 1,
+	  } );
+
+	  (function ( $ ) {
+		  $( document ).ready( function () {
+
+			  let requestRunning = false;
+
+			  jQuery( document ).on( "submit", 'form#ChangeTrackingReportForm', function ( evt ) {
+				  evt.preventDefault();
+				  if ( requestRunning ) {
+					  return false;
+				  }
+				  requestRunning = true;
+
+				  let $form = $( this );
+
+				  const startDate = jQuery( 'input[name=start_date]', $form ).val();
+				  const endDate = jQuery( 'input[name=end_date]', $form ).val();
+				  if ( startDate.length === 0 ) {
+					  alert( 'Please provide a start date' );
+				  }
+				  else if ( endDate.length === 0 ) {
+					  alert( 'Please provide an end date' );
+				  }
+				  else {
+					  Shield_AjaxRender
+					  .send_ajax_req( {
+						  render_slug: '{{ ajax.build_change_report_slug }}',
+						  form_params: $form.serialize()
+					  } )
+					  .then( ( response ) => {
+						  if ( response.success ) {
+							  jQuery( '#ChangeTrackingReport' ).html( response.data.html );
+						  }
+						  else {
+							  alert( response.data.error );
+						  }
+					  } )
+					  .catch( ( error ) => {
+						  console.log( error );
+					  } )
+					  .finally( ( response ) => {
+						  iCWP_WPSF_BodyOverlay.hide();
+						  requestRunning = false;
+					  } );
+
+				  }
+
+				  return false;
+			  } );
+		  } );
+	  })( jQuery );
+
+	  jQuery( document ).ready( function () {
+
+		  jQuery( 'input[type=button]' ).on( 'click', function ( evt ) {
+
+			  evt.preventDefault();
+
+			  const startDate = jQuery( 'input[name=start_date]', $dateRangePicker ).val();
+			  const endDate = jQuery( 'input[name=end_date]', $dateRangePicker ).val();
+			  if ( startDate.length === 0 ) {
+				  alert( 'Please provide a start date' );
+			  }
+			  else if ( endDate.length === 0 ) {
+				  alert( 'Please provide an end date' );
+			  }
+			  else {
+				  Shield_AjaxRender
+				  .send_ajax_req( {
+					  render_slug: '{{ ajax.build_change_report_slug }}',
+					  start_date: startDate,
+					  end_date: endDate,
+				  } )
+				  .then( ( response ) => {
+					  if ( response.success ) {
+						  jQuery( '#ChangeTrackingReport' ).html( response.data.html );
+					  }
+					  else {
+						  alert( response.data.error );
+					  }
+				  } )
+				  .catch( ( error ) => {
+					  console.log( error );
+				  } )
+				  .finally( ( response ) => {
+					  iCWP_WPSF_BodyOverlay.hide();
+				  } );
+
+			  }
+		  } );
+	  } );
+	</script>
+	{% endif %}
+{% endblock %}
