@@ -1,4 +1,47 @@
 {
+  "18.2": {
+    "version":     "18.2",
+    "released_at": 1686215000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease182",
+      "upgrade": "https://shsec.io/shieldupgradeguide182"
+    },
+    "title":       "Change Reporting",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Change Reports",
+        "description": [
+          "You can now product summary and detailed reports for key areas on your WordPress site."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Additional Event Logging",
+        "description": [
+          "Shield now captures events such as plugin/theme uninstallation and user password updates."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Enhanced Event Logging",
+        "description": [
+          "Shield now logs changes to the site that were done 'outside' of the WordPress environment.",
+          "It can capture changes to critical WordPress core options that were modified directly on WordPress DB, for example."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.1": {
     "version":     "18.1",
     "released_at": 1686215000,
@@ -9,7 +52,7 @@
     "title":       "Cleanup, Optimise, & Bug-Fix",
     "description": [
     ],
-    "items": [
+    "items":       [
       {
         "type":        "new",
         "pro_only":    true,

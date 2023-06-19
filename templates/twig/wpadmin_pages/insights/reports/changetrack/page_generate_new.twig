@@ -1,19 +1,9 @@
-<div class="row">
-	<div class="col-6">
-		<h6 class="mt-2">
-			Select Date Range
-		</h6>
-		<p>Choose a start and end date to view all site changes detected between those days.</p>
-		<form id="ChangeTrackingReportForm">
-			<div class="input-group mb-3 date input-daterange" id="DateRangePicker">
-			  <input type="text" name="start_date" class="form-control datepicker-input"
-			         {% if not flags.can_run_report %}disabled="disabled"{% endif %}
-			         placeholder="Start Date" />
-			  <span class="input-group-text">to</span>
-			  <input type="text" name="end_date" class="form-control datepicker-input"
-			         {% if not flags.can_run_report %}disabled="disabled"{% endif %}
-			         placeholder="End Date" />
-			</div>
+<form id="ChangeTrackingReportForm">
+	<div class="row">
+		<div class="col-md-12 col-lg-10 col-xl-8">
+			<h6 class="mt-2 mb-3">
+				Select What To Report And When
+			</h6>
 			<div class="mb-3">
 				{% for zone_key,zone_name in vars.available_zones %}
 					<div class="form-check form-check-inline">
@@ -23,15 +13,25 @@
 					</div>
 				{% endfor %}
 			</div>
-			<div class="mb-3">
+			<div class="input-group mb-3 date input-daterange" id="DateRangePicker">
+			  <input type="text" name="start_date" class="form-control datepicker-input"
+			         {% if not flags.can_run_report %}disabled="disabled"{% endif %}
+			         placeholder="Start Date" />
+			  <span class="input-group-text">to</span>
+			  <input type="text" name="end_date" class="form-control datepicker-input"
+			         {% if not flags.can_run_report %}disabled="disabled"{% endif %}
+			         placeholder="End Date" />
+
 			  <button type="submit" class=" btn btn-primary"
 			          {% if not flags.can_run_report %}disabled="disabled"{% endif %}>
 				  {% if flags.can_run_report %}{{ strings.build_change_report }}{% else %}Unavailable{% endif %}
 			  </button>
 			</div>
-		</form>
+		</div>
 	</div>
-</div>
+</form>
+
+<hr class="my-4"/>
 
 <div id="ChangeTrackingReport"></div>
 

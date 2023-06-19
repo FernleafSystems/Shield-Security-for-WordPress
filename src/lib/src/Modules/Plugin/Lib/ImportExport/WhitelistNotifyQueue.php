@@ -3,18 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	ModConsumer,
-	Plugin
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\BackgroundProcessing\BackgroundProcess;
 
 class WhitelistNotifyQueue extends BackgroundProcess {
 
 	use ModConsumer;
-
-	public const MOD = Plugin\ModCon::SLUG;
 
 	/**
 	 * Task

@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\HumanSpam\TestContent;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,24 +19,23 @@ class HumanDictionary {
 	 * @return \WP_Error|true
 	 */
 	public function scan( array $commData ) {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$result = true;
 
-		$items = array_intersect_key(
+		$items = \array_intersect_key(
 			[
 				'comment_content' => $commData[ 'comment_content' ],
 				'url'             => $commData[ 'comment_author_url' ],
 				'author_name'     => $commData[ 'comment_author' ],
 				'author_email'    => $commData[ 'comment_author_email' ],
 				'ip_address'      => $this->con()->this_req->ip,
-				'user_agent'      => substr( Services::Request()->getUserAgent(), 0, 254 )
+				'user_agent'      => \substr( Services::Request()->getUserAgent(), 0, 254 )
 			],
-			array_flip( $opts->getHumanSpamFilterItems() )
+			\array_flip( $opts->getHumanSpamFilterItems() )
 		);
 
-		$spam = ( new TestContent() )->findSpam( $items, true );
+		$spam = ( new TestContent() )->findSpam( $items );
 
 		if ( !empty( $spam ) ) {
 			$key = key( reset( $spam ) );

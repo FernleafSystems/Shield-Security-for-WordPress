@@ -158,7 +158,7 @@ class Options {
 	}
 
 	public function getEvents() :array {
-		return is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
+		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
 	}
 
 	public function getFeatureRequirement( string $req ) :array {

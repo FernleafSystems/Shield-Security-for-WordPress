@@ -1,80 +1,61 @@
 {% if flags.has_diffs %}
 
-	<ul class="nav nav-tabs my-3">
-	  <li class="nav-item">
-	    <a class="nav-link active" aria-current="page" href="#"
-	       data-bs-toggle="tab" data-bs-target="#tab-pane-summary" type="button"
-	    >Summary</a>
-	  </li>
-	  <li class="nav-item">
-	    <a class="nav-link" href="#"
-	       data-bs-toggle="tab" data-bs-target="#tab-pane-detailed" type="button"
-	    >Detailed</a>
-	  </li>
+	<ul class="nav nav-tabs mt-3">
+		{% for report_type in ['summary', 'detailed'] %}
+			<li class="nav-item w-50">
+		    <a class="nav-link {% if report_type == 'summary' %}active{% endif %}"
+		       aria-current="page" href="#"
+		       data-bs-toggle="tab" data-bs-target="#tab-pane-{{ report_type }}" type="button"
+		    ><h5 class="m-0">{{ report_type }}</h5></a>
+		  </li>
+		{% endfor %}
 	</ul>
 
-	<div class="tab-content" id="myTabContent">
+	<div class="tab-content" id="topTabContent">
+		{% for report_type in ['summary', 'detailed'] %}
 
-	  <div class="tab-pane fade show active"
-	       id="tab-pane-summary" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
-				{% for zone_slug,zone_data in vars.changes.zones_data %}
-					{% set zone_changes = zone_data.summary %}
-					{% set zone_title = zone_data.title %}
-					{% set is_summary = true %}
-					<div class="row">
-						<div class="col">
-							{% include '/wpadmin_pages/insights/reports/changetrack/report/zone_diff.twig' %}
+			<div class="tab-pane py-2 px-4 bg-white {% if report_type == 'summary' %}show active{% endif %}"
+			     id="tab-pane-{{ report_type }}" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+
+				<ul class="nav nav-pills my-3">
+					{% set loopCount = 0 %}
+					{% for zone_slug,zone_data in vars.changes.zones_data %}
+						<li class="nav-item">
+					    <a class="nav-link {% if loopCount == 0 %}active{% endif %}"
+					       aria-current="page" href="#"
+					       data-bs-toggle="tab" data-bs-target="#tab-pane-{{ report_type }}-{{ zone_slug }}"
+					       type="button"
+					    >{{ zone_data.title }}</a>
+					  </li>
+						{% set loopCount = loopCount + 1 %}
+					{% endfor %}
+				</ul>
+
+				<div class="tab-content" id="TabContent-{{ report_type }}">
+					{% set loopCount = 0 %}
+					{% for zone_slug,zone_data in vars.changes.zones_data %}
+						{% set zone_changes = zone_data[report_type] %}
+						{% set zone_title = zone_data.title %}
+						{% set is_summary = report_type == 'summary' %}
+
+						<div class="tab-pane {% if loopCount == 0 %}active{% endif %}"
+						     id="tab-pane-{{ report_type }}-{{ zone_slug }}" role="tabpanel" tabindex="0">
+						  <div class="row">
+								<div class="col">
+									{% include '/wpadmin_pages/insights/reports/changetrack/report/zone_diff.twig' %}
+								</div>
+							</div>
 						</div>
-					</div>
-				{% endfor %}
-	  </div>
+						{% set loopCount = loopCount + 1 %}
+					{% endfor %}
+				</div>
 
-	  <div class="tab-pane fade" id="tab-pane-detailed"
-	       role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-				{% for zone_slug,zone_data in vars.changes.zones_data %}
-					{% set zone_changes = zone_data.detailed %}
-					{% set zone_title = zone_data.title %}
-					{% set is_summary = false %}
-					<div class="row">
-						<div class="col">
-							{% include '/wpadmin_pages/insights/reports/changetrack/report/zone_diff.twig' %}
-						</div>
-					</div>
-				{% endfor %}
-
-{#			<div class="accordion" id="accordionPanelsStayOpenExample">#}
-{#				{% for detailed_diff in vars.detailed_diffs %}#}
-{#					<div class="accordion-item">#}
-{#						<h2 class="accordion-header">#}
-{#				      <button class="accordion-button" type="button"#}
-{#				              data-bs-toggle="collapse"#}
-{#				              data-bs-target="#panelsStayOpen-{{ detailed_diff.slug }}"#}
-{#				              aria-expanded="true"#}
-{#				              aria-controls="panelsStayOpen-{{ detailed_diff.slug }}"#}
-{#				      >{{ detailed_diff.title }}</button>#}
-{#						</h2>#}
-
-{#						<div id="panelsStayOpen-{{ detailed_diff.slug }}" class="accordion-collapse collapse show">#}
-{#				      <div class="accordion-body">#}
-{#								{% for zone_slug,zone_data in detailed_diff.zones_data %}#}
-{#									<div class="row">#}
-{#										<div class="col">#}
-{#											{% include '/wpadmin_pages/insights/reports/changetrack/report/zone_diff.twig' %}#}
-{#										</div>#}
-{#									</div>#}
-{#								{% endfor %}#}
-{#				      </div>#}
-{#				    </div>#}
-{#					</div>#}
-{#				{% endfor %}#}
-{#			</div>#}
-
-	  </div>
+		  </div>
+		{% endfor %}
 	</div>
-
 
 {% else %}
 	<div class="alert alert-info">
-		There were no overall site changes between the selected days.
+		There were no changes available for the selected areas, between the selected days provided.
 	</div>
 {% endif %}

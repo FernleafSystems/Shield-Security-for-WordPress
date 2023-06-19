@@ -34,22 +34,30 @@ class ReportBuildChangeTrack extends BaseRender {
 			'zones_data' => []
 		];
 
-		foreach ( $this->con()->getModule_Plugin()->getChangeTrackCon()->getZones() as $reporter ) {
-			if ( \in_array( $reporter::Slug(), $formParams[ 'zones' ] ?? [] ) ) {
-				$reporter->setFrom( $startDate->timestamp );
-				$reporter->setUntil( $endDate->timestamp );
-				$zonesForDisplay[ 'zones_data' ][ $reporter::Slug() ] = [
-					'title'       => $reporter->getZoneName(),
-					'description' => $reporter->getZoneDescription(),
-					'summary'     => $reporter->buildChangeReportData( true ),
-					'detailed'    => $reporter->buildChangeReportData( false ),
-				];
+		foreach ( $this->con()->getModule_AuditTrail()->getAuditCon()->getAuditors() as $auditor ) {
+			if ( \in_array( $auditor::Slug(), $formParams[ 'zones' ] ?? [] ) ) {
+				try {
+					$reporter = $auditor->getReporter();
+					$reporter->setFrom( $startDate->timestamp );
+					$reporter->setUntil( $endDate->timestamp );
+					if ( $reporter->countChanges() > 0 ) {
+						$zonesForDisplay[ 'zones_data' ][ $reporter::Slug() ] = [
+							'title'       => $reporter->getZoneName(),
+							'description' => $reporter->getZoneDescription(),
+							'summary'     => $reporter->buildChangeReportData( true ),
+							'detailed'    => $reporter->buildChangeReportData( false ),
+							'total'       => $reporter->countChanges(),
+						];
+					}
+				}
+				catch ( \Exception $e ) {
+				}
 			}
 		}
 
 		return [
 			'flags'   => [
-				'has_diffs' => true,
+				'has_diffs' => !empty( $zonesForDisplay[ 'zones_data' ] ),
 			],
 			'strings' => [
 			],

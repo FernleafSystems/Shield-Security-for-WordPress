@@ -37,12 +37,17 @@ class PageReportGenerateNewChangeTrack extends BaseRender {
 				'build_change_report' => __( 'Build Change Report', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'available_zones' => \array_map(
-					function ( $zone ) {
-						return $zone->getZoneName();
+				'available_zones' => \array_filter( \array_map(
+					function ( $auditor ) {
+						try {
+							return $auditor->getReporter()->getZoneName();
+						}
+						catch ( \Exception $e ) {
+							return null;
+						}
 					},
-					$this->con()->getModule_Plugin()->getChangeTrackCon()->getZones()
-				),
+					$this->con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
+				) ),
 				'earliest_date'   => empty( $firstAudit ) ? $req->ts() :
 					$c->setTimestamp( $firstAudit->created_at )->toIso8601String(),
 				'latest_date'     => empty( $lastAudit ) ? $req->ts() :

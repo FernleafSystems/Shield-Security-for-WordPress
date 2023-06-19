@@ -22,14 +22,10 @@ class Processor extends BaseShield\Processor {
 
 		if ( !$commentsFilterBypass ) {
 
-			( new Scan\CommentAdditiveCleaner() )
-				->setMod( $this->mod() )
-				->execute();
+			( new Scan\CommentAdditiveCleaner() )->execute();
 
 			if ( Services::Request()->isPost() ) {
-				( new Scan\Scanner() )
-					->setMod( $this->mod() )
-					->execute();
+				( new Scan\Scanner() )->execute();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100 );
 			}
 		}

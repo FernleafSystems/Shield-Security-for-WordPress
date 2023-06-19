@@ -597,28 +597,7 @@
       }
     },
     "db_handler_classes":  {
-      "changes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Changes\\Ops\\Handler",
       "report":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
-    },
-    "db_table_changes":    {
-      "autoexpire":      0,
-      "slug":            "changes",
-      "has_updated_at":  false,
-      "has_deleted_at":  false,
-      "col_older_than":  "created_at",
-      "cols_custom":     {
-        "data":    {
-          "macro_type": "meta",
-          "comment":    "Snapshot"
-        },
-        "is_diff": {
-          "macro_type": "bool",
-          "default":    0,
-          "comment":    "Is Diff"
-        }
-      },
-      "cols_timestamps": {
-      }
     },
     "db_table_report":     {
       "autoexpire":      30,

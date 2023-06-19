@@ -33,11 +33,6 @@ class ModCon extends BaseShield\ModCon {
 	private $oCaptchaEnqueue;
 
 	/**
-	 * @var Lib\ChangeTrack\ChangeTrackController
-	 */
-	private $changeTrackCon;
-
-	/**
 	 * @var Lib\Reporting\ReportingController
 	 */
 	private $reportsCon;
@@ -51,10 +46,6 @@ class ModCon extends BaseShield\ModCon {
 	 * @var Lib\Sessions\SessionController
 	 */
 	private $sessionCon;
-
-	public function getChangeTrackCon() :Lib\ChangeTrack\ChangeTrackController {
-		return $this->changeTrackCon ?? $this->changeTrackCon = new Lib\ChangeTrack\ChangeTrackController();
-	}
 
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		return $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController();

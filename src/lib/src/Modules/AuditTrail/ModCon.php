@@ -15,6 +15,15 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $auditLogger;
 
+	/**
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon
+	 */
+	private $auditCon;
+
+	public function getAuditCon() :Lib\AuditCon {
+		return $this->auditCon ?? $this->auditCon = new Lib\AuditCon();
+	}
+
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
 		$this->con()->getModule_Data()->getDbH_ReqLogs();
 		return $this->getDbHandler()->loadDbH( 'at_logs' );
@@ -23,6 +32,10 @@ class ModCon extends BaseShield\ModCon {
 	public function getDbH_Meta() :DB\Meta\Ops\Handler {
 		$this->getDbH_Logs();
 		return $this->getDbHandler()->loadDbH( 'at_meta' );
+	}
+
+	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'snapshots' );
 	}
 
 	/**

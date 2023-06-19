@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -12,7 +12,10 @@ use FernleafSystems\Wordpress\Services\Services;
  * So we must allow that content edit to happen, but if we discover that WP has already flagged a comment for whatever
  * reason, we should honour it and then remove our edits afterwards.
  */
-class Scanner extends ExecOnceModConsumer {
+class Scanner {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	/**
 	 * @var string|int|null
@@ -43,18 +46,19 @@ class Scanner extends ExecOnceModConsumer {
 	 * @return array
 	 */
 	public function checkComment( $approval, $comm ) {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
-		// Note: use strict in_array() here because when approval is 0, always returns 'true'
-		if ( !in_array( $approval, [ 'spam', 'trash' ], true )
-			 && is_array( $comm ) && is_numeric( $comm[ 'comment_post_ID' ] ?? null ) && is_string( $comm[ 'comment_author_email' ] ?? null )
+		// Note: use strict in_array() here because when approval is '0', always returns 'true'
+		if ( !\in_array( $approval, [ 'spam', 'trash' ], true )
+			 && \is_array( $comm )
+			 && \is_numeric( $comm[ 'comment_post_ID' ] ?? null )
+			 && \is_string( $comm[ 'comment_author_email' ] ?? null )
 			 && $this->isDoCommentsCheck( (int)$comm[ 'comment_post_ID' ], $comm[ 'comment_author_email' ] ) ) {
 
 			$spamErrors = $this->runScans( $comm );
 
 			$errorCodes = $spamErrors->get_error_codes();
-			if ( count( $errorCodes ) > 0 ) {
+			if ( \count( $errorCodes ) > 0 ) {
 
 				foreach ( $errorCodes as $errorCode ) {
 					$this->con()
@@ -67,17 +71,17 @@ class Scanner extends ExecOnceModConsumer {
 				$this->con()->fireEvent( 'comment_spam_block' );
 
 				// if we're configured to actually block...
-				if ( $opts->isEnabledAntiBot() && in_array( 'antibot', $errorCodes ) ) {
+				if ( $opts->isEnabledAntiBot() && \in_array( 'antibot', $errorCodes ) ) {
 					$newStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
-				elseif ( $opts->isEnabledHumanCheck() && in_array( 'human', $errorCodes ) ) {
+				elseif ( $opts->isEnabledHumanCheck() && \in_array( 'human', $errorCodes ) ) {
 					$newStatus = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
 					$newStatus = null;
 				}
 
-				if ( !is_null( $newStatus ) ) {
+				if ( !\is_null( $newStatus ) ) {
 					if ( $newStatus == 'reject' ) {
 						Services::Response()->redirectToHome();
 					}
@@ -107,9 +111,7 @@ class Scanner extends ExecOnceModConsumer {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
 		else {
-			$humanDict = ( new HumanDictionary() )
-				->setMod( $this->mod() )
-				->scan( $commData );
+			$humanDict = ( new HumanDictionary() )->scan( $commData );
 
 			if ( is_wp_error( $humanDict ) ) {
 				$code = $humanDict->get_error_code();
@@ -117,9 +119,7 @@ class Scanner extends ExecOnceModConsumer {
 			}
 			else {
 				// If the comment passes the dictionary spam lookup, maybe they have earlier detected spam
-				$humanRepeat = ( new HumanRepeat() )
-					->setMod( $this->mod() )
-					->scan( $commData );
+				$humanRepeat = ( new HumanRepeat() )->scan( $commData );
 				if ( is_wp_error( $humanRepeat ) ) {
 					$code = $humanRepeat->get_error_code();
 					$errors->add( $code, $humanRepeat->get_error_message( $code ) );
@@ -180,10 +180,10 @@ class Scanner extends ExecOnceModConsumer {
 	}
 
 	private function isDoCommentsCheck( int $postID, string $commentEmail ) :bool {
-		/** @var CommentsFilter\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$post = Services::WpPost()->getById( $postID );
-		return $post instanceof \WP_Post && Services::WpComments()->isCommentsOpen( $post )
+		return $post instanceof \WP_Post
+			   && Services::WpComments()->isCommentsOpen( $post )
 			   && !( new IsEmailTrusted() )->trusted( $commentEmail, $opts->getApprovedMinimum(), $opts->getTrustedRoles() );
 	}
 }

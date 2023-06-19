@@ -49,19 +49,31 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_changetrack() {
-		$mod = $this->con()->getModule_AuditTrail();
-		$dbh = $mod->getDbH_Logs();
-		$loader = new Modules\AuditTrail\DB\LoadLogs();
-		$loader->wheres = [
-			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
-				'plugin_activated',
-				'plugin_deactivated',
-				'plugin_installed',
-				'plugin_upgraded',
-			] ) ),
+		$params = [
+			'fields'             =>
+				[
+					0 => 'id',
+					1 => 'user_pass',
+					2 => 'user_email',
+				],
+			'number'             => 50,
+			'paged'              => 1,
+			'capability__not_in' =>
+				[
+					0 => 'manage_options',
+				],
 		];
-		$logs = $loader->run();
-		var_dump( $logs );
+		$args = wp_parse_args(
+			$params,
+			[
+			]
+		);
+
+		var_dump($args);
+		var_dump($params);
+
+		$users = get_users($args  );
+		var_dump( $users );
 	}
 
 	private function dbg_submitmalwarereports() {

@@ -41,7 +41,7 @@ class PageReports extends BasePluginAdminPage {
 	protected function getInnerPageSubTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
 			case PluginNavs::SUBNAV_CHANGE_TRACK:
-				$title = __( 'View a summary of all changes to your site between two dates.', 'wp-simple-firewall' );
+				$title = __( 'View changes to your site between two dates.', 'wp-simple-firewall' );
 				break;
 			case PluginNavs::SUBNAV_CHARTS:
 				$title = __( 'Basic charts - this is in beta and will be developed over time.', 'wp-simple-firewall' );
