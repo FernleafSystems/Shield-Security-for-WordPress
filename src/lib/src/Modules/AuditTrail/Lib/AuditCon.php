@@ -44,20 +44,41 @@ class AuditCon {
 		}, $this->getAuditors() );
 
 		// Realtime Snapshotting
-		if ( !Services::WpGeneral()->isCron() ) {
-			add_action( 'wp_loaded', function () {
-				\array_map(
-					function ( $auditor ) {
-						if ( $auditor->canSnapRealtime() ) {
-							$this->runSnapshotDiscovery( $auditor );
-						}
-					},
-					$this->getAuditors()
-				);
-			} );
-		}
+		add_action( 'wp_loaded', function () {
+			\array_map(
+				function ( $auditor ) {
+					if ( $auditor->canSnapRealtime() ) {
+						$this->runSnapshotDiscovery( $auditor );
+					}
+				},
+				$this->getAuditors()
+			);
 
-		// Cron Snapshotting
+			$allSnappers = \array_filter( \array_map(
+				function ( $auditor ) {
+					try {
+						$snapper = $auditor->getSnapper();
+					}
+					catch ( \Exception $e ) {
+						$snapper = null;
+					}
+					return $snapper;
+				},
+				$this->getAuditors()
+			) );
+
+			// Typically on initial installation we want to prime all the snapshots.
+			if ( count( $this->getSnapshots() ) !== count( $allSnappers ) ) {
+				$hook = $this->con()->prefix( 'auditcon_prime_snapshots' );
+				if ( !wp_next_scheduled( $hook ) ) {
+					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
+				}
+				add_action( $hook, function () {
+					$this->runAsyncSnapshotDiscovery();
+				} );
+			}
+		} );
+
 		$this->getSnapshotDiscoveryQueue();
 	}
 
@@ -191,6 +212,10 @@ class AuditCon {
 	}
 
 	public function runDailyCron() {
+		$this->runAsyncSnapshotDiscovery();
+	}
+
+	private function runAsyncSnapshotDiscovery() {
 		$q = $this->getSnapshotDiscoveryQueue();
 		foreach ( $this->getAuditors() as $auditor ) {
 			$q->push_to_queue( $auditor::Slug() );

@@ -425,8 +425,17 @@ table.odp-table.scan-table td.column-path code {
 }
 .form-check .form-check-input {
 	margin-top: 0.25em;
+}
+.form-check:not(.form-switch) .form-check-input:checked {
 	/** @since BS 5.3.0 must set this as it conflicts with WP's own background: #fff CSS */
-	background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+.form-check.form-switch .form-check-input {
+	background-repeat: no-repeat;
+}
+.form-check.form-switch .form-check-input:checked {
+	/** @since BS 5.3.0 must set this as it conflicts with WP's own background: #fff CSS */
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e")
 }
 /** copied from bootstrap to override WP admin styles */
 .icwpOptionsForm {

@@ -14,7 +14,7 @@ class ZoneReportComments extends BaseZoneReport {
 					sprintf( '<code>%s</code>', $log->meta_data[ 'status' ] ) );
 				break;
 			case 'comment_status_updated':
-				$text = sprintf( __( 'Status changed: %s to %s', 'wp-simple-firewall' ),
+				$text = sprintf( __( 'Status changed: %s&rarr;%s', 'wp-simple-firewall' ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'status_old' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'status_new' ] )
 				);

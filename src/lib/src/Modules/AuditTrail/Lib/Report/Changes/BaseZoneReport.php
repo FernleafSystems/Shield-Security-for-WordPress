@@ -103,23 +103,18 @@ abstract class BaseZoneReport {
 
 	protected function buildDetailedRow( LogRecord $log, string $rowBody ) :string {
 		if ( $log->meta_data[ 'snapshot_discovery' ] ?? false ) {
-			$row = sprintf( '%s<br/><small class="">[%s] <span class="badge text-bg-warning">%s</span></small>',
-				$rowBody,
-				Services::WpGeneral()->getTimeStringForDisplay( $log->created_at, false ),
-				__( 'Discovered', 'wp-simple-firewall' )
-			);
+			$who = sprintf( '<span class="badge text-bg-warning">%s</span>', __( 'Discovered', 'wp-simple-firewall' ) );
 		}
 		else {
 			$user = Services::WpUsers()->getUserById( $log->meta_data[ 'uid' ] ?? 0 );
 			$username = empty( $user ) ? __( 'Unknown', 'wp-simple-firewall' ) : $user->user_login;
-			$row = sprintf( '%s<br/><small class="">[%s] [%s] [%s]</small>',
-				$rowBody,
-				Services::WpGeneral()->getTimeStringForDisplay( $log->created_at, false ),
-				$log->ip,
-				\strtolower( $username )
-			);
+			$who = sprintf( '[%s] [%s]', $log->ip, \strtolower( $username ) );
 		}
-		return $row;
+		return sprintf( '%s<div class="detailed d-none"><small class="">[%s] %s</small></div>',
+			$rowBody,
+			Services::WpGeneral()->getTimeStringForDisplay( $log->created_at, false ),
+			$who
+		);
 	}
 
 	abstract protected function getUniqFromLog( LogRecord $log ) :string;

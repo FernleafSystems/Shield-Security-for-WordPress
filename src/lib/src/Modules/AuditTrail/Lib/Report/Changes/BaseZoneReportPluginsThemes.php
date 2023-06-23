@@ -26,13 +26,17 @@ abstract class BaseZoneReportPluginsThemes extends BaseZoneReport {
 				break;
 			case 'plugin_upgraded':
 			case 'theme_upgraded':
-				$text = sprintf( __( 'Upgraded: v%s to v%s', 'wp-simple-firewall' ),
-					$log->meta_data[ 'from' ] ?? '??', $log->meta_data[ 'to' ] ?? '??' );
+				$text = sprintf( __( 'Upgraded: %s&rarr;%s', 'wp-simple-firewall' ),
+					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ?? '??' ),
+					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] ?? '??' )
+				);
 				break;
 			case 'plugin_downgraded':
 			case 'theme_downgraded':
-				$text = sprintf( __( 'Downgraded: v%s to v%s', 'wp-simple-firewall' ),
-					$log->meta_data[ 'from' ] ?? '??', $log->meta_data[ 'to' ] ?? '??' );
+				$text = sprintf( __( 'Downgraded: %s&rarr;%s', 'wp-simple-firewall' ),
+					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ?? '??' ),
+					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] ?? '??' )
+				);
 				break;
 			default:
 				$text = parent::buildSummaryForLog( $log );
