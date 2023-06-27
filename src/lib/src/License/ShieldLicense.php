@@ -7,7 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\License;
  * @property string $aff_ref
  * @property array  $crowdsec
  * @property array  $capabilities
- * @property int    $version
+ * @property int    $lic_version
  */
 class ShieldLicense extends \FernleafSystems\Wordpress\Services\Utilities\Licenses\EddLicenseVO {
 
@@ -19,8 +19,8 @@ class ShieldLicense extends \FernleafSystems\Wordpress\Services\Utilities\Licens
 					$value = [];
 				}
 				break;
-			case 'version':
-				$value = empty( $value ) ? 1 : (int)$value;
+			case 'lic_version':
+				$value = empty( $value ) ? 0 : (int)$value;
 				break;
 			default:
 				break;

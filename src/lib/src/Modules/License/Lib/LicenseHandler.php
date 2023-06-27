@@ -19,6 +19,11 @@ class LicenseHandler {
 	 */
 	private $license;
 
+	/**
+	 * @var Capabilities
+	 */
+	private $caps;
+
 	protected function run() {
 		add_action( $this->con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
@@ -37,6 +42,10 @@ class LicenseHandler {
 			catch ( \Exception $e ) {
 			}
 		} );
+	}
+
+	public function getCaps() :Capabilities {
+		return $this->caps ?? $this->caps = new Capabilities();
 	}
 
 	public function runHourlyCron() {
