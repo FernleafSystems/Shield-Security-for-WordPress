@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\License\ShieldLicense;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Verify {
@@ -21,7 +23,7 @@ class Verify {
 
 		$existing = $licHandler->getLicense();
 
-		$license = ( new LookupRequest() )->lookup();
+		$license = $this->sendRequest();
 
 		$isSuccessfulApiRequest = false;
 
@@ -33,7 +35,7 @@ class Verify {
 				$opts->setOptAt( 'license_activated_at' );
 			}
 			$mod->clearLastErrors();
-			$opts->setOpt( 'license_data', $existing->getRawData() ); // need to do this before event
+			$licHandler->updateLicenseData( $existing->getRawData() ); // need to do this before event
 			$this->con()->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $license->isReady() ) {
@@ -68,7 +70,7 @@ class Verify {
 		}
 
 		$existing->last_request_at = Services::Request()->ts();
-		$opts->setOpt( 'license_data', $existing->getRawData() );
+		$licHandler->updateLicenseData( $existing->getRawData() );
 		$this->mod()->saveModOptions();
 
 		if ( !$isSuccessfulApiRequest ) {
@@ -80,5 +82,19 @@ class Verify {
 		Services::WpFs()->touch( $this->con()->paths->forFlag( 'license_check' ) );
 		$this->opts()->setOptAt( 'license_last_checked_at' );
 		$this->mod()->saveModOptions();
+	}
+
+	private function sendRequest() :ShieldLicense {
+		$lookup = new Lookup();
+		$lookup->url = $this->opts()->getMasterSiteLicenseURL();
+		$lookup->install_ids = [
+			'shieldpro' => $this->con()->getInstallationID()[ 'id' ],
+		];
+		$lookup->nonce = ( new HandshakingNonce() )->create();
+		$lookup->meta = [
+			'version_shield' => $this->con()->getVersion(),
+			'version_php'    => Services::Data()->getPhpVersionCleaned()
+		];
+		return ( new ShieldLicense() )->applyFromArray( $lookup->lookup()[ 'shieldpro' ] ?? [] );
 	}
 }

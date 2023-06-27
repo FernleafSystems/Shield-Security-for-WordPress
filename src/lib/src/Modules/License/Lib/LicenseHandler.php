@@ -14,6 +14,11 @@ class LicenseHandler {
 	use ModConsumer;
 	use PluginCronsConsumer;
 
+	/**
+	 * @var ShieldLicense
+	 */
+	private $license;
+
 	protected function run() {
 		add_action( $this->con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
@@ -77,12 +82,14 @@ class LicenseHandler {
 
 	public function clearLicense() {
 		$this->mod()->clearLastErrors();
-		$this->opts()->setOpt( 'license_data', [] );
+		$this->updateLicenseData( [] );
 	}
 
-	/**
-	 * @param bool $sendEmail
-	 */
+	public function updateLicenseData( array $data ) {
+		$this->opts()->setOpt( 'license_data', $data );
+		$this->unsetLicense();
+	}
+
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
@@ -105,8 +112,16 @@ class LicenseHandler {
 	}
 
 	public function getLicense() :ShieldLicense {
-		$data = $this->opts()->getOpt( 'license_data', [] );
-		return ( new ShieldLicense() )->applyFromArray( is_array( $data ) ? $data : [] );
+		if ( !isset( $this->license ) ) {
+			$data = $this->opts()->getOpt( 'license_data', [] );
+			$this->license = ( new ShieldLicense() )->applyFromArray( \is_array( $data ) ? $data : [] );
+		}
+		return $this->license;
+	}
+
+	public function unsetLicense() :self {
+		unset( $this->license );
+		return $this;
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {
@@ -118,7 +133,6 @@ class LicenseHandler {
 	 * expires on this site. We consider a registration as expired if the last verified
 	 * date is past, or the actual license is expired - whichever happens earlier -
 	 * plus the grace period.
-	 * @return int
 	 */
 	public function getRegistrationExpiresAt() :int {
 		$verifiedExpiredDays = $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays();

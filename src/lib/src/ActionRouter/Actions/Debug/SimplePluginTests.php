@@ -69,10 +69,10 @@ class SimplePluginTests extends BaseAction {
 			]
 		);
 
-		var_dump($args);
-		var_dump($params);
+		var_dump( $args );
+		var_dump( $params );
 
-		$users = get_users($args  );
+		$users = get_users( $args );
 		var_dump( $users );
 	}
 

@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	LicenseClear,
 	LicenseLookup
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageLicense extends BasePluginAdminPage {
@@ -53,6 +52,8 @@ class PageLicense extends BasePluginAdminPage {
 			);
 		}
 
+		$license = $mod->getLicenseHandler()->getLicense();
+
 		return [
 			'ajax'    => [
 				'license_action_clear'  => ActionData::Build( LicenseClear::class ),
@@ -90,7 +91,7 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'license_table'  => [
-					'product_name'    => $opts->getDef( $lic->is_central ? 'license_item_name_sc' : 'license_item_name' ),
+					'product_name'    => $license->item_name,
 					'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
 					'license_expires' => $expiresAtHuman,
 					'license_email'   => $lic->customer_email,
