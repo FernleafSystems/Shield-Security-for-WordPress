@@ -352,11 +352,11 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'importexport_enable' :
-				$name = __( 'Allow Import/Export', 'wp-simple-firewall' );
-				$summary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );
+				$name = __( 'Automatic Import/Export', 'wp-simple-firewall' );
+				$summary = __( 'Allow Automated Import And Export Of Options On This Site', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Uncheck this box to completely disable import and export of options.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Import/Export is a premium-only feature.', 'wp-simple-firewall' ) )
+					__( 'Enable this option to allow automatic import and export of options between WordPress sites.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Automatic Import/Export is a premium-only feature.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -436,10 +436,6 @@ class Strings extends Base\Strings {
 					__( 'Choose when you should be sent important and critical alerts about your site security.', 'wp-simple-firewall' ),
 					__( 'Critical alerts are typically results from your most recent site scans.', 'wp-simple-firewall' )
 				];
-				if ( !$con->isPremiumActive() ) {
-					$desc[] = __( 'If you wish to receive alerts more quickly, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
-					$desc[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
-				}
 				break;
 
 			case 'frequency_info' :
@@ -449,10 +445,6 @@ class Strings extends Base\Strings {
 					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
 					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
 				];
-				if ( !$con->isPremiumActive() ) {
-					$desc[] = __( 'If you wish to receive reports more often, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
-					$desc[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
-				}
 				break;
 
 			default:

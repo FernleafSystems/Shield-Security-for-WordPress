@@ -135,27 +135,32 @@
         {
           "value_key": "malware_php",
           "text":      "PHP Malware (all PHP files)",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_malware_local"
         },
         {
           "value_key": "plugins",
           "text":      "Plugins",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_pluginsthemes_local"
         },
         {
           "value_key": "themes",
           "text":      "Themes",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_pluginsthemes_local"
         },
         {
           "value_key": "wpcontent",
           "text":      "wp-content directory",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_files_everywhere"
         },
         {
           "value_key": "wproot",
           "text":      "WP root directory",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_files_everywhere"
         }
       ],
       "link_info":     "https://shsec.io/wpsf36",
@@ -200,6 +205,7 @@
       "key":           "file_locker",
       "section":       "section_file_guard",
       "premium":       true,
+      "cap":           "scan_file_locker",
       "type":          "multiple_select",
       "default":       [],
       "value_options": [

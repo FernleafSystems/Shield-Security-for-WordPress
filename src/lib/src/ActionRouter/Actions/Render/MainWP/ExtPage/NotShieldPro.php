@@ -10,8 +10,8 @@ class NotShieldPro extends BaseSubPage {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
-				'not_pro' => __( "Sorry, the MainWP server integration is available only for ShieldPRO members." ),
-				'go_pro'  => __( 'Upgrade To ShieldPRO' ),
+				'not_pro' => __( "Sorry, you'll need to upgrade your Shield Security membership to access the MainWP integration." ),
+				'go_pro'  => __( 'Upgrade Membership' ),
 			],
 			'hrefs'   => [
 				'go_pro' => 'https://shsec.io/mainwpservergopro'

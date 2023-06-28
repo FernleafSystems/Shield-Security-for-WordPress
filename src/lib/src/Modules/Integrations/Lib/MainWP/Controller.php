@@ -73,7 +73,7 @@ class Controller {
 	}
 
 	private function isMainWPChildActive() :bool {
-		return @class_exists( '\MainWP\Child\MainWP_Child' );
+		return @\class_exists( '\MainWP\Child\MainWP_Child' );
 	}
 
 	private function isMainWPServerActive() :bool {
@@ -81,11 +81,11 @@ class Controller {
 	}
 
 	public static function isMainWPChildVersionSupported() :bool {
-		return version_compare( \MainWP\Child\MainWP_Child::$version, self::MIN_VERSION_MAINWP, '>=' );
+		return \version_compare( \MainWP\Child\MainWP_Child::$version, self::MIN_VERSION_MAINWP, '>=' );
 	}
 
 	public static function isMainWPServerVersionSupported() :bool {
-		return defined( 'MAINWP_VERSION' )
-			   && version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
+		return \defined( 'MAINWP_VERSION' )
+			   && \version_compare( MAINWP_VERSION, self::MIN_VERSION_MAINWP, '>=' );
 	}
 }

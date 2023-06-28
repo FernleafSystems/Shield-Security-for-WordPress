@@ -53,9 +53,6 @@ class PageAdminPlugin extends BaseRender {
 			'flags'   => [
 				'is_advanced' => $con->getModule_Plugin()->isShowAdvanced(),
 			],
-			'hrefs'   => [
-				'go_pro' => 'https://shsec.io/shieldgoprofeature',
-			],
 			'imgs'    => [
 				'logo_banner' => $con->labels->url_img_pagebanner,
 			],

@@ -287,11 +287,8 @@ abstract class BaseRender extends BaseAction {
 			'this_page'         => __( 'This Page', 'wp-simple-firewall' ),
 			'jump_to_option'    => __( 'Find Plugin Option', 'wp-simple-firewall' ),
 			'type_below_search' => __( 'Type below to search all plugin options', 'wp-simple-firewall' ),
-			'pro_only_option'   => __( 'Pro Only', 'wp-simple-firewall' ),
-			'pro_only_feature'  => __( 'This is a pro-only feature', 'wp-simple-firewall' ),
+			'pro_only_option'   => __( 'Upgrade Required', 'wp-simple-firewall' ),
 			'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
-			'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
-				'https://shsec.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 
 			'mode'            => __( 'Mode', 'wp-simple-firewall' ),
 			'mode_simple'     => __( 'Simple', 'wp-simple-firewall' ),

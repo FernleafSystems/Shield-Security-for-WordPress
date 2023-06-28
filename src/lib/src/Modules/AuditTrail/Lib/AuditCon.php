@@ -88,7 +88,9 @@ class AuditCon {
 	public function getAuditors() :array {
 		if ( empty( $this->auditors ) ) {
 			$this->auditors = [];
-			foreach ( Constants::AUDITORS as $auditorClass ) {
+			$auditClasses = \array_merge( Constants::AUDITORS,
+				$this->con()->caps->canThirdPartyActivityLog() ? Constants::THIRDPARTY_AUDITORS : [] );
+			foreach ( $auditClasses as $auditorClass ) {
 				/** @var Auditors\Base $auditor */
 				$this->auditors[ $auditorClass::Slug() ] = new $auditorClass();
 			}

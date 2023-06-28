@@ -65,10 +65,7 @@ class Wpv extends BaseForAssets {
 		return count( $this->getResultsForDisplay()->getItemsForSlug( $file ) ) > 0;
 	}
 
-	/**
-	 * @return Scans\Wpv\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
+	protected function newItemActionHandler() :Scans\Wpv\Utilities\ItemActionHandler {
 		return new Scans\Wpv\Utilities\ItemActionHandler();
 	}
 
@@ -77,13 +74,14 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->con()->isPremiumActive() && $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' );
+		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' )
+			   && $this->con()->caps->canScanVulnerabilities();
 	}
 
 	/**
-	 * @return Scans\Wpv\ScanActionVO
+	 * @throws \Exception
 	 */
-	public function buildScanAction() {
+	public function buildScanAction() :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
 			->setScanController( $this )
 			->build()

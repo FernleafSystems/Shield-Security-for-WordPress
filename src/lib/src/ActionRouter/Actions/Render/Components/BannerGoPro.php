@@ -22,7 +22,7 @@ class BannerGoPro extends BaseRender {
 				'show_promo' => \method_exists( $con, 'isPluginAdminPageRequest' )
 								&& $con->isPluginAdminPageRequest()
 								&& !$con->isPremiumActive()
-								&& ( !in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ),
+								&& ( !\in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ),
 			],
 			'hrefs' => [
 				'go_pro' => 'https://shsec.io/shieldgoprofeature',

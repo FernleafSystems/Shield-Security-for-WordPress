@@ -261,8 +261,8 @@ class Strings extends Base\Strings {
 					sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory' ),
 						implode( ' ', [
 							sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), 'WP root', '<code>/wp-content/</code>' ),
-							__( "With it often being very untidy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
-							__( "We have some rules that we can use to detect unidentified files, but you'll probably see some false positives.", 'wp-simple-firewall' ),
+							__( "With it being usually very unkempt, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
+							__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
 						] )
 					),
 					__( 'The more areas that are selected, the longer the file scan will take to complete.', 'wp-simple-firewall' ),

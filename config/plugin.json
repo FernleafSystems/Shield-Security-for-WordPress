@@ -257,6 +257,7 @@
       "section":     "section_importexport",
       "advanced":    true,
       "premium":     true,
+      "cap":         "crowdsec_level_3",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/do",
@@ -597,7 +598,7 @@
       }
     },
     "db_handler_classes":  {
-      "report":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
+      "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
     },
     "db_table_report":     {
       "autoexpire":      30,

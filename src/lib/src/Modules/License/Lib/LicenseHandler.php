@@ -44,10 +44,6 @@ class LicenseHandler {
 		} );
 	}
 
-	public function getCaps() :Capabilities {
-		return $this->caps ?? $this->caps = new Capabilities();
-	}
-
 	public function runHourlyCron() {
 		$this->mod()->getWpHashesTokenManager()->getToken();
 	}

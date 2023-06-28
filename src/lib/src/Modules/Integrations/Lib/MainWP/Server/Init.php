@@ -31,13 +31,11 @@ class Init {
 			throw new \Exception( 'No child key provided' );
 		}
 
-		if ( Controller::isMainWPServerVersionSupported() && $con->isPremiumActive() ) {
+		if ( Controller::isMainWPServerVersionSupported() && $con->caps->canMainwpLevel1() ) {
 
-			if ( $con->isPremiumActive() ) {
-				( new SyncHandler() )->execute();
-				$this->attachSitesListingShieldColumn();
-				$extensionsPage->execute();
-			}
+			( new SyncHandler() )->execute();
+			$this->attachSitesListingShieldColumn();
+			$extensionsPage->execute();
 
 			add_action( 'mainwp_secure_check_admin_referer_is_accepted', function ( $isRequestAccepted ) {
 				$this->blockPluginDisable( $isRequestAccepted );

@@ -20,4 +20,6 @@ class Constants {
 		Auditors\Comments::class,
 		Auditors\Emails::class,
 	];
+	public const THIRDPARTY_AUDITORS = [
+	];
 }

@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property Shield\Request\ThisRequest                             $this_req
+ * @property Shield\Modules\License\Lib\Capabilities                $caps
  * @property Config\Labels                                          $labels
  * @property array                                                  $prechecks
  * @property array                                                  $flags
@@ -114,22 +115,28 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'caps':
+				if ( \is_null( $val ) ) {
+					$this->caps = $val = new Shield\Modules\License\Lib\Capabilities();
+				}
+				break;
+
 			case 'flags':
-				if ( !is_array( $val ) ) {
+				if ( !\is_array( $val ) ) {
 					$val = [];
 					$this->flags = $val;
 				}
 				break;
 
 			case 'labels':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = $this->labels();
 					$this->labels = $val;
 				}
 				break;
 
 			case 'this_req':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = new Shield\Request\ThisRequest();
 					$this->this_req = $val;
 				}
@@ -145,14 +152,14 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'plugin_reset':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
 
 			case 'is_rest_enabled':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$restReqs = $this->cfg->reqs_rest;
 					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
 						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
@@ -167,34 +174,34 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'is_mode_debug':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = ( new Shield\Controller\Modes\DebugMode() )->isModeActive();
 					$this->is_mode_debug = $val;
 				}
 				break;
 
 			case 'is_mode_live':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = $this->is_mode_live = !$this->is_mode_staging && !$this->is_mode_debug;
 				}
 				break;
 
 			case 'is_mode_staging':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = ( new Shield\Controller\Modes\StagingMode() )->isModeActive();
 					$this->is_mode_staging = $val;
 				}
 				break;
 
 			case 'mu_handler':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = new Shield\Utilities\MU\MUHandler();
 					$this->mu_handler = $val;
 				}
 				break;
 
 			case 'action_router':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = new Shield\ActionRouter\ActionRoutingController();
 					$this->action_router = $val;
 				}
@@ -229,7 +236,7 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'reqs_not_met':
-				if ( !is_array( $val ) ) {
+				if ( !\is_array( $val ) ) {
 					$val = [];
 					$this->reqs_not_met = $val;
 				}
@@ -918,7 +925,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getVersionNumeric() :int {
-		$parts = explode( '.', $this->getVersion() );
+		$parts = \explode( '.', $this->getVersion() );
 		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
 	}
 

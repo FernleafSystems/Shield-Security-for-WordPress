@@ -38,13 +38,13 @@ class BuildForDisplay {
 
 			if ( !empty( $sect[ 'options' ] ) ) {
 
-				foreach ( $sect[ 'options' ] as $optKey => $option ) {
-					$option[ 'is_value_default' ] = $option[ 'value' ] === $option[ 'default' ];
-					$isOptPremium = $option[ 'premium' ] ?? false;
-					$bIsAdv = $option[ 'advanced' ] ?? false;
-					if ( ( !$isOptPremium || $isPremium ) && ( !$bIsAdv || $showAdvanced ) ) {
-						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $option );
-						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $option[ 'key' ] === $this->focusOption;
+				foreach ( $sect[ 'options' ] as $optKey => $opt ) {
+					$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
+					$isOptPremium = ( $opt[ 'premium' ] ?? false ) || !empty( $opt[ 'cap' ] );
+					$isAdv = $opt[ 'advanced' ] ?? false;
+					if ( ( !$isOptPremium || $isPremium ) && ( !$isAdv || $showAdvanced ) ) {
+						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
+						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
 					}
 					else {
 						unset( $sect[ 'options' ][ $optKey ] );
@@ -166,6 +166,7 @@ class BuildForDisplay {
 	}
 
 	protected function buildOptionForUi( array $option ) :array {
+		$con = $this->con();
 
 		$value = $option[ 'value' ];
 
@@ -210,10 +211,18 @@ class BuildForDisplay {
 				break;
 		}
 
+		$isOptDisabled = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
+						 || ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
+
+		if ( $option[ 'key' ] === 'importexport_enable' ) {
+			error_log( var_export( $option, true ) );
+			error_log( var_export( $option[ 'cap' ], true ) );
+			error_log( var_export( !empty( $option[ 'cap' ] ), true ) );
+			error_log( var_export( !$con->caps->hasCap( $option[ 'cap' ] ), true ) );
+		}
 		$params = [
 			'value'    => \is_scalar( $value ) ? esc_attr( $value ) : $value,
-			'disabled' => !$this->con()
-								->isPremiumActive() && ( isset( $option[ 'premium' ] ) && $option[ 'premium' ] ),
+			'disabled' => $isOptDisabled,
 		];
 		$params[ 'enabled' ] = !$params[ 'disabled' ];
 		$option = \array_merge( [ 'rows' => '2' ], $option, $params );

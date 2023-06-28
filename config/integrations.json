@@ -60,6 +60,8 @@
     {
       "key":         "enable_mainwp",
       "section":     "section_integrations",
+      "premium":     true,
+      "cap":         "mainwp_level_2",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ir",
