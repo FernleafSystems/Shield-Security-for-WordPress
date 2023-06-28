@@ -49,7 +49,7 @@ class MerlinController {
 	 */
 	private function getWizardSteps( string $wizardKey ) :array {
 		$constants = ( new \ReflectionClass( Wizards::class ) )->getConstants();
-		$fullKey = strtoupper( 'WIZARD_STEPS_'.$wizardKey );
+		$fullKey = \strtoupper( 'WIZARD_STEPS_'.$wizardKey );
 		if ( !isset( $constants[ $fullKey ] ) ) {
 			throw new \Exception( 'Invalid Wizard specified' );
 		}

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -114,7 +114,7 @@ class ActionRoutingController {
 					if ( empty( $navID ) ) {
 						$redirectTo = $urls->adminHome();
 					}
-					elseif ( $navID === PluginURLs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
+					elseif ( $navID === PluginNavs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
 						$redirectTo = $urls->modCfg( $con->getModule_Plugin() );
 					}
 				}
@@ -126,7 +126,7 @@ class ActionRoutingController {
 				}
 			}
 			elseif ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
-				$redirectTo = $urls->adminTopNav( PluginURLs::NAV_WIZARD );
+				$redirectTo = $urls->adminTopNav( PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME );
 			}
 
 			if ( !empty( $redirectTo ) ) {

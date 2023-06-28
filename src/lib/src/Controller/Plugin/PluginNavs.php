@@ -25,4 +25,5 @@ class PluginNavs {
 	public const SUBNAV_CHANGE_TRACK = 'change_tracking';
 	public const SUBNAV_CHARTS = 'charts';
 	public const SUBNAV_STATS = 'stats';
+	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 }
