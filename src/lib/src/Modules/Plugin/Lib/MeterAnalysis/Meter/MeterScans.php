@@ -38,7 +38,11 @@ class MeterScans extends MeterBase {
 
 	protected function getComponents() :array {
 		return [
-			Component\ScanEnabledAfs::class,
+			Component\ScanEnabledAfsAreaWpCore::class,
+			Component\ScanEnabledAfsAreaPlugins::class,
+			Component\ScanEnabledAfsAreaThemes::class,
+			Component\ScanEnabledAfsAreaWpContent::class,
+			Component\ScanEnabledAfsAreaWpRoot::class,
 			Component\ScanEnabledMal::class,
 			Component\ScanEnabledAfsAutoRepairCore::class,
 			Component\ScanEnabledAfsAutoRepairPlugins::class,

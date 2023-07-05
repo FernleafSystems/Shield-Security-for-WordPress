@@ -49,7 +49,11 @@ class Components {
 		Component\LoginFormThirdParties::class,
 		Component\PluginBadge::class,
 		Component\PluginReportEmail::class,
-		Component\ScanEnabledAfs::class,
+		Component\ScanEnabledAfsAreaWpCore::class,
+		Component\ScanEnabledAfsAreaPlugins::class,
+		Component\ScanEnabledAfsAreaThemes::class,
+		Component\ScanEnabledAfsAreaWpContent::class,
+		Component\ScanEnabledAfsAreaWpRoot::class,
 		Component\ScanEnabledApc::class,
 		Component\ScanEnabledMal::class,
 		Component\ScanEnabledWpv::class,
@@ -91,7 +95,7 @@ class Components {
 	private static $built;
 
 	public function __construct() {
-		if ( !is_array( self::$built ) ) {
+		if ( !\is_array( self::$built ) ) {
 			self::$built = [];
 		}
 	}

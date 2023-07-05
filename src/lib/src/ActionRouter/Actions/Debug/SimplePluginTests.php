@@ -45,7 +45,9 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_apitoken() {
-		$this->con()->getModule_License()->getWpHashesTokenManager()->setCanRequestOverride( true )->getToken();
+		$this->con()->getModule_License()->getWpHashesTokenManager()
+										 ->setCanRequestOverride( true )
+										 ->getToken();
 	}
 
 	private function dbg_changetrack() {

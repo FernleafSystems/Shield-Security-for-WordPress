@@ -58,7 +58,7 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $short,
-			'summary'     => $summary ?? [],
+			'summary'     => $summary,
 		];
 	}
 

@@ -36,36 +36,45 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'log_level_db', [] );
 	}
 
-	public function getLogLevelsFile() :array {
-		$levels = $this->getOpt( 'log_level_file', [] );
-		if ( empty( $levels ) || !is_array( $levels ) ) {
-			$this->resetOptToDefault( 'log_level_file' );
-		}
-		elseif ( count( $levels ) > 1 ) {
-			if ( in_array( 'disabled', $levels ) ) {
-				$this->setOpt( 'log_level_file', [ 'disabled' ] );
-			}
-			elseif ( in_array( 'same_as_db', $levels ) ) {
-				$this->setOpt( 'log_level_file', [ 'same_as_db' ] );
-			}
-		}
-		$levels = $this->getOpt( 'log_level_file', [] );
-		return in_array( 'same_as_db', $levels ) ? $this->getLogLevelsDB() : $levels;
-	}
-
+	/**
+	 * Don't put cap "activity_logs_unlimited" into cfg as this option is always available, but limited to 7.
+	 */
 	public function getAutoCleanDays() :int {
 		$days = $this->getOpt( 'audit_trail_auto_clean' );
-		if ( !$this->con()->isPremiumActive() ) {
-			$this->setOpt( 'audit_trail_auto_clean', min( $days, 7 ) );
+		if ( $days > $this->getOptDefault( 'audit_trail_auto_clean' ) && !$this->con()->caps->canActivityLogsUnlimited() ) {
+			$this->resetOptToDefault( 'audit_trail_auto_clean' );
 		}
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
 
 	public function isLogToDB() :bool {
-		return !in_array( 'disabled', $this->getLogLevelsDB() );
+		return !\in_array( 'disabled', $this->getLogLevelsDB() );
 	}
 
+	/**
+	 * @deprecated 18.2
+	 */
 	public function isLogToFile() :bool {
-		return !in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $this->getLogFilePath() );
+		return !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $this->getLogFilePath() );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function getLogLevelsFile() :array {
+		$levels = $this->getOpt( 'log_level_file', [] );
+		if ( empty( $levels ) ) {
+			$this->resetOptToDefault( 'log_level_file' );
+		}
+		elseif ( \count( $levels ) > 1 ) {
+			if ( \in_array( 'disabled', $levels ) ) {
+				$this->setOpt( 'log_level_file', [ 'disabled' ] );
+			}
+			elseif ( \in_array( 'same_as_db', $levels ) ) {
+				$this->setOpt( 'log_level_file', [ 'same_as_db' ] );
+			}
+		}
+		$levels = $this->getOpt( 'log_level_file', [] );
+		return \in_array( 'same_as_db', $levels ) ? $this->getLogLevelsDB() : $levels;
 	}
 }

@@ -35,10 +35,6 @@ class ModCon extends BaseShield\ModCon {
 			$opts->getCustomExclusions()
 		) ) );
 
-		if ( !$this->con()->isPremiumActive() && $opts->isOpt( 'enable_limiter', 'Y' ) ) {
-			$opts->isOpt( 'enable_limiter', 'N' );
-		}
-
 		if ( $opts->isOpt( 'enable_limiter', 'Y' ) && !$opts->isTrafficLoggerEnabled() ) {
 			$opts->setOpt( 'enable_logger', 'Y' );
 			if ( $opts->getAutoCleanDays() === 0 ) {
@@ -48,8 +44,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function isReadyToExecute() :bool {
-		$con = $this->con();
-		return $con->getModule_Data()->getDbH_ReqLogs()->isReady()
-			   && parent::isReadyToExecute();
+		return $this->con()->getModule_Data()->getDbH_ReqLogs()->isReady() && parent::isReadyToExecute();
 	}
 }

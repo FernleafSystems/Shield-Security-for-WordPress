@@ -175,8 +175,10 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' ),
 					__( 'No email address - No Notification.', 'wp-simple-firewall' ),
-					__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' )
 				];
+				$desc[] = $this->con()->isPremiumActive() ?
+					__( 'Multiple email addresses may be supplied, separated by a comma.', 'wp-simple-firewall' ) :
+					__( 'Please upgrade your plan if you need to notify multiple email addresses.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_user_login_email_notification' :

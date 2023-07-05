@@ -19,11 +19,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		}
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	protected function createPrimaryLogRecord( array $logData ) :bool {
 		$modData = $this->con()->getModule_Data();
 
-		$ipRecord = ( new IPRecords() )
-			->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
+		$ipRecord = ( new IPRecords() )->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
 		$reqRecord = ( new ReqLogs\RequestRecords() )
 			->loadReq( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecord->id );
@@ -32,7 +34,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		unset( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 		unset( $logData[ 'extra' ][ 'meta_request' ][ 'rid' ] );
 
-		$meta = array_merge(
+		$meta = \array_merge(
 			$logData[ 'extra' ][ 'meta_shield' ],
 			$logData[ 'extra' ][ 'meta_request' ],
 			$logData[ 'extra' ][ 'meta_user' ],

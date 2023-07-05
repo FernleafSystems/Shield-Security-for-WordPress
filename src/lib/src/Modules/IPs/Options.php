@@ -73,11 +73,11 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isEnabledAutoVisitorRecover() :bool {
-		return in_array( 'gasp', (array)$this->getOpt( 'user_auto_recover', [] ) );
+		return \in_array( 'gasp', $this->getOpt( 'user_auto_recover', [] ) );
 	}
 
 	public function isEnabledMagicEmailLinkRecover() :bool {
-		return in_array( 'email', (array)$this->getOpt( 'user_auto_recover', [] ) );
+		return \in_array( 'email', $this->getOpt( 'user_auto_recover', [] ) );
 	}
 
 	public function isEnabledTrack404() :bool {

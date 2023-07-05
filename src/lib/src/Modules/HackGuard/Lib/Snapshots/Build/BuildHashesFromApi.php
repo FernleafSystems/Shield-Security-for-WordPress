@@ -24,7 +24,7 @@ class BuildHashesFromApi {
 			$apiInfo = ( new Hashes\ApiInfo() )
 				->setUseQueryCache( true )
 				->getInfo();
-			if ( is_array( $apiInfo ) && !empty( $apiInfo[ 'supported_premium' ] ) ) {
+			if ( \is_array( $apiInfo ) && !empty( $apiInfo[ 'supported_premium' ] ) ) {
 				if ( $asset->asset_type === 'plugin' ) {
 					$slug = $asset->slug;
 					$file = $asset->file;
@@ -81,6 +81,6 @@ class BuildHashesFromApi {
 			throw new \Exception( 'Not a supported asset type' );
 		}
 
-		return is_array( $hashes ) ? $hashes : null;
+		return \is_array( $hashes ) ? $hashes : null;
 	}
 }

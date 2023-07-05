@@ -2,23 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class WhitelabelController extends ExecOnceModConsumer {
+class WhitelabelController {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function canRun() :bool {
 		return $this->isEnabled();
 	}
 
 	public function isEnabled() :bool {
-		/** @var SecurityAdmin\ModCon $mod */
-		$mod = $this->mod();
-		return $this->con()->isPremiumActive()
-			   && $this->getOptions()->isOpt( 'whitelabel_enable', 'Y' )
-			   && $mod->getSecurityAdminController()->isEnabledSecAdmin();
+		return $this->opts()->isOpt( 'whitelabel_enable', 'Y' )
+			   && $this->mod()->getSecurityAdminController()->isEnabledSecAdmin();
 	}
 
 	protected function run() {
@@ -27,11 +27,10 @@ class WhitelabelController extends ExecOnceModConsumer {
 		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( $opts->isOpt( 'wl_hide_updates', 'Y' ) && is_admin()
 			 && !Services::WpGeneral()->isCron()
-			 && !$this->con()->isPluginAdmin() ) {
+			 && !$con->isPluginAdmin() ) {
 
 			if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
 				add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
@@ -43,7 +42,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 	}
 
 	public function applyWhiteLabels( Labels $labels ) :Labels {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
 		$name = $opts->getOpt( 'wl_pluginnamemain' );
@@ -100,23 +99,17 @@ class WhitelabelController extends ExecOnceModConsumer {
 	 * @return array
 	 */
 	public function adjustUpdateDataCount( $updateData ) {
-
 		$file = $this->con()->base_file;
 		if ( Services::WpPlugins()->isUpdateAvailable( $file ) ) {
 			$updateData[ 'counts' ][ 'total' ]--;
 			$updateData[ 'counts' ][ 'plugins' ]--;
 		}
-
 		return $updateData;
-	}
-
-	public function isReplacePluginBadge() :bool {
-		return $this->getOptions()->isOpt( 'wl_replace_badge_url', 'Y' );
 	}
 
 	public function verifyUrls() {
 		$DP = Services::Data();
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		foreach ( [ 'wl_menuiconurl', 'wl_dashboardlogourl', 'wl_login2fa_logourl' ] as $key ) {
 			if ( $opts->isOptChanged( $key ) && !$DP->isValidWebUrl( $this->constructImageURL( $key ) ) ) {
 				$opts->resetOptToDefault( $key );
@@ -155,7 +148,7 @@ class WhitelabelController extends ExecOnceModConsumer {
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
 	 */
 	private function constructImageURL( string $key ) :string {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$url = $opts->getOpt( $key );
 		if ( empty( $url ) ) {
@@ -171,5 +164,12 @@ class WhitelabelController extends ExecOnceModConsumer {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isReplacePluginBadge() :bool {
+		return $this->opts()->isOpt( 'wl_replace_badge_url', 'Y' );
 	}
 }

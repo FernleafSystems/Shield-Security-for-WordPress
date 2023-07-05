@@ -6,7 +6,7 @@ class ContactFormSpam extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'contact_form_spam';
 
 	/**

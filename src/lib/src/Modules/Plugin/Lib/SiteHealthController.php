@@ -2,14 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\SiteHealth\Analysis;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class SiteHealthController extends ExecOnceModConsumer {
+class SiteHealthController {
 
-	public const MOD = ModCon::SLUG;
+	use ExecOnce;
+	use ModConsumer;
 	public const TAB_SLUG = 'shield_security';
 
 	protected function canRun() :bool {
@@ -22,8 +23,8 @@ class SiteHealthController extends ExecOnceModConsumer {
 
 	protected function run() {
 		add_filter( 'site_health_navigation_tabs', function ( $tabs ) {
-			$slugs = array_keys( $tabs );
-			if ( in_array( '', $slugs, true ) ) {
+			$slugs = \array_keys( $tabs );
+			if ( \in_array( '', $slugs, true ) ) {
 				/** Position our 'Security' tab immediately after 'Status' tab */
 				$anchorPos = array_search( '', $slugs, true ) + 1;
 				$tabs = array_slice( $tabs, 0, $anchorPos, true )

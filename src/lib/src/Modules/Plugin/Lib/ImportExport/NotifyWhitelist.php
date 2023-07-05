@@ -2,19 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class NotifyWhitelist extends ExecOnceModConsumer {
+class NotifyWhitelist {
 
-	public const MOD = ModCon::SLUG;
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function canRun() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return !empty( $opts->getImportExportWhitelist() );
+		return !empty( $this->opts()->getImportExportWhitelist() );
 	}
 
 	protected function run() {
@@ -33,9 +31,7 @@ class NotifyWhitelist extends ExecOnceModConsumer {
 
 		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->con()->prefix() );
 		add_action( $cronHook, function () use ( $q ) {
-			/** @var Options $opts */
-			$opts = $this->getOptions();
-			foreach ( $opts->getImportExportWhitelist() as $url ) {
+			foreach ( $this->opts()->getImportExportWhitelist() as $url ) {
 				$q->push_to_queue( $url );
 			}
 			$q->save()->dispatch();

@@ -16,7 +16,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isSuspendEnabled() && $this->con()->isPremiumActive();
+		return $this->opts()->isSuspendEnabled();
 	}
 
 	protected function run() {

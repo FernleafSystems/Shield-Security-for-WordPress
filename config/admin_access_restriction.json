@@ -289,6 +289,7 @@
       "key":         "whitelabel_enable",
       "section":     "section_whitelabel",
       "premium":     true,
+      "cap":         "whitelabel",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/dr",
@@ -312,6 +313,8 @@
     {
       "key":         "wl_replace_badge_url",
       "section":     "section_whitelabel",
+      "premium":     true,
+      "cap":         "whitelabel",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -450,7 +453,7 @@
       "wpms_pages":   [
         "settings.php"
       ],
-      "wp_options": [
+      "wp_options":   [
         "blogname",
         "blogdescription",
         "siteurl",

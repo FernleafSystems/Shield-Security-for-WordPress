@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use Monolog\Logger;
@@ -13,7 +13,7 @@ use Monolog\Logger;
 class RequestLogger {
 
 	use ExecOnce;
-	use Traffic\ModConsumer;
+	use ModConsumer;
 
 	/**
 	 * @var Logger
@@ -44,11 +44,11 @@ class RequestLogger {
 
 	private function pushCustomHandlers() {
 		$custom = apply_filters( 'shield/custom_request_log_handlers', [] );
-		array_map(
+		\array_map(
 			function ( $handler ) {
 				$this->getLogger()->pushHandler( $handler );
 			},
-			( $this->con()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
+			( $this->con()->isPremiumActive() && \is_array( $custom ) ) ? $custom : []
 		);
 	}
 
@@ -61,7 +61,7 @@ class RequestLogger {
 
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'request', [], array_map( function ( $processorClass ) {
+			$this->logger = new Logger( 'request', [], \array_map( function ( $processorClass ) {
 				return new $processorClass();
 			}, $this->enumMetaProcessors() ) );
 		}
@@ -80,16 +80,16 @@ class RequestLogger {
 	private function isRequestTypeExcluded() :bool {
 		$srvProviders = Services::ServiceProviders();
 		$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-		$excl = $this->opts()->getReqTypeExclusions();
+		$excl = $this->opts()->getOpt( 'type_exclusions' );
 		$isLoggedIn = Services::WpUsers()->isUserLoggedIn();
 
-		$exclude = ( in_array( 'logged_in', $excl ) && $isLoggedIn )
-				   || ( in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() )
-				   || ( in_array( 'server', $excl ) && $ipID === IpID::THIS_SERVER );
+		$exclude = ( \in_array( 'logged_in', $excl ) && $isLoggedIn )
+				   || ( \in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() )
+				   || ( \in_array( 'server', $excl ) && $ipID === IpID::THIS_SERVER );
 
 		if ( !$exclude && !$isLoggedIn ) {
-			$exclude = ( in_array( 'search', $excl ) && in_array( $ipID, $srvProviders->getSearchProviders() ) )
-					   || ( in_array( 'uptime', $excl ) && in_array( $ipID, $srvProviders->getUptimeProviders() ) );
+			$exclude = ( \in_array( 'search', $excl ) && \in_array( $ipID, $srvProviders->getSearchProviders() ) )
+					   || ( \in_array( 'uptime', $excl ) && \in_array( $ipID, $srvProviders->getUptimeProviders() ) );
 		}
 
 		return $exclude;
@@ -99,11 +99,11 @@ class RequestLogger {
 		$req = Services::Request();
 
 		$agent = $req->getUserAgent();
-		$path = $req->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
+		$path = $req->getPath().( empty( $_GET ) ? '' : '?'.\http_build_query( $_GET ) );
 
 		$exclude = false;
 		foreach ( $this->opts()->getCustomExclusions() as $excl ) {
-			if ( stripos( $agent, $excl ) !== false || stripos( $path, $excl ) !== false ) {
+			if ( \stripos( $agent, $excl ) !== false || \stripos( $path, $excl ) !== false ) {
 				$exclude = true;
 				break;
 			}

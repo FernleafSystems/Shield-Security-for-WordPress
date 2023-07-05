@@ -29,7 +29,7 @@ abstract class BaseForm extends Base {
 
 		return [
 			'content' => [
-				'login_fields' => array_filter( array_map(
+				'login_fields' => \array_filter( \array_map(
 					function ( $provider ) use ( $opts ) {
 						return $provider->renderLoginIntentFormField( $opts->getMfaLoginIntentFormat() );
 					},
@@ -37,7 +37,7 @@ abstract class BaseForm extends Base {
 				) ),
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $opts->isMfaSkip(),
+				'can_skip_mfa'       => $opts->getMfaSkip() > 0,
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			],
 			'hrefs'   => [
@@ -49,7 +49,7 @@ abstract class BaseForm extends Base {
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
 				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
 				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
-				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
+				'seconds'         => \strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
 				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
 				'skip_mfa'        => sprintf(

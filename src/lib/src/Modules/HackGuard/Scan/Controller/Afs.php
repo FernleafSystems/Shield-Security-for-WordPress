@@ -213,6 +213,10 @@ class Afs extends BaseForFiles {
 			   && $this->con()->caps->canScanAllFiles();
 	}
 
+	public function isScanEnabledWpCore() :bool {
+		return $this->isEnabled() && \in_array( 'wp', $this->opts()->getFileScanAreas() );
+	}
+
 	public function isScanEnabledWpRoot() :bool {
 		return $this->isEnabled()
 			   && \in_array( 'wproot', $this->opts()->getFileScanAreas() )

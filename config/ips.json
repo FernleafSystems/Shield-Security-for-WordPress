@@ -199,6 +199,7 @@
       "section":       "section_auto_black_list",
       "advanced":      true,
       "premium":       true,
+      "cap":           "user_auto_unblock",
       "default":       [],
       "type":          "multiple_select",
       "value_options": [

@@ -31,16 +31,14 @@ class ScansMalaiFileQuery extends ScansBase {
 						  ->getModule_License()
 						  ->getWpHashesTokenManager()
 						  ->getToken();
-			$status = ( new MalwareScan( $token ) )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
+			$status = ( new MalwareScan( $token ) )->scan( \basename( $path ), $FS->getFileContent( $path ), 'php' );
 			if ( empty( $status ) ) {
-				sleep( 3 );
-				$status = ( new MalwareScan( $token ) )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
+				\sleep( 3 );
+				$status = ( new MalwareScan( $token ) )->scan( \basename( $path ), $FS->getFileContent( $path ), 'php' );
 			}
 
-			$msg = sprintf( '%s: %s',
-				sprintf( __( '%s Status Report' ), 'MAL{ai}' ),
-				( new MalwareStatus() )->nameFromStatusLabel( (string)$status )
-			);
+			$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report' ), 'MAL{ai}' ),
+				( new MalwareStatus() )->nameFromStatusLabel( (string)$status ) );
 			$success = true;
 		}
 		catch ( \Exception $e ) {

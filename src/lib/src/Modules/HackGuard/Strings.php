@@ -160,6 +160,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
+		$caps = $this->con()->caps;
 		/** @var ModCon $mod */
 		$mod = $this->mod();
 		$modName = $mod->getMainFeatureName();
@@ -213,10 +214,6 @@ class Strings extends Base\Strings {
 				];
 				$desc[] = sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ),
 					sprintf( __( "See the 'File Scan Areas' option to direct how and where the file scanner will operate.", 'wp-simple-firewall' ), 'ShieldPRO' ) );
-				if ( !$this->con()->isPremiumActive() ) {
-					$desc[] = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
-						sprintf( __( 'To include Plugins, Themes, & PHP Malware in your scans, please upgrade to %s.', 'wp-simple-firewall' ), 'ShieldPRO' ) );
-				}
 				break;
 
 			case 'file_scan_areas' :
@@ -225,55 +222,92 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Each scan area performs a specific task, as follows:', 'wp-simple-firewall' ),
 					sprintf( '- <strong>%s</strong>: %s', __( 'WP core files', 'wp-simple-firewall' ),
-						implode( ' ', [
+						\implode( ' ', [
 							__( "Scans all WP files for your current WordPress version.", 'wp-simple-firewall' ),
 							sprintf( __( "It also looks for files that shouldn't be in core WP directories (%s).", 'wp-simple-firewall' ),
 								'<code>/wp-admin/</code>, <code>/wp-includes/</code>' ),
-							sprintf( __( "Doesn't look within the %s directory.", 'wp-simple-firewall' ), '<code>/wp-content/</code>' )
+							sprintf( __( "Doesn't scan within the %s directory.", 'wp-simple-firewall' ), '<code>/wp-content/</code>' )
 						] )
 					),
 					sprintf( '- <strong>%s</strong>: %s', __( 'PHP Malware', 'wp-simple-firewall' ),
-						implode( ' ', [
+						\implode( ' ', [
 							__( "Scans all PHP files for malware patterns.", 'wp-simple-firewall' ),
 						] )
 					),
-					sprintf( '- <strong>%s</strong>: %s', __( 'Plugins' ),
-						implode( '<br/>', [
-							__( "Looks for modified or unrecognised files within plugin directories.", 'wp-simple-firewall' ),
-							sprintf( '<em>%s</em> - %s', __( 'Exclusive To Shield', 'wp-simple-firewall' ), __( "Premium plugins are also supported!", 'wp-simple-firewall' ) ),
-						] )
-					),
-					sprintf( '- <strong>%s</strong>: %s', __( 'Themes' ),
-						implode( '<br/>', [
-							__( "Looks for modified or unrecognised files within the active theme directory.", 'wp-simple-firewall' ),
-							sprintf( '<em>%s</em> - %s', __( 'Exclusive To Shield', 'wp-simple-firewall' ), __( "Premium themes are also supported!", 'wp-simple-firewall' ) ),
-						] )
-					),
-					sprintf( '- <strong>%s</strong>: %s', sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
-						implode( ' ', [
-							sprintf( __( "The %s directory is the wild-west and many plugins and themes use it to store working files.", 'wp-simple-firewall' ), '<code>wp-content</code>' ),
-							__( "It's practically impossible to tell which files should and shouldn't be there.", 'wp-simple-firewall' ),
-							sprintf( __( "This scan area currently focuses on only %s files.", 'wp-simple-firewall' ),
-								'<code>'.implode( '</code>, <code>', [ '.php', '.js', '.ico' ] ).'</code>'
-							),
-						] )
-					),
-					sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory' ),
-						implode( ' ', [
-							sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), 'WP root', '<code>/wp-content/</code>' ),
-							__( "With it being usually very unkempt, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
-							__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
-						] )
-					),
-					__( 'The more areas that are selected, the longer the file scan will take to complete.', 'wp-simple-firewall' ),
 				];
+
+				if ( $caps->canScanPluginsThemesRemote() ) {
+					$additional = __( 'Premium plugins are also supported on your plan.', 'wp-simple-firewall' );
+				}
+				elseif ( $caps->canScanPluginsThemesLocal() ) {
+					$additional = __( 'Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium plugins.', 'wp-simple-firewall' );
+				}
+				else {
+					$additional = __( 'Please upgrade to support scanning of all plugin files for tampering.', 'wp-simple-firewall' );
+				}
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'Plugins' ),
+					\implode( ' ', [
+						__( "Scans for file tampering within plugin directories.", 'wp-simple-firewall' ),
+						$additional
+					] )
+				);
+
+				if ( $caps->canScanPluginsThemesRemote() ) {
+					$additional = __( 'Premium themes are also supported on your plan.', 'wp-simple-firewall' );
+				}
+				elseif ( $caps->canScanPluginsThemesLocal() ) {
+					$additional = __( 'Scanning uses local snapshots. Upgrade your plan to use crowd-sourced snapshots and add support for premium themes.', 'wp-simple-firewall' );
+				}
+				else {
+					$additional = __( 'Upgrade your plan to support scanning of theme files for tampering.', 'wp-simple-firewall' );
+				}
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'Themes' ),
+					\implode( ' ', [
+						__( "Scans for file tampering within the active theme.", 'wp-simple-firewall' ),
+						$additional
+					] )
+				);
+
+				if ( !$caps->canScanAllFiles() ) {
+					$additional = __( 'Upgrade your plan to support this scanning area.', 'wp-simple-firewall' );
+				}
+				else {
+					$additional = '';
+				}
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', sprintf( __( '%s directory', 'wp-simple-firewall' ), '<code>/wp-content/</code>' ),
+					\implode( ' ', [
+						sprintf( __( "The %s directory is the wild-west and many plugins and themes use it to store working files.", 'wp-simple-firewall' ), '<code>wp-content</code>' ),
+						__( "It's practically impossible to tell which files should and shouldn't be there.", 'wp-simple-firewall' ),
+						sprintf( __( "This scan area currently focuses on only %s files.", 'wp-simple-firewall' ),
+							'<code>'.implode( '</code>, <code>', [ '.php', '.js', '.ico' ] ).'</code>'
+						),
+						$additional
+					] )
+				);
+
+				if ( !$caps->canScanAllFiles() ) {
+					$additional = __( 'Upgrade your plan to support this scanning area.', 'wp-simple-firewall' );
+				}
+				else {
+					$additional = '';
+				}
+				$desc[] = sprintf( '- <strong>%s</strong>: %s', __( 'WP root directory' ),
+					\implode( ' ', [
+						sprintf( __( "The %s directory is like the %s directory and many non-WordPress files are kept there.", 'wp-simple-firewall' ), 'WP root', '<code>/wp-content/</code>' ),
+						__( "Since it's normally messy, it's the perfect place to hide malicious files in plain sight.", 'wp-simple-firewall' ),
+						__( "We have rules to detect unidentified files, but you'll probably see false positive results.", 'wp-simple-firewall' ),
+						$additional,
+					] )
+				);
+
+				$desc[] = __( 'The more areas that are selected, the longer the file scan will take to complete.', 'wp-simple-firewall' );
 				break;
 
 			case 'file_repair_areas' :
 				$name = __( 'Automatic File Repair', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Repair Files That Have Changes Or Malware Infection', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Will attempt to automatically repair files that have been changed, or infected with malware.', 'wp-simple-firewall' ),
+					__( 'Attempts to automatically repair files that have been changed, or infected with malware.', 'wp-simple-firewall' ),
 					'- '.__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),
 					'- '.__( 'In the case of plugins & themes, only those installed from WordPress.org can be repaired.', 'wp-simple-firewall' ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Auto-Repair will never automatically delete new or unrecognised files.", 'wp-simple-firewall' ) )

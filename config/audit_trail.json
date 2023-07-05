@@ -138,8 +138,6 @@
       "key":         "audit_trail_auto_clean",
       "section":     "section_localdb",
       "type":        "integer",
-      "premium":     true,
-      "cap":         "activity_logs_unlimited",
       "default":     7,
       "min":         1,
       "link_info":   "https://shsec.io/a2",

@@ -1157,18 +1157,4 @@ class Controller extends DynPropertiesClass {
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
 	}
-
-	/**
-	 * @deprecated 18.1
-	 */
-	public function isThisPluginModuleRequest() :bool {
-		return $this->isPluginAdminPageRequest();
-	}
-
-	/**
-	 * @deprecated 18.1
-	 */
-	public function isModulePage() :bool {
-		return \method_exists( $this, 'isPluginAdminPageRequest' ) && $this->isPluginAdminPageRequest();
-	}
 }

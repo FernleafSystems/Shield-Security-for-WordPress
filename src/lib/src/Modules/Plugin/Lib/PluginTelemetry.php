@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\SendPluginTelemetry;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -13,13 +12,11 @@ class PluginTelemetry {
 
 	use ModConsumer;
 
-	public const MOD = Plugin\ModCon::SLUG;
-
 	public function collectAndSend( bool $forceSend = false ) {
 		if ( $forceSend || $this->canSend() ) {
 			$data = $this->collectTrackingData();
 			if ( !empty( $data ) ) {
-				$this->getOptions()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
+				$this->opts()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
 				$this->mod()->saveModOptions();
 				( new SendPluginTelemetry() )
 					->setMod( $this->mod() )
@@ -29,8 +26,7 @@ class PluginTelemetry {
 	}
 
 	private function canSend() :bool {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() )
 			   && Services::Request()
 						  ->carbon()

@@ -2,11 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Options;
-
 class UserPasswordStrength extends UserPasswordPoliciesBase {
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'user_pass_strength';
 
 	protected function getOptConfigKey() :string {
@@ -15,9 +13,7 @@ class UserPasswordStrength extends UserPasswordPoliciesBase {
 
 	protected function testIfProtected() :bool {
 		$mod = $this->con()->getModule_UserManagement();
-		/** @var Options $opts */
-		$opts = $mod->getOptions();
-		return parent::testIfProtected() && $opts->getPassMinStrength() >= 3;
+		return parent::testIfProtected() && $mod->getOptions()->getOpt( 'pass_min_strength' ) >= 3;
 	}
 
 	public function title() :string {

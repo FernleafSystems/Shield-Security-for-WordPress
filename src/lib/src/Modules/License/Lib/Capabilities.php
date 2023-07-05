@@ -68,12 +68,8 @@ class Capabilities {
 		return $this->hasCap( 'scan_files_everywhere' );
 	}
 
-	public function canScanFileLocker() :bool {
-		return $this->hasCap( 'scan_file_locker' );
-	}
-
-	public function canScanFrequently() :bool {
-		return $this->hasCap( 'scan_frequent' );
+	public function canScanAutoFileRepair() :bool {
+		return $this->hasCap( 'scan_auto_repair' );
 	}
 
 	public function canScanMalwareLocal() :bool {
@@ -90,10 +86,6 @@ class Capabilities {
 
 	public function canScanPluginsThemesRemote() :bool {
 		return $this->hasCap( 'scan_pluginsthemes_remote' );
-	}
-
-	public function canScanVulnerabilities() :bool {
-		return $this->hasCap( 'scan_vulnerabilities' );
 	}
 
 	public function canMainwpLevel1() :bool {
@@ -147,7 +139,7 @@ class Capabilities {
 	}
 
 	public function canUserSuspend() :bool {
-		return $this->hasCap( 'user_supension' );
+		return $this->hasCap( 'user_suspension' );
 	}
 
 	public function canUserAutoUnblock() :bool {
@@ -189,7 +181,7 @@ class Capabilities {
 		return \in_array( $cap, [
 			'2fa_login_backup_codes',
 			'2fa_remember_me',
-			'2fa_custom_pages',
+			'2fa_custom_pages', // No option?
 			'activity_logs_send_to_file',
 			'activity_logs_send_to_integrations',
 			'activity_logs_integrations',
@@ -208,7 +200,9 @@ class Capabilities {
 			'scan_files_everywhere',
 			'scan_file_locker',
 			'scan_frequent',
+			'scan_auto_repair',
 			'scan_vulnerabilities',
+			'scan_vulnerabilities_autoupdate',
 			'thirdparty_scan_spam',
 			'thirdparty_scan_users',
 			'thirdparty_activity_logs',
@@ -217,8 +211,8 @@ class Capabilities {
 			'mainwp_level_2',
 			'rest_api_level_1',
 			'rest_api_level_2',
-			'user_password_policies',
-			'user_supension',
+			'user_password_policies1',
+			'user_suspension',
 			'user_auto_unblock',
 			'user_block_spam_registration',
 			'whitelabel',

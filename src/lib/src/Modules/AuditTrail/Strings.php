@@ -421,7 +421,7 @@ class Strings extends Base\Strings {
 					__( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' )
 				];
 				if ( !$con->isPremiumActive() ) {
-					$description[] = sprintf( __( 'Upgrade to PRO to increase limit beyond %s days.', 'wp-simple-firewall' ),
+					$description[] = sprintf( __( 'The limit may be increased beyond %s days by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
 						'<code>'.$opts->getDef( 'max_free_days' ).'</code>' );
 				}
 				break;

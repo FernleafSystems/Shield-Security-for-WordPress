@@ -113,17 +113,4 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		}
 		return $needed;
 	}
-
-	/**
-	 * @deprecated 18.1
-	 */
-	private function isNeeded_PluginTooOld() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 18.1
-	 */
-	private function buildNotice_PluginTooOld( NoticeVO $notice ) {
-	}
 }

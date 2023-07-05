@@ -49,19 +49,42 @@ abstract class MeterBase {
 	}
 
 	public function buildComponents() :array {
-		$prefs = $this->con()->getModule_Plugin()->getOptions()->getOpt( 'sec_overview_prefs' );
-		$viewAsShieldPro = $this->con()->isPremiumActive() || ( $prefs[ 'view_as' ] ?? '' ) === 'pro';
+		$con = $this->con();
+		$pluginOpts = $con->getModule_Plugin()->getOptions();
+		$prefs = $pluginOpts->getOpt( 'sec_overview_prefs' );
 
-		$components = [];
+		$viewAs = $prefs[ 'view_as' ] ?? '';
+		if ( $viewAs === 'pro' ) {
+			$viewAs = 'business';
+		}
+		elseif ( !\in_array( $viewAs, [ 'free', 'starter', 'business' ], true ) ) {
+			$viewAs = $con->isPremiumActive() ? 'business' : 'free';
+		}
 
-		$builder = new Components();
-		$componentClasses = array_filter(
-			array_intersect( $this->getComponents(), $builder::COMPONENTS ),
-			function ( $componentClass ) use ( $viewAsShieldPro ) {
-				return $viewAsShieldPro || !$componentClass::PRO_ONLY;
+		$prefs[ 'view_as' ] = $viewAs;
+		$pluginOpts->setOpt( 'sec_overview_prefs', $prefs );
+
+		$componentClasses = \array_filter(
+			\array_intersect( $this->getComponents(), Components::COMPONENTS ),
+			function ( $componentClass ) use ( $viewAs ) {
+				switch ( $viewAs ) {
+					case 'business':
+						$show = true;
+						break;
+					case 'starter':
+						$show = \in_array( $componentClass::MINIMUM_EDITION, [ 'free', 'starter' ] );
+						break;
+					case 'free':
+					default:
+						$show = $componentClass::MINIMUM_EDITION === 'free';
+						break;
+				}
+				return $show;
 			}
 		);
 
+		$components = [];
+		$builder = new Components();
 		foreach ( $componentClasses as $class ) {
 			try {
 				$built = $builder->buildComponent( $class );

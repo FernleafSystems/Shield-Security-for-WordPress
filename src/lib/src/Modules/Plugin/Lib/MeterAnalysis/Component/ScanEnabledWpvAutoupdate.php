@@ -2,13 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
-
 class ScanEnabledWpvAutoupdate extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'scan_enabled_wpv_autoupdate';
 
 	protected function getOptConfigKey() :string {
@@ -17,13 +15,10 @@ class ScanEnabledWpvAutoupdate extends Base {
 
 	protected function testIfProtected() :bool {
 		$mod = $this->con()->getModule_HackGuard();
-		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$wpv = $mod->getScansCon()->WPV();
 		return $mod->isModOptEnabled()
-			   && $opts->isWpvulnAutoupdatesEnabled()
-			   && $mod->getScansCon()
-					  ->WPV()
-					  ->isEnabled();
+			   && $wpv->isEnabled()
+			   && $wpv->isAutoupdatesEnabled();
 	}
 
 	public function title() :string {

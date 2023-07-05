@@ -10,9 +10,7 @@ class PluginImportExport_Export extends PluginImportExport_Base {
 	public const SLUG = 'importexport_export';
 
 	protected function exec() {
-		( new Export() )
-			->setMod( $this->con()->getModule_Plugin() )
-			->run( (string)Services::Request()->query( 'method' ) );
+		( new Export() )->run( (string)Services::Request()->query( 'method' ) );
 		$this->response()->action_response_data = [
 			'success' => true,
 		];

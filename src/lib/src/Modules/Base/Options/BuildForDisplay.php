@@ -115,7 +115,10 @@ class BuildForDisplay {
 	}
 
 	protected function buildOptionsForSection( string $section ) :array {
+		$con = $this->con();
 		$opts = $this->getOptions();
+
+		$isPremiumActive = $con->isPremiumActive();
 
 		$allOptions = [];
 		foreach ( $opts->getVisibleOptions() as $optDef ) {
@@ -139,9 +142,13 @@ class BuildForDisplay {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
+
+					$isDisabled = ( !empty( $valueOpt[ 'premium' ] ) && !$isPremiumActive )
+								  || ( !empty( $valueOpt[ 'cap' ] ) && !$con->caps->hasCap( $valueOpt[ 'cap' ] ) );
+
 					$converted[ $valueOpt[ 'value_key' ] ] = [
 						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => $this->con()->isPremiumActive() || !( $valueOpt[ 'premium' ] ?? false ),
+						'is_available' => !$isDisabled,
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -156,7 +163,7 @@ class BuildForDisplay {
 				}
 			}
 
-			if ( $this->con()->labels->is_whitelabelled ) {
+			if ( $con->labels->is_whitelabelled ) {
 				$optDef[ 'beacon_id' ] = false;
 			}
 
@@ -213,13 +220,6 @@ class BuildForDisplay {
 
 		$isOptDisabled = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
 						 || ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
-
-		if ( $option[ 'key' ] === 'importexport_enable' ) {
-			error_log( var_export( $option, true ) );
-			error_log( var_export( $option[ 'cap' ], true ) );
-			error_log( var_export( !empty( $option[ 'cap' ] ), true ) );
-			error_log( var_export( !$con->caps->hasCap( $option[ 'cap' ] ), true ) );
-		}
 		$params = [
 			'value'    => \is_scalar( $value ) ? esc_attr( $value ) : $value,
 			'disabled' => $isOptDisabled,

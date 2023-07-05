@@ -328,9 +328,9 @@ abstract class BaseRender extends BaseAction {
 			'get_pro_protection' => __( 'Get Pro Protection', 'wp-simple-firewall' ),
 
 			'options'        => __( 'Options', 'wp-simple-firewall' ),
-			'not_available'  => __( 'Sorry, this feature is included with Pro subscriptions.', 'wp-simple-firewall' ),
+			'not_available'  => __( 'Sorry, please upgrade your plan to access this feature.', 'wp-simple-firewall' ),
 			'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-			'please_upgrade' => __( 'You can get this feature (along with loads more) by going Pro.', 'wp-simple-firewall' ),
+			'please_upgrade' => __( 'You can get this security feature, and many more, by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
 			'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 			'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 

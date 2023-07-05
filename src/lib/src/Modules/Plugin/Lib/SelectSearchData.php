@@ -12,16 +12,16 @@ class SelectSearchData {
 	use PluginControllerConsumer;
 
 	public function build( string $terms ) :array {
-		$terms = strtolower( trim( $terms ) );
-		return $this->postProcessResults( array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
+		$terms = \strtolower( \trim( $terms ) );
+		return $this->postProcessResults( \array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
 	}
 
 	private function postProcessResults( array $results ) :array {
-		return array_map(
+		return \array_map(
 			function ( array $result ) {
-				$result[ 'children' ] = array_map(
+				$result[ 'children' ] = \array_map(
 					function ( array $child ) {
-						$child[ 'link' ] = array_merge( [
+						$child[ 'link' ] = \array_merge( [
 							'target'  => ( $child[ 'is_external' ] ?? false ) ? '_blank' : false,
 							'classes' => [],
 							'data'    => [],
@@ -41,10 +41,10 @@ class SelectSearchData {
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function ipSearch( string $terms ) :array {
-		$ipTerms = array_filter(
-			array_map( 'trim', explode( ' ', $terms ) ),
+		$ipTerms = \array_filter(
+			\array_map( '\trim', \explode( ' ', $terms ) ),
 			function ( string $term ) {
-				return preg_match( '#^[\d.]{3,}$#i', $term ) || preg_match( '#^[\da-f:]{3,}$#i', $term );
+				return \preg_match( '#^[\d.]{3,}$#i', $term ) || \preg_match( '#^[\da-f:]{3,}$#i', $term );
 			}
 		);
 
@@ -58,13 +58,13 @@ class SelectSearchData {
 							  "'%$ipTerm%'"
 						  ] )
 						  ->queryWithResult();
-			$results = array_merge(
+			$results = \array_merge(
 				$results,
-				array_map(
+				\array_map(
 					function ( Record $ipRecord ) {
 						return $ipRecord->ip;
 					},
-					is_array( $ips ) ? $ips : []
+					\is_array( $ips ) ? $ips : []
 				)
 			);
 		}
@@ -73,7 +73,7 @@ class SelectSearchData {
 			return [];
 		}
 
-		natsort( $results );
+		\natsort( $results );
 
 		return [
 			[
@@ -107,12 +107,12 @@ class SelectSearchData {
 	 */
 	protected function textSearch( string $search ) :array {
 		// Terms must all be at least 3 characters.
-		$terms = array_filter( array_unique( array_map(
+		$terms = \array_filter( \array_unique( \array_map(
 			function ( $term ) {
-				$term = strtolower( trim( $term ) );
-				return strlen( $term ) > 2 ? $term : '';
+				$term = \strtolower( \trim( $term ) );
+				return \strlen( $term ) > 2 ? $term : '';
 			},
-			explode( ' ', $search )
+			\explode( ' ', $search )
 		) ) );
 
 		$optionGroups = array_merge(
@@ -154,7 +154,7 @@ class SelectSearchData {
 	}
 
 	private function searchString( string $haystack, array $needles ) :int {
-		return count( array_intersect( $needles, array_map( 'trim', explode( ' ', strtolower( $haystack ) ) ) ) );
+		return \count( \array_intersect( $needles, \array_map( 'trim', \explode( ' ', \strtolower( $haystack ) ) ) ) );
 	}
 
 	private function getExternalSearch() :array {
@@ -468,26 +468,26 @@ class SelectSearchData {
 			) ) ) ) )
 		) );
 
-		return implode( ' ',
-			array_unique( array_filter(
-				array_merge(
+		return \implode( ' ',
+			\array_unique( \array_filter(
+				\array_merge(
 					$allWords,
-					array_map(
+					\array_map(
 						function ( $word ) {
-							return preg_match( '#s$#i', $word ) ? null : $word.'s';
+							return \preg_match( '#s$#i', $word ) ? null : $word.'s';
 						},
 						$allWords
 					),
-					array_map(
+					\array_map(
 						function ( $word ) {
-							$trimmed = rtrim( $word, 's' );
+							$trimmed = \rtrim( $word, 's' );
 							return $trimmed === $word ? null : $trimmed;
 						},
 						$allWords
 					)
 				),
 				function ( $word ) {
-					return !empty( $word ) && strlen( $word ) > 2;
+					return !empty( $word ) && \strlen( $word ) > 2;
 				}
 			) )
 		);

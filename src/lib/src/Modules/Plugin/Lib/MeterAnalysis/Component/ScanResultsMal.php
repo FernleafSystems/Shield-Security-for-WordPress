@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class ScanResultsMal extends ScanResultsBase {
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'scan_results_mal';
 
 	protected function countResults() :int {

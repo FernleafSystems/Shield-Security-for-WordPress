@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
 
 class Processor extends BaseShield\Processor {
 
-	public const MOD = ModCon::SLUG;
-
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->mod();

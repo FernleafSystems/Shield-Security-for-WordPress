@@ -4,9 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Import {
@@ -85,11 +83,9 @@ class Import {
 	}
 
 	public function autoImportFromMaster() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		if ( $opts->hasImportExportMasterImportUrl() ) {
+		if ( $this->opts()->hasImportExportMasterImportUrl() ) {
 			try {
-				$this->fromSite( $opts->getImportExportMasterImportUrl() );
+				$this->fromSite( $this->opts()->getImportExportMasterImportUrl() );
 			}
 			catch ( \Exception $e ) {
 			}
@@ -100,10 +96,7 @@ class Import {
 	 * @throws \Exception
 	 */
 	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->mod();
+		$opts = $this->opts();
 
 		$req = Services::Request();
 
@@ -137,7 +130,7 @@ class Import {
 
 		// Begin the handshake process.
 		$opts->setOpt( 'importexport_handshake_expires_at', $req->carbon()->addMinutes( 20 )->timestamp );
-		$mod->saveModOptions();
+		$this->mod()->saveModOptions();
 
 		// Don't send the network setup request if it's the cron.
 		$data = [
@@ -199,8 +192,9 @@ class Import {
 			// restore the original setting
 			$opts->setOpt( 'importexport_masterurl', $originalMasterSiteURL );
 		}
+
 		// store & clean the master URL
-		$mod->saveModOptions();
+		$this->mod()->saveModOptions();
 	}
 
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
@@ -249,11 +243,10 @@ class Import {
 	}
 
 	private function getImportID() :string {
-		$opts = $this->getOptions();
-		$id = $opts->getOpt( 'import_id' );
+		$id = $this->opts()->getOpt( 'import_id' );
 		if ( empty( $id ) ) {
-			$id = bin2hex( random_bytes( 8 ) );
-			$opts->setOpt( 'import_id', $id );
+			$id = \bin2hex( \random_bytes( 8 ) );
+			$this->opts()->setOpt( 'import_id', $id );
 			$this->mod()->saveModOptions();
 		}
 		return $id;

@@ -26,18 +26,8 @@ class Options extends BaseShield\Options {
 		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
 	}
 
-	public function getPassExpireDays() :int {
-		return ( $this->isPasswordPoliciesEnabled() && $this->con()->isPremiumActive() )
-			? (int)$this->getOpt( 'pass_expire' )
-			: 0;
-	}
-
 	public function getPassExpireTimeout() :int {
-		return $this->getPassExpireDays()*DAY_IN_SECONDS; /* seconds */
-	}
-
-	public function getPassMinStrength() :int {
-		return $this->con()->isPremiumActive() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
+		return $this->getOpt( 'pass_expire' )*DAY_IN_SECONDS;
 	}
 
 	public function hasMaxSessionTimeout() :bool {
@@ -52,16 +42,12 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'session_lock_location', 'Y' );
 	}
 
-	public function isPassExpirationEnabled() :bool {
-		return $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
-	}
-
 	public function isPassPreventPwned() :bool {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
 	public function isPasswordPoliciesEnabled() :bool {
-		return $this->isOpt( 'enable_password_policies', 'Y' ) && $this->isOptReqsMet( 'enable_password_policies' );
+		return $this->isOpt( 'enable_password_policies', 'Y' );
 	}
 
 	public function isSuspendEnabled() :bool {
@@ -71,8 +57,9 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isSuspendAutoPasswordEnabled() :bool {
-		return $this->isOpt( 'auto_password', 'Y' )
-			   && $this->isPasswordPoliciesEnabled() && $this->getPassExpireTimeout() > 0;
+		return $this->isPasswordPoliciesEnabled()
+			   && $this->isOpt( 'auto_password', 'Y' )
+			   && $this->getOpt( 'pass_expire' ) > 0;
 	}
 
 	public function isSuspendManualEnabled() :bool {
@@ -90,5 +77,26 @@ class Options extends BaseShield\Options {
 
 	public function isValidateEmailOnRegistration() :bool {
 		return $this->getValidateEmailOnRegistration() !== 'disabled' && !empty( $this->getEmailValidationChecks() );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function getPassMinStrength() :int {
+		return (int)$this->getOpt( 'pass_min_strength' );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isPassExpirationEnabled() :bool {
+		return $this->getOpt( 'pass_expire' ) > 0;
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function getPassExpireDays() :int {
+		return (int)$this->getOpt( 'pass_expire' );
 	}
 }

@@ -26,7 +26,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
-		return $this->whitelabelCon ?? $this->whitelabelCon = ( new Lib\WhiteLabel\WhitelabelController() )->setMod( $this );
+		return $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController();
 	}
 
 	public function getSecurityAdminController() :Lib\SecurityAdmin\SecurityAdminController {
@@ -59,9 +59,7 @@ class ModCon extends BaseShield\ModCon {
 		$this->getWhiteLabelController()->verifyUrls();
 
 		$opts->setOpt( 'sec_admin_users',
-			( new Lib\SecurityAdmin\VerifySecurityAdminList() )
-				->setMod( $this )
-				->run( $opts->getSecurityAdminUsers() )
+			( new Lib\SecurityAdmin\VerifySecurityAdminList() )->run( $opts->getSecurityAdminUsers() )
 		);
 
 		$this->runMuHandler();
@@ -76,9 +74,9 @@ class ModCon extends BaseShield\ModCon {
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$plugins = $opts->getOpt( 'admin_access_restrict_plugins', [] );
-		if ( in_array( 'activate_plugins', is_array( $plugins ) ? $plugins : [] ) ) {
+		if ( \in_array( 'activate_plugins', is_array( $plugins ) ? $plugins : [] ) ) {
 			$opts->setOpt( 'admin_access_restrict_plugins',
-				array_unique( array_merge( $plugins, [
+				\array_unique( \array_merge( $plugins, [
 					'install_plugins',
 					'update_plugins',
 					'delete_plugins'
@@ -88,9 +86,9 @@ class ModCon extends BaseShield\ModCon {
 
 		// Restricting Switch (Activate) Themes also means restricting the rest.
 		$themes = $opts->getOpt( 'admin_access_restrict_themes', [] );
-		if ( is_array( $themes ) && in_array( 'switch_themes', $themes ) && in_array( 'edit_theme_options', $themes ) ) {
+		if ( \is_array( $themes ) && \in_array( 'switch_themes', $themes ) && \in_array( 'edit_theme_options', $themes ) ) {
 			$opts->setOpt( 'admin_access_restrict_themes',
-				array_unique( array_merge( $themes, [
+				\array_unique( \array_merge( $themes, [
 					'install_themes',
 					'update_themes',
 					'delete_themes'
@@ -99,12 +97,13 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$posts = $opts->getOpt( 'admin_access_restrict_posts', [] );
-		if ( !is_array( $posts ) ) {
+		if ( !\is_array( $posts ) ) {
 			$posts = [];
 		}
-		if ( in_array( 'edit', $posts ) ) {
-			$posts = array_unique( array_merge( $posts, [ 'publish', 'delete' ] ) );
-			$opts->setOpt( 'admin_access_restrict_posts', $posts );
+		if ( \in_array( 'edit', $posts ) ) {
+			$opts->setOpt( 'admin_access_restrict_posts',
+				\array_unique( \array_merge( $posts, [ 'publish', 'delete' ] ) )
+			);
 		}
 	}
 }

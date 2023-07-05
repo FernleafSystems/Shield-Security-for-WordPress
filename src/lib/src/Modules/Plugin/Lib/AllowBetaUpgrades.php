@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
@@ -18,8 +17,6 @@ class AllowBetaUpgrades {
 	use ExecOnce;
 	use ModConsumer;
 	use PluginCronsConsumer;
-
-	public const MOD = ModCon::SLUG;
 
 	/**
 	 * @var \stdClass

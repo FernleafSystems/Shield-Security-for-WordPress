@@ -59,15 +59,11 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getMfaSkip() :int { // seconds
-		return DAY_IN_SECONDS*( $this->con()->isPremiumActive() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
+		return \DAY_IN_SECONDS*( $this->getOpt( 'mfa_skip', 0 ) );
 	}
 
 	public function getYubikeyAppId() :string {
 		return $this->getOpt( 'yubikey_app_id', '' );
-	}
-
-	public function isMfaSkip() :bool {
-		return $this->getMfaSkip() > 0;
 	}
 
 	public function isEmailAuthenticationActive() :bool {
@@ -97,13 +93,6 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	public function isEnabledEmailAuthAnyUserSet() :bool {
 		return $this->isEmailAuthenticationActive()
 			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->con()->isPremiumActive();
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isEnabledBackupCodes() :bool {
-		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	public function isEnabledGoogleAuthenticator() :bool {
@@ -140,5 +129,19 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	private function isYubikeyConfigReady() :bool {
 		return !empty( $this->getOpt( 'yubikey_app_id' ) ) && !empty( $this->getOpt( 'yubikey_api_key' ) );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isEnabledBackupCodes() :bool {
+		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isMfaSkip() :bool {
+		return $this->getMfaSkip() > 0;
 	}
 }

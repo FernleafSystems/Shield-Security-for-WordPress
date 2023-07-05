@@ -9,9 +9,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends BaseShield\Options {
 
 	public function getFilesToLock() :array {
-		if ( !is_array( $this->getOpt( 'file_locker', [] ) ) ) {
-			$this->setOpt( 'file_locker', [] );
-		}
 		return $this->getOpt( 'file_locker', [] );
 	}
 
@@ -35,7 +32,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getRepairAreas() :array {
-		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
+		return $this->getOpt( 'file_repair_areas' );
 	}
 
 	public function getLastRealtimeScanAt( bool $update = false ) :int {
@@ -113,17 +110,20 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isRepairFilePlugin() :bool {
-		return in_array( 'plugin', $this->getRepairAreas() );
+		return \in_array( 'plugin', $this->getRepairAreas() );
 	}
 
 	public function isRepairFileTheme() :bool {
-		return in_array( 'theme', $this->getRepairAreas() );
+		return \in_array( 'theme', $this->getRepairAreas() );
 	}
 
 	public function isRepairFileWP() :bool {
-		return in_array( 'wp', $this->getRepairAreas() );
+		return \in_array( 'wp', $this->getRepairAreas() );
 	}
 
+	/**
+	 * @deprecated 18.2
+	 */
 	public function isWpvulnAutoupdatesEnabled() :bool {
 		return $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}

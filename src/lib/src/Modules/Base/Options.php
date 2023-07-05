@@ -286,6 +286,9 @@ class Options {
 			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 
+	/**
+	 * @deprecated 18.2
+	 */
 	public function isOptReqsMet( string $key ) :bool {
 		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
 	}

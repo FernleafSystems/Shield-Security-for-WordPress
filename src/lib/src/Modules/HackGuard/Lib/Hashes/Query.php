@@ -42,7 +42,7 @@ class Query {
 			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );
 		}
 
-		return is_array( $hash ) ? $hash : [ $hash ];
+		return \is_array( $hash ) ? $hash : [ $hash ];
 	}
 
 	/**

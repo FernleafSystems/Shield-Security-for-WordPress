@@ -29,27 +29,6 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 */
-	private function addItemHashesToCache( $vo, array $hashes ) {
-		if ( $vo->asset_type == 'plugin' ) {
-			self::$hashes[ 'plugins' ][ $vo->slug ] = $hashes;
-		}
-		else {
-			self::$hashes[ 'themes' ][ $vo->slug ] = $hashes;
-		}
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array|null
-	 */
-	private function getAssetHashesFromCache( $vo ) {
-		$key = ( $vo->asset_type == 'plugin' ) ? 'plugins' : 'themes';
-		return self::$hashes[ $key ][ $vo->slug ] ?? null;
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $vo
 	 * @throws \Exception
 	 */
 	private function fromLocalStore( $vo ) :array {
@@ -79,10 +58,10 @@ class Retrieve {
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
-		$hashes = $this->getAssetHashesFromCache( $vo );
+		$hashes = self::$hashes[ $vo->asset_type === 'plugin' ? 'plugins' : 'themes' ][ $vo->slug ] ?? null;
 
-		if ( is_null( $hashes ) ) {
-			$hashes = $this->fromCsHashes( $vo );
+		if ( \is_null( $hashes ) ) {
+			$hashes = $this->con()->caps->canScanPluginsThemesRemote() ? $this->fromCsHashes( $vo ) : null;
 			if ( empty( $hashes ) ) {
 				try {
 					$hashes = $this->fromLocalStore( $vo );
@@ -91,7 +70,9 @@ class Retrieve {
 					$hashes = [];
 				}
 			}
-			$this->addItemHashesToCache( $vo, $hashes );
+
+			// cache it.
+			self::$hashes[ $vo->asset_type === 'plugin' ? 'plugins' : 'themes' ][ $vo->slug ] = $hashes;
 		}
 
 		if ( empty( $hashes ) ) {
@@ -106,5 +87,28 @@ class Retrieve {
 	public function fromCsHashes( $vo ) :array {
 		$query = ( $vo->asset_type == 'plugin' ) ? new Query\Plugin() : new Query\Theme();
 		return $query->getHashesFromVO( $vo );
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array|null
+	 * @deprecated 18.2
+	 */
+	private function getAssetHashesFromCache( $vo ) :?array {
+		$key = ( $vo->asset_type == 'plugin' ) ? 'plugins' : 'themes';
+		return self::$hashes[ $key ][ $vo->slug ] ?? null;
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @deprecated 18.2
+	 */
+	private function addItemHashesToCache( $vo, array $hashes ) {
+		if ( $vo->asset_type == 'plugin' ) {
+			self::$hashes[ 'plugins' ][ $vo->slug ] = $hashes;
+		}
+		else {
+			self::$hashes[ 'themes' ][ $vo->slug ] = $hashes;
+		}
 	}
 }

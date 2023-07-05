@@ -47,12 +47,12 @@ class ApiTokenManager {
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$token = $this->loadToken();
 				try {
-					$token = array_merge( $token,
-						array_intersect_key(
+					$token = \array_merge( $token,
+						\array_intersect_key(
 							( new SolicitToken() )
 								->setMod( $this->con()->getModule_Plugin() )
 								->send(),
-							array_flip( [ 'token', 'expires_at', 'valid_license' ] )
+							\array_flip( [ 'token', 'expires_at', 'valid_license' ] )
 						)
 					);
 				}

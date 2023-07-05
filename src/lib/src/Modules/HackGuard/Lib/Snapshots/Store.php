@@ -81,7 +81,7 @@ class Store {
 
 	protected function getSlug() :string {
 		if ( $this->asset->asset_type === 'plugin' ) {
-			$slug = dirname( $this->asset->file );
+			$slug = \dirname( $this->asset->file );
 			if ( empty( $slug ) ) {
 				$slug = $this->asset->file;
 			}
@@ -96,7 +96,7 @@ class Store {
 	 * @return string[]
 	 */
 	public function getSnapData() :array {
-		if ( !is_array( $this->snapData ) ) {
+		if ( !\is_array( $this->snapData ) ) {
 			try {
 				$this->snapData = $this->readSnapData();
 			}
@@ -104,7 +104,7 @@ class Store {
 				$this->snapData = [];
 			}
 		}
-		return is_array( $this->snapData ) ? $this->snapData : [];
+		return \is_array( $this->snapData ) ? $this->snapData : [];
 	}
 
 	public function getSnapMeta() :array {
@@ -116,7 +116,7 @@ class Store {
 				$this->snapMeta = [];
 			}
 		}
-		return is_array( $this->snapMeta ) ? $this->snapMeta : [];
+		return \is_array( $this->snapMeta ) ? $this->snapMeta : [];
 	}
 
 	public function verify() :bool {
@@ -144,8 +144,8 @@ class Store {
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
 		if ( !empty( $encoded ) ) {
 			$snap = [];
-			foreach ( array_map( 'trim', explode( "\n", $encoded ) ) as $line ) {
-				[ $file, $hash ] = explode( self::SEPARATOR, $line, 2 );
+			foreach ( \array_map( '\trim', \explode( "\n", $encoded ) ) as $line ) {
+				[ $file, $hash ] = \explode( self::SEPARATOR, $line, 2 );
 				$snap[ $file ] = $hash;
 			}
 		}
@@ -168,9 +168,9 @@ class Store {
 
 		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );
 		if ( !empty( $encoded ) ) {
-			$data = json_decode( $encoded, true );
+			$data = \json_decode( $encoded, true );
 		}
-		if ( empty( $data ) || !is_array( $data ) ) {
+		if ( empty( $data ) || !\is_array( $data ) ) {
 			throw new \Exception( 'Snapshot data could not be decoded' );
 		}
 
@@ -189,7 +189,7 @@ class Store {
 			}
 			Services::WpFs()->putFileContent(
 				$this->getSnapStorePath(),
-				implode( "\n", $toWrite ),
+				\implode( "\n", $toWrite ),
 				true
 			);
 			$this->saveMeta();
@@ -205,7 +205,7 @@ class Store {
 		if ( $this->isReady() ) {
 			$success = (bool)Services::WpFs()->putFileContent(
 				$this->getSnapStoreMetaPath(),
-				json_encode( $this->getSnapMeta() ),
+				\json_encode( $this->getSnapMeta() ),
 				true
 			);
 		}
@@ -217,9 +217,9 @@ class Store {
 	 */
 	protected function isReady() :bool {
 		$FS = Services::WpFs();
-		$dir = dirname( $this->getSnapStorePath() );
+		$dir = \dirname( $this->getSnapStorePath() );
 
-		if ( strlen( $this->getContext() ) < 1 ) {
+		if ( \strlen( $this->getContext() ) < 1 ) {
 			throw new \Exception( 'Context has not been specified' );
 		}
 		if ( !$FS->mkdir( $dir ) ) {

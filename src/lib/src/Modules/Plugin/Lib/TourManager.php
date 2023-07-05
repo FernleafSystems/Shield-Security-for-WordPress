@@ -2,15 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TourManager {
 
 	use ModConsumer;
-
-	public const MOD = ModCon::SLUG;
 
 	public function getAllTours() :array {
 		return [

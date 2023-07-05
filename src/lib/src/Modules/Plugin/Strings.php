@@ -356,8 +356,10 @@ class Strings extends Base\Strings {
 				$summary = __( 'Allow Automated Import And Export Of Options On This Site', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Enable this option to allow automatic import and export of options between WordPress sites.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Automatic Import/Export is a premium-only feature.', 'wp-simple-firewall' ) )
 				];
+				if ( !$con->caps->canImportExportSync() ) {
+					$desc[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You will need to upgrade your plan to use the Automatic Import/Export feature.', 'wp-simple-firewall' ) );
+				}
 				break;
 
 			case 'importexport_whitelist' :

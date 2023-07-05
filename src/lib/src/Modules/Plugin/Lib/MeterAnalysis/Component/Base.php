@@ -9,7 +9,7 @@ abstract class Base {
 	use PluginControllerConsumer;
 
 	public const SLUG = '';
-	public const PRO_ONLY = false;
+	public const MINIMUM_EDITION = 'free';
 	public const WEIGHT = 3;
 
 	protected $isProtected = null;
@@ -31,7 +31,6 @@ abstract class Base {
 			'is_applicable'     => $this->isApplicable(),
 			'is_critical'       => $this->isCritical(),
 			'is_optcfg'         => $this->isOptConfigBased(),
-			'is_proonly'        => $this->isOptConfigBased(),
 		];
 	}
 
@@ -75,16 +74,12 @@ abstract class Base {
 		return false;
 	}
 
-	protected function isProOnly() :bool {
-		return static::PRO_ONLY;
-	}
-
 	protected function testIfProtected() :bool {
 		return false;
 	}
 
 	protected function isProtected() :bool {
-		if ( is_null( $this->isProtected ) ) {
+		if ( \is_null( $this->isProtected ) ) {
 			$this->isProtected = $this->isApplicable() && $this->testIfProtected();
 		}
 		return $this->isProtected;
@@ -104,5 +99,10 @@ abstract class Base {
 
 	protected function weight() :int {
 		return static::WEIGHT;
+	}
+
+	protected function isViewAsFree() :bool {
+		return ( $this->con()->getModule_Plugin()->getOptions()
+					  ->getOpt( 'sec_overview_prefs' )[ 'view_as' ] ?? 'free' ) === 'free';
 	}
 }

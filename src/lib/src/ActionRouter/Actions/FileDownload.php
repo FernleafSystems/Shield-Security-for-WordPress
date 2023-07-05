@@ -20,7 +20,7 @@ class FileDownload extends BaseAction {
 			}
 			$contents = $this->getFileDownloadContents( $id );
 
-			header( 'Set-Cookie: fileDownload=true; path=/' );
+			\header( 'Set-Cookie: fileDownload=true; path=/' );
 			Services::Response()->downloadStringAsFile(
 				$contents[ 'content' ],
 				$contents[ 'name' ]
@@ -68,9 +68,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			case 'plugin_export':
-				$fileDetails = ( new Export() )
-					->setMod( $con->getModule_Plugin() )
-					->toFile();
+				$fileDetails = ( new Export() )->toFile();
 				break;
 
 			default:

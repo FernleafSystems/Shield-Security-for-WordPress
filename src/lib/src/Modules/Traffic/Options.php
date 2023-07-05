@@ -8,15 +8,14 @@ class Options extends BaseShield\Options {
 
 	public function getAutoCleanDays() :int {
 		$days = $this->getOpt( 'auto_clean' );
-		if ( !$this->con()->isPremiumActive() ) {
-			$this->setOpt( 'auto_clean', \min( $days, 7 ) );
+		if ( $days > $this->getOptDefault( 'auto_clean' ) && !$this->con()->isPremiumActive() ) {
+			$this->resetOptToDefault( 'auto_clean' );
 		}
 		return (int)$this->getOpt( 'auto_clean' );
 	}
 
 	public function getCustomExclusions() :array {
-		$ex = $this->getOpt( 'custom_exclusions' );
-		return \is_array( $ex ) ? $ex : [];
+		return $this->getOpt( 'custom_exclusions' );
 	}
 
 	public function getLimitRequestCount() :int {
@@ -27,11 +26,6 @@ class Options extends BaseShield\Options {
 		return (int)$this->getOpt( 'limit_time_span' );
 	}
 
-	public function getReqTypeExclusions() :array {
-		$ex = $this->getOpt( 'type_exclusions' );
-		return \is_array( $ex ) ? $ex : [];
-	}
-
 	public function isTrafficLoggerEnabled() :bool {
 		return $this->isOpt( 'enable_traffic', 'Y' )
 			   && $this->isOpt( 'enable_logger', 'Y' )
@@ -39,8 +33,15 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrafficLimitEnabled() :bool {
-		return $this->con()->isPremiumActive()
-			   && $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
+		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function getReqTypeExclusions() :array {
+		$ex = $this->getOpt( 'type_exclusions' );
+		return \is_array( $ex ) ? $ex : [];
 	}
 }

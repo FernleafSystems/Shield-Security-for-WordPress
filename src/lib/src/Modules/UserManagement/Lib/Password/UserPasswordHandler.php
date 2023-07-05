@@ -74,9 +74,13 @@ class UserPasswordHandler {
 		}
 	}
 
+	/**
+	 * only called if password policies option is enabled.
+	 */
 	private function processExpiredPassword() {
 		$opts = $this->opts();
-		if ( $this->opts()->isPassExpirationEnabled() ) {
+		$expireDays = $opts->getOpt( 'pass_expire' );
+		if ( $expireDays > 0 ) {
 			$startedAt = $this->con()->user_metas->current()->record->pass_started_at;
 			if ( $startedAt > 0 && ( Services::Request()->ts() - $startedAt > $opts->getPassExpireTimeout() ) ) {
 				$this->con()->fireEvent( 'password_expired', [
@@ -86,20 +90,19 @@ class UserPasswordHandler {
 				] );
 				if ( !Services::WpGeneral()->isAjax() ) {
 					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $opts->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $expireDays )
 					);
 				}
 			}
 		}
 	}
 
+	/**
+	 * only called if password policies option is enabled.
+	 */
 	private function processFailedCheckPassword() {
 		$meta = $this->con()->user_metas->current();
-
-		$checkFailed = $this->opts()->isOpt( 'pass_force_existing', 'Y' )
-					   && $meta->pass_check_failed_at > 0;
-
-		if ( $checkFailed ) {
+		if ( $this->opts()->isOpt( 'pass_force_existing', 'Y' ) && $meta->pass_check_failed_at > 0 ) {
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -186,8 +189,8 @@ class UserPasswordHandler {
 	private function applyPasswordChecks( string $password ) {
 		$opts = $this->opts();
 
-		if ( $opts->getPassMinStrength() > 0 ) {
-			$this->testPasswordMeetsMinimumStrength( $password, $opts->getPassMinStrength() );
+		if ( $this->con()->caps->canUserPasswordPolicies() ) {
+			$this->testPasswordMeetsMinimumStrength( $password );
 		}
 		if ( $opts->isPassPreventPwned() ) {
 			$this->sendRequestToPwnedRange( $password );
@@ -197,16 +200,16 @@ class UserPasswordHandler {
 	/**
 	 * @throws Exceptions\PasswordTooWeakException
 	 */
-	private function testPasswordMeetsMinimumStrength( string $password, int $min ) :bool {
+	private function testPasswordMeetsMinimumStrength( string $password ) :bool {
 		$score = (int)( new Zxcvbn() )->passwordStrength( $password )[ 'score' ];
 
-		if ( $score < $min ) {
+		if ( $score < $this->opts()->getOpt( 'pass_min_strength' ) ) {
 			/** @var Strings $str */
 			$str = $this->mod()->getStrings();
 			throw new Exceptions\PasswordTooWeakException(
 				sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 					$str->getPassStrengthName( $score ),
-					$str->getPassStrengthName( $min )
+					$str->getPassStrengthName( $this->opts()->getOpt( 'pass_min_strength' ) )
 				)
 			);
 		}
@@ -221,8 +224,8 @@ class UserPasswordHandler {
 	private function sendRequestToPwnedRange( string $password ) :int {
 		$req = Services::HttpRequest();
 
-		$passwordSHA1 = strtoupper( hash( 'sha1', $password ) );
-		$substrPasswordSHA1 = substr( $passwordSHA1, 0, 5 );
+		$passwordSHA1 = \strtoupper( \hash( 'sha1', $password ) );
+		$substrPasswordSHA1 = \substr( $passwordSHA1, 0, 5 );
 
 		$success = $req->get(
 			sprintf( '%s/%s', $this->opts()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
@@ -243,7 +246,7 @@ class UserPasswordHandler {
 			elseif ( $httpCode !== 200 ) {
 				$error = 'The response from the Pwned API was unexpected';
 			}
-			elseif ( strlen( (string)$req->lastResponse->body ) === 0 ) {
+			elseif ( \strlen( (string)$req->lastResponse->body ) === 0 ) {
 				$error = 'The response from the Pwned API was empty';
 			}
 		}
@@ -252,11 +255,11 @@ class UserPasswordHandler {
 			throw new Exceptions\PwnedApiFailedException( '[Pwned Password API Request] '.$error );
 		}
 
-		$body = strtoupper( trim( $req->lastResponse->body ) )."\n";
-		if ( preg_match( sprintf( '#%s:([0-9]+)\s#', substr( $passwordSHA1, 5 ) ), $body, $matches ) ) {
+		$body = \strtoupper( \trim( $req->lastResponse->body ) )."\n";
+		if ( \preg_match( sprintf( '#%s:([0-9]+)\s#', \substr( $passwordSHA1, 5 ) ), $body, $matches ) ) {
 			$countPwned = $matches[ 1 ];
 			throw new Exceptions\PasswordIsPwnedException(
-				implode( ' ', [
+				\implode( ' ', [
 					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),
 					sprintf( '(<a href="%s" target="_blank">%s</a>)',
 						'https://shsec.io/la',

@@ -8,7 +8,7 @@ class TrafficRateLimiting extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'business';
 	public const SLUG = 'traffic_rate_limiting';
 	public const WEIGHT = 2;
 

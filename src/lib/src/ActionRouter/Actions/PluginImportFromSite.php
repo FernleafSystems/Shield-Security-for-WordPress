@@ -24,13 +24,11 @@ class PluginImportFromSite extends BaseAction {
 		else {
 			$doNetwork = ( $formParams[ 'ShieldNetwork' ] === 'Y' ) ? true : ( ( $formParams[ 'ShieldNetwork' ] === 'N' ) ? false : null );
 			try {
-				( new Import() )
-					->setMod( $this->con()->getModule_Plugin() )
-					->fromSite(
-						(string)$formParams[ 'MasterSiteUrl' ],
-						(string)$formParams[ 'MasterSiteSecretKey' ],
-						$doNetwork
-					);
+				( new Import() )->fromSite(
+					(string)$formParams[ 'MasterSiteUrl' ],
+					(string)$formParams[ 'MasterSiteSecretKey' ],
+					$doNetwork
+				);
 				$success = true;
 			}
 			catch ( \Exception $e ) {
