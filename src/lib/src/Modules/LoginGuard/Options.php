@@ -99,6 +99,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->con()->isPremiumActive();
 	}
 
+	/**
+	 * @deprecated 18.2
+	 */
 	public function isEnabledBackupCodes() :bool {
 		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
 	}

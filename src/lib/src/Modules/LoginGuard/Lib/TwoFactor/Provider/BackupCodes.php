@@ -90,7 +90,7 @@ class BackupCodes extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isEnabledBackupCodes();
+		return $this->opts()->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	/**

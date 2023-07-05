@@ -35,15 +35,11 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
-	public function __construct() {
-	}
-
 	/**
 	 * @param bool $deleteFirst Used primarily with plugin reset
 	 * @param bool $isPremium
-	 * @return bool
 	 */
-	public function doOptionsSave( $deleteFirst = false, $isPremium = false ) {
+	public function doOptionsSave( $deleteFirst = false, $isPremium = false ) :bool {
 		if ( !$this->getNeedSave() ) {
 			return true;
 		}
@@ -89,22 +85,21 @@ class Options {
 
 	/**
 	 * Returns an array of all the options with the values for "sensitive" options masked out.
-	 * @return array
 	 */
-	public function getOptionsMaskSensitive() {
+	public function getOptionsMaskSensitive() :array {
 
-		$aOptions = $this->getAllOptionsValues();
+		$opts = $this->getAllOptionsValues();
 		foreach ( $this->getOptionsKeys() as $key ) {
-			if ( !isset( $aOptions[ $key ] ) ) {
-				$aOptions[ $key ] = $this->getOptDefault( $key );
+			if ( !isset( $opts[ $key ] ) ) {
+				$opts[ $key ] = $this->getOptDefault( $key );
 			}
 		}
 		foreach ( $this->getRawData_AllOptions() as $optDef ) {
 			if ( isset( $optDef[ 'sensitive' ] ) && $optDef[ 'sensitive' ] === true ) {
-				unset( $aOptions[ $optDef[ 'key' ] ] );
+				unset( $opts[ $optDef[ 'key' ] ] );
 			}
 		}
-		return array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+		return \array_diff_key( $opts, \array_flip( $this->getVirtualCommonOptions() ) );
 	}
 
 	/**
@@ -186,7 +181,7 @@ class Options {
 				break;
 			case 'array':
 			case 'multiple_select':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = (array)$value;
 				}
 				break;
@@ -200,10 +195,10 @@ class Options {
 		switch ( $this->getOptionType( $key ) ) {
 			case 'array':
 			case 'multiple_select':
-				$valid = is_array( $value );
+				$valid = \is_array( $value );
 				break;
 			case 'integer':
-				$valid = is_numeric( $value );
+				$valid = \is_numeric( $value );
 				break;
 			default:
 				$valid = true;
@@ -342,12 +337,19 @@ class Options {
 	public function getOpt( string $key, $mDefault = false ) {
 		$value = $this->getAllOptionsValues()[ $key ] ?? null;
 
-		if ( is_null( $value ) || !$this->isValidOptionValueType( $key, $value ) ) {
-			$value = $this->getOptDefault( $key, $mDefault );
-			$this->setOpt( $key, $value );
+		if ( \is_null( $value ) || !$this->isValidOptionValueType( $key, $value ) ) {
+			$this->resetOptToDefault( $key );
 		}
 
-		return $this->ensureOptValueType( $key, $this->aOptionsValues[ $key ] ?? $mDefault );
+		$cap = $this->optCap( $key );
+		if ( empty( $cap ) || $this->con()->caps->hasCap( $cap ) ) {
+			$value = $this->aOptionsValues[ $key ] ?? $mDefault;
+		}
+		else {
+			$value = $this->getOptDefault( $key, $mDefault );
+		}
+
+		return $this->ensureOptValueType( $key, $value );
 	}
 
 	/**
@@ -363,18 +365,19 @@ class Options {
 		return $this->getRawData_AllOptions()[ $key ] ?? [];
 	}
 
-	/**
-	 * @param mixed $mValueToTest
-	 * @param bool  $strict
-	 */
-	public function isOpt( string $key, $mValueToTest, $strict = false ) :bool {
-		return $strict ? $this->getOpt( $key ) === $mValueToTest : $this->getOpt( $key ) == $mValueToTest;
+	public function optCap( string $key ) :?string {
+		$def = $this->getOptDefinition( $key );
+		return $def[ 'cap' ] ?? null;
 	}
 
 	/**
-	 * @return string|null
+	 * @param mixed $mValueToTest
 	 */
-	public function getOptionType( string $key ) {
+	public function isOpt( string $key, $mValueToTest, bool $strict = false ) :bool {
+		return $strict ? $this->getOpt( $key ) === $mValueToTest : $this->getOpt( $key ) == $mValueToTest;
+	}
+
+	public function getOptionType( string $key ) :?string {
 		return $this->getOptDefinition( $key )[ 'type' ] ?? null;
 	}
 
@@ -599,11 +602,11 @@ class Options {
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return mixed
 	 */
-	public function unsetOpt( $sOptionKey ) {
-		unset( $this->aOptionsValues[ $sOptionKey ] );
+	public function unsetOpt( $key ) {
+		unset( $this->aOptionsValues[ $key ] );
 		$this->setNeedSave( true );
 		return true;
 	}

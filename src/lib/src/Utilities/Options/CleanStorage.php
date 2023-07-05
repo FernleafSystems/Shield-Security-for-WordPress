@@ -11,7 +11,7 @@ class CleanStorage {
 	public function run() {
 		foreach ( $this->con()->modules as $mod ) {
 			$opts = $mod->getOptions();
-			foreach ( array_keys( $opts->getAllOptionsValues() ) as $optKey ) {
+			foreach ( \array_keys( $opts->getAllOptionsValues() ) as $optKey ) {
 				if ( !$opts->isValidOptionKey( $optKey ) ) {
 					$opts->unsetOpt( $optKey );
 				}
