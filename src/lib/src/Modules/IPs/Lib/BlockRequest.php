@@ -20,7 +20,7 @@ class BlockRequest {
 		// This can still be stopped.
 		if ( $this->isRequestBlocked() ) {
 			$this->con()->fireEvent( 'conn_kill' );
-			$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+			$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 				'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressShield::SLUG
 			] );
 		}

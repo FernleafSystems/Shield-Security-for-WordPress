@@ -538,7 +538,7 @@ class Controller extends DynPropertiesClass {
 		$this->action_router->execute();
 
 		try {
-			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::SLUG );
+			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class );
 		}
 		catch ( ActionException $e ) {
 		}

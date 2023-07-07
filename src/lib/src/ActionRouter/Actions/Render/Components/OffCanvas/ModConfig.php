@@ -42,7 +42,7 @@ class ModConfig extends OffCanvasBase {
 			throw new ActionException( "Couldn't determine the module config to load." );
 		}
 
-		$content = $con->action_router->action( DynamicPageLoad::SLUG, [
+		$content = $con->action_router->action( DynamicPageLoad::class, [
 			'dynamic_load_params' => [
 				'dynamic_load_slug' => Config::SLUG,
 				'dynamic_load_data' => [

@@ -10,9 +10,7 @@ class SecurityAdminAuthClear extends SecurityAdminBase {
 
 	protected function exec() {
 		$con = $this->con();
-		( new ToggleSecAdminStatus() )
-			->setMod( $con->getModule_SecAdmin() )
-			->turnOff();
+		( new ToggleSecAdminStatus() )->turnOff();
 
 		$response = $this->response();
 		$response->action_response_data = [

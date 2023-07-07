@@ -25,7 +25,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
 			$opts->setOpt( 'email_can_send_verified_at', 0 );
 			try {
-				$this->con()->action_router->action( MfaEmailSendVerification::SLUG );
+				$this->con()->action_router->action( MfaEmailSendVerification::class );
 			}
 			catch ( ActionException $e ) {
 			}
@@ -33,7 +33,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 		$IDs = $opts->getOpt( 'antibot_form_ids', [] );
 		foreach ( $IDs as $key => $id ) {
-			$id = trim( strip_tags( $id ) );
+			$id = \trim( strip_tags( $id ) );
 			if ( empty( $id ) ) {
 				unset( $IDs[ $key ] );
 			}

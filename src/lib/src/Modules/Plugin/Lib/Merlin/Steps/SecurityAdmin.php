@@ -24,9 +24,7 @@ class SecurityAdmin extends Base {
 		$mod = $this->con()->getModule_SecAdmin();
 		$mod->setIsMainFeatureEnabled( true );
 		$mod->getOptions()->setOpt( 'admin_access_key', md5( $pin ) );
-		( new Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )
-			->setMod( $mod )
-			->turnOn();
+		( new Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )->turnOn();
 		$mod->saveModOptions();
 
 		$resp = parent::processStepFormSubmit( $form );

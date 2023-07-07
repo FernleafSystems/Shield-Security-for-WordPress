@@ -54,7 +54,7 @@ class LoginRequestCapture {
 				Services::WpUsers()->logoutUser( true );
 				$req = Services::Request();
 				try {
-					$con->action_router->action( StandardFullPageDisplay::SLUG, [
+					$con->action_router->action( StandardFullPageDisplay::class, [
 						'render_slug' => ( $opts->getMfaLoginIntentFormat() === $mfaCon::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
 							ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 						'render_data' => [

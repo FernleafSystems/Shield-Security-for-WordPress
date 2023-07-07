@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 
 class SetSecAdminPin {
 
@@ -19,8 +19,7 @@ class SetSecAdminPin {
 			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
-		$this->getOptions()
-			 ->setOpt( 'admin_access_key', md5( $pin ) );
+		$this->opts()->setOpt( 'admin_access_key', \md5( $pin ) );
 		$this->mod()
 			 ->setIsMainFeatureEnabled( true )
 			 ->saveModOptions();

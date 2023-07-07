@@ -83,7 +83,7 @@ class LoginIntentRequestCapture {
 			// Allow a further attempt to 2FA
 			try {
 				$useShieldLoginIntentPage = $con->getModule_LoginGuard()->getMfaController()->useLoginIntentPage();
-				$con->action_router->action( StandardFullPageDisplay::SLUG, [
+				$con->action_router->action( StandardFullPageDisplay::class, [
 					'render_slug' => $useShieldLoginIntentPage ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
@@ -139,7 +139,7 @@ class LoginIntentRequestCapture {
 					return '';
 				}, 100, 0 );
 
-				$con->action_router->action( StandardFullPageDisplay::SLUG, [
+				$con->action_router->action( StandardFullPageDisplay::class, [
 					'render_slug' => WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,

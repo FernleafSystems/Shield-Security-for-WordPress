@@ -38,7 +38,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 	protected function postExec() {
 		if ( $this->isPostSyncRequired() ) {
 			try {
-				$this->con()->action_router->action( SiteActionSync::SLUG, $this->action_data );
+				$this->con()->action_router->action( SiteActionSync::class, $this->action_data );
 			}
 			catch ( ActionException $e ) {
 				error_log( $e->getMessage() );
@@ -48,7 +48,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 
 	protected function isPostSyncRequired() :bool {
 		return ( $this->response()->action_response_data[ 'success' ] ?? false )
-			   && !in_array( static::SLUG, [ SiteActionSync::SLUG, SiteActionDeactivate::SLUG ] );
+			   && !\in_array( static::SLUG, [ SiteActionSync::SLUG, SiteActionDeactivate::SLUG ] );
 	}
 
 	/**

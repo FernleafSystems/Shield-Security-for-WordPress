@@ -42,7 +42,7 @@ class TabSiteManage extends BaseSubPage {
 	protected function runAction() :string {
 		return 'nothing';
 		try {
-			return $this->con()->action_router->action( Render::SLUG, [
+			return $this->con()->action_router->action( Render::class, [
 				'render_action_slug' => TabManageSitePage::SLUG,
 				'render_action_data' => [
 					'site_id' => $this->getActiveSiteID(),

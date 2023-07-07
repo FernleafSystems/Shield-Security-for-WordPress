@@ -13,12 +13,9 @@ class Sessions extends BaseBuild {
 	 */
 	private $sessions;
 
-	/**
-	 * @return int
-	 */
-	public function countTotal() {
-		return array_sum( array_map( function ( $sessions ) {
-			return count( $sessions );
+	public function countTotal() :int {
+		return (int)\array_sum( \array_map( function ( $sessions ) {
+			return \count( $sessions );
 		}, $this->loadSessions() ) );
 	}
 
@@ -46,11 +43,11 @@ class Sessions extends BaseBuild {
 									  ->setOrderBy( 'updated_at' )
 									  ->setLimit( 20 )
 									  ->queryWithResult();
-				$UIDs = array_map(
+				$UIDs = \array_map(
 					function ( $res ) {
 						return (int)$res[ 'user_id' ];
 					},
-					is_array( $results ) ? $results : []
+					\is_array( $results ) ? $results : []
 				);
 			}
 
@@ -112,13 +109,13 @@ class Sessions extends BaseBuild {
 		foreach ( $this->getEntriesRaw() as $key => $e ) {
 
 			try {
-				$isYou = $srvIP->checkIp( $you, $e[ 'ip' ] );
+				$isYou = $srvIP::IpIn( $you, [ $e[ 'ip' ] ] );
 			}
 			catch ( \Exception $ex ) {
 				$isYou = false;
 			}
 
-			$entries[ $key ] = array_merge( $e, [
+			$entries[ $key ] = \array_merge( $e, [
 				'is_secadmin'      => $e[ 'secadmin_at' ] ? __( 'Yes' ) : __( 'No' ),
 				'last_activity_at' => $this->formatTimestampField( $e[ 'last_activity_at' ] ),
 				'logged_in_at'     => $this->formatTimestampField( $e[ 'login' ] ),
@@ -141,5 +138,19 @@ class Sessions extends BaseBuild {
 	 */
 	protected function getTableRenderer() {
 		return new Tables\Render\WpListTable\Sessions();
+	}
+
+	protected function getIpAnalysisLink( string $ip ) :string {
+		$srvIP = Services::IP();
+		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : $this->con()->plugin_urls->ipAnalysis( $ip );
+		return sprintf(
+			'<a href="%s" %s title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
+			$href,
+			$srvIP->isValidIpRange( $ip ) ? 'target="_blank"' : '',
+			__( 'IP Analysis' ),
+			$srvIP->isValidIpRange( $ip ) ? '' : 'render_ip_analysis',
+			$ip,
+			$ip
+		);
 	}
 }

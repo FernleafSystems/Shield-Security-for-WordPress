@@ -3,31 +3,24 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RemoveSecAdmin {
 
-	use ModConsumer;
+	use SecurityAdmin\ModConsumer;
 
 	public function remove( bool $quietly = false ) {
-		$con = $this->con();
-		$mod = $con->getModule_SecAdmin();
-
-		/** @var SecurityAdmin\Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $this->opts();
 		if ( $opts->hasSecurityPIN() ) {
-			$con->this_req->is_security_admin = true;
+			$this->con()->this_req->is_security_admin = true;
 
 			$opts->clearSecurityAdminKey();
 			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
 			$opts->setOpt( 'sec_admin_users', [] );
-			$mod->saveModOptions();
+			$this->mod()->saveModOptions();
 
-			( new ToggleSecAdminStatus() )
-				->setMod( $mod )
-				->turnOff();
+			( new ToggleSecAdminStatus() )->turnOff();
 
 			if ( !$quietly ) {
 				$this->sendNotificationEmail();

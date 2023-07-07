@@ -17,7 +17,7 @@ class VerifyActions {
 		$slugs = [];
 		$duplicates = [];
 		foreach ( Constants::ACTIONS as $actionClass ) {
-			if ( !in_array( $actionClass::SLUG, $slugs ) ) {
+			if ( !\in_array( $actionClass::SLUG, $slugs ) ) {
 				$slugs[] = $actionClass::SLUG;
 			}
 			else {

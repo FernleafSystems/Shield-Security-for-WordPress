@@ -33,7 +33,7 @@ class TabManageSitePage extends BaseMainwpPage {
 
 	protected function renderMainBodyContent() :string {
 		try {
-			return $this->con()->action_router->action( MainwpServerClientActionHandler::SLUG, [
+			return $this->con()->action_router->action( MainwpServerClientActionHandler::class, [
 				'site_id'            => $this->action_data[ 'site_id' ],
 				'site_action_slug'   => OptionsForm::SLUG,
 				'site_action_params' => [

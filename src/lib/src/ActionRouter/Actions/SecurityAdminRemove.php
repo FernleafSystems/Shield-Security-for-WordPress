@@ -10,9 +10,7 @@ class SecurityAdminRemove extends SecurityAdminBase {
 
 	protected function exec() {
 		$con = $this->con();
-		( new RemoveSecAdmin() )
-			->setMod( $con->getModule_SecAdmin() )
-			->remove( (bool)$this->action_data[ 'quietly' ] ?? false );
+		( new RemoveSecAdmin() )->remove( (bool)$this->action_data[ 'quietly' ] ?? false );
 
 		$this->response()->next_step = [
 			'type' => 'redirect',

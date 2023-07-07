@@ -33,7 +33,7 @@ class ActionRoutingController {
 	 * @throws Exceptions\SecurityAdminRequiredException
 	 * @throws Exceptions\InvalidActionNonceException
 	 */
-	public function action( string $slug = '', array $data = [], int $type = self::ACTION_SHIELD ) :ActionResponse {
+	public function action( string $classOrSlug, array $data = [], int $type = self::ACTION_SHIELD ) :ActionResponse {
 
 		switch ( $type ) {
 			case self::ACTION_AJAX:
@@ -47,19 +47,19 @@ class ActionRoutingController {
 		}
 
 		try {
-			$response = ( new ActionProcessor() )->processAction( $slug, $data );
+			$response = ( new ActionProcessor() )->processAction( $classOrSlug, $data );
 		}
 		catch ( Exceptions\SecurityAdminRequiredException $sare ) {
 			if ( Services::WpGeneral()->isAjax() ) {
 				throw $sare;
 			}
-			$response = $this->action( Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::SLUG, $data );
+			$response = $this->action( Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class, $data );
 		}
 		catch ( Exceptions\InvalidActionNonceException $iane ) {
 			if ( Services::WpGeneral()->isAjax() ) {
 				throw $iane;
 			}
-			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $slug, var_export( $data, true ) ) );
+			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $classOrSlug, var_export( $data, true ) ) );
 		}
 
 		$adapter->adapt( $response );
@@ -69,12 +69,12 @@ class ActionRoutingController {
 	/**
 	 * This is an alias for calling the Render action directly
 	 */
-	public function render( string $slug, array $data = [] ) :string {
+	public function render( string $classOrSlug, array $data = [] ) :string {
 		try {
 			$output = $this->action(
-				Actions\Render::SLUG,
+				Actions\Render::class,
 				[
-					'render_action_slug' => $slug,
+					'render_action_slug' => $classOrSlug,
 					'render_action_data' => $data,
 				]
 			)->action_response_data[ 'render_output' ];

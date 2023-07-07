@@ -16,7 +16,10 @@ class ActionProcessor {
 
 	use PluginControllerConsumer;
 
-	private static $actions;
+	/**
+	 * @var array
+	 */
+	private static $actions = [];
 
 	/**
 	 * @throws ActionDoesNotExistException
@@ -26,8 +29,8 @@ class ActionProcessor {
 	 * @throws SecurityAdminRequiredException
 	 * @throws UserAuthRequiredException
 	 */
-	public function processAction( string $slug, array $data = [] ) :ActionResponse {
-		$action = $this->getAction( $slug, $data );
+	public function processAction( string $classOrSlug, array $data = [] ) :ActionResponse {
+		$action = $this->getAction( $classOrSlug, $data );
 		$action->process();
 		return $action->response();
 	}
@@ -35,22 +38,20 @@ class ActionProcessor {
 	/**
 	 * @throws ActionDoesNotExistException
 	 */
-	public function getAction( string $slug, array $data ) :Actions\BaseAction {
-		$action = $this->findActionFromSlug( $slug );
+	public function getAction( string $classOrSlug, array $data ) :Actions\BaseAction {
+		$action = \class_exists( $classOrSlug ) ? $classOrSlug : ( self::$actions[ $classOrSlug ] ?? $this->findActionFromSlug( $classOrSlug ) );
 		if ( empty( $action ) ) {
-			throw new ActionDoesNotExistException( 'There was no action handler available for '.$slug );
+			throw new ActionDoesNotExistException( 'There was no action handler available for '.$classOrSlug );
 		}
-		return ( new $action( $data ) )->setMod( $this->con()->getModule_Plugin() );
+		return new $action( $data );
 	}
 
-	public function findActionFromSlug( string $slug ) :string {
-		$theAction = '';
+	private function findActionFromSlug( string $slug ) :string {
 		foreach ( Constants::ACTIONS as $action ) {
 			if ( $action::SLUG === $slug ) {
-				$theAction = $action;
-				break;
+				return self::$actions[ $slug ] = $action;
 			}
 		}
-		return $theAction;
+		return '';
 	}
 }

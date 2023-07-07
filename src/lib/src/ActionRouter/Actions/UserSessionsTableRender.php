@@ -11,9 +11,7 @@ class UserSessionsTableRender extends SecurityAdminBase {
 	protected function exec() {
 		$this->response()->action_response_data = [
 			'success' => true,
-			'html'    => ( new Sessions() )
-				->setMod( $this->getMod() )
-				->render()
+			'html'    => ( new Sessions() )->render()
 		];
 	}
 }

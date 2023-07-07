@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
@@ -14,7 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -22,7 +22,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 abstract class BaseAction extends DynPropertiesClass {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const SLUG = '';
 
@@ -38,7 +38,7 @@ abstract class BaseAction extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'action_data':
-				$value = array_merge( $this->getDefaults(), is_array( $value ) ? $value : [] );
+				$value = \array_merge( $this->getDefaults(), \is_array( $value ) ? $value : [] );
 				break;
 			default:
 				break;
