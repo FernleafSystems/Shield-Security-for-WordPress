@@ -34,13 +34,13 @@ class WpContentUnidentified extends BaseScan {
 	}
 
 	private function inWpContentDir() :bool {
-		$possibles = array_unique( [
+		$possibles = \array_unique( [
 			trailingslashit( wp_normalize_path( path_join( ABSPATH, 'wp-content' ) ) ),
 			trailingslashit( wp_normalize_path( WP_CONTENT_DIR ) ),
 		] );
 		$in = false;
 		foreach ( $possibles as $possibleRoot ) {
-			if ( strpos( $this->pathFull, $possibleRoot ) === 0 ) {
+			if ( \strpos( $this->pathFull, $possibleRoot ) === 0 ) {
 				$in = true;
 				break;
 			}

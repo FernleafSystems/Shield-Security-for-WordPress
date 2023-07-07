@@ -24,22 +24,22 @@ class FileScanner {
 			$validFile =
 				( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->isFileValid() ) ||
-				( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+						->isFileValid() )
+				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->isFileValid() ) ||
-				( $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
+						->isFileValid() )
+				|| ( $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
 						->setScanActionVO( $action )
-						->isFileValid() ) ||
-				( $scanCon->isScanEnabledPlugins() && ( new Scans\PluginFile( $fullPath ) )
+						->isFileValid() )
+				|| ( $scanCon->isScanEnabledPlugins() && ( new Scans\PluginFile( $fullPath ) )
 						->setScanActionVO( $action )
-						->isFileValid() ) ||
-				( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
+						->isFileValid() )
+				|| ( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
+						->setScanActionVO( $action )
+						->isFileValid() )
+				|| ( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
 						->setScanActionVO( $action )
 						->isFileValid() );
-			( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
-					->setScanActionVO( $action )
-					->isFileValid() );
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
 			$item = $this->getResultItem( $fullPath );

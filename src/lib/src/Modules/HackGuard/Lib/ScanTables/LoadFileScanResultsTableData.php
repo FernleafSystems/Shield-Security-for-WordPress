@@ -33,13 +33,13 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		 * Bulk update the malai statuses
 		 */
 		( new RetrieveMalwareMalaiStatus() )->updateRecords(
-			array_map( function ( ResultItem $item ) {
+			\array_map( function ( ResultItem $item ) {
 				return $item->getMalwareRecord();
 			}, $results->getMalware()->getItems() )
 		);
 
 		try {
-			$files = array_map(
+			$files = \array_map(
 				function ( ResultItem $item ) {
 					return $this->getDataFromItem( $item );
 				},
@@ -53,7 +53,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function getDataFromItem( ResultItem $item ) :array {
-		$data = array_merge( $item->getRawData(), [
+		$data = \array_merge( $item->getRawData(), [
 			'rid'              => $item->VO->scanresult_id,
 			'file'             => $item->path_fragment,
 			'created_at'       => $item->VO->created_at,

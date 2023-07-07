@@ -269,12 +269,12 @@ class Controller extends DynPropertiesClass {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
-			if ( !empty( $minPHP ) && version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
+			if ( !empty( $minPHP ) && \version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
 				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $minPHP );
 			}
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
-			if ( !empty( $wp ) && version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
+			if ( !empty( $wp ) && \version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
 				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
 			}
 
@@ -305,14 +305,14 @@ class Controller extends DynPropertiesClass {
 		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
 		$supported = empty( $versionToSupport )
 					 || empty( $mysqlInfo )
-					 || version_compare( preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
-					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false && !preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
+					 || \version_compare( \preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
+					 || ( \stripos( $mysqlInfo, 'MariaDB' ) !== false && !\preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
 
 		if ( !$supported ) {
 			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
-			if ( is_array( $miscFunctions ) ) {
+			if ( \is_array( $miscFunctions ) ) {
 				foreach ( $miscFunctions as $fn ) {
-					if ( is_array( $fn ) && strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
+					if ( \is_array( $fn ) && \strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
 						$supported = true;
 						break;
 					}
@@ -556,10 +556,10 @@ class Controller extends DynPropertiesClass {
 		$optKey = $this->prefixOption( 'shield_site_id' );
 
 		$IDs = $WP->getOption( $optKey );
-		if ( !is_array( $IDs ) ) {
+		if ( !\is_array( $IDs ) ) {
 			$IDs = [];
 		}
-		if ( empty( $IDs[ $url ] ) || !is_array( $IDs[ $url ] ) ) {
+		if ( empty( $IDs[ $url ] ) || !\is_array( $IDs[ $url ] ) ) {
 			$IDs[ $url ] = [];
 		}
 
@@ -648,7 +648,7 @@ class Controller extends DynPropertiesClass {
 			$new = Services::WpPlugins()->getUpdateNewVersion( $this->base_file );
 			if ( !empty( $new ) && isset( $this->cfg ) ) {
 				$updates = $this->cfg->update_first_detected;
-				if ( count( $updates ) > 3 ) {
+				if ( \count( $updates ) > 3 ) {
 					$updates = [];
 				}
 				if ( !isset( $updates[ $new ] ) ) {
@@ -670,21 +670,21 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function onWpAutoUpdate( $isAutoUpdate, $mItem ) {
 		$WP = Services::WpGeneral();
-		$oWpPlugins = Services::WpPlugins();
+		$WPP = Services::WpPlugins();
 
 		$file = $WP->getFileFromAutomaticUpdateItem( $mItem );
 
 		// The item in question is this plugin...
 		if ( $file === $this->base_file ) {
-			$autoupdateSelf = $this->cfg->properties[ 'autoupdate' ];
+			$autoUpdateSelf = $this->cfg->properties[ 'autoupdate' ];
 
-			if ( !$WP->isRunningAutomaticUpdates() && $autoupdateSelf == 'confidence' ) {
-				$autoupdateSelf = 'yes'; // so that we appear to be automatically updating
+			if ( !$WP->isRunningAutomaticUpdates() && $autoUpdateSelf == 'confidence' ) {
+				$autoUpdateSelf = 'yes'; // so that we appear to be automatically updating
 			}
 
-			$new = $oWpPlugins->getUpdateNewVersion( $file );
+			$new = $WPP->getUpdateNewVersion( $file );
 
-			switch ( $autoupdateSelf ) {
+			switch ( $autoUpdateSelf ) {
 
 				case 'yes' :
 					$isAutoUpdate = true;
@@ -717,7 +717,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$plugins[ $this->base_file ] = array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
+		$plugins[ $this->base_file ] = \array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
 		return $plugins;
 	}
 
@@ -740,7 +740,7 @@ class Controller extends DynPropertiesClass {
 	public function prefix( string $suffix = '', string $glue = '-' ) :string {
 		$prefix = $this->getPluginPrefix( $glue );
 
-		if ( $suffix == $prefix || strpos( $suffix, $prefix.$glue ) === 0 ) { //it already has the full prefix
+		if ( $suffix == $prefix || \strpos( $suffix, $prefix.$glue ) === 0 ) { //it already has the full prefix
 			return $suffix;
 		}
 
@@ -785,7 +785,7 @@ class Controller extends DynPropertiesClass {
 					$slug, $e->getMessage() ) );
 			}
 
-			if ( !isset( $modCfg->properties ) || !is_array( $modCfg->properties ) ) {
+			if ( !isset( $modCfg->properties ) || !\is_array( $modCfg->properties ) ) {
 				throw new Exceptions\PluginConfigInvalidException( sprintf( "Loading config for module '%s' failed.", $slug ) );
 			}
 
@@ -1069,7 +1069,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	public function onWpPrivacyRegisterExporter( $registered ) {
-		if ( !is_array( $registered ) ) {
+		if ( !\is_array( $registered ) ) {
 			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 
@@ -1085,7 +1085,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	public function onWpPrivacyRegisterEraser( $registered ) {
-		if ( !is_array( $registered ) ) {
+		if ( !\is_array( $registered ) ) {
 			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 
@@ -1142,7 +1142,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function labels() :Config\Labels {
-		$labels = array_map( 'stripslashes', $this->cfg->labels );
+		$labels = \array_map( 'stripslashes', $this->cfg->labels );
 
 		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
 			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {

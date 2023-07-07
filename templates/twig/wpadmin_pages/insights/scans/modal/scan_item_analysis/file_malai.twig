@@ -19,23 +19,28 @@
 	<div class="col scan-item-malaiquery">
 
 		<form id="FileScanMalaiQuery" autocomplete="off" method="post"
-		      action="#"
-		      enctype="multipart/form-data">
+			  action="#"
+			  enctype="multipart/form-data">
 			{% for input_name,input_value in vars.malai_query_nonce %}
 				<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
 			{% endfor %}
-			<div class="my-2">
-				<label for="_confirm" class="col-form-label">
-					<input type="checkbox" class="form-control text-end"
-					       name="confirm" id="_confirm" value="Y" />
-					{{ strings.i_accept }}
-					<br />
-				</label>
-			</div>
-			<div class="text-start">
-				<input id="SubmitForm" class="btn btn-primary" type="submit"
-				       value="{{ strings.run_malai_query }}" />
-			</div>
+
+			{% if flags.can_malai %}
+				<div class="my-2">
+					<label for="_confirm" class="col-form-label">
+						<input type="checkbox" class="form-control text-end"
+							   name="confirm" id="_confirm" value="Y" />
+						{{ strings.i_accept }}
+						<br />
+					</label>
+				</div>
+				<div class="text-start">
+					<input id="SubmitForm" class="btn btn-primary" type="submit"
+						   value="{{ strings.run_malai_query }}" />
+				</div>
+			{% else %}
+				<div class="alert alert-secondary d-inline-block">{{ strings.cant_run_malai }}</div>
+			{% endif %}
 		</form>
 	</div>
 </div>
