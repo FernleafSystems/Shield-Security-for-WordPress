@@ -56,15 +56,15 @@ class UserMetas {
 	}
 
 	private function loadMetaRecord( Shield\Users\ShieldUserMeta $meta ) {
-		$modData = $this->con()->getModule_Data();
-		$dbh = $modData->getDbH_UserMeta();
 
-		$metaLoader = ( new Shield\Modules\Data\DB\UserMeta\MetaRecords() )->setMod( $modData );
-		$userID = (int)$meta->user_id;
+		$metaLoader = new Shield\Modules\Data\DB\UserMeta\MetaRecords();
+		if ( \method_exists( $metaLoader, 'setMod' ) ) {
+			$metaLoader->setMod( $this->con()->getModule_Data() );
+		}
+		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 
-		$metaRecord = $metaLoader->loadMeta( $userID );
 		if ( empty( $metaRecord ) ) {
-			$metaRecord = $dbh->getRecord();
+			$metaRecord = $this->con()->getModule_Data()->getDbH_UserMeta()->getRecord();
 		}
 		else {
 			$dataToUpdate = [];
@@ -98,8 +98,12 @@ class UserMetas {
 			}
 
 			if ( !empty( $dataToUpdate ) ) {
-				$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
-				$metaRecord = $metaLoader->loadMeta( $userID );
+				$this->con()
+					 ->getModule_Data()
+					 ->getDbH_UserMeta()
+					 ->getQueryUpdater()
+					 ->updateRecord( $metaRecord, $dataToUpdate );
+				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 			}
 		}
 

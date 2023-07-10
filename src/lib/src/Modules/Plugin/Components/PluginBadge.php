@@ -2,19 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
+class PluginBadge {
 
-	public const MOD = Plugin\ModCon::SLUG;
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 
 		$display = apply_filters( 'shield/show_security_badge',
-			$this->getOptions()->isOpt( 'display_plugin_badge', 'Y' )
+			$this->opts()->isOpt( 'display_plugin_badge', 'Y' )
 			&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
 		);
 
@@ -36,8 +37,8 @@ class PluginBadge extends Modules\Base\Common\ExecOnceModConsumer {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		if ( !empty( $this->mod() ) && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			register_widget( new BadgeWidget( $this->mod() ) );
+		if ( !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
+			register_widget( BadgeWidget::class );
 		}
 	}
 

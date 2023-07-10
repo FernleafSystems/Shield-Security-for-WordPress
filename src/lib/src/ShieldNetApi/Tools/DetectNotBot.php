@@ -14,6 +14,6 @@ class DetectNotBot extends Common\BaseShieldNetApi {
 			'to_find' => $urlToFind,
 		];
 		$raw = $this->sendReq();
-		return is_array( $raw ) && empty( $raw[ 'error' ] ) && $raw[ 'data' ][ 'success' ];
+		return \is_array( $raw ) && empty( $raw[ 'error' ] ) && $raw[ 'data' ][ 'success' ];
 	}
 }

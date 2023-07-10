@@ -315,9 +315,9 @@ class CrowdSecApi {
 
 			$auths = $this->getCsAuths();
 			$auths[ $csAuth[ 'url' ] ] = $csAuth;
-			$auths = array_filter( $auths, function ( $auth ) {
+			$auths = \array_filter( $auths, function ( $auth ) {
 				return empty( $auth[ 'auth_expire' ] )
-					   || Services::Request()->ts() - $auth[ 'auth_expire' ] < WEEK_IN_SECONDS*12;
+					   || Services::Request()->ts() - $auth[ 'auth_expire' ] < \WEEK_IN_SECONDS*12;
 			} );
 			Services::WpGeneral()->updateOption( $this->con()->prefix( 'cs_auths' ), $auths );
 
@@ -340,14 +340,14 @@ class CrowdSecApi {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
 		$pass = wp_generate_password( rand( 10, 20 ), false );
-		if ( !preg_match( '#[a-z]#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 0, 25 ), 1 );
+		if ( !\preg_match( '#[a-z]#', $pass ) ) {
+			$pass .= \substr( $chars, wp_rand( 0, 25 ), 1 );
 		}
-		if ( !preg_match( '#[A-Z]#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 26, 51 ), 1 );
+		if ( !\preg_match( '#[A-Z]#', $pass ) ) {
+			$pass .= \substr( $chars, wp_rand( 26, 51 ), 1 );
 		}
-		if ( !preg_match( '#\d#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 52, 61 ), 1 );
+		if ( !\preg_match( '#\d#', $pass ) ) {
+			$pass .= \substr( $chars, wp_rand( 52, 61 ), 1 );
 		}
 		return substr( $pass.wp_generate_password( 22, false ), 0, 32 );
 	}

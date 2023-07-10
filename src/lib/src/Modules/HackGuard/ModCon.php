@@ -179,8 +179,6 @@ class ModCon extends BaseShield\ModCon {
 				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		}
 
-		( new Lib\Utility\CleanOutOldGuardFiles() )
-			->setMod( $this )
-			->execute();
+		( new Lib\Utility\CleanOutOldGuardFiles() )->execute();
 	}
 }

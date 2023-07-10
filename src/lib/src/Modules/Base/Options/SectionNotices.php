@@ -129,9 +129,7 @@ class SectionNotices {
 				$mod = $con->getModule_Plugin();
 				if ( $mod->getCaptchaCfg()->ready ) {
 					if ( $mod->getOptions()->getOpt( 'captcha_checked_at' ) < 0 ) {
-						( new CheckCaptchaSettings() )
-							->setMod( $mod )
-							->checkAll();
+						( new CheckCaptchaSettings() )->checkAll();
 					}
 					if ( $mod->getOptions()->getOpt( 'captcha_checked_at' ) == 0 ) {
 						$warnings[] = __( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
@@ -265,14 +263,9 @@ class SectionNotices {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
 				}
-				else {
-					$notBot = ( new TestNotBotLoading() )
-						->setMod( $con->getModule_IPs() )
-						->test();
-					if ( !$notBot ) {
-						$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-							sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
-					}
+				elseif ( !( new TestNotBotLoading() )->test() ) {
+					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
 				}
 				break;
 

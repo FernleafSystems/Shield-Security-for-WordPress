@@ -51,12 +51,12 @@ class AssetsCustomizer {
 				case PluginURLs::NAV_OVERVIEW:
 					break;
 				case PluginURLs::NAV_REPORTS:
-					$enq[ Enqueue::JS ] = array_merge( $enq[ Enqueue::JS ], [
+					$enq[ Enqueue::JS ] = \array_merge( $enq[ Enqueue::JS ], [
 						'chartist',
 						'chartist-plugin-legend',
 						'shield/charts',
 					] );
-					$enq[ Enqueue::CSS ] = array_merge( $enq[ Enqueue::CSS ], [
+					$enq[ Enqueue::CSS ] = \array_merge( $enq[ Enqueue::CSS ], [
 						'chartist',
 						'chartist-plugin-legend',
 						'shield/charts'
@@ -276,7 +276,7 @@ class AssetsCustomizer {
 	private function isIpAutoDetectRequired() :bool {
 		$req = Services::Request();
 		$optsPlugin = $this->con()->getModule_Plugin()->getOptions();
-		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 )
+		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > \MONTH_IN_SECONDS )
 			   || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
 	}
 }

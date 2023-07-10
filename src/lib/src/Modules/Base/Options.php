@@ -653,10 +653,7 @@ class Options {
 	}
 
 	private function getOptsStorage() :Options\Storage {
-		if ( empty( $this->optsStorage ) ) {
-			$this->optsStorage = ( new Options\Storage() )->setMod( $this->mod() );
-		}
-		return $this->optsStorage;
+		return $this->optsStorage ?? $this->optsStorage = ( new Options\Storage() )->setMod( $this->mod() );
 	}
 
 	/**

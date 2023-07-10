@@ -2,11 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StorageDir;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanOutOldGuardFiles extends ExecOnceModConsumer {
+class CleanOutOldGuardFiles {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run( int $limit = 50 ) {
 		$FS = Services::WpFs();

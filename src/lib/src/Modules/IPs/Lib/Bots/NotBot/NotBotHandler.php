@@ -47,10 +47,10 @@ class NotBotHandler {
 
 		return !empty( $cookie )
 			   && ( $req->ts() < $cookie[ 'ts' ] )
-			   && hash_equals( $this->getHashForVisitorTS( $cookie[ 'ts' ] ), $cookie[ 'hash' ] );
+			   && \hash_equals( $this->getHashForVisitorTS( $cookie[ 'ts' ] ), $cookie[ 'hash' ] );
 	}
 
 	public function getHashForVisitorTS( int $ts ) {
-		return hash_hmac( 'sha1', $ts.$this->con()->this_req->ip, $this->con()->getInstallationID()[ 'id' ] );
+		return \hash_hmac( 'sha1', $ts.$this->con()->this_req->ip, $this->con()->getInstallationID()[ 'id' ] );
 	}
 }

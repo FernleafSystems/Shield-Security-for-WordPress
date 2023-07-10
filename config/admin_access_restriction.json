@@ -161,6 +161,7 @@
       "section":     "section_security_admin_settings",
       "advanced":    true,
       "premium":     true,
+      "cap":         "run_as_mu",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/i1",

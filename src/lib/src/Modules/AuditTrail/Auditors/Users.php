@@ -48,7 +48,7 @@ class Users extends Base {
 	}
 
 	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {
-		if ( is_numeric( $userID ) && !empty( $appPassItem ) && !empty( $appPassItem[ 'name' ] ) ) {
+		if ( \is_numeric( $userID ) && !empty( $appPassItem ) && !empty( $appPassItem[ 'name' ] ) ) {
 			$this->con()->fireEvent(
 				'app_pass_created',
 				[
@@ -93,9 +93,8 @@ class Users extends Base {
 	 * @param int $reassignedID
 	 */
 	public function auditDeleteUser( $userID, $reassignedID ) {
-		$WPU = Services::WpUsers();
 
-		$user = empty( $userID ) ? null : $WPU->getUserById( $userID );
+		$user = empty( $userID ) ? null : Services::WpUsers()->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
 			$this->fireAuditEvent( 'user_deleted', [
 				'user_login' => sanitize_user( $user->user_login ),
@@ -105,7 +104,7 @@ class Users extends Base {
 			$this->removeSnapshotItem( $user );
 		}
 
-		$reassigned = empty( $reassignedID ) ? null : $WPU->getUserById( $reassignedID );
+		$reassigned = empty( $reassignedID ) ? null : Services::WpUsers()->getUserById( $reassignedID );
 		if ( $reassigned instanceof \WP_User ) {
 			$this->con()->fireEvent(
 				'user_deleted_reassigned',
@@ -217,10 +216,9 @@ class Users extends Base {
 	 * @snapshotDiffCron
 	 */
 	public function snapshotDiffForUsers( DiffVO $diff ) {
-		$WPP = Services::WpUsers();
 
 		foreach ( $diff->added as $added ) {
-			$user = $WPP->getUserById( $added[ 'uniq' ] );
+			$user = Services::WpUsers()->getUserById( $added[ 'uniq' ] );
 			$this->fireAuditEvent( 'user_registered', [
 				'user_login' => sanitize_user( $user->user_login ),
 				'email'      => $user->user_email,
@@ -237,7 +235,7 @@ class Users extends Base {
 		foreach ( $diff->changed as $changed ) {
 			$old = $changed[ 'old' ];
 			$new = $changed[ 'new' ];
-			$user = $WPP->getUserById( $old[ 'uniq' ] );
+			$user = Services::WpUsers()->getUserById( $old[ 'uniq' ] );
 
 			if ( !$old[ 'is_admin' ] && $new[ 'is_admin' ] ) {
 				$this->fireAuditEvent( 'user_promoted', [

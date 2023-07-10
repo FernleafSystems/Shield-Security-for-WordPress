@@ -92,17 +92,17 @@ class HandleOptionsSaveRequest {
 					$optValue = \intval( $optValue );
 				}
 				elseif ( $optType == 'password' ) {
-					$sTempValue = \trim( $optValue );
-					if ( empty( $sTempValue ) ) {
+					$tempValue = \trim( $optValue );
+					if ( empty( $tempValue ) ) {
 						continue;
 					}
 
 					$confirm = $form[ $optKey.'_confirm' ] ?? null;
-					if ( $sTempValue !== $confirm ) {
+					if ( $tempValue !== $confirm ) {
 						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
 
-					$optValue = \md5( $sTempValue );
+					$optValue = \md5( $tempValue );
 				}
 				elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), 'trim' );

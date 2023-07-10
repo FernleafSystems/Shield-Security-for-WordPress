@@ -9,9 +9,7 @@ class Options extends BaseShield\Options {
 
 	public function getLogFilePath() :string {
 		try {
-			$dir = ( new LogFileDirCreate() )
-				->setMod( $this->mod() )
-				->run();
+			$dir = ( new LogFileDirCreate() )->run();
 		}
 		catch ( \Exception $e ) {
 			$dir = '';

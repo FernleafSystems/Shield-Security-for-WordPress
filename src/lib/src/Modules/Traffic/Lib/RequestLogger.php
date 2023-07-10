@@ -43,13 +43,15 @@ class RequestLogger {
 	}
 
 	private function pushCustomHandlers() {
-		$custom = apply_filters( 'shield/custom_request_log_handlers', [] );
-		\array_map(
-			function ( $handler ) {
-				$this->getLogger()->pushHandler( $handler );
-			},
-			( $this->con()->isPremiumActive() && \is_array( $custom ) ) ? $custom : []
-		);
+		if ( $this->con()->caps->canActivityLogsSendToIntegrations() ) {
+			$custom = apply_filters( 'shield/custom_request_log_handlers', [] );
+			\array_map(
+				function ( $handler ) {
+					$this->getLogger()->pushHandler( $handler );
+				},
+				\is_array( $custom ) ? $custom : []
+			);
+		}
 	}
 
 	private function isRequestToBeLogged() :bool {

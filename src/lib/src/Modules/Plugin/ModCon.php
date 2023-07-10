@@ -52,7 +52,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getPluginBadgeCon() :Components\PluginBadge {
-		return $this->pluginBadgeCon ?? $this->pluginBadgeCon = ( new Components\PluginBadge() )->setMod( $this );
+		return $this->pluginBadgeCon ?? $this->pluginBadgeCon = new Components\PluginBadge();
 	}
 
 	public function getReportingController() :Lib\Reporting\ReportingController {
@@ -114,9 +114,7 @@ class ModCon extends BaseShield\ModCon {
 			$opts->setOpt( 'ipdetect_at', 0 );
 		}
 
-		( new Lib\Captcha\CheckCaptchaSettings() )
-			->setMod( $this )
-			->checkAll();
+		( new Lib\Captcha\CheckCaptchaSettings() )->checkAll();
 	}
 
 	public function deleteAllPluginCrons() {
@@ -292,7 +290,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
-		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
+		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = new Shield\Utilities\ReCaptcha\Enqueue();
 	}
 
 	protected function setupCustomHooks() {

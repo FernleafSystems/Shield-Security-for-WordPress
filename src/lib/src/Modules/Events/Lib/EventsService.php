@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
@@ -140,10 +140,7 @@ class EventsService {
 		return $custom;
 	}
 
-	/**
-	 * @return array|null
-	 */
-	public function getEventDef( string $eventKey ) {
+	public function getEventDef( string $eventKey ) :?array {
 		return $this->getEvents()[ $eventKey ] ?? null;
 	}
 

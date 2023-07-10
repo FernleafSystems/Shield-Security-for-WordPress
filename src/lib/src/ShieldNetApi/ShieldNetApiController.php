@@ -39,7 +39,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 		$req = Services::Request();
 		$now = $req->ts();
 
-		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > MONTH_IN_SECONDS )
+		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > \MONTH_IN_SECONDS )
 					  && $now - MINUTE_IN_SECONDS*min( $this->vo->handshake_fail_count, 60 ) > $this->vo->last_handshake_attempt_at;
 
 		if ( $canAttempt && $req->query( ActionData::FIELD_EXECUTE ) !== 'snapi_handshake' ) {

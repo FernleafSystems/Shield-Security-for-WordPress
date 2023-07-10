@@ -17,13 +17,12 @@ class PluginsPageSupplements {
 	}
 
 	protected function run() {
-		$con = $this->getCon();
-		add_filter( 'plugin_action_links_'.$con->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
+		add_filter( 'plugin_action_links_'.$this->con()->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
-		add_action( 'in_plugin_update_message-'.$con->base_file, function () {
+		add_action( 'in_plugin_update_message-'.$this->con()->base_file, function () {
 			echo sprintf(
 				' <span class="%s plugin_update_message">%s</span>',
-				$this->getCon()->getPluginPrefix(),
+				$this->con()->getPluginPrefix(),
 				__( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' )
 			);
 		} );
@@ -35,11 +34,9 @@ class PluginsPageSupplements {
 	 * @return array
 	 */
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
-		$con = $this->getCon();
-
-		if ( $pluginFile === $con->base_file ) {
+		if ( $pluginFile === $this->con()->base_file ) {
 			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $con->cfg->plugin_meta as $href ) {
+			foreach ( $this->con()->cfg->plugin_meta as $href ) {
 				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
 			}
 		}
@@ -51,12 +48,12 @@ class PluginsPageSupplements {
 	 * @return array
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
-		$con = $this->getCon();
+		$con = $this->con();
 		$WP = Services::WpGeneral();
 
 		if ( $con->mu_handler->isActiveMU() ) {
 			foreach ( $actionLinks as $key => $actionHref ) {
-				if ( strpos( $actionHref, 'action=deactivate' ) ) {
+				if ( \strpos( $actionHref, 'action=deactivate' ) ) {
 					$actionLinks[ $key ] = sprintf( '<a href="%s">%s</a>',
 						URL::Build( $WP->getAdminUrl_Plugins(), [
 							'plugin_status' => 'mustuse'
@@ -69,18 +66,18 @@ class PluginsPageSupplements {
 
 		if ( $con->isValidAdminArea() ) {
 
-			if ( array_key_exists( 'edit', $actionLinks ) ) {
+			if ( \array_key_exists( 'edit', $actionLinks ) ) {
 				unset( $actionLinks[ 'edit' ] );
 			}
 
 			$links = $con->cfg->action_links[ 'add' ];
-			if ( is_array( $links ) ) {
+			if ( \is_array( $links ) ) {
 
 				$isPro = $con->isPremiumActive();
 				$DP = Services::Data();
 				$linkTemplate = '<a href="%s" target="%s" title="%s">%s</a>';
 				foreach ( $links as $link ) {
-					$link = array_merge(
+					$link = \array_merge(
 						[
 							'highlight' => false,
 							'show'      => 'always',
@@ -94,7 +91,7 @@ class PluginsPageSupplements {
 
 					$show = $link[ 'show' ];
 					$show = ( $show == 'always' ) || ( $isPro && $show == 'pro' ) || ( !$isPro && $show == 'free' );
-					if ( !$DP->isValidWebUrl( $link[ 'href' ] ) && method_exists( $this, $link[ 'href' ] ) ) {
+					if ( !$DP->isValidWebUrl( $link[ 'href' ] ) && \method_exists( $this, $link[ 'href' ] ) ) {
 						$link[ 'href' ] = $this->{$link[ 'href' ]}();
 					}
 
@@ -110,7 +107,7 @@ class PluginsPageSupplements {
 						$href = sprintf( '<span style="font-weight: bold;">%s</span>', $href );
 					}
 
-					$actionLinks = array_merge(
+					$actionLinks = \array_merge(
 						[ $con->prefix( sanitize_key( $link[ 'name' ] ) ) => $href ],
 						$actionLinks
 					);

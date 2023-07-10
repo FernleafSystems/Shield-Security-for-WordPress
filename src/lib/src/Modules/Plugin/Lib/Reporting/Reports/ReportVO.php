@@ -20,7 +20,7 @@ class ReportVO extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'content':
-				$value = is_string( $value ) ? trim( $value ) : '';
+				$value = \trim( \is_string( $value ) ? $value : '' );
 				break;
 
 			case 'interval_start_at':

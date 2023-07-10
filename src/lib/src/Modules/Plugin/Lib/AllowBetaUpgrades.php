@@ -32,9 +32,9 @@ class AllowBetaUpgrades {
 		add_filter( 'pre_set_site_transient_update_plugins', function ( $updates ) {
 			$con = $this->con();
 			// only offer "betas" when there is no "normal" upgrade already available
-			if ( is_object( $updates )
+			if ( \is_object( $updates )
 				 && isset( $updates->response )
-				 && is_array( $updates->response )
+				 && \is_array( $updates->response )
 				 && empty( $updates->response[ $con->base_file ] ) ) {
 
 				$beta = $this->getBeta();
@@ -54,17 +54,17 @@ class AllowBetaUpgrades {
 
 			$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
 			$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
-			$betas = array_filter(
+			$betas = \array_filter(
 				$versionsLookup->all(),
 				function ( $betaVersion ) {
-					return is_string( $betaVersion )
-						   && preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-						   && version_compare( $betaVersion, $this->con()->getVersion(), '>' );
+					return \is_string( $betaVersion )
+						   && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
+						   && \version_compare( $betaVersion, $this->con()->getVersion(), '>' );
 				}
 			);
 			if ( !empty( $betas ) ) {
-				natsort( $betas );
-				$beta = array_pop( $betas );
+				\natsort( $betas );
+				$beta = \array_pop( $betas );
 				$versionsLookup->setWorkingVersion( $beta );
 				$url = $versionsLookup->allVersionsUrls()[ $beta ] ?? '';
 				if ( !empty( $url ) ) {

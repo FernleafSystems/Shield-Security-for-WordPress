@@ -31,8 +31,6 @@ class ScanFromFileMap {
 				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
 
 					$item = ( new FileScanner() )
-						->setScanController( $this->getScanController() )
-						->setMod( $this->mod() )
 						->setScanActionVO( $action )
 						->scan( $fullPath );
 					if ( !empty( $item ) ) {
@@ -47,7 +45,7 @@ class ScanFromFileMap {
 
 	protected function isEmptyOfCode( string $path ) :bool {
 		try {
-			if ( strpos( $path, wp_normalize_path( ABSPATH ) ) === false ) {
+			if ( \strpos( $path, wp_normalize_path( ABSPATH ) ) === false ) {
 				$path = path_join( ABSPATH, $path );
 			}
 			$isEmpty = ( new AssessPhpFile() )->isEmptyOfCode( $path );

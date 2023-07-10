@@ -3,21 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Exceptions\{
 	AttemptingToCreateDisabledReportException,
 	AttemptingToCreateDuplicateReportException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportGenerator {
 
 	use ModConsumer;
-
-	public const MOD = ModCon::SLUG;
 
 	public function auto() {
 		$reports = $this->buildReports();
@@ -47,16 +44,13 @@ class ReportGenerator {
 	private function buildReports() :array {
 		/** @var Reports\ReportVO[] $reports */
 		$reports = [];
-		foreach ( array_keys( $this->getReportTypes() ) as $reportType ) {
+		foreach ( \array_keys( $this->getReportTypes() ) as $reportType ) {
 			try {
-				$report = ( new Reports\CreateReportVO() )
-					->setMod( $this->mod() )
-					->create( $reportType );
-				( new Reports\StandardReportBuilder() )
-					->setMod( $this->mod() )
-					->build( $report );
+				$report = ( new Reports\CreateReportVO() )->create( $reportType );
 
-				if ( strlen( $report->content ) > 0 ) {
+				( new Reports\StandardReportBuilder() )->build( $report );
+
+				if ( \strlen( $report->content ) > 0 ) {
 					$reports[] = $report;
 					$this->con()->fireEvent( 'report_generated', [
 						'audit_params' => [

@@ -16,8 +16,8 @@ class CaptureMyUpgrade {
 	}
 
 	public function captureMyInstall( $true, $hooksExtra ) {
-		if ( !empty( $hooksExtra[ 'plugin' ] ) && $hooksExtra[ 'plugin' ] === $this->getCon()->base_file ) {
-			$this->getCon()->is_my_upgrade = true;
+		if ( !empty( $hooksExtra[ 'plugin' ] ) && $hooksExtra[ 'plugin' ] === $this->con()->base_file ) {
+			$this->con()->is_my_upgrade = true;
 		}
 		return $true;
 	}
@@ -25,10 +25,10 @@ class CaptureMyUpgrade {
 	public function captureMyUpgrade( $upgradeHandler, $data ) {
 		if ( ( $data[ 'action' ] ?? null === 'update' )
 			 && ( $data[ 'type' ] ?? null === 'plugin' )
-			 && is_array( $data[ 'plugins' ] ?? null ) ) {
+			 && \is_array( $data[ 'plugins' ] ?? null ) ) {
 			foreach ( $data[ 'plugins' ] as $item ) {
-				if ( $item === $this->getCon()->root_file ) {
-					$this->getCon()->is_my_upgrade = true;
+				if ( $item === $this->con()->root_file ) {
+					$this->con()->is_my_upgrade = true;
 					break;
 				}
 			}

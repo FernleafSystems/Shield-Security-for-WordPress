@@ -43,8 +43,8 @@ class Users extends Base {
 	public function restrictSetUserRole( $userId, $role, $oldRoles = [] ) {
 		$WPU = Services::WpUsers();
 
-		$role = strtolower( (string)$role );
-		if ( !is_array( $oldRoles ) ) {
+		$role = \strtolower( (string)$role );
+		if ( !\is_array( $oldRoles ) ) {
 			$oldRoles = [];
 		}
 
@@ -52,11 +52,11 @@ class Users extends Base {
 			$newRoleIsAdmin = $role == 'administrator';
 
 			// 1. Setting administrator role where it doesn't previously exist
-			if ( $newRoleIsAdmin && !in_array( 'administrator', $oldRoles ) ) {
+			if ( $newRoleIsAdmin && !\in_array( 'administrator', $oldRoles ) ) {
 				$revert = true;
 			}
 			// 2. Setting non-administrator role when previous roles included administrator
-			elseif ( !$newRoleIsAdmin && in_array( 'administrator', $oldRoles ) ) {
+			elseif ( !$newRoleIsAdmin && \in_array( 'administrator', $oldRoles ) ) {
 				$revert = true;
 			}
 			else {
@@ -84,7 +84,7 @@ class Users extends Base {
 	public function restrictRemoveUserRole( $userId, $role ) {
 		$WPU = Services::WpUsers();
 
-		if ( $WPU->getCurrentWpUserId() !== $userId && strtolower( (string)$role ) === 'administrator' ) {
+		if ( $WPU->getCurrentWpUserId() !== $userId && \strtolower( (string)$role ) === 'administrator' ) {
 			$modifiedUser = $WPU->getUserById( $userId );
 
 			remove_action( 'add_user_role', [ $this, 'restrictAddUserRole' ], 100 );
@@ -110,7 +110,7 @@ class Users extends Base {
 	 * @return array[]
 	 */
 	public function restrictEditableRoles( $roles ) {
-		if ( is_array( $roles ) && isset( $roles[ 'administrator' ] ) ) {
+		if ( \is_array( $roles ) && isset( $roles[ 'administrator' ] ) ) {
 			unset( $roles[ 'administrator' ] );
 		}
 		return $roles;

@@ -2,14 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ImportIpsFromFile extends Shield\Modules\Base\Common\ExecOnceModConsumer {
+class ImportIpsFromFile {
+
+	use ExecOnce;
+	use IPs\ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->con()->isPremiumActive();
+		return $this->con()->caps->hasCap( 'ips_import_from_file' );
 	}
 
 	protected function run() {

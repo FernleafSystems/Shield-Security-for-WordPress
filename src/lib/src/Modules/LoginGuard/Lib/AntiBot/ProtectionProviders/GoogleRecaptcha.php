@@ -10,7 +10,6 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		$this->con()
 			 ->getModule_Plugin()
 			 ->getCaptchaEnqueue()
-			 ->setMod( $this->mod() )
 			 ->setToEnqueue();
 	}
 
@@ -18,9 +17,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 			try {
-				$this->getResponseTester()
-					 ->setMod( $this->mod() )
-					 ->test();
+				$this->getResponseTester()->test();
 			}
 			catch ( \Exception $e ) {
 				$this->processFailure();

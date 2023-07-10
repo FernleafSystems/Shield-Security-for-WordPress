@@ -207,7 +207,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? -50 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < \WEEK_IN_SECONDS ? -50 : -25;
 		}
 		return $score;
 	}
@@ -217,7 +217,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < WEEK_IN_SECONDS ? 75 : 35;
+			$score = $this->diffTs( __FUNCTION__ ) < \WEEK_IN_SECONDS ? 75 : 35;
 		}
 		return $score;
 	}

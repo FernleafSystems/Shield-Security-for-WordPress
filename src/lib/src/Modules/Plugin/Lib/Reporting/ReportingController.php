@@ -2,22 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 
-class ReportingController extends ExecOnceModConsumer {
+class ReportingController {
 
+	use ExecOnce;
+	use ModConsumer;
 	use PluginCronsConsumer;
 
-	public const MOD = ModCon::SLUG;
-
 	protected function canRun() :bool {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-		return $opts->getReportFrequencyInfo() !== 'disabled' || $opts->getReportFrequencyAlert() !== 'disabled';
+		return $this->opts()->getReportFrequencyInfo() !== 'disabled'
+			   || $this->opts()->getReportFrequencyAlert() !== 'disabled';
 	}
 
 	protected function run() {
@@ -32,13 +30,11 @@ class ReportingController extends ExecOnceModConsumer {
 	 * @return BaseBuilder[]
 	 */
 	public function getComponentBuilders( string $type ) :array {
-		return array_map(
+		return \array_map(
 			function ( $builder ) {
-				/** @var BaseBuilder $builder */
-				$builder = new $builder();
-				return $builder->setMod( $this->con()->getModule_Plugin() );
+				return new $builder();
 			},
-			array_filter(
+			\array_filter(
 				Constants::COMPONENT_REPORT_BUILDERS,
 				function ( $builder ) use ( $type ) {
 					/** @var BaseBuilder $builder */

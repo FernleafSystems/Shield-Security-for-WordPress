@@ -32,16 +32,14 @@ class Urls {
 	}
 
 	public function forAsset( string $asset ) :string {
-		$con = $this->getCon();
-		$url = $this->forPluginItem( $con->cfg->paths[ 'assets' ].'/'.$asset );
+		$url = $this->forPluginItem( $this->con()->cfg->paths[ 'assets' ].'/'.$asset );
 		return $this->includeTS ?
-			Services::Includes()->addIncludeModifiedParam( $url, $con->paths->forAsset( $asset ) )
+			Services::Includes()->addIncludeModifiedParam( $url, $this->con()->paths->forAsset( $asset ) )
 			: $url;
 	}
 
 	public function forPluginItem( string $path = '' ) :string {
-		$con = $this->getCon();
-		return URL::Build( plugins_url( $path, $con->getRootFile() ), [ 'ver' => $con->getVersion() ] );
+		return URL::Build( plugins_url( $path, $this->con()->getRootFile() ), [ 'ver' => $this->con()->getVersion() ] );
 	}
 
 	protected function lookupAssetUrlInSpec( string $asset, string $type ) :?string {
@@ -50,6 +48,6 @@ class Urls {
 	}
 
 	protected function lookupAssetInSpec( string $asset, string $type ) :array {
-		return $this->getCon()->cfg->includes[ 'register' ][ $type ][ $asset ] ?? [];
+		return $this->con()->cfg->includes[ 'register' ][ $type ][ $asset ] ?? [];
 	}
 }
