@@ -53,12 +53,12 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 		$opts->setOpt( 'two_factor_auth_user_roles', $opts->getEmail2FaRoles() );
 
-		$redirect = preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
+		$redirect = \preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->getOpt( 'rename_wplogin_redirect' ) );
 		if ( !empty( $redirect ) ) {
 
-			$redirect = preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
+			$redirect = \preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
 			if ( !empty( $redirect ) ) {
-				$redirect = '/'.ltrim( $redirect, '/' );
+				$redirect = '/'.\ltrim( $redirect, '/' );
 			}
 		}
 		$opts->setOpt( 'rename_wplogin_redirect', $redirect );

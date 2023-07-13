@@ -434,6 +434,7 @@
       "key":         "enable_u2f",
       "section":     "section_hardware_authentication",
       "premium":     true,
+      "cap":         "2fa_u2f",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/i9",

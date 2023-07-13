@@ -183,6 +183,9 @@ class Capabilities {
 	private function isPremiumOnlyCap( string $cap ) :bool {
 		return \in_array( $cap, [
 			'2fa_login_backup_codes',
+			'2fa_multi_yubikey',
+			'2fa_u2f',
+			'2fa_webauthn',
 			'2fa_remember_me',
 			'2fa_custom_pages', // No option?
 			'activity_logs_send_to_file',

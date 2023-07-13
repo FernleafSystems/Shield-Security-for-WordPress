@@ -100,7 +100,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function isEnabledU2F() :bool {
-		return $this->con()->isPremiumActive() && $this->isOpt( 'enable_u2f', 'Y' );
+		return $this->isOpt( 'enable_u2f', 'Y' );
 	}
 
 	public function isProtectLogin() :bool {
@@ -120,7 +120,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	 */
 	public function isProtect( string $location ) :bool {
 		$locs = $this->getOpt( 'bot_protection_locations' );
-		return in_array( $location, is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
+		return \in_array( $location, \is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
 	}
 
 	public function isEnabledYubikey() :bool {
