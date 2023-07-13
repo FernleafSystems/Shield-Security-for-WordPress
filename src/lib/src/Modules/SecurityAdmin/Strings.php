@@ -177,7 +177,23 @@ class Strings extends Base\Strings {
 			case 'admin_access_restrict_options' :
 				$name = __( 'WordPress Options', 'wp-simple-firewall' );
 				$summary = __( 'Restrict Access To Certain WordPress Admin Options', 'wp-simple-firewall' );
-				$desc = [ sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict the ability of WordPress administrators from changing key WordPress settings.', 'wp-simple-firewall' ) ) ];
+				$desc = [
+					sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict the ability of WordPress administrators from changing key WordPress settings.', 'wp-simple-firewall' ) ),
+					__( 'The following options will be restricted:', 'wp-simple-firewall' ),
+					sprintf( '<ul style="list-style-type: square"><li>%s</li></ul>', \implode( '</li><li>', [
+						sprintf( '%s %s', __( 'New User Default Role' ), '<span class="badge bg-success">new</span>' ),
+						sprintf( '%s %s', __( 'Permalink structure' ), '<span class="badge bg-success">new</span>' ),
+						__( 'Site Title' ),
+						__( 'Tagline' ),
+						__( 'WordPress Address (URL)' ),
+						__( 'Site Address (URL)' ),
+						__( 'Administration Email Address' ),
+						sprintf( '%s (%s)', __( 'Membership' ), __( 'Anyone can register' ) ),
+						__( 'Email notifications for new comments', 'wp-simple-firewall' ),
+						__( 'Comments must be manually approved' ),
+						__( 'Search engine visibility' ),
+					] ) )
+				];
 				break;
 
 			case 'admin_access_restrict_admin_users' :
