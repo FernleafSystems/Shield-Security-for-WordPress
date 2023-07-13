@@ -14,7 +14,7 @@ class LicenseScheduleCheck extends LicenseBase {
 
 	protected function exec() {
 
-		$delay = null;
+		$delay = $this->action_data[ 'delay' ] ?? null;
 		try {
 			if ( ( new IpID( $this->con()->this_req->ip ) )->run()[ 0 ] === ServiceProviders::PROVIDER_SHIELD ) {
 				$delay = 60;
