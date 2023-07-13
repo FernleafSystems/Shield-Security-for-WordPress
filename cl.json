@@ -15,7 +15,7 @@
         "pro_only":    false,
         "title":       "Change Reports",
         "description": [
-          "You can now product summary and detailed reports for key areas on your WordPress site."
+          "You can now create summary and detailed reports for key areas on your WordPress site."
         ],
         "href":        ""
       },
@@ -35,6 +35,15 @@
         "description": [
           "Shield now logs changes to the site that were done 'outside' of the WordPress environment.",
           "It can capture changes to critical WordPress core options that were modified directly on WordPress DB, for example."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Protect WordPress Permalinks Option",
+        "description": [
+          "Security Admin now protects the WordPress Permalinks option."
         ],
         "href":        ""
       }

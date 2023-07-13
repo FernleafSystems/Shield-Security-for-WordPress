@@ -462,6 +462,7 @@
         "admin_email",
         "new_admin_email",
         "users_can_register",
+        "permalink_structure",
         "comments_notify",
         "comment_moderation",
         "blog_public",
