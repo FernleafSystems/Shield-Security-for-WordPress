@@ -27,8 +27,6 @@ class TestNotBotLoading {
 	}
 
 	public function testViaShieldNet() :bool {
-		return ( new DetectNotBot() )
-			->setMod( $this->con()->getModule_Plugin() )
-			->run( \explode( '?', $this->con()->urls->forJs( 'shield/notbot' ) )[ 0 ] );
+		return ( new DetectNotBot() )->run( \explode( '?', $this->con()->urls->forJs( 'shield/notbot' ) )[ 0 ] );
 	}
 }

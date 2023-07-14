@@ -15,6 +15,6 @@ class SendIPReputation extends Common\BaseShieldNetApi {
 			'ip_signals' => $signalsData,
 		];
 		$raw = $this->sendReq();
-		return is_array( $raw ) && empty( $raw[ 'error' ] );
+		return \is_array( $raw ) && empty( $raw[ 'error' ] );
 	}
 }

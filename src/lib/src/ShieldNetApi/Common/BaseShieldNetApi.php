@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class BaseShieldNetApi extends BaseApi {
 
-	use ModConsumer;
+	use PluginControllerConsumer;
 
 	public const DEFAULT_URL_STUB = 'https://net.getshieldsecurity.com/wp-json/apto-snapi';
 
@@ -28,7 +28,7 @@ class BaseShieldNetApi extends BaseApi {
 
 			case 'params_query':
 				if ( $this->request_method == 'get' ) {
-					$value = array_merge( $this->shield_net_params, $value );
+					$value = \array_merge( $this->shield_net_params, $value );
 				}
 				$lastError = $this->last_error;
 				if ( !empty( $lastError ) ) {
@@ -38,7 +38,7 @@ class BaseShieldNetApi extends BaseApi {
 
 			case 'params_body':
 				if ( $this->request_method == 'post' ) {
-					$value = array_merge( $this->shield_net_params, $value );
+					$value = \array_merge( $this->shield_net_params, $value );
 				}
 
 				$lastError = $this->last_error;
@@ -48,13 +48,13 @@ class BaseShieldNetApi extends BaseApi {
 				break;
 
 			case 'shield_net_params':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = $this->getShieldNetApiParams();
 				}
 				break;
 
 			case 'shield_net_params_required':
-				$value = is_null( $value ) || $value;
+				$value = \is_null( $value ) || $value;
 				break;
 
 			default:
@@ -68,10 +68,9 @@ class BaseShieldNetApi extends BaseApi {
 	 * @return string[]
 	 */
 	protected function getShieldNetApiParams() :array {
-		$con = $this->con();
 		return $this->shield_net_params_required ? [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
-			'install_id' => $con->getInstallationID()[ 'id' ],
+			'install_id' => $this->con()->getInstallationID()[ 'id' ],
 			'nonce'      => ( new HandshakingNonce() )->create(),
 		] : [];
 	}

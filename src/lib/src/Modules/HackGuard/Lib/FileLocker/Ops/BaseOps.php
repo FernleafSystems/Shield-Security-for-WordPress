@@ -41,7 +41,7 @@ class BaseOps {
 	 * @throws PublicKeyRetrievalFailure
 	 */
 	protected function getPublicKey() :array {
-		$getter = ( new GetPublicKey() )->setMod( $this->mod() );
+		$getter = new GetPublicKey();
 		$getter->last_error = $this->mod()->getFileLocker()->getState()[ 'last_error' ] ?? '';
 
 		$key = $getter->retrieve();
@@ -49,7 +49,7 @@ class BaseOps {
 			throw new PublicKeyRetrievalFailure( 'Failed to obtain public key from API.' );
 		}
 
-		$thePublicKey = reset( $key );
+		$thePublicKey = \reset( $key );
 		if ( empty( $thePublicKey ) || !is_string( $thePublicKey ) ) {
 			throw new PublicKeyRetrievalFailure( 'Public key was empty' );
 		}

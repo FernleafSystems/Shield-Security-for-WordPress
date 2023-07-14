@@ -88,9 +88,7 @@ class Sms extends AbstractShieldProvider {
 			'verified' => false,
 		];
 
-		( new SendSms() )
-			->setMod( $this->mod() )
-			->send2FA( $user, $meta->sms_registration[ 'code' ] );
+		( new SendSms() )->send2FA( $user, $meta->sms_registration[ 'code' ] );
 
 		return $meta->sms_registration[ 'code' ];
 	}
@@ -105,9 +103,7 @@ class Sms extends AbstractShieldProvider {
 		$reg[ 'code' ] = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
 		$meta->sms_registration = $reg;
 
-		( new SendSms() )
-			->setMod( $this->mod() )
-			->send2FA( $this->getUser(), $meta->sms_registration[ 'code' ] );
+		( new SendSms() )->send2FA( $this->getUser(), $meta->sms_registration[ 'code' ] );
 	}
 
 	public function postSuccessActions() {
@@ -152,14 +148,11 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	protected function getUserProfileFormRenderData() :array {
-		$user = $this->getUser();
-		$countries = ( new GetAvailableCountries() )
-			->setMod( $this->mod() )
-			->run();
+		$countries = ( new GetAvailableCountries() )->run();
 
 		$validatedNumber = '';
 		if ( $this->hasValidatedProfile() ) {
-			$smsReg = $this->con()->user_metas->for( $user )->sms_registration;
+			$smsReg = $this->con()->user_metas->for( $this->getUser() )->sms_registration;
 			$validatedNumber = sprintf( '[%s] (+%s) %s',
 				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
 		}

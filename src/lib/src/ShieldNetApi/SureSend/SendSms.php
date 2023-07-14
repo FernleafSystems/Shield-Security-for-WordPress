@@ -45,7 +45,7 @@ class SendSms extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		$success = is_array( $raw ) && empty( $raw[ 'error' ] );
+		$success = \is_array( $raw ) && empty( $raw[ 'error' ] );
 
 		$this->con()->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
@@ -61,7 +61,7 @@ class SendSms extends BaseShieldNetApi {
 			throw new \Exception( $raw[ 'message' ] ?? 'Unknown Error' );
 		}
 
-		return $success;
+		return true;
 	}
 
 	protected function getApiRequestUrl() :string {

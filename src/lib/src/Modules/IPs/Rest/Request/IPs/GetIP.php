@@ -60,13 +60,12 @@ class GetIP extends Base {
 		foreach ( $signals as $signal => $signalTime ) {
 			$signalsAsHuman[ $names[ $signal ] ] = $signalTime;
 		}
-		ksort( $signalsAsHuman );
+		\ksort( $signalsAsHuman );
 
 		return [
 			'human_probability' => $scoreCalc->probability(),
 			'score_local'       => $scoreCalc->total(),
 			'score_shieldnet'   => ( new GetIPReputation() )
-									   ->setMod( $this->con()->getModule_Plugin() )
 									   ->setIP( $req->ip )
 									   ->retrieve()[ 'reputation_score' ] ?? '-',
 			'signals'           => $signalsAsHuman,

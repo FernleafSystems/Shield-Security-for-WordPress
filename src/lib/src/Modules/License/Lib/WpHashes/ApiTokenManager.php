@@ -49,9 +49,7 @@ class ApiTokenManager {
 				try {
 					$token = \array_merge( $token,
 						\array_intersect_key(
-							( new SolicitToken() )
-								->setMod( $this->con()->getModule_Plugin() )
-								->send(),
+							( new SolicitToken() )->send(),
 							\array_flip( [ 'token', 'expires_at', 'valid_license' ] )
 						)
 					);

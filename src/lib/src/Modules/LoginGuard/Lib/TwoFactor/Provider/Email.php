@@ -96,7 +96,7 @@ class Email extends AbstractShieldProvider {
 
 			$otp = $this->generate2faCode( $hashedNonce );
 
-			$success = ( $useSureSend && $this->send2faEmailSureSend( $otp ) )
+			$success = ( $useSureSend && ( new SendEmail() )->send2FA( $this->getUser(), $otp ) )
 					   || $this->mod()
 							   ->getEmailProcessor()
 							   ->send(
@@ -114,12 +114,6 @@ class Email extends AbstractShieldProvider {
 		}
 
 		return $success;
-	}
-
-	private function send2faEmailSureSend( string $code ) :bool {
-		return ( new SendEmail() )
-			->setMod( $this->mod() )
-			->send2FA( $this->getUser(), $code );
 	}
 
 	protected function getUserProfileFormRenderData() :array {
@@ -148,7 +142,7 @@ class Email extends AbstractShieldProvider {
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
 		$secrets = $this->getSecret();
-		if ( !is_array( $secrets ) ) {
+		if ( !\is_array( $secrets ) ) {
 			$secrets = [];
 		}
 
@@ -156,7 +150,7 @@ class Email extends AbstractShieldProvider {
 		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
 
 		// Clean old secrets linked to expired login intents
-		$this->setSecret( array_intersect_key(
+		$this->setSecret( \array_intersect_key(
 			$secrets,
 			$this->mod()->getMfaController()->getActiveLoginIntents( $this->getUser() )
 		) );

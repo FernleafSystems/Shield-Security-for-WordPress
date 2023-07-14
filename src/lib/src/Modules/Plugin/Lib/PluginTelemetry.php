@@ -18,9 +18,7 @@ class PluginTelemetry {
 			if ( !empty( $data ) ) {
 				$this->opts()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
 				$this->mod()->saveModOptions();
-				( new SendPluginTelemetry() )
-					->setMod( $this->mod() )
-					->send( $data );
+				( new SendPluginTelemetry() )->send( $data );
 			}
 		}
 	}

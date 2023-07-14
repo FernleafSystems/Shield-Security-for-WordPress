@@ -8,14 +8,13 @@ class GetPublicKey extends BaseShieldNetApi {
 
 	public const API_ACTION = 'filelocker/public_key';
 
-	/**
-	 * @return array|null
-	 */
-	public function retrieve() {
+	public function retrieve() :?array {
 		$key = null;
 		$raw = $this->sendReq();
-		if ( is_array( $raw ) && !empty( $raw[ 'data' ][ 'key_id' ] ) ) {
-			$key[ $raw[ 'data' ][ 'key_id' ] ] = $raw[ 'data' ][ 'pub_key' ];
+		if ( \is_array( $raw ) && !empty( $raw[ 'data' ][ 'key_id' ] ) ) {
+			$key = [
+				$raw[ 'data' ][ 'key_id' ] => $raw[ 'data' ][ 'pub_key' ]
+			];
 		}
 		return $key;
 	}

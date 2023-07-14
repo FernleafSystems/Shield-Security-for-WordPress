@@ -25,7 +25,7 @@ class ShieldNetApiDataVO extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'nonces':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;
@@ -34,7 +34,7 @@ class ShieldNetApiDataVO extends DynPropertiesClass {
 				break;
 		}
 
-		if ( \in_array( $key, [ 'handshake_fail_count' ] ) || preg_match( '#_at$#', $key ) ) {
+		if ( $key === 'handshake_fail_count' || \preg_match( '#_at$#', $key ) ) {
 			$value = (int)$value;
 		}
 

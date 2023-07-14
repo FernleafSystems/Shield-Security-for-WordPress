@@ -46,11 +46,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 			$this->vo->last_handshake_attempt_at = $now;
 			$this->storeVoData();
 
-			$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
-				->setMod( $this->mod() )
-				->run();
-
-			if ( $handshakeSuccess ) {
+			if ( ( new ShieldNetApi\Handshake\Verify() )->run() ) {
 				$this->vo->last_handshake_at = $now;
 				$this->vo->handshake_fail_count = 0;
 			}
@@ -97,11 +93,8 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function runHourlyCron() {
-		$con = $this->con();
-		$modPlugin = $con->getModule_Plugin();
-		/** @var Plugin\Options $modOpts */
-		$modOpts = $modPlugin->getOptions();
-		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $con->isPremiumActive()
+		$modOpts = $this->con()->getModule_Plugin()->getOptions();
+		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $this->con()->isPremiumActive()
 			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
 
 			$this->sendIPReputationData();
@@ -118,9 +111,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 				->setMod( $this->con()->getModule_IPs() )
 				->build();
 			if ( !empty( $data ) ) {
-				( new SendIPReputation() )
-					->setMod( $this->mod() )
-					->send( $data );
+				( new SendIPReputation() )->send( $data );
 			}
 		}
 	}
