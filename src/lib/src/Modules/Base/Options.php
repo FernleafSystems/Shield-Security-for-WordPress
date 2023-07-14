@@ -505,16 +505,16 @@ class Options {
 		if ( $verified ) {
 			// Here we try to ensure that values that are repeatedly changed properly reflect their changed
 			// states, as they may be reverted to their original state and we "think" it's been changed.
-			$valueIsDifferent = serialize( $mCurrent ) !== serialize( $newValue );
+			$valueIsDifferent = \serialize( $mCurrent ) !== \serialize( $newValue );
 			// basically if we're actually resetting back to the original value
 			$isResetting = $valueIsDifferent && $this->isOptChanged( $key )
-						   && ( serialize( $this->getOldValue( $key ) ) === serialize( $newValue ) );
+						   && ( \serialize( $this->getOldValue( $key ) ) === \serialize( $newValue ) );
 
 			if ( $valueIsDifferent && $this->verifyCanSet( $key, $newValue ) ) {
 				$this->setNeedSave( true );
 
 				//Load the config and do some pre-set verification where possible. This will slowly grow.
-				if ( $this->getOptionType( $key ) === 'boolean' && !is_bool( $newValue ) ) {
+				if ( $this->getOptionType( $key ) === 'boolean' && !\is_bool( $newValue ) ) {
 					return $this->resetOptToDefault( $key );
 				}
 				$this->setOldOptValue( $key, $mCurrent )

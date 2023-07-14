@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
@@ -398,45 +398,47 @@ class Strings extends Base\Strings {
 			case 'enable_audit_trail' :
 				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$description = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
+				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 
 			case 'log_level_db' :
 				$name = __( 'Logging Level', 'wp-simple-firewall' );
 				$summary = __( 'Logging Level For DB-Based Logs', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'Specify the logging levels when using the local database.', 'wp-simple-firewall' ),
 					__( "Debug and Info logging should only be enabled when investigating specific problems.", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_DOCS ),
 						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
 					)
 				];
 				break;
 
 			case 'audit_trail_auto_clean' :
-				$name = __( 'Auto Clean', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Purge Activity Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
-				$description = [
+				$name = __( 'Log Retention', 'wp-simple-firewall' );
+				$summary = __( 'Automatically Purge Activity Logs Older Than The Set Number Of Days', 'wp-simple-firewall' );
+				$desc = [
 					__( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' )
 				];
-				if ( !$con->isPremiumActive() ) {
-					$description[] = sprintf( __( 'The limit may be increased beyond %s days by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
-						'<code>'.$opts->getDef( 'max_free_days' ).'</code>' );
+				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
+					$desc[] = sprintf(
+						__( 'The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
+						$con->caps->getMaxLogRetentionDays()
+					);
 				}
 				break;
 
 			case 'log_level_file' :
 				$name = __( 'File Logging Level', 'wp-simple-firewall' );
 				$summary = __( 'Logging Level For File-Based Logs', 'wp-simple-firewall' );
-				$description = [
+				$desc = [
 					__( 'Specify the logging levels when using the local filesystem.', 'wp-simple-firewall' ),
 					sprintf( '%s: <code>%s</code>',
 						__( 'Log File Location', 'wp-simple-firewall' ),
 						$opts->getLogFilePath()
 					),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_DOCS ),
 						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
 					),
 					sprintf( '%s: %s',
@@ -454,7 +456,7 @@ class Strings extends Base\Strings {
 		return [
 			'name'        => $name,
 			'summary'     => $summary,
-			'description' => $description,
+			'description' => $desc,
 		];
 	}
 }

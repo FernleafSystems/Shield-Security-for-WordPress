@@ -7,11 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Options extends BaseShield\Options {
 
 	public function getAutoCleanDays() :int {
-		$days = $this->getOpt( 'auto_clean' );
-		if ( $days > $this->getOptDefault( 'auto_clean' ) && !$this->con()->isPremiumActive() ) {
-			$this->resetOptToDefault( 'auto_clean' );
-		}
-		return (int)$this->getOpt( 'auto_clean' );
+		$days = (int)\min( $this->getOpt( 'auto_clean' ), $this->con()->caps->getMaxLogRetentionDays() );
+		$this->setOpt( 'auto_clean', $days );
+		return $days;
 	}
 
 	public function getCustomExclusions() :array {

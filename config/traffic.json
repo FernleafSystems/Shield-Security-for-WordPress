@@ -166,7 +166,7 @@
       "min":         1,
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Auto Expiry Cleaning",
+      "name":        "Log Retention",
       "summary":     "Enable Traffic Log Auto Expiry",
       "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
     },

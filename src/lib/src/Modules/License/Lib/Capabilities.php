@@ -16,10 +16,6 @@ class Capabilities {
 		return $this->hasCap( 'activity_logs_send_to_integrations' );
 	}
 
-	public function canActivityLogsUnlimited() :bool {
-		return $this->hasCap( 'activity_logs_unlimited' );
-	}
-
 	public function canActivityLogsIntegrations() :bool {
 		return $this->hasCap( 'activity_logs_integrations' );
 	}
@@ -180,6 +176,19 @@ class Capabilities {
 			   );
 	}
 
+	public function getMaxLogRetentionDays() :int {
+		if ( $this->hasCap( 'logs_retention_unlimited' ) ) {
+			$max = PHP_INT_MAX;
+		}
+		elseif ( $this->hasCap( 'logs_retention_31' ) ) {
+			$max = 31;
+		}
+		else {
+			$max = $this->con()->getModule_AuditTrail()->getOptions()->getDef( 'max_free_days' );
+		}
+		return $max;
+	}
+
 	private function isPremiumOnlyCap( string $cap ) :bool {
 		return \in_array( $cap, [
 			'2fa_login_backup_codes',
@@ -193,7 +202,8 @@ class Capabilities {
 			'activity_logs_send_to_file',
 			'activity_logs_send_to_integrations',
 			'activity_logs_integrations',
-			'activity_logs_unlimited',
+			'logs_retention_31',
+			'logs_retention_unlimited',
 			'bots_advanced_blocking',
 			'crowdsec_level_1',
 			'crowdsec_level_2',

@@ -35,14 +35,12 @@ class Options extends BaseShield\Options {
 	}
 
 	/**
-	 * Don't put cap "activity_logs_unlimited" into cfg as this option is always available, but limited to 7.
+	 * Don't put caps into cfg as this option is always available, but limited to 7.
 	 */
 	public function getAutoCleanDays() :int {
-		$days = $this->getOpt( 'audit_trail_auto_clean' );
-		if ( $days > $this->getOptDefault( 'audit_trail_auto_clean' ) && !$this->con()->caps->canActivityLogsUnlimited() ) {
-			$this->resetOptToDefault( 'audit_trail_auto_clean' );
-		}
-		return (int)$this->getOpt( 'audit_trail_auto_clean' );
+		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), $this->con()->caps->getMaxLogRetentionDays() );
+		$this->setOpt( 'audit_trail_auto_clean', $days );
+		return $days;
 	}
 
 	public function isLogToDB() :bool {

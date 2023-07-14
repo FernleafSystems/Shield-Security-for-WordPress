@@ -63,6 +63,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
+		$con = $this->con();
 		/** @var ModCon $mod */
 		$mod = $this->mod();
 		$modName = $mod->getMainFeatureName();
@@ -102,9 +103,21 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'auto_clean' :
-				$name = __( 'Auto Expiry Cleaning', 'wp-simple-firewall' );
-				$summary = __( 'Enable Traffic Log Auto Expiry', 'wp-simple-firewall' );
-				$desc = [ __( 'DB cleanup will delete logs older than this maximum value (in days).', 'wp-simple-firewall' ) ];
+				$name = __( 'Log Retention', 'wp-simple-firewall' );
+				$summary = __( 'Traffic Log Retention Policy (Days)', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Traffic logs older than this maximum number of days will be automatically deleted.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( 'Activity logs depend on these traffic logs so if they have a longer retention period, some traffic logs will be retained longer.', 'wp-simple-firewall' )
+					),
+				];
+				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
+					$desc[] = sprintf(
+						__( 'The maximum log retention limit (%s) may be increased by upgrading your ShieldPRO plan.', 'wp-simple-firewall' ),
+						$con->caps->getMaxLogRetentionDays()
+					);
+				}
 				break;
 
 			case 'enable_limiter' :
