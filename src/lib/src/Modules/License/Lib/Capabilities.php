@@ -185,6 +185,8 @@ class Capabilities {
 			'2fa_login_backup_codes',
 			'2fa_multi_yubikey',
 			'2fa_u2f',
+			'2fa_sure_send',
+			'2fa_email_any_user',
 			'2fa_webauthn',
 			'2fa_remember_me',
 			'2fa_custom_pages', // No option?

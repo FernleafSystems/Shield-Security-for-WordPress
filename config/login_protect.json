@@ -304,6 +304,7 @@
       "key":         "email_any_user_set",
       "section":     "section_2fa_email",
       "premium":     true,
+      "cap":         "2fa_email_any_user",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/gj",
