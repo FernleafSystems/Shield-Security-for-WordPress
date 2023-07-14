@@ -13,7 +13,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getFileScanAreas() :array {
-		if ( !is_array( $this->getOpt( 'file_scan_areas', [] ) ) ) {
+		if ( !\is_array( $this->getOpt( 'file_scan_areas', [] ) ) ) {
 			$this->resetOptToDefault( 'file_scan_areas' );
 		}
 

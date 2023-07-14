@@ -79,8 +79,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", array_pop( $selected ) );
 						break;
 					case 'user':
-						if ( count( $selected ) > 0 ) {
-							error_log( var_export( $selected, true ) );
+						if ( \count( $selected ) > 0 ) {
 							$wheres[] = sprintf( "`meta`.`meta_key`='uid' AND `meta`.`meta_value` IN (%s)", implode( ',', array_values( $selected ) ) );
 						}
 						break;

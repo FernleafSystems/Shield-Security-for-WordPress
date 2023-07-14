@@ -7,8 +7,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
@@ -62,7 +61,8 @@ class ShieldNetApiController extends DynPropertiesClass {
 
 	public function storeVoData() {
 		$this->vo->data_last_saved_at = Services::Request()->ts();
-		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawData() );
+		$opts = \method_exists( $this, 'getOptions' ) ? $this->getOptions() : $this->opts();
+		$opts->setOpt( 'snapi_data', $this->vo->getRawData() );
 		$this->mod()->saveModOptions();
 	}
 
@@ -70,8 +70,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * @inerhitDoc
 	 */
 	public function __get( string $key ) {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = \method_exists( $this, 'getOptions' ) ? $this->getOptions() : $this->opts();
 
 		$value = parent::__get( $key );
 
@@ -107,9 +106,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 			$this->vo->last_send_iprep_at = $req->ts();
 			$this->storeVoData();
 
-			$data = ( new BuildData() )
-				->setMod( $this->con()->getModule_IPs() )
-				->build();
+			$data = ( new BuildData() )->build();
 			if ( !empty( $data ) ) {
 				( new SendIPReputation() )->send( $data );
 			}

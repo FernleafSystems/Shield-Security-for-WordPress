@@ -65,11 +65,10 @@ class PageStats extends BasePluginAdminPage {
 	}
 
 	private function buildSums( string $event ) :array {
-		$mod = $this->con()->getModule_Events();
 		/** @var Select $selector */
-		$selector = $mod->getDbHandler_Events()->getQuerySelector();
+		$selector = $this->con()->getModule_Events()->getDbHandler_Events()->getQuerySelector();
 		$carbon = Services::Request()->carbon( true );
-		return array_map(
+		return \array_map(
 			'number_format',
 			[
 				'lifetime' => $selector->sumEvent( $event ),

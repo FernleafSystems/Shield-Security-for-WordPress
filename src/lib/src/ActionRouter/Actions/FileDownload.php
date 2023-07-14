@@ -21,10 +21,7 @@ class FileDownload extends BaseAction {
 			$contents = $this->getFileDownloadContents( $id );
 
 			\header( 'Set-Cookie: fileDownload=true; path=/' );
-			Services::Response()->downloadStringAsFile(
-				$contents[ 'content' ],
-				$contents[ 'name' ]
-			);
+			Services::Response()->downloadStringAsFile( $contents[ 'content' ], $contents[ 'name' ] );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );

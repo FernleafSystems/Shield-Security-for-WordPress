@@ -14,15 +14,12 @@ class ActivityLogTableAction extends BaseAction {
 		try {
 			$action = Services::Request()->post( 'sub_action' );
 			switch ( $action ) {
-
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
 					break;
-
 				case 'get_request_meta':
 					$response = $this->getRequestMeta();
 					break;
-
 				default:
 					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
 			}

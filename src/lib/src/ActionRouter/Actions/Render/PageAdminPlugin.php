@@ -33,7 +33,7 @@ class PageAdminPlugin extends BaseRender {
 		}
 
 		$pageTitleData = $this->getPageTitles()[ $nav ];
-		$pageTitle = is_array( $pageTitleData ) ? implode( ' > ', $pageTitleData ) : $pageTitleData;
+		$pageTitle = \is_array( $pageTitleData ) ? \implode( ' > ', $pageTitleData ) : $pageTitleData;
 		if ( $nav === PluginURLs::NAV_OPTIONS_CONFIG && !empty( $subNav ) ) {
 			$activeMod = $con->getModule( $subNav );
 			$pageTitle = sprintf( '%s > %s',
@@ -68,7 +68,7 @@ class PageAdminPlugin extends BaseRender {
 	}
 
 	protected function buildTopPageWarnings() :array {
-		return array_filter(
+		return \array_filter(
 			( new Handler() )->build(),
 			function ( array $issue ) {
 				return \in_array( 'shield_admin_top_page', $issue[ 'locations' ] );

@@ -25,9 +25,8 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
 		/** @var Options $opts */
-		$opts = $con->getModule_Traffic()->getOptions();
+		$opts = $this->con()->getModule_Traffic()->getOptions();
 		return [
 			'ajax'    => [
 				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::class ),
@@ -36,7 +35,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),
 			],
 			'hrefs'   => [
-				'please_enable' => $con->plugin_urls->modCfgOption( 'enable_logger' ),
+				'please_enable' => $this->con()->plugin_urls->modCfgOption( 'enable_logger' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Traffic & Request Logs', 'wp-simple-firewall' ),

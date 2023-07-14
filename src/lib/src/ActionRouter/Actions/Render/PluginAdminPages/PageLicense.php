@@ -19,7 +19,6 @@ class PageLicense extends BasePluginAdminPage {
 		$con = $this->con();
 		$mod = $con->getModule_License();
 		$opts = $mod->getOptions();
-		$WP = Services::WpGeneral();
 		$carb = Services::Request()->carbon();
 
 		$lic = $mod->getLicenseHandler()->getLicense();
@@ -34,7 +33,7 @@ class PageLicense extends BasePluginAdminPage {
 									  ->startOfDay()->timestamp - 1;
 			$expiresAtHuman = sprintf( '%s<br/><small>%s</small>',
 				$carb->setTimestamp( $endOfExpireDay )->diffForHumans(),
-				$WP->getTimeStampForDisplay( $endOfExpireDay )
+				Services::WpGeneral()->getTimeStampForDisplay( $endOfExpireDay )
 			);
 		}
 		else {
@@ -48,7 +47,7 @@ class PageLicense extends BasePluginAdminPage {
 		else {
 			$checked = sprintf( '%s<br/><small>%s</small>',
 				$carb->setTimestamp( $lastReqAt )->diffForHumans(),
-				$WP->getTimeStampForDisplay( $lastReqAt )
+				Services::WpGeneral()->getTimeStampForDisplay( $lastReqAt )
 			);
 		}
 
@@ -100,7 +99,7 @@ class PageLicense extends BasePluginAdminPage {
 					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => $con->getInstallationID()[ 'id' ],
 				],
-				'activation_url' => $WP->getHomeUrl(),
+				'activation_url' => Services::WpGeneral()->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true ),
 			],
 		];

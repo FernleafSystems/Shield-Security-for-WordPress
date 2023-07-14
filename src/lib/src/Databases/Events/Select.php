@@ -8,10 +8,7 @@ class Select extends Base\Select {
 
 	use Common;
 
-	/**
-	 * @param string $event
-	 */
-	public function sumEvent( $event ) :int {
+	public function sumEvent( string $event ) :int {
 		return $this->sumEvents( [ $event ] );
 	}
 
@@ -38,7 +35,7 @@ class Select extends Base\Select {
 
 		$allEvents = ( clone $this )->reset()->getAllEvents();
 
-		natsort( $allEvents );
+		\natsort( $allEvents );
 		foreach ( $allEvents as $event ) {
 			$sums[ $event ] = (int)$this->clearWheres()->sumEvent( $event );
 		}
@@ -94,7 +91,7 @@ class Select extends Base\Select {
 	 * @return int[]
 	 */
 	private function getMaxIds() {
-		return array_map(
+		return \array_map(
 			function ( $id ) {
 				return (int)$id[ 'MAX(id)' ];
 			},

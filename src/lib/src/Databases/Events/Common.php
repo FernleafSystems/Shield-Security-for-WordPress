@@ -5,10 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 trait Common {
 
 	/**
-	 * @param string $event
 	 * @return $this
 	 */
-	public function filterByEvent( $event ) {
+	public function filterByEvent( string $event ) {
 		return $this->filterByEvents( [ $event ] );
 	}
 

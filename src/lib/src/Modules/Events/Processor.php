@@ -28,8 +28,6 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function runDailyCron() {
-		( new Events\Consolidate\ConsolidateAllEvents() )
-			->setMod( $this->mod() )
-			->run();
+		( new Events\Consolidate\ConsolidateAllEvents() )->run();
 	}
 }

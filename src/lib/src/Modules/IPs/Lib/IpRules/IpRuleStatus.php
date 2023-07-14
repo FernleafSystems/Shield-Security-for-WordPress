@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
@@ -17,9 +17,7 @@ use IPLib\Factory;
 
 class IpRuleStatus {
 
-	use IPs\ModConsumer;
-
-	public const MOD = IPs\ModCon::SLUG;
+	use ModConsumer;
 
 	private $ipOrRange;
 

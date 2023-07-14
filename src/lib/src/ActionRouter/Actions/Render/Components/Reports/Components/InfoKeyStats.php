@@ -10,7 +10,7 @@ class InfoKeyStats extends BaseBuilder {
 	public const TEMPLATE = '/components/reports/components/info_keystats.twig';
 
 	protected function getRenderData() :array {
-		$counts = array_filter( array_map(
+		$counts = \array_filter( \array_map(
 			function ( string $event ) {
 				$con = $this->con();
 

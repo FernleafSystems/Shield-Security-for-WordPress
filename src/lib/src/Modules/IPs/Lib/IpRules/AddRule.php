@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
 	Components\IpAddressConsumer,
 	DB\IpRules\Ops as IpRulesDB,
@@ -17,8 +17,6 @@ class AddRule {
 
 	use ModConsumer;
 	use IpAddressConsumer;
-
-	public const MOD = Modules\IPs\ModCon::SLUG;
 
 	/**
 	 * @throws \Exception
@@ -196,7 +194,7 @@ class AddRule {
 				throw new \Exception( sprintf( "An invalid list type provided: %s", $type ) );
 		}
 
-		$ipRecord = ( new Modules\Data\DB\IPs\IPRecords() )->loadIP( $this->getIP() );
+		$ipRecord = ( new Data\DB\IPs\IPRecords() )->loadIP( $this->getIP() );
 
 		/** @var IpRulesDB\Record $tmp */
 		$tmp = $dbh->getRecord();

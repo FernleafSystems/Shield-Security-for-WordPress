@@ -273,12 +273,12 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param int $nTs
+	 * @param int $ts
 	 * @return $this
 	 */
-	public function filterByBoundary_Day( $nTs ) {
-		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByBoundary( $oCbn->startOfDay()->timestamp, $oCbn->endOfDay()->timestamp );
+	public function filterByBoundary_Day( $ts ) {
+		$c = ( new Carbon() )->setTimestamp( $ts );
+		return $this->filterByBoundary( $c->startOfDay()->timestamp, $c->endOfDay()->timestamp );
 	}
 
 	/**

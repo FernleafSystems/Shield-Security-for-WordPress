@@ -10,15 +10,13 @@ class AdminNoteBulkAction extends BaseAction {
 	public const SLUG = 'admin_note_bulk_action';
 
 	protected function exec() {
-		$req = Services::Request();
-
 		$success = false;
 
-		$IDs = $req->post( 'ids' );
+		$IDs = Services::Request()->post( 'ids' );
 		if ( empty( $IDs ) || !is_array( $IDs ) ) {
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
+		elseif ( Services::Request()->post( 'bulk_action' ) != 'delete' ) {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {

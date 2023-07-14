@@ -88,17 +88,19 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$lockFiles = $opts->getFilesToLock();
-		if ( in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
-			unset( $lockFiles[ array_search( 'root_webconfig', $lockFiles ) ] );
-			$opts->setOpt( 'file_locker', $lockFiles );
-		}
+		if ( !empty( $lockFiles ) ) {
+			if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
+				unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
+				$opts->setOpt( 'file_locker', $lockFiles );
+			}
 
-		if ( count( $opts->getFilesToLock() ) === 0 || !$this->con()
-															 ->getModule_Plugin()
-															 ->getShieldNetApiController()
-															 ->canHandshake() ) {
-			$opts->setOpt( 'file_locker', [] );
-			$this->getFileLocker()->purge();
+			if ( \count( $opts->getFilesToLock() ) === 0 || !$this->con()
+																  ->getModule_Plugin()
+																  ->getShieldNetApiController()
+																  ->canHandshake() ) {
+				$opts->setOpt( 'file_locker', [] );
+				$this->getFileLocker()->purge();
+			}
 		}
 
 		foreach ( $this->getScansCon()->getAllScanCons() as $con ) {
@@ -147,9 +149,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function cleanupDatabases() {
-		( new Shield\Modules\HackGuard\DB\Utility\Clean() )
-			->setMod( $this )
-			->execute();
+		( new Shield\Modules\HackGuard\DB\Utility\Clean() )->execute();
 	}
 
 	/**

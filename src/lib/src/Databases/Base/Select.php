@@ -127,8 +127,8 @@ class Select extends BaseQuery {
 	 * @return EntryVO|\stdClass|mixed|null
 	 */
 	public function first() {
-		$aR = $this->setLimit( 1 )->query();
-		return empty( $aR ) ? null : array_shift( $aR );
+		$r = $this->setLimit( 1 )->query();
+		return empty( $r ) ? null : \array_shift( $r );
 	}
 
 	protected function getBaseQuery() :string {
@@ -136,7 +136,7 @@ class Select extends BaseQuery {
 	}
 
 	public function getColumnsToSelect() :array {
-		return is_array( $this->aColumnsToSelect ) ? $this->aColumnsToSelect : [];
+		return \is_array( $this->aColumnsToSelect ) ? $this->aColumnsToSelect : [];
 	}
 
 	public function getDistinctForColumn( string $col ) :array {
@@ -147,8 +147,8 @@ class Select extends BaseQuery {
 	}
 
 	protected function getDistinct_FilterAndSort( string $col ) :array {
-		$a = array_filter( $this->getDistinctForColumn( $col ) );
-		natcasesort( $a );
+		$a = \array_filter( $this->getDistinctForColumn( $col ) );
+		\natcasesort( $a );
 		return $a;
 	}
 
@@ -157,7 +157,7 @@ class Select extends BaseQuery {
 			$format = ARRAY_A;
 		}
 		else {
-			$format = in_array( $this->sResultFormat, [ OBJECT_K, ARRAY_A ] ) ? $this->sResultFormat : OBJECT_K;
+			$format = \in_array( $this->sResultFormat, [ OBJECT_K, ARRAY_A ] ) ? $this->sResultFormat : OBJECT_K;
 		}
 		return $format;
 	}

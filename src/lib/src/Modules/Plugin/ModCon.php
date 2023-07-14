@@ -64,7 +64,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getShieldNetApiController() :Shield\ShieldNetApi\ShieldNetApiController {
-		return $this->shieldNetCon ?? $this->shieldNetCon = ( new Shield\ShieldNetApi\ShieldNetApiController() )->setMod( $this );
+		return $this->shieldNetCon ?? $this->shieldNetCon = new Shield\ShieldNetApi\ShieldNetApiController();
 	}
 
 	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {

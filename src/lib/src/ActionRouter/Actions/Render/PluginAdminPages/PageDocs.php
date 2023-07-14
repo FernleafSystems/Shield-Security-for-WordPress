@@ -18,9 +18,6 @@ class PageDocs extends BasePluginAdminPage {
 				'tab_updates' => $con->action_router->render( Actions\Render\Components\Docs\DocsChangelog::SLUG ),
 				'tab_events'  => $con->action_router->render( Actions\Render\Components\Docs\DocsEvents::SLUG ),
 			],
-			'flags'   => [
-				'is_pro' => $this->con()->isPremiumActive(),
-			],
 			'hrefs'   => [
 				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',
 			],

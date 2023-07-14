@@ -12,11 +12,7 @@ class IpAnalyseAction extends BaseAction {
 	public const SLUG = 'ip_analyse_action';
 
 	protected function exec() {
-		$mod = $this->con()->getModule_IPs();
-		$resp = $this->response();
-		$req = Services::Request();
-
-		$ip = $req->post( 'ip' );
+		$ip = Services::Request()->post( 'ip' );
 
 		try {
 			[ $ipKey, $ipName ] = ( new IpID( $ip ) )->run();
@@ -36,7 +32,7 @@ class IpAnalyseAction extends BaseAction {
 		else {
 			$ruleStatus = new IpRules\IpRuleStatus( $ip );
 
-			switch ( $req->post( 'ip_action' ) ) {
+			switch ( Services::Request()->post( 'ip_action' ) ) {
 
 				case 'reset_offenses':
 					try {
@@ -55,7 +51,7 @@ class IpAnalyseAction extends BaseAction {
 
 				case 'block':
 					try {
-						if ( !in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
+						if ( !\in_array( $ipKey, [ IpID::UNKNOWN, IpID::VISITOR ] ) ) {
 							throw new \Exception( sprintf( __( "IP can't be blocked from this page as it's a known service IP: %s" ), $ipName ) );
 						}
 						( new IpRules\AddRule() )
@@ -116,7 +112,7 @@ class IpAnalyseAction extends BaseAction {
 			}
 		}
 
-		$resp->action_response_data = [
+		$this->response()->action_response_data = [
 			'success'     => $success,
 			'message'     => $msg,
 			'page_reload' => true,

@@ -42,8 +42,7 @@ class PageScansRun extends BasePluginAdminPage {
 				'scans_check' => ActionData::BuildJson( ScansCheck::class ),
 			],
 			'flags'   => [
-				'is_premium'      => $con->isPremiumActive(),
-				'can_scan'        => count( $reasonsCantScan ) === 0,
+				'can_scan'        => \count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
 			'hrefs'   => [

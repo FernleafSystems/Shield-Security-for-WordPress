@@ -9,15 +9,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaProfilesController {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
-
-	public const MOD = LoginGuard\ModCon::SLUG;
+	use ModConsumer;
 
 	private $rendered = false;
 
@@ -27,7 +25,7 @@ class MfaProfilesController {
 		// shortcode for placing user authentication handling anywhere
 		if ( $this->con()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-				return $this->renderUserProfileMFA( is_array( $attributes ) ? $attributes : [] );
+				return $this->renderUserProfileMFA( \is_array( $attributes ) ? $attributes : [] );
 			} );
 		}
 
@@ -134,7 +132,7 @@ class MfaProfilesController {
 	public function renderUserProfileMFA( array $attributes = [] ) :string {
 		$this->rendered = true;
 		return $this->con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
-			array_merge(
+			\array_merge(
 				[
 					'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 					'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
