@@ -41,10 +41,10 @@ class CacheDirHandler {
 
 					$assessedFlag = path_join( $maybeDir, 'assessed.flag' );
 					if ( !$FS->isAccessibleFile( $assessedFlag )
-						 || Services::Request()->ts() - $FS->getModifiedTime( $assessedFlag ) > HOUR_IN_SECONDS ) {
+						 || Services::Request()->ts() - $FS->getModifiedTime( $assessedFlag ) > \HOUR_IN_SECONDS ) {
 
 						$assess = ( new AssessDirWrite( $maybeDir ) )->test();
-						if ( count( array_filter( $assess ) ) !== 3 ) {
+						if ( \count( \array_filter( $assess ) ) !== 3 ) {
 							throw new \Exception( sprintf( 'Failed writeable assessment for cache dir: "%s"; Results: %s ',
 								$maybeDir, var_export( $assess, true ) ) );
 						}
@@ -103,7 +103,7 @@ class CacheDirHandler {
 		$FS = Services::WpFs();
 
 		$htFile = path_join( $cacheDir, '.htaccess' );
-		$htContent = implode( "\n", [
+		$htContent = \implode( "\n", [
 			"# BEGIN SHIELD",
 			"Options -Indexes",
 			"Order allow,deny",
@@ -139,11 +139,11 @@ class CacheDirHandler {
 		];
 
 		if ( !empty( $this->lastKnownBaseDir ) ) {
-			/**    array_unshift( $candidates, $this->lastKnownBaseDir ); This seems to cause more trouble than it's worth **/
+			/**    \array_unshift( $candidates, $this->lastKnownBaseDir ); This seems to cause more trouble than it's worth **/
 		}
 
-		return array_filter(
-			array_unique( array_map(
+		return \array_filter(
+			\array_unique( \array_map(
 				function ( $path ) {
 					return wp_normalize_path( $path );
 				},

@@ -9,7 +9,7 @@ abstract class BaseSingle extends Base {
 	}
 
 	protected function getRouteArgsDefaults() :array {
-		return array_merge(
+		return \array_merge(
 			parent::getRouteArgsDefaults(),
 			[
 				'key' => $this->getRouteArgSchema( 'key' ),

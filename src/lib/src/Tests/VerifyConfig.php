@@ -17,19 +17,19 @@ class VerifyConfig {
 		$allOpts = [];
 		foreach ( $this->con()->modules as $mod ) {
 			$opts = $mod->getOptions();
-			$sections = array_keys( $opts->getSections( true ) );
-			$duplicates = array_diff( array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );
-			if ( count( $duplicates ) > 0 ) {
-				var_dump( sprintf( 'Mod %s has duplicate section slugs: %s', $mod->cfg->slug, implode( ', ', $duplicates ) ) );
+			$sections = \array_keys( $opts->getSections( true ) );
+			$duplicates = \array_diff( \array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );
+			if ( \count( $duplicates ) > 0 ) {
+				var_dump( sprintf( 'Mod %s has duplicate section slugs: %s', $mod->cfg->slug, \implode( ', ', $duplicates ) ) );
 			}
-			$allSections = array_unique( array_merge( $allSections, $sections ) );
+			$allSections = \array_unique( \array_merge( $allSections, $sections ) );
 
 			$optKeys = $opts->getOptionsKeys();
-			$duplicates = array_diff( array_intersect( $allOpts, $optKeys ), $optsDuplicateExceptions );
-			if ( count( $duplicates ) > 0 ) {
-				var_dump( sprintf( 'Mod %s has duplicate option slugs: %s', $mod->cfg->slug, implode( ', ', $duplicates ) ) );
+			$duplicates = \array_diff( \array_intersect( $allOpts, $optKeys ), $optsDuplicateExceptions );
+			if ( \count( $duplicates ) > 0 ) {
+				var_dump( sprintf( 'Mod %s has duplicate option slugs: %s', $mod->cfg->slug, \implode( ', ', $duplicates ) ) );
 			}
-			$allOpts = array_unique( array_merge( $allOpts, $optKeys ) );
+			$allOpts = \array_unique( \array_merge( $allOpts, $optKeys ) );
 //			$this->verifyCfg( $mod );
 		}
 	}

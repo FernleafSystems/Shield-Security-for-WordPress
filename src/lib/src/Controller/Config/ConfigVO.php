@@ -41,7 +41,7 @@ class ConfigVO extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'menu':
-				$val = array_merge(
+				$val = \array_merge(
 					[
 						'show'           => true,
 						'top_level'      => true,
@@ -50,7 +50,7 @@ class ConfigVO extends DynPropertiesClass {
 						'title'          => 'undefined menu title',
 						'callback'       => 'undefinedMenuCallback',
 					],
-					is_array( $val ) ? $val : []
+					\is_array( $val ) ? $val : []
 				);
 				break;
 
@@ -64,17 +64,17 @@ class ConfigVO extends DynPropertiesClass {
 			case 'meta':
 			case 'plugin_meta':
 			case 'upgrade_reqs':
-				if ( !is_array( $val ) ) {
+				if ( !\is_array( $val ) ) {
 					$val = [];
 				}
 				break;
 
 			case 'mods_cfg':
-				$val = array_filter( array_map(
+				$val = \array_filter( \array_map(
 					function ( $cfg ) {
-						return is_array( $cfg ) ? ( new ModConfigVO() )->applyFromArray( $cfg ) : null;
+						return \is_array( $cfg ) ? ( new ModConfigVO() )->applyFromArray( $cfg ) : null;
 					},
-					is_array( $val ) ? $val : []
+					\is_array( $val ) ? $val : []
 				) );
 				break;
 
@@ -88,11 +88,11 @@ class ConfigVO extends DynPropertiesClass {
 	public function __set( string $key, $value ) {
 		switch ( $key ) {
 			case 'mods_cfg':
-				$value = array_filter( array_map(
+				$value = \array_filter( \array_map(
 					function ( $cfg ) {
 						return $cfg instanceof ModConfigVO ? $cfg->getRawData() : null;
 					},
-					is_array( $value ) ? $value : []
+					\is_array( $value ) ? $value : []
 				) );
 				break;
 

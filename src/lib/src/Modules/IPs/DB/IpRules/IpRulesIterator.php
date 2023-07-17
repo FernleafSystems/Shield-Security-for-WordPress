@@ -45,7 +45,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 		$loader = $this->getLoader();
 		$loader->limit = $this->getPageSize();
 		$loader->offset = $pageNumber*$this->getPageSize();
-		return array_values( $this->getLoader()->select() );
+		return \array_values( $this->getLoader()->select() );
 	}
 
 	public function getLoader() :LoadIpRules {

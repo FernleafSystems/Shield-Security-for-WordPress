@@ -11,6 +11,7 @@ class SiteHealthController {
 
 	use ExecOnce;
 	use ModConsumer;
+
 	public const TAB_SLUG = 'shield_security';
 
 	protected function canRun() :bool {
@@ -26,10 +27,10 @@ class SiteHealthController {
 			$slugs = \array_keys( $tabs );
 			if ( \in_array( '', $slugs, true ) ) {
 				/** Position our 'Security' tab immediately after 'Status' tab */
-				$anchorPos = array_search( '', $slugs, true ) + 1;
-				$tabs = array_slice( $tabs, 0, $anchorPos, true )
+				$anchorPos = \array_search( '', $slugs, true ) + 1;
+				$tabs = \array_slice( $tabs, 0, $anchorPos, true )
 						+ [ self::TAB_SLUG => __( 'Security' ) ]
-						+ array_slice( $tabs, $anchorPos, count( $tabs ) - $anchorPos, true );
+						+ \array_slice( $tabs, $anchorPos, \count( $tabs ) - $anchorPos, true );
 			}
 			return $tabs;
 		}, 11 );

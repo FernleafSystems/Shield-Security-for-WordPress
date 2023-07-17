@@ -33,7 +33,7 @@ class Sms extends AbstractShieldProvider {
 	 */
 	public function verifyProvisionalRegistration( string $country, string $phone, string $code ) :bool {
 		$meta = $this->con()->user_metas->for( $this->getUser() );
-		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
+		$reg = \is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
 		if ( @$reg[ 'country' ] === $country && @$reg[ 'phone' ] === $phone
 			 && ( $reg[ 'verified' ] ?? false ) ) {
@@ -42,7 +42,7 @@ class Sms extends AbstractShieldProvider {
 		if ( empty( $reg[ 'code' ] ) ) {
 			throw new \Exception( "The verification code couldn't be verified because the profile wasn't ready." );
 		}
-		if ( $reg[ 'code' ] !== trim( strtoupper( $code ) ) ) {
+		if ( $reg[ 'code' ] !== \trim( \strtoupper( $code ) ) ) {
 			throw new \Exception( "The verification code provided wasn't correct." );
 		}
 
@@ -63,9 +63,9 @@ class Sms extends AbstractShieldProvider {
 	public function addProvisionalRegistration( string $country, string $phone ) :string {
 		$user = $this->getUser();
 		$meta = $this->con()->user_metas->for( $user );
-		$reg = is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
+		$reg = \is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
-		$country = strtoupper( $country );
+		$country = \strtoupper( $country );
 
 		if ( !preg_match( '#^\d{7,15}$#', $phone ) ) {
 			throw new \Exception( 'Phone numbers should contain only digits (0-9) and be no more than 15 digits in length.' );
@@ -118,7 +118,7 @@ class Sms extends AbstractShieldProvider {
 	protected function processOtp( string $otp ) :bool {
 		$meta = $this->con()->user_metas->for( $this->getUser() );
 		return !empty( $meta->sms_registration[ 'code' ] )
-			   && $meta->sms_registration[ 'code' ] === strtoupper( $otp );
+			   && $meta->sms_registration[ 'code' ] === \strtoupper( $otp );
 	}
 
 	public function getFormField() :array {

@@ -12,12 +12,4 @@ class Select extends Base\Select {
 	public function getDistinctUsernames() {
 		return $this->getDistinct_FilterAndSort( 'wp_username' );
 	}
-
-	/**
-	 * @param int $sUsername
-	 * @return $this
-	 */
-	public function filterByUsername( $sUsername ) {
-		return $this->addWhereEquals( 'wp_username', trim( $sUsername ) );
-	}
 }

@@ -74,7 +74,7 @@ class ModCon extends BaseShield\ModCon {
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$plugins = $opts->getOpt( 'admin_access_restrict_plugins', [] );
-		if ( \in_array( 'activate_plugins', is_array( $plugins ) ? $plugins : [] ) ) {
+		if ( \in_array( 'activate_plugins', \is_array( $plugins ) ? $plugins : [] ) ) {
 			$opts->setOpt( 'admin_access_restrict_plugins',
 				\array_unique( \array_merge( $plugins, [
 					'install_plugins',

@@ -27,7 +27,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	protected function getPushHeadersEarly() :bool {
-		return defined( 'WPCACHEHOME' ); //WP Super Cache
+		return \defined( 'WPCACHEHOME' ); //WP Super Cache
 	}
 
 	/**
@@ -38,18 +38,18 @@ class Processor extends BaseShield\Processor {
 
 		if ( !$this->pushed ) {
 
-			if ( !is_array( $wpHeaders ) ) {
+			if ( !\is_array( $wpHeaders ) ) {
 				$wpHeaders = [];
 			}
 
-			$alreadySent = array_map(
+			$alreadySent = \array_map(
 				function ( $header ) {
-					return strtolower( trim( $header ) );
+					return \strtolower( \trim( $header ) );
 				},
-				array_keys( $wpHeaders )
+				\array_keys( $wpHeaders )
 			);
 			foreach ( $this->gatherSecurityHeaders() as $header => $value ) {
-				if ( !in_array( strtolower( $header ), $alreadySent ) ) {
+				if ( !\in_array( \strtolower( $header ), $alreadySent ) ) {
 					$wpHeaders[ $header ] = $value;
 				}
 			}
@@ -57,15 +57,15 @@ class Processor extends BaseShield\Processor {
 			$this->pushed = true;
 		}
 
-		return is_array( $wpHeaders ) ? $wpHeaders : [];
+		return \is_array( $wpHeaders ) ? $wpHeaders : [];
 	}
 
 	public function sendHeaders() {
 		if ( !$this->pushed ) {
 
-			$sent = array_map( 'strtolower', array_keys( $this->getAlreadySentHeaders() ) );
+			$sent = \array_map( 'strtolower', \array_keys( $this->getAlreadySentHeaders() ) );
 			foreach ( $this->gatherSecurityHeaders() as $name => $value ) {
-				if ( !in_array( strtolower( $name ), $sent ) ) {
+				if ( !\in_array( \strtolower( $name ), $sent ) ) {
 					@header( sprintf( '%s: %s', $name, $value ) );
 				}
 			}
@@ -80,7 +80,7 @@ class Processor extends BaseShield\Processor {
 		$this->addHeader( $this->getXssProtectionHeader() );
 		$this->addHeader( $this->getContentTypeOptionHeader() );
 		$this->addHeader( $this->setContentSecurityPolicyHeader() );
-		return array_filter( $this->getHeaders() );
+		return \array_filter( $this->getHeaders() );
 	}
 
 	/**
@@ -89,10 +89,10 @@ class Processor extends BaseShield\Processor {
 	private function getAlreadySentHeaders() :array {
 		$headers = [];
 
-		if ( function_exists( 'headers_list' ) ) {
+		if ( \function_exists( 'headers_list' ) ) {
 			foreach ( headers_list() as $header ) {
-				if ( strpos( $header, ':' ) ) {
-					[ $key, $value ] = array_map( 'trim', explode( ':', $header, 2 ) );
+				if ( \strpos( $header, ':' ) ) {
+					[ $key, $value ] = \array_map( 'trim', \explode( ':', $header, 2 ) );
 					$headers[ $key ] = $value;
 				}
 			}
@@ -138,19 +138,19 @@ class Processor extends BaseShield\Processor {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		return $opts->isEnabledContentSecurityPolicy() ?
-			[ 'Content-Security-Policy' => implode( ' ', $opts->getCspCustomRules() ) ] : [];
+			[ 'Content-Security-Policy' => \implode( ' ', $opts->getCspCustomRules() ) ] : [];
 	}
 
 	private function getHeaders() :array {
-		if ( !isset( $this->headers ) || !is_array( $this->headers ) ) {
+		if ( !isset( $this->headers ) || !\is_array( $this->headers ) ) {
 			$this->headers = [];
 		}
-		return array_unique( $this->headers );
+		return \array_unique( $this->headers );
 	}
 
 	private function addHeader( array $header ) {
 		if ( !empty( $header ) ) {
-			$this->headers = array_merge( $this->getHeaders(), $header );
+			$this->headers = \array_merge( $this->getHeaders(), $header );
 		}
 	}
 }

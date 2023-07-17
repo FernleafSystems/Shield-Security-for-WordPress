@@ -70,11 +70,11 @@ class RenameLogin {
 			$msg = __( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.', 'wp-simple-firewall' );
 			$isConflicted = true;
 		}
-		elseif ( class_exists( 'Rename_WP_Login' ) ) {
+		elseif ( \class_exists( 'Rename_WP_Login' ) ) {
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Rename WP Login' );
 			$isConflicted = true;
 		}
-		elseif ( class_exists( 'Theme_My_Login' ) ) {
+		elseif ( \class_exists( 'Theme_My_Login' ) ) {
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
 			$isConflicted = true;
 		}
@@ -82,7 +82,7 @@ class RenameLogin {
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
 			$isConflicted = true;
 		}
-		elseif ( $WP->isPermalinksEnabled() && ( $WP->getDoesWpSlugExist( $path ) || in_array( $path, $WP->getAutoRedirectLocations() ) ) ) {
+		elseif ( $WP->isPermalinksEnabled() && ( $WP->getDoesWpSlugExist( $path ) || \in_array( $path, $WP->getAutoRedirectLocations() ) ) ) {
 			$msg = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is already used on your WordPress site.', 'wp-simple-firewall' ), $path );
 			$isConflicted = true;
 		}
@@ -125,18 +125,18 @@ class RenameLogin {
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$doBlock ) {
-			$path = trim( Services::Request()->getPath(), '/' );
+			$path = \trim( Services::Request()->getPath(), '/' );
 			$possible = [
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
 				trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
-				// trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
+				// \trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
 				trim( rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			];
 			$doBlock = !empty( $path )
-					   && ( in_array( $path, $possible ) || preg_match( '/wp-login\.php/i', $path ) );
+					   && ( \in_array( $path, $possible ) || \preg_match( '/wp-login\.php/i', $path ) );
 		}
 
 		if ( $doBlock ) {
@@ -151,9 +151,9 @@ class RenameLogin {
 	public function fCheckForLoginPhp( $location ) {
 
 		$redirectPath = wp_parse_url( $location, PHP_URL_PATH );
-		if ( strpos( $redirectPath, 'wp-login.php' ) !== false ) {
+		if ( \strpos( $redirectPath, 'wp-login.php' ) !== false ) {
 
-			$queryArgs = explode( '?', $location );
+			$queryArgs = \explode( '?', $location );
 			$location = home_url( $this->opts()->getCustomLoginPath() );
 			if ( !empty( $queryArgs[ 1 ] ) ) {
 				$location .= '?'.$queryArgs[ 1 ];
@@ -169,7 +169,7 @@ class RenameLogin {
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
-			$sRedirectPath = trim( parse_url( $location, PHP_URL_PATH ), '/' );
+			$sRedirectPath = \trim( parse_url( $location, PHP_URL_PATH ), '/' );
 			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->opts()->getCustomLoginPath() );
 			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->doWpLoginFailedRedirect404();
@@ -183,7 +183,7 @@ class RenameLogin {
 	 * @return string
 	 */
 	public function blockRegisterUrlRedirect( $url ) {
-		if ( strpos( Services::Request()->getPath(), 'wp-register.php' ) ) {
+		if ( \strpos( Services::Request()->getPath(), 'wp-register.php' ) ) {
 			$this->doWpLoginFailedRedirect404();
 			die();
 		}

@@ -12,7 +12,7 @@ class ZoneReportDatabase extends BaseZoneReport {
 
 	protected function getLoadLogsWheres() :array {
 		return [
-			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
+			sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", [
 				'db_tables_added',
 				'db_tables_removed',
 			] ) ),

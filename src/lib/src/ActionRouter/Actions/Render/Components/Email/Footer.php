@@ -38,7 +38,7 @@ class Footer extends Base {
 			'flags'   => [
 				'is_pro'           => $con->isPremiumActive(),
 				'is_whitelabelled' => $isWhitelabelled,
-				'email_flags'      => array_merge( [
+				'email_flags'      => \array_merge( [
 					'is_admin_email' => true,
 				], $this->action_data[ 'email_flags' ] ?? [] )
 			],
@@ -50,7 +50,7 @@ class Footer extends Base {
 			'strings' => [
 				'benefits'            => $benefits,
 				'much_more'           => 'And So Much More',
-				'upgrade'             => $goPro[ array_rand( $goPro ) ],
+				'upgrade'             => $goPro[ \array_rand( $goPro ) ],
 				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 					$con->getHumanName(),
 					$con->getVersion(),

@@ -38,7 +38,7 @@ class StatsWriter extends EventsListener {
 	 * @return int[]
 	 */
 	public function getEventStats() :array {
-		return is_array( $this->aEventStats ) ? $this->aEventStats : [];
+		return \is_array( $this->aEventStats ) ? $this->aEventStats : [];
 	}
 
 	/**

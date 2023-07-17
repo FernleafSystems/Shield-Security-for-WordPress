@@ -9,7 +9,7 @@ class ZoneReportPlugins extends BaseZoneReportPluginsThemes {
 
 	protected function getLoadLogsWheres() :array {
 		return [
-			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
+			sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", [
 				'plugin_activated',
 				'plugin_deactivated',
 				'plugin_installed',

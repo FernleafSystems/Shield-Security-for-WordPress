@@ -16,7 +16,7 @@ class Sync {
 	use ModConsumer;
 
 	private function isPermitted() :bool {
-		return $this->opts()->isEnabledMainWP()&& $this->con()->caps->canMainwpLevel1();
+		return $this->opts()->isEnabledMainWP() && $this->con()->caps->canMainwpLevel1();
 	}
 
 	public function run() :array {
@@ -63,7 +63,7 @@ class Sync {
 						break;
 
 					case HackGuard\ModCon::SLUG:
-						$data[ $mod->cfg->slug ][ 'scan_issues' ] = array_filter(
+						$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
 							( new HackGuard\Scan\Results\Counts() )->all()
 						);
 						break;

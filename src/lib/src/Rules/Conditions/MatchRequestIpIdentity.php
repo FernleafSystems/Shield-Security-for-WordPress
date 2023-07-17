@@ -37,10 +37,10 @@ class MatchRequestIpIdentity extends Base {
 		$id = ( new IpID( $this->getRequestIP(), $ua ) )->run()[ 0 ];
 
 		if ( !empty( $matchIDs ) ) {
-			$match = in_array( $id, $matchIDs );
+			$match = \in_array( $id, $matchIDs );
 		}
 		elseif ( !empty( $matchNotIDs ) ) {
-			$match = !in_array( $id, $matchNotIDs );
+			$match = !\in_array( $id, $matchNotIDs );
 		}
 
 		if ( $match ) {

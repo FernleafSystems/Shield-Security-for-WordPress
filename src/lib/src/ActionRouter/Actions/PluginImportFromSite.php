@@ -10,7 +10,7 @@ class PluginImportFromSite extends BaseAction {
 	public const SLUG = 'import_from_site';
 
 	protected function exec() {
-		$formParams = array_merge( [
+		$formParams = \array_merge( [
 			'confirm'             => 'N',
 			'MasterSiteUrl'       => '',
 			'MasterSiteSecretKey' => '',

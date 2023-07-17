@@ -46,7 +46,7 @@ class PageStats extends BasePluginAdminPage {
 			$stats = [];
 			foreach ( $eventSection[ 'events' ] as $event ) {
 				$sums = $this->buildSums( $event );
-				if ( !empty( array_filter( $sums ) ) ) {
+				if ( !empty( \array_filter( $sums ) ) ) {
 					$stats[ $event ] = [
 						'key'    => $event,
 						'name'   => $srvEvents->getEventName( $event ),

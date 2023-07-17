@@ -27,7 +27,7 @@ abstract class Base extends RouteBase {
 			'filter_fields' => [
 				'description' => '[Filter] Comma-separated fields to include in option info.',
 				'type'        => 'array', // WordPress kindly converts CSV to array
-				'pattern'     => sprintf( '^(((%s),?)+)?$', implode( '|', $optFields ) ),
+				'pattern'     => sprintf( '^(((%s),?)+)?$', \implode( '|', $optFields ) ),
 				'required'    => false,
 			],
 		];

@@ -14,10 +14,8 @@ class BlockIpAddressShield extends BaseBlock {
 	public const TEMPLATE = '/pages/block/block_page_ip.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
-
-		$autoUnblock = trim( $this->renderAutoUnblock() );
-		$magicLink = trim( $this->renderEmailMagicLinkContent() );
+		$autoUnblock = \trim( $this->renderAutoUnblock() );
+		$magicLink = \trim( $this->renderEmailMagicLinkContent() );
 
 		return [
 			'content' => [
@@ -32,7 +30,8 @@ class BlockIpAddressShield extends BaseBlock {
 				'how_to_unblock' => 'https://shsec.io/shieldhowtounblock',
 			],
 			'strings' => [
-				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ),
+					$this->con()->getHumanName() ),
 				'title'         => __( 'Access Restricted', 'wp-simple-firewall' ),
 				'subtitle'      => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
@@ -45,7 +44,7 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
-		$blurb = array_merge(
+		$blurb = \array_merge(
 			[
 				__( "Too many requests from your IP address have triggered the site's automated defenses.", 'wp-simple-firewall' ),
 			],
@@ -58,7 +57,7 @@ class BlockIpAddressShield extends BaseBlock {
 	protected function getRestrictionDetailsPoints() :array {
 		/** @var IPs\Options $opts */
 		$opts = $this->con()->getModule_IPs()->getOptions();
-		return array_merge(
+		return \array_merge(
 			[
 				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()
 																			 ->carbon()

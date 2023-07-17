@@ -25,7 +25,7 @@ class TableSchema extends DynPropertiesClass {
 	public function __get( string $key ) {
 		switch ( $key ) {
 			case 'has_ip_col':
-				$val = array_key_exists( 'ip', $this->enumerateColumns() );
+				$val = \array_key_exists( 'ip', $this->enumerateColumns() );
 				break;
 			case 'is_ip_binary':
 				$val = $this->has_ip_col && ( stripos( $this->cols_custom[ 'ip' ], 'varbinary' ) !== false );
@@ -49,7 +49,7 @@ class TableSchema extends DynPropertiesClass {
 				%s
 			) %s;',
 			$this->table,
-			implode( ", ", $cols ),
+			\implode( ", ", $cols ),
 			Services::WpDb()->getCharCollate()
 		);
 	}
@@ -58,14 +58,14 @@ class TableSchema extends DynPropertiesClass {
 	 * @return string[]
 	 */
 	public function getColumnNames() :array {
-		return array_keys( $this->enumerateColumns() );
+		return \array_keys( $this->enumerateColumns() );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function enumerateColumns() :array {
-		return array_merge(
+		return \array_merge(
 			$this->getColumn_ID(),
 			$this->cols_custom ?? [],
 			$this->getColumns_Timestamps()
@@ -92,17 +92,17 @@ class TableSchema extends DynPropertiesClass {
 		];
 
 		if ( $this->has_updated_at && !array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
-			$standardTsCols = array_merge(
+			$standardTsCols = \array_merge(
 				[ 'updated_at' => 'Updated At', ],
 				$standardTsCols
 			);
 		}
 
-		return array_map(
+		return \array_map(
 			function ( $comment ) {
 				return $this->getTimestampColDef( $comment );
 			},
-			array_merge(
+			\array_merge(
 				$this->cols_timestamps ?? [],
 				$standardTsCols
 			)
@@ -114,7 +114,7 @@ class TableSchema extends DynPropertiesClass {
 	}
 
 	protected function getTimestampColDef( string $comment = '' ) :string {
-		return sprintf( "INT(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT '%s'", str_replace( "'", '', $comment ) );
+		return sprintf( "INT(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT '%s'", \str_replace( "'", '', $comment ) );
 	}
 
 	protected function getPrimaryKeyColumnName() :string {
@@ -122,6 +122,6 @@ class TableSchema extends DynPropertiesClass {
 	}
 
 	public function hasColumn( string $col ) :bool {
-		return in_array( strtolower( $col ), $this->getColumnNames() );
+		return \in_array( \strtolower( $col ), $this->getColumnNames() );
 	}
 }

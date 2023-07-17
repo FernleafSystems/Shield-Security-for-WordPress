@@ -10,7 +10,6 @@ class Processor extends BaseShield\Processor {
 	protected function run() {
 		/** @var ModCon $mod */
 		$mod = $this->mod();
-
 		( new Lib\BlacklistHandler() )->execute();
 		$mod->getBotSignalsController()->execute();
 		$mod->getCrowdSecCon()->execute();
@@ -26,7 +25,7 @@ class Processor extends BaseShield\Processor {
 				$groups[] = [
 					'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
 					'href'  => $con->plugin_urls->adminIpRules(),
-					'items' => array_map( function ( $ip ) use ( $con ) {
+					'items' => \array_map( function ( $ip ) use ( $con ) {
 						return [
 							'id'    => $con->prefix( 'ip-'.$ip->id ),
 							'title' => $ip->ip,
@@ -41,7 +40,7 @@ class Processor extends BaseShield\Processor {
 				$groups[] = [
 					'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
 					'href'  => $con->plugin_urls->adminIpRules(),
-					'items' => array_map( function ( $ip ) use ( $con ) {
+					'items' => \array_map( function ( $ip ) use ( $con ) {
 						return [
 							'id'    => $con->prefix( 'ip-'.$ip->id ),
 							'title' => $ip->ip,

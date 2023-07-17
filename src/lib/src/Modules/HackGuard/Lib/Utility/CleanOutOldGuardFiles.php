@@ -21,11 +21,11 @@ class CleanOutOldGuardFiles {
 		if ( !empty( $root ) ) {
 			foreach ( $FS->getAllFilesInDir( $root ) as $fileItem ) {
 				if ( $FS->isDir( $fileItem ) ) {
-					$dirBase = basename( $fileItem );
+					$dirBase = \basename( $fileItem );
 					if ( $dirBase === 'ptguard' ) {
 						$FS->deleteDir( $fileItem );
 					}
-					elseif ( preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', StorageDir::SUFFIX_LENGTH ), $dirBase ) ) {
+					elseif ( \preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', StorageDir::SUFFIX_LENGTH ), $dirBase ) ) {
 						if ( empty( $firstAcceptableDir ) ) {
 							$firstAcceptableDir = $fileItem;
 						}

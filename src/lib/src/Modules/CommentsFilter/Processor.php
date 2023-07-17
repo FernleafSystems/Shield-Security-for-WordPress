@@ -39,6 +39,6 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function clearCommentNotificationEmail( $emails ) {
 		$status = apply_filters( $this->con()->prefix( 'cf_status' ), '' );
-		return in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
+		return \in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
 	}
 }

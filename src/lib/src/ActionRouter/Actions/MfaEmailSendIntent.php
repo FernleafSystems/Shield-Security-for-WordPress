@@ -32,7 +32,7 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 		$this->response()->action_response_data = [
 			'success'     => $success,
 			'message'     => $success ?
-				implode( " \n", [
+				\implode( " \n", [
 					__( 'A new One-Time Password was sent to your email address.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
 						__( 'Previously created One-Time Passwords are invalid.', 'wp-simple-firewall' ) )

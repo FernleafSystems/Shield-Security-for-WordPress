@@ -41,10 +41,10 @@ class ChartsCustom extends Base {
 		return \array_intersect_key(
 			$this->con()->loadEventsService()->getEventNames(),
 			\array_flip( $this->con()
-							 ->getModule_Events()
-							 ->getDbHandler_Events()
-							 ->getQuerySelector()
-							 ->getDistinctForColumn( 'event' ) )
+							  ->getModule_Events()
+							  ->getDbHandler_Events()
+							  ->getQuerySelector()
+							  ->getDistinctForColumn( 'event' ) )
 		);
 	}
 }

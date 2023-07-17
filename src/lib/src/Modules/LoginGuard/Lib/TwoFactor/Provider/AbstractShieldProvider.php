@@ -25,7 +25,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	protected function hasValidSecret() :bool {
 		$secret = $this->getSecret();
-		return !empty( $secret ) && is_string( $secret );
+		return !empty( $secret ) && \is_string( $secret );
 	}
 
 	public function isProfileActive() :bool {

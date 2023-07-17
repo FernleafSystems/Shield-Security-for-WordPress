@@ -78,12 +78,12 @@ abstract class BaseQuery {
 			return $this; // Exception?
 		}
 
-		if ( is_array( $value ) ) {
-			$value = array_map( 'esc_sql', $value );
-			$value = "('".implode( "','", $value )."')";
+		if ( \is_array( $value ) ) {
+			$value = \array_map( 'esc_sql', $value );
+			$value = "('".\implode( "','", $value )."')";
 		}
 		else {
-			if ( strtoupper( $operator ) === 'LIKE' ) {
+			if ( \strtoupper( $operator ) === 'LIKE' ) {
 				$value = sprintf( '%%%s%%', $value );
 			}
 			if ( !is_int( $value ) ) {
@@ -126,7 +126,7 @@ abstract class BaseQuery {
 	 * @return $this
 	 */
 	public function addWhereIn( string $column, $values ) {
-		if ( !empty( $values ) && is_array( $values ) ) {
+		if ( !empty( $values ) && \is_array( $values ) ) {
 			$this->addWhere( $column, $values, 'IN' );
 		}
 		return $this;
@@ -186,7 +186,7 @@ abstract class BaseQuery {
 	 * @return string
 	 */
 	public function buildExtras() {
-		$aExtras = array_filter(
+		$aExtras = \array_filter(
 			[
 				$this->getGroupBy(),
 				$this->buildOrderBy(),
@@ -194,7 +194,7 @@ abstract class BaseQuery {
 				$this->buildOffsetPhrase(),
 			]
 		);
-		return implode( "\n", $aExtras );
+		return \implode( "\n", $aExtras );
 	}
 
 	/**
@@ -233,10 +233,10 @@ abstract class BaseQuery {
 		if ( !$this->isIncludeSoftDeletedRows() ) {
 			$wheres[] = [ 'deleted_at', '=', 0 ];
 		}
-		$wheres = array_map( function ( array $where ) {
+		$wheres = \array_map( function ( array $where ) {
 			return $this->rawWhereToString( $where );
 		}, $wheres );
-		return implode( ' AND ', $wheres );
+		return \implode( ' AND ', $wheres );
 	}
 
 	/**
@@ -353,11 +353,11 @@ abstract class BaseQuery {
 	}
 
 	public function getWheres() :array {
-		return is_array( $this->aWheres ) ? $this->aWheres : [];
+		return \is_array( $this->aWheres ) ? $this->aWheres : [];
 	}
 
 	public function getRawWheres() :array {
-		return is_array( $this->rawWheres ) ? $this->rawWheres : [];
+		return \is_array( $this->rawWheres ) ? $this->rawWheres : [];
 	}
 
 	/**
@@ -372,7 +372,7 @@ abstract class BaseQuery {
 	 */
 	protected function buildOrderBy() {
 		$sOrder = '';
-		if ( !is_array( $this->aOrderBys ) ) {
+		if ( !\is_array( $this->aOrderBys ) ) {
 			// Defaults to created_at if aOrderBys is untouched. Set to empty array for no order
 			$this->aOrderBys = [ 'created_at' => 'DESC' ];
 		}
@@ -381,7 +381,7 @@ abstract class BaseQuery {
 			foreach ( $this->aOrderBys as $sCol => $sOrder ) {
 				$aOrders[] = sprintf( '`%s` %s', esc_sql( $sCol ), esc_sql( $sOrder ) );
 			}
-			$sOrder = sprintf( 'ORDER BY %s', implode( ', ', $aOrders ) );
+			$sOrder = sprintf( 'ORDER BY %s', \implode( ', ', $aOrders ) );
 		}
 		return $sOrder;
 	}
@@ -401,7 +401,7 @@ abstract class BaseQuery {
 	}
 
 	public function hasWheres() :bool {
-		return count( $this->getWheres() ) > 0;
+		return \count( $this->getWheres() ) > 0;
 	}
 
 	public function isIncludeSoftDeletedRows() :bool {
@@ -409,7 +409,7 @@ abstract class BaseQuery {
 	}
 
 	protected function rawWhereToString( array $rawWhere ) :string {
-		return vsprintf( '`%s` %s %s', $rawWhere );
+		return \vsprintf( '`%s` %s %s', $rawWhere );
 	}
 
 	/**
@@ -465,7 +465,7 @@ abstract class BaseQuery {
 			$this->aOrderBys = $orderByColumn;
 		}
 		else {
-			if ( !is_array( $this->aOrderBys ) || $replace ) {
+			if ( !\is_array( $this->aOrderBys ) || $replace ) {
 				$this->aOrderBys = [];
 			}
 			$this->aOrderBys[ $orderByColumn ] = $order;
@@ -489,7 +489,7 @@ abstract class BaseQuery {
 	public function setRawWheres( array $wheres ) {
 		$this->rawWheres = $wheres;
 		return $this->setWheres(
-			array_map( function ( array $where ) {
+			\array_map( function ( array $where ) {
 				return $this->rawWhereToString( $where );
 			}, $this->rawWheres )
 		);
@@ -521,7 +521,7 @@ abstract class BaseQuery {
 	 * @return bool
 	 */
 	protected function isValidComparisonOperator( $op ) {
-		return in_array(
+		return \in_array(
 			strtoupper( $op ),
 			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'NOT IN', 'LIKE', 'NOT LIKE' ]
 		);

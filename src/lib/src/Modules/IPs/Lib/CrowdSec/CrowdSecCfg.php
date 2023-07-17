@@ -16,7 +16,7 @@ class CrowdSecCfg extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'cs_auths':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;

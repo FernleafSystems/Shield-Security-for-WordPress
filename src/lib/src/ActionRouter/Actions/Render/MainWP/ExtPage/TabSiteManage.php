@@ -34,7 +34,7 @@ class TabSiteManage extends BaseSubPage {
 				)
 			],
 			'content' => [
-				'page' => base64_encode( $this->runAction() )
+				'page' => \base64_encode( $this->runAction() )
 			],
 		];
 	}

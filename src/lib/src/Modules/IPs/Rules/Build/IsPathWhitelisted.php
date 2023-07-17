@@ -45,10 +45,10 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 		if ( empty( $homeUrlPath ) ) {
 			$homeUrlPath = '/';
 		}
-		return array_map(
+		return \array_map(
 			function ( $value ) use ( $homeUrlPath ) {
 				$regEx = ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH, false );
-				if ( strpos( $regEx, $homeUrlPath ) !== 0 ) {
+				if ( \strpos( $regEx, $homeUrlPath ) !== 0 ) {
 					$regEx = '/'.ltrim( rtrim( $homeUrlPath, '/' ).'/'.ltrim( $regEx, '/' ), '/' );
 				}
 				return '^'.$regEx;

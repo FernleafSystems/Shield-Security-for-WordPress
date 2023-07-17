@@ -35,6 +35,6 @@ class WpThemesUpdates extends Base {
 	}
 
 	private function countUpdates() :int {
-		return count( Services::WpThemes()->getUpdates() );
+		return \count( Services::WpThemes()->getUpdates() );
 	}
 }

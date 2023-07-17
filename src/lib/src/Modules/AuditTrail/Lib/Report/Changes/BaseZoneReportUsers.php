@@ -29,7 +29,7 @@ abstract class BaseZoneReportUsers extends BaseZoneReport {
 
 	protected function getLoadLogsWheres() :array {
 		return [
-			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
+			sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", [
 				'user_password_updated',
 				'user_registered',
 				'user_deleted',

@@ -10,7 +10,7 @@ abstract class ScanEnabledBase extends Base {
 		$mod = $this->con()->getModule_HackGuard();
 		return $mod->isModOptEnabled() &&
 			   $mod->getScansCon()
-				   ->getScanCon( explode( '_', static::SLUG )[ 2 ] )
+				   ->getScanCon( \explode( '_', static::SLUG )[ 2 ] )
 				   ->isEnabled();
 	}
 }

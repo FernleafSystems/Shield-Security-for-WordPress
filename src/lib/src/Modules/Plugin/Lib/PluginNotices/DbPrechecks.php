@@ -6,7 +6,7 @@ class DbPrechecks extends Base {
 
 	public function check() :?array {
 		$dbPreChecks = $this->con()->prechecks[ 'dbs' ];
-		return count( $dbPreChecks ) !== count( array_filter( $dbPreChecks ) ) ?
+		return \count( $dbPreChecks ) !== \count( \array_filter( $dbPreChecks ) ) ?
 			[
 				'id'        => 'db_prechecks_fail',
 				'type'      => 'danger',

@@ -17,15 +17,15 @@ class MachineEnroll extends BaseAuth {
 			'attachment_key' => $enrollID,
 			'name'           => $name,
 			'overwrite'      => true,
-			'tags'           => array_filter(
+			'tags'           => \array_filter(
 				$tags,
 				function ( $tag ) {
-					return !empty( $tag ) && is_string( $tag );
+					return !empty( $tag ) && \is_string( $tag );
 				}
 			)
 		];
 		$raw = $this->sendReq();
-		if ( !is_array( $raw ) || ( $raw[ 'message' ] ?? '' ) !== 'OK' ) {
+		if ( !\is_array( $raw ) || ( $raw[ 'message' ] ?? '' ) !== 'OK' ) {
 			throw new MachineEnrollFailedException( sprintf( 'Failed to enroll machine: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}

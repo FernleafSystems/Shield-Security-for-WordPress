@@ -69,14 +69,14 @@ class ApiTokenManager {
 	}
 
 	public function hasToken() :bool {
-		return strlen( $this->getToken() ) === 40 && !$this->isExpired();
+		return \strlen( $this->getToken() ) === 40 && !$this->isExpired();
 	}
 
 	/**
 	 * retrieve Token exactly as it's saved
 	 */
 	private function loadToken() :array {
-		return array_merge(
+		return \array_merge(
 			[
 				'token'             => '',
 				'expires_at'        => 0,

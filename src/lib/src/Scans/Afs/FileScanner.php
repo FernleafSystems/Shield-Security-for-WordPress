@@ -139,7 +139,7 @@ class FileScanner {
 		/** @var ResultItem $item */
 		$item = $this->getScanController()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
-		$item->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
+		$item->path_fragment = \str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
 		return $item;
 	}
 }

@@ -9,7 +9,7 @@ class RunTests {
 	use PluginControllerConsumer;
 
 	public function run() {
-		array_map(
+		\array_map(
 			fn( $test ) => ( new $test() )->run(), $this->enumPluginTests()
 		);
 	}

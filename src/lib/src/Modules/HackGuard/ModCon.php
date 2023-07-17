@@ -116,7 +116,7 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$specialDirs = array_map( 'trailingslashit', [
+		$specialDirs = \array_map( 'trailingslashit', [
 			ABSPATH,
 			path_join( ABSPATH, 'wp-admin' ),
 			path_join( ABSPATH, 'wp-includes' ),
@@ -128,7 +128,7 @@ class ModCon extends BaseShield\ModCon {
 		$values = $opts->getOpt( 'scan_path_exclusions', [] );
 		$opts->setOpt( 'scan_path_exclusions',
 			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
-				is_array( $values ) ? $values : [],
+				\is_array( $values ) ? $values : [],
 				$specialDirs,
 				Shield\Modules\Base\Options\WildCardOptions::FILE_PATH_REL
 			)
@@ -142,7 +142,7 @@ class ModCon extends BaseShield\ModCon {
 		Services::WpCron()->addNewSchedule(
 			$this->con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
-				'interval' => DAY_IN_SECONDS/$freq,
+				'interval' => \DAY_IN_SECONDS/$freq,
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 			]
 		);

@@ -30,7 +30,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanSlice() {
 		$action = $this->getScanActionVO();
 
-		$action->results = array_map(
+		$action->results = \array_map(
 			function ( $item ) {
 				return $item->getRawData();
 			},

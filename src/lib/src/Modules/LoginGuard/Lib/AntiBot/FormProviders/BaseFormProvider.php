@@ -45,7 +45,7 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	 * @return ProtectionProviders\BaseProtectionProvider[]
 	 */
 	protected function getProtectionProviders() :array {
-		return is_array( self::$Providers ) ? self::$Providers : [];
+		return \is_array( self::$Providers ) ? self::$Providers : [];
 	}
 
 	protected function checkThenDie() {
@@ -86,7 +86,7 @@ abstract class BaseFormProvider extends ExecOnceModConsumer {
 	}
 
 	public function buildFormInsert() :string {
-		return implode( "\n", array_map(
+		return \implode( "\n", \array_map(
 			function ( $provider ) {
 				$provider->setAsInsertBuilt();
 				return $provider->buildFormInsert( $this );

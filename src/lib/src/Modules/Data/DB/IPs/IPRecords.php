@@ -21,7 +21,7 @@ class IPRecords {
 			if ( empty( $parsedRange ) ) {
 				throw new \Exception( 'Not a valid IP range' );
 			}
-			$ip = explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
+			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
 			$dbh = $this->con()->getModule_Data()->getDbH_IPs();
 			/** @var Ops\Select $select */

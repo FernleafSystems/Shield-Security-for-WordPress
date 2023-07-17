@@ -48,7 +48,7 @@ class Scanner {
 	public function checkComment( $approval, $comm ) {
 		$opts = $this->opts();
 
-		// Note: use strict in_array() here because when approval is '0', always returns 'true'
+		// Note: use strict \in_array() here because when approval is '0', always returns 'true'
 		if ( !\in_array( $approval, [ 'spam', 'trash' ], true )
 			 && \is_array( $comm )
 			 && \is_numeric( $comm[ 'comment_post_ID' ] ?? null )

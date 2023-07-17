@@ -49,22 +49,22 @@ class AdminRemove extends BaseWpCliCmd {
 		if ( empty( $aA ) ) {
 			WP_CLI::error( 'Please specify the user for which you want to remove as a Security Admin.' );
 		}
-		if ( count( $aA ) > 1 ) {
+		if ( \count( $aA ) > 1 ) {
 			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
 		}
 
 		$oU = $this->loadUserFromArgs( $aA );
 
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aCurrent = $oOpts->getSecurityAdminUsers();
-		if ( !in_array( $oU->user_login, $aCurrent ) ) {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		$current = $opts->getSecurityAdminUsers();
+		if ( !\in_array( $oU->user_login, $current ) ) {
 			WP_CLI::success( "This user isn't currently a security admin." );
 		}
 		else {
-			unset( $aCurrent[ array_search( $oU->user_login, $aCurrent ) ] );
-			natsort( $aCurrent );
-			$oOpts->setOpt( 'sec_admin_users', array_unique( $aCurrent ) );
+			unset( $current[ \array_search( $oU->user_login, $current ) ] );
+			\natsort( $current );
+			$opts->setOpt( 'sec_admin_users', \array_unique( $current ) );
 			WP_CLI::success( sprintf( "User '%s' removed as a Security Admin.", $oU->user_login ) );
 		}
 	}

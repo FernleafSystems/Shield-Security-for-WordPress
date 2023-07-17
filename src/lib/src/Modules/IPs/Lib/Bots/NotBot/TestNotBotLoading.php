@@ -18,7 +18,7 @@ class TestNotBotLoading {
 	public function testInternally() :bool {
 		$urlToFind = \explode( '?', $this->con()->urls->forJs( 'shield/notbot' ) )[ 0 ];
 		return \preg_match(
-				   sprintf( '#%s#i', preg_quote( $urlToFind, '#' ) ),
+				   sprintf( '#%s#i', \preg_quote( $urlToFind, '#' ) ),
 				   Services::HttpRequest()->getContent(
 					   URL::Build( network_home_url( '/' ), [ 'force_notbot' => '1' ] ),
 					   [ 'timeout' => 5 ]

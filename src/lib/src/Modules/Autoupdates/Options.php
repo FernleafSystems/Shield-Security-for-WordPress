@@ -12,7 +12,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getDelayTracking() {
 		$tracking = $this->getOpt( 'delay_tracking', [] );
-		if ( !is_array( $tracking ) ) {
+		if ( !\is_array( $tracking ) ) {
 			$tracking = [];
 		}
 		$tracking = Services::DataManipulation()->mergeArraysRecursive(
@@ -32,7 +32,7 @@ class Options extends BaseShield\Options {
 	 * @return int
 	 */
 	public function getDelayUpdatesPeriod() {
-		return $this->con()->isPremiumActive() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
+		return $this->con()->isPremiumActive() ? $this->getOpt( 'update_delay', 0 )*\DAY_IN_SECONDS : 0;
 	}
 
 	/**

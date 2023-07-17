@@ -63,7 +63,7 @@ abstract class Handler extends ExecOnceModConsumer {
 	private function setupTableSchema() {
 		$this->schema = new TableSchema();
 
-		$this->schema->applyFromArray( array_merge(
+		$this->schema->applyFromArray( \array_merge(
 			[
 				'slug'            => $this->slug,
 				'primary_key'     => 'id',
@@ -85,7 +85,7 @@ abstract class Handler extends ExecOnceModConsumer {
 
 	public function tableCleanExpired( int $autoExpireDays ) {
 		if ( $autoExpireDays > 0 ) {
-			$this->deleteRowsOlderThan( Services::Request()->ts() - $autoExpireDays*DAY_IN_SECONDS );
+			$this->deleteRowsOlderThan( Services::Request()->ts() - $autoExpireDays*\DAY_IN_SECONDS );
 		}
 	}
 

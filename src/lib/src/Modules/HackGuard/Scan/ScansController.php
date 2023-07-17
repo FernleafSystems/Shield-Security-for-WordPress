@@ -72,7 +72,7 @@ class ScansController {
 	 * @return string[]
 	 */
 	public function getScanSlugs() :array {
-		return array_keys( $this->getAllScanCons() );
+		return \array_keys( $this->getAllScanCons() );
 	}
 
 	/**
@@ -131,7 +131,7 @@ class ScansController {
 	 */
 	public function getReasonsScansCantExecute() :array {
 		try {
-			$reasons = array_keys( array_filter( [
+			$reasons = \array_keys( \array_filter( [
 				'reason_not_call_self' => !$this->con()->getModule_Plugin()->canSiteLoopback()
 			] ) );
 		}
@@ -145,7 +145,7 @@ class ScansController {
 		$toScan = [];
 		foreach ( $scans as $slugOrCon ) {
 			try {
-				$scanCon = is_string( $slugOrCon ) ? $this->getScanCon( $slugOrCon ) : $slugOrCon;
+				$scanCon = \is_string( $slugOrCon ) ? $this->getScanCon( $slugOrCon ) : $slugOrCon;
 				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
 					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
@@ -176,7 +176,7 @@ class ScansController {
 	}
 
 	public function getCanScansExecute() :bool {
-		return count( $this->getReasonsScansCantExecute() ) === 0;
+		return \count( $this->getReasonsScansCantExecute() ) === 0;
 	}
 
 	protected function getCronFrequency() {

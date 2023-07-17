@@ -13,7 +13,7 @@ class Handler extends Base\Handler {
 	public const T_CROWDSEC = 'CS';
 
 	public static function IsValidType( string $type ) :bool {
-		return in_array( $type, [
+		return \in_array( $type, [
 			self::T_CROWDSEC,
 			self::T_MANUAL_BLOCK,
 			self::T_AUTO_BLOCK,

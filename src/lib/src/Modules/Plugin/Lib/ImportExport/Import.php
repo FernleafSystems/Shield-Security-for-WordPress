@@ -107,17 +107,17 @@ class Import {
 		$originalMasterSiteURL = $opts->getImportExportMasterImportUrl();
 		$secretKey = sanitize_key( $secretKey );
 
-		if ( !empty( $secretKey ) && strlen( $secretKey ) !== 40 ) {
+		if ( !empty( $secretKey ) && \strlen( $secretKey ) !== 40 ) {
 			throw new \Exception( "Secret key isn't of the correct format", 2 );
 		}
 
 		// Ensure we have entries for 'scheme' and 'host'
 		$urlParts = wp_parse_url( $masterURL );
 		$hasParts = !empty( $urlParts )
-					&& count(
-						   array_filter( array_intersect_key(
+					&& \count(
+						   \array_filter( \array_intersect_key(
 							   $urlParts,
-							   array_flip( [ 'scheme', 'host' ] )
+							   \array_flip( [ 'scheme', 'host' ] )
 						   ) )
 					   ) === 2;
 		if ( !$hasParts ) {
@@ -170,7 +170,7 @@ class Import {
 			}
 		}
 
-		if ( empty( $response[ 'data' ] ) || !is_array( $response[ 'data' ] ) ) {
+		if ( empty( $response[ 'data' ] ) || !\is_array( $response[ 'data' ] ) ) {
 			throw new \Exception( "Response data was empty", 8 );
 		}
 
@@ -204,9 +204,9 @@ class Import {
 			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
 				$theseOpts = $mod->getOptions();
 				$theseOpts->setMultipleOptions(
-					array_diff_key(
+					\array_diff_key(
 						$data[ $mod->getOptionsStorageKey() ] ?? [],
-						array_flip( $theseOpts->getXferExcluded() )
+						\array_flip( $theseOpts->getXferExcluded() )
 					)
 				);
 

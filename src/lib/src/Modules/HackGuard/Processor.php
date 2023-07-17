@@ -10,7 +10,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		$this->mod()->getScansCon()->execute();
-		if ( count( $this->opts()->getFilesToLock() ) > 0 ) {
+		if ( \count( $this->opts()->getFilesToLock() ) > 0 ) {
 			$this->mod()->getFileLocker()->execute();
 		}
 	}
@@ -27,7 +27,7 @@ class Processor extends BaseShield\Processor {
 			];
 			foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {
 				if ( $scanCon->isEnabled() ) {
-					$thisGroup[ 'items' ] = array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
+					$thisGroup[ 'items' ] = \array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
 				}
 			}
 

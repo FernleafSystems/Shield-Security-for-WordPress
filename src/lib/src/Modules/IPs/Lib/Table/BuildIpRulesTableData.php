@@ -35,7 +35,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	 * @param IpRuleRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $record ) {
 				$data = $record->getRawData();
 				$geo = $this->getCountryIP( $record->ip );
@@ -73,22 +73,22 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
+			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'day':
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'ir', 'last_access_at' );
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "`ir`.`id` IN (%s)", implode( ',', array_map( 'intval', $selected ) ) );
+						$wheres[] = sprintf( "`ir`.`id` IN (%s)", \implode( ',', \array_map( 'intval', $selected ) ) );
 						break;
 					case 'type':
-						$selected = array_filter( $selected, function ( $type ) {
+						$selected = \array_filter( $selected, function ( $type ) {
 							return Handler::IsValidType( (string)$type );
 						} );
-						$wheres[] = sprintf( "`ir`.`type` IN ('%s')", implode( "','", $selected ) );
+						$wheres[] = sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $selected ) );
 						break;
 					case 'is_blocked':
-						if ( count( $selected ) === 1 ) {
+						if ( \count( $selected ) === 1 ) {
 							$wheres[] = sprintf( "`ir`.`blocked_at`%s'0'", current( $selected ) ? '>' : '=' );
 						}
 						break;
@@ -99,7 +99,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 		}
 
 		if ( !empty( $this->table_data[ 'search' ][ 'value' ] ) ) {
-			$ip = preg_replace( '#[^0-9a-f:.]#i', '', $this->table_data[ 'search' ][ 'value' ] );
+			$ip = \preg_replace( '#[^0-9a-f:.]#i', '', $this->table_data[ 'search' ][ 'value' ] );
 			if ( !empty( $ip ) ) {
 				$wheres[] = sprintf( "INET6_NTOA(`ips`.`ip`) LIKE '%%%s%%'", $ip );
 			}
@@ -113,7 +113,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
@@ -153,7 +153,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 			$content[] = sprintf( '%s: %s', __( 'Label', 'wp-simple-firewall' ), $record->label );
 		}
 
-		if ( in_array( $record->type, [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK, Handler::T_CROWDSEC ] ) ) {
+		if ( \in_array( $record->type, [ Handler::T_AUTO_BLOCK, Handler::T_MANUAL_BLOCK, Handler::T_CROWDSEC ] ) ) {
 
 			if ( $record->blocked_at > 0 ) {
 				if ( $record->blocked_at > $record->unblocked_at ) {
@@ -213,7 +213,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 			$content[] = sprintf( '%s: <span class="badge text-bg-%s">%s</span>', __( 'IP Block Status', 'wp-simple-firewall' ), $color, $blockedStatus );
 		}
 
-		return implode( '<br/>', $content );
+		return \implode( '<br/>', $content );
 	}
 
 	private function getColumnContent_LastSeen( int $ts ) :string {

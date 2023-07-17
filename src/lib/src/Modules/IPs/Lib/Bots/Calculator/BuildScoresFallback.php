@@ -23,7 +23,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 175 : 150;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? 175 : 150;
 		}
 		return $score;
 	}
@@ -33,7 +33,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -15 : -5;
+			$score = $this->diffTs( __FUNCTION__ ) < \HOUR_IN_SECONDS ? -15 : -5;
 		}
 		return $score;
 	}
@@ -43,7 +43,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -65 : -45;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -65 : -45;
 		}
 		return $score;
 	}
@@ -53,7 +53,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -75 : -45;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -75 : -45;
 		}
 		return $score;
 	}
@@ -63,7 +63,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -25 : -15;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -25 : -15;
 		}
 		return $score;
 	}
@@ -83,7 +83,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -85 : -55;
+			$score = $this->diffTs( __FUNCTION__ ) < \HOUR_IN_SECONDS ? -85 : -55;
 		}
 		return $score;
 	}
@@ -93,7 +93,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -35 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -35 : -25;
 		}
 		return $score;
 	}
@@ -103,7 +103,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -55 : -35;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -55 : -35;
 		}
 		return $score;
 	}
@@ -123,7 +123,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -35 : -15;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -35 : -15;
 		}
 		return $score;
 	}
@@ -143,7 +143,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -55 : -45;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -55 : -45;
 		}
 		return $score;
 	}
@@ -153,7 +153,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 100 : 75;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? 100 : 75;
 		}
 		return $score;
 	}
@@ -167,7 +167,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? 55 : 25;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? 55 : 25;
 		}
 		return $score;
 	}
@@ -187,7 +187,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? -55 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < \HOUR_IN_SECONDS ? -55 : -25;
 		}
 		return $score;
 	}
@@ -197,7 +197,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < DAY_IN_SECONDS ? -30 : -15;
+			$score = $this->diffTs( __FUNCTION__ ) < \DAY_IN_SECONDS ? -30 : -15;
 		}
 		return $score;
 	}
@@ -227,7 +227,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = -15;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 25 : 15;
+			$score = $this->diffTs( __FUNCTION__ ) < \HOUR_IN_SECONDS ? 25 : 15;
 		}
 		return $score;
 	}
@@ -241,7 +241,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = -10;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < HOUR_IN_SECONDS ? 150 : 75;
+			$score = $this->diffTs( __FUNCTION__ ) < \HOUR_IN_SECONDS ? 150 : 75;
 		}
 		return $score;
 	}

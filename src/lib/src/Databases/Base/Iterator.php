@@ -33,7 +33,7 @@ class Iterator extends AbstractPagedIterator {
 	}
 
 	public function getCustomQueryFilters() :array {
-		return is_array( $this->customFilters ) ? $this->customFilters : [];
+		return \is_array( $this->customFilters ) ? $this->customFilters : [];
 	}
 
 	protected function getDefaultQueryFilters() :array {
@@ -44,7 +44,7 @@ class Iterator extends AbstractPagedIterator {
 	}
 
 	protected function getFinalQueryFilters() :array {
-		return array_merge( $this->getDefaultQueryFilters(), $this->getCustomQueryFilters() );
+		return \array_merge( $this->getDefaultQueryFilters(), $this->getCustomQueryFilters() );
 	}
 
 	/**

@@ -20,17 +20,17 @@ class FormParams {
 		}
 		else {
 			$maybeEncoding = $req->post( 'enc_params' );
-			if ( in_array( $maybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
+			if ( \in_array( $maybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
 				$encoding = $maybeEncoding;
 			}
 
 			switch ( $encoding ) {
 				case 'lz-string':
-					$raw = \LZCompressor\LZString::decompress( base64_decode( $raw ) );
+					$raw = \LZCompressor\LZString::decompress( \base64_decode( $raw ) );
 					break;
 
 				case 'b64':
-					$raw = base64_decode( $raw );
+					$raw = \base64_decode( $raw );
 					break;
 
 				case 'none':
@@ -44,6 +44,6 @@ class FormParams {
 			parse_str( (string)$raw, $formParams );
 		}
 
-		return is_array( $formParams ) ? $formParams : [];
+		return \is_array( $formParams ) ? $formParams : [];
 	}
 }

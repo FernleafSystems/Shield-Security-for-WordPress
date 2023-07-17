@@ -16,10 +16,6 @@ class ActionRoutingController {
 	public const ACTION_AJAX = 1;
 	public const ACTION_SHIELD = 2;
 
-	protected function canRun() :bool {
-		return true;
-	}
-
 	protected function run() {
 		$this->captureRedirects();
 		( new CaptureShieldAction() )->execute();
@@ -105,7 +101,7 @@ class ActionRoutingController {
 			$redirectTo = null;
 			$page = (string)$req->query( 'page' );
 
-			if ( strpos( $page, $con->prefix() ) === 0 ) {
+			if ( \strpos( $page, $con->prefix() ) === 0 ) {
 
 				$navID = (string)$req->query( Constants::NAV_ID );
 				$subNavID = (string)$req->query( Constants::NAV_SUB_ID );
@@ -120,7 +116,7 @@ class ActionRoutingController {
 				}
 				else {
 					if ( !$urls->isValidNav( $navID ) ) {
-						$navID = explode( '-', $page )[ 2 ] ?? '';
+						$navID = \explode( '-', $page )[ 2 ] ?? '';
 					}
 					$redirectTo = $urls->isValidNav( $navID ) ? $urls->adminTopNav( $navID ) : $urls->adminHome();
 				}

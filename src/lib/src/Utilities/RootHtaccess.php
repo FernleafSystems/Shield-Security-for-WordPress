@@ -60,7 +60,7 @@ class RootHtaccess {
 	private function createHtaccess() :bool {
 		return Services::WpFs()->putFileContent(
 			$this->getPathToHtaccess(),
-			implode( "\n", [
+			\implode( "\n", [
 				'Order Allow,Deny',
 				'<FilesMatch "^.*\.(css|js|png|jpg|svg)$" >',
 				' Allow from all',

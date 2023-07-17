@@ -85,7 +85,7 @@ class PluginTelemetry {
 		foreach ( $optionsData as $opt => $mValue ) {
 			unset( $optionsData[ $opt ] );
 			// some cleaning to ensure we don't have disallowed characters
-			$opt = preg_replace( '#[^_a-z]#', '', strtolower( $opt ) );
+			$opt = \preg_replace( '#[^_a-z]#', '', \strtolower( $opt ) );
 			if ( $opts->getOptionType( $opt ) == 'checkbox' ) { // only want a boolean 1 or 0
 				$optionsData[ $opt ] = $mValue == 'Y' ? 1 : 0;
 			}
@@ -107,7 +107,7 @@ class PluginTelemetry {
 			'env' => [
 				'slug'             => $con->getPluginSlug(),
 				'installation_id'  => $con->getInstallationID()[ 'id' ],
-				'unique_site_hash' => sha1( network_home_url( '/' ) ),
+				'unique_site_hash' => \sha1( network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
 				'version'          => $con->getVersion(),
@@ -116,9 +116,9 @@ class PluginTelemetry {
 				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,
 				'locale'           => get_locale(),
-				'plugins_total'    => count( $WPP->getPlugins() ),
-				'plugins_active'   => count( $WPP->getActivePlugins() ),
-				'plugins_updates'  => count( $WPP->getUpdates() ),
+				'plugins_total'    => \count( $WPP->getPlugins() ),
+				'plugins_active'   => \count( $WPP->getActivePlugins() ),
+				'plugins_updates'  => \count( $WPP->getUpdates() ),
 			]
 		];
 	}

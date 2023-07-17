@@ -20,7 +20,7 @@ class ScheduleBuildAll extends Base {
 					$this->build();
 				} );
 			}
-			if ( wp_next_scheduled( $hook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+			if ( wp_next_scheduled( $hook ) === false && \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
 				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
 			}
 		}
@@ -61,7 +61,7 @@ class ScheduleBuildAll extends Base {
 	 * @return WpPluginVo[]|WpThemeVo[]
 	 */
 	private function getAssetsThatNeedBuilt() :array {
-		return array_filter(
+		return \array_filter(
 			( new FindAssetsToSnap() )->run(),
 			function ( $asset ) {
 				try {

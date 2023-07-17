@@ -38,8 +38,8 @@ class HumanDictionary {
 		$spam = ( new TestContent() )->findSpam( $items );
 
 		if ( !empty( $spam ) ) {
-			$key = key( reset( $spam ) );
-			$word = key( $spam );
+			$key = \key( \reset( $spam ) );
+			$word = \key( $spam );
 
 			$result = new \WP_Error(
 				'human',

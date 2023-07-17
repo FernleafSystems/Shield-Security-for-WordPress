@@ -85,7 +85,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function addUserStatusLastLogin( $cols ) {
 
-		if ( is_array( $cols ) ) {
+		if ( \is_array( $cols ) ) {
 			$customColName = $this->con()->prefix( 'col_user_status' );
 			if ( !isset( $cols[ $customColName ] ) ) {
 				$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );

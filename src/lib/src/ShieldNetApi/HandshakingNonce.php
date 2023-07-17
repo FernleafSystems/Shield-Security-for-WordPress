@@ -47,7 +47,7 @@ class HandshakingNonce {
 		$snapiCon = $this->con()
 						 ->getModule_Plugin()
 						 ->getShieldNetApiController();
-		$snapiCon->vo->nonces = array_filter(
+		$snapiCon->vo->nonces = \array_filter(
 			$nonces,
 			function ( $ts ) {
 				return $ts > Services::Request()->ts();

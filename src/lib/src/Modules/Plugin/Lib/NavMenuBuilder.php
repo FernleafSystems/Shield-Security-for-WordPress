@@ -56,7 +56,7 @@ class NavMenuBuilder {
 				$item[ 'classes' ][] = 'body_content_link';
 			}
 			else {
-				$item[ 'sub_items' ] = array_map( function ( $sub ) use ( $isSecAdmin ) {
+				$item[ 'sub_items' ] = \array_map( function ( $sub ) use ( $isSecAdmin ) {
 					if ( empty( $sub[ 'classes' ] ) ) {
 						$sub[ 'classes' ] = [];
 					}
@@ -71,7 +71,7 @@ class NavMenuBuilder {
 
 				// Set parent active if any sub-items are active
 				if ( !$item[ 'active' ] ) {
-					$item[ 'active' ] = count( array_filter( $item[ 'sub_items' ], function ( $sub ) {
+					$item[ 'active' ] = \count( \array_filter( $item[ 'sub_items' ], function ( $sub ) {
 						return $sub[ 'active' ] ?? false;
 					} ) );
 				}
@@ -178,11 +178,11 @@ class NavMenuBuilder {
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
 					'href'          => $con->plugin_urls->modCfg( $module ),
 					// 'href'          => $this->getOffCanvasJavascriptLinkForModule( $module ),
-					'classes'       => array_filter( array_merge( $baseClasses, [
+					'classes'       => \array_filter( \array_merge( $baseClasses, [
 						$module->isModOptEnabled() ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
-						'dynamic_page_load' => json_encode( [
+						'dynamic_page_load' => \json_encode( [
 							'dynamic_load_slug' => Config::SLUG,
 							'dynamic_load_data' => [
 								'mod_slug' => $cfg->slug,

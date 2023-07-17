@@ -30,16 +30,14 @@ class AllowBetaUpgrades {
 
 	protected function run() {
 		add_filter( 'pre_set_site_transient_update_plugins', function ( $updates ) {
-			$con = $this->con();
 			// only offer "betas" when there is no "normal" upgrade already available
 			if ( \is_object( $updates )
 				 && isset( $updates->response )
 				 && \is_array( $updates->response )
-				 && empty( $updates->response[ $con->base_file ] ) ) {
+				 && empty( $updates->response[ $this->con()->base_file ] ) ) {
 
-				$beta = $this->getBeta();
-				if ( !empty( $beta ) ) {
-					$updates->response[ $con->base_file ] = $beta;
+				if ( !empty( $this->getBeta() ) ) {
+					$updates->response[ $this->con()->base_file ] = $this->getBeta();
 				}
 			}
 			return $updates;

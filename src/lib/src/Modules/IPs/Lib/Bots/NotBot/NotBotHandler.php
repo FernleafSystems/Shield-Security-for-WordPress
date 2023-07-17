@@ -39,8 +39,8 @@ class NotBotHandler {
 		$cookie = [];
 		$req = Services::Request();
 		$notBot = $req->cookie( $this->con()->prefix( self::SLUG ), '' );
-		if ( !empty( $notBot ) && strpos( $notBot, 'z' ) ) {
-			[ $ts, $hash ] = explode( 'z', $notBot );
+		if ( !empty( $notBot ) && \strpos( $notBot, 'z' ) ) {
+			[ $ts, $hash ] = \explode( 'z', $notBot );
 			$cookie[ 'ts' ] = (int)$ts;
 			$cookie[ 'hash' ] = $hash;
 		}

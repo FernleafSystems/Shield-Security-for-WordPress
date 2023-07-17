@@ -90,7 +90,7 @@ abstract class BaseZoneReport {
 	}
 
 	public function countChanges() :int {
-		return count( $this->loadLogs() );
+		return \count( $this->loadLogs() );
 	}
 
 	protected function buildSummaryForLog( LogRecord $log ) :string {

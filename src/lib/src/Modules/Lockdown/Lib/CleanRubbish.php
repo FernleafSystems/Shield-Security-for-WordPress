@@ -14,7 +14,7 @@ class CleanRubbish extends ExecOnceModConsumer {
 	protected function run() {
 		$FS = Services::WpFs();
 		foreach ( $FS->getAllFilesInDir( ABSPATH, false ) as $file ) {
-			if ( \in_array( basename( $file ), $this->getFilesToClean() ) ) {
+			if ( \in_array( \basename( $file ), $this->getFilesToClean() ) ) {
 				$FS->deleteFile( $file );
 			}
 		}

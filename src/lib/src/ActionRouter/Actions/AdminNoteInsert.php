@@ -23,7 +23,8 @@ class AdminNoteInsert extends BaseAction {
 			/** @var Insert $inserter */
 			$inserter = $this->con()->getModule_Plugin()->getDbHandler_Notes()->getQueryInserter();
 			$resp->success = $inserter->create( $note );
-			$resp->message = $resp->success ? __( 'Note created successfully.', 'wp-simple-firewall' )
+			$resp->message = $resp->success ?
+				__( 'Note created successfully.', 'wp-simple-firewall' )
 				: __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 	}

@@ -52,10 +52,10 @@ abstract class ProcessBase extends DynPropertiesClass {
 		$this->preRun();
 
 		$this->timer_start = microtime( true );
-		if ( isset( $stream[ 'new' ] ) && !is_array( $stream[ 'new' ] ) ) {
+		if ( isset( $stream[ 'new' ] ) && !\is_array( $stream[ 'new' ] ) ) {
 			throw new DecisionsStreamDataIntegrityFailedException( "Decisions Stream 'new' data wasn't of the correct format: array" );
 		}
-		if ( isset( $stream[ 'deleted' ] ) && !is_array( $stream[ 'deleted' ] ) ) {
+		if ( isset( $stream[ 'deleted' ] ) && !\is_array( $stream[ 'deleted' ] ) ) {
 			throw new DecisionsStreamDataIntegrityFailedException( "Decisions Stream 'deleted' data wasn't of the correct format: array" );
 		}
 
@@ -143,7 +143,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		if ( !isset( $decision[ 'value' ] ) ) {
 			throw new \Exception( 'No decision value set.' );
 		}
-		if ( empty( $decision[ 'type' ] ) || !in_array( $decision[ 'type' ], $this->getSupportedDecisionTypes() ) ) {
+		if ( empty( $decision[ 'type' ] ) || !\in_array( $decision[ 'type' ], $this->getSupportedDecisionTypes() ) ) {
 			throw new \Exception( sprintf( "No 'type' set, or it is unsupported: %s", $decision[ 'type' ] ?? 'unset' ) );
 		}
 

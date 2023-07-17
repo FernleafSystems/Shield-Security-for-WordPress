@@ -91,7 +91,7 @@ class LoginRequestCapture {
 	 * @param int    $userID
 	 */
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
-		if ( is_string( $cookie ) ) {
+		if ( \is_string( $cookie ) ) {
 			$this->setLoggedInCookie( $cookie );
 		}
 	}

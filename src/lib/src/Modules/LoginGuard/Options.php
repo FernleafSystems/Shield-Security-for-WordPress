@@ -15,11 +15,11 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getLoginIntentMaxAttempts() :int {
-		return (int)max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
+		return (int)\max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
 	}
 
 	public function getLoginIntentMinutes() :int {
-		return (int)max( 1, apply_filters(
+		return (int)\max( 1, apply_filters(
 			$this->con()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
@@ -45,8 +45,8 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 			'shield/2fa_email_enforced_user_roles',
 			apply_filters( 'odp-shield-2fa_email_user_roles', $this->getOpt( 'two_factor_auth_user_roles' ) )
 		);
-		return array_unique( array_filter( array_map( 'sanitize_key',
-			is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
+		return \array_unique( \array_filter( \array_map( 'sanitize_key',
+			\is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
 		) ) );
 	}
 

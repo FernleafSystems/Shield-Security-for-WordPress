@@ -127,7 +127,7 @@ class BuildForDisplay {
 				continue;
 			}
 
-			$optDef = array_merge( [
+			$optDef = \array_merge( [
 				'link_info'     => '',
 				'link_blog'     => '',
 				'value_options' => [],
@@ -159,7 +159,7 @@ class BuildForDisplay {
 
 				/** For multi-selects, only show available options as checked on. */
 				if ( \is_array( $optDef[ 'value' ] ) ) {
-					$optDef[ 'value' ] = array_intersect( $optDef[ 'value' ], $available );
+					$optDef[ 'value' ] = \array_intersect( $optDef[ 'value' ], $available );
 				}
 			}
 
@@ -261,7 +261,7 @@ class BuildForDisplay {
 				$ipDetector = Services::IP()->getIpDetector();
 				foreach ( \array_keys( $option[ 'value_options' ] ) as $valKey ) {
 					if ( $valKey !== 'AUTO_DETECT_IP' ) {
-						$IPs = implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
+						$IPs = \implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
 						if ( empty( $IPs ) ) {
 							unset( $option[ 'value_options' ][ $valKey ] );
 						}

@@ -26,7 +26,7 @@ abstract class AbstractOtpProvider extends AbstractProvider {
 	}
 
 	protected function fetchOtpFromRequest() :string {
-		return trim( (string)Services::Request()->request( $this->getLoginIntentFormParameter(), false, '' ) );
+		return \trim( (string)Services::Request()->request( $this->getLoginIntentFormParameter(), false, '' ) );
 	}
 
 	public function getFormField() :array {

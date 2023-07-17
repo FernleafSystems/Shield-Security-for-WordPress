@@ -80,13 +80,13 @@ class Strings extends Base\Strings {
 			case 'block_dir_traversal' :
 				$name = __( 'Directory Traversals', 'wp-simple-firewall' );
 				$summary = __( 'Block Directory Traversals', 'wp-simple-firewall' );
-				$desc = [ sprintf( __( 'This will block directory traversal paths in in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), base64_decode( 'Li4vLCAuLi8uLi9ldGMvcGFzc3dk' ) ) ];
+				$desc = [ sprintf( __( 'This will block directory traversal paths in in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), \base64_decode( 'Li4vLCAuLi8uLi9ldGMvcGFzc3dk' ) ) ];
 				break;
 
 			case 'block_sql_queries' :
 				$name = __( 'SQL Queries', 'wp-simple-firewall' );
 				$summary = __( 'Block SQL Queries', 'wp-simple-firewall' );
-				$desc = [ sprintf( __( 'This will block sql in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), base64_decode( 'dW5pb24gc2VsZWN0LCBjb25jYXQoLCAvKiovLCAuLik=' ) ) ];
+				$desc = [ sprintf( __( 'This will block sql in application parameters (e.g. %s, etc).', 'wp-simple-firewall' ), \base64_decode( 'dW5pb24gc2VsZWN0LCBjb25jYXQoLCAvKiovLCAuLik=' ) ) ];
 				break;
 
 			case 'block_wordpress_terms' :

@@ -14,7 +14,7 @@ class GetIPReputation extends Common\BaseShieldNetApiV2 {
 	public function retrieve() :array {
 		$this->shield_net_params_required = false;
 		$raw = $this->sendReq();
-		return ( is_array( $raw ) && $raw[ 'error_code' ] === 0 ) ? $raw : [];
+		return ( \is_array( $raw ) && $raw[ 'error_code' ] === 0 ) ? $raw : [];
 	}
 
 	protected function getApiRequestUrl() :string {

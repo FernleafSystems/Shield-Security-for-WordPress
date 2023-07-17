@@ -20,9 +20,9 @@ class IpDetect extends Base {
 				'visitor_ip' => 'https://shsec.io/visitorip',
 			],
 			'flags'   => [
-				'has_none'     => count( $allIPs ) === 0,
-				'has_only_1'   => count( $allIPs ) === 1, // step is skipped
-				'has_multiple' => count( $allIPs ) > 1,
+				'has_none'     => \count( $allIPs ) === 0,
+				'has_only_1'   => \count( $allIPs ) === 1, // step is skipped
+				'has_multiple' => \count( $allIPs ) > 1,
 			],
 			'vars'    => [
 				'video_id' => '269189603',
@@ -44,7 +44,7 @@ class IpDetect extends Base {
 		if ( empty( $source ) ) {
 			throw new \Exception( 'Not a valid request' );
 		}
-		if ( !in_array( $source, $opts->getSelectOptionValueKeys( 'visitor_address_source' ) ) ) {
+		if ( !\in_array( $source, $opts->getSelectOptionValueKeys( 'visitor_address_source' ) ) ) {
 			throw new \Exception( 'Not a valid visitor IP Source' );
 		}
 
@@ -62,10 +62,10 @@ class IpDetect extends Base {
 		foreach ( ( new RequestIpDetect() )->getPublicRequestIPData()[ 'all_ips' ] as $source => $ips ) {
 			$allIPs[ $source ] = current( $ips );
 		}
-		return array_unique( $allIPs );
+		return \array_unique( $allIPs );
 	}
 
 	public function skipStep() :bool {
-		return count( $this->gatherUniqueIpSources() ) === 1;
+		return \count( $this->gatherUniqueIpSources() ) === 1;
 	}
 }

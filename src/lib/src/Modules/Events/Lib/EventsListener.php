@@ -21,7 +21,7 @@ abstract class EventsListener {
 		$this->commit = $commit;
 
 		add_action( 'shield/event', function ( $event, $meta = [], $def = [] ) {
-			$this->captureEvent( (string)$event, is_array( $meta ) ? $meta : [], is_array( $def ) ? $def : [] );
+			$this->captureEvent( (string)$event, \is_array( $meta ) ? $meta : [], \is_array( $def ) ? $def : [] );
 		}, 10, 3 );
 
 		add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {

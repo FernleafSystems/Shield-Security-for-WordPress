@@ -41,7 +41,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 				$IDs[ $key ] = $id;
 			}
 		}
-		$opts->setOpt( 'antibot_form_ids', array_values( array_unique( $IDs ) ) );
+		$opts->setOpt( 'antibot_form_ids', \array_values( \array_unique( $IDs ) ) );
 
 		$this->cleanLoginUrlPath();
 		$this->ensureCorrectCaptchaConfig();
@@ -81,7 +81,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 				}
 			}
 		}
-		elseif ( !in_array( $style, [ 'disabled', 'default' ] ) ) {
+		elseif ( !\in_array( $style, [ 'disabled', 'default' ] ) ) {
 			$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
 	}
@@ -91,7 +91,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		$opts = $this->getOptions();
 		$path = $opts->getCustomLoginPath();
 		if ( !empty( $path ) ) {
-			$path = preg_replace( '#[^\da-zA-Z-]#', '', trim( $path, '/' ) );
+			$path = \preg_replace( '#[^\da-zA-Z-]#', '', \trim( $path, '/' ) );
 			$this->getOptions()->setOpt( 'rename_wplogin_path', $path );
 		}
 	}
@@ -101,7 +101,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		$opts = $this->getOptions();
 		$key = $opts->getOpt( 'gasp_key' );
 		if ( empty( $key ) ) {
-			$key = uniqid();
+			$key = \uniqid();
 			$opts->setOpt( 'gasp_key', $key );
 		}
 		return $this->con()->prefix( $key );
@@ -131,16 +131,13 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	}
 
 	public function getTextOptDefault( string $key ) :string {
-
 		switch ( $key ) {
 			case 'text_imahuman':
 				$text = __( "I'm a human.", 'wp-simple-firewall' );
 				break;
-
 			case 'text_pleasecheckbox':
 				$text = __( "Please check the box to show us you're a human.", 'wp-simple-firewall' );
 				break;
-
 			default:
 				$text = parent::getTextOptDefault( $key );
 				break;

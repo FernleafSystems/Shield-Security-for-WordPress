@@ -111,7 +111,7 @@ class AuditLogger extends EventsListener {
 
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'audit', [], array_map( function ( $class ) {
+			$this->logger = new Logger( 'audit', [], \array_map( function ( $class ) {
 				return new $class();
 			}, $this->enumMetaProcessors() ) );
 		}

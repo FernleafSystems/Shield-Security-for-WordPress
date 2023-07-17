@@ -15,7 +15,7 @@ class BuildTransferableOptions {
 		$opts = $this->getOptions();
 		return \array_merge(
 			\array_fill_keys( $opts->getOptionsKeys(), false ),
-			\array_fill_keys( array_keys( $opts->getTransferableOptions() ), 'Y' ),
+			\array_fill_keys( \array_keys( $opts->getTransferableOptions() ), 'Y' ),
 			\array_fill_keys( $opts->getXferExcluded(), 'N' )
 		);
 	}

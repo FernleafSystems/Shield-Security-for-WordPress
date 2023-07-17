@@ -34,7 +34,7 @@ class PluginAutoDbRepair extends BaseAction {
 				$modHG->getDbH_ResultItemMeta()
 			];
 			Services::WpDb()->doSql(
-				sprintf( 'DROP TABLE IF EXISTS `%s`', implode( '`,`', array_map(
+				sprintf( 'DROP TABLE IF EXISTS `%s`', \implode( '`,`', \array_map(
 					function ( $schema ) {
 						return $schema->getTableSchema()->table;
 					},

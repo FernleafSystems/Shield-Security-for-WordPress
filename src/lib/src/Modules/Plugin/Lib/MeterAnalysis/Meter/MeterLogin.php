@@ -26,16 +26,16 @@ class MeterLogin extends MeterBase {
 	public function description() :array {
 		$name = $this->con()->getHumanName();
 		return [
-			implode( ' ', [
+			\implode( ' ', [
 				__( "CAPTCHAs are horrible.", 'wp-simple-firewall' ),
 				__( "They wreck havoc on login forms by breaking Javascript and turning the user experience into a nightmare.", 'wp-simple-firewall' ),
 			] ),
-			implode( ' ', [
+			\implode( ' ', [
 				__( "To address this we created our own system called the AntiBot Detection Engine.", 'wp-simple-firewall' ),
 				__( "It completely replaces the need for any CAPTCHAS and can integrate with almost any other contact forms and user login forms.", 'wp-simple-firewall' ),
 				__( "And best of all, it's completely invisible to the user!", 'wp-simple-firewall' ),
 			] ),
-			implode( ' ', [
+			\implode( ' ', [
 				__( "Another crucial element of user login security is 2-Factor Authentication.", 'wp-simple-firewall' ),
 				sprintf( __( "%s offers email, Yubikey, Google Authenticator and U2F.", 'wp-simple-firewall' ), $name ),
 				__( "Unfortunately U2F has been disabled by-default on most modern browsers, but it's still provided here for backwards compatibility.", 'wp-simple-firewall' ),

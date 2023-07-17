@@ -113,7 +113,7 @@ class PluginURLs {
 		return $this->noncedPluginAction(
 			FileDownload::class,
 			Services::WpGeneral()->getAdminUrl(),
-			array_merge( $params, [ 'download_category' => $downloadCategory ] )
+			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
 	}
 
@@ -125,6 +125,6 @@ class PluginURLs {
 	}
 
 	public function isValidNav( string $navID ) :bool {
-		return in_array( $navID, self::GetAllNavs() );
+		return \in_array( $navID, self::GetAllNavs() );
 	}
 }

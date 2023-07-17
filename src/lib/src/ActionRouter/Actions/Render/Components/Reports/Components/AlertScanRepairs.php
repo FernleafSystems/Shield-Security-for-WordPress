@@ -42,7 +42,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 				/** @var Logs\Ops\Select $logSelect */
 				$logSelect = $modAudit->getDbH_Logs()->getQuerySelector();
 				/** @var Logs\Ops\Record[] $logs */
-				$logIDs = array_map(
+				$logIDs = \array_map(
 					function ( $log ) {
 						return $log->id;
 					},
@@ -58,10 +58,10 @@ class AlertScanRepairs extends BaseBuilderForScans {
 				$repairs[] = [
 					'count'   => $eventTotal,
 					'name'    => $srvEvents->getEventName( $event ),
-					'repairs' => array_unique( array_map(
+					'repairs' => \array_unique( \array_map(
 						function ( $meta ) {
 							/** @var Meta\Ops\Record $meta */
-							return str_replace( ABSPATH, '', $meta->meta_value );
+							return \str_replace( ABSPATH, '', $meta->meta_value );
 						},
 						$metaSelect->filterByLogRefs( $logIDs )
 								   ->filterByMetaKey( 'path_full' )

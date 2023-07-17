@@ -98,10 +98,10 @@ class SystemSslCertificate extends Base {
 			$srvSSL = new Ssl();
 			$homeURL = Services::WpGeneral()->getHomeUrl();
 
-			if ( strpos( $homeURL, 'https://' ) !== 0 ) {
+			if ( \strpos( $homeURL, 'https://' ) !== 0 ) {
 				$status = 'visitor_unprotected';
 			}
-			elseif ( strpos( Services::WpGeneral()->getWpUrl(), 'https://' ) !== 0 ) {
+			elseif ( \strpos( Services::WpGeneral()->getWpUrl(), 'https://' ) !== 0 ) {
 				$status = 'settings_inconsistent';
 			}
 			elseif ( $srvSSL->isEnvSupported() ) {

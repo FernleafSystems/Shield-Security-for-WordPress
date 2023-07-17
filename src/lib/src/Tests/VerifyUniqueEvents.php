@@ -16,11 +16,11 @@ class VerifyUniqueEvents {
 
 		$all = [];
 		foreach ( $con->modules as $mod ) {
-			$all = array_merge( $all, array_keys( $mod->getOptions()->getEvents() ) );
+			$all = \array_merge( $all, \array_keys( $mod->getOptions()->getEvents() ) );
 		}
-		if ( count( $all ) != count( array_unique( $all ) ) ) {
+		if ( \count( $all ) != \count( \array_unique( $all ) ) ) {
 			echo "duplicates!\n";
-			var_dump( array_diff( $all, array_unique( $all ) ) );
+			var_dump( \array_diff( $all, \array_unique( $all ) ) );
 		}
 		else {
 			echo 'NO duplicates!';

@@ -25,7 +25,8 @@ class CaptureMyUpgrade {
 	public function captureMyUpgrade( $upgradeHandler, $data ) {
 		if ( ( $data[ 'action' ] ?? null === 'update' )
 			 && ( $data[ 'type' ] ?? null === 'plugin' )
-			 && \is_array( $data[ 'plugins' ] ?? null ) ) {
+			 && \is_array( $data[ 'plugins' ] ?? null )
+		) {
 			foreach ( $data[ 'plugins' ] as $item ) {
 				if ( $item === $this->con()->root_file ) {
 					$this->con()->is_my_upgrade = true;

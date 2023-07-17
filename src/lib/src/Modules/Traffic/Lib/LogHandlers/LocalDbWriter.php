@@ -48,7 +48,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				unset( $meta[ $item ] );
 			}
 		}
-		$updateData[ 'meta' ] = base64_encode( json_encode( $meta ) );
+		$updateData[ 'meta' ] = \base64_encode( \json_encode( $meta ) );
 
 		$success = $modData->getDbH_ReqLogs()
 						   ->getQueryUpdater()

@@ -35,7 +35,7 @@ class SendSms extends BaseShieldNetApi {
 			'slug'       => $slug,
 			'country_to' => $countryTo,
 			'phone_to'   => $phoneTo,
-			'sms_data'   => array_merge(
+			'sms_data'   => \array_merge(
 				[
 					'ts' => Services::Request()->ts(),
 					'tz' => Services::WpGeneral()->getOption( 'timezone_string' ),

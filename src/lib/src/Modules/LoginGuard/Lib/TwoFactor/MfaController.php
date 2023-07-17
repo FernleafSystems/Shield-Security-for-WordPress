@@ -48,14 +48,14 @@ class MfaController {
 				$twoFAat > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
 			);
 
-			$providers = array_map(
+			$providers = \array_map(
 				function ( $provider ) {
 					return $provider->getProviderName();
 				},
 				$this->getProvidersActiveForUser( $user )
 			);
 			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
-				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : implode( ', ', $providers ) );
+				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $providers ) );
 
 			return $content;
 		}, 10, 2 );
@@ -74,9 +74,9 @@ class MfaController {
 
 		/** @var Provider\Email|null $emailProvider */
 		$emailProvider = $providers[ Provider\Email::ProviderSlug() ] ?? null;
-		if ( count( $providers ) === 1 && !empty( $emailProvider ) ) {
+		if ( \count( $providers ) === 1 && !empty( $emailProvider ) ) {
 			$intents = $this->getActiveLoginIntents( $user );
-			$latest = array_pop( $intents );
+			$latest = \array_pop( $intents );
 			$auto = !empty( $latest ) && empty( $latest[ 'auto_email_sent' ] );
 		}
 		return $auto;
@@ -130,7 +130,7 @@ class MfaController {
 	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProviders() :array {
-		if ( !is_array( $this->providers ) ) {
+		if ( !\is_array( $this->providers ) ) {
 			$this->providers = [];
 			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
 				$this->providers[ $providerClass::ProviderSlug() ] = new $providerClass();
@@ -155,22 +155,22 @@ class MfaController {
 		/**
 		 * Ensure we have a valid data structure before proceeding.
 		 */
-		if ( !is_array( $finalProviders ) ) {
+		if ( !\is_array( $finalProviders ) ) {
 			$finalProviders = $shieldProviders;
 		}
 
-		$finalValid = array_filter( $finalProviders, function ( string $providerClass ) {
+		$finalValid = \array_filter( $finalProviders, function ( string $providerClass ) {
 			/** @var Provider\Provider2faInterface $providerClass - not really, but helps with intelli */
 			return isset( class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
-				   && preg_match( '#^[a-z]+$#', $providerClass::ProviderSlug() );
+				   && \preg_match( '#^[a-z]+$#', $providerClass::ProviderSlug() );
 		} );
 
 		// Filter out any duplicate slugs.
-		$duplicateSlugs = array_filter(
-			array_count_values( array_map(
+		$duplicateSlugs = \array_filter(
+			\array_count_values( \array_map(
 				function ( $provider ) {
 					/** @var Provider\Provider2faInterface $provider */
-					return strtolower( $provider::ProviderSlug() );
+					return \strtolower( $provider::ProviderSlug() );
 				},
 				$finalValid
 			) ),
@@ -179,8 +179,8 @@ class MfaController {
 			}
 		);
 		if ( !empty( $duplicateSlugs ) ) {
-			error_log( sprintf( 'Duplicate 2FA Provider Slugs: %s', implode( ', ', array_keys( $duplicateSlugs ) ) ) );
-			$finalValid = array_filter(
+			error_log( sprintf( 'Duplicate 2FA Provider Slugs: %s', \implode( ', ', \array_keys( $duplicateSlugs ) ) ) );
+			$finalValid = \array_filter(
 				$finalValid,
 				function ( $providerClass ) use ( $duplicateSlugs ) {
 					/** @var Provider\Provider2faInterface $providerClass */
@@ -197,7 +197,7 @@ class MfaController {
 	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
-		$Ps = array_filter(
+		$Ps = \array_filter(
 			$this->getProviders(),
 			function ( $provider ) use ( $user, $onlyActive ) {
 				$provider->setUser( $user );
@@ -206,7 +206,7 @@ class MfaController {
 		);
 
 		// If you have only 1 provider, and it's not a standalone provider, we don't offer any providers.
-		if ( count( $Ps ) === 1 && !reset( $Ps )->isProviderStandalone() ) {
+		if ( \count( $Ps ) === 1 && !reset( $Ps )->isProviderStandalone() ) {
 			$Ps = [];
 		}
 		return $Ps;
@@ -228,7 +228,7 @@ class MfaController {
 
 	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
 		return !$this->con()->this_req->request_bypasses_all_restrictions
-			   && count( $this->getProvidersActiveForUser( $user ) ) > 0;
+			   && \count( $this->getProvidersActiveForUser( $user ) ) > 0;
 	}
 
 	public function removeAllFactorsForUser( int $userID ) :StdResponse {
@@ -257,13 +257,13 @@ class MfaController {
 	 */
 	public function getActiveLoginIntents( \WP_User $user ) :array {
 		$meta = $this->con()->user_metas->for( $user );
-		return array_filter(
-			is_array( $meta->login_intents ) ? $meta->login_intents : [],
+		return \array_filter(
+			\is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			function ( $intent ) {
 				$opts = $this->opts();
 
 				$active = false;
-				if ( is_array( $intent ) ) {
+				if ( \is_array( $intent ) ) {
 					$active = $intent[ 'start' ] > ( Services::Request()->ts() - $opts->getLoginIntentMinutes()*60 )
 							  &&
 							  $intent[ 'attempts' ] < $opts->getLoginIntentMaxAttempts();
@@ -276,7 +276,7 @@ class MfaController {
 
 	public function findHashedNonce( \WP_User $user, string $plainNonce ) :string {
 		$hashedNonce = '';
-		foreach ( array_keys( $this->getActiveLoginIntents( $user ) ) as $maybeHash ) {
+		foreach ( \array_keys( $this->getActiveLoginIntents( $user ) ) as $maybeHash ) {
 			if ( wp_check_password( $plainNonce.$user->ID, $maybeHash ) ) {
 				$hashedNonce = $maybeHash;
 				break;

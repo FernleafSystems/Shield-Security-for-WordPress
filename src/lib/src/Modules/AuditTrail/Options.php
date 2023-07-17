@@ -25,10 +25,10 @@ class Options extends BaseShield\Options {
 
 	public function getLogLevelsDB() :array {
 		$levels = $this->getOpt( 'log_level_db', [] );
-		if ( empty( $levels ) || !is_array( $levels ) ) {
+		if ( empty( $levels ) || !\is_array( $levels ) ) {
 			$this->resetOptToDefault( 'log_level_db' );
 		}
-		elseif ( count( $levels ) > 1 && in_array( 'disabled', $levels ) ) {
+		elseif ( \count( $levels ) > 1 && \in_array( 'disabled', $levels ) ) {
 			$this->setOpt( 'log_level_db', [ 'disabled' ] );
 		}
 		return $this->getOpt( 'log_level_db', [] );

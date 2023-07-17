@@ -47,7 +47,7 @@ class EventsService {
 
 			$missingParams = \array_diff( $def, $metaParams );
 			if ( !empty( $missingParams ) ) {
-				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, implode( ', ', $missingParams ) ) );
+				throw new \Exception( sprintf( "Event (%s) def has audit params that aren't present: %s", $event, \implode( ', ', $missingParams ) ) );
 			}
 
 			$extraMetaParams = \array_diff(
@@ -56,7 +56,7 @@ class EventsService {
 			);
 			if ( !empty( $extraMetaParams ) ) {
 				// Previously we threw an exception. Now we just clean out the unwanted params.
-				$meta[ 'audit_params' ] = \array_intersect_key( $meta[ 'audit_params' ], array_flip( $def ) );
+				$meta[ 'audit_params' ] = \array_intersect_key( $meta[ 'audit_params' ], \array_flip( $def ) );
 			}
 		}
 		return $meta;
@@ -109,7 +109,7 @@ class EventsService {
 		if ( $this->con()->isPremiumActive() ) {
 
 			$events = apply_filters( 'shield/events/custom_definitions', [] );
-			if ( !is_array( $events ) ) {
+			if ( !\is_array( $events ) ) {
 				throw new \Exception( "custom events isn't an array. Please ensure to return only an array to this filter." );
 			}
 
@@ -118,19 +118,19 @@ class EventsService {
 				if ( \is_numeric( $evtKey ) || !\is_string( $evtKey ) || !\preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
 					throw new \Exception( "All Custom Event Keys must be: string; lowercase; length: 10-50; prefixed with 'custom_'; only characters: a-z and underscore (_)" );
 				}
-				if ( !isset( $evtDef[ 'strings' ] ) || !is_array( $evtDef[ 'strings' ] ) ) {
+				if ( !isset( $evtDef[ 'strings' ] ) || !\is_array( $evtDef[ 'strings' ] ) ) {
 					throw new \Exception( "All Custom Events must supply an array of strings with key 'strings'." );
 				}
 				if ( empty( $evtDef[ 'strings' ][ 'name' ] ) || !is_string( $evtDef[ 'strings' ][ 'name' ] ) ) {
 					throw new \Exception( "All Custom Events must supply a 'name' as a string within the 'strings' array." );
 				}
-				if ( empty( $evtDef[ 'strings' ][ 'audit' ] ) || !is_array( $evtDef[ 'strings' ][ 'audit' ] ) ) {
+				if ( empty( $evtDef[ 'strings' ][ 'audit' ] ) || !\is_array( $evtDef[ 'strings' ][ 'audit' ] ) ) {
 					throw new \Exception( "All Custom Events must supply an array of strings with key 'audit' to be displayed in the Activity Log to describe the event." );
 				}
 
 				// Clean out the audit strings to ensure type consistency later.
 				\array_filter( $evtDef[ 'strings' ][ 'audit' ], function ( $auditString ) {
-					return !empty( $auditString ) && is_string( $auditString );
+					return !empty( $auditString ) && \is_string( $auditString );
 				} );
 			}
 

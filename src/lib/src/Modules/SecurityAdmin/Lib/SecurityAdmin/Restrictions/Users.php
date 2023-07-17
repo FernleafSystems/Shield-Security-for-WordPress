@@ -26,7 +26,7 @@ class Users extends Base {
 	public function restrictAddUserRole( $userId, $role ) {
 		$WPU = Services::WpUsers();
 
-		if ( $WPU->getCurrentWpUserId() !== $userId && strtolower( $role ) === 'administrator' ) {
+		if ( $WPU->getCurrentWpUserId() !== $userId && \strtolower( $role ) === 'administrator' ) {
 			$modifiedUser = $WPU->getUserById( $userId );
 
 			remove_action( 'remove_user_role', [ $this, 'restrictRemoveUserRole' ], 100 );
@@ -129,7 +129,7 @@ class Users extends Base {
 		/** @var string $userCap */
 		$userCap = $args[ 0 ];
 
-		if ( in_array( $userCap, [ 'edit_users', 'create_users' ] ) ) {
+		if ( \in_array( $userCap, [ 'edit_users', 'create_users' ] ) ) {
 			$blockCapability = false;
 
 			$req = Services::Request();
@@ -148,7 +148,7 @@ class Users extends Base {
 				$requestedUser = $WPU->getUserByUsername( $requestedUsername );
 			}
 
-			$requestedRole = strtolower( (string)$req->post( 'role', '' ) );
+			$requestedRole = \strtolower( (string)$req->post( 'role', '' ) );
 
 			if ( $requestedUser instanceof \WP_User ) {
 				// editing an existing user other than yourself?

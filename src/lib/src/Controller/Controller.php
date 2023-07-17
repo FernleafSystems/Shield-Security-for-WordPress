@@ -566,7 +566,7 @@ class Controller extends DynPropertiesClass {
 		if ( empty( $IDs[ $url ][ 'id' ] ) || !\Ramsey\Uuid\Uuid::isValid( $IDs[ $url ][ 'id' ] ) ) {
 			$id = ( new \FernleafSystems\Wordpress\Services\Utilities\Uuid() )->V4();
 			$IDs[ $url ] = [
-				'id'         => strtolower( $id ),
+				'id'         => \strtolower( $id ),
 				'ts'         => Services::Request()->ts(),
 				'install_at' => $this->getModule_Plugin()->storeRealInstallDate(),
 			];
@@ -700,7 +700,7 @@ class Controller extends DynPropertiesClass {
 						$firstDetected = $this->cfg->update_first_detected[ $new ] ?? 0;
 						$availableFor = Services::Request()->ts() - $firstDetected;
 						$isAutoUpdate = $firstDetected > 0
-										&& $availableFor > DAY_IN_SECONDS*$this->cfg->properties[ 'autoupdate_days' ];
+										&& $availableFor > \DAY_IN_SECONDS*$this->cfg->properties[ 'autoupdate_days' ];
 					}
 					break;
 
@@ -875,7 +875,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
-		return strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
+		return \strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
 
 	public function getIsWpmsNetworkAdminOnly() :bool {
@@ -899,13 +899,12 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getRootDir() :string {
-		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
+		return \dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
 
 	public function getRootFile() :string {
 		if ( empty( $this->root_file ) ) {
-			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
-				->findPluginFromFile( __FILE__ );
+			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )->findPluginFromFile( __FILE__ );
 			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo ) {
 				$this->root_file = path_join( WP_PLUGIN_DIR, $VO->file );
 			}
@@ -951,14 +950,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function getConfigStoreKey() :string {
-		return 'aptoweb_controller_'.substr( md5( get_class() ), 0, 6 );
+		return 'aptoweb_controller_'.\substr( \md5( \get_class() ), 0, 6 );
 	}
 
 	public function deleteForceOffFile() {
 		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
 			Services::WpFs()->deleteFile( $this->file_forceoff );
 			$this->this_req->is_force_off = false;
-			clearstatcache();
+			\clearstatcache();
 		}
 	}
 
@@ -1102,10 +1101,8 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function wpPrivacyExport( $email, $page = 1 ) :array {
-
 		$valid = Services::Data()->validEmail( $email )
 				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
-
 		return [
 			'data' => $valid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), [], $email, $page ) : [],
 			'done' => true,
@@ -1118,7 +1115,6 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function wpPrivacyErase( $email, $page = 1 ) {
-
 		$valid = Services::Data()->validEmail( $email )
 				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
 

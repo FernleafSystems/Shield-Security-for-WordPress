@@ -12,7 +12,7 @@ class LicenseStatus extends Base {
 				'id'        => 'api_token_missing',
 				'type'      => 'warning',
 				'text'      => [
-					implode( ' ', [
+					\implode( ' ', [
 						sprintf( __( '%s API Token Missing.', 'wp-simple-firewall' ), 'ShieldPRO' ),
 						__( "Please contact support if this message persists for over 24hrs.", 'wp-simple-firewall' ),
 					] ),

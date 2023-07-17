@@ -14,7 +14,7 @@ class Strings extends Base\Strings {
 				   __( 'Medium', 'wp-simple-firewall' ),
 				   __( 'Strong', 'wp-simple-firewall' ),
 				   __( 'Very Strong', 'wp-simple-firewall' ),
-			   ][ max( 0, min( 4, $strength ) ) ];
+			   ][ \max( 0, \min( 4, $strength ) ) ];
 	}
 
 	public function getEventStrings() :array {
@@ -312,8 +312,8 @@ class Strings extends Base\Strings {
 					__( 'Automatic suspension for idle accounts applies only to the roles you specify.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
-						implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) )
+						\implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), \implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) )
 				];
 				break;
 

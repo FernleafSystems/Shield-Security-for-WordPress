@@ -143,9 +143,9 @@ class LicenseHandler {
 		$verifiedExpiredDays = $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays();
 
 		$lic = $this->getLicense();
-		return (int)min(
-			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*DAY_IN_SECONDS,
-			$lic->last_verified_at + $verifiedExpiredDays*DAY_IN_SECONDS
+		return (int)\min(
+			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*\DAY_IN_SECONDS,
+			$lic->last_verified_at + $verifiedExpiredDays*\DAY_IN_SECONDS
 		);
 	}
 
@@ -169,19 +169,19 @@ class LicenseHandler {
 
 	public function isLastVerifiedExpired() :bool {
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
-			   > $this->getLicVerifyExpireDays()*DAY_IN_SECONDS;
+			   > $this->getLicVerifyExpireDays()*\DAY_IN_SECONDS;
 	}
 
 	public function isLastVerifiedGraceExpired() :bool {
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
-			   > ( DAY_IN_SECONDS*( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() ) );
+			   > ( \DAY_IN_SECONDS*( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() ) );
 	}
 
 	private function isMaybeExpiring() :bool {
 		return $this->isActive() &&
 			   (
-				   abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
-				   < ( DAY_IN_SECONDS/2 )
+				   \abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
+				   < ( \DAY_IN_SECONDS/2 )
 			   );
 	}
 
@@ -190,11 +190,11 @@ class LicenseHandler {
 	}
 
 	private function isVerifyRequired() :bool {
-		return ( $this->isMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
+		return ( $this->isMaybeExpiring() && $this->getIsLicenseNotCheckedFor( \HOUR_IN_SECONDS*4 ) )
 			   || ( $this->isActive()
-					&& !$this->getLicense()->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
+					&& !$this->getLicense()->isReady() && $this->getIsLicenseNotCheckedFor( \HOUR_IN_SECONDS ) )
 			   || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-					&& $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
+					&& $this->getIsLicenseNotCheckedFor( \HOUR_IN_SECONDS*4 ) );
 	}
 
 	/**

@@ -21,8 +21,7 @@ class OverrideLocale {
 					'plugin_locale',
 					function ( $locale, $domain = '' ) {
 						return ( $domain === $this->con()->getTextDomain() ) ?
-							$this->opts()->getOpt( 'locale_override' )
-							: $locale;
+							$this->opts()->getOpt( 'locale_override' ) : $locale;
 					},
 					100, 2
 				);

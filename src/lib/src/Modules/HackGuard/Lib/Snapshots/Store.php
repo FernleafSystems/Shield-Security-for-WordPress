@@ -242,10 +242,10 @@ class Store {
 		$relevant = true;
 		$FS = Services::WpFs();
 		$mTime = Services::Request()->ts() - $FS->getModifiedTime( $this->getSnapStorePath() );
-		if ( $mTime > DAY_IN_SECONDS ) {
+		if ( $mTime > \DAY_IN_SECONDS ) {
 			$relevant = false;
 		}
-		elseif ( $mTime > DAY_IN_SECONDS/2 ) {
+		elseif ( $mTime > \DAY_IN_SECONDS/2 ) {
 			$FS->touch( $this->getSnapStorePath() );
 		}
 		return $relevant;

@@ -60,9 +60,9 @@ abstract class PluginThemesBase extends Base {
 	 * @param WpPluginVo|WpThemeVo $item
 	 */
 	protected function getCachedFlags( $item ) :array {
-		if ( !is_array( self::$wpOrgDataCache ) ) {
+		if ( !\is_array( self::$wpOrgDataCache ) ) {
 			self::$wpOrgDataCache = Transient::Get( 'apto-shield-plugintheme-flags-cache' );
-			if ( !is_array( self::$wpOrgDataCache ) ) {
+			if ( !\is_array( self::$wpOrgDataCache ) ) {
 				self::$wpOrgDataCache = [];
 			}
 		}

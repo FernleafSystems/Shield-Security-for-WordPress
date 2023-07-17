@@ -42,7 +42,7 @@ abstract class BaseForm extends Base {
 			],
 			'hrefs'   => [
 				'form_action' => $con->plugin_urls->noncedPluginAction( MfaLoginVerifyStep::class, $WP->getLoginUrl(), [
-					'wpe-login' => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
+					'wpe-login' => ( \function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
 				] ),
 			],
 			'strings' => [
@@ -70,8 +70,8 @@ abstract class BaseForm extends Base {
 		$req = Services::Request();
 
 		$referUrl = $req->server( 'HTTP_REFERER', '' );
-		if ( strpos( $referUrl, '?' ) ) {
-			[ $referUrl, $referQuery ] = explode( '?', $referUrl, 2 );
+		if ( \strpos( $referUrl, '?' ) ) {
+			[ $referUrl, $referQuery ] = \explode( '?', $referUrl, 2 );
 		}
 		else {
 			$referQuery = '';
@@ -99,7 +99,7 @@ abstract class BaseForm extends Base {
 
 		global $interim_login;
 
-		$fields = array_filter( [
+		$fields = \array_filter( [
 			'interim-login' => ( $interim_login || ( $this->action_data[ 'interim_login' ] ?? '0' ) ) ? '1' : false,
 			'login_nonce'   => $this->action_data[ 'plain_login_nonce' ],
 			'rememberme'    => esc_attr( $this->action_data[ 'rememberme' ] ),

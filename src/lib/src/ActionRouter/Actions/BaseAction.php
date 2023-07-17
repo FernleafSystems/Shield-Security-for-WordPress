@@ -142,9 +142,9 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @throws ActionException
 	 */
 	protected function checkAvailableData() {
-		$missing = array_diff( array_unique( $this->getRequiredDataKeys() ), array_keys( $this->action_data ) );
+		$missing = \array_diff( \array_unique( $this->getRequiredDataKeys() ), \array_keys( $this->action_data ) );
 		if ( !empty( $missing ) ) {
-			throw new ActionException( sprintf( 'Missing action (%s) data for the following keys: %s', static::SLUG, implode( ', ', $missing ) ) );
+			throw new ActionException( sprintf( 'Missing action (%s) data for the following keys: %s', static::SLUG, \implode( ', ', $missing ) ) );
 		}
 	}
 

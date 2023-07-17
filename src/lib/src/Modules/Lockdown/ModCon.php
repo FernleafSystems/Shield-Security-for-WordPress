@@ -16,7 +16,7 @@ class ModCon extends BaseShield\ModCon {
 			$opts->isOptFileEditingDisabled() ? Rules\Build\DisableFileEditing::class : null,
 			$opts->isOpt( 'block_author_discovery', 'Y' ) ? Rules\Build\IsRequestAuthorDiscovery::class : null,
 			$opts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ? Rules\Build\HideGeneratorTag::class : null,
-			( $opts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) ? Rules\Build\ForceSslAdmin::class : null,
+			( $opts->isOpt( 'force_ssl_admin', 'Y' ) && \function_exists( 'force_ssl_admin' ) ) ? Rules\Build\ForceSslAdmin::class : null,
 		];
 	}
 
@@ -27,7 +27,7 @@ class ModCon extends BaseShield\ModCon {
 	public function isPermittedAnonRestApiNamespace( $namespace ) {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		return in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
+		return \in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
 	}
 
 	protected function preProcessOptions() {

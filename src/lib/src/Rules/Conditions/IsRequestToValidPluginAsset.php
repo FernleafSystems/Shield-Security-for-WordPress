@@ -18,9 +18,9 @@ class IsRequestToValidPluginAsset extends Base {
 		$pathMatcher->match_paths = [
 			sprintf( '^%s/(%s)/',
 				rtrim( wp_parse_url( plugins_url(), PHP_URL_PATH ), '/' ),
-				implode( '|', array_filter( array_map(
+				\implode( '|', \array_filter( \array_map(
 					function ( $pluginFile ) {
-						return preg_quote( dirname( (string)$pluginFile ), '#' );
+						return \preg_quote( \dirname( (string)$pluginFile ), '#' );
 					},
 					Services::WpPlugins()->getInstalledPluginFiles()
 				) ) )

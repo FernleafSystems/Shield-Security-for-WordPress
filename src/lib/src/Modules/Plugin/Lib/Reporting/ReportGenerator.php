@@ -88,7 +88,7 @@ class ReportGenerator {
 			$renderer,
 			[
 				'home_url' => Services::WpGeneral()->getHomeUrl(),
-				'reports'  => array_map(
+				'reports'  => \array_map(
 					function ( $report ) {
 						return $report->content;
 					},

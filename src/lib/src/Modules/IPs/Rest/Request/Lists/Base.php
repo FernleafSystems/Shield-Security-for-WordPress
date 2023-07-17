@@ -36,9 +36,9 @@ abstract class Base extends Process {
 	}
 
 	protected function convertIpRuleToArray( IpRuleRecord $record ) :array {
-		$data = array_intersect_key(
+		$data = \array_intersect_key(
 			$record->getRawData(),
-			array_flip( [
+			\array_flip( [
 				'label',
 				'type',
 				'offenses',

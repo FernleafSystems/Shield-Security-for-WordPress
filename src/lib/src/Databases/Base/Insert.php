@@ -12,9 +12,9 @@ class Insert extends BaseQuery {
 	protected $aInsertData;
 
 	public function getInsertData() :array {
-		return array_intersect_key(
-			is_array( $this->aInsertData ) ? $this->aInsertData : [],
-			array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
+		return \array_intersect_key(
+			\is_array( $this->aInsertData ) ? $this->aInsertData : [],
+			\array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
 		);
 	}
 
@@ -31,9 +31,9 @@ class Insert extends BaseQuery {
 	 * @return $this
 	 */
 	protected function setInsertData( $data ) {
-		$this->aInsertData = array_intersect_key(
-			is_array( $data ) ? $data : [],
-			array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
+		$this->aInsertData = \array_intersect_key(
+			\is_array( $data ) ? $data : [],
+			\array_flip( $this->getDbH()->getTableSchema()->getColumnNames() )
 		);
 		return $this;
 	}
@@ -47,7 +47,7 @@ class Insert extends BaseQuery {
 		if ( $this->getDbH()->getTableSchema()->hasColumn( 'updated_at' ) ) {
 			$baseData[ 'updated_at' ] = Services::Request()->ts();
 		}
-		return $this->setInsertData( array_merge( $baseData, $this->getInsertData() ) );
+		return $this->setInsertData( \array_merge( $baseData, $this->getInsertData() ) );
 	}
 
 	/**

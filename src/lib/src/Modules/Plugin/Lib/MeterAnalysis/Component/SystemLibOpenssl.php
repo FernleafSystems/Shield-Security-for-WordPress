@@ -17,12 +17,12 @@ class SystemLibOpenssl extends Base {
 	}
 
 	protected function isApplicable() :bool {
-		return function_exists( '\curl_version' ) && in_array( 'openssl', get_loaded_extensions() );
+		return \function_exists( '\curl_version' ) && \in_array( 'openssl', get_loaded_extensions() );
 	}
 
 	protected function testIfProtected() :bool {
 		$this->parseVersion();
-		return empty( $this->currentFull ) ? false : version_compare( $this->current, self::MIN_VERSION, '>=' );
+		return empty( $this->currentFull ) ? false : \version_compare( $this->current, self::MIN_VERSION, '>=' );
 	}
 
 	public function title() :string {
@@ -45,9 +45,9 @@ class SystemLibOpenssl extends Base {
 			$this->current = '';
 			$this->currentFull = '';
 
-			$curlVersion = function_exists( '\curl_version' ) ? \curl_version() : null;
-			if ( is_array( $curlVersion ) && is_string( $curlVersion[ 'ssl_version' ] ?? '' )
-				 && preg_match( '#^OpenSSL/([\d.]+).*$#', trim( $curlVersion[ 'ssl_version' ] ), $matches ) ) {
+			$curlVersion = \function_exists( '\curl_version' ) ? \curl_version() : null;
+			if ( \is_array( $curlVersion ) && \is_string( $curlVersion[ 'ssl_version' ] ?? '' )
+				 && \preg_match( '#^OpenSSL/([\d.]+).*$#', \trim( $curlVersion[ 'ssl_version' ] ), $matches ) ) {
 				$this->current = $matches[ 1 ];
 				$this->currentFull = $curlVersion[ 'ssl_version' ];
 			}

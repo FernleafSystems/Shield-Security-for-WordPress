@@ -14,11 +14,9 @@ class SecurityAdminLogin extends SecurityAdminBase {
 	public const SLUG = 'sec_admin_login';
 
 	protected function exec() {
-		$con = $this->con();
 		$resp = $this->response();
 
-		$html = '';
-		if ( $con->getModule_SecAdmin()->getSecurityAdminController()->isCurrentlySecAdmin() ) {
+		if ( $this->con()->getModule_SecAdmin()->getSecurityAdminController()->isCurrentlySecAdmin() ) {
 			$resp->success = true;
 			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
 							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
@@ -33,7 +31,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 			}
 			else {
 				$remaining = ( new QueryRemainingOffenses() )
-					->setIP( $con->this_req->ip )
+					->setIP( $this->con()->this_req->ip )
 					->run();
 				$resp->message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
 				$resp->message .= $remaining > 0 ?
@@ -43,7 +41,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 		}
 
 		$resp->action_response_data = [
-			'html'        => $html,
+			'html'        => '',
 			'page_reload' => true,
 		];
 	}

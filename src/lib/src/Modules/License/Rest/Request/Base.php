@@ -22,7 +22,7 @@ abstract class Base extends Process {
 		if ( $licHandler->hasValidWorkingLicense() ) {
 			$lic = $licHandler->getLicense()->getRawData();
 			$details = [];
-			foreach ( array_keys( $req->filter_fields ) as $field ) {
+			foreach ( \array_keys( $req->filter_fields ) as $field ) {
 				$details[ $field ] = $lic[ $field ];
 			}
 		}

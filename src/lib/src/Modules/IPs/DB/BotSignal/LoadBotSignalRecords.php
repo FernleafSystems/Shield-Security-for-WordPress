@@ -35,6 +35,6 @@ class LoadBotSignalRecords {
 				$this->getIP()
 			)
 		);
-		return is_array( $raw ) ? $raw : [];
+		return \is_array( $raw ) ? $raw : [];
 	}
 }

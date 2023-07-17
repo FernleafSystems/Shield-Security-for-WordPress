@@ -35,7 +35,7 @@ class ZoneReportComments extends BaseZoneReport {
 
 	protected function getLoadLogsWheres() :array {
 		return [
-			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
+			sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", [
 				'comment_created',
 				'comment_status_updated',
 				'comment_deleted',

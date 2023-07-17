@@ -131,8 +131,8 @@ class ModuleStandard extends BaseWpCliCmd {
 		else {
 			$sExplain = '';
 
-			if ( is_array( $mVal ) ) {
-				$mVal = sprintf( '[ %s ]', implode( ', ', $mVal ) );
+			if ( \is_array( $mVal ) ) {
+				$mVal = sprintf( '[ %s ]', \implode( ', ', $mVal ) );
 			}
 
 			if ( $aOpt[ 'type' ] === 'checkbox' ) {
@@ -181,7 +181,7 @@ class ModuleStandard extends BaseWpCliCmd {
 				];
 			}
 			else {
-				$allKeys = array_keys( $optsList[ 0 ] );
+				$allKeys = \array_keys( $optsList[ 0 ] );
 			}
 
 			\WP_CLI\Utils\format_items(

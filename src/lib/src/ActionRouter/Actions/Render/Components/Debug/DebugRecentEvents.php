@@ -29,7 +29,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	private function getData() :array {
 		$srvEvents = $this->con()->loadEventsService();
 
-		$theStats = array_filter(
+		$theStats = \array_filter(
 			$srvEvents->getEvents(),
 			function ( $evt ) {
 				return !empty( $evt[ 'recent' ] );
@@ -42,8 +42,8 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 						 ->getDbHandler_Events()
 						 ->getQuerySelector();
 
-		$recent = array_intersect_key(
-			array_filter( array_map(
+		$recent = \array_intersect_key(
+			\array_filter( \array_map(
 				function ( $entry ) use ( $srvEvents ) {
 					/** @var Events\EntryVO $entry */
 					return $srvEvents->eventExists( $entry->event ) ?
@@ -59,7 +59,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 		);
 
 		$notYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $theStats ) as $eventKey ) {
+		foreach ( \array_keys( $theStats ) as $eventKey ) {
 			if ( !isset( $recent[ $eventKey ] ) ) {
 				$recent[ $eventKey ] = [
 					'name' => $srvEvents->getEventName( $eventKey ),

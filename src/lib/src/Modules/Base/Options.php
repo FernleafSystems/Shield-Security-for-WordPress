@@ -35,11 +35,7 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
-	/**
-	 * @param bool $deleteFirst Used primarily with plugin reset
-	 * @param bool $isPremium
-	 */
-	public function doOptionsSave( $deleteFirst = false, $isPremium = false ) :bool {
+	public function doOptionsSave( bool $deleteFirst = false, bool $isPremium = false ) :bool {
 		if ( !$this->getNeedSave() ) {
 			return true;
 		}
@@ -74,7 +70,6 @@ class Options {
 	 */
 	public function getTransferableOptions() :array {
 		$transferable = [];
-
 		foreach ( $this->getRawData_AllOptions() as $option ) {
 			if ( $option[ 'transferable' ] ?? true ) {
 				$transferable[ $option[ 'key' ] ] = $this->getOpt( $option[ 'key' ] );
@@ -106,7 +101,7 @@ class Options {
 	 * @return string[]
 	 */
 	public function getOptionsForWpCli() :array {
-		return array_filter(
+		return \array_filter(
 			$this->getOptionsKeys(),
 			function ( $key ) {
 				$opt = $this->getOptDefinition( $key );
@@ -133,7 +128,7 @@ class Options {
 					unset( $options[ $optDef[ 'key' ] ] );
 				}
 			}
-			$opts = array_diff_key( $options, array_flip( $this->getVirtualCommonOptions() ) );
+			$opts = \array_diff_key( $options, \array_flip( $this->getVirtualCommonOptions() ) );
 		}
 		return $opts;
 	}
@@ -165,7 +160,7 @@ class Options {
 	}
 
 	public function isValidOptionKey( string $key ) :bool {
-		return in_array( $key, $this->getOptionsKeys() );
+		return \in_array( $key, $this->getOptionsKeys() );
 	}
 
 	public function ensureOptValueType( string $key, $value ) {
@@ -211,30 +206,26 @@ class Options {
 	 * @return array[]
 	 */
 	public function getHiddenOptions() :array {
+		$optionsData = [];
 
-		$aOptionsData = [];
-
-		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
+		foreach ( $this->getRawData_OptionsSections() as $rawSection ) {
 
 			// if hidden isn't specified we skip
-			if ( !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
+			if ( !isset( $rawSection[ 'hidden' ] ) || !$rawSection[ 'hidden' ] ) {
 				continue;
 			}
-			foreach ( $this->getRawData_AllOptions() as $aRawOption ) {
+			foreach ( $this->getRawData_AllOptions() as $rawOption ) {
 
-				if ( $aRawOption[ 'section' ] != $aRawSection[ 'slug' ] ) {
+				if ( $rawOption[ 'section' ] != $rawSection[ 'slug' ] ) {
 					continue;
 				}
-				$aOptionsData[ $aRawOption[ 'key' ] ] = $this->getOpt( $aRawOption[ 'key' ] );
+				$optionsData[ $rawOption[ 'key' ] ] = $this->getOpt( $rawOption[ 'key' ] );
 			}
 		}
-		return $aOptionsData;
+		return $optionsData;
 	}
 
-	/**
-	 * @return array|null
-	 */
-	public function getSection( string $section ) {
+	public function getSection( string $section ) :?array {
 		return $this->getSections()[ $section ] ?? null;
 	}
 
@@ -268,12 +259,12 @@ class Options {
 	 */
 	public function getSection_Requirements( $slug ) :array {
 		$section = $this->getSection( $slug );
-		return array_merge(
+		return \array_merge(
 			[
 				'php_min' => '7.2',
 				'wp_min'  => '4.7',
 			],
-			( is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
+			( \is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
 		);
 	}
 
@@ -297,7 +288,7 @@ class Options {
 	 * @return array[]
 	 */
 	public function getVisibleOptions() :array {
-		return array_filter(
+		return \array_filter(
 			$this->getRawData_AllOptions(),
 			function ( $optDef ) {
 				if ( $optDef[ 'hidden' ] ?? false ) {
@@ -316,7 +307,7 @@ class Options {
 	 * @return string[]
 	 */
 	public function getVisibleOptionsKeys() :array {
-		return array_map( function ( $optDef ) {
+		return \array_map( function ( $optDef ) {
 			return $optDef[ 'key' ];
 		}, $this->getVisibleOptions() );
 	}
@@ -386,8 +377,8 @@ class Options {
 
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
-			$this->aOptionsKeys = array_merge(
-				array_keys( $this->getRawData_AllOptions() ),
+			$this->aOptionsKeys = \array_merge(
+				\array_keys( $this->getRawData_AllOptions() ),
 				$this->getCommonStandardOptions(),
 				$this->getVirtualCommonOptions()
 			);
@@ -447,7 +438,7 @@ class Options {
 	}
 
 	public function isOptChanged( string $key ) :bool {
-		return is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
+		return \is_array( $this->aOld ) && isset( $this->aOld[ $key ] );
 	}
 
 	public function isOptPremium( string $key ) :bool {
@@ -558,23 +549,23 @@ class Options {
 
 			case 'integer':
 				$min = $this->getOptProperty( $key, 'min' );
-				if ( !is_null( $min ) ) {
+				if ( $min !== null ) {
 					$valid = $mPotentialValue >= $min;
 				}
 				if ( $valid ) {
 					$max = $this->getOptProperty( $key, 'max' );
-					if ( !is_null( $max ) ) {
+					if ( $max !== null ) {
 						$valid = $mPotentialValue <= $max;
 					}
 				}
 				break;
 
 			case 'array':
-				$valid = is_array( $mPotentialValue );
+				$valid = \is_array( $mPotentialValue );
 				break;
 
 			case 'select':
-				$valid = in_array( $mPotentialValue, array_map(
+				$valid = \in_array( $mPotentialValue, \array_map(
 					function ( $valueOptions ) {
 						return $valueOptions[ 'value_key' ];
 					},
@@ -595,7 +586,7 @@ class Options {
 	 * @return $this
 	 */
 	private function setOldOptValue( $key, $value ) {
-		if ( !is_array( $this->aOld ) ) {
+		if ( !\is_array( $this->aOld ) ) {
 			$this->aOld = [];
 		}
 		if ( !isset( $this->aOld[ $key ] ) ) {
@@ -637,16 +628,16 @@ class Options {
 	 * @return string[]
 	 */
 	public function getXferExcluded() :array {
-		return is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
+		return \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
 	private function cleanOptions() {
-		if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = array_intersect_key(
+		if ( !empty( $this->aOptionsValues ) && \is_array( $this->aOptionsValues ) ) {
+			$this->aOptionsValues = \array_intersect_key(
 				$this->getAllOptionsValues(),
-				array_merge(
-					array_flip( $this->getOptionsKeys() ),
-					array_flip( $this->getVirtualCommonOptions() )
+				\array_merge(
+					\array_flip( $this->getOptionsKeys() ),
+					\array_flip( $this->getVirtualCommonOptions() )
 				)
 			);
 		}

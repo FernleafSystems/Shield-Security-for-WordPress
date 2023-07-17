@@ -16,7 +16,7 @@ class Plugins extends PluginThemesBase {
 
 	protected function getRenderData() :array {
 		$items = $this->buildPluginsData();
-		ksort( $items );
+		\ksort( $items );
 
 		$hashes = [];
 		$abandoned = [];
@@ -47,7 +47,7 @@ class Plugins extends PluginThemesBase {
 			}
 		}
 
-		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
+		$items = \array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
@@ -64,15 +64,15 @@ class Plugins extends PluginThemesBase {
 				'page_plugins' => Services::WpGeneral()->getAdminUrl_Plugins()
 			],
 			'vars'    => [
-				'count_items' => count( $vulnerable ) + count( $hashes )
-								 + count( $abandoned ) + count( $problems ),
-				'plugins'     => array_values( $items ),
+				'count_items' => \count( $vulnerable ) + \count( $hashes )
+								 + \count( $abandoned ) + \count( $problems ),
+				'plugins'     => \array_values( $items ),
 			]
 		] );
 	}
 
 	private function buildPluginsData() :array {
-		return array_map(
+		return \array_map(
 			function ( $plugin ) {
 				return $this->buildPluginData( $plugin );
 			},
@@ -97,7 +97,7 @@ class Plugins extends PluginThemesBase {
 		$isCheckActive = apply_filters( 'shield/scans_check_plugin_active', true );
 		$isCheckUpdates = apply_filters( 'shield/scans_check_plugin_update', true );
 
-		$flags = array_merge( [
+		$flags = \array_merge( [
 			'has_update'      => $plugin->hasUpdate(),
 			'has_guard_files' => $countGuardFiles > 0,
 			'is_abandoned'    => !empty( $abandoned ),
@@ -141,7 +141,7 @@ class Plugins extends PluginThemesBase {
 			'flags' => $flags,
 			'vars'  => [
 				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
-				'count_items'   => $countGuardFiles + count( $vulnerabilities )
+				'count_items'   => $countGuardFiles + \count( $vulnerabilities )
 								   + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];

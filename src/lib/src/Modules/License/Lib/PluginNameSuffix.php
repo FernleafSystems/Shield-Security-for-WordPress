@@ -2,10 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-class PluginNameSuffix extends Modules\Base\Common\ExecOnceModConsumer {
+class PluginNameSuffix {
+
+	use ExecOnce;
+	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
 		$con = $this->con();

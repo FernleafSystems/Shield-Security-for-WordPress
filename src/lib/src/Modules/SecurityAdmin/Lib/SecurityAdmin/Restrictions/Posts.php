@@ -7,9 +7,9 @@ class Posts extends BaseCapabilitiesRestrict {
 	public const AREA_SLUG = 'posts';
 
 	protected function isCapabilityToBeRestricted( string $cap ) :bool {
-		return in_array( $cap, $this->getApplicableCapabilities() )
-			   && in_array(
-				   str_replace( [
+		return \in_array( $cap, $this->getApplicableCapabilities() )
+			   && \in_array(
+				   \str_replace( [
 					   '_posts',
 					   '_pages',
 					   '_post',

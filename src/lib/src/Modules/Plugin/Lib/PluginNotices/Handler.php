@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotic
 class Handler {
 
 	public function build() :array {
-		$issues = array_filter( array_map(
+		$issues = \array_filter( \array_map(
 			function ( string $class ) {
 				/** @var Base|string $class */
 				return ( new $class() )->check();

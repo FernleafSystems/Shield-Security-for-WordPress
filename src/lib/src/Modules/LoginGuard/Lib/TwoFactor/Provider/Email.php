@@ -68,7 +68,7 @@ class Email extends AbstractShieldProvider {
 	}
 
 	public function isEnforced() :bool {
-		return count( array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
+		return \count( \array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
 	protected function hasValidSecret() :bool {

@@ -45,7 +45,7 @@ class HumanRepeat {
 			] );
 
 			/** @var \WP_Comment[] $comments */
-			$comments = array_filter( is_array( $q->comments ) ? $q->comments : [], function ( $comment ) use ( $ip ) {
+			$comments = \array_filter( \is_array( $q->comments ) ? $q->comments : [], function ( $comment ) use ( $ip ) {
 				return $comment->comment_author_IP === $ip;
 			} );
 

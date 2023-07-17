@@ -19,7 +19,7 @@ class LoginFormThirdParties extends Base {
 	 * @return string[]
 	 */
 	private function getUnprotectedProvidersByName() :array {
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( string $providerClass ) {
 				$provider = new $providerClass();
 				return $provider->isEnabled() ? null : $provider->getHandlerName();
@@ -31,11 +31,11 @@ class LoginFormThirdParties extends Base {
 	protected function isApplicable() :bool {
 		$installed = $this->con()->getModule_Integrations()->getController_UserForms()->getInstalled();
 		unset( $installed[ WordPress::Slug() ] );
-		return count( $installed ) > 0;
+		return \count( $installed ) > 0;
 	}
 
 	protected function testIfProtected() :bool {
-		return count( $this->getUnprotectedProvidersByName() ) === 0;
+		return \count( $this->getUnprotectedProvidersByName() ) === 0;
 	}
 
 	public function title() :string {
@@ -48,7 +48,7 @@ class LoginFormThirdParties extends Base {
 
 	public function descUnprotected() :string {
 		return sprintf( __( "It appears that certain 3rd-party login forms aren't protected against Bots: %s", 'wp-simple-firewall' ),
-			implode( ', ', $this->getUnprotectedProvidersByName() )
+			\implode( ', ', $this->getUnprotectedProvidersByName() )
 		);
 	}
 }

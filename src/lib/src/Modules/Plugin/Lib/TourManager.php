@@ -19,17 +19,17 @@ class TourManager {
 		$tourKey = sanitize_key( $tourKey );
 		$meta = $this->con()->user_metas->current();
 		if ( !empty( $tourKey ) && !empty( $meta ) ) {
-			$meta->tours = array_intersect_key(
-				array_merge( $this->getAllTours(), [
+			$meta->tours = \array_intersect_key(
+				\array_merge( $this->getAllTours(), [
 					$tourKey => Services::Request()->ts()
 				] ),
-				array_flip( $this->getAllTours() )
+				\array_flip( $this->getAllTours() )
 			);
 		}
 	}
 
 	public function getUserTourStates() :array {
 		$meta = $this->con()->user_metas->current();
-		return ( !empty( $meta ) && is_array( $meta->tours ) ) ? $meta->tours : [];
+		return ( !empty( $meta ) && \is_array( $meta->tours ) ) ? $meta->tours : [];
 	}
 }

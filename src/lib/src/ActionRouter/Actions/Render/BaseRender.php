@@ -44,17 +44,16 @@ abstract class BaseRender extends BaseAction {
 	 * @throws ActionException
 	 */
 	protected function buildRenderOutput( array $renderData = [] ) :string {
-		$con = $this->con();
 		$template = $this->getRenderTemplate();
 		if ( empty( $template ) ) {
 			throw new ActionException( 'No template provided for render' );
 		}
 
 		try {
-			$renderer = $con->getRenderer();
+			$renderer = $this->con()->getRenderer();
 
 			$ext = Paths::Ext( $template );
-			if ( empty( $ext ) || strtolower( $ext ) === 'twig' ) {
+			if ( empty( $ext ) || \strtolower( $ext ) === 'twig' ) {
 				$renderer->setTemplateEngineTwig();
 			}
 			else {
@@ -77,8 +76,8 @@ abstract class BaseRender extends BaseAction {
 	 */
 	protected function buildRenderData() :array {
 		$data = $this->getAllRenderDataArrays();
-		ksort( $data );
-		return call_user_func_array(
+		\ksort( $data );
+		return \call_user_func_array(
 			[ Services::DataManipulation(), 'mergeArraysRecursive' ],
 			$data
 		);
@@ -136,7 +135,7 @@ abstract class BaseRender extends BaseAction {
 				'sec_admin_login' => ActionData::Build( SecurityAdminLogin::class ),
 			],
 			'classes' => [
-				'top_container' => implode( ' ', array_filter( [
+				'top_container' => \implode( ' ', \array_filter( [
 					'odp-outercontainer',
 					$this->con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 					Services::Request()->query( Constants::NAV_ID, '' )
@@ -178,7 +177,7 @@ abstract class BaseRender extends BaseAction {
 					[
 						'type'      => 'name',
 						'type_type' => 'robots',
-						'content'   => implode( ',', [ 'noindex', 'nofollow', 'noarchve', 'noimageindex' ] ),
+						'content'   => \implode( ',', [ 'noindex', 'nofollow', 'noarchve', 'noimageindex' ] ),
 					],
 				],
 				'scripts' => []
@@ -246,7 +245,7 @@ abstract class BaseRender extends BaseAction {
 			__( 'MainWP Integration', 'wp-simple-firewall' ),
 		];
 		shuffle( $proFeatures );
-		$proFeaturesDisplay = array_slice( $proFeatures, 0, 6 );
+		$proFeaturesDisplay = \array_slice( $proFeatures, 0, 6 );
 		$proFeaturesDisplay[] = __( 'and much more!' );
 
 		$isAdvanced = $this->con()->getModule_Plugin()->isShowAdvanced();
@@ -324,7 +323,7 @@ abstract class BaseRender extends BaseAction {
 
 			'pro_features'       => __( 'Pro features include', 'wp-simple-firewall' ),
 			'join_thousands_H'   => __( "Join The 1,000s Who've Already Upgraded Their WordPress Security To Better Protect Their Sites.", 'wp-simple-firewall' ),
-			'join_thousands_P'   => implode( ', ', $proFeaturesDisplay ),
+			'join_thousands_P'   => \implode( ', ', $proFeaturesDisplay ),
 			'get_pro_protection' => __( 'Get Pro Protection', 'wp-simple-firewall' ),
 
 			'options'        => __( 'Options', 'wp-simple-firewall' ),
@@ -371,8 +370,8 @@ abstract class BaseRender extends BaseAction {
 			'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
 
 			'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $name ),
-			'recommendation'      => ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
-			'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
+			'recommendation'      => \ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
+			'suggestion'          => \ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
 			'this_is_wonderful'   => __( 'This is wonderful!', 'wp-simple-firewall' ),
 

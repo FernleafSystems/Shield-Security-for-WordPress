@@ -16,7 +16,7 @@ class Themes extends PluginThemesBase {
 
 	protected function getRenderData() :array {
 		$items = $this->buildThemesData();
-		ksort( $items );
+		\ksort( $items );
 
 		$hashes = [];
 		$abandoned = [];
@@ -47,7 +47,7 @@ class Themes extends PluginThemesBase {
 			}
 		}
 
-		$items = array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
+		$items = \array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
@@ -61,15 +61,15 @@ class Themes extends PluginThemesBase {
 				'page_themes' => Services::WpGeneral()->getAdminUrl_Themes()
 			],
 			'vars'    => [
-				'count_items' => count( $vulnerable ) + count( $hashes )
-								 + count( $abandoned ) + count( $problems ),
-				'themes'      => array_values( $items ),
+				'count_items' => \count( $vulnerable ) + \count( $hashes )
+								 + \count( $abandoned ) + \count( $problems ),
+				'themes'      => \array_values( $items ),
 			]
 		] );
 	}
 
 	private function buildThemesData() :array {
-		return array_map(
+		return \array_map(
 			function ( $item ) {
 				return $this->buildThemeData( $item );
 			},
@@ -91,7 +91,7 @@ class Themes extends PluginThemesBase {
 
 		$vulnerabilities = $this->getVulnerabilities()->getItemsForSlug( $theme->stylesheet );
 
-		$flags = array_merge( [
+		$flags = \array_merge( [
 			'has_update'      => $theme->hasUpdate(),
 			'is_abandoned'    => !empty( $abandoned ),
 			'has_guard_files' => $countGuardFiles > 0,
@@ -116,7 +116,7 @@ class Themes extends PluginThemesBase {
 								  );
 
 		if ( $flags[ 'is_wporg' ] && $flags[ 'has_warning' ] && !$flags[ 'has_update' ] ) {
-			$wpOrgThemes = implode( '|', array_map( function ( $ver ) {
+			$wpOrgThemes = \implode( '|', \array_map( function ( $ver ) {
 				return 'twenty'.$ver;
 			}, [
 				'twentyseven',
@@ -137,7 +137,7 @@ class Themes extends PluginThemesBase {
 				'eleven',
 				'ten',
 			] ) );
-			if ( preg_match( sprintf( '#^%s$#', $wpOrgThemes ), strtolower( (string)$theme->slug ) ) ) {
+			if ( \preg_match( sprintf( '#^%s$#', $wpOrgThemes ), \strtolower( (string)$theme->slug ) ) ) {
 				$flags[ 'has_warning' ] = false;
 			}
 		}
@@ -169,7 +169,7 @@ class Themes extends PluginThemesBase {
 			],
 			'flags' => $flags,
 			'vars'  => [
-				'count_items' => $countGuardFiles + count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
+				'count_items' => $countGuardFiles + \count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
 	}

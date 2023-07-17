@@ -21,9 +21,9 @@ class Accept extends BaseOps {
 		/** @var FileLockerDB\Update $updater */
 		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
 		$success = $updater->updateEntry( $lock, [
-			'hash_original' => hash_file( 'sha1', $lock->path ),
-			'content'       => base64_encode( $raw ),
-			'public_key_id' => key( $publicKey ),
+			'hash_original' => \hash_file( 'sha1', $lock->path ),
+			'content'       => \base64_encode( $raw ),
+			'public_key_id' => \key( $publicKey ),
 			'cipher'        => $cipher,
 			'detected_at'   => 0,
 			'updated_at'    => Services::Request()->ts(),

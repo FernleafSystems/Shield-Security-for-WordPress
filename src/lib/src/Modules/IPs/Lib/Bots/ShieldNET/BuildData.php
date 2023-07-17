@@ -87,7 +87,7 @@ class BuildData {
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
 							$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
 							Services::Request()->ts(),
-							implode( ',', array_map( function ( $record ) {
+							\implode( ',', \array_map( function ( $record ) {
 								return $record->id;
 							}, $records ) )
 						)

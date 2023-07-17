@@ -50,24 +50,24 @@ class ProcessIPs extends ProcessBase {
 		$page = 0;
 		$pageSize = 100;
 		do {
-			$slice = array_splice( $this->newDecisions, 0, $pageSize );
+			$slice = \array_splice( $this->newDecisions, 0, $pageSize );
 			$hasRecords = !empty( $slice );
 			if ( $hasRecords ) {
 
 				// 2. Insert all new IP addresses into the IP table that don't already exist.
 				$DB->doSql( sprintf( 'INSERT IGNORE INTO `%s` (`ip`, `created_at`) VALUES %s;',
 					$ipTableName,
-					implode( ', ', array_map( function ( $ip ) use ( $now ) {
+					\implode( ', ', \array_map( function ( $ip ) use ( $now ) {
 						return sprintf( "( INET6_ATON('%s'), %s )", $ip, $now );
-					}, array_keys( $slice ) ) )
+					}, \array_keys( $slice ) ) )
 				) );
 
 				// 3. Select the IP records required to insert the new CS records.
 				$ipRecords = $DB->selectCustom( sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
 					$ipTableName,
-					implode( ', ', array_map( function ( $ip ) {
+					\implode( ', ', \array_map( function ( $ip ) {
 						return sprintf( "INET6_ATON('%s')", $ip );
-					}, array_keys( $slice ) ) )
+					}, \array_keys( $slice ) ) )
 				) );
 
 				$insertValues = [];
@@ -84,7 +84,7 @@ class ProcessIPs extends ProcessBase {
 					 */
 					if ( !isset( $slice[ $recordIP ] ) ) {
 						$found = false;
-						foreach ( array_keys( $slice ) as $sliceIP ) {
+						foreach ( \array_keys( $slice ) as $sliceIP ) {
 							if ( Factory::parseAddressString( $sliceIP )->toString( true )
 								 === Factory::parseAddressString( $recordIP )->toString( true ) ) {
 								$slice[ $recordIP ] = $slice[ $sliceIP ];
@@ -107,10 +107,10 @@ class ProcessIPs extends ProcessBase {
 				// 4. Insert the new IP Rules records.
 				$DB->doSql( sprintf( 'INSERT INTO `%s` (`ip_ref`, `cidr`, `type`, `blocked_at`, `expires_at`, `updated_at`, `created_at`) VALUES %s;',
 					$mod->getDbH_IPRules()->getTableSchema()->table,
-					implode( ', ', $insertValues )
+					\implode( ', ', $insertValues )
 				) );
 
-				$total += count( $insertValues );
+				$total += \count( $insertValues );
 			}
 
 			$page++;
@@ -134,7 +134,7 @@ class ProcessIPs extends ProcessBase {
 		do {
 			$loader->offset = $page*$loader->limit;
 			/** @var RangeInterface[] $existingRanges */
-			$existingRanges = array_map( function ( $record ) {
+			$existingRanges = \array_map( function ( $record ) {
 				return Factory::parseRangeString( sprintf( '%s/%s', $record->ip, $record->cidr ) );
 			}, $loader->select() );
 
@@ -160,10 +160,10 @@ class ProcessIPs extends ProcessBase {
 		$page = 0;
 		$pageSize = 250;
 		do {
-			$slice = array_slice( $this->newDecisions, $page*$pageSize, $pageSize );
+			$slice = \array_slice( $this->newDecisions, $page*$pageSize, $pageSize );
 			if ( !empty( $slice ) ) {
 
-				$singles = array_keys( array_filter( $slice, function ( array $dec ) {
+				$singles = \array_keys( \array_filter( $slice, function ( array $dec ) {
 					/** @var RangeInterface $range */
 					$range = $dec[ 'parsed' ];
 					return $range->getSize() === 1;
@@ -173,7 +173,7 @@ class ProcessIPs extends ProcessBase {
 					$loader = new LoadIpRules();
 					$loader->wheres = [
 						sprintf( "`ips`.`ip` IN (%s)",
-							implode( ', ', array_map( function ( $ip ) {
+							\implode( ', ', \array_map( function ( $ip ) {
 								return sprintf( "INET6_ATON('%s')", $ip );
 							}, $singles ) )
 						),
@@ -184,11 +184,11 @@ class ProcessIPs extends ProcessBase {
 						if ( isset( $slice[ $preExistingRule->ip ] ) ) {
 							$preExisting[] = $preExistingRule->ip;
 						}
-						elseif ( strpos( $preExistingRule->ip, ':' ) !== false ) {
+						elseif ( \strpos( $preExistingRule->ip, ':' ) !== false ) {
 							$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
 							// handle variance of IPv6 notation.
-							foreach ( array_keys( $slice ) as $sliceIP ) {
-								if ( strpos( $sliceIP, ':' ) !== false &&
+							foreach ( \array_keys( $slice ) as $sliceIP ) {
+								if ( \strpos( $sliceIP, ':' ) !== false &&
 									 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
 									$preExisting[] = $sliceIP;
 									break;
@@ -198,7 +198,7 @@ class ProcessIPs extends ProcessBase {
 					}
 				}
 
-				$ranges = array_filter( $slice, function ( array $dec ) {
+				$ranges = \array_filter( $slice, function ( array $dec ) {
 					/** @var RangeInterface $range */
 					$range = $dec[ 'parsed' ];
 					return $range->getSize() > 1;
@@ -211,7 +211,7 @@ class ProcessIPs extends ProcessBase {
 			$page++;
 		} while ( !empty( $slice ) );
 
-		$this->newDecisions = array_diff_key( $this->newDecisions, array_flip( $preExisting ) );
+		$this->newDecisions = \array_diff_key( $this->newDecisions, \array_flip( $preExisting ) );
 	}
 
 	protected function processDeleted() :int {
@@ -219,7 +219,7 @@ class ProcessIPs extends ProcessBase {
 		$mod = $this->mod();
 
 		/** @var RangeInterface[] $ipsToDelete */
-		$ipsToDelete = array_map( function ( $ip ) {
+		$ipsToDelete = \array_map( function ( $ip ) {
 			return Factory::parseRangeString( $ip );
 		}, $this->deletedDecisions );
 
@@ -250,13 +250,13 @@ class ProcessIPs extends ProcessBase {
 				->query();
 		}
 
-		return count( $idsToDelete );
+		return \count( $idsToDelete );
 	}
 
 	protected function extractScopeDecisionData_New( array $decisions ) :array {
 		$extracted = [];
 		foreach ( $decisions as $decision ) {
-			if ( is_array( $decision ) ) {
+			if ( \is_array( $decision ) ) {
 				try {
 					$ip = $this->getDecisionValue( $decision );
 					$extracted[ $ip ] = [
@@ -276,10 +276,10 @@ class ProcessIPs extends ProcessBase {
 	 * We only require the IP addresses for the deleted stream in order to remove our decisions.
 	 */
 	protected function extractScopeDecisionData_Deleted( array $decisions ) :array {
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( $decision ) {
 				$ip = null;
-				if ( is_array( $decision ) ) {
+				if ( \is_array( $decision ) ) {
 					try {
 						$ip = $this->getDecisionValue( $decision );
 					}
@@ -296,7 +296,7 @@ class ProcessIPs extends ProcessBase {
 	 * @return string
 	 */
 	protected function normaliseDecisionValue( $value ) {
-		return trim( (string)$value );
+		return \trim( (string)$value );
 	}
 
 	/**

@@ -16,7 +16,7 @@ class Options extends BaseShield\Options {
 			$this->con()->prefix( 'human_spam_items' ),
 			$this->getOpt( 'human_spam_items', [] )
 		);
-		return is_array( $items ) ? array_intersect( $default, $items ) : $default;
+		return \is_array( $items ) ? \array_intersect( $default, $items ) : $default;
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Options extends BaseShield\Options {
 		if ( $this->con()->isPremiumActive() ) {
 			$roles = $this->getOpt( 'trusted_user_roles', [] );
 		}
-		return is_array( $roles ) ? $roles : [];
+		return \is_array( $roles ) ? $roles : [];
 	}
 
 	public function isEnabledAntiBot() :bool {
@@ -36,7 +36,7 @@ class Options extends BaseShield\Options {
 
 	public function isEnabledHumanCheck() :bool {
 		return $this->isOpt( 'enable_comments_human_spam_filter', 'Y' )
-			   && count( $this->getHumanSpamFilterItems() ) > 0;
+			   && \count( $this->getHumanSpamFilterItems() ) > 0;
 	}
 
 	public function setEnabledAntiBot( bool $enabled = true ) {

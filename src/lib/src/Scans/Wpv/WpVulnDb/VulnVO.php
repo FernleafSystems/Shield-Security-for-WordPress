@@ -20,13 +20,13 @@ class VulnVO extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
-		if ( preg_match( '#_at$#', $key ) ) {
+		if ( \preg_match( '#_at$#', $key ) ) {
 			$value = (int)$value;
 		}
 		else {
 			switch ( $key ) {
 				case 'references':
-					if ( !is_array( $value ) ) {
+					if ( !\is_array( $value ) ) {
 						$value = [];
 					}
 					break;

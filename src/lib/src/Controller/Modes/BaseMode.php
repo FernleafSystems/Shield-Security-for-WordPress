@@ -54,6 +54,6 @@ abstract class BaseMode {
 	}
 
 	protected function getPathToModeFile() :string {
-		return $this->con()->paths->forFlag( sprintf( 'mode.%s', strtolower( static::SLUG ) ) );
+		return $this->con()->paths->forFlag( sprintf( 'mode.%s', \strtolower( static::SLUG ) ) );
 	}
 }

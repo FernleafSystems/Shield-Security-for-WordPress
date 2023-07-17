@@ -20,7 +20,7 @@ class DisableFileEditing extends Base {
 			 */
 			function ( $allCaps, $cap, $args ) {
 				$requestedCapability = $args[ 0 ];
-				if ( in_array( $requestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
+				if ( \in_array( $requestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
 					$allCaps[ $requestedCapability ] = false;
 				}
 				return $allCaps;

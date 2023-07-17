@@ -19,7 +19,7 @@ class WildCardOptions {
 
 			$valueRegEx = $this->buildFullRegexValue( $value, $dataType );
 			foreach ( $checks as $check ) {
-				if ( preg_match( $valueRegEx, $check ) ) {
+				if ( \preg_match( $valueRegEx, $check ) ) {
 					$cleanedValues[ $value ] = false;
 					break;
 				}

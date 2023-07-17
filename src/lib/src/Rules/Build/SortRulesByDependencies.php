@@ -46,7 +46,7 @@ class SortRulesByDependencies {
 		$rulesDependenciesMap = $this->filterDependenciesForRulesOnly();
 		foreach ( $rulesDependenciesMap as $primaryRuleSlug => $dep ) {
 			foreach ( $dep as $depRuleSlug ) {
-				if ( in_array( $primaryRuleSlug, $rulesDependenciesMap[ $depRuleSlug ] ) ) {
+				if ( \in_array( $primaryRuleSlug, $rulesDependenciesMap[ $depRuleSlug ] ) ) {
 					throw new MutuallyDependentRulesException( sprintf( 'The rules "%s" and "%s" are mutually dependent.',
 						$primaryRuleSlug, $depRuleSlug ) );
 				}
@@ -55,11 +55,11 @@ class SortRulesByDependencies {
 	}
 
 	private function filterDependenciesForRulesOnly() :array {
-		return array_map(
+		return \array_map(
 			function ( array $dependencies ) {
-				return array_intersect( $dependencies, array_keys( $this->rules ) );
+				return \array_intersect( $dependencies, \array_keys( $this->rules ) );
 			},
-			array_intersect_key( $this->dependencies, $this->rules )
+			\array_intersect_key( $this->dependencies, $this->rules )
 		);
 	}
 
@@ -82,7 +82,7 @@ class SortRulesByDependencies {
 
 			unset( $rulesDependenciesMap[ $nextRule ] );
 			foreach ( $rulesDependenciesMap as $ruleSlug => $deps ) {
-				$remove = array_search( $nextRule, $deps );
+				$remove = \array_search( $nextRule, $deps );
 				if ( $remove !== false ) {
 					unset( $rulesDependenciesMap[ $ruleSlug ][ $remove ] );
 				}
@@ -103,7 +103,7 @@ class SortRulesByDependencies {
 	private function findRuleWithZeroDependencies( array $map ) {
 		$theRule = '';
 		foreach ( $map as $rule => $deps ) {
-			if ( count( $deps ) === 0 ) {
+			if ( \count( $deps ) === 0 ) {
 				$theRule = $rule;
 				break;
 			}
@@ -166,7 +166,7 @@ class SortRulesByDependencies {
 				try {
 					/** @var Base $handlerClass */
 					$handlerClass = $this->con()->rules->locateConditionHandlerClass( $conditionSlug );
-					$this->dependencies[ $conditionSlug ] = array_map(
+					$this->dependencies[ $conditionSlug ] = \array_map(
 						function ( $className ) {
 							/** Base */
 							return $className::SLUG;
@@ -180,17 +180,17 @@ class SortRulesByDependencies {
 				}
 			}
 
-			$deps = array_merge( $deps, $this->dependencies[ $conditionSlug ] );
+			$deps = \array_merge( $deps, $this->dependencies[ $conditionSlug ] );
 		}
 
 		foreach ( $this->getAllConditionsProperty( $rule->conditions[ 'group' ], 'rule' ) as $ruleSlug ) {
 			if ( $this->isRule( $ruleSlug ) ) {
 				$deps[] = $ruleSlug;
-				$deps = array_merge( $deps, $this->buildRuleDependencies( $this->rules[ $ruleSlug ] ) );
+				$deps = \array_merge( $deps, $this->buildRuleDependencies( $this->rules[ $ruleSlug ] ) );
 			}
 		}
 
-		return array_unique( $deps );
+		return \array_unique( $deps );
 	}
 
 	/**
@@ -201,13 +201,13 @@ class SortRulesByDependencies {
 
 		foreach ( $conditions as $subCondition ) {
 			if ( isset( $subCondition[ 'group' ] ) ) {
-				$collection = array_merge( $collection, $this->getAllConditionsProperty( $subCondition[ 'group' ] ) );
+				$collection = \array_merge( $collection, $this->getAllConditionsProperty( $subCondition[ 'group' ] ) );
 			}
 			elseif ( !empty( $subCondition[ $subPropertyToCollect ] ) ) {
 				$collection[] = $subCondition[ $subPropertyToCollect ];
 			}
 		}
 
-		return array_unique( $collection );
+		return \array_unique( $collection );
 	}
 }

@@ -12,8 +12,7 @@ class DocsEvents extends Actions\Render\BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/docs/events.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
-		$srvEvents = $con->loadEventsService();
+		$srvEvents = $this->con()->loadEventsService();
 
 		$eventsSortedByLevel = [
 			'Alert'   => [],
@@ -23,18 +22,19 @@ class DocsEvents extends Actions\Render\BaseRender {
 			'Debug'   => [],
 		];
 		foreach ( $srvEvents->getEvents() as $event ) {
-			$level = ucfirst( strtolower( $event[ 'level' ] ) );
+			$level = \ucfirst( \strtolower( $event[ 'level' ] ) );
 			$eventsSortedByLevel[ $level ][ $event[ 'key' ] ] = [
 				'name' => $srvEvents->getEventName( $event[ 'key' ] ),
 				'attr' => [
 					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
 					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
-					'module'  => sprintf( 'Module: %s', $con->getModule( $event[ 'module' ] )->getMainFeatureName() ),
+					'module'  => sprintf( 'Module: %s',
+						$this->con()->getModule( $event[ 'module' ] )->getMainFeatureName() ),
 				]
 			];
 		}
 		foreach ( $eventsSortedByLevel as &$events ) {
-			ksort( $events );
+			\ksort( $events );
 		}
 
 		return [

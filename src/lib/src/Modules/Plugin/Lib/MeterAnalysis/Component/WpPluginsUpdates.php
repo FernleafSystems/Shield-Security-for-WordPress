@@ -38,6 +38,6 @@ class WpPluginsUpdates extends Base {
 	}
 
 	private function countUpdates() :int {
-		return count( Services::WpPlugins()->getUpdates() );
+		return \count( Services::WpPlugins()->getUpdates() );
 	}
 }

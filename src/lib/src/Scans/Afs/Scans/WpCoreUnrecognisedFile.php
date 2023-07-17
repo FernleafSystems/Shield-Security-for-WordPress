@@ -9,8 +9,8 @@ class WpCoreUnrecognisedFile extends BaseScan {
 
 	protected function canScan() :bool {
 		return parent::canScan() &&
-			   ( strpos( $this->pathFull, path_join( ABSPATH, WPINC ) ) === 0
-				 || strpos( $this->pathFull, path_join( ABSPATH, 'wp-admin' ) ) === 0 );
+			   ( \strpos( $this->pathFull, path_join( ABSPATH, WPINC ) ) === 0
+				 || \strpos( $this->pathFull, path_join( ABSPATH, 'wp-admin' ) ) === 0 );
 	}
 
 	/**

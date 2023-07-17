@@ -77,10 +77,9 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function setupCacheDir() {
-		$opts = $this->getOptions();
 		$url = Services::WpGeneral()->getWpUrl();
-		$lastKnownDirs = $opts->getOpt( 'last_known_cache_basedirs' );
-		if ( empty( $lastKnownDirs ) || !is_array( $lastKnownDirs ) ) {
+		$lastKnownDirs = $this->getOptions()->getOpt( 'last_known_cache_basedirs' );
+		if ( empty( $lastKnownDirs ) || !\is_array( $lastKnownDirs ) ) {
 			$lastKnownDirs = [
 				$url => ''
 			];
@@ -88,9 +87,9 @@ class ModCon extends BaseShield\ModCon {
 
 		$cacheDirFinder = new Shield\Utilities\CacheDirHandler( $lastKnownDirs[ $url ] ?? '' );
 		$workableDir = $cacheDirFinder->dir();
-		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : dirname( $workableDir );
+		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
 
-		$opts->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+		$this->getOptions()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
 		$this->con()->cache_dir_handler = $cacheDirFinder;
 	}
 
@@ -113,7 +112,6 @@ class ModCon extends BaseShield\ModCon {
 		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
 			$opts->setOpt( 'ipdetect_at', 0 );
 		}
-
 		( new Lib\Captcha\CheckCaptchaSettings() )->checkAll();
 	}
 
@@ -123,7 +121,7 @@ class ModCon extends BaseShield\ModCon {
 
 		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
 			foreach ( $cronArgs as $hook => $cron ) {
-				if ( strpos( (string)$hook, $con->prefix() ) === 0 || strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
+				if ( \strpos( (string)$hook, $con->prefix() ) === 0 || \strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
 					$wpCrons->deleteCronJob( $hook );
 				}
 			}
@@ -155,7 +153,7 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	public function canSiteLoopback() :bool {
 		$can = false;
-		if ( class_exists( '\WP_Site_Health' ) && method_exists( '\WP_Site_Health', 'get_instance' ) ) {
+		if ( \class_exists( '\WP_Site_Health' ) && \method_exists( '\WP_Site_Health', 'get_instance' ) ) {
 			$can = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
 		}
 		if ( !$can ) {
@@ -176,7 +174,7 @@ class ModCon extends BaseShield\ModCon {
 		if ( $con->isPremiumActive() ) {
 			$e = apply_filters( $con->prefix( 'report_email' ), $e );
 		}
-		$e = trim( $e );
+		$e = \trim( $e );
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
@@ -227,7 +225,7 @@ class ModCon extends BaseShield\ModCon {
 			$date = Services::Request()->ts();
 		}
 
-		$finalDate = min( $date, $wpDate );
+		$finalDate = \min( $date, $wpDate );
 		Services::WpGeneral()->updateOption( $key, $finalDate );
 		$this->getOptions()->setOpt( 'installation_time', $date );
 
@@ -239,16 +237,13 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	protected function cleanRecaptchaKey( $optionKey ) {
 		$opts = $this->getOptions();
-		$sCaptchaKey = trim( (string)$opts->getOpt( $optionKey, '' ) );
-		$nSpacePos = strpos( $sCaptchaKey, ' ' );
-		if ( $nSpacePos !== false ) {
-			$sCaptchaKey = substr( $sCaptchaKey, 0, $nSpacePos + 1 ); // cut off the string if there's spaces
+		$captchaKey = \trim( (string)$opts->getOpt( $optionKey, '' ) );
+		$spacePos = \strpos( $captchaKey, ' ' );
+		if ( $spacePos !== false ) {
+			$captchaKey = \substr( $captchaKey, 0, $spacePos + 1 ); // cut off the string if there's spaces
 		}
-		$sCaptchaKey = preg_replace( '#[^\da-zA-Z_-]#', '', $sCaptchaKey ); // restrict character set
-//			if ( strlen( $sCaptchaKey ) != 40 ) {
-//				$sCaptchaKey = ''; // need to verify length is 40.
-//			}
-		$opts->setOpt( $optionKey, $sCaptchaKey );
+		$captchaKey = \preg_replace( '#[^\da-zA-Z_-]#', '', $captchaKey ); // restrict character set
+		$opts->setOpt( $optionKey, $captchaKey );
 	}
 
 	public function getActivateLength() :int {
@@ -271,7 +266,7 @@ class ModCon extends BaseShield\ModCon {
 				$cleaned[] = $url;
 			}
 		}
-		$opts->setOpt( 'importexport_whitelist', array_unique( $cleaned ) );
+		$opts->setOpt( 'importexport_whitelist', \array_unique( $cleaned ) );
 	}
 
 	private function cleanImportExportMasterImportUrl() {

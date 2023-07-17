@@ -23,7 +23,7 @@ abstract class ScanEnabledFileLockerBase extends Base {
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled()
 			   && $mod->getFileLocker()->isEnabled()
-			   && in_array( static::FILE_LOCKER_FILE_KEY, $opts->getFilesToLock() );
+			   && \in_array( static::FILE_LOCKER_FILE_KEY, $opts->getFilesToLock() );
 	}
 
 	public function slug() :string {

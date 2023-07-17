@@ -11,23 +11,23 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isSuspendAutoIdleEnabled() :bool {
-		return $this->getSuspendAutoIdleTime() > 0 && count( $this->getSuspendAutoIdleUserRoles() ) > 0;
+		return $this->getSuspendAutoIdleTime() > 0 && \count( $this->getSuspendAutoIdleUserRoles() ) > 0;
 	}
 
 	public function getSuspendAutoIdleTime() :int {
-		return $this->getOpt( 'auto_idle_days', 0 )*DAY_IN_SECONDS;
+		return $this->getOpt( 'auto_idle_days', 0 )*\DAY_IN_SECONDS;
 	}
 
 	public function getIdleTimeoutInterval() :int {
-		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
+		return $this->getOpt( 'session_idle_timeout_interval' )*\HOUR_IN_SECONDS;
 	}
 
 	public function getMaxSessionTime() :int {
-		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
+		return $this->getOpt( 'session_timeout_interval' )*\DAY_IN_SECONDS;
 	}
 
 	public function getPassExpireTimeout() :int {
-		return $this->getOpt( 'pass_expire' )*DAY_IN_SECONDS;
+		return $this->getOpt( 'pass_expire' )*\DAY_IN_SECONDS;
 	}
 
 	public function hasMaxSessionTimeout() :bool {

@@ -32,7 +32,7 @@ class WhitelabelController {
 			 && !Services::WpGeneral()->isCron()
 			 && !$con->isPluginAdmin() ) {
 
-			if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
+			if ( \in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
 				add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
 			}
 			else {
@@ -155,7 +155,7 @@ class WhitelabelController {
 			$opts->resetOptToDefault( $key );
 			$url = $opts->getOpt( $key );
 		}
-		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && strpos( $url, '/' ) !== 0 ) {
+		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && \strpos( $url, '/' ) !== 0 ) {
 			$url = $this->con()->urls->forImage( $url );
 			if ( empty( $url ) ) {
 				$opts->resetOptToDefault( $key );

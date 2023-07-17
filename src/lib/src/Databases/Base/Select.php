@@ -66,7 +66,7 @@ class Select extends BaseQuery {
 		$items = $this->reset()
 					  ->addWhereEquals( 'id', $nId )
 					  ->query();
-		return array_shift( $items );
+		return \array_shift( $items );
 	}
 
 	/**
@@ -88,24 +88,24 @@ class Select extends BaseQuery {
 		$cols = $this->getColumnsToSelect();
 
 		if ( $this->isCount() ) {
-			$sSubstitute = 'COUNT(*)';
+			$sub = 'COUNT(*)';
 		}
 		elseif ( $this->isSum() ) {
-			$sSubstitute = sprintf( 'SUM(%s)', array_shift( $cols ) );
+			$sub = sprintf( 'SUM(%s)', \array_shift( $cols ) );
 		}
 		elseif ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
-			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $cols ) );
+			$sub = sprintf( 'DISTINCT %s', \implode( ',', $cols ) );
 		}
 		elseif ( $this->hasColumnsToSelect() ) {
-			$sSubstitute = implode( ',', $cols );
+			$sub = \implode( ',', $cols );
 		}
 		elseif ( $this->isCustomSelect() ) {
-			$sSubstitute = $this->sCustomSelect;
+			$sub = $this->sCustomSelect;
 		}
 		else {
-			$sSubstitute = '*';
+			$sub = '*';
 		}
-		return $sSubstitute;
+		return $sub;
 	}
 
 	public function sumColumn() :int {
@@ -163,7 +163,7 @@ class Select extends BaseQuery {
 	}
 
 	protected function hasColumnsToSelect() :bool {
-		return count( $this->getColumnsToSelect() ) > 0;
+		return \count( $this->getColumnsToSelect() ) > 0;
 	}
 
 	public function isCount() :bool {
@@ -196,9 +196,9 @@ class Select extends BaseQuery {
 		}
 		elseif ( $this->isDistinct() ) {
 			$mData = $this->queryDistinct();
-			if ( is_array( $mData ) ) {
-				$mData = array_map( function ( $aRecord ) {
-					return array_shift( $aRecord );
+			if ( \is_array( $mData ) ) {
+				$mData = \array_map( function ( $aRecord ) {
+					return \array_shift( $aRecord );
 				}, $mData );
 			}
 			else {
@@ -277,9 +277,9 @@ class Select extends BaseQuery {
 	 * @return $this
 	 */
 	public function setColumnsToSelect( array $columns ) {
-		$this->aColumnsToSelect = array_intersect(
+		$this->aColumnsToSelect = \array_intersect(
 			$this->getDbH()->getTableSchema()->getColumnNames(),
-			array_map( 'strtolower', $columns )
+			\array_map( 'strtolower', $columns )
 		);
 		return $this;
 	}

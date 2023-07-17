@@ -99,9 +99,9 @@ class WpvAddPluginRows {
 			$oVulnerableRes = $this->getScanController()->getResultsForDisplay();
 			global $status;
 			$status = 'vulnerable';
-			$plugins = array_intersect_key(
+			$plugins = \array_intersect_key(
 				$plugins,
-				array_flip( $oVulnerableRes->getUniqueSlugs() )
+				\array_flip( $oVulnerableRes->getUniqueSlugs() )
 			);
 		}
 		return $plugins;
@@ -113,7 +113,7 @@ class WpvAddPluginRows {
 	 */
 	public function fCountColumns( $cols ) {
 		if ( !isset( $this->colsCount ) ) {
-			$this->colsCount = count( $cols );
+			$this->colsCount = \count( $cols );
 		}
 		return $cols;
 	}

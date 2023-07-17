@@ -9,7 +9,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanSlice() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		$action->results = array_filter( array_map(
+		$action->results = \array_filter( \array_map(
 			function ( $file ) {
 				return $this->getItemScanner()->scan( $file );
 			},

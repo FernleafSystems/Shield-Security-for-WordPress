@@ -143,7 +143,7 @@ class Strings extends Base\Strings {
 					__( "Specify user roles here that shouldn't be scanned.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
-						implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) )
+						\implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) )
 				];
 				break;
 

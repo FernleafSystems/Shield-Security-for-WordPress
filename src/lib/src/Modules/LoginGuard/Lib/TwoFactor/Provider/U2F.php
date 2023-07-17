@@ -67,7 +67,7 @@ class U2F extends AbstractShieldProvider {
 				'classes'     => [ 'btn', 'btn-light' ],
 				'help_link'   => '',
 				'datas'       => [
-					'signs'     => base64_encode( json_encode( $signReqs ) ),
+					'signs'     => \base64_encode( \json_encode( $signReqs ) ),
 					'input_otp' => $this->getLoginIntentFormParameter(),
 				]
 			];
@@ -88,13 +88,13 @@ class U2F extends AbstractShieldProvider {
 			->getRegisterData( $this->getRegistrations() );
 
 		// Store requests as an array to allow for multiple requests to be kept
-		$userRegRequests = array_filter(
-			is_array( $meta->u2f_regrequests ) ? $meta->u2f_regrequests : [],
+		$userRegRequests = \array_filter(
+			\is_array( $meta->u2f_regrequests ) ? $meta->u2f_regrequests : [],
 			function ( $ts ) {
 				return Services::Request()->ts() - $ts < MINUTE_IN_SECONDS*10;
 			}
 		);
-		$userRegRequests[ json_encode( $newRegRequest ) ] = Services::Request()->ts();
+		$userRegRequests[ \json_encode( $newRegRequest ) ] = Services::Request()->ts();
 		$meta->u2f_regrequests = $userRegRequests;
 
 		return [ $newRegRequest, $signRequests ];
@@ -105,7 +105,7 @@ class U2F extends AbstractShieldProvider {
 	 */
 	private function getRegistrations() :array {
 		$regs = $this->getSecret();
-		if ( !is_array( $regs ) ) {
+		if ( !\is_array( $regs ) ) {
 			$regs = [];
 			$this->storeRegistrations( $regs );
 		}
@@ -113,7 +113,7 @@ class U2F extends AbstractShieldProvider {
 		// should always be an array of objects
 		foreach ( $regs as $label => $reg ) {
 			if ( !is_object( $reg ) ) {
-				if ( !is_array( $reg ) || empty( $reg ) ) {
+				if ( !\is_array( $reg ) || empty( $reg ) ) {
 					unset( $regs[ $label ] );
 				}
 				else {
@@ -128,7 +128,7 @@ class U2F extends AbstractShieldProvider {
 
 	private function getU2fAppID() :string {
 		$p = wp_parse_url( Services::WpGeneral()->getHomeUrl() );
-		$port = ( empty( $p[ 'port' ] ) || in_array( $p[ 'port' ], [ 80, 443 ] ) ) ? '' : $p[ 'port' ];
+		$port = ( empty( $p[ 'port' ] ) || \in_array( $p[ 'port' ], [ 80, 443 ] ) ) ? '' : $p[ 'port' ];
 		return sprintf( 'https://%s%s', $p[ 'host' ], $port );
 	}
 
@@ -145,7 +145,7 @@ class U2F extends AbstractShieldProvider {
 					'is_validated' => $this->hasValidatedProfile()
 				],
 				'vars'    => [
-					'registrations' => array_map(
+					'registrations' => \array_map(
 						function ( $reg ) {
 							$reg->used_at = sprintf( '(%s: %s)',
 								__( 'Used', 'wp-simple-firewall' ),
@@ -172,17 +172,17 @@ class U2F extends AbstractShieldProvider {
 		try {
 			$u2fResponse = (object)$u2fResponse;
 			$label = sanitize_key( $u2fResponse->label );
-			if ( strlen( $label ) > 16 ) {
+			if ( \strlen( $label ) > 16 ) {
 				throw new \Exception( 'U2F Device label is larger than 16 characters.' );
 			}
-			if ( array_key_exists( $label, $this->getRegistrations() ) ) {
+			if ( \array_key_exists( $label, $this->getRegistrations() ) ) {
 				throw new \Exception( 'U2F Device with this label already exists.' );
 			}
 
 			$U2FRegistration = null;
 			foreach ( $meta->u2f_regrequests as $u2fRequest => $ts ) {
 				try {
-					$regRequest = json_decode( $u2fRequest );
+					$regRequest = \json_decode( $u2fRequest );
 					$U2FRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )->doRegister(
 						new RegisterRequest( $regRequest->challenge, $regRequest->appId ),
 						$u2fResponse
@@ -221,7 +221,7 @@ class U2F extends AbstractShieldProvider {
 		try {
 			$registration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 				->doAuthenticate(
-					json_decode( base64_decode( Services::Request()->post( 'u2f_signs' ) ) ),
+					json_decode( \base64_decode( Services::Request()->post( 'u2f_signs' ) ) ),
 					$this->getRegistrations(),
 					json_decode( $otp )
 				);
@@ -249,7 +249,7 @@ class U2F extends AbstractShieldProvider {
 					$isReg = $isReg && ( $maybeReg->{$keyCompare} === $reg[ $keyCompare ] );
 				}
 				if ( $isReg ) {
-					$reg = array_merge( get_object_vars( $maybeReg ), $reg );
+					$reg = \array_merge( get_object_vars( $maybeReg ), $reg );
 					break;
 				}
 			}
@@ -257,7 +257,7 @@ class U2F extends AbstractShieldProvider {
 
 		// Only add if there's a label, and set defaults
 		if ( !empty( $reg[ 'label' ] ) ) {
-			$regs[ $reg[ 'label' ] ] = array_merge(
+			$regs[ $reg[ 'label' ] ] = \array_merge(
 				[
 					'used_at' => 0
 				],

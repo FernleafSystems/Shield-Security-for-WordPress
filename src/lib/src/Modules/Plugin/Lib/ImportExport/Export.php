@@ -90,11 +90,11 @@ class Export {
 	 * @return string[]
 	 */
 	public function toStandardArray() :array {
-		$export = json_encode( $this->getExportData() );
+		$export = \json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
-			'# Hash: '.sha1( $export ),
+			'# Hash: '.\sha1( $export ),
 			$export
 		];
 	}
@@ -105,7 +105,7 @@ class Export {
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
 				date( 'Ymd_His' )
 			),
-			'content' => implode( "\n", $this->toStandardArray() )
+			'content' => \implode( "\n", $this->toStandardArray() )
 		];
 	}
 
@@ -124,7 +124,7 @@ class Export {
 			];
 			$loader->limit = 100;
 
-			$all[ 'ip_rules' ] = array_map(
+			$all[ 'ip_rules' ] = \array_map(
 				function ( $rule ) {
 					return [
 						'ip'    => $rule->ipAsSubnetRange(),
@@ -145,9 +145,9 @@ class Export {
 			$opts = $mod->getOptions();
 			$xfr = $opts->getTransferableOptions();
 			if ( $filterExcluded ) {
-				$xfr = array_diff_key(
+				$xfr = \array_diff_key(
 					$xfr,
-					array_flip( $opts->getXferExcluded() )
+					\array_flip( $opts->getXferExcluded() )
 				);
 			}
 			$all[ $mod->cfg->slug ] = $xfr;
@@ -195,7 +195,7 @@ class Export {
 		$urlComponents = $this->parseURL( $url );
 		if ( !empty( $urlComponents[ 'host' ] ) ) {
 
-			$whiteURLs = array_map(
+			$whiteURLs = \array_map(
 				function ( $whitelistedURL ) {
 					return $this->parseURL( $whitelistedURL );
 				},
@@ -224,7 +224,7 @@ class Export {
 		$parsed = wp_parse_url( $url );
 		if ( !empty( $parsed ) ) {
 			$components[ 'host' ] = empty( $parsed[ 'host' ] ) ? '' : $parsed[ 'host' ];
-			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : trim( $parsed[ 'path' ], '/' );
+			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : \trim( $parsed[ 'path' ], '/' );
 		}
 		return $components;
 	}

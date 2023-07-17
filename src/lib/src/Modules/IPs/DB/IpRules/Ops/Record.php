@@ -23,13 +23,13 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
-		if ( in_array( $key, [ 'label', 'type' ] ) ) {
+		if ( \in_array( $key, [ 'label', 'type' ] ) ) {
 			$value = (string)$value;
 		}
-		elseif ( in_array( $key, [ 'ip_ref', 'cidr', 'offenses' ] ) ) {
+		elseif ( \in_array( $key, [ 'ip_ref', 'cidr', 'offenses' ] ) ) {
 			$value = (int)$value;
 		}
-		elseif ( in_array( $key, [ 'is_range', 'can_export' ] ) ) {
+		elseif ( \in_array( $key, [ 'is_range', 'can_export' ] ) ) {
 			$value = (bool)$value;
 		}
 

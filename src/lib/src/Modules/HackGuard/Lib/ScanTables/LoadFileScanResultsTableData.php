@@ -62,11 +62,11 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 										  ->setTimestamp( $item->VO->created_at )
 										  ->diffForHumans(),
 			'file_as_href'     => $this->getColumnContent_FileAsHref( $item ),
-			'file_type'        => strtoupper( Services::Data()->getExtension( $item->path_full ) ),
+			'file_type'        => \strtoupper( Services::Data()->getExtension( $item->path_full ) ),
 			'status_file_size' => $this->column_fileSize( $item ),
 			'status_file_type' => $this->column_fileType( $item ),
 			'status'           => $this->getColumnContent_FileStatus( $item ),
-			'actions'          => implode( ' ', $this->getActions( $item ) ),
+			'actions'          => \implode( ' ', $this->getActions( $item ) ),
 		] );
 
 		if ( $item->is_mal ) {
@@ -168,7 +168,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 									  ->setScanItem( $item );
 				if ( $actionHandler->getRepairHandler()->canRepairItem() ) {
 					$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-						implode( ' ', $defaultButtonClasses ),
+						\implode( ' ', $defaultButtonClasses ),
 						__( 'Repair', 'wp-simple-firewall' ),
 						$item->VO->scanresult_id,
 						$con->svgs->raw( 'tools.svg' )
@@ -180,7 +180,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
-			implode( ' ', $defaultButtonClasses ),
+			\implode( ' ', $defaultButtonClasses ),
 			__( 'Ignore', 'wp-simple-firewall' ),
 			$item->VO->scanresult_id,
 			$con->svgs->raw( 'eye-slash-fill.svg' )
@@ -196,8 +196,8 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function column_fileType( ResultItem $item ) :string {
-		$extension = strtoupper( Paths::Ext( $item->path_full ) );
-		if ( strpos( $extension, 'PHP' ) !== false ) {
+		$extension = \strtoupper( Paths::Ext( $item->path_full ) );
+		if ( \strpos( $extension, 'PHP' ) !== false ) {
 			$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
 				$this->con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
 		}

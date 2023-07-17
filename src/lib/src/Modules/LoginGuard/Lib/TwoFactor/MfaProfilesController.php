@@ -37,11 +37,11 @@ class MfaProfilesController {
 			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 				$this->enqueueAssets( false );
 
-				if ( in_array( 'dedicated', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'dedicated', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserLoginSecurityPage();
 				}
 
-				if ( in_array( 'profile', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'profile', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserProfileSections();
 				}
 			}
@@ -85,7 +85,7 @@ class MfaProfilesController {
 		$this->isFrontend = $isFrontend;
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
 
-			$isPageWithProfileDisplay = preg_match( '#^(profile\.php|user-edit\.php|[a-z_\-]+shield-login-security)$#', (string)$hook );
+			$isPageWithProfileDisplay = \preg_match( '#^(profile\.php|user-edit\.php|[a-z_\-]+shield-login-security)$#', (string)$hook );
 			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
 				$enqueues[ Enqueue::CSS ][] = 'shield/dialog';
@@ -112,7 +112,7 @@ class MfaProfilesController {
 								'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
 							],
 							'vars'    => [
-								'providers' => array_map( function ( $provider ) {
+								'providers' => \array_map( function ( $provider ) {
 									return $provider->getJavascriptVars();
 								}, $providers )
 							],

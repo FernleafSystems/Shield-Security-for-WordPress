@@ -45,7 +45,7 @@ class Sessions extends Base {
 			],
 			'vars'    => [
 				'sessions'       => $allSessions,
-				'total_sessions' => count( $allSessions ),
+				'total_sessions' => \count( $allSessions ),
 			],
 		];
 	}

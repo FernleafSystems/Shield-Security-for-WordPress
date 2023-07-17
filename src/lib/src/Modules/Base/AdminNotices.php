@@ -45,25 +45,24 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	 * @return NoticeVO[]
 	 */
 	public function getAdminNotices() :array {
-		return array_map(
+		return \array_map(
 			function ( $noticeDef ) {
-				$noticeDef = Services::DataManipulation()
-									 ->mergeArraysRecursive(
-										 [
-											 'schedule'         => 'conditions',
-											 'type'             => 'promo',
-											 'plugin_page_only' => true,
-											 'valid_admin'      => true,
-											 'plugin_admin'     => 'yes',
-											 'can_dismiss'      => true,
-											 'per_user'         => false,
-											 'display'          => false,
-											 'min_install_days' => 0,
-											 'twig'             => true,
-											 'mod'              => $this->mod()->cfg->slug,
-										 ],
-										 $noticeDef
-									 );
+				$noticeDef = Services::DataManipulation()->mergeArraysRecursive(
+					[
+						'schedule'         => 'conditions',
+						'type'             => 'promo',
+						'plugin_page_only' => true,
+						'valid_admin'      => true,
+						'plugin_admin'     => 'yes',
+						'can_dismiss'      => true,
+						'per_user'         => false,
+						'display'          => false,
+						'min_install_days' => 0,
+						'twig'             => true,
+						'mod'              => $this->mod()->cfg->slug,
+					],
+					$noticeDef
+				);
 				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},
 			$this->getOptions()->getAdminNotices()
@@ -138,7 +137,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				$dismissed = true;
 
 				// migrate from old-style array storage to plain Timestamp
-				if ( is_array( $meta->{$noticeMetaKey} ) ) {
+				if ( \is_array( $meta->{$noticeMetaKey} ) ) {
 					$meta->{$noticeMetaKey} = $meta->{$noticeMetaKey}[ 'time' ];
 				}
 			}
@@ -179,6 +178,6 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	private function getNoticeMetaKey( NoticeVO $notice ) :string {
-		return 'notice_'.str_replace( [ '-', '_' ], '', $notice->id );
+		return 'notice_'.\str_replace( [ '-', '_' ], '', $notice->id );
 	}
 }

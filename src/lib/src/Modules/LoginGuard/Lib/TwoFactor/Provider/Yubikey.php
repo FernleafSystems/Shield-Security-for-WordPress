@@ -172,10 +172,10 @@ class Yubikey extends AbstractShieldProvider {
 
 	protected function hasValidSecret() :bool {
 		$secret = $this->getSecret();
-		return count( array_filter(
-				explode( ',', is_string( $secret ) ? $secret : '' ),
+		return \count( \array_filter(
+				\explode( ',', \is_string( $secret ) ? $secret : '' ),
 				function ( $yubiID ) {
-					return (bool)preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $yubiID );
+					return (bool)\preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $yubiID );
 				}
 			) ) > 0;
 	}

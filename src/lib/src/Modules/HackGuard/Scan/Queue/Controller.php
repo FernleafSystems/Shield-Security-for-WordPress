@@ -33,7 +33,7 @@ class Controller {
 	 * @return bool[]
 	 */
 	public function getScansRunningStates() :array {
-		$scans = array_fill_keys( $this->mod()->getScansCon()->getScanSlugs(), false );
+		$scans = \array_fill_keys( $this->mod()->getScansCon()->getScanSlugs(), false );
 		foreach ( ( new ScansStatus() )->enqueued() as $enqueued ) {
 			$scans[ $enqueued ] = true;
 		}
@@ -44,7 +44,7 @@ class Controller {
 	 * @return string[]
 	 */
 	public function getRunningScans() :array {
-		return array_keys( array_filter( $this->getScansRunningStates() ) );
+		return \array_keys( \array_filter( $this->getScansRunningStates() ) );
 	}
 
 	/**
@@ -63,7 +63,7 @@ class Controller {
 		else {
 			$progress = 0;
 			$eachScanWeight = 1/count( $countsAll );
-			foreach ( array_keys( $countsAll ) as $scan ) {
+			foreach ( \array_keys( $countsAll ) as $scan ) {
 				$progress += $eachScanWeight*( 1 - ( ( $countsUnfinished[ $scan ] ?? 0 )/$countsAll[ $scan ] ) );
 			}
 		}
@@ -72,7 +72,7 @@ class Controller {
 	}
 
 	public function hasRunningScans() :bool {
-		return count( $this->getRunningScans() ) > 0 || count( $this->opts()->getScansToBuild() ) > 0;
+		return \count( $this->getRunningScans() ) > 0 || \count( $this->opts()->getScansToBuild() ) > 0;
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {

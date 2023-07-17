@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Options extends BaseShield\Options {
 
 	public function getAutoExpireTime() :int {
-		return (int)constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
+		return (int)constant( \strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
 	}
 
 	public function getOffenseLimit() :int {
@@ -17,10 +17,10 @@ class Options extends BaseShield\Options {
 
 	public function botSignalsGetAllowable404s() :array {
 		$def = $this->getDef( 'bot_signals' )[ 'allowable_ext_404s' ] ?? [];
-		return array_unique( array_filter(
+		return \array_unique( \array_filter(
 			apply_filters( 'shield/bot_signals_allowable_extensions_404s', $def ),
 			function ( $ext ) {
-				return !empty( $ext ) && is_string( $ext ) && preg_match( '#^[a-z\d]+$#i', $ext );
+				return !empty( $ext ) && \is_string( $ext ) && \preg_match( '#^[a-z\d]+$#i', $ext );
 			}
 		) );
 	}
@@ -40,11 +40,11 @@ class Options extends BaseShield\Options {
 	 */
 	public function getRequestWhitelistAsRegex() :array {
 		$paths = $this->con()->isPremiumActive() ? $this->getOpt( 'request_whitelist', [] ) : [];
-		return array_map(
+		return \array_map(
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH );
 			},
-			is_array( $paths ) ? $paths : []
+			\is_array( $paths ) ? $paths : []
 		);
 	}
 
@@ -122,7 +122,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrackOptTransgression( string $key ) :bool {
-		return strpos( $this->getOpt( $key ), 'transgression' ) !== false;
+		return \strpos( $this->getOpt( $key ), 'transgression' ) !== false;
 	}
 
 	public function isTrackOptDoubleTransgression( string $key ) :bool {

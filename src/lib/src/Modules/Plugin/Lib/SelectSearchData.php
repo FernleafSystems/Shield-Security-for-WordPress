@@ -37,7 +37,7 @@ class SelectSearchData {
 	}
 
 	/**
-	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
+	 * Note use of \array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function ipSearch( string $terms ) :array {
@@ -78,7 +78,7 @@ class SelectSearchData {
 		return [
 			[
 				'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
-				'children' => array_map(
+				'children' => \array_map(
 					function ( string $ip ) {
 						return [
 							'id'          => 'ip_'.$ip,
@@ -95,14 +95,14 @@ class SelectSearchData {
 							'icon'        => $this->con()->svgs->raw( 'diagram-2-fill.svg' ),
 						];
 					},
-					array_unique( $results )
+					\array_unique( $results )
 				),
 			]
 		];
 	}
 
 	/**
-	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
+	 * Note use of \array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function textSearch( string $search ) :array {
@@ -115,7 +115,7 @@ class SelectSearchData {
 			\explode( ' ', $search )
 		) ) );
 
-		$optionGroups = array_merge(
+		$optionGroups = \array_merge(
 			$this->getToolsSearch(),
 			$this->getIntegrationsSearch(),
 			$this->getExternalSearch(),
@@ -131,7 +131,7 @@ class SelectSearchData {
 					// Remove unnecessary 'tokens' from data sent back to select2
 					unset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'tokens' ] );
 
-					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] = array_merge( [
+					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] = \array_merge( [
 						'is_external' => false,
 						'ip'          => false,
 					], $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] );
@@ -146,11 +146,11 @@ class SelectSearchData {
 				unset( $optionGroups[ $optGroupKey ] );
 			}
 			else {
-				$optionGroups[ $optGroupKey ][ 'children' ] = array_values( $optionGroups[ $optGroupKey ][ 'children' ] );
+				$optionGroups[ $optGroupKey ][ 'children' ] = \array_values( $optionGroups[ $optGroupKey ][ 'children' ] );
 			}
 		}
 
-		return array_values( $optionGroups );
+		return \array_values( $optionGroups );
 	}
 
 	private function searchString( string $haystack, array $needles ) :int {
@@ -455,12 +455,12 @@ class SelectSearchData {
 		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
 		$strOpts = $modStrings->getOptionStrings( $optKey );
 
-		$allWords = array_filter( array_map( 'trim',
-			explode( ' ', preg_replace( '#\(\):-#', ' ', strip_tags( implode( ' ', array_merge(
+		$allWords = \array_filter( \array_map( 'trim',
+			\explode( ' ', \preg_replace( '#\(\):-#', ' ', \strip_tags( \implode( ' ', \array_merge(
 				[
 					$strOpts[ 'name' ],
 					$strOpts[ 'summary' ],
-					( is_array( $strOpts[ 'description' ] ) ? implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
+					( \is_array( $strOpts[ 'description' ] ) ? \implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
 					$strSection[ 'title' ],
 					$strSection[ 'title_short' ],
 				],

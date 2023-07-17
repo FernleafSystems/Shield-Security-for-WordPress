@@ -17,7 +17,7 @@ class LocateNeedles {
 	private $path;
 
 	public function raw( string $needle ) :bool {
-		return strpos( $this->getContent(), $needle ) !== false;
+		return \strpos( $this->getContent(), $needle ) !== false;
 	}
 
 	public function iRaw( string $needle ) :bool {
@@ -25,7 +25,7 @@ class LocateNeedles {
 	}
 
 	public function regex( string $needle ) :bool {
-		return preg_match( '/('.$needle.')/i', $this->getContent() ) > 0;
+		return \preg_match( '/('.$needle.')/i', $this->getContent() ) > 0;
 	}
 
 	public function getContent() :string {

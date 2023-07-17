@@ -81,7 +81,7 @@ class AddRule {
 		if ( empty( $parsedRange ) ) {
 			throw new \Exception( sprintf( "Invalid IP address or IP Range: %s", $ip ) );
 		}
-		if ( !in_array( $parsedRange->getRangeType(), [ Type::T_PUBLIC, Type::T_PRIVATENETWORK ] ) ) {
+		if ( !\in_array( $parsedRange->getRangeType(), [ Type::T_PUBLIC, Type::T_PRIVATENETWORK ] ) ) {
 			throw new \Exception( sprintf( "A non-public/private IP address provided: %s", $ip ) );
 		}
 		if ( $parsedRange->getSize() > 1 && $type === $dbh::T_AUTO_BLOCK ) {
@@ -89,7 +89,7 @@ class AddRule {
 		}
 
 		// Never block our own server IP
-		if ( in_array( $type, [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
+		if ( \in_array( $type, [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
 			foreach ( Services::IP()->getServerPublicIPs() as $serverPublicIP ) {
 				$serverAddress = Factory::parseAddressString( $serverPublicIP );
 				if ( !empty( $serverAddress ) && $parsedRange->contains( $serverAddress ) ) {
@@ -200,14 +200,14 @@ class AddRule {
 		$tmp = $dbh->getRecord();
 		$tmp->applyFromArray( $data );
 		$tmp->ip_ref = $ipRecord->id;
-		$tmp->cidr = explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
+		$tmp->cidr = \explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
 		$tmp->is_range = $parsedRange->getSize() > 1;
 		$tmp->type = $type;
 		/** Only whitelisted IPs may be exported */
 		$tmp->can_export = $type === $dbh::T_MANUAL_BYPASS && ( $data[ 'can_export' ] ?? false );
 		$tmp->imported_at = ( $type === $dbh::T_MANUAL_BYPASS && isset( $data[ 'imported_at' ] ) ) ? $data[ 'imported_at' ] : 0;
-		$tmp->label = preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
-		if ( $tmp->blocked_at == 0 && in_array( $type, [ $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
+		$tmp->label = \preg_replace( '/[^\sa-z0-9_\-]/i', '', $tmp->label );
+		if ( $tmp->blocked_at == 0 && \in_array( $type, [ $dbh::T_MANUAL_BLOCK, $dbh::T_CROWDSEC ] ) ) {
 			$tmp->blocked_at = Services::Request()->ts();
 		}
 

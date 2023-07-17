@@ -179,7 +179,7 @@ class SecurityAdminController {
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 		}
-		return $user instanceof \WP_User && in_array( $user->user_login, $this->opts()->getSecurityAdminUsers() );
+		return $user instanceof \WP_User && \in_array( $user->user_login, $this->opts()->getSecurityAdminUsers() );
 	}
 
 	public function isCurrentlySecAdmin() :bool {

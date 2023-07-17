@@ -26,7 +26,7 @@ class MergeAutoBlockRules {
 	public function byRecords( array $records ) :void {
 		$dbh = $this->mod()->getDbH_IPRules();
 
-		if ( count( $records ) < 2 ) {
+		if ( \count( $records ) < 2 ) {
 			throw new \Exception( 'At least 2 records are required to merge.' );
 		}
 

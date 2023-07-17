@@ -125,8 +125,8 @@ class BotSignalsRecord {
 
 		/** Clean out old signals that have no bearing on bot calculations */
 		foreach ( $this->mod()->getDbH_BotSignal()->getTableSchema()->getColumnNames() as $col ) {
-			if ( preg_match( '#_at$#i', $col )
-				 && !in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
+			if ( \preg_match( '#_at$#i', $col )
+				 && !\in_array( $col, [ 'created_at', 'updated_at', 'deleted_at' ] )
 				 && Services::Request()->carbon()->subMonth()->timestamp > $r->{$col} ) {
 				$r->{$col} = 0;
 			}

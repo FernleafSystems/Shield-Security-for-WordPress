@@ -12,7 +12,7 @@ class MfaSkip {
 
 	public function addMfaSkip( \WP_User $user ) {
 		$meta = $this->con()->user_metas->for( $user );
-		$hashes = is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
+		$hashes = \is_array( $meta->hash_loginmfa ) ? $meta->hash_loginmfa : [];
 		$hashes[ $this->getAgentHash() ] = Services::Request()->ts();
 
 		$maxExpires = $this->opts()->getMfaSkip();

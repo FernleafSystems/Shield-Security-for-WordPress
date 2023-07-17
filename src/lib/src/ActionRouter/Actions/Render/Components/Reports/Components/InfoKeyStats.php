@@ -32,7 +32,7 @@ class InfoKeyStats extends BaseBuilder {
 						$countData = [
 							'count_latest'   => $eventSumLatest,
 							'count_previous' => $eventSumPrevious,
-							'count_diff'     => abs( $diff ),
+							'count_diff'     => \abs( $diff ),
 							'diff_symbol'    => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
 							'name'           => $con->loadEventsService()->getEventName( $event ),
 						];
@@ -46,7 +46,7 @@ class InfoKeyStats extends BaseBuilder {
 			$this->getEventsToStat()
 		) );
 
-		$countsInRows = array_chunk( $counts, 2 );
+		$countsInRows = \array_chunk( $counts, 2 );
 
 		return [
 			'flags'   => [

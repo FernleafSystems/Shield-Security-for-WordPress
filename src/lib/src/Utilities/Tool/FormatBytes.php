@@ -11,7 +11,7 @@ class FormatBytes {
 	 * @param string     $separator
 	 */
 	public static function Format( $bytes, $precision = 2, $separator = ' ' ) :string {
-		return implode( $separator, self::FormatParts( $bytes, $precision ) );
+		return \implode( $separator, self::FormatParts( $bytes, $precision ) );
 	}
 
 	/**

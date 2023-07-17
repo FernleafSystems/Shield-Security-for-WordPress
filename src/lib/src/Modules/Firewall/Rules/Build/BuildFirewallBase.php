@@ -23,7 +23,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getCommonAuditParamsMapping() :array {
-		return array_merge( parent::getCommonAuditParamsMapping(), [
+		return \array_merge( parent::getCommonAuditParamsMapping(), [
 			'term'  => 'match_pattern',
 			'param' => 'match_request_param',
 			'value' => 'match_request_value',
@@ -127,7 +127,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getExcludedPaths() :array {
-		return array_keys( array_filter( $this->getExclusions(), function ( $excl ) {
+		return \array_keys( \array_filter( $this->getExclusions(), function ( $excl ) {
 			return empty( $excl );
 		} ) );
 	}
@@ -137,7 +137,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		$opts = $this->getOptions();
 		$exclusions = $opts->getDef( 'default_whitelist' );
 		foreach ( $opts->getCustomWhitelist() as $page => $params ) {
-			if ( empty( $params ) || !is_array( $params ) ) {
+			if ( empty( $params ) || !\is_array( $params ) ) {
 				continue;
 			}
 			if ( !isset( $exclusions[ $page ] ) ) {
@@ -145,7 +145,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'simple' => [],
 				];
 			}
-			$exclusions[ $page ][ 'simple' ] = array_merge( $exclusions[ $page ][ 'simple' ], $params );
+			$exclusions[ $page ][ 'simple' ] = \array_merge( $exclusions[ $page ][ 'simple' ], $params );
 		}
 		return $exclusions;
 	}

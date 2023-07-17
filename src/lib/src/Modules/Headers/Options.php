@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
 	public function getCspCustomRules() :array {
-		$csp = is_array( $this->getOpt( 'xcsp_custom' ) ) ? $this->getOpt( 'xcsp_custom' ) : [];
-		$this->setOpt( 'xcsp_custom', array_filter( array_map( 'trim', $csp ) ) );
+		$csp = \is_array( $this->getOpt( 'xcsp_custom' ) ) ? $this->getOpt( 'xcsp_custom' ) : [];
+		$this->setOpt( 'xcsp_custom', \array_filter( \array_map( 'trim', $csp ) ) );
 		return $this->con()->isPremiumActive() ? $this->getOpt( 'xcsp_custom' ) : [];
 	}
 
@@ -16,7 +16,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	 */
 	public function getReferrerPolicyValue() :string {
 		$value = $this->getOpt( 'x_referrer_policy' );
-		return in_array( $value, [ 'empty', 'disabled' ] ) ? '' : $value;
+		return \in_array( $value, [ 'empty', 'disabled' ] ) ? '' : $value;
 	}
 
 	public function isEnabledContentSecurityPolicy() :bool {
@@ -33,7 +33,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function isEnabledXFrame() :bool {
-		return in_array( $this->getOpt( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] );
+		return \in_array( $this->getOpt( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] );
 	}
 
 	public function isReferrerPolicyEnabled() :bool {

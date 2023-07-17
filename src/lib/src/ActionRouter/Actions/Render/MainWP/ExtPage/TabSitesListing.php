@@ -23,7 +23,7 @@ class TabSitesListing extends BaseSubPage {
 			'needs_update' => 0,
 		];
 
-		$sites = array_filter( array_map(
+		$sites = \array_filter( \array_map(
 			function ( $site ) use ( $statsHead ) {
 				try {
 					return $this->buildEntireSiteData( $site );

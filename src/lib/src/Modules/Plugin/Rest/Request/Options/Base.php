@@ -23,7 +23,7 @@ abstract class Base extends Process {
 			foreach ( \array_keys( $modOpts ) as $key ) {
 				if ( empty( $req->filter_keys ) || \in_array( $key, $req->filter_keys ) ) {
 					$optDef = $this->getOptionData( $key );
-					$all[] = empty( $filterFields ) ? $optDef : array_intersect_key( $optDef, $filterFields );
+					$all[] = empty( $filterFields ) ? $optDef : \array_intersect_key( $optDef, $filterFields );
 				}
 			}
 		}

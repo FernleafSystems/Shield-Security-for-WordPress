@@ -22,7 +22,7 @@ class AlertScanResults extends BaseBuilderForScans {
 		$con = $this->con();
 
 		$c = new Counts( RetrieveCount::CONTEXT_NOT_YET_NOTIFIED );
-		$counts = array_filter( [
+		$counts = \array_filter( [
 			Apc::SCAN_SLUG => $c->countAbandoned(),
 			Afs::SCAN_SLUG => $c->countThemeFiles() + $c->countPluginFiles() + $c->countMalware() + $c->countWPFiles(),
 			Wpv::SCAN_SLUG => $c->countVulnerableAssets(),

@@ -78,13 +78,13 @@ class ResultItem extends Base\ResultItem {
 				}
 				break;
 			case 'mal_sig':
-				$value = base64_decode( $value );
+				$value = \base64_decode( $value );
 				break;
 			default:
 				break;
 		}
 
-		if ( preg_match( '/^is_/i', $key ) ) {
+		if ( \preg_match( '/^is_/i', $key ) ) {
 			$value = (bool)$value;
 		}
 
@@ -94,13 +94,13 @@ class ResultItem extends Base\ResultItem {
 	public function __set( string $key, $value ) {
 		switch ( $key ) {
 			case 'mal_sig':
-				$value = base64_encode( $value );
+				$value = \base64_encode( $value );
 				break;
 			default:
 				break;
 		}
 
-		if ( preg_match( '/^is_/i', $key ) ) {
+		if ( \preg_match( '/^is_/i', $key ) ) {
 			$value = (bool)$value;
 		}
 

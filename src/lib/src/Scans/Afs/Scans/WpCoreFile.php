@@ -30,12 +30,12 @@ class WpCoreFile extends BaseScan {
 
 	protected function isFileExcluded() :bool {
 		$exclusionsRegex = $this->getScanFileExclusions();
-		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $this->pathFragment );
+		return !empty( $exclusionsRegex ) && \preg_match( $exclusionsRegex, $this->pathFragment );
 	}
 
 	private function isExcludedMissing() :bool {
 		$exclusionsRegex = $this->getScanExclusionsForMissingItems();
-		return !empty( $exclusionsRegex ) && preg_match( $exclusionsRegex, $this->pathFragment );
+		return !empty( $exclusionsRegex ) && \preg_match( $exclusionsRegex, $this->pathFragment );
 	}
 
 	private function getScanFileExclusions() :string {
@@ -43,19 +43,19 @@ class WpCoreFile extends BaseScan {
 
 		$exclusions = $this->opts()->getDef( 'wcf_exclusions' );
 		// Flywheel specific mods
-		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
+		if ( \defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
 			$exclusions[] = 'wp-settings.php';
 			$exclusions[] = 'wp-admin/includes/upgrade.php';
 		}
 
 		if ( !empty( $exclusions ) ) {
-			$quoted = array_map(
+			$quoted = \array_map(
 				function ( $exclusion ) {
-					return preg_quote( $exclusion, '#' );
+					return \preg_quote( $exclusion, '#' );
 				},
 				$exclusions
 			);
-			$pattern = '#('.implode( '|', $quoted ).')#i';
+			$pattern = '#('.\implode( '|', $quoted ).')#i';
 		}
 		return $pattern;
 	}
@@ -67,13 +67,13 @@ class WpCoreFile extends BaseScan {
 		$pattern = '';
 		$exclusions = $this->opts()->getDef( 'wcf_exclusions_missing_only' );
 		if ( !empty( $exclusions ) ) {
-			$quoted = array_map(
+			$quoted = \array_map(
 				function ( $exclusion ) {
-					return preg_quote( $exclusion, '#' );
+					return \preg_quote( $exclusion, '#' );
 				},
 				$exclusions
 			);
-			$pattern = '#('.implode( '|', $quoted ).')#i';
+			$pattern = '#('.\implode( '|', $quoted ).')#i';
 		}
 		return $pattern;
 	}

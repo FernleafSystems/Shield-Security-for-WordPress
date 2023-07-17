@@ -86,16 +86,16 @@ class EventsToSignals extends EventsListener {
 
 	private function getMilliseconds() :string {
 		$milli = '0';
-		if ( function_exists( 'microtime' ) ) {
+		if ( \function_exists( 'microtime' ) ) {
 			$ts = microtime();
-			if ( !empty( $ts ) && strpos( $ts, ' ' ) ) {
-				$ts = explode( ' ', $ts )[ 0 ];
-				if ( strpos( $ts, '.' ) ) {
-					$milli = rtrim( substr( explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
+			if ( !empty( $ts ) && \strpos( $ts, ' ' ) ) {
+				$ts = \explode( ' ', $ts )[ 0 ];
+				if ( \strpos( $ts, '.' ) ) {
+					$milli = rtrim( substr( \explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
 				}
 			}
 		}
-		return strlen( $milli ) > 0 ? $milli : '0';
+		return \strlen( $milli ) > 0 ? $milli : '0';
 	}
 
 	private function triggerSignalsCron() {

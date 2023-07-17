@@ -35,7 +35,7 @@ class Processor extends BaseShield\Processor {
 			$subject,
 			sprintf( '<html lang="%s">%s</html>',
 				$WP->getLocale( '-' ),
-				implode( "<br />", array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
+				\implode( "<br />", \array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
 			)
 		);
 	}
@@ -86,7 +86,7 @@ class Processor extends BaseShield\Processor {
 	public function setMailFrom( $from ) {
 		$DP = Services::Data();
 
-		$proposed = trim( (string)apply_filters( 'shield/email_from', apply_filters( 'icwp_shield_from_email', $from ) ) );
+		$proposed = \trim( (string)apply_filters( 'shield/email_from', apply_filters( 'icwp_shield_from_email', $from ) ) );
 
 		if ( $DP->validEmail( $proposed ) ) {
 			$from = $proposed;

@@ -68,7 +68,7 @@ class AuditCon {
 			) );
 
 			// Typically on initial installation we want to prime all the snapshots.
-			if ( count( $this->getSnapshots() ) !== count( $allSnappers ) ) {
+			if ( \count( $this->getSnapshots() ) !== \count( $allSnappers ) ) {
 				$hook = $this->con()->prefix( 'auditcon_prime_snapshots' );
 				if ( !wp_next_scheduled( $hook ) ) {
 					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );

@@ -55,8 +55,8 @@ abstract class ModCon extends Base\ModCon {
 		$cleaned = [];
 
 		foreach ( $arr as $val ) {
-			$val = preg_replace( $pregReplacePattern, '', $val );
-			if ( strlen( $val ) > 0 ) {
+			$val = \preg_replace( $pregReplacePattern, '', $val );
+			if ( \strlen( $val ) > 0 ) {
 				$cleaned[] = $val;
 			}
 		}

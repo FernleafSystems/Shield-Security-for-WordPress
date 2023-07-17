@@ -73,7 +73,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 
 	protected function getLoadLogsWheres() :array {
 		return [
-			sprintf( "(`log`.`event_slug` IN ('%s') OR `log`.`event_slug` LIKE 'wp_option_%%')", implode( "','", [
+			sprintf( "(`log`.`event_slug` IN ('%s') OR `log`.`event_slug` LIKE 'wp_option_%%')", \implode( "','", [
 				'core_updated',
 				'permalinks_structure',
 			] ) ),

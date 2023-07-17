@@ -24,7 +24,7 @@ class BaseCapabilitiesRestrict extends Base {
 		/** @var string $requestedCap */
 		$requestedCap = $args[ 0 ];
 
-		if ( is_string( $requestedCap ) && $this->isCapabilityToBeRestricted( $requestedCap ) ) {
+		if ( \is_string( $requestedCap ) && $this->isCapabilityToBeRestricted( $requestedCap ) ) {
 			$allCaps[ $requestedCap ] = false;
 		}
 
@@ -37,12 +37,12 @@ class BaseCapabilitiesRestrict extends Base {
 
 	protected function getRestrictedCapabilities() :array {
 		$caps = $this->opts()->getOpt( 'admin_access_restrict_'.static::AREA_SLUG, [] );
-		return is_array( $caps ) ? $caps : [];
+		return \is_array( $caps ) ? $caps : [];
 	}
 
 	protected function isCapabilityToBeRestricted( string $cap ) :bool {
-		return in_array( $cap, $this->getApplicableCapabilities() )
-			   && in_array( $cap, $this->getRestrictedCapabilities() );
+		return \in_array( $cap, $this->getApplicableCapabilities() )
+			   && \in_array( $cap, $this->getRestrictedCapabilities() );
 	}
 
 	protected function hasRestrictedCapabilities() :bool {

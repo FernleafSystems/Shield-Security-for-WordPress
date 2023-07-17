@@ -29,7 +29,7 @@ class BuildScanTableData extends BaseBuildTableData {
 	 * @param LogRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
-		return array_values( $records );
+		return \array_values( $records );
 	}
 
 	/**
@@ -38,18 +38,18 @@ class BuildScanTableData extends BaseBuildTableData {
 	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
+			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'event':
-						if ( count( $selected ) > 1 ) {
-							$wheres[] = sprintf( "log.event_slug IN ('%s')", implode( '`,`', $selected ) );
+						if ( \count( $selected ) > 1 ) {
+							$wheres[] = sprintf( "log.event_slug IN ('%s')", \implode( '`,`', $selected ) );
 						}
 						else {
-							$wheres[] = sprintf( "log.event_slug='%s'", array_pop( $selected ) );
+							$wheres[] = sprintf( "log.event_slug='%s'", \array_pop( $selected ) );
 						}
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;
 					default:
 						break;
@@ -71,7 +71,7 @@ class BuildScanTableData extends BaseBuildTableData {
 
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
@@ -125,7 +125,7 @@ class BuildScanTableData extends BaseBuildTableData {
 
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->order_by;
-		$loader->search_text = preg_replace( '#[^/a-z\d_-]#i', '', (string)$this->table_data[ 'search' ][ 'value' ] ?? '' );
+		$loader->search_text = \preg_replace( '#[^/a-z\d_-]#i', '', (string)$this->table_data[ 'search' ][ 'value' ] ?? '' );
 		return $loader;
 	}
 }

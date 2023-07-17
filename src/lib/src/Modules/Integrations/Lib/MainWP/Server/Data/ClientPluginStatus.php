@@ -20,8 +20,7 @@ class ClientPluginStatus {
 	public const VERSION_OLDER_THAN_SERVER = 'vots';
 
 	public function status() :string {
-		$status = $this->detect();
-		return key( $status );
+		return \key( $this->detect() );
 	}
 
 	/**
@@ -43,7 +42,7 @@ class ClientPluginStatus {
 				$status = self::MWP_NOT_ON;
 			}
 			else {
-				$versionStatus = version_compare( $this->con()->getVersion(), $m->version );
+				$versionStatus = \version_compare( $this->con()->getVersion(), $m->version );
 				if ( $versionStatus === -1 ) {
 					$status = self::VERSION_NEWER_THAN_SERVER;
 				}
@@ -70,9 +69,9 @@ class ClientPluginStatus {
 	public function getInstalledPlugin() {
 		$thePlugin = null;
 
-		$baseName = basename( $this->con()->base_file );
+		$baseName = \basename( $this->con()->base_file );
 		foreach ( $this->getMwpSite()->plugins as $plugin ) {
-			if ( basename( $plugin[ 'slug' ] ) === $baseName ) {
+			if ( \basename( $plugin[ 'slug' ] ) === $baseName ) {
 				$thePlugin = $plugin;
 				break;
 			}

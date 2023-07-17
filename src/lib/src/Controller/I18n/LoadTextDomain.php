@@ -32,13 +32,12 @@ class LoadTextDomain {
 	/**
 	 * Path of format -
 	 * wp-content/languages/plugins/wp-simple-firewall-de_DE.mo
-	 * @return string
 	 */
-	private function overrideTranslations( string $moFilePath ) {
+	private function overrideTranslations( string $moFilePath ) :string {
 		$con = $this->con();
 
 		// use determine_locale() as it also considers the user's profile preference
-		$locale = function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();
+		$locale = \function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();
 		$filteredLocale = apply_filters( 'plugin_locale', $locale, $con->getTextDomain() );
 		if ( !empty( $filteredLocale ) ) {
 			$locale = $filteredLocale;

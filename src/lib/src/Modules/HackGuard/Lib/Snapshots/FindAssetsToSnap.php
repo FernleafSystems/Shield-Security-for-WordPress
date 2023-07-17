@@ -34,6 +34,6 @@ class FindAssetsToSnap {
 			$assets[] = $asset;
 		}
 
-		return array_filter( $assets );
+		return \array_filter( $assets );
 	}
 }

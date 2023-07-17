@@ -24,7 +24,6 @@ class FileDownload extends BaseAction {
 			Services::Response()->downloadStringAsFile( $contents[ 'content' ], $contents[ 'name' ] );
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
 			$resp = $this->response();
 			$resp->success = false;
 			$resp->message = $e->getMessage();

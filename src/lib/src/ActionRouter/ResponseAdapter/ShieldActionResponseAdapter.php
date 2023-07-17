@@ -11,7 +11,7 @@ class ShieldActionResponseAdapter extends BaseAdapter {
 
 		switch ( $response->action_data[ 'notification_type' ] ?? '' ) {
 			case 'wp_admin_notice':
-				if ( is_string( $response->action_response_data[ 'message' ] ?? null ) ) {
+				if ( \is_string( $response->action_response_data[ 'message' ] ?? null ) ) {
 					$con->getAdminNotices()
 						->addFlash(
 							$response->action_response_data[ 'message' ],

@@ -77,11 +77,11 @@ class Controller {
 		$notices = [];
 		foreach ( $this->con()->modules as $mod ) {
 			if ( !empty( $mod->getOptions()->getAdminNotices() ) ) {
-				$notices = array_merge( $notices, $mod->getAdminNotices()->getNotices() );
+				$notices = \array_merge( $notices, $mod->getAdminNotices()->getNotices() );
 			}
 		}
 		$notices[] = $this->getFlashNotice();
-		return array_filter(
+		return \array_filter(
 			$notices,
 			function ( $notice ) {
 				return $notice instanceof NoticeVO;
@@ -95,7 +95,7 @@ class Controller {
 	public function getFlashNotice() {
 		$notice = null;
 		$msg = $this->retrieveFlashMessage();
-		if ( is_array( $msg ) ) {
+		if ( \is_array( $msg ) ) {
 			$notice = new NoticeVO();
 			$notice->type = $msg[ 'error' ] ? 'error' : 'updated';
 			$notice->render_data = [
@@ -118,7 +118,7 @@ class Controller {
 	private function retrieveFlashMessage() {
 		$msg = null;
 		$meta = $this->con()->user_metas->current();
-		if ( !empty( $meta ) && is_array( $meta->flash_msg ) ) {
+		if ( !empty( $meta ) && \is_array( $meta->flash_msg ) ) {
 			if ( empty( $meta->flash_msg[ 'expires_at' ] ) || Services::Request()
 																	  ->ts() < $meta->flash_msg[ 'expires_at' ] ) {
 				$msg = $meta->flash_msg;

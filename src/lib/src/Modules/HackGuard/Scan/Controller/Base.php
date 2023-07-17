@@ -208,7 +208,7 @@ abstract class Base {
 
 	public function getSlug() :string {
 		try {
-			$slug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
+			$slug = \strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}
 		catch ( \Exception $e ) {
 			$slug = '';

@@ -85,7 +85,7 @@ class MerlinController {
 	}
 
 	/**
-	 * Simply array_unique(array_merge()) when more wizards are added.
+	 * Simply \array_unique(array_merge()) when more wizards are added.
 	 * @return Steps\Base[]|string[]
 	 */
 	private function getAllHandlers() :array {

@@ -19,12 +19,12 @@ class DiffVO extends DynPropertiesClass {
 			case 'added':
 			case 'removed':
 			case 'changed':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;
 			case 'has_diffs':
-				$value = count( $this->added ) + count( $this->removed ) + count( $this->changed ) > 0;
+				$value = \count( $this->added ) + \count( $this->removed ) + \count( $this->changed ) > 0;
 				break;
 			default:
 				break;

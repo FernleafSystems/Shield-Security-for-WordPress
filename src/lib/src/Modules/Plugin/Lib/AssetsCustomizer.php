@@ -69,7 +69,7 @@ class AssetsCustomizer {
 
 				default:
 					$enq[ Enqueue::JS ][] = 'shield/tables';
-					if ( in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
+					if ( \in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					break;
@@ -83,7 +83,7 @@ class AssetsCustomizer {
 	}
 
 	private function localiseScripts( array $locals ) :array {
-		return array_merge( $locals, array_filter( [
+		return \array_merge( $locals, \array_filter( [
 			$this->shieldPluginGlobal(),
 			$this->shieldPlugin(),
 			$this->navigation(),
@@ -202,7 +202,7 @@ class AssetsCustomizer {
 							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
 							'placeholder'            => sprintf( '%s (%s)',
 								__( 'Search for anything', 'wp-simple-firewall' ),
-								'e.g. '.implode( ', ', [
+								'e.g. '.\implode( ', ', [
 									__( 'IPs', 'wp-simple-firewall' ),
 									__( 'options', 'wp-simple-firewall' ),
 									__( 'tools', 'wp-simple-firewall' ),

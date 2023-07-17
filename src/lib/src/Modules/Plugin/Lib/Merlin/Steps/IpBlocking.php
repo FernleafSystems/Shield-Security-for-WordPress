@@ -28,12 +28,12 @@ class IpBlocking extends Base {
 		if ( empty( $blockLength ) ) {
 			throw new \Exception( 'Please provide a block length' );
 		}
-		if ( !in_array( $blockLength, [ 'day', 'week', 'month' ], true ) ) {
+		if ( !\in_array( $blockLength, [ 'day', 'week', 'month' ], true ) ) {
 			throw new \Exception( 'Invalid request.' );
 		}
 
 		$csBlock = $form[ 'cs_block' ] ?? '';
-		if ( !in_array( $csBlock, [ '', 'Y' ], true ) ) {
+		if ( !\in_array( $csBlock, [ '', 'Y' ], true ) ) {
 			throw new \Exception( 'Invalid request.' );
 		}
 

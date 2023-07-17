@@ -36,6 +36,6 @@ class WpThemesInactive extends Base {
 
 	private function countInactive() :int {
 		$WPT = Services::WpThemes();
-		return count( $WPT->getThemes() ) - ( $WPT->isActiveThemeAChild() ? 2 : 1 );
+		return \count( $WPT->getThemes() ) - ( $WPT->isActiveThemeAChild() ? 2 : 1 );
 	}
 }

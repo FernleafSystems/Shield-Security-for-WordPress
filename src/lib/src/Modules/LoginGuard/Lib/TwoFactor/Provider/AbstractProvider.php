@@ -23,7 +23,7 @@ abstract class AbstractProvider implements Provider2faInterface {
 	protected $workingHashedLoginNonce;
 
 	public static function ProviderSlug() :string {
-		return strtolower( static::SLUG );
+		return \strtolower( static::SLUG );
 	}
 
 	public function getUser() :\WP_User {

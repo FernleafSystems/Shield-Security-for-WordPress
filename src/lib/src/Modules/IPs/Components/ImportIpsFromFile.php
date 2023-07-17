@@ -3,14 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportIpsFromFile {
 
 	use ExecOnce;
-	use IPs\ModConsumer;
+	use ModConsumer;
 
 	protected function canRun() :bool {
 		return $this->con()->caps->hasCap( 'ips_import_from_file' );
@@ -28,10 +28,10 @@ class ImportIpsFromFile {
 		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->con()->paths->forFlag() );
 		if ( !empty( $fileImport ) && $FS->isAccessibleFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
+			$FS->deleteFile( $fileImport );
 			if ( !empty( $content ) ) {
-				$adder = new IPs\Lib\IpRules\AddRule();
-				foreach ( \array_map( 'trim', \explode( "\n", $content ) ) as $ip ) {
-					$adder->setIP( $ip );
+				foreach ( \array_map( '\trim', \explode( "\n", $content ) ) as $ip ) {
+					$adder = ( new AddRule() )->setIP( $ip );
 					try {
 						\in_array( $type, [ 'white', 'bypass' ] ) ?
 							$adder->toManualWhitelist( 'file import' )
@@ -41,7 +41,6 @@ class ImportIpsFromFile {
 					}
 				}
 			}
-			$FS->deleteFile( $fileImport );
 		}
 	}
 }

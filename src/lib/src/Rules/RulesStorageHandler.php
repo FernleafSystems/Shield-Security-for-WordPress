@@ -21,7 +21,7 @@ class RulesStorageHandler {
 			$rules = $this->loadRules( false );
 		}
 
-		if ( !is_array( $rules[ 'rules' ] ) || empty( $rules[ 'rules' ] ) ) {
+		if ( !\is_array( $rules[ 'rules' ] ) || empty( $rules[ 'rules' ] ) ) {
 			throw new \Exception( 'No rules to load' );
 		}
 
@@ -47,7 +47,7 @@ class RulesStorageHandler {
 		$WP->updateOption( $this->getWpStorageKey(), [
 			'ts'    => Services::Request()->ts(),
 			'time'  => $WP->getTimeStampForDisplay( Services::Request()->ts() ),
-			'rules' => array_map( function ( RuleVO $rule ) {
+			'rules' => \array_map( function ( RuleVO $rule ) {
 				return $rule->getRawData();
 			}, $rules ),
 		] );
@@ -55,7 +55,7 @@ class RulesStorageHandler {
 
 	private function loadRawFromWP() :array {
 		$raw = Services::WpGeneral()->getOption( $this->getWpStorageKey() );
-		return is_array( $raw ) ? $raw : [];
+		return \is_array( $raw ) ? $raw : [];
 	}
 
 	private function getWpStorageKey() :string {

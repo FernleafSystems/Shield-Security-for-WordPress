@@ -13,8 +13,8 @@ class RetrieveCount extends RetrieveBase {
 	public function buildQuery( array $selectFields = [] ) :string {
 		return sprintf(
 			$this->getBaseQuery(),
-			implode( ',', $selectFields ),
-			implode( ' AND ', $this->getWheres() )
+			\implode( ',', $selectFields ),
+			\implode( ' AND ', $this->getWheres() )
 		);
 	}
 

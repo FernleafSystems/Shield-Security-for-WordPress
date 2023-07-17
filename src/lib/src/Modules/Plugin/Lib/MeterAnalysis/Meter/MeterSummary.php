@@ -9,7 +9,7 @@ class MeterSummary extends MeterBase {
 	public const SLUG = 'summary';
 
 	protected function getWorkingMods() :array {
-		return array_filter(
+		return \array_filter(
 			$this->con()->modules,
 			function ( $mod ) {
 				return ( $mod->cfg->properties[ 'show_module_options' ] ?? false ) && $mod->cfg->slug !== 'plugin';

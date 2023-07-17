@@ -48,7 +48,7 @@ abstract class BaseApi extends DynPropertiesClass {
 
 		if ( $reqSuccess ) {
 			$response = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
-			if ( !is_array( $response ) ) {
+			if ( !\is_array( $response ) ) {
 				error_log( 'failed to decode HTTP body response' );
 				$response = null;
 			}
@@ -90,22 +90,22 @@ abstract class BaseApi extends DynPropertiesClass {
 
 			case 'headers':
 			case 'params_query':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;
 
 			case 'params_body':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				if ( $this->headers[ 'Content-Type' ] ?? '' === 'application/json' ) {
-					$value = json_encode( $value );
+					$value = \json_encode( $value );
 				}
 				break;
 
 			case 'request_method':
-				$value = empty( $value ) ? 'get' : strtolower( $value );
+				$value = empty( $value ) ? 'get' : \strtolower( $value );
 				break;
 
 			case 'api_version':

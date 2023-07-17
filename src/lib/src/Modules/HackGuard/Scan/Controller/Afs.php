@@ -180,7 +180,7 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isCronAutoRepair() :bool {
-		return count( $this->opts()->getRepairAreas() ) > 0;
+		return \count( $this->opts()->getRepairAreas() ) > 0;
 	}
 
 	public function isEnabled() :bool {

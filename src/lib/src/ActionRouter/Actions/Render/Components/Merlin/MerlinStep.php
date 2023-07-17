@@ -35,7 +35,7 @@ class MerlinStep extends BaseRender {
 		if ( !empty( $videoID ) ) {
 			$raw = Services::HttpRequest()->getContent( sprintf( 'https://vimeo.com/api/v2/video/%s.json', $videoID ) );
 			if ( !empty( $raw ) ) {
-				$thumbnail = json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ] ?? '';
+				$thumbnail = \json_decode( $raw, true )[ 0 ][ 'thumbnail_large' ] ?? '';
 			}
 		}
 		return $thumbnail;

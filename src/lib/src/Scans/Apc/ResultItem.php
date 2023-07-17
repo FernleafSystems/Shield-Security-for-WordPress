@@ -11,7 +11,7 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 
-		if ( preg_match( '/_at$/i', $key ) ) {
+		if ( \preg_match( '/_at$/i', $key ) ) {
 			$value = (int)$value;
 		}
 
@@ -19,6 +19,6 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	}
 
 	public function getDescriptionForAudit() :string {
-		return sprintf( '%s: %s', ( strpos( $this->VO->item_id, '/' ) ? 'Plugin' : 'Theme' ), $this->VO->item_id );
+		return sprintf( '%s: %s', ( \strpos( $this->VO->item_id, '/' ) ? 'Plugin' : 'Theme' ), $this->VO->item_id );
 	}
 }

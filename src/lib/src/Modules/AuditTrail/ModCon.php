@@ -69,20 +69,20 @@ class ModCon extends BaseShield\ModCon {
 		if ( !empty( $user ) ) {
 			$con = $this->con();
 			$WP = Services::WpGeneral();
-			$exportData = array_map(
+			$exportData = \array_map(
 				function ( $log ) use ( $WP ) {
 					return [
 						'name'  => sprintf( '%s', $WP->getTimeStringForDisplay( $log[ 'created_at' ] ) ),
 						'value' => sprintf( '[IP:%s] %s', $log[ 'ip' ], $log[ 'message' ] )
 					];
 				},
-				array_filter( // Get all logs entries pertaining to this user:
+				\array_filter( // Get all logs entries pertaining to this user:
 					( new Shield\Modules\AuditTrail\Lib\LogTable\BuildActivityLogTableData() )->loadForRecords(),
 					function ( $log ) use ( $user ) {
 						$keep = $log[ 'user_id' ] === $user->ID;
 						if ( !$keep ) {
-							$userParts = array_map( 'preg_quote', [ $user->user_login, $user->user_email ] );
-							$keep = preg_match( sprintf( '/(%s)/i', implode( '|', $userParts ) ), $log[ 'message' ] ) > 0;
+							$userParts = \array_map( 'preg_quote', [ $user->user_login, $user->user_email ] );
+							$keep = \preg_match( sprintf( '/(%s)/i', \implode( '|', $userParts ) ), $log[ 'message' ] ) > 0;
 						}
 						return $keep;
 					}
@@ -102,7 +102,7 @@ class ModCon extends BaseShield\ModCon {
 			}
 		}
 
-		return is_array( $exportItems ) ? $exportItems : [];
+		return \is_array( $exportItems ) ? $exportItems : [];
 	}
 
 	/**

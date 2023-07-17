@@ -54,7 +54,7 @@ class ImportExportController {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
 			$urls = $this->opts()->getImportExportWhitelist();
-			$key = array_search( $url, $urls );
+			$key = \array_search( $url, $urls );
 			if ( $key !== false ) {
 				unset( $urls[ $key ] );
 			}
@@ -64,11 +64,11 @@ class ImportExportController {
 	}
 
 	protected function getImportExportSecretKey() :string {
-		$opts = $this->opts();
-		$ID = $opts->getOpt( 'importexport_secretkey', '' );
+		$ID = $this->opts()->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = sha1( $this->con()->getInstallationID()[ 'id' ].wp_rand( 0, PHP_INT_MAX ) );
-			$opts->setOpt( 'importexport_secretkey', $ID )
+			$ID = \sha1( $this->con()->getInstallationID()[ 'id' ].wp_rand( 0, PHP_INT_MAX ) );
+			$this->opts()
+				 ->setOpt( 'importexport_secretkey', $ID )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
 		return $ID;

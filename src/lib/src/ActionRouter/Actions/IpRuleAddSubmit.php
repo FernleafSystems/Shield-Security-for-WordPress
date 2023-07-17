@@ -16,11 +16,11 @@ class IpRuleAddSubmit extends BaseAction {
 		$dbh = $mod->getDbH_IPRules();
 		$form = Services::Request()->post( 'form_data' );
 		try {
-			if ( empty( $form ) || !is_array( $form ) ) {
+			if ( empty( $form ) || !\is_array( $form ) ) {
 				throw new \Exception( 'No data. Please retry' );
 			}
-			$label = trim( $form[ 'label' ] ?? '' );
-			if ( !empty( $label ) && preg_match( '#[^a-z\d\s_-]#i', $label ) ) {
+			$label = \trim( $form[ 'label' ] ?? '' );
+			if ( !empty( $label ) && \preg_match( '#[^a-z\d\s_-]#i', $label ) ) {
 				throw new \Exception( 'The label must be alphanumeric with no special characters' );
 			}
 			if ( empty( $form[ 'type' ] ) ) {
@@ -33,7 +33,7 @@ class IpRuleAddSubmit extends BaseAction {
 				throw new \Exception( 'Please provide an IP Address' );
 			}
 
-			$formIP = preg_replace( '#[^a-f\d:./]#i', '', $form[ 'ip' ] );
+			$formIP = \preg_replace( '#[^a-f\d:./]#i', '', $form[ 'ip' ] );
 			$range = Factory::parseRangeString( $formIP );
 
 			// You can't manually block your own IP if your IP isn't whitelisted.

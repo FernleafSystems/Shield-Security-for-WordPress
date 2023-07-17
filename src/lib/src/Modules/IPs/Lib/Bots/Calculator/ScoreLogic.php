@@ -24,7 +24,7 @@ class ScoreLogic {
 				$logicLoader->shield_net_params_required = false;
 				$logic = $logicLoader->retrieve();
 				if ( !empty( $logic ) ) {
-					Transient::Set( 'shield-bot-scoring-logic', $logic, DAY_IN_SECONDS );
+					Transient::Set( 'shield-bot-scoring-logic', $logic, \DAY_IN_SECONDS );
 				}
 			}
 
@@ -38,12 +38,12 @@ class ScoreLogic {
 	 * @note Copied from ShieldNET API
 	 */
 	protected function buildFallback() :array {
-		return array_map( function ( $score ) {
+		return \array_map( function ( $score ) {
 			return $score + [
 					0  => 0,
 					-1 => 0,
 				];
-		}, array_merge( $this->getPositiveSignals(), $this->getNegativeSignals() ) );
+		}, \array_merge( $this->getPositiveSignals(), $this->getNegativeSignals() ) );
 	}
 
 	protected function getPositiveSignals() :array {
@@ -58,28 +58,28 @@ class ScoreLogic {
 				-1              => 75,
 			],
 			'frontpage'   => [
-				0               => -15,
+				0                => -15,
 				\HOUR_IN_SECONDS => 25,
-				-1              => 15,
+				-1               => 15,
 			],
 			'loginpage'   => [
 				-1 => 15,
 			],
 			'unmarkspam'  => [
 				\WEEK_IN_SECONDS => 75,
-				-1              => 35,
+				-1               => 35,
 			],
 			'captchapass' => [
 				\DAY_IN_SECONDS => 55,
-				-1             => 25,
+				-1              => 25,
 			],
 			'auth'        => [
 				\DAY_IN_SECONDS => 175,
-				-1             => 150,
+				-1              => 150,
 			],
 			'unblocked'   => [
 				\DAY_IN_SECONDS => 100,
-				-1             => 75,
+				-1              => 75,
 			],
 			'bypass'      => [
 				-1 => 150,
@@ -91,27 +91,27 @@ class ScoreLogic {
 		return [
 			'bt404'           => [
 				\HOUR_IN_SECONDS => -15,
-				-1              => -5,
+				-1               => -5,
 			],
 			'btfake'          => [
 				\DAY_IN_SECONDS => -75,
-				-1             => -45,
+				-1              => -45,
 			],
 			'btcheese'        => [
 				\DAY_IN_SECONDS => -65,
-				-1             => -45,
+				-1              => -45,
 			],
 			'btloginfail'     => [
 				\MINUTE_IN_SECONDS => -75,
-				-1                => -45,
+				-1                 => -45,
 			],
 			'btua'            => [
 				\DAY_IN_SECONDS => -35,
-				-1             => -25,
+				-1              => -25,
 			],
 			'btxml'           => [
 				\DAY_IN_SECONDS => -55,
-				-1             => -35,
+				-1              => -35,
 			],
 			'btlogininvalid'  => [
 				HOUR_IN_SECONDS => -85,
@@ -123,35 +123,35 @@ class ScoreLogic {
 			],
 			'cooldown'        => [
 				\MINUTE_IN_SECONDS => -25,
-				-1                => -15,
+				-1                 => -15,
 			],
 			'humanspam'       => [
 				\DAY_IN_SECONDS => -30,
-				-1             => -15,
+				-1              => -15,
 			],
 			'markspam'        => [
 				\WEEK_IN_SECONDS => -50,
-				-1              => -25,
+				-1               => -25,
 			],
 			'captchafail'     => [
 				\MINUTE_IN_SECONDS => -55,
-				-1                => -25,
+				-1                 => -25,
 			],
 			'firewall'        => [
 				\DAY_IN_SECONDS => -35,
-				-1             => -15,
+				-1              => -15,
 			],
 			'ratelimit'       => [
 				\MINUTE_IN_SECONDS => -55,
-				-1                => -25,
+				-1                 => -25,
 			],
 			'offense'         => [
 				\MINUTE_IN_SECONDS => -35,
-				-1                => -25,
+				-1                 => -25,
 			],
 			'blocked'         => [
 				\DAY_IN_SECONDS => -55,
-				-1             => -45,
+				-1              => -45,
 			],
 		];
 	}

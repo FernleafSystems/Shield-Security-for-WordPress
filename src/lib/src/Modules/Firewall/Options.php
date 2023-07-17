@@ -8,6 +8,6 @@ class Options extends BaseShield\Options {
 
 	public function getCustomWhitelist() :array {
 		$w = $this->getOpt( 'page_params_whitelist', [] );
-		return is_array( $w ) ? $w : [];
+		return \is_array( $w ) ? $w : [];
 	}
 }

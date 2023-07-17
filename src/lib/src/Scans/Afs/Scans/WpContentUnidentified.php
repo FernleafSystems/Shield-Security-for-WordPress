@@ -54,7 +54,7 @@ class WpContentUnidentified extends BaseScan {
 				$possibleExclusionPaths[] = trailingslashit( path_join( $wpContentPossible, 'mu-plugins' ) );
 			}
 			foreach ( $possibleExclusionPaths as $possibleExclusionPath ) {
-				if ( strpos( $this->pathFull, $possibleExclusionPath ) === 0 ) {
+				if ( \strpos( $this->pathFull, $possibleExclusionPath ) === 0 ) {
 					$in = false;
 					break;
 				}
@@ -84,7 +84,7 @@ class WpContentUnidentified extends BaseScan {
 		$excludes = [
 			'shield/index.php',
 		];
-		foreach ( array_unique( [ basename( WP_CONTENT_DIR ), 'wp-content' ] ) as $wpContentFragment ) {
+		foreach ( \array_unique( [ \basename( WP_CONTENT_DIR ), 'wp-content' ] ) as $wpContentFragment ) {
 			foreach ( $wpContentPaths as $wpContentPath ) {
 				$excludes[] = $wpContentFragment.$wpContentPath;
 			}

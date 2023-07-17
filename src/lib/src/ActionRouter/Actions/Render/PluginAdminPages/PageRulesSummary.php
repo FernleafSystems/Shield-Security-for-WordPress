@@ -29,7 +29,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 
 		$components[ 'hooks' ] = \array_unique( $components[ 'hooks' ] );
 
-		$hooks = array_map(
+		$hooks = \array_map(
 			function ( $rule ) {
 				return $rule->wp_hook;
 			},

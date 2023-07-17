@@ -65,17 +65,17 @@ class PageUserSessions extends BasePluginAdminPage {
 							  ->setLimit( 20 )
 							  ->queryWithResult();
 
-		$results = array_map(
+		$results = \array_map(
 			function ( $object ) {
 				return $object->user_login;
 			},
 			( new \WP_User_Query( [
 				'fields'  => [ 'user_login' ],
-				'include' => array_map(
+				'include' => \array_map(
 					function ( $res ) {
 						return (int)$res[ 'user_id' ];
 					},
-					is_array( $results ) ? $results : []
+					\is_array( $results ) ? $results : []
 				)
 			] ) )->get_results()
 		);

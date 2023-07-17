@@ -43,9 +43,9 @@ class BaseSubPage extends BaseMWP {
 			],
 			'vars'    => [
 				'menu_topnav'  => $this->getMenuTopNavItems(),
-				'site_actions' => array_map(
+				'site_actions' => \array_map(
 					function ( $action ) {
-						return wp_json_encode( is_array( $action ) ? $action : [ 'site_action_slug' => $action ] );
+						return wp_json_encode( \is_array( $action ) ? $action : [ 'site_action_slug' => $action ] );
 					},
 					$this->getSiteActions()
 				),
@@ -108,8 +108,8 @@ class BaseSubPage extends BaseMWP {
 		$status = ( new ClientPluginStatus() )
 			->setMwpSite( $mwpSite )
 			->detect();
-		$shd[ 'status_key' ] = key( $status );
-		$shd[ 'status' ] = current( $status );
+		$shd[ 'status_key' ] = \key( $status );
+		$shd[ 'status' ] = \current( $status );
 
 		$shd[ 'is_active' ] = $shd[ 'status_key' ] === ClientPluginStatus::ACTIVE;
 		$shd[ 'is_inactive' ] = $shd[ 'status_key' ] === ClientPluginStatus::INACTIVE;
@@ -119,11 +119,11 @@ class BaseSubPage extends BaseMWP {
 		$shd[ 'is_sync_rqd' ] = $shd[ 'status_key' ] === ClientPluginStatus::NEED_SYNC;
 		$shd[ 'is_client_older' ] = $shd[ 'status_key' ] === ClientPluginStatus::VERSION_OLDER_THAN_SERVER;
 		$shd[ 'is_client_newer' ] = $shd[ 'status_key' ] === ClientPluginStatus::VERSION_NEWER_THAN_SERVER;
-		$shd[ 'is_version_mismatch' ] = in_array( $shd[ 'status_key' ], [
+		$shd[ 'is_version_mismatch' ] = \in_array( $shd[ 'status_key' ], [
 			ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 			ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 		] );
-		$shd[ 'can_sync' ] = in_array( $shd[ 'status_key' ], [
+		$shd[ 'can_sync' ] = \in_array( $shd[ 'status_key' ], [
 			ClientPluginStatus::ACTIVE,
 			ClientPluginStatus::NEED_SYNC,
 			ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
@@ -143,7 +143,7 @@ class BaseSubPage extends BaseMWP {
 			}
 			else {
 				$shd[ 'has_issues' ] = true;
-				$shd[ 'issues' ] = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
+				$shd[ 'issues' ] = \array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 			}
 
 			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ) );
@@ -151,7 +151,7 @@ class BaseSubPage extends BaseMWP {
 			$shd[ 'grades' ] = [
 				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ) ),
 				'integrity' => $gradeLetter,
-				'good'      => in_array( $gradeLetter, [ 'A', 'B' ] ),
+				'good'      => \in_array( $gradeLetter, [ 'A', 'B' ] ),
 			];
 
 			$shd[ 'href_manage' ] = $this->createInternalExtensionHref( [

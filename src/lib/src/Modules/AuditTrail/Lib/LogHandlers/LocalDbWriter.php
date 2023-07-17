@@ -34,7 +34,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			unset( $record[ 'extra' ][ 'meta_wp' ] );
 			unset( $record[ 'extra' ][ 'meta_request' ] );
 
-			$metas = array_merge(
+			$metas = \array_merge(
 				$record[ 'context' ][ 'audit_params' ] ?? [],
 				$record[ 'extra' ][ 'meta_user' ]
 			);
@@ -70,7 +70,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
 		$reqSelector = $modData->getDbH_ReqLogs()->getQuerySelector();
-		$reqIDs = array_map(
+		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;
 			},

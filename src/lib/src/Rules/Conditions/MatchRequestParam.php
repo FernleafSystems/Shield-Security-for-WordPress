@@ -29,7 +29,7 @@ class MatchRequestParam extends Base {
 
 			foreach ( $this->match_patterns as $matchPattern ) {
 
-				$matched = ( $this->is_match_regex && preg_match( sprintf( '#%s#i', $matchPattern ), $value ) )
+				$matched = ( $this->is_match_regex && \preg_match( sprintf( '#%s#i', $matchPattern ), $value ) )
 						   || ( !$this->is_match_regex && ( stripos( $value, $matchPattern ) !== false ) );
 
 				if ( $matched ) {
@@ -47,17 +47,17 @@ class MatchRequestParam extends Base {
 
 	protected function getFinalRequestParamsToTest() :array {
 		$finalParams = $this->getRequestParamsToTest();
-		$allExcluded = is_array( $this->excluded_params ) ? $this->excluded_params : [];
+		$allExcluded = \is_array( $this->excluded_params ) ? $this->excluded_params : [];
 
 		$allPagesExclusions = $allExcluded[ '*' ] ?? [];
 
-		$finalParams = array_diff_key( $finalParams, array_flip( $allPagesExclusions[ 'simple' ] ?? [] ) );
+		$finalParams = \array_diff_key( $finalParams, \array_flip( $allPagesExclusions[ 'simple' ] ?? [] ) );
 
 		if ( !empty( $finalParams ) ) {
-			foreach ( array_keys( $finalParams ) as $paramKey ) {
+			foreach ( \array_keys( $finalParams ) as $paramKey ) {
 				foreach ( $allPagesExclusions[ 'regex' ] ?? [] as $exclKeyRegex ) {
 					// You can have numeric parameter keys in query: e.g. ?asdf=123&456&
-					if ( preg_match( sprintf( '#%s#i', $exclKeyRegex ), (string)$paramKey ) ) {
+					if ( \preg_match( sprintf( '#%s#i', $exclKeyRegex ), (string)$paramKey ) ) {
 						unset( $finalParams[ $paramKey ] );
 					}
 				}
@@ -69,13 +69,13 @@ class MatchRequestParam extends Base {
 			$thePage = Services::Request()->getPath();
 			foreach ( $allExcluded as $pageName => $pageParams ) {
 
-				if ( strpos( $thePage, $pageName ) !== false ) {
+				if ( \strpos( $thePage, $pageName ) !== false ) {
 
 					if ( empty( $pageParams ) ) {
 						$finalParams = [];
 					}
 					elseif ( !empty( $pageParams[ 'simple' ] ) ) {
-						$finalParams = array_diff_key( $finalParams, array_flip( $pageParams[ 'simple' ] ) );
+						$finalParams = \array_diff_key( $finalParams, \array_flip( $pageParams[ 'simple' ] ) );
 					}
 					elseif ( !empty( $pageParams[ 'regex' ] ) ) {
 						// TODO

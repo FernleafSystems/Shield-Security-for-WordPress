@@ -33,8 +33,8 @@ class InsertNotBotJs {
 			'shield/notbot_force_load',
 			$this->opts()->isOpt( 'force_notbot', 'Y' )
 			||
-			!empty( array_intersect(
-				array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
+			!empty( \array_intersect(
+				\array_map( 'basename', Services::WpPlugins()->getActivePlugins() ),
 				[
 					'breeze.php',
 					'wpFastestCache.php',
@@ -66,9 +66,9 @@ class InsertNotBotJs {
 					apply_filters( 'shield/notbot_data_js', [
 						'ajax'  => [
 							'not_bot'       => ActionData::Build( CaptureNotBot::class, false ),
-							'not_bot_nonce' => array_diff_key(
+							'not_bot_nonce' => \array_diff_key(
 								ActionData::Build( CaptureNotBotNonce::class ),
-								array_flip( [
+								\array_flip( [
 									ActionData::FIELD_NONCE,
 									ActionData::FIELD_AJAXURL,
 								] )

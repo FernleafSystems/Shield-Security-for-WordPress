@@ -46,15 +46,15 @@ class SubmitHashes {
 
 	private function canSubmitAsset() :bool {
 		return $this->con()->is_mode_live
-			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), (string)$this->asset->Version )
-			   && preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), (string)$this->asset->slug );
+			   && \preg_match( sprintf( '#^%s$#', Regex::ASSET_VERSION ), (string)$this->asset->Version )
+			   && \preg_match( sprintf( '#^%s$#', Regex::ASSET_SLUG ), (string)$this->asset->slug );
 	}
 
 	private function isSubmitRequired() :bool {
 		$response = ( new PreSubmit() )
 			->setHashes( $this->hashes )
 			->query();
-		return is_array( $response ) && !empty( $response[ 'hashes' ] ) && $response[ 'hashes' ][ 'submit_required' ];
+		return \is_array( $response ) && !empty( $response[ 'hashes' ] ) && $response[ 'hashes' ][ 'submit_required' ];
 	}
 
 	private function submit() :bool {

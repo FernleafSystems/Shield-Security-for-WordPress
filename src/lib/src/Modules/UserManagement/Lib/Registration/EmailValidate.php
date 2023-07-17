@@ -28,12 +28,12 @@ class EmailValidate {
 
 		$email = $userData[ 'user_email' ] ?? '';
 
-		if ( !is_array( $this->track ) ) {
+		if ( !\is_array( $this->track ) ) {
 			$this->track = [];
 		}
 
 		// This hook seems to be called twice on any given registration.
-		if ( !empty( $email ) && !in_array( $email, $this->track ) ) {
+		if ( !empty( $email ) && !\in_array( $email, $this->track ) ) {
 			$this->track[] = $email;
 
 			$invalidBecause = null;
@@ -48,9 +48,9 @@ class EmailValidate {
 				if ( !empty( $apiToken ) ) {
 					$checks = $opts->getEmailValidationChecks();
 					$verifys = ( new Email( $apiToken ) )->getEmailVerification( $email );
-					if ( is_array( $verifys ) ) {
+					if ( \is_array( $verifys ) ) {
 						foreach ( $verifys as $verifyKey => $valid ) {
-							if ( !$valid && in_array( $verifyKey, $checks ) ) {
+							if ( !$valid && \in_array( $verifyKey, $checks ) ) {
 								$invalidBecause = $verifyKey;
 								break;
 							}

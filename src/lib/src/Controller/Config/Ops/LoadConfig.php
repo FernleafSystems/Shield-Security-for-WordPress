@@ -35,10 +35,10 @@ class LoadConfig {
 		$WPP = Services::WpPlugins();
 
 		$def = Services::WpGeneral()->getOption( $this->store_key );
-		$rebuild = empty( $def ) || !is_array( $def );
+		$rebuild = empty( $def ) || !\is_array( $def );
 
 		$specHash = sha1_file( $this->path );
-		$previousVersion = ( is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
+		$previousVersion = ( \is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
 		if ( !$rebuild ) {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 

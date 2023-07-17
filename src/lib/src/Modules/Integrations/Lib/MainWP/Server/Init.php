@@ -80,10 +80,10 @@ class Init {
 
 		// Here we add extra data to our extension that can't be added through the normal channel due to the way they've coded it.
 		add_filter( "pre_update_option_mainwp_extensions", function ( $value ) {
-			if ( is_array( $value ) ) {
+			if ( \is_array( $value ) ) {
 				foreach ( $value as $key => $ext ) {
 					if ( ( $ext[ 'plugin' ] ?? '' ) === $this->con()->getRootFile() ) {
-						$value[ $key ][ 'description' ] = implode( ' ', [
+						$value[ $key ][ 'description' ] = \implode( ' ', [
 							'Shield Security for MainWP builds upon the already powerful security platform,',
 							'helping you extend security management across your entire portfolio with ease.'
 						] );

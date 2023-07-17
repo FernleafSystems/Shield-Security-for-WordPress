@@ -28,7 +28,7 @@ class WordpressPost implements RequestMethod {
 		);
 
 		$sResponseBody = '';
-		if ( !is_wp_error( $aResponse ) && is_array( $aResponse ) && isset( $aResponse[ 'body' ] ) ) {
+		if ( !is_wp_error( $aResponse ) && \is_array( $aResponse ) && isset( $aResponse[ 'body' ] ) ) {
 			$sResponseBody = $aResponse[ 'body' ];
 		}
 		return $sResponseBody;

@@ -47,7 +47,7 @@ class UserMetas {
 		}
 
 		if ( empty( $rec->first_seen_at ) ) {
-			$rec->first_seen_at = min( array_filter( [
+			$rec->first_seen_at = \min( \array_filter( [
 				Services::Request()->ts(),
 				$rec->pass_started_at,
 				$rec->last_login_at

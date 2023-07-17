@@ -45,7 +45,7 @@ class BaseOps {
 		$getter->last_error = $this->mod()->getFileLocker()->getState()[ 'last_error' ] ?? '';
 
 		$key = $getter->retrieve();
-		if ( empty( $key ) || !is_array( $key ) ) {
+		if ( empty( $key ) || !\is_array( $key ) ) {
 			throw new PublicKeyRetrievalFailure( 'Failed to obtain public key from API.' );
 		}
 

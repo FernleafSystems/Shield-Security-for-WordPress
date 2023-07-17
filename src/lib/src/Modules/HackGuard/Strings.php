@@ -279,7 +279,7 @@ class Strings extends Base\Strings {
 						sprintf( __( "The %s directory is the wild-west and many plugins and themes use it to store working files.", 'wp-simple-firewall' ), '<code>wp-content</code>' ),
 						__( "It's practically impossible to tell which files should and shouldn't be there.", 'wp-simple-firewall' ),
 						sprintf( __( "This scan area currently focuses on only %s files.", 'wp-simple-firewall' ),
-							'<code>'.implode( '</code>, <code>', [ '.php', '.js', '.ico' ] ).'</code>'
+							'<code>'.\implode( '</code>, <code>', [ '.php', '.js', '.ico' ] ).'</code>'
 						),
 						$additional
 					] )

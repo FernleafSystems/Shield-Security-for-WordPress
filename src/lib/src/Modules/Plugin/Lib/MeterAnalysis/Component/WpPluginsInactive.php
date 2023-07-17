@@ -39,6 +39,6 @@ class WpPluginsInactive extends Base {
 
 	private function countInactive() :int {
 		$WPP = Services::WpPlugins();
-		return count( $WPP->getPlugins() ) - count( $WPP->getActivePlugins() );
+		return \count( $WPP->getPlugins() ) - \count( $WPP->getActivePlugins() );
 	}
 }

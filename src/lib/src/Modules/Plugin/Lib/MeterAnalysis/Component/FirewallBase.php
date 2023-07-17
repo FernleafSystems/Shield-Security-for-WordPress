@@ -39,7 +39,7 @@ abstract class FirewallBase extends Base {
 	}
 
 	protected function getFirewallKey() :string {
-		return explode( '_', static::SLUG, 2 )[ 1 ];
+		return \explode( '_', static::SLUG, 2 )[ 1 ];
 	}
 
 	protected function getFirewallCategoryName() :string {

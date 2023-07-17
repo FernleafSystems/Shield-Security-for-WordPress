@@ -22,7 +22,7 @@ class Update extends Insert {
 	 * @return array
 	 */
 	public function getUpdateWheres() {
-		return is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : [];
+		return \is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : [];
 	}
 
 	public function setSoftDeleted() {
@@ -80,7 +80,7 @@ class Update extends Insert {
 					$updateData[ 'updated_at' ] = Services::Request()->ts();
 				}
 				if ( $this->updateById( $entry->id, $updateData ) ) {
-					$entry->applyFromArray( array_merge( $entry->getRawData(), $updateData ) );
+					$entry->applyFromArray( \array_merge( $entry->getRawData(), $updateData ) );
 					$success = true;
 				}
 			}

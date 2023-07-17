@@ -29,7 +29,7 @@ class PluginDelete {
 		$WPDB = Services::WpDb();
 
 		// Delete all the legacy tables first (i.e. no inter-dependencies)
-		array_map(
+		\array_map(
 			function ( $module ) {
 				/** @var Shield\Modules\Base\ModCon $module */
 				foreach ( $module->getDbHandlers( true ) as $dbh ) {

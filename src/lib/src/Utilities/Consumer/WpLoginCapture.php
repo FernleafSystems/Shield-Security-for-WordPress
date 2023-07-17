@@ -48,7 +48,7 @@ trait WpLoginCapture {
 	protected function getLoggedInCookie() :string {
 		$cookie = empty( $this->loggedInCookie ) ?
 			Services::Request()->cookie( LOGGED_IN_COOKIE ) : $this->loggedInCookie;
-		return is_string( $cookie ) ? $cookie : '';
+		return \is_string( $cookie ) ? $cookie : '';
 	}
 
 	protected function getCapturedUserID() :int {
@@ -105,7 +105,7 @@ trait WpLoginCapture {
 	 */
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
 		$user = Services::WpUsers()->getUserById( $userID );
-		if ( is_string( $cookie ) ) {
+		if ( \is_string( $cookie ) ) {
 			$this->setLoggedInCookie( $cookie );
 		}
 		if ( $user instanceof \WP_User

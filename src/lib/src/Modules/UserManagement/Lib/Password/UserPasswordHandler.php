@@ -127,7 +127,7 @@ class UserPasswordHandler {
 			$WPU = Services::WpUsers();
 			$action = Services::Request()->query( 'action' );
 			$user = $WPU->getCurrentWpUser();
-			if ( $user && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $action, [ 'rp', 'resetpass' ] ) ) ) {
+			if ( $user && ( !Services::WpGeneral()->isLoginUrl() || !\in_array( $action, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$con->getAdminNotices()->addFlash( $msg, $user, true, true );

@@ -15,7 +15,7 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 	protected function exec() {
 		$nonce = Services::Request()->query( 'nonce' );
 		if ( !empty( $nonce ) ) {
-			die( json_encode( [
+			die( \json_encode( [
 				'success' => ( new HandshakingNonce() )->verify( $nonce )
 			] ) );
 		}

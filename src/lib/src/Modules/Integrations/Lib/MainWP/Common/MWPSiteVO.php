@@ -46,7 +46,7 @@ class MWPSiteVO extends DynPropertiesClass {
 				break;
 			case 'plugins':
 			case 'themes':
-				$value = json_decode( $value ?? '[]', true );
+				$value = \json_decode( $value ?? '[]', true );
 				break;
 			default:
 				break;

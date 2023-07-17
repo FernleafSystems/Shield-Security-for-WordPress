@@ -44,9 +44,9 @@ class BotEventListener {
 	 * @return string[]
 	 */
 	private function getEventsToColumn() :array {
-		return array_map(
+		return \array_map(
 			function ( $column ) {
-				return str_replace( '_at', '', $column ).'_at';
+				return \str_replace( '_at', '', $column ).'_at';
 			},
 			[
 				'bottrack_notbot'         => 'notbot',

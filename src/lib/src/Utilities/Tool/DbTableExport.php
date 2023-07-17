@@ -19,15 +19,15 @@ class DbTableExport {
 				$content[] = $this->implodeForCSV( $this->getEntryAsRawArray( $record ) );
 			}
 		}
-		array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
+		\array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
 		return [
 			'name'    => $this->getFileName(),
-			'content' => implode( "\n", $content )
+			'content' => \implode( "\n", $content )
 		];
 	}
 
 	protected function implodeForCSV( array $line ) :string {
-		return '"'.implode( '","', $line ).'"';
+		return '"'.\implode( '","', $line ).'"';
 	}
 
 	/**

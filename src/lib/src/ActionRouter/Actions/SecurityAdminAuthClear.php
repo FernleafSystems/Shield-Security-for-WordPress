@@ -9,14 +9,12 @@ class SecurityAdminAuthClear extends SecurityAdminBase {
 	public const SLUG = 'sec_admin_auth_clear';
 
 	protected function exec() {
-		$con = $this->con();
 		( new ToggleSecAdminStatus() )->turnOff();
 
-		$response = $this->response();
-		$response->action_response_data = [
+		$this->response()->action_response_data = [
 			'success' => true,
 		];
-		$response->next_step = [
+		$this->response()->next_step = [
 			'type' => 'redirect',
 			'url'  => $this->con()->plugin_urls->adminHome(),
 		];

@@ -13,7 +13,7 @@ class AdminNoteBulkAction extends BaseAction {
 		$success = false;
 
 		$IDs = Services::Request()->post( 'ids' );
-		if ( empty( $IDs ) || !is_array( $IDs ) ) {
+		if ( empty( $IDs ) || !\is_array( $IDs ) ) {
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
 		elseif ( Services::Request()->post( 'bulk_action' ) != 'delete' ) {
@@ -23,7 +23,7 @@ class AdminNoteBulkAction extends BaseAction {
 			/** @var Delete $deleter */
 			$deleter = $this->con()->getModule_Plugin()->getDbHandler_Notes()->getQueryDeleter();
 			foreach ( $IDs as $id ) {
-				if ( is_numeric( $id ) ) {
+				if ( \is_numeric( $id ) ) {
 					$deleter->deleteById( $id );
 				}
 			}

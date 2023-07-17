@@ -32,7 +32,7 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 			$this->buildCmd( [ 'scan_run' ] ),
 			[ $this, 'cmdScanRun' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Run All Shield Scans',
-			'synopsis'  => array_merge( [
+			'synopsis'  => \array_merge( [
 				[
 					'type'        => 'flag',
 					'name'        => 'all',
@@ -49,10 +49,10 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 	public function cmdScanRun( array $null, array $args ) {
 		$scansCon = $this->con()->getModule_HackGuard()->getScansCon();
 
-		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : array_keys( $args );
+		$scans = ( $args[ 'all' ] ?? false ) ? $scansCon->getScanSlugs() : \array_keys( $args );
 		if ( empty( $scans ) ) {
 			WP_CLI::error( sprintf( 'Please specify scans to run. Use `--all` or specify any of: `--%s`',
-				implode( '`, `--', $scansCon->getScanSlugs() ) ) );
+				\implode( '`, `--', $scansCon->getScanSlugs() ) ) );
 		}
 
 		$scansCon->startNewScans( $scans );

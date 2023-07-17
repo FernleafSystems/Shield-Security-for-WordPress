@@ -13,13 +13,13 @@ abstract class Base {
 	abstract protected function getOrderColumnSlug() :string;
 
 	public function build() :string {
-		return json_encode( $this->buildRaw() );
+		return \json_encode( $this->buildRaw() );
 	}
 
 	public function buildRaw() :array {
 		return [
-			// array_values() to ensure data of the correct format
-			'columns'     => array_values( $this->getColumnsForDisplay() ),
+			// \array_values() to ensure data of the correct format
+			'columns'     => \array_values( $this->getColumnsForDisplay() ),
 			'order'       => $this->getInitialOrdering(),
 			'searchPanes' => $this->getSearchPanesData()
 		];

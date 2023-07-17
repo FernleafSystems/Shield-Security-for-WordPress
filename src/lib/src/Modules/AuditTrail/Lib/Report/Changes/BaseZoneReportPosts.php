@@ -93,7 +93,7 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 
 	protected function getLoadLogsWheres() :array {
 		return [
-			sprintf( "`log`.`event_slug` IN ('%s')", implode( "','", [
+			sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", [
 				'post_created',
 				'post_updated',
 				'post_published',

@@ -16,7 +16,7 @@ class SyncVO extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'meta':
-				$value = ( new SyncMetaVO() )->applyFromArray( is_array( $value ) ? $value : [] );
+				$value = ( new SyncMetaVO() )->applyFromArray( \is_array( $value ) ? $value : [] );
 				break;
 			default:
 				break;

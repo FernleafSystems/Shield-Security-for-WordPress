@@ -15,7 +15,7 @@ class Select extends Base\Select {
 					->setSelectResultsFormat( ARRAY_A )
 					->queryWithResult();
 		$counts = [];
-		if ( is_array( $res ) ) {
+		if ( \is_array( $res ) ) {
 			foreach ( $res as $entry ) {
 				$entry = $entry->getRawData();
 				$counts[ $entry[ 'scan_ref' ] ] = $entry[ 'count' ];
@@ -32,7 +32,7 @@ class Select extends Base\Select {
 					->setSelectResultsFormat( ARRAY_A )
 					->queryWithResult();
 		$counts = [];
-		if ( is_array( $res ) ) {
+		if ( \is_array( $res ) ) {
 			foreach ( $res as $entry ) {
 				$entry = $entry->getRawData();
 				$counts[ $entry[ 'scan_ref' ] ] = $entry[ 'count' ];

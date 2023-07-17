@@ -32,7 +32,7 @@ abstract class Base extends Process {
 		$enqueued = ( new ScansStatus() )->enqueued();
 
 		return [
-			'enqueued_count'  => count( $enqueued ),
+			'enqueued_count'  => \count( $enqueued ),
 			'enqueued_status' => $queueCon->getScansRunningStates(),
 			'current_slug'    => $current,
 			'current_name'    => $currentScan,

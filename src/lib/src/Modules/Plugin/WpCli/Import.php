@@ -75,7 +75,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 			if ( \filter_var( $source, FILTER_VALIDATE_URL ) ) {
 
 				$secret = $args[ 'site-secret' ] ?? '';
-				$slave = isset( $args[ 'slave' ] ) ? strtolower( $args[ 'slave' ] ) : '';
+				$slave = isset( $args[ 'slave' ] ) ? \strtolower( $args[ 'slave' ] ) : '';
 				if ( empty( $secret ) ) {
 					WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
 					if ( $slave === 'add' ) {

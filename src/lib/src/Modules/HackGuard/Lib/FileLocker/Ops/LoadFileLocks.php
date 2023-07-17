@@ -23,7 +23,7 @@ class LoadFileLocks {
 			self::$FileLockRecords = [];
 			if ( $this->mod()->getFileLocker()->isEnabled() ) {
 				$all = $this->mod()->getDbH_FileLocker()->getQuerySelector()->all();
-				if ( is_array( $all ) ) {
+				if ( \is_array( $all ) ) {
 					foreach ( $all as $lock ) {
 						self::$FileLockRecords[ $lock->id ] = $lock;
 					}
@@ -37,7 +37,7 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function ofType( string $type ) :array {
-		return array_filter(
+		return \array_filter(
 			$this->loadLocks(),
 			function ( $lock ) use ( $type ) {
 				return $lock->type === $type;
@@ -49,7 +49,7 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblems() :array {
-		return array_filter(
+		return \array_filter(
 			$this->loadLocks(),
 			function ( $lock ) {
 				return $lock->detected_at > 0;
@@ -61,7 +61,7 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblemsNotNotified() :array {
-		return array_filter(
+		return \array_filter(
 			$this->withProblems(),
 			function ( $lock ) {
 				return $lock->notified_at == 0;
@@ -73,7 +73,7 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withoutProblems() :array {
-		return array_filter(
+		return \array_filter(
 			$this->loadLocks(),
 			function ( $lock ) {
 				return $lock->detected_at == 0;

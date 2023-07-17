@@ -9,7 +9,7 @@ class WpForo extends Base {
 			add_filter( $filter, function ( $args = [] ) {
 
 				// It should be an array, but customer reported fatal error with a boolean passed
-				if ( is_array( $args ) ) {
+				if ( \is_array( $args ) ) {
 					$status = $args[ 'status' ] ?? null;
 					if ( $status !== 1 && $this->isBotBlockRequired() ) {
 						if ( !empty( \WPF()->current_userid ) ) {

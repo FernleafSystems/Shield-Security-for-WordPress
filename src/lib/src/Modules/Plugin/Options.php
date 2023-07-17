@@ -25,7 +25,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getImportExportWhitelist() :array {
 		$list = $this->getOpt( 'importexport_whitelist', [] );
-		return is_array( $list ) ? $list : [];
+		return \is_array( $list ) ? $list : [];
 	}
 
 	public function getIpSource() :string {
@@ -43,7 +43,7 @@ class Options extends BaseShield\Options {
 	private function getFrequency( string $type ) :string {
 		$key = 'frequency_'.$type;
 		$default = $this->getOptDefault( $key );
-		return ( $this->con()->isPremiumActive() || in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
+		return ( $this->con()->isPremiumActive() || \in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
 			? $this->getOpt( $key )
 			: $default;
 	}

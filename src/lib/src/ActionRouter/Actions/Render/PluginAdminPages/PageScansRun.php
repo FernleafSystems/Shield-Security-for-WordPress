@@ -91,7 +91,7 @@ class PageScansRun extends BasePluginAdminPage {
 					'is_restricted' => $scanCon->isRestricted(),
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
-									   && in_array( $slug, $mod->getUiTrack()->selected_scans ),
+									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
 				'strings' => [
 					'title'    => $scanStrings[ $slug ][ 'name' ],

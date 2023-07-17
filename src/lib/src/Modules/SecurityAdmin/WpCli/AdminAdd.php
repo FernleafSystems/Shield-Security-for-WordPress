@@ -50,7 +50,7 @@ class AdminAdd extends BaseWpCliCmd {
 		if ( empty( $args ) ) {
 			WP_CLI::error( 'Please specify the user for which you want to add as a Security Admin.' );
 		}
-		if ( count( $args ) > 1 ) {
+		if ( \count( $args ) > 1 ) {
 			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
 		}
 
@@ -59,7 +59,7 @@ class AdminAdd extends BaseWpCliCmd {
 		/** @var SecurityAdmin\Options $opts */
 		$opts = $this->getOptions();
 		$current = $opts->getSecurityAdminUsers();
-		if ( in_array( $user->user_login, $current ) ) {
+		if ( \in_array( $user->user_login, $current ) ) {
 			WP_CLI::success( "This user is already a security admin." );
 		}
 		elseif ( !Services::WpUsers()->isUserAdmin( $user ) ) {
@@ -67,8 +67,8 @@ class AdminAdd extends BaseWpCliCmd {
 		}
 		else {
 			$current[] = $user->user_login;
-			natsort( $current );
-			$opts->setOpt( 'sec_admin_users', array_unique( $current ) );
+			\natsort( $current );
+			$opts->setOpt( 'sec_admin_users', \array_unique( $current ) );
 			WP_CLI::success( sprintf( "User '%s' added as a Security Admin.", $user->user_login ) );
 		}
 	}

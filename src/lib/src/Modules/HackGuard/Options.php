@@ -25,7 +25,7 @@ class Options extends BaseShield\Options {
 					$available[] = $valueOption[ 'value_key' ];
 				}
 			}
-			$areas = array_diff( $areas, $available );
+			$areas = \array_diff( $areas, $available );
 		}
 
 		return $areas;
@@ -85,24 +85,24 @@ class Options extends BaseShield\Options {
 		$FS = Services::WpFs();
 		$file = $this->con()->cache_dir_handler->cacheItemPath( $fileName );
 		if ( !empty( $file ) && $FS->exists( $file ) ) {
-			$sigs = explode( "\n", $FS->getFileContent( $file, true ) );
+			$sigs = \explode( "\n", $FS->getFileContent( $file, true ) );
 		}
 		else {
-			$sigs = array_filter(
-				array_map( 'trim',
-					explode( "\n", Services::HttpRequest()->getContent( $url ) )
+			$sigs = \array_filter(
+				\array_map( 'trim',
+					\explode( "\n", Services::HttpRequest()->getContent( $url ) )
 				),
 				function ( $line ) {
-					return ( strpos( $line, '#' ) !== 0 ) && strlen( $line ) > 0;
+					return ( \strpos( $line, '#' ) !== 0 ) && \strlen( $line ) > 0;
 				}
 			);
 
 			if ( !empty( $file ) && !empty( $sigs ) ) {
-				$FS->putFileContent( $file, implode( "\n", $sigs ), true );
+				$FS->putFileContent( $file, \implode( "\n", $sigs ), true );
 			}
 		}
 
-		return is_array( $sigs ) ? $sigs : [];
+		return \is_array( $sigs ) ? $sigs : [];
 	}
 
 	public function isAutoFilterResults() :bool {
@@ -151,19 +151,19 @@ class Options extends BaseShield\Options {
 	 */
 	public function getScansToBuild() :array {
 		$toBuild = $this->getOpt( 'scans_to_build', [] );
-		if ( !is_array( $toBuild ) ) {
+		if ( !\is_array( $toBuild ) ) {
 			$toBuild = [];
 		}
 		if ( !empty( $toBuild ) ) {
-			$wasCount = count( $toBuild );
+			$wasCount = \count( $toBuild );
 			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
-			$toBuild = array_filter( $toBuild,
+			$toBuild = \array_filter( $toBuild,
 				function ( $toBuildAt ) {
-					return is_int( $toBuildAt )
+					return \is_int( $toBuildAt )
 						   && Services::Request()->carbon()->subMinute()->timestamp < $toBuildAt;
 				}
 			);
-			if ( $wasCount !== count( $toBuild ) ) {
+			if ( $wasCount !== \count( $toBuild ) ) {
 				$this->setScansToBuild( $toBuild );
 			}
 		}
@@ -174,9 +174,11 @@ class Options extends BaseShield\Options {
 	 * @return $this
 	 */
 	public function setScansToBuild( array $scans ) {
-		$this->setOpt( 'scans_to_build', array_intersect_key( $scans, array_flip( $this->con()->getModule_HackGuard()
-																					   ->getScansCon()
-																					   ->getScanSlugs() ) ) );
+		$this->setOpt( 'scans_to_build',
+			\array_intersect_key( $scans,
+				\array_flip( $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs() )
+			)
+		);
 		$this->mod()->saveModOptions();
 		return $this;
 	}
@@ -189,10 +191,7 @@ class Options extends BaseShield\Options {
 		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
-	/**
-	 * @return $this
-	 */
 	public function setIsScanCron( bool $isCron ) {
-		return $this->setOpt( 'is_scan_cron', $isCron );
+		$this->setOpt( 'is_scan_cron', $isCron );
 	}
 }

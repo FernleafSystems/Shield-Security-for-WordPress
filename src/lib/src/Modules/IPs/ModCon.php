@@ -76,7 +76,7 @@ class ModCon extends BaseShield\ModCon {
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		if ( !defined( strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
+		if ( !\defined( \strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
 
@@ -102,7 +102,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'request_whitelist',
 			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
 				$opts->getOpt( 'request_whitelist', [] ),
-				array_unique( array_map(
+				\array_unique( \array_map(
 					function ( $url ) {
 						return (string)wp_parse_url( $url, PHP_URL_PATH );
 					},
@@ -119,25 +119,20 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function canLinkCheese() :bool {
-		$FS = Services::WpFs();
-		$WP = Services::WpGeneral();
-		$isSplit = trim( (string)parse_url( $WP->getHomeUrl(), PHP_URL_PATH ), '/' )
-				   !== trim( (string)parse_url( $WP->getWpUrl(), PHP_URL_PATH ), '/' );
-		return !$FS->exists( path_join( ABSPATH, 'robots.txt' ) )
-			   && ( !$isSplit || !$FS->exists( path_join( dirname( ABSPATH ), 'robots.txt' ) ) );
+		$isSplit = \trim( (string)parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ), '/' )
+				   !== \trim( (string)parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ), '/' );
+		return !Services::WpFs()->exists( path_join( ABSPATH, 'robots.txt' ) )
+			   && ( !$isSplit || !Services::WpFs()->exists( path_join( \dirname( ABSPATH ), 'robots.txt' ) ) );
 	}
 
 	public function getTextOptDefault( string $key ) :string {
-
 		switch ( $key ) {
-
 			case 'text_loginfailed':
 				$text = sprintf( '%s: %s',
 					__( 'Warning', 'wp-simple-firewall' ),
 					__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' )
 				);
 				break;
-
 			default:
 				$text = parent::getTextOptDefault( $key );
 				break;
@@ -151,10 +146,7 @@ class ModCon extends BaseShield\ModCon {
 
 		$this->getDbH_BotSignal()
 			 ->getQueryDeleter()
-			 ->addWhereOlderThan(
-				 Services::Request()->carbon()->subWeek()->timestamp,
-				 'updated_at'
-			 )
+			 ->addWhereOlderThan( Services::Request()->carbon()->subWeek()->timestamp, 'updated_at' )
 			 ->query();
 
 		/** @var DB\IpRules\Ops\Delete $ipRulesDeleter */

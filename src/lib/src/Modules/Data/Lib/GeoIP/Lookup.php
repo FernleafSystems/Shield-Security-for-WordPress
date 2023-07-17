@@ -53,7 +53,7 @@ class Lookup {
 					 ] );
 			}
 
-			$geoData = is_array( $ipRecord->geo ) ? $ipRecord->geo : [];
+			$geoData = \is_array( $ipRecord->geo ) ? $ipRecord->geo : [];
 		}
 		catch ( \Exception $e ) {
 			$geoData = [];
@@ -69,7 +69,7 @@ class Lookup {
 		$data = @json_decode(
 			Services::HttpRequest()->getContent( self::URL_REDIRECTLI.$this->getIP() ), true
 		);
-		$data = ( empty( $data ) || !is_array( $data ) ) ? [] : $data;
+		$data = ( empty( $data ) || !\is_array( $data ) ) ? [] : $data;
 		$data[ 'ts' ] = Services::Request()->carbon( true )->timestamp;
 		return $data;
 	}

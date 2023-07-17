@@ -9,13 +9,13 @@ abstract class BaseBulk extends Base {
 	}
 
 	protected function getRouteArgsDefaults() :array {
-		return array_merge(
+		return \array_merge(
 			parent::getRouteArgsDefaults(),
 			[
 				'filter_keys' => [
 					'description' => '[Filter][Comma-Separated] Option keys to include.',
 					'type'        => 'array', // WordPress kindly converts CSV to array
-					'pattern'     => sprintf( '^(((%s),?)+)?$', implode( '|', $this->getAllPossibleOptKeys() ) ),
+					'pattern'     => sprintf( '^(((%s),?)+)?$', \implode( '|', $this->getAllPossibleOptKeys() ) ),
 					'required'    => false,
 				],
 			]

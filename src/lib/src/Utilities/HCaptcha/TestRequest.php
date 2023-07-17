@@ -28,7 +28,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 					]
 				] )
 							  && !empty( $HTTPReq->lastResponse->body );
-			$response = $successRequest ? json_decode( $HTTPReq->lastResponse->body, true ) : [];
+			$response = $successRequest ? \json_decode( $HTTPReq->lastResponse->body, true ) : [];
 
 			if ( empty( $response[ 'success' ] ) ) {
 				$msg = [

@@ -218,7 +218,7 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
+			'summary'     => ( isset( $summary ) && \is_array( $summary ) ) ? $summary : [],
 		];
 	}
 
@@ -277,13 +277,13 @@ class Strings extends Base\Strings {
 				$name = __( 'IP Source', 'wp-simple-firewall' );
 				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
 				$desc = [
-					implode( ' ', [
+					\implode( ' ', [
 						__( "It's crucial that we can detect the correct IP address for each visitor to the site.", 'wp-simple-firewall' ),
 						__( "We rely on the PHP server configuration, but some hosts aren't correctly setup to let us find it easily.", 'wp-simple-firewall' ),
 						sprintf( __( "The preferred source is %s since this can't be spoofed.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
-					implode( ' ', [
+					\implode( ' ', [
 						__( "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it.", 'wp-simple-firewall' ),
 						sprintf(
 							'<p class="mt-2 text-center"><a href="%s" class="btn btn-secondary btn-sm" target="_blank">%s</a></p>',
@@ -347,7 +347,7 @@ class Strings extends Base\Strings {
 					__( "We don't recommend setting this unless you're sure of the consequences for all users.", 'wp-simple-firewall' ),
 					__( "If you provide a locale for which there are no translations, defaults will apply.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
-						implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
+						\implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
 				];
 				break;
 

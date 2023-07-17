@@ -23,7 +23,7 @@ class MachineRegister extends Base {
 		$raw = $this->sendReq();
 		$lastResponse = $this->last_http_req->lastResponse;
 
-		if ( !is_array( $raw ) || empty( $raw[ 'message' ] ) ) {
+		if ( !\is_array( $raw ) || empty( $raw[ 'message' ] ) ) {
 			throw new MachineRegisterFailedException( sprintf( 'Failed to register machine: %s', var_export( $lastResponse->body, true ) ) );
 		}
 

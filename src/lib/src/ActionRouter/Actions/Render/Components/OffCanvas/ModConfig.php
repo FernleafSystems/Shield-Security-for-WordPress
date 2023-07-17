@@ -25,12 +25,12 @@ class ModConfig extends OffCanvasBase {
 		}
 		else {
 			foreach ( $con->modules as $maybe ) {
-				if ( in_array( $configItem, $maybe->getOptions()->getVisibleOptionsKeys() ) ) {
+				if ( \in_array( $configItem, $maybe->getOptions()->getVisibleOptionsKeys() ) ) {
 					$module = $maybe;
 					$itemType = 'option';
 					break;
 				}
-				if ( in_array( $configItem, array_keys( $maybe->getOptions()->getSections() ) ) ) {
+				if ( \in_array( $configItem, \array_keys( $maybe->getOptions()->getSections() ) ) ) {
 					$module = $maybe;
 					$itemType = 'section';
 					break;

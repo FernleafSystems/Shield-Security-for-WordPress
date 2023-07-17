@@ -15,7 +15,7 @@ class Add extends BaseAddRemove {
 			$this->buildCmd( [ 'ip-add' ] ),
 			[ $this, 'cmdIpAdd' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Add an IP address to one of your lists, white or black.',
-			'synopsis'  => array_merge(
+			'synopsis'  => \array_merge(
 				$this->getCommonIpCmdArgs(),
 				[
 					'type'        => 'assoc',
@@ -36,7 +36,7 @@ class Add extends BaseAddRemove {
 
 			$adder = ( new AddRule() )->setIP( $args[ 'ip' ] );
 
-			in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
+			\in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
 				$adder->toManualWhitelist( $args[ 'label' ] ?? '' )
 				: $adder->toManualBlacklist( $args[ 'label' ] ?? '' );
 

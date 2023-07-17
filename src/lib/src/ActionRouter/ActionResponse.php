@@ -25,7 +25,7 @@ class ActionResponse extends Response {
 			case 'ajax_data':
 			case 'render_data':
 			case 'next_step':
-				$value = is_array( $value ) ? $value : [];
+				$value = \is_array( $value ) ? $value : [];
 				break;
 
 			default:

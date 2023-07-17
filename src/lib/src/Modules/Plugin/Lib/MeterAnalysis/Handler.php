@@ -23,7 +23,7 @@ class Handler {
 	private static $BuiltMeters;
 
 	public function __construct() {
-		if ( !is_array( self::$BuiltMeters ) ) {
+		if ( !\is_array( self::$BuiltMeters ) ) {
 			self::$BuiltMeters = [];
 		}
 	}
@@ -47,7 +47,7 @@ class Handler {
 		if ( isset( self::METERS[ $meterClassOrSlug ] ) ) {
 			$theSlug = $meterClassOrSlug;
 		}
-		elseif ( in_array( $meterClassOrSlug, self::METERS ) ) {
+		elseif ( \in_array( $meterClassOrSlug, self::METERS ) ) {
 			/** @var Meter\MeterBase $meterClassOrSlug */
 			$theSlug = $meterClassOrSlug::SLUG;
 		}

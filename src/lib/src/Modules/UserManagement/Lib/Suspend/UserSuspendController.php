@@ -86,7 +86,7 @@ class UserSuspendController {
 				$req = Services::Request();
 				$ts = Services::Request()->ts();
 
-				if ( is_array( $args ) ) {
+				if ( \is_array( $args ) ) {
 					/** @var Select $metaSelect */
 					$metaSelect = $this->con()
 									   ->getModule_Data()
@@ -110,7 +110,7 @@ class UserSuspendController {
 					}
 
 					if ( $filtered ) {
-						$idsToInclude = array_map(
+						$idsToInclude = \array_map(
 							function ( $res ) {
 								return (int)array_pop( $res );
 							},

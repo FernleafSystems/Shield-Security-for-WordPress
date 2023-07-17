@@ -39,7 +39,7 @@ abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\Bac
 					   ->setLimit( static::PAGE_SIZE )
 					   ->setPage( 1 )
 					   ->queryWithResult();
-		return is_array( $result ) ? $result : [];
+		return \is_array( $result ) ? $result : [];
 	}
 
 	/**

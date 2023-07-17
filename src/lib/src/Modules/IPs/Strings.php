@@ -401,7 +401,7 @@ class Strings extends Base\Strings {
 					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
 					sprintf( '%s: <br/><strong>%s</strong>',
 						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						implode( ', ', $opts->botSignalsGetAllowable404s() )
+						\implode( ', ', $opts->botSignalsGetAllowable404s() )
 					),
 				];
 				break;
@@ -450,7 +450,7 @@ class Strings extends Base\Strings {
 						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this under normal circumstances.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) ),
 					sprintf( '%s: %s',
 						__( "Currently permitted scripts", 'wp-simple-firewall' ),
-						sprintf( '<ul><li><code>%s</code></li></ul>', implode( '</code></li><li><code>', $opts->botSignalsGetAllowableScripts() ) )
+						sprintf( '<ul><li><code>%s</code></li></ul>', \implode( '</code></li><li><code>', $opts->botSignalsGetAllowableScripts() ) )
 					)
 				];
 				break;
@@ -488,7 +488,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getBotSignalName( $field ) :string {
-		return $this->getBotSignalNames()[ str_replace( '_at', '', $field ) ] ?? 'Unknown';
+		return $this->getBotSignalNames()[ \str_replace( '_at', '', $field ) ] ?? 'Unknown';
 	}
 
 	/**

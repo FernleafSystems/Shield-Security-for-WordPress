@@ -22,7 +22,7 @@ class WpRootUnidentified extends BaseScan {
 
 	private function inRootDir() :bool {
 		return Services::WpFs()->isAccessibleFile( $this->pathFull )
-			   && $this->pathFull === wp_normalize_path( path_join( ABSPATH, basename( $this->pathFull ) ) );
+			   && $this->pathFull === wp_normalize_path( path_join( ABSPATH, \basename( $this->pathFull ) ) );
 	}
 
 	// TODO: empty file extension support
