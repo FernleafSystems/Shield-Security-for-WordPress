@@ -33,9 +33,6 @@ class ICWP_WPSF_Shield_Security {
 		$this->con->boot();
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	public function getController() :Shield\Controller\Controller {
 		return Shield\Controller\Controller::GetInstance();
 	}

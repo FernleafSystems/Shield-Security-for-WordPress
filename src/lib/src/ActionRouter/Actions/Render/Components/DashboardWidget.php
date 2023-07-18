@@ -168,7 +168,7 @@ class DashboardWidget extends BaseRender {
 						if ( $this->isObfuscateData() ) {
 							$user = is_email( $user ) ?
 								Obfuscate::Email( $user )
-								: substr( $user, 0, 1 ).'****'.substr( $user, -1, 1 );
+								: \substr( $user, 0, 1 ).'****'.substr( $user, -1, 1 );
 							$userHref = '#';
 						}
 

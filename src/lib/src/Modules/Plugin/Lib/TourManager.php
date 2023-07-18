@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,6 +13,17 @@ class TourManager {
 	public function getAllTours() :array {
 		return [
 			'navigation_v1',
+		];
+	}
+
+	public function getStates() :array {
+		$allowed = $this->con()->isPluginAdminPageRequest()
+				   && Services::Request()->query( PluginNavs::NAV_FIELD_ID ) !== PluginNavs::NAV_WIZARD;
+		$forced = Services::Request()->query( 'force_tour' ) == '1';
+		return [
+			'navigation_v1' => [
+				'is_available' => $forced || ( $allowed && !$this->userSeenTour( 'navigation_v1' ) ),
+			],
 		];
 	}
 
@@ -31,5 +43,9 @@ class TourManager {
 	public function getUserTourStates() :array {
 		$meta = $this->con()->user_metas->current();
 		return ( !empty( $meta ) && \is_array( $meta->tours ) ) ? $meta->tours : [];
+	}
+
+	public function userSeenTour( string $tour ) :bool {
+		return ( $this->getUserTourStates()[ $tour ] ?? 0 ) > 0;
 	}
 }

@@ -349,6 +349,6 @@ class CrowdSecApi {
 		if ( !\preg_match( '#\d#', $pass ) ) {
 			$pass .= \substr( $chars, wp_rand( 52, 61 ), 1 );
 		}
-		return substr( $pass.wp_generate_password( 22, false ), 0, 32 );
+		return \substr( $pass.wp_generate_password( 22, false ), 0, 32 );
 	}
 }

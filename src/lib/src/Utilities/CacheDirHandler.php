@@ -113,12 +113,12 @@ class CacheDirHandler {
 			'</FilesMatch>',
 			"# END SHIELD"
 		] );
-		if ( !$FS->exists( $htFile ) || ( md5_file( $htFile ) !== md5( $htContent ) ) ) {
+		if ( !$FS->exists( $htFile ) || ( \md5_file( $htFile ) !== \md5( $htContent ) ) ) {
 			$FS->putFileContent( $htFile, $htContent );
 		}
 		$index = path_join( $cacheDir, 'index.php' );
 		$indexContent = "<?php\nhttp_response_code(404);";
-		if ( !$FS->exists( $index ) || ( md5_file( $index ) !== md5( $indexContent ) ) ) {
+		if ( !$FS->exists( $index ) || ( \md5_file( $index ) !== \md5( $indexContent ) ) ) {
 			$FS->putFileContent( $index, $indexContent );
 		}
 

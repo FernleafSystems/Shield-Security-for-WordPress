@@ -147,8 +147,10 @@ class AssetsCustomizer {
 			'shield_vars_tourmanager',
 			[
 				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::class ),
-				'tour_states' => $tourManager->getUserTourStates(),
 				'tours'       => $tourManager->getAllTours(),
+				'states'      => $tourManager->getStates(),
+				/** @deprecated 18.2 */
+				'tour_states' => $tourManager->getUserTourStates(),
 			]
 		];
 	}

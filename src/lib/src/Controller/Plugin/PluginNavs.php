@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 class PluginNavs {
 
+	public const NAV_FIELD_ID = 'nav';
+	public const NAV_FIELD_SUB_ID = 'nav_sub';
 	public const NAV_ACTIVITY_LOG = 'activity_log';
 	public const NAV_DEBUG = 'debug';
 	public const NAV_DOCS = 'docs';

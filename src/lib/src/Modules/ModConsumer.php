@@ -19,7 +19,7 @@ trait ModConsumer {
 		return $this->mod()->con();
 	}
 
-	public function con() :Controller {
+	public static function con() :Controller {
 		return shield_security_get_plugin()->getController();
 	}
 

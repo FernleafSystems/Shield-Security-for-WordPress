@@ -16,7 +16,7 @@ class RootHtaccess {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return empty( Transient::Get( $this->con()->prefix( md5( __FILE__ ) ) ) );
+		return empty( Transient::Get( $this->con()->prefix( \md5( __FILE__ ) ) ) );
 	}
 
 	protected function run() {

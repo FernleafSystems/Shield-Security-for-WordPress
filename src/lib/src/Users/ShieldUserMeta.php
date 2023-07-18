@@ -79,7 +79,7 @@ class ShieldUserMeta extends UserMeta {
 	}
 
 	public function updatePasswordStartedAt( string $userPassHash ) :self {
-		$newHash = substr( sha1( $userPassHash ), 6, 4 );
+		$newHash = \substr( \sha1( $userPassHash ), 6, 4 );
 		if ( !isset( $this->pass_hash ) || ( $this->pass_hash != $newHash ) ) {
 			$this->pass_hash = $newHash;
 			$this->record->pass_started_at = Services::Request()->ts();

@@ -47,7 +47,7 @@ class EventsToSignals extends EventsListener {
 						'milli_at' => $this->getMilliseconds(),
 					];
 					// We prevent storing duplicate scenarios using the hash
-					$this->signals[ md5( serialize( $signal ) ) ] = $signal;
+					$this->signals[ \md5( serialize( $signal ) ) ] = $signal;
 				}
 			}
 		}
@@ -91,7 +91,7 @@ class EventsToSignals extends EventsListener {
 			if ( !empty( $ts ) && \strpos( $ts, ' ' ) ) {
 				$ts = \explode( ' ', $ts )[ 0 ];
 				if ( \strpos( $ts, '.' ) ) {
-					$milli = rtrim( substr( \explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
+					$milli = \rtrim( \substr( \explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
 				}
 			}
 		}
