@@ -299,12 +299,6 @@ class NavMenuBuilder {
 					'active' => $this->inav() === PluginURLs::NAV_WIZARD
 				],
 				[
-					'slug'   => $slug.'-rules',
-					'title'  => __( 'Rules', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_RULES_VIEW ),
-					'active' => $this->inav() === PluginURLs::NAV_RULES_VIEW
-				],
-				[
 					'slug'   => $slug.'-debug',
 					'title'  => __( "Debug Info", 'wp-simple-firewall' ),
 					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_DEBUG ),
