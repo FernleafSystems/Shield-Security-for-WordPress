@@ -79,7 +79,7 @@ class PageUserSessions extends BasePluginAdminPage {
 				)
 			] ) )->get_results()
 		);
-		asort( $results );
+		\asort( $results );
 		return $results;
 	}
 }
