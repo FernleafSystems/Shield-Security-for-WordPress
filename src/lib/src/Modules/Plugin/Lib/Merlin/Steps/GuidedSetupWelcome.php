@@ -15,7 +15,7 @@ class GuidedSetupWelcome extends Base {
 	protected function getStepRenderData() :array {
 		return [
 			'strings' => [
-				'step_title' => __( "Welcome to Shield Security's Guided Setup Wizard", 'wp-simple-firewall' ),
+				'step_title' => __( "Get Started In Under 3 Minutes", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'video_id' => '269191603'

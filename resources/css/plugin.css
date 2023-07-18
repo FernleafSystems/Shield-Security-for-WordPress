@@ -84,20 +84,7 @@ body.rtl {
 label input[type=checkbox] {
 	height: 16px !important;
 }
-.content-wizards .wizard_slot {
-	border: 1px solid #dddddd;
-	border-radius: 3px;
-	margin-top: 30px;
-	padding: 20px;
-}
-.content-wizards .wizard_slot:hover {
-	background-color: #ffffff;
-}
-.btn.btn-icwp-wizard.disabled {
-	pointer-events: auto;
-}
-.content-wizards,
-	/** NEW FORMS **/
+/** NEW FORMS **/
 #wpwrap {
 	background-color: #f1f1f1;
 }

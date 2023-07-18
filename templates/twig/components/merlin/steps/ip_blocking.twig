@@ -1,20 +1,9 @@
 {% extends '/components/merlin/steps/base.twig' %}
 
 {% block slide_body_video_section_blurb %}
-	<p>
-		Automatically blocking malicious IP addresses is Shield's most crucial security feature.
+	<p>Shield watches every IP address that connects to your site and when they trigger your
+		defenses enough times (offense limit), they're blacklisted.
 	</p>
-	<p>When you block bad IPs, you stop all security problems associated with those bad bots, such as:</p>
-	<ul class="list-group  mb-3">
-		<li class="list-group-item list-group-item-action">brute force login attacks</li>
-		<li class="list-group-item list-group-item-action">exploitation of current and future vulnerabilities within plugins/themes on your site</li>
-		<li class="list-group-item">malware injection and exploitation</li>
-		<li class="list-group-item">automated comment SPAM</li>
-		<li class="list-group-item">resource depletion through DoS attacks, excessive probing and any forceful hacking attempts</li>
-	</ul>
-	<p>Shield monitors every IP address that connects to your site.
-	   When they do something bad, such as a failed login, it starts an "offense counter".</p>
-	<p>When the offense counter hits your limit (default: 10), the IP address is blocked completely.</p>
 {% endblock %}
 
 {% block slide_body_action_area %}
@@ -22,16 +11,19 @@
 	<form class="form-horizontal merlin-form ajax-form">
 
 		<div class="row">
-			<div class="col-4">
-				Configure IP Blocking
+			<div class="col-12 mb-2">
+				<h6>Configure Automatic IP Blocking</h6>
 			</div>
-			<div class="col-8">
+		</div>
+
+		<div class="row">
+			<div class="col-12">
 				{{ icwp_macros.formInput_Number( 'offenses', vars.offense_limit, 'Offense Limit', null,
 					'We recommend somewhere between 5 and 10. The smaller the limit, the stricter Shield will be.',null
 				) }}
 
 				<div class="form-group row mt-3">
-					<label class="col-4 col-form-label" for="_block_length">Block Length</label>
+					<label class="col-4 col-form-label" for="_block_length">Block Duration</label>
 					<div class="col-8">
 						<select name="block_length" id="_block_length">
 							<option value="day">1 Day</option>

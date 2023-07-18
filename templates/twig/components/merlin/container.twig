@@ -10,28 +10,28 @@
 			<div class="row row-cols-1 justify-content-center">
 				<div class="col-12">
 					<!-- SmartWizard html -->
-					<div id="merlin">
-				    <ul class="nav float-end" style="flex-direction: column;">
-					    {% for num,step in content.steps %}
-						    <li class="nav-item">
-				          <a class="nav-link" href="#step-{{ step.step_slug }}">{{ step.step_name }}</a>
-				        </li>
-					    {% endfor %}
-				    </ul>
+					<div id="merlin" class="mt-3">
+						<ul class="nav ">
+							{% for num,step in content.steps %}
+								<li class="nav-item">
+									<a class="nav-link" href="#step-{{ step.step_slug }}">{{ step.step_name }}</a>
+								</li>
+							{% endfor %}
+						</ul>
 
-				    <div class="tab-content">
-					    {% for step in content.steps %}
-						    <div id="step-{{ step.step_slug }}" class="tab-pane" role="tabpanel"
-						         aria-labelledby="step-{{ step.step_slug }}">
-					        {{ step.step_body|raw }}
-				        </div>
-					    {% endfor %}
-				    </div>
+						<div class="tab-content">
+							{% for step in content.steps %}
+								<div id="step-{{ step.step_slug }}" class="tab-pane" role="tabpanel"
+									 aria-labelledby="step-{{ step.step_slug }}">
+									{{ step.step_body|raw }}
+								</div>
+							{% endfor %}
+						</div>
 
-				    <div class="progress">
-				      <div class="progress-bar" role="progressbar" style="width: 0" aria-valuenow="0" aria-valuemin="0"
-				           aria-valuemax="100"></div>
-				    </div>
+						<div class="progress">
+						  <div class="progress-bar" role="progressbar" style="width: 0" aria-valuenow="0" aria-valuemin="0"
+							   aria-valuemax="100"></div>
+						</div>
 					</div>
 
 				</div>

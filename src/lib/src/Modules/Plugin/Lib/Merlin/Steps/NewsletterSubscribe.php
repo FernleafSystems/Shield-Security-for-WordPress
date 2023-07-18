@@ -10,7 +10,7 @@ class NewsletterSubscribe extends Base {
 	public const SLUG = 'newsletter_subscribe';
 
 	public function getName() :string {
-		return __( 'Become A Member', 'wp-simple-firewall' );
+		return __( 'Join Us', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {
