@@ -3,12 +3,12 @@ Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: limit login, malware scan, firewall, file scan, two factor authentication, intrusion prevention, security, login protection
+Tags: security, activity logging, login protection, two factor authentication, intrusion prevention
 Requires at least: 4.7
 Requires PHP: 7.2
 Recommended PHP: 7.4
-Tested up to: 6.2
-Stable tag: 18.1.2
+Tested up to: 6.3
+Stable tag: 18.2.0
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
 
