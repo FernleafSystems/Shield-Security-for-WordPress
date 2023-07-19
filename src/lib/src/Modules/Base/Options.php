@@ -268,10 +268,7 @@ class Options {
 		);
 	}
 
-	/**
-	 * @param string $slug
-	 */
-	public function isSectionReqsMet( $slug ) :bool {
+	public function isSectionReqsMet( string $slug ) :bool {
 		$reqs = $this->getSection_Requirements( $slug );
 		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
 			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
@@ -487,6 +484,7 @@ class Options {
 			$newValue = ( new OptValueSanitize() )
 				->setMod( $this->mod() )
 				->run( $key, $newValue );
+			$this->preSetOptChecks( $key, $newValue );
 			$verified = true;
 		}
 		catch ( \Exception $e ) {
@@ -518,6 +516,14 @@ class Options {
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @param mixed $newValue
+	 * @throws \Exception
+	 */
+	protected function preSetOptChecks( string $key, $newValue ) {
+
 	}
 
 	/**

@@ -6,6 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function preSetOptChecks( string $key, $newValue ) {
+		if ( $key === 'auto_clean' && $newValue > $this->con()->caps->getMaxLogRetentionDays() ) {
+			throw new \Exception( 'Cannot set log retention days to anything longer than max' );
+		}
+	}
+
 	public function getAutoCleanDays() :int {
 		$days = (int)\min( $this->getOpt( 'auto_clean' ), $this->con()->caps->getMaxLogRetentionDays() );
 		$this->setOpt( 'auto_clean', $days );

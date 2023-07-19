@@ -7,6 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	/**
+	 * @inheritDoc
+	 */
+	protected function preSetOptChecks( string $key, $newValue ) {
+		if ( $key === 'audit_trail_auto_clean' && $newValue > $this->con()->caps->getMaxLogRetentionDays() ) {
+			throw new \Exception( 'Cannot set log retentions days to anything longer than max' );
+		}
+	}
+
 	public function getLogFilePath() :string {
 		try {
 			$dir = ( new LogFileDirCreate() )->run();
