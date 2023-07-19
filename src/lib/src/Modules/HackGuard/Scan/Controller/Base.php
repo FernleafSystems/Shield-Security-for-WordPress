@@ -239,7 +239,7 @@ abstract class Base {
 		catch ( \Exception $e ) {
 			$ns = __NAMESPACE__;
 		}
-		return rtrim( $ns, '\\' ).'\\';
+		return \rtrim( $ns, '\\' ).'\\';
 	}
 
 	protected function scheduleOnDemandScan() {

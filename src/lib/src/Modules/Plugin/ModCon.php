@@ -290,10 +290,8 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			$con = $this->con();
-			if ( $con->isPluginAdminPageRequest() ) {
-				echo $con->action_router->render( BannerGoPro::SLUG );
-				echo $con->action_router->render( ToastPlaceholder::SLUG );
+			if ( $this->con()->isPluginAdminPageRequest() ) {
+				echo $this->con()->action_router->render( ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
 	}

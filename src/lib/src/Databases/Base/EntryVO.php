@@ -30,7 +30,7 @@ class EntryVO extends DynPropertiesClass {
 				if ( \is_string( $value ) && !empty( $value ) ) {
 					$value = \base64_decode( $value );
 					if ( !empty( $value ) ) {
-						$value = @json_decode( $value, true );
+						$value = @\json_decode( $value, true );
 					}
 				}
 

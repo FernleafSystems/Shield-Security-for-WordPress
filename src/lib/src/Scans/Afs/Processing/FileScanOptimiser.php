@@ -111,12 +111,12 @@ class FileScanOptimiser {
 			$source = \fopen( $pathToHashes, 'r' );
 			$target = \fopen( $pathToHashesTmp, 'w' );
 
-			if ( !is_resource( $source ) && is_resource( $target ) ) {
+			if ( !\is_resource( $source ) && \is_resource( $target ) ) {
 				\fclose( $target );
 				$FS->deleteFile( $pathToHashes );
 				$FS->deleteFile( $pathToHashesTmp );
 			}
-			elseif ( !is_resource( $target ) && is_resource( $source ) ) {
+			elseif ( !\is_resource( $target ) && \is_resource( $source ) ) {
 				\fclose( $source );
 				$FS->deleteFile( $pathToHashes );
 			}

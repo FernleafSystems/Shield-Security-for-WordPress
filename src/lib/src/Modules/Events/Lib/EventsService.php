@@ -121,7 +121,7 @@ class EventsService {
 				if ( !isset( $evtDef[ 'strings' ] ) || !\is_array( $evtDef[ 'strings' ] ) ) {
 					throw new \Exception( "All Custom Events must supply an array of strings with key 'strings'." );
 				}
-				if ( empty( $evtDef[ 'strings' ][ 'name' ] ) || !is_string( $evtDef[ 'strings' ][ 'name' ] ) ) {
+				if ( empty( $evtDef[ 'strings' ][ 'name' ] ) || !\is_string( $evtDef[ 'strings' ][ 'name' ] ) ) {
 					throw new \Exception( "All Custom Events must supply a 'name' as a string within the 'strings' array." );
 				}
 				if ( empty( $evtDef[ 'strings' ][ 'audit' ] ) || !\is_array( $evtDef[ 'strings' ][ 'audit' ] ) ) {

@@ -232,7 +232,7 @@ abstract class Handler extends ExecOnceModConsumer {
 		catch ( \Exception $e ) {
 			$namespace = __NAMESPACE__;
 		}
-		return rtrim( $namespace, '\\' ).'\\';
+		return \rtrim( $namespace, '\\' ).'\\';
 	}
 
 	private function reset() {

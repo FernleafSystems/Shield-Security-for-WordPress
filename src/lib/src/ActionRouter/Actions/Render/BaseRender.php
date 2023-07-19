@@ -321,11 +321,6 @@ abstract class BaseRender extends BaseAction {
 			'privacy_policy'         => __( 'Privacy Policy', 'wp-simple-firewall' ),
 			'privacy_never_spam'     => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
 
-			'pro_features'       => __( 'Pro features include', 'wp-simple-firewall' ),
-			'join_thousands_H'   => __( "Join The 1,000s Who've Already Upgraded Their WordPress Security To Better Protect Their Sites.", 'wp-simple-firewall' ),
-			'join_thousands_P'   => \implode( ', ', $proFeaturesDisplay ),
-			'get_pro_protection' => __( 'Get Pro Protection', 'wp-simple-firewall' ),
-
 			'options'        => __( 'Options', 'wp-simple-firewall' ),
 			'not_available'  => __( 'Sorry, please upgrade your plan to access this feature.', 'wp-simple-firewall' ),
 			'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),

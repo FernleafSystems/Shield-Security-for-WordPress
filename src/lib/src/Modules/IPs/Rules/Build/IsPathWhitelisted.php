@@ -49,7 +49,7 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 			function ( $value ) use ( $homeUrlPath ) {
 				$regEx = ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH, false );
 				if ( \strpos( $regEx, $homeUrlPath ) !== 0 ) {
-					$regEx = '/'.ltrim( rtrim( $homeUrlPath, '/' ).'/'.ltrim( $regEx, '/' ), '/' );
+					$regEx = '/'.\ltrim( \rtrim( $homeUrlPath, '/' ).'/'.\ltrim( $regEx, '/' ), '/' );
 				}
 				return '^'.$regEx;
 			},

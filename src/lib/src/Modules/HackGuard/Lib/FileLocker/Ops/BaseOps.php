@@ -50,7 +50,7 @@ class BaseOps {
 		}
 
 		$thePublicKey = \reset( $key );
-		if ( empty( $thePublicKey ) || !is_string( $thePublicKey ) ) {
+		if ( empty( $thePublicKey ) || !\is_string( $thePublicKey ) ) {
 			throw new PublicKeyRetrievalFailure( 'Public key was empty' );
 		}
 

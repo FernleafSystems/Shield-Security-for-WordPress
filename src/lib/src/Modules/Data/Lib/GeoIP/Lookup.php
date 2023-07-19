@@ -66,7 +66,7 @@ class Lookup {
 	 * @throws \Exception
 	 */
 	private function redirectliIpLookup() :array {
-		$data = @json_decode(
+		$data = @\json_decode(
 			Services::HttpRequest()->getContent( self::URL_REDIRECTLI.$this->getIP() ), true
 		);
 		$data = ( empty( $data ) || !\is_array( $data ) ) ? [] : $data;

@@ -131,7 +131,7 @@ class RenameLogin {
 				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
 				trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
 				// \trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
-				trim( rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
+				trim( \rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
 			];

@@ -70,7 +70,6 @@ class MerlinController {
 	}
 
 	/**
-	 * @param string $slug
 	 * @return Steps\Base[]|string|null
 	 */
 	private function getHandlerFromSlug( string $slug ) :?string {

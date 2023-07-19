@@ -86,7 +86,7 @@ abstract class BaseQuery {
 			if ( \strtoupper( $operator ) === 'LIKE' ) {
 				$value = sprintf( '%%%s%%', $value );
 			}
-			if ( !is_int( $value ) ) {
+			if ( !\is_int( $value ) ) {
 				$value = sprintf( "'%s'", esc_sql( $value ) );
 			}
 		}

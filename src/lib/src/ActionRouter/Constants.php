@@ -109,7 +109,6 @@ class Constants {
 
 		Actions\Render\Components\AdminNotes::class,
 		Actions\Render\Components\AdminNotice::class,
-		Actions\Render\Components\BannerGoPro::class,
 		Actions\Render\Components\DashboardWidget::class,
 		Actions\Render\Components\FormSecurityAdminLoginBox::class,
 		Actions\Render\Components\PrivacyPolicy::class,

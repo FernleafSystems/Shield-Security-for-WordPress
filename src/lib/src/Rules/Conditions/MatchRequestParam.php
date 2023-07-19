@@ -23,7 +23,7 @@ class MatchRequestParam extends Base {
 		$matched = false;
 		foreach ( $this->getFinalRequestParamsToTest() as $param => $value ) {
 
-			if ( empty( $value ) || !is_string( $value ) ) {
+			if ( empty( $value ) || !\is_string( $value ) ) {
 				continue;
 			}
 

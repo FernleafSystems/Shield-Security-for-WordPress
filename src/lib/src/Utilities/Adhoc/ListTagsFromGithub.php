@@ -12,7 +12,7 @@ class ListTagsFromGithub {
 		$tags = [];
 		$raw = Services::HttpRequest()->getContent( sprintf( self::BASE_URL, $repo ) );
 		if ( !empty( $raw ) ) {
-			$decoded = @json_decode( $raw, true );
+			$decoded = @\json_decode( $raw, true );
 			$tags = \array_filter( \array_map( function ( $tag ) {
 				$version = null;
 				if ( \is_array( $tag ) && !empty( $tag[ 'name' ] ) && \is_string( $tag[ 'name' ] ) ) {

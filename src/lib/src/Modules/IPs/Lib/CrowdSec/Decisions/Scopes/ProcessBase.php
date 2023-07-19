@@ -106,7 +106,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		if ( empty( $decision[ 'duration' ] ) ) {
 			throw new \Exception( "Decision doesn't contain a 'duration'" );
 		}
-		if ( !is_string( $decision[ 'duration' ] ) ) {
+		if ( !\is_string( $decision[ 'duration' ] ) ) {
 			throw new \Exception( sprintf( "Decision duration not of the correct type (string): %s", $decision[ 'duration' ] ) );
 		}
 		if ( !preg_match( '#^(\d+)([a-z])$#i', $decision[ 'duration' ], $matches ) ) {

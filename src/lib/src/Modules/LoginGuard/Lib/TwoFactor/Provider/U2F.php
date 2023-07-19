@@ -112,7 +112,7 @@ class U2F extends AbstractShieldProvider {
 
 		// should always be an array of objects
 		foreach ( $regs as $label => $reg ) {
-			if ( !is_object( $reg ) ) {
+			if ( !\is_object( $reg ) ) {
 				if ( !\is_array( $reg ) || empty( $reg ) ) {
 					unset( $regs[ $label ] );
 				}

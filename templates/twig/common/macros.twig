@@ -83,9 +83,9 @@
 	{{ icwp_macros.formInput_Base('email',name,value,label,placeholder,help,id) }}
 {% endmacro %}
 
-{% macro formInput_Password(name,value,label,placeholder,help,id) %}
+{% macro formInput_Password(name,value,label,placeholder,help,id,classes='') %}
 	{% import _self as icwp_macros %}
-	{{ icwp_macros.formInput_Base('password',name,value,label,placeholder,help,id) }}
+	{{ icwp_macros.formInput_Base('password',name,value,label,placeholder,help,id,classes) }}
 {% endmacro %}
 
 {% macro formInput_Number(name,value,label,placeholder,help,id,classes='') %}

@@ -47,7 +47,7 @@ abstract class BaseApi extends DynPropertiesClass {
 		}
 
 		if ( $reqSuccess ) {
-			$response = empty( $httpReq->lastResponse->body ) ? [] : @json_decode( $httpReq->lastResponse->body, true );
+			$response = empty( $httpReq->lastResponse->body ) ? [] : @\json_decode( $httpReq->lastResponse->body, true );
 			if ( !\is_array( $response ) ) {
 				error_log( 'failed to decode HTTP body response' );
 				$response = null;
@@ -118,11 +118,11 @@ abstract class BaseApi extends DynPropertiesClass {
 				if ( empty( $value ) ) {
 					$value = static::DEFAULT_URL_STUB;
 				}
-				$value = rtrim( $value, '/' );
+				$value = \rtrim( $value, '/' );
 				break;
 
 			case 'timeout':
-				if ( empty( $value ) || !is_numeric( $value ) ) {
+				if ( empty( $value ) || !\is_numeric( $value ) ) {
 					$value = 60;
 				}
 				break;

@@ -128,7 +128,7 @@ class ScanResultsTableAction extends ScansBase {
 				$items
 			),
 			function ( $rid ) {
-				return !is_null( $rid );
+				return !\is_null( $rid );
 			}
 		);
 	}

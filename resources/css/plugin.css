@@ -1190,8 +1190,11 @@ td.status_file_size {
 .shield-top_page_warning.bg-danger a {
 	color: white;
 }
+.shield-top_page_warning {
+	text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
+}
 .shield-top_page_warning a {
-	text-decoration: underline;
+	font-weight: bolder;
 }
 
 /** Hide notices from WP & plugins **/

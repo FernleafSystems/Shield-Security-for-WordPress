@@ -217,7 +217,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return !is_null( $this->getProcessor() );
+		return !\is_null( $this->getProcessor() );
 	}
 
 	protected function doExecuteProcessor() {
