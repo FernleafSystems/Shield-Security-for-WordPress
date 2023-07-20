@@ -52,7 +52,7 @@ class LicenseHandler {
 		$con = $this->con();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 			if ( empty( $delay ) ) {
-				$delay = rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
+				$delay = \rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
 			}
 			wp_schedule_single_event(
 				Services::Request()->ts() + \max( \MINUTE_IN_SECONDS, $delay ),

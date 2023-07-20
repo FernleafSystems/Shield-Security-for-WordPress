@@ -44,11 +44,15 @@ class AuditLogger extends EventsListener {
 		if ( !$this->con()->plugin_deleting && $this->isMonologLibrarySupported() ) {
 			$this->initLogger();
 			foreach ( \array_reverse( $this->auditLogs ) as $auditLog ) {
-				$this->getLogger()->log(
-					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
-					ActivityLogMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
-					$auditLog
-				);
+				try {
+					$this->getLogger()->log(
+						$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
+						ActivityLogMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
+						$auditLog
+					);
+				}
+				catch ( \InvalidArgumentException $e ) {
+				}
 			}
 		}
 	}

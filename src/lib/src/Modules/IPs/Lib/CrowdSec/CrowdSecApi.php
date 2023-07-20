@@ -339,7 +339,7 @@ class CrowdSecApi {
 	private function generateCrowdsecPassword() :string {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-		$pass = wp_generate_password( rand( 10, 20 ), false );
+		$pass = wp_generate_password( \rand( 10, 20 ), false );
 		if ( !\preg_match( '#[a-z]#', $pass ) ) {
 			$pass .= \substr( $chars, wp_rand( 0, 25 ), 1 );
 		}

@@ -23,7 +23,7 @@ abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\Bac
 		$batch = new \stdClass();
 
 		try {
-			$batch->key = rand();
+			$batch->key = \rand();
 			$batch->data = $this->getNextItems();
 		}
 		catch ( \Exception $e ) {

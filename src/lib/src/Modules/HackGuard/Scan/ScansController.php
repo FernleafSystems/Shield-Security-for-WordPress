@@ -184,15 +184,15 @@ class ScansController {
 	}
 
 	public function getFirstRunTimestamp() :int {
-		$defaultStart = rand( 1, 7 );
+		$defaultStart = \rand( 1, 7 );
 
 		$startHour = (int)apply_filters( 'shield/scan_cron_start_hour', $defaultStart );
-		$startMinute = (int)apply_filters( 'shield/scan_cron_start_minute', rand( 0, 59 ) );
+		$startMinute = (int)apply_filters( 'shield/scan_cron_start_minute', \rand( 0, 59 ) );
 		if ( $startHour < 0 || $startHour > 23 ) {
 			$startHour = $defaultStart;
 		}
 		if ( $startMinute < 1 || $startMinute > 59 ) {
-			$startMinute = rand( 1, 59 );
+			$startMinute = \rand( 1, 59 );
 		}
 
 		$c = Services::Request()->carbon( true );

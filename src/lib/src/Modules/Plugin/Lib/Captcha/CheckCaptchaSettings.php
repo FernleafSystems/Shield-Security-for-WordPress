@@ -49,7 +49,7 @@ class CheckCaptchaSettings {
 		$response = Services::HttpRequest()->getContent(
 			URL::Build( 'https://www.google.com/recaptcha/api/siteverify', [
 				'secret'   => $this->mod()->getCaptchaCfg()->secret,
-				'response' => rand(),
+				'response' => \rand(),
 			] )
 		);
 
