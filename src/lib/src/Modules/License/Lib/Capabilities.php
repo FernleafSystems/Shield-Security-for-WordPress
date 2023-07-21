@@ -165,9 +165,6 @@ class Capabilities {
 	}
 
 	public function hasCap( string $cap ) :bool {
-		if ( \in_array( $cap, [ 'scan_pluginsthemes_remote', 'scan_malware_malai' ] ) ) {
-			return false;
-		}
 		$license = $this->mod()->getLicenseHandler()->getLicense();
 		return !$this->isPremiumOnlyCap( $cap )
 			   || (

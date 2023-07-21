@@ -60,7 +60,8 @@ abstract class BasePosts extends Base {
 			 && !$this->isIgnoredPostType( $post )
 		) {
 			$this->fireAuditEvent( 'post_deleted', [
-				'title' => $post->post_title,
+				'title'   => $post->post_title,
+				'post_id' => $postID,
 			] );
 			$this->removeSnapshotItem( $post );
 		}
@@ -146,7 +147,8 @@ abstract class BasePosts extends Base {
 			}
 			else {
 				$this->fireAuditEvent( 'post_deleted', [
-					'title' => $removed[ 'title' ],
+					'title'   => $removed[ 'title' ],
+					'post_id' => $removed[ 'uniq' ],
 				] );
 			}
 		}

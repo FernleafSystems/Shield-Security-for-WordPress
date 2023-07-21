@@ -19,7 +19,7 @@ class ScansCheck extends ScansBase {
 		$current = ( new ScansStatus() )->current();
 		$currentScan = !empty( $current ) ? $strings->getScanName( $current ) : __( 'No scan running.', 'wp-simple-firewall' );
 
-		$running = ( new ScansStatus() )->enqueued();
+		$running = \count( ( new ScansStatus() )->enqueued() );
 
 		$this->response()->action_response_data = [
 			'success' => true,
@@ -27,9 +27,9 @@ class ScansCheck extends ScansBase {
 			'vars'    => [
 				'progress_html' => $this->con()->action_router->render( ScansProgress::SLUG, [
 					'current_scan'    => $currentScan,
-					'remaining_scans' => \count( $running ) === 0 ?
+					'remaining_scans' => $running === 0 ?
 						__( 'No scans remaining.', 'wp-simple-firewall' )
-						: sprintf( __( '%s scans remaining.', 'wp-simple-firewall' ), \count( $running ) ),
+						: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running ), $running ),
 					'progress'        => 100*$queueCon->getScanJobProgress(),
 				] ),
 			]
