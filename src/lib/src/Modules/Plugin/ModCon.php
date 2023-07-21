@@ -3,11 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions,
-	Actions\Render\Components\BannerGoPro,
-	Actions\Render\Components\ToastPlaceholder
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
@@ -276,6 +272,11 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
+	public function runDailyCron() {
+		parent::runDailyCron();
+		( new Shield\Utilities\Integration\WhitelistUs() )->all();
+	}
+
 	public function isXmlrpcBypass() :bool {
 		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
@@ -291,7 +292,7 @@ class ModCon extends BaseShield\ModCon {
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
 			if ( $this->con()->isPluginAdminPageRequest() ) {
-				echo $this->con()->action_router->render( ToastPlaceholder::SLUG );
+				echo $this->con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
 	}
