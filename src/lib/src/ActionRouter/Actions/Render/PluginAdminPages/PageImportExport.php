@@ -30,7 +30,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::class ),
 			],
 			'flags'   => [
-				'can_importexport'      => $con->caps->canImportExportFile() && $con->caps->canImportExportSync(),
+				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),
 				'can_importexport_file' => $con->caps->canImportExportFile(),
 				'can_importexport_sync' => $con->caps->canImportExportSync(),
 				'has_master_url'        => $opts->hasImportExportMasterImportUrl(),

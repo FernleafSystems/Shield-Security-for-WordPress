@@ -36,22 +36,22 @@
       ]
     },
     {
-      "slug":        "section_user_reg",
-      "title":       "User Registration",
-      "title_short": "User Registration",
-      "beacon_id":   145,
-      "summary":     [
-        "Purpose - Control user registration and prevent SPAM.",
-        "Recommendation - Use of this feature is highly recommend."
-      ]
-    },
-    {
       "slug":        "section_passwords",
       "title":       "Password Policies",
       "title_short": "Password Policies",
       "beacon_id":   256,
       "summary":     [
         "Purpose - Have full control over passwords used by users on the site.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
+      "slug":        "section_user_reg",
+      "title":       "User Registration",
+      "title_short": "User Registration",
+      "beacon_id":   145,
+      "summary":     [
+        "Purpose - Control user registration and prevent SPAM.",
         "Recommendation - Use of this feature is highly recommend."
       ]
     },
