@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
-	WpPluginVo,
-	WpThemeVo
-};
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets;
 
 class BuildHashesForAsset {
 
@@ -16,7 +13,7 @@ class BuildHashesForAsset {
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param WpPluginVo|WpThemeVo $asset
+	 * @param Assets\WpPluginVo|Assets\WpThemeVo $asset
 	 * @return string[]
 	 */
 	public function build( $asset ) :array {
@@ -34,7 +31,7 @@ class BuildHashesForAsset {
 	/**
 	 * @return static
 	 */
-	public function setHashAlgo( string $hashAlgo ) {
+	public function setHashAlgo( string $hashAlgo ) :self {
 		$this->hashAlgo = $hashAlgo;
 		return $this;
 	}

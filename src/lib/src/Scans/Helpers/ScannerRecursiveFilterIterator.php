@@ -25,7 +25,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 		if ( \in_array( $file->getFilename(), [ '.', '..' ] )
 			 || $file->isFile() && (
 				( self::$IsFilterWpCoreFiles && $this->isWpCoreFile() )
-				|| ( !\in_array( \strtolower( $file->getExtension() ), self::$FileExts ) )
+				|| ( !empty( self::$FileExts ) && !\in_array( \strtolower( $file->getExtension() ), self::$FileExts ) )
 			)
 		) {
 			$recurse = false;
