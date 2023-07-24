@@ -4,11 +4,11 @@ Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, activity logging, login protection, two-factor authentication, intrusion prevention
-Requires at least: 4.7
-Requires PHP: 7.2
+Requires at least: 5.7
+Requires PHP: 7.2.5
 Recommended PHP: 7.4
 Tested up to: 6.3
-Stable tag: 18.2.0
+Stable tag: 18.2.1
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, before they hack your site.
 
@@ -19,7 +19,7 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, 
 * Exclusive [AntiBot Detection Engine Security](https://shsec.io/ju) - a powerful security alternative to Google reCAPTCHA and CloudFlare Turnstile.
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security intelligence to block bad bots.
 * **Instant Bad Bot Blocking with [our exclusive CrowdSec Security integration](https://shsec.io/l5)**
-* Easy To Understand Security Dashboard that highlights quick wins and areas to rapidly quickly improve site security
+* Easy To Understand Security Dashboard that highlights quick wins and areas to rapidly improve site security
 * [ShieldPRO] [Artificial Intelligence based PHP Malware Detection](https://shsec.io/lf)
 * Security for your important user forms, by blocking Block Bots:
     * Login Forms
@@ -93,7 +93,7 @@ Shield is the only security plugin for WordPress that prioritises protection and
 
 Our mission is to block bad IPs and requests before they can do any damage. Shield Security will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current security solution, give Shield Security a try - we promise that you won't be disappointed.
 
-**Use the power of the network**. ShieldNET is our new and exclusive network-based security intelligence platform that draws-in information from all around the globe to help Shield Security be smarter when assessing security threats and taking appropriate action. And with our new [CrowdSec Partnership](https://shsec.io/l5) you've got even more data to make smarter security decisions.
+**Use the power of the network**. ShieldNET is our new and exclusive network-based security intelligence platform that draws-in information from all around the globe to help Shield Security be smarter when assessing security threats and taking appropriate action. And with our new [CrowdSec Security Partnership](https://shsec.io/l5) you've got even more data to make smarter security decisions.
 
 #### Get the highest rated 5* Security Plugin for WordPress
 
