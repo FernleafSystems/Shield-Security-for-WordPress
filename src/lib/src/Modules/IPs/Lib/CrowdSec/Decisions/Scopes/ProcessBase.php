@@ -36,7 +36,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'minimum_expires_at':
-				$value = (int)max( 0, $value );
+				$value = (int)\max( 0, $value );
 				break;
 			default:
 				break;
@@ -51,7 +51,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 	public function run( array $stream ) {
 		$this->preRun();
 
-		$this->timer_start = microtime( true );
+		$this->timer_start = \microtime( true );
 		if ( isset( $stream[ 'new' ] ) && !\is_array( $stream[ 'new' ] ) ) {
 			throw new DecisionsStreamDataIntegrityFailedException( "Decisions Stream 'new' data wasn't of the correct format: array" );
 		}

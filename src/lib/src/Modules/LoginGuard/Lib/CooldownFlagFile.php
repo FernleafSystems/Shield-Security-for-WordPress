@@ -14,7 +14,7 @@ class CooldownFlagFile {
 	}
 
 	public function getCooldownRemaining() :int {
-		return (int)max( 0, $this->opts()->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
+		return (int)\max( 0, $this->opts()->getCooldownInterval() - $this->getSecondsSinceLastLogin() );
 	}
 
 	public function getFlagFilePath() :string {

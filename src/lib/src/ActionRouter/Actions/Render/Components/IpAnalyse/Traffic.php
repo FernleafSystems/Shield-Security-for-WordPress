@@ -13,7 +13,7 @@ class Traffic extends Base {
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();
-		$logLimit = (int)max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
+		$logLimit = (int)\max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
 		try {
 			$ip = ( new IPRecords() )->loadIP( $this->action_data[ 'ip' ], false );
 			/** @var ReqLogs\Ops\Select $selector */

@@ -30,28 +30,30 @@ class ProcessOffense {
 			->setIP( $this->getIP() )
 			->toAutoBlacklist();
 
-		$newCount = $IP->offenses + $incrementBy;
+		$originalCount = $IP->offenses;
+
+		$newCount = $originalCount + $incrementBy;
 		$toBlock = $blockIP
 				   || ( $newCount >= $this->opts()->getOffenseLimit() && $IP->blocked_at <= $IP->unblocked_at );
 
 		if ( $toBlock ) {
-			$newCount = (int)max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
+			$newCount = (int)\max( 1, $newCount ); // Ensure there's an offense registered for immediate blocks
 		}
-
-		/** @var IpRulesDB\Update $updater */
-		$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
-		$updater->updateTransgressions( $IP, $newCount );
 
 		if ( $fireEvents ) {
 			$this->con()->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit_params' => [
-						'from' => $IP->offenses,
+						'from' => $originalCount,
 						'to'   => $newCount,
 					]
 				]
 			);
 		}
+
+		/** @var IpRulesDB\Update $updater */
+		$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
+		$updater->updateTransgressions( $IP, $newCount );
 
 		/**
 		 * When we block, we also want to increment offense stat, but we don't
@@ -68,7 +70,7 @@ class ProcessOffense {
 					[
 						'suppress_audit' => true,
 						'audit_params'   => [
-							'from' => $IP->offenses,
+							'from' => $originalCount,
 							'to'   => $newCount,
 						]
 					]

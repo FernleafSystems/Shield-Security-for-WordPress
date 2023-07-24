@@ -160,11 +160,11 @@ class SecurityAdminController {
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
-				$remaining = (int)max( 0, $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt ) );
+				$remaining = (int)\max( 0, $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt ) );
 			}
 		}
 
-		return (int)max( 0, $remaining );
+		return (int)\max( 0, $remaining );
 	}
 
 	public function isCurrentUserRegisteredSecAdmin() :bool {
