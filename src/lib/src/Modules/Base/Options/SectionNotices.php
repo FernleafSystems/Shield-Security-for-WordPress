@@ -304,6 +304,21 @@ class SectionNotices {
 				}
 
 				break;
+
+			case 'section_traffic_limiter':
+				if ( $con->caps->canTrafficRateLimit() ) {
+					$source = Services::Request()->getIpDetector()->getPublicRequestSource();
+					if ( $source !== 'REMOTE_ADDR' ) {
+						$warnings[] = sprintf( '%s %s',
+							sprintf( __( "We don't recommend running Traffic Rate Limiting while your IP address source isn't set to %s.", 'wp-simple-firewall' ),
+								sprintf( '<code>%s</code>', $source ) ),
+							sprintf( '[<a href="%s" target="_blank">%s</a>]',
+								$con->plugin_urls->modCfgOption( 'visitor_address_source' ), __( 'View Config', 'wp-simple-firewall' ) )
+						);
+					}
+				}
+
+				break;
 			default:
 				break;
 		}
