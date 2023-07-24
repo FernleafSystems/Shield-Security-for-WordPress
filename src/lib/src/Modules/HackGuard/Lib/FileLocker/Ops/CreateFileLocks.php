@@ -40,7 +40,8 @@ class CreateFileLocks extends BaseOps {
 	 * @throws FileContentsEncryptionFailure
 	 */
 	private function createLockForPath( string $path ) {
-		$record = new FileLockerDB\Record();
+		/** @var FileLockerDB\Record $record */
+		$record = $this->mod()->getDbH_FileLocker()->getRecord();
 		$record->type = $this->file->type;
 		$record->path = $path;
 		$record->hash_original = \hash_file( 'sha1', $path );
