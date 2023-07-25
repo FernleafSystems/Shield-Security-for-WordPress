@@ -20,7 +20,7 @@ abstract class BaseZoneReport {
 
 	protected $isSummary = true;
 
-	public function __construct( int $from = 0, int $until = PHP_INT_MAX ) {
+	public function __construct( int $from = 0, int $until = \PHP_INT_MAX ) {
 		$this->from = $from;
 		$this->until = $until;
 	}

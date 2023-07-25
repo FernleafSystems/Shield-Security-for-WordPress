@@ -7,8 +7,8 @@ class DisableFileEditing extends Base {
 	public const SLUG = 'disable_file_editing';
 
 	protected function execResponse() :bool {
-		if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
-			define( 'DISALLOW_FILE_EDIT', true );
+		if ( !\defined( 'DISALLOW_FILE_EDIT' ) ) {
+			\define( 'DISALLOW_FILE_EDIT', true );
 		}
 
 		add_filter( 'user_has_cap',
@@ -25,7 +25,7 @@ class DisableFileEditing extends Base {
 				}
 				return $allCaps;
 			},
-			PHP_INT_MAX, 3
+			\PHP_INT_MAX, 3
 		);
 
 		return true;

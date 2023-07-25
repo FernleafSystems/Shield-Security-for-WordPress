@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BasePosts extends Base {
 
 	protected function initAuditHooks() :void {
-		add_action( 'post_updated', [ $this, 'auditPostUpdated' ], PHP_INT_MAX, 3 );
+		add_action( 'post_updated', [ $this, 'auditPostUpdated' ], \PHP_INT_MAX, 3 );
 		add_action( 'deleted_post', [ $this, 'auditDeletedPost' ] );
 		add_action( 'transition_post_status', [ $this, 'auditPostStatus' ], 30, 3 );
 	}

@@ -63,9 +63,9 @@ class Processor extends BaseShield\Processor {
 
 	private function disableAllAutoUpdates() {
 		remove_all_filters( 'automatic_updater_disabled' );
-		add_filter( 'automatic_updater_disabled', '__return_true', PHP_INT_MAX );
-		if ( !defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-			define( 'WP_AUTO_UPDATE_CORE', false );
+		add_filter( 'automatic_updater_disabled', '__return_true', \PHP_INT_MAX );
+		if ( !\defined( 'WP_AUTO_UPDATE_CORE' ) ) {
+			\define( 'WP_AUTO_UPDATE_CORE', false );
 		}
 	}
 

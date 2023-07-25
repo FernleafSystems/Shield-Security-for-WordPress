@@ -24,7 +24,7 @@ class PageLicense extends BasePluginAdminPage {
 		$lic = $mod->getLicenseHandler()->getLicense();
 
 		$expiresAt = $lic->getExpiresAt();
-		if ( $expiresAt > 0 && $expiresAt != PHP_INT_MAX ) {
+		if ( $expiresAt > 0 && $expiresAt != \PHP_INT_MAX ) {
 			// Expires At has a random addition added to disperse future license lookups
 			// So we bring the license expiration back down to normal for user display.
 			$endOfExpireDay = Services::Request()

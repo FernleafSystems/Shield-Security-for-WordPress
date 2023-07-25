@@ -488,7 +488,7 @@ class Controller extends DynPropertiesClass {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ], PHP_INT_MIN );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], \PHP_INT_MIN );
 
 		// GDPR
 		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
@@ -502,7 +502,7 @@ class Controller extends DynPropertiesClass {
 				$byPass = true;
 			}
 			return $byPass;
-		}, PHP_INT_MAX );
+		}, \PHP_INT_MAX );
 	}
 
 	public function onWpAdminInit() {

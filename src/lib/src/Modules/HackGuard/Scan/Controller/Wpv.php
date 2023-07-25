@@ -27,7 +27,7 @@ class Wpv extends BaseForAssets {
 		}, 10, 2 );
 
 		if ( $this->isAutoupdatesEnabled() ) {
-			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
+			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], \PHP_INT_MAX, 2 );
 		}
 	}
 

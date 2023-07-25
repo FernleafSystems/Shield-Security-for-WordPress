@@ -40,11 +40,11 @@ class Users extends Base {
 
 		add_action( 'wp_create_application_password', [ $this, 'auditAppPasswordNew' ], 30, 2 );
 
-		add_action( 'profile_update', [ $this, 'captureProfileUpdate' ], PHP_INT_MAX, 3 );
+		add_action( 'profile_update', [ $this, 'captureProfileUpdate' ], \PHP_INT_MAX, 3 );
 
-		add_filter( 'send_password_change_email', [ $this, 'captureUserPasswordUpdate' ], PHP_INT_MAX, 2 );
-		add_action( 'wp_set_password', [ $this, 'captureUserPasswordSet' ], PHP_INT_MAX, 2 );
-		add_action( 'after_password_reset', [ $this, 'captureUserPasswordReset' ], PHP_INT_MAX );
+		add_filter( 'send_password_change_email', [ $this, 'captureUserPasswordUpdate' ], \PHP_INT_MAX, 2 );
+		add_action( 'wp_set_password', [ $this, 'captureUserPasswordSet' ], \PHP_INT_MAX, 2 );
+		add_action( 'after_password_reset', [ $this, 'captureUserPasswordReset' ], \PHP_INT_MAX );
 	}
 
 	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {

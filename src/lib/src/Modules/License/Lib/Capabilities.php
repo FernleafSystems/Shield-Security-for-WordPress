@@ -175,7 +175,7 @@ class Capabilities {
 
 	public function getMaxLogRetentionDays() :int {
 		if ( $this->hasCap( 'logs_retention_unlimited' ) ) {
-			$max = PHP_INT_MAX;
+			$max = \PHP_INT_MAX;
 		}
 		elseif ( $this->hasCap( 'logs_retention_31' ) ) {
 			$max = 31;

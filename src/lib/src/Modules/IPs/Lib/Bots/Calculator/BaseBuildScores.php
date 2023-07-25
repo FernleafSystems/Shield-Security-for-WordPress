@@ -54,7 +54,7 @@ abstract class BaseBuildScores {
 
 		if ( $filterForMethods ) {
 			$fields = \array_filter( $fields, function ( $field ) {
-				return method_exists( $this, 'score_'.$field );
+				return \method_exists( $this, 'score_'.$field );
 			} );
 		}
 

@@ -30,7 +30,7 @@ class Monolog {
 				throw new Exceptions\LibraryNotFoundException( 'Monolog library could not be found.' );
 			}
 		}
-		elseif ( !defined( \Monolog\Logger::class.'::API' ) ) {
+		elseif ( !\defined( \Monolog\Logger::class.'::API' ) ) {
 			throw new Exceptions\LibraryTooOldToBeUseableException( sprintf( 'Monolog library is too old to be usable. Location "%s".', $this->getMonologLoggerLocation() ) );
 		}
 		elseif ( \version_compare( (string)\Monolog\Logger::API, self::API_VERSION_REQUIRED, '<' ) ) {

@@ -521,7 +521,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function buildContextualHelp() {
-		if ( !function_exists( 'get_current_screen' ) ) {
+		if ( !\function_exists( 'get_current_screen' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/screen.php' );
 		}
 		$screen = get_current_screen();

@@ -21,8 +21,8 @@ class Processor extends BaseShield\Processor {
 			$this->sendHeaders();
 		}
 		else {
-			add_filter( 'wp_headers', [ $this, 'addToHeaders' ], PHP_INT_MAX );
-			add_action( 'send_headers', [ $this, 'sendHeaders' ], PHP_INT_MAX, 0 );
+			add_filter( 'wp_headers', [ $this, 'addToHeaders' ], \PHP_INT_MAX );
+			add_action( 'send_headers', [ $this, 'sendHeaders' ], \PHP_INT_MAX, 0 );
 		}
 	}
 

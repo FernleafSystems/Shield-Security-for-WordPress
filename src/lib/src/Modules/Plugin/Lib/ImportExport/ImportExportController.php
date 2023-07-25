@@ -66,7 +66,7 @@ class ImportExportController {
 	protected function getImportExportSecretKey() :string {
 		$ID = $this->opts()->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = \sha1( $this->con()->getInstallationID()[ 'id' ].wp_rand( 0, PHP_INT_MAX ) );
+			$ID = \sha1( $this->con()->getInstallationID()[ 'id' ].wp_rand( 0, \PHP_INT_MAX ) );
 			$this->opts()
 				 ->setOpt( 'importexport_secretkey', $ID )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );

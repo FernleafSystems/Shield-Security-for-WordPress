@@ -59,7 +59,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	private function triggerRequestLogger() {
-		add_filter( 'shield/is_log_traffic', '__return_true', PHP_INT_MAX );
+		add_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
 	}
 
 	protected function updateRecentLogEntry() :bool {

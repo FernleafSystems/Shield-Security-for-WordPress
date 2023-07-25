@@ -9,9 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Sna
 class Comments extends Base {
 
 	protected function initAuditHooks() :void {
-		add_action( 'comment_post', [ $this, 'auditNew' ], PHP_INT_MAX );
-		add_action( 'deleted_comment', [ $this, 'auditDelete' ], PHP_INT_MAX, 2 );
-		add_action( 'transition_comment_status', [ $this, 'auditStatusUpdate' ], PHP_INT_MAX, 3 );
+		add_action( 'comment_post', [ $this, 'auditNew' ], \PHP_INT_MAX );
+		add_action( 'deleted_comment', [ $this, 'auditDelete' ], \PHP_INT_MAX, 2 );
+		add_action( 'transition_comment_status', [ $this, 'auditStatusUpdate' ], \PHP_INT_MAX, 3 );
 	}
 
 	public function auditNew( $commentID ) :void {
