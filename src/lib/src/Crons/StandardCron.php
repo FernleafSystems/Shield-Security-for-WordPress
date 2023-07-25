@@ -43,7 +43,7 @@ trait StandardCron {
 
 	public function getFirstRunTimestamp() :int {
 		return empty( $this->nCronFirstRun ) ?
-			( Services::Request()->ts() + MINUTE_IN_SECONDS )
+			( Services::Request()->ts() + \MINUTE_IN_SECONDS )
 			: $this->nCronFirstRun;
 	}
 

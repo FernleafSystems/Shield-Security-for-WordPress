@@ -69,9 +69,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 			if ( !$bConfirm ) {
 				WP_CLI::confirm( __( 'Are you sure you want to remove the ShieldPRO license?', 'wp-simple-firewall' ) );
 			}
-			/** @var ModCon $mod */
-			$mod = $this->mod();
-			$mod->getLicenseHandler()->clearLicense();
+			self::con()->getModule_License()->getLicenseHandler()->clearLicense();
 			WP_CLI::success( __( 'License removed successfully.', 'wp-simple-firewall' ) );
 		}
 	}
@@ -80,9 +78,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	private function runStatus() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$mod->getLicenseHandler()->isActive() ?
+		self::con()->getModule_License()->getLicenseHandler()->isActive() ?
 			WP_CLI::success( __( 'Active license found.', 'wp-simple-firewall' ) )
 			: WP_CLI::error( __( 'No active license present.', 'wp-simple-firewall' ) );
 	}
@@ -91,17 +87,15 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	private function runVerify() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-
 		try {
 			if ( $this->con()->isPremiumActive() ) {
 				WP_CLI::log( 'Premium license is already active. Re-checking...' );
 			}
-			$success = $mod
-				->getLicenseHandler()
-				->verify( true )
-				->hasValidWorkingLicense();
+			$success = self::con()
+						   ->getModule_License()
+						   ->getLicenseHandler()
+						   ->verify( true )
+						   ->hasValidWorkingLicense();
 			$msg = $success ? __( 'Valid license found and installed.', 'wp-simple-firewall' )
 				: __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 		}

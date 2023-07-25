@@ -80,6 +80,6 @@ class Controller {
 	}
 
 	public function getQueueProcessor() :QueueProcessor {
-		return $this->queueProcessor ?? $this->queueProcessor = ( new QueueProcessor( 'shield_scanq' ) )->setExpirationInterval( MINUTE_IN_SECONDS*10 );
+		return $this->queueProcessor ?? $this->queueProcessor = ( new QueueProcessor( 'shield_scanq' ) )->setExpirationInterval( \MINUTE_IN_SECONDS*10 );
 	}
 }

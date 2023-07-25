@@ -8,8 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
 class Processor extends BaseShield\Processor {
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
+		$mod = self::con()->getModule_Plugin();
 
 		$this->removePluginConflicts();
 		( new Lib\OverrideLocale() )->execute();

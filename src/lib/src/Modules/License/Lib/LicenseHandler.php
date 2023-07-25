@@ -225,7 +225,7 @@ class LicenseHandler {
 		$FS = Services::WpFs();
 		$path = $this->con()->paths->forFlag( 'license_check' );
 		$mtime = $FS->exists( $path ) ? $FS->getModifiedTime( $path ) : 0;
-		return ( Services::Request()->ts() - $mtime ) > MINUTE_IN_SECONDS;
+		return ( Services::Request()->ts() - $mtime ) > \MINUTE_IN_SECONDS;
 	}
 
 	private function getLicVerifyExpireDays() :int {

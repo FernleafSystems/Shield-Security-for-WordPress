@@ -73,9 +73,6 @@ class GetIP extends Base {
 	}
 
 	private function getIpListInfo() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbh = $mod->getDbH_IPRules();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
@@ -92,6 +89,7 @@ class GetIP extends Base {
 
 		$info = [];
 		if ( !empty( $ip ) ) {
+			$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
 			$info = [
 				'type'           => $dbh::GetTypeName( $ip->type ),
 				'offenses'       => $ruleStatus->getOffenses(),

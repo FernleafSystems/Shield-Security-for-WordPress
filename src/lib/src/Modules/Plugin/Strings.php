@@ -224,8 +224,6 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->con();
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :
@@ -252,7 +250,7 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', $mod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" target="_blank">%s</a>', $con->getModule_Plugin()->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
 				];
 				break;
 

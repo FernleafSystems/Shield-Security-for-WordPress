@@ -214,17 +214,14 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$con = $this->con();
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$sPlugName = $con->getHumanName();
-		$sModName = $mod->getMainFeatureName();
+		$pluginName = $this->con()->getHumanName();
+		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_ips' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modName );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'IP Manager', 'wp-simple-firewall' ) ) )
@@ -242,7 +239,7 @@ class Strings extends Base\Strings {
 					.' '.sprintf(
 						__( 'When the counter reaches the limit below (default: %s), %s will block that IP completely.', 'wp-simple-firewall' ),
 						$this->getOptions()->getOptDefault( 'transgression_limit' ),
-						$sPlugName
+						$pluginName
 					)
 				];
 				break;
@@ -280,12 +277,10 @@ class Strings extends Base\Strings {
 	 */
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->con();
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$pluginName = $con->getHumanName();
-		$modName = $mod->getMainFeatureName();
+		$modName = $this->mod()->getMainFeatureName();
 
 		$noteBots = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
 			__( "You'll need to upgrade your plan to trigger offenses for these events.", 'wp-simple-firewall' ) );
@@ -385,7 +380,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'cs_enroll_id' :
-				$machID = $mod->getCrowdSecCon()->getApi()->getMachineID();
+				$machID = $con->getModule_IPs()->getCrowdSecCon()->getApi()->getMachineID();
 				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
 				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
 				$desc = [

@@ -120,7 +120,7 @@ class UserPasswordHandler {
 		$now = Services::Request()->ts();
 
 		$meta = $this->con()->user_metas->current();
-		if ( $now - $meta->pass_reset_last_redirect_at > MINUTE_IN_SECONDS*2 ) {
+		if ( $now - $meta->pass_reset_last_redirect_at > \MINUTE_IN_SECONDS*2 ) {
 
 			$meta->pass_reset_last_redirect_at = $now;
 

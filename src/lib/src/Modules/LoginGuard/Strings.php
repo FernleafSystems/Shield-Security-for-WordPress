@@ -167,7 +167,6 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->con();
-		/** @var ModCon $mod */
 		$mod = $this->mod();
 		$modName = $mod->getMainFeatureName();
 

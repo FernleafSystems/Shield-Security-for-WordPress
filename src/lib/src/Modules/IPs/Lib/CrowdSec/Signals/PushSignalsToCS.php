@@ -33,9 +33,7 @@ class PushSignalsToCS {
 	}
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$api = $mod->getCrowdSecCon()->getApi();
+		$api = $this->mod()->getCrowdSecCon()->getApi();
 
 		$recordsCount = 0;
 		do {
@@ -66,9 +64,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function convertRecordsToPayload( array $records ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$api = $mod->getCrowdSecCon()->getApi();
+		$api = $this->mod()->getCrowdSecCon()->getApi();
 		return \array_map(
 			function ( $record ) use ( $api ) {
 				$carbon = Services::Request()->carbon();
@@ -115,9 +111,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsByScope() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbhSignals = $mod->getDbH_CrowdSecSignals();
+		$dbhSignals = $this->mod()->getDbH_CrowdSecSignals();
 
 		if ( !isset( $this->distinctScopes ) ) {
 			$scopes = $dbhSignals->getQuerySelector()->getDistinctForColumn( 'scope' );
@@ -151,9 +145,7 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsGroupedByIP() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbhSignals = $mod->getDbH_CrowdSecSignals();
+		$dbhSignals = $this->mod()->getDbH_CrowdSecSignals();
 
 		if ( !isset( $this->distinctIPs ) ) {
 			$ips = $dbhSignals->getQuerySelector()
@@ -179,16 +171,15 @@ class PushSignalsToCS {
 	}
 
 	private function deleteRecords( array $records ) {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$mod->getDbH_CrowdSecSignals()
-			->getQueryDeleter()
-			->filterByIDs( \array_map(
-				function ( $record ) {
-					return $record->id;
-				},
-				$records
-			) )
-			->query();
+		$this->mod()
+			 ->getDbH_CrowdSecSignals()
+			 ->getQueryDeleter()
+			 ->filterByIDs( \array_map(
+				 function ( $record ) {
+					 return $record->id;
+				 },
+				 $records
+			 ) )
+			 ->query();
 	}
 }

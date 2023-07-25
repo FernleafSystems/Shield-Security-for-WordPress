@@ -35,8 +35,6 @@ class ProcessIPs extends ProcessBase {
 	 */
 	protected function processNew() :int {
 		$DB = Services::WpDb();
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		$now = Services::Request()->ts();
 
 		$this->removeDuplicatesFromNewStream();
@@ -47,7 +45,6 @@ class ProcessIPs extends ProcessBase {
 							->getModule_Data()
 							->getDbH_IPs()
 							->getTableSchema()->table;
-		$page = 0;
 		$pageSize = 100;
 		do {
 			$slice = \array_splice( $this->newDecisions, 0, $pageSize );
@@ -106,14 +103,12 @@ class ProcessIPs extends ProcessBase {
 
 				// 4. Insert the new IP Rules records.
 				$DB->doSql( sprintf( 'INSERT INTO `%s` (`ip_ref`, `cidr`, `type`, `blocked_at`, `expires_at`, `updated_at`, `created_at`) VALUES %s;',
-					$mod->getDbH_IPRules()->getTableSchema()->table,
+					$this->mod()->getDbH_IPRules()->getTableSchema()->table,
 					\implode( ', ', $insertValues )
 				) );
 
 				$total += \count( $insertValues );
 			}
-
-			$page++;
 		} while ( $hasRecords );
 
 		return $total;
@@ -215,8 +210,6 @@ class ProcessIPs extends ProcessBase {
 	}
 
 	protected function processDeleted() :int {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 
 		/** @var RangeInterface[] $ipsToDelete */
 		$ipsToDelete = \array_map( function ( $ip ) {
@@ -244,10 +237,11 @@ class ProcessIPs extends ProcessBase {
 		}
 
 		if ( !empty( $idsToDelete ) ) {
-			$mod->getDbH_IPRules()
-				->getQueryDeleter()
-				->addWhereIn( 'id', $idsToDelete )
-				->query();
+			$this->mod()
+				 ->getDbH_IPRules()
+				 ->getQueryDeleter()
+				 ->addWhereIn( 'id', $idsToDelete )
+				 ->query();
 		}
 
 		return \count( $idsToDelete );

@@ -147,7 +147,7 @@ class SecurityAdminController {
 	}
 
 	public function getSecAdminTimeout() :int {
-		return (int)$this->opts()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+		return (int)$this->opts()->getOpt( 'admin_access_timeout' )*\MINUTE_IN_SECONDS;
 	}
 
 	/**

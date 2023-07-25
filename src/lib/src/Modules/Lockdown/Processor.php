@@ -8,9 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Processor extends BaseShield\Processor {
 
 	public function runDailyCron() {
-		( new Lib\CleanRubbish() )
-			->setMod( $this->mod() )
-			->execute();
+		( new Lib\CleanRubbish() )->execute();
 	}
 
 	public function onWpInit() {
@@ -28,13 +26,10 @@ class Processor extends BaseShield\Processor {
 	 * @return \WP_Error
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$WPRest = Services::Rest();
 
-		$namespace = $WPRest->getNamespace();
+		$namespace = Services::Rest()->getNamespace();
 		if ( !empty( $namespace ) && $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$mod->isPermittedAnonRestApiNamespace( $namespace ) ) {
+			 && !self::con()->getModule_Lockdown()->isPermittedAnonRestApiNamespace( $namespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',

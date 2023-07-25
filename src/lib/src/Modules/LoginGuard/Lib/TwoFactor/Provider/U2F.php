@@ -91,7 +91,7 @@ class U2F extends AbstractShieldProvider {
 		$userRegRequests = \array_filter(
 			\is_array( $meta->u2f_regrequests ) ? $meta->u2f_regrequests : [],
 			function ( $ts ) {
-				return Services::Request()->ts() - $ts < MINUTE_IN_SECONDS*10;
+				return Services::Request()->ts() - $ts < \MINUTE_IN_SECONDS*10;
 			}
 		);
 		$userRegRequests[ \json_encode( $newRegRequest ) ] = Services::Request()->ts();

@@ -14,9 +14,7 @@ class ScanRun extends Base\WpCli\BaseWpCliCmd {
 	 * @throws \Exception
 	 */
 	protected function addCmds() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$scansCon = $mod->getScansCon();
+		$scansCon = $this->mod()->getScansCon();
 
 		$params = [];
 		foreach ( $scansCon->getScanSlugs() as $slug ) {

@@ -73,7 +73,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? -35 : -15;
+			$score = $this->diffTs( __FUNCTION__ ) < \MINUTE_IN_SECONDS ? -35 : -15;
 		}
 		return $score;
 	}
@@ -113,7 +113,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? -25 : -15;
+			$score = $this->diffTs( __FUNCTION__ ) < \MINUTE_IN_SECONDS ? -25 : -15;
 		}
 		return $score;
 	}
@@ -133,7 +133,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? -35 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < \MINUTE_IN_SECONDS ? -35 : -25;
 		}
 		return $score;
 	}
@@ -177,7 +177,7 @@ class BuildScoresFallback extends BaseBuildScores {
 			$score = 0;
 		}
 		else {
-			$score = $this->diffTs( __FUNCTION__ ) < MINUTE_IN_SECONDS ? -55 : -25;
+			$score = $this->diffTs( __FUNCTION__ ) < \MINUTE_IN_SECONDS ? -55 : -25;
 		}
 		return $score;
 	}

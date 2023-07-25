@@ -66,7 +66,7 @@ class Processor extends BaseShield\Processor {
 			$sent = \array_map( 'strtolower', \array_keys( $this->getAlreadySentHeaders() ) );
 			foreach ( $this->gatherSecurityHeaders() as $name => $value ) {
 				if ( !\in_array( \strtolower( $name ), $sent ) ) {
-					@header( sprintf( '%s: %s', $name, $value ) );
+					@\header( sprintf( '%s: %s', $name, $value ) );
 				}
 			}
 
@@ -89,8 +89,8 @@ class Processor extends BaseShield\Processor {
 	private function getAlreadySentHeaders() :array {
 		$headers = [];
 
-		if ( \function_exists( 'headers_list' ) ) {
-			foreach ( headers_list() as $header ) {
+		if ( \function_exists( '\headers_list' ) ) {
+			foreach ( \headers_list() as $header ) {
 				if ( \strpos( $header, ':' ) ) {
 					[ $key, $value ] = \array_map( 'trim', \explode( ':', $header, 2 ) );
 					$headers[ $key ] = $value;

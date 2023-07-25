@@ -22,7 +22,7 @@ class InsertNotBotJs {
 			   || $this->isForcedForOptimisationPlugins()
 			   || ( $req->ts() - ( new BotSignalsRecord() )
 					->setIP( $this->con()->this_req->ip )
-					->retrieveNotBotAt() ) > MINUTE_IN_SECONDS*45;
+					->retrieveNotBotAt() ) > \MINUTE_IN_SECONDS*45;
 	}
 
 	/**
