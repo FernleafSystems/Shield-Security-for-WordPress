@@ -21,7 +21,6 @@ class UserPasswordHandler {
 	use WpLoginCapture;
 
 	protected function run() {
-
 		$this->setupLoginCaptureHooks();
 		add_action( 'after_password_reset', [ $this, 'onPasswordReset' ] );
 
