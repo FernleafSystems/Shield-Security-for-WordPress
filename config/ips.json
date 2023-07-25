@@ -6,7 +6,7 @@
     "menu_priority":         30,
     "name":                  "Block Bad IPs/Visitors",
     "namespace":             "IPs",
-    "sidebar_name":          "IP Blocking",
+    "sidebar_name":          "Bot Blocking",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "ips",

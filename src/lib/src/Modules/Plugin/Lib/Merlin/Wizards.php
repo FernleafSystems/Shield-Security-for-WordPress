@@ -12,7 +12,7 @@ class Wizards {
 		Steps\NewsletterSubscribe::class,
 		Steps\License::class,
 		Steps\SecurityAdmin::class,
-		Steps\IpBlocking::class,
+		Steps\BotBlocking::class,
 		Steps\LoginProtection::class,
 		Steps\CommentSpam::class,
 		Steps\SecurityBadge::class,

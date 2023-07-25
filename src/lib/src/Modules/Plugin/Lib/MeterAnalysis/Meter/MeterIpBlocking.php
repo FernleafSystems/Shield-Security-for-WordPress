@@ -13,7 +13,7 @@ class MeterIpBlocking extends MeterBase {
 	}
 
 	public function title() :string {
-		return __( 'IP Blocking and Bot Detection', 'wp-simple-firewall' );
+		return __( 'Bad-Bot Detection and IP Blocking', 'wp-simple-firewall' );
 	}
 
 	public function subtitle() :string {

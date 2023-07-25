@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Step
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class IpBlocking extends Base {
+class BotBlocking extends Base {
 
 	public const SLUG = 'ip_blocking';
 
@@ -50,7 +50,7 @@ class IpBlocking extends Base {
 	}
 
 	public function getName() :string {
-		return __( 'IP Blocking', 'wp-simple-firewall' );
+		return __( 'Bot Blocking', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {

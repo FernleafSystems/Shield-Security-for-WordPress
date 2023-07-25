@@ -410,7 +410,8 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' ),
 					__( "Be careful to ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' ),
-					__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' )
+					__( "We recommend to start with logging here, in-case you're unsure.", 'wp-simple-firewall' )
+					.' '.__( "You can monitor the Activity Log and when you're happy you won't block valid requests, you can switch to blocking.", 'wp-simple-firewall' )
 				];
 				break;
 
