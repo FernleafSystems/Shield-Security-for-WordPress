@@ -21,20 +21,26 @@ class Wordpress extends Base {
 	}
 
 	private function getMapOptionKeysToEvent() :array {
-		return [
+		$map = [
 			'permalink_structure' => 'permalinks_structure',
 			'admin_email'         => 'wp_option_admin_email',
 			'blogname'            => 'wp_option_blogname',
 			'blogdescription'     => 'wp_option_blogdescription',
 			'default_role'        => 'wp_option_default_role',
-			'home'                => 'wp_option_home',
-			'url'                 => 'wp_option_url',
 			'users_can_register'  => 'wp_option_users_can_register',
 		];
+
+		if ( !\defined( 'WP_HOME' ) ) {
+			$map[ 'home' ] = 'wp_option_home';
+		}
+		if ( !\defined( 'WP_SITEURL' ) ) {
+			$map[ 'siteurl' ] = 'wp_option_siteurl';
+		}
+		return $map;
 	}
 
 	public function auditWpOptions( $old, $new, $option ) {
-		// So the logs for checkboxes is more humane. Must also align with what SnapWP does.
+		// So that the logs for checkboxes is more humane. Must also align with what SnapWP does.
 		if ( \in_array( $option, [ 'users_can_register' ] ) ) {
 			$old = $old == 0 ? 'off' : 'on';
 			$new = $new == 0 ? 'off' : 'on';
@@ -76,7 +82,7 @@ class Wordpress extends Base {
 						case 'wp_option_default_role':
 						case 'wp_option_users_can_register':
 						case 'wp_option_home':
-						case 'wp_option_url':
+						case 'wp_option_siteurl':
 							$this->fireAuditEvent( $eventSlug, [
 								'from' => $oldValue,
 								'to'   => $newValue,

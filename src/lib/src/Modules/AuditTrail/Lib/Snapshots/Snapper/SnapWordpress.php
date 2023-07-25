@@ -18,7 +18,7 @@ class SnapWordpress extends BaseSnap {
 				'wp_option_blogname'           => get_option( 'blogname' ),
 				'wp_option_default_role'       => get_option( 'default_role' ),
 				'wp_option_home'               => get_option( 'home' ),
-				'wp_option_url'                => get_option( 'url' ),
+				'wp_option_siteurl'            => get_option( 'siteurl' ),
 				'wp_option_users_can_register' => get_option( 'users_can_register' ) == '0' ? 'off' : 'on',
 			],
 		];

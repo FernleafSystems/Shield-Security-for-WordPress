@@ -42,7 +42,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
 				);
 				break;
-			case 'wp_option_url':
+			case 'wp_option_siteurl':
 				$text = sprintf( 'Site URL Changed: %s&rarr;%s',
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
 					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
@@ -88,7 +88,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 				   'wp_option_blogname'           => __( 'Site Title', 'wp-simple-firewall' ),
 				   'wp_option_blogdescription'    => __( 'Site Tagline', 'wp-simple-firewall' ),
 				   'wp_option_home'               => __( 'Home URL', 'wp-simple-firewall' ),
-				   'wp_option_url'                => __( 'Site URL', 'wp-simple-firewall' ),
+				   'wp_option_siteurl'            => __( 'Site URL', 'wp-simple-firewall' ),
 				   'wp_option_default_role'       => __( 'Default User Role', 'wp-simple-firewall' ),
 				   'wp_option_users_can_register' => __( 'Anyone Can Register', 'wp-simple-firewall' ),
 			   ][ $log->event_slug ] ?? parent::getNameForLog( $log );

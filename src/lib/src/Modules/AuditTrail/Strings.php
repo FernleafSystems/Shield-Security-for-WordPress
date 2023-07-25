@@ -143,7 +143,7 @@ class Strings extends Base\Strings {
 					__( 'The home URL was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
 				],
 			],
-			'wp_option_url'                => [
+			'wp_option_siteurl'            => [
 				'name'  => __( 'WP User Registration', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'The site URL was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),

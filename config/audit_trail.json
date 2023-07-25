@@ -438,7 +438,7 @@
         ],
         "level":        "warning"
       },
-      "wp_option_url":                {
+      "wp_option_siteurl":            {
         "audit_params": [
           "from",
           "to"
