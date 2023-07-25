@@ -10,6 +10,16 @@ class PageReports extends BasePluginAdminPage {
 	public const SLUG = 'admin_plugin_page_reports';
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
 
+	protected function getPageContextualHrefs() :array {
+		$con = $this->con();
+		return [
+			[
+				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_AuditTrail()->cfg->slug ),
+			]
+		];
+	}
+
 	protected function getRenderData() :array {
 		return [
 			'content' => $this->buildContent(),
