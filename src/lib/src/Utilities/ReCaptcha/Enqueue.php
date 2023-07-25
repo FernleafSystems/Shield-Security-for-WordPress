@@ -3,10 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Legacy\RecaptchaJs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
+/**
+ * @deprecated TODO: remove all of this crap
+ */
 class Enqueue {
 
 	use ModConsumer;
@@ -15,6 +19,8 @@ class Enqueue {
 	 * @var bool
 	 */
 	private $bEnqueue;
+
+	private $context = 'user';
 
 	public function __construct() {
 		$this->bEnqueue = false;
@@ -28,8 +34,7 @@ class Enqueue {
 	 * TODO: Consider how to move this to our standardised Enqueue system.
 	 */
 	public function onWpEnqueueJs() {
-		$mod = $this->mod();
-		$cfg = $mod->getCaptchaCfg();
+		$cfg = $this->cfg();
 
 		$uriJS = URL::Build( $cfg->url_api, [
 			'hl'     => Services::WpGeneral()->getLocale( '-' ),
@@ -60,7 +65,7 @@ class Enqueue {
 	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
-		$cfg = $this->mod()->getCaptchaCfg();
+		$cfg = $this->cfg();
 
 		if ( $this->bEnqueue ) {
 			echo $this->con()->action_router->render( RecaptchaJs::SLUG, [
@@ -81,5 +86,10 @@ class Enqueue {
 	public function setToEnqueue() {
 		$this->bEnqueue = true;
 		return $this;
+	}
+
+	private function cfg() :CaptchaConfigVO {
+		return ( $this->context === 'user' ?
+			$this->con()->getModule_LoginGuard() : $this->con()->getModule_Plugin() )->getCaptchaCfg();
 	}
 }

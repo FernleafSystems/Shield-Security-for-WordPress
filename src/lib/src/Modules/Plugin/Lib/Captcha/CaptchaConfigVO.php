@@ -19,24 +19,15 @@ class CaptchaConfigVO extends DynPropertiesClass {
 	public const PROV_GOOGLE_RECAP2 = 'grecaptcha';
 	public const PROV_HCAPTCHA = 'hcaptcha';
 
-	/**
-	 * @param string $key
-	 * @return mixed
-	 */
 	public function __get( string $key ) {
-
 		$value = parent::__get( $key );
-
 		switch ( $key ) {
-
 			case 'ready':
 				$value = !empty( $this->key ) && !empty( $this->secret );
 				break;
-
 			default:
 				break;
 		}
-
 		return $value;
 	}
 }
