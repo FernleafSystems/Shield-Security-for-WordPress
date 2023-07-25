@@ -20,6 +20,7 @@ class Handler {
 				LicenseStatus::class,
 				RulesEngine::class,
 				SelfVersion::class,
+				SystemOutOfDate::class,
 				GoPro::class,
 			]
 		) );

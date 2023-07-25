@@ -21,8 +21,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			case 'rate-plugin':
 				$this->buildNotice_RatePlugin( $notice );
 				break;
-			case 'plugin-too-old':
-				break;
 			default:
 				parent::processNotice( $notice );
 				break;
@@ -100,9 +98,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 			case 'allow-tracking':
 				$needed = !$opts->isTrackingPermissionSet();
-				break;
-			case 'plugin-too-old':
-				$needed = false;
 				break;
 			default:
 				$needed = parent::isDisplayNeeded( $notice );
