@@ -51,7 +51,7 @@ class SitesListTableColumn extends BaseRender {
 				'status_key'   => $statusKey,
 				'status_name'  => \current( $status ),
 				'issues_count' => $issuesCount,
-				'version'      => $this->con()->getVersion()
+				'version'      => $this->con()->cfg->version()
 			],
 			'hrefs'   => [
 				'this_extension' => Services::WpGeneral()
