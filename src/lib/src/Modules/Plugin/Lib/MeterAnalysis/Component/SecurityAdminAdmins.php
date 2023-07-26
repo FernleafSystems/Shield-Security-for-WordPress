@@ -12,13 +12,13 @@ class SecurityAdminAdmins extends Base {
 	public const WEIGHT = 3;
 
 	protected function getOptConfigKey() :string {
-		return 'enable_admin_access_restriction';
+		return 'admin_access_restrict_admin_users';
 	}
 
 	protected function testIfProtected() :bool {
 		$mod = $this->con()->getModule_SecAdmin();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
 			   && $mod->getSecurityAdminController()->isEnabledSecAdmin()
 			   && $opts->isSecAdminRestrictUsersEnabled();
@@ -27,7 +27,7 @@ class SecurityAdminAdmins extends Base {
 	public function href() :string {
 		$mod = $this->con()->getModule_SecAdmin();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		if ( !$mod->isModOptEnabled() ) {
 			$href = $this->getOptLink( 'enable_admin_access_restriction' );
 		}
