@@ -6,7 +6,7 @@ class ScanEnabledMal extends ScanEnabledBase {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'scan_enabled_mal';
 	public const WEIGHT = 4;
 
@@ -32,10 +32,16 @@ class ScanEnabledMal extends ScanEnabledBase {
 	}
 
 	public function descProtected() :string {
-		return __( 'PHP malware scanner is enabled.', 'wp-simple-firewall' );
+		return $this->con()->caps->canScanMalwareMalai() ?
+			__( 'Advanced AI PHP malware scanner is enabled.', 'wp-simple-firewall' )
+			: __( "Local PHP malware scanner is enabled but AI Malware scanning is available on an upgraded plan.", 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
 		return __( "PHP malware scanner isn't enabled.", 'wp-simple-firewall' );
+	}
+
+	protected function score() :int {
+		return $this->con()->caps->canScanMalwareMalai() ? static::WEIGHT : static::WEIGHT/2;
 	}
 }

@@ -15,11 +15,11 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getLoginIntentMaxAttempts() :int {
-		return (int)max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
+		return (int)\max( 1, apply_filters( 'shield/2fa_max_attempts', $this->getDef( 'login_intent_max_attempts' ) ) );
 	}
 
 	public function getLoginIntentMinutes() :int {
-		return (int)max( 1, apply_filters(
+		return (int)\max( 1, apply_filters(
 			$this->con()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
@@ -45,8 +45,8 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 			'shield/2fa_email_enforced_user_roles',
 			apply_filters( 'odp-shield-2fa_email_user_roles', $this->getOpt( 'two_factor_auth_user_roles' ) )
 		);
-		return array_unique( array_filter( array_map( 'sanitize_key',
-			is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
+		return \array_unique( \array_filter( \array_map( 'sanitize_key',
+			\is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
 		) ) );
 	}
 
@@ -59,15 +59,11 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getMfaSkip() :int { // seconds
-		return DAY_IN_SECONDS*( $this->con()->isPremiumActive() ? $this->getOpt( 'mfa_skip', 0 ) : 0 );
+		return \DAY_IN_SECONDS*( $this->getOpt( 'mfa_skip', 0 ) );
 	}
 
 	public function getYubikeyAppId() :string {
 		return $this->getOpt( 'yubikey_app_id', '' );
-	}
-
-	public function isMfaSkip() :bool {
-		return $this->getMfaSkip() > 0;
 	}
 
 	public function isEmailAuthenticationActive() :bool {
@@ -99,16 +95,12 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->con()->isPremiumActive();
 	}
 
-	public function isEnabledBackupCodes() :bool {
-		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
-	}
-
 	public function isEnabledGoogleAuthenticator() :bool {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
 	public function isEnabledU2F() :bool {
-		return $this->con()->isPremiumActive() && $this->isOpt( 'enable_u2f', 'Y' );
+		return $this->isOpt( 'enable_u2f', 'Y' );
 	}
 
 	public function isProtectLogin() :bool {
@@ -128,7 +120,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	 */
 	public function isProtect( string $location ) :bool {
 		$locs = $this->getOpt( 'bot_protection_locations' );
-		return in_array( $location, is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
+		return \in_array( $location, \is_array( $locs ) ? $locs : $this->getOptDefault( 'bot_protection_locations' ) );
 	}
 
 	public function isEnabledYubikey() :bool {
@@ -137,5 +129,19 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	private function isYubikeyConfigReady() :bool {
 		return !empty( $this->getOpt( 'yubikey_app_id' ) ) && !empty( $this->getOpt( 'yubikey_api_key' ) );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isEnabledBackupCodes() :bool {
+		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isMfaSkip() :bool {
+		return $this->getMfaSkip() > 0;
 	}
 }

@@ -24,7 +24,7 @@ class ConfigForm extends UserMfaBase {
 		$mod = $this->con()->getModule_LoginGuard();
 		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
 
-		$providerRenders = array_map(
+		$providerRenders = \array_map(
 			function ( $provider ) {
 				return $provider->renderUserProfileConfigFormField();
 			},

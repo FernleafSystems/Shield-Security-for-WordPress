@@ -16,7 +16,7 @@ class Databases {
 	 */
 	protected function getDbHandlerClasses() :array {
 		$c = $this->mod()->getOptions()->getDef( 'db_handler_classes' );
-		return is_array( $c ) ? $c : [];
+		return \is_array( $c ) ? $c : [];
 	}
 
 	/**
@@ -24,7 +24,7 @@ class Databases {
 	 * @throws \Exception
 	 */
 	public function loadAllDbHandlers( bool $reload = false ) :array {
-		foreach ( array_keys( $this->getDbHandlerClasses() ) as $dbKey ) {
+		foreach ( \array_keys( $this->getDbHandlerClasses() ) as $dbKey ) {
 			$this->loadDbH( $dbKey, $reload );
 		}
 		return $this->dbHandlers;
@@ -32,6 +32,7 @@ class Databases {
 
 	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
+	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$con = $this->con();
@@ -51,15 +52,15 @@ class Databases {
 			}
 
 			$dbClass = $dbClasses[ $dbKey ];
-			if ( !class_exists( $dbClass ) ) {
+			if ( !\class_exists( $dbClass ) ) {
 				throw new \Exception( sprintf( 'DB Handler Class for key (%s) is not valid', $dbKey ) );
 			}
 
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 			/** @var Core\Databases\Base\Handler|mixed $dbh */
 			$dbh = new $dbClass( $dbDef );
-			$dbh->use_table_ready_cache = $con->getModule_Plugin()
-											  ->getActivateLength() > Core\Databases\Common\TableReadyCache::READY_LIFETIME;
+			$dbh->use_table_ready_cache = $con->getModule_Plugin()->getActivateLength()
+										  > Core\Databases\Common\TableReadyCache::READY_LIFETIME;
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ] = $dbh;

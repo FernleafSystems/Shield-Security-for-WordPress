@@ -56,7 +56,7 @@ class CleanIpRules {
 	}
 
 	public function duplicates_AutoBlock() {
-		array_map(
+		\array_map(
 			function ( $ip ) {
 				try {
 					( new MergeAutoBlockRules() )->byIP( $ip );
@@ -65,8 +65,8 @@ class CleanIpRules {
 					error_log( 'clean duplicate IPs for: '.$ip );
 				}
 			},
-			array_keys( array_filter( $this->getIpCountsForType( Handler::T_AUTO_BLOCK ), function ( $IDs ) {
-				return count( $IDs ) > 1;
+			\array_keys( \array_filter( $this->getIpCountsForType( Handler::T_AUTO_BLOCK ), function ( $IDs ) {
+				return \count( $IDs ) > 1;
 			} ) )
 		);
 	}
@@ -76,14 +76,14 @@ class CleanIpRules {
 	 */
 	public function duplicates_Crowdsec() {
 
-		$allCounts = array_filter( $this->getIpCountsForType( Handler::T_CROWDSEC ), function ( $IDs ) {
-			return count( $IDs ) > 1;
+		$allCounts = \array_filter( $this->getIpCountsForType( Handler::T_CROWDSEC ), function ( $IDs ) {
+			return \count( $IDs ) > 1;
 		} );
 
 		$deleteIDs = [];
 		foreach ( $allCounts as $ipIDs ) {
-			array_pop( $ipIDs );
-			$deleteIDs = array_merge( $deleteIDs, $ipIDs );
+			\array_pop( $ipIDs );
+			$deleteIDs = \array_merge( $deleteIDs, $ipIDs );
 		}
 
 		if ( !empty( $deleteIDs ) ) {

@@ -21,8 +21,8 @@ class AssessLocks extends BaseOps {
 					}
 				}
 				else {
-					$fileHash = hash_file( 'sha1', $lock->path );
-					if ( !empty( $fileHash ) && !hash_equals( $lock->hash_current, $fileHash ) ) {
+					$fileHash = \hash_file( 'sha1', $lock->path );
+					if ( !empty( $fileHash ) && !\hash_equals( $lock->hash_current, $fileHash ) ) {
 						$updater->updateCurrentHash( $lock, $fileHash );
 					}
 				}
@@ -38,7 +38,7 @@ class AssessLocks extends BaseOps {
 	private function removeDuplicates() {
 		$paths = [];
 		foreach ( $this->getFileLocks() as $lock ) {
-			if ( in_array( $lock->path, $paths ) ) {
+			if ( \in_array( $lock->path, $paths ) ) {
 				$this->mod()
 					 ->getDbH_FileLocker()
 					 ->getQueryDeleter()
@@ -48,7 +48,7 @@ class AssessLocks extends BaseOps {
 				$paths[] = $lock->path;
 			}
 		}
-		if ( count( $this->getFileLocks() ) != count( $paths ) ) {
+		if ( \count( $this->getFileLocks() ) !== \count( $paths ) ) {
 			$this->clearFileLocksCache();
 		}
 	}

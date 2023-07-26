@@ -8,10 +8,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops;
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
-	/**
-	 * @param string $key
-	 * @return mixed
-	 */
 	public function __get( string $key ) {
 
 		$value = parent::__get( $key );
@@ -19,14 +15,14 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		switch ( $key ) {
 
 			case 'geo':
-				if ( is_string( $value ) && !empty( $value ) ) {
-					$value = base64_decode( $value );
+				if ( \is_string( $value ) && !empty( $value ) ) {
+					$value = \base64_decode( $value );
 					if ( !empty( $value ) ) {
-						$value = @json_decode( $value, true );
+						$value = @\json_decode( $value, true );
 					}
 				}
 
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;
@@ -47,10 +43,10 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		switch ( $key ) {
 
 			case 'geo':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
-				$value = base64_encode( json_encode( $value ) );
+				$value = \base64_encode( \json_encode( $value ) );
 				break;
 
 			default:

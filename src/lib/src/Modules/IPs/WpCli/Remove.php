@@ -27,7 +27,7 @@ class Remove extends BaseAddRemove {
 			$this->checkList( $args[ 'list' ] );
 
 			$ruleStatus = new IPs\Lib\IpRules\IpRuleStatus( $args[ 'ip' ] );
-			$records = in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
+			$records = \in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ?
 				$ruleStatus->getRulesForBypass() : $ruleStatus->getRulesForBlock();
 
 			$success = false;

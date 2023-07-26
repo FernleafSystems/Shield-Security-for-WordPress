@@ -22,15 +22,15 @@ class AdminNotice extends BaseRender {
 
 		$data = $notice->render_data;
 
-		if ( empty( $data[ 'notice_classes' ] ) || !is_array( $data[ 'notice_classes' ] ) ) {
+		if ( empty( $data[ 'notice_classes' ] ) || !\is_array( $data[ 'notice_classes' ] ) ) {
 			$data[ 'notice_classes' ] = [];
 		}
 		$data[ 'notice_classes' ][] = $notice->type;
-		if ( !in_array( 'error', $data[ 'notice_classes' ] ) ) {
+		if ( !\in_array( 'error', $data[ 'notice_classes' ] ) ) {
 			$data[ 'notice_classes' ][] = 'updated';
 		}
 		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
-		$data[ 'notice_classes' ] = implode( ' ', array_unique( $data[ 'notice_classes' ] ) );
+		$data[ 'notice_classes' ] = \implode( ' ', \array_unique( $data[ 'notice_classes' ] ) );
 
 		$data[ 'unique_render_id' ] = uniqid( (string)$notice->id );
 		$data[ 'notice_id' ] = $notice->id;

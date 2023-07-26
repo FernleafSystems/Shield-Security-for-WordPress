@@ -27,14 +27,14 @@ class EntryVO extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'meta':
-				if ( is_string( $value ) && !empty( $value ) ) {
-					$value = base64_decode( $value );
+				if ( \is_string( $value ) && !empty( $value ) ) {
+					$value = \base64_decode( $value );
 					if ( !empty( $value ) ) {
-						$value = @json_decode( $value, true );
+						$value = @\json_decode( $value, true );
 					}
 				}
 
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;
@@ -43,7 +43,7 @@ class EntryVO extends DynPropertiesClass {
 				break;
 		}
 
-		if ( $key === 'id' || preg_match( '#^.*_at$#i', $key ) ) {
+		if ( $key === 'id' || \preg_match( '#^.*_at$#i', $key ) ) {
 			$value = (int)$value;
 		}
 
@@ -59,10 +59,10 @@ class EntryVO extends DynPropertiesClass {
 		switch ( $key ) {
 
 			case 'meta':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
-				$value = base64_encode( json_encode( $value ) );
+				$value = \base64_encode( \json_encode( $value ) );
 				break;
 
 			default:
@@ -79,7 +79,7 @@ class EntryVO extends DynPropertiesClass {
 	public function getHash() :string {
 		$data = $this->getRawData();
 		asort( $data );
-		return md5( serialize( $data ) );
+		return \md5( serialize( $data ) );
 	}
 
 	public function isDeleted() :bool {

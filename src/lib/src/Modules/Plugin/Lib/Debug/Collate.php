@@ -33,10 +33,10 @@ class Collate {
 				'Environment' => $this->getEnv(),
 			],
 			'WordPress Info' => [
-				'Summary'                                                     => $this->getWordPressSummary(),
-				sprintf( 'Active Plugins (%s)', count( $pluginsActive ) )     => $pluginsActive,
-				sprintf( 'Inactive Plugins (%s)', count( $pluginsInactive ) ) => $pluginsInactive,
-				sprintf( 'Active Themes (%s)', count( $themes ) )             => $themes,
+				'Summary'                                                      => $this->getWordPressSummary(),
+				sprintf( 'Active Plugins (%s)', \count( $pluginsActive ) )     => $pluginsActive,
+				sprintf( 'Inactive Plugins (%s)', \count( $pluginsInactive ) ) => $pluginsInactive,
+				sprintf( 'Active Themes (%s)', \count( $themes ) )             => $themes,
 			],
 			'Service IPs'    => [
 				'Summary' => $this->getServiceIPs(),
@@ -59,8 +59,8 @@ class Collate {
 			}
 		}
 
-		$totalDisk = function_exists( '\disk_total_space' ) ? \disk_total_space( ABSPATH ) : '-';
-		$freeDisk = function_exists( '\disk_free_space' ) ? \disk_free_space( ABSPATH ) : '-';
+		$totalDisk = \function_exists( '\disk_total_space' ) ? \disk_total_space( ABSPATH ) : '-';
+		$freeDisk = \function_exists( '\disk_free_space' ) ? \disk_free_space( ABSPATH ) : '-';
 		try {
 			$diff = ( new WorldTimeApi() )->diffServerWithReal();
 		}
@@ -72,7 +72,7 @@ class Collate {
 			'Host OS'                => PHP_OS,
 			'Server Hostname'        => gethostname(),
 			'Server Time Difference' => $diff,
-			'Server IPs'             => implode( ', ', $aIPs ),
+			'Server IPs'             => \implode( ', ', $aIPs ),
 			'CloudFlare'             => !empty( $req->server( 'HTTP_CF_REQUEST_ID' ) ) ? 'No' : 'Yes',
 			'rDNS'                   => empty( $rDNS ) ? '-' : $rDNS,
 			'Server Name'            => $req->server( 'SERVER_NAME' ),
@@ -96,7 +96,7 @@ class Collate {
 		}
 
 		$ext = get_loaded_extensions();
-		natsort( $ext );
+		\natsort( $ext );
 
 		$root = $req->server( 'DOCUMENT_ROOT' );
 		return [
@@ -108,7 +108,7 @@ class Collate {
 			'Time Limit'    => ini_get( 'max_execution_time' ),
 			'Dir Separator' => DIRECTORY_SEPARATOR,
 			'Document Root' => empty( $root ) ? '-' : $root,
-			'Extensions'    => implode( ', ', $ext ),
+			'Extensions'    => \implode( ', ', $ext ),
 		];
 	}
 
@@ -215,9 +215,7 @@ class Collate {
 
 		$data = [
 			'Can Loopback Request'       => $loopback,
-			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )
-				->setMod( $this->con()->getModule_IPs() )
-				->test() ? 'Yes' : 'No',
+			'NotBot Frontend JS Loading' => ( new TestNotBotLoading() )->test() ? 'Yes' : 'No',
 			'Handshake ShieldNET'        => $modPlug->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
 			'WP Hashes Ping'             => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
@@ -285,7 +283,7 @@ class Collate {
 			$data[ 'ClassicPress' ] = $WP->getVersion();
 		}
 
-		return array_merge( $data, [
+		return \array_merge( $data, [
 			'URL - Home'  => $WP->getHomeUrl(),
 			'URL - Site'  => $WP->getWpUrl(),
 			'WP'          => $WP->getVersion( true ),

@@ -51,12 +51,12 @@ class AssetsCustomizer {
 				case PluginURLs::NAV_OVERVIEW:
 					break;
 				case PluginURLs::NAV_REPORTS:
-					$enq[ Enqueue::JS ] = array_merge( $enq[ Enqueue::JS ], [
+					$enq[ Enqueue::JS ] = \array_merge( $enq[ Enqueue::JS ], [
 						'chartist',
 						'chartist-plugin-legend',
 						'shield/charts',
 					] );
-					$enq[ Enqueue::CSS ] = array_merge( $enq[ Enqueue::CSS ], [
+					$enq[ Enqueue::CSS ] = \array_merge( $enq[ Enqueue::CSS ], [
 						'chartist',
 						'chartist-plugin-legend',
 						'shield/charts'
@@ -69,7 +69,7 @@ class AssetsCustomizer {
 
 				default:
 					$enq[ Enqueue::JS ][] = 'shield/tables';
-					if ( in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
+					if ( \in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					break;
@@ -83,7 +83,7 @@ class AssetsCustomizer {
 	}
 
 	private function localiseScripts( array $locals ) :array {
-		return array_merge( $locals, array_filter( [
+		return \array_merge( $locals, \array_filter( [
 			$this->shieldPluginGlobal(),
 			$this->shieldPlugin(),
 			$this->navigation(),
@@ -147,8 +147,10 @@ class AssetsCustomizer {
 			'shield_vars_tourmanager',
 			[
 				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::class ),
-				'tour_states' => $tourManager->getUserTourStates(),
 				'tours'       => $tourManager->getAllTours(),
+				'states'      => $tourManager->getStates(),
+				/** @deprecated 18.2 */
+				'tour_states' => $tourManager->getUserTourStates(),
 			]
 		];
 	}
@@ -202,7 +204,7 @@ class AssetsCustomizer {
 							'enter_at_least_3_chars' => __( 'Search using whole words of at least 3 characters...' ),
 							'placeholder'            => sprintf( '%s (%s)',
 								__( 'Search for anything', 'wp-simple-firewall' ),
-								'e.g. '.implode( ', ', [
+								'e.g. '.\implode( ', ', [
 									__( 'IPs', 'wp-simple-firewall' ),
 									__( 'options', 'wp-simple-firewall' ),
 									__( 'tools', 'wp-simple-firewall' ),
@@ -276,7 +278,7 @@ class AssetsCustomizer {
 	private function isIpAutoDetectRequired() :bool {
 		$req = Services::Request();
 		$optsPlugin = $this->con()->getModule_Plugin()->getOptions();
-		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > WEEK_IN_SECONDS*4 )
+		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > \MONTH_IN_SECONDS )
 			   || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
 	}
 }

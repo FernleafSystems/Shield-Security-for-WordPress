@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Suspend\UserSuspendController;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,9 +13,6 @@ class Processor extends BaseShield\Processor {
 	 * actions taken by this module respect whether the current visitor is whitelisted.
 	 */
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
 		add_filter( 'wpmu_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -25,14 +20,14 @@ class Processor extends BaseShield\Processor {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( $this->con()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
+		if ( $this->con()->this_req->wp_is_xmlrpc && self::con()->getModule_UserManagement()->isXmlrpcBypass() ) {
 			return;
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// This controller handles visitor whitelisted status internally.
-		( new UserSuspendController() )->execute();
+		( new Lib\Suspend\UserSuspendController() )->execute();
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {
@@ -56,7 +51,7 @@ class Processor extends BaseShield\Processor {
 				'items' => [],
 			];
 
-			$recent = ( new FindSessions() )->mostRecent();
+			$recent = ( new Lib\Session\FindSessions() )->mostRecent();
 			if ( !empty( $recent ) ) {
 
 				foreach ( $recent as $userID => $user ) {
@@ -85,7 +80,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function addUserStatusLastLogin( $cols ) {
 
-		if ( is_array( $cols ) ) {
+		if ( \is_array( $cols ) ) {
 			$customColName = $this->con()->prefix( 'col_user_status' );
 			if ( !isset( $cols[ $customColName ] ) ) {
 				$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );

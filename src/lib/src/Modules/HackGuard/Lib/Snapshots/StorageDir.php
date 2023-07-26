@@ -33,7 +33,7 @@ class StorageDir {
 		$FS = Services::WpFs();
 		$dir = null;
 		foreach ( $FS->getAllFilesInDir( $this->con()->cache_dir_handler->dir() ) as $fileItem ) {
-			if ( $FS->isDir( $fileItem ) && preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', self::SUFFIX_LENGTH ), basename( $fileItem ) ) ) {
+			if ( $FS->isDir( $fileItem ) && \preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', self::SUFFIX_LENGTH ), \basename( $fileItem ) ) ) {
 				$dir = $fileItem;
 				break;
 			}

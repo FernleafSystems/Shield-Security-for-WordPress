@@ -44,7 +44,7 @@ class RuleVO extends DynPropertiesClass {
 			case 'prerequisites':
 			case 'conditions':
 			case 'responses':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				$this->{$key} = $value;

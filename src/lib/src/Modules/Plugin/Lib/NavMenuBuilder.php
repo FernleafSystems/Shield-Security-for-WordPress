@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -22,6 +23,7 @@ class NavMenuBuilder {
 			$this->traffic(),
 			$this->users(),
 			$this->configuration(),
+			$this->reports(),
 			$this->tools(),
 			$this->gopro(),
 			$this->docs(),
@@ -54,7 +56,7 @@ class NavMenuBuilder {
 				$item[ 'classes' ][] = 'body_content_link';
 			}
 			else {
-				$item[ 'sub_items' ] = array_map( function ( $sub ) use ( $isSecAdmin ) {
+				$item[ 'sub_items' ] = \array_map( function ( $sub ) use ( $isSecAdmin ) {
 					if ( empty( $sub[ 'classes' ] ) ) {
 						$sub[ 'classes' ] = [];
 					}
@@ -69,7 +71,7 @@ class NavMenuBuilder {
 
 				// Set parent active if any sub-items are active
 				if ( !$item[ 'active' ] ) {
-					$item[ 'active' ] = count( array_filter( $item[ 'sub_items' ], function ( $sub ) {
+					$item[ 'active' ] = \count( \array_filter( $item[ 'sub_items' ], function ( $sub ) {
 						return $sub[ 'active' ] ?? false;
 					} ) );
 				}
@@ -176,11 +178,11 @@ class NavMenuBuilder {
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
 					'href'          => $con->plugin_urls->modCfg( $module ),
 					// 'href'          => $this->getOffCanvasJavascriptLinkForModule( $module ),
-					'classes'       => array_filter( array_merge( $baseClasses, [
+					'classes'       => \array_filter( \array_merge( $baseClasses, [
 						$module->isModOptEnabled() ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
-						'dynamic_page_load' => json_encode( [
+						'dynamic_page_load' => \json_encode( [
 							'dynamic_load_slug' => Config::SLUG,
 							'dynamic_load_data' => [
 								'mod_slug' => $cfg->slug,
@@ -297,29 +299,45 @@ class NavMenuBuilder {
 					'active' => $this->inav() === PluginURLs::NAV_WIZARD
 				],
 				[
-					'slug'   => 'reports-stats',
-					'title'  => __( 'Stats', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_STATS ),
-					'active' => $this->inav() === PluginURLs::NAV_STATS
-				],
-				[
-					'slug'   => 'reports-charts',
-					'title'  => __( 'Charts', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS ),
-					'active' => $this->inav() === PluginURLs::NAV_REPORTS
-				],
-				[
-					'slug'   => $slug.'-rules',
-					'title'  => __( 'Rules', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_RULES_VIEW ),
-					'active' => $this->inav() === PluginURLs::NAV_RULES_VIEW
-				],
-				[
 					'slug'   => $slug.'-debug',
 					'title'  => __( "Debug Info", 'wp-simple-firewall' ),
 					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_DEBUG ),
 					'active' => $this->inav() === PluginURLs::NAV_DEBUG
 				]
+			],
+		];
+	}
+
+	private function reports() :array {
+		$con = $this->con();
+		$slug = 'reports';
+		return [
+			'slug'      => $slug,
+			'title'     => __( 'Reports', 'wp-simple-firewall' ),
+			'img'       => $con->svgs->raw( 'clipboard-data-fill' ),
+			'introjs'   => [
+				'title' => __( 'Reports', 'wp-simple-firewall' ),
+				'body'  => __( "Security Reports.", 'wp-simple-firewall' ),
+			],
+			'sub_items' => [
+				[
+					'slug'   => $slug.'-change',
+					'title'  => __( 'Changes', 'wp-simple-firewall' ),
+					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_CHANGE_TRACK ),
+					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_CHANGE_TRACK,
+				],
+				[
+					'slug'   => $slug.'-charts',
+					'title'  => __( 'Charts', 'wp-simple-firewall' ),
+					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_CHARTS ),
+					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_CHARTS,
+				],
+				[
+					'slug'   => $slug.'-stats',
+					'title'  => __( 'Stats', 'wp-simple-firewall' ),
+					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_STATS, PluginNavs::SUBNAV_STATS ),
+					'active' => $this->inav() === PluginURLs::NAV_STATS
+				],
 			],
 		];
 	}
@@ -387,5 +405,9 @@ class NavMenuBuilder {
 
 	private function inav() :string {
 		return (string)Services::Request()->query( Constants::NAV_ID );
+	}
+
+	private function subnav() :string {
+		return (string)Services::Request()->query( Constants::NAV_SUB_ID );
 	}
 }

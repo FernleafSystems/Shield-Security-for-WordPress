@@ -22,17 +22,15 @@ class ScanFromFileMap {
 
 		$isAutoFilter = $opts->isAutoFilterResults();
 
-		if ( is_array( $action->items ) ) {
+		if ( \is_array( $action->items ) ) {
 			foreach ( $action->items as $fullPath ) {
 
-				$fullPath = base64_decode( $fullPath );
+				$fullPath = \base64_decode( $fullPath );
 
 				// We can exclude files that are empty of relevant code
 				if ( !$isAutoFilter || !$this->isEmptyOfCode( $fullPath ) ) {
 
 					$item = ( new FileScanner() )
-						->setScanController( $this->getScanController() )
-						->setMod( $this->mod() )
 						->setScanActionVO( $action )
 						->scan( $fullPath );
 					if ( !empty( $item ) ) {
@@ -47,7 +45,7 @@ class ScanFromFileMap {
 
 	protected function isEmptyOfCode( string $path ) :bool {
 		try {
-			if ( strpos( $path, wp_normalize_path( ABSPATH ) ) === false ) {
+			if ( \strpos( $path, wp_normalize_path( ABSPATH ) ) === false ) {
 				$path = path_join( ABSPATH, $path );
 			}
 			$isEmpty = ( new AssessPhpFile() )->isEmptyOfCode( $path );

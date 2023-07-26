@@ -25,7 +25,7 @@ class MatchRequestScriptName extends Base {
 
 		if ( $this->is_match_regex ) {
 			foreach ( $this->match_script_names as $matchScriptName ) {
-				if ( preg_match( sprintf( '#%s#i', preg_quote( $matchScriptName, '#' ) ), $scriptName ) ) {
+				if ( \preg_match( sprintf( '#%s#i', \preg_quote( $matchScriptName, '#' ) ), $scriptName ) ) {
 					$matched = true;
 					break;
 				}

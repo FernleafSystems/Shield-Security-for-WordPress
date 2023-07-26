@@ -7,10 +7,10 @@ class BlockAuthorFishing extends BaseBlock {
 	public const SLUG = 'render_block_author_fishing';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
 		return [
 			'strings' => [
-				'page_title' => sprintf( '%s | %s', __( 'Block Username Fishing', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'page_title' => sprintf( '%s | %s', __( 'Block Username Fishing', 'wp-simple-firewall' ),
+					$this->con()->getHumanName() ),
 				'title'      => __( 'Username Fishing Blocked', 'wp-simple-firewall' ),
 				'subtitle'   => __( 'Username/Author Fishing is disabled on this site.', 'wp-simple-firewall' ),
 			],
@@ -32,6 +32,6 @@ class BlockAuthorFishing extends BaseBlock {
 			);
 		}
 
-		return array_merge( $additional, parent::getRestrictionDetailsBlurb() );
+		return \array_merge( $additional, parent::getRestrictionDetailsBlurb() );
 	}
 }

@@ -14,6 +14,16 @@ class LicenseHandler {
 	use ModConsumer;
 	use PluginCronsConsumer;
 
+	/**
+	 * @var ShieldLicense
+	 */
+	private $license;
+
+	/**
+	 * @var Capabilities
+	 */
+	private $caps;
+
 	protected function run() {
 		add_action( $this->con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
@@ -42,7 +52,7 @@ class LicenseHandler {
 		$con = $this->con();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 			if ( empty( $delay ) ) {
-				$delay = rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
+				$delay = \rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
 			}
 			wp_schedule_single_event(
 				Services::Request()->ts() + \max( \MINUTE_IN_SECONDS, $delay ),
@@ -77,12 +87,14 @@ class LicenseHandler {
 
 	public function clearLicense() {
 		$this->mod()->clearLastErrors();
-		$this->opts()->setOpt( 'license_data', [] );
+		$this->updateLicenseData( [] );
 	}
 
-	/**
-	 * @param bool $sendEmail
-	 */
+	public function updateLicenseData( array $data ) {
+		$this->opts()->setOpt( 'license_data', $data );
+		$this->unsetLicense();
+	}
+
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
@@ -105,8 +117,16 @@ class LicenseHandler {
 	}
 
 	public function getLicense() :ShieldLicense {
-		$data = $this->opts()->getOpt( 'license_data', [] );
-		return ( new ShieldLicense() )->applyFromArray( is_array( $data ) ? $data : [] );
+		if ( !isset( $this->license ) ) {
+			$data = $this->opts()->getOpt( 'license_data', [] );
+			$this->license = ( new ShieldLicense() )->applyFromArray( \is_array( $data ) ? $data : [] );
+		}
+		return $this->license;
+	}
+
+	public function unsetLicense() :self {
+		unset( $this->license );
+		return $this;
 	}
 
 	public function getLicenseNotCheckedForInterval() :int {
@@ -118,15 +138,14 @@ class LicenseHandler {
 	 * expires on this site. We consider a registration as expired if the last verified
 	 * date is past, or the actual license is expired - whichever happens earlier -
 	 * plus the grace period.
-	 * @return int
 	 */
 	public function getRegistrationExpiresAt() :int {
 		$verifiedExpiredDays = $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays();
 
 		$lic = $this->getLicense();
-		return (int)min(
-			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*DAY_IN_SECONDS,
-			$lic->last_verified_at + $verifiedExpiredDays*DAY_IN_SECONDS
+		return (int)\min(
+			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*\DAY_IN_SECONDS,
+			$lic->last_verified_at + $verifiedExpiredDays*\DAY_IN_SECONDS
 		);
 	}
 
@@ -150,19 +169,19 @@ class LicenseHandler {
 
 	public function isLastVerifiedExpired() :bool {
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
-			   > $this->getLicVerifyExpireDays()*DAY_IN_SECONDS;
+			   > $this->getLicVerifyExpireDays()*\DAY_IN_SECONDS;
 	}
 
 	public function isLastVerifiedGraceExpired() :bool {
 		return ( Services::Request()->ts() - $this->getLicense()->last_verified_at )
-			   > ( DAY_IN_SECONDS*( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() ) );
+			   > ( \DAY_IN_SECONDS*( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() ) );
 	}
 
 	private function isMaybeExpiring() :bool {
 		return $this->isActive() &&
 			   (
-				   abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
-				   < ( DAY_IN_SECONDS/2 )
+				   \abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
+				   < ( \DAY_IN_SECONDS/2 )
 			   );
 	}
 
@@ -171,11 +190,11 @@ class LicenseHandler {
 	}
 
 	private function isVerifyRequired() :bool {
-		return ( $this->isMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
+		return ( $this->isMaybeExpiring() && $this->getIsLicenseNotCheckedFor( \HOUR_IN_SECONDS*4 ) )
 			   || ( $this->isActive()
-					&& !$this->getLicense()->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
+					&& !$this->getLicense()->isReady() && $this->getIsLicenseNotCheckedFor( \HOUR_IN_SECONDS ) )
 			   || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-					&& $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
+					&& $this->getIsLicenseNotCheckedFor( \HOUR_IN_SECONDS*4 ) );
 	}
 
 	/**
@@ -206,7 +225,7 @@ class LicenseHandler {
 		$FS = Services::WpFs();
 		$path = $this->con()->paths->forFlag( 'license_check' );
 		$mtime = $FS->exists( $path ) ? $FS->getModifiedTime( $path ) : 0;
-		return ( Services::Request()->ts() - $mtime ) > MINUTE_IN_SECONDS;
+		return ( Services::Request()->ts() - $mtime ) > \MINUTE_IN_SECONDS;
 	}
 
 	private function getLicVerifyExpireDays() :int {

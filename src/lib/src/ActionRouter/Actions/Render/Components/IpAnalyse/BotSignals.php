@@ -13,11 +13,8 @@ class BotSignals extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig';
 
 	protected function getRenderData() :array {
-		$mod = $this->con()->getModule_IPs();
 		/** @var Strings $strings */
-		$strings = $mod->getStrings();
-		$WP = Services::WpGeneral();
-		$names = $strings->getBotSignalNames();
+		$strings = $this->con()->getModule_IPs()->getStrings();
 
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )
@@ -38,7 +35,7 @@ class BotSignals extends Base {
 				$column = $scoreKey.'_at';
 				if ( $scoreValue !== 0 ) {
 					if ( empty( $record ) || empty( $record->{$column} ) ) {
-						if ( in_array( $scoreKey, [ 'known', 'created' ] ) ) {
+						if ( \in_array( $scoreKey, [ 'known', 'created' ] ) ) {
 							$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
 						}
 						else {
@@ -48,7 +45,7 @@ class BotSignals extends Base {
 					else {
 						$signals[ $scoreKey ] = sprintf( '%s (%s)',
 							$carbon->setTimestamp( $record->{$column} )->diffForHumans(),
-							$WP->getTimeStringForDisplay( $record->{$column} )
+							Services::WpGeneral()->getTimeStringForDisplay( $record->{$column} )
 						);
 					}
 				}
@@ -64,7 +61,7 @@ class BotSignals extends Base {
 				'when'             => __( 'When', 'wp-simple-firewall' ),
 				'bot_probability'  => __( 'Bad Bot Probability', 'wp-simple-firewall' ),
 				'botsignal_delete' => __( 'Delete All Bot Signals', 'wp-simple-firewall' ),
-				'signal_names'     => $names,
+				'signal_names'     => $strings->getBotSignalNames(),
 				'no_signals'       => __( 'There are no bot signals for this IP address.', 'wp-simple-firewall' ),
 			],
 			'ajax'    => [
@@ -75,11 +72,11 @@ class BotSignals extends Base {
 			],
 			'vars'    => [
 				'signals'       => $signals,
-				'total_signals' => count( $signals ),
+				'total_signals' => \count( $signals ),
 				'scores'        => $scores,
-				'total_score'   => array_sum( $scores ),
-				'minimum'       => array_sum( $scores ),
-				'probability'   => 100 - (int)max( 0, min( 100, array_sum( $scores ) ) )
+				'total_score'   => \array_sum( $scores ),
+				'minimum'       => \array_sum( $scores ),
+				'probability'   => 100 - (int)\max( 0, \min( 100, \array_sum( $scores ) ) )
 			],
 		];
 	}

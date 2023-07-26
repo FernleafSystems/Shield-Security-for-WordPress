@@ -38,13 +38,13 @@ class BuildForDisplay {
 
 			if ( !empty( $sect[ 'options' ] ) ) {
 
-				foreach ( $sect[ 'options' ] as $optKey => $option ) {
-					$option[ 'is_value_default' ] = $option[ 'value' ] === $option[ 'default' ];
-					$isOptPremium = $option[ 'premium' ] ?? false;
-					$bIsAdv = $option[ 'advanced' ] ?? false;
-					if ( ( !$isOptPremium || $isPremium ) && ( !$bIsAdv || $showAdvanced ) ) {
-						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $option );
-						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $option[ 'key' ] === $this->focusOption;
+				foreach ( $sect[ 'options' ] as $optKey => $opt ) {
+					$opt[ 'is_value_default' ] = $opt[ 'value' ] === $opt[ 'default' ];
+					$isOptPremium = ( $opt[ 'premium' ] ?? false ) || !empty( $opt[ 'cap' ] );
+					$isAdv = $opt[ 'advanced' ] ?? false;
+					if ( ( !$isOptPremium || $isPremium ) && ( !$isAdv || $showAdvanced ) ) {
+						$sect[ 'options' ][ $optKey ] = $this->buildOptionForUi( $opt );
+						$sect[ 'options' ][ $optKey ][ 'is_focus' ] = $opt[ 'key' ] === $this->focusOption;
 					}
 					else {
 						unset( $sect[ 'options' ][ $optKey ] );
@@ -115,7 +115,10 @@ class BuildForDisplay {
 	}
 
 	protected function buildOptionsForSection( string $section ) :array {
+		$con = $this->con();
 		$opts = $this->getOptions();
+
+		$isPremiumActive = $con->isPremiumActive();
 
 		$allOptions = [];
 		foreach ( $opts->getVisibleOptions() as $optDef ) {
@@ -124,7 +127,7 @@ class BuildForDisplay {
 				continue;
 			}
 
-			$optDef = array_merge( [
+			$optDef = \array_merge( [
 				'link_info'     => '',
 				'link_blog'     => '',
 				'value_options' => [],
@@ -139,9 +142,13 @@ class BuildForDisplay {
 				$available = [];
 				$converted = [];
 				foreach ( $optDef[ 'value_options' ] as $valueOpt ) {
+
+					$isDisabled = ( !empty( $valueOpt[ 'premium' ] ) && !$isPremiumActive )
+								  || ( !empty( $valueOpt[ 'cap' ] ) && !$con->caps->hasCap( $valueOpt[ 'cap' ] ) );
+
 					$converted[ $valueOpt[ 'value_key' ] ] = [
 						'name'         => esc_html( __( $valueOpt[ 'text' ], 'wp-simple-firewall' ) ),
-						'is_available' => $this->con()->isPremiumActive() || !( $valueOpt[ 'premium' ] ?? false ),
+						'is_available' => !$isDisabled,
 					];
 
 					if ( $converted[ $valueOpt[ 'value_key' ] ][ 'is_available' ] ) {
@@ -152,11 +159,11 @@ class BuildForDisplay {
 
 				/** For multi-selects, only show available options as checked on. */
 				if ( \is_array( $optDef[ 'value' ] ) ) {
-					$optDef[ 'value' ] = array_intersect( $optDef[ 'value' ], $available );
+					$optDef[ 'value' ] = \array_intersect( $optDef[ 'value' ], $available );
 				}
 			}
 
-			if ( $this->con()->labels->is_whitelabelled ) {
+			if ( $con->labels->is_whitelabelled ) {
 				$optDef[ 'beacon_id' ] = false;
 			}
 
@@ -166,6 +173,7 @@ class BuildForDisplay {
 	}
 
 	protected function buildOptionForUi( array $option ) :array {
+		$con = $this->con();
 
 		$value = $option[ 'value' ];
 
@@ -210,10 +218,11 @@ class BuildForDisplay {
 				break;
 		}
 
+		$isOptDisabled = ( !empty( $option[ 'premium' ] ) && !$con->isPremiumActive() )
+						 || ( !empty( $option[ 'cap' ] ) && !$con->caps->hasCap( $option[ 'cap' ] ) );
 		$params = [
 			'value'    => \is_scalar( $value ) ? esc_attr( $value ) : $value,
-			'disabled' => !$this->con()
-								->isPremiumActive() && ( isset( $option[ 'premium' ] ) && $option[ 'premium' ] ),
+			'disabled' => $isOptDisabled,
 		];
 		$params[ 'enabled' ] = !$params[ 'disabled' ];
 		$option = \array_merge( [ 'rows' => '2' ], $option, $params );
@@ -252,7 +261,7 @@ class BuildForDisplay {
 				$ipDetector = Services::IP()->getIpDetector();
 				foreach ( \array_keys( $option[ 'value_options' ] ) as $valKey ) {
 					if ( $valKey !== 'AUTO_DETECT_IP' ) {
-						$IPs = implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
+						$IPs = \implode( ', ', $ipDetector->getIpsFromSource( $valKey ) );
 						if ( empty( $IPs ) ) {
 							unset( $option[ 'value_options' ][ $valKey ] );
 						}

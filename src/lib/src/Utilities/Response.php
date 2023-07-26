@@ -20,7 +20,7 @@ class Response extends DynPropertiesClass {
 
 			case 'data':
 			case 'aux_data':
-				$value = is_array( $value ) ? $value : [];
+				$value = \is_array( $value ) ? $value : [];
 				break;
 
 			case 'message':
@@ -48,7 +48,7 @@ class Response extends DynPropertiesClass {
 	}
 
 	public function addData( string $key, $value ) :self {
-		$arr = is_array( $this->data ) ? $this->data : [];
+		$arr = \is_array( $this->data ) ? $this->data : [];
 		$arr[ $key ] = $value;
 		$this->data = $arr;
 		return $this;

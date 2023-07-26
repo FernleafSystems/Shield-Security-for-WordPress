@@ -26,7 +26,7 @@ class Content extends Base {
 		}
 
 		return [
-			'lines' => explode( "\n",
+			'lines' => \explode( "\n",
 				str_replace( "\t", "    ", ( new ConvertLineEndings() )->fileDosToLinux( $path ) )
 			),
 		];

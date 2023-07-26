@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Controller\Assets\Paths                         $paths
  * @property Shield\Controller\Assets\Svgs                          $svgs
  * @property Shield\Request\ThisRequest                             $this_req
+ * @property Shield\Modules\License\Lib\Capabilities                $caps
  * @property Config\Labels                                          $labels
  * @property array                                                  $prechecks
  * @property array                                                  $flags
@@ -114,22 +115,28 @@ class Controller extends DynPropertiesClass {
 
 		switch ( $key ) {
 
+			case 'caps':
+				if ( \is_null( $val ) ) {
+					$this->caps = $val = new Shield\Modules\License\Lib\Capabilities();
+				}
+				break;
+
 			case 'flags':
-				if ( !is_array( $val ) ) {
+				if ( !\is_array( $val ) ) {
 					$val = [];
 					$this->flags = $val;
 				}
 				break;
 
 			case 'labels':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = $this->labels();
 					$this->labels = $val;
 				}
 				break;
 
 			case 'this_req':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = new Shield\Request\ThisRequest();
 					$this->this_req = $val;
 				}
@@ -145,14 +152,14 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'plugin_reset':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
 
 			case 'is_rest_enabled':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$restReqs = $this->cfg->reqs_rest;
 					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
 						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
@@ -167,34 +174,34 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'is_mode_debug':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = ( new Shield\Controller\Modes\DebugMode() )->isModeActive();
 					$this->is_mode_debug = $val;
 				}
 				break;
 
 			case 'is_mode_live':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = $this->is_mode_live = !$this->is_mode_staging && !$this->is_mode_debug;
 				}
 				break;
 
 			case 'is_mode_staging':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = ( new Shield\Controller\Modes\StagingMode() )->isModeActive();
 					$this->is_mode_staging = $val;
 				}
 				break;
 
 			case 'mu_handler':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = new Shield\Utilities\MU\MUHandler();
 					$this->mu_handler = $val;
 				}
 				break;
 
 			case 'action_router':
-				if ( is_null( $val ) ) {
+				if ( \is_null( $val ) ) {
 					$val = new Shield\ActionRouter\ActionRoutingController();
 					$this->action_router = $val;
 				}
@@ -229,7 +236,7 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'reqs_not_met':
-				if ( !is_array( $val ) ) {
+				if ( !\is_array( $val ) ) {
 					$val = [];
 					$this->reqs_not_met = $val;
 				}
@@ -262,12 +269,12 @@ class Controller extends DynPropertiesClass {
 			$reqsMsg = [];
 
 			$minPHP = $this->cfg->requirements[ 'php' ];
-			if ( !empty( $minPHP ) && version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
+			if ( !empty( $minPHP ) && \version_compare( Services::Data()->getPhpVersion(), $minPHP, '<' ) ) {
 				$reqsMsg[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $minPHP );
 			}
 
 			$wp = $this->cfg->requirements[ 'wordpress' ];
-			if ( !empty( $wp ) && version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
+			if ( !empty( $wp ) && \version_compare( Services::WpGeneral()->getVersion( true ), $wp, '<' ) ) {
 				$reqsMsg[] = sprintf( 'WordPress does not meet minimum version. Required Version: %s.', $wp );
 			}
 
@@ -298,14 +305,14 @@ class Controller extends DynPropertiesClass {
 		$mysqlInfo = Services::WpDb()->getMysqlServerInfo();
 		$supported = empty( $versionToSupport )
 					 || empty( $mysqlInfo )
-					 || version_compare( preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
-					 || ( stripos( $mysqlInfo, 'MariaDB' ) !== false && !preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
+					 || \version_compare( \preg_replace( '/[^\d.].*/', '', $mysqlInfo ), $versionToSupport, '>=' )
+					 || ( \stripos( $mysqlInfo, 'MariaDB' ) !== false && !\preg_match( '#5.5.\d+-MariaDB#i', $mysqlInfo ) );
 
 		if ( !$supported ) {
 			$miscFunctions = Services::WpDb()->selectCustom( "HELP miscellaneous_functions" );
-			if ( is_array( $miscFunctions ) ) {
+			if ( \is_array( $miscFunctions ) ) {
 				foreach ( $miscFunctions as $fn ) {
-					if ( is_array( $fn ) && strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
+					if ( \is_array( $fn ) && \strtoupper( $fn[ 'name' ] ?? '' ) === 'INET6_ATON' ) {
 						$supported = true;
 						break;
 					}
@@ -481,7 +488,7 @@ class Controller extends DynPropertiesClass {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ], PHP_INT_MIN );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], \PHP_INT_MIN );
 
 		// GDPR
 		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
@@ -495,7 +502,7 @@ class Controller extends DynPropertiesClass {
 				$byPass = true;
 			}
 			return $byPass;
-		}, PHP_INT_MAX );
+		}, \PHP_INT_MAX );
 	}
 
 	public function onWpAdminInit() {
@@ -531,7 +538,7 @@ class Controller extends DynPropertiesClass {
 		$this->action_router->execute();
 
 		try {
-			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::SLUG );
+			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class );
 		}
 		catch ( ActionException $e ) {
 		}
@@ -549,17 +556,17 @@ class Controller extends DynPropertiesClass {
 		$optKey = $this->prefixOption( 'shield_site_id' );
 
 		$IDs = $WP->getOption( $optKey );
-		if ( !is_array( $IDs ) ) {
+		if ( !\is_array( $IDs ) ) {
 			$IDs = [];
 		}
-		if ( empty( $IDs[ $url ] ) || !is_array( $IDs[ $url ] ) ) {
+		if ( empty( $IDs[ $url ] ) || !\is_array( $IDs[ $url ] ) ) {
 			$IDs[ $url ] = [];
 		}
 
 		if ( empty( $IDs[ $url ][ 'id' ] ) || !\Ramsey\Uuid\Uuid::isValid( $IDs[ $url ][ 'id' ] ) ) {
 			$id = ( new \FernleafSystems\Wordpress\Services\Utilities\Uuid() )->V4();
 			$IDs[ $url ] = [
-				'id'         => strtolower( $id ),
+				'id'         => \strtolower( $id ),
 				'ts'         => Services::Request()->ts(),
 				'install_at' => $this->getModule_Plugin()->storeRealInstallDate(),
 			];
@@ -641,7 +648,7 @@ class Controller extends DynPropertiesClass {
 			$new = Services::WpPlugins()->getUpdateNewVersion( $this->base_file );
 			if ( !empty( $new ) && isset( $this->cfg ) ) {
 				$updates = $this->cfg->update_first_detected;
-				if ( count( $updates ) > 3 ) {
+				if ( \count( $updates ) > 3 ) {
 					$updates = [];
 				}
 				if ( !isset( $updates[ $new ] ) ) {
@@ -663,21 +670,21 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function onWpAutoUpdate( $isAutoUpdate, $mItem ) {
 		$WP = Services::WpGeneral();
-		$oWpPlugins = Services::WpPlugins();
+		$WPP = Services::WpPlugins();
 
 		$file = $WP->getFileFromAutomaticUpdateItem( $mItem );
 
 		// The item in question is this plugin...
 		if ( $file === $this->base_file ) {
-			$autoupdateSelf = $this->cfg->properties[ 'autoupdate' ];
+			$autoUpdateSelf = $this->cfg->properties[ 'autoupdate' ];
 
-			if ( !$WP->isRunningAutomaticUpdates() && $autoupdateSelf == 'confidence' ) {
-				$autoupdateSelf = 'yes'; // so that we appear to be automatically updating
+			if ( !$WP->isRunningAutomaticUpdates() && $autoUpdateSelf == 'confidence' ) {
+				$autoUpdateSelf = 'yes'; // so that we appear to be automatically updating
 			}
 
-			$new = $oWpPlugins->getUpdateNewVersion( $file );
+			$new = $WPP->getUpdateNewVersion( $file );
 
-			switch ( $autoupdateSelf ) {
+			switch ( $autoUpdateSelf ) {
 
 				case 'yes' :
 					$isAutoUpdate = true;
@@ -693,7 +700,7 @@ class Controller extends DynPropertiesClass {
 						$firstDetected = $this->cfg->update_first_detected[ $new ] ?? 0;
 						$availableFor = Services::Request()->ts() - $firstDetected;
 						$isAutoUpdate = $firstDetected > 0
-										&& $availableFor > DAY_IN_SECONDS*$this->cfg->properties[ 'autoupdate_days' ];
+										&& $availableFor > \DAY_IN_SECONDS*$this->cfg->properties[ 'autoupdate_days' ];
 					}
 					break;
 
@@ -710,7 +717,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function doPluginLabels( $plugins ) {
-		$plugins[ $this->base_file ] = array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
+		$plugins[ $this->base_file ] = \array_merge( $plugins[ $this->base_file ] ?? [], $this->labels->getRawData() );
 		return $plugins;
 	}
 
@@ -733,7 +740,7 @@ class Controller extends DynPropertiesClass {
 	public function prefix( string $suffix = '', string $glue = '-' ) :string {
 		$prefix = $this->getPluginPrefix( $glue );
 
-		if ( $suffix == $prefix || strpos( $suffix, $prefix.$glue ) === 0 ) { //it already has the full prefix
+		if ( $suffix == $prefix || \strpos( $suffix, $prefix.$glue ) === 0 ) { //it already has the full prefix
 			return $suffix;
 		}
 
@@ -778,7 +785,7 @@ class Controller extends DynPropertiesClass {
 					$slug, $e->getMessage() ) );
 			}
 
-			if ( !isset( $modCfg->properties ) || !is_array( $modCfg->properties ) ) {
+			if ( !isset( $modCfg->properties ) || !\is_array( $modCfg->properties ) ) {
 				throw new Exceptions\PluginConfigInvalidException( sprintf( "Loading config for module '%s' failed.", $slug ) );
 			}
 
@@ -868,7 +875,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getIsPage_PluginAdmin() :bool {
-		return strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
+		return \strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
 
 	public function getIsWpmsNetworkAdminOnly() :bool {
@@ -892,13 +899,12 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getRootDir() :string {
-		return dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
+		return \dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
 	}
 
 	public function getRootFile() :string {
 		if ( empty( $this->root_file ) ) {
-			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
-				->findPluginFromFile( __FILE__ );
+			$VO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )->findPluginFromFile( __FILE__ );
 			if ( $VO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo ) {
 				$this->root_file = path_join( WP_PLUGIN_DIR, $VO->file );
 			}
@@ -918,7 +924,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getVersionNumeric() :int {
-		$parts = explode( '.', $this->getVersion() );
+		$parts = \explode( '.', $this->getVersion() );
 		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
 	}
 
@@ -944,14 +950,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function getConfigStoreKey() :string {
-		return 'aptoweb_controller_'.substr( md5( get_class() ), 0, 6 );
+		return 'aptoweb_controller_'.\substr( \md5( \get_class() ), 0, 6 );
 	}
 
 	public function deleteForceOffFile() {
 		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
 			Services::WpFs()->deleteFile( $this->file_forceoff );
 			$this->this_req->is_force_off = false;
-			clearstatcache();
+			\clearstatcache();
 		}
 	}
 
@@ -1062,7 +1068,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	public function onWpPrivacyRegisterExporter( $registered ) {
-		if ( !is_array( $registered ) ) {
+		if ( !\is_array( $registered ) ) {
 			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 
@@ -1078,7 +1084,7 @@ class Controller extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	public function onWpPrivacyRegisterEraser( $registered ) {
-		if ( !is_array( $registered ) ) {
+		if ( !\is_array( $registered ) ) {
 			$registered = []; // account for crap plugins that do-it-wrong.
 		}
 
@@ -1095,10 +1101,8 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function wpPrivacyExport( $email, $page = 1 ) :array {
-
 		$valid = Services::Data()->validEmail( $email )
 				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
-
 		return [
 			'data' => $valid ? apply_filters( $this->prefix( 'wpPrivacyExport' ), [], $email, $page ) : [],
 			'done' => true,
@@ -1111,7 +1115,6 @@ class Controller extends DynPropertiesClass {
 	 * @return array
 	 */
 	public function wpPrivacyErase( $email, $page = 1 ) {
-
 		$valid = Services::Data()->validEmail( $email )
 				 && ( Services::WpUsers()->getUserByEmail( $email ) instanceof \WP_User );
 
@@ -1135,7 +1138,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function labels() :Config\Labels {
-		$labels = array_map( 'stripslashes', $this->cfg->labels );
+		$labels = \array_map( 'stripslashes', $this->cfg->labels );
 
 		foreach ( [ 'icon_url_16x16', 'icon_url_32x32', 'icon_url_128x128', 'url_img_pagebanner' ] as $img ) {
 			if ( !empty( $labels[ $img ] ) && !Services::Data()->isValidWebUrl( $labels[ $img ] ) ) {
@@ -1149,19 +1152,5 @@ class Controller extends DynPropertiesClass {
 		$labels->is_whitelabelled = false;
 
 		return $this->isPremiumActive() ? apply_filters( $this->prefix( 'labels' ), $labels ) : $labels;
-	}
-
-	/**
-	 * @deprecated 18.1
-	 */
-	public function isThisPluginModuleRequest() :bool {
-		return $this->isPluginAdminPageRequest();
-	}
-
-	/**
-	 * @deprecated 18.1
-	 */
-	public function isModulePage() :bool {
-		return \method_exists( $this, 'isPluginAdminPageRequest' ) && $this->isPluginAdminPageRequest();
 	}
 }

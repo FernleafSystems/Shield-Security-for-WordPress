@@ -14,7 +14,7 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 		$success = false;
 
 		$IDs = $req->post( 'ids' );
-		if ( empty( $IDs ) || !is_array( $IDs ) ) {
+		if ( empty( $IDs ) || !\is_array( $IDs ) ) {
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
 		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
@@ -26,7 +26,7 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 			$includesYourSession = false;
 
 			foreach ( $IDs as $IDunique ) {
-				[ $userID, $uniqueID ] = explode( '-', $IDunique );
+				[ $userID, $uniqueID ] = \explode( '-', $IDunique );
 				if ( $yourId === $uniqueID ) {
 					$includesYourSession = true;
 					continue;

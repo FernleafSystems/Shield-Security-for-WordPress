@@ -14,20 +14,20 @@ abstract class Base extends RouteBase {
 	}
 
 	protected function getRouteArgsDefaults() :array {
-		$optFields = array_unique( array_merge(
+		$optFields = \array_unique( \array_merge(
 			[
 				'all', // special case
 				'value',
 				'module',
 			],
-			array_keys( $this->mod()->getOptions()->getOptDefinition( 'global_enable_plugin_features' ) )
+			\array_keys( $this->mod()->getOptions()->getOptDefinition( 'global_enable_plugin_features' ) )
 		) );
 
 		return [
 			'filter_fields' => [
 				'description' => '[Filter] Comma-separated fields to include in option info.',
 				'type'        => 'array', // WordPress kindly converts CSV to array
-				'pattern'     => sprintf( '^(((%s),?)+)?$', implode( '|', $optFields ) ),
+				'pattern'     => sprintf( '^(((%s),?)+)?$', \implode( '|', $optFields ) ),
 				'required'    => false,
 			],
 		];
@@ -68,11 +68,11 @@ abstract class Base extends RouteBase {
 	protected function getAllPossibleOptKeys() :array {
 		if ( !isset( self::$allOpts ) ) {
 			$allOpts = [];
-			foreach ( ( new Export() )->setMod( $this->mod() )->getRawOptionsExport() as $modOpts ) {
-				$allOpts = array_merge( $allOpts, array_keys( $modOpts ) );
+			foreach ( ( new Export() )->getRawOptionsExport() as $modOpts ) {
+				$allOpts = \array_merge( $allOpts, \array_keys( $modOpts ) );
 			}
-			natsort( $allOpts );
-			self::$allOpts = array_values( $allOpts );
+			\natsort( $allOpts );
+			self::$allOpts = \array_values( $allOpts );
 		}
 		return self::$allOpts;
 	}

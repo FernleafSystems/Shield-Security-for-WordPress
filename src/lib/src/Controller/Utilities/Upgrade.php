@@ -12,22 +12,22 @@ class Upgrade {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		$previous = $this->getCon()->cfg->previous_version;
+		$previous = $this->con()->cfg->previous_version;
 		return !empty( $previous );
 	}
 
 	protected function run() {
-		$con = $this->getCon();
-		$prev = $this->getCon()->cfg->previous_version;
+		$con = $this->con();
+		$prev = $con->cfg->previous_version;
 
 		$hook = $con->prefix( 'plugin-upgrade' );
-		if ( version_compare( $prev, $con->getVersion(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
+		if ( \version_compare( $prev, $con->getVersion(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
 			$con->getModule_Plugin()->deleteAllPluginCrons();
 			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $prev ] );
 		}
 
 		add_action( $hook, function ( $previousVersion ) {
-			foreach ( $this->getCon()->modules as $mod ) {
+			foreach ( $this->con()->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
 				if ( $H instanceof Modules\Base\Upgrade ) {
 					$H->setPrevious( $previousVersion )->execute();

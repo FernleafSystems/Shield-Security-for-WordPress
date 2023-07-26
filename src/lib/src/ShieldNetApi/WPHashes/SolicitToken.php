@@ -16,7 +16,7 @@ class SolicitToken extends Common\BaseShieldNetApi {
 			'url' => Services::WpGeneral()->getHomeUrl()
 		];
 		$raw = $this->sendReq();
-		return ( !empty( $raw ) && is_array( $raw ) && !empty( $raw[ 'token' ] ) ) ? $raw : [];
+		return ( !empty( $raw ) && \is_array( $raw ) && !empty( $raw[ 'token' ] ) ) ? $raw : [];
 	}
 
 	protected function getApiRequestUrl() :string {

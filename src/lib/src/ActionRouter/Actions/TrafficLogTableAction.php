@@ -13,11 +13,9 @@ class TrafficLogTableAction extends BaseAction {
 		try {
 			$action = Services::Request()->post( 'sub_action' );
 			switch ( $action ) {
-
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
 					break;
-
 				default:
 					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
 			}

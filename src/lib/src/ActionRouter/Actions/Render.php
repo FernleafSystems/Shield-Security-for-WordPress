@@ -25,8 +25,8 @@ class Render extends BaseAction {
 				Services::DataManipulation()->mergeArraysRecursive(
 					$req->query,
 					$req->post,
-					array_filter( $this->action_data[ 'render_action_data' ] ?? [], function ( $item ) {
-						return !is_null( $item );
+					\array_filter( $this->action_data[ 'render_action_data' ] ?? [], function ( $item ) {
+						return !\is_null( $item );
 					} )
 				)
 			)

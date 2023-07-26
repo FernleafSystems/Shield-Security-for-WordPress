@@ -42,8 +42,7 @@ class PageScansRun extends BasePluginAdminPage {
 				'scans_check' => ActionData::BuildJson( ScansCheck::class ),
 			],
 			'flags'   => [
-				'is_premium'      => $con->isPremiumActive(),
-				'can_scan'        => count( $reasonsCantScan ) === 0,
+				'can_scan'        => \count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
 			],
 			'hrefs'   => [
@@ -92,7 +91,7 @@ class PageScansRun extends BasePluginAdminPage {
 					'is_restricted' => $scanCon->isRestricted(),
 					'is_enabled'    => $scanCon->isEnabled(),
 					'is_selected'   => $scanCon->isReady()
-									   && in_array( $slug, $mod->getUiTrack()->selected_scans ),
+									   && \in_array( $slug, $mod->getUiTrack()->selected_scans ),
 				],
 				'strings' => [
 					'title'    => $scanStrings[ $slug ][ 'name' ],

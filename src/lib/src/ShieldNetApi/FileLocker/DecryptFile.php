@@ -21,8 +21,8 @@ class DecryptFile extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		if ( is_array( $raw ) && !empty( $raw[ 'data' ] ) ) {
-			$content = base64_decode( $raw[ 'data' ][ 'opened_data' ] );
+		if ( \is_array( $raw ) && !empty( $raw[ 'data' ] ) ) {
+			$content = \base64_decode( $raw[ 'data' ][ 'opened_data' ] );
 		}
 		return $content;
 	}

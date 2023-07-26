@@ -23,7 +23,7 @@ class ProcessQueueWpcli {
 	protected function run() {
 		$mod = $this->mod();
 
-		foreach ( array_keys( $this->opts()->getScansToBuild() ) as $scan ) {
+		foreach ( \array_keys( $this->opts()->getScansToBuild() ) as $scan ) {
 			$this->opts()->addRemoveScanToBuild( $scan, false );
 			$mod->saveModOptions();
 			try {
@@ -40,7 +40,7 @@ class ProcessQueueWpcli {
 		/** @var ScanItemsDB\Select $selector */
 		$selector = $mod->getDbH_ScanItems()->getQuerySelector();
 		$progress = WP_CLI\Utils\make_progress_bar( 'Scans Progress',
-			array_sum( $selector->countAllForEachScan() ) );
+			\array_sum( $selector->countAllForEachScan() ) );
 
 		do {
 			try {

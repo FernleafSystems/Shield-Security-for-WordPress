@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Consolidate;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ConsolidateAllEvents {
@@ -71,9 +70,7 @@ class ConsolidateAllEvents {
 	 * Processes event for the 7 days previous to the last 48 hours.
 	 */
 	protected function consolidateEventIntoDaily( string $event ) {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbh = $mod->getDbHandler_Events();
+		$dbh = $this->mod()->getDbHandler_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -260,14 +257,12 @@ class ConsolidateAllEvents {
 	 * @return string[]
 	 */
 	protected function getAllEvents() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		/** @var Events\Select $select */
-		$select = $mod->getDbHandler_Events()->getQuerySelector();
-		return array_filter(
+		$select = $this->mod()->getDbHandler_Events()->getQuerySelector();
+		return \array_filter(
 			$select->getAllEvents(),
 			function ( $event ) {
-				return !empty( $event ) && is_string( $event );
+				return !empty( $event ) && \is_string( $event );
 			}
 		);
 	}

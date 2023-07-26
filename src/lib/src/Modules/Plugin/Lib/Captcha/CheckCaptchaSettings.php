@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -17,66 +16,49 @@ class CheckCaptchaSettings {
 	}
 
 	public function verifyProSettings() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( !$this->con()->isPremiumActive() && $oOpts->getOpt( 'google_recaptcha_style' ) !== 'light' ) {
-			$oOpts->setOpt( 'google_recaptcha_style', 'light' );
+		if ( !$this->con()->isPremiumActive() && $this->opts()->getOpt( 'google_recaptcha_style' ) !== 'light' ) {
+			$this->opts()->setOpt( 'google_recaptcha_style', 'light' );
 		}
 	}
 
 	public function verifyKeys() {
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->mod();
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oCfg = $mod->getCaptchaCfg();
+		$cfg = $this->mod()->getCaptchaCfg();
 
-		$nAt = -1;
-		if ( $oCfg->ready && $oOpts->getOpt( 'captcha_checked_at' ) <= 0 ) {
-			if ( $oCfg->provider == CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-				$bValid = $this->verifyRecaptcha();
+		$at = -1;
+		if ( $cfg->ready && $this->opts()->getOpt( 'captcha_checked_at' ) <= 0 ) {
+			if ( $cfg->provider == CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
+				$valid = $this->verifyRecaptcha();
 			}
-			elseif ( $oCfg->provider == CaptchaConfigVO::PROV_HCAPTCHA ) {
-				$bValid = $this->verifyHcaptcha();
+			elseif ( $cfg->provider == CaptchaConfigVO::PROV_HCAPTCHA ) {
+				$valid = $this->verifyHcaptcha();
 			}
 			else {
-				$bValid = false;
+				$valid = false;
 			}
-			$nAt = $bValid ? Services::Request()->ts() : 0;
+			$at = $valid ? Services::Request()->ts() : 0;
 		}
-		$oOpts->setOpt( 'captcha_checked_at', $nAt );
+		$this->opts()->setOpt( 'captcha_checked_at', $at );
 	}
 
-	/**
-	 * @return bool
-	 */
-	private function verifyHcaptcha() {
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->mod();
-		$oCfg = $mod->getCaptchaCfg();
-		return substr_count( $oCfg->key, '-' ) > 1
-			   && strpos( $oCfg->secret, '0x' ) === 0;
+	private function verifyHcaptcha() :bool {
+		$cfg = $this->mod()->getCaptchaCfg();
+		return \substr_count( $cfg->key, '-' ) > 1 && \strpos( $cfg->secret, '0x' ) === 0;
 	}
 
-	/**
-	 * @return bool
-	 */
 	private function verifyRecaptcha() :bool {
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->mod();
-
-		$sResponse = Services::HttpRequest()->getContent(
+		$response = Services::HttpRequest()->getContent(
 			URL::Build( 'https://www.google.com/recaptcha/api/siteverify', [
-				'secret'   => $mod->getCaptchaCfg()->secret,
-				'response' => rand(),
+				'secret'   => $this->mod()->getCaptchaCfg()->secret,
+				'response' => \rand(),
 			] )
 		);
 
 		$valid = false;
-		if ( !empty( $sResponse ) ) {
-			$aDec = json_decode( $sResponse, true );
-			$valid = is_array( $aDec ) && is_array( $aDec[ 'error-codes' ] )
-					 && !in_array( 'invalid-input-secret', $aDec[ 'error-codes' ] );
+		if ( !empty( $response ) ) {
+			$dec = \json_decode( $response, true );
+			$valid = \is_array( $dec )
+					 && \is_array( $dec[ 'error-codes' ] )
+					 && !\in_array( 'invalid-input-secret', $dec[ 'error-codes' ] );
 		}
 		return $valid;
 	}

@@ -24,7 +24,7 @@ abstract class BaseHandler {
 
 	public static function Slug() :string {
 		try {
-			$slug = strtolower( ( new \ReflectionClass( static::class ) )->getShortName() );
+			$slug = \strtolower( ( new \ReflectionClass( static::class ) )->getShortName() );
 		}
 		catch ( \Exception $e ) {
 			$slug = '';

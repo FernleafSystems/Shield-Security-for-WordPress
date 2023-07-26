@@ -32,6 +32,10 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 		$this->checkout();
 	}
 
+	public function isEnabled() :bool {
+		return parent::isEnabled() && $this->con()->caps->canThirdPartyScanUsers();
+	}
+
 	protected function login() {
 	}
 

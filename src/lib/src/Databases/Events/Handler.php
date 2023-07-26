@@ -16,12 +16,7 @@ class Handler extends Base\Handler {
 		}
 	}
 
-	/**
-	 * @param string $evt
-	 * @param int    $count
-	 * @return bool
-	 */
-	public function commitEvent( string $evt, int $count = 1 ) {
+	public function commitEvent( string $evt, int $count = 1 ) :bool {
 		/** @var EntryVO $entry */
 		$entry = $this->getVo();
 		$entry->event = $evt;

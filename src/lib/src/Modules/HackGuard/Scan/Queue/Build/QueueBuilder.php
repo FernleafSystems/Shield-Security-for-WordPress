@@ -16,7 +16,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function get_batch() {
 		$scans = $this->opts()->getScansToBuild();
-		$scan = key( $scans );
+		$scan = \key( $scans );
 
 		$batch = new \stdClass();
 		$batch->key = $scan;
@@ -91,7 +91,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		return count( $this->opts()->getScansToBuild() ) === 0;
+		return \count( $this->opts()->getScansToBuild() ) === 0;
 	}
 
 	/**

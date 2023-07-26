@@ -20,6 +20,6 @@ class BuildScanAction extends Base\BuildScanAction {
 	protected function getFileExts() :array {
 		$scanCon = $this->getScanController();
 		$ext = apply_filters( 'shield/scan_ptg_file_exts', $scanCon->opts()->getDef( 'file_scan_extensions' ) );
-		return is_array( $ext ) ? $ext : $scanCon->opts()->getDef( 'file_scan_extensions' );
+		return \is_array( $ext ) ? $ext : $scanCon->opts()->getDef( 'file_scan_extensions' );
 	}
 }

@@ -98,7 +98,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			$doMarkupTitle = $currentNav === $submenuNavID
 							 || ( $submenuNavID === PluginURLs::NAV_OVERVIEW
 								  && !isset( $navs[ $currentNav ] )
-								  && in_array( $currentNav, PluginURLs::GetAllNavs() ) );
+								  && \in_array( $currentNav, PluginURLs::GetAllNavs() ) );
 
 			add_submenu_page(
 				$this->getPrimaryMenuSlug(),

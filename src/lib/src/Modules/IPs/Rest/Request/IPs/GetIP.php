@@ -41,7 +41,7 @@ class GetIP extends Base {
 			$column = $scoreKey.'_at';
 			if ( $scoreValue !== 0 ) {
 				if ( empty( $record ) || empty( $record->{$column} ) ) {
-					if ( in_array( $scoreKey, [ 'known', 'created' ] ) ) {
+					if ( \in_array( $scoreKey, [ 'known', 'created' ] ) ) {
 						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
 					}
 					else {
@@ -60,13 +60,12 @@ class GetIP extends Base {
 		foreach ( $signals as $signal => $signalTime ) {
 			$signalsAsHuman[ $names[ $signal ] ] = $signalTime;
 		}
-		ksort( $signalsAsHuman );
+		\ksort( $signalsAsHuman );
 
 		return [
 			'human_probability' => $scoreCalc->probability(),
 			'score_local'       => $scoreCalc->total(),
 			'score_shieldnet'   => ( new GetIPReputation() )
-									   ->setMod( $this->con()->getModule_Plugin() )
 									   ->setIP( $req->ip )
 									   ->retrieve()[ 'reputation_score' ] ?? '-',
 			'signals'           => $signalsAsHuman,
@@ -74,9 +73,6 @@ class GetIP extends Base {
 	}
 
 	private function getIpListInfo() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbh = $mod->getDbH_IPRules();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
 
@@ -93,6 +89,7 @@ class GetIP extends Base {
 
 		$info = [];
 		if ( !empty( $ip ) ) {
+			$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
 			$info = [
 				'type'           => $dbh::GetTypeName( $ip->type ),
 				'offenses'       => $ruleStatus->getOffenses(),

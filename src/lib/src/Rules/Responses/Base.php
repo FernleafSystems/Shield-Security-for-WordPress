@@ -69,7 +69,7 @@ abstract class Base {
 	protected function getConsolidatedConditionMeta() :array {
 		$meta = [];
 		foreach ( $this->conditionTriggerMeta as $m ) {
-			$meta = array_merge( $meta, $m );
+			$meta = \array_merge( $meta, $m );
 		}
 		return $meta;
 	}

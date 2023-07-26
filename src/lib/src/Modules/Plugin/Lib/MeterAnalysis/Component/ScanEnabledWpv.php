@@ -6,7 +6,7 @@ class ScanEnabledWpv extends ScanEnabledBase {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'scan_enabled_wpv';
 	public const WEIGHT = 5;
 

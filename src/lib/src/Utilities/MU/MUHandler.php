@@ -80,8 +80,8 @@ class MUHandler {
 	}
 
 	private function getMuDir() :string {
-		return defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR :
-			path_join( dirname( $this->con()->getRootDir(), 2 ), 'mu-plugins' );
+		return \defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR :
+			path_join( \dirname( $this->con()->getRootDir(), 2 ), 'mu-plugins' );
 	}
 
 	/**
@@ -101,6 +101,6 @@ class MUHandler {
 			'SHIELD_PLUGIN_URL'    => $con->labels->PluginURI,
 			'SHIELD_PLUGIN_AUTHOR' => $con->labels->Author,
 		];
-		return str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
+		return \str_replace( \array_keys( $replacements ), \array_values( $replacements ), $template );
 	}
 }

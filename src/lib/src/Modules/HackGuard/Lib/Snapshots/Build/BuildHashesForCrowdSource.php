@@ -26,7 +26,7 @@ class BuildHashesForCrowdSource {
 			}
 			foreach ( StandardDirectoryIterator::create( $dir ) as $file ) {
 				/** @var \SplFileInfo $file */
-				if ( in_array( strtolower( $file->getExtension() ), $exts ) ) {
+				if ( \in_array( \strtolower( $file->getExtension() ), $exts ) ) {
 					$fullPath = $file->getPathname();
 					$key = \strtolower( \str_replace( $dir, '', wp_normalize_path( $fullPath ) ) );
 					$hashes[ $key ] = \hash( 'sha1', $converter->fileDosToLinux( $fullPath ) );

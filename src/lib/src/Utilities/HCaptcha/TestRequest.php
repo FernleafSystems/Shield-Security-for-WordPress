@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\HCaptcha;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,29 +10,25 @@ class TestRequest extends ReCaptcha\TestRequest {
 	public const URL_VERIFY = 'https://hcaptcha.com/siteverify';
 
 	/**
-	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function runTest() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
+	protected function runTest() :bool {
+		$captchaResponse = Services::Request()->post( 'h-captcha-response' );
 
-		$sCaptchaResponse = Services::Request()->post( 'h-captcha-response' );
-
-		if ( empty( $sCaptchaResponse ) ) {
+		if ( empty( $captchaResponse ) ) {
 			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'CAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
 			$HTTPReq = Services::HttpRequest();
 			$successRequest = $HTTPReq->post( self::URL_VERIFY, [
 					'body' => [
-						'secret'   => $mod->getCaptchaCfg()->secret,
-						'response' => $sCaptchaResponse,
+						'secret'   => $this->mod()->getCaptchaCfg()->secret,
+						'response' => $captchaResponse,
 						'remoteip' => $this->con()->this_req->ip,
 					]
 				] )
 							  && !empty( $HTTPReq->lastResponse->body );
-			$response = $successRequest ? json_decode( $HTTPReq->lastResponse->body, true ) : [];
+			$response = $successRequest ? \json_decode( $HTTPReq->lastResponse->body, true ) : [];
 
 			if ( empty( $response[ 'success' ] ) ) {
 				$msg = [
@@ -42,7 +37,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 					Services::WpGeneral()->isAjax() ?
 						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
 				];
-				throw new \Exception( implode( ' ', $msg ), 2 );
+				throw new \Exception( \implode( ' ', $msg ), 2 );
 			}
 		}
 		return true;

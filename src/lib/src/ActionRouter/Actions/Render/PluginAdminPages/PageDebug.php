@@ -25,24 +25,23 @@ class PageDebug extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = $this->con();
-		$urls = $con->plugin_urls;
 
 		$availableTests = [];
 		if ( $con->this_req->is_security_admin && Services::Request()->query( 'show' ) ) {
-			$availableTests = array_map(
-				function ( $method ) use ( $urls ) {
+			$availableTests = \array_map(
+				function ( $method ) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
-						$urls->noncedPluginAction( SimplePluginTests::class, null, [
+						$this->con()->plugin_urls->noncedPluginAction( SimplePluginTests::class, null, [
 							'test' => $method->getName()
 						] ),
-						str_replace( 'dbg_', '', $method->getName() )
+						\str_replace( 'dbg_', '', $method->getName() )
 					);
 				},
-				array_filter(
+				\array_filter(
 					( new \ReflectionClass( SimplePluginTests::class ) )->getMethods(),
 					function ( $method ) {
-						return strpos( $method->getName(), 'dbg_' ) === 0;
+						return \strpos( $method->getName(), 'dbg_' ) === 0;
 					}
 				)
 			);
@@ -54,6 +53,9 @@ class PageDebug extends BasePluginAdminPage {
 			],
 			'flags'   => [
 				'display_tests' => !empty( $availableTests ),
+			],
+			'hrefs'   => [
+				'display_rules' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_RULES_VIEW ),
 			],
 			'strings' => [
 				'inner_page_title'    => sprintf( __( '%s Debug Information' ), $con->getHumanName() ),

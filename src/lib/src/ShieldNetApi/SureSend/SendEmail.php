@@ -25,7 +25,7 @@ class SendEmail extends BaseShieldNetApi {
 		$this->params_body = [
 			'slug'       => $slug,
 			'email_to'   => $to,
-			'email_data' => array_merge(
+			'email_data' => \array_merge(
 				[
 					'ts' => Services::Request()->ts(),
 					'tz' => Services::WpGeneral()->getOption( 'timezone_string' ),
@@ -35,7 +35,7 @@ class SendEmail extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		$success = is_array( $raw ) && empty( $raw[ 'error' ] );
+		$success = \is_array( $raw ) && empty( $raw[ 'error' ] );
 
 		$this->con()->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',

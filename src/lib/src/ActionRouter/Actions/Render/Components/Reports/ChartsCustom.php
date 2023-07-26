@@ -38,13 +38,13 @@ class ChartsCustom extends Base {
 	 * i.e. so you can only build charts of events with actual records
 	 */
 	private function buildPossibleEvents() :array {
-		return array_intersect_key(
+		return \array_intersect_key(
 			$this->con()->loadEventsService()->getEventNames(),
-			array_flip( $this->con()
-							 ->getModule_Events()
-							 ->getDbHandler_Events()
-							 ->getQuerySelector()
-							 ->getDistinctForColumn( 'event' ) )
+			\array_flip( $this->con()
+							  ->getModule_Events()
+							  ->getDbHandler_Events()
+							  ->getQuerySelector()
+							  ->getDistinctForColumn( 'event' ) )
 		);
 	}
 }

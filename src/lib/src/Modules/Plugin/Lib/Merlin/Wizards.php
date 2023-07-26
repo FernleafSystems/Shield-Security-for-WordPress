@@ -11,14 +11,11 @@ class Wizards {
 		Steps\GuidedSetupWelcome::class,
 		Steps\NewsletterSubscribe::class,
 		Steps\License::class,
-		Steps\IpDetect::class,
 		Steps\SecurityAdmin::class,
-		Steps\IpBlocking::class,
+		Steps\BotBlocking::class,
 		Steps\LoginProtection::class,
 		Steps\CommentSpam::class,
 		Steps\SecurityBadge::class,
-		Steps\FreeTrial::class,
-		Steps\OptIn::class,
 		Steps\ThankYou::class,
 	];
 }

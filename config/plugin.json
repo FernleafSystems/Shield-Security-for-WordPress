@@ -25,7 +25,7 @@
     "enabled": true
   },
   "admin_notices": {
-    "override-forceoff":          {
+    "override-forceoff": {
       "id":               "override-forceoff",
       "schedule":         "conditions",
       "valid_admin":      false,
@@ -33,13 +33,13 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "allow-tracking":             {
+    "allow-tracking":    {
       "id":               "allow-tracking",
       "plugin_admin":     true,
       "min_install_days": 3,
       "type":             "promo"
     },
-    "rate-plugin":                {
+    "rate-plugin":       {
       "id":               "rate-plugin",
       "min_install_days": 30,
       "type":             "promo"
@@ -257,7 +257,8 @@
       "section":     "section_importexport",
       "advanced":    true,
       "premium":     true,
-      "default":     "Y",
+      "cap":         "import_export_level_2",
+      "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/do",
       "link_blog":   "https://shsec.io/dp",

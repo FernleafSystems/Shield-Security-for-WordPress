@@ -12,17 +12,15 @@ abstract class Base extends Process {
 	}
 
 	protected function getLicenseDetails() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		/** @var RequestVO $req */
 		$req = $this->getRequestVO();
-		$licHandler = $mod->getLicenseHandler();
+		$licHandler = self::con()->getModule_License()->getLicenseHandler();
 
 		$details = [ false ];
 		if ( $licHandler->hasValidWorkingLicense() ) {
 			$lic = $licHandler->getLicense()->getRawData();
 			$details = [];
-			foreach ( array_keys( $req->filter_fields ) as $field ) {
+			foreach ( \array_keys( $req->filter_fields ) as $field ) {
 				$details[ $field ] = $lic[ $field ];
 			}
 		}

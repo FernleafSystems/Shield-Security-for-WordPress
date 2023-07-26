@@ -11,7 +11,7 @@ class ShieldChangelogRetrieve {
 	use PluginControllerConsumer;
 
 	public function fromFile() :array {
-		return json_decode( Services::WpFs()->getFileContent(
+		return \json_decode( Services::WpFs()->getFileContent(
 			path_join( $this->con()->getRootDir(), 'cl.json' )
 		), true );
 	}
@@ -27,11 +27,11 @@ class ShieldChangelogRetrieve {
 			if ( empty( $raw ) ) {
 				throw new \Exception( "Couldn't retrieve changelog" );
 			}
-			$cl = json_decode( $raw, true );
+			$cl = \json_decode( $raw, true );
 			if ( empty( $cl ) ) {
 				throw new \Exception( "Couldn't build changelog" );
 			}
-			Transient::Set( 'shield_cl', $cl, DAY_IN_SECONDS );
+			Transient::Set( 'shield_cl', $cl, \DAY_IN_SECONDS );
 		}
 		return $cl;
 	}

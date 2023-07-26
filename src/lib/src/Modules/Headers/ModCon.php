@@ -15,9 +15,9 @@ class ModCon extends BaseShield\ModCon {
 	private function cleanCustomRules() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$opts->setOpt( 'xcsp_custom', array_unique( array_filter( array_map(
+		$opts->setOpt( 'xcsp_custom', \array_unique( \array_filter( \array_map(
 			function ( $rule ) {
-				$rule = trim( preg_replace( '#;|\s{2,}#', '', html_entity_decode( $rule, ENT_QUOTES ) ) );
+				$rule = \trim( \preg_replace( '#;|\s{2,}#', '', html_entity_decode( $rule, ENT_QUOTES ) ) );
 				if ( !empty( $rule ) ) {
 					$rule .= ';';
 				}

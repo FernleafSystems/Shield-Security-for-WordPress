@@ -47,7 +47,7 @@ class EventsToSignals extends EventsListener {
 						'milli_at' => $this->getMilliseconds(),
 					];
 					// We prevent storing duplicate scenarios using the hash
-					$this->signals[ md5( serialize( $signal ) ) ] = $signal;
+					$this->signals[ \md5( serialize( $signal ) ) ] = $signal;
 				}
 			}
 		}
@@ -86,16 +86,16 @@ class EventsToSignals extends EventsListener {
 
 	private function getMilliseconds() :string {
 		$milli = '0';
-		if ( function_exists( 'microtime' ) ) {
+		if ( \function_exists( 'microtime' ) ) {
 			$ts = microtime();
-			if ( !empty( $ts ) && strpos( $ts, ' ' ) ) {
-				$ts = explode( ' ', $ts )[ 0 ];
-				if ( strpos( $ts, '.' ) ) {
-					$milli = rtrim( substr( explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
+			if ( !empty( $ts ) && \strpos( $ts, ' ' ) ) {
+				$ts = \explode( ' ', $ts )[ 0 ];
+				if ( \strpos( $ts, '.' ) ) {
+					$milli = \rtrim( \substr( \explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );
 				}
 			}
 		}
-		return strlen( $milli ) > 0 ? $milli : '0';
+		return \strlen( $milli ) > 0 ? $milli : '0';
 	}
 
 	private function triggerSignalsCron() {
@@ -103,7 +103,7 @@ class EventsToSignals extends EventsListener {
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
 			wp_schedule_single_event(
 				Services::Request()
-						->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', MINUTE_IN_SECONDS*5 ),
+						->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', \MINUTE_IN_SECONDS*5 ),
 				$con->prefix( 'adhoc_cron_crowdsec_signals' )
 			);
 		}

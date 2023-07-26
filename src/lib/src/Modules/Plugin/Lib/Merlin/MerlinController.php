@@ -49,7 +49,7 @@ class MerlinController {
 	 */
 	private function getWizardSteps( string $wizardKey ) :array {
 		$constants = ( new \ReflectionClass( Wizards::class ) )->getConstants();
-		$fullKey = strtoupper( 'WIZARD_STEPS_'.$wizardKey );
+		$fullKey = \strtoupper( 'WIZARD_STEPS_'.$wizardKey );
 		if ( !isset( $constants[ $fullKey ] ) ) {
 			throw new \Exception( 'Invalid Wizard specified' );
 		}
@@ -70,7 +70,6 @@ class MerlinController {
 	}
 
 	/**
-	 * @param string $slug
 	 * @return Steps\Base[]|string|null
 	 */
 	private function getHandlerFromSlug( string $slug ) :?string {
@@ -85,7 +84,7 @@ class MerlinController {
 	}
 
 	/**
-	 * Simply array_unique(array_merge()) when more wizards are added.
+	 * Simply \array_unique(array_merge()) when more wizards are added.
 	 * @return Steps\Base[]|string[]
 	 */
 	private function getAllHandlers() :array {

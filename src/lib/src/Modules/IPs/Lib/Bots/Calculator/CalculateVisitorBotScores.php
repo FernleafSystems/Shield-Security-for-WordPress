@@ -24,15 +24,15 @@ class CalculateVisitorBotScores {
 	}
 
 	public function total() :int {
-		return (int)array_sum( $this->scores() );
+		return (int)\array_sum( $this->scores() );
 	}
 
 	public function probability() :int {
-		return (int)max( 0, min( 100, $this->total() ) );
+		return (int)\max( 0, \min( 100, $this->total() ) );
 	}
 
 	private function getActiveScores() :array {
-		return array_filter(
+		return \array_filter(
 			$this->scores,
 			function ( $score ) {
 				return $score !== -1;

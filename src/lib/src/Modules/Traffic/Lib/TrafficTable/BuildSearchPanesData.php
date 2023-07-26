@@ -37,15 +37,15 @@ class BuildSearchPanesData {
 
 	protected function getDistinctQueryResult() :array {
 		if ( is_null( $this->distinctQueryResult ) ) {
-			$this->distinctQueryResult = array_map( function ( $raw ) {
-				return explode( ',', $raw );
+			$this->distinctQueryResult = \array_map( function ( $raw ) {
+				return \explode( ',', $raw );
 			}, $this->compositeDistinctQuery( [ 'type', 'code' ] ) );
 		}
 		return $this->distinctQueryResult;
 	}
 
 	private function buildForCodes() :array {
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $code ) {
 				if ( empty( $code ) ) {
 					return null;
@@ -73,7 +73,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForType() :array {
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $type ) {
 				if ( empty( $type ) ) {
 					return null;
@@ -88,7 +88,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForIPs() :array {
-		return array_map(
+		return \array_map(
 			function ( $ip ) {
 				return [
 					'label' => $ip,
@@ -104,11 +104,11 @@ class BuildSearchPanesData {
 	 */
 	private function compositeDistinctQuery( array $columns ) :array {
 		$results = Services::WpDb()->selectCustom( sprintf( 'SELECT %s',
-				implode( ', ', array_map( function ( $col ) {
+				\implode( ', ', \array_map( function ( $col ) {
 					return sprintf( '(SELECT group_concat(DISTINCT %s) FROM %s) as %s',
 						$col, $this->mod()->getDbH_ReqLogs()->getTableSchema()->table, $col );
 				}, $columns ) ) )
 		);
-		return empty( $results ) ? [] : array_filter( $results[ 0 ] );
+		return empty( $results ) ? [] : \array_filter( $results[ 0 ] );
 	}
 }

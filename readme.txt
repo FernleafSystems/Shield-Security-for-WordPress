@@ -1,27 +1,27 @@
-﻿=== Shield Security - Smart Bot Blocking & Intrusion Prevention  ===
+﻿=== Shield Security - Smart Bot Blocking & Intrusion Prevention Security  ===
 Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: limit login, malware scan, firewall, file scan, two factor authentication, intrusion prevention, security, login protection
-Requires at least: 4.7
-Requires PHP: 7.2
+Tags: security, activity logging, login protection, two-factor authentication, intrusion prevention
+Requires at least: 5.7
+Requires PHP: 7.2.5
 Recommended PHP: 7.4
-Tested up to: 6.2
-Stable tag: 18.1.2
+Tested up to: 6.3
+Stable tag: 18.2.3
 
-Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before they can hack your site.
+Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, before they hack your site.
 
 == Description ==
 
 ### Features You'll Absolutely Love
 
-* Exclusive [AntiBot Detection Engine](https://shsec.io/ju) - a powerful alternative for Google reCAPTCHA and CloudFlare Turnstile.
+* Exclusive [AntiBot Detection Engine Security](https://shsec.io/ju) - a powerful security alternative to Google reCAPTCHA and CloudFlare Turnstile.
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security intelligence to block bad bots.
-* **Instant Bad Bot Blocking with [our exclusive CrowdSec integration](https://shsec.io/l5)**
-* Easy To Understand Dashboard points you to quick wins and areas you can quickly improve
+* **Instant Bad Bot Blocking with [our exclusive CrowdSec Security integration](https://shsec.io/l5)**
+* Easy To Understand Security Dashboard that highlights quick wins and areas to rapidly improve site security
 * [ShieldPRO] [Artificial Intelligence based PHP Malware Detection](https://shsec.io/lf)
-* Block Bots On Important Forms:
+* Security for your important user forms, by blocking Block Bots:
     * Login Forms
     * User Registration Forms
     * Lost Password Reset Forms
@@ -40,8 +40,8 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
     * [ShieldPRO] Multiple Yubikey per User
     * [ShieldPRO] Remember Me (reduces 2FA requests for users)
 * [Block XML-RPC](https://shsec.io/iz) (*including* Pingbacks and Trackbacks)
-* Block Anonymous Rest API
-* Block, Bypass and Analyse IP Addresses
+* Security firewall for the REST API - block anonymous requests
+* Powerful IP Addresses-based Security:
     * [Automatic IP Address Blocking Using Points-Based Security System](https://shsec.io/j0)
     * Block or Bypass individual IPs
     * Block or Bypass IP Subnets
@@ -54,9 +54,9 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
     * [ShieldPRO] Plugin and Theme Security Scanning - identify file changes in your plugins/themes.
     * [ShieldPRO] Detect Plugins/Themes With Known Security Vulnerabilities.
 * [Create a **Private Secure Login URL** by hiding wp-login.php](https://shsec.io/j3)
-* Detect (and Block) [Comment SPAM from Bots and Humans](https://shsec.io/jf).
+* Security against Comment SPAM - Detect (and Block) [Comment SPAM from Bots and Humans](https://shsec.io/jf).
 * reCAPTCHA & [hCAPTCHA](https://shsec.io/j4) support
-* **Never Block Google**: Automatic Detection and Bypass for GoogleBot, Bing and other Official Search Engines including:
+* **Never Block Google**: Smart Security Automatically Detects GoogleBot, Bing and other Official Search Engines including:
     * Google
     * Bing,
     * DuckDuckGo
@@ -64,35 +64,36 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers before
     * Baidu
     * Apple
     * Yandex
-* Automatically Detect 3rd Party Services and Prevent Blocking Of:
+* Smart Security Automatically Detects 3rd Party Services and Prevents Blocking Of:
     * ManageWP / iControlWP / MainWP
     * Pingdom, NodePing, Statuscake, UptimeRobot, GTMetrix
     * Stripe, PayPal IPN
     * CloudFlare, SEMRush
-* Full Security Audit Trail - [Monitor **All** Site Activity, including](https://shsec.io/j5):
-    * All login/registration attempts
-    * Plugin and Theme installation, activation, deactivation etc.
-    * User creation and promotion
-    * Page/Post create, update, delete
+* Full Security Activity Log - [Monitor **All** Site Activity, including](https://shsec.io/j5):
+    * Activity logging for all user login & registration attempts
+    * Plugin and Theme installation activity logs, including activation & deactivation etc.
+    * User creation activity logging, including detection of administrator promotions
+    * Activity logging for Page/Post create, update, delete
 * Advanced User Sessions Security Control
     * Restrict Multiple User Login
     * Restrict Users Session To IP
-    * Block Use Of Pwned Passwords
-    * Block User Enumeration (?author=x)
-    * [ShieldPRO] User Suspend - manual and automatic.
+    * Password Security - Block Pwned Passwords
+    * User Enumeration Security - Firewall blocks requests to `?author=x`
+    * [ShieldPRO] Security for old and idle user account with manual and automatic User Suspend.
 * Full/Automatic Support for All IP Address Sources including Proxy Support
-* [Full Traffic Log and Request Monitoring](https://shsec.io/j7)
+* Traffic Log Security - [Full Traffic Logging and Request Monitoring](https://shsec.io/j7)
+* [ShieldPRO] Traffic Rate Limiting Security - prevent server overload from DoS Attacks
 * [HTTP Security Headers & Content Security Policies (CSP)](https://shsec.io/j6)
 
 #### [Full Shield Security Features List](https://shsec.io/shieldfeatures)
 
-Shield is the only security plugin for WordPress that fully prioritises protection and intrusion prevention before repair. With Shield, your site will start to block visitors as they probe your site looking for vulnerabilities, and before they can begin to do any damage.
+Shield is the only security plugin for WordPress that prioritises protection and intrusion prevention before repair. With Shield Security, your site will immediately to block visitors as they probe your site looking for vulnerabilities, and before they can do damage.
 
-**No other standalone WordPress security plugin** (including [Wordfence](https://shsec.io/shieldvswordfence), WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield does both.
+**No other standalone WordPress security plugin** (including [Wordfence](https://shsec.io/shieldvswordfence), WP Cerber, Ninja Firewall, All-In-One Security) approaches security in this way. The 1st step in any good security system is Intrusion Detection/Prevention, the 2nd step is repair. Shield Security does both.
 
-Our mission is to block bad IPs and requests before they can do any damage. Shield will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current solution, give Shield a try - we promise that you won't be disappointed.
+Our mission is to block bad IPs and requests before they can do any damage. Shield Security will block all automated Comment SPAM, brute force logins, plugin-vulnerability exploitation, malware injection, vulnerability scanning, password stuffing, contact form spam, and so much more.  If you're disappointed with the performance of your current security solution, give Shield Security a try - we promise that you won't be disappointed.
 
-**Use the power of the network**. ShieldNET is our new and exclusive network-based intelligence platform that draws-in information from all around the globe to help Shield Security plugins be smarter when assessing security threats and taking appropriate action. And with our new [Crowdsec partnership](https://shsec.io/l5) you've got even more data to make smarter decision.
+**Use the power of the network**. ShieldNET is our new and exclusive network-based security intelligence platform that draws-in information from all around the globe to help Shield Security be smarter when assessing security threats and taking appropriate action. And with our new [CrowdSec Security Partnership](https://shsec.io/l5) you've got even more data to make smarter security decisions.
 
 #### Get the highest rated 5* Security Plugin for WordPress
 

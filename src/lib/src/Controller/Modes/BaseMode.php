@@ -32,10 +32,10 @@ abstract class BaseMode {
 	}
 
 	public function isActiveViaDefine() :bool {
-		$constant = strtoupper(
-			$this->getCon()->prefix( sprintf( 'MODE_%s', static::SLUG ), '_' )
+		$constant = \strtoupper(
+			$this->con()->prefix( sprintf( 'MODE_%s', static::SLUG ), '_' )
 		);
-		return defined( $constant ) && $constant;
+		return \defined( $constant ) && $constant;
 	}
 
 	public function isActiveViaModeFile() :bool {
@@ -54,6 +54,6 @@ abstract class BaseMode {
 	}
 
 	protected function getPathToModeFile() :string {
-		return $this->getCon()->paths->forFlag( sprintf( 'mode.%s', strtolower( static::SLUG ) ) );
+		return $this->con()->paths->forFlag( sprintf( 'mode.%s', \strtolower( static::SLUG ) ) );
 	}
 }

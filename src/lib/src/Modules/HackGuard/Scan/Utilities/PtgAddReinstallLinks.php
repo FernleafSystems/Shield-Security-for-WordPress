@@ -24,7 +24,7 @@ class PtgAddReinstallLinks {
 	protected function run() {
 		add_action( 'plugin_action_links', function ( $links, $file ) {
 			$con = $this->getScanController()->con();
-			if ( $con->this_req->is_security_admin && is_array( $links ) && is_string( $file ) ) {
+			if ( $con->this_req->is_security_admin && \is_array( $links ) && \is_string( $file ) ) {
 				$links = $this->addActionLinkRefresh( $links, $file );
 			}
 			return $links;

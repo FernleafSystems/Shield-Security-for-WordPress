@@ -204,6 +204,6 @@ class Info extends Base {
 			$status[] = __( 'Unknown', 'wp-simple-firewall' );
 		}
 
-		return implode( ' / ', $status );
+		return \implode( ' / ', $status );
 	}
 }

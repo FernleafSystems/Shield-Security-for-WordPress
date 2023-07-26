@@ -13,24 +13,24 @@ class Options extends BaseShield\Options {
 
 	private function getRestrictedOptions() :array {
 		$options = $this->getDef( 'options_to_restrict' );
-		return is_array( $options ) ? $options : [];
+		return \is_array( $options ) ? $options : [];
 	}
 
 	public function getOptionsToRestrict() :array {
 		$type = ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_options';
 		$options = $this->getRestrictedOptions();
-		return is_array( $options[ $type ] ?? [] ) ? $options[ $type ] : [];
+		return \is_array( $options[ $type ] ?? [] ) ? $options[ $type ] : [];
 	}
 
 	public function getOptionsPagesToRestrict() :array {
 		$type = ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ).'_pages';
 		$options = $this->getRestrictedOptions();
-		return is_array( $options[ $type ] ?? [] ) ? $options[ $type ] : [];
+		return \is_array( $options[ $type ] ?? [] ) ? $options[ $type ] : [];
 	}
 
 	public function getSecurityAdminUsers() :array {
 		$users = $this->getOpt( 'sec_admin_users', [] );
-		return ( is_array( $users ) && $this->con()->isPremiumActive() ) ? $users : [];
+		return ( \is_array( $users ) && $this->con()->isPremiumActive() ) ? $users : [];
 	}
 
 	public function getSecurityPIN() :string {
@@ -38,15 +38,11 @@ class Options extends BaseShield\Options {
 	}
 
 	public function hasSecurityPIN() :bool {
-		return strlen( $this->getSecurityPIN() ) == 32;
+		return \strlen( $this->getSecurityPIN() ) === 32;
 	}
 
 	public function isEmailOverridePermitted() :bool {
 		return $this->isOpt( 'allow_email_override', 'Y' );
-	}
-
-	public function isEnabledMU() :bool {
-		return $this->isOpt( 'enable_mu', 'Y' );
 	}
 
 	public function isSecAdminRestrictUsersEnabled() :bool {
@@ -55,5 +51,12 @@ class Options extends BaseShield\Options {
 
 	public function isRestrictWpOptions() :bool {
 		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isEnabledMU() :bool {
+		return $this->isOpt( 'enable_mu', 'Y' );
 	}
 }

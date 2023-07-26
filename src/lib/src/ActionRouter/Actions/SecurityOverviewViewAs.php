@@ -11,7 +11,7 @@ class SecurityOverviewViewAs extends SecurityAdminBase {
 		$secOverviewPrefs = $mod->getOptions()->getOpt( 'sec_overview_prefs', [] );
 
 		$viewAs = $this->action_data[ 'view_as' ] ?? '';
-		if ( in_array( $viewAs, [ '', 'pro', 'free', true ] ) ) {
+		if ( \in_array( $viewAs, [ '', 'pro', 'free', true ] ) ) {
 			$secOverviewPrefs[ 'view_as' ] = $viewAs;
 			$mod->getOptions()->setOpt( 'sec_overview_prefs', $secOverviewPrefs );
 		}

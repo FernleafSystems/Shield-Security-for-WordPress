@@ -11,12 +11,12 @@ class Idle extends Base {
 	 * @return \WP_Error|\WP_User
 	 */
 	protected function processUser( \WP_User $user, ShieldUserMeta $meta ) {
-		$r = array_intersect( $this->opts()->getSuspendAutoIdleUserRoles(), array_map( 'strtolower', $user->roles ) );
+		$r = \array_intersect( $this->opts()->getSuspendAutoIdleUserRoles(), \array_map( 'strtolower', $user->roles ) );
 
-		if ( count( $r ) > 0 && $this->isLastVerifiedAtExpired( $meta ) ) {
+		if ( \count( $r ) > 0 && $this->isLastVerifiedAtExpired( $meta ) ) {
 			$user = new \WP_Error(
 				$this->con()->prefix( 'pass-expired' ),
-				implode( ' ', [
+				\implode( ' ', [
 					__( 'Sorry, this account is suspended because of inactivity.', 'wp-simple-firewall' ),
 					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),
 					sprintf( '<a href="%s">%s &rarr;</a>',

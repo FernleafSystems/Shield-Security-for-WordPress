@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
@@ -20,6 +20,8 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	private $log;
 
 	protected function write( array $record ) :void {
+		$dbhMeta = $this->mod()->getDbH_Meta();
+
 		$this->log = $record;
 
 		try {
@@ -34,7 +36,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			unset( $record[ 'extra' ][ 'meta_wp' ] );
 			unset( $record[ 'extra' ][ 'meta_request' ] );
 
-			$metas = array_merge(
+			$metas = \array_merge(
 				$record[ 'context' ][ 'audit_params' ] ?? [],
 				$record[ 'extra' ][ 'meta_user' ]
 			);
@@ -42,15 +44,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				$metas[ 'audit_count' ] = 1;
 			}
 
-			$metaRecord = new Meta\Ops\Record();
+			/** @var MetaDB\Record $metaRecord */
+			$metaRecord = $dbhMeta->getRecord();
 			$metaRecord->log_ref = $log->id;
 			foreach ( $metas as $metaKey => $metaValue ) {
 				$metaRecord->meta_key = $metaKey;
 				$metaRecord->meta_value = $metaValue;
-				$this->mod()
-					 ->getDbH_Meta()
-					 ->getQueryInserter()
-					 ->insert( $metaRecord );
+				$dbhMeta->getQueryInserter()->insert( $metaRecord );
 			}
 			$this->triggerRequestLogger();
 		}
@@ -59,18 +59,20 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	}
 
 	private function triggerRequestLogger() {
-		add_filter( 'shield/is_log_traffic', '__return_true', PHP_INT_MAX );
+		add_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
 	}
 
 	protected function updateRecentLogEntry() :bool {
-		$modData = $this->con()->getModule_Data();
 
 		$ipRecordID = ( new IPRecords() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
-		$reqSelector = $modData->getDbH_ReqLogs()->getQuerySelector();
-		$reqIDs = array_map(
+		$reqSelector = $this->con()
+							->getModule_Data()
+							->getDbH_ReqLogs()
+							->getQuerySelector();
+		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;
 			},
@@ -79,9 +81,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 							   ->queryWithResult()
 		);
 
-		/** @var Logs\Ops\Select $select */
+		/** @var LogsDB\Select $select */
 		$select = $this->mod()->getDbH_Logs()->getQuerySelector();
-		/** @var Logs\Ops\Record $existingLog */
+		/** @var LogsDB\Record $existingLog */
 		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
 							  ->filterByRequestRefs( $reqIDs )
 							  ->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
@@ -108,9 +110,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	/**
 	 * @throws \Exception
 	 */
-	protected function createPrimaryLogRecord() :Logs\Ops\Record {
-
-		$record = new Logs\Ops\Record();
+	protected function createPrimaryLogRecord() :LogsDB\Record {
+		$dbh = $this->mod()->getDbH_Logs();
+		/** @var LogsDB\Record $record */
+		$record = $dbh->getRecord();
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
@@ -121,19 +124,13 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadReq( $this->log[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
 			->id;
 
-		$success = $this->mod()
-						->getDbH_Logs()
-						->getQueryInserter()
-						->insert( $record );
+		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
 			throw new \Exception( 'Failed to insert' );
 		}
 
-		/** @var Logs\Ops\Record $log */
-		$log = $this->mod()
-					->getDbH_Logs()
-					->getQuerySelector()
-					->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
+		/** @var LogsDB\Record $log */
+		$log = $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 		if ( empty( $log ) ) {
 			throw new \Exception( 'Could not load log record' );
 		}

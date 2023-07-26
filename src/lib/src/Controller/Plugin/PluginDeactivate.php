@@ -16,17 +16,11 @@ class PluginDeactivate {
 	}
 
 	private function deleteCrons() {
-		$con = $this->getCon();
-		$WPCron = Services::WpCron();
-		$crons = $WPCron->getCrons();
-
-		$pattern = sprintf( '#^(%s|%s)#', $con->getParentSlug(), $con->getPluginSlug() );
-		foreach ( $crons as $cron ) {
-			if ( is_array( $crons ) ) {
-				foreach ( $cron as $key => $cronEntry ) {
-					if ( is_string( $key ) && preg_match( $pattern, $key ) ) {
-						$WPCron->deleteCronJob( $key );
-					}
+		$pattern = sprintf( '#^(%s|%s)#', $this->con()->getParentSlug(), $this->con()->getPluginSlug() );
+		foreach ( Services::WpCron()->getCrons() as $cron ) {
+			foreach ( $cron as $key => $cronEntry ) {
+				if ( \is_string( $key ) && \preg_match( $pattern, $key ) ) {
+					Services::WpCron()->deleteCronJob( $key );
 				}
 			}
 		}

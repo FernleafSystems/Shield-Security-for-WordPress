@@ -49,8 +49,8 @@ class LoadConfig {
 	private function fromFile() :array {
 		$raw = $this->loadRawFromFile();
 
-		$cfg = json_decode( $raw, true );
-		if ( empty( $cfg ) || !is_array( $cfg ) ) {
+		$cfg = \json_decode( $raw, true );
+		if ( empty( $cfg ) || !\is_array( $cfg ) ) {
 			throw new \Exception( sprintf( "Couldn't parse JSON from file '%s'.", $this->pathToCfg ) );
 		}
 
@@ -70,8 +70,8 @@ class LoadConfig {
 			$cfg[ 'slug' ] = $cfg[ 'properties' ][ 'slug' ];
 		}
 
-		$cfg[ 'properties' ] = array_merge( [
-			'namespace'             => str_replace( ' ', '', ucwords( str_replace( '_', ' ', $cfg[ 'slug' ] ) ) ),
+		$cfg[ 'properties' ] = \array_merge( [
+			'namespace'             => \str_replace( ' ', '', ucwords( \str_replace( '_', ' ', $cfg[ 'slug' ] ) ) ),
 			'storage_key'           => $cfg[ 'slug' ],
 			'tagline'               => '',
 			'premium'               => false,
@@ -91,7 +91,7 @@ class LoadConfig {
 			'show_module_menu_item' => false,
 		], $cfg[ 'properties' ] );
 
-		$cfg[ 'menus' ] = array_merge( [
+		$cfg[ 'menus' ] = \array_merge( [
 			'config_menu_priority' => 100,
 		], $cfg[ 'menus' ] ?? [] );
 

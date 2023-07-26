@@ -12,7 +12,7 @@ abstract class BaseForAssets extends Base {
 	 * @param Scans\Wpv\ResultItem|Scans\Apc\ResultItem $item
 	 */
 	public function cleanStaleResultItem( $item ) {
-		if ( strpos( $item->VO->item_id, '/' ) ) {
+		if ( \strpos( $item->VO->item_id, '/' ) ) {
 			$asset = Services::WpPlugins()->getPluginAsVo( $item->VO->item_id );
 		}
 		else {

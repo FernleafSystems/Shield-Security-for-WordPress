@@ -5,8 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -33,9 +32,7 @@ class Export {
 	}
 
 	public function toJson() {
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->mod();
-		$ieCon = $mod->getImpExpController();
+		$ieCon = $this->mod()->getImpExpController();
 		$req = Services::Request();
 
 		$success = false;
@@ -93,11 +90,11 @@ class Export {
 	 * @return string[]
 	 */
 	public function toStandardArray() :array {
-		$export = json_encode( $this->getExportData() );
+		$export = \json_encode( $this->getExportData() );
 		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
-			'# Hash: '.sha1( $export ),
+			'# Hash: '.\sha1( $export ),
 			$export
 		];
 	}
@@ -108,7 +105,7 @@ class Export {
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
 				date( 'Ymd_His' )
 			),
-			'content' => implode( "\n", $this->toStandardArray() )
+			'content' => \implode( "\n", $this->toStandardArray() )
 		];
 	}
 
@@ -127,7 +124,7 @@ class Export {
 			];
 			$loader->limit = 100;
 
-			$all[ 'ip_rules' ] = array_map(
+			$all[ 'ip_rules' ] = \array_map(
 				function ( $rule ) {
 					return [
 						'ip'    => $rule->ipAsSubnetRange(),
@@ -148,9 +145,9 @@ class Export {
 			$opts = $mod->getOptions();
 			$xfr = $opts->getTransferableOptions();
 			if ( $filterExcluded ) {
-				$xfr = array_diff_key(
+				$xfr = \array_diff_key(
 					$xfr,
-					array_flip( $opts->getXferExcluded() )
+					\array_flip( $opts->getXferExcluded() )
 				);
 			}
 			$all[ $mod->cfg->slug ] = $xfr;
@@ -170,25 +167,23 @@ class Export {
 	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
 	 */
 	private function verifyUrl( string $url, string $id, string $secret ) :bool {
-		/** @var Plugin\ModCon $mod */
-		$mod = $this->mod();
 
-		$urlIDs = $this->getOptions()->getOpt( 'import_url_ids' );
-		if ( !is_array( $urlIDs ) ) {
+		$urlIDs = $this->opts()->getOpt( 'import_url_ids' );
+		if ( !\is_array( $urlIDs ) ) {
 			$urlIDs = [];
 		}
 
 		$verified = !empty( $url ) &&
 					(
-						$mod->getImpExpController()->verifySecretKey( $secret )
-						|| ( !empty( $id ) && ( $urlIDs[ md5( $url ) ] ?? '' ) === $id )
+						$this->mod()->getImpExpController()->verifySecretKey( $secret )
+						|| ( !empty( $id ) && ( $urlIDs[ \md5( $url ) ] ?? '' ) === $id )
 						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
 					);
 
 		// Update the stored ID, so it can be used at a later date.
 		if ( $verified && !empty( $id ) ) {
-			$urlIDs[ md5( $url ) ] = $id;
-			$this->getOptions()->setOpt( 'import_url_ids', $urlIDs );
+			$urlIDs[ \md5( $url ) ] = $id;
+			$this->opts()->setOpt( 'import_url_ids', $urlIDs );
 			$this->mod()->saveModOptions();
 		}
 
@@ -197,21 +192,18 @@ class Export {
 
 	private function isUrlOnWhitelist( string $url ) :bool {
 		$isWhitelisted = false;
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
 		$urlComponents = $this->parseURL( $url );
 		if ( !empty( $urlComponents[ 'host' ] ) ) {
 
-			$whiteURLs = array_map(
+			$whiteURLs = \array_map(
 				function ( $whitelistedURL ) {
 					return $this->parseURL( $whitelistedURL );
 				},
-				$opts->getImportExportWhitelist()
+				$this->opts()->getImportExportWhitelist()
 			);
 
 			foreach ( $whiteURLs as $whiteURL ) {
-				if ( $whiteURL[ 'host' ] === $urlComponents[ 'host' ]
-					 && $whiteURL[ 'path' ] === $urlComponents[ 'path' ] ) {
+				if ( $whiteURL[ 'host' ] === $urlComponents[ 'host' ] && $whiteURL[ 'path' ] === $urlComponents[ 'path' ] ) {
 					$isWhitelisted = true;
 					break;
 				}
@@ -232,7 +224,7 @@ class Export {
 		$parsed = wp_parse_url( $url );
 		if ( !empty( $parsed ) ) {
 			$components[ 'host' ] = empty( $parsed[ 'host' ] ) ? '' : $parsed[ 'host' ];
-			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : trim( $parsed[ 'path' ], '/' );
+			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : \trim( $parsed[ 'path' ], '/' );
 		}
 		return $components;
 	}
@@ -241,7 +233,7 @@ class Export {
 		$raw = Services::HttpRequest()->getContent(
 			URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) )
 		);
-		$dec = @json_decode( $raw, true );
-		return is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
+		$dec = @\json_decode( $raw, true );
+		return \is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}
 }

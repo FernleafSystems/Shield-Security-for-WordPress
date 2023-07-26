@@ -47,13 +47,13 @@ class AlignTableWithSchema {
 		$colsSchema = $this->schema->getColumnNames();
 
 		// Are columns missing?
-		foreach ( array_diff( $colsSchema, $colsActual ) as $col ) {
+		foreach ( \array_diff( $colsSchema, $colsActual ) as $col ) {
 			$this->addColumn( $col );
 			$colsUpdated = true;
 		}
 
 		// Extra columns?
-		foreach ( array_diff( $colsActual, $colsSchema ) as $col ) {
+		foreach ( \array_diff( $colsActual, $colsSchema ) as $col ) {
 			$DB->doSql( sprintf( 'ALTER TABLE `%s` DROP `%s`;', $this->schema->table, $col ) );
 			$colsUpdated = true;
 		}
@@ -65,18 +65,18 @@ class AlignTableWithSchema {
 
 	private function addColumn( string $col ) {
 		$colsSchema = $this->schema->enumerateColumns();
-		if ( array_key_exists( $col, $colsSchema ) ) {
+		if ( \array_key_exists( $col, $colsSchema ) ) {
 
-			if ( key( $colsSchema ) === $col ) {
+			if ( \key( $colsSchema ) === $col ) {
 				$position = 'FIRST';
 			}
 			else {
 				// find the correct position to insert the col
-				while ( key( $colsSchema ) !== $col ) {
-					next( $colsSchema );
+				while ( \key( $colsSchema ) !== $col ) {
+					\next( $colsSchema );
 				}
-				prev( $colsSchema );
-				$position = 'AFTER '.key( $colsSchema );
+				\prev( $colsSchema );
+				$position = 'AFTER '.\key( $colsSchema );
 			}
 
 			Services::WpDb()->doSql( sprintf( 'ALTER TABLE `%s` ADD COLUMN %s %s %s;',
@@ -95,6 +95,6 @@ class AlignTableWithSchema {
 		if ( is_null( $this->cols ) ) {
 			$this->cols = Services::WpDb()->getColumnsForTable( $this->schema->table );
 		}
-		return is_array( $this->cols ) ? array_map( 'strtolower', $this->cols ) : [];
+		return \is_array( $this->cols ) ? \array_map( '\strtolower', $this->cols ) : [];
 	}
 }

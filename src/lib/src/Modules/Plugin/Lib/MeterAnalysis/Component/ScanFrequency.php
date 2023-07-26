@@ -8,7 +8,7 @@ class ScanFrequency extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'business';
 	public const SLUG = 'scan_frequency';
 	public const WEIGHT = 2;
 

@@ -24,13 +24,13 @@ class VerifyEvents {
 				$NoKey[] = $key;
 			}
 			else {
-				$msg = implode( '', $srvEvents->getEventAuditStrings( $key ) );
+				$msg = \implode( '', $srvEvents->getEventAuditStrings( $key ) );
 
 				if ( empty( $msg ) ) {
 					$NoMsgs[] = $key;
 				}
 				else {
-					$paramCount = count( $evt[ 'audit_params' ] );
+					$paramCount = \count( $evt[ 'audit_params' ] );
 
 					if ( substr_count( $msg, '%s' ) > 0 ) {
 						$OldStyleSprintfSubstitutions[] = $key;
@@ -38,20 +38,20 @@ class VerifyEvents {
 					else {
 						preg_match_all( '#{{[a-z_]+}}#i', $msg, $matches );
 						$substitutionPlaceholders = $matches[ 0 ];
-						if ( $paramCount < count( $substitutionPlaceholders ) ) {
+						if ( $paramCount < \count( $substitutionPlaceholders ) ) {
 							$NotEnoughParams[] = $key;
 						}
-						elseif ( count( $substitutionPlaceholders ) > $paramCount ) {
+						elseif ( \count( $substitutionPlaceholders ) > $paramCount ) {
 							$NotEnoughSubstitutions[] = $key;
 						}
 						elseif ( !empty( $substitutionPlaceholders ) ) {
-							$substitutionPlaceholders = array_map(
-								fn( $placeholder ) => trim( $placeholder, '{}' ),
+							$substitutionPlaceholders = \array_map(
+								fn( $placeholder ) => \trim( $placeholder, '{}' ),
 								$substitutionPlaceholders
 							);
 
 							// audit_params that aren't present in the string is ok, but not the other way around.
-							if ( !empty( array_diff( $substitutionPlaceholders, $evt[ 'audit_params' ] ) ) ) {
+							if ( !empty( \array_diff( $substitutionPlaceholders, $evt[ 'audit_params' ] ) ) ) {
 								$SubstitutionsMismatch[] = $key;
 							}
 						}

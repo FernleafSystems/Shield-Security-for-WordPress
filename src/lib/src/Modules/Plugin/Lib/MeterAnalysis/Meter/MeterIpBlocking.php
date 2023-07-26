@@ -13,7 +13,7 @@ class MeterIpBlocking extends MeterBase {
 	}
 
 	public function title() :string {
-		return __( 'IP Blocking and Bot Detection', 'wp-simple-firewall' );
+		return __( 'Bad-Bot Detection and IP Blocking', 'wp-simple-firewall' );
 	}
 
 	public function subtitle() :string {
@@ -24,11 +24,11 @@ class MeterIpBlocking extends MeterBase {
 		$con = $this->con();
 		return [
 			__( "Your #1 security threat is from automated bots.", 'wp-simple-firewall' ),
-			implode( ' ', [
+			\implode( ' ', [
 				__( "Bot Detection & IP Blocking together form the core foundation to powerful WordPress protection that actually works.", 'wp-simple-firewall' ),
 				__( "Detecting them early and blocking them, is your greatest source of protection.", 'wp-simple-firewall' ),
 			] ),
-			implode( ' ', [
+			\implode( ' ', [
 				sprintf( __( "%s creates a risk assessment very quickly as it tracks bad visitors in many separate areas.", 'wp-simple-firewall' ), $con->getHumanName() ),
 				__( "Think of it as 'Limit Login Attempts' but applied across all features on a WordPress site, not just the login page.", 'wp-simple-firewall' ),
 				__( "When enough bad behaviours are detected, it'll block the IP from accessing the site altogether.", 'wp-simple-firewall' ),

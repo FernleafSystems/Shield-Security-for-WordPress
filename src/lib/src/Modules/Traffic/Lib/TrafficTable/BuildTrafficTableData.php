@@ -46,11 +46,11 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		$this->users = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $log ) {
 				$WPU = Services::WpUsers();
 
-				$log->meta = array_merge(
+				$log->meta = \array_merge(
 					[
 						'ua'      => 'Unknown',
 						'offense' => false,
@@ -108,18 +108,18 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			foreach ( array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
+			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'day':
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'req' );
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", array_pop( $selected ) );
+						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;
 					case 'offense':
 					case 'type':
 					case 'code':
-						$wheres[] = sprintf( "`req`.%s IN ('%s')", $column, implode( "','", $selected ) );
+						$wheres[] = sprintf( "`req`.%s IN ('%s')", $column, \implode( "','", $selected ) );
 						break;
 					default:
 						break;
@@ -138,7 +138,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( $column ) {
 				return ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '';
 			},
@@ -167,7 +167,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		else {
 			$country = sprintf(
 				'<img class="icon-flag" src="%s" alt="%s" width="24px"/> %s',
-				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', strtolower( $geo->countryCode ) ),
+				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', \strtolower( $geo->countryCode ) ),
 				$geo->countryCode,
 				$geo->countryName
 			);
@@ -204,7 +204,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$components[] = esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $this->log->meta[ 'ua' ] ) ) );
 			}
 
-			$content = sprintf( '<div>%s</div>', implode( '</div><div>', $components ) );
+			$content = sprintf( '<div>%s</div>', \implode( '</div><div>', $components ) );
 		}
 
 		return $content;
@@ -221,7 +221,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			$codeType = 'success';
 		}
 
-		return sprintf( '<div>%s</div>', implode( '</div><div>', [
+		return sprintf( '<div>%s</div>', \implode( '</div><div>', [
 			sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ),
 				sprintf( '<span class="badge bg-%s">%s</span>', $codeType, $this->log->code ) ),
 			sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ),
@@ -242,7 +242,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
 		}
 		else {
-			$content .= strtoupper( $this->log->verb ).': <code>'.$this->log->path
+			$content .= \strtoupper( $this->log->verb ).': <code>'.$this->log->path
 						.( empty( $query ) ? '' : '?<br/>'.ltrim( $query, '?' ) ).'</code>';
 		}
 		return $content;

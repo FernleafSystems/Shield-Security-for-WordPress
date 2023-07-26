@@ -21,7 +21,7 @@ class QueueItemVO extends DynPropertiesClass {
 				$value = (int)$value;
 				break;
 			case 'meta':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;

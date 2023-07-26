@@ -29,17 +29,15 @@ class Enumerate extends Base {
 	}
 
 	public function cmdPrint( array $null, array $args ) {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbh = $mod->getDbH_IPRules();
+		$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
 
 		try {
 			$this->checkList( $args[ 'list' ] );
 
-			if ( in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ) {
+			if ( \in_array( $args[ 'list' ], [ 'white', 'bypass' ] ) ) {
 				$lists = [ $dbh::T_MANUAL_BYPASS ];
 			}
-			elseif ( in_array( $args[ 'list' ], [ 'black', 'block' ] ) ) {
+			elseif ( \in_array( $args[ 'list' ], [ 'black', 'block' ] ) ) {
 				$lists = [ $dbh::T_AUTO_BLOCK, $dbh::T_MANUAL_BLOCK ];
 			}
 			else {
@@ -48,10 +46,10 @@ class Enumerate extends Base {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type` IN ('%s')", implode( "','", $lists ) )
+				sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $lists ) )
 			];
 
-			$IPs = array_map(
+			$IPs = \array_map(
 				function ( $record ) {
 					return [ 'IP' => $record->ip, ];
 				},

@@ -26,8 +26,8 @@ class Wpv extends BaseForAssets {
 				->execute();
 		}, 10, 2 );
 
-		if ( $this->opts()->isWpvulnAutoupdatesEnabled() ) {
-			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
+		if ( $this->isAutoupdatesEnabled() ) {
+			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], \PHP_INT_MAX, 2 );
 		}
 	}
 
@@ -62,28 +62,29 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function hasVulnerabilities( string $file ) :bool {
-		return count( $this->getResultsForDisplay()->getItemsForSlug( $file ) ) > 0;
+		return \count( $this->getResultsForDisplay()->getItemsForSlug( $file ) ) > 0;
 	}
 
-	/**
-	 * @return Scans\Wpv\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
+	public function isAutoupdatesEnabled() :bool {
+		return $this->opts()->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
+	}
+
+	protected function newItemActionHandler() :Scans\Wpv\Utilities\ItemActionHandler {
 		return new Scans\Wpv\Utilities\ItemActionHandler();
 	}
 
 	public function isCronAutoRepair() :bool {
-		return $this->opts()->isWpvulnAutoupdatesEnabled();
+		return $this->isAutoupdatesEnabled();
 	}
 
 	public function isEnabled() :bool {
-		return $this->con()->isPremiumActive() && $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' );
+		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 
 	/**
-	 * @return Scans\Wpv\ScanActionVO
+	 * @throws \Exception
 	 */
-	public function buildScanAction() {
+	public function buildScanAction() :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
 			->setScanController( $this )
 			->build()

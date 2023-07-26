@@ -10,13 +10,19 @@
 			</li>
 
 			<li class="nav-item">
+				<a class="nav-link" target="_blank" href="{{ hrefs.knowledgebase }}">
+					{{ strings.tab_knowledgebase }}
+				</a>
+			</li>
+
+			<li class="nav-item">
 				<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabEvents"
 				   data-bs-toggle="tab">
 					{{ strings.tab_events }}
 				</a>
 			</li>
 
-			{% if not flags.is_pro %}
+			{% if flags.show_free_trial %}
 				<li class="nav-item">
 					<a class="nav-link" role="tab" href="{{ hrefs.free_trial }}" target="_blank">
 						{{ strings.tab_freetrial }}

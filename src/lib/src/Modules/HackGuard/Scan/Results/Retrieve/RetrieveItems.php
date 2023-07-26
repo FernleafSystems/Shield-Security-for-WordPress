@@ -100,7 +100,7 @@ class RetrieveItems extends RetrieveBase {
 			throw new \Exception( sprintf( 'Scan result with ID %s does not exist.', $scanResultID ) );
 		}
 		$items = $resultSet->getAllItems();
-		return array_shift( $items );
+		return \array_shift( $items );
 	}
 
 	/**
@@ -113,7 +113,7 @@ class RetrieveItems extends RetrieveBase {
 			if ( $latestID >= 0 ) {
 				$query = $this
 					->addWheres( [
-						sprintf( "`sr`.`id` IN (%s)", implode( ',', $IDs ) )
+						sprintf( "`sr`.`id` IN (%s)", \implode( ',', $IDs ) )
 					] )
 					->buildQuery( $this->standardSelectFields() );
 				$raw = Services::WpDb()->selectCustom( $query );
@@ -160,7 +160,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$hasResultMeta = false;
 		foreach ( $this->getWheres() as $where ) {
-			if ( strpos( $where, self::ABBR_RESULTITEMMETA ) !== false ) {
+			if ( \strpos( $where, self::ABBR_RESULTITEMMETA ) !== false ) {
 				$hasResultMeta = true;
 				break;
 			}
@@ -168,8 +168,8 @@ class RetrieveItems extends RetrieveBase {
 
 		return sprintf(
 			$this->getBaseQuery( $hasResultMeta ),
-			implode( ',', $selectFields ),
-			implode( ' AND ', $this->getWheres() )
+			\implode( ',', $selectFields ),
+			\implode( ' AND ', $this->getWheres() )
 		);
 	}
 
@@ -183,7 +183,7 @@ class RetrieveItems extends RetrieveBase {
 		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
 
 		/** @var ScanResultVO[] $scanResults */
-		$scanResults = array_map( function ( $r ) {
+		$scanResults = \array_map( function ( $r ) {
 			return ( new ScanResultVO() )->applyFromArray( $r );
 		}, $results );
 
@@ -218,7 +218,7 @@ class RetrieveItems extends RetrieveBase {
 	 */
 	private function addMetaToResults( array $results ) {
 
-		$resultItemIDs = array_map( function ( $res ) {
+		$resultItemIDs = \array_map( function ( $res ) {
 			return $res->resultitem_id;
 		}, $results );
 
@@ -289,14 +289,14 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	public function getSelects() :array {
-		return array_filter( array_map( 'trim', is_array( $this->selects ) ? $this->selects : [] ) );
+		return \array_filter( \array_map( 'trim', \is_array( $this->selects ) ? $this->selects : [] ) );
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function addSelects( array $selects, bool $merge = true ) {
-		$this->selects = $merge ? array_merge( $this->getSelects(), $selects ) : $selects;
+		$this->selects = $merge ? \array_merge( $this->getSelects(), $selects ) : $selects;
 		return $this;
 	}
 }

@@ -29,7 +29,7 @@ class BuildEncryptedFilePayload extends BaseOps {
 		}
 
 		$encoded = wp_json_encode( $payload->getRawData() );
-		if ( empty( $encoded ) || !is_string( $encoded ) ) {
+		if ( empty( $encoded ) || !\is_string( $encoded ) ) {
 			throw new FileContentsEncodingFailure( 'File contents could not be wp_json_encode() after encryption.' );
 		}
 

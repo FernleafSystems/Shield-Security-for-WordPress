@@ -71,11 +71,11 @@ class ScanResultsTableAction extends ScansBase {
 			}
 		}
 
-		foreach ( array_unique( $scanSlugs ) as $slug ) {
+		foreach ( \array_unique( $scanSlugs ) as $slug ) {
 			$mod->getScansCon()->getScanCon( $slug )->cleanStalesResults();
 		}
 
-		if ( count( $successfulItems ) === count( $items ) ) {
+		if ( \count( $successfulItems ) === \count( $items ) ) {
 			$success = true;
 			switch ( $action ) {
 				case 'delete':
@@ -94,7 +94,7 @@ class ScanResultsTableAction extends ScansBase {
 					$msg = __( 'Success', 'wp-simple-firewall' );
 					break;
 			}
-			$itemCount = count( $items );
+			$itemCount = \count( $items );
 			$msg = sprintf( '%s: %s', $msg,
 				sprintf( _n( '%s item processed', '%s items processed', $itemCount, 'wp-simple-firewall' ), $itemCount ) );
 		}
@@ -107,7 +107,7 @@ class ScanResultsTableAction extends ScansBase {
 		return [
 			'success'      => $success,
 			'page_reload'  => false,
-			'table_reload' => in_array( $action, [ 'ignore', 'repair', 'delete', 'repair-delete' ] ),
+			'table_reload' => \in_array( $action, [ 'ignore', 'repair', 'delete', 'repair-delete' ] ),
 			'message'      => $msg,
 		];
 	}
@@ -117,18 +117,18 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function getItemIDs() :array {
 		$items = Services::Request()->post( 'rids' );
-		if ( empty( $items ) || !is_array( $items ) ) {
+		if ( empty( $items ) || !\is_array( $items ) ) {
 			throw new \Exception( 'No items selected.' );
 		}
-		return array_filter(
-			array_map(
+		return \array_filter(
+			\array_map(
 				function ( $rid ) {
 					return is_numeric( $rid ) ? intval( $rid ) : null;
 				},
 				$items
 			),
 			function ( $rid ) {
-				return !is_null( $rid );
+				return !\is_null( $rid );
 			}
 		);
 	}

@@ -15,11 +15,14 @@ class Sync {
 
 	use ModConsumer;
 
+	private function isPermitted() :bool {
+		return $this->opts()->isEnabledMainWP() && $this->con()->caps->canMainwpLevel1();
+	}
+
 	public function run() :array {
 		return [
 			'meta'    => $this->buildMetaData(),
-			'modules' => ( $this->con()->isPremiumActive() && $this->opts()->isEnabledMainWP() ) ?
-				$this->buildModulesData() : [],
+			'modules' => $this->isPermitted() ? $this->buildModulesData() : [],
 		];
 	}
 
@@ -27,7 +30,7 @@ class Sync {
 		$con = $this->con();
 		return [
 			'is_pro'       => $con->isPremiumActive(),
-			'is_mainwp_on' => $con->isPremiumActive() && $this->opts()->isEnabledMainWP(),
+			'is_mainwp_on' => $this->isPermitted(),
 			'installed_at' => $con->getModule_Plugin()->getInstallDate(),
 			'sync_at'      => Services::Request()->ts(),
 			'version'      => $con->getVersion(),
@@ -60,7 +63,7 @@ class Sync {
 						break;
 
 					case HackGuard\ModCon::SLUG:
-						$data[ $mod->cfg->slug ][ 'scan_issues' ] = array_filter(
+						$data[ $mod->cfg->slug ][ 'scan_issues' ] = \array_filter(
 							( new HackGuard\Scan\Results\Counts() )->all()
 						);
 						break;

@@ -10,6 +10,6 @@ class Verify extends Common\BaseShieldNetApiV2 {
 
 	public function run() :bool {
 		$raw = $this->sendReq();
-		return is_array( $raw ) && !empty( $raw[ 'success' ] );
+		return \is_array( $raw ) && !empty( $raw[ 'success' ] );
 	}
 }

@@ -33,9 +33,7 @@ class PushSignalsToCS {
 	}
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$api = $mod->getCrowdSecCon()->getApi();
+		$api = $this->mod()->getCrowdSecCon()->getApi();
 
 		$recordsCount = 0;
 		do {
@@ -48,7 +46,7 @@ class PushSignalsToCS {
 				}
 				$this->deleteRecords( $records );
 
-				$recordsCount += count( $records );
+				$recordsCount += \count( $records );
 			}
 		} while ( !empty( $records ) );
 
@@ -66,15 +64,13 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function convertRecordsToPayload( array $records ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$api = $mod->getCrowdSecCon()->getApi();
-		return array_map(
+		$api = $this->mod()->getCrowdSecCon()->getApi();
+		return \array_map(
 			function ( $record ) use ( $api ) {
 				$carbon = Services::Request()->carbon();
 				$carbon->setTimestamp( $record->created_at );
 				$carbon->setTimezone( 'UTC' );
-				$ts = str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
+				$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
 					trim( $carbon->toRfc3339String(), 'Z' ) );
 				return [
 					'machine_id'       => $api->getMachineID(),
@@ -115,13 +111,11 @@ class PushSignalsToCS {
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsByScope() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbhSignals = $mod->getDbH_CrowdSecSignals();
+		$dbhSignals = $this->mod()->getDbH_CrowdSecSignals();
 
 		if ( !isset( $this->distinctScopes ) ) {
 			$scopes = $dbhSignals->getQuerySelector()->getDistinctForColumn( 'scope' );
-			$this->distinctScopes = is_array( $scopes ) ? array_filter( $scopes ) : [];
+			$this->distinctScopes = \is_array( $scopes ) ? \array_filter( $scopes ) : [];
 		}
 
 		$records = [];
@@ -131,29 +125,27 @@ class PushSignalsToCS {
 				if ( $count++ > 10 ) {
 					break;
 				}
-				$scope = array_shift( $this->distinctScopes );
+				$scope = \array_shift( $this->distinctScopes );
 				/** @var CrowdsecSignalsDB\Select $selector */
 				$selector = $dbhSignals->getQuerySelector();
 				$records = $selector->filterByScope( $scope )
 									->setLimit( self::LIMIT )
 									->queryWithResult();
 				if ( !empty( $records ) ) {
-					array_unshift( $this->distinctScopes, $scope );
+					\array_unshift( $this->distinctScopes, $scope );
 					break;
 				}
 			} while ( !empty( $this->distinctScopes ) );
 		}
 
-		return is_array( $records ) ? $records : [];
+		return \is_array( $records ) ? $records : [];
 	}
 
 	/**
 	 * @return CrowdsecSignalsDB\Record[]
 	 */
 	private function getRecordsGroupedByIP() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$dbhSignals = $mod->getDbH_CrowdSecSignals();
+		$dbhSignals = $this->mod()->getDbH_CrowdSecSignals();
 
 		if ( !isset( $this->distinctIPs ) ) {
 			$ips = $dbhSignals->getQuerySelector()
@@ -161,13 +153,13 @@ class PushSignalsToCS {
 							  ->addColumnToSelect( 'value' )
 							  ->setIsDistinct( true )
 							  ->queryWithResult();
-			$this->distinctIPs = is_array( $ips ) ? array_filter( $ips ) : [];
+			$this->distinctIPs = \is_array( $ips ) ? \array_filter( $ips ) : [];
 		}
 
 		/** @var CrowdsecSignalsDB\Record[] $records */
 		$records = [];
 		if ( !empty( $this->distinctIPs ) ) {
-			$ip = array_shift( $this->distinctIPs );
+			$ip = \array_shift( $this->distinctIPs );
 			/** @var CrowdsecSignalsDB\Select $selector */
 			$selector = $dbhSignals->getQuerySelector();
 			$records = $selector->filterByScope( 'ip' )
@@ -175,20 +167,19 @@ class PushSignalsToCS {
 								->queryWithResult();
 		}
 
-		return is_array( $records ) ? $records : [];
+		return \is_array( $records ) ? $records : [];
 	}
 
 	private function deleteRecords( array $records ) {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$mod->getDbH_CrowdSecSignals()
-			->getQueryDeleter()
-			->filterByIDs( array_map(
-				function ( $record ) {
-					return $record->id;
-				},
-				$records
-			) )
-			->query();
+		$this->mod()
+			 ->getDbH_CrowdSecSignals()
+			 ->getQueryDeleter()
+			 ->filterByIDs( \array_map(
+				 function ( $record ) {
+					 return $record->id;
+				 },
+				 $records
+			 ) )
+			 ->query();
 	}
 }

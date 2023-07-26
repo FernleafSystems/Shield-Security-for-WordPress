@@ -166,7 +166,7 @@ class Strings extends Base\Strings {
 					__( "Automatically delete WordPress files that aren't necessary.", 'wp-simple-firewall' ),
 					__( "The cleanup process runs once each day.", 'wp-simple-firewall' ),
 					sprintf( '%s: <code>%s</code>', __( 'Files Deleted', 'wp-simple-firewall' ),
-						implode( '</code><code>', [ 'wp-config-sample.php', 'readme.html', 'license.txt' ] ) )
+						\implode( '</code><code>', [ 'wp-config-sample.php', 'readme.html', 'license.txt' ] ) )
 				];
 				break;
 

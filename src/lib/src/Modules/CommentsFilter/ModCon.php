@@ -14,9 +14,9 @@ class ModCon extends BaseShield\ModCon {
 
 		// clean roles
 		$opts->setOpt( 'trusted_user_roles',
-			array_unique( array_filter( array_map(
+			\array_unique( \array_filter( \array_map(
 				function ( $role ) {
-					return sanitize_key( strtolower( $role ) );
+					return sanitize_key( \strtolower( $role ) );
 				},
 				$opts->getTrustedRoles()
 			) ) )

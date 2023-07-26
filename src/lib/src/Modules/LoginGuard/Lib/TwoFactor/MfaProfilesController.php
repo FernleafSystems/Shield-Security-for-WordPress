@@ -9,15 +9,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaProfilesController {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
-
-	public const MOD = LoginGuard\ModCon::SLUG;
+	use ModConsumer;
 
 	private $rendered = false;
 
@@ -27,7 +25,7 @@ class MfaProfilesController {
 		// shortcode for placing user authentication handling anywhere
 		if ( $this->con()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-				return $this->renderUserProfileMFA( is_array( $attributes ) ? $attributes : [] );
+				return $this->renderUserProfileMFA( \is_array( $attributes ) ? $attributes : [] );
 			} );
 		}
 
@@ -39,11 +37,11 @@ class MfaProfilesController {
 			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 				$this->enqueueAssets( false );
 
-				if ( in_array( 'dedicated', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'dedicated', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserLoginSecurityPage();
 				}
 
-				if ( in_array( 'profile', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'profile', $this->opts()->getOpt( 'mfa_user_setup_pages' ) ) ) {
 					$this->provideUserProfileSections();
 				}
 			}
@@ -87,7 +85,7 @@ class MfaProfilesController {
 		$this->isFrontend = $isFrontend;
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
 
-			$isPageWithProfileDisplay = preg_match( '#^(profile\.php|user-edit\.php|[a-z_\-]+shield-login-security)$#', (string)$hook );
+			$isPageWithProfileDisplay = \preg_match( '#^(profile\.php|user-edit\.php|[a-z_\-]+shield-login-security)$#', (string)$hook );
 			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
 				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
 				$enqueues[ Enqueue::CSS ][] = 'shield/dialog';
@@ -114,7 +112,7 @@ class MfaProfilesController {
 								'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
 							],
 							'vars'    => [
-								'providers' => array_map( function ( $provider ) {
+								'providers' => \array_map( function ( $provider ) {
 									return $provider->getJavascriptVars();
 								}, $providers )
 							],
@@ -134,7 +132,7 @@ class MfaProfilesController {
 	public function renderUserProfileMFA( array $attributes = [] ) :string {
 		$this->rendered = true;
 		return $this->con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
-			array_merge(
+			\array_merge(
 				[
 					'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
 					'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),

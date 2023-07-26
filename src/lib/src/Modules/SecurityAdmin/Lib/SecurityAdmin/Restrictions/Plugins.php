@@ -21,12 +21,12 @@ class Plugins extends BaseCapabilitiesRestrict {
 		$requestedCap = $args[ 0 ];
 
 		// special case for plugin info thickbox for changelog
-		$isChangelog = defined( 'IFRAME_REQUEST' )
+		$isChangelog = \defined( 'IFRAME_REQUEST' )
 					   && ( $requestedCap === 'install_plugins' )
 					   && ( $req->query( 'section' ) == 'changelog' )
 					   && $req->query( 'plugin' );
 
-		if ( !$isChangelog && is_string( $requestedCap ) && $this->isCapabilityToBeRestricted( $requestedCap ) ) {
+		if ( !$isChangelog && \is_string( $requestedCap ) && $this->isCapabilityToBeRestricted( $requestedCap ) ) {
 			$allCaps[ $requestedCap ] = false;
 		}
 

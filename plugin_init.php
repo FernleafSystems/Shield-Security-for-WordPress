@@ -22,9 +22,6 @@ class ICWP_WPSF_Shield_Security {
 	 */
 	private $con;
 
-	/**
-	 * @param Shield\Controller\Controller $controller
-	 */
 	private function __construct( Shield\Controller\Controller $controller ) {
 		$this->con = $controller;
 	}
@@ -36,19 +33,15 @@ class ICWP_WPSF_Shield_Security {
 		$this->con->boot();
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	public function getController() :Shield\Controller\Controller {
 		return Shield\Controller\Controller::GetInstance();
 	}
 
 	/**
-	 * @return self
 	 * @throws \Exception
 	 */
-	public static function GetInstance( Shield\Controller\Controller $con = null ) {
-		if ( is_null( self::$oInstance ) ) {
+	public static function GetInstance( ?Shield\Controller\Controller $con = null ) :ICWP_WPSF_Shield_Security {
+		if ( \is_null( self::$oInstance ) ) {
 			if ( !$con instanceof Shield\Controller\Controller ) {
 				throw new \Exception( 'Trying to create a Shield Plugin instance without a valid Controller' );
 			}

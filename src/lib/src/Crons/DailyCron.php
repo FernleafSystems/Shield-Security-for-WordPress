@@ -15,13 +15,13 @@ class DailyCron extends BaseCron {
 	}
 
 	protected function getCronName() :string {
-		return $this->getCon()->prefix( 'daily' );
+		return $this->con()->prefix( 'daily' );
 	}
 
 	public function getFirstRunTimestamp() :int {
-		$hour = ( rand( -3, 7 ) + 24 )%24;
+		$hour = ( \rand( -3, 7 ) + 24 )%24;
 		if ( $hour === 0 ) {
-			$hour += rand( 1, 7 );
+			$hour += \rand( 1, 7 );
 		}
 
 		$chosenHour = (int)apply_filters( 'shield/daily_cron_hour', $hour );
@@ -31,8 +31,8 @@ class DailyCron extends BaseCron {
 
 		$carbon = Services::Request()
 						  ->carbon( true )
-						  ->minute( rand( 1, 59 ) )
-						  ->second( rand( 1, 59 ) );
+						  ->minute( \rand( 1, 59 ) )
+						  ->second( \rand( 1, 59 ) );
 		if ( $carbon->hour >= $chosenHour ) {
 			$carbon->addDay();
 		}
@@ -43,6 +43,6 @@ class DailyCron extends BaseCron {
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( $this->getCon()->prefix( 'daily_cron' ) );
+		do_action( $this->con()->prefix( 'daily_cron' ) );
 	}
 }

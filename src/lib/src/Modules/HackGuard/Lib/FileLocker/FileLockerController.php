@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 class FileLockerController {
 
 	use ExecOnce;
-	use HackGuard\ModConsumer;
+	use ModConsumer;
 
 	public const CRON_DELAY = 60;
 
@@ -29,13 +29,12 @@ class FileLockerController {
 	}
 
 	public function isEnabled() :bool {
-		$con = $this->con();
-		return $con->isPremiumActive()
-			   && ( count( $this->opts()->getFilesToLock() ) > 0 )
+		return ( \count( $this->opts()->getFilesToLock() ) > 0 )
 			   && $this->mod()->getDbH_FileLocker()->isReady()
-			   && $con->getModule_Plugin()
-					  ->getShieldNetApiController()
-					  ->canHandshake();
+			   && $this->con()
+					   ->getModule_Plugin()
+					   ->getShieldNetApiController()
+					   ->canHandshake();
 	}
 
 	protected function run() {
@@ -44,7 +43,7 @@ class FileLockerController {
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
-		$count = count( ( new Ops\LoadFileLocks() )->withProblems() );
+		$count = \count( ( new Ops\LoadFileLocks() )->withProblems() );
 		if ( $count > 0 ) {
 			$con = $this->con();
 			$urls = $con->plugin_urls;
@@ -65,7 +64,7 @@ class FileLockerController {
 			$links[ $type ] = $this->con()->plugin_urls->fileDownload( 'filelocker', [
 				'type' => $type,
 				'rid'  => $lock->id,
-				'rand' => uniqid(),
+				'rand' => \uniqid(),
 			] );
 		}
 		return $links;
@@ -96,7 +95,7 @@ class FileLockerController {
 		}
 
 		return [
-			'name'    => strtoupper( $type ).'-'.basename( $lock->path ),
+			'name'    => \strtoupper( $type ).'-'.\basename( $lock->path ),
 			'content' => $content,
 		];
 	}
@@ -117,7 +116,6 @@ class FileLockerController {
 	}
 
 	public function runAnalysis() {
-
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 			$this->opts()->setOpt( 'file_locker', [] );
 			$this->setState( [] );
@@ -126,7 +124,7 @@ class FileLockerController {
 		else {
 			// 1. Look for any changes in config: has a lock type been removed?
 			foreach ( ( new Ops\LoadFileLocks() )->loadLocks() as $lock ) {
-				if ( !in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
+				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
 					( new Ops\DeleteFileLock() )->delete( $lock );
 				}
 			}
@@ -170,14 +168,14 @@ class FileLockerController {
 			 && $now - $state[ 'last_locks_created_at' ] > 1
 			 && $now - $state[ 'last_locks_created_failed_at' ] > 1
 		) {
-			foreach ( $filesToLock as $fileType ) {
+			foreach ( $filesToLock as $type ) {
 				try {
 					if ( !$this->canEncrypt() ) {
 						throw new NoCipherAvailableException();
 					}
 
 					( new Ops\CreateFileLocks() )
-						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $fileType ) )
+						->setWorkingFile( ( new Ops\BuildFileFromFileKey() )->build( $type ) )
 						->create();
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';
@@ -187,8 +185,7 @@ class FileLockerController {
 				|NoCipherAvailableException|PublicKeyRetrievalFailure
 				|UnsupportedFileLockType $e ) {
 					// Remove the key if there are no files on-disk to lock
-					$this->opts()->setOpt( 'file_locker', array_diff( $this->opts()
-																		   ->getFilesToLock(), [ $fileType ] ) );
+					$this->opts()->setOpt( 'file_locker', \array_diff( $this->opts()->getFilesToLock(), [ $type ] ) );
 					error_log( $e->getMessage() );
 				}
 				catch ( \Exception $e ) {
@@ -205,8 +202,7 @@ class FileLockerController {
 	}
 
 	public function getState() :array {
-		$state = $this->opts()->getOpt( 'filelocker_state' );
-		return array_merge(
+		return \array_merge(
 			[
 				'abspath'                      => ABSPATH,
 				'last_locks_created_at'        => 0,
@@ -215,7 +211,7 @@ class FileLockerController {
 				'cipher'                       => '',
 				'cipher_last_checked_at'       => 0,
 			],
-			is_array( $state ) ? $state : []
+			$this->opts()->getOpt( 'filelocker_state' )
 		);
 	}
 
@@ -237,7 +233,7 @@ class FileLockerController {
 			try {
 				$ciphers = ( new CipherTests() )->findAvailableCiphers();
 				if ( !empty( $ciphers ) ) {
-					$state[ 'cipher' ] = array_pop( $ciphers );
+					$state[ 'cipher' ] = \array_pop( $ciphers );
 					$this->setState( $state );
 				}
 			}

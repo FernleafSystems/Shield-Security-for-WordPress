@@ -10,16 +10,14 @@ class Processor extends BaseShield\Processor {
 
 	protected function run() {
 		$this->mod()->getScansCon()->execute();
-		if ( count( $this->opts()->getFilesToLock() ) > 0 ) {
+		if ( \count( $this->opts()->getFilesToLock() ) > 0 ) {
 			$this->mod()->getFileLocker()->execute();
 		}
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$con = $this->con();
-
-		if ( $con->isValidAdminArea() ) {
-			$urls = $con->plugin_urls;
+		if ( $this->con()->isValidAdminArea() ) {
+			$urls = $this->con()->plugin_urls;
 
 			$thisGroup = [
 				'href'  => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
@@ -27,7 +25,7 @@ class Processor extends BaseShield\Processor {
 			];
 			foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {
 				if ( $scanCon->isEnabled() ) {
-					$thisGroup[ 'items' ] = array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
+					$thisGroup[ 'items' ] = \array_merge( $thisGroup[ 'items' ], $scanCon->getAdminMenuItems() );
 				}
 			}
 

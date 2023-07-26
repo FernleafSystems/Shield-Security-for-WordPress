@@ -214,16 +214,14 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$sPlugName = $this->con()->getHumanName();
-		$sModName = $mod->getMainFeatureName();
+		$pluginName = $this->con()->getHumanName();
+		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $section ) {
 
 			case 'section_enable_plugin_feature_ips' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $sModName );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $modName );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'IP Manager', 'wp-simple-firewall' ) ) )
@@ -241,7 +239,7 @@ class Strings extends Base\Strings {
 					.' '.sprintf(
 						__( 'When the counter reaches the limit below (default: %s), %s will block that IP completely.', 'wp-simple-firewall' ),
 						$this->getOptions()->getOptDefault( 'transgression_limit' ),
-						$sPlugName
+						$pluginName
 					)
 				];
 				break;
@@ -278,12 +276,14 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
+		$con = $this->con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
-		$pluginName = $this->con()->getHumanName();
-		$modName = $mod->getMainFeatureName();
+		$pluginName = $con->getHumanName();
+		$modName = $this->mod()->getMainFeatureName();
+
+		$noteBots = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ),
+			__( "You'll need to upgrade your plan to trigger offenses for these events.", 'wp-simple-firewall' ) );
 
 		switch ( $key ) {
 
@@ -380,7 +380,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'cs_enroll_id' :
-				$machID = $mod->getCrowdSecCon()->getApi()->getMachineID();
+				$machID = $con->getModule_IPs()->getCrowdSecCon()->getApi()->getMachineID();
 				$name = __( 'CrowdSec Enroll ID', 'wp-simple-firewall' );
 				$summary = __( 'CrowdSec Instance Enroll ID', 'wp-simple-firewall' );
 				$desc = [
@@ -393,17 +393,10 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'track_404' :
-				$name = __( '404 Detect', 'wp-simple-firewall' );
-				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Detect when a visitor tries to load a non-existent page.', 'wp-simple-firewall' ),
-					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
-					sprintf( '%s: <br/><strong>%s</strong>',
-						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
-						implode( ', ', $opts->botSignalsGetAllowable404s() )
-					),
-				];
+			case 'track_loginfailed' :
+				$name = __( 'Failed Login', 'wp-simple-firewall' );
+				$summary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
+				$desc = [ __( "Penalise a visitor when they try to login using a valid username but with the wrong password.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'track_xmlrpc' :
@@ -412,7 +405,22 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' ),
 					__( "Be careful to ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' ),
-					__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' )
+					__( "We recommend to start with logging here, in-case you're unsure.", 'wp-simple-firewall' )
+					.' '.__( "You can monitor the Activity Log and when you're happy you won't block valid requests, you can switch to blocking.", 'wp-simple-firewall' )
+				];
+				break;
+
+			case 'track_404' :
+				$name = __( '404 Detect', 'wp-simple-firewall' );
+				$summary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Detect when a visitor tries to load a non-existent page.', 'wp-simple-firewall' ),
+					__( "Care should be taken to ensure that your website doesn't generate 404 errors for normal visitors.", 'wp-simple-firewall' ),
+					sprintf( '%s: <br/><strong>%s</strong>',
+						__( "404 errors generated for the following file types won't trigger an offense", 'wp-simple-firewall' ),
+						\implode( ', ', $opts->botSignalsGetAllowable404s() )
+					),
+					$con->caps->canBotsAdvancedBlocking() ? '' : $noteBots
 				];
 				break;
 
@@ -430,14 +438,11 @@ class Strings extends Base\Strings {
 				$summary = __( "Detect Failed Login Attempts With Usernames That Don't Exist", 'wp-simple-firewall' );
 				$desc = [
 					__( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' ),
-					__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' )
+					sprintf( __( "This includes the WordPress default %s username, if you've removed that account.", 'wp-simple-firewall' ),
+						'<code>admin</code>' ),
+					__( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' ),
+					$con->caps->canBotsAdvancedBlocking() ? '' : $noteBots
 				];
-				break;
-
-			case 'track_loginfailed' :
-				$name = __( 'Failed Login', 'wp-simple-firewall' );
-				$summary = __( 'Detect Failed Login Attempts For Users That Exist', 'wp-simple-firewall' );
-				$desc = [ __( "Penalise a visitor when they try to login using a valid username but with the wrong password.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'track_invalidscript' :
@@ -450,8 +455,9 @@ class Strings extends Base\Strings {
 						sprintf( __( 'Set this option to "%s" and monitor the Activity Log, since some plugins, themes, or custom integrations may trigger this under normal circumstances.', 'wp-simple-firewall' ), __( 'Activity Log Only', 'wp-simple-firewall' ) ) ),
 					sprintf( '%s: %s',
 						__( "Currently permitted scripts", 'wp-simple-firewall' ),
-						sprintf( '<ul><li><code>%s</code></li></ul>', implode( '</code></li><li><code>', $opts->botSignalsGetAllowableScripts() ) )
-					)
+						sprintf( '<ul><li><code>%s</code></li></ul>', \implode( '</code></li><li><code>', $opts->botSignalsGetAllowableScripts() ) )
+					),
+					$con->caps->canBotsAdvancedBlocking() ? '' : $noteBots
 				];
 				break;
 
@@ -462,6 +468,7 @@ class Strings extends Base\Strings {
 					__( "Identify a visitor as a Bot when it presents as an official web crawler, but analysis shows it's fake.", 'wp-simple-firewall' ),
 					__( "Many bots pretend to be a Google Bot.", 'wp-simple-firewall' )
 					.'<br/>'.__( "We can then know that a bot isn't here for anything good and block them.", 'wp-simple-firewall' ),
+					$con->caps->canBotsAdvancedBlocking() ? '' : $noteBots,
 				];
 				break;
 
@@ -471,8 +478,9 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( "Identify a bot when the user agent is not provided.", 'wp-simple-firewall' ),
 					sprintf( '%s:<br/><code>%s</code>',
-						__( 'For example, your browser user agent is', 'wp-simple-firewall' ), Services::Request()
-																									   ->getUserAgent() )
+						__( 'For example, your browser user agent is', 'wp-simple-firewall' ),
+						esc_html( Services::Request()->getUserAgent() ) ),
+					$con->caps->canBotsAdvancedBlocking() ? '' : $noteBots,
 				];
 				break;
 
@@ -488,7 +496,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getBotSignalName( $field ) :string {
-		return $this->getBotSignalNames()[ str_replace( '_at', '', $field ) ] ?? 'Unknown';
+		return $this->getBotSignalNames()[ \str_replace( '_at', '', $field ) ] ?? 'Unknown';
 	}
 
 	/**

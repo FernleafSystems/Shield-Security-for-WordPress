@@ -16,10 +16,10 @@ class WpLoginReplicaHeader extends Base {
 		$isInterimLogin = (bool)( $this->action_data[ 'interim_login' ] ?? false );
 
 		// Don't index any of these forms.
-		if ( function_exists( 'wp_robots_sensitive_page' ) ) {
+		if ( \function_exists( 'wp_robots_sensitive_page' ) ) {
 			add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
 		}
-		if ( function_exists( 'wp_strict_cross_origin_referrer' ) ) {
+		if ( \function_exists( 'wp_strict_cross_origin_referrer' ) ) {
 			add_action( 'login_head', 'wp_strict_cross_origin_referrer' );
 		}
 
@@ -28,7 +28,7 @@ class WpLoginReplicaHeader extends Base {
 			$wp_error = new \WP_Error();
 		}
 
-		if ( function_exists( 'wp_login_viewport_meta' ) ) {
+		if ( \function_exists( 'wp_login_viewport_meta' ) ) {
 			add_action( 'login_head', 'wp_login_viewport_meta' );
 		}
 
@@ -40,10 +40,10 @@ class WpLoginReplicaHeader extends Base {
 		/**
 		 * Filters the title tag content for login page.
 		 *
-		 * @since 4.9.0
-		 *
 		 * @param string $login_title The page title, with extra context added.
 		 * @param string $title       The original page title.
+		 * @since 4.9.0
+		 *
 		 */
 		$login_title = apply_filters( 'login_title', $login_title, $this->action_data[ 'title' ] );
 
@@ -75,9 +75,9 @@ class WpLoginReplicaHeader extends Base {
 		/**
 		 * Filters link URL of the header logo above login form.
 		 *
+		 * @param string $login_header_url Login header logo URL.
 		 * @since 2.1.0
 		 *
-		 * @param string $login_header_url Login header logo URL.
 		 */
 		$login_header_url = apply_filters( 'login_headerurl', $login_header_url );
 
@@ -88,9 +88,9 @@ class WpLoginReplicaHeader extends Base {
 		/**
 		 * Filters the link text of the header logo above the login form.
 		 *
+		 * @param string $login_header_text The login header logo link text.
 		 * @since 5.2.0
 		 *
-		 * @param string $login_header_text The login header logo link text.
 		 */
 		$login_header_text = apply_filters( 'login_headertext', $login_header_text );
 
@@ -108,15 +108,15 @@ class WpLoginReplicaHeader extends Base {
 			$classes[] = 'interim-login-success';
 		}
 
-		$classes[] = ' locale-'.sanitize_html_class( strtolower( str_replace( '_', '-', get_locale() ) ) );
+		$classes[] = ' locale-'.sanitize_html_class( \strtolower( \str_replace( '_', '-', get_locale() ) ) );
 
 		/**
 		 * Filters the login page body classes.
 		 *
-		 * @since 3.5.0
-		 *
 		 * @param string[] $classes An array of body classes.
 		 * @param string   $action  The action that brought the visitor to the login page.
+		 * @since 3.5.0
+		 *
 		 */
 		$classes = apply_filters( 'login_body_class', $classes, $action );
 
@@ -132,9 +132,9 @@ class WpLoginReplicaHeader extends Base {
 		/**
 		 * Filters the message to display above the login form.
 		 *
+		 * @param string $message Login message text.
 		 * @since 2.1.0
 		 *
-		 * @param string $message Login message text.
 		 */
 		$message = apply_filters( 'login_message', $this->action_data[ 'message' ] ?? '' );
 		if ( !empty( $message ) ) {
@@ -163,9 +163,9 @@ class WpLoginReplicaHeader extends Base {
 				/**
 				 * Filters the error messages displayed above the login form.
 				 *
+				 * @param string $errors Login error message.
 				 * @since 2.1.0
 				 *
-				 * @param string $errors Login error message.
 				 */
 				$loginErrors = apply_filters( 'login_errors', $errors );
 			}
@@ -174,9 +174,9 @@ class WpLoginReplicaHeader extends Base {
 				/**
 				 * Filters instructional messages displayed above the login form.
 				 *
+				 * @param string $messages Login messages.
 				 * @since 2.5.0
 				 *
-				 * @param string $messages Login messages.
 				 */
 				$loginMessages = apply_filters( 'login_messages', $messages );
 			}
@@ -213,7 +213,7 @@ class WpLoginReplicaHeader extends Base {
 				'language_attributes' => get_language_attributes(),
 				'meta_content_type'   => get_bloginfo( 'html_type' ),
 				'meta_charset'        => get_bloginfo( 'charset' ),
-				'classes_body'        => esc_attr( implode( ' ', $classes ) ),
+				'classes_body'        => esc_attr( \implode( ' ', $classes ) ),
 			]
 		];
 	}

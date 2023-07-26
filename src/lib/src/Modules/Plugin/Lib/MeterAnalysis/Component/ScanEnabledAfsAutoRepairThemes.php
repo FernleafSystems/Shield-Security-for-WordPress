@@ -4,11 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 
-class ScanEnabledAfsAutoRepairThemes extends Base {
+class ScanEnabledAfsAutoRepairThemes extends ScanEnabledAfsAutoRepairBase {
 
-	use Traits\OptConfigBased;
-
-	public const PRO_ONLY = true;
 	public const SLUG = 'scan_enabled_afs_autorepair_themes';
 	public const WEIGHT = 2;
 
@@ -20,11 +17,9 @@ class ScanEnabledAfsAutoRepairThemes extends Base {
 		$mod = $this->con()->getModule_HackGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
-		return $mod->isModOptEnabled()
-			   && $opts->isRepairFileTheme()
-			   && $mod->getScansCon()
-					  ->AFS()
-					  ->isScanEnabledThemes();
+		return parent::testIfProtected()
+			   && $mod->getScansCon()->AFS()->isScanEnabledThemes()
+			   && $opts->isRepairFileTheme();
 	}
 
 	public function title() :string {

@@ -36,22 +36,22 @@
       ]
     },
     {
-      "slug":        "section_user_reg",
-      "title":       "User Registration",
-      "title_short": "User Registration",
-      "beacon_id":   145,
-      "summary":     [
-        "Purpose - Control user registration and prevent SPAM.",
-        "Recommendation - Use of this feature is highly recommend."
-      ]
-    },
-    {
       "slug":        "section_passwords",
       "title":       "Password Policies",
       "title_short": "Password Policies",
       "beacon_id":   256,
       "summary":     [
         "Purpose - Have full control over passwords used by users on the site.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
+      "slug":        "section_user_reg",
+      "title":       "User Registration",
+      "title_short": "User Registration",
+      "beacon_id":   145,
+      "summary":     [
+        "Purpose - Control user registration and prevent SPAM.",
         "Recommendation - Use of this feature is highly recommend."
       ]
     },
@@ -182,8 +182,9 @@
       "key":           "reg_email_validate",
       "section":       "section_user_reg",
       "premium":       true,
+      "cap":           "user_block_spam_registration",
       "type":          "select",
-      "default":       "log",
+      "default":       "disabled",
       "value_options": [
         {
           "value_key": "disabled",
@@ -214,11 +215,10 @@
     {
       "key":           "email_checks",
       "section":       "section_user_reg",
+      "premium":       true,
+      "cap":           "user_block_spam_registration",
       "type":          "multiple_select",
-      "default":       [
-        "syntax",
-        "domain"
-      ],
+      "default":       [],
       "value_options": [
         {
           "value_key": "syntax",
@@ -274,8 +274,9 @@
       "key":           "pass_min_strength",
       "section":       "section_passwords",
       "premium":       true,
+      "cap":           "user_password_policies",
       "type":          "select",
-      "default":       "4",
+      "default":       "0",
       "value_options": [
         {
           "value_key": "0",
@@ -313,8 +314,9 @@
       "key":         "pass_expire",
       "section":     "section_passwords",
       "premium":     true,
+      "cap":         "user_password_policies",
       "type":        "integer",
-      "default":     60,
+      "default":     0,
       "min":         0,
       "link_info":   "",
       "link_blog":   "",
@@ -326,6 +328,7 @@
       "key":         "pass_force_existing",
       "section":     "section_passwords",
       "premium":     true,
+      "cap":         "user_password_policies",
       "type":        "checkbox",
       "default":     "N",
       "link_info":   "",
@@ -338,6 +341,7 @@
       "key":         "manual_suspend",
       "section":     "section_suspend",
       "premium":     true,
+      "cap":         "user_suspension",
       "type":        "checkbox",
       "default":     "N",
       "link_info":   "https://shsec.io/fq",
@@ -351,6 +355,7 @@
       "key":         "auto_password",
       "section":     "section_suspend",
       "premium":     true,
+      "cap":         "user_suspension",
       "type":        "checkbox",
       "default":     "Y",
       "link_info":   "https://shsec.io/fs",
@@ -364,6 +369,7 @@
       "key":         "auto_idle_days",
       "section":     "section_suspend",
       "premium":     true,
+      "cap":         "user_suspension",
       "type":        "integer",
       "default":     0,
       "min":         0,
@@ -378,6 +384,7 @@
       "key":         "auto_idle_roles",
       "section":     "section_suspend",
       "premium":     true,
+      "cap":         "user_suspension",
       "type":        "array",
       "default":     [
         "administrator",

@@ -8,7 +8,7 @@ class UserEmailValidation extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'business';
 	public const SLUG = 'user_email_validation';
 
 	protected function getOptConfigKey() :string {

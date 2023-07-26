@@ -29,7 +29,7 @@ abstract class BaseForm extends Base {
 
 		return [
 			'content' => [
-				'login_fields' => array_filter( array_map(
+				'login_fields' => \array_filter( \array_map(
 					function ( $provider ) use ( $opts ) {
 						return $provider->renderLoginIntentFormField( $opts->getMfaLoginIntentFormat() );
 					},
@@ -37,19 +37,19 @@ abstract class BaseForm extends Base {
 				) ),
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $opts->isMfaSkip(),
+				'can_skip_mfa'       => $opts->getMfaSkip() > 0,
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
 			],
 			'hrefs'   => [
 				'form_action' => $con->plugin_urls->noncedPluginAction( MfaLoginVerifyStep::class, $WP->getLoginUrl(), [
-					'wpe-login' => ( function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
+					'wpe-login' => ( \function_exists( 'getenv' ) && @getenv( 'IS_WPE' ) ) ? 'true' : false
 				] ),
 			],
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
 				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
 				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
-				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
+				'seconds'         => \strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
 				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
 				'skip_mfa'        => sprintf(
@@ -70,8 +70,8 @@ abstract class BaseForm extends Base {
 		$req = Services::Request();
 
 		$referUrl = $req->server( 'HTTP_REFERER', '' );
-		if ( strpos( $referUrl, '?' ) ) {
-			[ $referUrl, $referQuery ] = explode( '?', $referUrl, 2 );
+		if ( \strpos( $referUrl, '?' ) ) {
+			[ $referUrl, $referQuery ] = \explode( '?', $referUrl, 2 );
 		}
 		else {
 			$referQuery = '';
@@ -99,7 +99,7 @@ abstract class BaseForm extends Base {
 
 		global $interim_login;
 
-		$fields = array_filter( [
+		$fields = \array_filter( [
 			'interim-login' => ( $interim_login || ( $this->action_data[ 'interim_login' ] ?? '0' ) ) ? '1' : false,
 			'login_nonce'   => $this->action_data[ 'plain_login_nonce' ],
 			'rememberme'    => esc_attr( $this->action_data[ 'rememberme' ] ),

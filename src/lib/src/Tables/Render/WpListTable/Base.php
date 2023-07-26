@@ -32,7 +32,7 @@ class Base extends \WP_List_Table {
 	 * @param array $aArgs
 	 */
 	public function __construct( $aArgs = [] ) {
-		parent::__construct( array_merge( [ 'screen' => 'odp-ajax' ], $aArgs ) );
+		parent::__construct( \array_merge( [ 'screen' => 'odp-ajax' ], $aArgs ) );
 	}
 
 	protected function extra_tablenav( $which ) {
@@ -72,7 +72,7 @@ class Base extends \WP_List_Table {
 	 * @return string[]
 	 */
 	protected function get_table_classes() {
-		return array_merge( parent::get_table_classes(), [ 'odp-table' ] );
+		return \array_merge( parent::get_table_classes(), [ 'odp-table' ] );
 	}
 
 	/**
@@ -169,14 +169,14 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function buildActions( $aButtons ) {
-		return sprintf( '<div class="actions-block">%s</div>', implode( ' | ', (array)$aButtons ) );
+		return sprintf( '<div class="actions-block">%s</div>', \implode( ' | ', (array)$aButtons ) );
 	}
 
 	protected function buildActionButton_CustomArray( array $aProps ) :string {
 		$sTitle = empty( $aProps[ 'title' ] ) ? $aProps[ 'text' ] : $aProps[ 'title' ];
 
 		$aClasses = $aProps[ 'classes' ];
-		if ( in_array( 'disabled', $aClasses ) ) {
+		if ( \in_array( 'disabled', $aClasses ) ) {
 			$aClasses[] = 'text-dark';
 		}
 
@@ -185,7 +185,7 @@ class Base extends \WP_List_Table {
 			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
 		}
 		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
-			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $aProps[ 'text' ] );
+			$sTitle, \implode( ' ', \array_unique( $aClasses ) ), \implode( ' ', $aDataAttrs ), $aProps[ 'text' ] );
 	}
 
 	/**

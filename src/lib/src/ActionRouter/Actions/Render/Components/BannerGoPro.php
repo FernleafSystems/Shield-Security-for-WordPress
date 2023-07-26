@@ -4,9 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 
+/**
+ * @deprecated 18.2
+ */
 class BannerGoPro extends BaseRender {
 
 	use Traits\SecurityAdminNotRequired;
@@ -15,18 +16,6 @@ class BannerGoPro extends BaseRender {
 	public const TEMPLATE = '/snippets/go_pro_banner.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
-		$nav = $this->action_data[ Constants::NAV_ID ] ?? '';
-		return [
-			'flags' => [
-				'show_promo' => \method_exists( $con, 'isPluginAdminPageRequest' )
-								&& $con->isPluginAdminPageRequest()
-								&& !$con->isPremiumActive()
-								&& ( !in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ),
-			],
-			'hrefs' => [
-				'go_pro' => 'https://shsec.io/shieldgoprofeature',
-			]
-		];
+		return [];
 	}
 }

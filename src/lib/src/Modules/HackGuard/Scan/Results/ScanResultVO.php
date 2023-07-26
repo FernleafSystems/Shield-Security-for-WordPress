@@ -32,13 +32,11 @@ class ScanResultVO extends Record {
 		$value = parent::__get( $key );
 
 		switch ( $key ) {
-
 			case 'scan_id':
 			case 'resultitem_id':
 			case 'scanresult_id':
 				$value = (int)$value;
 				break;
-
 			default:
 				break;
 		}

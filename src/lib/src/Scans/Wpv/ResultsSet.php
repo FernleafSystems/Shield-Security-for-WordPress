@@ -10,7 +10,7 @@ class ResultsSet extends Base\ResultsSet {
 	 * @return ResultItem[]
 	 */
 	public function getItemsForSlug( string $slug ) :array {
-		return array_values( array_filter(
+		return \array_values( \array_filter(
 			$this->getItems(),
 			function ( $item ) use ( $slug ) {
 				/** @var ResultItem $item */
@@ -23,7 +23,7 @@ class ResultsSet extends Base\ResultsSet {
 	 * @return string[]
 	 */
 	public function getUniqueSlugs() {
-		return array_unique( array_map(
+		return \array_unique( \array_map(
 			function ( $item ) {
 				/** @var ResultItem $item */
 				return $item->VO->item_id;

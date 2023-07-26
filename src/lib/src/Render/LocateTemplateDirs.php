@@ -13,7 +13,7 @@ class LocateTemplateDirs {
 	 * @return string[]
 	 */
 	public function run() :array {
-		$dirs = array_filter(
+		$dirs = \array_filter(
 			$this->getCustomTemplateDirs(),
 			function ( $dir ) {
 				return Services::WpFs()->isDir( $dir );
@@ -29,7 +29,7 @@ class LocateTemplateDirs {
 	protected function getCustomTemplateDirs() :array {
 		$dir = $this->con()->cfg->paths[ 'custom_templates' ];
 		$dirs = apply_filters( 'shield/custom_template_dirs',
-			array_unique( [
+			\array_unique( [
 				path_join( get_stylesheet_directory(), $dir ),
 				path_join( get_template_directory(), $dir ),
 			] )

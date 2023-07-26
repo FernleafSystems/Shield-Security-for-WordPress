@@ -34,7 +34,7 @@ class FileScanOptimiser {
 				try {
 					$allNotFoundHashes = \array_diff(
 						$fileHashes,
-						\array_keys( array_filter( ( new SearchFile( $pathToHashes ) )->multipleExists( $fileHashes ) ) )
+						\array_keys( \array_filter( ( new SearchFile( $pathToHashes ) )->multipleExists( $fileHashes ) ) )
 					);
 					\file_put_contents(
 						$pathToHashes,
@@ -59,7 +59,7 @@ class FileScanOptimiser {
 
 			$action->items = \array_map(
 				function ( $item ) {
-					return base64_encode( $item );
+					return \base64_encode( $item );
 				},
 				\array_diff( $items, $this->findHashedFiles( $items ) )
 			);
@@ -111,12 +111,12 @@ class FileScanOptimiser {
 			$source = \fopen( $pathToHashes, 'r' );
 			$target = \fopen( $pathToHashesTmp, 'w' );
 
-			if ( !is_resource( $source ) && is_resource( $target ) ) {
+			if ( !\is_resource( $source ) && \is_resource( $target ) ) {
 				\fclose( $target );
 				$FS->deleteFile( $pathToHashes );
 				$FS->deleteFile( $pathToHashesTmp );
 			}
-			elseif ( !is_resource( $target ) && is_resource( $source ) ) {
+			elseif ( !\is_resource( $target ) && \is_resource( $source ) ) {
 				\fclose( $source );
 				$FS->deleteFile( $pathToHashes );
 			}

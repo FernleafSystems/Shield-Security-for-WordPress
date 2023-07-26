@@ -5,24 +5,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 class StandardDirectoryIterator {
 
 	/**
-	 * @param string $sDir
-	 * @param int    $nMaxDepth
-	 * @param array  $aFileExts
-	 * @param bool   $bExcludeCoreFiles
+	 * @param string $dir
+	 * @param int    $maxDepth
+	 * @param array  $fileExts
+	 * @param bool   $isExcludeCoreFiles
 	 * @return \RecursiveIteratorIterator
 	 * @throws \Exception
 	 */
-	public static function create( $sDir, $nMaxDepth = 0, $aFileExts = [], $bExcludeCoreFiles = false ) {
+	public static function create( $dir, $maxDepth = 0, $fileExts = [], $isExcludeCoreFiles = false ) {
 
-		$oDirIterator = new \RecursiveDirectoryIterator( $sDir );
-		$oDirIterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
+		$dirIterator = new \RecursiveDirectoryIterator( $dir );
+		$dirIterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
 
-		$oFilter = new ScannerRecursiveFilterIterator( $oDirIterator );
-		$oFilter->setFileExts( $aFileExts )
-				->setIsFilterOutWpCoreFiles( $bExcludeCoreFiles );
-		$oRecurIter = new \RecursiveIteratorIterator( $oFilter );
-		$oRecurIter->setMaxDepth( $nMaxDepth - 1 ); //since they start at zero.
+		$filter = new ScannerRecursiveFilterIterator( $dirIterator );
+		$filter->setFileExts( \is_array( $fileExts ) ? $fileExts : [] )
+			   ->setIsFilterOutWpCoreFiles( (bool)$isExcludeCoreFiles );
+		$recursiveIterator = new \RecursiveIteratorIterator( $filter );
+		$recursiveIterator->setMaxDepth( $maxDepth - 1 ); //since they start at zero.
 
-		return $oRecurIter;
+		return $recursiveIterator;
 	}
 }

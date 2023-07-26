@@ -4,19 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Sus
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Users\ProfileSuspend;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class UserSuspendController extends ExecOnceModConsumer {
+class UserSuspendController {
 
 	use ExecOnce;
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->opts()->isSuspendEnabled() && $this->con()->isPremiumActive();
+		return $this->opts()->isSuspendEnabled();
 	}
 
 	protected function run() {
@@ -87,7 +86,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 				$req = Services::Request();
 				$ts = Services::Request()->ts();
 
-				if ( is_array( $args ) ) {
+				if ( \is_array( $args ) ) {
 					/** @var Select $metaSelect */
 					$metaSelect = $this->con()
 									   ->getModule_Data()
@@ -111,7 +110,7 @@ class UserSuspendController extends ExecOnceModConsumer {
 					}
 
 					if ( $filtered ) {
-						$idsToInclude = array_map(
+						$idsToInclude = \array_map(
 							function ( $res ) {
 								return (int)array_pop( $res );
 							},

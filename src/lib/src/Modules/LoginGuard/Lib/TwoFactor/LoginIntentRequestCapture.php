@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
 	Exceptions\ActionException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
 	InvalidLoginIntentException,
@@ -25,9 +25,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class LoginIntentRequestCapture {
 
 	use ExecOnce;
-	use LoginGuard\ModConsumer;
-
-	public const MOD = LoginGuard\ModCon::SLUG;
+	use ModConsumer;
 
 	/**
 	 * @var \WP_User
@@ -83,7 +81,7 @@ class LoginIntentRequestCapture {
 			// Allow a further attempt to 2FA
 			try {
 				$useShieldLoginIntentPage = $con->getModule_LoginGuard()->getMfaController()->useLoginIntentPage();
-				$con->action_router->action( StandardFullPageDisplay::SLUG, [
+				$con->action_router->action( StandardFullPageDisplay::class, [
 					'render_slug' => $useShieldLoginIntentPage ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
@@ -139,7 +137,7 @@ class LoginIntentRequestCapture {
 					return '';
 				}, 100, 0 );
 
-				$con->action_router->action( StandardFullPageDisplay::SLUG, [
+				$con->action_router->action( StandardFullPageDisplay::class, [
 					'render_slug' => WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
@@ -155,7 +153,7 @@ class LoginIntentRequestCapture {
 			else {
 				$con->getAdminNotices()
 					->addFlash(
-						implode( ' ', [
+						\implode( ' ', [
 							__( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ),
 							__( 'Thank you for authenticating your login.', 'wp-simple-firewall' ),
 							__( "To use a backup code again to login, you'll need to create it in your user profile.", 'wp-simple-firewall' )

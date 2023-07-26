@@ -28,8 +28,8 @@ abstract class BaseWpCliCmd extends ExecOnceModConsumer {
 	}
 
 	protected function buildCmd( array $parts ) :string {
-		return implode( ' ',
-			array_filter( array_merge( $this->getCmdBase(), $parts ) )
+		return \implode( ' ',
+			\array_filter( \array_merge( $this->getCmdBase(), $parts ) )
 		);
 	}
 
@@ -45,7 +45,7 @@ abstract class BaseWpCliCmd extends ExecOnceModConsumer {
 	}
 
 	protected function mergeCommonCmdArgs( array $args ) :array {
-		return array_merge( $this->getCommonCmdArgs(), $args );
+		return \array_merge( $this->getCommonCmdArgs(), $args );
 	}
 
 	protected function getCommonCmdArgs() :array {

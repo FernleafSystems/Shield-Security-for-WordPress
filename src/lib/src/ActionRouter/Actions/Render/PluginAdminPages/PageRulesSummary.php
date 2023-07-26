@@ -27,14 +27,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 			$rule->simple_id = $simpleID++;
 		}
 
-		$components[ 'hooks' ] = array_unique( $components[ 'hooks' ] );
-
-		$hooks = array_map(
-			function ( $rule ) {
-				return $rule->wp_hook;
-			},
-			$rules
-		);
+		$components[ 'hooks' ] = \array_unique( $components[ 'hooks' ] );
 
 		return [
 			'vars' => [

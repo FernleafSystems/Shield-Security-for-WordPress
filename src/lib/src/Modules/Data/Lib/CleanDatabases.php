@@ -37,9 +37,9 @@ class CleanDatabases {
 		// This is more work, but it optimises the array of ip_ref's so that it's not massive and then has to be "uniqued"
 		$ipIDsInUse = [];
 		foreach ( $dbSelectors as $dbSelector ) {
-			$ipIDsInUse = array_merge( $ipIDsInUse, $dbSelector->getDistinctForColumn( 'ip_ref' ) );
+			$ipIDsInUse = \array_merge( $ipIDsInUse, $dbSelector->getDistinctForColumn( 'ip_ref' ) );
 		}
-		$ipIDsInUse = array_unique( $ipIDsInUse );
+		$ipIDsInUse = \array_unique( $ipIDsInUse );
 
 		$dbhIPs = $con->getModule_Data()->getDbH_IPs();
 		if ( false ) {
@@ -50,10 +50,10 @@ class CleanDatabases {
 		}
 		else {
 			// This method is likely going to send far fewer IDs into the delete query, but requires 2 queries.
-			$idsToDelete = array_diff( $dbhIPs->getQuerySelector()->getDistinctForColumn( 'id' ), $ipIDsInUse );
+			$idsToDelete = \array_diff( $dbhIPs->getQuerySelector()->getDistinctForColumn( 'id' ), $ipIDsInUse );
 			if ( !empty( $idsToDelete ) ) {
 				$dbhIPs->getQueryDeleter()
-					   ->addWhereIn( 'id', array_map( 'intval', $idsToDelete ) )
+					   ->addWhereIn( 'id', \array_map( 'intval', $idsToDelete ) )
 					   ->query();
 			}
 		}

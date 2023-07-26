@@ -14,9 +14,8 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 	 * @param mixed $value
 	 */
 	public function __set( string $key, $value ) {
-		$dbh = $this->getDbHandler();
-		if ( isset( $this->id ) && !empty( $dbh ) ) {
-			$dbh->getQueryUpdater()->updateRecord( $this, [
+		if ( isset( $this->id ) && !empty( $this->getDbH() ) ) {
+			$this->getDbH()->getQueryUpdater()->updateRecord( $this, [
 				$key => $value
 			] );
 		}

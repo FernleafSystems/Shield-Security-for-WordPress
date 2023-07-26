@@ -31,6 +31,6 @@ class MeterOverallConfig extends MeterBase {
 	}
 
 	protected function getComponents() :array {
-		return array_diff( Components::COMPONENTS, [ AllComponents::class ] );
+		return \array_diff( Components::COMPONENTS, [ AllComponents::class ] );
 	}
 }

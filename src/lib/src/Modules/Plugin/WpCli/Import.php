@@ -71,12 +71,11 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 
-		$importer = ( new Lib\ImportExport\Import() )->setMod( $this->mod() );
 		try {
-			if ( filter_var( $source, FILTER_VALIDATE_URL ) ) {
+			if ( \filter_var( $source, FILTER_VALIDATE_URL ) ) {
 
 				$secret = $args[ 'site-secret' ] ?? '';
-				$slave = isset( $args[ 'slave' ] ) ? strtolower( $args[ 'slave' ] ) : '';
+				$slave = isset( $args[ 'slave' ] ) ? \strtolower( $args[ 'slave' ] ) : '';
 				if ( empty( $secret ) ) {
 					WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
 					if ( $slave === 'add' ) {
@@ -84,14 +83,14 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 					}
 				}
 
-				$importer->fromSite(
+				( new Lib\ImportExport\Import() )->fromSite(
 					$source,
 					(string)$secret,
 					$slave === 'add' ? true : ( $slave === 'remove' ? false : null )
 				);
 			}
 			else {
-				$importer->fromFile( $source, (bool)WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
+				( new Lib\ImportExport\Import() )->fromFile( $source, (bool)WP_CLI\Utils\get_flag_value( $args, 'delete-file', false ) );
 			}
 		}
 		catch ( \Exception $e ) {

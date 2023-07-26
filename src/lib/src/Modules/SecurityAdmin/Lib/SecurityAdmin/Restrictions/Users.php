@@ -26,7 +26,7 @@ class Users extends Base {
 	public function restrictAddUserRole( $userId, $role ) {
 		$WPU = Services::WpUsers();
 
-		if ( $WPU->getCurrentWpUserId() !== $userId && strtolower( $role ) === 'administrator' ) {
+		if ( $WPU->getCurrentWpUserId() !== $userId && \strtolower( $role ) === 'administrator' ) {
 			$modifiedUser = $WPU->getUserById( $userId );
 
 			remove_action( 'remove_user_role', [ $this, 'restrictRemoveUserRole' ], 100 );
@@ -43,8 +43,8 @@ class Users extends Base {
 	public function restrictSetUserRole( $userId, $role, $oldRoles = [] ) {
 		$WPU = Services::WpUsers();
 
-		$role = strtolower( (string)$role );
-		if ( !is_array( $oldRoles ) ) {
+		$role = \strtolower( (string)$role );
+		if ( !\is_array( $oldRoles ) ) {
 			$oldRoles = [];
 		}
 
@@ -52,11 +52,11 @@ class Users extends Base {
 			$newRoleIsAdmin = $role == 'administrator';
 
 			// 1. Setting administrator role where it doesn't previously exist
-			if ( $newRoleIsAdmin && !in_array( 'administrator', $oldRoles ) ) {
+			if ( $newRoleIsAdmin && !\in_array( 'administrator', $oldRoles ) ) {
 				$revert = true;
 			}
 			// 2. Setting non-administrator role when previous roles included administrator
-			elseif ( !$newRoleIsAdmin && in_array( 'administrator', $oldRoles ) ) {
+			elseif ( !$newRoleIsAdmin && \in_array( 'administrator', $oldRoles ) ) {
 				$revert = true;
 			}
 			else {
@@ -84,7 +84,7 @@ class Users extends Base {
 	public function restrictRemoveUserRole( $userId, $role ) {
 		$WPU = Services::WpUsers();
 
-		if ( $WPU->getCurrentWpUserId() !== $userId && strtolower( (string)$role ) === 'administrator' ) {
+		if ( $WPU->getCurrentWpUserId() !== $userId && \strtolower( (string)$role ) === 'administrator' ) {
 			$modifiedUser = $WPU->getUserById( $userId );
 
 			remove_action( 'add_user_role', [ $this, 'restrictAddUserRole' ], 100 );
@@ -110,7 +110,7 @@ class Users extends Base {
 	 * @return array[]
 	 */
 	public function restrictEditableRoles( $roles ) {
-		if ( is_array( $roles ) && isset( $roles[ 'administrator' ] ) ) {
+		if ( \is_array( $roles ) && isset( $roles[ 'administrator' ] ) ) {
 			unset( $roles[ 'administrator' ] );
 		}
 		return $roles;
@@ -129,7 +129,7 @@ class Users extends Base {
 		/** @var string $userCap */
 		$userCap = $args[ 0 ];
 
-		if ( in_array( $userCap, [ 'edit_users', 'create_users' ] ) ) {
+		if ( \in_array( $userCap, [ 'edit_users', 'create_users' ] ) ) {
 			$blockCapability = false;
 
 			$req = Services::Request();
@@ -148,7 +148,7 @@ class Users extends Base {
 				$requestedUser = $WPU->getUserByUsername( $requestedUsername );
 			}
 
-			$requestedRole = strtolower( (string)$req->post( 'role', '' ) );
+			$requestedRole = \strtolower( (string)$req->post( 'role', '' ) );
 
 			if ( $requestedUser instanceof \WP_User ) {
 				// editing an existing user other than yourself?

@@ -15,15 +15,14 @@ class ActionData {
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
-		$WP = Services::WpGeneral();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction $actionClass */
-		$data = array_merge( [
+		$data = \array_merge( [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
 			self::FIELD_EXECUTE => $actionClass::SLUG,
 			self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$actionClass::SLUG ),
 		], $aux );
 		if ( $isAjax ) {
-			$data[ self::FIELD_AJAXURL ] = $WP->ajaxURL();
+			$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
 		}
 
 		if ( $uniq ) {
@@ -34,6 +33,6 @@ class ActionData {
 	}
 
 	public static function BuildJson( string $actionClass, bool $isAjax = true, array $aux = [] ) :string {
-		return json_encode( (object)self::Build( $actionClass, $isAjax, $aux ) );
+		return \json_encode( (object)self::Build( $actionClass, $isAjax, $aux ) );
 	}
 }

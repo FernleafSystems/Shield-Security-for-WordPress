@@ -12,7 +12,7 @@ class IsFileContentExcluded {
 		$excluded = false;
 
 		$path = wp_normalize_path( $path );
-		$ext = strtolower( Paths::Ext( $path ) );
+		$ext = \strtolower( Paths::Ext( $path ) );
 		if ( $FS->isAccessibleFile( $path ) && \in_array( $ext, [ 'mo', 'ico' ] ) ) {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {

@@ -18,7 +18,7 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 	public function buildRoutes() :array {
 		/** @var Rest\Route\RouteBase[] $routes */
 		$routes = parent::buildRoutes();
-		return array_map(
+		return \array_map(
 			function ( $route ) {
 				return $route->setMod( $this->mod() );
 			},
@@ -26,12 +26,14 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 		);
 	}
 
-	/**
-	 * REST API is a pro-only feature. So, routes are only published if the plugin is pro,
-	 * or the particular module is set to be not pro only.
-	 */
 	protected function isPublishRoutes() :bool {
-		return parent::isPublishRoutes()
-			   && ( $this->con()->isPremiumActive() || !( $this->pro_only ?? true ) );
+		return parent::isPublishRoutes() && $this->isFeatureAvailable();
+	}
+
+	/**
+	 * The entire REST API is available to cap:level_2 only, but the licenses endpoints are cap:level_1.
+	 */
+	protected function isFeatureAvailable() :bool {
+		return $this->con()->caps->canRestAPILevel2();
 	}
 }

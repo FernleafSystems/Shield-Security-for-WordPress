@@ -37,7 +37,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		$req = Services::Request();
 		try {
 			$router = $con->action_router;
-			ob_start();
+			\ob_start();
 			$response = $this->normaliseAjaxResponse(
 				$router
 					->action( $this->extractActionSlug(), $req->post, $router::ACTION_AJAX )
@@ -55,7 +55,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 		}
 		catch ( SecurityAdminRequiredException $e ) {
 			$statusCode = 401;
-			$msg = implode( ' ', [
+			$msg = \implode( ' ', [
 				__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
 				__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
 			] );
@@ -74,14 +74,14 @@ class CaptureAjaxAction extends CaptureActionBase {
 			];
 		}
 		finally {
-			$noise = ob_get_clean();
+			$noise = \ob_get_clean();
 		}
 
 		if ( !empty( $response ) ) {
 			( new Response() )->issue( [
 				'success'     => $response[ 'success' ] ?? false,
 				'data'        => $response,
-				'noise'       => $noise ?? '',
+				'noise'       => $noise,
 				'status_code' => $statusCode ?? 200
 			] );
 		}
@@ -94,7 +94,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 	 */
 	protected function normaliseAjaxResponse( array $ajaxResponse ) :array {
 		if ( !empty( $ajaxResponse ) ) {
-			$ajaxResponse = array_merge(
+			$ajaxResponse = \array_merge(
 				[
 					'success'     => false,
 					'page_reload' => false,

@@ -11,7 +11,7 @@ class PluginImportExport_HandshakeConfirm extends PluginImportExport_Base {
 	protected function exec() {
 		if ( Services::Request()->ts() <
 			 (int)$this->con()->getModule_Plugin()->getOptions()->getOpt( 'importexport_handshake_expires_at' ) ) {
-			echo json_encode( [ 'success' => true ] );
+			echo \json_encode( [ 'success' => true ] );
 			die();
 		}
 		$this->response()->action_response_data = [

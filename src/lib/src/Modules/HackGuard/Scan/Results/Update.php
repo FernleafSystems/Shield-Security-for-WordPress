@@ -16,11 +16,11 @@ class Update {
 	public function clearIgnored() {
 		Services::WpDb()->doSql(
 			sprintf( $this->getBaseQuery(),
-				implode( ', ', [
+				\implode( ', ', [
 					"`ri`.`ignored_at`=0",
 					sprintf( "`ri`.`updated_at`=%s", Services::Request()->ts() ),
 				] ),
-				implode( ' AND ', [
+				\implode( ' AND ', [
 					sprintf( "`scans`.`scan`='%s'", $this->getScanController()->getSlug() )
 				] )
 			)

@@ -23,10 +23,10 @@ class RequestParamIs extends Base {
 		$matched = false;
 
 		$value = $this->getRequestParamValue();
-		if ( is_string( $value ) ) {
+		if ( \is_string( $value ) ) {
 			foreach ( $this->match_patterns as $matchPattern ) {
 
-				if ( preg_match( sprintf( '#%s#i', $matchPattern ), $value ) ) {
+				if ( \preg_match( sprintf( '#%s#i', $matchPattern ), $value ) ) {
 					$matched = true;
 					$this->addConditionTriggerMeta( 'match_pattern', $matchPattern );
 					$this->addConditionTriggerMeta( 'match_request_param', $this->match_param );

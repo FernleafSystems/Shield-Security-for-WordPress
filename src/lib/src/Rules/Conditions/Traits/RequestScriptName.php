@@ -17,12 +17,12 @@ trait RequestScriptName {
 		$value = $this->request_script_name;
 		if ( empty( $value ) ) {
 			$req = Services::Request();
-			$possible = array_values( array_unique( array_map( 'basename', array_filter( [
+			$possible = \array_values( \array_unique( \array_map( '\basename', \array_filter( [
 				$req->server( 'SCRIPT_NAME' ),
 				$req->server( 'SCRIPT_FILENAME' ),
 				$req->server( 'PHP_SELF' )
 			] ) ) ) );
-			if ( count( $possible ) === 1 ) {
+			if ( \count( $possible ) === 1 ) {
 				$value = current( $possible );
 			}
 			else {

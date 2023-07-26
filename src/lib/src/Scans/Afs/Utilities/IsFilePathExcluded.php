@@ -8,20 +8,20 @@ class IsFilePathExcluded {
 		$excluded = false;
 		if ( !empty( $exclusions ) ) {
 			$path = wp_normalize_path( $path );
-			$filename = basename( $path );
+			$filename = \basename( $path );
 
 			foreach ( $exclusions as $exclusion ) {
 
-				if ( strpos( $exclusion, '#' ) === 0 ) {
-					$excluded = preg_match( $exclusion, $path ) > 0;
+				if ( \strpos( $exclusion, '#' ) === 0 ) {
+					$excluded = \preg_match( $exclusion, $path ) > 0;
 				}
 				else {
 					$exclusion = wp_normalize_path( $exclusion );
-					if ( strpos( $exclusion, '/' ) === false ) { // filename only
+					if ( \strpos( $exclusion, '/' ) === false ) { // filename only
 						$excluded = $filename === $exclusion;
 					}
 					else {
-						$excluded = strpos( $path, $exclusion ) !== false;
+						$excluded = \strpos( $path, $exclusion ) !== false;
 					}
 				}
 

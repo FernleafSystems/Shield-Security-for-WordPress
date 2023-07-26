@@ -19,15 +19,17 @@ class PageDocs extends BasePluginAdminPage {
 				'tab_events'  => $con->action_router->render( Actions\Render\Components\Docs\DocsEvents::SLUG ),
 			],
 			'flags'   => [
-				'is_pro' => $this->con()->isPremiumActive(),
+				'show_free_trial' => !$con->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'free_trial' => 'https://shsec.io/shieldfreetrialinplugin',
+				'free_trial'    => 'https://shsec.io/shieldfreetrialinplugin',
+				'knowledgebase' => 'https://help.getshieldsecurity.com',
 			],
 			'strings' => [
-				'tab_updates'   => __( 'Updates and Changes', 'wp-simple-firewall' ),
-				'tab_events'    => __( 'Event Details', 'wp-simple-firewall' ),
-				'tab_freetrial' => __( 'Free Trial', 'wp-simple-firewall' ),
+				'tab_updates'       => __( 'Updates and Changes', 'wp-simple-firewall' ),
+				'tab_knowledgebase' => __( 'Knowledgebase', 'wp-simple-firewall' ),
+				'tab_events'        => __( 'Event Details', 'wp-simple-firewall' ),
+				'tab_freetrial'     => __( 'Free Trial', 'wp-simple-firewall' ),
 			],
 		];
 	}

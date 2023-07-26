@@ -18,11 +18,11 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		if ( $isWpCli ) {
 			global $argv;
 			$path = $argv[ 0 ];
-			$query = count( $argv ) === 1 ? '' : implode( ' ', array_slice( $argv, 1 ) );
+			$query = \count( $argv ) === 1 ? '' : \implode( ' ', \array_slice( $argv, 1 ) );
 		}
 		else {
 			$path = $leadingPath.$req->getPath();
-			$query = empty( $_GET ) ? '' : http_build_query( $_GET );
+			$query = empty( $_GET ) ? '' : \http_build_query( $_GET );
 		}
 
 		if ( $isWpCli ) {
@@ -66,7 +66,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		if ( !$isWpCli ) {
 			$data[ 'ua' ] = sanitize_text_field( $req->getUserAgent() );
 			$data[ 'code' ] = http_response_code();
-			$data[ 'verb' ] = strtoupper( $req->getMethod() );
+			$data[ 'verb' ] = \strtoupper( $req->getMethod() );
 		}
 		if ( !empty( $query ) ) {
 			$data[ 'query' ] = $query;

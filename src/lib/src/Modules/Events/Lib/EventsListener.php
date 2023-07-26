@@ -15,13 +15,13 @@ abstract class EventsListener {
 	private $commit;
 
 	/**
-	 * @param Controller\Controller $con - @deprecated 18.1
+	 * @param ?Controller\Controller $con - @deprecated 18.1
 	 */
-	public function __construct( Controller\Controller $con, bool $commit = false ) {
+	public function __construct( ?Controller\Controller $con, bool $commit = false ) {
 		$this->commit = $commit;
 
 		add_action( 'shield/event', function ( $event, $meta = [], $def = [] ) {
-			$this->captureEvent( (string)$event, is_array( $meta ) ? $meta : [], is_array( $def ) ? $def : [] );
+			$this->captureEvent( (string)$event, \is_array( $meta ) ? $meta : [], \is_array( $def ) ? $def : [] );
 		}, 10, 3 );
 
 		add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {

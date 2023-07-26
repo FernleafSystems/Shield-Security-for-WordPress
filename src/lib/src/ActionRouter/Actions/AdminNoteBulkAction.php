@@ -10,22 +10,20 @@ class AdminNoteBulkAction extends BaseAction {
 	public const SLUG = 'admin_note_bulk_action';
 
 	protected function exec() {
-		$req = Services::Request();
-
 		$success = false;
 
-		$IDs = $req->post( 'ids' );
-		if ( empty( $IDs ) || !is_array( $IDs ) ) {
+		$IDs = Services::Request()->post( 'ids' );
+		if ( empty( $IDs ) || !\is_array( $IDs ) ) {
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
+		elseif ( Services::Request()->post( 'bulk_action' ) != 'delete' ) {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var Delete $deleter */
 			$deleter = $this->con()->getModule_Plugin()->getDbHandler_Notes()->getQueryDeleter();
 			foreach ( $IDs as $id ) {
-				if ( is_numeric( $id ) ) {
+				if ( \is_numeric( $id ) ) {
 					$deleter->deleteById( $id );
 				}
 			}

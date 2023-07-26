@@ -119,43 +119,47 @@
     {
       "key":           "file_scan_areas",
       "section":       "section_file_guard",
+      "premium":       true,
+      "cap":           "scan_file_areas",
       "type":          "multiple_select",
       "default":       [
-        "wp",
-        "malware_php",
-        "plugins",
-        "themes"
+        "wp"
       ],
       "value_options": [
         {
           "value_key": "wp",
           "text":      "WP core files (excludes /wp-content/)",
-          "premium":   false
+          "premium":   true
         },
         {
           "value_key": "malware_php",
           "text":      "PHP Malware (all PHP files)",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_malware_local"
         },
         {
           "value_key": "plugins",
           "text":      "Plugins",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_pluginsthemes_local"
         },
         {
           "value_key": "themes",
           "text":      "Themes",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_pluginsthemes_local"
         },
         {
           "value_key": "wpcontent",
           "text":      "wp-content directory",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_files_everywhere"
         },
         {
           "value_key": "wproot",
           "text":      "WP root directory",
-          "premium":   true
+          "premium":   true,
+          "cap":       "scan_files_everywhere"
         }
       ],
       "link_info":     "https://shsec.io/wpsf36",
@@ -168,11 +172,10 @@
     {
       "key":           "file_repair_areas",
       "section":       "section_file_guard",
+      "premium":       true,
+      "cap":           "scan_auto_repair",
       "type":          "multiple_select",
-      "default":       [
-        "wp",
-        "plugin"
-      ],
+      "default":       [],
       "value_options": [
         {
           "value_key": "wp",
@@ -200,6 +203,7 @@
       "key":           "file_locker",
       "section":       "section_file_guard",
       "premium":       true,
+      "cap":           "scan_file_locker",
       "type":          "multiple_select",
       "default":       [],
       "value_options": [
@@ -269,6 +273,7 @@
       "key":         "enable_wpvuln_scan",
       "section":     "section_scan_wpv",
       "premium":     true,
+      "cap":         "scan_vulnerabilities",
       "type":        "checkbox",
       "default":     "Y",
       "link_info":   "https://shsec.io/du",
@@ -282,6 +287,7 @@
       "key":         "wpvuln_scan_autoupdate",
       "section":     "section_scan_wpv",
       "premium":     true,
+      "cap":         "scan_vulnerabilities_autoupdate",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -306,6 +312,7 @@
       "key":           "scan_frequency",
       "section":       "section_scan_options",
       "premium":       true,
+      "cap":           "scan_frequent",
       "default":       "1",
       "type":          "select",
       "value_options": [

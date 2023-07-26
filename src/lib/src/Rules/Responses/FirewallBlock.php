@@ -33,7 +33,7 @@ class FirewallBlock extends Base {
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
 			case 'redirect_die_message':
-				$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+				$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 					'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
 					'render_data' => [
 						'block_meta_data' => $this->getConsolidatedConditionMeta()

@@ -13,7 +13,7 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		return array_filter(
+		return \array_filter(
 			[
 				Rules\Build\FirewallSqlQueries::class,
 				Rules\Build\FirewallDirTraversal::class,

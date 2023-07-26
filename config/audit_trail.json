@@ -151,6 +151,7 @@
       "key":           "log_level_file",
       "section":       "section_at_file",
       "premium":       true,
+      "cap":           "activity_logs_send_to_file",
       "type":          "multiple_select",
       "default":       [
         "disabled"
@@ -195,8 +196,27 @@
   ],
   "definitions":      {
     "db_handler_classes": {
-      "at_logs": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
-      "at_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler"
+      "snapshots": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Snapshots\\Ops\\Handler",
+      "at_logs":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Logs\\Ops\\Handler",
+      "at_meta":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\DB\\Meta\\Ops\\Handler"
+    },
+    "db_table_snapshots": {
+      "autoexpire":     0,
+      "slug":           "snapshots",
+      "has_updated_at": false,
+      "has_deleted_at": false,
+      "col_older_than": "created_at",
+      "cols_custom":    {
+        "slug": {
+          "macro_type": "varchar",
+          "length":     10,
+          "comment":    "Snapshot Slug"
+        },
+        "data": {
+          "macro_type": "meta",
+          "comment":    "Snapshot"
+        }
+      }
     },
     "db_table_at_logs":   {
       "slug":           "at_logs",
@@ -247,34 +267,63 @@
     },
     "max_free_days":      7,
     "events":             {
-      "plugin_activated":            {
+      "db_tables_added":              {
+        "audit_params":       [
+          "tables"
+        ],
+        "level":              "notice",
+        "snapshot_discovery": 1
+      },
+      "db_tables_removed":            {
+        "audit_params":       [
+          "tables"
+        ],
+        "level":              "notice",
+        "snapshot_discovery": 1
+      },
+      "plugin_activated":             {
         "audit_params":   [
-          "plugin"
+          "plugin",
+          "version",
+          "name"
         ],
         "level":          "notice",
         "audit_multiple": true
       },
-      "plugin_installed":            {
+      "plugin_installed":             {
         "audit_params":   [
-          "plugin"
+          "plugin",
+          "version",
+          "name"
         ],
         "level":          "warning",
         "audit_multiple": true
       },
-      "plugin_deactivated":          {
+      "plugin_uninstalled":           {
         "audit_params":   [
-          "plugin"
+          "plugin",
+          "version",
+          "name"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
+      "plugin_deactivated":           {
+        "audit_params":   [
+          "plugin",
+          "version",
+          "name"
         ],
         "level":          "notice",
         "audit_multiple": true
       },
-      "plugin_file_edited":          {
+      "plugin_file_edited":           {
         "audit_params": [
           "file"
         ],
         "level":        "warning"
       },
-      "plugin_upgraded":             {
+      "plugin_upgraded":              {
         "audit_params":   [
           "plugin",
           "from",
@@ -283,26 +332,41 @@
         "level":          "notice",
         "audit_multiple": true
       },
-      "theme_activated":             {
+      "plugin_downgraded":            {
         "audit_params": [
-          "theme"
+          "plugin",
+          "from",
+          "to"
         ],
         "level":        "notice"
       },
-      "theme_installed":             {
+      "theme_activated":              {
+        "audit_params": [
+          "theme",
+          "version",
+          "name"
+        ],
+        "level":        "notice"
+      },
+      "theme_installed":              {
         "audit_params":   [
-          "theme"
+          "theme",
+          "version",
+          "name"
         ],
         "level":          "warning",
         "audit_multiple": true
       },
-      "theme_file_edited":           {
-        "audit_params": [
-          "file"
+      "theme_uninstalled":            {
+        "audit_params":   [
+          "theme",
+          "version",
+          "name"
         ],
-        "level":        "warning"
+        "level":          "warning",
+        "audit_multiple": true
       },
-      "theme_upgraded":              {
+      "theme_upgraded":               {
         "audit_params":   [
           "theme",
           "from",
@@ -311,87 +375,202 @@
         "level":          "notice",
         "audit_multiple": true
       },
-      "core_updated":                {
+      "theme_downgraded":             {
+        "audit_params": [
+          "theme",
+          "from",
+          "to"
+        ],
+        "level":        "notice"
+      },
+      "theme_file_edited":            {
+        "audit_params": [
+          "file"
+        ],
+        "level":        "warning"
+      },
+      "core_updated":                 {
         "audit_params": [
           "from",
           "to"
         ],
         "level":        "notice"
       },
-      "permalinks_structure":        {
+      "permalinks_structure":         {
         "audit_params": [
           "from",
           "to"
         ],
         "level":        "warning"
       },
-      "post_deleted":                {
-        "audit_params":   [
-          "title"
+      "wp_option_admin_email":        {
+        "audit_params": [
+          "from",
+          "to"
         ],
-        "level":          "warning",
+        "level":        "warning"
+      },
+      "wp_option_blogname":           {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
+      },
+      "wp_option_blogdescription":    {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
+      },
+      "wp_option_default_role":       {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
+      },
+      "wp_option_home":               {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
+      },
+      "wp_option_siteurl":            {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
+      },
+      "wp_option_users_can_register": {
+        "audit_params": [
+          "from",
+          "to"
+        ],
+        "level":        "warning"
+      },
+      "post_created":                 {
+        "audit_params":   [
+          "post_id",
+          "title",
+          "type"
+        ],
+        "level":          "notice",
         "audit_multiple": true
       },
-      "post_trashed":                {
+      "post_updated":                 {
         "audit_params":   [
+          "post_id",
+          "title",
+          "type"
+        ],
+        "level":          "notice",
+        "audit_multiple": true
+      },
+      "post_updated_title":           {
+        "audit_params": [
+          "post_id",
+          "type",
+          "title_old",
+          "title_new"
+        ],
+        "level":        "notice"
+      },
+      "post_updated_content":         {
+        "audit_params": [
+          "post_id",
+          "type"
+        ],
+        "level":        "notice"
+      },
+      "post_updated_slug":            {
+        "audit_params": [
+          "post_id",
+          "type",
+          "slug_old",
+          "slug_new"
+        ],
+        "level":        "notice"
+      },
+      "post_published":               {
+        "audit_params":   [
+          "post_id",
+          "title",
+          "type"
+        ],
+        "level":          "notice",
+        "audit_multiple": true
+      },
+      "post_unpublished":             {
+        "audit_params":   [
+          "post_id",
           "title",
           "type"
         ],
         "level":          "warning",
         "audit_multiple": true
       },
-      "post_recovered":              {
+      "post_trashed":                 {
         "audit_params":   [
+          "post_id",
+          "title",
+          "type"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
+      "post_deleted":                 {
+        "audit_params":   [
+          "post_id",
+          "title"
+        ],
+        "level":          "warning",
+        "audit_multiple": true
+      },
+      "post_recovered":               {
+        "audit_params":   [
+          "post_id",
           "title",
           "type"
         ],
         "level":          "info",
         "audit_multiple": true
       },
-      "post_updated":                {
-        "audit_params":   [
-          "title",
-          "type"
-        ],
-        "level":          "notice",
-        "audit_multiple": true
-      },
-      "post_published":              {
-        "audit_params":   [
-          "title",
-          "type"
-        ],
-        "level":          "notice",
-        "audit_multiple": true
-      },
-      "post_unpublished":            {
-        "audit_params":   [
-          "title",
-          "type"
-        ],
-        "level":          "warning",
-        "audit_multiple": true
-      },
-      "user_login":                  {
+      "user_login":                   {
         "audit_params": [
           "user_login"
         ],
         "level":        "warning"
       },
-      "user_login_app":              {
+      "user_login_app":               {
         "audit_params": [
           "user_login"
         ],
         "level":        "warning"
       },
-      "user_registered":             {
+      "user_registered":              {
         "audit_params": [
           "user_login",
           "email"
         ],
         "level":        "alert"
       },
-      "user_deleted":                {
+      "user_promoted":                {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "alert"
+      },
+      "user_demoted":                 {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "alert"
+      },
+      "user_deleted":                 {
         "audit_params":   [
           "user_login",
           "email"
@@ -399,40 +578,77 @@
         "level":          "warning",
         "audit_multiple": true
       },
-      "user_deleted_reassigned":     {
+      "user_deleted_reassigned":      {
         "audit_params": [
           "user_login"
         ],
         "level":        "notice"
       },
-      "app_pass_created":            {
+      "user_email_updated":           {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "notice"
+      },
+      "user_password_updated":        {
+        "audit_params": [
+          "user_login"
+        ],
+        "level":        "notice"
+      },
+      "app_pass_created":             {
         "audit_params": [
           "user_login",
           "app_pass_name"
         ],
         "level":        "notice"
       },
-      "app_invalid_email":           {
+      "app_invalid_email":            {
         "level":   "warning",
         "offense": true
       },
-      "app_invalid_username":        {
+      "app_invalid_username":         {
         "level":   "warning",
         "offense": true
       },
-      "app_incorrect_password":      {
+      "app_incorrect_password":       {
         "level":   "warning",
         "offense": true
       },
-      "app_passwords_disabled":      {
+      "app_passwords_disabled":       {
         "level":   "warning",
         "offense": true
       },
-      "app_passwords_disabled_user": {
+      "app_passwords_disabled_user":  {
         "level":   "warning",
         "offense": true
       },
-      "email_attempt_send":          {
+      "comment_created":              {
+        "level":        "info",
+        "audit_params": [
+          "comment_id",
+          "post_id",
+          "status"
+        ]
+      },
+      "comment_deleted":              {
+        "level":        "notice",
+        "audit_params": [
+          "comment_id",
+          "post_id",
+          "status"
+        ]
+      },
+      "comment_status_updated":       {
+        "level":        "info",
+        "audit_params": [
+          "comment_id",
+          "post_id",
+          "status_old",
+          "status_new"
+        ]
+      },
+      "email_attempt_send":           {
         "audit_params":   [
           "to",
           "subject",

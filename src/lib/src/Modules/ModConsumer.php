@@ -19,7 +19,7 @@ trait ModConsumer {
 		return $this->mod()->con();
 	}
 
-	public function con() :Controller {
+	public static function con() :Controller {
 		return shield_security_get_plugin()->getController();
 	}
 
@@ -35,7 +35,7 @@ trait ModConsumer {
 	 * @return Base\ModCon|mixed
 	 */
 	public function getMod() {
-		if ( defined( static::class.'::MOD' ) ) {
+		if ( \defined( static::class.'::MOD' ) ) {
 			try {
 				return shield_security_get_plugin()->getController()->modules[ static::MOD ];
 			}

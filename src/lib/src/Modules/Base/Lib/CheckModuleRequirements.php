@@ -17,8 +17,8 @@ class CheckModuleRequirements {
 
 		$modChecks = [
 			// all DBs that this mod requires but that aren't ready.
-			'dbs' => array_filter(
-				array_intersect_key( $preChecks[ 'dbs' ], array_flip( $modReqs[ 'dbs' ] ) ),
+			'dbs' => \array_filter(
+				\array_intersect_key( $preChecks[ 'dbs' ], \array_flip( $modReqs[ 'dbs' ] ) ),
 				function ( $dbState ) {
 					return $dbState === false;
 				}

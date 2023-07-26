@@ -15,7 +15,7 @@ class CaptureShieldAction extends CaptureActionBase {
 		try {
 			$this->actionResponse = $this->con()->action_router->action(
 				$this->extractActionSlug(),
-				array_merge( $req->query, $req->post )
+				\array_merge( $req->query, $req->post )
 			);
 		}
 		catch ( \Exception $e ) {

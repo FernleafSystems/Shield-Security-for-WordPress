@@ -6,7 +6,7 @@ class ContactFormSpam extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'contact_form_spam';
 
 	/**
@@ -14,7 +14,7 @@ class ContactFormSpam extends Base {
 	 */
 	private function getUnprotectedProvidersByName() :array {
 		$modIntegrations = $this->con()->getModule_Integrations();
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( string $providerClass ) {
 				$provider = new $providerClass();
 				return $provider->isEnabled() ? null : $provider->getHandlerName();
@@ -28,11 +28,11 @@ class ContactFormSpam extends Base {
 	}
 
 	protected function isApplicable() :bool {
-		return count( $this->con()->getModule_Integrations()->getController_SpamForms()->getInstalled() ) > 0;
+		return \count( $this->con()->getModule_Integrations()->getController_SpamForms()->getInstalled() ) > 0;
 	}
 
 	protected function testIfProtected() :bool {
-		return count( $this->getUnprotectedProvidersByName() ) === 0;
+		return \count( $this->getUnprotectedProvidersByName() ) === 0;
 	}
 
 	public function title() :string {
@@ -45,7 +45,7 @@ class ContactFormSpam extends Base {
 
 	public function descUnprotected() :string {
 		return sprintf( __( "It appears that certain contact forms aren't protected against Bot SPAM: %s", 'wp-simple-firewall' ),
-			implode( ', ', $this->getUnprotectedProvidersByName() )
+			\implode( ', ', $this->getUnprotectedProvidersByName() )
 		);
 	}
 }

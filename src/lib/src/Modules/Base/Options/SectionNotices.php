@@ -49,16 +49,16 @@ class SectionNotices {
 				/** @var LoginGuard\Options $opts */
 				$opts = $con->getModule_LoginGuard()->getOptions();
 				if ( $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
-					$notices[] = implode( ' ', [
+					$notices[] = \implode( ' ', [
 						__( "The ability of this site to send email hasn't been verified.", 'wp-simple-firewall' ),
 						__( 'Please click to re-save your settings to trigger another verification email.', 'wp-simple-firewall' )
 					] );
 				}
 
-				$notices[] = implode( '<br/>', [
+				$notices[] = \implode( '<br/>', [
 					__( 'Email-based 2-Factor Authentication needs a reliable email delivery system on your WordPress site.', 'wp-simple-firewall' ),
 					__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-					.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) )
+					.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', \trim( __( 'Learn More.', 'wp-simple-firewall' ), '.' ) )
 				] );
 
 				break;
@@ -68,9 +68,9 @@ class SectionNotices {
 				$opts = $con->getModule_LoginGuard()->getOptions();
 				if ( $opts->isEnabledAntiBot() ) {
 					$locations = $opts->getBotProtectionLocations();
-					$locations = array_intersect_key(
-						array_merge(
-							array_flip( $locations ),
+					$locations = \array_intersect_key(
+						\array_merge(
+							\array_flip( $locations ),
 							[
 								'login'        => __( 'Login', 'wp-simple-firewall' ),
 								'register'     => __( 'Registration', 'wp-simple-firewall' ),
@@ -78,9 +78,9 @@ class SectionNotices {
 								'checkout_woo' => __( 'Checkout', 'wp-simple-firewall' ),
 							]
 						),
-						array_flip( $locations )
+						\array_flip( $locations )
 					);
-					$locations = empty( $locations ) ? __( 'None', 'wp-simple-firewall' ) : implode( ', ', $locations );
+					$locations = empty( $locations ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $locations );
 
 					$notices[] = sprintf( '%s: %s %s', __( 'Note', 'wp-simple-firewall' ),
 						sprintf(
@@ -129,9 +129,7 @@ class SectionNotices {
 				$mod = $con->getModule_Plugin();
 				if ( $mod->getCaptchaCfg()->ready ) {
 					if ( $mod->getOptions()->getOpt( 'captcha_checked_at' ) < 0 ) {
-						( new CheckCaptchaSettings() )
-							->setMod( $mod )
-							->checkAll();
+						( new CheckCaptchaSettings() )->checkAll();
 					}
 					if ( $mod->getOptions()->getOpt( 'captcha_checked_at' ) == 0 ) {
 						$warnings[] = __( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
@@ -143,11 +141,11 @@ class SectionNotices {
 			case 'section_2fa_email':
 				/** @var LoginGuard\Options $opts */
 				$opts = $con->getModule_LoginGuard()->getOptions();
-				$nonRoles = array_diff( $opts->getEmail2FaRoles(), Services::WpUsers()->getAvailableUserRoles() );
-				if ( count( $nonRoles ) > 0 ) {
+				$nonRoles = \array_diff( $opts->getEmail2FaRoles(), Services::WpUsers()->getAvailableUserRoles() );
+				if ( \count( $nonRoles ) > 0 ) {
 					$warnings[] = sprintf( '%s: %s',
 						__( "Certain user roles are set for email authentication enforcement that aren't currently available" ),
-						implode( ', ', $nonRoles ) );
+						\implode( ', ', $nonRoles ) );
 				}
 				break;
 
@@ -176,7 +174,7 @@ class SectionNotices {
 					);
 				}
 
-				$installedButNotEnabledProviders = array_filter(
+				$installedButNotEnabledProviders = \array_filter(
 					$this->con()->getModule_Integrations()->getController_UserForms()->getInstalled(),
 					function ( string $provider ) {
 						return !( new $provider() )->isEnabled();
@@ -265,14 +263,9 @@ class SectionNotices {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
 				}
-				else {
-					$notBot = ( new TestNotBotLoading() )
-						->setMod( $con->getModule_IPs() )
-						->test();
-					if ( !$notBot ) {
-						$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-							sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
-					}
+				elseif ( !( new TestNotBotLoading() )->test() ) {
+					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( "Shield couldn't determine whether the NotBot JS was loading correctly on your site.", 'wp-simple-firewall' ), '0' ) );
 				}
 				break;
 
@@ -283,7 +276,7 @@ class SectionNotices {
 					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
-				if ( strlen( Services::Request()->getUserAgent() ) == 0 ) {
+				if ( \strlen( Services::Request()->getUserAgent() ) == 0 ) {
 					$warnings[] = __( "Your User Agent appears to be empty. We don't recommend turning on this option.", 'wp-simple-firewall' );
 				}
 				break;
@@ -306,8 +299,23 @@ class SectionNotices {
 				if ( !$enc->isSupportedOpenSslDataEncryption() ) {
 					$warnings[] = sprintf( __( "FileLocker can't be used because the PHP %s extension isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
 				}
-				elseif ( count( ( new CipherTests() )->findAvailableCiphers() ) === 0 ) {
+				elseif ( \count( ( new CipherTests() )->findAvailableCiphers() ) === 0 ) {
 					$warnings[] = sprintf( __( "FileLocker can't be used because there is no encryption cipher isn't available.", 'wp-simple-firewall' ), 'OpenSSL' );
+				}
+
+				break;
+
+			case 'section_traffic_limiter':
+				if ( $con->caps->canTrafficRateLimit() ) {
+					$source = Services::Request()->getIpDetector()->getPublicRequestSource();
+					if ( $source !== 'REMOTE_ADDR' ) {
+						$warnings[] = sprintf( '%s %s',
+							sprintf( __( "We don't recommend running Traffic Rate Limiting while your IP address source isn't set to %s.", 'wp-simple-firewall' ),
+								sprintf( '<code>%s</code>', $source ) ),
+							sprintf( '[<a href="%s" target="_blank">%s</a>]',
+								$con->plugin_urls->modCfgOption( 'visitor_address_source' ), __( 'View Config', 'wp-simple-firewall' ) )
+						);
+					}
 				}
 
 				break;

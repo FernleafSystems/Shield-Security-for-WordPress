@@ -20,7 +20,7 @@ class MachineLogin extends Base {
 		];
 
 		$raw = $this->sendReq();
-		if ( !is_array( $raw ) || ( $raw[ 'code' ] ?? 0 ) !== 200 ) {
+		if ( !\is_array( $raw ) || ( $raw[ 'code' ] ?? 0 ) !== 200 ) {
 			throw new MachineLoginFailedException( sprintf( 'login failed: %s',
 				var_export( $this->last_http_req->lastResponse->body, true ) ) );
 		}

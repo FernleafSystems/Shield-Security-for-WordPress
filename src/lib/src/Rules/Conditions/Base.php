@@ -34,9 +34,9 @@ abstract class Base extends DynPropertiesClass {
 		$conditions = static::RequiredConditions();
 		foreach ( static::RequiredConditions() as $requiredCondition ) {
 			/** @var $requiredCondition Base */
-			$conditions = array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
+			$conditions = \array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
 		}
-		return array_unique( $conditions );
+		return \array_unique( $conditions );
 	}
 
 	public static function FindMinimumHook() :int {
@@ -63,7 +63,7 @@ abstract class Base extends DynPropertiesClass {
 			case 'match_ip_ids':
 			case 'match_not_ip_ids':
 			case 'match_useragents':
-				if ( !is_array( $value ) ) {
+				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
 				break;

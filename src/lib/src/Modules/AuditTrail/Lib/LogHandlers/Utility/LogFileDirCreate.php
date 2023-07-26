@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LogFileDirCreate {
@@ -23,18 +23,18 @@ class LogFileDirCreate {
 		$theLogsDir = null;
 		foreach ( $FS->getAllFilesInDir( $cacheDir ) as $possibleDir ) {
 			$possibleFullPath = path_join( $cacheDir, $possibleDir );
-			if ( strpos( basename( $possibleDir ), 'logs-' ) === 0 && $FS->isDir( $possibleDir ) ) {
+			if ( \strpos( \basename( $possibleDir ), 'logs-' ) === 0 && $FS->isDir( $possibleDir ) ) {
 				$theLogsDir = $possibleFullPath;
 				break;
 			}
 		}
 
 		if ( empty( $theLogsDir ) ) {
-			$theLogsDir = path_join( $cacheDir, str_replace( '.', '', uniqid( 'logs-', true ) ) );
+			$theLogsDir = path_join( $cacheDir, \str_replace( '.', '', \uniqid( 'logs-', true ) ) );
 			$FS->mkdir( $theLogsDir );
 		}
 
-		if ( !$FS->isDir( $theLogsDir ) ) {
+		if ( !$FS->isAccessibleDir( $theLogsDir ) ) {
 			throw new \Exception( "Couldn't create the logs dir." );
 		}
 

@@ -21,7 +21,7 @@ class Build extends BaseAction {
 		$meta = $this->generateMeta();
 		if ( empty( $hashes ) ) {
 			$hashes = ( new Snapshots\Build\BuildHashesForAsset() )
-				->setHashAlgo( 'md5' )
+				->setHashAlgo( $meta[ 'algo' ] )
 				->build( $asset );
 			$meta[ 'live_hashes' ] = false;
 		}
@@ -48,6 +48,7 @@ class Build extends BaseAction {
 			'unique_id'    => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
 			'name'         => $asset->asset_type === 'plugin' ? $asset->Name : $asset->wp_theme->get( 'Name' ),
 			'version'      => $asset->version,
+			'algo'         => 'md5',
 		];
 	}
 }

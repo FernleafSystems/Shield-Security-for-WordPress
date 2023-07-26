@@ -1,0 +1,52 @@
+{% if flags.has_diffs %}
+
+	<div class="row">
+		<div class="col text-center">
+			<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+		  <input type="radio" class="btn-check" name="change_report_type" id="TypeSummary" autocomplete="off" checked value="summary">
+		  <label class="btn btn-outline-secondary" for="TypeSummary">Summary</label>
+
+		  <input type="radio" class="btn-check" name="change_report_type" id="TypeDetailed" autocomplete="off" value="detailed">
+		  <label class="btn btn-outline-secondary" for="TypeDetailed">Detailed</label>
+		</div>
+		</div>
+	</div>
+	{% set report_type = 'detailed' %}
+
+				<ul class="nav nav-tabs my-3">
+					{% set loopCount = 0 %}
+					{% for zone_slug,zone_data in vars.changes.zones_data %}
+						<li class="nav-item">
+					    <a class="nav-link {% if loopCount == 0 %}active{% endif %}"
+					       aria-current="page" href="#"
+					       data-bs-toggle="tab" data-bs-target="#tab-pane-{{ report_type }}-{{ zone_slug }}"
+					       type="button"
+					    >{{ zone_data.title }}</a>
+					  </li>
+						{% set loopCount = loopCount + 1 %}
+					{% endfor %}
+				</ul>
+
+				<div class="tab-content" id="TabContent-{{ report_type }}">
+					{% set loopCount = 0 %}
+					{% for zone_slug,zone_data in vars.changes.zones_data %}
+						{% set zone_changes = zone_data[report_type] %}
+						{% set zone_title = zone_data.title %}
+
+						<div class="tab-pane {% if loopCount == 0 %}active{% endif %}"
+						     id="tab-pane-{{ report_type }}-{{ zone_slug }}" role="tabpanel" tabindex="0">
+						  <div class="row">
+								<div class="col">
+									{% include '/wpadmin_pages/insights/reports/changetrack/report/zone_diff.twig' %}
+								</div>
+							</div>
+						</div>
+						{% set loopCount = loopCount + 1 %}
+					{% endfor %}
+				</div>
+
+{% else %}
+	<div class="alert alert-info">
+		There were no changes available for the selected areas, between the selected days provided.
+	</div>
+{% endif %}

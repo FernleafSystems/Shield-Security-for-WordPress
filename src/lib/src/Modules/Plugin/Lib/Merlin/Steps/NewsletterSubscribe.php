@@ -10,7 +10,7 @@ class NewsletterSubscribe extends Base {
 	public const SLUG = 'newsletter_subscribe';
 
 	public function getName() :string {
-		return __( 'Become A Member', 'wp-simple-firewall' );
+		return __( 'Join Us', 'wp-simple-firewall' );
 	}
 
 	protected function getStepRenderData() :array {
@@ -55,6 +55,10 @@ class NewsletterSubscribe extends Base {
 	}
 
 	public function skipStep() :bool {
-		return isset( $this->con()->user_metas->current()->flags[ 'merlin_step_newsletter_subscribe' ] );
+		return isset( $this->con()->user_metas->current()->flags[ 'merlin_step_newsletter_subscribe' ] )
+			   || !$this->con()
+						->getModule_Plugin()
+						->getShieldNetApiController()
+						->canHandshake();
 	}
 }

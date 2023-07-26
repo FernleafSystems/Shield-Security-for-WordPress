@@ -40,9 +40,9 @@ class PopulateScanItems {
 		$newRecord = $dbhItems->getRecord();
 		$newRecord->scan_ref = $scanRecord->id;
 		do {
-			$newRecord->items = array_slice( $allItems, 0, $sliceSize );
+			$newRecord->items = \array_slice( $allItems, 0, $sliceSize );
 			$dbhItems->getQueryInserter()->insert( $newRecord );
-			$allItems = array_slice( $allItems, $sliceSize );
+			$allItems = \array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 
 		// Marks the scan record as ready to run. It cannot run until this flag is set.

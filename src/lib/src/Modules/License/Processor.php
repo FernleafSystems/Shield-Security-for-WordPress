@@ -7,11 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 class Processor extends BaseShield\Processor {
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-		$mod->getLicenseHandler()->execute();
-		( new Lib\PluginNameSuffix() )
-			->setMod( $mod )
-			->execute();
+		self::con()->getModule_License()->getLicenseHandler()->execute();
+		( new Lib\PluginNameSuffix() )->execute();
 	}
 }

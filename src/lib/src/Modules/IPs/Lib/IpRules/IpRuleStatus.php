@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
 	LoadIpRules,
@@ -17,9 +17,7 @@ use IPLib\Factory;
 
 class IpRuleStatus {
 
-	use IPs\ModConsumer;
-
-	public const MOD = IPs\ModCon::SLUG;
+	use ModConsumer;
 
 	private $ipOrRange;
 
@@ -64,10 +62,10 @@ class IpRuleStatus {
 				self::$cache[ $ip ] = [];
 			}
 		}
-		return array_filter(
+		return \array_filter(
 			self::$cache[ $ip ],
 			function ( $rule ) use ( $filterByLists ) {
-				return empty( $filterByLists ) || in_array( $rule->type, $filterByLists );
+				return empty( $filterByLists ) || \in_array( $rule->type, $filterByLists );
 			}
 		);
 	}
@@ -92,13 +90,13 @@ class IpRuleStatus {
 	private function getRulesForAutoBlock() :array {
 		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
-		if ( count( $rules ) === 1 ) {
+		if ( \count( $rules ) === 1 ) {
 			$record = current( $rules );
 			if ( $record->last_access_at < ( Services::Request()->ts() - $this->opts()->getAutoExpireTime() ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}
 		}
-		elseif ( count( $rules ) > 1 ) {
+		elseif ( \count( $rules ) > 1 ) {
 			// Should only have 1 auto-block rule. So we merge & delete all the older rules.
 			try {
 				( new MergeAutoBlockRules() )->byRecords( $rules );
@@ -142,14 +140,14 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForShieldBlock() :array {
-		return array_merge( $this->getRulesForAutoBlock(), $this->getRulesForManualBlock() );
+		return \array_merge( $this->getRulesForAutoBlock(), $this->getRulesForManualBlock() );
 	}
 
 	/**
 	 * @return IpRuleRecord[]
 	 */
 	public function getRulesForBlock() :array {
-		return array_merge( $this->getRulesForManualBlock(), $this->getRulesForCrowdsec(), $this->getRulesForAutoBlock() );
+		return \array_merge( $this->getRulesForManualBlock(), $this->getRulesForCrowdsec(), $this->getRulesForAutoBlock() );
 	}
 
 	public function isBypass() :bool {
@@ -245,7 +243,7 @@ class IpRuleStatus {
 	 * @return IpRuleRecord[]
 	 */
 	private function purgeDuplicateRulesForWhiteAndBlack( array $rules ) :array {
-		if ( count( $rules ) > 1 ) {
+		if ( \count( $rules ) > 1 ) {
 			$toDelete = [];
 			$ruleToKeep = null;
 			$ruleToKeepKey = null;

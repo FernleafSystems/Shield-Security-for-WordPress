@@ -13,7 +13,7 @@ class AlertFileLocker extends BaseBuilderForScans {
 
 	protected function getRenderData() :array {
 		$locksLoader = new LoadFileLocks();
-		$hasNotNotified = count( $locksLoader->withProblemsNotNotified() ) > 0;
+		$hasNotNotified = \count( $locksLoader->withProblemsNotNotified() ) > 0;
 		if ( $hasNotNotified ) {
 			$this->markAlertsAsNotified();
 		}
@@ -28,7 +28,7 @@ class AlertFileLocker extends BaseBuilderForScans {
 			'strings' => [
 				'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
 				'file_changed' => __( 'Changes have been detected in the contents of critical files.', 'wp-simple-firewall' ),
-				'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $locksLoader->withProblems() ) ),
+				'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), \count( $locksLoader->withProblems() ) ),
 				'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

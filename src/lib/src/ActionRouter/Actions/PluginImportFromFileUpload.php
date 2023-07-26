@@ -10,9 +10,7 @@ class PluginImportFromFileUpload extends BaseAction {
 
 	protected function exec() {
 		try {
-			( new Import() )
-				->setMod( $this->con()->getModule_Plugin() )
-				->fromFileUpload();
+			( new Import() )->fromFileUpload();
 			$success = true;
 			$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
 		}

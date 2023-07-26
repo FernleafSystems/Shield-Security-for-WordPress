@@ -17,7 +17,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 			'extra_execution',
 			[
 				$this->con()->prefix( 'mwp-action' ) => $this->action_data[ 'sub_action_slug' ],
-				$this->con()->prefix( 'mwp-params' ) => array_merge(
+				$this->con()->prefix( 'mwp-params' ) => \array_merge(
 					[
 						'action_overrides' => [
 							Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
@@ -32,12 +32,12 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	protected function checkResponse() :bool {
 		$response = $this->clientActionResponse;
 		$key = $this->con()->prefix( 'mwp-action-response' );
-		if ( empty( $response ) || !is_array( $response ) || !isset( $response[ $key ] ) ) {
+		if ( empty( $response ) || !\is_array( $response ) || !isset( $response[ $key ] ) ) {
 			throw new ActionException( 'Empty response from Shield client site' );
 		}
 
-		$result = json_decode( $response[ $key ], true );
-		if ( empty( $result ) || !is_array( $result ) ) {
+		$result = \json_decode( $response[ $key ], true );
+		if ( empty( $result ) || !\is_array( $result ) ) {
 			throw new ActionException( 'Invalid response from Shield client site' );
 		}
 

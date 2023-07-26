@@ -14,7 +14,7 @@ class GetAll extends Base {
 				'description' => '[Filter] Comma-separated scan item states to include.',
 				'type'        => 'string',
 				'required'    => false,
-				'pattern'     => sprintf( '^((%s),?)+$', implode( '|', [
+				'pattern'     => sprintf( '^((%s),?)+$', \implode( '|', [
 					'is_checksumfail',
 					'is_unrecognised',
 					'is_mal',

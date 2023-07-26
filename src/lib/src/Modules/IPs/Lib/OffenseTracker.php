@@ -56,7 +56,7 @@ class OffenseTracker extends EventsListener {
 	 * @return $this
 	 */
 	public function setOffenseCount( int $offenseCount ) {
-		$this->offenseCount = (int)max( $offenseCount, $this->getOffenseCount() );
+		$this->offenseCount = (int)\max( $offenseCount, $this->getOffenseCount() );
 		return $this;
 	}
 }

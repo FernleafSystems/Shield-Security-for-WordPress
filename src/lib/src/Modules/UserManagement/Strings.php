@@ -14,7 +14,7 @@ class Strings extends Base\Strings {
 				   __( 'Medium', 'wp-simple-firewall' ),
 				   __( 'Strong', 'wp-simple-firewall' ),
 				   __( 'Very Strong', 'wp-simple-firewall' ),
-			   ][ max( 0, min( 4, $strength ) ) ];
+			   ][ \max( 0, \min( 4, $strength ) ) ];
 	}
 
 	public function getEventStrings() :array {
@@ -75,13 +75,13 @@ class Strings extends Base\Strings {
 			'user_hard_suspended'          => [
 				'name'  => __( 'User Manually Suspended', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" suspended by admin ({{admin}})', 'wp-simple-firewall' ),
+					__( 'User "{{user_login}}" suspended by admin.', 'wp-simple-firewall' ),
 				],
 			],
 			'user_hard_unsuspended'        => [
 				'name'  => __( 'User Manually Unsuspended', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'User "{{user_login}}" unsuspended by admin ({{admin}})', 'wp-simple-firewall' ),
+					__( 'User "{{user_login}}" unsuspended by admin.', 'wp-simple-firewall' ),
 				],
 			],
 		];
@@ -175,8 +175,10 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' ),
 					__( 'No email address - No Notification.', 'wp-simple-firewall' ),
-					__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' )
 				];
+				$desc[] = $this->con()->isPremiumActive() ?
+					__( 'Multiple email addresses may be supplied, separated by a comma.', 'wp-simple-firewall' ) :
+					__( 'Please upgrade your plan if you need to notify multiple email addresses.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_user_login_email_notification' :
@@ -310,8 +312,8 @@ class Strings extends Base\Strings {
 					__( 'Automatic suspension for idle accounts applies only to the roles you specify.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ),
-						implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) ),
-					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) )
+						\implode( ', ', Services::WpUsers()->getAvailableUserRoles() ) ),
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), \implode( ', ', $opts->getOptDefault( 'auto_idle_roles' ) ) )
 				];
 				break;
 

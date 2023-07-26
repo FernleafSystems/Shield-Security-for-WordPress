@@ -125,14 +125,14 @@ class ModuleStandard extends BaseWpCliCmd {
 
 		$mVal = $opts->getOpt( $args[ 'key' ], $null );
 		$aOpt = $opts->getOptDefinition( $args[ 'key' ] );
-		if ( !is_numeric( $mVal ) && empty( $mVal ) ) {
+		if ( !\is_numeric( $mVal ) && empty( $mVal ) ) {
 			\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
 		}
 		else {
 			$sExplain = '';
 
-			if ( is_array( $mVal ) ) {
-				$mVal = sprintf( '[ %s ]', implode( ', ', $mVal ) );
+			if ( \is_array( $mVal ) ) {
+				$mVal = sprintf( '[ %s ]', \implode( ', ', $mVal ) );
 			}
 
 			if ( $aOpt[ 'type' ] === 'checkbox' ) {
@@ -181,7 +181,7 @@ class ModuleStandard extends BaseWpCliCmd {
 				];
 			}
 			else {
-				$allKeys = array_keys( $optsList[ 0 ] );
+				$allKeys = \array_keys( $optsList[ 0 ] );
 			}
 
 			\WP_CLI\Utils\format_items(

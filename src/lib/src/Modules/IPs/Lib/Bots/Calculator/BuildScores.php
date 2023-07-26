@@ -35,7 +35,7 @@ class BuildScores extends BaseBuildScores {
 		}
 		else {
 			unset( $logic[ 0 ] );
-			ksort( $logic );
+			\ksort( $logic );
 
 			$diff = $this->diffTs( $field );
 			foreach ( $logic as $boundary => $boundaryScore ) {

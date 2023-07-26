@@ -14,20 +14,20 @@ class DbTableExport {
 	public function toCSV() :array {
 		$content = [];
 		/** @var Record $record */
-		foreach ( $this->getDbHandler()->getIterator() as $record ) {
+		foreach ( $this->getDbH()->getIterator() as $record ) {
 			if ( !empty( $record ) ) {
 				$content[] = $this->implodeForCSV( $this->getEntryAsRawArray( $record ) );
 			}
 		}
-		array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
+		\array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
 		return [
 			'name'    => $this->getFileName(),
-			'content' => implode( "\n", $content )
+			'content' => \implode( "\n", $content )
 		];
 	}
 
 	protected function implodeForCSV( array $line ) :string {
-		return '"'.implode( '","', $line ).'"';
+		return '"'.\implode( '","', $line ).'"';
 	}
 
 	/**
@@ -35,7 +35,7 @@ class DbTableExport {
 	 */
 	protected function getEntryAsRawArray( $record ) :array {
 		$entry = $record->getRawData();
-		$schema = $this->getDbHandler()->getTableSchema();
+		$schema = $this->getDbH()->getTableSchema();
 		if ( $schema->hasColumn( 'ip' ) && $schema->is_ip_binary ) {
 			$entry[ 'ip' ] = $record->ip;
 		}
@@ -46,10 +46,10 @@ class DbTableExport {
 	}
 
 	protected function getActualColumns() :array {
-		return Services::WpDb()->getColumnsForTable( $this->getDbHandler()->getTableSchema()->table, 'strtolower' );
+		return Services::WpDb()->getColumnsForTable( $this->getDbH()->getTableSchema()->table, 'strtolower' );
 	}
 
 	protected function getFileName() :string {
-		return sprintf( 'table_export-%s-%s.csv', $this->getDbHandler()->getTableSchema()->table, date( 'Ymd_His' ) );
+		return sprintf( 'table_export-%s-%s.csv', $this->getDbH()->getTableSchema()->table, date( 'Ymd_His' ) );
 	}
 }

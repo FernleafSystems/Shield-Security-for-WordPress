@@ -218,14 +218,12 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
+			'summary'     => ( isset( $summary ) && \is_array( $summary ) ) ? $summary : [],
 		];
 	}
 
 	public function getOptionStrings( string $key ) :array {
 		$con = $this->con();
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :
@@ -252,7 +250,7 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', $mod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" target="_blank">%s</a>', $con->getModule_Plugin()->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -277,13 +275,13 @@ class Strings extends Base\Strings {
 				$name = __( 'IP Source', 'wp-simple-firewall' );
 				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
 				$desc = [
-					implode( ' ', [
+					\implode( ' ', [
 						__( "It's crucial that we can detect the correct IP address for each visitor to the site.", 'wp-simple-firewall' ),
 						__( "We rely on the PHP server configuration, but some hosts aren't correctly setup to let us find it easily.", 'wp-simple-firewall' ),
 						sprintf( __( "The preferred source is %s since this can't be spoofed.", 'wp-simple-firewall' ),
 							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
-					implode( ' ', [
+					\implode( ' ', [
 						__( "You can help us detect the best IP address for your server by using the link below to tell you your current IP address and then select the option from the list that contains it.", 'wp-simple-firewall' ),
 						sprintf(
 							'<p class="mt-2 text-center"><a href="%s" class="btn btn-secondary btn-sm" target="_blank">%s</a></p>',
@@ -347,17 +345,19 @@ class Strings extends Base\Strings {
 					__( "We don't recommend setting this unless you're sure of the consequences for all users.", 'wp-simple-firewall' ),
 					__( "If you provide a locale for which there are no translations, defaults will apply.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Available Locales', 'wp-simple-firewall' ),
-						implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
+						\implode( ', ', ( new GetAllAvailableLocales() )->run() ) ),
 				];
 				break;
 
 			case 'importexport_enable' :
-				$name = __( 'Allow Import/Export', 'wp-simple-firewall' );
-				$summary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );
+				$name = __( 'Automatic Import/Export', 'wp-simple-firewall' );
+				$summary = __( 'Allow Automated Import And Export Of Options On This Site', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Uncheck this box to completely disable import and export of options.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Import/Export is a premium-only feature.', 'wp-simple-firewall' ) )
+					__( 'Enable this option to allow automatic import and export of options between WordPress sites.', 'wp-simple-firewall' ),
 				];
+				if ( !$con->caps->canImportExportSync() ) {
+					$desc[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You will need to upgrade your plan to use the Automatic Import/Export feature.', 'wp-simple-firewall' ) );
+				}
 				break;
 
 			case 'importexport_whitelist' :
@@ -436,10 +436,6 @@ class Strings extends Base\Strings {
 					__( 'Choose when you should be sent important and critical alerts about your site security.', 'wp-simple-firewall' ),
 					__( 'Critical alerts are typically results from your most recent site scans.', 'wp-simple-firewall' )
 				];
-				if ( !$con->isPremiumActive() ) {
-					$desc[] = __( 'If you wish to receive alerts more quickly, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
-					$desc[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
-				}
 				break;
 
 			case 'frequency_info' :
@@ -449,10 +445,6 @@ class Strings extends Base\Strings {
 					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
 					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
 				];
-				if ( !$con->isPremiumActive() ) {
-					$desc[] = __( 'If you wish to receive reports more often, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
-					$desc[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
-				}
 				break;
 
 			default:

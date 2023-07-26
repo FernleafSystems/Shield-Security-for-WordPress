@@ -18,14 +18,14 @@ class RequestVO extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Request\Requ
 
 			case 'filter_fields':
 				$value = (array)$value;
-				if ( in_array( 'all', $value ) ) {
+				if ( \in_array( 'all', $value ) ) {
 					$value = [];
 				}
 				else {
-					$value = array_merge( $this->getDefaultFilterFields(), $value );
+					$value = \array_merge( $this->getDefaultFilterFields(), $value );
 				}
 
-				$value = array_flip( array_filter( $value ) );
+				$value = \array_flip( \array_filter( $value ) );
 				break;
 		}
 

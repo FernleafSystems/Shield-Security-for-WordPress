@@ -54,10 +54,10 @@ class BuildSearchPanesData {
 				$this->mod()->getDbH_IPRules()->getTableSchema()->table
 			)
 		);
-		return array_filter( array_map(
+		return \array_filter( \array_map(
 			function ( $result ) {
 				$type = null;
-				if ( is_array( $result ) && !empty( $result[ 'type' ] ) ) {
+				if ( \is_array( $result ) && !empty( $result[ 'type' ] ) ) {
 					$type = [
 						'label' => Handler::GetTypeName( $result[ 'type' ] ),
 						'value' => $result[ 'type' ],
@@ -65,7 +65,7 @@ class BuildSearchPanesData {
 				}
 				return $type;
 			},
-			is_array( $results ) ? $results : []
+			\is_array( $results ) ? $results : []
 		) );
 	}
 

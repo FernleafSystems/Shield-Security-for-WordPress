@@ -37,7 +37,7 @@ class Strings extends Base\Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+			'summary'     => ( isset( $aSummary ) && \is_array( $aSummary ) ) ? $aSummary : [],
 		];
 	}
 

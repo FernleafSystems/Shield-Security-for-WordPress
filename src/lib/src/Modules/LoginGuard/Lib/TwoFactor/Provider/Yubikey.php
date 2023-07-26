@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\InvalidYubikeyAppConfiguration;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -55,49 +56,58 @@ class Yubikey extends AbstractShieldProvider {
 	}
 
 	private function getYubiIds() :array {
-		return array_filter( array_map( 'trim', explode( ',', $this->getSecret() ) ) );
+		$ids = \array_filter( \array_map( '\trim', \explode( ',', $this->getSecret() ) ) );
+		return $this->con()->caps->hasCap( '2fa_multi_yubikey' ) ? $ids : \array_slice( $ids, 0, 1 );
 	}
 
 	public function isProfileActive() :bool {
-		return count( $this->getYubiIds() ) > 0;
+		return \count( $this->getYubiIds() ) > 0;
 	}
 
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
 
 		foreach ( $this->getYubiIds() as $key ) {
-			if ( strpos( $otp, $key ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
-				$valid = true;
-				break;
+			try {
+				if ( \strpos( $otp, $key ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
+					$valid = true;
+					break;
+				}
 			}
-			if ( !$this->con()->isPremiumActive() ) { // Test 1 key if not Pro
-				break;
+			catch ( InvalidYubikeyAppConfiguration $e ) {
 			}
 		}
 
 		return $valid;
 	}
 
+	/**
+	 * @throws InvalidYubikeyAppConfiguration
+	 */
 	private function sendYubiOtpRequest( string $otp ) :bool {
-		$otp = trim( $otp );
+		$otp = \trim( $otp );
 		$success = false;
 
-		if ( preg_match( '#^[a-z]{44}$#', $otp ) ) {
+		if ( \preg_match( '#^[a-z]{44}$#', $otp ) ) {
 			// 2021-09-27: API requires at least 16 chars in the nonce, or it fails.
 			$parts = [
 				'otp'   => $otp,
-				'nonce' => md5( uniqid( Services::Request()->getID() ) ),
+				'nonce' => \md5( \uniqid( Services::Request()->getID() ) ),
 				'id'    => $this->opts()->getYubikeyAppId()
 			];
 
 			$response = Services::HttpRequest()->getContent( URL::Build( self::URL_YUBIKEY_VERIFY, $parts ) );
+
+			if ( \strpos( $response, 'status=NO_SUCH_CLIENT' ) ) {
+				throw new InvalidYubikeyAppConfiguration();
+			}
 
 			unset( $parts[ 'id' ] );
 			$parts[ 'status' ] = 'OK';
 
 			$success = true;
 			foreach ( $parts as $key => $value ) {
-				if ( !preg_match( sprintf( '#%s=%s#', $key, $value ), $response ) ) {
+				if ( !\preg_match( sprintf( '#%s=%s#', $key, $value ), $response ) ) {
 					$success = false;
 					break;
 				}
@@ -115,41 +125,51 @@ class Yubikey extends AbstractShieldProvider {
 			$response->success = false;
 			$response->error_text = 'One-Time Password was empty';
 		}
-		elseif ( strlen( $keyOrOTP ) < self::OTP_LENGTH ) {
+		elseif ( \strlen( $keyOrOTP ) < self::OTP_LENGTH ) {
 			$response->success = false;
 			$response->error_text = 'One-Time Password was too short';
 		}
 		else {
-			$keyID = substr( $keyOrOTP, 0, self::OTP_LENGTH );
+			$keyID = \substr( $keyOrOTP, 0, self::OTP_LENGTH );
 			$IDs = $this->getYubiIds();
 
-			if ( in_array( $keyID, $IDs ) ) {
-				$response->success = true;
+			if ( \in_array( $keyID, $IDs ) ) {
 				$IDs = Services::DataManipulation()->removeFromArrayByValue( $IDs, $keyID );
 				$response->msg_text = sprintf(
 					__( '%s was removed from your profile.', 'wp-simple-firewall' ),
 					__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
 				);
 			}
-			elseif ( !$this->sendYubiOtpRequest( $keyOrOTP ) ) {
-				// If we're going to add the device, we test it
-				$response->success = false;
-				$response->error_text = 'Failed to verify One-Time Password from device';
-			}
+			// If we're going to add the device, we test it
 			else {
-				$IDs[] = $keyID;
-				$response->msg_text = sprintf(
-					__( '%s was added to your profile.', 'wp-simple-firewall' ),
-					__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
-				);
-			}
+				try {
+					if ( $this->sendYubiOtpRequest( $keyOrOTP ) ) {
+						$IDs[] = $keyID;
+						$response->msg_text = sprintf(
+							__( '%s was added to your profile.', 'wp-simple-firewall' ),
+							__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
+						);
+					}
+					else {
+						$response->success = false;
+						$response->error_text = sprintf( '%s - %s.',
+							__( 'Failed to verify One-Time Password', 'wp-simple-firewall' ),
+							__( 'Please retry again', 'wp-simple-firewall' )
+						);
+					}
+				}
+				catch ( InvalidYubikeyAppConfiguration $e ) {
+					$response->success = false;
+					$response->error_text = sprintf( '%s - %s.',
+						__( 'Failed to verify One-Time Password', 'wp-simple-firewall' ),
+						__( 'Your Yubikey APP configuration may be invalid', 'wp-simple-firewall' )
+					);
+				}
 
-			if ( !$this->sendYubiOtpRequest( $keyOrOTP ) ) {
-				$response->error_text = 'One-Time Password verification failed';
+				if ( $response->success ) {
+					$this->setSecret( \implode( ',', \array_unique( \array_filter( $IDs ) ) ) );
+				}
 			}
-			$response->success = true;
-
-			$this->setSecret( implode( ',', array_unique( array_filter( $IDs ) ) ) );
 		}
 
 		return $response;
@@ -174,10 +194,10 @@ class Yubikey extends AbstractShieldProvider {
 
 	protected function hasValidSecret() :bool {
 		$secret = $this->getSecret();
-		return count( array_filter(
-				explode( ',', is_string( $secret ) ? $secret : '' ),
+		return \count( \array_filter(
+				\explode( ',', \is_string( $secret ) ? $secret : '' ),
 				function ( $yubiID ) {
-					return (bool)preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $yubiID );
+					return (bool)\preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $yubiID );
 				}
 			) ) > 0;
 	}

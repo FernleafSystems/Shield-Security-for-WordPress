@@ -25,7 +25,7 @@ class CrowdSecApi {
 
 	public function isReady() :bool {
 		$this->login();
-		return in_array( $this->getAuthStatus(), [
+		return \in_array( $this->getAuthStatus(), [
 			self::STATE_READY_NO_ENROLL_ID,
 			self::STATE_READY_MACH_NOT_ENROLLED,
 			self::STATE_READY_COMPLETE
@@ -167,12 +167,12 @@ class CrowdSecApi {
 		}
 		$this->storeCsAuth( $auth );
 
-		$machStartID = str_replace( '-', '', $this->con()->getInstallationID()[ 'id' ] );
-		if ( empty( $auth[ 'machine_id' ] ) || strpos( $auth[ 'machine_id' ], $machStartID ) !== 0 ) {
+		$machStartID = \str_replace( '-', '', $this->con()->getInstallationID()[ 'id' ] );
+		if ( empty( $auth[ 'machine_id' ] ) || \strpos( $auth[ 'machine_id' ], $machStartID ) !== 0 ) {
 			$auth = [
 				'auth_start_at' => $now,
 				'url'           => $siteURL,
-				'machine_id'    => $machStartID.strtolower( wp_generate_password( CrowdSecConstants::MACHINE_ID_LENGTH - strlen( $machStartID ), false ) ),
+				'machine_id'    => $machStartID.strtolower( wp_generate_password( CrowdSecConstants::MACHINE_ID_LENGTH - \strlen( $machStartID ), false ) ),
 				'password'      => $this->generateCrowdsecPassword(),
 			];
 		}
@@ -252,11 +252,11 @@ class CrowdSecApi {
 		$auth = $this->getCsAuth();
 
 		// Enroll if we have the ID
-		$enrollID = preg_replace( '#[^a-z\d]#i', '', (string)$this->opts()->getOpt( 'cs_enroll_id' ) );
+		$enrollID = \preg_replace( '#[^a-z\d]#i', '', (string)$this->opts()->getOpt( 'cs_enroll_id' ) );
 		if ( !empty( $enrollID ) && empty( $auth[ 'machine_enrolled' ] ) ) {
 
 			$defaultTags = [ 'shield', 'wp', ];
-			$defaultName = preg_replace( '#^http(s)?://#i', '', Services::WpGeneral()->getWpUrl() );
+			$defaultName = \preg_replace( '#^http(s)?://#i', '', Services::WpGeneral()->getWpUrl() );
 			if ( $this->con()->isPremiumActive() ) {
 				$enrollTags = apply_filters( 'shield/crowdsec/enroll_tags', $defaultTags );
 				$enrollName = (string)apply_filters( 'shield/crowdsec/enroll_name', $defaultName );
@@ -272,7 +272,7 @@ class CrowdSecApi {
 			( new Api\MachineEnroll( $auth[ 'auth_token' ], $this->getApiUserAgent() ) )->run(
 				$enrollID,
 				$enrollName,
-				is_array( $enrollTags ) ? $enrollTags : $defaultTags
+				\is_array( $enrollTags ) ? $enrollTags : $defaultTags
 			);
 			$auth[ 'machine_enrolled' ] = true;
 			$this->storeCsAuth( $auth );
@@ -293,7 +293,7 @@ class CrowdSecApi {
 						  ->getLicense()->crowdsec[ 'scenarios' ] ?? [];
 		if ( $this->con()->isPremiumActive() ) {
 			$filteredScenarios = apply_filters( 'shield/crowdsec/login_scenarios', $scenarios );
-			if ( !empty( $filteredScenarios ) && is_array( $filteredScenarios ) ) {
+			if ( !empty( $filteredScenarios ) && \is_array( $filteredScenarios ) ) {
 				$scenarios = $filteredScenarios;
 			}
 		}
@@ -307,7 +307,7 @@ class CrowdSecApi {
 
 	private function getCsAuths() :array {
 		$auths = Services::WpGeneral()->getOption( $this->con()->prefix( 'cs_auths' ) );
-		return is_array( $auths ) ? $auths : [];
+		return \is_array( $auths ) ? $auths : [];
 	}
 
 	private function storeCsAuth( array $csAuth ) {
@@ -315,9 +315,9 @@ class CrowdSecApi {
 
 			$auths = $this->getCsAuths();
 			$auths[ $csAuth[ 'url' ] ] = $csAuth;
-			$auths = array_filter( $auths, function ( $auth ) {
+			$auths = \array_filter( $auths, function ( $auth ) {
 				return empty( $auth[ 'auth_expire' ] )
-					   || Services::Request()->ts() - $auth[ 'auth_expire' ] < WEEK_IN_SECONDS*12;
+					   || Services::Request()->ts() - $auth[ 'auth_expire' ] < \WEEK_IN_SECONDS*12;
 			} );
 			Services::WpGeneral()->updateOption( $this->con()->prefix( 'cs_auths' ), $auths );
 
@@ -339,16 +339,16 @@ class CrowdSecApi {
 	private function generateCrowdsecPassword() :string {
 		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-		$pass = wp_generate_password( rand( 10, 20 ), false );
-		if ( !preg_match( '#[a-z]#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 0, 25 ), 1 );
+		$pass = wp_generate_password( \rand( 10, 20 ), false );
+		if ( !\preg_match( '#[a-z]#', $pass ) ) {
+			$pass .= \substr( $chars, wp_rand( 0, 25 ), 1 );
 		}
-		if ( !preg_match( '#[A-Z]#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 26, 51 ), 1 );
+		if ( !\preg_match( '#[A-Z]#', $pass ) ) {
+			$pass .= \substr( $chars, wp_rand( 26, 51 ), 1 );
 		}
-		if ( !preg_match( '#\d#', $pass ) ) {
-			$pass .= substr( $chars, wp_rand( 52, 61 ), 1 );
+		if ( !\preg_match( '#\d#', $pass ) ) {
+			$pass .= \substr( $chars, wp_rand( 52, 61 ), 1 );
 		}
-		return substr( $pass.wp_generate_password( 22, false ), 0, 32 );
+		return \substr( $pass.wp_generate_password( 22, false ), 0, 32 );
 	}
 }

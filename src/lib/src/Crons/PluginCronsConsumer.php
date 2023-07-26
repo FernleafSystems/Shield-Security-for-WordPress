@@ -14,8 +14,8 @@ trait PluginCronsConsumer {
 
 	protected function setupCronHooks() {
 		if ( Services::WpGeneral()->isCron() ) {
-			add_action( $this->getCon()->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-			add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+			add_action( $this->con()->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+			add_action( $this->con()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 		}
 	}
 }

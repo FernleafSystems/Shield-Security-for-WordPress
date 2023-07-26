@@ -16,10 +16,7 @@ class LoadShieldSyncData {
 			$site->getRawData(),
 			Controller::GetInstance()->prefix( 'mainwp-sync' )
 		);
-		if ( empty( $data ) ) {
-			$data = '[]';
-		}
-		$decoded = json_decode( $data, true );
-		return ( new SyncVO() )->applyFromArray( is_array( $decoded ) ? $decoded : [] );
+		$decoded = empty( $data ) ? [] : \json_decode( $data, true );
+		return ( new SyncVO() )->applyFromArray( \is_array( $decoded ) ? $decoded : [] );
 	}
 }

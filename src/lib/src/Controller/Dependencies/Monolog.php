@@ -30,10 +30,10 @@ class Monolog {
 				throw new Exceptions\LibraryNotFoundException( 'Monolog library could not be found.' );
 			}
 		}
-		elseif ( !defined( \Monolog\Logger::class.'::API' ) ) {
+		elseif ( !\defined( \Monolog\Logger::class.'::API' ) ) {
 			throw new Exceptions\LibraryTooOldToBeUseableException( sprintf( 'Monolog library is too old to be usable. Location "%s".', $this->getMonologLoggerLocation() ) );
 		}
-		elseif ( version_compare( (string)\Monolog\Logger::API, self::API_VERSION_REQUIRED, '<' ) ) {
+		elseif ( \version_compare( (string)\Monolog\Logger::API, self::API_VERSION_REQUIRED, '<' ) ) {
 			throw new Exceptions\LibraryTooOldException( sprintf( 'Monolog library is version 1. Version %s is required. Location: "%s".',
 				self::API_VERSION_REQUIRED, $this->getMonologLoggerLocation()
 			) );
@@ -43,7 +43,7 @@ class Monolog {
 	public function getMonologLoggerLocation() :string {
 		$item = '';
 
-		$fullFile = class_exists( '\Monolog\Logger' ) ? ( new \ReflectionClass( \Monolog\Logger::class ) )->getFileName() : '';
+		$fullFile = \class_exists( '\Monolog\Logger' ) ? ( new \ReflectionClass( \Monolog\Logger::class ) )->getFileName() : '';
 		if ( !empty( $fullFile ) ) {
 			$plugin = ( new Plugin\Files() )->findPluginFromFile( $fullFile );
 			if ( empty( $plugin ) ) {
@@ -56,7 +56,7 @@ class Monolog {
 				$item = sprintf( '%s - %s', __( 'Plugin' ), $plugin->Name );
 			}
 			if ( empty( $item ) ) {
-				$item = str_replace( ABSPATH, '', class_exists( '\Monolog\Logger' ) ? $fullFile : '' );
+				$item = \str_replace( ABSPATH, '', \class_exists( '\Monolog\Logger' ) ? $fullFile : '' );
 			}
 		}
 

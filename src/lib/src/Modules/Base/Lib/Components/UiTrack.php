@@ -21,7 +21,7 @@ class UiTrack extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'selected_scans':
-				if ( empty( $value ) || !is_array( $value ) ) {
+				if ( empty( $value ) || !\is_array( $value ) ) {
 					$value = $this->con()
 								  ->getModule_HackGuard()
 								  ->getScansCon()

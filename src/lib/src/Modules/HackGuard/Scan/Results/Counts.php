@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon,
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 
 class Counts {
 
 	use ModConsumer;
-
-	public const MOD = ModCon::SLUG;
 
 	private $counts = [];
 
@@ -23,7 +18,7 @@ class Counts {
 	}
 
 	public function all() :array {
-		array_map(
+		\array_map(
 			function ( string $type ) {
 				$this->getCount( $type );
 			},

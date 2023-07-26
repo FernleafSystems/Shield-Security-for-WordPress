@@ -24,8 +24,6 @@ class BlacklistHandler extends Modules\Base\Common\ExecOnceModConsumer {
 	}
 
 	public function runHourlyCron() {
-		( new IPs\Components\ImportIpsFromFile() )
-			->setMod( $this->mod() )
-			->execute();
+		( new IPs\Components\ImportIpsFromFile() )->execute();
 	}
 }

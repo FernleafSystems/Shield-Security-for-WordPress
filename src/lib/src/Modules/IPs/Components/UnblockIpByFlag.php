@@ -19,7 +19,6 @@ class UnblockIpByFlag {
 
 	protected function run() {
 		$FS = Services::WpFs();
-		$srvIP = Services::IP();
 
 		$IPs = [];
 
@@ -45,7 +44,7 @@ class UnblockIpByFlag {
 
 		try {
 			$myIP = $this->con()->this_req->ip;
-			if ( !empty( $IPs ) && !empty( $myIP ) && $srvIP->IpIn( $myIP, $IPs ) ) {
+			if ( !empty( $IPs ) && !empty( $myIP ) && Services::IP()->IpIn( $myIP, $IPs ) ) {
 				Services::Response()->redirectHere();
 			}
 		}

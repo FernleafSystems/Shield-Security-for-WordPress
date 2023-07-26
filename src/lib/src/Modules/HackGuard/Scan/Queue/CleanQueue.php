@@ -48,7 +48,7 @@ class CleanQueue {
 			Services::WpDb()->doSql(
 				sprintf( "DELETE FROM `%s` WHERE `id` NOT IN (%s)",
 					$dbhResultsItems->getTableSchema()->table,
-					implode( ',', $resultItemIds )
+					\implode( ',', $resultItemIds )
 				)
 			);
 		}

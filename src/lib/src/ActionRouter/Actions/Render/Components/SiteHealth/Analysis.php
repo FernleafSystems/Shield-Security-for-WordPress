@@ -37,13 +37,13 @@ class Analysis extends BaseRender {
 				'powered_by'                     => sprintf( __( 'Powered by %s', 'wp-simple-firewall' ), $con->getHumanName() )
 			],
 			'vars'    => [
-				'protected_components'   => array_filter( $allComponents, function ( $comp ) {
+				'protected_components'   => \array_filter( $allComponents, function ( $comp ) {
 					return $comp[ 'is_protected' ];
 				} ),
-				'critical_components'    => array_filter( $allComponents, function ( $comp ) {
+				'critical_components'    => \array_filter( $allComponents, function ( $comp ) {
 					return !$comp[ 'is_protected' ] && $comp[ 'weight' ] >= self::CRITICAL_BOUNDARY;
 				} ),
-				'improvement_components' => array_filter( $allComponents, function ( $comp ) {
+				'improvement_components' => \array_filter( $allComponents, function ( $comp ) {
 					return !$comp[ 'is_protected' ] && $comp[ 'weight' ] < self::CRITICAL_BOUNDARY;
 				} ),
 

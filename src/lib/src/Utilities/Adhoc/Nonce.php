@@ -16,7 +16,7 @@ class Nonce {
 				$action,
 				Services::WpUsers()->getCurrentWpUserId(),
 				Services::Request()->ip(),
-				\ceil( Services::Request()->ts()/HOUR_IN_SECONDS ) - $distance,
+				\ceil( Services::Request()->ts()/(\HOUR_IN_SECONDS*3) ) - $distance,
 			] ), 'nonce' ), -12, 10 );
 		}, [ 0, 1 ] );
 	}

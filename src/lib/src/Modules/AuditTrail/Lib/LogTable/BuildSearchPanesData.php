@@ -31,23 +31,23 @@ class BuildSearchPanesData {
 				$this->mod()->getDbH_Meta()->getTableSchema()->table
 			)
 		);
-		$IDs = array_values( array_filter( array_map(
+		$IDs = \array_values( \array_filter( \array_map(
 			function ( $result ) {
 				return is_numeric( $result[ 'uid' ] ?? null ) ? (int)$result[ 'uid' ] : null;
 			},
-			is_array( $results ) ? $results : []
+			\is_array( $results ) ? $results : []
 		) ) );
 
 		$usersResult = $WPDB->selectCustom(
 			sprintf( "SELECT `user_login`, `user_email`, `ID` as `id`
 						FROM `%s` WHERE `id` IN (%s) limit 1000;",
 				$WPDB->getTable_Users(),
-				implode( ',', $IDs )
+				\implode( ',', $IDs )
 			)
 		);
 
 		$users = [];
-		if ( is_array( $usersResult ) ) {
+		if ( \is_array( $usersResult ) ) {
 			foreach ( $usersResult as $user ) {
 				$users[] = [
 					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
@@ -73,7 +73,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForIPs() :array {
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $result ) {
 				$ip = $result[ 'ip' ] ?? null;
 				if ( !empty( $ip ) ) {
@@ -89,7 +89,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForEvents() :array {
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $result ) {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
@@ -119,6 +119,6 @@ class BuildSearchPanesData {
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
-		return is_array( $results ) ? $results : [];
+		return \is_array( $results ) ? $results : [];
 	}
 }

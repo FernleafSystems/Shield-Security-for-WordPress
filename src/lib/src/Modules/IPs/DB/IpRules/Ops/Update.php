@@ -30,7 +30,7 @@ class Update extends Base\Update {
 	}
 
 	public function updateLabel( Record $IP, string $label ) :bool {
-		return $this->updateRecord( $IP, [ 'label' => trim( $label ) ] );
+		return $this->updateRecord( $IP, [ 'label' => \trim( $label ) ] );
 	}
 
 	/**

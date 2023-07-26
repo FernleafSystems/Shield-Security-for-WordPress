@@ -37,17 +37,64 @@ class BuildScanItems {
 		/** @var ScanActionVO $action */
 		$action = $this->mod()->getScansCon()->AFS()->getScanActionVO();
 
-		if ( !\is_array( $action->scan_root_dirs ) ) {
-			$action->scan_root_dirs = [
-				ABSPATH                           => 1,
-				\path_join( ABSPATH, WPINC )      => 0,
-				\path_join( ABSPATH, 'wp-admin' ) => 0,
-				WP_CONTENT_DIR                    => 0,
-			];
+		$pluginsDir = \dirname( self::con()->getRootDir() );
+		$themesDir = \dirname( Services::WpThemes()->getCurrent()->get_stylesheet_directory() );
+
+		$rootDirs = [];
+		foreach ( [
+			ABSPATH                          => [
+				'depth' => 1,
+				'areas' => [
+					'wproot',
+					'malware_php',
+				],
+			],
+			path_join( ABSPATH, WPINC )      => [
+				'depth' => 0,
+				'areas' => [
+					'wp',
+					'malware_php',
+				],
+			],
+			path_join( ABSPATH, 'wp-admin' ) => [
+				'depth' => 0,
+				'areas' => [
+					'wp',
+					'malware_php',
+				],
+			],
+			WP_CONTENT_DIR                   => [
+				'depth' => 0,
+				'areas' => [
+					'wpcontent',
+					'malware_php',
+				],
+			],
+			$pluginsDir                      => [
+				'depth' => 0,
+				'areas' => [
+					'plugins',
+					'malware_php',
+				],
+			],
+			$themesDir                       => [
+				'depth' => 0,
+				'areas' => [
+					'themes',
+					'malware_php',
+				],
+			],
+		] as $dir => $dirAttr ) {
+			if ( \count( \array_intersect( $dirAttr[ 'areas' ], $this->opts()->getFileScanAreas() ) ) > 0 ) {
+				// we don't include the plugins and themes if WP Content Dir is already included.
+				if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
+					$rootDirs[ $dir ] = $dirAttr[ 'depth' ];
+				}
+			}
 		}
-		if ( !\is_array( $action->paths_whitelisted ) ) {
-			$action->paths_whitelisted = $this->opts()->getWhitelistedPathsAsRegex();
-		}
+
+		$action->scan_root_dirs = $rootDirs;
+		$action->paths_whitelisted = $this->opts()->getWhitelistedPathsAsRegex();
 	}
 
 	private function buildFilesFromWpHashes() :array {

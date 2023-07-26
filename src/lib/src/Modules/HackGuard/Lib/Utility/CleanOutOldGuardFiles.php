@@ -2,11 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StorageDir;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class CleanOutOldGuardFiles extends ExecOnceModConsumer {
+class CleanOutOldGuardFiles {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run( int $limit = 50 ) {
 		$FS = Services::WpFs();
@@ -17,11 +21,11 @@ class CleanOutOldGuardFiles extends ExecOnceModConsumer {
 		if ( !empty( $root ) ) {
 			foreach ( $FS->getAllFilesInDir( $root ) as $fileItem ) {
 				if ( $FS->isDir( $fileItem ) ) {
-					$dirBase = basename( $fileItem );
+					$dirBase = \basename( $fileItem );
 					if ( $dirBase === 'ptguard' ) {
 						$FS->deleteDir( $fileItem );
 					}
-					elseif ( preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', StorageDir::SUFFIX_LENGTH ), $dirBase ) ) {
+					elseif ( \preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', StorageDir::SUFFIX_LENGTH ), $dirBase ) ) {
 						if ( empty( $firstAcceptableDir ) ) {
 							$firstAcceptableDir = $fileItem;
 						}

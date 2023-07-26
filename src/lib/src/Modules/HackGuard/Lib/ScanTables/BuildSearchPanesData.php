@@ -22,17 +22,17 @@ class BuildSearchPanesData {
 		$exts = [];
 		foreach ( $this->runQueryForFileTypes() as $item ) {
 			$item = $item[ 'item_id' ] ?? '';
-			if ( !empty( $item ) && strpos( $item, '.' ) > 0 ) {
-				$ext = explode( '.', $item )[ 1 ];
+			if ( !empty( $item ) && \strpos( $item, '.' ) > 0 ) {
+				$ext = \explode( '.', $item )[ 1 ];
 				if ( empty( $exts[ $ext ] ) ) {
 					$exts[ $ext ] = [
-						'label' => strtoupper( $ext ),
+						'label' => \strtoupper( $ext ),
 						'value' => $ext,
 					];
 				}
 			}
 		}
-		return array_values( $exts );
+		return \array_values( $exts );
 	}
 
 	private function buildForFileStatus() :array {
@@ -70,6 +70,6 @@ class BuildSearchPanesData {
 				$this->mod()->getDbH_ResultItems()->getTableSchema()->table
 			)
 		);
-		return is_array( $results ) ? $results : [];
+		return \is_array( $results ) ? $results : [];
 	}
 }

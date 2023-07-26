@@ -11,9 +11,7 @@ class SecurityAdminRequestRemoveByEmail extends SecurityAdminBase {
 	public const SLUG = 'req_email_remove';
 
 	protected function exec() {
-		( new RemoveSecAdmin() )
-			->setMod( $this->con()->getModule_SecAdmin() )
-			->sendConfirmationEmail();
+		( new RemoveSecAdmin() )->sendConfirmationEmail();
 		$this->response()->action_response_data = [
 			'success' => true,
 			'message' => __( 'Email sent. Ensure the link opens in THIS browser.' ),

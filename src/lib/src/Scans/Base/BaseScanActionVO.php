@@ -26,6 +26,6 @@ abstract class BaseScanActionVO {
 		catch ( \Exception $e ) {
 			$namespace = __NAMESPACE__;
 		}
-		return rtrim( $namespace, '\\' ).'\\';
+		return \rtrim( $namespace, '\\' ).'\\';
 	}
 }

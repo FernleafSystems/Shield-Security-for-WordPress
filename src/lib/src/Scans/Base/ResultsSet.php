@@ -40,7 +40,7 @@ class ResultsSet {
 	 * @return ResultItem[]
 	 */
 	public function getAllItems() :array {
-		if ( !is_array( $this->items ) ) {
+		if ( !\is_array( $this->items ) ) {
 			$this->items = [];
 		}
 		return $this->items;
@@ -69,7 +69,7 @@ class ResultsSet {
 	}
 
 	public function countItems() :int {
-		return count( $this->getItems() );
+		return \count( $this->getItems() );
 	}
 
 	public function hasItems() :bool {

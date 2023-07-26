@@ -35,20 +35,20 @@ class PluginURLs {
 	public const NAV_WIZARD = 'merlin';
 
 	public function rootAdminPage() :string {
-		$con = $this->getCon();
-		return Services::WpGeneral()->getUrl_AdminPage( $this->rootAdminPageSlug(), $con->getIsWpmsNetworkAdminOnly() );
+		return Services::WpGeneral()->getUrl_AdminPage(
+			$this->rootAdminPageSlug(), $this->con()->getIsWpmsNetworkAdminOnly() );
 	}
 
 	public function rootAdminPageSlug() :string {
-		return $this->getCon()->getModule_Plugin()->getModSlug();
+		return $this->con()->getModule_Plugin()->getModSlug();
 	}
 
 	public static function GetAllNavs() :array {
 		$cons = ( new \ReflectionClass( __CLASS__ ) )->getConstants();
-		return array_intersect_key( $cons, array_flip( array_filter(
-			array_keys( $cons ),
+		return \array_intersect_key( $cons, \array_flip( \array_filter(
+			\array_keys( $cons ),
 			function ( string $nav ) {
-				return strpos( $nav, 'NAV_' ) === 0;
+				return \strpos( $nav, 'NAV_' ) === 0;
 			}
 		) ) );
 	}
@@ -113,7 +113,7 @@ class PluginURLs {
 		return $this->noncedPluginAction(
 			FileDownload::class,
 			Services::WpGeneral()->getAdminUrl(),
-			array_merge( $params, [ 'download_category' => $downloadCategory ] )
+			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
 	}
 
@@ -125,6 +125,6 @@ class PluginURLs {
 	}
 
 	public function isValidNav( string $navID ) :bool {
-		return in_array( $navID, self::GetAllNavs() );
+		return \in_array( $navID, self::GetAllNavs() );
 	}
 }

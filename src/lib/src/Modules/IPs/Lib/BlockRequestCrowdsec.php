@@ -33,7 +33,7 @@ class BlockRequestCrowdsec {
 		$this->con()->fireEvent( 'conn_kill_crowdsec' );
 
 		try {
-			$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::SLUG, [
+			$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 				'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressCrowdsec::SLUG
 			] );
 		}

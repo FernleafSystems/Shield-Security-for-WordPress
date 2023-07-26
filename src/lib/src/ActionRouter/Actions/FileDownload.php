@@ -20,14 +20,10 @@ class FileDownload extends BaseAction {
 			}
 			$contents = $this->getFileDownloadContents( $id );
 
-			header( 'Set-Cookie: fileDownload=true; path=/' );
-			Services::Response()->downloadStringAsFile(
-				$contents[ 'content' ],
-				$contents[ 'name' ]
-			);
+			\header( 'Set-Cookie: fileDownload=true; path=/' );
+			Services::Response()->downloadStringAsFile( $contents[ 'content' ], $contents[ 'name' ] );
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
 			$resp = $this->response();
 			$resp->success = false;
 			$resp->message = $e->getMessage();
@@ -63,14 +59,12 @@ class FileDownload extends BaseAction {
 
 			case 'db_ip':
 				$fileDetails = ( new DbTableExport() )
-					->setDbHandler( $con->getModule_IPs()->getDbH_IPRules() )
+					->setDbH( $con->getModule_IPs()->getDbH_IPRules() )
 					->toCSV();
 				break;
 
 			case 'plugin_export':
-				$fileDetails = ( new Export() )
-					->setMod( $con->getModule_Plugin() )
-					->toFile();
+				$fileDetails = ( new Export() )->toFile();
 				break;
 
 			default:

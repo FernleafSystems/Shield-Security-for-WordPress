@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class IpTrackSignalFakeWebcrawler extends IpTrackSignalBase {
 
-	public const PRO_ONLY = true;
+	public const MINIMUM_EDITION = 'starter';
 	protected const SIGNAL_KEY = 'track_fakewebcrawler';
 
 	public function title() :string {

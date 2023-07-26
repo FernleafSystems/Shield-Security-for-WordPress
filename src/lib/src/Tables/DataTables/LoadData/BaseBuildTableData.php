@@ -59,7 +59,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		$search = (string)$this->table_data[ 'search' ][ 'value' ] ?? '';
 		$wheres = $this->buildWheresFromSearchParams();
 
-		$searchableColumns = array_flip( $this->getSearchableColumns() );
+		$searchableColumns = \array_flip( $this->getSearchableColumns() );
 
 		// We keep building logs and filtering by the search string until we have
 		// enough records built to return in order to satisfy the start + length.
@@ -81,14 +81,14 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					$results[] = $result;
 				}
 				else {
-					$searchable = array_intersect_key( $result, $searchableColumns );
+					$searchable = \array_intersect_key( $result, $searchableColumns );
 					foreach ( $searchable as $value ) {
 						$value = wp_strip_all_tags( $value );
-						if ( !is_string( $search ) ) {
+						if ( !\is_string( $search ) ) {
 //							error_log( var_export( $search, true ) );
 							continue;
 						}
-						if ( stripos( $value, $search ) !== false ) {
+						if ( \stripos( $value, $search ) !== false ) {
 							$results[] = $result;
 							break;
 						}
@@ -97,17 +97,17 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			}
 
 			$page++;
-		} while ( count( $results ) < $start + $length );
+		} while ( \count( $results ) < $start + $length );
 
-		$results = array_values( $results );
-		if ( count( $results ) < $start ) {
+		$results = \array_values( $results );
+		if ( \count( $results ) < $start ) {
 			$results = [];
 		}
 		else {
-			$results = array_splice( $results, $start, $length );
+			$results = \array_splice( $results, $start, $length );
 		}
 
-		return array_values( $results );
+		return \array_values( $results );
 	}
 
 	protected function buildWheresFromSearchParams() :array {
@@ -119,7 +119,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		if ( !empty( $this->table_data[ 'order' ] ) ) {
 			$col = $this->table_data[ 'order' ][ 0 ][ 'column' ];
 			$sortCol = $this->table_data[ 'columns' ][ $col ][ 'data' ];
-			$orderBy = is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
+			$orderBy = \is_array( $sortCol ) ? $sortCol[ 'sort' ] : $sortCol;
 		}
 		return $orderBy;
 	}
@@ -127,8 +127,8 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	protected function getOrderDirection() :string {
 		$dir = 'DESC';
 		if ( !empty( $this->table_data[ 'order' ] ) ) {
-			$dir = strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
-			if ( !in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
+			$dir = \strtoupper( $this->table_data[ 'order' ][ 0 ][ 'dir' ] );
+			if ( !\in_array( $dir, [ 'ASC', 'DESC' ] ) ) {
 				$dir = 'DESC';
 			}
 		}
@@ -173,7 +173,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$this->con()->svgs->raw( 'trash3-fill.svg' )
 			);
 
-			$content = implode( '', array_filter( [
+			$content = \implode( '', \array_filter( [
 				sprintf( '<h6 class="text-nowrap mb-0"><span class="me-1">%s</span>%s</h6>',
 					$recordDeleteID >= 0 ? $deleteLink : '',
 					$this->getIpAnalysisLink( $ip )
@@ -218,13 +218,13 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function buildSqlWhereForDaysSearch( array $selectedDays, string $tableAbbr, string $column = 'created_at' ) :string {
-		$splitDates = array_map(
+		$splitDates = \array_map(
 			function ( $selectedDay ) use ( $tableAbbr, $column ) {
 				if ( $selectedDay === BuildDataForDays::ZERO_DATE_FORMAT ) {
 					return sprintf( "(`%s`.`%s`=0)", $tableAbbr, $column );
 				}
 				else {
-					[ $year, $month, $day ] = explode( '-', $selectedDay );
+					[ $year, $month, $day ] = \explode( '-', $selectedDay );
 					$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
 					return sprintf( "(`%s`.`%s`>%s AND `%s`.`%s`<%s)",
 						$tableAbbr,
@@ -238,6 +238,6 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			},
 			$selectedDays
 		);
-		return sprintf( '(%s)', implode( ' OR ', array_filter( $splitDates ) ) );
+		return sprintf( '(%s)', \implode( ' OR ', \array_filter( $splitDates ) ) );
 	}
 }

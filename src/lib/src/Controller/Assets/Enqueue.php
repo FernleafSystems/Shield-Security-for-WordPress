@@ -50,7 +50,7 @@ class Enqueue {
 			global $wp_styles;
 			$this->removeConflictingAdminAssets( $wp_scripts );
 			$this->removeConflictingAdminAssets( $wp_styles );
-		}, PHP_INT_MAX );
+		}, \PHP_INT_MAX );
 	}
 
 	/**

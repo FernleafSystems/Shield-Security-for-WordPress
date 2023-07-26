@@ -17,7 +17,7 @@
     "run_if_wpcli":          false,
     "order":                 80
   },
-  "menus":         {
+  "menus":      {
     "config_menu_priority": 60
   },
   "wpcli":      {
@@ -192,6 +192,7 @@
       "key":         "xcsp_custom",
       "section":     "section_content_security_policy",
       "premium":     true,
+      "cap":         "http_headers_csp",
       "default":     [],
       "type":        "array",
       "link_info":   "https://shsec.io/g9",

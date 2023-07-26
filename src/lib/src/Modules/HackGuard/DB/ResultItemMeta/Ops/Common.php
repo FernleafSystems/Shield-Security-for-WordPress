@@ -13,6 +13,6 @@ trait Common {
 	}
 
 	public function filterByResultItems( array $refs ) {
-		return $this->addWhereIn( 'ri_ref', array_map( 'intval', $refs ) );
+		return $this->addWhereIn( 'ri_ref', \array_map( 'intval', $refs ) );
 	}
 }

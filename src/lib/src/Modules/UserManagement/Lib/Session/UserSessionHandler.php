@@ -34,7 +34,7 @@ class UserSessionHandler {
 	public function printLinkToAdmin( $msg = '' ) :string {
 		$user = Services::WpUsers()->getCurrentWpUser();
 
-		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
+		if ( \in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
 			 && $user instanceof \WP_User
 			 && $this->con()->getModule_Plugin()->getSessionCon()->current()->valid
 		) {
@@ -46,7 +46,7 @@ class UserSessionHandler {
 					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
 
-		return is_string( $msg ) ? $msg : '';
+		return \is_string( $msg ) ? $msg : '';
 	}
 
 	private function sendLoginNotifications( \WP_User $user ) {
@@ -99,7 +99,7 @@ class UserSessionHandler {
 				$emails = \array_slice( $emails, 0, 1 );
 			}
 
-			$this->opts()->setOpt( 'enable_admin_login_email_notification', implode( ', ', $emails ) );
+			$this->opts()->setOpt( 'enable_admin_login_email_notification', \implode( ', ', $emails ) );
 		}
 
 		return $emails;
@@ -251,7 +251,7 @@ class UserSessionHandler {
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $timeout ) {
-		return $this->opts()->hasMaxSessionTimeout() ? min( $timeout, $this->opts()->getMaxSessionTime() ) : $timeout;
+		return $this->opts()->hasMaxSessionTimeout() ? \min( $timeout, $this->opts()->getMaxSessionTime() ) : $timeout;
 	}
 
 	/**

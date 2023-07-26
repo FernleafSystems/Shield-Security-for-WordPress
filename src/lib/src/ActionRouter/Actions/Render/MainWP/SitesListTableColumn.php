@@ -24,10 +24,10 @@ class SitesListTableColumn extends BaseRender {
 			->setMwpSite( $workingSite )
 			->detect();
 
-		$statusKey = key( $status );
+		$statusKey = \key( $status );
 		$isActive = $statusKey === ClientPluginStatus::ACTIVE;
 		if ( $isActive ) {
-			$issuesCount = array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
+			$issuesCount = \array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 		}
 		else {
 			$issuesCount = 0;
@@ -42,7 +42,7 @@ class SitesListTableColumn extends BaseRender {
 				'is_mwpnoton'         => $statusKey === ClientPluginStatus::MWP_NOT_ON,
 				'is_client_older'     => $statusKey === ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 				'is_client_newer'     => $statusKey === ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
-				'is_version_mismatch' => in_array( $statusKey, [
+				'is_version_mismatch' => \in_array( $statusKey, [
 					ClientPluginStatus::VERSION_NEWER_THAN_SERVER,
 					ClientPluginStatus::VERSION_OLDER_THAN_SERVER,
 				] ),

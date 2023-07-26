@@ -13,7 +13,7 @@ class Traffic extends Base {
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();
-		$logLimit = (int)max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
+		$logLimit = (int)\max( 1, apply_filters( 'shield/ipanalyse_traffic_log_query_limit', 100 ) );
 		try {
 			$ip = ( new IPRecords() )->loadIP( $this->action_data[ 'ip' ], false );
 			/** @var ReqLogs\Ops\Select $selector */
@@ -35,7 +35,7 @@ class Traffic extends Base {
 			$asArray[ 'created_at' ] = $WP->getTimeStringForDisplay( $req->created_at );
 			$asArray[ 'created_at_ago' ] = $this->getTimeAgo( $req->created_at );
 
-			$asArray = array_merge(
+			$asArray = \array_merge(
 				[
 					'path'    => $req->path,
 					'code'    => '-',
@@ -57,7 +57,7 @@ class Traffic extends Base {
 
 		return [
 			'flags'   => [
-				'log_display_limit_reached' => count( $logs ) === $logLimit,
+				'log_display_limit_reached' => \count( $logs ) === $logLimit,
 			],
 			'strings' => [
 				'title'         => __( 'Recent Requests', 'wp-simple-firewall' ),
@@ -74,7 +74,7 @@ class Traffic extends Base {
 			'vars'    => [
 				'requests'       => $logs,
 				'display_limit'  => $logLimit,
-				'total_requests' => count( $logs ),
+				'total_requests' => \count( $logs ),
 			],
 		];
 	}

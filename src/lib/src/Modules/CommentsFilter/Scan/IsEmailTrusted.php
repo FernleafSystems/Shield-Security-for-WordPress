@@ -11,9 +11,11 @@ class IsEmailTrusted {
 
 		if ( !$trusted && !empty( $trustedRoles ) ) {
 			$user = Services::WpUsers()->getUserByEmail( $email );
-			if ( $user instanceof \WP_User ) {
-				$trusted = count( array_intersect( $trustedRoles, array_map( 'strtolower', $user->roles ) ) ) > 0;
-			}
+			$trusted = $user instanceof \WP_User
+					   &&
+					   \count( \array_intersect(
+						   $trustedRoles, \array_map( '\strtolower', $user->roles )
+					   ) ) > 0;
 		}
 
 		return $trusted;

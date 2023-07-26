@@ -11,7 +11,7 @@ trait Common {
 	}
 
 	public function filterByType( string $type ) {
-		if ( in_array( $type, [ Constants::REPORT_TYPE_INFO, Constants::REPORT_TYPE_ALERT ] ) ) {
+		if ( \in_array( $type, [ Constants::REPORT_TYPE_INFO, Constants::REPORT_TYPE_ALERT ] ) ) {
 			$this->addWhere( 'type', $type );
 		}
 		return $this;

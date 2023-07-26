@@ -32,7 +32,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	 * @param LogRecord[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
-		return array_values( array_map(
+		return \array_values( \array_map(
 			function ( $log ) {
 				$this->log = $log;
 				$data = $this->log->getRawData();
@@ -68,20 +68,19 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'log' );
 						break;
 					case 'event':
-						if ( count( $selected ) > 1 ) {
-							$wheres[] = sprintf( "`log`.`event_slug` IN ('%s')", implode( '`,`', $selected ) );
+						if ( \count( $selected ) > 1 ) {
+							$wheres[] = sprintf( "`log`.`event_slug` IN ('%s')", \implode( '`,`', $selected ) );
 						}
 						else {
-							$wheres[] = sprintf( "`log`.`event_slug`='%s'", array_pop( $selected ) );
+							$wheres[] = sprintf( "`log`.`event_slug`='%s'", \array_pop( $selected ) );
 						}
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", array_pop( $selected ) );
+						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", \array_pop( $selected ) );
 						break;
 					case 'user':
-						if ( count( $selected ) > 0 ) {
-							error_log( var_export( $selected, true ) );
-							$wheres[] = sprintf( "`meta`.`meta_key`='uid' AND `meta`.`meta_value` IN (%s)", implode( ',', array_values( $selected ) ) );
+						if ( \count( $selected ) > 0 ) {
+							$wheres[] = sprintf( "`meta`.`meta_key`='uid' AND `meta`.`meta_value` IN (%s)", \implode( ',', \array_values( $selected ) ) );
 						}
 						break;
 					default:
@@ -200,7 +199,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		$msg = ActivityLogMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
 		return sprintf( '<span class="message-header">%s</span><p class="m-0">%s</p>',
 			$this->con()->loadEventsService()->getEventName( $this->log->event_slug ),
-			sanitize_textarea_field( implode( "<br/>", $msg ) )
+			sanitize_textarea_field( \implode( "<br/>", $msg ) )
 		);
 	}
 

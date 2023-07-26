@@ -16,13 +16,12 @@ class PageConfig extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
-		$URLs = $con->plugin_urls;
+		$URLs = $this->con()->plugin_urls;
 		$hrefs = [];
 		switch ( $this->action_data[ 'mod_slug' ] ) {
 
 			case SecurityAdmin\ModCon::SLUG:
-				if ( $con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
+				if ( $this->con()->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
 					$hrefs[] = [
 						'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
 						'href' => $URLs->noncedPluginAction(

@@ -62,7 +62,7 @@ class RulesController {
 	}
 
 	public function getRulesResultsSummary() :array {
-		return array_map(
+		return \array_map(
 			function ( $rule ) {
 				return $rule->result;
 			},
@@ -86,7 +86,7 @@ class RulesController {
 				$hook = $rule->wp_hook;
 				if ( !empty( $hook ) ) {
 					$priority = $rule->wp_hook_priority;
-					$hooks[ $hook ] = isset( $hooks[ $hook ] ) ? min( $priority, $hooks[ $hook ] ) : $priority;
+					$hooks[ $hook ] = isset( $hooks[ $hook ] ) ? \min( $priority, $hooks[ $hook ] ) : $priority;
 				}
 			}
 
@@ -133,7 +133,7 @@ class RulesController {
 	public function getRules() :array {
 		if ( !isset( $this->rules ) ) {
 			try {
-				$this->rules = array_map(
+				$this->rules = \array_map(
 					function ( $rule ) {
 						return ( new RuleVO() )->applyFromArray( $rule );
 					},
@@ -160,7 +160,7 @@ class RulesController {
 	 * @return RuleVO[]
 	 */
 	private function getRulesForHook( string $hook ) :array {
-		return array_filter( $this->getRules(), function ( $rule ) use ( $hook ) {
+		return \array_filter( $this->getRules(), function ( $rule ) use ( $hook ) {
 			return $rule->wp_hook === $hook;
 		} );
 	}
@@ -183,8 +183,8 @@ class RulesController {
 	 */
 	public function locateConditionHandlerClass( string $condition ) :string {
 		$theHandlerClass = sprintf( '%s\\Conditions\\%s', __NAMESPACE__,
-			implode( '', array_map( 'ucfirst', explode( '_', $condition ) ) ) );
-		if ( !class_exists( $theHandlerClass ) ) {
+			\implode( '', \array_map( '\ucfirst', \explode( '_', $condition ) ) ) );
+		if ( !\class_exists( $theHandlerClass ) ) {
 			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$theHandlerClass );
 		}
 		return $theHandlerClass;
@@ -212,8 +212,8 @@ class RulesController {
 	 */
 	public function locateResponseHandlerClass( string $response ) :string {
 		$theHandlerClass = sprintf( '%s\\Responses\\%s', __NAMESPACE__,
-			implode( '', array_map( 'ucfirst', explode( '_', $response ) ) ) );
-		if ( !class_exists( $theHandlerClass ) ) {
+			\implode( '', \array_map( '\ucfirst', \explode( '_', $response ) ) ) );
+		if ( !\class_exists( $theHandlerClass ) ) {
 			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$theHandlerClass );
 		}
 		return $theHandlerClass;

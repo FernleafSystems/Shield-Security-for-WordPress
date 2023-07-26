@@ -9,14 +9,10 @@ class SecurityAdminRemove extends SecurityAdminBase {
 	public const SLUG = 'secadmin_remove_confirm';
 
 	protected function exec() {
-		$con = $this->con();
-		( new RemoveSecAdmin() )
-			->setMod( $con->getModule_SecAdmin() )
-			->remove( (bool)$this->action_data[ 'quietly' ] ?? false );
-
+		( new RemoveSecAdmin() )->remove( (bool)$this->action_data[ 'quietly' ] ?? false );
 		$this->response()->next_step = [
 			'type' => 'redirect',
-			'url'  => $con->plugin_urls->modCfg( $con->getModule_SecAdmin() ),
+			'url'  => $this->con()->plugin_urls->modCfg( $this->con()->getModule_SecAdmin() ),
 		];
 	}
 }

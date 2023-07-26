@@ -7,8 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Processor {
 
 	protected function run() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
+		$mod = self::con()->getModule_LoginGuard();
 
 		// XML-RPC Compatibility
 		if ( $this->con()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {

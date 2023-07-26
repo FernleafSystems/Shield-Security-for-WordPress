@@ -32,9 +32,9 @@ class BuildHashesFromDir {
 			$algo = $this->getHashAlgo();
 			foreach ( StandardDirectoryIterator::create( $dir, $this->depth, $this->fileExtensions ) as $file ) {
 				/** @var \SplFileInfo $file */
-				$fullPath = $file->getPathname();
-				$key = str_replace( $dir, '', wp_normalize_path( $fullPath ) );
-				$snaps[ strtolower( $key ) ] = hash_file( $algo, $fullPath, $binary );
+				$path = $file->getPathname();
+				$snaps[ \strtolower( \str_replace( $dir, '', wp_normalize_path( $path ) ) ) ] =
+					\hash_file( $algo, $path, $binary );
 			}
 		}
 		catch ( \Exception $e ) {

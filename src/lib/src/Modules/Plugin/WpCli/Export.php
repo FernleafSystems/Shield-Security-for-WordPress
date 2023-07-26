@@ -71,14 +71,11 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 		if ( !$FS->isAccessibleFile( $file ) ) {
 			WP_CLI::error( __( "Couldn't create the export file.", 'wp-simple-firewall' ) );
 		}
-		if ( !is_writable( $file ) ) {
+		if ( !\is_writable( $file ) ) {
 			WP_CLI::error( __( "The system reports that this file path isn't writable.", 'wp-simple-firewall' ) );
 		}
 
-		$aData = ( new Lib\ImportExport\Export() )
-			->setMod( $this->mod() )
-			->toStandardArray();
-		if ( !$FS->putFileContent( $file, implode( "\n", $aData ) ) ) {
+		if ( !$FS->putFileContent( $file, \implode( "\n", ( new Lib\ImportExport\Export() )->toStandardArray() ) ) ) {
 			WP_CLI::error( __( "The system reports that writing the export file failed.", 'wp-simple-firewall' ) );
 		}
 

@@ -37,13 +37,13 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 				'file_locks' => [
 					'good'        => ( new LoadFileLocks() )->withoutProblems(),
 					'bad'         => $problemLocks,
-					'count_items' => count( $problemLocks ),
+					'count_items' => \count( $problemLocks ),
 				],
 			],
 			'strings' => [
 				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
 			],
-			'count'   => count( $problemLocks )
+			'count'   => \count( $problemLocks )
 		];
 	}
 }

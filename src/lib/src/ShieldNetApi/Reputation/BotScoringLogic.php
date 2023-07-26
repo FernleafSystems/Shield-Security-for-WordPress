@@ -10,6 +10,6 @@ class BotScoringLogic extends Common\BaseShieldNetApi {
 
 	public function retrieve() :?array {
 		$raw = $this->sendReq();
-		return ( is_array( $raw ) && !empty( $raw[ 'data' ] ) ) ? $raw[ 'data' ] : null;
+		return ( \is_array( $raw ) && !empty( $raw[ 'data' ] ) ) ? $raw[ 'data' ] : null;
 	}
 }

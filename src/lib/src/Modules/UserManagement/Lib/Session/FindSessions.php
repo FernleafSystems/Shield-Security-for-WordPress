@@ -16,7 +16,7 @@ class FindSessions {
 	public function byIP( string $ip ) :array {
 		$sessions = [];
 		foreach ( $this->lookupFromUserMeta( [ $this->getWhere_IPEquals( $ip ) ] ) as $userID => $userAtIP ) {
-			$sessions[ $userID ] = array_map(
+			$sessions[ $userID ] = \array_map(
 				function ( $sess ) use ( $userAtIP ) {
 					$sess[ 'user_login' ] = $userAtIP[ 'user_login' ];
 					return $sess;
@@ -48,14 +48,14 @@ class FindSessions {
 				$modData->getDbH_UserMeta()->getTableSchema()->table,
 				$modData->getDbH_IPs()->getTableSchema()->table,
 				$DB->getTable_Users(),
-				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
+				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				$orderBy,
 				empty( $limit ) ? '' : 'LIMIT '.$limit
 			)
 		);
 
 		$byUserIDs = [];
-		foreach ( is_array( $results ) ? $results : [] as $result ) {
+		foreach ( \is_array( $results ) ? $results : [] as $result ) {
 			$byUserIDs[ $result[ 'user_id' ] ] = $result;
 		}
 

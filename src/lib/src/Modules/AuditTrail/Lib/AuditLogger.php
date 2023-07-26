@@ -43,12 +43,16 @@ class AuditLogger extends EventsListener {
 	protected function onShutdown() {
 		if ( !$this->con()->plugin_deleting && $this->isMonologLibrarySupported() ) {
 			$this->initLogger();
-			foreach ( array_reverse( $this->auditLogs ) as $auditLog ) {
-				$this->getLogger()->log(
-					$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
-					ActivityLogMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
-					$auditLog
-				);
+			foreach ( \array_reverse( $this->auditLogs ) as $auditLog ) {
+				try {
+					$this->getLogger()->log(
+						$auditLog[ 'level' ] ?? $auditLog[ 'event_def' ][ 'level' ],
+						ActivityLogMessageBuilder::Build( $auditLog[ 'event_slug' ], $auditLog[ 'audit_params' ] ?? [] ),
+						$auditLog
+					);
+				}
+				catch ( \InvalidArgumentException $e ) {
+				}
 			}
 		}
 	}
@@ -67,9 +71,12 @@ class AuditLogger extends EventsListener {
 					 );
 			}
 
-			if ( $this->con()->cache_dir_handler->exists() && $opts->isLogToFile() ) {
+			$fileLogLevels = \method_exists( $this, 'getLogLevelsFile' ) ? $this->getLogLevelsFile() : $opts->getLogLevelsFile();
+			if ( $con->cache_dir_handler->exists()
+				 && !\in_array( 'disabled', $fileLogLevels ) && !empty( $opts->getLogFilePath() )
+			) {
 				try {
-					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $opts->getLogLevelsFile() );
+					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $fileLogLevels );
 					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
 						$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 					}
@@ -95,18 +102,20 @@ class AuditLogger extends EventsListener {
 	}
 
 	private function pushCustomHandlers() {
-		$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
-		array_map(
-			function ( $handler ) {
-				$this->getLogger()->pushHandler( $handler );
-			},
-			( $this->con()->isPremiumActive() && is_array( $custom ) ) ? $custom : []
-		);
+		if ( $this->con()->caps->canActivityLogsSendToIntegrations() ) {
+			$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
+			\array_map(
+				function ( $handler ) {
+					$this->getLogger()->pushHandler( $handler );
+				},
+				\is_array( $custom ) ? $custom : []
+			);
+		}
 	}
 
 	public function getLogger() :Logger {
 		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'audit', [], array_map( function ( $class ) {
+			$this->logger = new Logger( 'audit', [], \array_map( function ( $class ) {
 				return new $class();
 			}, $this->enumMetaProcessors() ) );
 		}
@@ -136,5 +145,24 @@ class AuditLogger extends EventsListener {
 				$this->auditLogs[ $evt ] = $meta;
 			}
 		}
+	}
+
+	private function getLogLevelsFile() :array {
+		/** @var Options $opts */
+		$opts = $this->con()->getModule_AuditTrail()->getOptions();
+		$levels = $opts->getOpt( 'log_level_file', [] );
+		if ( empty( $levels ) ) {
+			$opts->resetOptToDefault( 'log_level_file' );
+		}
+		elseif ( \count( $levels ) > 1 ) {
+			if ( \in_array( 'disabled', $levels ) ) {
+				$opts->setOpt( 'log_level_file', [ 'disabled' ] );
+			}
+			elseif ( \in_array( 'same_as_db', $levels ) ) {
+				$opts->setOpt( 'log_level_file', [ 'same_as_db' ] );
+			}
+		}
+		$levels = $opts->getOpt( 'log_level_file', [] );
+		return \in_array( 'same_as_db', $levels ) ? $opts->getLogLevelsDB() : $levels;
 	}
 }

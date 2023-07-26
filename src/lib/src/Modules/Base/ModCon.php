@@ -217,7 +217,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return !is_null( $this->getProcessor() );
+		return !\is_null( $this->getProcessor() );
 	}
 
 	protected function doExecuteProcessor() {
@@ -421,7 +421,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function hasLastErrors() :bool {
-		return count( $this->getLastErrors() ) > 0;
+		return \count( $this->getLastErrors() ) > 0;
 	}
 
 	public function getTextOpt( string $key ) :string {
@@ -485,8 +485,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->con()->prefix( 'force_options_resave' ), false ) ) {
-			$this->getOptions()
-				 ->setNeedSave( true );
+			$this->getOptions()->setNeedSave( true );
 		}
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
@@ -504,8 +503,7 @@ abstract class ModCon extends DynPropertiesClass {
 	private function store() {
 		$con = $this->con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->getOptions()
-			 ->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
+		$this->getOptions()->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
@@ -523,7 +521,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function buildContextualHelp() {
-		if ( !function_exists( 'get_current_screen' ) ) {
+		if ( !\function_exists( 'get_current_screen' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/screen.php' );
 		}
 		$screen = get_current_screen();

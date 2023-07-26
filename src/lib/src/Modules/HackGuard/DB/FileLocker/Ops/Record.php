@@ -44,7 +44,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		switch ( $key ) {
 			case 'content':
 			case 'path':
-				$value = base64_encode( $value );
+				$value = \base64_encode( $value );
 				break;
 			default:
 				break;

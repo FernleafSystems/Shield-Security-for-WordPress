@@ -12,7 +12,6 @@ class Activity extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig';
 
 	protected function getRenderData() :array {
-		$WP = Services::WpGeneral();
 		$logLoader = ( new LoadLogs() )->setIP( $this->action_data[ 'ip' ] );
 		$logLoader->limit = 100;
 
@@ -22,8 +21,8 @@ class Activity extends Base {
 			if ( $srvEvents->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();
 
-				$asArray[ 'event' ] = implode( ' ', ActivityLogMessageBuilder::BuildFromLogRecord( $record ) );
-				$asArray[ 'created_at' ] = $WP->getTimeStringForDisplay( $record->created_at );
+				$asArray[ 'event' ] = \implode( ' ', ActivityLogMessageBuilder::BuildFromLogRecord( $record ) );
+				$asArray[ 'created_at' ] = Services::WpGeneral()->getTimeStringForDisplay( $record->created_at );
 				$asArray[ 'created_at_ago' ] = $this->getTimeAgo( $record->created_at );
 
 				$user = empty( $record->meta_data[ 'uid' ] ) ? null
@@ -44,7 +43,7 @@ class Activity extends Base {
 			],
 			'vars'    => [
 				'logs'       => $logs,
-				'total_logs' => count( $logs ),
+				'total_logs' => \count( $logs ),
 			],
 		];
 	}

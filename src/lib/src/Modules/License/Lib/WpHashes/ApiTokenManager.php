@@ -47,12 +47,10 @@ class ApiTokenManager {
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$token = $this->loadToken();
 				try {
-					$token = array_merge( $token,
-						array_intersect_key(
-							( new SolicitToken() )
-								->setMod( $this->con()->getModule_Plugin() )
-								->send(),
-							array_flip( [ 'token', 'expires_at', 'valid_license' ] )
+					$token = \array_merge( $token,
+						\array_intersect_key(
+							( new SolicitToken() )->send(),
+							\array_flip( [ 'token', 'expires_at', 'valid_license' ] )
 						)
 					);
 				}
@@ -71,14 +69,14 @@ class ApiTokenManager {
 	}
 
 	public function hasToken() :bool {
-		return strlen( $this->getToken() ) === 40 && !$this->isExpired();
+		return \strlen( $this->getToken() ) === 40 && !$this->isExpired();
 	}
 
 	/**
 	 * retrieve Token exactly as it's saved
 	 */
 	private function loadToken() :array {
-		return array_merge(
+		return \array_merge(
 			[
 				'token'             => '',
 				'expires_at'        => 0,

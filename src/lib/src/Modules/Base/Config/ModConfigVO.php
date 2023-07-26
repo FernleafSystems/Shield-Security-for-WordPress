@@ -22,11 +22,11 @@ class ModConfigVO extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'reqs':
-				$value = array_merge(
+				$value = \array_merge(
 					[
 						'dbs' => [],
 					],
-					is_array( $value ) ? $value : []
+					\is_array( $value ) ? $value : []
 				);
 				break;
 			default:

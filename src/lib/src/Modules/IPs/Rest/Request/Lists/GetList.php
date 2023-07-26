@@ -31,12 +31,12 @@ class GetList extends Base {
 		if ( !empty( $types ) ) {
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type` IN ('%s')", implode( "','", $types ) )
+				sprintf( "`ir`.`type` IN ('%s')", \implode( "','", $types ) )
 			];
 			$records = $loader->select();
 		}
 
-		return array_map(
+		return \array_map(
 			function ( $record ) {
 				return $this->convertIpRuleToArray( $record );
 			},

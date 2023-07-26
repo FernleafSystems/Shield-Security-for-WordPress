@@ -41,7 +41,7 @@ class Strings {
 	public function getSectionStrings( string $section ) :array {
 
 		$section = $this->getOptions()->getSection( $section );
-		if ( is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {
+		if ( \is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {
 			$title = __( $section[ 'title' ], 'wp-simple-firewall' );
 			$titleShort = __( $section[ 'title_short' ], 'wp-simple-firewall' );
 			$summary = empty( $section[ 'summary' ] ) ? [] : $section[ 'summary' ];
@@ -53,7 +53,7 @@ class Strings {
 		return [
 			'title'       => $title,
 			'title_short' => $titleShort,
-			'summary'     => ( isset( $summary ) && is_array( $summary ) ) ? $summary : [],
+			'summary'     => ( isset( $summary ) && \is_array( $summary ) ) ? $summary : [],
 		];
 	}
 }

@@ -23,12 +23,12 @@ class MeterScans extends MeterBase {
 	public function description() :array {
 		return [
 			__( "The easiest way to know that you've been hacked is when you discover that a file has been modified or added which shouldn't have been.", 'wp-simple-firewall' ),
-			implode( ' ', [
+			\implode( ' ', [
 				__( "You'll only know whether a file has been changed, or a new file added, if you're regularly scanning your WordPress filesystem.", 'wp-simple-firewall' ),
 				__( "The sooner you can find any malicious files or modifications, the sooner you can prevent any abuse.", 'wp-simple-firewall' ),
 				__( "The more scans you enable, the quicker you'll be alerted to potentially malicious file changes..", 'wp-simple-firewall' ),
 			] ),
-			implode( ' ', [
+			\implode( ' ', [
 				__( "'Malware scanning' is often marketed as the most important aspect of security, but this thinking is backwards.", 'wp-simple-firewall' ),
 				__( "Discovering malware on your site isn't 'protection' - it's actually a sign that your site is already hacked.", 'wp-simple-firewall' ),
 				__( "While this is good to know, it's far more useful to prevent the hack in the first place (see the IP Blocking section above).", 'wp-simple-firewall' ),
@@ -38,7 +38,11 @@ class MeterScans extends MeterBase {
 
 	protected function getComponents() :array {
 		return [
-			Component\ScanEnabledAfs::class,
+			Component\ScanEnabledAfsAreaWpCore::class,
+			Component\ScanEnabledAfsAreaPlugins::class,
+			Component\ScanEnabledAfsAreaThemes::class,
+			Component\ScanEnabledAfsAreaWpContent::class,
+			Component\ScanEnabledAfsAreaWpRoot::class,
 			Component\ScanEnabledMal::class,
 			Component\ScanEnabledAfsAutoRepairCore::class,
 			Component\ScanEnabledAfsAutoRepairPlugins::class,

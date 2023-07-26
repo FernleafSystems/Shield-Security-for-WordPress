@@ -19,7 +19,7 @@ class ConfigEdit extends UserMfaBase {
 
 		$pluginName = $con->getHumanName();
 
-		$providers = array_map(
+		$providers = \array_map(
 			function ( $provider ) {
 				return $provider->getProviderName();
 			},
@@ -29,7 +29,7 @@ class ConfigEdit extends UserMfaBase {
 		$isAdmin = Services::WpUsers()->isUserAdmin( $user );
 		return [
 			'flags'   => [
-				'has_factors'      => count( $providers ) > 0,
+				'has_factors'      => \count( $providers ) > 0,
 				'is_admin_profile' => $isAdmin,
 				'can_remove'       => $con->isPluginAdmin() || !$isAdmin,
 			],

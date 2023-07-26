@@ -7,34 +7,23 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BaseBuild {
 
-	use Shield\Databases\Base\HandlerConsumer;
-	use Shield\Modules\ModConsumer;
-
-	/**
-	 * @var Shield\Databases\Base\Select
-	 */
-	protected $oWorkingSelector;
+	use Shield\Modules\PluginControllerConsumer;
 
 	/**
 	 * @var array
 	 */
-	protected $aBuildParams;
+	protected $params;
 
 	public function render() :string {
-
-		$db = $this->getDbHandler();
-		if ( $db && !$this->getDbHandler()->isReady() ) {
-			$render = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
-		}
-		elseif ( $this->countTotal() > 0 ) {
+		if ( $this->countTotal() > 0 ) {
 			$table = $this->getTableRenderer()
 						  ->setItemEntries( $this->getEntriesFormatted() )
 						  ->setPerPage( $this->getParams()[ 'limit' ] )
 						  ->setTotalRecords( $this->countTotal() )
 						  ->prepare_items();
-			ob_start();
+			\ob_start();
 			$table->display();
-			$render = ob_get_clean();
+			$render = \ob_get_clean();
 		}
 		else {
 			$render = $this->buildEmpty();
@@ -72,21 +61,7 @@ class BaseBuild {
 	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
 	 */
 	protected function getEntriesRaw() :array {
-		$aEntries = $this->startQueryProcess()
-						 ->applyDefaultQueryFilters()
-						 ->applyCustomQueryFilters()
-						 ->getWorkingSelector()
-						 ->query();
-		return $this->postSelectEntriesFilter( $aEntries );
-	}
-
-	/**
-	 * Override this to filter entries that cannot be filtered using SQL WHERE
-	 * @param array[] $entries
-	 * @return array[]
-	 */
-	protected function postSelectEntriesFilter( $entries ) {
-		return $entries;
+		return $this->getWorkingSelector()->query();
 	}
 
 	/**
@@ -96,64 +71,24 @@ class BaseBuild {
 		return new Shield\Tables\Render\WpListTable\Base();
 	}
 
-	/**
-	 * @return int
-	 */
-	public function countTotal() {
-		return $this->startQueryProcess()
-					->applyCustomQueryFilters()
-					->getWorkingSelector()
-					->count();
+	public function countTotal() :int {
+		return $this->getWorkingSelector()->count();
 	}
 
-	/**
-	 * Override this to apply table-specific query filters.
-	 * @return $this
-	 */
-	protected function applyCustomQueryFilters() {
-		return $this;
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function applyDefaultQueryFilters() {
-		$aParams = $this->getParams();
-		$oSelect = $this->getWorkingSelector();
-
-		if ( isset( $aParams[ 'paged' ] ) ) {
-			$oSelect->setPage( $aParams[ 'paged' ] );
+	protected function getParams() :array {
+		if ( empty( $this->params ) ) {
+			$this->params = \array_merge( $this->getParamDefaults(), \array_merge( $_POST, $this->getFormParams() ) );
 		}
-		if ( isset( $aParams[ 'orderby' ] ) && isset( $aParams[ 'order' ] ) ) {
-			$oSelect->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] );
-		}
-		if ( isset( $aParams[ 'limit' ] ) ) {
-			$oSelect->setLimit( $aParams[ 'limit' ] );
-		}
-		$oSelect->setResultsAsVo( true );
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getParams() {
-		if ( empty( $this->aBuildParams ) ) {
-			$this->aBuildParams = array_merge(
-				$this->getParamDefaults(),
-				array_merge( $_POST, $this->getFormParams() )
-			);
-		}
-		return $this->aBuildParams;
+		return $this->params;
 	}
 
 	private function getFormParams() :array {
-		parse_str( Services::Request()->post( 'form_params', '' ), $formParams );
+		\parse_str( Services::Request()->post( 'form_params', '' ), $formParams );
 		return Services::DataManipulation()->arrayMapRecursive( $formParams, 'trim' );
 	}
 
 	protected function getParamDefaults() :array {
-		return array_merge(
+		return \array_merge(
 			[
 				'paged'   => 1,
 				'order'   => 'DESC',
@@ -176,28 +111,6 @@ class BaseBuild {
 	 * @return Shield\Databases\Base\Select
 	 */
 	public function getWorkingSelector() {
-		if ( empty( $this->oWorkingSelector ) ) {
-			$this->oWorkingSelector = $this->getDbHandler()->getQuerySelector();
-		}
-		return $this->oWorkingSelector;
-	}
-
-	protected function startQueryProcess() :self {
-		unset( $this->oWorkingSelector );
-		return $this;
-	}
-
-	protected function getIpAnalysisLink( string $ip ) :string {
-		$srvIP = Services::IP();
-		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : $this->con()->plugin_urls->ipAnalysis( $ip );
-		return sprintf(
-			'<a href="%s" %s title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
-			$href,
-			$srvIP->isValidIpRange( $ip ) ? 'target="_blank"' : '',
-			__( 'IP Analysis' ),
-			$srvIP->isValidIpRange( $ip ) ? '' : 'render_ip_analysis',
-			$ip,
-			$ip
-		);
+		return null;
 	}
 }

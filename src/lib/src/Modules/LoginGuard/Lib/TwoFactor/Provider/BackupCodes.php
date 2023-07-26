@@ -79,7 +79,7 @@ class BackupCodes extends AbstractShieldProvider {
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		return (bool)wp_check_password( str_replace( '-', '', $otp ), $this->getSecret() );
+		return (bool)wp_check_password( \str_replace( '-', '', $otp ), $this->getSecret() );
 	}
 
 	/**
@@ -90,7 +90,7 @@ class BackupCodes extends AbstractShieldProvider {
 	}
 
 	public function isProviderEnabled() :bool {
-		return $this->opts()->isEnabledBackupCodes();
+		return $this->opts()->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
 	/**

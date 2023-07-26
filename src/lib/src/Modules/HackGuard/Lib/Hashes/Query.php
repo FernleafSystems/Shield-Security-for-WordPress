@@ -37,12 +37,12 @@ class Query {
 		}
 
 		$assetHashes = ( new Retrieve() )->byVO( $vo );
-		$hash = $assetHashes[ $fragment ] ?? ( $assetHashes[ strtolower( $fragment ) ] ?? null );
+		$hash = $assetHashes[ $fragment ] ?? ( $assetHashes[ \strtolower( $fragment ) ] ?? null );
 		if ( empty( $hash ) ) {
 			throw new UnrecognisedAssetFile( sprintf( 'No hashes exist for file: %s', $path ) );
 		}
 
-		return is_array( $hash ) ? $hash : [ $hash ];
+		return \is_array( $hash ) ? $hash : [ $hash ];
 	}
 
 	/**

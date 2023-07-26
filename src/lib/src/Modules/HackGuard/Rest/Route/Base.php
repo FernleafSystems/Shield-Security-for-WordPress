@@ -16,7 +16,7 @@ abstract class Base extends RouteBase {
 				$possible = $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
 				$sch = [
 					'title'       => 'Scan Slugs',
-					'description' => sprintf( 'Comma-separated scan slugs to include (allowed: %s).', implode( ', ', $possible ) ),
+					'description' => sprintf( 'Comma-separated scan slugs to include (allowed: %s).', \implode( ', ', $possible ) ),
 					'type'        => 'array',
 					'required'    => false,
 				];
@@ -35,7 +35,7 @@ abstract class Base extends RouteBase {
 
 			case 'scan_slugs':
 				$possible = $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
-				$value = array_intersect( $possible, $value );
+				$value = \array_intersect( $possible, $value );
 				if ( empty( $value ) ) {
 					$value = $possible;
 				}
@@ -54,9 +54,9 @@ abstract class Base extends RouteBase {
 
 			case 'scan_slugs':
 				$possible = $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs();
-				$slugsSent = array_filter( is_array( $value ) ? $value : explode( ',', $value ) );
-				if ( !empty( $slugsSent ) && count( array_diff( $slugsSent, $possible ) ) > 0 ) {
-					throw new \Exception( sprintf( 'Invalid scan slugs provided. Please only supply: %s', implode( ', ', $possible ) ) );
+				$slugsSent = \array_filter( \is_array( $value ) ? $value : \explode( ',', $value ) );
+				if ( !empty( $slugsSent ) && \count( \array_diff( $slugsSent, $possible ) ) > 0 ) {
+					throw new \Exception( sprintf( 'Invalid scan slugs provided. Please only supply: %s', \implode( ', ', $possible ) ) );
 				}
 				break;
 

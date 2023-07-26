@@ -15,7 +15,7 @@ class Suspended extends Base {
 		if ( $meta->record->hard_suspended_at > 0 ) {
 			$user = new \WP_Error(
 				$this->con()->prefix( 'hard-suspended' ),
-				implode( ' ', [
+				\implode( ' ', [
 					__( 'Sorry, this account is suspended.', 'wp-simple-firewall' ),
 					__( 'Please contact your website administrator.', 'wp-simple-firewall' ),
 				] )

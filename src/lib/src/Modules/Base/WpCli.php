@@ -14,9 +14,13 @@ class WpCli extends ExecOnceModConsumer {
 			   && !empty( $this->getAllCmdHandlers() );
 	}
 
+	protected function isFeatureAvailable() :bool {
+		return $this->con()->caps->canWpcliLevel2();
+	}
+
 	protected function run() {
 		try {
-			array_map(
+			\array_map(
 				function ( $handlerClass ) {
 					return ( new $handlerClass() )
 						->setMod( $this->mod() )
@@ -48,7 +52,7 @@ class WpCli extends ExecOnceModConsumer {
 	}
 
 	public function getCfg() :array {
-		return array_merge(
+		return \array_merge(
 			[
 				'enabled'          => false,
 				'cmd_root'         => $this->con()->getPluginPrefix(),

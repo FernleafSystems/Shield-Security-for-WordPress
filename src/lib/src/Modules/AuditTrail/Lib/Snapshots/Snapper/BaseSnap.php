@@ -1,0 +1,16 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Snapper;
+
+abstract class BaseSnap {
+
+	abstract public function snap() :array;
+
+	public function updateItemOnSnapshot( array $snapshotData, $item ) :array {
+		return $snapshotData;
+	}
+
+	public function deleteItemOnSnapshot( array $snapshotData, $item ) :array {
+		return $snapshotData;
+	}
+}

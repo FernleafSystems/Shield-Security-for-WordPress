@@ -24,10 +24,20 @@ class IpAutoBlockCrowdsec extends IpBase {
 	}
 
 	public function descProtected() :string {
-		return __( 'Crowd-Sourced IP Blocking with CrowdSec is switched ON', 'wp-simple-firewall' );
+		$desc = __( 'Crowd-Sourced IP Blocking with CrowdSec is switched ON.', 'wp-simple-firewall' );
+		if ( !$this->con()->caps->canCrowdsecLevel2() ) {
+			$desc .= ' '.__( 'Additional IP block lists are available with an upgraded plan.' );
+		}
+		return $desc;
 	}
 
 	public function descUnprotected() :string {
 		return __( 'Crowd-Sourced IP Blocking with CrowdSec is switched OFF.', 'wp-simple-firewall' );
+	}
+
+	protected function score() :int {
+		return $this->testIfProtected() ?
+			( $this->con()->caps->canCrowdsecLevel2() ? static::WEIGHT : static::WEIGHT/3 )
+			: 0;
 	}
 }

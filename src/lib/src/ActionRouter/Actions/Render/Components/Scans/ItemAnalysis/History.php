@@ -59,11 +59,11 @@ class History extends Base {
 	private function convertHistoryToHuman() :array {
 		$WP = Services::WpGeneral();
 		$humanHistory = [];
-		ksort( $this->history );
+		\ksort( $this->history );
 		foreach ( $this->history as $ts => $history ) {
-			$humanHistory[ $WP->getTimeStringForDisplay( $WP->getTimeAsGmtOffset( $ts ) ) ] = array_unique( $history );
+			$humanHistory[ $WP->getTimeStringForDisplay( $WP->getTimeAsGmtOffset( $ts ) ) ] = \array_unique( $history );
 		}
-		return array_reverse( $humanHistory );
+		return \array_reverse( $humanHistory );
 	}
 
 	private function columnMap() :array {

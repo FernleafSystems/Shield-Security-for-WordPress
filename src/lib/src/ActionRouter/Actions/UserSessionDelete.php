@@ -12,9 +12,9 @@ class UserSessionDelete extends SecurityAdminBase {
 		$sessionCon = $this->con()->getModule_Plugin()->getSessionCon();
 		$success = false;
 
-		[ $userID, $uniqueID ] = explode( '-', Services::Request()->post( 'rid', '' ) );
+		[ $userID, $uniqueID ] = \explode( '-', Services::Request()->post( 'rid', '' ) );
 
-		if ( empty( $userID ) || !is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
+		if ( empty( $userID ) || !\is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
 		elseif ( $sessionCon->current()->shield[ 'unique' ] === $uniqueID ) {

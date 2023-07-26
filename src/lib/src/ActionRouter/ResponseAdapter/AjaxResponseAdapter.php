@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 class AjaxResponseAdapter extends BaseAdapter {
 
 	public function adapt( ActionResponse $response ) {
-		$responseData = array_merge(
+		$responseData = \array_merge(
 			[
 				'success'    => false,
 				'message'    => $response->message ?? '',
@@ -19,7 +19,7 @@ class AjaxResponseAdapter extends BaseAdapter {
 				'show_toast' => true,
 			],
 			$response->getRawData(),
-			is_array( $response->action_response_data ) ? $response->action_response_data : []
+			\is_array( $response->action_response_data ) ? $response->action_response_data : []
 		);
 
 		/**

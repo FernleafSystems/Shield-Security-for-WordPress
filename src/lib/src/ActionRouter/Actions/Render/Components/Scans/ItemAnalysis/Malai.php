@@ -20,7 +20,7 @@ class Malai extends Base {
 		if ( !Services::WpFs()->isAccessibleFile( $pathFull ) ) {
 			throw new ActionException( "This file doesn't appear to be available on this site any longer." );
 		}
-		if ( !in_array( strtolower( Paths::Ext( $pathFull ) ), [ 'php', 'php7', 'phtml', 'phtm', 'ico' ] ) ) {
+		if ( !\in_array( \strtolower( Paths::Ext( $pathFull ) ), [ 'php', 'php7', 'phtml', 'phtm', 'ico' ] ) ) {
 			throw new ActionException(
 				sprintf( __( "The file type/extension (%s) isn't supported by the MAL{ai} engine.", 'wp-simple-firewall' ), Paths::Ext( $pathFull ) )
 			);
@@ -33,6 +33,9 @@ class Malai extends Base {
 		}
 
 		return [
+			'flags'   => [
+				'can_malai' => $this->con()->caps->canScanMalwareMalai(),
+			],
 			'vars'    => [
 				'malai_query_nonce' => ActionData::Build( ScansMalaiFileQuery::class, true, [
 					'rid' => $item->VO->scanresult_id,
@@ -55,6 +58,7 @@ class Malai extends Base {
 				],
 				'i_accept'        => __( 'I have read the above information & warnings, and fully accept any and all implications.', 'wp-simple-firewall' ),
 				'run_malai_query' => __( 'Run MAL{ai} Query', 'wp-simple-firewall' ),
+				'cant_run_malai'  => __( "Sorry, you don't have access to run MAL{ai} queries, please upgrade your plan.", 'wp-simple-firewall' ),
 			]
 		];
 	}

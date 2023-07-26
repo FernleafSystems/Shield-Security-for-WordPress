@@ -12,16 +12,16 @@ class SelectSearchData {
 	use PluginControllerConsumer;
 
 	public function build( string $terms ) :array {
-		$terms = strtolower( trim( $terms ) );
-		return $this->postProcessResults( array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
+		$terms = \strtolower( \trim( $terms ) );
+		return $this->postProcessResults( \array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
 	}
 
 	private function postProcessResults( array $results ) :array {
-		return array_map(
+		return \array_map(
 			function ( array $result ) {
-				$result[ 'children' ] = array_map(
+				$result[ 'children' ] = \array_map(
 					function ( array $child ) {
-						$child[ 'link' ] = array_merge( [
+						$child[ 'link' ] = \array_merge( [
 							'target'  => ( $child[ 'is_external' ] ?? false ) ? '_blank' : false,
 							'classes' => [],
 							'data'    => [],
@@ -37,14 +37,14 @@ class SelectSearchData {
 	}
 
 	/**
-	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
+	 * Note use of \array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function ipSearch( string $terms ) :array {
-		$ipTerms = array_filter(
-			array_map( 'trim', explode( ' ', $terms ) ),
+		$ipTerms = \array_filter(
+			\array_map( '\trim', \explode( ' ', $terms ) ),
 			function ( string $term ) {
-				return preg_match( '#^[\d.]{3,}$#i', $term ) || preg_match( '#^[\da-f:]{3,}$#i', $term );
+				return \preg_match( '#^[\d.]{3,}$#i', $term ) || \preg_match( '#^[\da-f:]{3,}$#i', $term );
 			}
 		);
 
@@ -58,13 +58,13 @@ class SelectSearchData {
 							  "'%$ipTerm%'"
 						  ] )
 						  ->queryWithResult();
-			$results = array_merge(
+			$results = \array_merge(
 				$results,
-				array_map(
+				\array_map(
 					function ( Record $ipRecord ) {
 						return $ipRecord->ip;
 					},
-					is_array( $ips ) ? $ips : []
+					\is_array( $ips ) ? $ips : []
 				)
 			);
 		}
@@ -73,12 +73,12 @@ class SelectSearchData {
 			return [];
 		}
 
-		natsort( $results );
+		\natsort( $results );
 
 		return [
 			[
 				'text'     => __( 'IP Addresses', 'wp-simple-firewall' ),
-				'children' => array_map(
+				'children' => \array_map(
 					function ( string $ip ) {
 						return [
 							'id'          => 'ip_'.$ip,
@@ -95,27 +95,27 @@ class SelectSearchData {
 							'icon'        => $this->con()->svgs->raw( 'diagram-2-fill.svg' ),
 						];
 					},
-					array_unique( $results )
+					\array_unique( $results )
 				),
 			]
 		];
 	}
 
 	/**
-	 * Note use of array_values() throughout. This is required by Select2 when it receives the data.
+	 * Note use of \array_values() throughout. This is required by Select2 when it receives the data.
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function textSearch( string $search ) :array {
 		// Terms must all be at least 3 characters.
-		$terms = array_filter( array_unique( array_map(
+		$terms = \array_filter( \array_unique( \array_map(
 			function ( $term ) {
-				$term = strtolower( trim( $term ) );
-				return strlen( $term ) > 2 ? $term : '';
+				$term = \strtolower( \trim( $term ) );
+				return \strlen( $term ) > 2 ? $term : '';
 			},
-			explode( ' ', $search )
+			\explode( ' ', $search )
 		) ) );
 
-		$optionGroups = array_merge(
+		$optionGroups = \array_merge(
 			$this->getToolsSearch(),
 			$this->getIntegrationsSearch(),
 			$this->getExternalSearch(),
@@ -131,7 +131,7 @@ class SelectSearchData {
 					// Remove unnecessary 'tokens' from data sent back to select2
 					unset( $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'tokens' ] );
 
-					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] = array_merge( [
+					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] = \array_merge( [
 						'is_external' => false,
 						'ip'          => false,
 					], $optionGroups[ $optGroupKey ][ 'children' ][ $optKey ] );
@@ -146,15 +146,15 @@ class SelectSearchData {
 				unset( $optionGroups[ $optGroupKey ] );
 			}
 			else {
-				$optionGroups[ $optGroupKey ][ 'children' ] = array_values( $optionGroups[ $optGroupKey ][ 'children' ] );
+				$optionGroups[ $optGroupKey ][ 'children' ] = \array_values( $optionGroups[ $optGroupKey ][ 'children' ] );
 			}
 		}
 
-		return array_values( $optionGroups );
+		return \array_values( $optionGroups );
 	}
 
 	private function searchString( string $haystack, array $needles ) :int {
-		return count( array_intersect( $needles, array_map( 'trim', explode( ' ', strtolower( $haystack ) ) ) ) );
+		return \count( \array_intersect( $needles, \array_map( 'trim', \explode( ' ', \strtolower( $haystack ) ) ) ) );
 	}
 
 	private function getExternalSearch() :array {
@@ -455,12 +455,12 @@ class SelectSearchData {
 		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
 		$strOpts = $modStrings->getOptionStrings( $optKey );
 
-		$allWords = array_filter( array_map( 'trim',
-			explode( ' ', preg_replace( '#\(\):-#', ' ', strip_tags( implode( ' ', array_merge(
+		$allWords = \array_filter( \array_map( 'trim',
+			\explode( ' ', \preg_replace( '#\(\):-#', ' ', \strip_tags( \implode( ' ', \array_merge(
 				[
 					$strOpts[ 'name' ],
 					$strOpts[ 'summary' ],
-					( is_array( $strOpts[ 'description' ] ) ? implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
+					( \is_array( $strOpts[ 'description' ] ) ? \implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
 					$strSection[ 'title' ],
 					$strSection[ 'title_short' ],
 				],
@@ -468,26 +468,26 @@ class SelectSearchData {
 			) ) ) ) )
 		) );
 
-		return implode( ' ',
-			array_unique( array_filter(
-				array_merge(
+		return \implode( ' ',
+			\array_unique( \array_filter(
+				\array_merge(
 					$allWords,
-					array_map(
+					\array_map(
 						function ( $word ) {
-							return preg_match( '#s$#i', $word ) ? null : $word.'s';
+							return \preg_match( '#s$#i', $word ) ? null : $word.'s';
 						},
 						$allWords
 					),
-					array_map(
+					\array_map(
 						function ( $word ) {
-							$trimmed = rtrim( $word, 's' );
+							$trimmed = \rtrim( $word, 's' );
 							return $trimmed === $word ? null : $trimmed;
 						},
 						$allWords
 					)
 				),
 				function ( $word ) {
-					return !empty( $word ) && strlen( $word ) > 2;
+					return !empty( $word ) && \strlen( $word ) > 2;
 				}
 			) )
 		);

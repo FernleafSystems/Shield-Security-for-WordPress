@@ -16,7 +16,7 @@ class RootHtaccess {
 	use PluginCronsConsumer;
 
 	protected function canRun() :bool {
-		return empty( Transient::Get( $this->con()->prefix( md5( __FILE__ ) ) ) );
+		return empty( Transient::Get( $this->con()->prefix( \md5( __FILE__ ) ) ) );
 	}
 
 	protected function run() {
@@ -24,7 +24,7 @@ class RootHtaccess {
 	}
 
 	public function runDailyCron() {
-		Transient::Set( $this->con()->prefix( md5( __FILE__ ) ), 1, MONTH_IN_SECONDS );
+		Transient::Set( $this->con()->prefix( \md5( __FILE__ ) ), 1, \WEEK_IN_SECONDS );
 
 		$hadFile = (bool)Services::WpFs()->exists( $this->getPathToHtaccess() );
 		$couldAccess = $this->testCanAccessURL();
@@ -46,7 +46,7 @@ class RootHtaccess {
 	}
 
 	private function getTestURL() :string {
-		return URL::Build( $this->con()->urls->forJs( 'plugin.js' ), [ 'rand' => rand( 1000, 9999 ) ] );
+		return URL::Build( $this->con()->urls->forJs( 'plugin.js' ), [ 'rand' => \rand( 1000, 9999 ) ] );
 	}
 
 	private function getPathToHtaccess() :string {
@@ -60,7 +60,7 @@ class RootHtaccess {
 	private function createHtaccess() :bool {
 		return Services::WpFs()->putFileContent(
 			$this->getPathToHtaccess(),
-			implode( "\n", [
+			\implode( "\n", [
 				'Order Allow,Deny',
 				'<FilesMatch "^.*\.(css|js|png|jpg|svg)$" >',
 				' Allow from all',

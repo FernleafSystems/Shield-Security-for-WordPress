@@ -9,16 +9,13 @@ class GetAllAvailableLocales {
 	use PluginControllerConsumer;
 
 	public function run() :array {
-		$con = $this->getCon();
-
 		$locales = [ 'en_US' ];
-		$dirIT = new \DirectoryIterator( $con->getPath_Languages() );
-		foreach ( $dirIT as $file ) {
+		foreach ( new \DirectoryIterator( $this->con()->getPath_Languages() ) as $file ) {
 			if ( $file->isFile() && $file->getExtension() === 'mo' ) {
-				$locales[] = str_replace( $con->getTextDomain().'-', '', $file->getBasename( '.mo' ) );
+				$locales[] = \str_replace( $this->con()->getTextDomain().'-', '', $file->getBasename( '.mo' ) );
 			}
 		}
-		asort( $locales );
-		return array_unique( $locales );
+		\asort( $locales );
+		return \array_unique( $locales );
 	}
 }

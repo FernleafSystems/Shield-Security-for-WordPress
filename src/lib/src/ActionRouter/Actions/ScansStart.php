@@ -18,7 +18,7 @@ class ScansStart extends ScansBase {
 		if ( !empty( $params ) ) {
 			$scansCon = $mod->getScansCon();
 			$uiTrack = $mod->getUiTrack();
-			$uiTrack->selected_scans = array_intersect( array_keys( $params ), $scansCon->getScanSlugs() );
+			$uiTrack->selected_scans = \array_intersect( \array_keys( $params ), $scansCon->getScanSlugs() );
 			$mod->setUiTrack( $uiTrack );
 
 			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );

@@ -29,8 +29,8 @@ class ReportToMalai {
 			] );
 			if ( $updateSuccess ) {
 				$reports[ $malware->hash_sha256 ] = [
-					'file_name'    => basename( $malware->file_path ),
-					'file_content' => base64_encode( $malware->file_content ),
+					'file_name'    => \basename( $malware->file_path ),
+					'file_content' => \base64_encode( $malware->file_content ),
 					'code_type'    => $malware->code_type,
 				];
 			}
@@ -42,9 +42,9 @@ class ReportToMalai {
 						  ->getWpHashesTokenManager()
 						  ->getToken();
 			( new Malai\MalwareReport( $token ) )->report(
-				array_intersect_key(
+				\array_intersect_key(
 					$reports,
-					array_flip( ( new Malai\ObtainAcceptableHashes( $token ) )->getAcceptableHashes( array_keys( $reports ) ) )
+					\array_flip( ( new Malai\ObtainAcceptableHashes( $token ) )->getAcceptableHashes( \array_keys( $reports ) ) )
 				)
 			);
 		}

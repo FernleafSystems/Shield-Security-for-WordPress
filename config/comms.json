@@ -38,9 +38,10 @@
     {
       "key":           "suresend_emails",
       "section":       "section_suresend",
-      "type":          "multiple_select",
       "premium":       true,
+      "cap":           "2fa_sure_send",
       "default":       [],
+      "type":          "multiple_select",
       "value_options": [
         {
           "value_key": "2fa",

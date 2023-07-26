@@ -2,14 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Report\Changes\ZoneReportUsers;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\DiffVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Snapper\SnapUsers;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * There are a few pathways to updating User passwords, so we try to capture them all, but not duplicate logs.
+ */
 class Users extends Base {
 
 	use WpLoginCapture;
 
-	protected function run() {
+	private $passwordResetUserIDs = [];
+
+	protected function initAuditHooks() :void {
 		$this->setupLoginCaptureHooks();
 		$this->setToCaptureApplicationLogin();
 
@@ -24,7 +32,6 @@ class Users extends Base {
 				}
 			} );
 			add_action( 'application_password_did_authenticate', function ( $user ) {
-				/** @var \WP_Error $wpError */
 				if ( $user instanceof \WP_User ) {
 					$this->auditSuccessAppPassword( $user );
 				}
@@ -32,10 +39,16 @@ class Users extends Base {
 		}
 
 		add_action( 'wp_create_application_password', [ $this, 'auditAppPasswordNew' ], 30, 2 );
+
+		add_action( 'profile_update', [ $this, 'captureProfileUpdate' ], \PHP_INT_MAX, 3 );
+
+		add_filter( 'send_password_change_email', [ $this, 'captureUserPasswordUpdate' ], \PHP_INT_MAX, 2 );
+		add_action( 'wp_set_password', [ $this, 'captureUserPasswordSet' ], \PHP_INT_MAX, 2 );
+		add_action( 'after_password_reset', [ $this, 'captureUserPasswordReset' ], \PHP_INT_MAX );
 	}
 
 	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {
-		if ( is_numeric( $userID ) && !empty( $appPassItem ) && !empty( $appPassItem[ 'name' ] ) ) {
+		if ( \is_numeric( $userID ) && !empty( $appPassItem ) && !empty( $appPassItem[ 'name' ] ) ) {
 			$this->con()->fireEvent(
 				'app_pass_created',
 				[
@@ -66,39 +79,32 @@ class Users extends Base {
 	public function auditNewUserRegistered( int $userID ) {
 		$user = empty( $userID ) ? null : Services::WpUsers()->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
-			$this->con()->fireEvent(
-				'user_registered',
-				[
-					'audit_params' => [
-						'user_login' => sanitize_user( $user->user_login ),
-						'email'      => $user->user_email,
-					]
-				]
-			);
+			$this->fireAuditEvent( 'user_registered', [
+				'user_login' => sanitize_user( $user->user_login ),
+				'email'      => $user->user_email,
+			] );
+
+			$this->updateSnapshotItem( $user );
 		}
 	}
 
 	/**
 	 * @param int $userID
-	 * @param int $nReassigned
+	 * @param int $reassignedID
 	 */
-	public function auditDeleteUser( $userID, $nReassigned ) {
-		$WPU = Services::WpUsers();
+	public function auditDeleteUser( $userID, $reassignedID ) {
 
-		$user = empty( $userID ) ? null : $WPU->getUserById( $userID );
+		$user = empty( $userID ) ? null : Services::WpUsers()->getUserById( $userID );
 		if ( $user instanceof \WP_User ) {
-			$this->con()->fireEvent(
-				'user_deleted',
-				[
-					'audit_params' => [
-						'user_login' => sanitize_user( $user->user_login ),
-						'email'      => $user->user_email,
-					]
-				]
-			);
+			$this->fireAuditEvent( 'user_deleted', [
+				'user_login' => sanitize_user( $user->user_login ),
+				'email'      => $user->user_email,
+			] );
+
+			$this->removeSnapshotItem( $user );
 		}
 
-		$reassigned = empty( $nReassigned ) ? null : $WPU->getUserById( $nReassigned );
+		$reassigned = empty( $reassignedID ) ? null : Services::WpUsers()->getUserById( $reassignedID );
 		if ( $reassigned instanceof \WP_User ) {
 			$this->con()->fireEvent(
 				'user_deleted_reassigned',
@@ -137,5 +143,127 @@ class Users extends Base {
 				$this->con()->fireEvent( $wpErrorToEventMap[ $code ] );
 			}
 		}
+	}
+
+	public function captureUserPasswordUpdate( $sendEmail, $userData ) {
+		if ( \is_array( $userData ) && isset( $userData[ 'ID' ] ) ) {
+			$user = Services::WpUsers()->getUserById( $userData[ 'ID' ] );
+			if ( $user instanceof \WP_User ) {
+				$this->fireEventUserPasswordUpdated( $user );
+			}
+		}
+		return $sendEmail;
+	}
+
+	public function captureUserPasswordSet( $password, $user_id ) {
+		$user = Services::WpUsers()->getUserById( $user_id );
+		if ( $user instanceof \WP_User ) {
+			$this->fireEventUserPasswordUpdated( $user );
+		}
+	}
+
+	public function captureUserPasswordReset( $user ) {
+		if ( $user instanceof \WP_User ) {
+			$this->fireEventUserPasswordUpdated( $user );
+		}
+	}
+
+	public function captureProfileUpdate( $userID, $oldUser, $userdata = null ) :void {
+		if ( !empty( $userID ) && \is_array( $userdata ) && $oldUser instanceof \WP_User ) {
+			$user = Services::WpUsers()->getUserById( $userID );
+			if ( empty( $user ) ) {
+				// Bail out.
+				error_log( 'Inconsistency: A user ID was passed to "profile_update" action but no such user found: '.$userID );
+				return;
+			}
+
+			if ( $oldUser->user_email !== $user->user_email ) {
+				$this->fireAuditEvent( 'user_email_updated', [
+					'user_login' => $user->user_login,
+				] );
+			}
+			if ( $oldUser->user_pass !== $user->user_pass ) {
+				$this->fireEventUserPasswordUpdated( $user );
+			}
+
+			if ( !\in_array( 'administrator', $oldUser->roles ) && \in_array( 'administrator', $user->roles ) ) {
+				$this->fireAuditEvent( 'user_promoted', [
+					'user_login' => $user->user_login,
+				] );
+			}
+			elseif ( \in_array( 'administrator', $oldUser->roles ) && !\in_array( 'administrator', $user->roles ) ) {
+				$this->fireAuditEvent( 'user_demoted', [
+					'user_login' => $user->user_login,
+				] );
+			}
+
+			$this->updateSnapshotItem( $user );
+		}
+	}
+
+	private function fireEventUserPasswordUpdated( \WP_User $user ) {
+		if ( !\in_array( $user->ID, $this->passwordResetUserIDs ) ) {
+			$this->passwordResetUserIDs[] = $user->ID;
+			$this->fireAuditEvent( 'user_password_updated', [
+				'user_login' => $user->user_login,
+			] );
+
+			$this->updateSnapshotItem( $user );
+		}
+	}
+
+	/**
+	 * @snapshotDiffCron
+	 */
+	public function snapshotDiffForUsers( DiffVO $diff ) {
+
+		foreach ( $diff->added as $added ) {
+			$user = Services::WpUsers()->getUserById( $added[ 'uniq' ] );
+			$this->fireAuditEvent( 'user_registered', [
+				'user_login' => sanitize_user( $user->user_login ),
+				'email'      => $user->user_email,
+			] );
+		}
+
+		foreach ( $diff->removed as $removed ) {
+			$this->fireAuditEvent( 'user_deleted', [
+				'user_login' => sanitize_user( $removed[ 'user_login' ] ),
+				'email'      => 'unavailable',
+			] );
+		}
+
+		foreach ( $diff->changed as $changed ) {
+			$old = $changed[ 'old' ];
+			$new = $changed[ 'new' ];
+			$user = Services::WpUsers()->getUserById( $old[ 'uniq' ] );
+
+			if ( !$old[ 'is_admin' ] && $new[ 'is_admin' ] ) {
+				$this->fireAuditEvent( 'user_promoted', [
+					'user_login' => $user->user_login,
+				] );
+			}
+			elseif ( $old[ 'is_admin' ] && !$new[ 'is_admin' ] ) {
+				$this->fireAuditEvent( 'user_demoted', [
+					'user_login' => $user->user_login,
+				] );
+			}
+
+			if ( $old[ 'user_pass' ] !== $new[ 'user_pass' ] ) {
+				$this->fireEventUserPasswordUpdated( $user );
+			}
+			if ( $old[ 'user_email' ] !== $new[ 'user_email' ] ) {
+				$this->fireAuditEvent( 'user_email_updated', [
+					'user_login' => $user->user_login,
+				] );
+			}
+		}
+	}
+
+	public function getReporter() :ZoneReportUsers {
+		return new ZoneReportUsers();
+	}
+
+	public function getSnapper() :SnapUsers {
+		return new SnapUsers();
 	}
 }

@@ -17,7 +17,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			$results[] = $this->scanItem( $file );
 		}
 
-		$action->results = array_filter( $results );
+		$action->results = \array_filter( $results );
 	}
 
 	private function scanItem( string $scanItem ) :array {
@@ -26,11 +26,11 @@ class Scan extends Shield\Scans\Base\BaseScan {
 						 ->getWpHashesTokenManager()
 						 ->getToken();
 
-		if ( strpos( $scanItem, '/' ) ) { // plugin file
+		if ( \strpos( $scanItem, '/' ) ) { // plugin file
 			$WPP = Services::WpPlugins();
 			$slug = $WPP->getSlug( $scanItem );
 			if ( empty( $slug ) ) {
-				$slug = dirname( $scanItem );
+				$slug = \dirname( $scanItem );
 			}
 			$version = $WPP->getPluginAsVo( $scanItem )->Version;
 			$lookerUpper = new Vulnerabilities\Plugin( $apiToken );
@@ -44,7 +44,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$result = [];
 
 		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
-		if ( is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
+		if ( \is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
 			$result[ 'slug' ] = $scanItem;
 			$result[ 'is_vulnerable' ] = true;
 			$result[ 'vulnerability_total' ] = $rawVuls[ 'meta' ][ 'total' ];

@@ -2,14 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
-
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Processor {
 
 	/**
-	 * @var Events\Lib\StatsWriter
+	 * @var Lib\StatsWriter
 	 */
 	private $oStatsWriter;
 
@@ -17,19 +13,15 @@ class Processor extends BaseShield\Processor {
 		$this->loadStatsWriter()->setIfCommit( true );
 	}
 
-	public function loadStatsWriter() :Events\Lib\StatsWriter {
+	public function loadStatsWriter() :Lib\StatsWriter {
 		if ( !isset( $this->oStatsWriter ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->mod();
-			$this->oStatsWriter = ( new Events\Lib\StatsWriter( $this->con() ) )
-				->setDbHandler( $mod->getDbHandler_Events() );
+			$this->oStatsWriter = ( new Lib\StatsWriter( $this->con() ) )
+				->setDbHandler( self::con()->getModule_Events()->getDbHandler_Events() );
 		}
 		return $this->oStatsWriter;
 	}
 
 	public function runDailyCron() {
-		( new Events\Consolidate\ConsolidateAllEvents() )
-			->setMod( $this->mod() )
-			->run();
+		( new Consolidate\ConsolidateAllEvents() )->run();
 	}
 }

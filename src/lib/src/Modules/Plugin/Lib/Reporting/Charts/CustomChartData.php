@@ -15,21 +15,21 @@ class CustomChartData extends BaseBuildChartData {
 		}
 
 		$theEvent = current( $req->events );
-		$possibleEvents = array_keys( $this->con()->loadEventsService()->getEvents() );
+		$possibleEvents = \array_keys( $this->con()->loadEventsService()->getEvents() );
 		switch ( $theEvent ) {
 			case 'comment_block':
-				$req->events = array_filter(
+				$req->events = \array_filter(
 					$possibleEvents,
 					function ( $event ) {
-						return strpos( $event, 'spam_block_' ) === 0;
+						return \strpos( $event, 'spam_block_' ) === 0;
 					}
 				);
 				break;
 			case 'bot_blocks':
-				$req->events = array_filter(
+				$req->events = \array_filter(
 					$possibleEvents,
 					function ( $event ) {
-						return strpos( $event, 'bottrack_' ) === 0;
+						return \strpos( $event, 'bottrack_' ) === 0;
 					}
 				);
 				break;

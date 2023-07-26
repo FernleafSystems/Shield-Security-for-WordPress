@@ -17,7 +17,7 @@ class GetAll extends Base {
 
 		$statesToInclude = [];
 		if ( !empty( $req->filter_item_state ) ) {
-			$statesToInclude = array_filter( explode( ',', $req->filter_item_state ) );
+			$statesToInclude = \array_filter( \explode( ',', $req->filter_item_state ) );
 		}
 
 		$results = [];
@@ -29,11 +29,11 @@ class GetAll extends Base {
 					   ->getAllResults();
 			$thisResults = [];
 			foreach ( $RS->getAllItems() as $item ) {
-				$item = array_merge(
+				$item = \array_merge(
 					$item->getRawData(),
-					array_intersect_key(
+					\array_intersect_key(
 						$item->VO->getRawData(),
-						array_flip( [
+						\array_flip( [
 							'ignored_at',
 							'notified_at',
 							'attempt_repair_at',
@@ -60,18 +60,18 @@ class GetAll extends Base {
 				}
 
 				if ( $include ) {
-					ksort( $item );
+					\ksort( $item );
 					$thisResults[] = $item;
 				}
 			}
 
 			$results[ $scanSlug ] = [
-				'total' => count( $thisResults ),
+				'total' => \count( $thisResults ),
 				'items' => $thisResults,
 			];
 		}
 
-		ksort( $results );
+		\ksort( $results );
 		return $results;
 	}
 }

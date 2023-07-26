@@ -81,12 +81,12 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $notice->id ) {
 
 			case 'admin-users-restricted':
-				$needed = in_array( $current, $opts->getDef( 'restricted_pages_users' ) );
+				$needed = \in_array( $current, $opts->getDef( 'restricted_pages_users' ) );
 				break;
 
 			case 'certain-options-restricted':
 				$needed = empty( Services::Request()
-										 ->query( 'page' ) ) && in_array( $current, $opts->getOptionsPagesToRestrict() );
+										 ->query( 'page' ) ) && \in_array( $current, $opts->getOptionsPagesToRestrict() );
 				break;
 
 			default:

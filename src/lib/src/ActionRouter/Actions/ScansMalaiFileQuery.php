@@ -13,43 +13,55 @@ class ScansMalaiFileQuery extends ScansBase {
 	public const SLUG = 'scans_malai_file_query';
 
 	protected function exec() {
-		$req = Services::Request();
-		$FS = Services::WpFs();
+		$success = false;
 
-		try {
-			/** @var ResultItem $item */
-			$item = ( new RetrieveItems() )->byID( (int)$req->post( 'rid' ) );
-			$path = $item->path_full;
-			if ( !$FS->isAccessibleFile( $path ) ) {
-				throw new \Exception( 'There was a problem locating or reading the file on this site' );
+		if ( $this->con()->caps->canScanMalwareMalai() ) {
+			try {
+				$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report' ), 'MAL{ai}' ),
+					( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatus() ) );
+				$success = true;
 			}
-			if ( $FS->getFileSize( $path ) === 0 ) {
-				throw new \Exception( 'File is empty.' );
+			catch ( \Exception $e ) {
+				$msg = $e->getMessage();
 			}
-
-			$token = $this->con()
-						  ->getModule_License()
-						  ->getWpHashesTokenManager()
-						  ->getToken();
-			$status = ( new MalwareScan( $token ) )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
-			if ( empty( $status ) ) {
-				sleep( 3 );
-				$status = ( new MalwareScan( $token ) )->scan( basename( $path ), $FS->getFileContent( $path ), 'php' );
-			}
-
-			$msg = sprintf( '%s: %s',
-				sprintf( __( '%s Status Report' ), 'MAL{ai}' ),
-				( new MalwareStatus() )->nameFromStatusLabel( (string)$status )
-			);
-			$success = true;
 		}
-		catch ( \Exception $e ) {
-			$success = false;
-			$msg = 'There was a problem locating or reading the file on this site.';
+		else {
+			$msg = __( 'Please upgrade your plan to access the MAL{ai} malware service.' );
 		}
+
 		$this->response()->action_response_data = [
 			'success' => $success,
 			'message' => $msg
 		];
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function getMalaiStatus() :string {
+		$req = Services::Request();
+		$FS = Services::WpFs();
+
+		/** @var ResultItem $item */
+		$item = ( new RetrieveItems() )->byID( (int)$req->post( 'rid' ) );
+		$path = $item->path_full;
+		if ( !$FS->isAccessibleFile( $path ) ) {
+			throw new \Exception( 'There was a problem locating or reading the file on this site' );
+		}
+		if ( $FS->getFileSize( $path ) === 0 ) {
+			throw new \Exception( 'The file is empty.' );
+		}
+
+		$token = $this->con()
+					  ->getModule_License()
+					  ->getWpHashesTokenManager()
+					  ->getToken();
+		$status = ( new MalwareScan( $token ) )->scan( \basename( $path ), $FS->getFileContent( $path ), 'php' );
+		if ( empty( $status ) ) {
+			\sleep( 3 );
+			$status = ( new MalwareScan( $token ) )->scan( \basename( $path ), $FS->getFileContent( $path ), 'php' );
+		}
+
+		return (string)$status;
 	}
 }

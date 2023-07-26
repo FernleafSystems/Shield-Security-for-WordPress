@@ -161,6 +161,7 @@
       "section":     "section_security_admin_settings",
       "advanced":    true,
       "premium":     true,
+      "cap":         "run_as_mu",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/i1",
@@ -289,6 +290,7 @@
       "key":         "whitelabel_enable",
       "section":     "section_whitelabel",
       "premium":     true,
+      "cap":         "whitelabel",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/dr",
@@ -312,6 +314,8 @@
     {
       "key":         "wl_replace_badge_url",
       "section":     "section_whitelabel",
+      "premium":     true,
+      "cap":         "whitelabel",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -450,7 +454,7 @@
       "wpms_pages":   [
         "settings.php"
       ],
-      "wp_options": [
+      "wp_options":   [
         "blogname",
         "blogdescription",
         "siteurl",
@@ -458,6 +462,7 @@
         "admin_email",
         "new_admin_email",
         "users_can_register",
+        "permalink_structure",
         "comments_notify",
         "comment_moderation",
         "blog_public",

@@ -104,9 +104,8 @@ class Afs extends BaseForFiles {
 
 	/**
 	 * Can only possibly repair themes, plugins or core files.
-	 * @return Scans\Afs\ResultsSet
 	 */
-	protected function getItemsToAutoRepair() {
+	protected function getItemsToAutoRepair() :Scans\Afs\ResultsSet {
 		$opts = $this->opts();
 
 		$repairResults = $this->getNewResultsSet();
@@ -176,15 +175,12 @@ class Afs extends BaseForFiles {
 		return $this->opts()->isOpt( 'optimise_scan_speed', 'Y' ) ? 80 : 45;
 	}
 
-	/**
-	 * @return Scans\Afs\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
+	protected function newItemActionHandler() :Scans\Afs\Utilities\ItemActionHandler {
 		return new Scans\Afs\Utilities\ItemActionHandler();
 	}
 
 	public function isCronAutoRepair() :bool {
-		return count( $this->opts()->getRepairAreas() ) > 0;
+		return \count( $this->opts()->getRepairAreas() ) > 0;
 	}
 
 	public function isEnabled() :bool {
@@ -192,27 +188,39 @@ class Afs extends BaseForFiles {
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {
-		return $this->isEnabled() && in_array( 'malware_php', $this->opts()->getFileScanAreas() );
+		return $this->isEnabled()
+			   && \in_array( 'malware_php', $this->opts()->getFileScanAreas() )
+			   && $this->con()->caps->canScanMalwareLocal();
 	}
 
 	public function isScanEnabledPlugins() :bool {
 		return $this->isEnabled()
-			   && in_array( 'plugins', $this->opts()->getFileScanAreas() )
-			   && $this->con()->cache_dir_handler->exists();
+			   && \in_array( 'plugins', $this->opts()->getFileScanAreas() )
+			   && $this->con()->cache_dir_handler->exists()
+			   && $this->con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledThemes() :bool {
 		return $this->isEnabled()
-			   && in_array( 'themes', $this->opts()->getFileScanAreas() )
-			   && $this->con()->cache_dir_handler->exists();
+			   && \in_array( 'themes', $this->opts()->getFileScanAreas() )
+			   && $this->con()->cache_dir_handler->exists()
+			   && $this->con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledWpContent() :bool {
-		return $this->isEnabled() && in_array( 'wpcontent', $this->opts()->getFileScanAreas() );
+		return $this->isEnabled()
+			   && \in_array( 'wpcontent', $this->opts()->getFileScanAreas() )
+			   && $this->con()->caps->canScanAllFiles();
+	}
+
+	public function isScanEnabledWpCore() :bool {
+		return $this->isEnabled() && \in_array( 'wp', $this->opts()->getFileScanAreas() );
 	}
 
 	public function isScanEnabledWpRoot() :bool {
-		return $this->isEnabled() && in_array( 'wproot', $this->opts()->getFileScanAreas() );
+		return $this->isEnabled()
+			   && \in_array( 'wproot', $this->opts()->getFileScanAreas() )
+			   && $this->con()->caps->canScanAllFiles();
 	}
 
 	protected function isPremiumOnly() :bool {

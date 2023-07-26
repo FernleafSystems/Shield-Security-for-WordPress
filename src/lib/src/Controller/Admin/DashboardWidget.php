@@ -11,7 +11,7 @@ class DashboardWidget {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		$con = $this->getCon();
+		$con = $this->con();
 		return $con->isValidAdminArea() &&
 			   apply_filters( 'shield/show_dashboard_widget', $con->cfg->properties[ 'show_dashboard_widget' ] ?? true );
 	}
@@ -23,7 +23,7 @@ class DashboardWidget {
 	}
 
 	private function createWidget() {
-		$con = $this->getCon();
+		$con = $this->con();
 		wp_add_dashboard_widget(
 			$con->prefix( 'dashboard_widget' ),
 			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->getHumanName(), __( 'Overview', 'wp-simple-firewall' ) ) ),

@@ -35,7 +35,7 @@ class SendSms extends BaseShieldNetApi {
 			'slug'       => $slug,
 			'country_to' => $countryTo,
 			'phone_to'   => $phoneTo,
-			'sms_data'   => array_merge(
+			'sms_data'   => \array_merge(
 				[
 					'ts' => Services::Request()->ts(),
 					'tz' => Services::WpGeneral()->getOption( 'timezone_string' ),
@@ -45,7 +45,7 @@ class SendSms extends BaseShieldNetApi {
 		];
 
 		$raw = $this->sendReq();
-		$success = is_array( $raw ) && empty( $raw[ 'error' ] );
+		$success = \is_array( $raw ) && empty( $raw[ 'error' ] );
 
 		$this->con()->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
@@ -61,7 +61,7 @@ class SendSms extends BaseShieldNetApi {
 			throw new \Exception( $raw[ 'message' ] ?? 'Unknown Error' );
 		}
 
-		return $success;
+		return true;
 	}
 
 	protected function getApiRequestUrl() :string {

@@ -47,11 +47,9 @@ class General extends Base {
 		$isBot = $mod->getBotSignalsController()->isBot( $ip, false );
 
 		$shieldNetScore = ( new GetIPReputation() )
-							  ->setMod( $con->getModule_Plugin() )
 							  ->setIP( $ip )
 							  ->retrieve()[ 'reputation_score' ] ?? '-';
 		$info = ( new GetIPInfo() )
-			->setMod( $con->getModule_Plugin() )
 			->setIP( $ip )
 			->retrieve();
 

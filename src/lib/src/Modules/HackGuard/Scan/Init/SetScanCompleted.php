@@ -66,11 +66,11 @@ class SetScanCompleted {
 				__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
 				: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
-			$itemDescriptions = array_slice( array_unique( array_map( function ( $item ) {
+			$itemDescriptions = \array_slice( \array_unique( \array_map( function ( $item ) {
 				return $item->getDescriptionForAudit();
 			}, $results->getItems() ) ), 0, 30 );
 
-			$items .= ' "'.implode( '", "', $itemDescriptions ).'"';
+			$items .= ' "'.\implode( '", "', $itemDescriptions ).'"';
 
 			$this->con()->fireEvent( 'scan_items_found', [
 				'audit_params' => [

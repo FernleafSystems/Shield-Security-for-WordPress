@@ -88,17 +88,19 @@ class ModCon extends BaseShield\ModCon {
 		}
 
 		$lockFiles = $opts->getFilesToLock();
-		if ( in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
-			unset( $lockFiles[ array_search( 'root_webconfig', $lockFiles ) ] );
-			$opts->setOpt( 'file_locker', $lockFiles );
-		}
+		if ( !empty( $lockFiles ) ) {
+			if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
+				unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
+				$opts->setOpt( 'file_locker', $lockFiles );
+			}
 
-		if ( count( $opts->getFilesToLock() ) === 0 || !$this->con()
-															 ->getModule_Plugin()
-															 ->getShieldNetApiController()
-															 ->canHandshake() ) {
-			$opts->setOpt( 'file_locker', [] );
-			$this->getFileLocker()->purge();
+			if ( \count( $opts->getFilesToLock() ) === 0 || !$this->con()
+																  ->getModule_Plugin()
+																  ->getShieldNetApiController()
+																  ->canHandshake() ) {
+				$opts->setOpt( 'file_locker', [] );
+				$this->getFileLocker()->purge();
+			}
 		}
 
 		foreach ( $this->getScansCon()->getAllScanCons() as $con ) {
@@ -114,7 +116,7 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$specialDirs = array_map( 'trailingslashit', [
+		$specialDirs = \array_map( 'trailingslashit', [
 			ABSPATH,
 			path_join( ABSPATH, 'wp-admin' ),
 			path_join( ABSPATH, 'wp-includes' ),
@@ -126,7 +128,7 @@ class ModCon extends BaseShield\ModCon {
 		$values = $opts->getOpt( 'scan_path_exclusions', [] );
 		$opts->setOpt( 'scan_path_exclusions',
 			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
-				is_array( $values ) ? $values : [],
+				\is_array( $values ) ? $values : [],
 				$specialDirs,
 				Shield\Modules\Base\Options\WildCardOptions::FILE_PATH_REL
 			)
@@ -140,16 +142,14 @@ class ModCon extends BaseShield\ModCon {
 		Services::WpCron()->addNewSchedule(
 			$this->con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
-				'interval' => DAY_IN_SECONDS/$freq,
+				'interval' => \DAY_IN_SECONDS/$freq,
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )
 			]
 		);
 	}
 
 	protected function cleanupDatabases() {
-		( new Shield\Modules\HackGuard\DB\Utility\Clean() )
-			->setMod( $this )
-			->execute();
+		( new Shield\Modules\HackGuard\DB\Utility\Clean() )->execute();
 	}
 
 	/**
@@ -179,8 +179,6 @@ class ModCon extends BaseShield\ModCon {
 				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		}
 
-		( new Lib\Utility\CleanOutOldGuardFiles() )
-			->setMod( $this )
-			->execute();
+		( new Lib\Utility\CleanOutOldGuardFiles() )->execute();
 	}
 }

@@ -2,14 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Common\ExecOnceModConsumer;
+use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	DB\Scans\Ops as ScansDB,
-	ModCon
+	ModConsumer
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class Clean extends ExecOnceModConsumer {
+class Clean {
+
+	use ExecOnce;
+	use ModConsumer;
 
 	protected function run() {
 		$this->deleteScansThatNeverCompleted();
@@ -17,18 +20,14 @@ class Clean extends ExecOnceModConsumer {
 	}
 
 	private function deleteScansThatNeverCompleted() {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-
 		/** @var ScansDB\Delete $deleter */
-		$deleter = $mod->getDbH_Scans()->getQueryDeleter();
+		$deleter = $this->mod()->getDbH_Scans()->getQueryDeleter();
 		$deleter->filterByNotFinished()
 				->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '<' )
 				->query();
 	}
 
 	private function deleteEarlierScans() {
-		/** @var ModCon $mod */
 		$mod = $this->mod();
 
 		$scanIDsToKeep = [];
@@ -40,7 +39,7 @@ class Clean extends ExecOnceModConsumer {
 								  ->setOrderBy( 'finished_at' )
 								  ->setLimit( 1 )
 								  ->queryWithResult();
-			if ( is_array( $scanRecords ) && count( $scanRecords ) === 1 ) {
+			if ( \is_array( $scanRecords ) && \count( $scanRecords ) === 1 ) {
 				$scanIDsToKeep[] = $scanRecords[ 0 ]->id;
 			}
 		}
@@ -48,7 +47,7 @@ class Clean extends ExecOnceModConsumer {
 		if ( !empty( $scanIDsToKeep ) ) {
 			Services::WpDb()->doSql( sprintf( 'DELETE FROM %s WHERE `id` NOT IN (%s) AND `finished_at`>0',
 				$mod->getDbH_Scans()->getTableSchema()->table,
-				implode( ', ', $scanIDsToKeep ) ) );
+				\implode( ', ', $scanIDsToKeep ) ) );
 		}
 	}
 }

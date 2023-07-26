@@ -36,7 +36,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 
 		switch ( $key ) {
 			case 'minimum_expires_at':
-				$value = (int)max( 0, $value );
+				$value = (int)\max( 0, $value );
 				break;
 			default:
 				break;
@@ -51,11 +51,11 @@ abstract class ProcessBase extends DynPropertiesClass {
 	public function run( array $stream ) {
 		$this->preRun();
 
-		$this->timer_start = microtime( true );
-		if ( isset( $stream[ 'new' ] ) && !is_array( $stream[ 'new' ] ) ) {
+		$this->timer_start = \microtime( true );
+		if ( isset( $stream[ 'new' ] ) && !\is_array( $stream[ 'new' ] ) ) {
 			throw new DecisionsStreamDataIntegrityFailedException( "Decisions Stream 'new' data wasn't of the correct format: array" );
 		}
-		if ( isset( $stream[ 'deleted' ] ) && !is_array( $stream[ 'deleted' ] ) ) {
+		if ( isset( $stream[ 'deleted' ] ) && !\is_array( $stream[ 'deleted' ] ) ) {
 			throw new DecisionsStreamDataIntegrityFailedException( "Decisions Stream 'deleted' data wasn't of the correct format: array" );
 		}
 
@@ -106,7 +106,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		if ( empty( $decision[ 'duration' ] ) ) {
 			throw new \Exception( "Decision doesn't contain a 'duration'" );
 		}
-		if ( !is_string( $decision[ 'duration' ] ) ) {
+		if ( !\is_string( $decision[ 'duration' ] ) ) {
 			throw new \Exception( sprintf( "Decision duration not of the correct type (string): %s", $decision[ 'duration' ] ) );
 		}
 		if ( !preg_match( '#^(\d+)([a-z])$#i', $decision[ 'duration' ], $matches ) ) {
@@ -143,7 +143,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 		if ( !isset( $decision[ 'value' ] ) ) {
 			throw new \Exception( 'No decision value set.' );
 		}
-		if ( empty( $decision[ 'type' ] ) || !in_array( $decision[ 'type' ], $this->getSupportedDecisionTypes() ) ) {
+		if ( empty( $decision[ 'type' ] ) || !\in_array( $decision[ 'type' ], $this->getSupportedDecisionTypes() ) ) {
 			throw new \Exception( sprintf( "No 'type' set, or it is unsupported: %s", $decision[ 'type' ] ?? 'unset' ) );
 		}
 

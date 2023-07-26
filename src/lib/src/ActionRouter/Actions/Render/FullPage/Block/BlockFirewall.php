@@ -24,23 +24,22 @@ class BlockFirewall extends BaseBlock {
 		$messages = apply_filters( 'shield/firewall_die_message', [
 			__( "Data scanned in this request matched at least 1 firewall rule and is considered potentially dangerous.", 'wp-simple-firewall' )
 		] );
-		return array_merge(
-			is_array( $messages ) ? $messages : [],
+		return \array_merge(
+			\is_array( $messages ) ? $messages : [],
 			parent::getRestrictionDetailsBlurb()
 		);
 	}
 
 	protected function getRestrictionDetailsPoints() :array {
-		$con = $this->con();
 		$blockMeta = $this->action_data[ 'block_meta_data' ];
 		/** @var Firewall\Strings $str */
-		$str = $con->getModule_Firewall()->getStrings();
+		$str = $this->con()->getModule_Firewall()->getStrings();
 
-		$remainingOffenses = max( 0, ( new QueryRemainingOffenses() )
-			->setIP( $con->this_req->ip )
+		$remainingOffenses = \max( 0, ( new QueryRemainingOffenses() )
+			->setIP( $this->con()->this_req->ip )
 			->run() );
 
-		return array_merge(
+		return \array_merge(
 			[
 				__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
 				__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>

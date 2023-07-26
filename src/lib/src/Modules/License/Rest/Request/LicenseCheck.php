@@ -8,10 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 class LicenseCheck extends Base {
 
 	protected function process() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		try {
-			$mod->getLicenseHandler()->verify( true );
+			self::con()
+				->getModule_License()
+				->getLicenseHandler()
+				->verify( true );
 		}
 		catch ( \Exception $e ) {
 			throw new ApiException( $e->getMessage() );

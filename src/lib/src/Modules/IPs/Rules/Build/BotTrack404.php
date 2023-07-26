@@ -48,7 +48,7 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 							'params'    => [
 								'is_match_regex' => true,
 								'match_paths'    => [
-									sprintf( "\\.(%s)$", implode( '|', $opts->botSignalsGetAllowable404s() ) )
+									sprintf( "\\.(%s)$", \implode( '|', $opts->botSignalsGetAllowable404s() ) )
 								],
 							],
 						],

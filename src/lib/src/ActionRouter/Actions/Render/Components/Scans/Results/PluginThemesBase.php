@@ -17,7 +17,7 @@ abstract class PluginThemesBase extends Base {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
 				'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'ptg_not_available' => __( 'The Plugin & Theme File Guard Scanner is only available with ShieldPRO.', 'wp-simple-firewall' ),
+				'ptg_not_available' => __( 'Scanning Plugin & Theme Files is only available with ShieldPRO.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'ptg_is_restricted' => !$this->con()->isPremiumActive(),
@@ -60,9 +60,9 @@ abstract class PluginThemesBase extends Base {
 	 * @param WpPluginVo|WpThemeVo $item
 	 */
 	protected function getCachedFlags( $item ) :array {
-		if ( !is_array( self::$wpOrgDataCache ) ) {
+		if ( !\is_array( self::$wpOrgDataCache ) ) {
 			self::$wpOrgDataCache = Transient::Get( 'apto-shield-plugintheme-flags-cache' );
-			if ( !is_array( self::$wpOrgDataCache ) ) {
+			if ( !\is_array( self::$wpOrgDataCache ) ) {
 				self::$wpOrgDataCache = [];
 			}
 		}

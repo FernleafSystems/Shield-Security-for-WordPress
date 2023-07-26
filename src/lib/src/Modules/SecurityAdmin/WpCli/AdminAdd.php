@@ -42,34 +42,34 @@ class AdminAdd extends BaseWpCliCmd {
 
 	/**
 	 * @param array $null
-	 * @param array $aA
+	 * @param array $args
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdAdminAdd( array $null, array $aA ) {
+	public function cmdAdminAdd( array $null, array $args ) {
 
-		if ( empty( $aA ) ) {
+		if ( empty( $args ) ) {
 			WP_CLI::error( 'Please specify the user for which you want to add as a Security Admin.' );
 		}
-		if ( count( $aA ) > 1 ) {
+		if ( \count( $args ) > 1 ) {
 			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
 		}
 
-		$oU = $this->loadUserFromArgs( $aA );
+		$user = $this->loadUserFromArgs( $args );
 
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aCurrent = $oOpts->getSecurityAdminUsers();
-		if ( in_array( $oU->user_login, $aCurrent ) ) {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		$current = $opts->getSecurityAdminUsers();
+		if ( \in_array( $user->user_login, $current ) ) {
 			WP_CLI::success( "This user is already a security admin." );
 		}
-		elseif ( !Services::WpUsers()->isUserAdmin( $oU ) ) {
+		elseif ( !Services::WpUsers()->isUserAdmin( $user ) ) {
 			WP_CLI::error( "This user isn't a WordPress administrator." );
 		}
 		else {
-			$aCurrent[] = $oU->user_login;
-			natsort( $aCurrent );
-			$oOpts->setOpt( 'sec_admin_users', array_unique( $aCurrent ) );
-			WP_CLI::success( sprintf( "User '%s' added as a Security Admin.", $oU->user_login ) );
+			$current[] = $user->user_login;
+			\natsort( $current );
+			$opts->setOpt( 'sec_admin_users', \array_unique( $current ) );
+			WP_CLI::success( sprintf( "User '%s' added as a Security Admin.", $user->user_login ) );
 		}
 	}
 }

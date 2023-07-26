@@ -21,8 +21,8 @@ class TestContent {
 		$spamFound = [];
 
 		foreach ( $this->getSpamList() as $word ) {
-			foreach ( array_map( 'strval', array_filter( $itemsToTest ) ) as $key => $item ) {
-				if ( stripos( $item, $word ) !== false ) {
+			foreach ( \array_map( '\strval', \array_filter( $itemsToTest ) ) as $key => $item ) {
+				if ( \stripos( $item, $word ) !== false ) {
 
 					if ( !isset( $spamFound[ $word ] ) ) {
 						$spamFound[ $word ] = [];
@@ -40,12 +40,12 @@ class TestContent {
 	}
 
 	private function getSpamList() :array {
-		if ( !is_array( $this->list ) ) {
+		if ( !\is_array( $this->list ) ) {
 			$FS = Services::WpFs();
 			$file = $this->getFile();
 			if ( $FS->exists( $file )
-				 && Services::Request()->ts() - $FS->getModifiedTime( $file ) < MONTH_IN_SECONDS ) {
-				$this->list = array_map( 'base64_decode', explode( "\n", (string)$FS->getFileContent( $file, true ) ) );
+				 && Services::Request()->ts() - $FS->getModifiedTime( $file ) < \MONTH_IN_SECONDS ) {
+				$this->list = \array_map( '\base64_decode', \explode( "\n", (string)$FS->getFileContent( $file, true ) ) );
 			}
 			else {
 				$this->list = $this->downloadBlacklist();
@@ -58,14 +58,14 @@ class TestContent {
 	private function downloadBlacklist() :array {
 		$mod = $this->con()->getModule_Comments();
 		$rawList = Services::HttpRequest()->getContent( $mod->getOptions()->getDef( 'url_spam_blacklist_terms' ) );
-		return array_filter( array_map( 'trim', explode( "\n", $rawList ) ) );
+		return \array_filter( \array_map( '\trim', \explode( "\n", $rawList ) ) );
 	}
 
 	private function storeList( array $list ) {
 		if ( !empty( $list ) && !empty( $this->getFile() ) ) {
 			Services::WpFs()->putFileContent(
 				$this->getFile(),
-				implode( "\n", array_map( 'base64_encode', $list ) ),
+				\implode( "\n", \array_map( 'base64_encode', $list ) ),
 				true
 			);
 		}

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -45,7 +45,7 @@ class HumanRepeat {
 			] );
 
 			/** @var \WP_Comment[] $comments */
-			$comments = array_filter( is_array( $q->comments ) ? $q->comments : [], function ( $comment ) use ( $ip ) {
+			$comments = \array_filter( \is_array( $q->comments ) ? $q->comments : [], function ( $comment ) use ( $ip ) {
 				return $comment->comment_author_IP === $ip;
 			} );
 

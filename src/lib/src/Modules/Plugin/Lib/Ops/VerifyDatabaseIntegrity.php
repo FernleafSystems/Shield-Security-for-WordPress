@@ -55,8 +55,8 @@ class VerifyDatabaseIntegrity {
 
 		if ( !empty( $tablesToDelete ) ) {
 			error_log( sprintf( 'invalid foreign key configuration found. Dropping Shield tables: %s',
-				implode( ",", $tablesToDelete ) ) );
-			$WPDB->doSql( sprintf( 'DROP TABLE IF EXISTS `%s`', implode( "`,`", $tablesToDelete ) ) );
+				\implode( ",", $tablesToDelete ) ) );
+			$WPDB->doSql( sprintf( 'DROP TABLE IF EXISTS `%s`', \implode( "`,`", $tablesToDelete ) ) );
 		}
 	}
 
@@ -86,6 +86,6 @@ class VerifyDatabaseIntegrity {
 			      ",
 				DB_NAME, $table )
 		);
-		return is_array( $data ) ? $data : [];
+		return \is_array( $data ) ? $data : [];
 	}
 }

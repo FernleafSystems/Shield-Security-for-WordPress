@@ -26,9 +26,9 @@ class AjaxRender extends BaseAction {
 	}
 
 	protected function getParamsMinusAjax() :array {
-		return array_diff_key(
+		return \array_diff_key(
 			$this->action_data,
-			array_flip( [
+			\array_flip( [
 				ActionData::FIELD_ACTION,
 				ActionData::FIELD_EXECUTE,
 				ActionData::FIELD_NONCE,

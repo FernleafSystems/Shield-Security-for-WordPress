@@ -2,12 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
 	DB\Report\Ops as ReportsDB,
 	Lib\Reporting\Constants,
-	ModCon,
-	Options
+	ModConsumer
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -36,23 +34,19 @@ class CreateReportVO {
 	}
 
 	private function setReportInterval() :self {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
 		switch ( $this->rep->type ) {
 			case Constants::REPORT_TYPE_ALERT:
-				$this->rep->interval = $opts->getReportFrequencyAlert();
+				$this->rep->interval = $this->opts()->getReportFrequencyAlert();
 				break;
 			case Constants::REPORT_TYPE_INFO:
 			default:
-				$this->rep->interval = $opts->getReportFrequencyInfo();
+				$this->rep->interval = $this->opts()->getReportFrequencyInfo();
 				break;
 		}
 		return $this;
 	}
 
 	private function setPreviousReport() :self {
-		/** @var ModCon $mod */
 		$mod = $this->mod();
 		/** @var ReportsDB\Select $sel */
 		$sel = $mod->getDbH_ReportLogs()->getQuerySelector();

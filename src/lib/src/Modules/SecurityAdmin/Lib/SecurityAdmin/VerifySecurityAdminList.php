@@ -7,13 +7,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class VerifySecurityAdminList {
 
+	/**
+	 * @deprecated 18.2
+	 */
 	use ModConsumer;
 
 	public function run( array $users ) :array {
 		$WPU = Services::WpUsers();
 
 		$filtered = [];
-		foreach ( array_map( 'trim', $users ) as $usernameOrEmail ) {
+		foreach ( \array_map( 'trim', $users ) as $usernameOrEmail ) {
 			$user = null;
 
 			if ( !empty( $usernameOrEmail ) ) {
@@ -33,7 +36,7 @@ class VerifySecurityAdminList {
 			}
 		}
 
-		natsort( $filtered );
-		return array_unique( $filtered );
+		\natsort( $filtered );
+		return \array_unique( $filtered );
 	}
 }

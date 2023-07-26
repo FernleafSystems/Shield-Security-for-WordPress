@@ -27,14 +27,14 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 			$this->getExistingUserMetaIDsQuery()
 		) );
 
-		array_map(
+		\array_map(
 			function ( $ID ) {
-				if ( is_array( $ID ) && !empty( $ID[ 'ID' ] ) ) {
+				if ( \is_array( $ID ) && !empty( $ID[ 'ID' ] ) ) {
 					$user = Services::WpUsers()->getUserById( $ID[ 'ID' ] );
 					$this->con()->user_metas->for( $user );
 				}
 			},
-			is_array( $IDs ) ? $IDs : []
+			\is_array( $IDs ) ? $IDs : []
 		);
 	}
 

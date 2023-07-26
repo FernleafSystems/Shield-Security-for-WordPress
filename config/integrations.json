@@ -60,7 +60,9 @@
     {
       "key":         "enable_mainwp",
       "section":     "section_integrations",
-      "default":     "Y",
+      "premium":     true,
+      "cap":         "mainwp_level_1",
+      "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ir",
       "link_blog":   "https://shsec.io/ke",
@@ -79,67 +81,83 @@
       "value_options": [
         {
           "value_key": "calderaforms",
-          "text":      "Caldera Forms (beta)"
+          "text":      "Caldera Forms (beta)",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "contactform7",
-          "text":      "Contact Form 7"
+          "text":      "Contact Form 7",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "elementorpro",
-          "text":      "Elementor Pro"
+          "text":      "Elementor Pro",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "fluentforms",
-          "text":      "Fluent Forms"
+          "text":      "Fluent Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "formidableforms",
-          "text":      "Formidable Forms"
+          "text":      "Formidable Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "forminator",
-          "text":      "Forminator"
+          "text":      "Forminator",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "gravityforms",
-          "text":      "Gravity Forms"
+          "text":      "Gravity Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "groundhogg",
-          "text":      "Groundhogg"
+          "text":      "Groundhogg",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "happyforms",
-          "text":      "HappyForms"
+          "text":      "HappyForms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "kaliforms",
-          "text":      "Kali Forms"
+          "text":      "Kali Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "ninjaforms",
-          "text":      "Ninja Forms"
+          "text":      "Ninja Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "superforms",
-          "text":      "Super Forms"
+          "text":      "Super Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "supportcandy",
-          "text":      "Support Candy"
+          "text":      "Support Candy",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "weforms",
-          "text":      "WeForms"
+          "text":      "WeForms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "wpforms",
-          "text":      "WP Forms"
+          "text":      "WP Forms",
+          "cap":       "thirdparty_scan_spam"
         },
         {
           "value_key": "wpforo",
-          "text":      "wpForo"
+          "text":      "wpForo",
+          "cap":       "thirdparty_scan_spam"
         }
       ],
       "link_info":     "https://shsec.io/k2",
@@ -152,7 +170,6 @@
     {
       "key":           "user_form_providers",
       "section":       "section_user_forms",
-      "premium":       true,
       "advanced":      true,
       "type":          "multiple_select",
       "default":       [
@@ -160,64 +177,78 @@
       ],
       "value_options": [
         {
-          "value_key": "buddyboss",
-          "text":      "BuddyBoss"
-        },
-        {
-          "value_key": "buddypress",
-          "text":      "BuddyPress"
-        },
-        {
-          "value_key": "easydigitaldownloads",
-          "text":      "Easy Digital Downloads"
-        },
-        {
-          "value_key": "classifiedlisting",
-          "text":      "Classified Listing"
-        },
-        {
-          "value_key": "learnpress",
-          "text":      "LearnPress"
-        },
-        {
-          "value_key": "lifterlms",
-          "text":      "LifterLMS"
-        },
-        {
-          "value_key": "memberpress",
-          "text":      "MemberPress"
-        },
-        {
-          "value_key": "paidmembersubscriptions",
-          "text":      "Paid Member Subscriptions"
-        },
-        {
-          "value_key": "profilebuilder",
-          "text":      "Profile Builder"
-        },
-        {
-          "value_key": "profilepress",
-          "text":      "ProfilePress"
-        },
-        {
-          "value_key": "restrictcontentpro",
-          "text":      "Restrict Content Pro"
-        },
-        {
-          "value_key": "ultimatemember",
-          "text":      "Ultimate Member"
-        },
-        {
-          "value_key": "woocommerce",
-          "text":      "WooCommerce"
-        },
-        {
           "value_key": "wordpress",
           "text":      "WordPress"
         },
         {
+          "value_key": "buddyboss",
+          "text":      "BuddyBoss",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "buddypress",
+          "text":      "BuddyPress",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "easydigitaldownloads",
+          "text":      "Easy Digital Downloads",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "classifiedlisting",
+          "text":      "Classified Listing",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "learnpress",
+          "text":      "LearnPress",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "lifterlms",
+          "text":      "LifterLMS",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "memberpress",
+          "text":      "MemberPress",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "paidmembersubscriptions",
+          "text":      "Paid Member Subscriptions",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "profilebuilder",
+          "text":      "Profile Builder",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "profilepress",
+          "text":      "ProfilePress",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "restrictcontentpro",
+          "text":      "Restrict Content Pro",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "ultimatemember",
+          "text":      "Ultimate Member",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
+          "value_key": "woocommerce",
+          "text":      "WooCommerce",
+          "cap":       "thirdparty_scan_users"
+        },
+        {
           "value_key": "wpmembers",
-          "text":      "WP Members"
+          "text":      "WP Members",
+          "cap":       "thirdparty_scan_users"
         }
       ],
       "link_info":     "https://shsec.io/k4",

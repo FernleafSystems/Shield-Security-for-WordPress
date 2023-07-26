@@ -63,9 +63,9 @@ class Processor extends BaseShield\Processor {
 
 	private function disableAllAutoUpdates() {
 		remove_all_filters( 'automatic_updater_disabled' );
-		add_filter( 'automatic_updater_disabled', '__return_true', PHP_INT_MAX );
-		if ( !defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-			define( 'WP_AUTO_UPDATE_CORE', false );
+		add_filter( 'automatic_updater_disabled', '__return_true', \PHP_INT_MAX );
+		if ( !\defined( 'WP_AUTO_UPDATE_CORE' ) ) {
+			\define( 'WP_AUTO_UPDATE_CORE', false );
 		}
 	}
 
@@ -73,18 +73,18 @@ class Processor extends BaseShield\Processor {
 		$assetVers = $this->getTrackedAssetsVersions();
 
 		$WPP = Services::WpPlugins();
-		foreach ( array_keys( $WPP->getUpdates() ) as $file ) {
+		foreach ( \array_keys( $WPP->getUpdates() ) as $file ) {
 			$assetVers[ 'plugins' ][ $file ] = $WPP->getPluginAsVo( $file )->Version;
 		}
 		$WPT = Services::WpThemes();
-		foreach ( array_keys( $WPT->getUpdates() ) as $file ) {
+		foreach ( \array_keys( $WPT->getUpdates() ) as $file ) {
 			$assetVers[ 'themes' ][ $file ] = $WPT->getTheme( $file )->get( 'Version' );
 		}
 		$this->assetsVersions = $assetVers;
 	}
 
 	protected function getTrackedAssetsVersions() :array {
-		if ( empty( $this->assetsVersions ) || !is_array( $this->assetsVersions ) ) {
+		if ( empty( $this->assetsVersions ) || !\is_array( $this->assetsVersions ) ) {
 			$this->assetsVersions = [
 				'plugins' => [],
 				'themes'  => [],
@@ -98,7 +98,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function trackUpdateTimesCore( $updates ) {
 
-		if ( !empty( $updates ) && isset( $updates->updates ) && is_array( $updates->updates ) ) {
+		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) ) {
 			/** @var Options $opts */
 			$opts = $this->getOptions();
 
@@ -112,7 +112,7 @@ class Processor extends BaseShield\Processor {
 					}
 				}
 			}
-			$delayTracking[ 'core' ][ 'wp' ] = array_slice( $item, -5 );
+			$delayTracking[ 'core' ][ 'wp' ] = \array_slice( $item, -5 );
 			$opts->setDelayTracking( $delayTracking );
 		}
 	}
@@ -139,12 +139,12 @@ class Processor extends BaseShield\Processor {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		if ( !empty( $updates ) && isset( $updates->response ) && is_array( $updates->response ) ) {
+		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
 
 			$delayTracking = $opts->getDelayTracking();
 			foreach ( $updates->response as $slug => $theUpdate ) {
 				$itemTrack = $delayTracking[ $context ][ $slug ] ?? [];
-				if ( is_array( $theUpdate ) ) {
+				if ( \is_array( $theUpdate ) ) {
 					$theUpdate = (object)$theUpdate;
 				}
 
@@ -153,7 +153,7 @@ class Processor extends BaseShield\Processor {
 					if ( !isset( $itemTrack[ $newVersion ] ) ) {
 						$itemTrack[ $newVersion ] = Services::Request()->ts();
 					}
-					$delayTracking[ $context ][ $slug ] = array_slice( $itemTrack, -3 );
+					$delayTracking[ $context ][ $slug ] = \array_slice( $itemTrack, -3 );
 				}
 			}
 			$opts->setDelayTracking( $delayTracking );
@@ -346,7 +346,7 @@ class Processor extends BaseShield\Processor {
 	 * @param array $updateResults
 	 */
 	public function sendNotificationEmail( $updateResults ) {
-		if ( empty( $updateResults ) || !is_array( $updateResults ) ) {
+		if ( empty( $updateResults ) || !\is_array( $updateResults ) ) {
 			return;
 		}
 
@@ -364,7 +364,7 @@ class Processor extends BaseShield\Processor {
 		$assetVersionTrack = $this->getTrackedAssetsVersions();
 
 		$WPP = Services::WpPlugins();
-		if ( !empty( $updateResults[ 'plugin' ] ) && is_array( $updateResults[ 'plugin' ] ) ) {
+		if ( !empty( $updateResults[ 'plugin' ] ) && \is_array( $updateResults[ 'plugin' ] ) ) {
 			$hasPluginUpdates = false;
 			$trackedPlugins = $assetVersionTrack[ 'plugins' ];
 
@@ -373,7 +373,7 @@ class Processor extends BaseShield\Processor {
 				$p = $WPP->getPluginAsVo( $update->item->plugin, true );
 				$validUpdate = !empty( $update->result ) && !empty( $update->name )
 							   && isset( $trackedPlugins[ $p->file ] )
-							   && version_compare( $trackedPlugins[ $p->file ], $p->Version, '<' );
+							   && \version_compare( $trackedPlugins[ $p->file ], $p->Version, '<' );
 				if ( $validUpdate ) {
 					$tempContent[] = ' - '.sprintf(
 							__( 'Plugin "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
@@ -385,11 +385,11 @@ class Processor extends BaseShield\Processor {
 
 			if ( $hasPluginUpdates ) {
 				$reallyUpdates = true;
-				$body = array_merge( $body, $tempContent );
+				$body = \array_merge( $body, $tempContent );
 			}
 		}
 
-		if ( !empty( $updateResults[ 'theme' ] ) && is_array( $updateResults[ 'theme' ] ) ) {
+		if ( !empty( $updateResults[ 'theme' ] ) && \is_array( $updateResults[ 'theme' ] ) ) {
 			$hasThemesUpdates = false;
 			$trackedThemes = $assetVersionTrack[ 'themes' ];
 
@@ -398,7 +398,7 @@ class Processor extends BaseShield\Processor {
 				$oItem = $update->item;
 				$validUpdate = isset( $update->result ) && $update->result && !empty( $update->name )
 							   && isset( $trackedThemes[ $oItem->theme ] )
-							   && version_compare( $trackedThemes[ $oItem->theme ], $oItem->new_version, '<' );
+							   && \version_compare( $trackedThemes[ $oItem->theme ], $oItem->new_version, '<' );
 				if ( $validUpdate ) {
 					$tempContent[] = ' - '.sprintf(
 							__( 'Theme "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
@@ -410,11 +410,11 @@ class Processor extends BaseShield\Processor {
 
 			if ( $hasThemesUpdates ) {
 				$reallyUpdates = true;
-				$body = array_merge( $body, $tempContent );
+				$body = \array_merge( $body, $tempContent );
 			}
 		}
 
-		if ( !empty( $updateResults[ 'core' ] ) && is_array( $updateResults[ 'core' ] ) ) {
+		if ( !empty( $updateResults[ 'core' ] ) && \is_array( $updateResults[ 'core' ] ) ) {
 			$hasCoreUpdates = false;
 			$tempContent = [ __( 'WordPress Core Updated:', 'wp-simple-firewall' ) ];
 			foreach ( $updateResults[ 'core' ] as $update ) {
@@ -427,7 +427,7 @@ class Processor extends BaseShield\Processor {
 
 			if ( $hasCoreUpdates ) {
 				$reallyUpdates = true;
-				$body = array_merge( $body, $tempContent );
+				$body = \array_merge( $body, $tempContent );
 			}
 		}
 

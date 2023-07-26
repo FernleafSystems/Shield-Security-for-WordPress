@@ -125,7 +125,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
 		try {
-			$valid = preg_match( '#^\d{6}$#', $otp )
+			$valid = \preg_match( '#^\d{6}$#', $otp )
 					 && ( new GoogleAuthenticator() )->authenticate( $this->getSecret(), $otp );
 		}
 		catch ( \Exception|\Psr\Cache\CacheException $e ) {
@@ -162,7 +162,7 @@ class GoogleAuth extends AbstractShieldProvider {
 
 	protected function hasValidSecret() :bool {
 		$secret = $this->getSecret();
-		return is_string( $secret ) && strlen( $secret ) === 16;
+		return \is_string( $secret ) && \strlen( $secret ) === 16;
 	}
 
 	public function isProviderEnabled() :bool {

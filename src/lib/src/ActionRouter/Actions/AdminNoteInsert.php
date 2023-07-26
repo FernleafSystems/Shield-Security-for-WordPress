@@ -10,11 +10,10 @@ class AdminNoteInsert extends BaseAction {
 	public const SLUG = 'admin_note_insert';
 
 	public function exec() {
-		$con = $this->con();
 		$resp = $this->response();
 
-		$note = trim( FormParams::Retrieve()[ 'admin_note' ] ?? '' );
-		if ( !$con->isPluginAdmin() ) {
+		$note = \trim( FormParams::Retrieve()[ 'admin_note' ] ?? '' );
+		if ( !$this->con()->isPluginAdmin() ) {
 			$resp->message = __( "Sorry, the Admin Notes feature isn't available.", 'wp-simple-firewall' );
 		}
 		elseif ( empty( $note ) ) {
@@ -22,9 +21,10 @@ class AdminNoteInsert extends BaseAction {
 		}
 		else {
 			/** @var Insert $inserter */
-			$inserter = $con->getModule_Plugin()->getDbHandler_Notes()->getQueryInserter();
+			$inserter = $this->con()->getModule_Plugin()->getDbHandler_Notes()->getQueryInserter();
 			$resp->success = $inserter->create( $note );
-			$resp->message = $resp->success ? __( 'Note created successfully.', 'wp-simple-firewall' )
+			$resp->message = $resp->success ?
+				__( 'Note created successfully.', 'wp-simple-firewall' )
 				: __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 	}

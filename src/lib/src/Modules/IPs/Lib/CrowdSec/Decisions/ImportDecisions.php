@@ -82,17 +82,17 @@ class ImportDecisions {
 		$file = ABSPATH.'csDec.txt';
 		if ( $FS->exists( $file ) ) {
 			error_log( 'csDec from file' );
-			$csDec = json_decode( $FS->getFileContent( $file ), true );
+			$csDec = \json_decode( $FS->getFileContent( $file ), true );
 		}
 		else {
 			$csDec = $this->downloadDecisions();
-			$FS->putFileContent( $file, json_encode( $csDec ) );
+			$FS->putFileContent( $file, \json_encode( $csDec ) );
 		}
 		return $csDec;
 	}
 
 	private function getImportInterval() {
 		return $this->con()->isPremiumActive() ?
-			apply_filters( 'shield/crowdsec/decisions_update_interval', HOUR_IN_SECONDS*2 ) : WEEK_IN_SECONDS;
+			apply_filters( 'shield/crowdsec/decisions_update_interval', \HOUR_IN_SECONDS*2 ) : \WEEK_IN_SECONDS;
 	}
 }

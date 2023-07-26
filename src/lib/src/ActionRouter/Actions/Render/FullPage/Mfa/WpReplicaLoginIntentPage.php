@@ -22,7 +22,7 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 		return [
 			'content' => [
 				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::SLUG,
-					array_merge( $this->action_data, [
+					\array_merge( $this->action_data, [
 						'title' => __( 'Login 2FA Verification', 'wp-simple-firewall' )
 					] )
 				),

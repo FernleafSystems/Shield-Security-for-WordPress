@@ -23,10 +23,10 @@ class TrackLinkCheese extends Base {
 	public function testCheese() {
 		if ( ( is_404() || is_front_page() ) && $this->isCheese() ) {
 
-			if ( function_exists( 'wp_robots_sensitive_page' ) ) {
+			if ( \function_exists( 'wp_robots_sensitive_page' ) ) {
 				add_filter( 'wp_robots', 'wp_robots_sensitive_page', 1000 );
 			}
-			elseif ( function_exists( 'wp_sensitive_page_meta' ) ) {
+			elseif ( \function_exists( 'wp_sensitive_page_meta' ) ) {
 				if ( !has_action( 'wp_head', 'wp_sensitive_page_meta' ) ) {
 					add_action( 'wp_head', 'wp_sensitive_page_meta' );
 				}
@@ -46,7 +46,7 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 		return sprintf( "%s\n\n%s\n",
 			rtrim( $robotsText, "\n" ),
-			implode( "\n", [
+			\implode( "\n", [
 				'User-agent: *',
 				sprintf( $WP->isPermalinksEnabled() ? "Disallow: /%s/" : "Disallow: /*?*%s=", $this->getCheeseWord() )
 			] )
@@ -58,7 +58,7 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 
 		return $WP->isPermalinksEnabled() ?
-			trim( $req->getPath(), '/' ) === trim( (string)\parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' )
+			trim( $req->getPath(), '/' ) === \trim( (string)\parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' )
 			: $req->query( $this->getCheeseWord() ) == '1';
 	}
 

@@ -9,18 +9,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 class AddIP extends Base {
 
 	protected function process() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
 		$req = $this->getRequestVO();
 
 		$adder = ( new Lib\IpRules\AddRule() )->setIP( $req->ip );
 
 		try {
-			if ( in_array( $req->list, [ 'block', 'black' ] ) ) {
-				$IP = $adder->toManualBlacklist( $req->label );
+			if ( \in_array( $req->list, [ 'block', 'black' ] ) ) {
+				$adder->toManualBlacklist( $req->label );
 			}
-			elseif ( in_array( $req->list, [ 'bypass', 'white' ] ) ) {
-				$IP = $adder->toManualWhitelist( $req->label );
+			elseif ( \in_array( $req->list, [ 'bypass', 'white' ] ) ) {
+				$adder->toManualWhitelist( $req->label );
 			}
 		}
 		catch ( \Exception $e ) {

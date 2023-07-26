@@ -7,8 +7,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
 use FernleafSystems\Wordpress\Services\Services;
@@ -39,17 +38,14 @@ class ShieldNetApiController extends DynPropertiesClass {
 		$req = Services::Request();
 		$now = $req->ts();
 
-		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > MONTH_IN_SECONDS )
-					  && $now - MINUTE_IN_SECONDS*min( $this->vo->handshake_fail_count, 60 ) > $this->vo->last_handshake_attempt_at;
+		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > \MONTH_IN_SECONDS )
+					  && $now - \MINUTE_IN_SECONDS*min( $this->vo->handshake_fail_count, 60 ) > $this->vo->last_handshake_attempt_at;
+
 		if ( $canAttempt && $req->query( ActionData::FIELD_EXECUTE ) !== 'snapi_handshake' ) {
 			$this->vo->last_handshake_attempt_at = $now;
 			$this->storeVoData();
 
-			$handshakeSuccess = ( new ShieldNetApi\Handshake\Verify() )
-				->setMod( $this->mod() )
-				->run();
-
-			if ( $handshakeSuccess ) {
+			if ( ( new ShieldNetApi\Handshake\Verify() )->run() ) {
 				$this->vo->last_handshake_at = $now;
 				$this->vo->handshake_fail_count = 0;
 			}
@@ -65,7 +61,8 @@ class ShieldNetApiController extends DynPropertiesClass {
 
 	public function storeVoData() {
 		$this->vo->data_last_saved_at = Services::Request()->ts();
-		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawData() );
+		$opts = \method_exists( $this, 'getOptions' ) ? $this->getOptions() : $this->opts();
+		$opts->setOpt( 'snapi_data', $this->vo->getRawData() );
 		$this->mod()->saveModOptions();
 	}
 
@@ -73,8 +70,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * @inerhitDoc
 	 */
 	public function __get( string $key ) {
-		/** @var Plugin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = \method_exists( $this, 'getOptions' ) ? $this->getOptions() : $this->opts();
 
 		$value = parent::__get( $key );
 
@@ -83,7 +79,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 			case 'vo':
 				if ( empty( $value ) ) {
 					$data = $opts->getOpt( 'snapi_data', [] );
-					$value = ( new ShieldNetApiDataVO() )->applyFromArray( is_array( $data ) ? $data : [] );
+					$value = ( new ShieldNetApiDataVO() )->applyFromArray( \is_array( $data ) ? $data : [] );
 					$this->vo = $value;
 				}
 				break;
@@ -96,11 +92,8 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function runHourlyCron() {
-		$con = $this->con();
-		$modPlugin = $con->getModule_Plugin();
-		/** @var Plugin\Options $modOpts */
-		$modOpts = $modPlugin->getOptions();
-		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $con->isPremiumActive()
+		$modOpts = $this->con()->getModule_Plugin()->getOptions();
+		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $this->con()->isPremiumActive()
 			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
 
 			$this->sendIPReputationData();
@@ -113,13 +106,9 @@ class ShieldNetApiController extends DynPropertiesClass {
 			$this->vo->last_send_iprep_at = $req->ts();
 			$this->storeVoData();
 
-			$data = ( new BuildData() )
-				->setMod( $this->con()->getModule_IPs() )
-				->build();
+			$data = ( new BuildData() )->build();
 			if ( !empty( $data ) ) {
-				( new SendIPReputation() )
-					->setMod( $this->mod() )
-					->send( $data );
+				( new SendIPReputation() )->send( $data );
 			}
 		}
 	}

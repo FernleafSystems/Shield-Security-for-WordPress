@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	LicenseClear,
 	LicenseLookup
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageLicense extends BasePluginAdminPage {
@@ -20,13 +19,12 @@ class PageLicense extends BasePluginAdminPage {
 		$con = $this->con();
 		$mod = $con->getModule_License();
 		$opts = $mod->getOptions();
-		$WP = Services::WpGeneral();
 		$carb = Services::Request()->carbon();
 
 		$lic = $mod->getLicenseHandler()->getLicense();
 
 		$expiresAt = $lic->getExpiresAt();
-		if ( $expiresAt > 0 && $expiresAt != PHP_INT_MAX ) {
+		if ( $expiresAt > 0 && $expiresAt != \PHP_INT_MAX ) {
 			// Expires At has a random addition added to disperse future license lookups
 			// So we bring the license expiration back down to normal for user display.
 			$endOfExpireDay = Services::Request()
@@ -35,7 +33,7 @@ class PageLicense extends BasePluginAdminPage {
 									  ->startOfDay()->timestamp - 1;
 			$expiresAtHuman = sprintf( '%s<br/><small>%s</small>',
 				$carb->setTimestamp( $endOfExpireDay )->diffForHumans(),
-				$WP->getTimeStampForDisplay( $endOfExpireDay )
+				Services::WpGeneral()->getTimeStampForDisplay( $endOfExpireDay )
 			);
 		}
 		else {
@@ -49,9 +47,11 @@ class PageLicense extends BasePluginAdminPage {
 		else {
 			$checked = sprintf( '%s<br/><small>%s</small>',
 				$carb->setTimestamp( $lastReqAt )->diffForHumans(),
-				$WP->getTimeStampForDisplay( $lastReqAt )
+				Services::WpGeneral()->getTimeStampForDisplay( $lastReqAt )
 			);
 		}
+
+		$license = $mod->getLicenseHandler()->getLicense();
 
 		return [
 			'ajax'    => [
@@ -90,7 +90,7 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'license_table'  => [
-					'product_name'    => $opts->getDef( $lic->is_central ? 'license_item_name_sc' : 'license_item_name' ),
+					'product_name'    => $license->item_name,
 					'license_active'  => $mod->getLicenseHandler()->hasValidWorkingLicense() ? '&#10004;' : '&#10006;',
 					'license_expires' => $expiresAtHuman,
 					'license_email'   => $lic->customer_email,
@@ -99,7 +99,7 @@ class PageLicense extends BasePluginAdminPage {
 					'wphashes_token'  => $mod->getWpHashesTokenManager()->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => $con->getInstallationID()[ 'id' ],
 				],
-				'activation_url' => $WP->getHomeUrl(),
+				'activation_url' => Services::WpGeneral()->getHomeUrl(),
 				'error'          => $mod->getLastErrors( true ),
 			],
 		];

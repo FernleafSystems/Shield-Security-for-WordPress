@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
@@ -19,8 +18,6 @@ class AllowBetaUpgrades {
 	use ModConsumer;
 	use PluginCronsConsumer;
 
-	public const MOD = ModCon::SLUG;
-
 	/**
 	 * @var \stdClass
 	 */
@@ -33,16 +30,14 @@ class AllowBetaUpgrades {
 
 	protected function run() {
 		add_filter( 'pre_set_site_transient_update_plugins', function ( $updates ) {
-			$con = $this->con();
 			// only offer "betas" when there is no "normal" upgrade already available
-			if ( is_object( $updates )
+			if ( \is_object( $updates )
 				 && isset( $updates->response )
-				 && is_array( $updates->response )
-				 && empty( $updates->response[ $con->base_file ] ) ) {
+				 && \is_array( $updates->response )
+				 && empty( $updates->response[ $this->con()->base_file ] ) ) {
 
-				$beta = $this->getBeta();
-				if ( !empty( $beta ) ) {
-					$updates->response[ $con->base_file ] = $beta;
+				if ( !empty( $this->getBeta() ) ) {
+					$updates->response[ $this->con()->base_file ] = $this->getBeta();
 				}
 			}
 			return $updates;
@@ -57,17 +52,17 @@ class AllowBetaUpgrades {
 
 			$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
 			$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
-			$betas = array_filter(
+			$betas = \array_filter(
 				$versionsLookup->all(),
 				function ( $betaVersion ) {
-					return is_string( $betaVersion )
-						   && preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-						   && version_compare( $betaVersion, $this->con()->getVersion(), '>' );
+					return \is_string( $betaVersion )
+						   && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
+						   && \version_compare( $betaVersion, $this->con()->getVersion(), '>' );
 				}
 			);
 			if ( !empty( $betas ) ) {
-				natsort( $betas );
-				$beta = array_pop( $betas );
+				\natsort( $betas );
+				$beta = \array_pop( $betas );
 				$versionsLookup->setWorkingVersion( $beta );
 				$url = $versionsLookup->allVersionsUrls()[ $beta ] ?? '';
 				if ( !empty( $url ) ) {

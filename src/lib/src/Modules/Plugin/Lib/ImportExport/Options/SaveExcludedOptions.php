@@ -15,12 +15,12 @@ class SaveExcludedOptions {
 	 */
 	public function save( $formSubmission ) {
 		$opts = $this->getOptions();
-		$aExcluded = [];
-		foreach ( array_keys( $opts->getTransferableOptions() ) as $sOptKey ) {
-			if ( empty( $formSubmission[ 'optxfer-'.$sOptKey ] ) ) {
-				$aExcluded[] = $sOptKey;
+		$excluded = [];
+		foreach ( \array_keys( $opts->getTransferableOptions() ) as $optKey ) {
+			if ( empty( $formSubmission[ 'optxfer-'.$optKey ] ) ) {
+				$excluded[] = $optKey;
 			}
 		}
-		$opts->setOpt( 'xfer_excluded', $aExcluded );
+		$opts->setOpt( 'xfer_excluded', $excluded );
 	}
 }

@@ -16,7 +16,7 @@ class VerifyStrings {
 			foreach ( $module->getOptions()->getVisibleOptionsKeys() as $visibleOptionsKey ) {
 				try {
 					$strings = $module->getStrings()->getOptionStrings( $visibleOptionsKey );
-					if ( !is_array( $strings[ 'description' ] ) ) {
+					if ( !\is_array( $strings[ 'description' ] ) ) {
 						$descNotArray[] = $visibleOptionsKey;
 					}
 				}

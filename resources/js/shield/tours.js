@@ -1,22 +1,23 @@
 jQuery.fn.icwpWpsfTours = function ( options ) {
 
-	var setupAllTours = function ( forceShow = false ) {
+	let setupAllTours = function () {
 		shield_vars_tourmanager.tours.forEach( function ( tour_key, i ) {
-			if ( forceShow || !(tour_key in shield_vars_tourmanager.tour_states) ) {
-				setupTour( tour_key, forceShow );
+			if ( shield_vars_tourmanager.states[ tour_key ].is_available ) {
+				setupTour( tour_key );
 			}
 		} );
 	}
 
-	var setupTour = function ( tourKey ) {
-		introJs().setOptions( getTourSettings( tourKey ) )
-				 .onexit( function () {
-					 markTourFinished( tourKey );
-				 } )
-				 .start();
+	let setupTour = function ( tourKey ) {
+		introJs()
+		.setOptions( getTourSettings( tourKey ) )
+		.onexit( function () {
+			markTourFinished( tourKey );
+		} )
+		.start();
 	}
 
-	var buildStepsForTour = function ( tourKey ) {
+	let buildStepsForTour = function ( tourKey ) {
 		let steps = [];
 		let tourItems = document.querySelectorAll( '.tour-' + tourKey );
 		for ( let i = 0; i < tourItems.length; i++ ) {
@@ -35,7 +36,7 @@ jQuery.fn.icwpWpsfTours = function ( options ) {
 		return steps;
 	}
 
-	var getTourSettings = function ( tourKey ) {
+	let getTourSettings = function ( tourKey ) {
 		return {
 			steps: buildStepsForTour( tourKey ),
 			overlayOpacity: 0.7,
@@ -46,14 +47,14 @@ jQuery.fn.icwpWpsfTours = function ( options ) {
 		}
 	};
 
-	var markTourFinished = function ( tourKey ) {
+	let markTourFinished = function ( tourKey ) {
 		shield_vars_tourmanager.ajax[ 'tour_key' ] = tourKey;
 		jQuery.post( ajaxurl, shield_vars_tourmanager.ajax );
 	};
 
-	var initialise = function () {
+	let initialise = function () {
 		jQuery( document ).ready( function () {
-			setupAllTours( false );
+			setupAllTours();
 		} );
 	};
 

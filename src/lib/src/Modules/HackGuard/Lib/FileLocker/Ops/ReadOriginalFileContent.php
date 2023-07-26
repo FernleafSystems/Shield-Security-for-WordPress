@@ -40,13 +40,11 @@ class ReadOriginalFileContent extends BaseOps {
 	private function useCacheAndApi( FileLockerDB\Record $lock ) :string {
 		$cacheKey = 'file-content-'.$lock->id;
 		$content = wp_cache_get( $cacheKey, $this->con()->prefix( 'filelocker' ) );
-		if ( !is_string( $content ) ) {
-			$decoded = json_decode( $lock->content, true );
-			$VO = ( new OpenSslEncryptVo() )->applyFromArray( is_array( $decoded ) ? $decoded : [] );
-			$content = ( new DecryptFile() )
-				->setMod( $this->mod() )
-				->retrieve( $VO, (int)$lock->public_key_id );
-			if ( is_null( $content ) ) {
+		if ( !\is_string( $content ) ) {
+			$decoded = \json_decode( $lock->content, true );
+			$VO = ( new OpenSslEncryptVo() )->applyFromArray( \is_array( $decoded ) ? $decoded : [] );
+			$content = ( new DecryptFile() )->retrieve( $VO, (int)$lock->public_key_id );
+			if ( \is_null( $content ) ) {
 				throw new \Exception( 'There was a problem decrypting the file contents.' );
 			}
 			wp_cache_set( $cacheKey, $content, $this->con()->prefix( 'filelocker' ), 5 );

@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -19,16 +18,16 @@ class BuildData {
 			$this->markRecordsAsSent( $records );
 		}
 
-		$records = array_filter( array_map(
+		$records = \array_filter( \array_map(
 			function ( $entryVO ) {
 				$data = [
 					'ip'      => $entryVO->ip,
 					'signals' => [],
 				];
 				foreach ( $entryVO->getRawData() as $col => $value ) {
-					if ( strpos( $col, '_at' ) && $value > 0
-						 && !in_array( $col, [ 'snsent_at', 'updated_at', 'created_at', 'deleted_at' ] ) ) {
-						$data[ 'signals' ][] = str_replace( '_at', '', $col );
+					if ( \strpos( $col, '_at' ) && $value > 0
+						 && !\in_array( $col, [ 'snsent_at', 'updated_at', 'created_at', 'deleted_at' ] ) ) {
+						$data[ 'signals' ][] = \str_replace( '_at', '', $col );
 					}
 				}
 
@@ -36,7 +35,7 @@ class BuildData {
 				$record = [];
 				if ( !empty( $data[ 'signals' ] ) ) {
 					try {
-						[ $id, $name ] = ( new IpID( $data[ 'ip' ] ) )->run();
+						[ $id, ] = ( new IpID( $data[ 'ip' ] ) )->run();
 						if ( $id === IpID::UNKNOWN ) {
 							$record = $data;
 						}
@@ -52,16 +51,16 @@ class BuildData {
 
 		// We order with preference towards IPs with more signals.
 		// And, if the only signal is "frontpage" we prefer anything else before it.
-		usort( $records, function ( $a, $b ) {
-			$countA = count( $a[ 'signals' ] );
-			$countB = count( $b[ 'signals' ] );
+		\usort( $records, function ( $a, $b ) {
+			$countA = \count( $a[ 'signals' ] );
+			$countB = \count( $b[ 'signals' ] );
 
 			if ( $countA == $countB ) {
 
-				if ( $countA === 1 && in_array( 'frontpage', $a[ 'signals' ] ) ) {
+				if ( $countA === 1 && \in_array( 'frontpage', $a[ 'signals' ] ) ) {
 					$order = 1;
 				}
-				elseif ( $countB === 1 && in_array( 'frontpage', $b[ 'signals' ] ) ) {
+				elseif ( $countB === 1 && \in_array( 'frontpage', $b[ 'signals' ] ) ) {
 					$order = -1;
 				}
 				else {
@@ -69,13 +68,13 @@ class BuildData {
 				}
 			}
 			else {
-				$order = ( count( $a[ 'signals' ] ) > count( $b[ 'signals' ] ) ) ? -1 : 1;
+				$order = ( \count( $a[ 'signals' ] ) > \count( $b[ 'signals' ] ) ) ? -1 : 1;
 			}
 
 			return $order;
 		} );
 
-		return array_slice( $records, 0, 100 );
+		return \array_slice( $records, 0, 100 );
 	}
 
 	/**
@@ -83,14 +82,12 @@ class BuildData {
 	 */
 	private function markRecordsAsSent( array $records ) {
 		if ( !empty( $records ) ) {
-			/** @var ModCon $mod */
-			$mod = $this->mod();
 			Services::WpDb()
 					->doSql(
 						sprintf( 'UPDATE `%s` SET `snsent_at`=%s WHERE `id` in (%s);',
-							$mod->getDbH_BotSignal()->getTableSchema()->table,
+							$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
 							Services::Request()->ts(),
-							implode( ',', array_map( function ( $record ) {
+							\implode( ',', \array_map( function ( $record ) {
 								return $record->id;
 							}, $records ) )
 						)
@@ -103,14 +100,11 @@ class BuildData {
 	 * @return BotSignal\BotSignalRecord[]
 	 */
 	private function getRecords() :array {
-		/** @var ModCon $mod */
-		$mod = $this->mod();
-
-		$serverIPs = array_map(
+		$serverIPs = \array_map(
 			function ( $ip ) {
 				return sprintf( "INET6_ATON('%s')", $ip );
 			},
-			is_array( Services::IP()->getServerPublicIPs() ) ? Services::IP()->getServerPublicIPs() : []
+			\is_array( Services::IP()->getServerPublicIPs() ) ? Services::IP()->getServerPublicIPs() : []
 		);
 
 		$records = Services::WpDb()->selectCustom(
@@ -121,17 +115,17 @@ class BuildData {
 							%s
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 200;",
-				$mod->getDbH_BotSignal()->getTableSchema()->table,
+				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", implode( ",", $serverIPs ) )
+				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", \implode( ",", $serverIPs ) )
 			)
 		);
 
-		return array_map(
+		return \array_map(
 			function ( $record ) {
 				return ( new BotSignal\BotSignalRecord() )->applyFromArray( $record );
 			},
-			is_array( $records ) ? $records : []
+			\is_array( $records ) ? $records : []
 		);
 	}
 }

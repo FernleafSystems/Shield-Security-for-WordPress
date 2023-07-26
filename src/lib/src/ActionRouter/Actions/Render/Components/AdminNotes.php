@@ -11,12 +11,8 @@ class AdminNotes extends BaseRender {
 	public const TEMPLATE = '/snippets/prerendered.twig';
 
 	protected function getRenderData() :array {
-		$mod = $this->con()->getModule_Plugin();
 		return [
-			'content' => ( new Build\AdminNotes() )
-				->setMod( $mod )
-				->setDbHandler( $mod->getDbHandler_Notes() )
-				->render()
+			'content' => ( new Build\AdminNotes() )->render()
 		];
 	}
 }

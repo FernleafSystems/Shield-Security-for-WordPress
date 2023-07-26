@@ -105,7 +105,7 @@ class DashboardWidget extends BaseRender {
 						'svg'  => $con->svgs->raw( 'sliders.svg' ),
 					],
 				],
-				'recent_events'      => array_map(
+				'recent_events'      => \array_map(
 					function ( $evt ) {
 						/** @var EntryVO $evt */
 						return [
@@ -116,10 +116,10 @@ class DashboardWidget extends BaseRender {
 											  ->diffForHumans(),
 						];
 					},
-					array_filter(
+					\array_filter(
 						$recent->getRecentEvents(),
 						function ( $evt ) {
-							return in_array( $evt->event, [
+							return \in_array( $evt->event, [
 								'login_block',
 								'firewall_block',
 								'ip_blocked',
@@ -134,7 +134,7 @@ class DashboardWidget extends BaseRender {
 						}
 					)
 				),
-				'recent_ips_blocked' => array_map(
+				'recent_ips_blocked' => \array_map(
 					function ( $ip ) {
 						return [
 							'ip'      => $ip->ip,
@@ -147,7 +147,7 @@ class DashboardWidget extends BaseRender {
 					},
 					$recent->getRecentlyBlockedIPs()
 				),
-				'recent_ips_offense' => array_map(
+				'recent_ips_offense' => \array_map(
 					function ( $ip ) {
 						return [
 							'ip'      => $ip->ip,
@@ -160,7 +160,7 @@ class DashboardWidget extends BaseRender {
 					},
 					$recent->getRecentlyOffendedIPs()
 				),
-				'recent_users'       => array_map(
+				'recent_users'       => \array_map(
 					function ( $sess ) {
 
 						$user = $sess[ 'user_login' ];
@@ -168,7 +168,7 @@ class DashboardWidget extends BaseRender {
 						if ( $this->isObfuscateData() ) {
 							$user = is_email( $user ) ?
 								Obfuscate::Email( $user )
-								: substr( $user, 0, 1 ).'****'.substr( $user, -1, 1 );
+								: \substr( $user, 0, 1 ).'****'.substr( $user, -1, 1 );
 							$userHref = '#';
 						}
 

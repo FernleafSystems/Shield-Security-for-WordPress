@@ -10,7 +10,7 @@ class UserMetaProcessor extends BaseMetaProcessor {
 	 * @return array
 	 */
 	public function __invoke( array $record ) {
-		$record[ 'extra' ][ 'meta_user' ] = array_filter( [
+		$record[ 'extra' ][ 'meta_user' ] = \array_filter( [
 			'uid' => Services::WpUsers()->getCurrentWpUserId(),
 		] );
 		return $record;

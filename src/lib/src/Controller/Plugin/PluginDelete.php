@@ -18,18 +18,18 @@ class PluginDelete {
 	}
 
 	private function deleteTmpDir() {
-		$path = $this->getCon()->cache_dir_handler->dir();
+		$path = $this->con()->cache_dir_handler->dir();
 		if ( !empty( $path ) ) {
 			Services::WpFs()->deleteDir( $path );
 		}
 	}
 
 	private function deleteDatabases() {
-		$con = $this->getCon();
+		$con = $this->con();
 		$WPDB = Services::WpDb();
 
 		// Delete all the legacy tables first (i.e. no inter-dependencies)
-		array_map(
+		\array_map(
 			function ( $module ) {
 				/** @var Shield\Modules\Base\ModCon $module */
 				foreach ( $module->getDbHandlers( true ) as $dbh ) {
@@ -46,7 +46,7 @@ class PluginDelete {
 		);
 
 		$WPDB->doDropTable(
-			implode( '`,`', array_map(
+			\implode( '`,`', \array_map(
 					function ( $dbh ) {
 						/** @var $dbh Handler */
 						return $dbh->getTableSchema()->table;

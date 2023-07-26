@@ -40,14 +40,14 @@ class UserMetas {
 	private function setup( Shield\Users\ShieldUserMeta $meta ) {
 		$rec = $meta->record;
 
-		$newHash = substr( sha1( $this->user->user_pass ), 6, 4 );
+		$newHash = \substr( \sha1( $this->user->user_pass ), 6, 4 );
 		if ( empty( $rec->pass_started_at ) || !isset( $meta->pass_hash ) || ( $meta->pass_hash !== $newHash ) ) {
 			$meta->pass_hash = $newHash;
 			$rec->pass_started_at = Services::Request()->ts();
 		}
 
 		if ( empty( $rec->first_seen_at ) ) {
-			$rec->first_seen_at = min( array_filter( [
+			$rec->first_seen_at = \min( \array_filter( [
 				Services::Request()->ts(),
 				$rec->pass_started_at,
 				$rec->last_login_at
@@ -56,15 +56,15 @@ class UserMetas {
 	}
 
 	private function loadMetaRecord( Shield\Users\ShieldUserMeta $meta ) {
-		$modData = $this->con()->getModule_Data();
-		$dbh = $modData->getDbH_UserMeta();
 
-		$metaLoader = ( new Shield\Modules\Data\DB\UserMeta\MetaRecords() )->setMod( $modData );
-		$userID = (int)$meta->user_id;
+		$metaLoader = new Shield\Modules\Data\DB\UserMeta\MetaRecords();
+		if ( \method_exists( $metaLoader, 'setMod' ) ) {
+			$metaLoader->setMod( $this->con()->getModule_Data() );
+		}
+		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 
-		$metaRecord = $metaLoader->loadMeta( $userID );
 		if ( empty( $metaRecord ) ) {
-			$metaRecord = $dbh->getRecord();
+			$metaRecord = $this->con()->getModule_Data()->getDbH_UserMeta()->getRecord();
 		}
 		else {
 			$dataToUpdate = [];
@@ -98,8 +98,12 @@ class UserMetas {
 			}
 
 			if ( !empty( $dataToUpdate ) ) {
-				$dbh->getQueryUpdater()->updateRecord( $metaRecord, $dataToUpdate );
-				$metaRecord = $metaLoader->loadMeta( $userID );
+				$this->con()
+					 ->getModule_Data()
+					 ->getDbH_UserMeta()
+					 ->getQueryUpdater()
+					 ->updateRecord( $metaRecord, $dataToUpdate );
+				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 			}
 		}
 

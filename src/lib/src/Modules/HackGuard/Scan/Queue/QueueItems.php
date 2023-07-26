@@ -32,9 +32,9 @@ class QueueItems {
 			throw new NoQueueItems( 'No items remaining in queue to select.' );
 		}
 		foreach ( [ 'items', 'meta' ] as $key ) {
-			$result[ $key ] = json_decode( base64_decode( $result[ $key ] ), true );
+			$result[ $key ] = \json_decode( \base64_decode( $result[ $key ] ), true );
 		}
-		return ( new QueueItemVO() )->applyFromArray( is_array( $result ) ? $result : [] );
+		return ( new QueueItemVO() )->applyFromArray( \is_array( $result ) ? $result : [] );
 	}
 
 	public function hasNextItem() :bool {

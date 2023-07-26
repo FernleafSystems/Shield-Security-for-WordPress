@@ -27,7 +27,7 @@ class LoadLogs extends DynPropertiesClass {
 	public function run( bool $includeMeta = true ) :array {
 		$this->includeMeta = $includeMeta;
 
-		$stdKeys = array_flip( array_unique( array_merge(
+		$stdKeys = \array_flip( \array_unique( \array_merge(
 			$this->mod()
 				 ->getDbH_Logs()
 				 ->getTableSchema()
@@ -46,7 +46,7 @@ class LoadLogs extends DynPropertiesClass {
 
 		foreach ( $this->selectRaw() as $raw ) {
 			if ( empty( $results[ $raw[ 'id' ] ] ) ) {
-				$record = new LogRecord( array_intersect_key( $raw, $stdKeys ) );
+				$record = new LogRecord( \array_intersect_key( $raw, $stdKeys ) );
 				$results[ $raw[ 'id' ] ] = $record;
 			}
 			else {
@@ -82,38 +82,38 @@ class LoadLogs extends DynPropertiesClass {
 			'req.req_id as rid',
 		];
 		if ( $this->includeMeta ) {
-			$selectFields = array_merge( $selectFields, [
+			$selectFields = \array_merge( $selectFields, [
 				'meta.meta_key',
 				'meta.meta_value',
 			] );
 		}
 
 		return Services::WpDb()->selectCustom(
-			sprintf( $this->getRawQuery( $this->includeMeta ),
-				implode( ', ', $selectFields ),
+			\sprintf( $this->getRawQuery( $this->includeMeta ),
+				\implode( ', ', $selectFields ),
 				$mod->getDbH_Logs()->getTableSchema()->table,
 				$this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
+				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				$this->includeMeta ? $mod->getDbH_Meta()->getTableSchema()->table : '',
-				empty( $this->wheres ) ? '' : 'WHERE '.implode( ' AND ', $this->wheres ),
-				sprintf( 'ORDER BY log.updated_at %s', $this->order_dir ?? 'DESC' ),
-				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
-				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
+				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
+				\sprintf( 'ORDER BY log.updated_at %s', $this->order_dir ?? 'DESC' ),
+				isset( $this->limit ) ? \sprintf( 'LIMIT %s', $this->limit ) : '',
+				isset( $this->offset ) ? \sprintf( 'OFFSET %s', $this->offset ) : ''
 			)
 		);
 	}
 
 	public function countAll() :int {
 		return (int)Services::WpDb()->getVar(
-			sprintf( $this->getRawQuery( false ),
+			\sprintf( $this->getRawQuery( false ),
 				'COUNT(*)',
 				$this->mod()->getDbH_Logs()->getTableSchema()->table,
 				$this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				empty( $this->getIP() ) ? '' : sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
+				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				'',
-				empty( $this->wheres ) ? '' : 'WHERE '.implode( ' AND ', $this->wheres ),
+				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				'',
 				'',
 				''
@@ -122,7 +122,7 @@ class LoadLogs extends DynPropertiesClass {
 	}
 
 	private function getRawQuery( bool $includeMeta = true ) :string {
-		return sprintf( 'SELECT %%s
+		return \sprintf( 'SELECT %%s
 					FROM `%%s` as log
 					INNER JOIN `%%s` as `req`
 						ON log.req_ref = `req`.id

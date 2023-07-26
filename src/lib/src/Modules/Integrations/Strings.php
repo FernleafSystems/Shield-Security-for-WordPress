@@ -85,19 +85,20 @@ class Strings extends Base\Strings {
 				$name = __( 'MainWP Integration', 'wp-simple-firewall' );
 				$summary = __( "Turn-On Shield's Built-In Extension For MainWP Server And Client Installations", 'wp-simple-firewall' );
 				$desc = [
-					__( 'This is a ShieldPRO-only feature.', 'wp-simple-firewall' ),
 					__( 'Easily integrate Shield Security to help you manage your site security from within MainWP.', 'wp-simple-firewall' ),
 					__( "You don't need to install a separate extension for MainWP.", 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						__( "If this is a MainWP client site, you should add your MainWP Admin Server's IP address to your IP bypass list.", 'wp-simple-firewall' ) )
 				];
+				if ( !$con->caps->canMainwpLevel1() ) {
+					$desc[] = __( 'Please upgrade your plan if you need to run the MainWP integration.', 'wp-simple-firewall' );
+				}
 				break;
 
 			case 'user_form_providers' :
 				$name = __( 'User Forms Bot Detection', 'wp-simple-firewall' );
 				$summary = __( "Select The User Forms Provider That You Use", 'wp-simple-firewall' );
 				$desc = [
-					__( 'This is a ShieldPRO-only feature.', 'wp-simple-firewall' ),
 					__( 'Many 3rd party plugins provide custom user login, registration, and lost password forms.', 'wp-simple-firewall' )
 					.' '.__( "They aren't normally checked for Bots since they require a custom integration.", 'wp-simple-firewall' ),
 					__( "Select your 3rd party providers to have Shield automatically detect Bot requests to these forms.", 'wp-simple-firewall' ),
@@ -106,6 +107,23 @@ class Strings extends Base\Strings {
 					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->modCfgSection( $con->getModule_LoginGuard(), 'section_brute_force_login_protection' ),
 						sprintf( __( 'Choose the types of forms you want %s to check', 'wp-simple-firewall' ), $con->getHumanName() ) ),
 				];
+				if ( !$con->caps->canThirdPartyScanUsers() ) {
+					$desc[] = __( 'Please upgrade your plan if you need to protect and integrate with 3rd party user login forms.', 'wp-simple-firewall' );
+				}
+				break;
+
+			case 'form_spam_providers' :
+				$name = __( 'Contact Form SPAM', 'wp-simple-firewall' );
+				$summary = __( 'Select The Form Providers That You Use', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Just like WordPress comments, Contact Forms (or any type of form at all) is normally a victim of SPAM.', 'wp-simple-firewall' )
+					.' '.__( "Some form developers provide CAPTCHAs to try and block SPAM, but these are often clunky and ineffective.", 'wp-simple-firewall' ),
+					__( "If you want Shield to block SPAM from suspected bots without your users having to click CAPTCHAs, select the form providers you want to protect.", 'wp-simple-firewall' ),
+					__( "If the provider you want isn't on the list, contact our support team and we'll see if an integration can be built.", 'wp-simple-firewall' ),
+				];
+				if ( !$con->caps->canThirdPartyScanSpam() ) {
+					$desc[] = __( 'Please upgrade your plan if you need to protect and integrate with 3rd party form providers.', 'wp-simple-firewall' );
+				}
 				break;
 
 			default:

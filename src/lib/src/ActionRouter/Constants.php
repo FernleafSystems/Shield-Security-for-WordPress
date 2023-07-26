@@ -109,7 +109,6 @@ class Constants {
 
 		Actions\Render\Components\AdminNotes::class,
 		Actions\Render\Components\AdminNotice::class,
-		Actions\Render\Components\BannerGoPro::class,
 		Actions\Render\Components\DashboardWidget::class,
 		Actions\Render\Components\FormSecurityAdminLoginBox::class,
 		Actions\Render\Components\PrivacyPolicy::class,
@@ -141,6 +140,8 @@ class Constants {
 		Actions\Render\Components\OffCanvas\MeterAnalysis::class,
 		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\Options\OptionsForm::class,
+		Actions\Render\Components\Reports\ChangeTrack\PageReportGenerateNewChangeTrack::class,
+		Actions\Render\Components\Reports\ChangeTrack\ReportBuildChangeTrack::class,
 		Actions\Render\Components\Reports\Components\InfoKeyStats::class,
 		Actions\Render\Components\Reports\ReportsCollatorForAlerts::class,
 		Actions\Render\Components\Reports\ReportsCollatorForInfo::class,

@@ -147,7 +147,7 @@ class SecurityAdminController {
 	}
 
 	public function getSecAdminTimeout() :int {
-		return (int)$this->opts()->getOpt( 'admin_access_timeout' )*MINUTE_IN_SECONDS;
+		return (int)$this->opts()->getOpt( 'admin_access_timeout' )*\MINUTE_IN_SECONDS;
 	}
 
 	/**
@@ -160,11 +160,11 @@ class SecurityAdminController {
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
-				$remaining = (int)max( 0, $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt ) );
+				$remaining = (int)\max( 0, $this->getSecAdminTimeout() - ( Services::Request()->ts() - $secAdminAt ) );
 			}
 		}
 
-		return (int)max( 0, $remaining );
+		return (int)\max( 0, $remaining );
 	}
 
 	public function isCurrentUserRegisteredSecAdmin() :bool {
@@ -179,7 +179,7 @@ class SecurityAdminController {
 		if ( !$user instanceof \WP_User ) {
 			$user = Services::WpUsers()->getCurrentWpUser();
 		}
-		return $user instanceof \WP_User && in_array( $user->user_login, $this->opts()->getSecurityAdminUsers() );
+		return $user instanceof \WP_User && \in_array( $user->user_login, $this->opts()->getSecurityAdminUsers() );
 	}
 
 	public function isCurrentlySecAdmin() :bool {

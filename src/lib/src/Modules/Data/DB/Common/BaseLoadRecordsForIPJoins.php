@@ -31,7 +31,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 				'COUNT(*)',
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
+				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				'',
 				'',
 				''
@@ -51,11 +51,11 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			)
 		);
 
-		return array_values( array_filter( array_map(
+		return \array_values( \array_filter( \array_map(
 			function ( $result ) {
-				return is_array( $result ) ? ( $result[ 'ip' ] ?? null ) : null;
+				return \is_array( $result ) ? ( $result[ 'ip' ] ?? null ) : null;
 			},
-			is_array( $results ) ? $results : []
+			\is_array( $results ) ? $results : []
 		) ) );
 	}
 
@@ -63,9 +63,9 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	protected function selectRaw() :array {
-		$selectFields = array_merge(
+		$selectFields = \array_merge(
 			$this->getSelectFieldsForIPTable(),
-			array_map(
+			\array_map(
 				function ( string $field ) {
 					return sprintf( '`%s`.%s', $this->getJoinedTableAbbreviation(), $field );
 				},
@@ -77,10 +77,10 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 
 		return Services::WpDb()->selectCustom(
 			sprintf( $this->getRawQuery(),
-				implode( ', ', $selectFields ),
+				\implode( ', ', $selectFields ),
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
-				empty( $wheres ) ? '' : 'WHERE '.implode( ' AND ', $wheres ),
+				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				sprintf( 'ORDER BY %s %s', $this->getOrderByColumn(), $this->order_dir ?? 'DESC' ),
 				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
 				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
@@ -99,9 +99,9 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	}
 
 	protected function getSelectFieldsForJoinedTable() :array {
-		$fields = is_array( $this->joined_table_select_fields ) ? $this->joined_table_select_fields : $this->getDefaultSelectFieldsForJoinedTable();
+		$fields = \is_array( $this->joined_table_select_fields ) ? $this->joined_table_select_fields : $this->getDefaultSelectFieldsForJoinedTable();
 		$fields[] = 'id'; // always include the ID
-		return array_unique( $fields );
+		return \array_unique( $fields );
 	}
 
 	protected function getDefaultSelectFieldsForIPTable() :array {
@@ -111,8 +111,8 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	}
 
 	protected function getSelectFieldsForIPTable() :array {
-		$fields = is_array( $this->ip_table_select_fields ) ? $this->ip_table_select_fields : $this->getDefaultSelectFieldsForIPTable();
-		return array_unique( $fields );
+		$fields = \is_array( $this->ip_table_select_fields ) ? $this->ip_table_select_fields : $this->getDefaultSelectFieldsForIPTable();
+		return \array_unique( $fields );
 	}
 
 	protected function getJoinedTableAbbreviation() :string {
@@ -122,7 +122,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	abstract protected function getTableSchemaForJoinedTable() :TableSchema;
 
 	protected function buildWheres() :array {
-		$wheres = is_array( $this->wheres ) ? $this->wheres : [];
+		$wheres = \is_array( $this->wheres ) ? $this->wheres : [];
 		if ( !empty( $this->getIP() ) ) {
 			$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() );
 		}
