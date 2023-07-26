@@ -54,11 +54,11 @@ abstract class MeterBase {
 		$prefs = $pluginOpts->getOpt( 'sec_overview_prefs' );
 
 		$viewAs = $prefs[ 'view_as' ] ?? '';
-		if ( $viewAs === 'pro' ) {
-			$viewAs = 'business';
-		}
-		elseif ( !\in_array( $viewAs, [ 'free', 'starter', 'business' ], true ) ) {
+		if ( !\in_array( $viewAs, [ 'free', 'starter', 'business' ], true ) ) {
 			$viewAs = $con->isPremiumActive() ? 'business' : 'free';
+		}
+		elseif ( $viewAs === 'free' && $con->isPremiumActive() ) {
+			$viewAs = 'business';
 		}
 
 		$prefs[ 'view_as' ] = $viewAs;

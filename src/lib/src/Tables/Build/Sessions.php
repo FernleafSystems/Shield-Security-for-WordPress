@@ -78,7 +78,7 @@ class Sessions extends BaseBuild {
 
 		$allSessions = \array_filter( $allSessions );
 
-		usort( $allSessions, function ( $a, $b ) {
+		\usort( $allSessions, function ( $a, $b ) {
 			$a = $a[ 'last_activity_at' ] ?? $a[ 'login' ];
 			$b = $b[ 'last_activity_at' ] ?? $b[ 'login' ];
 			if ( $a == $b ) {

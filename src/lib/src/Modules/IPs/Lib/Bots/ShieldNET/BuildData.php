@@ -51,7 +51,7 @@ class BuildData {
 
 		// We order with preference towards IPs with more signals.
 		// And, if the only signal is "frontpage" we prefer anything else before it.
-		usort( $records, function ( $a, $b ) {
+		\usort( $records, function ( $a, $b ) {
 			$countA = \count( $a[ 'signals' ] );
 			$countB = \count( $b[ 'signals' ] );
 
