@@ -12,7 +12,7 @@ class BuildDataForDays {
 		$days = [];
 		$dateFormat = Services::WpGeneral()->getOption( 'date_format' );
 		$carbon = Services::Request()->carbon( true );
-		foreach ( \array_map( 'intval', $timestamps ) as $ts ) {
+		foreach ( \array_map( '\intval', $timestamps ) as $ts ) {
 			if ( empty( $ts ) ) {
 				$label = __( 'Never', 'wp-simple-firewall' );
 				$stdFormat = self::ZERO_DATE_FORMAT;

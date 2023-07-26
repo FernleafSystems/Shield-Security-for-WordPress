@@ -88,7 +88,7 @@ class BotSignalsRecord {
 		if ( $ruleStatus->hasRules() ) {
 			if ( $r->bypass_at === 0 && $ruleStatus->isBypass() ) {
 				/** @var IpRuleRecord $ruleRecord */
-				$ruleRecord = current( $ruleStatus->getRulesForBypass() );
+				$ruleRecord = \current( $ruleStatus->getRulesForBypass() );
 				$r->bypass_at = $ruleRecord->created_at;
 			}
 			if ( $r->offense_at === 0 && $ruleStatus->isAutoBlacklisted() ) {
@@ -96,7 +96,7 @@ class BotSignalsRecord {
 			}
 
 			/** @var IpRuleRecord $blockedRuleRecord */
-			$blockedRuleRecord = current( $ruleStatus->getRulesForBlock() );
+			$blockedRuleRecord = \current( $ruleStatus->getRulesForBlock() );
 			if ( !empty( $blockedRuleRecord ) ) {
 				$r->blocked_at = $blockedRuleRecord->blocked_at;
 				$r->unblocked_at = $blockedRuleRecord->unblocked_at;

@@ -84,7 +84,7 @@ class BaseBuild {
 
 	private function getFormParams() :array {
 		\parse_str( Services::Request()->post( 'form_params', '' ), $formParams );
-		return Services::DataManipulation()->arrayMapRecursive( $formParams, 'trim' );
+		return Services::DataManipulation()->arrayMapRecursive( $formParams, '\trim' );
 	}
 
 	protected function getParamDefaults() :array {

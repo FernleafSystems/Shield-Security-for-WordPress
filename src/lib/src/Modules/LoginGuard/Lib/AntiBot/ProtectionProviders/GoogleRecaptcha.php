@@ -8,10 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha\TestRequest;
 class GoogleRecaptcha extends BaseProtectionProvider {
 
 	public function setup() {
-		$this->con()
-			 ->getModule_Plugin()
-			 ->getCaptchaEnqueue()
-			 ->setToEnqueue();
+		( new Enqueue() )->setToEnqueue();
 	}
 
 	public function performCheck( $formProvider ) {

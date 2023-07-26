@@ -19,7 +19,7 @@ class SetIpBlockedShield extends Base {
 		$ipStatus = new IpRuleStatus( $con->this_req->ip );
 		if ( $ipStatus->hasManualBlock() ) {
 			$con->this_req->is_ip_blocked_shield_manual = true;
-			$IP = current( $ipStatus->getRulesForManualBlock() );
+			$IP = \current( $ipStatus->getRulesForManualBlock() );
 		}
 		elseif ( $ipStatus->hasAutoBlock() ) {
 			$con->this_req->is_ip_blocked_shield_auto = true;

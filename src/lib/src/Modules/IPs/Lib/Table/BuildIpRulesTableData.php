@@ -79,7 +79,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'ir', 'last_access_at' );
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "`ir`.`id` IN (%s)", \implode( ',', \array_map( 'intval', $selected ) ) );
+						$wheres[] = sprintf( "`ir`.`id` IN (%s)", \implode( ',', \array_map( '\intval', $selected ) ) );
 						break;
 					case 'type':
 						$selected = \array_filter( $selected, function ( $type ) {
@@ -89,7 +89,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 						break;
 					case 'is_blocked':
 						if ( \count( $selected ) === 1 ) {
-							$wheres[] = sprintf( "`ir`.`blocked_at`%s'0'", current( $selected ) ? '>' : '=' );
+							$wheres[] = sprintf( "`ir`.`blocked_at`%s'0'", \current( $selected ) ? '>' : '=' );
 						}
 						break;
 					default:

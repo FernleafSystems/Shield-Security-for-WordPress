@@ -16,8 +16,8 @@ class IpListSort {
 			$ip6 = \array_filter( $IPs, function ( $sIP ) {
 				return \strpos( $sIP, ':' ) > 0;
 			} );
-			asort( $ip4 );
-			asort( $ip6 );
+			\asort( $ip4 );
+			\asort( $ip6 );
 			$IPs = \array_merge( $ip4, $ip6 );
 		}
 		return \is_array( $IPs ) ? $IPs : [];

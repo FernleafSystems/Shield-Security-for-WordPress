@@ -286,7 +286,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	/**
-	 * @deprecated 18.2
+	 * @deprecated 18.2.4
 	 */
 	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
 		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = new Shield\Utilities\ReCaptcha\Enqueue();

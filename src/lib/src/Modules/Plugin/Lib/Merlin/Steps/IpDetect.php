@@ -60,7 +60,7 @@ class IpDetect extends Base {
 	private function gatherUniqueIpSources() :array {
 		$allIPs = [];
 		foreach ( ( new RequestIpDetect() )->getPublicRequestIPData()[ 'all_ips' ] as $source => $ips ) {
-			$allIPs[ $source ] = current( $ips );
+			$allIPs[ $source ] = \current( $ips );
 		}
 		return \array_unique( $allIPs );
 	}

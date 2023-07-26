@@ -53,7 +53,7 @@ class BuildMeter {
 		}
 
 		// Put critical components to the top of the list.
-		uasort( $meter[ 'components' ], function ( $a, $b ) {
+		\uasort( $meter[ 'components' ], function ( $a, $b ) {
 			if ( $a[ 'is_critical' ] === $b[ 'is_critical' ] ) {
 				return 0;
 			}
