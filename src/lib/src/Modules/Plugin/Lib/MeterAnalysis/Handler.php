@@ -61,7 +61,7 @@ class Handler {
 
 		$meter = self::$BuiltMeters[ $theSlug ];
 		if ( $orderComponentsByWeight ) {
-			usort( $meter[ 'components' ], function ( $a, $b ) {
+			\usort( $meter[ 'components' ], function ( $a, $b ) {
 				$wA = $a[ 'weight' ];
 				$wB = $b[ 'weight' ];
 				return ( $wA === $wB ) ? 0 : ( $wA > $wB ? -1 : 1 );
