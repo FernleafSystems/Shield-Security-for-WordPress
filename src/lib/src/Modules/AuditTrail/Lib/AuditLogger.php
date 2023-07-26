@@ -71,12 +71,11 @@ class AuditLogger extends EventsListener {
 					 );
 			}
 
-			$fileLogLevels = \method_exists( $this, 'getLogLevelsFile' ) ? $this->getLogLevelsFile() : $opts->getLogLevelsFile();
 			if ( $con->cache_dir_handler->exists()
-				 && !\in_array( 'disabled', $fileLogLevels ) && !empty( $opts->getLogFilePath() )
+				 && !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $opts->getLogFilePath() )
 			) {
 				try {
-					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $fileLogLevels );
+					$fileHandlerWithFilter = new FilterHandler( new LogFileHandler(), $this->getLogLevelsFile() );
 					if ( $opts->getOpt( 'log_format_file' ) === 'json' ) {
 						$fileHandlerWithFilter->getHandler()->setFormatter( new JsonFormatter() );
 					}

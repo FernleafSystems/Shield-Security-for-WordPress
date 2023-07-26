@@ -149,8 +149,6 @@ class AssetsCustomizer {
 				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::class ),
 				'tours'       => $tourManager->getAllTours(),
 				'states'      => $tourManager->getStates(),
-				/** @deprecated 18.2 */
-				'tour_states' => $tourManager->getUserTourStates(),
 			]
 		];
 	}

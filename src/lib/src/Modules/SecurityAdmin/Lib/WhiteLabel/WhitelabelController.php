@@ -165,11 +165,4 @@ class WhitelabelController {
 
 		return $url;
 	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isReplacePluginBadge() :bool {
-		return $this->opts()->isOpt( 'wl_replace_badge_url', 'Y' );
-	}
 }

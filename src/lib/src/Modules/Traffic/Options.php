@@ -43,12 +43,4 @@ class Options extends BaseShield\Options {
 		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function getReqTypeExclusions() :array {
-		$ex = $this->getOpt( 'type_exclusions' );
-		return \is_array( $ex ) ? $ex : [];
-	}
 }

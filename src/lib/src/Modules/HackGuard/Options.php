@@ -121,13 +121,6 @@ class Options extends BaseShield\Options {
 		return \in_array( 'wp', $this->getRepairAreas() );
 	}
 
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isWpvulnAutoupdatesEnabled() :bool {
-		return $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
-	}
-
 	public function getScanFrequency() :int {
 		return (int)$this->getOpt( 'scan_frequency', 1 );
 	}

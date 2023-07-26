@@ -130,18 +130,4 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	private function isYubikeyConfigReady() :bool {
 		return !empty( $this->getOpt( 'yubikey_app_id' ) ) && !empty( $this->getOpt( 'yubikey_api_key' ) );
 	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isEnabledBackupCodes() :bool {
-		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isMfaSkip() :bool {
-		return $this->getMfaSkip() > 0;
-	}
 }

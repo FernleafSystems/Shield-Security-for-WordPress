@@ -275,13 +275,6 @@ class Options {
 	}
 
 	/**
-	 * @deprecated 18.2
-	 */
-	public function isOptReqsMet( string $key ) :bool {
-		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
-	}
-
-	/**
 	 * @return array[]
 	 */
 	public function getVisibleOptions() :array {

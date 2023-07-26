@@ -2,21 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class VerifySecurityAdminList {
-
-	/**
-	 * @deprecated 18.2
-	 */
-	use ModConsumer;
 
 	public function run( array $users ) :array {
 		$WPU = Services::WpUsers();
 
 		$filtered = [];
-		foreach ( \array_map( 'trim', $users ) as $usernameOrEmail ) {
+		foreach ( \array_map( '\trim', $users ) as $usernameOrEmail ) {
 			$user = null;
 
 			if ( !empty( $usernameOrEmail ) ) {
