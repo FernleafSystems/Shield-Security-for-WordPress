@@ -105,7 +105,7 @@ class HandleOptionsSaveRequest {
 					$optValue = \md5( $tempValue );
 				}
 				elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
-					$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), 'trim' );
+					$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), '\trim' );
 				}
 				elseif ( $optType == 'comma_separated_lists' ) {
 					$optValue = Services::Data()->extractCommaSeparatedList( $optValue );

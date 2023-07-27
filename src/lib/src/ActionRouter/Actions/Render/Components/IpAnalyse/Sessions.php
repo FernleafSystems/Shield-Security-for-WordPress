@@ -14,7 +14,7 @@ class Sessions extends Base {
 		$WP = Services::WpGeneral();
 
 		$allSessions = [];
-		foreach ( ( new FindSessions() )->byIP( $this->action_data[ 'ip' ] ) as $userID => $sessions ) {
+		foreach ( ( new FindSessions() )->byIP( $this->action_data[ 'ip' ] ) as /* $userID => */ $sessions ) {
 			foreach ( $sessions as $session ) {
 				$loginAt = $session[ 'login' ];
 				$activityAt = $session[ 'shield' ][ 'last_activity_at' ] ?? $loginAt;
@@ -27,7 +27,7 @@ class Sessions extends Base {
 			}
 		}
 
-		uasort( $allSessions, function ( $a, $b ) {
+		\uasort( $allSessions, function ( $a, $b ) {
 			if ( $a[ 'last_activity_at' ] == $b[ 'last_activity_at' ] ) {
 				return 0;
 			}

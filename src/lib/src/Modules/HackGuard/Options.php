@@ -89,7 +89,7 @@ class Options extends BaseShield\Options {
 		}
 		else {
 			$sigs = \array_filter(
-				\array_map( 'trim',
+				\array_map( '\trim',
 					\explode( "\n", Services::HttpRequest()->getContent( $url ) )
 				),
 				function ( $line ) {

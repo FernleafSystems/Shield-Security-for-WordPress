@@ -58,7 +58,7 @@ class StandardReportBuilder {
 			);
 		}
 
-		return \array_filter( \array_map( 'trim', $reports ) );
+		return \array_filter( \array_map( '\trim', $reports ) );
 	}
 
 	protected function render( array $gatheredReports ) :string {

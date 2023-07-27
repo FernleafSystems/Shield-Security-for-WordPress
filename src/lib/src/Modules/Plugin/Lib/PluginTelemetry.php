@@ -24,11 +24,10 @@ class PluginTelemetry {
 	}
 
 	private function canSend() :bool {
-		$opts = $this->opts();
-		return ( $opts->isTrackingEnabled() || !$opts->isTrackingPermissionSet() )
+		return ( $this->opts()->isTrackingEnabled() || !$this->opts()->isTrackingPermissionSet() )
 			   && Services::Request()
 						  ->carbon()
-						  ->subDay()->timestamp > $opts->getOpt( 'tracking_last_sent_at', 0 );
+						  ->subDay()->timestamp > $this->opts()->getOpt( 'tracking_last_sent_at', 0 );
 	}
 
 	/**
@@ -69,6 +68,12 @@ class PluginTelemetry {
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
 			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->con()->getInstallationID()[ 'id' ];
+			$dbhNotes = self::con()->getModule_Plugin()->getDbHandler_Notes();
+			$count = $dbhNotes->getQuerySelector()->count();
+			$data[ 'plugin' ][ 'dbs' ][ $dbhNotes->getTableSchema()->slug ] = [
+				'rows'           => $count,
+				'last_insert_at' => $count > 0 ? $dbhNotes->getQuerySelector()->first()->created_at : 0,
+			];
 		}
 
 		return $data;
@@ -80,7 +85,7 @@ class PluginTelemetry {
 	private function buildOptionsDataForMod( $mod ) :array {
 		$data = [];
 
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		$optionsData = $opts->getOptionsForTracking();
 		foreach ( $optionsData as $opt => $mValue ) {
 			unset( $optionsData[ $opt ] );
@@ -95,6 +100,7 @@ class PluginTelemetry {
 		}
 
 		$data[ 'options' ] = $optionsData;
+		$data[ 'dbs' ] = [];
 
 		return $data;
 	}
@@ -110,8 +116,8 @@ class PluginTelemetry {
 				'unique_site_hash' => \sha1( network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
-				'version'          => $con->getVersion(),
-				'plugin_version'   => $con->getVersion(),
+				'version'          => $con->cfg->version(),
+				'plugin_version'   => $con->cfg->version(),
 				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
 				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,

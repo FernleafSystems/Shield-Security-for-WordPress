@@ -140,12 +140,10 @@ class LicenseHandler {
 	 * plus the grace period.
 	 */
 	public function getRegistrationExpiresAt() :int {
-		$verifiedExpiredDays = $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays();
-
 		$lic = $this->getLicense();
 		return (int)\min(
 			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*\DAY_IN_SECONDS,
-			$lic->last_verified_at + $verifiedExpiredDays*\DAY_IN_SECONDS
+			$lic->last_verified_at + ( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() )*\DAY_IN_SECONDS
 		);
 	}
 
@@ -179,10 +177,7 @@ class LicenseHandler {
 
 	private function isMaybeExpiring() :bool {
 		return $this->isActive() &&
-			   (
-				   \abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
-				   < ( \DAY_IN_SECONDS/2 )
-			   );
+			   ( \abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() ) < ( \DAY_IN_SECONDS/2 ) );
 	}
 
 	public function isWithinVerifiedGraceExpired() :bool {
@@ -222,14 +217,13 @@ class LicenseHandler {
 	}
 
 	private function canLicenseCheck_FileFlag() :bool {
-		$FS = Services::WpFs();
 		$path = $this->con()->paths->forFlag( 'license_check' );
-		$mtime = $FS->exists( $path ) ? $FS->getModifiedTime( $path ) : 0;
+		$mtime = Services::WpFs()->exists( $path ) ? Services::WpFs()->getModifiedTime( $path ) : 0;
 		return ( Services::Request()->ts() - $mtime ) > \MINUTE_IN_SECONDS;
 	}
 
 	private function getLicVerifyExpireDays() :int {
-		return (int)wp_rand( 9, 14 );
+		return $this->opts()->getDef( 'lic_verify_expire_days' );
 	}
 
 	private function getLicExpireGraceDays() :int {

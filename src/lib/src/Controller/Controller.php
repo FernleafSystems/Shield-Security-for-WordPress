@@ -522,7 +522,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function adjustNocacheHeaders( $headers ) {
 		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
-			$Hs = \array_map( 'trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
+			$Hs = \array_map( '\trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
 			$Hs[] = 'no-store';
 			$headers[ 'Cache-Control' ] = \implode( ', ', \array_unique( $Hs ) );
 		}
@@ -919,13 +919,11 @@ class Controller extends DynPropertiesClass {
 		return $this->getCfgProperty( 'text_domain' );
 	}
 
+	/**
+	 * @deprecated 18.2.4
+	 */
 	public function getVersion() :string {
-		return $this->getCfgProperty( 'version' );
-	}
-
-	public function getVersionNumeric() :int {
-		$parts = \explode( '.', $this->getVersion() );
-		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
+		return $this->cfg->version();
 	}
 
 	public function isPremiumActive() :bool {

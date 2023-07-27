@@ -42,7 +42,7 @@ class ClientPluginStatus {
 				$status = self::MWP_NOT_ON;
 			}
 			else {
-				$versionStatus = \version_compare( $this->con()->getVersion(), $m->version );
+				$versionStatus = \version_compare( $this->con()->cfg->version(), $m->version );
 				if ( $versionStatus === -1 ) {
 					$status = self::VERSION_NEWER_THAN_SERVER;
 				}

@@ -23,7 +23,7 @@ trait RequestScriptName {
 				$req->server( 'PHP_SELF' )
 			] ) ) ) );
 			if ( \count( $possible ) === 1 ) {
-				$value = current( $possible );
+				$value = \current( $possible );
 			}
 			else {
 				throw new RequestScriptNameUnavailableException( 'Request script name is unavailable.' );

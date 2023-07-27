@@ -18,14 +18,14 @@ abstract class Base extends Process {
 		if ( $list === 'block' ) {
 			$IP = $ruleStatus->getRuleForAutoBlock();
 			if ( empty( $IP ) ) {
-				$IP = current( $ruleStatus->getRulesForManualBlock() );
+				$IP = \current( $ruleStatus->getRulesForManualBlock() );
 			}
 		}
 		elseif ( $list === 'bypass' ) {
-			$IP = current( $ruleStatus->getRulesForBypass() );
+			$IP = \current( $ruleStatus->getRulesForBypass() );
 		}
 		else {
-			$IP = current( $ruleStatus->getRulesForCrowdsec() );
+			$IP = \current( $ruleStatus->getRulesForCrowdsec() );
 		}
 
 		if ( empty( $IP ) ) {

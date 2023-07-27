@@ -330,7 +330,7 @@ class CrowdSecApi {
 
 	public function getApiUserAgent() :string {
 		$con = $this->con();
-		return sprintf( '%s/v%s', $con->isPremiumActive() ? 'ShieldSecurityPro' : 'ShieldSecurity', $con->getVersion() );
+		return sprintf( '%s/v%s', $con->isPremiumActive() ? 'ShieldSecurityPro' : 'ShieldSecurity', $con->cfg->version() );
 	}
 
 	/**

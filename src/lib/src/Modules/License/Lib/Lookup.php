@@ -2,9 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Licenses\EddLicenseVO;
-
 /**
  * @property string $install_ids
  * @property string $url
@@ -13,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Licenses\EddLicenseVO;
  */
 class Lookup extends \FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless\Base {
 
-	const API_ACTION = 'licenses';
+	public const API_ACTION = 'licenses';
 
 	public function lookup() :array {
 		$raw = $this->sendReq();

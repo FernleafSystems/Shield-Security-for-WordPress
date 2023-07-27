@@ -23,8 +23,8 @@ class AlignTableWithSchema {
 	public function isAligned() :bool {
 		$colsActual = $this->getColumnsActual();
 		$colsSchema = $this->schema->getColumnNames();
-		asort( $colsActual );
-		asort( $colsSchema );
+		\asort( $colsActual );
+		\asort( $colsSchema );
 		return $colsActual === $colsSchema;
 	}
 

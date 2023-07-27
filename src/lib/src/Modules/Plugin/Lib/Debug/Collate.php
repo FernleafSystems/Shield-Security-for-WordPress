@@ -245,7 +245,7 @@ class Collate {
 		}
 
 		$data = [
-			'Version'                => $con->getVersion(),
+			'Version'                => $con->cfg->version(),
 			'PRO'                    => $con->isPremiumActive() ? 'Yes' : 'No',
 			'WP Hashes Token'        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
 			'Security Admin Enabled' => $con->getModule_SecAdmin()
