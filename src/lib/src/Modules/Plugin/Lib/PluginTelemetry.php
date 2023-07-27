@@ -111,7 +111,7 @@ class PluginTelemetry {
 		$WPP = Services::WpPlugins();
 		return [
 			'env' => [
-				'slug'             => $con->getPluginSlug(),
+				'slug'             => $con->cfg->properties[ 'slug_plugin' ],
 				'installation_id'  => $con->getInstallationID()[ 'id' ],
 				'unique_site_hash' => \sha1( network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),

@@ -16,7 +16,8 @@ class PluginDeactivate {
 	}
 
 	private function deleteCrons() {
-		$pattern = sprintf( '#^(%s|%s)#', $this->con()->getParentSlug(), $this->con()->getPluginSlug() );
+		$cfg = $this->con()->cfg;
+		$pattern = sprintf( '#^(%s|%s)#', $cfg->properties[ 'slug_parent' ], $cfg->properties[ 'slug_plugin' ] );
 		foreach ( Services::WpCron()->getCrons() as $cron ) {
 			foreach ( $cron as $key => $cronEntry ) {
 				if ( \is_string( $key ) && \preg_match( $pattern, $key ) ) {

@@ -48,7 +48,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			$this->pageHookSuffix = add_menu_page(
 				$con->getHumanName(),
 				$con->labels->MenuTitle,
-				$con->getBasePermissions(),
+				$con->cfg->properties[ 'base_permissions' ],
 				$this->getPrimaryMenuSlug(),
 				[ $this, 'displayModuleAdminPage' ],
 				$con->labels->icon_url_16x16
@@ -104,7 +104,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 				$this->getPrimaryMenuSlug(),
 				sprintf( '%s | %s', $submenuTitle, $this->con()->getHumanName() ),
 				$doMarkupTitle ? $markupTitle : $submenuTitle,
-				$con->getBasePermissions(),
+				$con->cfg->properties[ 'base_permissions' ],
 				$con->prefix( $submenuNavID ),
 				[ $this, 'displayModuleAdminPage' ]
 			);
