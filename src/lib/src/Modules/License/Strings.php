@@ -14,6 +14,13 @@ class Strings extends Base\Strings {
 					__( 'License check succeeded.', 'wp-simple-firewall' ),
 				],
 			],
+			'lic_check_fail'      => [
+				'name'  => __( 'License Check Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'License check request failed.', 'wp-simple-firewall' ),
+					__( 'Failure Type: {{type}}', 'wp-simple-firewall' ),
+				],
+			],
 			'lic_fail_email'      => [
 				'name'  => __( 'License Failure Email Sent', 'wp-simple-firewall' ),
 				'audit' => [
@@ -23,7 +30,7 @@ class Strings extends Base\Strings {
 			'lic_fail_deactivate' => [
 				'name'  => __( 'License Deactivated', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'License check failed. Deactivating Pro.', 'wp-simple-firewall' ),
+					__( 'A valid license could not be found - Deactivating Pro.', 'wp-simple-firewall' ),
 				],
 			],
 		];

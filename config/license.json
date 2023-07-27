@@ -141,7 +141,7 @@
     "license_item_name":            "Shield Security Pro",
     "license_item_id":              "6047",
     "license_item_name_sc":         "Shield Security Pro (via Shield Central)",
-    "lic_verify_expire_days":       7,
+    "lic_verify_expire_days":       14,
     "lic_verify_expire_grace_days": 3,
     "keyless":                      true,
     "keyless_handshake_expire":     90,
@@ -149,6 +149,13 @@
       "lic_check_success":   {
         "level": "debug",
         "stat":  false
+      },
+      "lic_check_fail":      {
+        "level":        "warning",
+        "stat":         false,
+        "audit_params": [
+          "type"
+        ]
       },
       "lic_fail_email":      {
         "level": "warning",
