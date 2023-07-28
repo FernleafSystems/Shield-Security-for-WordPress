@@ -141,6 +141,10 @@ class LicenseHandler {
 	 */
 	public function getRegistrationExpiresAt() :int {
 		$lic = $this->getLicense();
+		/** @deprecated 18.2.4 - temporary to reduce likelihood of inadvertant deactivations */
+		if ( $lic->last_verified_at < \MONTH_IN_SECONDS ) {
+			$lic->last_verified_at = $lic->last_request_at > 0 ? $lic->last_request_at : Services::Request()->ts();
+		}
 		return (int)\min(
 			$lic->getExpiresAt() + $this->getLicExpireGraceDays()*\DAY_IN_SECONDS,
 			$lic->last_verified_at + ( $this->getLicVerifyExpireDays() + $this->getLicExpireGraceDays() )*\DAY_IN_SECONDS

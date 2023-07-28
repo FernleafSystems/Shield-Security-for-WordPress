@@ -51,7 +51,7 @@
     "patches":     [
       {
         "version":     "4",
-        "released_at": 1690450000,
+        "released_at": 1690532000,
         "items":       [
           {
             "title": "Updated some JS & CSS assets.",

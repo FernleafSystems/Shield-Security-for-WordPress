@@ -42,6 +42,9 @@ class Handler {
 		return self::$BuiltMeters;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function getMeter( string $meterClassOrSlug, bool $orderComponentsByWeight = true ) :array {
 
 		if ( isset( self::METERS[ $meterClassOrSlug ] ) ) {

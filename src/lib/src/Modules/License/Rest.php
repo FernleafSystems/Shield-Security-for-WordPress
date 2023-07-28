@@ -2,17 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Rest\Route\{
-	LicenseCheck,
-	LicenseStatus
-};
-
 class Rest extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest {
 
 	protected function enumRoutes() :array {
 		return [
-			'license_check'  => LicenseCheck::class,
-			'license_status' => LicenseStatus::class,
+			'license_check'  => Rest\Route\LicenseCheck::class,
+			'license_status' => Rest\Route\LicenseStatus::class,
 		];
 	}
 

@@ -37,7 +37,7 @@ class LoadConfig {
 		$def = Services::WpGeneral()->getOption( $this->store_key );
 		$rebuild = empty( $def ) || !\is_array( $def );
 
-		$specHash = sha1_file( $this->path );
+		$specHash = \hash_file( 'sha1', $this->path );
 		$previousVersion = ( \is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
 		if ( !$rebuild ) {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';

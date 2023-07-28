@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rest\Request\Options;
 
 class SetSingle extends BaseSingle {
 
-	const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
+	public const ROUTE_METHOD = \WP_REST_Server::EDITABLE;
 
 	protected function getRouteArgsCustom() :array {
 		return [

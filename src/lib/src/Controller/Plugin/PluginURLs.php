@@ -36,7 +36,7 @@ class PluginURLs {
 
 	public function rootAdminPage() :string {
 		return Services::WpGeneral()->getUrl_AdminPage(
-			$this->rootAdminPageSlug(), $this->con()->getIsWpmsNetworkAdminOnly() );
+			$this->rootAdminPageSlug(), (bool)$this->con()->cfg->properties[ 'wpms_network_admin_only' ] );
 	}
 
 	public function rootAdminPageSlug() :string {
