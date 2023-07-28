@@ -72,7 +72,7 @@ class Emails extends Base {
 			[ $headerKey, $emails ] = \explode( ':', $header, 2 );
 
 			$emails = \array_filter(
-				\array_map( 'trim', \explode( ',', $emails ) ),
+				\array_map( '\trim', \explode( ',', $emails ) ),
 				function ( $email ) {
 					return Services::Data()->validEmail( $email );
 				}

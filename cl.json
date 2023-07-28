@@ -49,6 +49,24 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "4",
+        "released_at": 1690532000,
+        "items":       [
+          {
+            "title": "Updated some JS & CSS assets.",
+            "type":  "improved"
+          },
+          {
+            "title": "Refactored license verification to reduce chances of licenses being deactivated.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Other smaller bug fixes.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "18.1": {

@@ -195,7 +195,7 @@ class NavMenuBuilder {
 			}
 		}
 
-		uasort( $subItems, function ( $a, $b ) {
+		\uasort( $subItems, function ( $a, $b ) {
 			if ( $a[ 'menu_priority' ] == $b[ 'menu_priority' ] ) {
 				return 0;
 			}

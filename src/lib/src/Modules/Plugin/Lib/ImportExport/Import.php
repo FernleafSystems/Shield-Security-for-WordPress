@@ -35,7 +35,7 @@ class Import {
 
 		{//filter any comment lines
 			$parts = \array_filter(
-				\array_map( 'trim', \explode( "\n", $content ) ),
+				\array_map( '\trim', \explode( "\n", $content ) ),
 				function ( $line ) {
 					return \strpos( $line, '{' ) === 0;
 				}

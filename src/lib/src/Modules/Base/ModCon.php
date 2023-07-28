@@ -578,8 +578,16 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return null|Shield\Modules\Base\Options|mixed
+	 * @deprecated 18.2.4
 	 */
 	public function getOptions() {
+		return \method_exists( $this, 'opts' ) ? $this->opts() : $this->opts;
+	}
+
+	/**
+	 * @return null|Shield\Modules\Base\Options|mixed
+	 */
+	public function opts() {
 		return $this->opts ?? $this->opts = $this->loadModElement( 'Options' );
 	}
 

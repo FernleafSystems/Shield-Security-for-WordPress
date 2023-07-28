@@ -154,7 +154,7 @@ class SelectSearchData {
 	}
 
 	private function searchString( string $haystack, array $needles ) :int {
-		return \count( \array_intersect( $needles, \array_map( 'trim', \explode( ' ', \strtolower( $haystack ) ) ) ) );
+		return \count( \array_intersect( $needles, \array_map( '\trim', \explode( ' ', \strtolower( $haystack ) ) ) ) );
 	}
 
 	private function getExternalSearch() :array {
@@ -455,7 +455,7 @@ class SelectSearchData {
 		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );
 		$strOpts = $modStrings->getOptionStrings( $optKey );
 
-		$allWords = \array_filter( \array_map( 'trim',
+		$allWords = \array_filter( \array_map( '\trim',
 			\explode( ' ', \preg_replace( '#\(\):-#', ' ', \strip_tags( \implode( ' ', \array_merge(
 				[
 					$strOpts[ 'name' ],

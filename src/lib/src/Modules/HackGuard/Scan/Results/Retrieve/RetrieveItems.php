@@ -289,7 +289,7 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	public function getSelects() :array {
-		return \array_filter( \array_map( 'trim', \is_array( $this->selects ) ? $this->selects : [] ) );
+		return \array_filter( \array_map( '\trim', \is_array( $this->selects ) ? $this->selects : [] ) );
 	}
 
 	/**

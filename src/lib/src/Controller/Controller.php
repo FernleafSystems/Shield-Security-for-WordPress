@@ -522,7 +522,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function adjustNocacheHeaders( $headers ) {
 		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
-			$Hs = \array_map( 'trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
+			$Hs = \array_map( '\trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
 			$Hs[] = 'no-store';
 			$headers[ 'Cache-Control' ] = \implode( ', ', \array_unique( $Hs ) );
 		}
@@ -811,16 +811,17 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @return mixed|null
+	 * @deprecated 18.2.4
 	 */
 	protected function getCfgProperty( string $key ) {
 		return $this->cfg->properties[ $key ] ?? null;
 	}
 
+	/**
+	 * @deprecated 18.2.4
+	 */
 	public function getBasePermissions() :string {
-		if ( isset( $this->cfg ) ) {
-			return $this->cfg->properties[ 'base_permissions' ];
-		}
-		return $this->getCfgProperty( 'base_permissions' );
+		return $this->cfg->properties[ 'base_permissions' ];
 	}
 
 	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
@@ -832,7 +833,7 @@ class Controller extends DynPropertiesClass {
 		if ( !$WP->isMultisite() && is_admin() ) {
 			return true;
 		}
-		elseif ( $WP->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $WP->isAjax() ) ) {
+		elseif ( $WP->isMultisite() && $this->cfg->properties[ 'wpms_network_admin_only' ] && ( is_network_admin() || $WP->isAjax() ) ) {
 			return true;
 		}
 		return false;
@@ -853,7 +854,7 @@ class Controller extends DynPropertiesClass {
 	 */
 	public function getMeetsBasePermissions() :bool {
 		if ( did_action( 'init' ) && !isset( $this->user_can_base_permissions ) ) {
-			$this->user_can_base_permissions = current_user_can( $this->getBasePermissions() );
+			$this->user_can_base_permissions = current_user_can( $this->cfg->properties[ 'base_permissions' ] );
 		}
 		return $this->user_can_base_permissions;
 	}
@@ -863,7 +864,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getPluginPrefix( string $glue = '-' ) :string {
-		return sprintf( '%s%s%s', $this->getParentSlug(), $glue, $this->getPluginSlug() );
+		return sprintf( '%s%s%s', $this->cfg->properties[ 'slug_parent' ], $glue, $this->cfg->properties[ 'slug_plugin' ] );
 	}
 
 	/**
@@ -878,16 +879,25 @@ class Controller extends DynPropertiesClass {
 		return \strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
 
+	/**
+	 * @deprecated 18.2.4
+	 */
 	public function getIsWpmsNetworkAdminOnly() :bool {
-		return (bool)$this->getCfgProperty( 'wpms_network_admin_only' );
+		return (bool)$this->cfg->properties[ 'wpms_network_admin_only' ] ?? true;
 	}
 
+	/**
+	 * @deprecated 18.2.4
+	 */
 	public function getParentSlug() :string {
-		return $this->getCfgProperty( 'slug_parent' );
+		return $this->cfg->properties[ 'slug_parent' ];
 	}
 
+	/**
+	 * @deprecated 18.2.4
+	 */
 	public function getPluginSlug() :string {
-		return $this->getCfgProperty( 'slug_plugin' );
+		return $this->cfg->properties[ 'slug_plugin' ];
 	}
 
 	public function getPath_Languages() :string {
@@ -899,7 +909,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getRootDir() :string {
-		return \dirname( $this->getRootFile() ).DIRECTORY_SEPARATOR;
+		return trailingslashit( \dirname( $this->getRootFile() ) );
 	}
 
 	public function getRootFile() :string {
@@ -916,16 +926,14 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function getTextDomain() :string {
-		return $this->getCfgProperty( 'text_domain' );
+		return $this->cfg->properties[ 'text_domain' ];
 	}
 
+	/**
+	 * @deprecated 18.2.4
+	 */
 	public function getVersion() :string {
-		return $this->getCfgProperty( 'version' );
-	}
-
-	public function getVersionNumeric() :int {
-		$parts = \explode( '.', $this->getVersion() );
-		return (int)( $parts[ 0 ]*100 + $parts[ 1 ]*10 + $parts[ 2 ] );
+		return $this->cfg->version();
 	}
 
 	public function isPremiumActive() :bool {

@@ -43,8 +43,18 @@ class Verify {
 			// License lookup failed but request was successful - so use what we get
 			$licHandler->deactivate();
 			$existing = $licHandler->getLicense();
+			$this->con()->fireEvent( 'lic_check_fail', [
+				'audit_params' => [
+					'type' => 'verification'
+				]
+			] );
 		}
 		elseif ( $existing->isReady() ) { // Has a stored license but license HTTP request failed
+			$this->con()->fireEvent( 'lic_check_fail', [
+				'audit_params' => [
+					'type' => 'HTTP'
+				]
+			] );
 
 			$mod->setLastErrors( [
 				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
@@ -92,9 +102,13 @@ class Verify {
 		];
 		$lookup->nonce = ( new HandshakingNonce() )->create();
 		$lookup->meta = [
-			'version_shield' => $this->con()->getVersion(),
+			'version_shield' => $this->con()->cfg->version(),
 			'version_php'    => Services::Data()->getPhpVersionCleaned()
 		];
-		return ( new ShieldLicense() )->applyFromArray( $lookup->lookup()[ 'shieldpro' ] ?? [] );
+
+		$data = $lookup->lookup()[ 'shieldpro' ] ?? [];
+		$data[ 'last_request_at' ] = Services::Request()->ts(); /** critical **/
+
+		return ( new ShieldLicense() )->applyFromArray( $data );
 	}
 }

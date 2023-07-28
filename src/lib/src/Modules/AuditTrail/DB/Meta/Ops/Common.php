@@ -13,6 +13,6 @@ trait Common {
 	}
 
 	public function filterByLogRefs( array $logRefs ) {
-		return $this->addWhereIn( 'log_ref', \array_map( 'intval', $logRefs ) );
+		return $this->addWhereIn( 'log_ref', \array_map( '\intval', $logRefs ) );
 	}
 }

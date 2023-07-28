@@ -44,7 +44,7 @@ abstract class RetrieveBase extends DynPropertiesClass {
 	}
 
 	public function getWheres() :array {
-		return \array_filter( \array_map( 'trim', \is_array( $this->wheres ) ? $this->wheres : [] ) );
+		return \array_filter( \array_map( '\trim', \is_array( $this->wheres ) ? $this->wheres : [] ) );
 	}
 
 	/**

@@ -78,10 +78,10 @@ class GetIP extends Base {
 
 		$ruleStatus = new IpRuleStatus( $req->ip );
 		if ( $ruleStatus->isBypass() ) {
-			$ip = current( $ruleStatus->getRulesForBypass() );
+			$ip = \current( $ruleStatus->getRulesForBypass() );
 		}
 		elseif ( $ruleStatus->isBlocked() ) {
-			$ip = current( $ruleStatus->getRulesForBlock() );
+			$ip = \current( $ruleStatus->getRulesForBlock() );
 		}
 		elseif ( $ruleStatus->isAutoBlacklisted() ) {
 			$ip = $ruleStatus->getRuleForAutoBlock();

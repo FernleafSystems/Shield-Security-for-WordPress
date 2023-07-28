@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Rest\Request\Scans
 
 class Start extends ScansBase {
 
-	const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
+	public const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
 
 	protected function getRequestProcessorClass() :string {
 		return Scans\Start::class;

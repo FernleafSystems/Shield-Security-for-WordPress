@@ -12,7 +12,7 @@ class SetIpWhitelisted extends Base {
 	protected function execResponse() :bool {
 		$con = $this->con();
 
-		$ipRecord = current( ( new IpRuleStatus( $con->this_req->ip ) )->getRulesForBypass() );
+		$ipRecord = \current( ( new IpRuleStatus( $con->this_req->ip ) )->getRulesForBypass() );
 		if ( !empty( $ipRecord ) ) {
 			/** @var Update $updater */
 			$updater = $con->getModule_IPs()->getDbH_IPRules()->getQueryUpdater();

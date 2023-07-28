@@ -36,7 +36,7 @@ class IpRuleStatus {
 	}
 
 	public function getBlockType() :string {
-		return $this->isBlocked() ? current( $this->getRulesForBlock() )->type : '';
+		return $this->isBlocked() ? \current( $this->getRulesForBlock() )->type : '';
 	}
 
 	public function getOffenses() :int {
@@ -45,7 +45,7 @@ class IpRuleStatus {
 	}
 
 	public function getRuleForAutoBlock() :?IpRuleRecord {
-		$record = current( $this->getRulesForAutoBlock() );
+		$record = \current( $this->getRulesForAutoBlock() );
 		return $record instanceof IpRuleRecord ? $record : null;
 	}
 
@@ -91,7 +91,7 @@ class IpRuleStatus {
 		$rules = $this->getRules( [ Handler::T_AUTO_BLOCK ] );
 
 		if ( \count( $rules ) === 1 ) {
-			$record = current( $rules );
+			$record = \current( $rules );
 			if ( $record->last_access_at < ( Services::Request()->ts() - $this->opts()->getAutoExpireTime() ) ) {
 				self::ClearStatusForIP( $this->getIP() );
 			}

@@ -32,6 +32,10 @@ class ConfigVO extends DynPropertiesClass {
 	 */
 	public $rebuilt = false;
 
+	public function version() :string {
+		return $this->properties[ 'version' ];
+	}
+
 	/**
 	 * @return mixed
 	 */

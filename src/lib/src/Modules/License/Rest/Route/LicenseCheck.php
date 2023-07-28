@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Rest\Request;
 
 class LicenseCheck extends Base {
 
-	const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
+	public const ROUTE_METHOD = \WP_REST_Server::CREATABLE;
 
 	protected function getRequestProcessorClass() :string {
 		return Request\LicenseCheck::class;

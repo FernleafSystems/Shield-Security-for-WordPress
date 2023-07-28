@@ -16,7 +16,7 @@ class VerifySecurityAdminList {
 		$WPU = Services::WpUsers();
 
 		$filtered = [];
-		foreach ( \array_map( 'trim', $users ) as $usernameOrEmail ) {
+		foreach ( \array_map( '\trim', $users ) as $usernameOrEmail ) {
 			$user = null;
 
 			if ( !empty( $usernameOrEmail ) ) {

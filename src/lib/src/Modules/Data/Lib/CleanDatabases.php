@@ -53,7 +53,7 @@ class CleanDatabases {
 			$idsToDelete = \array_diff( $dbhIPs->getQuerySelector()->getDistinctForColumn( 'id' ), $ipIDsInUse );
 			if ( !empty( $idsToDelete ) ) {
 				$dbhIPs->getQueryDeleter()
-					   ->addWhereIn( 'id', \array_map( 'intval', $idsToDelete ) )
+					   ->addWhereIn( 'id', \array_map( '\intval', $idsToDelete ) )
 					   ->query();
 			}
 		}

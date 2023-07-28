@@ -27,7 +27,7 @@ class UnblockIpByFlag {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
 
-				foreach ( \array_map( 'trim', \explode( "\n", $content ) ) as $ip ) {
+				foreach ( \array_map( '\trim', \explode( "\n", $content ) ) as $ip ) {
 					if ( Services::IP()->isValidIp( $ip ) ) {
 						foreach ( ( new IpRuleStatus( $ip ) )->getRulesForBlock() as $record ) {
 							$removed = ( new IPs\Lib\IpRules\DeleteRule() )->byRecord( $record );
