@@ -13,6 +13,7 @@ class Processor extends BaseShield\Processor {
 	 * actions taken by this module respect whether the current visitor is whitelisted.
 	 */
 	protected function run() {
+		$con = self::con();
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
 		add_filter( 'wpmu_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -20,21 +21,23 @@ class Processor extends BaseShield\Processor {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( $this->con()->this_req->wp_is_xmlrpc && self::con()->getModule_UserManagement()->isXmlrpcBypass() ) {
+		if ( $con->this_req->wp_is_xmlrpc && $con->getModule_UserManagement()->isXmlrpcBypass() ) {
 			return;
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// This controller handles visitor whitelisted status internally.
-		( new Lib\Suspend\UserSuspendController() )->execute();
+		$con->getModule_UserManagement()
+			->getUserSuspendCon()
+			->execute();
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {
 			$this->con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
-		if ( !$this->con()->this_req->request_bypasses_all_restrictions ) {
+		if ( !$con->this_req->request_bypasses_all_restrictions ) {
 			( new Lib\Session\UserSessionHandler() )->execute();
 			( new Lib\Password\UserPasswordHandler() )->execute();
 			( new Lib\Registration\EmailValidate() )->execute();

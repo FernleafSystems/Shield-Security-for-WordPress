@@ -32,7 +32,7 @@ class UserSuspendController {
 		}
 
 		// User profile UI
-		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
+		add_action( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1 );
 		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
 
 		// Show suspended user list filters
@@ -57,6 +57,12 @@ class UserSuspendController {
 				return $content;
 			}, 10, 2 );
 		} );
+	}
+
+	public function canManuallySuspend() :bool {
+		return Services::WpUsers()->isUserLoggedIn() &&
+			   apply_filters( 'shield/user_suspend_can_manually_suspend', self::con()->isPluginAdmin(),
+				   Services::WpUsers()->getCurrentWpUser() );
 	}
 
 	/**
@@ -161,18 +167,18 @@ class UserSuspendController {
 
 	public function addUserBlockOption( \WP_User $user ) {
 		echo $this->con()->action_router->render( ProfileSuspend::SLUG, [
-			'user_id' => $user->ID
+			'user_id' => $user->ID,
 		] );
 	}
 
 	public function handleUserSuspendOptionSubmit( int $uid ) {
-		$WPU = Services::WpUsers();
-		$user = $WPU->getUserById( $uid );
+		$user = Services::WpUsers()->getUserById( $uid );
 
-		if ( $user instanceof \WP_User && ( !$WPU->isUserAdmin( $user ) || $this->con()->isPluginAdmin() ) ) {
+		if ( $user instanceof \WP_User
+			 && ( !Services::WpUsers()->isUserAdmin( $user ) || $this->con()->isPluginAdmin() )
+		) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			$this->addRemoveHardSuspendUser( $user, $isSuspend );
-
 			if ( $isSuspend ) {
 				\WP_Session_Tokens::get_instance( $user->ID )->destroy_all();
 			}
