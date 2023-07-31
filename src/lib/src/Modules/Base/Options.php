@@ -137,26 +137,22 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getFeatureProperty( string $property ) {
-		return ( $this->getRawData_FullFeatureConfig()[ 'properties' ] ?? [] )[ $property ] ?? null;
+		return ( $this->cfg()->properties ?? [] )[ $property ] ?? null;
 	}
 
 	/**
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {
-		return ( $this->getRawData_FullFeatureConfig()[ 'definitions' ] ?? [] )[ $key ] ?? null;
+		return ( $this->cfg()->definitions ?? [] )[ $key ] ?? null;
 	}
 
 	public function getEvents() :array {
 		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
 	}
 
-	public function getFeatureRequirement( string $req ) :array {
-		return $this->getRawData_Requirements()[ $req ] ?? [];
-	}
-
 	public function getAdminNotices() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'admin_notices' ] ?? [];
+		return $this->cfg()->admin_notices ?? [];
 	}
 
 	public function isValidOptionKey( string $key ) :bool {
@@ -395,20 +391,15 @@ class Options {
 	}
 
 	public function getRawData_FullFeatureConfig() :array {
-		// TODO: use the cfg directly throughout instead of via array
-		return empty( $this->aRawOptionsConfigData ) ? $this->cfg()->getRawData() : $this->aRawOptionsConfigData;
+		return $this->cfg()->getRawData();
 	}
 
 	protected function getRawData_AllOptions() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'options' ] ?? [];
+		return $this->cfg()->options ?? [];
 	}
 
 	protected function getRawData_OptionsSections() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'sections' ] ?? [];
-	}
-
-	protected function getRawData_Requirements() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
+		return $this->cfg()->sections ?? [];
 	}
 
 	public function getSelectOptionValueKeys( string $key ) :array {
@@ -527,13 +518,6 @@ class Options {
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function setOptAt( string $key ) {
-		return $this->setOpt( $key, Services::Request()->ts() );
-	}
-
-	/**
 	 * Use this to directly set the option value without the risk of any recursion.
 	 * @param mixed $value
 	 * @return $this
@@ -601,23 +585,12 @@ class Options {
 		return $this;
 	}
 
-	/**
-	 * @param string $key
-	 * @return mixed
-	 */
-	public function unsetOpt( $key ) {
+	public function unsetOpt( string $key ) {
 		unset( $this->aOptionsValues[ $key ] );
 		$this->setNeedSave( true );
-		return true;
 	}
 
-	/** PRIVATE STUFF */
-
-	/**
-	 * @return array
-	 */
-
-	protected function getCommonStandardOptions() {
+	protected function getCommonStandardOptions() :array {
 		return [];
 	}
 
@@ -660,5 +633,13 @@ class Options {
 		$this->aOptionsValues = $values;
 		$this->setNeedSave( true );
 		return $this;
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 18.2.5
+	 */
+	public function setOptAt( string $key ) {
+		return $this->setOpt( $key, Services::Request()->ts() );
 	}
 }

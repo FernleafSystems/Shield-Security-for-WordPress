@@ -32,7 +32,7 @@ class Verify {
 			$existing = $license;
 			$existing->updateLastVerifiedAt( true );
 			if ( !$licHandler->isActive() ) {
-				$opts->setOptAt( 'license_activated_at' );
+				$opts->setOpt( 'license_activated_at', Services::Request()->ts() );
 			}
 			$mod->clearLastErrors();
 			$licHandler->updateLicenseData( $existing->getRawData() ); // need to do this before event
@@ -90,7 +90,7 @@ class Verify {
 
 	private function preVerify() {
 		Services::WpFs()->touch( $this->con()->paths->forFlag( 'license_check' ) );
-		$this->opts()->setOptAt( 'license_last_checked_at' );
+		$this->opts()->setOpt( 'license_last_checked_at', Services::Request()->ts() );
 		$this->mod()->saveModOptions();
 	}
 
@@ -107,7 +107,8 @@ class Verify {
 		];
 
 		$data = $lookup->lookup()[ 'shieldpro' ] ?? [];
-		$data[ 'last_request_at' ] = Services::Request()->ts(); /** critical **/
+		$data[ 'last_request_at' ] = Services::Request()->ts();
+		/** critical **/
 
 		return ( new ShieldLicense() )->applyFromArray( $data );
 	}

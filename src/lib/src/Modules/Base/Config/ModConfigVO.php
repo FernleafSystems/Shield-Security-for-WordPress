@@ -11,6 +11,9 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $meta
  * @property array  $options
  * @property array  $sections
+ * @property array  $admin_notices
+ * @property array  $wpcli
+ * @property array  $definitions
  *                                   -- not part of config file --
  * @property string $slug
  */

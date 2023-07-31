@@ -98,7 +98,7 @@ class LicenseHandler {
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
-			$this->opts()->setOptAt( 'license_deactivated_at' );
+			$this->opts()->setOpt( 'license_deactivated_at', Services::Request()->ts() );
 			if ( $sendEmail ) {
 				( new LicenseEmails() )->sendLicenseDeactivatedEmail();
 			}
