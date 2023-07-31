@@ -11,12 +11,12 @@ class VerifyConfig {
 
 	public function run() {
 		$sectionDuplicateExceptions = [ 'section_non_ui' ];
-		$optsDuplicateExceptions = [ 'dismissed_notices', 'ui_track', 'xfer_excluded', 'cfg_version' ];
+		$optsDuplicateExceptions = [ 'dismissed_notices', 'ui_track', 'xfer_excluded' ];
 
 		$allSections = [];
 		$allOpts = [];
 		foreach ( $this->con()->modules as $mod ) {
-			$opts = $mod->getOptions();
+			$opts = $mod->opts();
 			$sections = \array_keys( $opts->getSections( true ) );
 			$duplicates = \array_diff( \array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );
 			if ( \count( $duplicates ) > 0 ) {

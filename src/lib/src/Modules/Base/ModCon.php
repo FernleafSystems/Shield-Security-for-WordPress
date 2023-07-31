@@ -24,6 +24,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @var bool
+	 * @deprecated 18.2.5
 	 */
 	protected $bImportExportWhitelistNotify = false;
 
@@ -305,8 +306,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getOptionsStorageKey() :string {
-		return $this->con()->prefixOption( $this->sOptionsStoreKey ?? $this->cfg->properties[ 'storage_key' ] )
-			   .'_options';
+		return $this->con()->prefixOption( $this->cfg->properties[ 'storage_key' ] ).'_options';
 	}
 
 	/**
@@ -484,27 +484,26 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 
 		$this->doPrePluginOptionsSave();
-		if ( apply_filters( $this->con()->prefix( 'force_options_resave' ), false ) ) {
-			$this->getOptions()->setNeedSave( true );
-		}
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		if ( $this->getOptions()->getNeedSave() ) {
-			$this->bImportExportWhitelistNotify = true;
 			do_action( $this->con()->prefix( 'pre_options_store' ), $this );
 		}
-		$this->store();
+
+		self::con()->opts === null ? $this->store() : self::con()->opts->commit();
 		return $this;
 	}
 
 	protected function preProcessOptions() {
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	private function store() {
 		$con = $this->con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$opts = $this->getOptions();
-		\method_exists( $opts, 'store' ) ? $opts->store() : $opts->doOptionsSave( false, $con->isPremiumActive() );
+		$this->getOptions()->doOptionsSave( false, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
@@ -541,18 +540,8 @@ abstract class ModCon extends DynPropertiesClass {
 		);
 	}
 
-	public function getIsShowMarketing() :bool {
-		return (bool)apply_filters( 'shield/show_marketing', !$this->con()->isPremiumActive() );
-	}
-
 	public function isAccessRestricted() :bool {
 		return $this->cfg->properties[ 'access_restricted' ] && !$this->con()->isPluginAdmin();
-	}
-
-	public function getMainWpData() :array {
-		return [
-			'options' => $this->getOptions()->getTransferableOptions()
-		];
 	}
 
 	/**

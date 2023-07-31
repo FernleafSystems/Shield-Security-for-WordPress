@@ -104,8 +104,6 @@ class LicenseHandler {
 			}
 			$this->con()->fireEvent( 'lic_fail_deactivate' );
 		}
-		// force all options to resave i.e. reset premium to defaults.
-		add_filter( $this->con()->prefix( 'force_options_resave' ), '__return_true' );
 	}
 
 	protected function getActivatedAt() :int {

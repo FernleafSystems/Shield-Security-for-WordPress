@@ -32,6 +32,17 @@ class ModConfigVO extends DynPropertiesClass {
 					\is_array( $value ) ? $value : []
 				);
 				break;
+			case 'definitions':
+			case 'menus':
+			case 'meta':
+			case 'options':
+			case 'properties':
+			case 'sections':
+			case 'wpcli':
+				if ( !\is_array( $value ) ) {
+					$value = [];
+				}
+				break;
 			default:
 				break;
 		}

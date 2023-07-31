@@ -35,29 +35,20 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
-	public function store() :void {
-		if ( $this->getNeedSave() ) {
-			$this->cleanOptions();
-			$this->setNeedSave( false );
-			self::con()->opts->setFor( $this->mod() );
-		}
-	}
-
 	/**
 	 * @description 18.2.5
 	 */
 	public function doOptionsSave( bool $deleteFirst = false, bool $isPremium = false ) :bool {
 		$saved = true;
 		if ( $this->getNeedSave() ) {
-			$this->cleanOptions();
 			$this->setNeedSave( false );
-			$saved = $this->getOptsStorage()->storeOptions( $this->getAllOptionsValues() );
+			$saved = ( new Options\Storage() )->setMod( $this->mod() )->storeOptions( $this->getAllOptionsValues() );
 		}
 		return $saved;
 	}
 
 	public function deleteStorage() {
-		$this->getOptsStorage()->deleteOptions();
+		( new Options\Storage() )->setMod( $this->mod() )->deleteOptions();
 	}
 
 	public function getAllOptionsValues() :array {
@@ -71,7 +62,7 @@ class Options {
 			}
 			catch ( \Exception $e ) {
 				try {
-					$this->aOptionsValues = $this->getOptsStorage()->loadOptions();
+					$this->aOptionsValues = ( new Options\Storage() )->setMod( $this->mod() )->loadOptions();
 				}
 				catch ( \Exception $e ) {
 					$this->aOptionsValues = [];
@@ -87,7 +78,7 @@ class Options {
 	 */
 	public function getTransferableOptions() :array {
 		$transferable = [];
-		foreach ( $this->getRawData_AllOptions() as $option ) {
+		foreach ( $this->cfg()->options as $option ) {
 			if ( $option[ 'transferable' ] ?? true ) {
 				$transferable[ $option[ 'key' ] ] = $this->getOpt( $option[ 'key' ] );
 			}
@@ -106,7 +97,7 @@ class Options {
 				$opts[ $key ] = $this->getOptDefault( $key );
 			}
 		}
-		foreach ( $this->getRawData_AllOptions() as $optDef ) {
+		foreach ( $this->cfg()->options as $optDef ) {
 			if ( isset( $optDef[ 'sensitive' ] ) && $optDef[ 'sensitive' ] === true ) {
 				unset( $opts[ $optDef[ 'key' ] ] );
 			}
@@ -140,7 +131,7 @@ class Options {
 					$options[ $key ] = $this->getOptDefault( $key );
 				}
 			}
-			foreach ( $this->getRawData_AllOptions() as $optDef ) {
+			foreach ( $this->cfg()->options as $optDef ) {
 				if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
 					unset( $options[ $optDef[ 'key' ] ] );
 				}
@@ -154,14 +145,14 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getFeatureProperty( string $property ) {
-		return ( $this->cfg()->properties ?? [] )[ $property ] ?? null;
+		return $this->cfg()->properties[ $property ] ?? null;
 	}
 
 	/**
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {
-		return ( $this->cfg()->definitions ?? [] )[ $key ] ?? null;
+		return $this->cfg()->definitions[ $key ] ?? null;
 	}
 
 	public function getEvents() :array {
@@ -221,13 +212,13 @@ class Options {
 	public function getHiddenOptions() :array {
 		$optionsData = [];
 
-		foreach ( $this->getRawData_OptionsSections() as $rawSection ) {
+		foreach ( $this->cfg()->sections as $rawSection ) {
 
 			// if hidden isn't specified we skip
 			if ( !isset( $rawSection[ 'hidden' ] ) || !$rawSection[ 'hidden' ] ) {
 				continue;
 			}
-			foreach ( $this->getRawData_AllOptions() as $rawOption ) {
+			foreach ( $this->cfg()->options as $rawOption ) {
 
 				if ( $rawOption[ 'section' ] != $rawSection[ 'slug' ] ) {
 					continue;
@@ -248,7 +239,7 @@ class Options {
 	 */
 	public function getSections( $includeHidden = false ) {
 		$sections = [];
-		foreach ( $this->getRawData_OptionsSections() as $section ) {
+		foreach ( $this->cfg()->sections as $section ) {
 			if ( $includeHidden || empty( $section[ 'hidden' ] ) ) {
 				$sections[ $section[ 'slug' ] ] = $section;
 			}
@@ -299,7 +290,7 @@ class Options {
 	 */
 	public function getVisibleOptions() :array {
 		return \array_filter(
-			$this->getRawData_AllOptions(),
+			$this->cfg()->options,
 			function ( $optDef ) {
 				if ( $optDef[ 'hidden' ] ?? false ) {
 					return null;
@@ -323,6 +314,17 @@ class Options {
 	}
 
 	public function getNeedSave() :bool {
+		if ( !$this->bNeedSave ) {
+			$this->setOptionsValues(
+				\array_intersect_key(
+					$this->getAllOptionsValues(),
+					\array_merge(
+						\array_flip( $this->getOptionsKeys() ),
+						\array_flip( $this->getVirtualCommonOptions() )
+					)
+				)
+			);
+		}
 		return $this->bNeedSave;
 	}
 
@@ -366,7 +368,7 @@ class Options {
 	}
 
 	public function getOptDefinition( string $key ) :array {
-		return $this->getRawData_AllOptions()[ $key ] ?? [];
+		return $this->cfg()->options[ $key ] ?? [];
 	}
 
 	public function optCap( string $key ) :?string {
@@ -388,7 +390,7 @@ class Options {
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
 			$this->aOptionsKeys = \array_merge(
-				\array_keys( $this->getRawData_AllOptions() ),
+				\array_keys( $this->cfg()->options ),
 				$this->getCommonStandardOptions(),
 				$this->getVirtualCommonOptions()
 			);
@@ -411,10 +413,16 @@ class Options {
 		return $this->cfg()->getRawData();
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	protected function getRawData_AllOptions() :array {
 		return $this->cfg()->options ?? [];
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	protected function getRawData_OptionsSections() :array {
 		return $this->cfg()->sections ?? [];
 	}
@@ -462,7 +470,7 @@ class Options {
 	 * Will traverse each premium option and set it to the default.
 	 */
 	public function resetPremiumOptsToDefault() {
-		foreach ( $this->getRawData_AllOptions() as $opt ) {
+		foreach ( $this->cfg()->options as $opt ) {
 			if ( $opt[ 'premium' ] ?? false ) {
 				$this->resetOptToDefault( $opt[ 'key' ] );
 			}
@@ -616,7 +624,6 @@ class Options {
 			'dismissed_notices',
 			'ui_track',
 			'xfer_excluded',
-			'cfg_version'
 		];
 	}
 
@@ -627,16 +634,10 @@ class Options {
 		return \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	private function cleanOptions() {
-		if ( !empty( $this->aOptionsValues ) && \is_array( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = \array_intersect_key(
-				$this->getAllOptionsValues(),
-				\array_merge(
-					\array_flip( $this->getOptionsKeys() ),
-					\array_flip( $this->getVirtualCommonOptions() )
-				)
-			);
-		}
 	}
 
 	private function getOptsStorage() :Options\Storage {
@@ -647,8 +648,10 @@ class Options {
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {
-		$this->aOptionsValues = $values;
-		$this->setNeedSave( true );
+		if ( \serialize( $this->getAllOptionsValues() ) !== \serialize( $values ) ) {
+			$this->setNeedSave( true );
+			$this->aOptionsValues = $values;
+		}
 		return $this;
 	}
 

@@ -47,7 +47,7 @@ class OptsHandler extends DynPropertiesClass {
 	/**
 	 * @param Base\ModCon|mixed $mod
 	 */
-	public function setFor( $mod, ?string $type = null ) :void {
+	public function setFor( $mod, ?string $type = null ) :self {
 
 		if ( !\in_array( $type, [ self::TYPE_PRO, self::TYPE_FREE ], true ) ) {
 			if ( $mod->cfg->slug === License\ModCon::SLUG ) {
@@ -76,11 +76,11 @@ class OptsHandler extends DynPropertiesClass {
 		$allOptsValues[ $mod->cfg->slug ] = $thisModValues;
 		$this->{'mod_opts_'.$type} = $allOptsValues;
 
-		Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
-
 		if ( $type === self::TYPE_PRO ) {
 			$this->setFor( $mod, self::TYPE_FREE );
 		}
+
+		return $this;
 	}
 
 	private function key( string $type ) :string {
@@ -98,5 +98,23 @@ class OptsHandler extends DynPropertiesClass {
 			$this->{$key} = $val;
 		}
 		return $val;
+	}
+
+	public function commit() :void {
+		foreach ( self::con()->modules as $mod ) {
+			if ( $mod->opts()->getNeedSave() ) {
+				$mod->opts()->setNeedSave( false );
+				$this->setFor( $mod );
+			}
+		}
+		$this->store();
+	}
+
+	public function store() {
+		add_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
+			Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
+		}
+		remove_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 }

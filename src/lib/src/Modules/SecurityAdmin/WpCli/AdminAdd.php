@@ -57,7 +57,7 @@ class AdminAdd extends BaseWpCliCmd {
 		$user = $this->loadUserFromArgs( $args );
 
 		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->mod()->opts();
 		$current = $opts->getSecurityAdminUsers();
 		if ( \in_array( $user->user_login, $current ) ) {
 			WP_CLI::success( "This user is already a security admin." );
