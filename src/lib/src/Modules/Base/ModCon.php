@@ -503,7 +503,8 @@ abstract class ModCon extends DynPropertiesClass {
 	private function store() {
 		$con = $this->con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->getOptions()->doOptionsSave( $con->plugin_reset, $con->isPremiumActive() );
+		$opts = $this->getOptions();
+		\method_exists( $opts, 'store' ) ? $opts->store() : $opts->doOptionsSave( false, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 

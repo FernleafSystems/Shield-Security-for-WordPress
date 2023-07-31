@@ -35,17 +35,25 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
-	public function doOptionsSave( bool $deleteFirst = false, bool $isPremium = false ) :bool {
-		if ( !$this->getNeedSave() ) {
-			return true;
+	public function store() :void {
+		if ( $this->getNeedSave() ) {
+			$this->cleanOptions();
+			$this->setNeedSave( false );
+			self::con()->opts->setFor( $this->mod() );
 		}
-		$this->cleanOptions();
-		if ( !$isPremium ) {
-			$this->resetPremiumOptsToDefault();
-		}
-		$this->setNeedSave( false );
+	}
 
-		return $this->getOptsStorage()->storeOptions( $this->getAllOptionsValues(), $deleteFirst );
+	/**
+	 * @description 18.2.5
+	 */
+	public function doOptionsSave( bool $deleteFirst = false, bool $isPremium = false ) :bool {
+		$saved = true;
+		if ( $this->getNeedSave() ) {
+			$this->cleanOptions();
+			$this->setNeedSave( false );
+			$saved = $this->getOptsStorage()->storeOptions( $this->getAllOptionsValues() );
+		}
+		return $saved;
 	}
 
 	public function deleteStorage() {
@@ -54,11 +62,20 @@ class Options {
 
 	public function getAllOptionsValues() :array {
 		if ( !isset( $this->aOptionsValues ) ) {
+
 			try {
-				$this->aOptionsValues = $this->getOptsStorage()->loadOptions();
+				$this->aOptionsValues = $this->con()->opts->getFor( $this->mod() );
+				if ( $this->aOptionsValues === null ) {
+					throw new \Exception( 'No shared-stored options available' );
+				}
 			}
 			catch ( \Exception $e ) {
-				$this->aOptionsValues = [];
+				try {
+					$this->aOptionsValues = $this->getOptsStorage()->loadOptions();
+				}
+				catch ( \Exception $e ) {
+					$this->aOptionsValues = [];
+				}
 				$this->setNeedSave( true );
 			}
 		}
