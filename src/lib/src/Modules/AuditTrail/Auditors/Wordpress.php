@@ -74,6 +74,8 @@ class Wordpress extends Base {
 				$oldValue = $old[ $eventSlug ];
 				$newValue = $new[ $eventSlug ];
 				if ( $oldValue !== $newValue ) {
+
+					$fire = false;
 					switch ( $eventSlug ) {
 						case 'permalinks_structure':
 						case 'wp_option_admin_email':
@@ -81,15 +83,27 @@ class Wordpress extends Base {
 						case 'wp_option_blogdescription':
 						case 'wp_option_default_role':
 						case 'wp_option_users_can_register':
+							$fire = true;
+							break;
 						case 'wp_option_home':
+							if ( !\defined( 'WP_HOME' ) ) {
+								$fire = true;
+							}
+							break;
 						case 'wp_option_siteurl':
-							$this->fireAuditEvent( $eventSlug, [
-								'from' => $oldValue,
-								'to'   => $newValue,
-							] );
+							if ( !\defined( 'WP_SITEURL' ) ) {
+								$fire = true;
+							}
 							break;
 						default:
 							break;
+					}
+
+					if ( $fire ) {
+						$this->fireAuditEvent( $eventSlug, [
+							'from' => $oldValue,
+							'to'   => $newValue,
+						] );
 					}
 				}
 			}

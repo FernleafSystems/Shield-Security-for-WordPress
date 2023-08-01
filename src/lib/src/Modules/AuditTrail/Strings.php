@@ -138,13 +138,13 @@ class Strings extends Base\Strings {
 				],
 			],
 			'wp_option_home'               => [
-				'name'  => __( 'WP Home URL', 'wp-simple-firewall' ),
+				'name'  => __( 'Home URL Changed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'The home URL was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'wp_option_siteurl'            => [
-				'name'  => __( 'WP User Registration', 'wp-simple-firewall' ),
+				'name'  => __( 'Site URL Changed', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'The site URL was changed from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
 				],
