@@ -143,9 +143,9 @@
       "section":     "section_permission_access_options",
       "default":     "N",
       "type":        "checkbox",
+      "beacon_id":   417,
       "link_info":   "https://shsec.io/4t",
       "link_blog":   "",
-      "beacon_id":   417,
       "name":        "Force SSL Admin",
       "summary":     "Forces WordPress Admin Dashboard To Be Delivered Over SSL",
       "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
@@ -155,8 +155,9 @@
       "section":     "section_wordpress_obscurity_options",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/wpsf23",
-      "link_blog":   "",
+      "beacon_id":   418,
+      "link_info":   "",
+      "link_blog":   "https://shsec.io/wpsf23",
       "name":        "Block Username Fishing",
       "summary":     "Block the ability to discover WordPress usernames based on author IDs",
       "description": "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."

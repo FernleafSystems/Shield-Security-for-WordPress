@@ -48,6 +48,7 @@
           "text":      "2FA Login Codes (admins only)"
         }
       ],
+      "beacon_id":     156,
       "link_info":     "https://icwp.io/ij",
       "link_blog":     "https://icwp.io/ik",
       "name":          "SureSend Emails",
