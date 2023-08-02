@@ -181,9 +181,9 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
+      "beacon_id":   155,
       "link_info":   "https://shsec.io/7d",
       "link_blog":   "https://shsec.io/7c",
-      "beacon_id":   155,
       "name":        "Enable Content Security Policy",
       "summary":     "Enable (or Disable) The Content Security Policy module",
       "description": "Allows for permission and restriction of all resources loaded on your site."

@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
-    "load_priority":         0,
+    "load_priority":         1,
     "name":                  "General Settings",
     "sidebar_name":          "General",
     "menu_title":            "Configuration",

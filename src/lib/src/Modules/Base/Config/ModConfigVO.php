@@ -11,6 +11,9 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property array  $meta
  * @property array  $options
  * @property array  $sections
+ * @property array  $admin_notices
+ * @property array  $wpcli
+ * @property array  $definitions
  *                                   -- not part of config file --
  * @property string $slug
  */
@@ -28,6 +31,17 @@ class ModConfigVO extends DynPropertiesClass {
 					],
 					\is_array( $value ) ? $value : []
 				);
+				break;
+			case 'definitions':
+			case 'menus':
+			case 'meta':
+			case 'options':
+			case 'properties':
+			case 'sections':
+			case 'wpcli':
+				if ( !\is_array( $value ) ) {
+					$value = [];
+				}
 				break;
 			default:
 				break;

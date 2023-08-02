@@ -2,7 +2,7 @@
   "slug":             "license",
   "properties":       {
     "slug":                  "license",
-    "load_priority":         10,
+    "load_priority":         0,
     "name":                  "Pro Security",
     "menu_title":            "",
     "show_module_menu_item": false,

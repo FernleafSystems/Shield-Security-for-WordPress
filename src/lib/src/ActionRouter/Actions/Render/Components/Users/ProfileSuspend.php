@@ -15,8 +15,9 @@ class ProfileSuspend extends BaseRender {
 
 	protected function getRenderData() :array {
 		$con = $this->con();
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
-		$meta = $con->user_metas->for( Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] ) );
+		$WPU = Services::WpUsers();
+		$editUser = $WPU->getUserById( $this->action_data[ 'user_id' ] );
+		$meta = $con->user_metas->for( $editUser );
 		return [
 			'strings' => [
 				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
@@ -27,8 +28,9 @@ class ProfileSuspend extends BaseRender {
 					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
 			],
 			'flags'   => [
-				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $user ) || $con->isPluginAdmin(),
-				'is_suspended'          => $meta->record->hard_suspended_at > 0
+				'can_suspend'  => $con->getModule_UserManagement()->getUserSuspendCon()->canManuallySuspend()
+								  || ( !$WPU->isUserAdmin( $editUser ) && $WPU->isUserAdmin() ),
+				'is_suspended' => $meta->record->hard_suspended_at > 0
 			],
 			'vars'    => [
 				'form_field' => 'shield_suspend_user',
