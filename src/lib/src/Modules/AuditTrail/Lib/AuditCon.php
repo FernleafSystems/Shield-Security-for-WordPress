@@ -54,7 +54,17 @@ class AuditCon {
 				$this->getAuditors()
 			);
 
-			$allSnappers = \array_filter( \array_map(
+			$this->primeSnapshots();
+		} );
+
+		$this->getSnapshotDiscoveryQueue();
+	}
+
+	private function primeSnapshots() {
+		$primerHook = $this->con()->prefix( 'auditcon_prime_snapshots' );
+
+		if ( !wp_next_scheduled( $primerHook ) ) {
+			$countAllSnappers = \count( \array_filter( \array_map(
 				function ( $auditor ) {
 					try {
 						$snapper = $auditor->getSnapper();
@@ -65,21 +75,15 @@ class AuditCon {
 					return $snapper;
 				},
 				$this->getAuditors()
-			) );
-
-			// Typically on initial installation we want to prime all the snapshots.
-			if ( \count( $this->getSnapshots() ) !== \count( $allSnappers ) ) {
-				$hook = $this->con()->prefix( 'auditcon_prime_snapshots' );
-				if ( !wp_next_scheduled( $hook ) ) {
-					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
-				}
-				add_action( $hook, function () {
-					$this->runAsyncSnapshotDiscovery();
-				} );
+			) ) );
+			if ( ( new Ops\Retrieve() )->count() !== $countAllSnappers ) {
+				wp_schedule_single_event( Services::Request()->ts() + 60, $primerHook );
 			}
-		} );
+		}
 
-		$this->getSnapshotDiscoveryQueue();
+		add_action( $primerHook, function () {
+			$this->runAsyncSnapshotDiscovery();
+		} );
 	}
 
 	/**

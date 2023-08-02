@@ -3,7 +3,7 @@ Contributors: paultgoodchild, getshieldsecurity
 Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, activity logging, login protection, two-factor authentication, intrusion prevention
+Tags: security, activity log, login protection, two-factor authentication, intrusion prevention
 Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
@@ -14,7 +14,33 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, 
 
 == Description ==
 
-### Features You'll Absolutely Love
+## Key Security Features At A Glance
+
+### Bad Bot Protection
+
+Bad bots are you're #1 security threat. They are responsible for all 99% of WordPress security probes, attacks, injections, malware and vulnerability exploitation. Bad bots are relentless, and never tire of probing your security defenses. Detecting them, and them blocking their access, is the key to powerful security that works. Prevention, when it comes to WordPress security, is cheaper, faster and much less stressful than **cure**
+
+### Comprehensive Activity Log Coverage
+
+When something goes wrong, you need to know why. Shield's Activity Log module is a best-in-class logging appliance. It logs activity for every possible action by users and visitors, and even detects changes to your site, users, plugins and themes, when they occur directly on your database (outside of WordPress).
+
+### Limit Login and Registration Forms Protection
+
+Our exclusive bot detection technology is invisible to users and visitors, so you don't need any Google reCAPTCHA or CloudFlare Turnstile security addons on your site. Shield protects WordPress login, registration and lost password forms from brute force attacks, and eliminates user registration SPAM from bots.
+
+### Two-Factor Authentication for all users
+
+Two-Factor Authentication is a key component of WordPress user security. It protects against account theft, takeover, and sharing. Shield supports email-based login code, Google/Microsoft/Lastpass Authenticator, Yubikey One-Time Passwords and U2F (ShieldPRO).
+
+### Exclusive Security Admin Protection
+
+Not only does Shield Security protect your WordPress site, it also provides security against tampering of key WordPress options and the Shield Security plugin itself. With Shield's exclusive Security Admin feature, you can lockdown the security plugin from other admins to prevent accidental or malicious changes that will impact your security.
+
+### CrowdSec Partnership
+
+Shield is the only WordPress security plugin to form strategic partnerships to bring powerful protection to your WordPress sites. With our CrowdSec integration, your WordPress sites benefit from crowd-sourced IP Block Lists so your site can block malicious bots before they can do any damage.
+
+### All The Features You'll Absolutely Love
 
 * Exclusive [AntiBot Detection Engine Security](https://shsec.io/ju) - a powerful security alternative to Google reCAPTCHA and CloudFlare Turnstile.
 * [Automatic Bot & IP Blocking](https://shsec.io/j0) - score-based security intelligence to block bad bots.
@@ -70,10 +96,10 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, 
     * Stripe, PayPal IPN
     * CloudFlare, SEMRush
 * Full Security Activity Log - [Monitor **All** Site Activity, including](https://shsec.io/j5):
-    * Activity logging for all user login & registration attempts
+    * Activity log for all user login & registration attempts
     * Plugin and Theme installation activity logs, including activation & deactivation etc.
-    * User creation activity logging, including detection of administrator promotions
-    * Activity logging for Page/Post create, update, delete
+    * User creation activity log, including detection of administrator promotions
+    * Activity log for Page/Post create, update, delete
 * Advanced User Sessions Security Control
     * Restrict Multiple User Login
     * Restrict Users Session To IP

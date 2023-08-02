@@ -66,6 +66,24 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "5",
+        "released_at": 1690983000,
+        "items":       [
+          {
+            "title": "Refactor & optimise how Shield options are stored, reducing WordPress DB entries.",
+            "type":  "improved"
+          },
+          {
+            "title": "Updated built-in helpdesk links.",
+            "type":  "improved"
+          },
+          {
+            "title": "Snapshots performance improvements and fixes for some edge cases.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },

@@ -9,6 +9,13 @@ class Retrieve {
 
 	use ModConsumer;
 
+	public function count() :int {
+		return $this->mod()
+					->getDbH_Snapshots()
+					->getQuerySelector()
+					->count();
+	}
+
 	/**
 	 * @return SnapshotsDB\Record[]
 	 */
