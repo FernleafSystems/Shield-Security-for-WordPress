@@ -36,9 +36,8 @@ class CommentSpam extends Base {
 			$mod->setIsMainFeatureEnabled( true );
 		}
 		/** @var Shield\Modules\CommentsFilter\Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		$opts->setEnabledAntiBot( $toEnable );
-		$mod->saveModOptions();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

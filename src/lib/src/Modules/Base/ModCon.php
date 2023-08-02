@@ -94,7 +94,6 @@ abstract class ModCon extends DynPropertiesClass {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 
-		add_action( $con->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
 		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
 		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
 
@@ -299,8 +298,11 @@ abstract class ModCon extends DynPropertiesClass {
 		return $this->oProcessor;
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	public function onPluginShutdown() {
-		if ( !$this->con()->plugin_deleting ) {
+		if ( !$this->con()->plugin_deleting && \version_compare( $this->con()->cfg->version(), '18.2.5', '<' ) ) {
 			$this->saveModOptions();
 		}
 	}
@@ -475,9 +477,9 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @return $this
+	 * @deprecated 18.2.5
 	 */
-	public function saveModOptions( bool $preProcessOptions = false ) {
+	public function saveModOptions( bool $preProcessOptions = false, bool $store = true ) {
 
 		if ( $preProcessOptions ) {
 			$this->preProcessOptions();
@@ -490,8 +492,9 @@ abstract class ModCon extends DynPropertiesClass {
 			do_action( $this->con()->prefix( 'pre_options_store' ), $this );
 		}
 
-		self::con()->opts === null ? $this->store() : self::con()->opts->commit();
-		return $this;
+		if ( $store ) {
+			self::con()->opts === null ? $this->store() : self::con()->opts->store();
+		}
 	}
 
 	protected function preProcessOptions() {

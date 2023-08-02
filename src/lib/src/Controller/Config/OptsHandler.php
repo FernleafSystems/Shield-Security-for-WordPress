@@ -37,7 +37,7 @@ class OptsHandler extends DynPropertiesClass {
 		$opts = $this->mod_opts_free[ $mod->cfg->slug ] ?? null;
 		if ( $mod->cfg->slug !== License\ModCon::SLUG && self::con()->isPremiumActive() ) {
 			$premiumOpts = $this->mod_opts_pro[ $mod->cfg->slug ] ?? null;
-			if ( !empty( $premiumOpts ) ) {
+			if ( \is_array( $premiumOpts ) ) {
 				$opts = $premiumOpts;
 			}
 		}
@@ -47,7 +47,7 @@ class OptsHandler extends DynPropertiesClass {
 	/**
 	 * @param Base\ModCon|mixed $mod
 	 */
-	public function setFor( $mod, ?string $type = null ) :self {
+	public function setFor( $mod, array $values, ?string $type = null ) :self {
 
 		if ( !\in_array( $type, [ self::TYPE_PRO, self::TYPE_FREE ], true ) ) {
 			if ( $mod->cfg->slug === License\ModCon::SLUG ) {
@@ -62,22 +62,21 @@ class OptsHandler extends DynPropertiesClass {
 		}
 
 		$opts = $mod->opts();
-		$thisModValues = $opts->getAllOptionsValues();
 
 		if ( $type === self::TYPE_FREE ) {
 			foreach ( $mod->cfg->options as $opt ) {
-				if ( ( $opt[ 'premium' ] ?? false ) && $thisModValues[ $opt[ 'key' ] ] !== $opts->getOptDefault( $opt[ 'key' ] ) ) {
-					$thisModValues[ $opt[ 'key' ] ] = $opts->getOptDefault( $opt[ 'key' ] );
+				if ( ( $opt[ 'premium' ] ?? false ) && $values[ $opt[ 'key' ] ] !== $opts->getOptDefault( $opt[ 'key' ] ) ) {
+					$values[ $opt[ 'key' ] ] = $opts->getOptDefault( $opt[ 'key' ] );
 				}
 			}
 		}
 
 		$allOptsValues = $this->{'mod_opts_'.$type};
-		$allOptsValues[ $mod->cfg->slug ] = $thisModValues;
+		$allOptsValues[ $mod->cfg->slug ] = $values;
 		$this->{'mod_opts_'.$type} = $allOptsValues;
 
 		if ( $type === self::TYPE_PRO ) {
-			$this->setFor( $mod, self::TYPE_FREE );
+			$this->setFor( $mod, $values, self::TYPE_FREE );
 		}
 
 		return $this;
@@ -101,20 +100,20 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function commit() :void {
-		foreach ( self::con()->modules as $mod ) {
-			if ( $mod->opts()->getNeedSave() ) {
-				$mod->opts()->setNeedSave( false );
-				$this->setFor( $mod );
-			}
+		foreach ( self::con()->modules as $module ) {
+			$module->saveModOptions( false, false );
 		}
 		$this->store();
 	}
 
 	public function store() {
 		add_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+
+		do_action( $this->con()->prefix( 'pre_options_store' ) );
 		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
 			Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
 		}
+
 		remove_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 }

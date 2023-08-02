@@ -52,25 +52,27 @@ class Options {
 	}
 
 	public function getAllOptionsValues() :array {
-		if ( !isset( $this->aOptionsValues ) ) {
-
-			try {
-				$this->aOptionsValues = $this->con()->opts->getFor( $this->mod() );
-				if ( $this->aOptionsValues === null ) {
-					throw new \Exception( 'No shared-stored options available' );
-				}
+		try {
+			if ( $this->con()->opts === null ) {
+				throw new \Exception( 'Opts not ready.' );
 			}
-			catch ( \Exception $e ) {
-				try {
-					$this->aOptionsValues = ( new Options\Storage() )->setMod( $this->mod() )->loadOptions();
-				}
-				catch ( \Exception $e ) {
-					$this->aOptionsValues = [];
-				}
-				$this->setNeedSave( true );
+			$values = $this->con()->opts->getFor( $this->mod() );
+			if ( $values === null ) {
+				throw new \Exception( 'No shared-stored options available' );
 			}
 		}
-		return $this->aOptionsValues;
+		catch ( \Exception $e ) {
+			try {
+				$values = ( new Options\Storage() )->setMod( $this->mod() )->loadOptions();
+			}
+			catch ( \Exception $e ) {
+				$values = [];
+			}
+			if ( $this->con()->opts !== null ) {
+				$this->con()->opts->setFor( $this->mod(), $values );
+			}
+		}
+		return $values;
 	}
 
 	/**
@@ -314,17 +316,6 @@ class Options {
 	}
 
 	public function getNeedSave() :bool {
-		if ( !$this->bNeedSave ) {
-			$this->setOptionsValues(
-				\array_intersect_key(
-					$this->getAllOptionsValues(),
-					\array_merge(
-						\array_flip( $this->getOptionsKeys() ),
-						\array_flip( $this->getVirtualCommonOptions() )
-					)
-				)
-			);
-		}
 		return $this->bNeedSave;
 	}
 
@@ -343,13 +334,13 @@ class Options {
 	public function getOpt( string $key, $mDefault = false ) {
 		$value = $this->getAllOptionsValues()[ $key ] ?? null;
 
-		if ( \is_null( $value ) || !$this->isValidOptionValueType( $key, $value ) ) {
+		if ( $value === null || !$this->isValidOptionValueType( $key, $value ) ) {
 			$this->resetOptToDefault( $key );
 		}
 
 		$cap = $this->optCap( $key );
 		if ( empty( $cap ) || $this->con()->caps->hasCap( $cap ) ) {
-			$value = $this->aOptionsValues[ $key ] ?? $mDefault;
+			$value = $this->getAllOptionsValues()[ $key ] ?? $mDefault;
 		}
 		else {
 			$value = $this->getOptDefault( $key, $mDefault );
@@ -550,8 +541,7 @@ class Options {
 	protected function setOptValue( string $key, $value ) {
 		$values = $this->getAllOptionsValues();
 		$values[ $key ] = $value;
-		$this->aOptionsValues = $values;
-		return $this;
+		return $this->setOptionsValues( $values );
 	}
 
 	/**
@@ -611,8 +601,9 @@ class Options {
 	}
 
 	public function unsetOpt( string $key ) {
-		unset( $this->aOptionsValues[ $key ] );
-		$this->setNeedSave( true );
+		$values = $this->getAllOptionsValues();
+		unset( $values[ $key ] );
+		$this->setOptionsValues( $values );
 	}
 
 	protected function getCommonStandardOptions() :array {
@@ -648,9 +639,23 @@ class Options {
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {
+
+		$values = \array_intersect_key(
+			$values,
+			\array_merge(
+				\array_flip( $this->getOptionsKeys() ),
+				\array_flip( $this->getVirtualCommonOptions() )
+			)
+		);
+
 		if ( \serialize( $this->getAllOptionsValues() ) !== \serialize( $values ) ) {
+			if ( self::con()->opts !== null ) {
+				$this->con()->opts->setFor( $this->mod(), $values );
+			}
+			else {
+				$this->aOptionsValues = $values;
+			}
 			$this->setNeedSave( true );
-			$this->aOptionsValues = $values;
 		}
 		return $this;
 	}

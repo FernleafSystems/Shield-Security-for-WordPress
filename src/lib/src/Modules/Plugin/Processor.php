@@ -32,7 +32,6 @@ class Processor extends BaseShield\Processor {
 
 	public function runDailyCron() {
 		$this->con()->fireEvent( 'test_cron_run' );
-		( new CleanStorage() )->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
 	}
 

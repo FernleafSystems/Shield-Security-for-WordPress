@@ -160,14 +160,14 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'plugin_reset':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
 
 			case 'is_rest_enabled':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$restReqs = $this->cfg->reqs_rest;
 					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
 						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
@@ -732,6 +732,9 @@ class Controller extends DynPropertiesClass {
 	public function onWpShutdown() {
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
+		if ( $this->opts !== null ) {
+			$this->opts->commit();
+		}
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
 	}
