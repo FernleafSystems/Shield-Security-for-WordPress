@@ -72,6 +72,10 @@
         "released_at": 1690983000,
         "items":       [
           {
+            "title": "Adding Activity Log tracking for plugin options saving.",
+            "type":  "new"
+          },
+          {
             "title": "Refactor & optimise how Shield options are stored, reducing WordPress DB entries.",
             "type":  "improved"
           },

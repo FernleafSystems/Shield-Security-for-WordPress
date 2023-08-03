@@ -109,11 +109,55 @@ class OptsHandler extends DynPropertiesClass {
 	public function store() {
 		add_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 
-		do_action( $this->con()->prefix( 'pre_options_store' ) );
+		$this->preStore();
+
 		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
 			Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
 		}
 
 		remove_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+	}
+
+	private function preStore() {
+		$con = self::con();
+		do_action( $con->prefix( 'pre_options_store' ) );
+
+		$type = $con->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;
+		$latest = $this->{'mod_opts_'.$type};
+		$stored = Services::WpGeneral()->getOption( $this->key( $type ) );
+		$diffs = [];
+		foreach ( $latest as $slug => $options ) {
+			$mod = $con->modules[ $slug ];
+			$opts = $mod->opts();
+			$hidden = \array_keys( $opts->getHiddenOptions() );
+			foreach ( $options as $optKey => $optValue ) {
+				if ( !\in_array( $optKey, $hidden )
+					 && \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $optKey ] ?? null )
+				) {
+					if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
+						$optValue = $optValue === 'Y' ? 'on' : 'off';
+					}
+					elseif ( \is_array( $optValue ) ) {
+						$optValue = \implode( ', ', $optValue );
+					}
+					try {
+						$diffs[ $optKey ] = [
+							'name'  => $mod->getStrings()->getOptionStrings( $optKey )[ 'name' ],
+							'key'   => $optKey,
+							'value' => $optValue,
+						];
+					}
+					catch ( \Exception $e ) {
+					}
+				}
+			}
+		}
+
+		foreach ( $diffs as $params ) {
+			$this->con()->fireEvent( 'plugin_option_changed', [
+					'audit_params' => $params
+				]
+			);
+		}
 	}
 }
