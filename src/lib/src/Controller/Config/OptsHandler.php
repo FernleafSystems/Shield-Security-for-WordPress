@@ -65,7 +65,10 @@ class OptsHandler extends DynPropertiesClass {
 
 		if ( $type === self::TYPE_FREE ) {
 			foreach ( $mod->cfg->options as $opt ) {
-				if ( ( $opt[ 'premium' ] ?? false ) && $values[ $opt[ 'key' ] ] !== $opts->getOptDefault( $opt[ 'key' ] ) ) {
+				if ( ( $opt[ 'premium' ] ?? false )
+					 && isset( $values[ $opt[ 'key' ] ] )
+					 && $values[ $opt[ 'key' ] ] !== $opts->getOptDefault( $opt[ 'key' ] )
+				) {
 					$values[ $opt[ 'key' ] ] = $opts->getOptDefault( $opt[ 'key' ] );
 				}
 			}
@@ -83,20 +86,31 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	private function key( string $type ) :string {
-		return self::con()->prefix( sprintf( 'opts_%s_%s', $type, \substr( \sha1( \get_class() ), 0, 6 ) ), '_' );
+		return self::con()->prefix( 'opts_'.$type, '_' );
 	}
 
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
 		if ( \in_array( $key, [ 'mod_opts_free', 'mod_opts_pro' ] ) && !\is_array( $val ) ) {
-			$type = \str_replace( 'mod_opts_', '', $key );
-			$val = Services::WpGeneral()->getOption( $this->key( $type ) );
-			if ( !\is_array( $val ) ) {
-				$val = $key === 'mod_opts_pro' ? $this->mod_opts_free : [];
+			if ( self::con()->plugin_reset ) {
+				$val = [];
 			}
-			$this->{$key} = $val;
+			else {
+				$type = \str_replace( 'mod_opts_', '', $key );
+				$val = Services::WpGeneral()->getOption( $this->key( $type ) );
+				if ( !\is_array( $val ) ) {
+					$val = $key === 'mod_opts_pro' ? $this->mod_opts_free : [];
+				}
+				$this->{$key} = $val;
+			}
 		}
 		return $val;
+	}
+
+	public function delete() :void {
+		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
+			Services::WpGeneral()->deleteOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
+		}
 	}
 
 	public function commit() :void {
@@ -107,15 +121,16 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function store() {
-		add_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+		$con = self::con();
 
-		$this->preStore();
-
-		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
-			Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
+		if ( !$con->plugin_deleting ) {
+			add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+			$this->preStore();
+			foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
+				Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
+			}
+			remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		}
-
-		remove_filter( $this->con()->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
 	private function preStore() {
