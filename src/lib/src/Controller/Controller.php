@@ -731,10 +731,10 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpShutdown() {
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
-		do_action( $this->prefix( 'plugin_shutdown' ) );
 		if ( $this->opts !== null ) {
 			$this->opts->commit();
 		}
+		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
 	}

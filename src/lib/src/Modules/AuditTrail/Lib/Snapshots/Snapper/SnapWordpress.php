@@ -15,11 +15,13 @@ class SnapWordpress extends BaseSnap {
 			'wp_option_default_role'       => get_option( 'default_role' ),
 			'wp_option_users_can_register' => get_option( 'users_can_register' ) == '0' ? 'off' : 'on',
 		];
-		if ( !\defined( 'WP_HOME' ) ) {
-			$options[ 'wp_option_home' ] = get_option( 'home' );
-		}
-		if ( !\defined( 'WP_SITEURL' ) ) {
-			$options[ 'wp_option_siteurl' ] = get_option( 'siteurl' );
+
+		foreach ( [ 'home', 'siteurl' ] as $url ) {
+			$existed = remove_filter( 'option_'.$url, '_config_wp_'.$url );
+			$options[ 'wp_option_'.$url ] = get_option( $url );
+			if ( $existed ) {
+				add_filter( 'option_'.$url, '_config_wp_'.$url );
+			}
 		}
 
 		return [

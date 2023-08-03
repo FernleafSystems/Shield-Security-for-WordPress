@@ -651,6 +651,16 @@
         "level":  "debug",
         "recent": true
       },
+      "plugin_option_changed":     {
+        "level":          "info",
+        "audit_params":   [
+          "name",
+          "key",
+          "value"
+        ],
+        "audit_multiple": true,
+        "stat":           false
+      },
       "import_notify_sent":        {
         "level": "info",
         "stat":  false

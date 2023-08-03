@@ -18,18 +18,19 @@ class EventsService {
 	}
 
 	public function fireEvent( string $event, array $meta = [] ) {
-		if ( $this->eventExists( $event ) ) {
-			try {
-				do_action(
-					'shield/event',
-					$event,
-					$this->verifyAuditParams( $event, $meta ),
-					$this->getEventDef( $event )
-				);
+		try {
+			if ( !$this->eventExists( $event ) ) {
+				throw new \Exception( sprintf( 'Event %s does not exist.', $event ) );
 			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-			}
+			do_action(
+				'shield/event',
+				$event,
+				$this->verifyAuditParams( $event, $meta ),
+				$this->getEventDef( $event )
+			);
+		}
+		catch ( \Exception $e ) {
+			/* error_log( $e->getMessage() ); */
 		}
 	}
 

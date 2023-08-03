@@ -17,6 +17,12 @@ class Strings extends Base\Strings {
 					'{{message}}',
 				],
 			],
+			'plugin_option_changed'     => [
+				'name'  => __( 'Plugin Option Changed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Plugin option "{{name}}" ({{key}}) was updated to "{{value}}".', 'wp-simple-firewall' ),
+				]
+			],
 			'frontpage_load'            => [
 				'name'  => sprintf( '%s: %s', __( 'Loaded', 'wp-simple-firewall' ),
 					__( 'Front Page', 'wp-simple-firewall' ) ),
@@ -250,7 +256,8 @@ class Strings extends Base\Strings {
 				$desc = [
 					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', $con->getModule_Plugin()->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" target="_blank">%s</a>', $con->getModule_Plugin()
+																		->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
 				];
 				break;
 
