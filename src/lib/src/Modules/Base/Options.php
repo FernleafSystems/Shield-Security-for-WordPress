@@ -165,10 +165,6 @@ class Options {
 		return $this->cfg()->admin_notices ?? [];
 	}
 
-	public function isValidOptionKey( string $key ) :bool {
-		return \in_array( $key, $this->getOptionsKeys() );
-	}
-
 	public function ensureOptValueType( string $key, $value ) {
 		switch ( $this->getOptionType( $key ) ) {
 			case 'boolean':
@@ -236,10 +232,9 @@ class Options {
 	}
 
 	/**
-	 * @param bool $includeHidden
 	 * @return array[]
 	 */
-	public function getSections( $includeHidden = false ) {
+	public function getSections( bool $includeHidden = false ) :array {
 		$sections = [];
 		foreach ( $this->cfg()->sections as $section ) {
 			if ( $includeHidden || empty( $section[ 'hidden' ] ) ) {
@@ -260,15 +255,12 @@ class Options {
 		return $theSection;
 	}
 
-	/**
-	 * @param string $slug
-	 */
-	public function getSection_Requirements( $slug ) :array {
+	public function getSection_Requirements( string $slug ) :array {
 		$section = $this->getSection( $slug );
 		return \array_merge(
 			[
 				'php_min' => '7.2',
-				'wp_min'  => '4.7',
+				'wp_min'  => '5.7',
 			],
 			( \is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
 		);
@@ -278,13 +270,6 @@ class Options {
 		$reqs = $this->getSection_Requirements( $slug );
 		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
 			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isOptReqsMet( string $key ) :bool {
-		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
 	}
 
 	/**
@@ -586,11 +571,10 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return $this
 	 */
-	private function setOldOptValue( $key, $value ) {
+	private function setOldOptValue( string $key, $value ) {
 		if ( !\is_array( $this->aOld ) ) {
 			$this->aOld = [];
 		}
@@ -648,15 +632,15 @@ class Options {
 			)
 		);
 
-		if ( \serialize( $this->getAllOptionsValues() ) !== \serialize( $values ) ) {
-			if ( self::con()->opts !== null ) {
-				$this->con()->opts->setFor( $this->mod(), $values );
-			}
-			else {
-				$this->aOptionsValues = $values;
-			}
-			$this->setNeedSave( true );
+		if ( isset( $this->aOptionsValues ) ) {
+			$this->aOptionsValues = $values;
 		}
+		if ( self::con()->opts !== null ) {
+			$this->con()->opts->setFor( $this->mod(), $values );
+		}
+
+		$this->setNeedSave( true );
+
 		return $this;
 	}
 
@@ -666,5 +650,19 @@ class Options {
 	 */
 	public function setOptAt( string $key ) {
 		return $this->setOpt( $key, Services::Request()->ts() );
+	}
+
+	/**
+	 * @deprecated 18.2.5
+	 */
+	public function isValidOptionKey( string $key ) :bool {
+		return \in_array( $key, $this->getOptionsKeys() );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isOptReqsMet( string $key ) :bool {
+		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
 	}
 }

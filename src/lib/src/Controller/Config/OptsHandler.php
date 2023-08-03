@@ -83,7 +83,7 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	private function key( string $type ) :string {
-		return sprintf( 'aptoweb_shield_opts_%s_%s', $type, \substr( \sha1( \get_class() ), 0, 6 ) );
+		return self::con()->prefix( sprintf( 'opts_%s_%s', $type, \substr( \sha1( \get_class() ), 0, 6 ) ), '_' );
 	}
 
 	public function __get( string $key ) {

@@ -68,8 +68,8 @@
         ]
       },
       {
-        "version":     "5",
-        "released_at": 1690983000,
+        "version":     "6",
+        "released_at": 1691070000,
         "items":       [
           {
             "title": "Adding Activity Log tracking for plugin options saving.",
