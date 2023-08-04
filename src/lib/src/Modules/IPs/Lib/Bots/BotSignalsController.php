@@ -28,7 +28,7 @@ class BotSignalsController {
 	private $isBots = [];
 
 	protected function canRun() :bool {
-		return $this->con()->this_req->ip_is_public;
+		return $this->con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' );
 	}
 
 	protected function run() {

@@ -42,8 +42,8 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 				'inner_page_subtitle' => sprintf( __( 'Access to the %s Security plugin is restricted.', 'wp-simple-firewall' ),
 					$con->getHumanName() ),
 
-				'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
-				'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
+				'force_remove_email' => __( "If you've forgotten your PIN, use the menu above to disable this restriction.", 'wp-simple-firewall' ),
+				'send_to_email'      => sprintf( __( 'Confirmation email will be sent to %s', 'wp-simple-firewall' ),
 					Obfuscate::Email( $con->getModule_Plugin()->getPluginReportEmail() ) ),
 				'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
 			],

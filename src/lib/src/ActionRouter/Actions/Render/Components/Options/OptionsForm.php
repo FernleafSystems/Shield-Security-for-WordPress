@@ -16,12 +16,12 @@ class OptionsForm extends BaseRender {
 		$mod = $this->con()->modules[ $actionData[ 'mod_slug' ] ];
 
 		$focusOption = $actionData[ 'focus_option' ] ?? '';
-		$focusSection = $actionData[ 'focus_section' ] ?? $mod->getOptions()->getPrimarySection()[ 'slug' ];
+		$focusSection = $actionData[ 'focus_section' ] ?? $mod->opts()->getPrimarySection()[ 'slug' ];
 
 		if ( !empty( $actionData[ 'focus_item' ] ) && !empty( $actionData[ 'focus_item_type' ] ) ) {
 			if ( $actionData[ 'focus_item_type' ] === 'option' ) {
 				$focusOption = $actionData[ 'focus_item' ];
-				$focusSection = $mod->getOptions()->getOptDefinition( $actionData[ 'focus_item' ] )[ 'section' ];
+				$focusSection = $mod->opts()->getOptDefinition( $actionData[ 'focus_item' ] )[ 'section' ];
 			}
 			elseif ( $actionData[ 'focus_item_type' ] === 'section' ) {
 				$focusSection = $actionData[ 'focus_item' ];
