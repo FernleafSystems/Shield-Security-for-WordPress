@@ -15,6 +15,11 @@ class PluginDelete {
 	protected function run() {
 		$this->deleteDatabases();
 		$this->deleteTmpDir();
+		$this->deleteOptions();
+	}
+
+	private function deleteOptions() {
+		self::con()->opts->delete();
 	}
 
 	private function deleteTmpDir() {

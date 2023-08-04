@@ -49,6 +49,9 @@ class PageScansRun extends BasePluginAdminPage {
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
 				'scans_results'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
+			],
 			'strings' => [
 				'inner_page_title'    => __( 'Scan Your Site', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),

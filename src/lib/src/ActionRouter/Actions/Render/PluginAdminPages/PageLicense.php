@@ -18,7 +18,7 @@ class PageLicense extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = $this->con();
 		$mod = $con->getModule_License();
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		$carb = Services::Request()->carbon();
 
 		$lic = $mod->getLicenseHandler()->getLicense();
@@ -73,8 +73,9 @@ class PageLicense extends BasePluginAdminPage {
 				'keyless_cp'     => $opts->getDef( 'keyless_cp' ),
 			],
 			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'award' ),
 				'svgs' => [
-					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' )
+					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' ),
 				],
 			],
 			'inputs'  => [

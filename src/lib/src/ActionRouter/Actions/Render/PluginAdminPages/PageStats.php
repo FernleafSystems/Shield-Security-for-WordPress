@@ -16,6 +16,9 @@ class PageStats extends BasePluginAdminPage {
 			'flags'   => [
 				'has_stats' => !empty( $statsVars[ 'stats' ] )
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'clipboard-data-fill' ),
+			],
 			'strings' => [
 				'inner_page_title'    => __( 'Simple Stats', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Some basic stats - this is in beta and will be developed over time.', 'wp-simple-firewall' ),

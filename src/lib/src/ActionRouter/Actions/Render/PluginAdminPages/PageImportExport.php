@@ -24,7 +24,7 @@ class PageImportExport extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = $this->con();
 		/** @var Options $opts */
-		$opts = $con->getModule_Plugin()->getOptions();
+		$opts = $con->getModule_Plugin()->opts();
 		return [
 			'ajax'    => [
 				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::class ),
@@ -37,6 +37,9 @@ class PageImportExport extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
+			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'arrow-down-up' ),
 			],
 			'vars'    => [
 				'file_upload_nonce'  => ActionData::Build( PluginImportFromFileUpload::class, true, [

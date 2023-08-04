@@ -57,6 +57,9 @@ class PageDebug extends BasePluginAdminPage {
 			'hrefs'   => [
 				'display_rules' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_RULES_VIEW ),
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'patch-question' ),
+			],
 			'strings' => [
 				'inner_page_title'    => sprintf( __( '%s Debug Information' ), $con->getHumanName() ),
 				'inner_page_subtitle' => __( 'Assess the state of the plugin and view various configuration information for your site.', 'wp-simple-firewall' ),
