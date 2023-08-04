@@ -26,13 +26,16 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = $this->con();
 		/** @var Options $secOpts */
-		$secOpts = $con->getModule_SecAdmin()->getOptions();
+		$secOpts = $con->getModule_SecAdmin()->opts();
 		return [
 			'flags'   => [
 				'allow_email_override' => $secOpts->isEmailOverridePermitted()
 			],
 			'hrefs'   => [
 				'form_action' => $con->plugin_urls->adminHome(),
+			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'person-badge' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),

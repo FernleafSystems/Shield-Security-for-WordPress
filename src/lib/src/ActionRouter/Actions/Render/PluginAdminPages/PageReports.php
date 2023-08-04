@@ -23,6 +23,9 @@ class PageReports extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'content' => $this->buildContent(),
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'clipboard-data-fill' ),
+			],
 			'strings' => [
 				'inner_page_title'    => $this->getInnerPageTitle(),
 				'inner_page_subtitle' => $this->getInnerPageSubTitle(),

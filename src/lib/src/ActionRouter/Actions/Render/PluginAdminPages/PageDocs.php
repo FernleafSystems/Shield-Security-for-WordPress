@@ -25,6 +25,9 @@ class PageDocs extends BasePluginAdminPage {
 				'free_trial'    => 'https://shsec.io/shieldfreetrialinplugin',
 				'knowledgebase' => 'https://help.getshieldsecurity.com',
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'book-half' ),
+			],
 			'strings' => [
 				'tab_updates'       => __( 'Updates and Changes', 'wp-simple-firewall' ),
 				'tab_knowledgebase' => __( 'Knowledgebase', 'wp-simple-firewall' ),

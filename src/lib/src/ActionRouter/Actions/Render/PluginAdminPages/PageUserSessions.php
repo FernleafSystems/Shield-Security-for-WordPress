@@ -37,6 +37,9 @@ class PageUserSessions extends BasePluginAdminPage {
 				'bulk_action'           => ActionData::BuildJson( UserSessionsTableBulkAction::class ),
 
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'person-badge' ),
+			],
 			'strings' => [
 				'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),
 				'users_title'         => __( 'User Sessions', 'wp-simple-firewall' ),

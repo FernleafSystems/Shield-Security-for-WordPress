@@ -21,6 +21,9 @@ class PageAdminNotes extends BasePluginAdminPage {
 				'item_insert'       => ActionData::BuildJson( AdminNoteInsert::class ),
 				'bulk_action'       => ActionData::BuildJson( AdminNoteBulkAction::class ),
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'pencil-square' ),
+			],
 			'strings' => [
 				'inner_page_title'    => __( 'Administrator Notes', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Make notes for your future reference.', 'wp-simple-firewall' ),

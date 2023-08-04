@@ -5,7 +5,8 @@
 	{% if strings.inner_page_title|default('') is not empty %}
 		<div class="row border-bottom mb-2 inner-page-header">
 			<div class="col">
-				<h4 class="mb-1">
+				<h4 class="mb-1 inner-page-header-title d-flex align-items-center">
+					{{ imgs.inner_page_title_icon|default('')|raw }}
 					{{ strings.inner_page_title|default('No inner page title set') }}
 					{% block inner_page_title_after %}{% endblock %}
 				</h4>

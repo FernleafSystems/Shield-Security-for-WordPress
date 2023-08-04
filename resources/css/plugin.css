@@ -483,7 +483,6 @@ table.odp-table.scan-table td.column-path code {
 	position: relative;
 	/*display: block;*/
 }
-
 .option_label_name .beacon-article > sup svg {
 	width: 14px;
 }
@@ -804,18 +803,19 @@ body.folded #FooterBannerGoPro {
 #apto-PageMainSide {
 	background-color: transparent;
 	border: 0 none;
-	min-width: 160px;
-	width: 160px;
+	min-width: 200px;
+	width: 200px;
 }
 #apto-PageMainSide .nav-link.disabled {
 	opacity: 0.4 !important;
 	color: #b7b7b7 !important;
 }
 #apto-PageMainBody-Inner {
-	background-color: rgba(255, 255, 255, 0.4);
-	border: 1px solid rgba(0, 0, 0, 0.05);
-	border-radius: 12px;
+	background-color: rgba(251, 251, 251, 1);
 	padding: 14px 20px 20px;
+	min-height: 800px;
+	border: 1px solid rgba(0, 128, 0, 0.2);
+	box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
 }
 #apto-PageMainBody-Inner p,
 #apto-PageMainBody-Inner li,
@@ -832,7 +832,20 @@ body.folded #FooterBannerGoPro {
 }
 #NavSideBar ul.top-level-nav > .nav-item:hover {
 }
-#NavSideBar .nav-item {
+#NavSideBar .top-level-nav > li.nav-item > a {
+	border: 1px solid transparent;
+	border-left: 2px solid transparent;
+}
+#NavSideBar .top-level-nav > li.nav-item {
+	z-index: 1;
+}
+#NavSideBar .top-level-nav > li.nav-item > a.active {
+	background-color: rgba(251, 251, 251, 1);
+	border-top: 1px solid rgba(0, 128, 0, 0.2);
+	border-bottom: 1px solid rgba(0, 128, 0, 0.2);
+	border-left: 3px solid #008000;
+	box-shadow: -3px 5px 6px rgba(0, 0, 0, 0.03);
+	margin-right: -1px;
 }
 #NavSideBar .nav-item .nav-icon > svg {
 	width: 18px;
@@ -850,6 +863,12 @@ body.folded #FooterBannerGoPro {
 	transform: rotate(0deg);
 	transition: transform 0.5s;
 }
+.inner-page-header .inner-page-header-title > svg {
+	width: 24px;
+	height: 24px;
+	margin-right: 9px;
+	color: #008000;
+}
 .inner-page-header:hover .dropstart button > svg {
 	transform: rotate(45deg);
 	transition: transform 0.3s;
@@ -857,7 +876,7 @@ body.folded #FooterBannerGoPro {
 #NavSideBar .nav-item .top-title {
 	color: black;
 }
-#NavSideBar .nav-item .top-title > svg {
+#NavSideBar .nav-item .top-title svg {
 	transform-origin: 50% 50%;
 	transform: rotate(60deg);
 	height: 6px;
@@ -867,7 +886,7 @@ body.folded #FooterBannerGoPro {
 	margin-right: -2px;
 	transition: transform 0.5s ease;
 }
-#NavSideBar .nav-item.activesub .top-title > svg {
+#NavSideBar .nav-item.activesub .top-title svg {
 	transform: rotate(-30deg);
 }
 #NavSideBar .nav-item.activesub .top-title,
@@ -884,7 +903,7 @@ body.folded #FooterBannerGoPro {
 .primary_side_sub_menu {
 }
 .primary_side_sub_menu a {
-	border-left: 1px solid rgba(0, 0, 0, 0.2);
+	border-left: 1px solid transparent;
 	padding-left: 24px;
 	text-decoration: none;
 	color: #111111;
@@ -892,7 +911,6 @@ body.folded #FooterBannerGoPro {
 .primary_side_sub_menu a:hover {
 	border-left: 3px solid rgba(0, 128, 0, 0.3);
 	padding-left: 22px;
-
 	color: #008000;
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
 }
@@ -942,7 +960,6 @@ body.folded #FooterBannerGoPro {
 }
 #ScanResultsTabs table td.file {
 }
-
 #ShieldModalContainer pre.icwp-code-render {
 	counter-reset: line;
 }
@@ -960,26 +977,22 @@ body.folded #FooterBannerGoPro {
 #ShieldModalContainer pre.icwp-code-render > code:before {
 	-webkit-user-select: none;
 }
-
 .scan-item-malaiquery ul,
 .scan-item-history ul {
 	list-style: inside disc;
 }
-
 .audit-meta ul {
 	padding: 0;
 }
 .audit-meta h3.popover-header {
 	background-color: rgba(0, 128, 0, 0.3);
 }
-
 .ui-dialog-titlebar .ui-dialog-titlebar-close {
 	float: right;
 }
 button.bs-placeholder {
 	display: none;
 }
-
 #ShieldProgressMeterOffcanvas {
 	width: 600px;
 }
@@ -1047,7 +1060,6 @@ td.status_file_size {
 	width: 60px !important;
 	max-width: 60px;
 }
-
 #apto-PageHeader {
 	border-top: 3px solid #008000;
 	border-bottom: 1px solid #008000;
@@ -1100,13 +1112,11 @@ td.status_file_size {
 	margin-left: 20px;
 	min-width: 400px;
 }
-
 .select2-search__field:active,
 .select2-search__field:focus,
 .select2-search__field:hover {
 	box-shadow: 0 0 0 1px #008000 !important;
 }
-
 .select2-results__option--selected,
 .select2-results__option--highlighted,
 .select2-results ul li ul li:active,
@@ -1132,7 +1142,6 @@ td.status_file_size {
 #ShieldOffcanvas.offcanvas_ipanalysis {
 	width: 800px;
 }
-
 .row.option_form_row.focus_option {
 	background-color: #e1ffdebb;
 	border: 1px solid #00800044;
@@ -1154,7 +1163,6 @@ td.status_file_size {
 	font-size: small;
 	font-weight: normal;
 }
-
 .load-wrapper {
 	position: relative;
 	height: 100%;
@@ -1175,7 +1183,6 @@ td.status_file_size {
 	animation: loading 1.5s infinite;
 	z-index: 45;
 }
-
 @keyframes loading {
 	0% {
 		left: -45%;
@@ -1191,12 +1198,11 @@ td.status_file_size {
 	color: white;
 }
 .shield-top_page_warning {
-	text-shadow: 1px 1px 1px rgba(255,255,255,0.3);
+	text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
 }
 .shield-top_page_warning a {
 	font-weight: bolder;
 }
-
 /** Hide notices from WP & plugins **/
 .update-nag,
 .ngg_admin_notice {
