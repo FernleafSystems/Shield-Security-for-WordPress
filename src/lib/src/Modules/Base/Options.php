@@ -266,12 +266,6 @@ class Options {
 		);
 	}
 
-	public function isSectionReqsMet( string $slug ) :bool {
-		$reqs = $this->getSection_Requirements( $slug );
-		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
-			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
-	}
-
 	/**
 	 * @return array[]
 	 */
@@ -664,5 +658,14 @@ class Options {
 	 */
 	public function isOptReqsMet( string $key ) :bool {
 		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
+	}
+
+	/**
+	 * @deprecated 18.2.6
+	 */
+	public function isSectionReqsMet( string $slug ) :bool {
+		$reqs = $this->getSection_Requirements( $slug );
+		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
+			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 }

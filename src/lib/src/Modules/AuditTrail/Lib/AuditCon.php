@@ -229,6 +229,14 @@ class AuditCon {
 		$q->save()->dispatch();
 	}
 
+	public function flags() :AuditFlags {
+		return ( new AuditFlags() )->applyFromArray(
+			apply_filters( 'shield/auditing_flags', [
+				'users_audit_snapshot_admins_only' => get_user_count() > 10000,
+			] )
+		);
+	}
+
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
 		return $this->snapshotDiscoveryQueue ?? $this->snapshotDiscoveryQueue = new Snapshots\Queues\SnapshotDiscovery(
 			'snapshot_discovery', $this->con()->prefix() );

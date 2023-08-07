@@ -160,8 +160,6 @@ label input[type=checkbox] {
 .form-label-inner {
 	padding-left: 10px;
 }
-.option_container {
-}
 .carousel-item {
 	transition: -webkit-transform 0.3s ease;
 	transition: transform 0.2s ease, -webkit-transform 0.2s ease;
