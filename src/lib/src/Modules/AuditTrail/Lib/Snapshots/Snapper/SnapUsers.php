@@ -16,8 +16,12 @@ class SnapUsers extends BaseSnap {
 			$users[ $admin[ 'uniq' ] ] = $admin;
 			$adminLogins[] = $admin[ 'user_login' ];
 		}
-		foreach ( $this->getNonAdmins( $adminLogins ) as $nonAdmin ) {
-			$users[ $nonAdmin[ 'uniq' ] ] = $nonAdmin;
+
+		$flags = self::con()->getModule_AuditTrail()->getAuditCon()->flags();
+		if ( !$flags->users_audit_snapshot_admins_only ) {
+			foreach ( $this->getNonAdmins( $adminLogins ) as $nonAdmin ) {
+				$users[ $nonAdmin[ 'uniq' ] ] = $nonAdmin;
+			}
 		}
 		return $users;
 	}
@@ -69,13 +73,20 @@ class SnapUsers extends BaseSnap {
 	 */
 	public function updateItemOnSnapshot( array $snapshotData, $item ) :array {
 		if ( $item instanceof \WP_User ) {
-			$snapshotData[ $item->ID ] = [
-				'uniq'       => $item->ID,
-				'is_admin'   => Services::WpUsers()->isUserAdmin( $item ),
-				'user_login' => $item->user_login,
-				'user_pass'  => Snapshots\Hasher::Item( $item->user_pass ),
-				'user_email' => Snapshots\Hasher::Item( $item->user_email ),
-			];
+			if ( Services::WpUsers()->isUserAdmin( $item )
+				 || !self::con()->getModule_AuditTrail()->getAuditCon()->flags()->users_audit_snapshot_admins_only
+			) {
+				$snapshotData[ $item->ID ] = [
+					'uniq'       => $item->ID,
+					'is_admin'   => Services::WpUsers()->isUserAdmin( $item ),
+					'user_login' => $item->user_login,
+					'user_pass'  => Snapshots\Hasher::Item( $item->user_pass ),
+					'user_email' => Snapshots\Hasher::Item( $item->user_email ),
+				];
+			}
+			else {
+				unset( $snapshotData[ $item->ID ] );
+			}
 		}
 		return $snapshotData;
 	}
