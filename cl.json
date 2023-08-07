@@ -69,7 +69,7 @@
       },
       {
         "version":     "6",
-        "released_at": 1691070000,
+        "released_at": 1691408000,
         "items":       [
           {
             "title": "Adding Activity Log tracking for plugin options saving.",
@@ -81,6 +81,10 @@
           },
           {
             "title": "Updated built-in helpdesk links.",
+            "type":  "improved"
+          },
+          {
+            "title": "Performance improvements when loading activity log and traffic log tables.",
             "type":  "improved"
           },
           {

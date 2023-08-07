@@ -22,14 +22,14 @@ class IpRuleStatus {
 	private $ipOrRange;
 
 	/**
-	 * @var IpRuleRecord[]
-	 */
-	private $rangeRecords;
-
-	/**
 	 * @var IpRuleRecord[][]
 	 */
 	private static $cache = [];
+
+	/**
+	 * @var IpRuleRecord[]
+	 */
+	private static $ranges = null;
 
 	public function __construct( string $ipOrRange ) {
 		$this->ipOrRange = $ipOrRange;
@@ -287,18 +287,34 @@ class IpRuleStatus {
 		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
-			$loader->wheres = [
-				sprintf( '(%s) OR (%s)',
-					sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
-					"`ir`.`is_range`='1'"
-				)
-			];
+			if ( self::$ranges === null ) {
+				self::$ranges = [];
+				$buildRanges = true;
 
-			foreach ( $loader->select() as $record ) {
+				$loader->wheres = [
+					sprintf( '(%s) OR (%s)',
+						sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
+						"`ir`.`is_range`='1'"
+					)
+				];
+			}
+			else {
+				$buildRanges = false;
+				$loader->wheres = [
+					sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
+				];
+			}
+
+			foreach ( $buildRanges ? $loader->select() : \array_merge( $loader->select(), self::$ranges ) as $record ) {
 				if ( $record->is_range ) {
 					$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
-					if ( !empty( $maybeParsed ) && $maybeParsed->containsRange( $parsedIP ) ) {
-						$records[] = $record;
+					if ( !empty( $maybeParsed ) ) {
+						if ( $buildRanges ) {
+							self::$ranges[] = $record;
+						}
+						if ( $maybeParsed->containsRange( $parsedIP ) ) {
+							$records[] = $record;
+						}
 					}
 				}
 				else {
