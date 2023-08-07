@@ -9,11 +9,14 @@ class SnapUsers extends BaseSnap {
 
 	public function snap() :array {
 		$users = [];
+
+		$adminLogins = [];
 		foreach ( $this->getAdmins() as $admin ) {
 			$admin[ 'is_admin' ] = true;
 			$users[ $admin[ 'uniq' ] ] = $admin;
+			$adminLogins[] = $admin[ 'user_login' ];
 		}
-		foreach ( $this->getNonAdmins() as $nonAdmin ) {
+		foreach ( $this->getNonAdmins( $adminLogins ) as $nonAdmin ) {
 			$users[ $nonAdmin[ 'uniq' ] ] = $nonAdmin;
 		}
 		return $users;
@@ -23,26 +26,28 @@ class SnapUsers extends BaseSnap {
 		return $this->buildUsers( [ 'role__in' => [ 'administrator' ] ] );
 	}
 
-	private function getNonAdmins() :array {
-		return $this->buildUsers( [ 'role__not_in' => [ 'administrator' ] ] );
+	private function getNonAdmins( array $adminLogins = [] ) :array {
+		return $this->buildUsers( [ 'login__not_in' => $adminLogins ] );
 	}
 
 	private function buildUsers( array $params = [] ) :array {
 		$params = Services::DataManipulation()->mergeArraysRecursive( [
-			'number' => 50,
-			'paged'  => 1,
-			'fields' => [
+			'number'        => 250,
+			'paged'         => 1,
+			'fields'        => [
 				'id',
 				'user_login',
 				'user_pass',
 				'user_email',
 			],
+			'orderby'       => [ 'ID' => 'ASC' ],
+			'cache_results' => false,
 		], $params );
 
 		$actual = [];
 		do {
-			$result = get_users( $params );
-			foreach ( $result as $user ) {
+			$hasUser = false;
+			foreach ( get_users( $params ) as $user ) {
 				/** @var \stdClass $user */
 				$actual[] = [
 					'uniq'       => (int)$user->id,
@@ -51,9 +56,10 @@ class SnapUsers extends BaseSnap {
 					'user_pass'  => Snapshots\Hasher::Item( $user->user_pass ),
 					'user_email' => Snapshots\Hasher::Item( $user->user_email ),
 				];
+				$hasUser = true;
 			}
 			$params[ 'paged' ]++;
-		} while ( !empty( $result ) );
+		} while ( $hasUser );
 
 		return $actual;
 	}
