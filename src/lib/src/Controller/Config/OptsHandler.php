@@ -152,8 +152,8 @@ class OptsHandler extends DynPropertiesClass {
 					if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
 						$optValue = $optValue === 'Y' ? 'on' : 'off';
 					}
-					elseif ( \is_array( $optValue ) ) {
-						$optValue = \implode( ', ', $optValue );
+					elseif ( !\is_scalar( $optValue ) ) {
+						$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
 					}
 					try {
 						$diffs[ $optKey ] = [
@@ -170,9 +170,8 @@ class OptsHandler extends DynPropertiesClass {
 
 		foreach ( $diffs as $params ) {
 			$this->con()->fireEvent( 'plugin_option_changed', [
-					'audit_params' => $params
-				]
-			);
+				'audit_params' => $params
+			] );
 		}
 	}
 }
