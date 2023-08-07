@@ -57,15 +57,15 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		}
 
 		$data = [
-			'ip'   => $isWpCli ? '' : $req->ip(),
+			'ip'   => $isWpCli ? '127.0.0.1' : $req->ip(),
 			'rid'  => $req->getID( true ),
-			'ts'   => microtime( true ),
+			'ts'   => \microtime( true ),
 			'path' => $path,
 			'type' => $type,
 		];
 		if ( !$isWpCli ) {
 			$data[ 'ua' ] = sanitize_text_field( $req->getUserAgent() );
-			$data[ 'code' ] = http_response_code();
+			$data[ 'code' ] = \http_response_code();
 			$data[ 'verb' ] = \strtoupper( $req->getMethod() );
 		}
 		if ( !empty( $query ) ) {
