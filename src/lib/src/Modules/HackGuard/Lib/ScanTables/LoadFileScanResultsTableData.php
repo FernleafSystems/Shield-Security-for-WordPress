@@ -284,8 +284,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				\sprintf( '<span class="badge text-bg-secondary">%s</span>', $item->getStatusForHuman() ),
 				\implode( '</li><li>', [
 					\sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
-						$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )
-							   ->diffForHumans()
+						$carbon->setTimestamp( $FS->getModifiedTime( $item->path_full ) )->diffForHumans()
 					)
 				] )
 			);

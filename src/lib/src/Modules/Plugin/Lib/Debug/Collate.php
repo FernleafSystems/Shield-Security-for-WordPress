@@ -102,11 +102,11 @@ class Collate {
 		return [
 			'PHP'           => $phpV,
 			'MySQL'         => Services::WpDb()->getMysqlServerInfo(),
-			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', ini_get( 'memory_limit' ),
+			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', \ini_get( 'memory_limit' ),
 				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
-			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,
-			'Time Limit'    => ini_get( 'max_execution_time' ),
-			'Dir Separator' => DIRECTORY_SEPARATOR,
+			'32/64-bit'     => ( \PHP_INT_SIZE === 4 ) ? 32 : 64,
+			'Time Limit'    => \ini_get( 'max_execution_time' ),
+			'Dir Separator' => \DIRECTORY_SEPARATOR,
 			'Document Root' => empty( $root ) ? '-' : $root,
 			'Extensions'    => \implode( ', ', $ext ),
 		];
