@@ -153,7 +153,15 @@ class OptsHandler extends DynPropertiesClass {
 						$optValue = $optValue === 'Y' ? 'on' : 'off';
 					}
 					elseif ( !\is_scalar( $optValue ) ) {
-						$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
+						switch ( $opts->getOptionType( $optKey ) ) {
+							case 'array':
+							case 'multiple_select':
+								$optValue = \implode( ', ', $optValue );
+								break;
+							default:
+								$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
+								break;
+						}
 					}
 					try {
 						$diffs[ $optKey ] = [
