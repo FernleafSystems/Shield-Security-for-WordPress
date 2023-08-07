@@ -36,7 +36,7 @@ class BuildSearchPanesData {
 	}
 
 	protected function getDistinctQueryResult() :array {
-		if ( is_null( $this->distinctQueryResult ) ) {
+		if ( \is_null( $this->distinctQueryResult ) ) {
 			$this->distinctQueryResult = \array_map( function ( $raw ) {
 				return \explode( ',', $raw );
 			}, $this->compositeDistinctQuery( [ 'type', 'code' ] ) );

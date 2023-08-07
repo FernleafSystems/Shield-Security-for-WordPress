@@ -134,4 +134,20 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $data;
 	}
+
+	protected function doPrePluginOptionsSave() {
+		$opts = $this->getOptions();
+		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
+			$current = $opts->getOpt( $optKey );
+			if ( empty( $current ) ) {
+				$opts->resetOptToDefault( $optKey );
+			}
+			elseif ( \in_array( 'disabled', $opts->getOpt( $optKey ) ) ) {
+				$opts->setOpt( $optKey, [ 'disabled' ] );
+			}
+		}
+		if ( \in_array( 'same_as_db', $opts->getOpt( 'log_level_file' ) ) ) {
+			$opts->setOpt( 'log_level_file', [ 'same_as_db' ] );
+		}
+	}
 }
