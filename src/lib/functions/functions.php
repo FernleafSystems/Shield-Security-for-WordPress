@@ -2,7 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Functions;
 
-if ( function_exists( 'shield_security_get_plugin' ) ) {
+if ( \function_exists( 'shield_security_get_plugin' ) ) {
 	return;
 }
 
@@ -35,10 +35,5 @@ function shield_fire_event( string $event ) {
 }
 
 function shield_start_scans( array $scans ) {
-	$con = shield_security_get_plugin()->getController();
-	if ( $con->caps->hasCap( 'scan_frequent' ) ) {
-		$con->getModule_HackGuard()
-			->getScansCon()
-			->startNewScans( $scans );
-	}
+	Functions\start_scans( $scans );
 }

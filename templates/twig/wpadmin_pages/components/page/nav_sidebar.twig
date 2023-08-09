@@ -9,8 +9,7 @@
 		    {% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
 			<a class="nav-link fs-6 my-0 pt-2 pb-3 ps-2 pe-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }}
-					d-flex
-					"
+					d-flex"
 					{% if mitem.sub_items|default([]) is not empty %}
 						data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
 					{% endif %}
