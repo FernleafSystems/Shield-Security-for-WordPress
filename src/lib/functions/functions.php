@@ -33,3 +33,11 @@ function shield_get_ip_state( string $ip = '' ) :string {
 function shield_fire_event( string $event ) {
 	Functions\fire_event( $event );
 }
+
+function shield_start_scans( array $scans ) {
+	shield_security_get_plugin()
+		->getController()
+		->getModule_HackGuard()
+		->getScansCon()
+		->startNewScans( $scans );
+}
