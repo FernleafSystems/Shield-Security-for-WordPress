@@ -33,7 +33,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 			// anything stored in the primary log record doesn't need stored in meta
 			unset( $record[ 'extra' ][ 'meta_wp' ] );
-			unset( $record[ 'extra' ][ 'meta_wp' ] );
 			unset( $record[ 'extra' ][ 'meta_request' ] );
 
 			$metas = \array_merge(
@@ -55,6 +54,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			$this->triggerRequestLogger();
 		}
 		catch ( \Exception $e ) {
+//			error_log( 'DEBUG::EXCEPTION: '.$e->getMessage() );
 		}
 	}
 

@@ -10,10 +10,9 @@ class SnapPlugins extends SnapBasePluginsThemes {
 	 * @return array[] - key is plugin file, values are arrays with keys: file, version, is_active, has_updates
 	 */
 	public function snap() :array {
-		$WPP = Services::WpPlugins();
 		$items = [];
-		foreach ( $WPP->getInstalledPluginFiles() as $file ) {
-			$plugin = $WPP->getPluginAsVo( $file, true );
+		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $file ) {
+			$plugin = Services::WpPlugins()->getPluginAsVo( $file, true );
 			$items[ $file ] = [
 				'uniq'      => $file,
 				'name'      => $plugin->Name,

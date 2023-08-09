@@ -82,7 +82,7 @@ class AuditCon {
 		}
 
 		add_action( $primerHook, function () {
-			$this->runAsyncSnapshotDiscovery();
+			$this->runAsyncSnapshotDiscovery( true );
 		} );
 	}
 
@@ -168,7 +168,7 @@ class AuditCon {
 		return $this->latestSnapshots[ $slug ];
 	}
 
-	private function getSnapshots() :array {
+	public function getSnapshots() :array {
 		return $this->latestSnapshots ?? $this->latestSnapshots = ( new Ops\Retrieve() )->all();
 	}
 
@@ -221,10 +221,18 @@ class AuditCon {
 		$this->runAsyncSnapshotDiscovery();
 	}
 
-	private function runAsyncSnapshotDiscovery() {
+	private function runAsyncSnapshotDiscovery( bool $isDataPrime = false ) {
 		$q = $this->getSnapshotDiscoveryQueue();
 		foreach ( $this->getAuditors() as $auditor ) {
-			$q->push_to_queue( $auditor::Slug() );
+			try {
+				$addToQ = !$isDataPrime || empty( $this->getSnapshot( $auditor::Slug() ) );
+			}
+			catch ( \Exception $e ) {
+				$addToQ = true;
+			}
+			if ( $addToQ ) {
+				$q->push_to_queue( $auditor::Slug() );
+			}
 		}
 		$q->save()->dispatch();
 	}
