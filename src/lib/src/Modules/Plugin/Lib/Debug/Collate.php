@@ -26,6 +26,7 @@ class Collate {
 			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
 				'Integrity'    => $this->getShieldIntegrity(),
+				'Snapshots'    => $this->getShieldSnapshots(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
 			'System Info'    => [
@@ -198,6 +199,28 @@ class Collate {
 		$data[ 'DB Table: Events' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
+
+		return $data;
+	}
+
+	private function getShieldSnapshots() :array {
+		$data = [];
+
+		$auditCon = $this->con()->getModule_AuditTrail()->getAuditCon();
+		foreach ( $auditCon->getAuditors() as $auditor ) {
+			try {
+				if ( $auditor->getSnapper() ) {
+					$snapshot = $auditCon->getSnapshot( $auditor::Slug() );
+					$data[ $auditor::Slug() ] = sprintf( 'entries: %s (previous: %s)',
+						\count( $snapshot->data ),
+						Services::Request()->carbon( true )->setTimestamp( $snapshot->created_at )->diffForHumans()
+					);
+				}
+			}
+			catch ( \Exception $e ) {
+				$data[ $auditor::Slug() ] = 'No snapshot required.';
+			}
+		}
 
 		return $data;
 	}
