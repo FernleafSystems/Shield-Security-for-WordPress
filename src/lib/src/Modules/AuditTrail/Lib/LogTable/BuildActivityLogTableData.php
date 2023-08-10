@@ -44,7 +44,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
 				$data[ 'user' ] = $this->getColumnContent_User();
-				$data[ 'user_id' ] = $this->getColumnContent_UserID();
+				$data[ 'uid' ] = $this->getColumnContent_UserID();
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
 				$data[ 'meta' ] = $this->getColumnContent_Meta();
@@ -80,7 +80,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						break;
 					case 'user':
 						if ( \count( $selected ) > 0 ) {
-							$wheres[] = sprintf( "`meta`.`meta_key`='uid' AND `meta`.`meta_value` IN (%s)", \implode( ',', \array_values( $selected ) ) );
+							$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( ',', \array_values( $selected ) ) );
 						}
 						break;
 					default:

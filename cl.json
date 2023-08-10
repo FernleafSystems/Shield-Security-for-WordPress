@@ -76,6 +76,10 @@
             "type":  "new"
           },
           {
+            "title": "Provide ability to filter activity & request log tables by logged-in user.",
+            "type":  "improved"
+          },
+          {
             "title": "Refactor & optimise how Shield options are stored, reducing WordPress DB entries.",
             "type":  "improved"
           },
