@@ -2,52 +2,45 @@
 {% endblock %}
 
 {% block top_container %}
-	<div class="container-fluid {{ classes.top_container|default('') }}">
-		<div id="odp-body-container" class="odp-admin-page {{ classes.page_container|default('') }}">
-			{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
-			<div id="odp-PageContainer">
-				{% block body %}
-					<div class="row" id="odp-PageHead">
-						<div class="col">
-							{% block page_head %}Override this block for the header area{% endblock %}
-						</div>
-					</div>
-
-					<div class="row" id="odp-PageMain">
-            {% if flags.show_sidebar_nav|default(true) %}
-							<div id="apto-PageMainSide" class="col-2 col-lg-1">
-
-								{% include '/wpadmin_pages/components/page/logo_sidebar.twig' %}
-								{% include '/wpadmin_pages/components/search/super_search.twig' %}
-
-								{% block page_main_side %}
-									{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
-								{% endblock %}
-							</div>
-						{% endif %}
-
-						<div id="apto-PageMainBody"
-						     class="mt-2 {% if flags.show_sidebar_nav|default(true) %}col-6 col-sm-8 col-md-9 col-xl-10{% else %}col-12{% endif %}"
-						>
-							<div class="row row-cols-1">
-								<div class="col" id="apto-PageMainBody-Inner">
-									{% block page_main %}
-									{% endblock %}
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="row" id="odp-PageFoot">
-						<div class="col">
-							{% block page_foot %}Override this block for the footer area{% endblock %}
-						</div>
-					</div>
-				{% endblock %}
-
+	<div id="odp-PageContainer" class="p-2 container-fluid {{ classes.top_container|default('') }}">
+		{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
+		{% block body %}
+			<div class="row" id="odp-PageHead">
+				<div class="col">
+					{% block page_head %}Override this block for the header area{% endblock %}
+				</div>
 			</div>
-		</div>
-	</div>
+
+			<div class="d-flex flex-row justify-content-start" id="odp-PageMain">
+				{% if flags.show_sidebar_nav|default(true) %}
+					<div id="apto-PageMainSide" class="d-flex flex-column">
+
+						{% include '/wpadmin_pages/components/page/logo_sidebar.twig' %}
+						{% include '/wpadmin_pages/components/search/super_search.twig' %}
+
+						{% block page_main_side %}
+							{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
+						{% endblock %}
+					</div>
+				{% endif %}
+
+				<div id="apto-PageMainBody-Inner" class="mt-2 flex-fill" >
+					<div class="row row-cols-1">
+						<div class="col">
+							{% block page_main %}
+							{% endblock %}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row" id="odp-PageFoot">
+				<div class="col">
+					{% block page_foot %}Override this block for the footer area{% endblock %}
+				</div>
+			</div>
+		{% endblock %}
+
 	</div>
 
 {% endblock %}

@@ -47,7 +47,7 @@ class SectionNotices {
 
 			case 'section_2fa_email':
 				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->getOptions();
+				$opts = $con->getModule_LoginGuard()->opts();
 				if ( $opts->isEnabledEmailAuth() && !$opts->getIfCanSendEmailVerified() ) {
 					$notices[] = \implode( ' ', [
 						__( "The ability of this site to send email hasn't been verified.", 'wp-simple-firewall' ),
@@ -65,7 +65,7 @@ class SectionNotices {
 
 			case 'section_user_forms':
 				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->getOptions();
+				$opts = $con->getModule_LoginGuard()->opts();
 				if ( $opts->isEnabledAntiBot() ) {
 					$locations = $opts->getBotProtectionLocations();
 					$locations = \array_intersect_key(
@@ -128,10 +128,10 @@ class SectionNotices {
 			case 'section_third_party_captcha':
 				$mod = $con->getModule_Plugin();
 				if ( $mod->getCaptchaCfg()->ready ) {
-					if ( $mod->getOptions()->getOpt( 'captcha_checked_at' ) < 0 ) {
+					if ( $mod->opts()->getOpt( 'captcha_checked_at' ) < 0 ) {
 						( new CheckCaptchaSettings() )->checkAll();
 					}
-					if ( $mod->getOptions()->getOpt( 'captcha_checked_at' ) == 0 ) {
+					if ( $mod->opts()->getOpt( 'captcha_checked_at' ) == 0 ) {
 						$warnings[] = __( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
 									  .__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' );
 					}
@@ -140,7 +140,7 @@ class SectionNotices {
 
 			case 'section_2fa_email':
 				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->getOptions();
+				$opts = $con->getModule_LoginGuard()->opts();
 				$nonRoles = \array_diff( $opts->getEmail2FaRoles(), Services::WpUsers()->getAvailableUserRoles() );
 				if ( \count( $nonRoles ) > 0 ) {
 					$warnings[] = sprintf( '%s: %s',
@@ -162,7 +162,7 @@ class SectionNotices {
 
 			case 'section_brute_force_login_protection':
 				/** @var LoginGuard\Options $opts */
-				$opts = $con->getModule_LoginGuard()->getOptions();
+				$opts = $con->getModule_LoginGuard()->opts();
 
 				if ( empty( $opts->getBotProtectionLocations() ) ) {
 					$warnings[] = __( "AntiBot detection isn't being applied to your site because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' );
@@ -201,7 +201,7 @@ class SectionNotices {
 				}
 				else {
 					/** @var LoginGuard\Options $opts */
-					$opts = $con->getModule_LoginGuard()->getOptions();
+					$opts = $con->getModule_LoginGuard()->opts();
 					if ( !$opts->isEnabledAntiBot() ) {
 						$warnings[] = sprintf( '%s: %s %s', __( 'Important', 'wp-simple-firewall' ),
 							__( "Use of the AntiBot Detection Engine for user forms isn't turned on in the Login Guard module.", 'wp-simple-firewall' ),
@@ -250,7 +250,7 @@ class SectionNotices {
 
 			case 'section_auto_black_list':
 				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->getOptions();
+				$opts = $con->getModule_IPs()->opts();
 				if ( !$opts->isEnabledAutoBlackList() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
 				}
@@ -258,7 +258,7 @@ class SectionNotices {
 
 			case 'section_antibot':
 				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->getOptions();
+				$opts = $con->getModule_IPs()->opts();
 				if ( !$opts->isEnabledAntiBotEngine() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( "The AntiBot Detection Engine is disabled when set to a minimum score of %s.", 'wp-simple-firewall' ), '0' ) );
@@ -271,7 +271,7 @@ class SectionNotices {
 
 			case 'section_bot_behaviours':
 				/** @var IPs\Options $opts */
-				$opts = $con->getModule_IPs()->getOptions();
+				$opts = $con->getModule_IPs()->opts();
 				if ( !$opts->isEnabledAutoBlackList() ) {
 					$warnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}

@@ -37,6 +37,9 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 			'hrefs'   => [
 				'please_enable' => $this->con()->plugin_urls->modCfgOption( 'enable_logger' ),
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'stoplights' ),
+			],
 			'strings' => [
 				'inner_page_title'    => __( 'Traffic & Request Logs', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and explore details of HTTP requests made to your site.', 'wp-simple-firewall' ),

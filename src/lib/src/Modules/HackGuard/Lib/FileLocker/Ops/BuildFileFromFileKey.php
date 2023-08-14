@@ -18,7 +18,7 @@ class BuildFileFromFileKey {
 				$fileName = 'wp-config.php';
 				$maxPaths = 1;
 				$levels = $isSplitWpUrl ? 3 : 2;
-				$openBaseDir = ini_get( 'open_basedir' );
+				$openBaseDir = \ini_get( 'open_basedir' );
 				if ( !empty( $openBaseDir ) ) {
 					$levels--;
 				}

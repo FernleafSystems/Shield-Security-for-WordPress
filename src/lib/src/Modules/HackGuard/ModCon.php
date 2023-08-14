@@ -149,7 +149,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	protected function cleanupDatabases() {
-		( new Shield\Modules\HackGuard\DB\Utility\Clean() )->execute();
+		( new DB\Utility\Clean() )->execute();
 	}
 
 	/**

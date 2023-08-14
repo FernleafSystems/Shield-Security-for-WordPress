@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Options\CleanStorage;
 
 class Processor extends BaseShield\Processor {
 
@@ -30,9 +29,22 @@ class Processor extends BaseShield\Processor {
 		$mod->getReportingController()->execute();
 	}
 
+	public function runHourlyCron() {
+		$this->setEarlyLoadOrder();
+	}
+
+	protected function setEarlyLoadOrder() {
+		$active = get_option( 'active_plugins' );
+		$pos = \array_search( self::con()->base_file, $active );
+		if ( $pos > 2 ) {
+			unset( $active[ $pos ] );
+			\array_unshift( $active, self::con()->base_file );
+			update_option( 'active_plugins', \array_values( $active ) );
+		}
+	}
+
 	public function runDailyCron() {
 		$this->con()->fireEvent( 'test_cron_run' );
-		( new CleanStorage() )->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
 	}
 

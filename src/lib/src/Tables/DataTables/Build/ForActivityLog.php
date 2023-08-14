@@ -17,9 +17,10 @@ class ForActivityLog extends Base {
 			'severity',
 			'identity',
 			'ip',
-			'event',
 			'level',
 			'user',
+			'event',
+			'uid',
 			'message',
 			'date',
 			'day',
@@ -121,6 +122,9 @@ class ForActivityLog extends Base {
 				'searchable'     => false,
 				'search_builder' => true,
 				'visible'        => false,
+				'searchPanes'    => [
+					'show' => false,
+				],
 			],
 			'user'       => [
 				'data'           => 'user',
@@ -131,7 +135,7 @@ class ForActivityLog extends Base {
 				'search_builder' => false,
 				'visible'        => false,
 				'searchPanes'    => [
-					'show' => false,
+					'show' => true,
 				],
 			],
 			'message'    => [

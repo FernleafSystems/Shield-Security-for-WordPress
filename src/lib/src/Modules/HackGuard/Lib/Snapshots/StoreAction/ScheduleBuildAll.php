@@ -39,8 +39,8 @@ class ScheduleBuildAll extends Base {
 
 				if ( $this->con()->isPremiumActive()
 					 && $store->verify()
-					 && ( $asset->asset_type === 'plugin' || !$asset->is_child ) ) {
-
+					 && ( $asset->asset_type === 'plugin' || !$asset->is_child )
+				) {
 					$meta = $store->getSnapMeta();
 					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
 						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();

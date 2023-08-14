@@ -2,7 +2,7 @@
   "slug":        "data",
   "properties":  {
     "slug":                  "data",
-    "load_priority":         1,
+    "load_priority":         2,
     "name":                  "Data",
     "show_module_menu_item": false,
     "auto_enabled":          true,

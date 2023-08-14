@@ -87,10 +87,10 @@ class ScansController {
 	}
 
 	/**
-	 * @return Controller\Afs|Controller\Apc|Controller\Wpv|Controller\Base
+	 * @return ?|Controller\Afs|Controller\Apc|Controller\Wpv|Controller\Base
 	 */
 	public function getScanCon( string $slug ) {
-		return $this->getAllScanCons()[ $slug ];
+		return $this->getAllScanCons()[ $slug ] ?? null;
 	}
 
 	public function getScanResultsCount() :Results\Counts {

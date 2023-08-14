@@ -35,34 +35,44 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
+	/**
+	 * @description 18.2.5
+	 */
 	public function doOptionsSave( bool $deleteFirst = false, bool $isPremium = false ) :bool {
-		if ( !$this->getNeedSave() ) {
-			return true;
+		$saved = true;
+		if ( $this->getNeedSave() ) {
+			$this->setNeedSave( false );
+			$saved = ( new Options\Storage() )->setMod( $this->mod() )->storeOptions( $this->getAllOptionsValues() );
 		}
-		$this->cleanOptions();
-		if ( !$isPremium ) {
-			$this->resetPremiumOptsToDefault();
-		}
-		$this->setNeedSave( false );
-
-		return $this->getOptsStorage()->storeOptions( $this->getAllOptionsValues(), $deleteFirst );
+		return $saved;
 	}
 
 	public function deleteStorage() {
-		$this->getOptsStorage()->deleteOptions();
+		( new Options\Storage() )->setMod( $this->mod() )->deleteOptions();
 	}
 
 	public function getAllOptionsValues() :array {
-		if ( !isset( $this->aOptionsValues ) ) {
-			try {
-				$this->aOptionsValues = $this->getOptsStorage()->loadOptions();
+		try {
+			if ( $this->con()->opts === null ) {
+				throw new \Exception( 'Opts not ready.' );
 			}
-			catch ( \Exception $e ) {
-				$this->aOptionsValues = [];
-				$this->setNeedSave( true );
+			$values = $this->con()->opts->getFor( $this->mod() );
+			if ( $values === null ) {
+				throw new \Exception( 'No shared-stored options available' );
 			}
 		}
-		return $this->aOptionsValues;
+		catch ( \Exception $e ) {
+			try {
+				$values = ( new Options\Storage() )->setMod( $this->mod() )->loadOptions();
+			}
+			catch ( \Exception $e ) {
+				$values = [];
+			}
+			if ( $this->con()->opts !== null ) {
+				$this->con()->opts->setFor( $this->mod(), $values );
+			}
+		}
+		return $values;
 	}
 
 	/**
@@ -70,7 +80,7 @@ class Options {
 	 */
 	public function getTransferableOptions() :array {
 		$transferable = [];
-		foreach ( $this->getRawData_AllOptions() as $option ) {
+		foreach ( $this->cfg()->options as $option ) {
 			if ( $option[ 'transferable' ] ?? true ) {
 				$transferable[ $option[ 'key' ] ] = $this->getOpt( $option[ 'key' ] );
 			}
@@ -89,7 +99,7 @@ class Options {
 				$opts[ $key ] = $this->getOptDefault( $key );
 			}
 		}
-		foreach ( $this->getRawData_AllOptions() as $optDef ) {
+		foreach ( $this->cfg()->options as $optDef ) {
 			if ( isset( $optDef[ 'sensitive' ] ) && $optDef[ 'sensitive' ] === true ) {
 				unset( $opts[ $optDef[ 'key' ] ] );
 			}
@@ -123,7 +133,7 @@ class Options {
 					$options[ $key ] = $this->getOptDefault( $key );
 				}
 			}
-			foreach ( $this->getRawData_AllOptions() as $optDef ) {
+			foreach ( $this->cfg()->options as $optDef ) {
 				if ( !empty( $optDef[ 'sensitive' ] ) || !empty( $optDef[ 'tracking_exclude' ] ) ) {
 					unset( $options[ $optDef[ 'key' ] ] );
 				}
@@ -137,30 +147,22 @@ class Options {
 	 * @return mixed|null
 	 */
 	public function getFeatureProperty( string $property ) {
-		return ( $this->getRawData_FullFeatureConfig()[ 'properties' ] ?? [] )[ $property ] ?? null;
+		return $this->cfg()->properties[ $property ] ?? null;
 	}
 
 	/**
 	 * @return mixed|null
 	 */
 	public function getDef( string $key ) {
-		return ( $this->getRawData_FullFeatureConfig()[ 'definitions' ] ?? [] )[ $key ] ?? null;
+		return $this->cfg()->definitions[ $key ] ?? null;
 	}
 
 	public function getEvents() :array {
 		return \is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [];
 	}
 
-	public function getFeatureRequirement( string $req ) :array {
-		return $this->getRawData_Requirements()[ $req ] ?? [];
-	}
-
 	public function getAdminNotices() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'admin_notices' ] ?? [];
-	}
-
-	public function isValidOptionKey( string $key ) :bool {
-		return \in_array( $key, $this->getOptionsKeys() );
+		return $this->cfg()->admin_notices ?? [];
 	}
 
 	public function ensureOptValueType( string $key, $value ) {
@@ -208,13 +210,13 @@ class Options {
 	public function getHiddenOptions() :array {
 		$optionsData = [];
 
-		foreach ( $this->getRawData_OptionsSections() as $rawSection ) {
+		foreach ( $this->cfg()->sections as $rawSection ) {
 
 			// if hidden isn't specified we skip
 			if ( !isset( $rawSection[ 'hidden' ] ) || !$rawSection[ 'hidden' ] ) {
 				continue;
 			}
-			foreach ( $this->getRawData_AllOptions() as $rawOption ) {
+			foreach ( $this->cfg()->options as $rawOption ) {
 
 				if ( $rawOption[ 'section' ] != $rawSection[ 'slug' ] ) {
 					continue;
@@ -230,12 +232,11 @@ class Options {
 	}
 
 	/**
-	 * @param bool $includeHidden
 	 * @return array[]
 	 */
-	public function getSections( $includeHidden = false ) {
+	public function getSections( bool $includeHidden = false ) :array {
 		$sections = [];
-		foreach ( $this->getRawData_OptionsSections() as $section ) {
+		foreach ( $this->cfg()->sections as $section ) {
 			if ( $includeHidden || empty( $section[ 'hidden' ] ) ) {
 				$sections[ $section[ 'slug' ] ] = $section;
 			}
@@ -254,31 +255,15 @@ class Options {
 		return $theSection;
 	}
 
-	/**
-	 * @param string $slug
-	 */
-	public function getSection_Requirements( $slug ) :array {
+	public function getSection_Requirements( string $slug ) :array {
 		$section = $this->getSection( $slug );
 		return \array_merge(
 			[
 				'php_min' => '7.2',
-				'wp_min'  => '4.7',
+				'wp_min'  => '5.7',
 			],
 			( \is_array( $section ) && isset( $section[ 'reqs' ] ) ) ? $section[ 'reqs' ] : []
 		);
-	}
-
-	public function isSectionReqsMet( string $slug ) :bool {
-		$reqs = $this->getSection_Requirements( $slug );
-		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
-			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isOptReqsMet( string $key ) :bool {
-		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
 	}
 
 	/**
@@ -286,7 +271,7 @@ class Options {
 	 */
 	public function getVisibleOptions() :array {
 		return \array_filter(
-			$this->getRawData_AllOptions(),
+			$this->cfg()->options,
 			function ( $optDef ) {
 				if ( $optDef[ 'hidden' ] ?? false ) {
 					return null;
@@ -328,13 +313,13 @@ class Options {
 	public function getOpt( string $key, $mDefault = false ) {
 		$value = $this->getAllOptionsValues()[ $key ] ?? null;
 
-		if ( \is_null( $value ) || !$this->isValidOptionValueType( $key, $value ) ) {
+		if ( $value === null || !$this->isValidOptionValueType( $key, $value ) ) {
 			$this->resetOptToDefault( $key );
 		}
 
 		$cap = $this->optCap( $key );
 		if ( empty( $cap ) || $this->con()->caps->hasCap( $cap ) ) {
-			$value = $this->aOptionsValues[ $key ] ?? $mDefault;
+			$value = $this->getAllOptionsValues()[ $key ] ?? $mDefault;
 		}
 		else {
 			$value = $this->getOptDefault( $key, $mDefault );
@@ -353,7 +338,7 @@ class Options {
 	}
 
 	public function getOptDefinition( string $key ) :array {
-		return $this->getRawData_AllOptions()[ $key ] ?? [];
+		return $this->cfg()->options[ $key ] ?? [];
 	}
 
 	public function optCap( string $key ) :?string {
@@ -375,7 +360,7 @@ class Options {
 	public function getOptionsKeys() :array {
 		if ( !isset( $this->aOptionsKeys ) ) {
 			$this->aOptionsKeys = \array_merge(
-				\array_keys( $this->getRawData_AllOptions() ),
+				\array_keys( $this->cfg()->options ),
 				$this->getCommonStandardOptions(),
 				$this->getVirtualCommonOptions()
 			);
@@ -395,20 +380,21 @@ class Options {
 	}
 
 	public function getRawData_FullFeatureConfig() :array {
-		// TODO: use the cfg directly throughout instead of via array
-		return empty( $this->aRawOptionsConfigData ) ? $this->cfg()->getRawData() : $this->aRawOptionsConfigData;
+		return $this->cfg()->getRawData();
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	protected function getRawData_AllOptions() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'options' ] ?? [];
+		return $this->cfg()->options ?? [];
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	protected function getRawData_OptionsSections() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'sections' ] ?? [];
-	}
-
-	protected function getRawData_Requirements() :array {
-		return $this->getRawData_FullFeatureConfig()[ 'requirements' ] ?? [];
+		return $this->cfg()->sections ?? [];
 	}
 
 	public function getSelectOptionValueKeys( string $key ) :array {
@@ -454,7 +440,7 @@ class Options {
 	 * Will traverse each premium option and set it to the default.
 	 */
 	public function resetPremiumOptsToDefault() {
-		foreach ( $this->getRawData_AllOptions() as $opt ) {
+		foreach ( $this->cfg()->options as $opt ) {
 			if ( $opt[ 'premium' ] ?? false ) {
 				$this->resetOptToDefault( $opt[ 'key' ] );
 			}
@@ -527,13 +513,6 @@ class Options {
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function setOptAt( string $key ) {
-		return $this->setOpt( $key, Services::Request()->ts() );
-	}
-
-	/**
 	 * Use this to directly set the option value without the risk of any recursion.
 	 * @param mixed $value
 	 * @return $this
@@ -541,8 +520,7 @@ class Options {
 	protected function setOptValue( string $key, $value ) {
 		$values = $this->getAllOptionsValues();
 		$values[ $key ] = $value;
-		$this->aOptionsValues = $values;
-		return $this;
+		return $this->setOptionsValues( $values );
 	}
 
 	/**
@@ -587,11 +565,10 @@ class Options {
 	}
 
 	/**
-	 * @param string $key
-	 * @param mixed  $value
+	 * @param mixed $value
 	 * @return $this
 	 */
-	private function setOldOptValue( $key, $value ) {
+	private function setOldOptValue( string $key, $value ) {
 		if ( !\is_array( $this->aOld ) ) {
 			$this->aOld = [];
 		}
@@ -601,23 +578,13 @@ class Options {
 		return $this;
 	}
 
-	/**
-	 * @param string $key
-	 * @return mixed
-	 */
-	public function unsetOpt( $key ) {
-		unset( $this->aOptionsValues[ $key ] );
-		$this->setNeedSave( true );
-		return true;
+	public function unsetOpt( string $key ) {
+		$values = $this->getAllOptionsValues();
+		unset( $values[ $key ] );
+		$this->setOptionsValues( $values );
 	}
 
-	/** PRIVATE STUFF */
-
-	/**
-	 * @return array
-	 */
-
-	protected function getCommonStandardOptions() {
+	protected function getCommonStandardOptions() :array {
 		return [];
 	}
 
@@ -626,7 +593,6 @@ class Options {
 			'dismissed_notices',
 			'ui_track',
 			'xfer_excluded',
-			'cfg_version'
 		];
 	}
 
@@ -637,16 +603,10 @@ class Options {
 		return \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
+	/**
+	 * @deprecated 18.2.5
+	 */
 	private function cleanOptions() {
-		if ( !empty( $this->aOptionsValues ) && \is_array( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = \array_intersect_key(
-				$this->getAllOptionsValues(),
-				\array_merge(
-					\array_flip( $this->getOptionsKeys() ),
-					\array_flip( $this->getVirtualCommonOptions() )
-				)
-			);
-		}
 	}
 
 	private function getOptsStorage() :Options\Storage {
@@ -657,8 +617,55 @@ class Options {
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {
-		$this->aOptionsValues = $values;
+
+		$values = \array_intersect_key(
+			$values,
+			\array_merge(
+				\array_flip( $this->getOptionsKeys() ),
+				\array_flip( $this->getVirtualCommonOptions() )
+			)
+		);
+
+		if ( isset( $this->aOptionsValues ) ) {
+			$this->aOptionsValues = $values;
+		}
+		if ( self::con()->opts !== null ) {
+			$this->con()->opts->setFor( $this->mod(), $values );
+		}
+
 		$this->setNeedSave( true );
+
 		return $this;
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 18.2.5
+	 */
+	public function setOptAt( string $key ) {
+		return $this->setOpt( $key, Services::Request()->ts() );
+	}
+
+	/**
+	 * @deprecated 18.2.5
+	 */
+	public function isValidOptionKey( string $key ) :bool {
+		return \in_array( $key, $this->getOptionsKeys() );
+	}
+
+	/**
+	 * @deprecated 18.2
+	 */
+	public function isOptReqsMet( string $key ) :bool {
+		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
+	}
+
+	/**
+	 * @deprecated 18.2.6
+	 */
+	public function isSectionReqsMet( string $slug ) :bool {
+		$reqs = $this->getSection_Requirements( $slug );
+		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
+			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 }

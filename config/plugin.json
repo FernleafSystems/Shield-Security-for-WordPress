@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
-    "load_priority":         0,
+    "load_priority":         1,
     "name":                  "General Settings",
     "sidebar_name":          "General",
     "menu_title":            "Configuration",
@@ -650,6 +650,16 @@
       "test_cron_run":             {
         "level":  "debug",
         "recent": true
+      },
+      "plugin_option_changed":     {
+        "level":          "info",
+        "audit_params":   [
+          "name",
+          "key",
+          "value"
+        ],
+        "audit_multiple": true,
+        "stat":           false
       },
       "import_notify_sent":        {
         "level": "info",

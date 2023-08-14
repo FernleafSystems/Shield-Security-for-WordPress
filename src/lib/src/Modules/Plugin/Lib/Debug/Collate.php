@@ -26,6 +26,7 @@ class Collate {
 			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
 				'Integrity'    => $this->getShieldIntegrity(),
+				'Snapshots'    => $this->snapshots(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
 			'System Info'    => [
@@ -102,11 +103,11 @@ class Collate {
 		return [
 			'PHP'           => $phpV,
 			'MySQL'         => Services::WpDb()->getMysqlServerInfo(),
-			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', ini_get( 'memory_limit' ),
+			'Memory Limit'  => sprintf( '%s (Constant <code>WP_MEMORY_LIMIT: %s</code>)', \ini_get( 'memory_limit' ),
 				defined( 'WP_MEMORY_LIMIT' ) ? WP_MEMORY_LIMIT : 'not defined' ),
-			'32/64-bit'     => ( PHP_INT_SIZE === 4 ) ? 32 : 64,
-			'Time Limit'    => ini_get( 'max_execution_time' ),
-			'Dir Separator' => DIRECTORY_SEPARATOR,
+			'32/64-bit'     => ( \PHP_INT_SIZE === 4 ) ? 32 : 64,
+			'Time Limit'    => \ini_get( 'max_execution_time' ),
+			'Dir Separator' => \DIRECTORY_SEPARATOR,
 			'Document Root' => empty( $root ) ? '-' : $root,
 			'Extensions'    => \implode( ', ', $ext ),
 		];
@@ -202,6 +203,28 @@ class Collate {
 		return $data;
 	}
 
+	private function snapshots() :array {
+		$data = [];
+
+		$auditCon = $this->con()->getModule_AuditTrail()->getAuditCon();
+		foreach ( $auditCon->getAuditors() as $auditor ) {
+			try {
+				if ( $auditor->getSnapper() ) {
+					$snapshot = $auditCon->getSnapshot( $auditor::Slug() );
+					$data[ $auditor::Slug() ] = sprintf( 'entries: %s (previous: %s)',
+						\count( $snapshot->data ),
+						Services::Request()->carbon( true )->setTimestamp( $snapshot->created_at )->diffForHumans()
+					);
+				}
+			}
+			catch ( \Exception $e ) {
+				$data[ $auditor::Slug() ] = 'No snapshot required.';
+			}
+		}
+
+		return $data;
+	}
+
 	private function getShieldCapabilities() :array {
 		$con = $this->con();
 		$modPlug = $con->getModule_Plugin();
@@ -258,7 +281,7 @@ class Collate {
 		];
 
 		/** @var Options $optsPlugin */
-		$optsPlugin = $modPlugin->getOptions();
+		$optsPlugin = $modPlugin->opts();
 		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
 		$ip = Services::Request()->ip();
 		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );

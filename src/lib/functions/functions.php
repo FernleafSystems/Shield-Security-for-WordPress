@@ -2,7 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Functions;
 
-if ( function_exists( 'shield_security_get_plugin' ) ) {
+if ( \function_exists( 'shield_security_get_plugin' ) ) {
 	return;
 }
 
@@ -32,4 +32,8 @@ function shield_get_ip_state( string $ip = '' ) :string {
 
 function shield_fire_event( string $event ) {
 	Functions\fire_event( $event );
+}
+
+function shield_start_scans( array $scans ) {
+	Functions\start_scans( $scans );
 }

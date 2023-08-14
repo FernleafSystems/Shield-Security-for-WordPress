@@ -117,7 +117,7 @@ class CacheDirHandler {
 			$FS->putFileContent( $htFile, $htContent );
 		}
 		$index = path_join( $cacheDir, 'index.php' );
-		$indexContent = "<?php\nhttp_response_code(404);";
+		$indexContent = "<?php\n\http_response_code(404);";
 		if ( !$FS->exists( $index ) || ( \md5_file( $index ) !== \md5( $indexContent ) ) ) {
 			$FS->putFileContent( $index, $indexContent );
 		}

@@ -40,6 +40,7 @@ class Plugins extends Base {
 		add_action( 'update_option_active_plugins', [ $this, 'auditDeactivatedPluginsPart2' ], 9, 2 );
 		add_action( 'upgrader_process_complete', [ $this, 'auditInstall' ], 10, 0 );
 		add_action( 'pre_uninstall_plugin', [ $this, 'auditUninstalled' ] );
+		add_action( 'deleted_plugin', [ $this, 'auditUninstalled' ] );
 		add_action( 'wp_ajax_edit-theme-plugin-file', [ $this, 'auditEditedFile' ], -1 ); // they hook on 1
 
 		add_action( 'upgrader_process_complete', [ $this, 'auditUpgrades' ], 10, 2 );
@@ -107,6 +108,9 @@ class Plugins extends Base {
 	public function auditUninstalled( $plugin ) {
 		$vo = Services::WpPlugins()->getPluginAsVo( $plugin );
 		if ( !empty( $vo ) ) {
+			if ( \function_exists( 'wp_clean_plugins_cache' ) ) {
+				wp_clean_plugins_cache();
+			}
 			$this->fireAuditEvent( 'plugin_uninstalled', [
 				'plugin'  => $vo->file,
 				'version' => \ltrim( $vo->Version, 'v' ),

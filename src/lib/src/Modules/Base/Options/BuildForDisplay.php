@@ -30,11 +30,10 @@ class BuildForDisplay {
 		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
 
-		$opts = $this->getOptions();
 		$sections = $this->buildAvailableSections();
 		$notices = new SectionNotices();
 
-		foreach ( $sections as $sectionKey => $sect ) {
+		foreach ( $sections as $sectKey => $sect ) {
 
 			if ( !empty( $sect[ 'options' ] ) ) {
 
@@ -52,7 +51,7 @@ class BuildForDisplay {
 				}
 
 				if ( empty( $sect[ 'options' ] ) ) {
-					unset( $sections[ $sectionKey ] );
+					unset( $sections[ $sectKey ] );
 				}
 				else {
 					try {
@@ -65,19 +64,15 @@ class BuildForDisplay {
 					}
 					catch ( \Exception $e ) {
 					}
-					$sections[ $sectionKey ] = $sect;
+					$sections[ $sectKey ] = $sect;
 				}
 
-				$sections[ $sectionKey ][ 'is_focus' ] = $sect[ 'slug' ] === $this->focusSection;
+				$sections[ $sectKey ][ 'is_focus' ] = $sect[ 'slug' ] === $this->focusSection;
 
-				if ( isset( $sections[ $sectionKey ] ) ) {
-					$warning = [];
-					if ( !$opts->isSectionReqsMet( $sect[ 'slug' ] ) ) {
-						$warning[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
-					}
-					$sections[ $sectionKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
-					$sections[ $sectionKey ][ 'warnings' ] = \array_merge( $warning, $notices->warnings( $sect[ 'slug' ] ) );
-					$sections[ $sectionKey ][ 'critical_warnings' ] = $notices->critical( $sect[ 'slug' ] );
+				if ( isset( $sections[ $sectKey ] ) ) {
+					$sections[ $sectKey ][ 'notices' ] = $notices->notices( $sect[ 'slug' ] );
+					$sections[ $sectKey ][ 'warnings' ] = $notices->warnings( $sect[ 'slug' ] );
+					$sections[ $sectKey ][ 'critical_warnings' ] = $notices->critical( $sect[ 'slug' ] );
 				}
 			}
 		}

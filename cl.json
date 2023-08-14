@@ -66,6 +66,40 @@
             "type":  "fixed"
           }
         ]
+      },
+      {
+        "version":     "8",
+        "released_at": 1692000000,
+        "items":       [
+          {
+            "title": "Adding Activity Log tracking for Shield options saving.",
+            "type":  "new"
+          },
+          {
+            "title": "Provide ability to filter activity & request log tables by logged-in user.",
+            "type":  "improved"
+          },
+          {
+            "title": "Refactor & optimise how Shield options are stored, reducing WordPress DB entries.",
+            "type":  "improved"
+          },
+          {
+            "title": "Updated built-in helpdesk links.",
+            "type":  "improved"
+          },
+          {
+            "title": "Provide an easily access function to trigger manual scans.",
+            "type":  "improved"
+          },
+          {
+            "title": "Performance improvements when loading activity log and traffic log tables.",
+            "type":  "improved"
+          },
+          {
+            "title": "Snapshots performance improvements and fixes for some edge cases.",
+            "type":  "fixed"
+          }
+        ]
       }
     ]
   },

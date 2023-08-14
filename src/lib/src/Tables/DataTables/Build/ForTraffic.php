@@ -15,6 +15,7 @@ class ForTraffic extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'ip',
+			'user',
 			'page',
 			'details',
 			'response',
@@ -147,6 +148,18 @@ class ForTraffic extends Base {
 				'orderable'  => false,
 				'searchable' => false,
 				'visible'    => false,
+			],
+			'user'       => [
+				'data'           => 'user',
+				'title'          => __( 'User' ),
+				'className'      => 'user',
+				'orderable'      => false,
+				'searchable'     => true,
+				'search_builder' => false,
+				'visible'        => false,
+				'searchPanes'    => [
+					'show' => true,
+				],
 			],
 			'day'      => [
 				'data'          => 'day',

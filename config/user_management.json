@@ -206,7 +206,8 @@
           "premium":   true
         }
       ],
-      "link_info":     "https://shsec.io/gk",
+      "beacon_id":     145,
+      "link_info":     "",
       "link_blog":     "https://shsec.io/hh",
       "name":          "Validate Email Addresses",
       "summary":       "Validate Email Addresses When User Attempts To Register",
@@ -241,20 +242,21 @@
           "text":      "Disposable Email Service"
         }
       ],
-      "link_info":     "https://shsec.io/gk",
+      "beacon_id":     145,
+      "link_info":     "",
       "link_blog":     "https://shsec.io/hh",
       "name":          "Email Checks",
       "summary":       "The Email Address Properties That Will Be Tested",
-      "description":   "Select which ."
+      "description":   "."
     },
     {
       "key":         "enable_password_policies",
       "section":     "section_passwords",
       "type":        "checkbox",
       "default":     "N",
+      "beacon_id":   146,
       "link_info":   "https://shsec.io/e1",
       "link_blog":   "https://shsec.io/c4",
-      "beacon_id":   146,
       "name":        "Enable Password Policies",
       "summary":     "Enable The Password Policies Below",
       "description": "Turn on/off all password policies."
@@ -264,8 +266,9 @@
       "section":     "section_passwords",
       "type":        "checkbox",
       "default":     "Y",
-      "link_info":   "https://shsec.io/by",
-      "link_blog":   "",
+      "beacon_id":   758,
+      "link_info":   "",
+      "link_blog":   "https://shsec.io/by",
       "name":        "Prevent Pwned Passwords",
       "summary":     "Prevent Use Of Pwned Passwords",
       "description": "Prevents users from using any passwords found on the public available list of pwned passwords."

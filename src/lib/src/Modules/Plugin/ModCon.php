@@ -70,6 +70,7 @@ class ModCon extends BaseShield\ModCon {
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
 		$this->setupCacheDir();
+		$this->declareWooHposCompat();
 	}
 
 	protected function setupCacheDir() {
@@ -87,6 +88,17 @@ class ModCon extends BaseShield\ModCon {
 
 		$this->getOptions()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
 		$this->con()->cache_dir_handler = $cacheDirFinder;
+	}
+
+	/**
+	 * https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book#declaring-extension-incompatibility
+	 */
+	private function declareWooHposCompat() {
+		add_action( 'before_woocommerce_init', function () {
+			if ( \class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', self::con()->root_file, true );
+			}
+		} );
 	}
 
 	protected function enumRuleBuilders() :array {

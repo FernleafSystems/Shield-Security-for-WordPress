@@ -21,22 +21,16 @@ class Wordpress extends Base {
 	}
 
 	private function getMapOptionKeysToEvent() :array {
-		$map = [
+		return [
 			'permalink_structure' => 'permalinks_structure',
 			'admin_email'         => 'wp_option_admin_email',
 			'blogname'            => 'wp_option_blogname',
 			'blogdescription'     => 'wp_option_blogdescription',
 			'default_role'        => 'wp_option_default_role',
 			'users_can_register'  => 'wp_option_users_can_register',
+			'home'                => 'wp_option_home',
+			'siteurl'             => 'wp_option_siteurl',
 		];
-
-		if ( !\defined( 'WP_HOME' ) ) {
-			$map[ 'home' ] = 'wp_option_home';
-		}
-		if ( !\defined( 'WP_SITEURL' ) ) {
-			$map[ 'siteurl' ] = 'wp_option_siteurl';
-		}
-		return $map;
 	}
 
 	public function auditWpOptions( $old, $new, $option ) {

@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
  * @property Config\ConfigVO                                        $cfg
+ * @property Config\OptsHandler                                     $opts
  * @property ActionRoutingController                                $action_router
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
@@ -135,6 +136,13 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'opts':
+				if ( !$val instanceof Config\OptsHandler ) {
+					$val = new Config\OptsHandler();
+					$this->opts = $val;
+				}
+				break;
+
 			case 'this_req':
 				if ( \is_null( $val ) ) {
 					$val = new Shield\Request\ThisRequest();
@@ -152,14 +160,14 @@ class Controller extends DynPropertiesClass {
 				break;
 
 			case 'plugin_reset':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
 
 			case 'is_rest_enabled':
-				if ( \is_null( $val ) ) {
+				if ( $val === null ) {
 					$restReqs = $this->cfg->reqs_rest;
 					$val = Services::WpGeneral()->getWordpressIsAtLeastVersion( $restReqs[ 'wp' ] )
 						   && Services::Data()->getPhpVersionIsAtLeast( $restReqs[ 'php' ] );
@@ -723,6 +731,9 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpShutdown() {
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
+		if ( $this->opts !== null ) {
+			$this->opts->commit();
+		}
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
@@ -937,7 +948,8 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function isPremiumActive() :bool {
-		return $this->modules_loaded && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
+		return isset( $this->modules[ Shield\Modules\License\ModCon::SLUG ] )
+			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
 	public function isRelabelled() :bool {

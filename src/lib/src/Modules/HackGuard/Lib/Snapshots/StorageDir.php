@@ -14,7 +14,7 @@ class StorageDir {
 	private $tempDir;
 
 	public function getTempDir() :string {
-		if ( is_null( $this->tempDir ) ) {
+		if ( \is_null( $this->tempDir ) ) {
 			try {
 				$dir = $this->locateTempDir();
 			}

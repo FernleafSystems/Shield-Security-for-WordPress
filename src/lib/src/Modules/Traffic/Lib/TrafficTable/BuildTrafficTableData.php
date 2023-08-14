@@ -80,6 +80,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 							$WPU->getAdminUrl_ProfileEdit( $user ), $user->user_login );
 				}
 
+				$data[ 'user' ] = $this->users[ $userID ];
 				$data[ 'page' ] = $this->getColumnContent_Page();
 				$data[ 'details' ] = $this->getColumnContent_Details();
 				$data[ 'response' ] = $this->getColumnContent_Response();
@@ -120,6 +121,9 @@ class BuildTrafficTableData extends BaseBuildTableData {
 					case 'type':
 					case 'code':
 						$wheres[] = sprintf( "`req`.%s IN ('%s')", $column, \implode( "','", $selected ) );
+						break;
+					case 'user':
+						$wheres[] = sprintf( "`req`.`uid` IN (%s)", \implode( "','", $selected ) );
 						break;
 					default:
 						break;

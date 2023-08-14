@@ -3,13 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class SimplePluginTests extends BaseAction {
+
+	use SecurityAdminRequired;
 
 	public const SLUG = 'debug_simple_plugin_tests';
 
@@ -28,6 +32,38 @@ class SimplePluginTests extends BaseAction {
 	protected function postExec() {
 		var_dump( $this->response()->action_response_data[ 'debug_output' ] );
 		die( 'end tests' );
+	}
+
+	private function dbg_db() {
+		$column = 'data';
+		$schema = self::con()->getModule_AuditTrail()->getDbH_Snapshots()->getTableSchema();
+		$state = Services::WpDb()->selectCustom( sprintf( 'DESCRIBE %s', $schema->table ) );
+		$def = $schema->getColumnDef( $column );
+
+		foreach ( $state as $columnState ) {
+			if ( \strtolower( $columnState[ 'Field' ] ?? '' ) === $column && !empty( $columnState[ 'Type' ] ) ) {
+				if ( \strtolower( $columnState[ 'Type' ] ) !== $def[ 'type' ] ) {
+					throw new \Exception( 'Column type is different.' );
+				}
+			}
+		}
+
+		var_dump( $def );
+		var_dump( $state );
+	}
+
+	private function dbg_snapshots() {
+		$audCon = self::con()->getModule_AuditTrail()->getAuditCon();
+		$slug = Modules\AuditTrail\Auditors\Comments::Slug();
+		try {
+			$current = ( new Modules\AuditTrail\Lib\Snapshots\Ops\Build() )->run( $slug );
+			var_dump( $current );
+			$audCon->updateStoredSnapshot( $audCon->getAuditors()[ $slug ], $current );
+			var_dump( $audCon->getSnapshot( $slug )->data );
+		}
+		catch ( \Exception $e ) {
+			var_dump( $e->getMessage() );
+		}
 	}
 
 	private function dbg_ipid() {

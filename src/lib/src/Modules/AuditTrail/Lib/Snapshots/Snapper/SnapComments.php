@@ -12,11 +12,13 @@ class SnapComments extends BaseSnap {
 	public function snap() :array {
 		$actual = [];
 
-		$params = $this->getBaseParameters();
-		$page = 0;
+		$params = [
+			'type'   => 'comment',
+			'status' => 'all,spam,trash',
+			'number' => 100,
+			'paged'  => 1,
+		];
 		do {
-			$params[ 'offset' ] = $params[ 'number' ]*$page++;
-
 			/** @var \WP_Comment[] $query */
 			$query = get_comments( $params );
 			if ( \is_array( $query ) ) {
@@ -29,8 +31,7 @@ class SnapComments extends BaseSnap {
 					];
 				}
 			}
-
-			$page++;
+			$params[ 'paged' ]++;
 		} while ( !empty( $query ) );
 
 		return $actual;
@@ -59,12 +60,5 @@ class SnapComments extends BaseSnap {
 			unset( $snapshotData[ $item->comment_ID ] );
 		}
 		return $snapshotData;
-	}
-
-	protected function getBaseParameters() :array {
-		return [
-			'number' => 100,
-			'status' => 'all,spam,trash'
-		];
 	}
 }

@@ -148,21 +148,6 @@ class AuditLogger extends EventsListener {
 	}
 
 	private function getLogLevelsFile() :array {
-		/** @var Options $opts */
-		$opts = $this->con()->getModule_AuditTrail()->getOptions();
-		$levels = $opts->getOpt( 'log_level_file', [] );
-		if ( empty( $levels ) ) {
-			$opts->resetOptToDefault( 'log_level_file' );
-		}
-		elseif ( \count( $levels ) > 1 ) {
-			if ( \in_array( 'disabled', $levels ) ) {
-				$opts->setOpt( 'log_level_file', [ 'disabled' ] );
-			}
-			elseif ( \in_array( 'same_as_db', $levels ) ) {
-				$opts->setOpt( 'log_level_file', [ 'same_as_db' ] );
-			}
-		}
-		$levels = $opts->getOpt( 'log_level_file', [] );
-		return \in_array( 'same_as_db', $levels ) ? $opts->getLogLevelsDB() : $levels;
+		return $this->con()->getModule_AuditTrail()->getOptions()->getOpt( 'log_level_file' );
 	}
 }

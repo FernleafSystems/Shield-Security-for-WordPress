@@ -59,3 +59,12 @@ function get_ip_state( string $ip = '' ) :string {
 function fire_event( string $event ) {
 	get_plugin()->getController()->fireEvent( $event );
 }
+
+function start_scans( array $scans ) {
+	$con = shield_security_get_plugin()->getController();
+	if ( $con->caps->hasCap( 'scan_frequent' ) ) {
+		$con->getModule_HackGuard()
+			->getScansCon()
+			->startNewScans( $scans );
+	}
+}

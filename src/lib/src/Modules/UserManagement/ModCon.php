@@ -8,6 +8,12 @@ class ModCon extends BaseShield\ModCon {
 
 	public const SLUG = 'user_management';
 
+	private $userSuspendCon;
+
+	public function getUserSuspendCon() :Lib\Suspend\UserSuspendController {
+		return $this->userSuspendCon ?? $this->userSuspendCon = new Lib\Suspend\UserSuspendController();
+	}
+
 	protected function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->getOptions();

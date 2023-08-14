@@ -60,6 +60,9 @@ class PageConfig extends BasePluginAdminPage {
 			'content' => [
 				'options_form' => $con->action_router->render( OptionsForm::SLUG, $this->action_data ),
 			],
+			'imgs'    => [
+				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
+			],
 			'strings' => [
 				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration', 'wp-simple-firewall' ), $mod->getDescriptors()[ 'title' ] ),
 				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],

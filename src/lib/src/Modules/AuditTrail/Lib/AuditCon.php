@@ -54,7 +54,17 @@ class AuditCon {
 				$this->getAuditors()
 			);
 
-			$allSnappers = \array_filter( \array_map(
+			$this->primeSnapshots();
+		} );
+
+		$this->getSnapshotDiscoveryQueue();
+	}
+
+	private function primeSnapshots() {
+		$primerHook = $this->con()->prefix( 'auditcon_prime_snapshots' );
+
+		if ( !wp_next_scheduled( $primerHook ) ) {
+			$countAllSnappers = \count( \array_filter( \array_map(
 				function ( $auditor ) {
 					try {
 						$snapper = $auditor->getSnapper();
@@ -65,21 +75,15 @@ class AuditCon {
 					return $snapper;
 				},
 				$this->getAuditors()
-			) );
-
-			// Typically on initial installation we want to prime all the snapshots.
-			if ( \count( $this->getSnapshots() ) !== \count( $allSnappers ) ) {
-				$hook = $this->con()->prefix( 'auditcon_prime_snapshots' );
-				if ( !wp_next_scheduled( $hook ) ) {
-					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
-				}
-				add_action( $hook, function () {
-					$this->runAsyncSnapshotDiscovery();
-				} );
+			) ) );
+			if ( ( new Ops\Retrieve() )->count() !== $countAllSnappers ) {
+				wp_schedule_single_event( Services::Request()->ts() + 60, $primerHook );
 			}
-		} );
+		}
 
-		$this->getSnapshotDiscoveryQueue();
+		add_action( $primerHook, function () {
+			$this->runAsyncSnapshotDiscovery( true );
+		} );
 	}
 
 	/**
@@ -164,7 +168,7 @@ class AuditCon {
 		return $this->latestSnapshots[ $slug ];
 	}
 
-	private function getSnapshots() :array {
+	public function getSnapshots() :array {
 		return $this->latestSnapshots ?? $this->latestSnapshots = ( new Ops\Retrieve() )->all();
 	}
 
@@ -217,12 +221,28 @@ class AuditCon {
 		$this->runAsyncSnapshotDiscovery();
 	}
 
-	private function runAsyncSnapshotDiscovery() {
+	private function runAsyncSnapshotDiscovery( bool $isDataPrime = false ) {
 		$q = $this->getSnapshotDiscoveryQueue();
 		foreach ( $this->getAuditors() as $auditor ) {
-			$q->push_to_queue( $auditor::Slug() );
+			try {
+				$addToQ = !$isDataPrime || empty( $this->getSnapshot( $auditor::Slug() ) );
+			}
+			catch ( \Exception $e ) {
+				$addToQ = true;
+			}
+			if ( $addToQ ) {
+				$q->push_to_queue( $auditor::Slug() );
+			}
 		}
 		$q->save()->dispatch();
+	}
+
+	public function flags() :AuditFlags {
+		return ( new AuditFlags() )->applyFromArray(
+			apply_filters( 'shield/auditing_flags', [
+				'users_audit_snapshot_admins_only' => get_user_count() > 10000,
+			] )
+		);
 	}
 
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {

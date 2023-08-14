@@ -43,7 +43,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	}
 
 	protected function issueHeaders() {
-		http_response_code( $this->getResponseCode() );
+		\http_response_code( $this->getResponseCode() );
 		nocache_headers();
 		if ( $this->isCacheDisabled() ) {
 			Services::WpGeneral()->turnOffCache();
