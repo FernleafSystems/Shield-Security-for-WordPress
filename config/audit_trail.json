@@ -213,7 +213,7 @@
           "comment":    "Snapshot Slug"
         },
         "data": {
-          "macro_type": "meta",
+          "macro_type": "mediumtext",
           "comment":    "Snapshot"
         }
       }

@@ -31,7 +31,7 @@ class LoginRequestCapture {
 			if ( !$this->canUserMfaSkip( $user ) ) {
 				$opts = $this->opts();
 
-				$loginNonce = bin2hex( random_bytes( 32 ) );
+				$loginNonce = \bin2hex( random_bytes( 32 ) );
 				$loginNonceHashed = wp_hash_password( $loginNonce.$user->ID );
 
 				$intents = $mfaCon->getActiveLoginIntents( $user );

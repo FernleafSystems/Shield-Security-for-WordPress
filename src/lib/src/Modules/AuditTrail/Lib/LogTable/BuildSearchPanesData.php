@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTabl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForUsers;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
@@ -16,51 +17,20 @@ class BuildSearchPanesData {
 				'day'   => $this->buildForDay(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
-				//				'user'  => $this->buildForUser(),
+				'user'  => $this->buildForUsers(),
 			]
 		];
 	}
 
-	private function buildForUser() :array {
-		$WPDB = Services::WpDb();
-		$results = $WPDB->selectCustom(
-			sprintf( "SELECT DISTINCT `log_meta`.`meta_value` as `uid`
-						FROM `%s` as `log_meta`
-						WHERE `log_meta`.`meta_key`='uid'
-				",
-				$this->mod()->getDbH_Meta()->getTableSchema()->table
+	private function buildForUsers() :array {
+		return ( new BuildDataForUsers() )->build(
+			\array_map(
+				function ( $result ) {
+					return (int)$result[ 'uid' ] ?? null;
+				},
+				$this->runQuery( '`req`.`uid` as `uid`' )
 			)
 		);
-		$IDs = \array_values( \array_filter( \array_map(
-			function ( $result ) {
-				return is_numeric( $result[ 'uid' ] ?? null ) ? (int)$result[ 'uid' ] : null;
-			},
-			\is_array( $results ) ? $results : []
-		) ) );
-
-		$usersResult = $WPDB->selectCustom(
-			sprintf( "SELECT `user_login`, `user_email`, `ID` as `id`
-						FROM `%s` WHERE `id` IN (%s) limit 1000;",
-				$WPDB->getTable_Users(),
-				\implode( ',', $IDs )
-			)
-		);
-
-		$users = [];
-		if ( \is_array( $usersResult ) ) {
-			foreach ( $usersResult as $user ) {
-				$users[] = [
-					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
-					'value' => $user[ 'id' ],
-				];
-				$users[] = [
-					'label' => sprintf( '%s (%s)', $user[ 'user_login' ], $user[ 'user_email' ] ),
-					'value' => $user[ 'id' ] + 1,
-				];
-			}
-		}
-
-		return $users;
 	}
 
 	private function buildForDay() :array {
@@ -108,10 +78,10 @@ class BuildSearchPanesData {
 		$results = Services::WpDb()->selectCustom(
 			sprintf( 'SELECT DISTINCT %s
 						FROM `%s` as `log`
-						INNER JOIN `%s` as req
-							ON `log`.req_ref = req.id
-						INNER JOIN `%s` as ips
-							ON ips.id = req.ip_ref 
+						INNER JOIN `%s` as `req`
+							ON `log`.`req_ref` = `req`.`id`
+						INNER JOIN `%s` as `ips`
+							ON `ips`.`id` = `req`.`ip_ref` 
 				',
 				$select,
 				$this->mod()->getDbH_Logs()->getTableSchema()->table,

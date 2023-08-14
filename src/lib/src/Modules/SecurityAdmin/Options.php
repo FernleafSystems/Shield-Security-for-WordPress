@@ -38,7 +38,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function hasSecurityPIN() :bool {
-		return \strlen( $this->getSecurityPIN() ) === 32;
+		return !empty( $this->getSecurityPIN() );
 	}
 
 	public function isEmailOverridePermitted() :bool {

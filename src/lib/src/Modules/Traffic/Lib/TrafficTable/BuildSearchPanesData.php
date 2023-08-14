@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestL
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForUsers;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSearchPanesData {
@@ -22,6 +23,7 @@ class BuildSearchPanesData {
 				'type'    => $this->buildForType(),
 				'offense' => $this->buildForOffense(),
 				'code'    => $this->buildForCodes(),
+				'user'    => $this->buildForUsers(),
 			]
 		];
 	}
@@ -35,11 +37,15 @@ class BuildSearchPanesData {
 		);
 	}
 
+	private function buildForUsers() :array {
+		return ( new BuildDataForUsers() )->build( $this->getDistinctQueryResult()[ 'uid' ] );
+	}
+
 	protected function getDistinctQueryResult() :array {
 		if ( \is_null( $this->distinctQueryResult ) ) {
 			$this->distinctQueryResult = \array_map( function ( $raw ) {
 				return \explode( ',', $raw );
-			}, $this->compositeDistinctQuery( [ 'type', 'code' ] ) );
+			}, $this->compositeDistinctQuery( [ 'type', 'code', 'uid' ] ) );
 		}
 		return $this->distinctQueryResult;
 	}

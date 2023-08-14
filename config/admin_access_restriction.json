@@ -108,9 +108,9 @@
       "sensitive":   true,
       "default":     "",
       "type":        "password",
+      "beacon_id":   215,
       "link_info":   "https://shsec.io/42",
       "link_blog":   "",
-      "beacon_id":   215,
       "name":        "Security Admin Access PIN",
       "summary":     "Provide/Update Security Admin Access PIN",
       "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."

@@ -26,7 +26,7 @@ class Collate {
 			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
 				'Integrity'    => $this->getShieldIntegrity(),
-				'Snapshots'    => $this->getShieldSnapshots(),
+				'Snapshots'    => $this->snapshots(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
 			'System Info'    => [
@@ -203,7 +203,7 @@ class Collate {
 		return $data;
 	}
 
-	private function getShieldSnapshots() :array {
+	private function snapshots() :array {
 		$data = [];
 
 		$auditCon = $this->con()->getModule_AuditTrail()->getAuditCon();
@@ -281,7 +281,7 @@ class Collate {
 		];
 
 		/** @var Options $optsPlugin */
-		$optsPlugin = $modPlugin->getOptions();
+		$optsPlugin = $modPlugin->opts();
 		$source = $optsPlugin->getSelectOptionValueText( 'visitor_address_source' );
 		$ip = Services::Request()->ip();
 		$data[ 'Visitor IP Source' ] = $source.': '.( empty( $ip ) ? 'n/a' : $ip );
