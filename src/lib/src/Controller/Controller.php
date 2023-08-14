@@ -820,21 +820,6 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * @return mixed|null
-	 * @deprecated 18.2.4
-	 */
-	protected function getCfgProperty( string $key ) {
-		return $this->cfg->properties[ $key ] ?? null;
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getBasePermissions() :string {
-		return $this->cfg->properties[ 'base_permissions' ];
-	}
-
 	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
 		if ( $checkUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
@@ -888,27 +873,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getIsPage_PluginAdmin() :bool {
 		return \strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getIsWpmsNetworkAdminOnly() :bool {
-		return (bool)$this->cfg->properties[ 'wpms_network_admin_only' ] ?? true;
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getParentSlug() :string {
-		return $this->cfg->properties[ 'slug_parent' ];
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getPluginSlug() :string {
-		return $this->cfg->properties[ 'slug_plugin' ];
 	}
 
 	public function getPath_Languages() :string {

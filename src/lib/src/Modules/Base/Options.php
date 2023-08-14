@@ -383,20 +383,6 @@ class Options {
 		return $this->cfg()->getRawData();
 	}
 
-	/**
-	 * @deprecated 18.2.5
-	 */
-	protected function getRawData_AllOptions() :array {
-		return $this->cfg()->options ?? [];
-	}
-
-	/**
-	 * @deprecated 18.2.5
-	 */
-	protected function getRawData_OptionsSections() :array {
-		return $this->cfg()->sections ?? [];
-	}
-
 	public function getSelectOptionValueKeys( string $key ) :array {
 		$keys = [];
 		foreach ( $this->getOptDefinition( $key )[ 'value_options' ] as $opt ) {
@@ -604,16 +590,6 @@ class Options {
 	}
 
 	/**
-	 * @deprecated 18.2.5
-	 */
-	private function cleanOptions() {
-	}
-
-	private function getOptsStorage() :Options\Storage {
-		return $this->optsStorage ?? $this->optsStorage = ( new Options\Storage() )->setMod( $this->mod() );
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {
@@ -636,36 +612,5 @@ class Options {
 		$this->setNeedSave( true );
 
 		return $this;
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 18.2.5
-	 */
-	public function setOptAt( string $key ) {
-		return $this->setOpt( $key, Services::Request()->ts() );
-	}
-
-	/**
-	 * @deprecated 18.2.5
-	 */
-	public function isValidOptionKey( string $key ) :bool {
-		return \in_array( $key, $this->getOptionsKeys() );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isOptReqsMet( string $key ) :bool {
-		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
-	}
-
-	/**
-	 * @deprecated 18.2.6
-	 */
-	public function isSectionReqsMet( string $slug ) :bool {
-		$reqs = $this->getSection_Requirements( $slug );
-		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
-			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 }

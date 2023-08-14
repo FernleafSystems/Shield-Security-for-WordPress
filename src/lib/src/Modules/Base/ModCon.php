@@ -23,12 +23,6 @@ abstract class ModCon extends DynPropertiesClass {
 	public $cfg;
 
 	/**
-	 * @var bool
-	 * @deprecated 18.2.5
-	 */
-	protected $bImportExportWhitelistNotify = false;
-
-	/**
 	 * @var Shield\Modules\Base\Processor
 	 */
 	private $oProcessor;
@@ -296,15 +290,6 @@ abstract class ModCon extends DynPropertiesClass {
 			$this->oProcessor = new $class( $this );
 		}
 		return $this->oProcessor;
-	}
-
-	/**
-	 * @deprecated 18.2.5
-	 */
-	public function onPluginShutdown() {
-		if ( !$this->con()->plugin_deleting && \version_compare( $this->con()->cfg->version(), '18.2.5', '<' ) ) {
-			$this->saveModOptions();
-		}
 	}
 
 	public function getOptionsStorageKey() :string {

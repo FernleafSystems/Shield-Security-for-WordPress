@@ -297,13 +297,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH( 'notes' );
 	}
 
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
-		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = new Shield\Utilities\ReCaptcha\Enqueue();
-	}
-
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
 			if ( $this->con()->isPluginAdminPageRequest() ) {
