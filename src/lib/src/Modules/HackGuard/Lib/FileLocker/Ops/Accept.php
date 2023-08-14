@@ -11,12 +11,20 @@ class Accept extends BaseOps {
 	 * @throws \Exception
 	 */
 	public function run( FileLockerDB\Record $lock ) :bool {
-		$state = $this->mod()->getFileLocker()->getState();
+		$FL = $this->mod()->getFileLocker();
+		$state = $FL->getState();
+
+		// Depending on timing, the preferred cipher may not have been set, so we force a check.
+		if ( empty( $state[ 'cipher' ] ) ) {
+			$FL->canEncrypt();
+			$state = $FL->getState();
+		}
+
 		$cipher = empty( $state[ 'cipher' ] ) ? 'rc4' : $state[ 'cipher' ];
 
 		$publicKey = $this->getPublicKey();
 
-		$raw = ( new BuildEncryptedFilePayload() )->build( (string)$lock->path, reset( $publicKey ), $cipher );
+		$raw = ( new BuildEncryptedFilePayload() )->build( $lock->path, reset( $publicKey ), $cipher );
 
 		/** @var FileLockerDB\Update $updater */
 		$updater = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
