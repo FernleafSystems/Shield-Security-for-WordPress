@@ -2,54 +2,37 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Vulnerabilities;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Vulnerabilities\IsVulnerable;
 
-class Scan extends Shield\Scans\Base\BaseScan {
+class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan {
 
 	protected function scanSlice() {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
-		$results = [];
-		foreach ( $action->items as $file ) {
-			$results[] = $this->scanItem( $file );
-		}
+		$action->results = \array_filter( \array_map(
+			function ( $file ) {
 
-		$action->results = \array_filter( $results );
-	}
+				if ( \strpos( $file, '/' ) ) { // plugin file
+					$WPP = Services::WpPlugins();
+					$slug = $WPP->getSlug( $file );
+					if ( empty( $slug ) ) {
+						$slug = \dirname( $file );
+					}
+					$isVulnerable = ( new IsVulnerable() )->plugin( $slug, $WPP->getPluginAsVo( $file )->Version );
+				}
+				else { // theme dir
+					$isVulnerable = ( new IsVulnerable() )
+						->theme( $file, Services::WpThemes()->getTheme( $file )->get( 'Version' ) );
+				}
 
-	private function scanItem( string $scanItem ) :array {
-		$apiToken = $this->con()
-						 ->getModule_License()
-						 ->getWpHashesTokenManager()
-						 ->getToken();
-
-		if ( \strpos( $scanItem, '/' ) ) { // plugin file
-			$WPP = Services::WpPlugins();
-			$slug = $WPP->getSlug( $scanItem );
-			if ( empty( $slug ) ) {
-				$slug = \dirname( $scanItem );
-			}
-			$version = $WPP->getPluginAsVo( $scanItem )->Version;
-			$lookerUpper = new Vulnerabilities\Plugin( $apiToken );
-		}
-		else { // theme dir
-			$slug = $scanItem;
-			$version = Services::WpThemes()->getTheme( $slug )->get( 'Version' );
-			$lookerUpper = new Vulnerabilities\Theme( $apiToken );
-		}
-
-		$result = [];
-
-		$rawVuls = $lookerUpper->getVulnerabilities( $slug, $version );
-		if ( \is_array( $rawVuls ) && !empty( $rawVuls[ 'meta' ] ) && $rawVuls[ 'meta' ][ 'total' ] > 0 ) {
-			$result[ 'slug' ] = $scanItem;
-			$result[ 'is_vulnerable' ] = true;
-			$result[ 'vulnerability_total' ] = $rawVuls[ 'meta' ][ 'total' ];
-		}
-
-		return $result;
+				return $isVulnerable ? [
+					'slug'          => $file,
+					'is_vulnerable' => true
+				] : null;
+			},
+			$action->items
+		) );
 	}
 }
