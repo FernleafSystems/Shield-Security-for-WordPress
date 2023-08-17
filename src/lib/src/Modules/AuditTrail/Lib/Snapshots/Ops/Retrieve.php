@@ -21,7 +21,11 @@ class Retrieve {
 	 */
 	public function all() :array {
 		$diffs = [];
-		foreach ( $this->mod()->getDbH_Snapshots()->getQuerySelector()->all() as $record ) {
+		$selector = $this->mod()->getDbH_Snapshots()->getQuerySelector();
+		if ( \method_exists( $selector, 'setNoOrderBy' ) ) {
+			$selector->setNoOrderBy();
+		}
+		foreach ( $selector->all() as $record ) {
 			/** @var SnapshotsDB\Record $record */
 			$diffs[ $record->slug ] = $record;
 		}

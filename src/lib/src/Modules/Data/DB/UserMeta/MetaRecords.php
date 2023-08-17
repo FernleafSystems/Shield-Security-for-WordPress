@@ -13,6 +13,9 @@ class MetaRecords {
 		$dbh = $this->mod()->getDbH_UserMeta();
 		/** @var Ops\Select $select */
 		$select = $dbh->getQuerySelector();
+		if ( \method_exists( $select, 'setNoOrderBy' ) ) {
+			$select->setNoOrderBy();
+		}
 		$record = $select->filterByUser( $userID )->first();
 
 		if ( empty( $record ) && $autoCreate && $this->addMeta( $userID ) ) {
