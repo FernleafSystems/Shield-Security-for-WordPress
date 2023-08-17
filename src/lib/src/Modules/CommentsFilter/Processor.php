@@ -8,19 +8,16 @@ use FernleafSystems\Wordpress\Services\Services;
 class Processor extends BaseShield\Processor {
 
 	public function onWpInit() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 		$WPU = Services::WpUsers();
 
-		$commentsFilterBypass = $this->con()->this_req->request_bypasses_all_restrictions ||
-								( $WPU->isUserLoggedIn() &&
-								  ( new Scan\IsEmailTrusted() )->trusted(
-									  (string)$WPU->getCurrentWpUser()->user_email,
-									  $opts->getApprovedMinimum(),
-									  $opts->getTrustedRoles()
-								  ) );
+		$bypass = $this->con()->this_req->request_bypasses_all_restrictions;
+		if ( !$bypass && $WPU->isUserLoggedIn() ) {
+			$testTrustedUser = new Scan\IsEmailTrusted();
+			$bypass = $testTrustedUser->roleTrusted( $WPU->getCurrentWpUser() )
+					  || $testTrustedUser->emailTrusted( $WPU->getCurrentWpUser()->user_email );
+		}
 
-		if ( !$commentsFilterBypass ) {
+		if ( !$bypass ) {
 
 			( new Scan\CommentAdditiveCleaner() )->execute();
 
