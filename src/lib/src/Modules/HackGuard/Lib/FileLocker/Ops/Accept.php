@@ -38,7 +38,7 @@ class Accept extends BaseOps {
 			'created_at'    => Services::Request()->ts(), // update "locked at"
 		] );
 
-		$this->clearFileLocksCache();
+		$FL->clearLocks();
 		return $success;
 	}
 }

@@ -38,16 +38,15 @@ class AlertFileLocker extends BaseBuilderForScans {
 	}
 
 	private function markAlertsAsNotified() {
-		$locksLoader = new LoadFileLocks();
 		/** @var FileLockerDB\Update $updater */
-		$updater = $this->con()
-						->getModule_HackGuard()
-						->getDbH_FileLocker()
-						->getQueryUpdater();
-		foreach ( $locksLoader->withProblemsNotNotified() as $record ) {
+		$updater = self::con()
+					   ->getModule_HackGuard()
+					   ->getDbH_FileLocker()
+					   ->getQueryUpdater();
+		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
 			$updater->markNotified( $record );
 		}
 
-		$locksLoader->clearLocksCache();
+		self::con()->getModule_HackGuard()->getFileLocker()->clearLocks();
 	}
 }

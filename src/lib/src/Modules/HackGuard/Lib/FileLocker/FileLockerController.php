@@ -24,6 +24,8 @@ class FileLockerController {
 
 	public const CRON_DELAY = 60;
 
+	private $locks = null;
+
 	protected function canRun() :bool {
 		return $this->isEnabled();
 	}
@@ -71,6 +73,20 @@ class FileLockerController {
 	}
 
 	/**
+	 * @return FileLockerDB\Record[]
+	 */
+	public function getLocks() :array {
+		if ( \is_null( $this->locks ) ) {
+			$this->locks = ( new Ops\LoadFileLocks() )->loadLocks();
+		}
+		return $this->locks;
+	}
+
+	public function clearLocks() :void {
+		unset( $this->locks );
+	}
+
+	/**
 	 * @throws \Exception
 	 */
 	public function handleFileDownloadRequest() :array {
@@ -108,7 +124,7 @@ class FileLockerController {
 	 * @throws \Exception
 	 */
 	public function getFileLock( int $ID ) :FileLockerDB\Record {
-		$lock = ( new Ops\LoadFileLocks() )->loadLocks()[ $ID ] ?? null;
+		$lock = $this->getLocks()[ $ID ] ?? null;
 		if ( empty( $lock ) ) {
 			throw new \Exception( 'Not a valid Lock File record' );
 		}
@@ -123,7 +139,8 @@ class FileLockerController {
 		}
 		else {
 			// 1. Look for any changes in config: has a lock type been removed?
-			foreach ( ( new Ops\LoadFileLocks() )->loadLocks() as $lock ) {
+			$locks = \method_exists( $this, 'getLocks' ) ? $this->getLocks() : ( new Ops\LoadFileLocks() )->loadLocks();
+			foreach ( $locks as $lock ) {
 				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
 					( new Ops\DeleteFileLock() )->delete( $lock );
 				}
