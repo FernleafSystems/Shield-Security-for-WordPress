@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForStats;
 
 class InfoKeyStats extends BaseBuilder {
 
@@ -10,41 +10,8 @@ class InfoKeyStats extends BaseBuilder {
 	public const TEMPLATE = '/components/reports/components/info_keystats.twig';
 
 	protected function getRenderData() :array {
-		$counts = \array_filter( \array_map(
-			function ( string $event ) {
-				$con = $this->con();
-
-				$countData = null;
-
-				/** @var DBEvents\Select $selector */
-				$selector = $con->getModule_Events()->getDbHandler_Events()->getQuerySelector();
-				$report = $this->getReport();
-				try {
-					$intervalDiff = $report->interval_end_at - $report->interval_start_at;
-					$eventSumLatest = $selector
-						->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
-						->sumEvent( $event );
-					$eventSumPrevious = $selector
-						->filterByBoundary( $report->interval_start_at - $intervalDiff, $report->interval_start_at )
-						->sumEvent( $event );
-					if ( $eventSumLatest > 0 || $eventSumPrevious > 0 ) {
-						$diff = $eventSumLatest - $eventSumPrevious;
-						$countData = [
-							'count_latest'   => $eventSumLatest,
-							'count_previous' => $eventSumPrevious,
-							'count_diff'     => \abs( $diff ),
-							'diff_symbol'    => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
-							'name'           => $con->loadEventsService()->getEventName( $event ),
-						];
-					}
-				}
-				catch ( \Exception $e ) {
-				}
-
-				return $countData;
-			},
-			$this->getEventsToStat()
-		) );
+		$report = $this->getReport();
+		$counts = ( new BuildForStats( $report->interval_start_at, $report->interval_end_at ) )->build();
 
 		$countsInRows = \array_chunk( $counts, 2 );
 
@@ -58,28 +25,6 @@ class InfoKeyStats extends BaseBuilder {
 			'vars'    => [
 				'counts' => $countsInRows
 			],
-		];
-	}
-
-	/**
-	 * @todo configurable
-	 */
-	private function getEventsToStat() :array {
-		return [
-			'ip_offense',
-			'ip_blocked',
-			'conn_kill',
-			'firewall_block',
-			'bottrack_404',
-			'bottrack_fakewebcrawler',
-			'bottrack_linkcheese',
-			'bottrack_loginfailed',
-			'bottrack_logininvalid',
-			'bottrack_xmlrpc',
-			'bottrack_invalidscript',
-			'spam_block_bot',
-			'spam_block_recaptcha',
-			'spam_block_human',
 		];
 	}
 }

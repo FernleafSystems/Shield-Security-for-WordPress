@@ -26,7 +26,11 @@ class IPRecords {
 			$dbh = $this->con()->getModule_Data()->getDbH_IPs();
 			/** @var Ops\Select $select */
 			$select = $dbh->getQuerySelector();
-			$record = $select->filterByIPHuman( $ip )->first();
+			$select->filterByIPHuman( $ip );
+			if ( \method_exists( $select, 'setNoOrderBy' ) ) {
+				$select->setNoOrderBy();
+			}
+			$record = $select->first();
 
 			if ( empty( $record ) && $autoCreate ) {
 				$this->addIP( $ip );

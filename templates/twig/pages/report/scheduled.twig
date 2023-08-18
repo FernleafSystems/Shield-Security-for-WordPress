@@ -1,0 +1,118 @@
+{% extends '/pages/base.twig' %}
+
+{% block head_inline_styles %}
+	{{ parent() }}
+	<style>
+		body {
+			background-color: #f9f9f9;
+		}
+		body > main {
+			max-width: 1000px;
+			min-width: 600px;
+			margin: 30px auto;
+			background: white;
+			box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+		}
+		#PageHeaderTitle {
+			background-color: #008000;
+			height: 100px;
+			color: white;
+			box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+		}
+		.stat-diff-symbol > svg {
+			width: 24px;
+			height: 24px;
+		}
+		.col-stat > .card {
+			border-width: 0 0 0 10px ;
+		}
+		.col-stat.col-stat-success > .card svg {
+			color:  #008000;
+		}
+		.col-stat.col-stat-warning > .card svg {
+			color:  rgb(255, 193, 7);
+		}
+		.col-stat.col-stat-secondary > .card svg {
+			color:  #444444;
+		}
+	</style>
+{% endblock %}
+
+{% block body_header %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col d-flex justify-content-center align-items-center" id="PageHeaderTitle">
+				<h1>Shield Security Report</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col text-center">
+				<h2 class="my-3" style="color: #008000">{{ strings.report_header_title }}
+					<br /><code class="text-success">{{ vars.site_url_host }}</code></h2>
+				<span>{{ vars.generation_date }}</span>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block body_content_header %}
+	<div class="px-4">
+		<div class="row mt-4">
+			<div class="col-6 offset-3">
+				<p>Welcome to your Shield Security report. This report outlines the most significant events
+					and statistics on your WordPress site for given reporting period.
+				</p>
+			</div>
+		</div>
+
+		<div class="row mt-4">
+			<div class="col">
+				<h2 class="border-bottom">{{ strings.stats }}</h2>
+			</div>
+		</div>
+
+		{% for stat_type in vars.stats %}
+			<div class="row mt-4">
+				<div class="col">
+					<h3 class="">{{ stat_type.title }}</h3>
+				</div>
+			</div>
+			<div class="row mt-2">
+				{% for stat in stat_type.stats %}
+					<div class="col-lg-3 col-md-4 mb-5 col-6 col-stat col-stat-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
+						<div class="card card-raised border-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
+							<div class="card-body ps-3 pe-1 py-1">
+								<div class="overline text-muted mb-1">{{ stat.name }}</div>
+								<div class="d-flex align-items-center justify-content-between">
+									<div class="display-6 fw-normal">{{ stat.count_current_period }}</div>
+									<div class="stat-diff-symbol">
+										{{ stat.diff_symbol_svg|raw }}
+									</div>
+									<div class="">
+										<div class="display-6">{{ stat.count_previous_period }}</div>
+									</div>
+								</div>
+								<div class="text-xs text-muted mb-1 ">Diff:
+									<span class="text-sm">{{ stat.diff_symbol_plus_minus }}</span>{{ stat.count_diff_abs }}
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		{% endfor %}
+
+	</div>
+{% endblock %}
+
+{% block body_content_main %}
+	<div class="row mt-4">
+		<div class="col">
+			{{ content.main|raw }}
+		</div>
+	</div>
+{% endblock %}
+
+{% block body_content_footer %}
+{% endblock %}

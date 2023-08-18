@@ -81,17 +81,17 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
-				sprintf( 'ORDER BY %s %s', $this->getOrderByColumn(), $this->order_dir ?? 'DESC' ),
+				$this->buildOrderBy(),
 				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',
 				isset( $this->offset ) ? sprintf( 'OFFSET %s', $this->offset ) : ''
 			)
 		);
 	}
 
-	protected function getOrderByColumn() :string {
-		$sch = $this->getTableSchemaForJoinedTable();
-		$col = empty( $this->order_by ) ? ( $sch->has_created_at ? 'created_at' : 'id' ) : $this->order_by;
-		return sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $col );
+	protected function buildOrderBy() :string {
+		$orderBy = $this->order_by;
+		return empty( $orderBy ) ? ''
+			: sprintf( 'ORDER BY %s %s', sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $orderBy ), $this->order_dir ?? 'DESC' );
 	}
 
 	protected function getDefaultSelectFieldsForJoinedTable() :array {

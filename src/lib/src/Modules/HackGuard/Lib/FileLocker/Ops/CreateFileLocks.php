@@ -57,6 +57,6 @@ class CreateFileLocks extends BaseOps {
 			throw new LockDbInsertFailure( sprintf( 'Failed to insert file locker record for path: "%s"', $path ) );
 		}
 
-		$this->clearFileLocksCache();
+		$this->mod()->getFileLocker()->clearLocks();
 	}
 }
