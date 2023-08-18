@@ -9,48 +9,50 @@ class BuildForStats {
 
 	use ModConsumer;
 
-	private $events;
-
 	private $startAt;
 
 	private $endAt;
 
-	public function __construct( int $start, int $end, array $events = [] ) {
+	public function __construct( int $start, int $end ) {
 		$this->startAt = $start;
 		$this->endAt = $end;
-		$this->events = $events;
 	}
 
-	public function build() :array {
+	public function build( array $events = [] ) :array {
 		$statData = [];
-		foreach ( empty( $this->events ) ? $this->getDefaultEventsToStat() : $this->events as $event ) {
+		foreach ( empty( $events ) ? $this->getDefaultEventsToStat() : $events as $event ) {
 			$statData[ $event ] = $this->buildForEvent( $event );
 		}
 		return \array_filter( $statData );
 	}
 
 	public function buildForEvent( string $event ) :?array {
+		$con = self::con();
 		$countData = null;
 
 		/** @var DBEvents\Select $selector */
-		$selector = self::con()->getModule_Events()->getDbHandler_Events()->getQuerySelector();
+		$selector = $con->getModule_Events()->getDbHandler_Events()->getQuerySelector();
 		try {
-			$intervalDiff = $this->endAt - $this->startAt;
-			$eventSumLatest = $selector
+			$sumCurrent = $selector
 				->filterByBoundary( $this->startAt, $this->endAt )
 				->sumEvent( $event );
-			$eventSumPrevious = $selector
-				->filterByBoundary( $this->startAt - $intervalDiff, $this->startAt )
-				->sumEvent( $event );
+			$sumPrevious = $this->startAt === 0 ? 0
+				: $selector->filterByBoundary( $this->startAt - ( $this->endAt - $this->startAt ), $this->startAt )
+						   ->sumEvent( $event );
+
 			// TODO: Configurable whether we include ZERO stat events
-			if ( $eventSumLatest > 0 || $eventSumPrevious > 0 ) {
-				$diff = $eventSumLatest - $eventSumPrevious;
+			if ( $sumCurrent > 0 || $sumPrevious > 0 ) {
+				$diff = $sumCurrent - $sumPrevious;
 				$countData = [
-					'count_latest'   => $eventSumLatest,
-					'count_previous' => $eventSumPrevious,
-					'count_diff'     => \abs( $diff ),
-					'diff_symbol'    => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
-					'name'           => self::con()->loadEventsService()->getEventName( $event ),
+					'count_current_period'   => $sumCurrent,
+					'count_previous_period'  => $sumPrevious,
+					'count_diff'             => $diff,
+					'count_diff_abs'         => \abs( $diff ),
+					'diff_symbol_email'      => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
+					'diff_symbol_svg'        => $con->svgs->raw( $diff > 0 ? 'arrow-up-right' : ( $diff < 0 ? 'arrow-down-right' : 'arrow-right' ) ),
+					'diff_symbol_plus_minus' => $diff > 0 ? '+' : ( $diff < 0 ? '-' : '' ),
+					'diff_colour'            => $diff > 0 ? 'warning' : ( $diff < 0 ? 'success' : 'info' ),
+					'name'                   => $con->loadEventsService()->getEventName( $event ),
 				];
 			}
 		}

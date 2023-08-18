@@ -70,7 +70,6 @@ class EventsService {
 		if ( empty( $this->aEvents ) ) {
 			$events = [];
 			foreach ( $this->con()->modules as $mod ) {
-				$opts = $mod->getOptions();
 				$events = \array_merge(
 					$events,
 					\array_map(
@@ -80,7 +79,7 @@ class EventsService {
 							$evt[ 'context' ] = $mod->cfg->slug;
 							return $evt;
 						},
-						$opts->getEvents()
+						$mod->opts()->getEvents()
 					)
 				);
 			}
@@ -88,6 +87,7 @@ class EventsService {
 			if ( empty( $this->aEvents ) ) {
 				error_log( 'Shield events definitions is empty or not the correct format' );
 			}
+			\ksort( $this->aEvents );
 		}
 
 		try {

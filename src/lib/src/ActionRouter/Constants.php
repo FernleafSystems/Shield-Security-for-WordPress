@@ -187,6 +187,7 @@ class Constants {
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaHeader::class,
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaBody::class,
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaFooter::class,
+		Actions\Render\FullPage\Report\ScheduledReport::class,
 		Actions\Render\Legacy\GaspJs::class,
 		Actions\Render\Legacy\RecaptchaJs::class,
 		Actions\Render\MainWP\SitesListTableColumn::class,
