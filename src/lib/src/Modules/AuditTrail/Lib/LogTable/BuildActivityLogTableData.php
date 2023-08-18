@@ -237,7 +237,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 								'icon' => 'question-diamond',
 							],
 						][ $level ];
-		return sprintf( '<span class="severity-%s severity-icon">%s</span>', $level,
+		return sprintf( '<div class="severity-%s severity-icon">%s</div>', $level,
 			$this->con()->svgs->raw( $levelDetails[ 'icon' ] )
 		);
 	}
