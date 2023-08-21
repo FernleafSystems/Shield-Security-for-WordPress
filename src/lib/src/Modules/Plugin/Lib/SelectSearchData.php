@@ -309,15 +309,6 @@ class SelectSearchData {
 						'icon'   => $con->svgs->raw( 'award.svg' ),
 					],
 					[
-						'id'     => 'tool_notes',
-						'text'   => __( 'Review Admin Notes', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_NOTES ),
-						],
-						'tokens' => 'tool admin notes note',
-						'icon'   => $con->svgs->raw( 'pencil-square.svg' ),
-					],
-					[
 						'id'     => 'tool_importexport',
 						'text'   => __( 'Import / Export Settings', 'wp-simple-firewall' ),
 						'link'   => [

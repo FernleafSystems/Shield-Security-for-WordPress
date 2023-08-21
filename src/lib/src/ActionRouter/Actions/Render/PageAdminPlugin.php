@@ -87,7 +87,6 @@ class PageAdminPlugin extends BaseRender {
 			PluginURLs::NAV_IMPORT_EXPORT  => PluginAdminPages\PageImportExport::class,
 			PluginURLs::NAV_IP_RULES       => PluginAdminPages\PageIpRulesTable::class,
 			PluginURLs::NAV_LICENSE        => PluginAdminPages\PageLicense::class,
-			PluginURLs::NAV_NOTES          => PluginAdminPages\PageAdminNotes::class,
 			PluginURLs::NAV_OVERVIEW       => PluginAdminPages\PageOverview::class,
 			PluginURLs::NAV_RESTRICTED     => PluginAdminPages\PageSecurityAdminRestricted::class,
 			PluginURLs::NAV_OPTIONS_CONFIG => PluginAdminPages\PageDynamicLoad::class,
@@ -154,10 +153,6 @@ class PageAdminPlugin extends BaseRender {
 			PluginURLs::NAV_IMPORT_EXPORT  => [
 				__( 'Tools', 'wp-simple-firewall' ),
 				sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-			],
-			PluginURLs::NAV_NOTES          => [
-				__( 'Tools', 'wp-simple-firewall' ),
-				__( 'Admin Notes', 'wp-simple-firewall' ),
 			],
 			PluginURLs::NAV_DEBUG          => [
 				__( 'Tools', 'wp-simple-firewall' ),

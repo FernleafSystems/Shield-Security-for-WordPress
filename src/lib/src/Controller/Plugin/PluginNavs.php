@@ -12,7 +12,6 @@ class PluginNavs {
 	public const NAV_IMPORT_EXPORT = 'importexport';
 	public const NAV_IP_RULES = 'ips';
 	public const NAV_LICENSE = 'license';
-	public const NAV_NOTES = 'notes';
 	public const NAV_OPTIONS_CONFIG = 'config';
 	public const NAV_OVERVIEW = 'overview';
 	public const NAV_RESTRICTED = 'restricted';

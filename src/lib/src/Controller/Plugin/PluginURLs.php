@@ -21,7 +21,6 @@ class PluginURLs {
 	public const NAV_IMPORT_EXPORT = 'importexport';
 	public const NAV_IP_RULES = 'ips';
 	public const NAV_LICENSE = 'license';
-	public const NAV_NOTES = 'notes';
 	public const NAV_OPTIONS_CONFIG = 'config';
 	public const NAV_OVERVIEW = 'overview';
 	public const NAV_RESTRICTED = 'restricted';
@@ -88,7 +87,7 @@ class PluginURLs {
 
 	public function modCfgOption( string $optKey ) :string {
 		$mod = OptUtils::ModFromOpt( $optKey );
-		$def = $mod->getOptions()->getOptDefinition( $optKey );
+		$def = $mod->opts()->getOptDefinition( $optKey );
 		return empty( $def[ 'section' ] ) ? $this->modCfg( $mod ) : $this->modCfgSection( $mod, $def[ 'section' ] );
 	}
 

@@ -281,7 +281,7 @@ class NavMenuBuilder {
 			'img'       => $this->con()->svgs->raw( 'tools' ),
 			'introjs'   => [
 				'title' => __( 'Security Tools', 'wp-simple-firewall' ),
-				'body'  => __( "Important security tools, such a import/export, whitelabel and admin notes.", 'wp-simple-firewall' ),
+				'body'  => __( "Important security tools, such a import/export, whitelabel, debug.", 'wp-simple-firewall' ),
 			],
 			'sub_items' => [
 				[
@@ -294,12 +294,6 @@ class NavMenuBuilder {
 					'slug'  => $slug.'-whitelabel',
 					'title' => __( 'White Label', 'wp-simple-firewall' ),
 					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_whitelabel' ),
-				],
-				[
-					'slug'   => $slug.'-notes',
-					'title'  => __( 'Admin Notes', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_NOTES ),
-					'active' => $this->inav() === PluginURLs::NAV_NOTES
 				],
 				[
 					'slug'   => $slug.'-'.PluginURLs::NAV_WIZARD,
