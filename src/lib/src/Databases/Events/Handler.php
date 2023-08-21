@@ -20,7 +20,7 @@ class Handler extends Base\Handler {
 		/** @var EntryVO $entry */
 		$entry = $this->getVo();
 		$entry->event = $evt;
-		$entry->count = max( 1, $count );
+		$entry->count = \max( 1, $count );
 		$entry->created_at = Services::Request()->ts();
 		/** @var Insert $QI */
 		$QI = $this->getQueryInserter();

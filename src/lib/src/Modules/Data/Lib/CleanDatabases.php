@@ -92,6 +92,6 @@ class CleanDatabases {
 
 		$con->getModule_Data()
 			->getDbH_ReqLogs()
-			->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+			->tableCleanExpired( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
 	}
 }
