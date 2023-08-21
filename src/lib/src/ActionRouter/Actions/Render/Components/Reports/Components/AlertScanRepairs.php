@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
 
@@ -16,7 +16,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 		$con = $this->con();
 		/** @var DBEvents\Select $selectorEvents */
 		$selectorEvents = $con->getModule_Events()
-							  ->getDbHandler_Events()
+							  ->getDbH_Events()
 							  ->getQuerySelector();
 
 		$report = $this->getReport();

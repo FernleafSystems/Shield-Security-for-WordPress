@@ -17,7 +17,7 @@ abstract class EventsListener {
 	/**
 	 * @param ?Controller\Controller $con - @deprecated 18.1
 	 */
-	public function __construct( ?Controller\Controller $con, bool $commit = false ) {
+	public function __construct( ?Controller\Controller $con = null, bool $commit = false ) {
 		$this->commit = $commit;
 
 		add_action( 'shield/event', function ( $event, $meta = [], $def = [] ) {

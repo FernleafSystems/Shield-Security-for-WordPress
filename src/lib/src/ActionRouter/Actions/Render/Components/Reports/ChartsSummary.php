@@ -18,7 +18,7 @@ class ChartsSummary extends Base {
 		$con = $this->con();
 		/** @var EventsDB\Select $eventSelector */
 		$eventSelector = $con->getModule_Events()
-							 ->getDbHandler_Events()
+							 ->getDbH_Events()
 							 ->getQuerySelector();
 
 		/** @var IpRulesDB\Select $ipRuleSelect */

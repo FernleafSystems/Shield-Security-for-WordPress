@@ -39,7 +39,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 		/** @var Events\Select $selector */
 		$selector = $this->con()
 						 ->getModule_Events()
-						 ->getDbHandler_Events()
+						 ->getDbH_Events()
 						 ->getQuerySelector();
 
 		$recent = \array_intersect_key(
