@@ -227,14 +227,11 @@ class Afs extends BaseForFiles {
 		return false;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function buildScanAction() {
-		( new Scans\Afs\BuildScanAction() )
+	public function buildScanAction():Scans\Afs\ScanActionVO {
+		return ( new Scans\Afs\BuildScanAction() )
 			->setScanController( $this )
-			->build();
-		return $this->getScanActionVO();
+			->build()
+			->getScanActionVO();
 	}
 
 	/**

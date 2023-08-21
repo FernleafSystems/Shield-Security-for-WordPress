@@ -53,7 +53,7 @@ class Wpv extends BaseForAssets {
 	}
 
 	/**
-	 * @param bool             $doAutoUpdate
+	 * @param bool|mixed       $doAutoUpdate
 	 * @param \stdClass|string $mItem
 	 */
 	public function autoupdateVulnerablePlugins( $doAutoUpdate, $mItem ) :bool {
@@ -81,9 +81,6 @@ class Wpv extends BaseForAssets {
 		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	public function buildScanAction() :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
 			->setScanController( $this )

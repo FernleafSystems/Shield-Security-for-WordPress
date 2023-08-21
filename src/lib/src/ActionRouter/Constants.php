@@ -93,7 +93,9 @@ class Constants {
 
 		Actions\Debug\SimplePluginTests::class,
 		Actions\FullPageDisplay\DisplayBlockPage::class,
-		Actions\FullPageDisplay\StandardFullPageDisplay::class,
+		Actions\FullPageDisplay\FullPageDisplayDynamic::class,
+		Actions\FullPageDisplay\FullPageDisplayNonTerminating::class,
+		Actions\FullPageDisplay\DisplayReport::class,
 
 		Actions\AjaxRender::class,
 
@@ -136,8 +138,11 @@ class Constants {
 		Actions\Render\Components\OffCanvas\MeterAnalysis::class,
 		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\Options\OptionsForm::class,
-		Actions\Render\Components\Reports\ChangeTrack\PageReportGenerateNewChangeTrack::class,
-		Actions\Render\Components\Reports\ChangeTrack\ReportBuildChangeTrack::class,
+		Actions\Render\Components\Reports\CreateNewAdHoc::class,
+		Actions\Render\Components\Reports\PageReportFormCreateNew::class,
+		Actions\Render\Components\Reports\Components\ReportAreaChanges::class,
+		Actions\Render\Components\Reports\Components\ReportAreaStats::class,
+		Actions\Render\Components\Reports\Components\ReportAreaScansCurrentResults::class,
 		Actions\Render\Components\Reports\Components\InfoKeyStats::class,
 		Actions\Render\Components\Reports\ReportsCollatorForAlerts::class,
 		Actions\Render\Components\Reports\ReportsCollatorForInfo::class,
@@ -183,7 +188,7 @@ class Constants {
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaHeader::class,
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaBody::class,
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaFooter::class,
-		Actions\Render\FullPage\Report\ScheduledReport::class,
+		Actions\Render\FullPage\Report\SecurityReport::class,
 		Actions\Render\Legacy\GaspJs::class,
 		Actions\Render\Legacy\RecaptchaJs::class,
 		Actions\Render\MainWP\SitesListTableColumn::class,

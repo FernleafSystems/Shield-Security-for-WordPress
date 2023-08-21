@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\Bu
 
 class InfoKeyStats extends BaseBuilder {
 
-	public const SLUG = 'info_keystats';
+	public const SLUG = 'report_info_keystats';
 	public const TEMPLATE = '/components/reports/components/info_keystats.twig';
 
 	protected function getRenderData() :array {

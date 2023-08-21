@@ -36,7 +36,7 @@ class Apc extends BaseForAssets {
 	/**
 	 * @return Scans\Apc\Utilities\ItemActionHandler
 	 */
-	protected function newItemActionHandler() {
+	protected function newItemActionHandler() :Scans\Apc\Utilities\ItemActionHandler {
 		return new Scans\Apc\Utilities\ItemActionHandler();
 	}
 
@@ -49,9 +49,9 @@ class Apc extends BaseForAssets {
 	}
 
 	/**
-	 * @return Scans\Apc\ScanActionVO
+	 * @throws \Exception
 	 */
-	public function buildScanAction() {
+	public function buildScanAction() :Scans\Apc\ScanActionVO {
 		return ( new Scans\Apc\BuildScanAction() )
 			->setScanController( $this )
 			->build()

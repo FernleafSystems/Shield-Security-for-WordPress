@@ -35,8 +35,8 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_CHANGE_TRACK:
-				$title = __( 'Site Change Tracking Reports', 'wp-simple-firewall' );
+			case PluginNavs::SUBNAV_REPORTS_CREATE:
+				$title = __( 'Create New Security Report', 'wp-simple-firewall' );
 				break;
 			case PluginNavs::SUBNAV_CHARTS:
 				$title = __( 'Security Performance Charts', 'wp-simple-firewall' );
@@ -53,8 +53,8 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageSubTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_CHANGE_TRACK:
-				$title = __( 'View changes to your site between two dates.', 'wp-simple-firewall' );
+			case PluginNavs::SUBNAV_REPORTS_CREATE:
+				$title = __( 'Build a new report on your website security.', 'wp-simple-firewall' );
 				break;
 			case PluginNavs::SUBNAV_CHARTS:
 				$title = __( 'Basic charts - this is in beta and will be developed over time.', 'wp-simple-firewall' );
@@ -72,9 +72,9 @@ class PageReports extends BasePluginAdminPage {
 	private function buildContent() :array {
 		$AR = $this->con()->action_router;
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_CHANGE_TRACK:
+			case PluginNavs::SUBNAV_REPORTS_CREATE:
 				$content = [
-					'changetracking_default' => $AR->render( Reports\ChangeTrack\PageReportGenerateNewChangeTrack::SLUG ),
+					'create_report' => $AR->render( Reports\PageReportFormCreateNew::SLUG ),
 				];
 				break;
 			case PluginNavs::SUBNAV_CHARTS:

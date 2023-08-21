@@ -1,16 +1,16 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChangeTrack;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as AuditDB;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PageReportGenerateNewChangeTrack extends BaseRender {
+class PageReportFormCreateNew extends BaseRender {
 
-	public const SLUG = 'render_report_generate_new_changetrack';
-	public const TEMPLATE = '/wpadmin_pages/insights/reports/changetrack/page_generate_new.twig';
+	public const SLUG = 'render_report_form_create_new';
+	public const TEMPLATE = '/wpadmin_pages/insights/reports/page_create_new.twig';
 
 	protected function getRenderData() :array {
 		$req = Services::Request();
@@ -27,14 +27,13 @@ class PageReportGenerateNewChangeTrack extends BaseRender {
 		$c = $req->carbon( true );
 		return [
 			'ajax'    => [
-				'build_change_report'      => ActionData::BuildJson( ReportBuildChangeTrack::class ),
-				'build_change_report_slug' => ReportBuildChangeTrack::SLUG,
+				'report_create_slug' => CreateNewAdHoc::SLUG,
 			],
 			'flags'   => [
 				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
 			],
 			'strings' => [
-				'build_change_report' => __( 'Build Change Report', 'wp-simple-firewall' ),
+				'build_report' => __( 'Build Report', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'available_zones' => \array_filter( \array_map(

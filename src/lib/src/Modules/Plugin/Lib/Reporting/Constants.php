@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 class Constants {
 
+	public const REPORT_TYPE_ADHOC = 'hoc';
 	public const REPORT_TYPE_ALERT = 'alt';
 	public const REPORT_TYPE_INFO = 'nfo';
 	public const COMPONENT_REPORT_BUILDERS = [

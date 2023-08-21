@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops\Record;
  * @property string       $interval
  * @property int          $interval_start_at
  * @property int          $interval_end_at
+ * @property array        $areas
  * @property string       $content
  * @property Record|false $previous
  */

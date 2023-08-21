@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constan
 
 trait Common {
 
+	public function filterByReportID( string $uniqueID ) :self {
+		return $this->addWhere( 'unique_id', $uniqueID );
+	}
+
 	public function filterByInterval( string $interval ) :self {
 		return $this->addWhere( 'interval_length', $interval );
 	}

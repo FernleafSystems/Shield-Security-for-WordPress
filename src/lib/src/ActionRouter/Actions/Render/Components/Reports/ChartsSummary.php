@@ -3,11 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\StandardFullPageDisplay;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\ScheduledReport;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ChartsSummary extends Base {
 
@@ -16,6 +17,7 @@ class ChartsSummary extends Base {
 
 	protected function getRenderData() :array {
 		$con = $this->con();
+		$req = Services::Request();
 		/** @var EventsDB\Select $eventSelector */
 		$eventSelector = $con->getModule_Events()
 							 ->getDbH_Events()
@@ -90,10 +92,12 @@ class ChartsSummary extends Base {
 				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
 			],
 			'hrefs' => [
-				'report' => $con->plugin_urls->noncedPluginAction( StandardFullPageDisplay::class, $con->plugin_urls->adminHome(), [
-					'render_slug' => ScheduledReport::SLUG,
+				'report' => $con->plugin_urls->noncedPluginAction( FullPageDisplayDynamic::class, $con->plugin_urls->adminHome(), [
+					'render_slug' => SecurityReport::SLUG,
 					'render_data' => [
 						'interval' => 'weekly',
+						'interval_start' => $req->carbon(true)->subWeek()->timestamp,
+						'interval_end' => $req->carbon(true)->timestamp,
 					]
 				] ),
 			],

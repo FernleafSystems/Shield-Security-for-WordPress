@@ -23,7 +23,7 @@ class PluginNavs {
 	public const NAV_TRAFFIC_VIEWER = 'traffic';
 	public const NAV_USER_SESSIONS = 'users';
 	public const NAV_WIZARD = 'merlin';
-	public const SUBNAV_CHANGE_TRACK = 'change_tracking';
+	public const SUBNAV_REPORTS_CREATE = 'create';
 	public const SUBNAV_CHARTS = 'charts';
 	public const SUBNAV_STATS = 'stats';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
 
-class StandardFullPageDisplay extends BaseFullPageDisplay {
+class FullPageDisplayDynamic extends BaseFullPageDisplay {
 
-	public const SLUG = 'display_full_page_standard';
+	public const SLUG = 'display_full_page_dynamic';
 }

@@ -325,10 +325,10 @@ class NavMenuBuilder {
 			],
 			'sub_items' => [
 				[
-					'slug'   => $slug.'-change',
-					'title'  => __( 'Changes', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_CHANGE_TRACK ),
-					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_CHANGE_TRACK,
+					'slug'   => $slug.'-create',
+					'title'  => __( 'Create', 'wp-simple-firewall' ),
+					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CREATE ),
+					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_REPORTS_CREATE,
 				],
 				[
 					'slug'   => $slug.'-charts',

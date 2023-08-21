@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class ReportingChartSummary extends ReportingBase {
+class ReportingChartSummary extends ReportingChartBase {
 
 	public const SLUG = 'render_chart_summary';
 

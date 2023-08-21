@@ -1,0 +1,134 @@
+<form id="ChangeTrackingReportForm">
+	<h5 class="mt-3 my-4">
+		Reporting Options
+	</h5>
+	<div class="row">
+		<div class="col-4 mb-3">
+			<h6>Change-Tracking Zones</h6>
+			<div class="ps-3">
+				{% for zone_key,zone_name in vars.available_zones %}
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+							   name="change_zones[]" id="zone-{{ zone_key }}"
+							   value="{{ zone_key }}" checked="checked" />
+						<label class="form-check-label" for="zone-{{ zone_key }}">{{ zone_name }}</label>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="col-4 mb-3">
+			<h6>Statistics</h6>
+			<div class="ps-3">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" name="include_statistics"
+						   id="option-include-statistic"
+						   value="Y" checked="checked" />
+					<label class="form-check-label" for="option-include-statistic">Include Stats</label>
+				</div>
+			</div>
+		</div>
+		<div class="col-4 mb-3">
+			<h6>Scan Results</h6>
+			<div class="ps-3">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" name="include_scan_current_summary"
+						   id="option-include-scancurrent"
+						   value="Y" checked="checked" />
+					<label class="form-check-label" for="option-include-scancurrent">Include Summary of Current Scan Results</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-12 col-xl-6 mb-3">
+			<h6>Date Range</h6>
+			<p>Applies only to Change-Tracking & Statistics.</p>
+			<div class="input-group mb-3 date input-daterange" id="DateRangePicker">
+			  <input type="text" name="start_date" class="form-control datepicker-input"
+					 {% if not flags.can_run_report %}disabled="disabled"{% endif %}
+					 placeholder="Start Date" />
+			  <span class="input-group-text">to</span>
+			  <input type="text" name="end_date" class="form-control datepicker-input"
+					 {% if not flags.can_run_report %}disabled="disabled"{% endif %}
+					 placeholder="End Date" />
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col mb-3">
+			<button type="submit" class="btn btn-primary"
+					{% if not flags.can_run_report %}disabled="disabled"{% endif %}>
+			  {% if flags.can_run_report %}{{ strings.build_report }}{% else %}Unavailable{% endif %}
+			</button>
+		</div>
+	</div>
+</form>
+
+<hr class="my-4" />
+
+<div id="TrackingReportResponse"></div>
+
+{% block inline_scripts %}
+
+	{% if flags.can_run_report %}
+		<script type="text/javascript">
+		  new DateRangePicker( document.getElementById( 'DateRangePicker' ), {
+			  format: 'yyyy-mm-dd',
+			  minDate: new Date( '{{ vars.earliest_date }}' ),
+			  maxDate: new Date( '{{ vars.latest_date }}' ),
+			  weekStart: 1,
+		  } );
+
+		  (function ( $ ) {
+			  $( document ).ready( function () {
+
+				  let requestRunning = false;
+
+				  jQuery( document ).on( "submit", 'form#ChangeTrackingReportForm', function ( evt ) {
+					  evt.preventDefault();
+					  if ( requestRunning ) {
+						  return false;
+					  }
+
+					  let $form = $( this );
+
+					  const startDate = jQuery( 'input[name=start_date]', $form ).val();
+					  const endDate = jQuery( 'input[name=end_date]', $form ).val();
+					  if ( startDate.length === 0 ) {
+						  alert( 'Please provide a start date' );
+					  }
+					  else if ( endDate.length === 0 ) {
+						  alert( 'Please provide an end date' );
+					  }
+					  else {
+						  requestRunning = true;
+						  Shield_AjaxRender
+						  .send_ajax_req( {
+							  render_slug: '{{ ajax.report_create_slug }}',
+							  form_params: $form.serialize()
+						  } )
+						  .then( ( response ) => {
+							  if ( response.success ) {
+								  jQuery( '#TrackingReportResponse' ).html( response.data.html );
+							  }
+							  else {
+								  alert( response.data.error );
+							  }
+						  } )
+						  .catch( ( error ) => {
+							  console.log( error );
+						  } )
+						  .finally( ( response ) => {
+							  iCWP_WPSF_BodyOverlay.hide();
+							  requestRunning = false;
+						  } );
+						  requestRunning = false;
+					  }
+
+					  return false;
+				  } );
+			  } );
+		  })( jQuery );
+	</script>
+	{% endif %}
+{% endblock %}

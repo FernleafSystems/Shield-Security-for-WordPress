@@ -13,7 +13,6 @@ abstract class BuildScanAction {
 
 	/**
 	 * @return static
-	 * @throws \Exception
 	 */
 	public function build() {
 		$this->setScanActionVO( $this->getScanController()->getScanActionVO() );

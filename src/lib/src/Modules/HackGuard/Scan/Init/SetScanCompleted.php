@@ -13,44 +13,43 @@ class SetScanCompleted {
 
 	use ModConsumer;
 
-	public function run() {
-		foreach ( ( new ScansStatus() )->enqueued() as $scan ) {
-			$count = (int)Services::WpDb()->getVar(
-				sprintf( "SELECT count(*)
-						FROM `%s` as scans
+	public function run( string $scan ) {
+		$count = (int)Services::WpDb()->getVar(
+			sprintf( "SELECT count(*)
+						FROM `%s` as `scans`
 						INNER JOIN `%s` as `si`
-							ON `si`.scan_ref = `scans`.id
-							AND `si`.finished_at=0
+							ON `si`.`scan_ref` = `scans`.`id`
+							AND `si`.`finished_at`=0
 						WHERE `scans`.`scan`='%s'
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0;",
-					$this->mod()->getDbH_Scans()->getTableSchema()->table,
-					$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
-					$scan
-				)
-			);
-			if ( $count === 0 ) {
-				$this->mod()
-					 ->getDbH_Scans()
-					 ->getQueryUpdater()
-					 ->setUpdateWheres( [
-						 'scan'        => $scan,
-						 'finished_at' => 0,
-					 ] )
-					 ->setUpdateData( [
-						 'finished_at' => Services::Request()->ts()
-					 ] )
-					 ->query();
+				$this->mod()->getDbH_Scans()->getTableSchema()->table,
+				$this->mod()->getDbH_ScanItems()->getTableSchema()->table,
+				$scan
+			)
+		);
 
-				$scanCon = $this->mod()->getScansCon()->getScanCon( $scan );
-				$this->con()->fireEvent( 'scan_run', [
-					'audit_params' => [
-						'scan' => $scanCon->getScanName()
-					]
-				] );
+		if ( $count === 0 ) {
+			$this->mod()
+				 ->getDbH_Scans()
+				 ->getQueryUpdater()
+				 ->setUpdateWheres( [
+					 'scan'        => $scan,
+					 'finished_at' => 0,
+				 ] )
+				 ->setUpdateData( [
+					 'finished_at' => Services::Request()->ts()
+				 ] )
+				 ->query();
 
-				$this->auditLatestScanItems( $scanCon );
-			}
+			$scanCon = $this->mod()->getScansCon()->getScanCon( $scan );
+			$this->con()->fireEvent( 'scan_run', [
+				'audit_params' => [
+					'scan' => $scanCon->getScanName()
+				]
+			] );
+
+			$this->auditLatestScanItems( $scanCon );
 		}
 	}
 

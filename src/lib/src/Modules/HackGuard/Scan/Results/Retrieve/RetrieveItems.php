@@ -73,10 +73,10 @@ class RetrieveItems extends RetrieveBase {
 		$WPDB = Services::WpDb();
 
 		// Need to determine the scan from the scan result.
-		$scan = $WPDB->getVar( sprintf( "SELECT `scans`.scan
+		$scan = $WPDB->getVar( sprintf( "SELECT `scans`.`scan`
 					FROM `%s` as `scans`
 					INNER JOIN `%s` as `sr`
-						ON `sr`.scan_ref = `scans`.id AND `sr`.id = %s 
+						ON `sr`.`scan_ref` = `scans`.`id` AND `sr`.`id` = %s 
 					LIMIT 1;",
 			$this->mod()->getDbH_Scans()->getTableSchema()->table,
 			$this->mod()->getDbH_ScanResults()->getTableSchema()->table,
@@ -269,9 +269,10 @@ class RetrieveItems extends RetrieveBase {
 	private function standardSelectFields() :array {
 		return [
 			'`scans`.`scan`',
-			'`scans`.`id` as scan_id',
-			'`sr`.`id` as scanresult_id',
-			'`ri`.`id` as resultitem_id',
+			'`scans`.`created_at` as `scan_created_at`',
+			'`scans`.`id` as `scan_id`',
+			'`sr`.`id` as `scanresult_id`',
+			'`ri`.`id` as `resultitem_id`',
 			'`ri`.`item_type`',
 			'`ri`.`item_id`',
 			'`ri`.`ignored_at`',

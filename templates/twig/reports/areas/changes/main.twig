@@ -1,0 +1,69 @@
+<div id="ChangeTrackingReport">
+{% if flags.has_diffs %}
+	<div class="row">
+		<div class="col text-center">
+			<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+				<input type="radio" class="btn-check" name="change_report_type" id="TypeSummary" autocomplete="off" checked value="summary">
+				<label class="btn btn-outline-secondary" for="TypeSummary">Summary</label>
+
+				<input type="radio" class="btn-check" name="change_report_type" id="TypeDetailed" autocomplete="off" value="detailed">
+				<label class="btn btn-outline-secondary" for="TypeDetailed">Detailed</label>
+			</div>
+		</div>
+	</div>
+
+	<div class="accordion accordion-flush my-3" id="accordionChanges">
+		{% set loopCount = 0 %}
+		{% for zone_slug,zone_data in vars.changes %}
+			{% set zone_changes = zone_data['detailed'] %}
+			{% set zone_title = zone_data.title %}
+			<div class="accordion-item">
+				<h2 class="accordion-header">
+					<button class="accordion-button"
+							type="button"
+							data-bs-toggle="collapse"
+							data-bs-target="#collapse-zone-{{ zone_slug }}"
+							aria-expanded="false" aria-controls="collapse-zone-{{ zone_slug }}">
+						{{ zone_data.title }}
+					</button>
+				</h2>
+				<div id="collapse-zone-{{ zone_slug }}" class="accordion-collapse collapse show">
+					<div class="accordion-body">
+						<div class="row">
+							<div class="col">
+								{% include '/reports/areas/changes/zone_diff.twig' %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% set loopCount = loopCount + 1 %}
+		{% endfor %}
+	</div>
+
+	<script type="text/javascript">
+		(function ( $ ) {
+			$( document ).ready( function () {
+
+				jQuery( document ).on( "click", 'input[name=change_report_type]', function ( evt ) {
+
+					let $radio = $( this );
+					if ( $radio.val() === 'detailed' ) {
+						$( '#ChangeTrackingReport div.detailed.d-none' ).removeClass( 'd-none' );
+					}
+					else {
+						$( '#ChangeTrackingReport div.detailed' ).addClass( 'd-none' );
+					}
+					return true;
+				} );
+			} );
+		})( jQuery );
+
+	</script>
+
+{% else %}
+	<div class="alert alert-info">
+		There were no changes available for the selected areas, between the selected days provided.
+	</div>
+{% endif %}
+</div>

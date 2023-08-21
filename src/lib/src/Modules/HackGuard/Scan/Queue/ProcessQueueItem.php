@@ -32,7 +32,7 @@ class ProcessQueueItem {
 					 'finished_at' => Services::Request()->ts()
 				 ] );
 
-			( new SetScanCompleted() )->run();
+			( new SetScanCompleted() )->run( $item->scan );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );

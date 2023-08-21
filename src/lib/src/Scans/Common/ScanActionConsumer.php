@@ -9,13 +9,13 @@ trait ScanActionConsumer {
 	/**
 	 * @var BaseScanActionVO
 	 */
-	private $oScanActionVO;
+	private $scanActionVO;
 
 	/**
 	 * @return BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
-		return $this->oScanActionVO;
+		return $this->scanActionVO;
 	}
 
 	/**
@@ -23,7 +23,7 @@ trait ScanActionConsumer {
 	 * @return $this
 	 */
 	public function setScanActionVO( $action ) {
-		$this->oScanActionVO = $action;
+		$this->scanActionVO = $action;
 		return $this;
 	}
 }

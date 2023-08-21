@@ -1,0 +1,20 @@
+<div class="row mt-4">
+	<div class="col">
+		<h3 class="border-bottom area-title">
+			<button class="accordion-button fs-3"
+					type="button"
+					data-bs-toggle="collapse"
+					data-bs-target="#collapse-{{ area.slug }}">
+			{{ area.title }}
+			</button>
+		</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-10 offset-1">
+		<div id="collapse-{{ area.slug }}" class="accordion-collapse collapse show">
+			{{ area.content|raw }}
+		</div>
+	</div>
+</div>

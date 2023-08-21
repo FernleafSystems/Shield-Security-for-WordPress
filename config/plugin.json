@@ -616,9 +616,25 @@
           "macro_type": "varchar",
           "length":     10,
           "comment":    "Report Interval"
+        },
+        "unique_id":       {
+          "type":    "char",
+          "length":  36,
+          "attr":       [
+            "UNIQUE",
+            "NOT NULL"
+          ],
+          "comment": "Unique ID"
+        },
+        "content":         {
+          "type":    "mediumblob",
+          "comment": "Report Content"
         }
       },
       "cols_timestamps": {
+        "interval_start_at": {
+          "comment": "Interval Start"
+        },
         "interval_end_at": {
           "comment": "Interval End"
         },

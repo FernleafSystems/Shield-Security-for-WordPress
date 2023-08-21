@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
 
-abstract class ReportingBase extends BaseAction {
+abstract class ReportingChartBase extends BaseAction {
 
 	protected function renderChart( array $data ) {
 		try {
