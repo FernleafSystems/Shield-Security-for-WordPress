@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
@@ -17,8 +17,8 @@ class Handler extends Base\Handler {
 	}
 
 	public function commitEvent( string $evt, int $count = 1 ) :bool {
-		/** @var EntryVO $entry */
-		$entry = $this->getVo();
+		/** @var Record $entry */
+		$entry = $this->getRecord();
 		$entry->event = $evt;
 		$entry->count = \max( 1, $count );
 		$entry->created_at = Services::Request()->ts();

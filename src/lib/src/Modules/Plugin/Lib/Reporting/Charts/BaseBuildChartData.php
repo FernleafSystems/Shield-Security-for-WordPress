@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -19,7 +19,6 @@ class BaseBuildChartData {
 	protected $labels;
 
 	/**
-	 * @return array
 	 * @throws \InvalidArgumentException
 	 */
 	public function build() :array {
@@ -83,7 +82,7 @@ class BaseBuildChartData {
 
 	protected function buildDataForEvents( array $events ) :array {
 		$req = $this->getChartRequest();
-		$dbhEvents = $this->con()->getModule_Events()->getDbHandler_Events();
+		$dbhEvents = $this->con()->getModule_Events()->getDbH_Events();
 
 		$tick = 0;
 		$carbon = Services::Request()->carbon();
@@ -92,7 +91,7 @@ class BaseBuildChartData {
 		$dataSeries = [];
 		do {
 
-			/** @var Events\Select $eventSelect */
+			/** @var EventsDB\Select $eventSelect */
 			$eventSelect = $dbhEvents->getQuerySelector();
 			switch ( $req->interval ) {
 				case 'hourly':

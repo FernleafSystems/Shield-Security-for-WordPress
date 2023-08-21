@@ -2,22 +2,40 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Handler as LegacyEventsDB;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'events';
 
-	public function getDbHandler_Events() :Shield\Databases\Events\Handler {
+	private $eventsMigrator;
+
+	public function getDbHandler_Events() :LegacyEventsDB {
 		return $this->getDbH( 'events' );
+	}
+
+	public function getDbH_Events() :DB\Event\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'event' );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		return ( $this->getDbHandler_Events() instanceof Shield\Databases\Events\Handler )
-			   && $this->getDbHandler_Events()->isReady();
+		return $this->getDbH_Events()->isReady();
+	}
+
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+		$this->getMigrator();
+	}
+
+	public function getMigrator() :Lib\QueueEventsDbMigrator {
+		return $this->eventsMigrator ?? $this->eventsMigrator = new Lib\QueueEventsDbMigrator();
+	}
+
+	public function runDailyCron() {
+		parent::runDailyCron();
+		$this->getMigrator()->dispatch();
 	}
 }

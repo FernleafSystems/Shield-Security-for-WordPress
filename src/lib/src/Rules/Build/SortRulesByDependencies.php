@@ -126,7 +126,7 @@ class SortRulesByDependencies {
 						/** @var Base $class */
 						$class = $this->con()->rules->locateConditionHandlerClass( $dependency );
 //						error_log( $class );
-						$minimumHook = max( $minimumHook, $class::FindMinimumHook() );
+						$minimumHook = \max( $minimumHook, $class::FindMinimumHook() );
 //						error_log( var_export( $minimumHook, true ) );
 					}
 					catch ( NoSuchConditionHandlerException $e ) {
@@ -135,7 +135,7 @@ class SortRulesByDependencies {
 				}
 			}
 
-			$rule->wp_hook_level = max( $minimumHook, $rule->wp_hook_level );
+			$rule->wp_hook_level = \max( $minimumHook, $rule->wp_hook_level );
 			$rule->wp_hook = WPHooksOrder::HOOK_NAME( $rule->wp_hook_level );
 		}
 	}

@@ -349,7 +349,7 @@ abstract class BaseQuery {
 	 * @return int
 	 */
 	public function getLimit() {
-		return max( (int)$this->nLimit, 0 );
+		return \max( (int)$this->nLimit, 0 );
 	}
 
 	public function getWheres() :array {
@@ -390,7 +390,7 @@ abstract class BaseQuery {
 	 * @return int
 	 */
 	public function getPage() {
-		return max( (int)$this->nPage, 1 );
+		return \max( (int)$this->nPage, 1 );
 	}
 
 	/**

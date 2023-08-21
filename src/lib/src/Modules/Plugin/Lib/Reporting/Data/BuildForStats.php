@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 
 class BuildForStats {
@@ -30,8 +30,8 @@ class BuildForStats {
 		$con = self::con();
 		$countData = null;
 
-		/** @var DBEvents\Select $selector */
-		$selector = $con->getModule_Events()->getDbHandler_Events()->getQuerySelector();
+		/** @var EventsDB\Select $selector */
+		$selector = $con->getModule_Events()->getDbH_Events()->getQuerySelector();
 		try {
 			$sumCurrent = $selector
 				->filterByBoundary( $this->startAt, $this->endAt )

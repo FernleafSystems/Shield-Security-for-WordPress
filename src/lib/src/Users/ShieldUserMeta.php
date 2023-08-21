@@ -48,7 +48,7 @@ class ShieldUserMeta extends UserMeta {
 		$value = parent::__get( $key );
 		switch ( $key ) {
 			case 'last_verified_at':
-				$value = max( [
+				$value = \max( [
 					$this->record->last_login_at,
 					$this->record->pass_started_at,
 					$this->record->first_seen_at
