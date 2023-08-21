@@ -8,6 +8,8 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public const SLUG = 'events';
 
+	private $eventsMigrator;
+
 	public function getDbHandler_Events() :LegacyEventsDB {
 		return $this->getDbH( 'events' );
 	}
@@ -21,5 +23,19 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 */
 	protected function isReadyToExecute() :bool {
 		return $this->getDbH_Events()->isReady();
+	}
+
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+		$this->getMigrator();
+	}
+
+	public function getMigrator() :Lib\QueueEventsDbMigrator {
+		return $this->eventsMigrator ?? $this->eventsMigrator = new Lib\QueueEventsDbMigrator();
+	}
+
+	public function runDailyCron() {
+		parent::runDailyCron();
+		$this->getMigrator()->dispatch();
 	}
 }

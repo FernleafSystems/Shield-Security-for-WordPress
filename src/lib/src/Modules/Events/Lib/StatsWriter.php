@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Handler;
-
 class StatsWriter extends EventsListener {
 
 	/**
@@ -25,7 +23,6 @@ class StatsWriter extends EventsListener {
 	protected function onShutdown() {
 		if ( !$this->con()->plugin_deleting ) {
 			$mod = self::con()->getModule_Events();
-			/** @var Handler $dbh */
 			$dbh = \method_exists( $mod, 'getDbH_Events' ) ? $mod->getDbH_Events() : $mod->getDbHandler_Events();
 			$dbh->commitEvents( $this->getEventStats() );
 			$this->setEventStats();

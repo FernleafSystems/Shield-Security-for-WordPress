@@ -3,14 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base as LegacyDB;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\BackgroundProcess {
-
-	use ModConsumer;
 
 	public const PAGE_SIZE = 100;
 
@@ -38,12 +35,13 @@ abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\Bac
 		$result = $this->getDbSelector()
 					   ->setLimit( static::PAGE_SIZE )
 					   ->setPage( 1 )
-					   ->queryWithResult();
+					   ->setResultsAsVo( true )
+					   ->query();
 		return \is_array( $result ) ? $result : [];
 	}
 
 	/**
-	 * @return Select|mixed
+	 * @return LegacyDB\Select|mixed
 	 */
 	abstract protected function getDbSelector();
 
@@ -55,7 +53,7 @@ abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\Bac
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param Record $item Array of records to be processed.
+	 * @param Record|LegacyDB\EntryVO $item Array of records to be processed.
 	 * @return false
 	 */
 	protected function task( $item ) {
@@ -69,8 +67,8 @@ abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\Bac
 	}
 
 	/**
-	 * @param Record $record
-	 * @return Record
+	 * @param Record|LegacyDB\EntryVO $record
+	 * @return Record|LegacyDB\EntryVO
 	 * @throws \Exception
 	 */
 	abstract protected function processRecord( $record );
