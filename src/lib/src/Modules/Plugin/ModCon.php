@@ -293,10 +293,6 @@ class ModCon extends BaseShield\ModCon {
 		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
 
-	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {
-		return $this->getDbH( 'notes' );
-	}
-
 	/**
 	 * @deprecated 18.2.4
 	 */

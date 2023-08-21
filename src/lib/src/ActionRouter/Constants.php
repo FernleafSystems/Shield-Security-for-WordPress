@@ -12,9 +12,6 @@ class Constants {
 	 */
 	public const ACTIONS = [
 		Actions\ActivityLogTableAction::class,
-		Actions\AdminNoteBulkAction::class,
-		Actions\AdminNoteDelete::class,
-		Actions\AdminNoteInsert::class,
 		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
@@ -108,7 +105,6 @@ class Constants {
 		Actions\Render::class,
 		Actions\Render\GenericRender::class,
 
-		Actions\Render\Components\AdminNotes::class,
 		Actions\Render\Components\AdminNotice::class,
 		Actions\Render\Components\DashboardWidget::class,
 		Actions\Render\Components\FormSecurityAdminLoginBox::class,
@@ -200,7 +196,6 @@ class Constants {
 		Actions\Render\MainWP\ExtPage\TabSitesListing::class,
 		Actions\Render\PageAdminPlugin::class,
 		Actions\Render\PluginAdminPages\PageActivityLogTable::class,
-		Actions\Render\PluginAdminPages\PageAdminNotes::class,
 		Actions\Render\PluginAdminPages\PageConfig::class,
 		Actions\Render\PluginAdminPages\PageDebug::class,
 		Actions\Render\PluginAdminPages\PageDocs::class,

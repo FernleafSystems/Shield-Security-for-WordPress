@@ -380,7 +380,6 @@ table.odp-table.scan-table td.column-path code {
 	font-size: 0.7rem;
 	padding: 0;
 }
-#TableAdminNotes .tablenav.bottom,
 #TableSessions .tablenav.bottom,
 .container-scantable .tablenav.bottom {
 	display: none;

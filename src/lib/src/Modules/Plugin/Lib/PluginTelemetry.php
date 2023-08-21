@@ -68,12 +68,6 @@ class PluginTelemetry {
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
 			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->con()->getInstallationID()[ 'id' ];
-			$dbhNotes = self::con()->getModule_Plugin()->getDbHandler_Notes();
-			$count = $dbhNotes->getQuerySelector()->count();
-			$data[ 'plugin' ][ 'dbs' ][ $dbhNotes->getTableSchema()->slug ] = [
-				'rows'           => $count,
-				'last_insert_at' => $count > 0 ? $dbhNotes->getQuerySelector()->first()->created_at : 0,
-			];
 		}
 
 		return $data;
