@@ -141,32 +141,12 @@ class ModCon extends BaseShield\ModCon {
 		return $text;
 	}
 
-	protected function cleanupDatabases() {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
-
-		$this->getDbH_BotSignal()
-			 ->getQueryDeleter()
-			 ->addWhereOlderThan( Services::Request()->carbon()->subWeek()->timestamp, 'updated_at' )
-			 ->query();
-
-		/** @var DB\IpRules\Ops\Delete $ipRulesDeleter */
-		$ipRulesDeleter = $this->getDbH_IPRules()->getQueryDeleter();
-		$ipRulesDeleter
-			->filterByType( DB\IpRules\Ops\Handler::T_AUTO_BLOCK )
-			->addWhereOlderThan(
-				Services::Request()->carbon()->subSeconds( $opts->getAutoExpireTime() )->timestamp,
-				'last_access_at'
-			)
-			->query();
-	}
-
 	public function runHourlyCron() {
 		( new DB\IpRules\CleanIpRules() )->cleanAutoBlocks();
 	}
 
 	public function runDailyCron() {
-		( new DB\IpRules\CleanIpRules() )->execute();
+		parent::runDailyCron();
 		( new TableIndices( $this->getDbH_IPRules()->getTableSchema() ) )->applyFromSchema();
 	}
 }

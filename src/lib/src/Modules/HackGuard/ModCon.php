@@ -148,10 +148,6 @@ class ModCon extends BaseShield\ModCon {
 		);
 	}
 
-	protected function cleanupDatabases() {
-		( new DB\Utility\Clean() )->execute();
-	}
-
 	/**
 	 * @throws \Exception
 	 */
