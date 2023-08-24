@@ -7,6 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops;
  * @property string $interval_length
  * @property string $unique_id
  * @property string $content
+ * @property bool   $protected
  * @property int    $interval_start_at
  * @property int    $interval_end_at
  * @property int    $created_at - sent at

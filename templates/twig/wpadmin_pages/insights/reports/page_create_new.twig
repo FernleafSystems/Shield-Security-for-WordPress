@@ -3,41 +3,23 @@
 		Reporting Options
 	</h5>
 	<div class="row">
-		<div class="col-4 mb-3">
-			<h6>Change-Tracking Zones</h6>
-			<div class="ps-3">
-				{% for zone_key,zone_name in vars.available_zones %}
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox"
-							   name="change_zones[]" id="zone-{{ zone_key }}"
-							   value="{{ zone_key }}" checked="checked" />
-						<label class="form-check-label" for="zone-{{ zone_key }}">{{ zone_name }}</label>
-					</div>
-				{% endfor %}
-			</div>
-		</div>
-		<div class="col-4 mb-3">
-			<h6>Statistics</h6>
-			<div class="ps-3">
-				<div class="form-check">
-					<input class="form-check-input" type="checkbox" name="include_statistics"
-						   id="option-include-statistic"
-						   value="Y" checked="checked" />
-					<label class="form-check-label" for="option-include-statistic">Include Stats</label>
+		{% for reporting_option in vars.reporting_options %}
+			<div class="col-4 mb-3">
+				<h6>{{ reporting_option.title }}</h6>
+				<div class="ps-3">
+					{% for zone_key,zone_name in reporting_option.zones %}
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox"
+								   name="{{ reporting_option.form_field_name }}[]"
+								   id="zone-{{ reporting_option.form_field_name }}-{{ zone_key }}"
+								   value="{{ zone_key }}" checked="checked" />
+							<label class="form-check-label"
+								   for="zone-{{ reporting_option.form_field_name }}-{{ zone_key }}">{{ zone_name }}</label>
+						</div>
+					{% endfor %}
 				</div>
 			</div>
-		</div>
-		<div class="col-4 mb-3">
-			<h6>Scan Results</h6>
-			<div class="ps-3">
-				<div class="form-check">
-					<input class="form-check-input" type="checkbox" name="include_scan_current_summary"
-						   id="option-include-scancurrent"
-						   value="Y" checked="checked" />
-					<label class="form-check-label" for="option-include-scancurrent">Include Summary of Current Scan Results</label>
-				</div>
-			</div>
-		</div>
+		{% endfor %}
 	</div>
 	<div class="row">
 		<div class="col-lg-12 col-xl-6 mb-3">
@@ -66,7 +48,9 @@
 
 <hr class="my-4" />
 
-<div id="TrackingReportResponse"></div>
+<div id="TrackingReportResponse">
+	{{ content.reports_table|raw }}
+</div>
 
 {% block inline_scripts %}
 

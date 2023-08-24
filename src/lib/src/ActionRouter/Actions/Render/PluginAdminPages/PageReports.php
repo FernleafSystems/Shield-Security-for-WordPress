@@ -11,11 +11,11 @@ class PageReports extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
-				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_AuditTrail()->cfg->slug ),
+				'text' => __( 'Configure Reporting', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( 'section_reporting' ),
 			]
 		];
 	}

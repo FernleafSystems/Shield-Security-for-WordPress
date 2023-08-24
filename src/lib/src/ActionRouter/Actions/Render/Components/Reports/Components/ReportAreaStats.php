@@ -23,22 +23,22 @@ class ReportAreaStats extends ReportAreaBase {
 				return $data;
 			},
 			[
-				'security'    => [
+				'security'      => [
 					'title'   => __( 'Security Stats', 'wp-simple-firewall' ),
 					'stats'   => $statsBuilder->build( \array_keys( $eventsParser->security() ) ),
 					'neutral' => false,
 				],
-				'wordpress'   => [
+				'wordpress'     => [
 					'title'   => __( 'WordPress Stats', 'wp-simple-firewall' ),
 					'stats'   => $statsBuilder->build( \array_keys( $eventsParser->wordpress() ) ),
 					'neutral' => true,
 				],
-				'accounts'    => [
+				'user_accounts' => [
 					'title'   => __( 'User Accounts', 'wp-simple-firewall' ),
 					'stats'   => $statsBuilder->build( \array_keys( $eventsParser->accounts() ) ),
 					'neutral' => true,
 				],
-				'user_access' => [
+				'user_access'   => [
 					'title'   => __( 'User Access', 'wp-simple-firewall' ),
 					'stats'   => $statsBuilder->build( \array_keys( $eventsParser->userAccess() ) ),
 					'neutral' => true,
@@ -46,12 +46,14 @@ class ReportAreaStats extends ReportAreaBase {
 			]
 		);
 
+		$stats = \array_intersect_key( $rawStats, \array_flip( $report->areas[ 'statistics' ] ) );
+
 		return [
 			'flags' => [
-				'has_stats' => !empty( $rawStats ),
+				'has_stats' => !empty( $stats ),
 			],
 			'vars'  => [
-				'stats' => $rawStats,
+				'stats' => $stats,
 			],
 		];
 	}

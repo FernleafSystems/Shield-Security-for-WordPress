@@ -2,40 +2,62 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayNonTerminating;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Exceptions\{
 	AttemptingToCreateDisabledReportException,
 	AttemptingToCreateDuplicateReportException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\ReportVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
 class ReportGenerator {
 
 	use ModConsumer;
 
+	/**
+	 * @throws \Exception
+	 */
+	public function adHoc( int $start, int $end, array $options ) :string {
+		$report = new Reports\ReportVO();
+		$report->interval_start_at = $start;
+		$report->interval_end_at = $end;
+		$report->areas = $options[ 'areas' ];
+		$report->type = Constants::REPORT_TYPE_ADHOC;
+
+		return $this->buildAndStore( $report )->unique_id;
+	}
+
+	private function buildAndStore( ReportVO $report ) :ReportsDB\Record {
+
+		$report->content = self::con()->action_router->action( FullPageDisplayNonTerminating::class, [
+			'render_slug' => SecurityReport::SLUG,
+			'render_data' => [
+				'report' => $report->getRawData(),
+			]
+		] )->action_response_data[ 'render_output' ];
+
+		/** @var ReportsDB\Record $record */
+		$record = $this->mod()->getDbH_ReportLogs()->getRecord();
+		$record->interval_start_at = $report->interval_start_at;
+		$record->interval_end_at = $report->interval_end_at;
+		$record->interval_length = $report->interval ?? '';
+		$record->type = $report->type;
+		$record->unique_id = ( new Uuid() )->V4();
+		$record->content = \function_exists( '\gzdeflate' ) ? \gzdeflate( $report->content ) : $report->content;
+		$this->mod()->getDbH_ReportLogs()->getQueryInserter()->insert( $record );
+		return $record;
+	}
+
 	public function auto() {
 		$reports = $this->buildReports();
-		foreach ( $reports as $report ) {
-			$this->storeReportRecord( $report );
-			$this->con()->fireEvent( 'report_generated', [
-				'audit_params' => [
-					'type'     => $this->getReportTypeName( $report->type ),
-					'interval' => $report->interval,
-				]
-			] );
-		}
 		if ( !empty( $reports ) ) {
 			$this->sendEmail( $this->renderFinalReports( $reports ) );
 		}
-	}
-
-	public function adHoc() :string {
-		$r = $this->renderFinalReports( $this->buildReports() );
-		$this->sendEmail( $r );
-		return $r;
 	}
 
 	/**
@@ -44,17 +66,18 @@ class ReportGenerator {
 	private function buildReports() :array {
 		/** @var Reports\ReportVO[] $reports */
 		$reports = [];
-		foreach ( \array_keys( $this->getReportTypes() ) as $reportType ) {
+		foreach ( [ Constants::REPORT_TYPE_INFO, Constants::REPORT_TYPE_ALERT ] as $reportType ) {
 			try {
 				$report = ( new Reports\CreateReportVO() )->create( $reportType );
-
-				( new Reports\StandardReportBuilder() )->build( $report );
+				$this->buildAndStore( $report );
 
 				if ( \strlen( $report->content ) > 0 ) {
 					$reports[] = $report;
-					$this->con()->fireEvent( 'report_generated', [
+					self::con()->fireEvent( 'report_generated', [
 						'audit_params' => [
-							'type'     => $this->getReportTypeName( $report->type ),
+							'type'     => $this->mod()
+											   ->getReportingController()
+											   ->getReportTypeName( $report->type ),
 							'interval' => $report->interval,
 						]
 					] );
@@ -98,16 +121,6 @@ class ReportGenerator {
 		);
 	}
 
-	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		$reportsDB = $this->con()->getModule_Plugin()->getDbH_ReportLogs();
-		/** @var ReportsDB\Record $record */
-		$record = $reportsDB->getRecord();
-		$record->type = $report->type;
-		$record->interval_length = $report->interval;
-		$record->interval_end_at = $report->interval_end_at;
-		return $reportsDB->getQueryInserter()->insert( $record );
-	}
-
 	private function sendEmail( string $report ) {
 		try {
 			$this->mod()
@@ -127,16 +140,5 @@ class ReportGenerator {
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
-	}
-
-	private function getReportTypes() :array {
-		return [
-			Constants::REPORT_TYPE_ALERT => 'alert',
-			Constants::REPORT_TYPE_INFO  => 'info',
-		];
-	}
-
-	private function getReportTypeName( string $type ) :string {
-		return $this->getReportTypes()[ $type ] ?? 'invalid report type';
 	}
 }

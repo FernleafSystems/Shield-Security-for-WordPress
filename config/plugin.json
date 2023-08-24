@@ -629,6 +629,11 @@
         "content":         {
           "type":    "mediumblob",
           "comment": "Report Content"
+        },
+        "protected": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Protected against deletion"
         }
       },
       "cols_timestamps": {

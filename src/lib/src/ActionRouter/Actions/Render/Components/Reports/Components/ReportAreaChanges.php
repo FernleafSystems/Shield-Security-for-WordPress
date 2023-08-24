@@ -13,7 +13,7 @@ class ReportAreaChanges extends ReportAreaBase {
 		$report = $this->report();
 		$changes = \array_filter(
 			( new BuildForChanges( $report->interval_start_at, $report->interval_end_at ) )
-				->build( $report->areas[ 'change_zones' ] ),
+				->build( $report->areas[ 'changes' ] ),
 			function ( array $zone ) {
 				// Only display zones that have changes
 				return $zone[ 'total' ] > 0;

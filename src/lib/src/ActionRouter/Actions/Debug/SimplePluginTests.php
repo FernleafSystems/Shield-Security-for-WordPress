@@ -141,15 +141,6 @@ class SimplePluginTests extends BaseAction {
 		}
 	}
 
-	private function dbg_reporting() {
-		try {
-			echo ( new Plugin\Lib\Reporting\ReportGenerator() )->adHoc();
-		}
-		catch ( \Exception $e ) {
-			var_dump( $e->getMessage() );
-		}
-	}
-
 	private function dbg_plugin_tests() {
 		( new RunTests() )->run();
 	}

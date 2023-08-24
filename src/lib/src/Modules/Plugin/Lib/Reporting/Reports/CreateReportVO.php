@@ -29,8 +29,26 @@ class CreateReportVO {
 
 		$this->setReportInterval()
 			 ->setPreviousReport()
+			 ->setReportAreas()
 			 ->setIntervalBoundaries();
 		return $this->rep;
+	}
+
+	private function setReportAreas() :self {
+		switch ( $this->rep->type ) {
+			case Constants::REPORT_TYPE_ALERT:
+				$this->rep->areas = [
+					'scans' => [
+						'new',
+					],
+				];
+				break;
+			case Constants::REPORT_TYPE_INFO:
+			default:
+				$this->rep->areas = $this->mod()->getReportingController()->getReportAreas( true );
+				break;
+		}
+		return $this;
 	}
 
 	private function setReportInterval() :self {

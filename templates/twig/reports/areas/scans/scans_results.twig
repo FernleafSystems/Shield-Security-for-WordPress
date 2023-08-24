@@ -1,0 +1,29 @@
+{% if flags.has_results %}
+	<div class="row mt-2">
+		<div class="col">
+			<p>Scans results summary is correct as of the time that this report was generated: {{ vars.generation_date }}</p>
+		</div>
+	</div>
+	<div class="row mt-2">
+		{% for slug,data in vars.scan_counts %}
+			<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ data.colour }}">
+				<div class="card card-raised border-{{ data.colour }}">
+					<div class="card-body ps-3 pe-1 py-1">
+						<div class="overline text-muted mb-1">{{ data.name }}</div>
+						<div class="d-flex align-items-center justify-content-between">
+							<div class="display-6 fw-normal">{{ data.count }}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% else %}
+	<p>There are no results to show at this time.</p>
+{% endif %}
+
+<div class="row mt-2">
+	<div class="col">
+		<p><a href="{{ hrefs.view_scan_results }}" target="_blank">{{ strings.view_scan_results }}</a></p>
+	</div>
+</div>

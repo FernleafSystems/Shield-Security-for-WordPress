@@ -12,7 +12,7 @@ class BuildBase {
 
 	protected $end;
 
-	public function __construct( int $start, int $end ) {
+	public function __construct( int $start = 0, int $end = 0 ) {
 		$this->start = $start;
 		$this->end = $end;
 	}

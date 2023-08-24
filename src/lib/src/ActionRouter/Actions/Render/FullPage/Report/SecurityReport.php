@@ -2,16 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\ReportVO;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\{
 	ReportAreaChanges,
-	ReportAreaScansCurrentResults,
+	ReportAreaScansResults,
 	ReportAreaStats
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\BaseFullPageRender;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityReport extends BaseFullPageRender {
+
+	use AuthNotRequired;
 
 	public const SLUG = 'render_security_report';
 	public const TEMPLATE = '/pages/report/security.twig';
@@ -22,14 +26,27 @@ class SecurityReport extends BaseFullPageRender {
 		$report = ( new ReportVO() )->applyFromArray( $this->action_data[ 'report' ] );
 
 		$areas = [];
-		if ( \in_array( 'scans_current', $report->areas ) ) {
-			$areas[ 'scans_current' ] = [
-				'slug'    => 'scans_current',
-				'title'   => __( 'Current Scan Results', 'wp-simple-firewall' ),
-				'content' => $con->action_router->render( ReportAreaScansCurrentResults::class ),
-			];
+		if ( !empty( $report->areas[ 'scans' ] ) ) {
+			if ( \in_array( 'current', $report->areas[ 'scans' ] ) ) {
+				if ( \in_array( 'new', $report->areas[ 'scans' ] ) ) {
+					$areas[ 'scans_new' ] = [
+						'slug'    => 'scans_current',
+						'title'   => __( 'New Scan Results', 'wp-simple-firewall' ),
+						'content' => $con->action_router->render( ReportAreaScansResults::class, [
+							'context' => RetrieveCount::CONTEXT_NOT_YET_NOTIFIED
+						] ),
+					];
+				}
+				$areas[ 'scans_current' ] = [
+					'slug'    => 'scans_current',
+					'title'   => __( 'Current Scan Results', 'wp-simple-firewall' ),
+					'content' => $con->action_router->render( ReportAreaScansResults::class, [
+						'context' => RetrieveCount::CONTEXT_ACTIVE_PROBLEMS
+					] ),
+				];
+			}
 		}
-		if ( !empty( $report->areas[ 'change_zones' ] ) ) {
+		if ( !empty( $report->areas[ 'changes' ] ) ) {
 			$areas[ 'changes' ] = [
 				'slug'    => 'changes',
 				'title'   => __( 'Changes', 'wp-simple-firewall' ),
@@ -38,7 +55,7 @@ class SecurityReport extends BaseFullPageRender {
 				] ),
 			];
 		}
-		if ( \in_array( 'statistics', $report->areas ) ) {
+		if ( !empty( $report->areas[ 'statistics' ] ) ) {
 			$areas[ 'statistics' ] = [
 				'slug'    => 'statistics',
 				'title'   => __( 'Statistics', 'wp-simple-firewall' ),

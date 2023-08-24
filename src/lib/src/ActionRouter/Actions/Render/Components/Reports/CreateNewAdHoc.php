@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateNewAdHoc extends BaseRender {
@@ -12,26 +13,23 @@ class CreateNewAdHoc extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/reports/display_new_adhoc.twig';
 
 	protected function getRenderData() :array {
-		$reportCon = self::con()->getModule_Plugin()->getReportingController();
 		$form = FormParams::Retrieve();
-		$reportID = $reportCon->newReport(
+		$reportID = ( new ReportGenerator() )->adHoc(
 			$this->start(),
 			$this->end(),
 			[
 				'areas' => [
-					'scans_current' => ( $form[ 'include_scan_current_summary' ] ?? false ) === 'Y',
-					'change_zones'  => $form[ 'change_zones' ] ?? [],
-					'statistics'    => ( $form[ 'include_statistics' ] ?? false ) === 'Y',
+					'changes'    => $form[ 'changes_zones' ] ?? [],
+					'statistics' => $form[ 'statistics_zones' ] ?? [],
+					'scans'      => $form[ 'scans_zones' ] ?? [],
 				]
 			]
 		);
 		return [
-			'hrefs'   => [
-				'view_report' => $reportCon->viewReportURL( $reportID ),
-			],
-			'strings' => [
-				'title'    => __( 'Important Alerts', 'wp-simple-firewall' ),
-				'subtitle' => __( 'The following is a collection of the latest alerts since your previous report.', 'wp-simple-firewall' ),
+			'content' => [
+				'reports_table' => self::con()->action_router->render( AllReportsTable::class, [
+					'active_id' => $reportID,
+				] ),
 			],
 		];
 	}
