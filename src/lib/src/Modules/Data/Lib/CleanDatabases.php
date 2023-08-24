@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Data,
 	HackGuard,
 	IPs,
+	Plugin,
 	Traffic
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,6 +24,7 @@ class CleanDatabases {
 		$this->cleanIpRules();
 		$this->cleanBotSignals();
 		$this->cleanUserMeta();
+		$this->cleanStaleReports();
 		$this->cleanStaleScans();
 		$this->purgeUnreferencedIPs();
 	}
@@ -53,6 +55,14 @@ class CleanDatabases {
 		$con->getModule_Data()
 			->getDbH_ReqLogs()
 			->tableCleanExpired( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+	}
+
+	public function cleanStaleReports() :void {
+		/** @var Plugin\DB\Report\Ops\Delete $deleter */
+		$deleter = self::con()->getModule_Plugin()->getDbH_ReportLogs()->getQueryDeleter();
+		$deleter->filterByType( Plugin\Lib\Reporting\Constants::REPORT_TYPE_ADHOC )
+				->addWhereOlderThan( Services::Request()->carbon( true )->subDay()->timestamp )
+				->query();
 	}
 
 	public function cleanStaleScans() :void {

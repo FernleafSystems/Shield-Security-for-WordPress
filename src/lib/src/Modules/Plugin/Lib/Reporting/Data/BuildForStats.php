@@ -20,7 +20,8 @@ class BuildForStats extends BuildBase {
 			->sumEventsSeparately( $events );
 		$countsPrevious = $this->start === 0 ?
 			\array_fill_keys( $events, 0 )
-			: $selector->filterByBoundary( $this->start - ( $this->end - $this->start ), $this->start )
+			: $selector->reset()
+					   ->filterByBoundary( $this->start - ( $this->end - $this->start ), $this->start )
 					   ->sumEventsSeparately( $events );
 
 		foreach ( $events as $event ) {
