@@ -83,7 +83,7 @@ class FileLockerController {
 	}
 
 	public function clearLocks() :void {
-		unset( $this->locks );
+		$this->locks = null;
 	}
 
 	/**

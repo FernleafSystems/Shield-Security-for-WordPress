@@ -34,6 +34,7 @@ class QueueEventsDbMigrator extends QueueDbRecordsMigrator {
 			$record = $dbh->getRecord();
 			$record->event = $entry->event;
 			$record->count = $entry->count;
+			$record->created_at = $entry->created_at;
 			$dbh->getQueryInserter()->insert( $record );
 
 			$this->mod()->getDbHandler_Events()->getQueryDeleter()->deleteById( $entry->id );
