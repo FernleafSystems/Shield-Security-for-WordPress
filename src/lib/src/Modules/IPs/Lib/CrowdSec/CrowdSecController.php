@@ -17,6 +17,8 @@ class CrowdSecController {
 	 */
 	public $cfg;
 
+	private $api;
+
 	protected function canRun() :bool {
 		return $this->opts()->isEnabledCrowdSecAutoBlock();
 	}
@@ -37,7 +39,7 @@ class CrowdSecController {
 	}
 
 	public function getApi() :CrowdSecApi {
-		return new CrowdSecApi();
+		return $this->api ?? $this->api = new CrowdSecApi();
 	}
 
 	public function storeCfg( CrowdSecCfg $cfg ) {

@@ -32,6 +32,12 @@ class CrowdSecApi {
 		] );
 	}
 
+	public function clearEnrollment() :void {
+		$auth = $this->getCsAuth();
+		unset( $auth[ 'machine_enrolled' ] );
+		$this->storeCsAuth( $auth );
+	}
+
 	public function getAuthorizationToken() :string {
 		return $this->getCsAuth()[ 'auth_token' ] ?? '';
 	}

@@ -12,6 +12,7 @@ class Constants {
 	 */
 	public const ACTIONS = [
 		Actions\ActivityLogTableAction::class,
+		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
 		Actions\FileDownload::class,

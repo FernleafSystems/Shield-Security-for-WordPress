@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	HackGuard,
+	IPs,
 	SecurityAdmin
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,12 +18,12 @@ class PageConfig extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/config.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$URLs = $this->con()->plugin_urls;
+		$URLs = self::con()->plugin_urls;
 		$hrefs = [];
 		switch ( $this->action_data[ 'mod_slug' ] ) {
 
 			case SecurityAdmin\ModCon::SLUG:
-				if ( $this->con()->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
+				if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
 					$hrefs[] = [
 						'text' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
 						'href' => $URLs->noncedPluginAction(
@@ -43,6 +45,16 @@ class PageConfig extends BasePluginAdminPage {
 				$hrefs[] = [
 					'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 					'href' => $URLs->adminTopNav( $URLs::NAV_SCANS_RUN ),
+				];
+				break;
+
+			case IPs\ModCon::SLUG:
+				$hrefs[] = [
+					'text' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
+					'href' => $URLs->noncedPluginAction(
+						CrowdsecResetEnrollment::class,
+						$URLs->modCfg( self::con()->getModule_IPs() )
+					),
 				];
 				break;
 
