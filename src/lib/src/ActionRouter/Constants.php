@@ -15,6 +15,7 @@ class Constants {
 		Actions\AdminNoteBulkAction::class,
 		Actions\AdminNoteDelete::class,
 		Actions\AdminNoteInsert::class,
+		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
 		Actions\FileDownload::class,
