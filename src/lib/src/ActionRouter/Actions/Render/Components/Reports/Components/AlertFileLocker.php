@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 
+/**
+ * @deprecated 18.3.0
+ */
 class AlertFileLocker extends BaseBuilderForScans {
 
 	public const SLUG = 'alert_file_locker';

@@ -3,17 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportAreaScansResults extends ReportAreaBase {
 
 	public const SLUG = 'report_area_scans_results';
-	public const TEMPLATE = '/reports/areas/scans/scans_results.twig';
+	public const TEMPLATE = '/reports/areas/scans_results.twig';
 
 	protected function getRenderData() :array {
 
-		$scanCounts = ( new BuildForScans() )->build();
+		$scanCounts = $this->report()->areas_data[ Constants::REPORT_AREA_SCANS ][ $this->action_data[ 'results_type' ] ];
 
 		$totalResults = 0;
 		foreach ( $scanCounts as $scanCount ) {

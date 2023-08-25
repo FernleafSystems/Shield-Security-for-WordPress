@@ -1,17 +1,14 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\{
-	DB\Report\Ops as ReportsDB,
-	Lib\Reporting\Constants,
-	ModConsumer
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
 
-	use ModConsumer;
+	use Plugin\ModConsumer;
 
 	/**
 	 * @var ReportVO
@@ -19,9 +16,8 @@ class CreateReportVO {
 	private $rep;
 
 	/**
-	 * @throws Exceptions\AttemptingToCreateDuplicateReportException
-	 * @throws Exceptions\AttemptingToCreateDisabledReportException
-	 * @throws \Exception
+	 * @throws Exceptions\DuplicateReportException
+	 * @throws Exceptions\ReportTypeDisabledException
 	 */
 	public function create( string $reportType ) :ReportVO {
 		$this->rep = new ReportVO();
@@ -38,8 +34,9 @@ class CreateReportVO {
 		switch ( $this->rep->type ) {
 			case Constants::REPORT_TYPE_ALERT:
 				$this->rep->areas = [
-					'scans' => [
+					Constants::REPORT_AREA_SCANS => [
 						'new',
+						'current',
 					],
 				];
 				break;
@@ -76,8 +73,8 @@ class CreateReportVO {
 	}
 
 	/**
-	 * @throws Exceptions\AttemptingToCreateDuplicateReportException
-	 * @throws Exceptions\AttemptingToCreateDisabledReportException
+	 * @throws Exceptions\DuplicateReportException
+	 * @throws Exceptions\ReportTypeDisabledException
 	 * @throws \Exception
 	 */
 	private function setIntervalBoundaries() :self {
@@ -130,19 +127,19 @@ class CreateReportVO {
 
 			case 'disabled':
 			default:
-				throw new Exceptions\AttemptingToCreateDisabledReportException( 'Attempting to create a report for a disabled interval.' );
+				throw new Exceptions\ReportTypeDisabledException( 'Attempting to create a report for a disabled interval.' );
 		}
 
 		if ( $this->rep->previous instanceof ReportsDB\Record && $end <= $this->rep->previous->interval_end_at ) {
-			throw new Exceptions\AttemptingToCreateDuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
+			throw new Exceptions\DuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
 		}
 
 		if ( $end > $currentIntervalStart->timestamp ) { // sanity check
 			throw new \Exception( 'Attempting to create for an interval greater than the current interval.' );
 		}
 
-		$this->rep->interval_start_at = $start;
-		$this->rep->interval_end_at = $end;
+		$this->rep->start_at = $start;
+		$this->rep->end_at = $end;
 
 		return $this;
 	}

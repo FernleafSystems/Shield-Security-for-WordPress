@@ -10,13 +10,13 @@
 	{% for report in vars.reports %}
 		<tbody>
 		<tr {{ report.is_active ? 'class="table-active"' :'' }}>
-			<td {{ report.is_active ? 'class="bg-success text-white"' :'' }}>
+			<td {{ report.is_active ? 'class="bg-info text-white"' :'' }}>
 				{{ report.type }}
 			</td>
-			<td {{ report.is_active ? 'class="bg-success text-white"' :'' }}>
+			<td {{ report.is_active ? 'class="bg-info text-white"' :'' }}>
 				<a {{ report.is_active ? 'class="text-white"' :'' }} href="{{ report.href }}" target="_blank">{{ report.unique_id }}</a>
 			</td>
-			<td {{ report.is_active ? 'class="bg-success text-white"' :'' }}>
+			<td {{ report.is_active ? 'class="bg-info text-white"' :'' }}>
 				{{ report.created_at }}
 			</td>
 		</tr>

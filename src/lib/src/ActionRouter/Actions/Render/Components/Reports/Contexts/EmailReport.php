@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class EmailReport extends EmailBase {
@@ -13,10 +14,18 @@ class EmailReport extends EmailBase {
 	protected function getBodyData() :array {
 		$con = $this->con();
 		return [
-			'content' => [
-				'reports' => $this->action_data[ 'reports' ]
-			],
 			'vars'    => [
+				'reports'     => \array_map(
+					function ( ReportVO $rep ) {
+						$reportCon = self::con()->getModule_Plugin()->getReportingController();
+						return [
+							'type'      => $reportCon->getReportTypeName( $rep->type ),
+							'generated' => Services::WpGeneral()->getTimeStringForDisplay( $rep->record->created_at ),
+							'href'      => $reportCon->getReportURL( $rep->record->unique_id ),
+						];
+					},
+					$this->action_data[ 'reports' ]
+				),
 				'site_url'    => $this->action_data[ 'home_url' ],
 				'report_date' => Services::WpGeneral()->getTimeStampForDisplay(),
 			],
@@ -24,12 +33,14 @@ class EmailReport extends EmailBase {
 				'click_adjust' => $con->plugin_urls->modCfgSection( $con->getModule_Plugin(), 'section_reporting' )
 			],
 			'strings' => [
-				'please_find'  => __( 'Please find your site report below.', 'wp-simple-firewall' ),
-				'depending'    => __( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
-				'site_url'     => __( 'Site URL', 'wp-simple-firewall' ),
-				'report_date'  => __( 'Report Generation Date', 'wp-simple-firewall' ),
-				'use_links'    => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
-				'click_adjust' => __( 'Click here to adjust your reporting settings', 'wp-simple-firewall' ),
+				'generated'   => __( 'Date Generated', 'wp-simple-firewall' ),
+				'report_type' => __( 'Report Type', 'wp-simple-firewall' ),
+				'view_report' => __( 'View Report', 'wp-simple-firewall' ),
+				'please_find' => __( 'At least 1 security report has been generated for your site.', 'wp-simple-firewall' ),
+				'depending'   => __( 'Depending on your settings, these reports may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
+				'site_url'    => __( 'Site URL', 'wp-simple-firewall' ),
+				'report_date' => __( 'Report Generation Date', 'wp-simple-firewall' ),
+				'use_links'   => __( 'Please use links provided in each section to review the report details.', 'wp-simple-firewall' ),
 			]
 		];
 	}

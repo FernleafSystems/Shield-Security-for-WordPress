@@ -95,9 +95,9 @@ class ChartsSummary extends Base {
 				'report' => $con->plugin_urls->noncedPluginAction( FullPageDisplayDynamic::class, $con->plugin_urls->adminHome(), [
 					'render_slug' => SecurityReport::SLUG,
 					'render_data' => [
-						'interval' => 'weekly',
-						'interval_start' => $req->carbon(true)->subWeek()->timestamp,
-						'interval_end' => $req->carbon(true)->timestamp,
+						'interval'       => 'weekly',
+						'interval_start' => $req->carbon( true )->subWeek()->timestamp,
+						'interval_end'   => $req->carbon( true )->timestamp,
 					]
 				] ),
 			],

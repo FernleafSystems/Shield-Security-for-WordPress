@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AllReportsTable extends BaseRender {
@@ -20,14 +21,15 @@ class AllReportsTable extends BaseRender {
 			'vars' => [
 				'reports' => \array_map(
 					function ( ReportDB\Record $report ) use ( $activeID ) {
-						$reportCon = self::con()
-										 ->getModule_Plugin()
-										 ->getReportingController();
+						$repCon = self::con()
+									  ->getModule_Plugin()
+									  ->getReportingController();
+						$type = $repCon->getReportTypeName( $report->type );
 						return [
-							'href'       => $reportCon->getReportURL( $report->unique_id ),
+							'href'       => $repCon->getReportURL( $report->unique_id ),
 							'is_active'  => $report->unique_id === $activeID,
 							'unique_id'  => $report->unique_id,
-							'type'       => $reportCon->getReportTypeName( $report->type ),
+							'type'       => $report->type === Constants::REPORT_TYPE_CUSTOM ? $type : sprintf( '%s (%s)', $type, $report->interval_length ),
 							'created_at' => Services::WpGeneral()->getTimeStringForDisplay( $report->created_at ),
 						];
 					},

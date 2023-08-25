@@ -74,7 +74,7 @@ class PageLicense extends BasePluginAdminPage {
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'award' ),
-				'svgs' => [
+				'svgs'                  => [
 					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' ),
 				],
 			],

@@ -15,4 +15,8 @@ trait Common {
 	public function filterByType( string $type ) {
 		return $this->addWhere( 'type', $type );
 	}
+
+	public function filterByProtected( bool $isProtected ) {
+		return $this->addWhere( 'protected', $isProtected ? 1 : 0 );
+	}
 }

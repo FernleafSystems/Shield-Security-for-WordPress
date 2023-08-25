@@ -18,7 +18,7 @@ class BuildForScans extends BuildBase {
 		];
 	}
 
-	public function buildForContext( int $context ) :array {
+	private function buildForContext( int $context ) :array {
 		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
 		$c = new Counts( $context );
 		$scanCounts = [

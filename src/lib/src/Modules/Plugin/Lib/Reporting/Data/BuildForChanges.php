@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
+
 class BuildForChanges extends BuildBase {
 
-	public function build( array $zones = [] ) :array {
+	public function build() :array {
 		$data = [];
-		foreach ( $this->con()->getModule_AuditTrail()->getAuditCon()->getAuditors() as $auditor ) {
+		$zones = $this->report->areas[ Constants::REPORT_AREA_CHANGES ];
+		foreach ( self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors() as $auditor ) {
 			if ( empty( $zones ) || \in_array( $auditor::Slug(), $zones ) ) {
 				try {
 					$reporter = $auditor->getReporter();
-					$reporter->setFrom( $this->start );
-					$reporter->setUntil( $this->end );
+					$reporter->setFrom( $this->report->start_at );
+					$reporter->setUntil( $this->report->end_at );
 					$data[ $reporter::Slug() ] = [
 						'title'       => $reporter->getZoneName(),
 						'description' => $reporter->getZoneDescription(),

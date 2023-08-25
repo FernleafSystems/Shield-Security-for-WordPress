@@ -1,0 +1,41 @@
+{% if flags.has_stats %}
+	{% for stat_type in vars.stats %}
+		{% if stat_type.has_non_zero_stat %}
+
+			<div class="row mt-4">
+				<div class="col">
+					<h6 class="">{{ stat_type.title }}</h6>
+				</div>
+			</div>
+
+			<div class="row mt-2">
+				{% for stat in stat_type.stats %}
+					{% if not stat.is_zero_stat %}
+						<div class="col-lg-3 col-md-4 mb-3 col-6 col-stat col-stat-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
+							<div class="card card-raised border-{{ stat_type.neutral ? 'secondary' : stat.diff_colour }}">
+								<div class="card-body ps-3 pe-1 py-1">
+									<div class="overline text-muted mb-1">{{ stat.name }}</div>
+									<div class="d-flex align-items-center justify-content-between">
+										<div class="display-6 fw-normal">{{ stat.count_current_period }}</div>
+										<div class="stat-diff-symbol">
+											{{ stat.diff_symbol_svg|raw }}
+										</div>
+										<div class="">
+											<div class="display-6">{{ stat.count_previous_period }}</div>
+										</div>
+									</div>
+									<div class="text-xs text-muted mb-1 ">Diff:
+										<span class="text-sm">{{ stat.diff_symbol_plus_minus }}</span>{{ stat.count_diff_abs }}
+									</div>
+								</div>
+							</div>
+						</div>
+					{% endif %}
+				{% endfor %}
+			</div>
+
+		{% endif %}
+	{% endfor %}
+{% else %}
+	<p>There were no stats generated for the given reporting criteria.</p>
+{% endif %}

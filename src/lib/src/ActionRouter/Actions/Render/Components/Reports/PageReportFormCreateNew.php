@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as AuditDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageReportFormCreateNew extends BaseRender {
@@ -42,19 +43,19 @@ class PageReportFormCreateNew extends BaseRender {
 			'vars'    => [
 				'reporting_options' => [
 					[
-						'title'           => __( 'Change-Tracking Zone', 'wp-simple-firewall' ),
+						'title'           => __( 'Change-Tracking', 'wp-simple-firewall' ),
 						'form_field_name' => 'changes_zones',
-						'zones'           => $reportAreas[ 'changes' ],
+						'zones'           => $reportAreas[ Constants::REPORT_AREA_CHANGES ],
 					],
 					[
 						'title'           => __( 'Statistics', 'wp-simple-firewall' ),
 						'form_field_name' => 'statistics_zones',
-						'zones'           => $reportAreas[ 'statistics' ],
+						'zones'           => $reportAreas[ Constants::REPORT_AREA_STATS ],
 					],
 					[
 						'title'           => __( 'Scan Results', 'wp-simple-firewall' ),
 						'form_field_name' => 'scans_zones',
-						'zones'           => $reportAreas[ 'scans' ],
+						'zones'           => $reportAreas[ Constants::REPORT_AREA_SCANS ],
 					],
 				],
 				'earliest_date'     => empty( $firstAudit ) ? $req->ts() :

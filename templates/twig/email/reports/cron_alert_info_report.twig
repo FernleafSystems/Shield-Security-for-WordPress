@@ -8,17 +8,14 @@
 
 	<p>
 		&ndash; {{ body.strings.site_url }}: {{ body.vars.site_url }}
-		<br />&ndash; {{ body.strings.report_date }}: {{ body.vars.report_date }}
 	</p>
 
-	<p>{{ body.strings.use_links }}</p>
+	{% for report in body.vars.reports %}
+		<p style="font-weight: bold">{{ body.strings.report_type }}: {{ report.type }}</p>
+		<ul>
+			<li>{{ body.strings.generated }}: {{ report.generated }}</li>
+			<li><a href="{{ report.href }}">{{ body.strings.view_report }} &rarr;</a></li>
+		</ul>
+	{% endfor %}
 
-	<p>
-		<a href="{{ body.hrefs.click_adjust }}" target="_blank">
-			{{ body.strings.click_adjust }}</a>
-	</p>
-
-	<div>
-		{{ body.content.reports|join('<br />')|raw }}
-	</div>
 {% endblock %}

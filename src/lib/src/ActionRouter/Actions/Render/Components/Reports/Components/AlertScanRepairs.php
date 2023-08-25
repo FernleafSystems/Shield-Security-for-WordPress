@@ -3,10 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as DBEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as DBEvents;
 
+/**
+ * @deprecated 18.3.0
+ */
 class AlertScanRepairs extends BaseBuilderForScans {
 
 	public const SLUG = 'alert_scan_repairs';
@@ -32,7 +35,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 		$srvEvents = $con->loadEventsService();
 		foreach ( $repairEvents as $event ) {
 			$eventTotal = $selectorEvents
-				->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
+				->filterByBoundary( $report->start_at, $report->end_at )
 				->sumEvent( $event );
 			$total += $eventTotal;
 
@@ -47,7 +50,7 @@ class AlertScanRepairs extends BaseBuilderForScans {
 						return $log->id;
 					},
 					$logSelect->filterByEvent( $event )
-							  ->filterByBoundary( $report->interval_start_at, $report->interval_end_at )
+							  ->filterByBoundary( $report->start_at, $report->end_at )
 							  ->setLimit( $eventTotal )
 							  ->queryWithResult()
 				);

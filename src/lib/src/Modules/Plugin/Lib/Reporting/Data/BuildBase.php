@@ -2,18 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 
 class BuildBase {
 
 	use ModConsumer;
 
-	protected $start;
+	protected $report;
 
-	protected $end;
-
-	public function __construct( int $start = 0, int $end = 0 ) {
-		$this->start = $start;
-		$this->end = $end;
+	public function __construct( ReportVO $report ) {
+		$this->report = $report;
 	}
 }

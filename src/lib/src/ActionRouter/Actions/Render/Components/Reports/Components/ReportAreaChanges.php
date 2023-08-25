@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForChanges;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 
 class ReportAreaChanges extends ReportAreaBase {
 
@@ -10,10 +10,9 @@ class ReportAreaChanges extends ReportAreaBase {
 	public const TEMPLATE = '/reports/areas/changes/main.twig';
 
 	protected function getRenderData() :array {
-		$report = $this->report();
+
 		$changes = \array_filter(
-			( new BuildForChanges( $report->interval_start_at, $report->interval_end_at ) )
-				->build( $report->areas[ 'changes' ] ),
+			$this->report()->areas_data[ Constants::REPORT_AREA_CHANGES ],
 			function ( array $zone ) {
 				// Only display zones that have changes
 				return $zone[ 'total' ] > 0;

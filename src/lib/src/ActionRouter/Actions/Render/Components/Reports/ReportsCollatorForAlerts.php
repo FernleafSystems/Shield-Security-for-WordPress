@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
+/**
+ * @deprecated 18.3.0
+ */
 class ReportsCollatorForAlerts extends ReportsCollatorBase {
 
 	public const SLUG = 'reports_builder_alerts';

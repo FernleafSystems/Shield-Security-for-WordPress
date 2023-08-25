@@ -35,9 +35,9 @@ class ReportingController {
 
 	public function getReportTypeName( string $type ) :string {
 		return [
-				   Constants::REPORT_TYPE_ALERT => __( 'Alert', 'wp-simple-firewall' ),
-				   Constants::REPORT_TYPE_INFO  => __( 'Info', 'wp-simple-firewall' ),
-				   Constants::REPORT_TYPE_ADHOC => __( 'Ad-Hoc', 'wp-simple-firewall' ),
+				   Constants::REPORT_TYPE_ALERT  => __( 'Alert', 'wp-simple-firewall' ),
+				   Constants::REPORT_TYPE_INFO   => __( 'Info', 'wp-simple-firewall' ),
+				   Constants::REPORT_TYPE_CUSTOM => __( 'Custom', 'wp-simple-firewall' ),
 			   ][ $type ] ?? 'invalid report type';
 	}
 
@@ -61,7 +61,7 @@ class ReportingController {
 
 	public function getReportAreas( bool $slugsOnly = false ) :array {
 		$areas = [
-			'changes'    => \array_filter( \array_map(
+			Constants::REPORT_AREA_CHANGES => \array_filter( \array_map(
 				function ( $auditor ) {
 					try {
 						return $auditor->getReporter()->getZoneName();
@@ -70,15 +70,15 @@ class ReportingController {
 						return null;
 					}
 				},
-				$this->con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
+				self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
 			) ),
-			'statistics' => [
+			Constants::REPORT_AREA_STATS   => [
 				'security'      => __( 'Security' ),
 				'wordpress'     => __( 'WordPress' ),
 				'user_accounts' => __( 'User Accounts', 'wp-simple-firewall' ),
 				'user_access'   => __( 'User Access', 'wp-simple-firewall' ),
 			],
-			'scans'      => [
+			Constants::REPORT_AREA_SCANS   => [
 				'new'     => __( 'New Results' ),
 				'current' => __( 'Current Summary' ),
 			],

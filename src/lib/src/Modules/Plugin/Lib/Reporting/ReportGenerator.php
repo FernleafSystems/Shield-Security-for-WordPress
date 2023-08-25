@@ -5,12 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayNonTerminating;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\Exceptions\{
-	AttemptingToCreateDisabledReportException,
-	AttemptingToCreateDuplicateReportException
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Reports\ReportVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
@@ -19,119 +17,148 @@ class ReportGenerator {
 
 	use ModConsumer;
 
-	/**
-	 * @throws \Exception
-	 */
-	public function adHoc( int $start, int $end, array $options ) :string {
-		$report = new Reports\ReportVO();
-		$report->interval_start_at = $start;
-		$report->interval_end_at = $end;
-		$report->areas = $options[ 'areas' ];
-		$report->type = Constants::REPORT_TYPE_ADHOC;
+	public function auto() {
+		$reports = [];
 
-		return $this->buildAndStore( $report )->unique_id;
+		try {
+			$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
+			$info->record = $this->buildAndStore( $info );
+			$reports[] = $info;
+		}
+		catch ( Exceptions\ReportBuildException $e ) {
+		}
+
+		try {
+			$alert = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_ALERT );
+			$alert->record = $this->buildAndStore( $alert );
+			\array_unshift( $reports, $alert );
+			$this->markAlertsAsNotified();
+		}
+		catch ( Exceptions\ReportBuildException $e ) {
+//			error_log( $e->getMessage() );
+		}
+
+		if ( !empty( $reports ) ) {
+			$this->sendNotificationEmail( $reports );
+		}
 	}
 
+	/**
+	 * @throws Exceptions\ReportDataEmptyException
+	 */
+	public function adHoc( int $start, int $end, array $options ) :ReportsDB\Record {
+		$report = new ReportVO();
+		$report->type = Constants::REPORT_TYPE_CUSTOM;
+		$report->start_at = $start;
+		$report->end_at = $end;
+		$report->areas = $options[ 'areas' ];
+		return $this->buildAndStore( $report );
+	}
+
+	/**
+	 * @throws Exceptions\ReportDataEmptyException
+	 */
 	private function buildAndStore( ReportVO $report ) :ReportsDB\Record {
 
-		$report->content = self::con()->action_router->action( FullPageDisplayNonTerminating::class, [
-			'render_slug' => SecurityReport::SLUG,
-			'render_data' => [
-				'report' => $report->getRawData(),
-			]
-		] )->action_response_data[ 'render_output' ];
+		$areasData = [];
+		foreach ( $report->areas as $slug => $area ) {
+			switch ( $slug ) {
+				case Constants::REPORT_AREA_CHANGES:
+					$builder = new Data\BuildForChanges( $report );
+					break;
+				case Constants::REPORT_AREA_SCANS:
+					$builder = new Data\BuildForScans( $report );
+					break;
+				case Constants::REPORT_AREA_STATS:
+					$builder = new Data\BuildForStats( $report );
+					break;
+				default:
+					error_log( 'unsupported report area slug: '.$slug );
+					$builder = null;
+					continue( 2 );
+			}
+			$areasData[ $slug ] = $builder->build();
+		}
+		$report->areas_data = $areasData;
+
+		$this->preRenderChecks( $report );
+		if ( \count( $report->areas_data ) === 0 ) {
+			throw new Exceptions\ReportDataEmptyException( 'empty report data' );
+		}
+
+		try {
+			$report->content = self::con()->action_router->action( FullPageDisplayNonTerminating::class, [
+				'render_slug' => SecurityReport::SLUG,
+				'render_data' => [
+					'report' => $report->getRawData(),
+				],
+			] )->action_response_data[ 'render_output' ];
+		}
+		catch ( ActionException $e ) {
+			$report->content = $e->getMessage();
+		}
 
 		/** @var ReportsDB\Record $record */
 		$record = $this->mod()->getDbH_ReportLogs()->getRecord();
-		$record->interval_start_at = $report->interval_start_at;
-		$record->interval_end_at = $report->interval_end_at;
-		$record->interval_length = $report->interval ?? '';
+		$record->interval_start_at = $report->start_at;
+		$record->interval_end_at = $report->end_at;
+		$record->interval_length = $report->interval ?? 'custom';
 		$record->type = $report->type;
 		$record->unique_id = ( new Uuid() )->V4();
+		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;
 		$record->content = \function_exists( '\gzdeflate' ) ? \gzdeflate( $report->content ) : $report->content;
 		$this->mod()->getDbH_ReportLogs()->getQueryInserter()->insert( $record );
+
+		self::con()->fireEvent( 'report_generated', [
+			'audit_params' => [
+				'type'     => $this->mod()
+								   ->getReportingController()
+								   ->getReportTypeName( $record->type ),
+				'interval' => $record->interval_length,
+			]
+		] );
+
 		return $record;
 	}
 
-	public function auto() {
-		$reports = $this->buildReports();
-		if ( !empty( $reports ) ) {
-			$this->sendEmail( $this->renderFinalReports( $reports ) );
-		}
-	}
-
 	/**
-	 * @return Reports\ReportVO[]
+	 * As the particular content for each report evolves, use this to filter out un-required data depending on the
+	 * report type, and any other factors.
+	 *
+	 * The aim is to not generate, and certainly to not email out, "empty" useless reports.
 	 */
-	private function buildReports() :array {
-		/** @var Reports\ReportVO[] $reports */
-		$reports = [];
-		foreach ( [ Constants::REPORT_TYPE_INFO, Constants::REPORT_TYPE_ALERT ] as $reportType ) {
-			try {
-				$report = ( new Reports\CreateReportVO() )->create( $reportType );
-				$this->buildAndStore( $report );
-
-				if ( \strlen( $report->content ) > 0 ) {
-					$reports[] = $report;
-					self::con()->fireEvent( 'report_generated', [
-						'audit_params' => [
-							'type'     => $this->mod()
-											   ->getReportingController()
-											   ->getReportTypeName( $report->type ),
-							'interval' => $report->interval,
-						]
-					] );
-				}
-			}
-			catch ( AttemptingToCreateDuplicateReportException|AttemptingToCreateDisabledReportException $e ) {
-//				error_log( $e->getMessage() );
-			}
-			catch ( \Exception $e ) {
-				error_log( $e->getMessage() );
-			}
+	private function preRenderChecks( ReportVO $report ) :void {
+		$data = $report->areas_data;
+		$inspector = new ReportDataInspector( $data );
+		if ( $report->type === Constants::REPORT_TYPE_ALERT && $inspector->countScanResultsNew() === 0 ) {
+			unset( $data[ Constants::REPORT_AREA_SCANS ] );
 		}
-
-		return $reports;
+		elseif ( $report->type === Constants::REPORT_TYPE_INFO && $inspector->countAll() === 0 ) {
+			// if there's nothing to report, don't create a report.
+			$data = [];
+		}
+		$report->areas_data = $data;
 	}
 
-	/**
-	 * @param Reports\ReportVO[] $reports
-	 */
-	private function renderFinalReports( array $reports, string $context = Constants::REPORT_CONTEXT_AUTO ) :string {
+	private function sendNotificationEmail( array $reports ) {
+		$con = self::con();
 
-		switch ( $context ) {
-			case Constants::REPORT_CONTEXT_AD_HOC:
-			case Constants::REPORT_CONTEXT_AUTO:
-			default:
-				$renderer = ReportsActions\Contexts\EmailReport::SLUG;
-				break;
-		}
-
-		return $this->con()->action_router->render(
-			$renderer,
-			[
-				'home_url' => Services::WpGeneral()->getHomeUrl(),
-				'reports'  => \array_map(
-					function ( $report ) {
-						return $report->content;
-					},
-					$reports
-				)
-			]
-		);
-	}
-
-	private function sendEmail( string $report ) {
 		try {
 			$this->mod()
 				 ->getEmailProcessor()
 				 ->send(
 					 $this->mod()->getPluginReportEmail(),
-					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->con()->getHumanName(),
-					 $report
+					 __( 'Security Report', 'wp-simple-firewall' ).' - '.$con->getHumanName(),
+					 $con->action_router->render(
+						 ReportsActions\Contexts\EmailReport::SLUG,
+						 [
+							 'home_url' => Services::WpGeneral()->getHomeUrl(),
+							 'reports'  => $reports,
+						 ]
+					 )
 				 );
 
-			$this->con()->fireEvent( 'report_sent', [
+			$con->fireEvent( 'report_sent', [
 				'audit_params' => [
 					'medium' => 'email',
 				]
@@ -140,5 +167,28 @@ class ReportGenerator {
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
 		}
+	}
+
+	private function markAlertsAsNotified() {
+		$modHG = self::con()->getModule_HackGuard();
+
+		// File Locker
+		/** @var FileLockerDB\Update $updater */
+		$updater = $modHG->getDbH_FileLocker()->getQueryUpdater();
+		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
+			$updater->markNotified( $record );
+		}
+		$modHG->getFileLocker()->clearLocks();
+
+		// Standard Scan Results
+		$modHG->getDbH_ResultItems()
+			  ->getQueryUpdater()
+			  ->setUpdateWheres( [
+				  'notified_at' => 0,
+			  ] )
+			  ->setUpdateData( [
+				  'notified_at' => Services::Request()->ts()
+			  ] )
+			  ->query();
 	}
 }

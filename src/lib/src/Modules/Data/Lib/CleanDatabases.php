@@ -60,8 +60,8 @@ class CleanDatabases {
 	public function cleanStaleReports() :void {
 		/** @var Plugin\DB\Report\Ops\Delete $deleter */
 		$deleter = self::con()->getModule_Plugin()->getDbH_ReportLogs()->getQueryDeleter();
-		$deleter->filterByType( Plugin\Lib\Reporting\Constants::REPORT_TYPE_ADHOC )
-				->addWhereOlderThan( Services::Request()->carbon( true )->subDay()->timestamp )
+		$deleter->filterByProtected( false )
+				->addWhereOlderThan( Services::Request()->carbon( true )->startOfDay()->subDay()->timestamp )
 				->query();
 	}
 

@@ -13,6 +13,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.3.0
+ */
 class AlertScanResults extends BaseBuilderForScans {
 
 	public const SLUG = 'alert_scan_results';
