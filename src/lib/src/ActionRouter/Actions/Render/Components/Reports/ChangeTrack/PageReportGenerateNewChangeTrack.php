@@ -14,7 +14,7 @@ class PageReportGenerateNewChangeTrack extends BaseRender {
 
 	protected function getRenderData() :array {
 		$req = Services::Request();
-		$dbh = $this->con()->getModule_AuditTrail()->getDbH_Logs();
+		$dbh = self::con()->getModule_AuditTrail()->getDbH_Logs();
 
 		/** @var AuditDB\Record $firstAudit */
 		$firstAudit = $dbh->getQuerySelector()
@@ -46,7 +46,7 @@ class PageReportGenerateNewChangeTrack extends BaseRender {
 							return null;
 						}
 					},
-					$this->con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
+					self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
 				) ),
 				'earliest_date'   => empty( $firstAudit ) ? $req->ts() :
 					$c->setTimestamp( $firstAudit->created_at )->toIso8601String(),

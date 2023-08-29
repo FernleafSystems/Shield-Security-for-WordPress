@@ -124,7 +124,7 @@ class SortRulesByDependencies {
 					// only conditions have WP hooks.
 					try {
 						/** @var Base $class */
-						$class = $this->con()->rules->locateConditionHandlerClass( $dependency );
+						$class = self::con()->rules->locateConditionHandlerClass( $dependency );
 //						error_log( $class );
 						$minimumHook = \max( $minimumHook, $class::FindMinimumHook() );
 //						error_log( var_export( $minimumHook, true ) );
@@ -165,7 +165,7 @@ class SortRulesByDependencies {
 			if ( !isset( $this->dependencies[ $conditionSlug ] ) ) {
 				try {
 					/** @var Base $handlerClass */
-					$handlerClass = $this->con()->rules->locateConditionHandlerClass( $conditionSlug );
+					$handlerClass = self::con()->rules->locateConditionHandlerClass( $conditionSlug );
 					$this->dependencies[ $conditionSlug ] = \array_map(
 						function ( $className ) {
 							/** Base */

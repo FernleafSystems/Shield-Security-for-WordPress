@@ -15,12 +15,12 @@ class MeterOverallConfig extends MeterBase {
 	public const SLUG = 'overall_config';
 
 	public function title() :string {
-		return sprintf( __( 'Entire %s Configuration', 'wp-simple-firewall' ), $this->con()->getHumanName() );
+		return sprintf( __( 'Entire %s Configuration', 'wp-simple-firewall' ), self::con()->getHumanName() );
 	}
 
 	public function subtitle() :string {
 		return sprintf( __( 'The cumulative score for your entire %s configuration', 'wp-simple-firewall' ),
-			$this->con()->getHumanName() );
+			self::con()->getHumanName() );
 	}
 
 	public function description() :array {

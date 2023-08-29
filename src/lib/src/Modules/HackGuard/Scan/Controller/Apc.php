@@ -13,7 +13,7 @@ class Apc extends BaseForAssets {
 		$items = [];
 
 		$template = [
-			'id'    => $this->con()->prefix( 'problems-'.$this->getSlug() ),
+			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 

@@ -23,7 +23,7 @@ class DashboardWidget extends BaseRender {
 	public const TEMPLATE = '/admin/admin_dashboard_widget.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$vars = $this->getVars( (bool)$this->action_data[ 'refresh' ] ?? true );
 		$vars[ 'generated_at' ] = Services::Request()
 										  ->carbon()
@@ -70,7 +70,7 @@ class DashboardWidget extends BaseRender {
 	}
 
 	private function getVars( bool $refresh ) :array {
-		$con = $this->con();
+		$con = self::con();
 		$recent = new RecentStats();
 
 		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
@@ -109,7 +109,7 @@ class DashboardWidget extends BaseRender {
 					function ( $evt ) {
 						/** @var EntryVO $evt */
 						return [
-							'name' => $this->con()->loadEventsService()->getEventName( $evt->event ),
+							'name' => self::con()->loadEventsService()->getEventName( $evt->event ),
 							'at'   => Services::Request()
 											  ->carbon()
 											  ->setTimestamp( $evt->created_at )
@@ -138,7 +138,7 @@ class DashboardWidget extends BaseRender {
 					function ( $ip ) {
 						return [
 							'ip'      => $ip->ip,
-							'ip_href' => $this->con()->plugin_urls->ipAnalysis( $ip->ip ),
+							'ip_href' => self::con()->plugin_urls->ipAnalysis( $ip->ip ),
 							'at'      => Services::Request()
 												 ->carbon()
 												 ->setTimestamp( $ip->blocked_at )
@@ -151,7 +151,7 @@ class DashboardWidget extends BaseRender {
 					function ( $ip ) {
 						return [
 							'ip'      => $ip->ip,
-							'ip_href' => $this->con()->plugin_urls->ipAnalysis( $ip->ip ),
+							'ip_href' => self::con()->plugin_urls->ipAnalysis( $ip->ip ),
 							'at'      => Services::Request()
 												 ->carbon()
 												 ->setTimestamp( $ip->last_access_at )
@@ -176,7 +176,7 @@ class DashboardWidget extends BaseRender {
 							'user'      => $user,
 							'user_href' => $userHref,
 							'ip'        => $sess[ 'ip' ],
-							'ip_href'   => $this->con()->plugin_urls->ipAnalysis( $sess[ 'ip' ] ),
+							'ip_href'   => self::con()->plugin_urls->ipAnalysis( $sess[ 'ip' ] ),
 							'at'        => Services::Request()
 												   ->carbon()
 												   ->setTimestamp( (int)$sess[ 'last_login_at' ] )
@@ -193,6 +193,6 @@ class DashboardWidget extends BaseRender {
 	}
 
 	private function isObfuscateData() :bool {
-		return !$this->con()->isPluginAdmin();
+		return !self::con()->isPluginAdmin();
 	}
 }

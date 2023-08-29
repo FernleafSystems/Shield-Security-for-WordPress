@@ -21,11 +21,11 @@ class SecurityAdminController {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return !$this->con()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
+		return !self::con()->this_req->request_bypasses_all_restrictions && $this->isEnabledSecAdmin();
 	}
 
 	protected function run() {
-		add_filter( $this->con()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ], 0 );
+		add_filter( self::con()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ], 0 );
 		add_action( 'admin_init', function () {
 			$this->enqueueJS();
 		} );
@@ -36,26 +36,26 @@ class SecurityAdminController {
 	 * Restrictions should only be applied after INIT
 	 */
 	public function setupRestrictions() {
-		if ( !$this->con()->isPluginAdmin() ) {
+		if ( !self::con()->isPluginAdmin() ) {
 			foreach ( $this->enumRestrictionZones() as $zone ) {
 				( new $zone() )->execute();
 			}
-			if ( !$this->con()->isPluginAdminPageRequest() ) {
+			if ( !self::con()->isPluginAdminPageRequest() ) {
 				add_action( 'admin_footer', [ $this, 'printPinLoginForm' ] );
 			}
 
 			add_action( 'pre_uninstall_plugin', function ( $pluginFile ) {
 				// This can only protect against rogue, programmatic uninstalls, not when Shield is inactive.
-				if ( $pluginFile === $this->con()->base_file ) {
+				if ( $pluginFile === self::con()->base_file ) {
 					$this->blockRemoval();
 				}
 			} );
-			add_action( $this->con()->prefix( 'pre_deactivate_plugin' ), [ $this, 'blockRemoval' ] );
+			add_action( self::con()->prefix( 'pre_deactivate_plugin' ), [ $this, 'blockRemoval' ] );
 		}
 	}
 
 	public function blockRemoval() {
-		$con = $this->con();
+		$con = self::con();
 		if ( !$con->isPluginAdmin() ) {
 			if ( !Services::WpUsers()->isUserAdmin() ) {
 				$con->fireEvent( 'attempt_deactivation' );
@@ -88,7 +88,7 @@ class SecurityAdminController {
 	}
 
 	public function hasActiveSession() :bool {
-		return $this->con()->this_req->is_security_admin && $this->getSecAdminTimeRemaining() > 0;
+		return self::con()->this_req->is_security_admin && $this->getSecAdminTimeRemaining() > 0;
 	}
 
 	public function isEnabledSecAdmin() :bool {
@@ -102,7 +102,7 @@ class SecurityAdminController {
 			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
 
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$isSecAdmin = $this->con()->this_req->is_security_admin;
+				$isSecAdmin = self::con()->this_req->is_security_admin;
 				$localz[] = [
 					'shield/secadmin',
 					'shield_vars_secadmin',
@@ -114,7 +114,7 @@ class SecurityAdminController {
 						],
 						'flags'   => [
 							'restrict_options' => !$isSecAdmin && $this->opts()->isRestrictWpOptions(),
-							'run_checks'       => $this->con()->getIsPage_PluginAdmin()
+							'run_checks'       => self::con()->getIsPage_PluginAdmin()
 												  && $isSecAdmin
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
@@ -156,7 +156,7 @@ class SecurityAdminController {
 	public function getSecAdminTimeRemaining() :int {
 		$remaining = 0;
 
-		$session = $this->con()->getModule_Plugin()->getSessionCon()->current();
+		$session = self::con()->getModule_Plugin()->getSessionCon()->current();
 		if ( $session->valid ) {
 			$secAdminAt = $session->shield[ 'secadmin_at' ] ?? 0;
 			if ( !$this->isCurrentUserRegisteredSecAdmin() && $secAdminAt > 0 ) {
@@ -187,11 +187,11 @@ class SecurityAdminController {
 	}
 
 	public function adjustUserAdminPermissions( $isPluginAdmin = true ) :bool {
-		return $isPluginAdmin && $this->con()->this_req->is_security_admin;
+		return $isPluginAdmin && self::con()->this_req->is_security_admin;
 	}
 
 	public function printPinLoginForm() {
 		add_thickbox();
-		echo $this->con()->action_router->render( FormSecurityAdminLoginBox::SLUG );
+		echo self::con()->action_router->render( FormSecurityAdminLoginBox::SLUG );
 	}
 }

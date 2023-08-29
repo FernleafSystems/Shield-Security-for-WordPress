@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotic
 class LicenseStatus extends Base {
 
 	public function check() :?array {
-		$con = $this->con();
+		$con = self::con();
 		$issue = null;
 		if ( $con->isPremiumActive() && !$con->getModule_License()->getWpHashesTokenManager()->hasToken() ) {
 			$issue = [

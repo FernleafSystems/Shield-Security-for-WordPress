@@ -13,7 +13,7 @@ class OptionsForm extends BaseRender {
 
 	protected function getRenderData() :array {
 		$actionData = $this->action_data;
-		$mod = $this->con()->modules[ $actionData[ 'mod_slug' ] ];
+		$mod = self::con()->modules[ $actionData[ 'mod_slug' ] ];
 
 		$focusOption = $actionData[ 'focus_option' ] ?? '';
 		$focusSection = $actionData[ 'focus_section' ] ?? $mod->opts()->getPrimarySection()[ 'slug' ];

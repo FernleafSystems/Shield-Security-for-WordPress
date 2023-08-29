@@ -15,7 +15,7 @@ class SetSecAdminPin {
 		if ( empty( $pin ) ) {
 			throw new \Exception( 'Attempting to set an empty Security Admin Access Key.' );
 		}
-		if ( !$this->con()->isPluginAdmin() ) {
+		if ( !self::con()->isPluginAdmin() ) {
 			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 

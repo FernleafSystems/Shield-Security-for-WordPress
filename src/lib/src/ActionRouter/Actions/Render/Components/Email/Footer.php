@@ -10,7 +10,7 @@ class Footer extends Base {
 	public const TEMPLATE = '/email/footer.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$WP = Services::WpGeneral();
 
 		$goPro = [

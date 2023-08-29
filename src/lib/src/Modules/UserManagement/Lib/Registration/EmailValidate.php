@@ -41,10 +41,10 @@ class EmailValidate {
 				$invalidBecause = 'syntax';
 			}
 			else {
-				$apiToken = $this->con()
-								 ->getModule_License()
-								 ->getWpHashesTokenManager()
-								 ->getToken();
+				$apiToken = self::con()
+								->getModule_License()
+								->getWpHashesTokenManager()
+								->getToken();
 				if ( !empty( $apiToken ) ) {
 					$checks = $opts->getEmailValidationChecks();
 					$verifys = ( new Email( $apiToken ) )->getEmailVerification( $email );
@@ -61,7 +61,7 @@ class EmailValidate {
 
 			if ( !empty( $invalidBecause ) ) {
 				$opt = $opts->getValidateEmailOnRegistration();
-				$this->con()->fireEvent(
+				self::con()->fireEvent(
 					'reg_email_invalid',
 					[
 						'audit_params'  => [

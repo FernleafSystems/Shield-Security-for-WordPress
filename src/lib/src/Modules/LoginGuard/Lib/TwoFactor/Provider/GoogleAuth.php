@@ -35,7 +35,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	protected function getUserProfileFormRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$validatedProfile = $this->hasValidatedProfile();
 
 		return Services::DataManipulation()->mergeArraysRecursive(

@@ -12,12 +12,12 @@ class Upgrade {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		$previous = $this->con()->cfg->previous_version;
+		$previous = self::con()->cfg->previous_version;
 		return !empty( $previous );
 	}
 
 	protected function run() {
-		$con = $this->con();
+		$con = self::con();
 		$prev = $con->cfg->previous_version;
 
 		$hook = $con->prefix( 'plugin-upgrade' );
@@ -27,7 +27,7 @@ class Upgrade {
 		}
 
 		add_action( $hook, function ( $previousVersion ) {
-			foreach ( $this->con()->modules as $mod ) {
+			foreach ( self::con()->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
 				if ( $H instanceof Modules\Base\Upgrade ) {
 					$H->setPrevious( $previousVersion )->execute();

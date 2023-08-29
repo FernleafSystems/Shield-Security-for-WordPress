@@ -53,7 +53,7 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function doAction( string $action ) :array {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 
 		$items = $this->getItemIDs();
 

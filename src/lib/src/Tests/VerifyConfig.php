@@ -15,7 +15,7 @@ class VerifyConfig {
 
 		$allSections = [];
 		$allOpts = [];
-		foreach ( $this->con()->modules as $mod ) {
+		foreach ( self::con()->modules as $mod ) {
 			$opts = $mod->opts();
 			$sections = \array_keys( $opts->getSections( true ) );
 			$duplicates = \array_diff( \array_intersect( $allSections, $sections ), $sectionDuplicateExceptions );

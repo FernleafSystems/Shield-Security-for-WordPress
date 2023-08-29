@@ -19,7 +19,7 @@ class LocateTemplateDirs {
 				return Services::WpFs()->isDir( $dir );
 			}
 		);
-		$dirs[] = path_join( $this->con()->getPath_Templates(), 'twig' );
+		$dirs[] = path_join( self::con()->getPath_Templates(), 'twig' );
 		return $dirs;
 	}
 
@@ -27,13 +27,13 @@ class LocateTemplateDirs {
 	 * @return string[]
 	 */
 	protected function getCustomTemplateDirs() :array {
-		$dir = $this->con()->cfg->paths[ 'custom_templates' ];
+		$dir = self::con()->cfg->paths[ 'custom_templates' ];
 		$dirs = apply_filters( 'shield/custom_template_dirs',
 			\array_unique( [
 				path_join( get_stylesheet_directory(), $dir ),
 				path_join( get_template_directory(), $dir ),
 			] )
 		);
-		return $this->con()->isPremiumActive() ? $dirs : [];
+		return self::con()->isPremiumActive() ? $dirs : [];
 	}
 }

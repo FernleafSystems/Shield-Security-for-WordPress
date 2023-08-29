@@ -10,7 +10,7 @@ class MeterCard extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/meter.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'strings' => [
 				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),

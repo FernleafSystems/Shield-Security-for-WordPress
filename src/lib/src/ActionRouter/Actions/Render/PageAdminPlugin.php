@@ -18,7 +18,7 @@ class PageAdminPlugin extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/index.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$req = Services::Request();
 
 		$nav = $con->getModule_Plugin()->isAccessRestricted()
@@ -45,7 +45,7 @@ class PageAdminPlugin extends BaseRender {
 				'page_container' => 'page-insights page-'.$nav
 			],
 			'content' => [
-				'rendered_page_body' => $this->con()->action_router->render( $delegateAction::SLUG, [
+				'rendered_page_body' => self::con()->action_router->render( $delegateAction::SLUG, [
 					Constants::NAV_ID     => $nav,
 					Constants::NAV_SUB_ID => $subNav,
 				] ),

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class SystemOutOfDate extends Base {
 
 	public function check() :?array {
-		$con = $this->con();
+		$con = self::con();
 		$DP = Services::Data();
 		$WP = Services::WpGeneral();
 

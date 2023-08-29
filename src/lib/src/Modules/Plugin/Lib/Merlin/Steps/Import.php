@@ -9,7 +9,7 @@ class Import extends Base {
 	public const SLUG = 'import';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
-		$mod = $this->con()->getModule_IPs();
+		$mod = self::con()->getModule_IPs();
 		$opts = $mod->getOptions();
 
 		$offenses = $form[ 'offenses' ] ?? '';
@@ -62,6 +62,6 @@ class Import extends Base {
 	}
 
 	public function skipStep() :bool {
-		return !$this->con()->isPremiumActive();
+		return !self::con()->isPremiumActive();
 	}
 }

@@ -53,10 +53,10 @@ class Options {
 
 	public function getAllOptionsValues() :array {
 		try {
-			if ( $this->con()->opts === null ) {
+			if ( self::con()->opts === null ) {
 				throw new \Exception( 'Opts not ready.' );
 			}
-			$values = $this->con()->opts->getFor( $this->mod() );
+			$values = self::con()->opts->getFor( $this->mod() );
 			if ( $values === null ) {
 				throw new \Exception( 'No shared-stored options available' );
 			}
@@ -68,8 +68,8 @@ class Options {
 			catch ( \Exception $e ) {
 				$values = [];
 			}
-			if ( $this->con()->opts !== null ) {
-				$this->con()->opts->setFor( $this->mod(), $values );
+			if ( self::con()->opts !== null ) {
+				self::con()->opts->setFor( $this->mod(), $values );
 			}
 		}
 		return $values;
@@ -318,7 +318,7 @@ class Options {
 		}
 
 		$cap = $this->optCap( $key );
-		if ( empty( $cap ) || $this->con()->caps->hasCap( $cap ) ) {
+		if ( empty( $cap ) || self::con()->caps->hasCap( $cap ) ) {
 			$value = $this->getAllOptionsValues()[ $key ] ?? $mDefault;
 		}
 		else {
@@ -630,7 +630,7 @@ class Options {
 			$this->aOptionsValues = $values;
 		}
 		if ( self::con()->opts !== null ) {
-			$this->con()->opts->setFor( $this->mod(), $values );
+			self::con()->opts->setFor( $this->mod(), $values );
 		}
 
 		$this->setNeedSave( true );

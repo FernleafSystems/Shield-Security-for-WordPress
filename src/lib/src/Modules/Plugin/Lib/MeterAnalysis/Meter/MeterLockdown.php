@@ -9,7 +9,7 @@ class MeterLockdown extends MeterBase {
 	public const SLUG = 'lockdown';
 
 	protected function getWorkingMods() :array {
-		return [ $this->con()->getModule_Lockdown() ];
+		return [ self::con()->getModule_Lockdown() ];
 	}
 
 	public function title() :string {

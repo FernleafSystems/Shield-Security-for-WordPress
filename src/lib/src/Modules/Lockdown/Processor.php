@@ -33,15 +33,15 @@ class Processor extends BaseShield\Processor {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), $this->con()
-																																   ->getHumanName() ),
+				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), self::con()
+																																  ->getHumanName() ),
 				[ 'status' => rest_authorization_required_code() ] );
 
-			$this->con()
-				 ->fireEvent(
-					 'block_anonymous_restapi',
-					 [ 'audit_params' => [ 'namespace' => $namespace ] ]
-				 );
+			self::con()
+				->fireEvent(
+					'block_anonymous_restapi',
+					[ 'audit_params' => [ 'namespace' => $namespace ] ]
+				);
 		}
 
 		return $mStatus;

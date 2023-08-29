@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find;
 class SpamController extends BaseBotDetectionController {
 
 	protected function canRun() :bool {
-		return parent::canRun() && $this->con()->caps->canThirdPartyScanSpam();
+		return parent::canRun() && self::con()->caps->canThirdPartyScanSpam();
 	}
 
 	public function getSelectedProvidersOptKey() :string {

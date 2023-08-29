@@ -30,7 +30,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			sprintf( $this->getRawQuery(),
 				'COUNT(*)',
 				$this->getTableSchemaForJoinedTable()->table,
-				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				'',
 				'',
@@ -46,7 +46,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 						INNER JOIN `%s` as `ips` ON `ips`.id = `%s`.ip_ref;',
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->getJoinedTableAbbreviation(),
-				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$this->getJoinedTableAbbreviation()
 			)
 		);
@@ -79,7 +79,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			sprintf( $this->getRawQuery(),
 				\implode( ', ', $selectFields ),
 				$this->getTableSchemaForJoinedTable()->table,
-				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ),
 				$this->buildOrderBy(),
 				isset( $this->limit ) ? sprintf( 'LIMIT %s', $this->limit ) : '',

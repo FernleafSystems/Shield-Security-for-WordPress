@@ -55,7 +55,7 @@ class ScheduledReport extends BaseFullPageRender {
 	}
 
 	protected function getScripts() :array {
-		$urlBuilder = $this->con()->urls;
+		$urlBuilder = self::con()->urls;
 		$scripts = parent::getScripts();
 		$scripts[ 50 ] = [
 			'src' => $urlBuilder->forJs( 'u2f-bundle' ),
@@ -71,7 +71,7 @@ class ScheduledReport extends BaseFullPageRender {
 	protected function getStyles() :array {
 		$styles = parent::getStyles();
 		$styles[ 51 ] = [
-			'href' => $this->con()->urls->forCss( 'shield/login2fa' ),
+			'href' => self::con()->urls->forCss( 'shield/login2fa' ),
 			'id'   => 'shield/login2fa',
 		];
 		return $styles;

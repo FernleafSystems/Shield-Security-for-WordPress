@@ -23,10 +23,10 @@ class IsRateLimitExceeded extends Conditions\Base {
 		$ip = ( new IPRecords() )->loadIP( $ip, false );
 		$now = Services::Request()->carbon();
 		/** @var Select $selector */
-		$selector = $this->con()
-						 ->getModule_Data()
-						 ->getDbH_ReqLogs()
-						 ->getQuerySelector();
+		$selector = self::con()
+						->getModule_Data()
+						->getDbH_ReqLogs()
+						->getQuerySelector();
 		$count = $selector->filterByIP( $ip->id )
 						  ->filterByCreatedAt( $now->subSeconds( $this->limit_time_span )->timestamp, '>' )
 						  ->count();

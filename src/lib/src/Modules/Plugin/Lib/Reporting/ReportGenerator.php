@@ -20,7 +20,7 @@ class ReportGenerator {
 		$reports = $this->buildReports();
 		foreach ( $reports as $report ) {
 			$this->storeReportRecord( $report );
-			$this->con()->fireEvent( 'report_generated', [
+			self::con()->fireEvent( 'report_generated', [
 				'audit_params' => [
 					'type'     => $this->getReportTypeName( $report->type ),
 					'interval' => $report->interval,
@@ -52,7 +52,7 @@ class ReportGenerator {
 
 				if ( \strlen( $report->content ) > 0 ) {
 					$reports[] = $report;
-					$this->con()->fireEvent( 'report_generated', [
+					self::con()->fireEvent( 'report_generated', [
 						'audit_params' => [
 							'type'     => $this->getReportTypeName( $report->type ),
 							'interval' => $report->interval,
@@ -84,7 +84,7 @@ class ReportGenerator {
 				break;
 		}
 
-		return $this->con()->action_router->render(
+		return self::con()->action_router->render(
 			$renderer,
 			[
 				'home_url' => Services::WpGeneral()->getHomeUrl(),
@@ -99,7 +99,7 @@ class ReportGenerator {
 	}
 
 	private function storeReportRecord( Reports\ReportVO $report ) :bool {
-		$reportsDB = $this->con()->getModule_Plugin()->getDbH_ReportLogs();
+		$reportsDB = self::con()->getModule_Plugin()->getDbH_ReportLogs();
 		/** @var ReportsDB\Record $record */
 		$record = $reportsDB->getRecord();
 		$record->type = $report->type;
@@ -114,11 +114,11 @@ class ReportGenerator {
 				 ->getEmailProcessor()
 				 ->send(
 					 $this->mod()->getPluginReportEmail(),
-					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->con()->getHumanName(),
+					 __( 'Site Report', 'wp-simple-firewall' ).' - '.self::con()->getHumanName(),
 					 $report
 				 );
 
-			$this->con()->fireEvent( 'report_sent', [
+			self::con()->fireEvent( 'report_sent', [
 				'audit_params' => [
 					'medium' => 'email',
 				]

@@ -92,7 +92,7 @@ class ApiTokenManager {
 		return $this->getCanRequestOverride() ||
 			   (
 				   Services::Request()->ts() >= $this->getNextAttemptAllowedFrom()
-				   && $this->con()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
+				   && self::con()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
 			   );
 	}
 

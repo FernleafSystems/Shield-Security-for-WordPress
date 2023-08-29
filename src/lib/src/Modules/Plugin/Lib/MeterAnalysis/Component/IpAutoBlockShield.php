@@ -11,7 +11,7 @@ class IpAutoBlockShield extends IpBase {
 
 	protected function testIfProtected() :bool {
 		/** @var Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->getOptions();
 		return parent::testIfProtected() && $opts->isEnabledAutoBlackList();
 	}
 
@@ -20,11 +20,11 @@ class IpAutoBlockShield extends IpBase {
 	}
 
 	public function title() :string {
-		return sprintf( __( '%s Intelligent IP Blocking', 'wp-simple-firewall' ), $this->con()->labels->Name );
+		return sprintf( __( '%s Intelligent IP Blocking', 'wp-simple-firewall' ), self::con()->labels->Name );
 	}
 
 	public function descProtected() :string {
-		$mod = $this->con()->getModule_IPs();
+		$mod = self::con()->getModule_IPs();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return sprintf( __( 'Auto IP blocking is turned on with an offense limit of %s.', 'wp-simple-firewall' ),

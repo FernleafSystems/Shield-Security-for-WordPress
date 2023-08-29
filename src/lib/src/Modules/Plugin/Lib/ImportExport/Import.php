@@ -58,7 +58,7 @@ class Import {
 	 * @throws \Exception
 	 */
 	public function fromFileUpload() {
-		if ( !$this->con()->isPluginAdmin() ) {
+		if ( !self::con()->isPluginAdmin() ) {
 			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
 		}
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
@@ -146,7 +146,7 @@ class Import {
 		$data[ 'uniq' ] = wp_generate_password( 4, false );
 
 		{ // Send the export request
-			$targetExportURL = $this->con()->plugin_urls->noncedPluginAction(
+			$targetExportURL = self::con()->plugin_urls->noncedPluginAction(
 				PluginImportExport_Export::class,
 				$masterURL,
 				$data
@@ -180,7 +180,7 @@ class Import {
 		// Only do so if we're not turning it off. i.e on or no-change
 		if ( $enableNetwork === true ) {
 			$opts->setOpt( 'importexport_masterurl', $masterURL );
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'master_url_set',
 				[ 'audit_params' => [ 'site' => $masterURL ] ]
 			);
@@ -200,7 +200,7 @@ class Import {
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
 
 		$anythingChanged = false;
-		foreach ( $this->con()->modules as $mod ) {
+		foreach ( self::con()->modules as $mod ) {
 			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
 				$theseOpts = $mod->getOptions();
 				$theseOpts->setMultipleOptions(
@@ -216,7 +216,7 @@ class Import {
 		}
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
-			$dbh = $this->con()->getModule_IPs()->getDbH_IPRules();
+			$dbh = self::con()->getModule_IPs()->getDbH_IPRules();
 			$now = Services::Request()->ts();
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {
@@ -235,7 +235,7 @@ class Import {
 		}
 
 		if ( $anythingChanged ) {
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'options_imported',
 				[ 'audit_params' => [ 'site' => $source ] ]
 			);

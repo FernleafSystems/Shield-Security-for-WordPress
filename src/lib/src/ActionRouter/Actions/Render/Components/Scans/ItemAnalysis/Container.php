@@ -10,7 +10,7 @@ class Container extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/modal_content.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$item = $this->getScanItem();
 
 		$fullPath = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
@@ -34,7 +34,7 @@ class Container extends Base {
 			],
 			'flags'   => [
 				'can_download'    => Services::WpFs()->isAccessibleFile( $fullPath ),
-				'can_query_malai' => $this->con()->isPremiumActive() && !$item->is_mal,
+				'can_query_malai' => self::con()->isPremiumActive() && !$item->is_mal,
 			],
 			'hrefs'   => [
 				'file_download' => $con->plugin_urls->fileDownload( 'scan_file', [ 'rid' => $item->VO->scanresult_id ] ),

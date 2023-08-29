@@ -15,7 +15,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 
 	protected function exec() {
 		$this->setResponse(
-			$this->con()->action_router->action(
+			self::con()->action_router->action(
 				Render::class,
 				[
 					'render_action_slug' => $this->action_data[ 'render_slug' ],

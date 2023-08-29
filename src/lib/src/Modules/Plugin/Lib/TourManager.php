@@ -17,7 +17,7 @@ class TourManager {
 	}
 
 	public function getStates() :array {
-		$allowed = $this->con()->isPluginAdminPageRequest()
+		$allowed = self::con()->isPluginAdminPageRequest()
 				   && Services::Request()->query( PluginNavs::NAV_FIELD_ID ) !== PluginNavs::NAV_WIZARD;
 		$forced = Services::Request()->query( 'force_tour' ) == '1';
 		return [
@@ -29,7 +29,7 @@ class TourManager {
 
 	public function setCompleted( string $tourKey ) {
 		$tourKey = sanitize_key( $tourKey );
-		$meta = $this->con()->user_metas->current();
+		$meta = self::con()->user_metas->current();
 		if ( !empty( $tourKey ) && !empty( $meta ) ) {
 			$meta->tours = \array_intersect_key(
 				\array_merge( $this->getAllTours(), [
@@ -41,7 +41,7 @@ class TourManager {
 	}
 
 	public function getUserTourStates() :array {
-		$meta = $this->con()->user_metas->current();
+		$meta = self::con()->user_metas->current();
 		return ( !empty( $meta ) && \is_array( $meta->tours ) ) ? $meta->tours : [];
 	}
 

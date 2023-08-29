@@ -102,7 +102,7 @@ abstract class Handler extends ExecOnceModConsumer {
 
 	public function getTable() :string {
 		return Services::WpDb()->getPrefix()
-			   .esc_sql( $this->con()->prefixOption( $this->getTableSchema()->slug ) );
+			   .esc_sql( self::con()->prefixOption( $this->getTableSchema()->slug ) );
 	}
 
 	/**

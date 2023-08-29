@@ -13,7 +13,7 @@ class VerifyPinRequest {
 
 		if ( !empty( $pin ) ) {
 			$valid = \hash_equals( $this->opts()->getSecurityPIN(), \md5( $pin ) );
-			$this->con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
+			self::con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
 		}
 
 		return $valid;

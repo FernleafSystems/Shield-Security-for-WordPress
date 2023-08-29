@@ -7,7 +7,7 @@ class SecurityOverviewViewAs extends SecurityAdminBase {
 	public const SLUG = 'security_overview_view_as';
 
 	protected function exec() {
-		$mod = $this->con()->getModule_Plugin();
+		$mod = self::con()->getModule_Plugin();
 		$secOverviewPrefs = $mod->getOptions()->getOpt( 'sec_overview_prefs', [] );
 
 		$viewAs = $this->action_data[ 'view_as' ] ?? '';

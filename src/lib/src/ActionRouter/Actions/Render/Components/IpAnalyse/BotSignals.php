@@ -14,7 +14,7 @@ class BotSignals extends Base {
 
 	protected function getRenderData() :array {
 		/** @var Strings $strings */
-		$strings = $this->con()->getModule_IPs()->getStrings();
+		$strings = self::con()->getModule_IPs()->getStrings();
 
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )

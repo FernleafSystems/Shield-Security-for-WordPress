@@ -43,7 +43,7 @@ class PluginBadge {
 	}
 
 	private function getCookieIdBadgeState() :string {
-		return $this->con()->prefix( 'badgeState' );
+		return self::con()->prefix( 'badgeState' );
 	}
 
 	public function includeJquery() {
@@ -55,7 +55,7 @@ class PluginBadge {
 	}
 
 	public function render( bool $isFloating = false ) :string {
-		return $this->con()->action_router->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
+		return self::con()->action_router->render( Actions\Render\Components\RenderPluginBadge::SLUG, [
 			'is_floating' => $isFloating,
 		] );
 	}

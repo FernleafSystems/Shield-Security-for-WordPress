@@ -12,7 +12,7 @@ class VerifyUniqueEvents {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$con = $this->con();
+		$con = self::con();
 
 		$all = [];
 		foreach ( $con->modules as $mod ) {

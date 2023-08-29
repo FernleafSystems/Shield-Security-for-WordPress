@@ -29,7 +29,7 @@ class HumanDictionary {
 				'url'             => $commData[ 'comment_author_url' ],
 				'author_name'     => $commData[ 'comment_author' ],
 				'author_email'    => $commData[ 'comment_author_email' ],
-				'ip_address'      => $this->con()->this_req->ip,
+				'ip_address'      => self::con()->this_req->ip,
 				'user_agent'      => \substr( Services::Request()->getUserAgent(), 0, 254 )
 			],
 			\array_flip( $opts->getHumanSpamFilterItems() )

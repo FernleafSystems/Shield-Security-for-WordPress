@@ -15,7 +15,7 @@ class DailyCron extends BaseCron {
 	}
 
 	protected function getCronName() :string {
-		return $this->con()->prefix( 'daily' );
+		return self::con()->prefix( 'daily' );
 	}
 
 	public function getFirstRunTimestamp() :int {
@@ -43,6 +43,6 @@ class DailyCron extends BaseCron {
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( $this->con()->prefix( 'daily_cron' ) );
+		do_action( self::con()->prefix( 'daily_cron' ) );
 	}
 }

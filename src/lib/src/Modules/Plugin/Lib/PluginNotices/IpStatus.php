@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 class IpStatus extends Base {
 
 	public function check() :?array {
-		$con = $this->con();
+		$con = self::con();
 		$ip = $con->this_req->ip;
 
 		$issue = null;

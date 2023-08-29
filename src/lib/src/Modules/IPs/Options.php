@@ -39,7 +39,7 @@ class Options extends BaseShield\Options {
 	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
 	public function getRequestWhitelistAsRegex() :array {
-		$paths = $this->con()->isPremiumActive() ? $this->getOpt( 'request_whitelist', [] ) : [];
+		$paths = self::con()->isPremiumActive() ? $this->getOpt( 'request_whitelist', [] ) : [];
 		return \array_map(
 			function ( $value ) {
 				return ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::URL_PATH );

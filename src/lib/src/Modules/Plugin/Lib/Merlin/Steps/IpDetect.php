@@ -26,7 +26,7 @@ class IpDetect extends Base {
 			],
 			'vars'    => [
 				'video_id' => '269189603',
-				'the_ip'   => $this->con()->this_req->ip,
+				'the_ip'   => self::con()->this_req->ip,
 				'all_ips'  => $allIPs,
 			],
 			'strings' => [
@@ -36,7 +36,7 @@ class IpDetect extends Base {
 	}
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
-		$mod = $this->con()->getModule_Plugin();
+		$mod = self::con()->getModule_Plugin();
 		/** @var Shield\Modules\Plugin\Options $opts */
 		$opts = $mod->getOptions();
 

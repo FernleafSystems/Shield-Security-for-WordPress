@@ -35,16 +35,16 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {
-		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker( $this->con() );
+		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker( self::con() );
 	}
 
 	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
-		$this->con()->getModule_Data()->getDbH_IPs();
+		self::con()->getModule_Data()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
 	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
-		$this->con()->getModule_Data()->getDbH_IPs();
+		self::con()->getModule_Data()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'ip_rules' );
 	}
 

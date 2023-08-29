@@ -20,7 +20,7 @@ abstract class PluginThemesBase extends Base {
 				'ptg_not_available' => __( 'Scanning Plugin & Theme Files is only available with ShieldPRO.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'ptg_is_restricted' => !$this->con()->isPremiumActive(),
+				'ptg_is_restricted' => !self::con()->isPremiumActive(),
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForPluginTheme() )->build()
@@ -30,11 +30,11 @@ abstract class PluginThemesBase extends Base {
 
 	protected function getVulnerabilities() :Scans\Wpv\ResultsSet {
 		try {
-			$vulnerable = $this->con()
-							   ->getModule_HackGuard()
-							   ->getScansCon()
-							   ->WPV()
-							   ->getResultsForDisplay();
+			$vulnerable = self::con()
+							  ->getModule_HackGuard()
+							  ->getScansCon()
+							  ->WPV()
+							  ->getResultsForDisplay();
 		}
 		catch ( \Exception $e ) {
 			$vulnerable = new Scans\Wpv\ResultsSet();
@@ -44,11 +44,11 @@ abstract class PluginThemesBase extends Base {
 
 	protected function getAbandoned() :Scans\Apc\ResultsSet {
 		try {
-			$abandoned = $this->con()
-							  ->getModule_HackGuard()
-							  ->getScansCon()
-							  ->APC()
-							  ->getResultsForDisplay();
+			$abandoned = self::con()
+							 ->getModule_HackGuard()
+							 ->getScansCon()
+							 ->APC()
+							 ->getResultsForDisplay();
 		}
 		catch ( \Exception $e ) {
 			$abandoned = new Scans\Apc\ResultsSet();

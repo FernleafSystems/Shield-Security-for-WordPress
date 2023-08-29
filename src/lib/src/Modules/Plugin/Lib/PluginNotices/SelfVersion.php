@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 class SelfVersion extends Base {
 
 	public function check() :?array {
-		$con = $this->con();
+		$con = self::con();
 		$issue = null;
 
 		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
@@ -26,7 +26,7 @@ class SelfVersion extends Base {
 								$con->getHumanName()
 							),
 							sprintf( '<a href="%s" class="">%s</a>',
-								Services::WpPlugins()->getUrl_Upgrade( $this->con()->base_file ),
+								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
 								__( 'Upgrade Now', 'wp-simple-firewall' )
 							)
 						)
@@ -46,7 +46,7 @@ class SelfVersion extends Base {
 							'%s %s',
 							__( "An upgrade is available for the Shield plugin.", 'wp-simple-firewall' ),
 							sprintf( '<a href="%s" class="">%s</a>',
-								Services::WpPlugins()->getUrl_Upgrade( $this->con()->base_file ),
+								Services::WpPlugins()->getUrl_Upgrade( self::con()->base_file ),
 								__( 'Upgrade Now', 'wp-simple-firewall' )
 							)
 						)
@@ -63,7 +63,7 @@ class SelfVersion extends Base {
 
 	private function isPluginTooOld() :bool {
 		$tooOld = false;
-		$con = $this->con();
+		$con = self::con();
 		$versions = Transient::Get( $con->prefix( 'releases' ) );
 
 		if ( !\is_array( $versions ) ) {

@@ -40,7 +40,7 @@ class WordPress extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$userOrError = $this->giveMeWpError( $userOrError );
-			$userOrError->add( $this->con()->prefix( uniqid() ), $e->getMessage() );
+			$userOrError->add( self::con()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $userOrError;
 	}
@@ -57,7 +57,7 @@ class WordPress extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$wpError = $this->giveMeWpError( $wpError );
-			$wpError->add( $this->con()->prefix( uniqid() ), $e->getMessage() );
+			$wpError->add( self::con()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $wpError;
 	}
@@ -75,7 +75,7 @@ class WordPress extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			$wpError = $this->giveMeWpError( $wpError );
-			$wpError->add( $this->con()->prefix( uniqid() ), $e->getMessage() );
+			$wpError->add( self::con()->prefix( uniqid() ), $e->getMessage() );
 		}
 		return $wpError;
 	}

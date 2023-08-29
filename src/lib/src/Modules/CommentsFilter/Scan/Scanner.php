@@ -61,14 +61,14 @@ class Scanner {
 			if ( \count( $errorCodes ) > 0 ) {
 
 				foreach ( $errorCodes as $errorCode ) {
-					$this->con()
-						 ->fireEvent(
-							 'spam_block_'.$errorCode,
-							 [ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
-						 );
+					self::con()
+						->fireEvent(
+							'spam_block_'.$errorCode,
+							[ 'audit_params' => $spamErrors->get_error_data( $errorCode ) ]
+						);
 				}
 
-				$this->con()->fireEvent( 'comment_spam_block' );
+				self::con()->fireEvent( 'comment_spam_block' );
 
 				// if we're configured to actually block...
 				if ( $opts->isEnabledAntiBot() && \in_array( 'antibot', $errorCodes ) ) {
@@ -103,10 +103,10 @@ class Scanner {
 	private function runScans( array $commData ) :\WP_Error {
 		$errors = new \WP_Error();
 
-		$isBot = $this->con()
-					  ->getModule_IPs()
-					  ->getBotSignalsController()
-					  ->isBot();
+		$isBot = self::con()
+					 ->getModule_IPs()
+					 ->getBotSignalsController()
+					 ->isBot();
 		if ( $isBot ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
@@ -159,7 +159,7 @@ class Scanner {
 				sprintf(
 					"## Comment SPAM Protection: %s %s ##\n",
 					sprintf( __( '%s marked this comment as "%s".', 'wp-simple-firewall' ),
-						$this->con()->getHumanName(), $humanStatus ),
+						self::con()->getHumanName(), $humanStatus ),
 					sprintf( __( 'Reason: %s', 'wp-simple-firewall' ), $this->spamReason )
 				),
 				$this->spamStatus,
@@ -173,7 +173,7 @@ class Scanner {
 
 			if ( !empty( $this->spamCodes ) ) {
 				foreach ( $this->spamCodes as $spamCode ) {
-					add_comment_meta( $commentID, $this->con()->prefix( 'spam_'.$spamCode ), '1' );
+					add_comment_meta( $commentID, self::con()->prefix( 'spam_'.$spamCode ), '1' );
 				}
 			}
 		}

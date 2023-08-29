@@ -13,11 +13,11 @@ class MerlinStep extends BaseRender {
 	protected function getRenderData() :array {
 		return [
 			'hrefs' => [
-				'dashboard' => $this->con()->plugin_urls->adminHome(),
+				'dashboard' => self::con()->plugin_urls->adminHome(),
 				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'  => [
-				'play_button' => $this->con()->urls->svg( 'play-circle' ),
+				'play_button' => self::con()->urls->svg( 'play-circle' ),
 				'video_thumb' => $this->getVideoThumbnailUrl( $step[ 'vars' ][ 'video_id' ] ?? '' )
 			],
 		];

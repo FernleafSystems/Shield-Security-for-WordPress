@@ -13,7 +13,7 @@ class DynamicPageLoad extends BaseAction {
 	protected function exec() {
 		$resp = $this->response();
 		try {
-			$resp->action_response_data = $this->con()->action_router->action(
+			$resp->action_response_data = self::con()->action_router->action(
 				$this->action_data[ 'dynamic_load_params' ][ 'dynamic_load_slug' ],
 				$this->action_data[ 'dynamic_load_params' ][ 'dynamic_load_data' ]
 			)->action_response_data;

@@ -56,7 +56,7 @@ class Base {
 			catch ( \Exception $e ) {
 			}
 		}
-		$this->con()->fireEvent( $event, [ 'audit_params' => $params ] );
+		self::con()->fireEvent( $event, [ 'audit_params' => $params ] );
 	}
 
 	public function setIsRunningSnapshotDiscovery( bool $isRunning ) :void {

@@ -35,11 +35,11 @@ class PluginURLs {
 
 	public function rootAdminPage() :string {
 		return Services::WpGeneral()->getUrl_AdminPage(
-			$this->rootAdminPageSlug(), (bool)$this->con()->cfg->properties[ 'wpms_network_admin_only' ] );
+			$this->rootAdminPageSlug(), (bool)self::con()->cfg->properties[ 'wpms_network_admin_only' ] );
 	}
 
 	public function rootAdminPageSlug() :string {
-		return $this->con()->getModule_Plugin()->getModSlug();
+		return self::con()->getModule_Plugin()->getModSlug();
 	}
 
 	public static function GetAllNavs() :array {

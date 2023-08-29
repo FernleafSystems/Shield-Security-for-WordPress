@@ -34,7 +34,7 @@ class ReportBuildChangeTrack extends BaseRender {
 			'zones_data' => []
 		];
 
-		foreach ( $this->con()->getModule_AuditTrail()->getAuditCon()->getAuditors() as $auditor ) {
+		foreach ( self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors() as $auditor ) {
 			if ( \in_array( $auditor::Slug(), $formParams[ 'zones' ] ?? [] ) ) {
 				try {
 					$reporter = $auditor->getReporter();

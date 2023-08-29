@@ -77,7 +77,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->con();
+		$con = self::con();
 
 		switch ( $key ) {
 

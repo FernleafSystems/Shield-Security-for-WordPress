@@ -23,7 +23,7 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->getOptions();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [

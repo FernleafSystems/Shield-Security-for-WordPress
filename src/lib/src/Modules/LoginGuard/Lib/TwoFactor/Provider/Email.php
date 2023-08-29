@@ -76,7 +76,7 @@ class Email extends AbstractShieldProvider {
 	}
 
 	public function sendEmailTwoFactorVerify( string $plainNonce ) :bool {
-		$con = $this->con();
+		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
 		$userMeta = $con->user_metas->for( $user );
@@ -125,7 +125,7 @@ class Email extends AbstractShieldProvider {
 					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
 					'description_email_authentication_checkbox' => __( 'Toggle the option to enable/disable email-based login authentication.', 'wp-simple-firewall' ),
 					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->con()->getHumanName() )
+						self::con()->getHumanName() )
 				]
 			]
 		);

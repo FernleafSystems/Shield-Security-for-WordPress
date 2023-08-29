@@ -388,7 +388,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$modName = $this->mod()->getMainFeatureName();

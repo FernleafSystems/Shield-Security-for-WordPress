@@ -24,7 +24,7 @@ class LoginRequestCapture {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$con = $this->con();
+		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 

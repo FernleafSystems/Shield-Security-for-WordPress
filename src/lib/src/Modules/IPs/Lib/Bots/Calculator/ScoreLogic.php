@@ -115,11 +115,11 @@ class ScoreLogic {
 			],
 			'btlogininvalid'  => [
 				\HOUR_IN_SECONDS => -85,
-				-1              => -55,
+				-1               => -55,
 			],
 			'btinvalidscript' => [
 				\HOUR_IN_SECONDS => -25,
-				-1              => -15,
+				-1               => -15,
 			],
 			'cooldown'        => [
 				\MINUTE_IN_SECONDS => -25,

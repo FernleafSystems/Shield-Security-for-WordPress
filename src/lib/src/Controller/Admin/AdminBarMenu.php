@@ -11,8 +11,8 @@ class AdminBarMenu {
 	use ExecOnce;
 
 	protected function canRun() :bool {
-		return $this->con()->getMeetsBasePermissions() &&
-			   apply_filters( 'shield/show_admin_bar_menu', $this->con()->cfg->properties[ 'show_admin_bar_menu' ] );
+		return self::con()->getMeetsBasePermissions() &&
+			   apply_filters( 'shield/show_admin_bar_menu', self::con()->cfg->properties[ 'show_admin_bar_menu' ] );
 	}
 
 	protected function run() {
@@ -24,7 +24,7 @@ class AdminBarMenu {
 	}
 
 	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) {
-		$con = $this->con();
+		$con = self::con();
 
 		$groups = \array_filter( apply_filters( $con->prefix( 'admin_bar_menu_groups' ), [] ) );
 		$totalWarnings = 0;

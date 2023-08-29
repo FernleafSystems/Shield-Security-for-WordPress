@@ -34,7 +34,7 @@ class SessionController {
 	protected function captureLogin( \WP_User $user ) {
 		if ( !empty( $this->getLoggedInCookie() ) ) {
 			$this->current();
-			$this->con()->fireEvent( 'login_success' );
+			self::con()->fireEvent( 'login_success' );
 		}
 	}
 
@@ -70,7 +70,7 @@ class SessionController {
 
 						// Ensure the correct IP is stored
 						$srvIP = Services::IP();
-						$ip = $this->con()->this_req->ip;
+						$ip = self::con()->this_req->ip;
 						if ( !empty( $ip ) && ( empty( $session[ 'ip' ] ) || !$srvIP->IpIn( $ip, [ $session[ 'ip' ] ] ) ) ) {
 							$session[ 'ip' ] = $ip;
 						}
@@ -95,7 +95,7 @@ class SessionController {
 
 						// Update User Last Seen IP.
 						try {
-							$userMeta = $this->con()->user_metas->for( $WPUsers->getUserById( $userID ) );
+							$userMeta = self::con()->user_metas->for( $WPUsers->getUserById( $userID ) );
 							if ( !empty( $userMeta ) ) {
 								$userMeta->record->ip_ref = ( new IPRecords() )
 									->loadIP( $session[ 'ip' ] )
@@ -159,7 +159,7 @@ class SessionController {
 			$userID = $user instanceof \WP_User ? $user->ID : ( $current->shield[ 'user_id' ] ?? 0 );
 			if ( !empty( $userID ) ) {
 				\WP_Session_Tokens::get_instance( $userID )->destroy( $current->token );
-				$this->con()->fireEvent( 'session_terminate_current', [
+				self::con()->fireEvent( 'session_terminate_current', [
 					'audit_params' => [
 						'user_login' => $user->user_login,
 						'session_id' => $current->token,

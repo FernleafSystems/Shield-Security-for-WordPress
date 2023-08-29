@@ -29,7 +29,7 @@ class SecurityBadge extends Base {
 			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
-		$mod = $this->con()->getModule_Plugin();
+		$mod = self::con()->getModule_Plugin();
 
 		$toEnable = $value === 'Y';
 		if ( $toEnable ) { // we don't disable the whole module

@@ -11,7 +11,7 @@ class PageReports extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
@@ -70,7 +70,7 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	private function buildContent() :array {
-		$AR = $this->con()->action_router;
+		$AR = self::con()->action_router;
 		switch ( $this->action_data[ 'nav_sub' ] ) {
 			case PluginNavs::SUBNAV_CHANGE_TRACK:
 				$content = [

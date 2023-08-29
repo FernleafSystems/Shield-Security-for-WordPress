@@ -10,7 +10,7 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShi
 		$mod = self::con()->getModule_LoginGuard();
 
 		// XML-RPC Compatibility
-		if ( $this->con()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
+		if ( self::con()->this_req->wp_is_xmlrpc && $mod->isXmlrpcBypass() ) {
 			return;
 		}
 

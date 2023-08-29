@@ -130,7 +130,7 @@ class Plugins extends Base {
 			 && current_user_can( 'edit_plugins' )
 			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-plugin_'.$req->post( 'file' ) )
 		) {
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'plugin_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
 			);
@@ -154,7 +154,7 @@ class Plugins extends Base {
 	}
 
 	public function auditUpgrade2( $true, $hooksExtra ) {
-		add_action( $this->con()->prefix( 'pre_plugin_shutdown' ),
+		add_action( self::con()->prefix( 'pre_plugin_shutdown' ),
 			function () use ( $hooksExtra ) {
 				if ( !empty( $hooksExtra[ 'plugin' ] ) ) {
 					$this->handlePluginUpgrade( $hooksExtra[ 'plugin' ] );

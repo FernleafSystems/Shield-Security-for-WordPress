@@ -16,13 +16,13 @@ class PageImportExport extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Configure Auto Import', 'wp-simple-firewall' ),
-				'href' => $this->con()->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
+				'href' => self::con()->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
 			],
 		];
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
 		$opts = $con->getModule_Plugin()->opts();
 		return [

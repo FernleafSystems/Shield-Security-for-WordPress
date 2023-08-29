@@ -88,7 +88,7 @@ class Retrieve {
 	 * @throws \Exception
 	 */
 	private function fromCsHashes( $vo ) :array {
-		if ( !$this->con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
+		if ( !self::con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
 			throw new \Exception( 'Insufficient permissions to use CS Hashes for premium plugins/themes.' );
 		}
 		$hashes = ( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo );

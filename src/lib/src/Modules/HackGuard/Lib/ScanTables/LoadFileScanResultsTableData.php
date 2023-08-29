@@ -132,7 +132,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function getActions( ResultItem $item ) :array {
-		$con = $this->con();
+		$con = self::con();
 		$actions = [];
 
 		$defaultButtonClasses = [
@@ -199,27 +199,27 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		$extension = \strtoupper( Paths::Ext( $item->path_full ) );
 		if ( \strpos( $extension, 'PHP' ) !== false ) {
 			$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
-				$this->con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
 		}
 		elseif ( $extension === 'JS' ) {
 			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-				$this->con()->urls->forImage( 'icons/icon-javascript.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-javascript.png' ), $extension, $extension );
 		}
 		elseif ( $extension === 'CSS' ) {
 			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-				$this->con()->urls->forImage( 'icons/icon-css.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-css.png' ), $extension, $extension );
 		}
 		elseif ( $extension === 'ICO' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				$this->con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
 		}
 		elseif ( $extension === 'SVG' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				$this->con()->urls->svg( 'filetype-svg' ), $extension, $extension );
+				self::con()->urls->svg( 'filetype-svg' ), $extension, $extension );
 		}
 		elseif ( $extension === 'JSON' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				$this->con()->urls->forImage( 'icons/icon-json.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-json.png' ), $extension, $extension );
 		}
 		else {
 			$type = $extension;

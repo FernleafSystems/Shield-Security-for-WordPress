@@ -45,12 +45,12 @@ class StandardReportBuilder {
 	 */
 	private function buildComponents() :array {
 		$reports = [];
-		$builders = $this->con()
-						 ->getModule_Plugin()
-						 ->getReportingController()
-						 ->getComponentBuilders( $this->rep->type );
+		$builders = self::con()
+						->getModule_Plugin()
+						->getReportingController()
+						->getComponentBuilders( $this->rep->type );
 		foreach ( $builders as $builder ) {
-			$reports[] = $this->con()->action_router->render(
+			$reports[] = self::con()->action_router->render(
 				$builder::SLUG,
 				[
 					'report' => $this->rep->getRawData()
@@ -74,7 +74,7 @@ class StandardReportBuilder {
 				break;
 		}
 
-		return $this->con()->action_router->render(
+		return self::con()->action_router->render(
 			$renderer,
 			[
 				'strings' => [

@@ -15,7 +15,7 @@ class PageScansRun extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_run.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
@@ -29,7 +29,7 @@ class PageScansRun extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_HackGuard();
 
 		( new CleanQueue() )->execute();
@@ -80,7 +80,7 @@ class PageScansRun extends BasePluginAdminPage {
 	}
 
 	private function buildScansVars() :array {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 		$scanStrings = $strings->getScanStrings();

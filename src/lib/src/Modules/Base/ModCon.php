@@ -89,7 +89,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function setupHooks() {
-		$con = $this->con();
+		$con = self::con();
 
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
@@ -225,7 +225,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->con()->is_rest_enabled ) {
+		if ( self::con()->is_rest_enabled ) {
 			$this->initRestApi();
 		}
 	}
@@ -249,7 +249,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpInit() {
-		$con = $this->con();
+		$con = self::con();
 
 		add_action( 'cli_init', function () {
 			try {
@@ -276,7 +276,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onLoadOptionsScreen() {
-		if ( $this->con()->isValidAdminArea() ) {
+		if ( self::con()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
 		}
 	}
@@ -302,13 +302,13 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 18.2.5
 	 */
 	public function onPluginShutdown() {
-		if ( !$this->con()->plugin_deleting && \version_compare( $this->con()->cfg->version(), '18.2.5', '<' ) ) {
+		if ( !self::con()->plugin_deleting && \version_compare( self::con()->cfg->version(), '18.2.5', '<' ) ) {
 			$this->saveModOptions();
 		}
 	}
 
 	public function getOptionsStorageKey() :string {
-		return $this->con()->prefixOption( $this->cfg->properties[ 'storage_key' ] ).'_options';
+		return self::con()->prefixOption( $this->cfg->properties[ 'storage_key' ] ).'_options';
 	}
 
 	/**
@@ -319,7 +319,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getUrl_OptionsConfigPage() :string {
-		return $this->con()->plugin_urls->modCfg( $this );
+		return self::con()->plugin_urls->modCfg( $this );
 	}
 
 	/**
@@ -329,7 +329,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 10.2
 	 */
 	public function getEmailHandler() {
-		return $this->con()->getModule_Email();
+		return self::con()->getModule_Email();
 	}
 
 	/**
@@ -349,7 +349,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModuleEnabled() :bool {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
 		$pluginOpts = $con->getModule_Plugin()->getOptions();
 
@@ -363,7 +363,7 @@ abstract class ModCon extends DynPropertiesClass {
 		elseif ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$enabled = false;
 		}
-		elseif ( $this->con()->this_req->is_force_off ) {
+		elseif ( self::con()->this_req->is_force_off ) {
 			$enabled = false;
 		}
 		elseif ( $this->cfg->properties[ 'premium' ] && !$con->isPremiumActive() ) {
@@ -401,7 +401,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getModSlug( bool $prefix = true ) :string {
-		return $prefix ? $this->con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
+		return $prefix ? self::con()->prefix( $this->cfg->slug ) : $this->cfg->slug;
 	}
 
 	/**
@@ -489,7 +489,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		if ( $this->getOptions()->getNeedSave() ) {
-			do_action( $this->con()->prefix( 'pre_options_store' ), $this );
+			do_action( self::con()->prefix( 'pre_options_store' ), $this );
 		}
 
 		if ( $store ) {
@@ -504,7 +504,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 18.2.5
 	 */
 	private function store() {
-		$con = $this->con();
+		$con = self::con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		$this->getOptions()->doOptionsSave( false, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
@@ -544,7 +544,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isAccessRestricted() :bool {
-		return $this->cfg->properties[ 'access_restricted' ] && !$this->con()->isPluginAdmin();
+		return $this->cfg->properties[ 'access_restricted' ] && !self::con()->isPluginAdmin();
 	}
 
 	/**

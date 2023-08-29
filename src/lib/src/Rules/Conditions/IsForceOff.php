@@ -12,7 +12,7 @@ class IsForceOff extends Base {
 	public const SLUG = 'is_force_off';
 
 	protected function execConditionCheck() :bool {
-		$con = $this->con();
+		$con = self::con();
 		return $con->this_req->is_force_off ?? $con->this_req->is_force_off = $this->findForceOffFile() !== false;
 	}
 
@@ -20,7 +20,7 @@ class IsForceOff extends Base {
 	 * @return false|string
 	 */
 	private function findForceOffFile() {
-		$con = $this->con();
+		$con = self::con();
 		if ( !isset( $con->file_forceoff ) ) {
 			$FS = Services::WpFs();
 			$file = $FS->findFileInDir( 'forceoff', $con->getRootDir(), false );

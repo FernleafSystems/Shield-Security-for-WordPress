@@ -10,11 +10,11 @@ class License extends Base {
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$resp = parent::processStepFormSubmit( $form );
-		$resp->success = $this->con()
-							  ->getModule_License()
-							  ->getLicenseHandler()
-							  ->verify( true )
-							  ->hasValidWorkingLicense();
+		$resp->success = self::con()
+							 ->getModule_License()
+							 ->getLicenseHandler()
+							 ->verify( true )
+							 ->hasValidWorkingLicense();
 		if ( $resp->success ) {
 			$resp->message = 'License found and installed successfully';
 		}
@@ -40,6 +40,6 @@ class License extends Base {
 	}
 
 	public function skipStep() :bool {
-		return $this->con()->isPremiumActive();
+		return self::con()->isPremiumActive();
 	}
 }

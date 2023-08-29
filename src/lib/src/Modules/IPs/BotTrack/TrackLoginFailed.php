@@ -29,7 +29,7 @@ class TrackLoginFailed extends Base {
 
 					// Adds an extra message to login failed
 					$user->add(
-						$this->con()->prefix( 'transgression-warning' ),
+						self::con()->prefix( 'transgression-warning' ),
 						apply_filters( 'shield/message_login_failed',
 							__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' ) )
 					);

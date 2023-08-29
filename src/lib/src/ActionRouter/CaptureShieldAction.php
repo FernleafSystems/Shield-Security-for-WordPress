@@ -7,13 +7,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class CaptureShieldAction extends CaptureActionBase {
 
 	protected function canRun() :bool {
-		return !$this->con()->this_req->wp_is_ajax && parent::canRun();
+		return !self::con()->this_req->wp_is_ajax && parent::canRun();
 	}
 
 	protected function theRun() {
 		$req = Services::Request();
 		try {
-			$this->actionResponse = $this->con()->action_router->action(
+			$this->actionResponse = self::con()->action_router->action(
 				$this->extractActionSlug(),
 				\array_merge( $req->query, $req->post )
 			);

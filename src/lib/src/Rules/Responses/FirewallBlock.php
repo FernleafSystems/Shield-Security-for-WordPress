@@ -19,7 +19,7 @@ class FirewallBlock extends Base {
 	 * @throws \Exception
 	 */
 	private function runBlock() {
-		$mod = $this->con()->getModule_Firewall();
+		$mod = self::con()->getModule_Firewall();
 
 		$this->preBlock();
 
@@ -33,7 +33,7 @@ class FirewallBlock extends Base {
 				Services::WpGeneral()->wpDie( 'Firewall Triggered' );
 				break;
 			case 'redirect_die_message':
-				$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
+				self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 					'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
 					'render_data' => [
 						'block_meta_data' => $this->getConsolidatedConditionMeta()
@@ -53,9 +53,9 @@ class FirewallBlock extends Base {
 	}
 
 	private function preBlock() {
-		$mod = $this->con()->getModule_Firewall();
+		$mod = self::con()->getModule_Firewall();
 		if ( $mod->getOptions()->isOpt( 'block_send_email', 'Y' ) ) {
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
 				[ 'audit_params' => [ 'to' => $mod->getPluginReportEmail() ] ]
 			);
@@ -63,7 +63,7 @@ class FirewallBlock extends Base {
 	}
 
 	private function sendBlockEmail() :bool {
-		$con = $this->con();
+		$con = self::con();
 
 		$blockMeta = $this->getConsolidatedConditionMeta();
 		$fwCategory = $blockMeta[ 'match_category' ] ?? '';

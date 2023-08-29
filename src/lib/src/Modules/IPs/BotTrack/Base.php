@@ -37,15 +37,15 @@ abstract class Base {
 	}
 
 	protected function fireEvent( $offenseCount = 0, $isBlock = false ) {
-		$this->con()
-			 ->fireEvent(
-				 'bot'.static::OPT_KEY,
-				 [
-					 'audit_params'  => $this->getAuditData(),
-					 'offense_count' => $offenseCount,
-					 'block'         => $isBlock,
-				 ]
-			 );
+		self::con()
+			->fireEvent(
+				'bot'.static::OPT_KEY,
+				[
+					'audit_params'  => $this->getAuditData(),
+					'offense_count' => $offenseCount,
+					'block'         => $isBlock,
+				]
+			);
 	}
 
 	protected function getAuditData() :array {

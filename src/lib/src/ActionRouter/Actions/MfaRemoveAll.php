@@ -12,7 +12,7 @@ class MfaRemoveAll extends MfaUserConfigBase {
 	protected function exec() {
 		$userID = $this->action_data[ 'user_id' ] ?? null;
 
-		if ( !$this->con()->isPluginAdmin() ) {
+		if ( !self::con()->isPluginAdmin() ) {
 			$response = [
 				'success' => false,
 				'message' => __( 'Removal of MFA factors for a user must be done by the Security Admin', 'wp-simple-firewall' ),
@@ -25,10 +25,10 @@ class MfaRemoveAll extends MfaUserConfigBase {
 			];
 		}
 		else {
-			$result = $this->con()
-						   ->getModule_LoginGuard()
-						   ->getMfaController()
-						   ->removeAllFactorsForUser( (int)$userID );
+			$result = self::con()
+						  ->getModule_LoginGuard()
+						  ->getMfaController()
+						  ->removeAllFactorsForUser( (int)$userID );
 			$response = [
 				'success' => $result->success,
 				'message' => $result->success ? $result->msg_text : $result->error_text,

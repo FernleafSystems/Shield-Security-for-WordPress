@@ -64,7 +64,7 @@ class GaspJs extends BaseProtectionProvider {
 		$valid = false;
 		$errorMsg = '';
 		if ( empty( $gasp ) ) {
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'botbox_fail',
 				[
 					'audit_params' => [
@@ -76,7 +76,7 @@ class GaspJs extends BaseProtectionProvider {
 			$errorMsg = __( "Please check that box to say you're human, and not a bot.", 'wp-simple-firewall' );
 		}
 		elseif ( !empty( $req->post( 'icwp_wpsf_login_email' ) ) ) {
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'honeypot_fail',
 				[
 					'audit_params' => [
@@ -98,7 +98,7 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function buildFormInsert( $formProvider ) :string {
-		return $this->con()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
+		return self::con()->action_router->render( Actions\Render\Legacy\GaspJs::SLUG );
 	}
 
 	protected function isFactorJsRequired() :bool {

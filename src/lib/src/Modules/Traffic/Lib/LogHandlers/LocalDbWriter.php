@@ -23,7 +23,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	 * @throws \Exception
 	 */
 	protected function createPrimaryLogRecord( array $logData ) :bool {
-		$modData = $this->con()->getModule_Data();
+		$modData = self::con()->getModule_Data();
 
 		$ipRecord = ( new IPRecords() )->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 

@@ -214,7 +214,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$pluginName = $this->con()->getHumanName();
+		$pluginName = self::con()->getHumanName();
 		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $section ) {
@@ -276,7 +276,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		$pluginName = $con->getHumanName();

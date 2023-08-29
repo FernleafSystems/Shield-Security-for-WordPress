@@ -22,10 +22,10 @@ class PageOverview extends BasePluginAdminPage {
 	}
 
 	protected function getViewAsState() :array {
-		$con = $this->con();
+		$con = self::con();
 		$URLs = $con->plugin_urls;
 
-		$currentViewAs = $this->con()->getModule_Plugin()->getOptions()->getOpt( 'sec_overview_prefs' )[ 'view_as' ]
+		$currentViewAs = self::con()->getModule_Plugin()->getOptions()->getOpt( 'sec_overview_prefs' )[ 'view_as' ]
 						 ?? 'business';
 
 		if ( !$con->isPremiumActive() ) { // Free
@@ -58,7 +58,7 @@ class PageOverview extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$viewAsState = $this->getViewAsState();
 

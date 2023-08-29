@@ -12,7 +12,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_activity.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),

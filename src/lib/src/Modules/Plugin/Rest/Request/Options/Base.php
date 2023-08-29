@@ -35,7 +35,7 @@ abstract class Base extends Process {
 	 */
 	protected function getOptionData( string $key ) :array {
 		$def = [];
-		foreach ( $this->con()->modules as $module ) {
+		foreach ( self::con()->modules as $module ) {
 			$opts = $module->getOptions();
 			$maybe = $opts->getOptDefinition( $key );
 			if ( !empty( $maybe ) ) {

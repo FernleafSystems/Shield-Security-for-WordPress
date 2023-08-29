@@ -26,9 +26,9 @@ class CrowdSecController {
 	protected function run() {
 		$this->setupCronHooks();
 
-		new Signals\EventsToSignals( $this->con(), $this->con()->is_mode_live );
+		new Signals\EventsToSignals( self::con(), self::con()->is_mode_live );
 
-		add_action( $this->con()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
+		add_action( self::con()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
 			// This cron is initiated from within SignalsBuilder
 			( new Signals\PushSignalsToCS() )->execute();
 		} );

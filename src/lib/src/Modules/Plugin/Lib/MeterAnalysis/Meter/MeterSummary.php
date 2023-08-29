@@ -10,7 +10,7 @@ class MeterSummary extends MeterBase {
 
 	protected function getWorkingMods() :array {
 		return \array_filter(
-			$this->con()->modules,
+			self::con()->modules,
 			function ( $mod ) {
 				return ( $mod->cfg->properties[ 'show_module_options' ] ?? false ) && $mod->cfg->slug !== 'plugin';
 			}

@@ -81,14 +81,14 @@ class MUHandler {
 
 	private function getMuDir() :string {
 		return \defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR :
-			path_join( \dirname( $this->con()->getRootDir(), 2 ), 'mu-plugins' );
+			path_join( \dirname( self::con()->getRootDir(), 2 ), 'mu-plugins' );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	private function buildContent() :string {
-		$con = $this->con();
+		$con = self::con();
 		$FS = Services::WpFs();
 		$templateFile = path_join( __DIR__, '.mu-template.txt' );
 		$template = $FS->getFileContent( $templateFile );

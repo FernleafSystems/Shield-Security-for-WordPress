@@ -34,6 +34,6 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 	 * The entire REST API is available to cap:level_2 only, but the licenses endpoints are cap:level_1.
 	 */
 	protected function isFeatureAvailable() :bool {
-		return $this->con()->caps->canRestAPILevel2();
+		return self::con()->caps->canRestAPILevel2();
 	}
 }

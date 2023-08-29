@@ -116,7 +116,7 @@ class BuildData {
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 200;",
 				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				empty( $serverIPs ) ? '' : sprintf( "AND `ips`.`ip` NOT IN (%s)", \implode( ",", $serverIPs ) )
 			)
 		);

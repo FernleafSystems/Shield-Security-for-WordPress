@@ -15,7 +15,7 @@ class Idle extends Base {
 
 		if ( \count( $r ) > 0 && $this->isLastVerifiedAtExpired( $meta ) ) {
 			$user = new \WP_Error(
-				$this->con()->prefix( 'pass-expired' ),
+				self::con()->prefix( 'pass-expired' ),
 				\implode( ' ', [
 					__( 'Sorry, this account is suspended because of inactivity.', 'wp-simple-firewall' ),
 					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),

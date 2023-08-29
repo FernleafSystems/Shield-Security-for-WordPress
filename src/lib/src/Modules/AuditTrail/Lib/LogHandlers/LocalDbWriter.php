@@ -68,10 +68,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
-		$reqSelector = $this->con()
-							->getModule_Data()
-							->getDbH_ReqLogs()
-							->getQuerySelector();
+		$reqSelector = self::con()
+						   ->getModule_Data()
+						   ->getDbH_ReqLogs()
+						   ->getQuerySelector();
 		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;

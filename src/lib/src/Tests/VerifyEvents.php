@@ -9,7 +9,7 @@ class VerifyEvents {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$con = $this->con();
+		$con = self::con();
 
 		$NoKey = [];
 		$NotEnoughSubstitutions = [];

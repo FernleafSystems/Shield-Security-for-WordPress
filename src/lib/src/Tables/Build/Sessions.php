@@ -33,10 +33,10 @@ class Sessions extends BaseBuild {
 			if ( empty( $UIDs ) ) {
 				// Select the most recently active based on updated Shield User Meta
 				/** @var Select $metaSelect */
-				$metaSelect = $this->con()
-								   ->getModule_Data()
-								   ->getDbH_UserMeta()
-								   ->getQuerySelector();
+				$metaSelect = self::con()
+								  ->getModule_Data()
+								  ->getDbH_UserMeta()
+								  ->getQuerySelector();
 				$results = $metaSelect->setResultsAsVo( false )
 									  ->setSelectResultsFormat( ARRAY_A )
 									  ->setColumnsToSelect( [ 'user_id' ] )
@@ -105,7 +105,7 @@ class Sessions extends BaseBuild {
 
 		$srvIP = Services::IP();
 		$WPU = Services::WpUsers();
-		$you = $this->con()->this_req->ip;
+		$you = self::con()->this_req->ip;
 		foreach ( $this->getEntriesRaw() as $key => $e ) {
 
 			try {
@@ -142,7 +142,7 @@ class Sessions extends BaseBuild {
 
 	protected function getIpAnalysisLink( string $ip ) :string {
 		$srvIP = Services::IP();
-		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : $this->con()->plugin_urls->ipAnalysis( $ip );
+		$href = $srvIP->isValidIpRange( $ip ) ? $srvIP->getIpWhoisLookup( $ip ) : self::con()->plugin_urls->ipAnalysis( $ip );
 		return sprintf(
 			'<a href="%s" %s title="%s" class="ip-whois %s" data-ip="%s">%s</a>',
 			$href,

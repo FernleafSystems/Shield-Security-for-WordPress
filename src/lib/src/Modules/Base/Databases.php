@@ -35,7 +35,7 @@ class Databases {
 	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
-		$con = $this->con();
+		$con = self::con();
 
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;
 

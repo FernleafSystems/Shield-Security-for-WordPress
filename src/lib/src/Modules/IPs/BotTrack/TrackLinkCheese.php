@@ -81,6 +81,6 @@ class TrackLinkCheese extends Base {
 	}
 
 	private function getCheeseWord() :string {
-		return $this->con()->prefix( self::CHEESE_WORD );
+		return self::con()->prefix( self::CHEESE_WORD );
 	}
 }

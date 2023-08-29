@@ -23,7 +23,7 @@ abstract class MeterBase {
 	}
 
 	public function warning() :array {
-		$con = $this->con();
+		$con = self::con();
 		$pluginMod = $con->getModule_Plugin();
 		/** @var Plugin\Options $pluginOpts */
 		$pluginOpts = $pluginMod->getOptions();
@@ -49,7 +49,7 @@ abstract class MeterBase {
 	}
 
 	public function buildComponents() :array {
-		$con = $this->con();
+		$con = self::con();
 		$pluginOpts = $con->getModule_Plugin()->getOptions();
 		$prefs = $pluginOpts->getOpt( 'sec_overview_prefs' );
 

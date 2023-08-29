@@ -29,7 +29,7 @@ class PushSignalsToCS {
 
 	protected function canRun() :bool {
 		$mod = $this->mod();
-		return $this->con()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
+		return self::con()->is_mode_live && $mod->getCrowdSecCon()->getApi()->isReady();
 	}
 
 	protected function run() {
@@ -51,7 +51,7 @@ class PushSignalsToCS {
 		} while ( !empty( $records ) );
 
 		if ( !empty( $recordsCount ) ) {
-			$this->con()->fireEvent( 'crowdsec_signals_pushed', [
+			self::con()->fireEvent( 'crowdsec_signals_pushed', [
 				'audit_params' => [
 					'count' => $recordsCount
 				]

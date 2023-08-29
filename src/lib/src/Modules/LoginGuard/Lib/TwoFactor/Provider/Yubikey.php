@@ -48,7 +48,7 @@ class Yubikey extends AbstractShieldProvider {
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->con()->getHumanName() ),
+						self::con()->getHumanName() ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				],
 			]
@@ -57,7 +57,7 @@ class Yubikey extends AbstractShieldProvider {
 
 	private function getYubiIds() :array {
 		$ids = \array_filter( \array_map( '\trim', \explode( ',', $this->getSecret() ) ) );
-		return $this->con()->caps->hasCap( '2fa_multi_yubikey' ) ? $ids : \array_slice( $ids, 0, 1 );
+		return self::con()->caps->hasCap( '2fa_multi_yubikey' ) ? $ids : \array_slice( $ids, 0, 1 );
 	}
 
 	public function isProfileActive() :bool {

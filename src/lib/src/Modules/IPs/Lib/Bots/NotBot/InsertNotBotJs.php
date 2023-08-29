@@ -21,7 +21,7 @@ class InsertNotBotJs {
 		return $req->query( 'force_notbot' ) == 1
 			   || $this->isForcedForOptimisationPlugins()
 			   || ( $req->ts() - ( new BotSignalsRecord() )
-					->setIP( $this->con()->this_req->ip )
+					->setIP( self::con()->this_req->ip )
 					->retrieveNotBotAt() ) > \MINUTE_IN_SECONDS*45;
 	}
 

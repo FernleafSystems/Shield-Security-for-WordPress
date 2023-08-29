@@ -9,7 +9,7 @@ class MeterIpBlocking extends MeterBase {
 	public const SLUG = 'ips';
 
 	protected function getWorkingMods() :array {
-		return [ $this->con()->getModule_IPs() ];
+		return [ self::con()->getModule_IPs() ];
 	}
 
 	public function title() :string {
@@ -21,7 +21,7 @@ class MeterIpBlocking extends MeterBase {
 	}
 
 	public function description() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			__( "Your #1 security threat is from automated bots.", 'wp-simple-firewall' ),
 			\implode( ' ', [

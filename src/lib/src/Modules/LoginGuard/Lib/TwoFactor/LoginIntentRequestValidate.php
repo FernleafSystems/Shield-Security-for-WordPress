@@ -27,7 +27,7 @@ class LoginIntentRequestValidate {
 	 * @throws TooManyAttemptsException
 	 */
 	public function run( string $plainNonce, bool $isCancel = false ) :string {
-		$mfaCon = $this->con()->getModule_LoginGuard()->getMfaController();
+		$mfaCon = self::con()->getModule_LoginGuard()->getMfaController();
 		$user = $this->getWpUser();
 
 		if ( !$mfaCon->verifyLoginNonce( $user, $plainNonce ) ) {
@@ -71,13 +71,13 @@ class LoginIntentRequestValidate {
 		}
 
 		// Always remove intents after success.
-		$this->con()->user_metas->for( $user )->login_intents = [];
+		self::con()->user_metas->for( $user )->login_intents = [];
 
 		return $validatedSlug;
 	}
 
 	protected function auditLoginIntent( bool $success, string $providerName ) {
-		$this->con()->fireEvent(
+		self::con()->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
 				'audit_params' => [

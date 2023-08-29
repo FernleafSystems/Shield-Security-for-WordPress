@@ -35,7 +35,7 @@ class FileDownload extends BaseAction {
 	 * @throws \Exception
 	 */
 	private function getFileDownloadContents( string $downloadID ) :array {
-		$con = $this->con();
+		$con = self::con();
 
 		switch ( $downloadID ) {
 

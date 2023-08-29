@@ -55,7 +55,7 @@ class EventsToSignals extends EventsListener {
 
 	protected function onShutdown() {
 		if ( $this->isCommit() && !empty( $this->signals ) ) {
-			$modIPs = $this->con()->getModule_IPs();
+			$modIPs = self::con()->getModule_IPs();
 
 			$notBotFail = ( new BotSignalsRecord() )
 							  ->setIP( Services::Request()->ip() )
@@ -99,12 +99,11 @@ class EventsToSignals extends EventsListener {
 	}
 
 	private function triggerSignalsCron() {
-		$con = $this->con();
-		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
+		if ( !wp_next_scheduled( self::con()->prefix( 'adhoc_cron_crowdsec_signals' ) ) ) {
 			wp_schedule_single_event(
 				Services::Request()
 						->ts() + apply_filters( 'shield/crowdsec/signals_cron_interval', \MINUTE_IN_SECONDS*5 ),
-				$con->prefix( 'adhoc_cron_crowdsec_signals' )
+				self::con()->prefix( 'adhoc_cron_crowdsec_signals' )
 			);
 		}
 	}

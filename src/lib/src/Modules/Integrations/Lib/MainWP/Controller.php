@@ -31,7 +31,7 @@ class Controller {
 	}
 
 	public function isServerExtensionLoaded() :bool {
-		$extData = $this->con()->mwpVO->official_extension_data;
+		$extData = self::con()->mwpVO->official_extension_data;
 		return !empty( $extData );
 	}
 
@@ -39,7 +39,7 @@ class Controller {
 	 * @throws \Exception
 	 */
 	private function runClientSide() {
-		$con = $this->con();
+		$con = self::con();
 		$mwpVO = $con->mwpVO ?? new MainWPVO();
 		$mwpVO->is_client = $this->isMainWPChildActive();
 
@@ -56,7 +56,7 @@ class Controller {
 	 * @throws \Exception
 	 */
 	private function runServerSide() {
-		$con = $this->con();
+		$con = self::con();
 		$mwpVO = $con->mwpVO ?? new MainWPVO();
 		$con->mwpVO = $mwpVO;
 

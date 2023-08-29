@@ -38,7 +38,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 	protected function postExec() {
 		if ( $this->isPostSyncRequired() ) {
 			try {
-				$this->con()->action_router->action( SiteActionSync::class, $this->action_data );
+				self::con()->action_router->action( SiteActionSync::class, $this->action_data );
 			}
 			catch ( ActionException $e ) {
 				error_log( $e->getMessage() );

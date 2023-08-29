@@ -32,7 +32,7 @@ class DeleteRule {
 				case Handler::T_AUTO_BLOCK:
 				case Handler::T_MANUAL_BLOCK:
 				case Handler::T_CROWDSEC:
-					$this->con()->fireEvent( 'ip_unblock', [
+					self::con()->fireEvent( 'ip_unblock', [
 						'audit_params' => [
 							'ip'   => $record->ipAsSubnetRange(),
 							'type' => Handler::GetTypeName( $record->type ),
@@ -41,7 +41,7 @@ class DeleteRule {
 					break;
 
 				case Handler::T_MANUAL_BYPASS:
-					$this->con()->fireEvent( 'ip_bypass_remove', [
+					self::con()->fireEvent( 'ip_bypass_remove', [
 						'audit_params' => [
 							'ip' => $record->ipAsSubnetRange()
 						]

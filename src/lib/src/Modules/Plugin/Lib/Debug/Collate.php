@@ -157,7 +157,7 @@ class Collate {
 	}
 
 	private function getShieldIntegrity() :array {
-		$con = $this->con();
+		$con = self::con();
 		$data = [];
 
 		$dbh = $con->getModule_AuditTrail()->getDbH_Logs();
@@ -206,7 +206,7 @@ class Collate {
 	private function snapshots() :array {
 		$data = [];
 
-		$auditCon = $this->con()->getModule_AuditTrail()->getAuditCon();
+		$auditCon = self::con()->getModule_AuditTrail()->getAuditCon();
 		foreach ( $auditCon->getAuditors() as $auditor ) {
 			try {
 				if ( $auditor->getSnapper() ) {
@@ -226,7 +226,7 @@ class Collate {
 	}
 
 	private function getShieldCapabilities() :array {
-		$con = $this->con();
+		$con = self::con();
 		$modPlug = $con->getModule_Plugin();
 
 		try {
@@ -251,7 +251,7 @@ class Collate {
 	}
 
 	private function getShieldSummary() :array {
-		$con = $this->con();
+		$con = self::con();
 		$modLicense = $con->getModule_License();
 		$modPlugin = $con->getModule_Plugin();
 		$wpHashes = $modLicense->getWpHashesTokenManager();

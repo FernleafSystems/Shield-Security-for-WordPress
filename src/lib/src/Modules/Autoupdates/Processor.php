@@ -239,7 +239,7 @@ class Processor extends BaseShield\Processor {
 			elseif ( $opts->isAutoupdateAllPlugins() ) {
 				$doUpdate = true;
 			}
-			elseif ( $file === $this->con()->base_file ) {
+			elseif ( $file === self::con()->base_file ) {
 				$auto = $opts->getSelfAutoUpdateOpt();
 				if ( $auto === 'immediate' ) {
 					$doUpdate = true;
@@ -356,7 +356,7 @@ class Processor extends BaseShield\Processor {
 		$body = [
 			sprintf(
 				__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.', 'wp-simple-firewall' ),
-				$this->con()->getHumanName()
+				self::con()->getHumanName()
 			),
 			''
 		];

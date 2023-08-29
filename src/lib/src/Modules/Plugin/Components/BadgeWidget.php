@@ -10,11 +10,11 @@ class BadgeWidget extends \WP_Widget {
 
 	public function __construct() {
 		parent::__construct(
-			$this->con()->prefixOption( 'plugin_badge' ),
-			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $this->con()->getHumanName() ),
+			self::con()->prefixOption( 'plugin_badge' ),
+			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), self::con()->getHumanName() ),
 			[
 				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ),
-					$this->con()->getHumanName() ),
+					self::con()->getHumanName() ),
 			]
 		);
 

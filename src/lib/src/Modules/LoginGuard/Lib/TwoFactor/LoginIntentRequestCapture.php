@@ -37,7 +37,7 @@ class LoginIntentRequestCapture {
 	}
 
 	public function runCapture() {
-		$con = $this->con();
+		$con = self::con();
 		$req = Services::Request();
 
 		try {
@@ -114,7 +114,7 @@ class LoginIntentRequestCapture {
 	 * @throws TooManyAttemptsException
 	 */
 	private function capture() {
-		$con = $this->con();
+		$con = self::con();
 		$req = Services::Request();
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )

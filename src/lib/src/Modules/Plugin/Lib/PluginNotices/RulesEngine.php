@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotic
 class RulesEngine extends Base {
 
 	public function check() :?array {
-		return ( !$this->con()->rules->isRulesEngineReady() || !$this->con()->rules->processComplete ) ?
+		return ( !self::con()->rules->isRulesEngineReady() || !self::con()->rules->processComplete ) ?
 			[
 				'id'        => 'rules_engine_not_running',
 				'type'      => 'warning',

@@ -10,8 +10,8 @@ class MeterLogin extends MeterBase {
 
 	protected function getWorkingMods() :array {
 		return [
-			$this->con()->getModule_LoginGuard(),
-			$this->con()->getModule_UserManagement()
+			self::con()->getModule_LoginGuard(),
+			self::con()->getModule_UserManagement()
 		];
 	}
 
@@ -24,7 +24,7 @@ class MeterLogin extends MeterBase {
 	}
 
 	public function description() :array {
-		$name = $this->con()->getHumanName();
+		$name = self::con()->getHumanName();
 		return [
 			\implode( ' ', [
 				__( "CAPTCHAs are horrible.", 'wp-simple-firewall' ),

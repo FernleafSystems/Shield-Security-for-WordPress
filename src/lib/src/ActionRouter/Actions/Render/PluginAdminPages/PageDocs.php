@@ -12,7 +12,7 @@ class PageDocs extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/insights/docs/index.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'content' => [
 				'tab_updates' => $con->action_router->render( Actions\Render\Components\Docs\DocsChangelog::SLUG ),

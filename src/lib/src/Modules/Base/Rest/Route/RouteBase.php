@@ -44,7 +44,7 @@ abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Rou
 
 	protected function isRequestFromShieldService() :bool {
 		try {
-			$isShield = ( new IpID( $this->con()->this_req->ip ) )->run()[ 0 ] === ServiceProviders::PROVIDER_SHIELD;
+			$isShield = ( new IpID( self::con()->this_req->ip ) )->run()[ 0 ] === ServiceProviders::PROVIDER_SHIELD;
 		}
 		catch ( \Exception $e ) {
 			$isShield = false;

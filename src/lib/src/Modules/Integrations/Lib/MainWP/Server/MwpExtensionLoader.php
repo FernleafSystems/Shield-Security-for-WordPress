@@ -19,11 +19,11 @@ class MwpExtensionLoader {
 
 		// Adjust the title at the top of the page, so it's not "Wp Simple Firewall"
 		add_filter( 'mainwp_header_title', function () {
-			return $this->con()->getHumanName();
+			return self::con()->getHumanName();
 		}, 100, 0 );
 
 		// Render the main extension page content
-		echo $this->con()->action_router->render( ExtensionPageContainer::SLUG, [
+		echo self::con()->action_router->render( ExtensionPageContainer::SLUG, [
 			'current_tab' => empty( $req->query( 'tab' ) ) ? TabSitesListing::TAB : $req->query( 'tab' )
 		] );
 	}

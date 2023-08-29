@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ConflictAkismet extends Base {
 
 	public function check() :?array {
-		$mod = $this->con()->getModule_Comments();
+		$mod = self::con()->getModule_Comments();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 

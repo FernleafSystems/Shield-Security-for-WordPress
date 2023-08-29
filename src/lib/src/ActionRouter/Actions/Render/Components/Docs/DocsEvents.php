@@ -12,7 +12,7 @@ class DocsEvents extends Actions\Render\BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/docs/events.twig';
 
 	protected function getRenderData() :array {
-		$srvEvents = $this->con()->loadEventsService();
+		$srvEvents = self::con()->loadEventsService();
 
 		$eventsSortedByLevel = [
 			'Alert'   => [],
@@ -29,7 +29,7 @@ class DocsEvents extends Actions\Render\BaseRender {
 					'stat'    => sprintf( 'Stat: %s', empty( $event[ 'stat' ] ) ? 'No' : 'Yes' ),
 					'offense' => sprintf( 'Offense: %s', empty( $event[ 'offense' ] ) ? 'No' : 'Yes' ),
 					'module'  => sprintf( 'Module: %s',
-						$this->con()->getModule( $event[ 'module' ] )->getMainFeatureName() ),
+						self::con()->getModule( $event[ 'module' ] )->getMainFeatureName() ),
 				]
 			];
 		}

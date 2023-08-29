@@ -92,8 +92,8 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function runHourlyCron() {
-		$modOpts = $this->con()->getModule_Plugin()->getOptions();
-		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && $this->con()->isPremiumActive()
+		$modOpts = self::con()->getModule_Plugin()->getOptions();
+		if ( is_main_network() && $modOpts->isOpt( 'enable_shieldnet', 'Y' ) && self::con()->isPremiumActive()
 			 && $this->canStoreDataReliably() && $this->canHandshake() ) {
 
 			$this->sendIPReputationData();

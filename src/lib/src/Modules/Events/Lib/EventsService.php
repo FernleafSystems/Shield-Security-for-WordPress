@@ -69,7 +69,7 @@ class EventsService {
 	public function getEvents() :array {
 		if ( empty( $this->aEvents ) ) {
 			$events = [];
-			foreach ( $this->con()->modules as $mod ) {
+			foreach ( self::con()->modules as $mod ) {
 				$events = \array_merge(
 					$events,
 					\array_map(
@@ -107,7 +107,7 @@ class EventsService {
 	private function buildCustomEvents() :array {
 		$custom = [];
 
-		if ( $this->con()->isPremiumActive() ) {
+		if ( self::con()->isPremiumActive() ) {
 
 			$events = apply_filters( 'shield/events/custom_definitions', [] );
 			if ( !\is_array( $events ) ) {
@@ -159,10 +159,10 @@ class EventsService {
 		if ( $this->eventExists( $eventKey ) ) {
 			$eventStrings = ( \strpos( $eventKey, 'custom_' ) === 0 ) ?
 				$this->getEventDef( $eventKey )[ 'strings' ]
-				: $this->con()
-					   ->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
-					   ->getStrings()
-					   ->getEventStrings()[ $eventKey ] ?? $eventStrings;
+				: self::con()
+					  ->getModule( $this->getEventDef( $eventKey )[ 'module' ] )
+					  ->getStrings()
+					  ->getEventStrings()[ $eventKey ] ?? $eventStrings;
 		}
 		else {
 			error_log( sprintf( 'An event %s does not exist.', $eventKey ) );

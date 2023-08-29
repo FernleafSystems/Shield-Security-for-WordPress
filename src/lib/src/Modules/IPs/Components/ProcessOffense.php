@@ -41,7 +41,7 @@ class ProcessOffense {
 		}
 
 		if ( $fireEvents ) {
-			$this->con()->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
+			self::con()->fireEvent( $toBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit_params' => [
 						'from' => $originalCount,
@@ -66,7 +66,7 @@ class ProcessOffense {
 			$updater->setBlocked( $IP );
 
 			if ( $fireEvents ) {
-				$this->con()->fireEvent( 'ip_offense',
+				self::con()->fireEvent( 'ip_offense',
 					[
 						'suppress_audit' => true,
 						'audit_params'   => [
