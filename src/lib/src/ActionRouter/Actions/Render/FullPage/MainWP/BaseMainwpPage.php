@@ -13,7 +13,7 @@ abstract class BaseMainwpPage extends Actions\Render\FullPage\BaseFullPageRender
 	protected function getScripts() :array {
 		$scripts = parent::getScripts();
 		$scripts[ 35 ] = [
-			'src' => $this->con()->urls->forJs( 'plugin' ),
+			'src' => self::con()->urls->forJs( 'plugin' ),
 			'id'  => 'shield-plugin',
 		];
 		return $scripts;
@@ -22,7 +22,7 @@ abstract class BaseMainwpPage extends Actions\Render\FullPage\BaseFullPageRender
 	protected function getStyles() :array {
 		$scripts = parent::getStyles();
 		$scripts[ 35 ] = [
-			'src' => $this->con()->urls->forCss( 'plugin' ),
+			'src' => self::con()->urls->forCss( 'plugin' ),
 			'id'  => 'shield-plugin',
 		];
 		return $scripts;

@@ -15,7 +15,7 @@ class ScansMalaiFileQuery extends ScansBase {
 	protected function exec() {
 		$success = false;
 
-		if ( $this->con()->caps->canScanMalwareMalai() ) {
+		if ( self::con()->caps->canScanMalwareMalai() ) {
 			try {
 				$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report' ), 'MAL{ai}' ),
 					( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatus() ) );
@@ -52,10 +52,10 @@ class ScansMalaiFileQuery extends ScansBase {
 			throw new \Exception( 'The file is empty.' );
 		}
 
-		$token = $this->con()
-					  ->getModule_License()
-					  ->getWpHashesTokenManager()
-					  ->getToken();
+		$token = self::con()
+					 ->getModule_License()
+					 ->getWpHashesTokenManager()
+					 ->getToken();
 		$status = ( new MalwareScan( $token ) )->scan( \basename( $path ), $FS->getFileContent( $path ), 'php' );
 		if ( empty( $status ) ) {
 			\sleep( 3 );

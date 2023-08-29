@@ -19,7 +19,7 @@ class MagicLink extends Base {
 	protected function getRenderData() :array {
 		$available = $this->hasActiveWPUser()
 					 && ( new AutoUnblockMagicLink() )->isUnblockAvailable()
-					 && apply_filters( $this->con()->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() );
+					 && apply_filters( self::con()->prefix( 'can_user_magic_link' ), true, $this->getActiveWPUser() );
 		return [
 			'flags'   => [
 				'is_available' => $available,
@@ -30,7 +30,7 @@ class MagicLink extends Base {
 			'vars'    => [
 				'email'         => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
 				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::class, true, [
-					'ip' => $this->con()->this_req->ip
+					'ip' => self::con()->this_req->ip
 				] ),
 			],
 			'strings' => [

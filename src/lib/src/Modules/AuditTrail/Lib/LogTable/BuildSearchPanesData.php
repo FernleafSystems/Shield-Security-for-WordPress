@@ -64,7 +64,7 @@ class BuildSearchPanesData {
 				$evt = $result[ 'event' ] ?? null;
 				if ( !empty( $evt ) ) {
 					$evt = [
-						'label' => $this->con()->service_events->getEventName( $evt ),
+						'label' => self::con()->service_events->getEventName( $evt ),
 						'value' => $evt,
 					];
 				}
@@ -85,8 +85,8 @@ class BuildSearchPanesData {
 				',
 				$select,
 				$this->mod()->getDbH_Logs()->getTableSchema()->table,
-				$this->con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
-				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
+				self::con()->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];

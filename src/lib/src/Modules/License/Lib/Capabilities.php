@@ -168,7 +168,7 @@ class Capabilities {
 		$license = $this->mod()->getLicenseHandler()->getLicense();
 		return !$this->isPremiumOnlyCap( $cap )
 			   || (
-				   $this->con()->isPremiumActive()
+				   self::con()->isPremiumActive()
 				   && ( \in_array( $cap, $license->capabilities, true ) || $license->lic_version === 0 )
 			   );
 	}
@@ -181,7 +181,7 @@ class Capabilities {
 			$max = 31;
 		}
 		else {
-			$max = $this->con()->getModule_AuditTrail()->getOptions()->getDef( 'max_free_days' );
+			$max = self::con()->getModule_AuditTrail()->getOptions()->getDef( 'max_free_days' );
 		}
 		return $max;
 	}

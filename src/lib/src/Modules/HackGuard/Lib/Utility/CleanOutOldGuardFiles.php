@@ -17,7 +17,7 @@ class CleanOutOldGuardFiles {
 
 		$firstAcceptableDir = null;
 		$count = 0;
-		$root = $this->con()->cache_dir_handler->dir();
+		$root = self::con()->cache_dir_handler->dir();
 		if ( !empty( $root ) ) {
 			foreach ( $FS->getAllFilesInDir( $root ) as $fileItem ) {
 				if ( $FS->isDir( $fileItem ) ) {

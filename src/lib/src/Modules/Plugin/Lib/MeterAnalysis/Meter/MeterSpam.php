@@ -9,7 +9,7 @@ class MeterSpam extends MeterBase {
 	public const SLUG = 'spam';
 
 	protected function getWorkingMods() :array {
-		return [ $this->con()->getModule_Comments() ];
+		return [ self::con()->getModule_Comments() ];
 	}
 
 	public function title() :string {
@@ -27,7 +27,7 @@ class MeterSpam extends MeterBase {
 			__( "With our SPAM dictionary, we can identify human SPAM comments without sending any data off your site to 3rd parties.", 'wp-simple-firewall' ),
 		];
 
-		if ( !$this->con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$desc[] = sprintf( __( "With %s we can directly integrate with all the major Contact Form plugins to block Contact Form SPAM from automated Bots.", 'wp-simple-firewall' ), 'ShieldPRO' );
 		}
 		return $desc;

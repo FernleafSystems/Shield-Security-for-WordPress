@@ -16,10 +16,10 @@ class TestRequest {
 	public function test() :bool {
 		try {
 			$this->runTest();
-			$this->con()->fireEvent( 'recaptcha_success' );
+			self::con()->fireEvent( 'recaptcha_success' );
 		}
 		catch ( \Exception $e ) {
-			$this->con()->fireEvent( 'recaptcha_fail' );
+			self::con()->fireEvent( 'recaptcha_fail' );
 			throw $e;
 		}
 		return true;
@@ -36,7 +36,7 @@ class TestRequest {
 		}
 		else {
 			$response = ( new ReCaptcha( $this->mod()->getCaptchaCfg()->secret, new WordpressPost() ) )
-				->verify( $captchaResponse, $this->con()->this_req->ip );
+				->verify( $captchaResponse, self::con()->this_req->ip );
 			if ( empty( $response ) || !$response->isSuccess() ) {
 				$msg = [
 					__( 'Whoops.', 'wp-simple-firewall' ),

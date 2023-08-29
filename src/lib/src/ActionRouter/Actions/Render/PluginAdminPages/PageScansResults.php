@@ -29,7 +29,7 @@ class PageScansResults extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_results.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
@@ -43,7 +43,7 @@ class PageScansResults extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_HackGuard();
 		$scansCon = $mod->getScansCon();
 

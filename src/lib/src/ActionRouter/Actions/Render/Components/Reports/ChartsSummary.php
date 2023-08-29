@@ -16,7 +16,7 @@ class ChartsSummary extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/reports/charts_summary.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$req = Services::Request();
 		/** @var EventsDB\Select $eventSelector */
 		$eventSelector = $con->getModule_Events()

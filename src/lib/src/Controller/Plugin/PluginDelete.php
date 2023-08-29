@@ -23,14 +23,14 @@ class PluginDelete {
 	}
 
 	private function deleteTmpDir() {
-		$path = $this->con()->cache_dir_handler->dir();
+		$path = self::con()->cache_dir_handler->dir();
 		if ( !empty( $path ) ) {
 			Services::WpFs()->deleteDir( $path );
 		}
 	}
 
 	private function deleteDatabases() {
-		$con = $this->con();
+		$con = self::con();
 		$WPDB = Services::WpDb();
 
 		// Delete all the legacy tables first (i.e. no inter-dependencies)

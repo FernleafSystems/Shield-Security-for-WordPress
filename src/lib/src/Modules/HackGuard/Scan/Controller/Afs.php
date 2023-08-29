@@ -33,7 +33,7 @@ class Afs extends BaseForFiles {
 		$status = $this->getScansController()->getScanResultsCount();
 
 		$template = [
-			'id'    => $this->con()->prefix( 'problems-'.$this->getSlug() ),
+			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
@@ -190,27 +190,27 @@ class Afs extends BaseForFiles {
 	public function isEnabledMalwareScanPHP() :bool {
 		return $this->isEnabled()
 			   && \in_array( 'malware_php', $this->opts()->getFileScanAreas() )
-			   && $this->con()->caps->canScanMalwareLocal();
+			   && self::con()->caps->canScanMalwareLocal();
 	}
 
 	public function isScanEnabledPlugins() :bool {
 		return $this->isEnabled()
 			   && \in_array( 'plugins', $this->opts()->getFileScanAreas() )
-			   && $this->con()->cache_dir_handler->exists()
-			   && $this->con()->caps->canScanPluginsThemesLocal();
+			   && self::con()->cache_dir_handler->exists()
+			   && self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledThemes() :bool {
 		return $this->isEnabled()
 			   && \in_array( 'themes', $this->opts()->getFileScanAreas() )
-			   && $this->con()->cache_dir_handler->exists()
-			   && $this->con()->caps->canScanPluginsThemesLocal();
+			   && self::con()->cache_dir_handler->exists()
+			   && self::con()->caps->canScanPluginsThemesLocal();
 	}
 
 	public function isScanEnabledWpContent() :bool {
 		return $this->isEnabled()
 			   && \in_array( 'wpcontent', $this->opts()->getFileScanAreas() )
-			   && $this->con()->caps->canScanAllFiles();
+			   && self::con()->caps->canScanAllFiles();
 	}
 
 	public function isScanEnabledWpCore() :bool {
@@ -220,7 +220,7 @@ class Afs extends BaseForFiles {
 	public function isScanEnabledWpRoot() :bool {
 		return $this->isEnabled()
 			   && \in_array( 'wproot', $this->opts()->getFileScanAreas() )
-			   && $this->con()->caps->canScanAllFiles();
+			   && self::con()->caps->canScanAllFiles();
 	}
 
 	protected function isPremiumOnly() :bool {

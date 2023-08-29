@@ -87,7 +87,7 @@ class ModCon extends BaseShield\ModCon {
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
 
 		$this->getOptions()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
-		$this->con()->cache_dir_handler = $cacheDirFinder;
+		self::con()->cache_dir_handler = $cacheDirFinder;
 	}
 
 	/**
@@ -124,7 +124,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function deleteAllPluginCrons() {
-		$con = $this->con();
+		$con = self::con();
 		$wpCrons = Services::WpCron();
 
 		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
@@ -140,7 +140,7 @@ class ModCon extends BaseShield\ModCon {
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
@@ -173,11 +173,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return $this->con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
+		return self::con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
 	}
 
 	public function getPluginReportEmail() :string {
-		$con = $this->con();
+		$con = self::con();
 		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
 		if ( $con->isPremiumActive() ) {
 			$e = apply_filters( $con->prefix( 'report_email' ), $e );
@@ -207,7 +207,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFirstInstallDate() :int {
-		return (int)Services::WpGeneral()->getOption( $this->con()->prefixOption( 'install_date' ) );
+		return (int)Services::WpGeneral()->getOption( self::con()->prefixOption( 'install_date' ) );
 	}
 
 	public function getInstallDate() :int {
@@ -222,7 +222,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$key = $this->con()->prefixOption( 'install_date' );
+		$key = self::con()->prefixOption( 'install_date' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
 			$wpDate = Services::Request()->ts();
@@ -295,8 +295,8 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			if ( $this->con()->isPluginAdminPageRequest() ) {
-				echo $this->con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
+			if ( self::con()->isPluginAdminPageRequest() ) {
+				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
 	}

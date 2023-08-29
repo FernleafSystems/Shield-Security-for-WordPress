@@ -14,7 +14,7 @@ class AntibotSetup {
 	use LoginGuard\ModConsumer;
 
 	protected function canRun() :bool {
-		return !$this->con()->this_req->request_bypasses_all_restrictions && !Services::WpUsers()->isUserLoggedIn();
+		return !self::con()->this_req->request_bypasses_all_restrictions && !Services::WpUsers()->isUserLoggedIn();
 	}
 
 	protected function run() {
@@ -22,7 +22,7 @@ class AntibotSetup {
 		$opts = $this->opts();
 
 		$providers = [];
-		if ( $opts->isEnabledCooldown() && $this->con()->cache_dir_handler->exists() ) {
+		if ( $opts->isEnabledCooldown() && self::con()->cache_dir_handler->exists() ) {
 			$providers[] = new AntiBot\ProtectionProviders\CoolDown();
 		}
 
@@ -50,7 +50,7 @@ class AntibotSetup {
 				new AntiBot\FormProviders\WordPress()
 			];
 
-			if ( $this->con()->isPremiumActive() ) {
+			if ( self::con()->isPremiumActive() ) {
 				if ( @\class_exists( '\BuddyPress' ) ) {
 					$formProviders[] = new AntiBot\FormProviders\BuddyPress();
 				}

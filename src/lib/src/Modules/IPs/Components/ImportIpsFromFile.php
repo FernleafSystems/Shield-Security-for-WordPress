@@ -13,7 +13,7 @@ class ImportIpsFromFile {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->con()->caps->hasCap( 'ips_import_from_file' );
+		return self::con()->caps->hasCap( 'ips_import_from_file' );
 	}
 
 	protected function run() {
@@ -25,7 +25,7 @@ class ImportIpsFromFile {
 	private function runFileImport( string $type ) {
 		$FS = Services::WpFs();
 
-		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, $this->con()->paths->forFlag() );
+		$fileImport = $FS->findFileInDir( 'ip_import_'.$type, self::con()->paths->forFlag() );
 		if ( !empty( $fileImport ) && $FS->isAccessibleFile( $fileImport ) ) {
 			$content = $FS->getFileContent( $fileImport );
 			$FS->deleteFile( $fileImport );

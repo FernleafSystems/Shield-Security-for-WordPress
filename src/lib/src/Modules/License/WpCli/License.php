@@ -62,7 +62,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	private function runRemove( $bConfirm ) {
-		if ( !$this->con()->isPremiumActive() ) {
+		if ( !self::con()->isPremiumActive() ) {
 			WP_CLI::success( __( 'No license to remove.', 'wp-simple-firewall' ) );
 		}
 		else {
@@ -88,7 +88,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 */
 	private function runVerify() {
 		try {
-			if ( $this->con()->isPremiumActive() ) {
+			if ( self::con()->isPremiumActive() ) {
 				WP_CLI::log( 'Premium license is already active. Re-checking...' );
 			}
 			$success = self::con()
@@ -112,6 +112,6 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 * or you're premium and you haven't switched it off (parent).
 	 */
 	protected function canRun() :bool {
-		return !$this->con()->isPremiumActive() || parent::canRun();
+		return !self::con()->isPremiumActive() || parent::canRun();
 	}
 }

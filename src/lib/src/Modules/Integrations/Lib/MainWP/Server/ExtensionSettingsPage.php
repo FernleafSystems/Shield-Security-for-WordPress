@@ -14,7 +14,7 @@ class ExtensionSettingsPage {
 	protected function run() {
 		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
 			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded()
-				 && 'mainwp_page_'.$this->con()->mwpVO->extension->page === $hook ) {
+				 && 'mainwp_page_'.self::con()->mwpVO->extension->page === $hook ) {
 
 				$enqueues[ Enqueue::JS ][] = 'shield/integrations/mainwp-server';
 				$enqueues[ Enqueue::CSS ][] = 'shield/integrations/mainwp-server';

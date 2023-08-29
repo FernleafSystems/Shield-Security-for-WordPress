@@ -16,7 +16,7 @@ class Init {
 	 * @throws \Exception
 	 */
 	public function run() :string {
-		$con = $this->con();
+		$con = self::con();
 
 		// TODO: Consider have an "error" screen message to show it's not enabled instead?
 		if ( !$this->opts()->isEnabledMainWP() ) {
@@ -53,7 +53,7 @@ class Init {
 			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded() ) {
 				$columns[ 'shield' ] = 'Shield';
 				add_filter( 'mainwp_sitestable_item', function ( array $item ) {
-					$item[ 'shield' ] = $this->con()->action_router->render( SitesListTableColumn::SLUG, [
+					$item[ 'shield' ] = self::con()->action_router->render( SitesListTableColumn::SLUG, [
 						'raw_mainwp_site_data' => $item
 					] );
 					return $item;
@@ -70,10 +70,10 @@ class Init {
 		// in the MainWP extensions option. Previously the saving wasn't working and the extension wouldn't appear.
 		add_filter( 'mainwp_getextensions', function ( $extensions ) {
 			$extensions[] = [
-				'plugin'   => $this->con()->getRootFile(),
+				'plugin'   => self::con()->getRootFile(),
 				// while this is a "callback" field, a Closure isn't supported as it's serialized for DB storage. Sigh.
 				'callback' => [ new MwpExtensionLoader(), 'run' ],
-				'icon'     => $this->con()->urls->forImage( 'pluginlogo_col_32x32.png' ),
+				'icon'     => self::con()->urls->forImage( 'pluginlogo_col_32x32.png' ),
 			];
 			return $extensions;
 		} );
@@ -82,12 +82,12 @@ class Init {
 		add_filter( "pre_update_option_mainwp_extensions", function ( $value ) {
 			if ( \is_array( $value ) ) {
 				foreach ( $value as $key => $ext ) {
-					if ( ( $ext[ 'plugin' ] ?? '' ) === $this->con()->getRootFile() ) {
+					if ( ( $ext[ 'plugin' ] ?? '' ) === self::con()->getRootFile() ) {
 						$value[ $key ][ 'description' ] = \implode( ' ', [
 							'Shield Security for MainWP builds upon the already powerful security platform,',
 							'helping you extend security management across your entire portfolio with ease.'
 						] );
-						$value[ $key ][ 'DocumentationURI' ] = $this->con()->labels->url_helpdesk;
+						$value[ $key ][ 'DocumentationURI' ] = self::con()->labels->url_helpdesk;
 					}
 				}
 			}
@@ -108,7 +108,7 @@ class Init {
 	 */
 	private function blockPluginDisable( $isRequestAccepted ) {
 		if ( $isRequestAccepted ) {
-			$con = $this->con();
+			$con = self::con();
 			$req = Services::Request();
 			if ( $req->post( 'action' ) === 'mainwp_extension_plugin_action'
 				 && $req->post( 'what' ) === 'disable'

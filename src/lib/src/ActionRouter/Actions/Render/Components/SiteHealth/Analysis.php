@@ -16,7 +16,7 @@ class Analysis extends BaseRender {
 	public const CRITICAL_BOUNDARY = 4;
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$allComponents = ( new Handler() )->getMeter( MeterOverallConfig::SLUG, false )[ 'components' ];
 		return [
 			'hrefs'   => [

@@ -17,12 +17,12 @@ class PluginsPageSupplements {
 	}
 
 	protected function run() {
-		add_filter( 'plugin_action_links_'.$this->con()->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
+		add_filter( 'plugin_action_links_'.self::con()->base_file, [ $this, 'onWpPluginActionLinks' ], 50 );
 		add_filter( 'plugin_row_meta', [ $this, 'onPluginRowMeta' ], 50, 2 );
-		add_action( 'in_plugin_update_message-'.$this->con()->base_file, function () {
+		add_action( 'in_plugin_update_message-'.self::con()->base_file, function () {
 			echo sprintf(
 				' <span class="%s plugin_update_message">%s</span>',
-				$this->con()->getPluginPrefix(),
+				self::con()->getPluginPrefix(),
 				__( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' )
 			);
 		} );
@@ -34,9 +34,9 @@ class PluginsPageSupplements {
 	 * @return array
 	 */
 	public function onPluginRowMeta( $pluginMeta, $pluginFile ) {
-		if ( $pluginFile === $this->con()->base_file ) {
+		if ( $pluginFile === self::con()->base_file ) {
 			$template = '<strong><a href="%s" target="_blank">%s</a></strong>';
-			foreach ( $this->con()->cfg->plugin_meta as $href ) {
+			foreach ( self::con()->cfg->plugin_meta as $href ) {
 				$pluginMeta[] = sprintf( $template, $href[ 'href' ], $href[ 'name' ] );
 			}
 		}
@@ -48,7 +48,7 @@ class PluginsPageSupplements {
 	 * @return array
 	 */
 	public function onWpPluginActionLinks( $actionLinks ) {
-		$con = $this->con();
+		$con = self::con();
 		$WP = Services::WpGeneral();
 
 		if ( $con->mu_handler->isActiveMU() ) {

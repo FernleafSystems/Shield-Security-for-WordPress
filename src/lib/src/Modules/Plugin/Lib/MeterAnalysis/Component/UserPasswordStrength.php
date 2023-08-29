@@ -12,7 +12,7 @@ class UserPasswordStrength extends UserPasswordPoliciesBase {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_UserManagement();
+		$mod = self::con()->getModule_UserManagement();
 		return parent::testIfProtected() && $mod->getOptions()->getOpt( 'pass_min_strength' ) >= 3;
 	}
 

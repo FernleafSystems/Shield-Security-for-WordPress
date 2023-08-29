@@ -11,7 +11,7 @@ class ThankYou extends Base {
 	}
 
 	protected function getStepRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'hrefs'   => [
 				'facebook' => 'https://shsec.io/pluginshieldsecuritygroupfb',

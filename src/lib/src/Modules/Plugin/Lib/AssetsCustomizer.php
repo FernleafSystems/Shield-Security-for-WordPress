@@ -41,7 +41,7 @@ class AssetsCustomizer {
 			$enq[ Enqueue::JS ][] = 'ip_detect';
 		}
 
-		if ( $this->con()->isPluginAdminPageRequest() ) {
+		if ( self::con()->isPluginAdminPageRequest() ) {
 			$nav = Services::Request()->query( Constants::NAV_ID );
 			switch ( $nav ) {
 
@@ -154,7 +154,7 @@ class AssetsCustomizer {
 	}
 
 	private function shieldPlugin() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'plugin',
 			'icwp_wpsf_vars_plugin',
@@ -251,7 +251,7 @@ class AssetsCustomizer {
 
 		$custom = null;
 		if ( $this->isIpAutoDetectRequired() ) {
-			$this->con()->getModule_Plugin()->getOptions()->setOpt( 'ipdetect_at', $req->ts() );
+			self::con()->getModule_Plugin()->getOptions()->setOpt( 'ipdetect_at', $req->ts() );
 			$custom = [
 				'shield/ip_detect',
 				'icwp_wpsf_vars_ipdetect',
@@ -275,7 +275,7 @@ class AssetsCustomizer {
 
 	private function isIpAutoDetectRequired() :bool {
 		$req = Services::Request();
-		$optsPlugin = $this->con()->getModule_Plugin()->getOptions();
+		$optsPlugin = self::con()->getModule_Plugin()->getOptions();
 		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > \MONTH_IN_SECONDS )
 			   || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
 	}

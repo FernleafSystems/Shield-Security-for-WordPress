@@ -14,7 +14,7 @@ class PrivacyPolicy extends BaseRender {
 	public const TEMPLATE = '/snippets/privacy_policy.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		if ( $con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$name = $con->getHumanName();
 			$href = $con->labels->PluginURI;

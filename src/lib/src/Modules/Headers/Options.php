@@ -7,7 +7,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	public function getCspCustomRules() :array {
 		$csp = \is_array( $this->getOpt( 'xcsp_custom' ) ) ? $this->getOpt( 'xcsp_custom' ) : [];
 		$this->setOpt( 'xcsp_custom', \array_filter( \array_map( '\trim', $csp ) ) );
-		return $this->con()->isPremiumActive() ? $this->getOpt( 'xcsp_custom' ) : [];
+		return self::con()->isPremiumActive() ? $this->getOpt( 'xcsp_custom' ) : [];
 	}
 
 	/**

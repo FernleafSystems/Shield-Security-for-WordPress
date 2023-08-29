@@ -12,7 +12,7 @@ class SecurityAdminRemove extends SecurityAdminBase {
 		( new RemoveSecAdmin() )->remove( (bool)$this->action_data[ 'quietly' ] ?? false );
 		$this->response()->next_step = [
 			'type' => 'redirect',
-			'url'  => $this->con()->plugin_urls->modCfg( $this->con()->getModule_SecAdmin() ),
+			'url'  => self::con()->plugin_urls->modCfg( self::con()->getModule_SecAdmin() ),
 		];
 	}
 }

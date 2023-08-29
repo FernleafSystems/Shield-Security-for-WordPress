@@ -160,7 +160,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$caps = $this->con()->caps;
+		$caps = self::con()->caps;
 		$mod = self::con()->getModule_HackGuard();
 		$modName = $this->mod()->getMainFeatureName();
 

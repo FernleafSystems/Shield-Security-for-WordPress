@@ -25,7 +25,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
 			$opts->setOpt( 'email_can_send_verified_at', 0 );
 			try {
-				$this->con()->action_router->action( MfaEmailSendVerification::class );
+				self::con()->action_router->action( MfaEmailSendVerification::class );
 			}
 			catch ( ActionException $e ) {
 			}
@@ -73,7 +73,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		$opts = $this->getOptions();
 
 		$style = $opts->getOpt( 'enable_google_recaptcha_login' );
-		if ( $this->con()->isPremiumActive() ) {
+		if ( self::con()->isPremiumActive() ) {
 			$cfg = $this->getCaptchaCfg();
 			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
 				if ( !$cfg->invisible && $style == 'invisible' ) {
@@ -104,7 +104,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 			$key = \uniqid();
 			$opts->setOpt( 'gasp_key', $key );
 		}
-		return $this->con()->prefix( $key );
+		return self::con()->prefix( $key );
 	}
 
 	public function getTextImAHuman() :string {
@@ -123,7 +123,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	public function getCaptchaCfg() :CaptchaConfigVO {
 		$cfg = parent::getCaptchaCfg();
 		$style = $this->getOptions()->getOpt( 'enable_google_recaptcha_login' );
-		if ( $style !== 'default' && $this->con()->isPremiumActive() ) {
+		if ( $style !== 'default' && self::con()->isPremiumActive() ) {
 			$cfg->theme = $style;
 			$cfg->invisible = $cfg->theme == 'invisible';
 		}

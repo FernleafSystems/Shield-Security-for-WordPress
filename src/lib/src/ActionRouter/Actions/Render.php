@@ -20,7 +20,7 @@ class Render extends BaseAction {
 	protected function exec() {
 		$req = Services::Request();
 		$this->setResponse(
-			$this->con()->action_router->action(
+			self::con()->action_router->action(
 				$this->action_data[ 'render_action_slug' ],
 				Services::DataManipulation()->mergeArraysRecursive(
 					$req->query,

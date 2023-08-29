@@ -23,7 +23,7 @@ class IPRecords {
 			}
 			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
-			$dbh = $this->con()->getModule_Data()->getDbH_IPs();
+			$dbh = self::con()->getModule_Data()->getDbH_IPs();
 			/** @var Ops\Select $select */
 			$select = $dbh->getQuerySelector();
 			$select->filterByIPHuman( $ip );
@@ -50,7 +50,7 @@ class IPRecords {
 	}
 
 	public function addIP( string $ip ) {
-		$dbh = $this->con()->getModule_Data()->getDbH_IPs();
+		$dbh = self::con()->getModule_Data()->getDbH_IPs();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

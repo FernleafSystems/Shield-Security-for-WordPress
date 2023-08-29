@@ -36,21 +36,21 @@ class Verify {
 			}
 			$mod->clearLastErrors();
 			$licHandler->updateLicenseData( $existing->getRawData() ); // need to do this before event
-			$this->con()->fireEvent( 'lic_check_success' );
+			self::con()->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $license->isReady() ) {
 			$isSuccessfulApiRequest = true;
 			// License lookup failed but request was successful - so use what we get
 			$licHandler->deactivate();
 			$existing = $licHandler->getLicense();
-			$this->con()->fireEvent( 'lic_check_fail', [
+			self::con()->fireEvent( 'lic_check_fail', [
 				'audit_params' => [
 					'type' => 'verification'
 				]
 			] );
 		}
 		elseif ( $existing->isReady() ) { // Has a stored license but license HTTP request failed
-			$this->con()->fireEvent( 'lic_check_fail', [
+			self::con()->fireEvent( 'lic_check_fail', [
 				'audit_params' => [
 					'type' => 'HTTP'
 				]
@@ -89,7 +89,7 @@ class Verify {
 	}
 
 	private function preVerify() {
-		Services::WpFs()->touch( $this->con()->paths->forFlag( 'license_check' ) );
+		Services::WpFs()->touch( self::con()->paths->forFlag( 'license_check' ) );
 		$this->opts()->setOpt( 'license_last_checked_at', Services::Request()->ts() );
 		$this->mod()->saveModOptions();
 	}
@@ -98,11 +98,11 @@ class Verify {
 		$lookup = new Lookup();
 		$lookup->url = $this->opts()->getMasterSiteLicenseURL();
 		$lookup->install_ids = [
-			'shieldpro' => $this->con()->getInstallationID()[ 'id' ],
+			'shieldpro' => self::con()->getInstallationID()[ 'id' ],
 		];
 		$lookup->nonce = ( new HandshakingNonce() )->create();
 		$lookup->meta = [
-			'version_shield' => $this->con()->cfg->version(),
+			'version_shield' => self::con()->cfg->version(),
 			'version_php'    => Services::Data()->getPhpVersionCleaned()
 		];
 

@@ -14,7 +14,7 @@ class ScanEnabledAfsAutoRepairThemes extends ScanEnabledAfsAutoRepairBase {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return parent::testIfProtected()

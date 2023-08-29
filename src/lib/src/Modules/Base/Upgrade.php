@@ -9,7 +9,7 @@ class Upgrade extends ExecOnceModConsumer {
 	protected $previous;
 
 	protected function canRun() :bool {
-		return !empty( $this->previous ) && \version_compare( $this->previous, $this->con()->getVersion(), '<' );
+		return !empty( $this->previous ) && \version_compare( $this->previous, self::con()->getVersion(), '<' );
 	}
 
 	protected function run() {
@@ -34,7 +34,7 @@ class Upgrade extends ExecOnceModConsumer {
 	 * version is less than the upgrade version, run the upgrade code.
 	 */
 	protected function upgradeModule() {
-		$con = $this->con();
+		$con = self::con();
 		$upgrades = $con->cfg->version_upgrades;
 		\asort( $upgrades );
 		foreach ( $upgrades as $version ) {

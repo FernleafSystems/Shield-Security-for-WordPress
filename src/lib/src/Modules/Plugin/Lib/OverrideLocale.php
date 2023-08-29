@@ -16,11 +16,11 @@ class OverrideLocale {
 		if ( !empty( $locale ) ) {
 
 			if ( \preg_match( '#^[a-z]{2,3}(_[A-Z]{2,3})?$#', $locale ) ) {
-				unload_textdomain( $this->con()->getTextDomain() );
+				unload_textdomain( self::con()->getTextDomain() );
 				add_filter(
 					'plugin_locale',
 					function ( $locale, $domain = '' ) {
-						return ( $domain === $this->con()->getTextDomain() ) ?
+						return ( $domain === self::con()->getTextDomain() ) ?
 							$this->opts()->getOpt( 'locale_override' ) : $locale;
 					},
 					100, 2

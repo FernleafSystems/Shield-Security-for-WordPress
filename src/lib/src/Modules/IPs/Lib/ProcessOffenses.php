@@ -11,23 +11,23 @@ class ProcessOffenses {
 	use IPs\ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->con()->this_req->ip_is_public;
+		return self::con()->this_req->ip_is_public;
 	}
 
 	protected function run() {
 		$this->mod()->loadOffenseTracker()->setIfCommit( true );
-		add_action( $this->con()->prefix( 'pre_plugin_shutdown' ), function () {
+		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
 			$this->processOffense();
 		} );
 	}
 
 	private function processOffense() {
-		$mod = $this->con()->getModule_IPs();
+		$mod = self::con()->getModule_IPs();
 
 		$tracker = $mod->loadOffenseTracker();
-		if ( !$this->con()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
+		if ( !self::con()->plugin_deleting && $tracker->hasVisitorOffended() && $tracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
-				->setIp( $this->con()->this_req->ip )
+				->setIp( self::con()->this_req->ip )
 				->execute();
 		}
 	}

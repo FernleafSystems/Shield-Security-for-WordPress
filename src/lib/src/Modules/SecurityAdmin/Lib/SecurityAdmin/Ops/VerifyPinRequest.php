@@ -19,7 +19,7 @@ class VerifyPinRequest {
 				$this->opts()->setOpt( 'admin_access_key', wp_hash_password( $pin ) );
 				$valid = true;
 			}
-			$this->con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
+			self::con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
 		}
 
 		return $valid;

@@ -21,7 +21,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoHourly( string $event ) {
-		$dbh = $this->con()->getModule_Events()->getDbH_Events();
+		$dbh = self::con()->getModule_Events()->getDbH_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -118,7 +118,7 @@ class ConsolidateAllEvents {
 	 * Processes event for the previous 8 weeks.
 	 */
 	protected function consolidateEventIntoWeekly( string $event ) {
-		$dbh = $this->con()->getModule_Events()->getDbH_Events();
+		$dbh = self::con()->getModule_Events()->getDbH_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -163,7 +163,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoMonthly( string $event ) {
-		$dbh = $this->con()->getModule_Events()->getDbH_Events();
+		$dbh = self::con()->getModule_Events()->getDbH_Events();
 
 		$time = Services::Request()
 						->carbon()
@@ -207,7 +207,7 @@ class ConsolidateAllEvents {
 	}
 
 	protected function consolidateEventIntoYearly( string $event ) {
-		$dbh = $this->con()->getModule_Events()->getDbH_Events();
+		$dbh = self::con()->getModule_Events()->getDbH_Events();
 
 		$time = Services::Request()
 						->carbon()

@@ -22,7 +22,7 @@ class AlertScanResults extends BaseBuilderForScans {
 	public const TEMPLATE = '/components/reports/components/alert_scanresults.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$c = new Counts( RetrieveCount::CONTEXT_NOT_YET_NOTIFIED );
 		$counts = \array_filter( [
@@ -65,16 +65,16 @@ class AlertScanResults extends BaseBuilderForScans {
 	}
 
 	private function markAlertsAsNotified() {
-		$this->con()
-			 ->getModule_HackGuard()
-			 ->getDbH_ResultItems()
-			 ->getQueryUpdater()
-			 ->setUpdateWheres( [
-				 'notified_at' => 0,
-			 ] )
-			 ->setUpdateData( [
-				 'notified_at' => Services::Request()->ts()
-			 ] )
-			 ->query();
+		self::con()
+			->getModule_HackGuard()
+			->getDbH_ResultItems()
+			->getQueryUpdater()
+			->setUpdateWheres( [
+				'notified_at' => 0,
+			] )
+			->setUpdateData( [
+				'notified_at' => Services::Request()->ts()
+			] )
+			->query();
 	}
 }

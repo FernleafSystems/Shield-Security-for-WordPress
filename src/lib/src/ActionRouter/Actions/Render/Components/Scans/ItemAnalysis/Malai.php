@@ -34,7 +34,7 @@ class Malai extends Base {
 
 		return [
 			'flags'   => [
-				'can_malai' => $this->con()->caps->canScanMalwareMalai(),
+				'can_malai' => self::con()->caps->canScanMalwareMalai(),
 			],
 			'vars'    => [
 				'malai_query_nonce' => ActionData::Build( ScansMalaiFileQuery::class, true, [

@@ -47,7 +47,7 @@ class BackupCodes extends AbstractShieldProvider {
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Backup Codes' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Backup Codes', 'wp-simple-firewall' ) ),
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->con()->getHumanName() ),
+						self::con()->getHumanName() ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				]
 			]
@@ -117,7 +117,7 @@ class BackupCodes extends AbstractShieldProvider {
 					 sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
 					 sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
 					 sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-					 sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->con()->this_req->ip ),
+					 sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), self::con()->this_req->ip ),
 					 '',
 					 __( 'Thank You.', 'wp-simple-firewall' ),
 				 ]

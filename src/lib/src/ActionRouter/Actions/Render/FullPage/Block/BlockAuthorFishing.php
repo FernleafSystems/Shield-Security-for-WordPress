@@ -10,7 +10,7 @@ class BlockAuthorFishing extends BaseBlock {
 		return [
 			'strings' => [
 				'page_title' => sprintf( '%s | %s', __( 'Block Username Fishing', 'wp-simple-firewall' ),
-					$this->con()->getHumanName() ),
+					self::con()->getHumanName() ),
 				'title'      => __( 'Username Fishing Blocked', 'wp-simple-firewall' ),
 				'subtitle'   => __( 'Username/Author Fishing is disabled on this site.', 'wp-simple-firewall' ),
 			],
@@ -25,7 +25,7 @@ class BlockAuthorFishing extends BaseBlock {
 			)
 		];
 
-		if ( !$this->con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$additional[ 'learn_more_link' ] = sprintf( '<a href="%s" target="_blank">%s</a>',
 				'https://shsec.io/7l',
 				__( 'Learn More', 'wp-simple-firewall' )

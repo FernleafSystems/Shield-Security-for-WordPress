@@ -12,7 +12,7 @@ class EmailReport extends EmailBase {
 	public const TEMPLATE = '/email/reports/cron_alert_info_report.twig';
 
 	protected function getBodyData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'vars'    => [
 				'reports'     => \array_map(

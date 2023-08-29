@@ -13,7 +13,7 @@ class FileScanOptimiser {
 
 	public function addFiles( array $files ) {
 		$FS = Services::WpFs();
-		if ( $this->con()->cache_dir_handler->exists() && !empty( $files ) ) {
+		if ( self::con()->cache_dir_handler->exists() && !empty( $files ) ) {
 			$pathToHashes = $this->pathToHashes();
 			if ( !$FS->exists( $pathToHashes ) ) {
 				$FS->touch( $pathToHashes );
@@ -145,6 +145,6 @@ class FileScanOptimiser {
 	}
 
 	public function pathToHashes() :string {
-		return path_join( $this->con()->cache_dir_handler->dir(), 'file_scan_hashes.txt' );
+		return path_join( self::con()->cache_dir_handler->dir(), 'file_scan_hashes.txt' );
 	}
 }

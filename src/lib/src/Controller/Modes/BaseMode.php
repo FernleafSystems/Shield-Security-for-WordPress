@@ -33,7 +33,7 @@ abstract class BaseMode {
 
 	public function isActiveViaDefine() :bool {
 		$constant = \strtoupper(
-			$this->con()->prefix( sprintf( 'MODE_%s', static::SLUG ), '_' )
+			self::con()->prefix( sprintf( 'MODE_%s', static::SLUG ), '_' )
 		);
 		return \defined( $constant ) && $constant;
 	}
@@ -44,7 +44,7 @@ abstract class BaseMode {
 		$baseFile = \basename( $correctPath );
 
 		// We first look for the presence of the file (which may not be named in all lower-case)
-		$foundFile = $FS->findFileInDir( $baseFile, $this->con()->paths->forFlag(), false );
+		$foundFile = $FS->findFileInDir( $baseFile, self::con()->paths->forFlag(), false );
 		if ( !empty( $foundFile )
 			 && $FS->isAccessibleFile( $foundFile ) && !$FS->isAccessibleFile( $correctPath )
 			 && $baseFile !== \basename( $foundFile ) ) {
@@ -54,6 +54,6 @@ abstract class BaseMode {
 	}
 
 	protected function getPathToModeFile() :string {
-		return $this->con()->paths->forFlag( sprintf( 'mode.%s', \strtolower( static::SLUG ) ) );
+		return self::con()->paths->forFlag( sprintf( 'mode.%s', \strtolower( static::SLUG ) ) );
 	}
 }

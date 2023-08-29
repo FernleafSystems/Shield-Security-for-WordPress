@@ -19,7 +19,7 @@ class UserSuspendController {
 	}
 
 	protected function run() {
-		if ( !$this->con()->this_req->is_ip_whitelisted ) {
+		if ( !self::con()->this_req->is_ip_whitelisted ) {
 			if ( $this->opts()->isSuspendManualEnabled() ) {
 				( new Suspended() )->execute();
 			}
@@ -43,7 +43,7 @@ class UserSuspendController {
 			// Display manually suspended on the user list table; TODO: at auto suspended
 			add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
 
-				$meta = $this->con()->user_metas->for( $user );
+				$meta = self::con()->user_metas->for( $user );
 				if ( $meta->record->hard_suspended_at > 0 ) {
 					$content[] = sprintf( '<em>%s</em>: %s',
 						__( 'Suspended', 'wp-simple-firewall' ),
@@ -73,9 +73,9 @@ class UserSuspendController {
 		$opts = $this->opts();
 		$ts = Services::Request()->ts();
 
-		$userMetaDB = $this->con()
-						   ->getModule_Data()
-						   ->getDbH_UserMeta();
+		$userMetaDB = self::con()
+						  ->getModule_Data()
+						  ->getDbH_UserMeta();
 
 		/** @var Select $metaSelect */
 		$metaSelect = $userMetaDB->getQuerySelector();
@@ -94,10 +94,10 @@ class UserSuspendController {
 
 				if ( \is_array( $args ) ) {
 					/** @var Select $metaSelect */
-					$metaSelect = $this->con()
-									   ->getModule_Data()
-									   ->getDbH_UserMeta()
-									   ->getQuerySelector();
+					$metaSelect = self::con()
+									  ->getModule_Data()
+									  ->getDbH_UserMeta()
+									  ->getQuerySelector();
 
 					if ( $manual > 0 && $req->query( 'shield_users_suspended' ) ) {
 						$filtered = true;
@@ -166,7 +166,7 @@ class UserSuspendController {
 	}
 
 	public function addUserBlockOption( \WP_User $user ) {
-		echo $this->con()->action_router->render( ProfileSuspend::SLUG, [
+		echo self::con()->action_router->render( ProfileSuspend::SLUG, [
 			'user_id' => $user->ID,
 		] );
 	}
@@ -175,7 +175,7 @@ class UserSuspendController {
 		$user = Services::WpUsers()->getUserById( $uid );
 
 		if ( $user instanceof \WP_User
-			 && ( !Services::WpUsers()->isUserAdmin( $user ) || $this->con()->isPluginAdmin() )
+			 && ( !Services::WpUsers()->isUserAdmin( $user ) || self::con()->isPluginAdmin() )
 		) {
 			$isSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			$this->addRemoveHardSuspendUser( $user, $isSuspend );
@@ -186,7 +186,7 @@ class UserSuspendController {
 	}
 
 	public function addRemoveHardSuspendUser( \WP_User $user, bool $add = true ) {
-		$con = $this->con();
+		$con = self::con();
 		$meta = $con->user_metas->for( $user );
 		$isSuspended = $meta->record->hard_suspended_at > 0;
 

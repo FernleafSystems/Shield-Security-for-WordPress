@@ -13,7 +13,7 @@ class SyncHandler {
 
 	protected function run() {
 		add_action( 'mainwp_sync_others_data', function ( $othersData, $website ) {
-			$othersData[ $this->con()->prefix( 'mainwp-sync' ) ] = 'shield';
+			$othersData[ self::con()->prefix( 'mainwp-sync' ) ] = 'shield';
 			return $othersData;
 		}, 10, 2 );
 		add_action( 'mainwp_site_synced', function ( $website, $info ) {
@@ -27,8 +27,8 @@ class SyncHandler {
 	private function syncSite( $website, array $info ) {
 		MainWP_DB::instance()->update_website_option(
 			$website,
-			$this->con()->prefix( 'mainwp-sync' ),
-			$info[ $this->con()->prefix( 'mainwp-sync' ) ] ?? '[]'
+			self::con()->prefix( 'mainwp-sync' ),
+			$info[ self::con()->prefix( 'mainwp-sync' ) ] ?? '[]'
 		);
 	}
 }

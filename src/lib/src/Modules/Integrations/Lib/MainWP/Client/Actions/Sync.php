@@ -16,7 +16,7 @@ class Sync {
 	use ModConsumer;
 
 	private function isPermitted() :bool {
-		return $this->opts()->isEnabledMainWP() && $this->con()->caps->canMainwpLevel1();
+		return $this->opts()->isEnabledMainWP() && self::con()->caps->canMainwpLevel1();
 	}
 
 	public function run() :array {
@@ -27,7 +27,7 @@ class Sync {
 	}
 
 	private function buildMetaData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'is_pro'       => $con->isPremiumActive(),
 			'is_mainwp_on' => $this->isPermitted(),
@@ -43,7 +43,7 @@ class Sync {
 	 */
 	private function buildModulesData() :array {
 		$data = [];
-		foreach ( $this->con()->modules as $mod ) {
+		foreach ( self::con()->modules as $mod ) {
 			$options = $this->opts()->getTransferableOptions();
 			if ( !empty( $options ) ) {
 				$data[ $mod->cfg->slug ] = [

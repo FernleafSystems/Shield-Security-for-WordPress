@@ -14,7 +14,7 @@ class ProfileSuspend extends BaseRender {
 	public const TEMPLATE = '/admin/user/profile/suspend.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$WPU = Services::WpUsers();
 		$editUser = $WPU->getUserById( $this->action_data[ 'user_id' ] );
 		$meta = $con->user_metas->for( $editUser );

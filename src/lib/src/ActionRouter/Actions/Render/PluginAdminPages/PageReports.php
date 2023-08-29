@@ -70,7 +70,7 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	private function buildContent() :array {
-		$AR = $this->con()->action_router;
+		$AR = self::con()->action_router;
 		switch ( $this->action_data[ 'nav_sub' ] ) {
 			case PluginNavs::SUBNAV_REPORTS_CREATE:
 				$content = [

@@ -22,7 +22,7 @@ class Processor extends BaseShield\Processor {
 			$mod->getImpExpController()->execute();
 		}
 
-		add_filter( $this->con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
 			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
@@ -44,7 +44,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function runDailyCron() {
-		$this->con()->fireEvent( 'test_cron_run' );
+		self::con()->fireEvent( 'test_cron_run' );
 		( new Lib\PluginTelemetry() )->collectAndSend();
 	}
 

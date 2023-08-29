@@ -9,7 +9,7 @@ abstract class ModCon extends Base\ModCon {
 
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
 		/** @var Plugin\Options $plugOpts */
-		$plugOpts = $this->con()->getModule_Plugin()->getOptions();
+		$plugOpts = self::con()->getModule_Plugin()->getOptions();
 		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
 		$cfg->invisible = $cfg->theme === 'invisible';
 
@@ -23,22 +23,22 @@ abstract class ModCon extends Base\ModCon {
 			error_log( 'CAPTCHA Provider not supported: '.$cfg->provider );
 		}
 
-		$cfg->js_handle = $this->con()->prefix( $cfg->provider );
+		$cfg->js_handle = self::con()->prefix( $cfg->provider );
 
 		return $cfg;
 	}
 
 	public function getPluginReportEmail() :string {
-		return $this->con()
-					->getModule_Plugin()
-					->getPluginReportEmail();
+		return self::con()
+				   ->getModule_Plugin()
+				   ->getPluginReportEmail();
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() :bool {
-		$req = $this->con()->this_req;
+		$req = self::con()->this_req;
 		return ( !$req->request_bypasses_all_restrictions || $this->cfg->properties[ 'run_if_whitelisted' ] )
 			   && ( !$req->is_trusted_bot || $this->cfg->properties[ 'run_if_verified_bot' ] )
 			   && ( !$req->wp_is_wpcli || $this->cfg->properties[ 'run_if_wpcli' ] )
@@ -46,9 +46,9 @@ abstract class ModCon extends Base\ModCon {
 	}
 
 	public function isXmlrpcBypass() :bool {
-		return $this->con()
-					->getModule_Plugin()
-					->isXmlrpcBypass();
+		return self::con()
+				   ->getModule_Plugin()
+				   ->isXmlrpcBypass();
 	}
 
 	public function cleanStringArray( array $arr, string $pregReplacePattern ) :array {
@@ -67,7 +67,7 @@ abstract class ModCon extends Base\ModCon {
 		// Ensure order of namespaces is 'Module', 'BaseShield', then 'Base'
 		return [
 			$this->getNamespace(),
-			$this->con()->getModulesNamespace().'\\BaseShield',
+			self::con()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
 	}

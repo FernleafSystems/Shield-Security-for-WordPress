@@ -15,12 +15,12 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return string|array|mixed
 	 */
 	protected function getSecret() {
-		$secret = $this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'};
+		$secret = self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'};
 		return empty( $secret ) ? '' : $secret;
 	}
 
 	public function hasValidatedProfile() :bool {
-		return $this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} === true;
+		return self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} === true;
 	}
 
 	protected function hasValidSecret() :bool {
@@ -42,7 +42,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	public function removeFromProfile() {
-		$this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
+		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
 		$this->setProfileValidated( false );
 	}
 
@@ -50,7 +50,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return $this
 	 */
 	public function setProfileValidated( bool $validated ) {
-		$this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} = $validated;
+		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_validated'} = $validated;
 		return $this;
 	}
 
@@ -59,7 +59,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return $this
 	 */
 	protected function setSecret( $secret ) {
-		$this->con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
+		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
 		return $this;
 	}
 
@@ -75,7 +75,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	 * @return $this
 	 */
 	public function postSuccessActions() {
-		$this->con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
+		self::con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
 		return $this;
 	}
 
@@ -104,7 +104,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	protected function auditLogin( bool $success ) {
-		$this->con()->fireEvent(
+		self::con()->fireEvent(
 			$success ? '2fa_verify_success' : '2fa_verify_fail',
 			[
 				'audit_params' => [
@@ -116,18 +116,18 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	public function getLoginIntentFormParameter() :string {
-		return $this->con()->prefixOption( static::ProviderSlug().'_otp' );
+		return self::con()->prefixOption( static::ProviderSlug().'_otp' );
 	}
 
 	public function renderUserProfileConfigFormField() :string {
-		return $this->con()->action_router->render(
+		return self::con()->action_router->render(
 			Render\Components\UserMfa\ConfigFormForProvider::SLUG,
 			$this->getUserProfileFormRenderData()
 		);
 	}
 
 	protected function renderLoginIntentFormFieldForShield() :string {
-		return $this->con()->action_router->render(
+		return self::con()->action_router->render(
 			Render\GenericRender::SLUG,
 			[
 				'render_action_template' => sprintf( '/components/login_intent/login_field_%s.twig', static::ProviderSlug() ),
@@ -139,7 +139,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	protected function renderLoginIntentFormFieldForWpLoginReplica() :string {
-		return $this->con()->action_router->render(
+		return self::con()->action_router->render(
 			Render\GenericRender::SLUG,
 			[
 				'render_action_template' => sprintf( '/components/wplogin_replica/login_field_%s.twig', static::ProviderSlug() ),

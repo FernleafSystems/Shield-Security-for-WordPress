@@ -12,7 +12,7 @@ class CheckModuleRequirements {
 	 * @throws \Exception
 	 */
 	public function run() :bool {
-		$preChecks = $this->con()->prechecks;
+		$preChecks = self::con()->prechecks;
 		$modReqs = $this->mod()->cfg->reqs;
 
 		$modChecks = [

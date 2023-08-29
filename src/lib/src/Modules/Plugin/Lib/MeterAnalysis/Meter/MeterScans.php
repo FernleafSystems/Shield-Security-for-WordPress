@@ -9,7 +9,7 @@ class MeterScans extends MeterBase {
 	public const SLUG = 'scans';
 
 	protected function getWorkingMods() :array {
-		return [ $this->con()->getModule_HackGuard() ];
+		return [ self::con()->getModule_HackGuard() ];
 	}
 
 	public function title() :string {

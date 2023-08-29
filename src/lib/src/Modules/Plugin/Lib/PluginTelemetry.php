@@ -34,7 +34,7 @@ class PluginTelemetry {
 	 * @return array[]
 	 */
 	public function collectTrackingData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$data = $this->getBaseTrackingData();
 		foreach ( $con->modules as $mod ) {
@@ -67,7 +67,7 @@ class PluginTelemetry {
 		}
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
-			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->con()->getInstallationID()[ 'id' ];
+			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = self::con()->getInstallationID()[ 'id' ];
 		}
 
 		return $data;
@@ -100,7 +100,7 @@ class PluginTelemetry {
 	}
 
 	private function getBaseTrackingData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$WP = Services::WpGeneral();
 		$WPP = Services::WpPlugins();
 		return [

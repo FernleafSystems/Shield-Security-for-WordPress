@@ -16,7 +16,7 @@ class CheckCaptchaSettings {
 	}
 
 	public function verifyProSettings() {
-		if ( !$this->con()->isPremiumActive() && $this->opts()->getOpt( 'google_recaptcha_style' ) !== 'light' ) {
+		if ( !self::con()->isPremiumActive() && $this->opts()->getOpt( 'google_recaptcha_style' ) !== 'light' ) {
 			$this->opts()->setOpt( 'google_recaptcha_style', 'light' );
 		}
 	}

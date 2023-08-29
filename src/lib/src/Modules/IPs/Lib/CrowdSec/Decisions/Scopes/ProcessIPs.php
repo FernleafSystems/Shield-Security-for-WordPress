@@ -41,10 +41,10 @@ class ProcessIPs extends ProcessBase {
 
 		$total = 0;
 
-		$ipTableName = $this->con()
-							->getModule_Data()
-							->getDbH_IPs()
-							->getTableSchema()->table;
+		$ipTableName = self::con()
+						   ->getModule_Data()
+						   ->getDbH_IPs()
+						   ->getTableSchema()->table;
 		$pageSize = 100;
 		do {
 			$slice = \array_splice( $this->newDecisions, 0, $pageSize );

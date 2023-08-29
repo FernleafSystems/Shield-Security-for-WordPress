@@ -15,7 +15,7 @@ class TabSiteManage extends BaseSubPage {
 	public const TAB = 'manage_site';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mwp = $con->mwpVO;
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
@@ -42,7 +42,7 @@ class TabSiteManage extends BaseSubPage {
 	protected function runAction() :string {
 		return 'nothing';
 		try {
-			return $this->con()->action_router->action( Render::class, [
+			return self::con()->action_router->action( Render::class, [
 				'render_action_slug' => TabManageSitePage::SLUG,
 				'render_action_data' => [
 					'site_id' => $this->getActiveSiteID(),

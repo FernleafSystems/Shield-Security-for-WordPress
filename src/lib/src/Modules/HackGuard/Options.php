@@ -18,7 +18,7 @@ class Options extends BaseShield\Options {
 		}
 
 		$areas = $this->getOpt( 'file_scan_areas', [] );
-		if ( !$this->con()->isPremiumActive() ) {
+		if ( !self::con()->isPremiumActive() ) {
 			$available = [];
 			foreach ( $this->getOptProperty( 'file_scan_areas', 'value_options' ) as $valueOption ) {
 				if ( empty( $valueOption[ 'premium' ] ) ) {
@@ -52,7 +52,7 @@ class Options extends BaseShield\Options {
 	 */
 	public function getWhitelistedPathsAsRegex() :array {
 		$paths = $this->getDef( 'default_whitelist_paths' );
-		if ( $this->con()->isPremiumActive() ) {
+		if ( self::con()->isPremiumActive() ) {
 			$paths = \array_merge( $this->getOpt( 'scan_path_exclusions', [] ), $paths );
 		}
 
@@ -83,7 +83,7 @@ class Options extends BaseShield\Options {
 	 */
 	private function getMalSignatures( string $fileName, string $url ) :array {
 		$FS = Services::WpFs();
-		$file = $this->con()->cache_dir_handler->cacheItemPath( $fileName );
+		$file = self::con()->cache_dir_handler->cacheItemPath( $fileName );
 		if ( !empty( $file ) && $FS->exists( $file ) ) {
 			$sigs = \explode( "\n", $FS->getFileContent( $file, true ) );
 		}
@@ -169,7 +169,7 @@ class Options extends BaseShield\Options {
 	public function setScansToBuild( array $scans ) {
 		$this->setOpt( 'scans_to_build',
 			\array_intersect_key( $scans,
-				\array_flip( $this->con()->getModule_HackGuard()->getScansCon()->getScanSlugs() )
+				\array_flip( self::con()->getModule_HackGuard()->getScansCon()->getScanSlugs() )
 			)
 		);
 		$this->mod()->saveModOptions();

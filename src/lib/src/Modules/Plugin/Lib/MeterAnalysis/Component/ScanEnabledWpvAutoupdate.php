@@ -14,7 +14,7 @@ class ScanEnabledWpvAutoupdate extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 		$wpv = $mod->getScansCon()->WPV();
 		return $mod->isModOptEnabled()
 			   && $wpv->isEnabled()

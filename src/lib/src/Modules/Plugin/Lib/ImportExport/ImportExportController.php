@@ -34,7 +34,7 @@ class ImportExportController {
 
 		if ( $this->opts()->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
-			add_action( $this->con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
+			add_action( self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
 				( new Import() )->autoImportFromMaster();
 			} );
 		}
@@ -66,7 +66,7 @@ class ImportExportController {
 	protected function getImportExportSecretKey() :string {
 		$ID = $this->opts()->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = \sha1( $this->con()->getInstallationID()[ 'id' ].wp_rand( 0, \PHP_INT_MAX ) );
+			$ID = \sha1( self::con()->getInstallationID()[ 'id' ].wp_rand( 0, \PHP_INT_MAX ) );
 			$this->opts()
 				 ->setOpt( 'importexport_secretkey', $ID )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
@@ -84,7 +84,7 @@ class ImportExportController {
 
 	private function importFromFlag() {
 		try {
-			( new Import() )->fromFile( $this->con()->paths->forFlag( 'import.json' ) );
+			( new Import() )->fromFile( self::con()->paths->forFlag( 'import.json' ) );
 		}
 		catch ( \Exception $e ) {
 		}
@@ -94,10 +94,10 @@ class ImportExportController {
 	 * We've been notified that there's an update to pull in from the master site, so we set a cron to do this.
 	 */
 	public function runOptionsUpdateNotified() {
-		$cronHook = $this->con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
+		$cronHook = self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( !wp_next_scheduled( $cronHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + \rand( 30, 180 ), $cronHook );
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'import_notify_received',
 				[ 'audit_params' => [ 'master_site' => $this->opts()->getImportExportMasterImportUrl() ] ]
 			);

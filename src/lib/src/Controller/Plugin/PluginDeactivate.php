@@ -16,7 +16,7 @@ class PluginDeactivate {
 	}
 
 	private function deleteCrons() {
-		$cfg = $this->con()->cfg;
+		$cfg = self::con()->cfg;
 		$pattern = sprintf( '#^(%s|%s)#', $cfg->properties[ 'slug_parent' ], $cfg->properties[ 'slug_plugin' ] );
 		foreach ( Services::WpCron()->getCrons() as $cron ) {
 			foreach ( $cron as $key => $cronEntry ) {

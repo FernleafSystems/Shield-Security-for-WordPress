@@ -39,12 +39,12 @@ class ChartsCustom extends Base {
 	 */
 	private function buildPossibleEvents() :array {
 		return \array_intersect_key(
-			$this->con()->loadEventsService()->getEventNames(),
-			\array_flip( $this->con()
-							  ->getModule_Events()
-							  ->getDbH_Events()
-							  ->getQuerySelector()
-							  ->getDistinctForColumn( 'event' ) )
+			self::con()->loadEventsService()->getEventNames(),
+			\array_flip( self::con()
+							 ->getModule_Events()
+							 ->getDbH_Events()
+							 ->getQuerySelector()
+							 ->getDistinctForColumn( 'event' ) )
 		);
 	}
 }

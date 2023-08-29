@@ -56,7 +56,7 @@ class TestContent {
 	}
 
 	private function downloadBlacklist() :array {
-		$mod = $this->con()->getModule_Comments();
+		$mod = self::con()->getModule_Comments();
 		$rawList = Services::HttpRequest()->getContent( $mod->getOptions()->getDef( 'url_spam_blacklist_terms' ) );
 		return \array_filter( \array_map( '\trim', \explode( "\n", $rawList ) ) );
 	}
@@ -72,6 +72,6 @@ class TestContent {
 	}
 
 	private function getFile() :string {
-		return $this->con()->cache_dir_handler->cacheItemPath( 'spamblacklist.txt' );
+		return self::con()->cache_dir_handler->cacheItemPath( 'spamblacklist.txt' );
 	}
 }

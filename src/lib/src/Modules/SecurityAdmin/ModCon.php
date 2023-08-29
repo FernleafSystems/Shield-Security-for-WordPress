@@ -42,7 +42,7 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->getOptions();
 
-		$mu = $this->con()->mu_handler;
+		$mu = self::con()->mu_handler;
 		try {
 			$opts->isOpt( 'enable_mu', 'Y' ) ? $mu->convertToMU() : $mu->convertToStandard();
 		}

@@ -102,7 +102,7 @@ abstract class Base {
 	}
 
 	protected function isViewAsFree() :bool {
-		return ( $this->con()->getModule_Plugin()->getOptions()
-					  ->getOpt( 'sec_overview_prefs' )[ 'view_as' ] ?? 'free' ) === 'free';
+		return ( self::con()->getModule_Plugin()->getOptions()
+					 ->getOpt( 'sec_overview_prefs' )[ 'view_as' ] ?? 'free' ) === 'free';
 	}
 }

@@ -68,7 +68,7 @@ class Enqueue {
 		$cfg = $this->cfg();
 
 		if ( $this->bEnqueue ) {
-			echo $this->con()->action_router->render( RecaptchaJs::SLUG, [
+			echo self::con()->action_router->render( RecaptchaJs::SLUG, [
 				'sitekey' => $cfg->key,
 				'size'    => $cfg->invisible ? 'invisible' : '',
 				'theme'   => $cfg->theme,
@@ -90,6 +90,6 @@ class Enqueue {
 
 	private function cfg() :CaptchaConfigVO {
 		return ( $this->context === 'user' ?
-			$this->con()->getModule_LoginGuard() : $this->con()->getModule_Plugin() )->getCaptchaCfg();
+			self::con()->getModule_LoginGuard() : self::con()->getModule_Plugin() )->getCaptchaCfg();
 	}
 }

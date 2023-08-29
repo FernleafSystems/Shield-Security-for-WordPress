@@ -43,7 +43,7 @@ class CleanDatabases {
 	}
 
 	private function cleanRequestLogs() {
-		$con = $this->con();
+		$con = self::con();
 
 		// 1. Clean Requests & Audit Trail
 		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
@@ -77,7 +77,7 @@ class CleanDatabases {
 		Services::WpDb()->doSql( sprintf(
 			'DELETE `meta` FROM `%s` as `meta`
 				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
-			$this->con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
+			self::con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
 			Services::WpDb()->getTable_Users()
 		) );
 	}

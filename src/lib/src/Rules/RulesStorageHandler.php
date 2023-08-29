@@ -50,8 +50,8 @@ class RulesStorageHandler {
 
 		if ( \serialize( $this->loadRawFromWP()[ 'rules' ] ?? '' ) !== \serialize( $rulesForStorage ) ) {
 			Services::WpGeneral()->updateOption( $this->getWpStorageKey(), [
-				'ts'    => Services::Request()->ts() ,
-				'time'  => Services::WpGeneral()->getTimeStampForDisplay( Services::Request()->ts() ) ,
+				'ts'    => Services::Request()->ts(),
+				'time'  => Services::WpGeneral()->getTimeStampForDisplay( Services::Request()->ts() ),
 				'rules' => $rulesForStorage,
 			] );
 		}

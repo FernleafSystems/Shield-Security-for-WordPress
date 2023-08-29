@@ -12,7 +12,7 @@ class VerifyStrings {
 
 		$descNotArray = [];
 
-		foreach ( $this->con()->modules as $module ) {
+		foreach ( self::con()->modules as $module ) {
 			foreach ( $module->getOptions()->getVisibleOptionsKeys() as $visibleOptionsKey ) {
 				try {
 					$strings = $module->getStrings()->getOptionStrings( $visibleOptionsKey );

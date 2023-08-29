@@ -11,7 +11,7 @@ class LockdownFileEditing extends Base {
 	public const SLUG = 'lockdown_file_editing';
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_Lockdown();
+		$mod = self::con()->getModule_Lockdown();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isOptFileEditingDisabled();

@@ -21,7 +21,7 @@ class HandleOptionsSaveRequest {
 
 	public function handleSave() :bool {
 		try {
-			$con = $this->con();
+			$con = self::con();
 			if ( !$con->isPluginAdmin() ) {
 				throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 			}
@@ -120,7 +120,7 @@ class HandleOptionsSaveRequest {
 		}
 
 		// Handle Import/Export exclusions
-		if ( $this->con()->isPremiumActive() ) {
+		if ( self::con()->isPremiumActive() ) {
 			( new SaveExcludedOptions() )
 				->setMod( $this->mod )
 				->save( $form );

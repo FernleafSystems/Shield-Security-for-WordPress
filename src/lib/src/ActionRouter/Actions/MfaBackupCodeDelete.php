@@ -9,10 +9,10 @@ class MfaBackupCodeDelete extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_backup_code_delete';
 
 	protected function exec() {
-		$available = $this->con()
-						  ->getModule_LoginGuard()
-						  ->getMfaController()
-						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()
+						 ->getModule_LoginGuard()
+						 ->getMfaController()
+						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {
@@ -25,9 +25,9 @@ class MfaBackupCodeDelete extends MfaUserConfigBase {
 			$success = true;
 		}
 
-		$this->con()
-			 ->getAdminNotices()
-			 ->addFlash( $msg, $this->getActiveWPUser(), !$success );
+		self::con()
+			->getAdminNotices()
+			->addFlash( $msg, $this->getActiveWPUser(), !$success );
 
 		$this->response()->action_response_data = [
 			'success' => $success,

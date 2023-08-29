@@ -18,13 +18,13 @@ class PageDebug extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
-				'href' => URL::Build( $this->con()->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
+				'href' => URL::Build( self::con()->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
 			],
 		];
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$availableTests = [];
 		if ( $con->this_req->is_security_admin && Services::Request()->query( 'show' ) ) {
@@ -32,7 +32,7 @@ class PageDebug extends BasePluginAdminPage {
 				function ( $method ) {
 					return sprintf(
 						'<a href="%s" target="_blank">%s</a>',
-						$this->con()->plugin_urls->noncedPluginAction( SimplePluginTests::class, null, [
+						self::con()->plugin_urls->noncedPluginAction( SimplePluginTests::class, null, [
 							'test' => $method->getName()
 						] ),
 						\str_replace( 'dbg_', '', $method->getName() )

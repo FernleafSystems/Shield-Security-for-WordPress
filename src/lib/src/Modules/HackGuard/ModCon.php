@@ -94,10 +94,10 @@ class ModCon extends BaseShield\ModCon {
 				$opts->setOpt( 'file_locker', $lockFiles );
 			}
 
-			if ( \count( $opts->getFilesToLock() ) === 0 || !$this->con()
-																  ->getModule_Plugin()
-																  ->getShieldNetApiController()
-																  ->canHandshake() ) {
+			if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
+																 ->getModule_Plugin()
+																 ->getShieldNetApiController()
+																 ->canHandshake() ) {
 				$opts->setOpt( 'file_locker', [] );
 				$this->getFileLocker()->purge();
 			}
@@ -140,7 +140,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts = $this->getOptions();
 		$freq = $opts->getScanFrequency();
 		Services::WpCron()->addNewSchedule(
-			$this->con()->prefix( sprintf( 'per-day-%s', $freq ) ),
+			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
 				'interval' => \DAY_IN_SECONDS/$freq,
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )

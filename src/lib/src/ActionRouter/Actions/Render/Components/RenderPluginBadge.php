@@ -19,7 +19,7 @@ class RenderPluginBadge extends BaseRender {
 	public const TEMPLATE = '/snippets/plugin_badge_widget.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $secAdminOpts */
 		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
 

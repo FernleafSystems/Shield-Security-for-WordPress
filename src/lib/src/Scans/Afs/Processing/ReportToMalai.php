@@ -37,10 +37,10 @@ class ReportToMalai {
 		}
 
 		if ( !empty( $reports ) ) {
-			$token = $this->con()
-						  ->getModule_License()
-						  ->getWpHashesTokenManager()
-						  ->getToken();
+			$token = self::con()
+						 ->getModule_License()
+						 ->getWpHashesTokenManager()
+						 ->getToken();
 			( new Malai\MalwareReport( $token ) )->report(
 				\array_intersect_key(
 					$reports,

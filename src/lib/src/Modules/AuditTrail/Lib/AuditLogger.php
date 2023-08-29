@@ -28,7 +28,7 @@ class AuditLogger extends EventsListener {
 	private $logger;
 
 	protected function init() {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
 		$opts = $con->getModule_AuditTrail()->getOptions();
 		if ( $opts->isLogToDB() ) {
@@ -41,7 +41,7 @@ class AuditLogger extends EventsListener {
 	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
 	 */
 	protected function onShutdown() {
-		if ( !$this->con()->plugin_deleting && $this->isMonologLibrarySupported() ) {
+		if ( !self::con()->plugin_deleting && $this->isMonologLibrarySupported() ) {
 			$this->initLogger();
 			foreach ( \array_reverse( $this->auditLogs ) as $auditLog ) {
 				try {
@@ -58,7 +58,7 @@ class AuditLogger extends EventsListener {
 	}
 
 	protected function initLogger() {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
 		$opts = $con->getModule_AuditTrail()->getOptions();
 
@@ -101,7 +101,7 @@ class AuditLogger extends EventsListener {
 	}
 
 	private function pushCustomHandlers() {
-		if ( $this->con()->caps->canActivityLogsSendToIntegrations() ) {
+		if ( self::con()->caps->canActivityLogsSendToIntegrations() ) {
 			$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
 			\array_map(
 				function ( $handler ) {
@@ -147,6 +147,6 @@ class AuditLogger extends EventsListener {
 	}
 
 	private function getLogLevelsFile() :array {
-		return $this->con()->getModule_AuditTrail()->getOptions()->getOpt( 'log_level_file' );
+		return self::con()->getModule_AuditTrail()->getOptions()->getOpt( 'log_level_file' );
 	}
 }

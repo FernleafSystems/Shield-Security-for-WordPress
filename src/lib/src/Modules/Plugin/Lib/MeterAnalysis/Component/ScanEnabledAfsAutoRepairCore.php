@@ -15,7 +15,7 @@ class ScanEnabledAfsAutoRepairCore extends ScanEnabledAfsAutoRepairBase {
 
 	protected function testIfProtected() :bool {
 		/** @var Options $opts */
-		$opts = $this->con()->getModule_HackGuard()->getOptions();
+		$opts = self::con()->getModule_HackGuard()->getOptions();
 		return parent::testIfProtected() && $opts->isRepairFileWP();
 	}
 

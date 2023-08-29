@@ -18,7 +18,7 @@ class TrafficLogEnabled extends Base {
 
 	protected function testIfProtected() :bool {
 		try {
-			$mod = $this->con()->getModule_Traffic();
+			$mod = self::con()->getModule_Traffic();
 			/** @var Options $opts */
 			$opts = $mod->getOptions();
 

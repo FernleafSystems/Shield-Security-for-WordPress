@@ -19,7 +19,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 
 	protected function run() {
 		/** @var LoginGuard\Options $opts */
-		$opts = $this->con()->getModule_LoginGuard()->getOptions();
+		$opts = self::con()->getModule_LoginGuard()->getOptions();
 		if ( $opts->isProtectLogin() ) {
 			$this->login();
 		}
@@ -33,7 +33,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	public function isEnabled() :bool {
-		return parent::isEnabled() && $this->con()->caps->canThirdPartyScanUsers();
+		return parent::isEnabled() && self::con()->caps->canThirdPartyScanUsers();
 	}
 
 	protected function login() {
@@ -77,7 +77,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function fireBotEvent() {
-		$this->con()->fireEvent(
+		self::con()->fireEvent(
 			sprintf( 'user_form_bot_%s', $this->isBot() ? 'fail' : 'pass' ),
 			[
 				'audit_params' => [
@@ -90,28 +90,28 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 	}
 
 	protected function fireEventBlockLogin() {
-		$this->con()->fireEvent( 'login_block' );
+		self::con()->fireEvent( 'login_block' );
 	}
 
 	protected function fireEventBlockRegister() {
-		$this->con()->fireEvent( 'block_register' );
+		self::con()->fireEvent( 'block_register' );
 	}
 
 	protected function fireEventBlockLostpassword() {
-		$this->con()->fireEvent( 'block_lostpassword' );
+		self::con()->fireEvent( 'block_lostpassword' );
 	}
 
 	protected function fireEventBlockCheckout() {
-		$this->con()->fireEvent( 'block_checkout' );
+		self::con()->fireEvent( 'block_checkout' );
 	}
 
 	protected function isBotBlockEnabled() :bool {
 		/** @var LoginGuard\Options $loginOpts */
-		$loginOpts = $this->con()->getModule_LoginGuard()->getOptions();
+		$loginOpts = self::con()->getModule_LoginGuard()->getOptions();
 		return $loginOpts->isEnabledAntiBot();
 	}
 
 	protected function getErrorMessage() :string {
-		return sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), $this->con()->getHumanName() );
+		return sprintf( __( '%s Bot Check Failed.', 'wp-simple-firewall' ), self::con()->getHumanName() );
 	}
 }

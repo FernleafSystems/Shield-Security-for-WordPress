@@ -44,12 +44,12 @@ class RulesController {
 	protected function run() {
 
 		// Rebuild the rules upon upgrade or settings change
-		if ( $this->con()->cfg->rebuilt ) {
+		if ( self::con()->cfg->rebuilt ) {
 			$this->storageHandler->buildAndStore();
 		}
 
 		// Rebuild the rules when configuration is updated
-		add_action( $this->con()->prefix( 'pre_options_store' ), function () {
+		add_action( self::con()->prefix( 'pre_options_store' ), function () {
 			$this->storageHandler->buildAndStore();
 		} );
 
@@ -100,7 +100,7 @@ class RulesController {
 
 			$this->processComplete = true;
 
-			add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {
+			add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
 //				error_log( var_export( $this->getRulesResultsSummary(), true ) );
 			} );
 		}

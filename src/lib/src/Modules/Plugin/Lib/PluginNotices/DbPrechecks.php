@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotic
 class DbPrechecks extends Base {
 
 	public function check() :?array {
-		$dbPreChecks = $this->con()->prechecks[ 'dbs' ];
+		$dbPreChecks = self::con()->prechecks[ 'dbs' ];
 		return \count( $dbPreChecks ) !== \count( \array_filter( $dbPreChecks ) ) ?
 			[
 				'id'        => 'db_prechecks_fail',

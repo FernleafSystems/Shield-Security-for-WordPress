@@ -28,7 +28,7 @@ class FindSessions {
 	}
 
 	public function lookupFromUserMeta( array $wheres = [], int $limit = 10, string $orderBy = '`user_meta`.`last_login_at`' ) :array {
-		$modData = $this->con()->getModule_Data();
+		$modData = self::con()->getModule_Data();
 
 		$DB = Services::WpDb();
 		$results = $DB->selectCustom(

@@ -18,7 +18,7 @@ class General extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_IPs();
 		$ip = $this->action_data[ 'ip' ];
 

@@ -13,7 +13,7 @@ class RemoveSecAdmin {
 	public function remove( bool $quietly = false ) {
 		$opts = $this->opts();
 		if ( $opts->hasSecurityPIN() ) {
-			$this->con()->this_req->is_security_admin = true;
+			self::con()->this_req->is_security_admin = true;
 
 			$opts->clearSecurityAdminKey();
 			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
@@ -29,7 +29,7 @@ class RemoveSecAdmin {
 	}
 
 	public function sendConfirmationEmail() {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_SecAdmin();
 
 		$confirmationHref = $con->plugin_urls->noncedPluginAction(

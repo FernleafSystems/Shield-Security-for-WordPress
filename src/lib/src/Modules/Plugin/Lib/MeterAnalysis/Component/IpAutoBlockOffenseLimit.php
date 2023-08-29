@@ -10,7 +10,7 @@ class IpAutoBlockOffenseLimit extends IpBase {
 
 	protected function testIfProtected() :bool {
 		/** @var Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->getOptions();
 		return parent::testIfProtected() && $opts->isEnabledAutoBlackList() && $opts->getOffenseLimit() <= 10;
 	}
 
@@ -24,14 +24,14 @@ class IpAutoBlockOffenseLimit extends IpBase {
 
 	public function descProtected() :string {
 		/** @var Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->getOptions();
 		return sprintf( __( "The maximum allowable offenses allowed before blocking is reasonably low: %s", 'wp-simple-firewall' ),
 			$opts->getOffenseLimit() );
 	}
 
 	public function descUnprotected() :string {
 		/** @var Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->getOptions();
 		return sprintf( __( "Your maximum offense limit before blocking an IP seems high: %s", 'wp-simple-firewall' ),
 			$opts->getOffenseLimit() );
 	}

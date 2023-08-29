@@ -16,7 +16,7 @@ class SecurityAdminOptions extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_SecAdmin();
+		$mod = self::con()->getModule_SecAdmin();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled()

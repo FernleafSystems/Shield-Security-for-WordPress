@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\Options {
 
 	public function getInstallationDays() :int {
-		$installedAt = $this->con()
-							->getModule_Plugin()
-							->getInstallDate();
+		$installedAt = self::con()
+						   ->getModule_Plugin()
+						   ->getInstallDate();
 		if ( empty( $installedAt ) ) {
 			return 0;
 		}
@@ -22,9 +22,9 @@ class Options extends Base\Options {
 	}
 
 	public function isShowPromoAdminNotices() :bool {
-		return $this->con()
-					->getModule_Plugin()
-					->getOptions()
-					->isOpt( 'enable_upgrade_admin_notice', 'Y' );
+		return self::con()
+				   ->getModule_Plugin()
+				   ->getOptions()
+				   ->isOpt( 'enable_upgrade_admin_notice', 'Y' );
 	}
 }

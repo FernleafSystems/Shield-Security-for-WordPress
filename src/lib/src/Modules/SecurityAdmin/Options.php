@@ -30,7 +30,7 @@ class Options extends BaseShield\Options {
 
 	public function getSecurityAdminUsers() :array {
 		$users = $this->getOpt( 'sec_admin_users', [] );
-		return ( \is_array( $users ) && $this->con()->isPremiumActive() ) ? $users : [];
+		return ( \is_array( $users ) && self::con()->isPremiumActive() ) ? $users : [];
 	}
 
 	public function getSecurityPIN() :string {

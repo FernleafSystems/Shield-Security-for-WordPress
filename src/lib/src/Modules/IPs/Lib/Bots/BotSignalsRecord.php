@@ -21,7 +21,7 @@ class BotSignalsRecord {
 	use IpAddressConsumer;
 
 	public function delete() :bool {
-		$thisReq = $this->con()->this_req;
+		$thisReq = self::con()->this_req;
 		/** @var BotSignal\Ops\Delete $deleter */
 		$deleter = $this->mod()->getDbH_BotSignal()->getQueryDeleter();
 
@@ -47,14 +47,14 @@ class BotSignalsRecord {
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
 				$this->mod()->getDbH_BotSignal()->getTableSchema()->table,
-				$this->con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
+				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,
 				$this->getIP()
 			)
 		);
 	}
 
 	public function retrieve( bool $createNew = true ) :BotSignalRecord {
-		$thisReq = $this->con()->this_req;
+		$thisReq = self::con()->this_req;
 
 		if ( $thisReq->ip === $this->getIP() && !empty( $thisReq->botsignal_record ) ) {
 			return $thisReq->botsignal_record;
@@ -112,7 +112,7 @@ class BotSignalsRecord {
 
 		if ( $r->auth_at === 0 && $r->ip_ref >= 0 ) {
 			/** @var UserMetaDB\Select $userMetaSelect */
-			$userMetaSelect = $this->con()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
+			$userMetaSelect = self::con()->getModule_Data()->getDbH_UserMeta()->getQuerySelector();
 			/** @var UserMetaDB\Record $lastUserMetaLogin */
 			$lastUserMetaLogin = $userMetaSelect->filterByIPRef( $r->ip_ref )
 												->setColumnsToSelect( [ 'last_login_at' ] )
@@ -157,7 +157,7 @@ class BotSignalsRecord {
 							->updateById( $record->id, $data );
 		}
 
-		$thisReq = $this->con()->this_req;
+		$thisReq = self::con()->this_req;
 		if ( $thisReq->ip === $record->ip ) {
 			$thisReq->botsignal_record = $record;
 		}

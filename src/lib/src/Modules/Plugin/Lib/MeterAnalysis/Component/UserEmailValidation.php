@@ -16,7 +16,7 @@ class UserEmailValidation extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_UserManagement();
+		$mod = self::con()->getModule_UserManagement();
 		/** @var Options $opts */
 		$opts = $mod->getOptions();
 		return $mod->isModOptEnabled() && $opts->isValidateEmailOnRegistration();

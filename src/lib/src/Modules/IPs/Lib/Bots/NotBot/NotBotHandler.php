@@ -38,7 +38,7 @@ class NotBotHandler {
 	public function hasCookie() :bool {
 		$cookie = [];
 		$req = Services::Request();
-		$notBot = $req->cookie( $this->con()->prefix( self::SLUG ), '' );
+		$notBot = $req->cookie( self::con()->prefix( self::SLUG ), '' );
 		if ( !empty( $notBot ) && \strpos( $notBot, 'z' ) ) {
 			[ $ts, $hash ] = \explode( 'z', $notBot );
 			$cookie[ 'ts' ] = (int)$ts;
@@ -51,6 +51,6 @@ class NotBotHandler {
 	}
 
 	public function getHashForVisitorTS( int $ts ) {
-		return \hash_hmac( 'sha1', $ts.$this->con()->this_req->ip, $this->con()->getInstallationID()[ 'id' ] );
+		return \hash_hmac( 'sha1', $ts.self::con()->this_req->ip, self::con()->getInstallationID()[ 'id' ] );
 	}
 }

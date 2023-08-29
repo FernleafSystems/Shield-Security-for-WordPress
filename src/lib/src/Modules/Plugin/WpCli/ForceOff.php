@@ -39,7 +39,7 @@ class ForceOff extends BaseWpCliCmd {
 	 */
 	public function cmdForceOff( $null, $args ) {
 		$FS = Services::WpFs();
-		$path = path_join( $this->con()->getRootDir(), 'forceoff' );
+		$path = path_join( self::con()->getRootDir(), 'forceoff' );
 
 		switch ( $args[ 'action' ] ) {
 			case 'query':

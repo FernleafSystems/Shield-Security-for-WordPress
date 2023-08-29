@@ -56,7 +56,7 @@ abstract class BaseProtectionProvider {
 	protected function processFailure() {
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
-		$this->con()->fireEvent( 'login_block' );
+		self::con()->fireEvent( 'login_block' );
 	}
 
 	public function maybeDequeueScript() {

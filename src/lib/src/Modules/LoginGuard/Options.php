@@ -20,14 +20,14 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function getLoginIntentMinutes() :int {
 		return (int)\max( 1, apply_filters(
-			$this->con()->prefix( 'login_intent_timeout' ),
+			self::con()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
 	}
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return $this->con()->isPremiumActive() ? $ids : [];
+		return self::con()->isPremiumActive() ? $ids : [];
 	}
 
 	public function getCooldownInterval() :int {
@@ -92,7 +92,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function isEnabledEmailAuthAnyUserSet() :bool {
 		return $this->isEmailAuthenticationActive()
-			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->con()->isPremiumActive();
+			   && $this->isOpt( 'email_any_user_set', 'Y' ) && self::con()->isPremiumActive();
 	}
 
 	public function isEnabledGoogleAuthenticator() :bool {

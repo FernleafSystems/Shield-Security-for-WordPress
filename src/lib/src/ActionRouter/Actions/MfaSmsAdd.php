@@ -12,10 +12,10 @@ class MfaSmsAdd extends MfaUserConfigBase {
 	protected function exec() {
 		$req = Services::Request();
 
-		$available = $this->con()
-						  ->getModule_LoginGuard()
-						  ->getMfaController()
-						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()
+						 ->getModule_LoginGuard()
+						 ->getMfaController()
+						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Sms $provider */
 		$provider = $available[ Sms::ProviderSlug() ];
 

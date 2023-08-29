@@ -67,7 +67,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getValidateEmailOnRegistration() :string {
-		return $this->con()->isPremiumActive() ?
+		return self::con()->isPremiumActive() ?
 			(string)$this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
 	}
 

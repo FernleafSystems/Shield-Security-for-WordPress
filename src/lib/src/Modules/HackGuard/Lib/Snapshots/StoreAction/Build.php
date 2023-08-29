@@ -43,7 +43,7 @@ class Build extends BaseAction {
 		$asset = $this->getAsset();
 		return [
 			'ts'           => Services::Request()->ts(),
-			'snap_version' => $this->con()->cfg->version(),
+			'snap_version' => self::con()->cfg->version(),
 			'cs_hashes_at' => 0,
 			'unique_id'    => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
 			'name'         => $asset->asset_type === 'plugin' ? $asset->Name : $asset->wp_theme->get( 'Name' ),

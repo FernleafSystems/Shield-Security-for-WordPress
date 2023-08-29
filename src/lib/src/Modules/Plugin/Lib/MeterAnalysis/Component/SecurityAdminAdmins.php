@@ -16,7 +16,7 @@ class SecurityAdminAdmins extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_SecAdmin();
+		$mod = self::con()->getModule_SecAdmin();
 		/** @var Options $opts */
 		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
@@ -25,7 +25,7 @@ class SecurityAdminAdmins extends Base {
 	}
 
 	public function href() :string {
-		$mod = $this->con()->getModule_SecAdmin();
+		$mod = self::con()->getModule_SecAdmin();
 		/** @var Options $opts */
 		$opts = $mod->opts();
 		if ( !$mod->isModOptEnabled() ) {

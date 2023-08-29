@@ -70,7 +70,7 @@ class BaseShieldNetApi extends BaseApi {
 	protected function getShieldNetApiParams() :array {
 		return $this->shield_net_params_required ? [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
-			'install_id' => $this->con()->getInstallationID()[ 'id' ],
+			'install_id' => self::con()->getInstallationID()[ 'id' ],
 			'nonce'      => ( new HandshakingNonce() )->create(),
 		] : [];
 	}

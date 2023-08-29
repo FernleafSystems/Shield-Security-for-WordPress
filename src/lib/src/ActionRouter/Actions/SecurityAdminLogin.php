@@ -16,7 +16,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 	protected function exec() {
 		$resp = $this->response();
 
-		if ( $this->con()->getModule_SecAdmin()->getSecurityAdminController()->isCurrentlySecAdmin() ) {
+		if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->isCurrentlySecAdmin() ) {
 			$resp->success = true;
 			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
 							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
@@ -31,7 +31,7 @@ class SecurityAdminLogin extends SecurityAdminBase {
 			}
 			else {
 				$remaining = ( new QueryRemainingOffenses() )
-					->setIP( $this->con()->this_req->ip )
+					->setIP( self::con()->this_req->ip )
 					->run();
 				$resp->message = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
 				$resp->message .= $remaining > 0 ?

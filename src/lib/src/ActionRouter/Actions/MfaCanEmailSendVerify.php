@@ -9,23 +9,23 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 	public const SLUG = 'email_send_verify';
 
 	protected function exec() {
-		$opts = $this->con()->getModule_LoginGuard()->getOptions();
+		$opts = self::con()->getModule_LoginGuard()->getOptions();
 
 		if ( $opts->getOpt( 'email_can_send_verified_at' ) < 1 ) {
 			$opts->setOpt( 'email_can_send_verified_at', Services::Request()->ts() );
-			$this->con()->getModule_LoginGuard()->saveModOptions();
-			$this->con()
-				 ->getAdminNotices()
-				 ->addFlash(
-					 __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
-					 $this->getActiveWPUser()
-				 );
+			self::con()->getModule_LoginGuard()->saveModOptions();
+			self::con()
+				->getAdminNotices()
+				->addFlash(
+					__( 'Email verification completed successfully.', 'wp-simple-firewall' ),
+					$this->getActiveWPUser()
+				);
 		}
 
 		$this->response()->action_response_data = [
 			'success'  => true,
 			'message'  => __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
-			'redirect' => $this->con()->plugin_urls->adminHome()
+			'redirect' => self::con()->plugin_urls->adminHome()
 		];
 	}
 }

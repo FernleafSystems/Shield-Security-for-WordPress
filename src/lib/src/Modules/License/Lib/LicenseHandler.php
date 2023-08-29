@@ -25,7 +25,7 @@ class LicenseHandler {
 	private $caps;
 
 	protected function run() {
-		add_action( $this->con()->prefix( 'adhoc_cron_license_check' ), function () {
+		add_action( self::con()->prefix( 'adhoc_cron_license_check' ), function () {
 			$this->runAdhocLicenseCheck();
 		} );
 
@@ -49,7 +49,7 @@ class LicenseHandler {
 	}
 
 	public function scheduleAdHocCheck( ?int $delay = null ) {
-		$con = $this->con();
+		$con = self::con();
 		if ( !wp_next_scheduled( $con->prefix( 'adhoc_cron_license_check' ) ) ) {
 			if ( empty( $delay ) ) {
 				$delay = \rand( \MINUTE_IN_SECONDS, \MINUTE_IN_SECONDS*30 );
@@ -102,7 +102,7 @@ class LicenseHandler {
 			if ( $sendEmail ) {
 				( new LicenseEmails() )->sendLicenseDeactivatedEmail();
 			}
-			$this->con()->fireEvent( 'lic_fail_deactivate' );
+			self::con()->fireEvent( 'lic_fail_deactivate' );
 		}
 	}
 
@@ -200,7 +200,7 @@ class LicenseHandler {
 	public function verify( bool $onDemand = false, bool $scheduleAnyway = false ) :self {
 		if ( $this->canCheck() ) {
 			if ( $onDemand ) {
-				Services::WpCron()->deleteCronJob( $this->con()->prefix( 'adhoc_cron_license_check' ) );
+				Services::WpCron()->deleteCronJob( self::con()->prefix( 'adhoc_cron_license_check' ) );
 				( new Verify() )->run();
 			}
 			elseif ( $scheduleAnyway || $this->isVerifyRequired() ) {
@@ -219,7 +219,7 @@ class LicenseHandler {
 	}
 
 	private function canLicenseCheck_FileFlag() :bool {
-		$path = $this->con()->paths->forFlag( 'license_check' );
+		$path = self::con()->paths->forFlag( 'license_check' );
 		$mtime = Services::WpFs()->exists( $path ) ? Services::WpFs()->getModifiedTime( $path ) : 0;
 		return ( Services::Request()->ts() - $mtime ) > \MINUTE_IN_SECONDS;
 	}

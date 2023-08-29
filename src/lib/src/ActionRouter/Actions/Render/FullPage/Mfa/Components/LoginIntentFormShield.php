@@ -10,7 +10,7 @@ class LoginIntentFormShield extends BaseForm {
 	public const TEMPLATE = '/components/login_intent/form.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$notice = $con->getAdminNotices()->getFlashNotice();
 		if ( $notice instanceof NoticeVO ) {
 			$msg = $notice->render_data[ 'message' ];

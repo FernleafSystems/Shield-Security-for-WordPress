@@ -7,7 +7,7 @@ trait ModConsumer {
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	public function mod() :ModCon {
-		return $this->con()->getModule_Lockdown();
+		return self::con()->getModule_Lockdown();
 	}
 
 	public function opts() :Options {

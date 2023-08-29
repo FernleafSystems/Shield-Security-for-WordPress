@@ -8,7 +8,7 @@ class GloballyDisabled extends Base {
 
 	public function check() :?array {
 		/** @var Options $pluginOpts */
-		$pluginOpts = $this->con()->getModule_Plugin()->getOptions();
+		$pluginOpts = self::con()->getModule_Plugin()->getOptions();
 		return $pluginOpts->isPluginGloballyDisabled() ?
 			[
 				'id'        => 'plugin_globally_disabled',
@@ -18,7 +18,7 @@ class GloballyDisabled extends Base {
 						'%s %s',
 						__( "All security protection offered by Shield is completely disabled.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" class="">%s</a>',
-							$this->con()->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
+							self::con()->plugin_urls->modCfgOption( 'global_enable_plugin_features' ),
 							__( 'Go To Option', 'wp-simple-firewall' )
 						)
 					)
