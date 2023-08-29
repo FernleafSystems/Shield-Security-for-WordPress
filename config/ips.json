@@ -824,7 +824,15 @@
         "imported_at":             {
           "comment": "This IP rule was imported from a master site."
         }
-      }
+      },
+      "indices":         [
+        {
+          "name":    "Last_Access_Index",
+          "columns": [
+            "last_access_at"
+          ]
+        }
+      ]
     },
     "db_table_crowdsec_signals": {
       "autoexpire":      0,

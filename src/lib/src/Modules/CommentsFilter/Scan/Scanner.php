@@ -180,10 +180,9 @@ class Scanner {
 	}
 
 	private function isDoCommentsCheck( int $postID, string $commentEmail ) :bool {
-		$opts = $this->opts();
 		$post = Services::WpPost()->getById( $postID );
 		return $post instanceof \WP_Post
 			   && Services::WpComments()->isCommentsOpen( $post )
-			   && !( new IsEmailTrusted() )->trusted( $commentEmail, $opts->getApprovedMinimum(), $opts->getTrustedRoles() );
+			   && !( new IsEmailTrusted() )->emailTrusted( $commentEmail );
 	}
 }

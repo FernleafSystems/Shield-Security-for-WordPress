@@ -3,4 +3,4 @@
 require_once( __DIR__.'/src/lib/vendor/autoload.php' );
 
 /** We initialise our Carbon early. */
-new \Carbon\Carbon();
+@\class_exists( '\Carbon\Carbon' );

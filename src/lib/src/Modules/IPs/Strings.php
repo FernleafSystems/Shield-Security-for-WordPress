@@ -103,13 +103,13 @@ class Strings extends Base\Strings {
 				],
 			],
 			'bottrack_404'                => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ), '404' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ), '404' ),
 				'audit' => [
 					__( '404 detected at "{{path}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_fakewebcrawler'     => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Fake Web Crawler', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Fake Web Crawler detected at "{{path}}".', 'wp-simple-firewall' ),
@@ -117,21 +117,21 @@ class Strings extends Base\Strings {
 				],
 			],
 			'bottrack_linkcheese'         => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Link Cheese', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Link cheese access detected at "{{path}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_loginfailed'        => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Failed Login', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Attempted login failed by user "{{user_login}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_logininvalid'       => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Invalid Username Login', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Attempted login with invalid user "{{user_login}}".', 'wp-simple-firewall' ),
@@ -139,22 +139,22 @@ class Strings extends Base\Strings {
 			],
 			'bottrack_useragent'          => [
 				/** TODO **/
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'Invalid User-Agent', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Invalid user agent detected at "{{useragent}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_xmlrpc'             => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
 					__( 'XML-RPC', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Access to XML-RPC detected at "{{path}}".', 'wp-simple-firewall' ),
 				],
 			],
 			'bottrack_invalidscript'      => [
-				'name'  => sprintf( '%s: %s', __( 'Bot Detection', 'wp-simple-firewall' ),
-					__( 'Invalid Script Load', 'wp-simple-firewall' ) ),
+				'name'  => sprintf( '%s: %s', __( 'Bots', 'wp-simple-firewall' ),
+					__( 'Invalid Scripts', 'wp-simple-firewall' ) ),
 				'audit' => [
 					__( 'Tried to load an invalid WordPress PHP script "{{script}}".', 'wp-simple-firewall' ),
 				],

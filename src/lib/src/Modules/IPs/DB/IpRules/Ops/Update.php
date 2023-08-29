@@ -21,7 +21,7 @@ class Update extends Base\Update {
 	 */
 	public function updateTransgressions( $IP, int $offenses, bool $updateLastAccess = true ) :bool {
 		$data = [
-			'offenses' => max( 0, $offenses ),
+			'offenses' => \max( 0, $offenses ),
 		];
 		if ( $updateLastAccess ) {
 			$data[ 'last_access_at' ] = Services::Request()->ts();

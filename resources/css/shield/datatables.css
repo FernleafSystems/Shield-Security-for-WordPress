@@ -22,6 +22,13 @@
 	display: block;
 	clear: both;
 }
+/** https://stackoverflow.com/questions/3215553/make-a-div-fill-an-entire-table-cell **/
+table.dataTable {
+	height: fit-content;
+}
+table.dataTable > tbody > tr {
+	height: 100%;
+}
 th.date {
 	width: 130px !important;
 	min-width: 130px !important;
@@ -47,9 +54,8 @@ td.ip_linked {
 }
 td.severity,
 th.severity {
-	text-align: center;
-	width: 40px !important;
-	max-width: 40px !important;
+	width: 36px !important;
+	max-width: 36px !important;
 }
 th.message,
 td.message {
@@ -65,6 +71,13 @@ td.message {
 td.message > .message-header {
 	font-weight: bolder;
 	display: block;
+}
+td.severity .severity-icon {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	align-items: center;
+	height: 100%;
 }
 td.severity .severity-icon.severity-alert {
 	color: #d40000;
@@ -82,7 +95,6 @@ td.severity .severity-icon.severity-debug {
 	color: grey;
 }
 td.severity .severity-icon > svg {
-	margin-top: 10px;
 	width: 32px;
 	height: 32px;
 }

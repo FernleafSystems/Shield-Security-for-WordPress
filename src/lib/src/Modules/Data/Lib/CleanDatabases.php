@@ -4,10 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	AuditTrail,
-	Data\ModConsumer,
+	Data,
+	HackGuard,
+	IPs,
 	Traffic
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -15,50 +16,47 @@ use FernleafSystems\Wordpress\Services\Services;
 class CleanDatabases {
 
 	use ExecOnce;
-	use ModConsumer;
+	use Data\ModConsumer;
 
 	protected function run() {
 		$this->cleanRequestLogs();
-		$this->cleanOutUnreferencedIPs();
+		$this->cleanIpRules();
+		$this->cleanBotSignals();
+		$this->cleanUserMeta();
+		$this->cleanStaleScans();
+		$this->purgeUnreferencedIPs();
 	}
 
-	private function cleanOutUnreferencedIPs() {
+	public function cleanBotSignals() :void {
+		self::con()
+			->getModule_IPs()
+			->getDbH_BotSignal()
+			->getQueryDeleter()
+			->addWhereOlderThan( Services::Request()->carbon( true )->subweeks( 2 )->timestamp, 'updated_at' )
+			->query();
+	}
+
+	public function cleanIpRules() :void {
+		( new IPs\DB\IpRules\CleanIpRules() )->execute();
+	}
+
+	private function cleanRequestLogs() {
 		$con = $this->con();
 
-		$this->cleanRequestLogs();
+		// 1. Clean Requests & Audit Trail
+		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
+		/** @var AuditTrail\Options $optsAudit */
+		$optsAudit = $con->getModule_AuditTrail()->opts();
+		/** @var Traffic\Options $optsTraffic */
+		$optsTraffic = $con->getModule_Traffic()->opts();
 
-		/** @var Select[] $dbSelectors */
-		$dbSelectors = [
-			$con->getModule_Data()->getDbH_ReqLogs()->getQuerySelector(),
-			$con->getModule_IPs()->getDbH_BotSignal()->getQuerySelector(),
-			$con->getModule_IPs()->getDbH_IPRules()->getQuerySelector(),
-		];
+		$con->getModule_Data()
+			->getDbH_ReqLogs()
+			->tableCleanExpired( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+	}
 
-		// This is more work, but it optimises the array of ip_ref's so that it's not massive and then has to be "uniqued"
-		$ipIDsInUse = [];
-		foreach ( $dbSelectors as $dbSelector ) {
-			$ipIDsInUse = \array_merge( $ipIDsInUse, $dbSelector->getDistinctForColumn( 'ip_ref' ) );
-		}
-		$ipIDsInUse = \array_unique( $ipIDsInUse );
-
-		$dbhIPs = $con->getModule_Data()->getDbH_IPs();
-		if ( false ) {
-			// This method could potentially send 10000s of IP IDs
-			$dbhIPs->getQueryDeleter()
-				   ->addWhereNotIn( 'id', $ipIDsInUse )
-				   ->query();
-		}
-		else {
-			// This method is likely going to send far fewer IDs into the delete query, but requires 2 queries.
-			$idsToDelete = \array_diff( $dbhIPs->getQuerySelector()->getDistinctForColumn( 'id' ), $ipIDsInUse );
-			if ( !empty( $idsToDelete ) ) {
-				$dbhIPs->getQueryDeleter()
-					   ->addWhereIn( 'id', \array_map( '\intval', $idsToDelete ) )
-					   ->query();
-			}
-		}
-
-		$this->cleanUserMeta();
+	public function cleanStaleScans() :void {
+		( new HackGuard\DB\Utility\Clean() )->execute();
 	}
 
 	/**
@@ -72,26 +70,32 @@ class CleanDatabases {
 			$this->con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
 			Services::WpDb()->getTable_Users()
 		) );
-//		$res = Services::WpDb()->selectCustom( sprintf(
-//			'SELECT `meta`.`user_id` as `meta_user_id`, `users`.`ID` as `wp_user_id` FROM `%s` as `meta`
-//				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
-//			$userMetaData->getTableSchema()->table,
-//			Services::WpDb()->getTable_Users()
-//		) );
 	}
 
-	private function cleanRequestLogs() {
-		$con = $this->con();
+	public function purgeUnreferencedIPs() :void {
+		$con = self::con();
 
-		// 1. Clean Requests & Audit Trail
-		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
-		/** @var AuditTrail\Options $optsAudit */
-		$optsAudit = $con->getModule_AuditTrail()->getOptions();
-		/** @var Traffic\Options $optsTraffic */
-		$optsTraffic = $con->getModule_Traffic()->getOptions();
+		/** @var Select[] $dbSelectors */
+		$dbSelectors = [
+			'req'   => $con->getModule_Data()->getDbH_ReqLogs()->getQuerySelector(),
+			'bot'   => $con->getModule_IPs()->getDbH_BotSignal()->getQuerySelector(),
+			'rules' => $con->getModule_IPs()->getDbH_IPRules()->getQuerySelector(),
+			'user'  => $con->getModule_Data()->getDbH_UserMeta()->getQuerySelector(),
+		];
+
+		// This is more work, but it optimises the array of ip_ref's so that it's not massive and then has to be "uniqued"
+		$ipIDsInUse = [];
+		foreach ( $dbSelectors as $dbSelector ) {
+			$ipIDsInUse = \array_unique( \array_merge(
+				$ipIDsInUse,
+				\array_map( '\intval', $dbSelector->getDistinctForColumn( 'ip_ref' ) )
+			) );
+		}
 
 		$con->getModule_Data()
-			->getDbH_ReqLogs()
-			->tableCleanExpired( max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+			->getDbH_IPs()
+			->getQueryDeleter()
+			->addWhereNotIn( 'id', $ipIDsInUse )
+			->query();
 	}
 }

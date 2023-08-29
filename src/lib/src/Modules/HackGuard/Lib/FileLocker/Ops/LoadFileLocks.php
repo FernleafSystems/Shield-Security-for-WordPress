@@ -18,27 +18,27 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function loadLocks() :array {
-		if ( is_null( self::$FileLockRecords ) ) {
-
-			self::$FileLockRecords = [];
-			if ( $this->mod()->getFileLocker()->isEnabled() ) {
-				$all = $this->mod()->getDbH_FileLocker()->getQuerySelector()->all();
-				if ( \is_array( $all ) ) {
-					foreach ( $all as $lock ) {
-						self::$FileLockRecords[ $lock->id ] = $lock;
-					}
-				}
+		$records = [];
+		if ( $this->mod()->getFileLocker()->isEnabled() ) {
+			$selector = $this->mod()->getDbH_FileLocker()->getQuerySelector();
+			if ( \method_exists( $selector, 'setNoOrderBy' ) ) {
+				$selector->setNoOrderBy();
+			}
+			$all = $selector->all();
+			foreach ( \is_array( $all ) ? $all : [] as $lock ) {
+				$records[ $lock->id ] = $lock;
 			}
 		}
-		return self::$FileLockRecords;
+		return $records;
 	}
 
 	/**
 	 * @return FileLockerDB\Record[]
 	 */
 	public function ofType( string $type ) :array {
+		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			$this->loadLocks(),
+			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
 			function ( $lock ) use ( $type ) {
 				return $lock->type === $type;
 			}
@@ -49,8 +49,9 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblems() :array {
+		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			$this->loadLocks(),
+			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
 			function ( $lock ) {
 				return $lock->detected_at > 0;
 			}
@@ -73,8 +74,9 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withoutProblems() :array {
+		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			$this->loadLocks(),
+			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
 			function ( $lock ) {
 				return $lock->detected_at == 0;
 			}
@@ -82,6 +84,6 @@ class LoadFileLocks {
 	}
 
 	public function clearLocksCache() {
-		self::$FileLockRecords = null;
+		$this->mod()->getFileLocker()->clearLocks();
 	}
 }

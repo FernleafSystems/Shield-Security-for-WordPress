@@ -42,7 +42,7 @@ class ChartsCustom extends Base {
 			$this->con()->loadEventsService()->getEventNames(),
 			\array_flip( $this->con()
 							  ->getModule_Events()
-							  ->getDbHandler_Events()
+							  ->getDbH_Events()
 							  ->getQuerySelector()
 							  ->getDistinctForColumn( 'event' ) )
 		);

@@ -2,22 +2,20 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsEmailTrusted {
 
-	public function trusted( string $email, int $minimumApproved = 1, array $trustedRoles = [] ) :bool {
-		$trusted = Services::WpComments()->countApproved( $email ) >= $minimumApproved;
+	use ModConsumer;
 
-		if ( !$trusted && !empty( $trustedRoles ) ) {
-			$user = Services::WpUsers()->getUserByEmail( $email );
-			$trusted = $user instanceof \WP_User
-					   &&
-					   \count( \array_intersect(
-						   $trustedRoles, \array_map( '\strtolower', $user->roles )
-					   ) ) > 0;
-		}
+	public function roleTrusted( \WP_User $user ) :bool {
+		return \count(
+				   \array_intersect( $this->opts()->getTrustedRoles(), \array_map( '\strtolower', $user->roles ) )
+			   ) > 0;
+	}
 
-		return $trusted;
+	public function emailTrusted( string $email ) :bool {
+		return Services::WpComments()->countApproved( $email ) >= $this->opts()->getApprovedMinimum();
 	}
 }

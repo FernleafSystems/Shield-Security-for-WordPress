@@ -43,7 +43,7 @@ abstract class Base extends DynPropertiesClass {
 		$minimum = static::MinimumHook();
 		foreach ( static::BuildRequiredConditions() as $requiredCondition ) {
 			/** @var $requiredCondition Base */
-			$minimum = max( $minimum, $requiredCondition::MinimumHook() );
+			$minimum = \max( $minimum, $requiredCondition::MinimumHook() );
 		}
 		return (int)$minimum;
 	}

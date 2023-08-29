@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops\Select;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageStats extends BasePluginAdminPage {
@@ -69,7 +69,7 @@ class PageStats extends BasePluginAdminPage {
 
 	private function buildSums( string $event ) :array {
 		/** @var Select $selector */
-		$selector = $this->con()->getModule_Events()->getDbHandler_Events()->getQuerySelector();
+		$selector = $this->con()->getModule_Events()->getDbH_Events()->getQuerySelector();
 		$carbon = Services::Request()->carbon( true );
 		return \array_map(
 			'number_format',

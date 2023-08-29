@@ -10,15 +10,14 @@ class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShi
 	private $oStatsWriter;
 
 	protected function run() {
-		$this->loadStatsWriter()->setIfCommit( true );
+		( new Lib\StatsWriter() )->setIfCommit( true );
 	}
 
+	/**
+	 * @deprecated 18.2.9
+	 */
 	public function loadStatsWriter() :Lib\StatsWriter {
-		if ( !isset( $this->oStatsWriter ) ) {
-			$this->oStatsWriter = ( new Lib\StatsWriter( $this->con() ) )
-				->setDbHandler( self::con()->getModule_Events()->getDbHandler_Events() );
-		}
-		return $this->oStatsWriter;
+		return $this->oStatsWriter ?? $this->oStatsWriter = new Lib\StatsWriter();
 	}
 
 	public function runDailyCron() {

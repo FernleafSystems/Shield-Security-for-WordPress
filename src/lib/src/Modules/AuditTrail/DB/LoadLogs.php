@@ -97,11 +97,15 @@ class LoadLogs extends DynPropertiesClass {
 				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
 				$this->includeMeta ? $mod->getDbH_Meta()->getTableSchema()->table : '',
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
-				\sprintf( 'ORDER BY log.updated_at %s', $this->order_dir ?? 'DESC' ),
+				$this->buildOrderBy(),
 				isset( $this->limit ) ? \sprintf( 'LIMIT %s', $this->limit ) : '',
 				isset( $this->offset ) ? \sprintf( 'OFFSET %s', $this->offset ) : ''
 			)
 		);
+	}
+
+	private function buildOrderBy() :string {
+		return \sprintf( 'ORDER BY `log`.`updated_at` %s', $this->order_dir ?? 'DESC' );
 	}
 
 	public function countAll() :int {

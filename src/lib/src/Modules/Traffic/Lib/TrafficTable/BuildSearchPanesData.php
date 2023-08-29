@@ -38,7 +38,7 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForUsers() :array {
-		return ( new BuildDataForUsers() )->build( $this->getDistinctQueryResult()[ 'uid' ] );
+		return ( new BuildDataForUsers() )->build( $this->getDistinctQueryResult()[ 'uid' ] ?? [] );
 	}
 
 	protected function getDistinctQueryResult() :array {

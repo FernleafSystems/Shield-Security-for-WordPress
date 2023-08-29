@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\StandardFullPageDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\ScheduledReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
@@ -16,7 +18,7 @@ class ChartsSummary extends Base {
 		$con = $this->con();
 		/** @var EventsDB\Select $eventSelector */
 		$eventSelector = $con->getModule_Events()
-							 ->getDbHandler_Events()
+							 ->getDbH_Events()
 							 ->getQuerySelector();
 
 		/** @var IpRulesDB\Select $ipRuleSelect */
@@ -84,10 +86,18 @@ class ChartsSummary extends Base {
 		}
 
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
 			],
-			'vars' => [
+			'hrefs' => [
+				'report' => $con->plugin_urls->noncedPluginAction( StandardFullPageDisplay::class, $con->plugin_urls->adminHome(), [
+					'render_slug' => ScheduledReport::SLUG,
+					'render_data' => [
+						'interval' => 'weekly',
+					]
+				] ),
+			],
+			'vars'  => [
 				'stats' => $statsData,
 			],
 		];

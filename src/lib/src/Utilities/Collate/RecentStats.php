@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
@@ -29,7 +29,7 @@ class RecentStats {
 	private static $recentUserSessions;
 
 	/**
-	 * @var EventsDB\EntryVO[]
+	 * @var EventsDB\Record[]
 	 */
 	private static $recentEvents;
 
@@ -70,7 +70,7 @@ class RecentStats {
 	public function getRecentEvents() :array {
 		/** @var EventsDB\Select $select */
 		if ( !isset( self::$recentEvents ) ) {
-			$select = $this->con()->getModule_Events()->getDbHandler_Events()->getQuerySelector();
+			$select = $this->con()->getModule_Events()->getDbH_Events()->getQuerySelector();
 			self::$recentEvents = $select->getLatestForAllEvents();
 		}
 		return self::$recentEvents;

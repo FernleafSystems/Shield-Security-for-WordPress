@@ -195,7 +195,7 @@ class Collate {
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';
 
-		$dbh = $con->getModule_Events()->getDbHandler_Events();
+		$dbh = $con->getModule_Events()->getDbH_Events();
 		$data[ 'DB Table: Events' ] = $dbh->isReady() ?
 			sprintf( '%s (rows: ~%s)', 'Ready', $dbh->getQuerySelector()->count() )
 			: 'Missing';

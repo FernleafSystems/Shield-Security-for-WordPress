@@ -161,6 +161,7 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		$caps = $this->con()->caps;
+		$mod = self::con()->getModule_HackGuard();
 		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {
@@ -324,7 +325,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "The PHP OpenSSL Extension is required, along with the RC4 Cipher.", 'wp-simple-firewall' ) ),
 				];
 
-				$locks = ( new LoadFileLocks() )->loadLocks();
+				$locks = $mod->getFileLocker()->getLocks();
 				if ( !empty( $locks ) ) {
 					$desc[] = __( 'Locked Files', 'wp-simple-firewall' ).':';
 					foreach ( $locks as $lock ) {

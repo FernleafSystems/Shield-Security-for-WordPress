@@ -42,15 +42,19 @@ class RulesStorageHandler {
 			->run();
 	}
 
-	public function store( array $rules ) {
-		$WP = Services::WpGeneral();
-		$WP->updateOption( $this->getWpStorageKey(), [
-			'ts'    => Services::Request()->ts(),
-			'time'  => $WP->getTimeStampForDisplay( Services::Request()->ts() ),
-			'rules' => \array_map( function ( RuleVO $rule ) {
-				return $rule->getRawData();
-			}, $rules ),
-		] );
+	private function store( array $rules ) {
+
+		$rulesForStorage = \array_map( function ( RuleVO $rule ) {
+			return $rule->getRawData();
+		}, $rules );
+
+		if ( \serialize( $this->loadRawFromWP()[ 'rules' ] ?? '' ) !== \serialize( $rulesForStorage ) ) {
+			Services::WpGeneral()->updateOption( $this->getWpStorageKey(), [
+				'ts'    => Services::Request()->ts() ,
+				'time'  => Services::WpGeneral()->getTimeStampForDisplay( Services::Request()->ts() ) ,
+				'rules' => $rulesForStorage,
+			] );
+		}
 	}
 
 	private function loadRawFromWP() :array {

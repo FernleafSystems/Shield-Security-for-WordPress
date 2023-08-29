@@ -47,16 +47,38 @@
     }
   ],
   "definitions": {
-    "db_classes":        {
+    "db_handler_classes": {
+      "event": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Events\\DB\\Event\\Ops\\Handler"
+    },
+    "db_table_event":     {
+      "autoexpire":     0,
+      "slug":           "event",
+      "has_updated_at": false,
+      "has_deleted_at": false,
+      "col_older_than": "created_at",
+      "cols_custom":    {
+        "event":  {
+          "macro_type": "varchar",
+          "length":     50
+        },
+        "count":    {
+          "macro_type": "unsigned_int",
+          "length":     11,
+          "default":    0,
+          "comment":    "Total"
+        }
+      }
+    },
+    "db_classes":         {
       "events": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Events\\Handler"
     },
-    "db_table_events":   {
+    "db_table_events":    {
       "slug":        "events",
       "cols_custom": {
         "event": "varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Event ID'",
         "count": "int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total'"
       }
     },
-    "events_table_name": "events"
+    "events_table_name":  "events"
   }
 }

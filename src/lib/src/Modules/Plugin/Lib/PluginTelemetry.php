@@ -44,7 +44,7 @@ class PluginTelemetry {
 		if ( !empty( $data[ 'events' ] ) ) {
 			/** @var Select $select */
 			$select = $con->getModule_Events()
-						  ->getDbHandler_Events()
+						  ->getDbH_Events()
 						  ->getQuerySelector();
 			$data[ 'events' ][ 'stats' ] = $select->sumAllEvents();
 		}
