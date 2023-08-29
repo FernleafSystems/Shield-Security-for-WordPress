@@ -478,9 +478,12 @@ class Controller extends DynPropertiesClass {
 		( new Plugin\PluginDelete() )->execute();
 	}
 
+	/**
+	 * @throws \TypeError - Potentially. Not sure how the plugin hasn't initiated by that stage.
+	 */
 	public function onWpActivatePlugin() {
-		$this->is_activating = true;
 		$this->getModule_Plugin()->setActivatedAt();
+		$this->is_activating = true;
 		do_action( 'shield/plugin_activated' );
 	}
 
