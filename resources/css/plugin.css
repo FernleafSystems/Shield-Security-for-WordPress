@@ -1139,6 +1139,9 @@ td.status_file_size {
 #ShieldOffcanvas.offcanvas_ipanalysis {
 	width: 800px;
 }
+#ShieldOffcanvas.offcanvas_form_report_create {
+	width: 800px;
+}
 .row.option_form_row.focus_option {
 	background-color: #e1ffdebb;
 	border: 1px solid #00800044;

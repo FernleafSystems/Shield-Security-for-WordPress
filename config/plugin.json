@@ -620,17 +620,22 @@
         "unique_id":       {
           "type":    "char",
           "length":  36,
-          "attr":       [
+          "attr":    [
             "UNIQUE",
             "NOT NULL"
           ],
           "comment": "Unique ID"
         },
+        "title":           {
+          "macro_type": "varchar",
+          "length":     64,
+          "comment":    "Report Title"
+        },
         "content":         {
           "type":    "mediumblob",
           "comment": "Report Content"
         },
-        "protected": {
+        "protected":       {
           "macro_type": "bool",
           "default":    0,
           "comment":    "Protected against deletion"
@@ -640,10 +645,10 @@
         "interval_start_at": {
           "comment": "Interval Start"
         },
-        "interval_end_at": {
+        "interval_end_at":   {
           "comment": "Interval End"
         },
-        "created_at":      {
+        "created_at":        {
           "comment": "Report Sent At"
         }
       }

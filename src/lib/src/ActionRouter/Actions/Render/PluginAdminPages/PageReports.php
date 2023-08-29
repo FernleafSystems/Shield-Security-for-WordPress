@@ -14,6 +14,10 @@ class PageReports extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
+				'text' => __( 'Create Custom Report', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasTrigger( 'renderReportCreate()' ),
+			],
+			[
 				'text' => __( 'Configure Reporting', 'wp-simple-firewall' ),
 				'href' => $con->plugin_urls->offCanvasConfigRender( 'section_reporting' ),
 			]
@@ -74,7 +78,7 @@ class PageReports extends BasePluginAdminPage {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
 			case PluginNavs::SUBNAV_REPORTS_CREATE:
 				$content = [
-					'create_report' => $AR->render( Reports\PageReportFormCreateNew::SLUG ),
+					'create_report' => $AR->render( Reports\PageReportsView::SLUG ),
 				];
 				break;
 			case PluginNavs::SUBNAV_CHARTS:

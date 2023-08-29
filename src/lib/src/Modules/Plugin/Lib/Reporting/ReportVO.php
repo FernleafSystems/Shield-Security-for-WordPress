@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops\Record;
  * @property int          $end_at
  * @property array        $areas
  * @property array        $areas_data
+ * @property string       $title
  * @property string       $content
  * @property Record|false $previous
  */
@@ -25,6 +26,7 @@ class ReportVO extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
+			case 'title':
 			case 'content':
 				$value = \trim( \is_string( $value ) ? $value : '' );
 				break;

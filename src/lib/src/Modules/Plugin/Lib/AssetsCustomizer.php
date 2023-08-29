@@ -146,9 +146,9 @@ class AssetsCustomizer {
 			'shield/tours',
 			'shield_vars_tourmanager',
 			[
-				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::class ),
-				'tours'       => $tourManager->getAllTours(),
-				'states'      => $tourManager->getStates(),
+				'ajax'   => ActionData::Build( Actions\PluginMarkTourFinished::class ),
+				'tours'  => $tourManager->getAllTours(),
+				'states' => $tourManager->getStates(),
 			]
 		];
 	}
@@ -179,10 +179,11 @@ class AssetsCustomizer {
 						],
 					],
 					'offcanvas'     => [
-						'ip_analysis'      => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
-						'ip_rule_add_form' => Actions\Render\Components\OffCanvas\IpRuleAddForm::SLUG,
-						'meter_analysis'   => Actions\Render\Components\OffCanvas\MeterAnalysis::SLUG,
-						'mod_config'       => Actions\Render\Components\OffCanvas\ModConfig::SLUG,
+						'ip_analysis'        => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
+						'form_ip_rule_add'   => Actions\Render\Components\OffCanvas\IpRuleAddForm::SLUG,
+						'form_report_create' => Actions\Render\Components\OffCanvas\FormReportCreate::SLUG,
+						'meter_analysis'     => Actions\Render\Components\OffCanvas\MeterAnalysis::SLUG,
+						'mod_config'         => Actions\Render\Components\OffCanvas\ModConfig::SLUG,
 					],
 					'mod_options'   => [
 						'ajax' => [

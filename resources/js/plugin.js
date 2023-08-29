@@ -132,9 +132,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 		setTimeout( function () {
 			if ( $form.data( 'context' ) !== 'offcanvas' || response.data.page_reload ) {
+				alert( 'reload' );
 				window.location.reload();
 			}
 			else {
+				alert( 'closeCanvas' );
 				iCWP_WPSF_OffCanvas.closeCanvas();
 			}
 		}, 1000 );
@@ -324,7 +326,13 @@ let iCWP_WPSF_OffCanvas = new function () {
 
 	this.renderIpRuleAddForm = function ( ip ) {
 		this.renderCanvas( {
-			render_slug: data.ip_rule_add_form
+			render_slug: data.form_ip_rule_add
+		} );
+	};
+
+	this.renderReportCreate = function ( ip ) {
+		this.renderCanvas( {
+			render_slug: data.form_report_create
 		} );
 	};
 

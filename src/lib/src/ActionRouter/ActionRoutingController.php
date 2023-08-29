@@ -113,6 +113,9 @@ class ActionRoutingController {
 					elseif ( $navID === PluginNavs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
 						$redirectTo = $urls->modCfg( $con->getModule_Plugin() );
 					}
+					elseif ( $navID === PluginNavs::NAV_REPORTS && empty( $subNavID ) ) {
+						$redirectTo = $urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CREATE );
+					}
 				}
 				else {
 					if ( !$urls->isValidNav( $navID ) ) {

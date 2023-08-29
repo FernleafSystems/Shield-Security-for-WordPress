@@ -1,0 +1,29 @@
+<h5 class="my-3">
+	Existing Reports
+	<small class="float-end">
+		<a href="{{ hrefs.create_custom_report }}" class="btn btn-sm btn-primary">{{ strings.create_custom_report }}</a>
+	</small>
+</h5>
+
+<div class="row mb-1 border-bottom fw-bold py-2 bg-white">
+	<div class="col-4">Title</div>
+	<div class="col-3">Date Generated</div>
+	<div class="col-5">Report ID</div>
+</div>
+{% for report in vars.reports %}
+	<div class="row {{ report.is_active ? 'bg-info text-white' :'' }} border-bottom my-2">
+		<div class="col-4 text-black fw-bold">
+			<a href="{{ report.href }}"
+			   class="d-block py-2 ps-2"
+			   target="_blank"
+			   title="{{ strings.view_report }}"
+			>{{ report.title }}<span class="badge bg-{{ report.class }} ms-2 text-dark">{{ report.type }}</span> </a>
+		</div>
+		<div class="col-3 py-2 text-black">
+			{{ report.created_at }}
+		</div>
+		<div class="col-5 py-2 text-black">
+			<code>{{ report.unique_id }}</code>
+		</div>
+	</div>
+{% endfor %}

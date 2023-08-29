@@ -2,15 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportCreateCustom;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as AuditDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as AuditDB;
 
-class PageReportFormCreateNew extends BaseRender {
+class FormCreateReport extends BaseRender {
 
-	public const SLUG = 'render_report_form_create_new';
-	public const TEMPLATE = '/wpadmin_pages/insights/reports/page_create_new.twig';
+	public const SLUG = 'form_create_report';
+	public const TEMPLATE = '/wpadmin_pages/insights/reports/form_create_report.twig';
 
 	protected function getRenderData() :array {
 		$req = Services::Request();
@@ -28,17 +30,20 @@ class PageReportFormCreateNew extends BaseRender {
 
 		$c = $req->carbon( true );
 		return [
-			'content' => [
-				'reports_table' => self::con()->action_router->render( AllReportsTable::class ),
-			],
 			'ajax'    => [
-				'report_create_slug' => CreateNewAdHoc::SLUG,
+				'create_report' => ActionData::BuildJson( ReportCreateCustom::class ),
 			],
 			'flags'   => [
 				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
 			],
 			'strings' => [
-				'build_report' => __( 'Create New Report', 'wp-simple-firewall' ),
+				'build_report'      => __( 'Create Report', 'wp-simple-firewall' ),
+				'descriptive_title' => __( 'Provide a descriptive title', 'wp-simple-firewall' ),
+				'date_range'        => __( 'Date Range', 'wp-simple-firewall' ),
+				'date_start'        => __( 'Start Date', 'wp-simple-firewall' ),
+				'date_end'          => __( 'End Date', 'wp-simple-firewall' ),
+				'form_title'        => __( 'Report Options', 'wp-simple-firewall' ),
+				'report_title'      => __( 'Report Title', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'reporting_options' => [

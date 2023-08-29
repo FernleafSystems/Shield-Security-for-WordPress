@@ -326,7 +326,7 @@ class NavMenuBuilder {
 			'sub_items' => [
 				[
 					'slug'   => $slug.'-create',
-					'title'  => __( 'Create', 'wp-simple-firewall' ),
+					'title'  => __( 'View/Create', 'wp-simple-firewall' ),
 					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CREATE ),
 					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_REPORTS_CREATE,
 				],

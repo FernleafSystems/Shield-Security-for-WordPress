@@ -1,0 +1,16 @@
+<div id="TrackingReportResponse">
+	{{ content.reports_table|raw }}
+</div>
+
+{% block inline_scripts %}
+
+	{% if flags.can_run_report %}
+		<script type="text/javascript">
+		  (function ( $ ) {
+			  $( document ).ready( function () {
+
+			  } );
+		  })( jQuery );
+	</script>
+	{% endif %}
+{% endblock %}

@@ -46,9 +46,10 @@ class ReportGenerator {
 	/**
 	 * @throws Exceptions\ReportDataEmptyException
 	 */
-	public function adHoc( int $start, int $end, array $options ) :ReportsDB\Record {
+	public function custom( string $title, int $start, int $end, array $options ) :ReportsDB\Record {
 		$report = new ReportVO();
 		$report->type = Constants::REPORT_TYPE_CUSTOM;
+		$report->title = $title;
 		$report->start_at = $start;
 		$report->end_at = $end;
 		$report->areas = $options[ 'areas' ];
@@ -106,6 +107,7 @@ class ReportGenerator {
 		$record->type = $report->type;
 		$record->unique_id = ( new Uuid() )->V4();
 		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;
+		$record->title = $report->title;
 		$record->content = \function_exists( '\gzdeflate' ) ? \gzdeflate( $report->content ) : $report->content;
 		$this->mod()->getDbH_ReportLogs()->getQueryInserter()->insert( $record );
 

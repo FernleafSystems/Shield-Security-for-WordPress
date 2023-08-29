@@ -117,10 +117,17 @@ class PluginURLs {
 	}
 
 	/**
+	 * @param string $trigger - option, section, module
+	 */
+	public function offCanvasTrigger( string $trigger ) :string {
+		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.%s}", $trigger );
+	}
+
+	/**
 	 * @param string $for - option, section, module
 	 */
 	public function offCanvasConfigRender( string $for ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
+		return $this->offCanvasTrigger( sprintf( "renderConfig('%s')", $for ) );
 	}
 
 	public function isValidNav( string $navID ) :bool {
