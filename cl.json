@@ -51,7 +51,7 @@
     "patches":     [
       {
         "version":     "11",
-        "released_at": 1693301600,
+        "released_at": 1693310000,
         "items":       [
           {
             "title": "Vulnerability scanning is more efficient.",
@@ -64,6 +64,10 @@
           {
             "title": "Improvements and optimizations to many SQL queries.",
             "type":  "improved"
+          },
+          {
+            "title": "Mitigate a potential error on upgrade.",
+            "type":  "fixed"
           }
         ]
       },
