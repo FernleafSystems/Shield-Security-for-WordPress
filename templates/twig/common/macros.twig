@@ -26,7 +26,9 @@
 			     id="health-check-accordion-block-shield_{{ component.slug }}"
 			     hidden="hidden">
 						<p>
-							<a href="{{ component.href_full }}" target="_blank">{{ strings.to_address_this_issue }}</a>
+							<a href="{{ component.href_full }}"
+							   {{ component.href_full_target_blank ? 'target="_blank"' : '' }}
+							>{{ strings.to_address_this_issue }}</a>
 						</p>
 					</div>
 		{% endfor %}

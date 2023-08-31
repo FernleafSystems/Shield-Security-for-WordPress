@@ -3,12 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ChartsSummary extends Base {
 
@@ -17,7 +14,6 @@ class ChartsSummary extends Base {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$req = Services::Request();
 		/** @var EventsDB\Select $eventSelector */
 		$eventSelector = $con->getModule_Events()
 							 ->getDbH_Events()
@@ -33,21 +29,21 @@ class ChartsSummary extends Base {
 				'id'        => 'login_block',
 				'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					number_format( $eventSelector->clearWheres()->sumEvent( 'login_block' ) ) ),
+					\number_format( $eventSelector->clearWheres()->sumEvent( 'login_block' ) ) ),
 				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
 			],
 			'bot_blocks'     => [
 				'id'        => 'bot_blocks',
 				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					number_format( $eventSelector->clearWheres()->sumEventsLike( 'bottrack_' ) ) ),
+					\number_format( $eventSelector->clearWheres()->sumEventsLike( 'bottrack_' ) ) ),
 				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
 			],
 			'comments'       => [
 				'id'        => 'comment_block',
 				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					number_format( $eventSelector->clearWheres()->sumEvents( [
+					\number_format( $eventSelector->clearWheres()->sumEvents( [
 						'spam_block_bot',
 						'spam_block_human',
 						'spam_block_recaptcha'
@@ -58,21 +54,21 @@ class ChartsSummary extends Base {
 				'id'        => 'ip_offense',
 				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					number_format( $eventSelector->clearWheres()->sumEvent( 'ip_offense' ) ) ),
+					\number_format( $eventSelector->clearWheres()->sumEvent( 'ip_offense' ) ) ),
 				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
 			],
 			'conn_kills'     => [
 				'id'        => 'conn_kill',
 				'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					number_format( $eventSelector->clearWheres()->sumEvent( 'conn_kill' ) ) ),
+					\number_format( $eventSelector->clearWheres()->sumEvent( 'conn_kill' ) ) ),
 				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
 			],
 			'ip_blocked'     => [
 				'id'        => 'ip_blocked',
 				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Now' ),
-					number_format( $ipRuleSelect->filterByTypes( [
+					\number_format( $ipRuleSelect->filterByTypes( [
 						IpRulesDB\Handler::T_AUTO_BLOCK,
 						IpRulesDB\Handler::T_MANUAL_BLOCK
 					] )->count() )
@@ -90,16 +86,6 @@ class ChartsSummary extends Base {
 		return [
 			'ajax'  => [
 				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
-			],
-			'hrefs' => [
-				'report' => $con->plugin_urls->noncedPluginAction( FullPageDisplayDynamic::class, $con->plugin_urls->adminHome(), [
-					'render_slug' => SecurityReport::SLUG,
-					'render_data' => [
-						'interval'       => 'weekly',
-						'interval_start' => $req->carbon( true )->subWeek()->timestamp,
-						'interval_end'   => $req->carbon( true )->timestamp,
-					]
-				] ),
 			],
 			'vars'  => [
 				'stats' => $statsData,

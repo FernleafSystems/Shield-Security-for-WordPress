@@ -2,10 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	PageActivityLogTable,
+	PageDebug,
+	PageDocs,
+	PageImportExport,
+	PageReports,
+	PageSecurityAdminRestricted,
+	PageTrafficLogTable
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\Handler;
 use FernleafSystems\Wordpress\Services\Services;
@@ -22,19 +31,24 @@ class PageAdminPlugin extends BaseRender {
 		$req = Services::Request();
 
 		$nav = $con->getModule_Plugin()->isAccessRestricted()
-			? PluginURLs::NAV_RESTRICTED
-			: $req->query( Constants::NAV_ID, PluginURLs::NAV_OVERVIEW );
-		$subNav = (string)$req->query( Constants::NAV_SUB_ID );
+			? PluginNavs::NAV_RESTRICTED
+			: $req->query( Constants::NAV_ID, PluginNavs::NAV_DASHBOARD );
+		$subNav = $nav === PluginNavs::NAV_RESTRICTED ? '' : (string)$req->query( Constants::NAV_SUB_ID );
 
 		// The particular renderer for the main page body area, based on navigation
-		$delegateAction = $this->getDelegateActionRenderer()[ $nav ] ?? null;
+		$delegateAction = null;
+		foreach ( $this->getDelegateActionRenderers() as $actionClass => $navs ) {
+			if ( \in_array( $nav.$subNav, $navs ) || \in_array( $nav, $navs ) ) {
+				$delegateAction = $actionClass;
+				break;
+			}
+		}
 		if ( empty( $delegateAction ) ) {
-			throw new ActionException( 'Unavailable nav handling: '.$nav );
+			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );
 		}
 
-		$pageTitleData = $this->getPageTitles()[ $nav ];
-		$pageTitle = \is_array( $pageTitleData ) ? \implode( ' > ', $pageTitleData ) : $pageTitleData;
-		if ( $nav === PluginURLs::NAV_OPTIONS_CONFIG && !empty( $subNav ) ) {
+		$pageTitle = \implode( ' > ', $this->getPageTitles( $nav, $subNav ) );
+		if ( $nav === PluginNavs::NAV_OPTIONS_CONFIG && !empty( $subNav ) ) {
 			$activeMod = $con->getModule( $subNav );
 			$pageTitle = sprintf( '%s > %s',
 				__( 'Configuration', 'wp-simple-firewall' ), empty( $activeMod ) ? 'Unknown Module' : $activeMod->getMainFeatureName() );
@@ -76,100 +90,145 @@ class PageAdminPlugin extends BaseRender {
 		);
 	}
 
-	/**
-	 * @return PluginAdminPages\BasePluginAdminPage[]
-	 */
-	private function getDelegateActionRenderer() :array {
+	private function getDelegateActionRenderers() :array {
 		return [
-			PluginURLs::NAV_ACTIVITY_LOG   => PluginAdminPages\PageActivityLogTable::class,
-			PluginURLs::NAV_DEBUG          => PluginAdminPages\PageDebug::class,
-			PluginURLs::NAV_DOCS           => PluginAdminPages\PageDocs::class,
-			PluginURLs::NAV_IMPORT_EXPORT  => PluginAdminPages\PageImportExport::class,
-			PluginURLs::NAV_IP_RULES       => PluginAdminPages\PageIpRulesTable::class,
-			PluginURLs::NAV_LICENSE        => PluginAdminPages\PageLicense::class,
-			PluginURLs::NAV_OVERVIEW       => PluginAdminPages\PageOverview::class,
-			PluginURLs::NAV_RESTRICTED     => PluginAdminPages\PageSecurityAdminRestricted::class,
-			PluginURLs::NAV_OPTIONS_CONFIG => PluginAdminPages\PageDynamicLoad::class,
-			PluginURLs::NAV_REPORTS        => PluginAdminPages\PageReports::class,
-			PluginURLs::NAV_RULES_VIEW     => PluginAdminPages\PageRulesSummary::class,
-			PluginURLs::NAV_SCANS_RESULTS  => PluginAdminPages\PageScansResults::class,
-			PluginURLs::NAV_SCANS_RUN      => PluginAdminPages\PageScansRun::class,
-			PluginURLs::NAV_STATS          => PluginAdminPages\PageStats::class,
-			PluginURLs::NAV_TRAFFIC_VIEWER => PluginAdminPages\PageTrafficLogTable::class,
-			PluginURLs::NAV_USER_SESSIONS  => PluginAdminPages\PageUserSessions::class,
-			PluginURLs::NAV_WIZARD         => PluginAdminPages\PageMerlin::class,
+			PageActivityLogTable::class                 => [
+				PluginNavs::NAV_ACTIVITY.PluginNavs::SUBNAV_ACTIVITY_LOG
+			],
+			PageImportExport::class                     => [
+				PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_IMPORT
+			],
+			PluginAdminPages\PageIpRulesTable::class    => [
+				PluginNavs::NAV_IPS.PluginNavs::SUBNAV_IPS_RULES
+			],
+			PluginAdminPages\PageLicense::class         => [
+				PluginNavs::NAV_LICENSE
+			],
+			PluginAdminPages\PageDashboardMeters::class => [
+				PluginNavs::NAV_DASHBOARD.PluginNavs::SUBNAV_DASHBOARD_GRADES,
+			],
+			PluginAdminPages\PageDashboardOverview::class => [
+				PluginNavs::NAV_DASHBOARD.PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			],
+			PageSecurityAdminRestricted::class          => [
+				PluginNavs::NAV_RESTRICTED
+			],
+			PluginAdminPages\PageDynamicLoad::class     => [
+				PluginNavs::NAV_OPTIONS_CONFIG
+			],
+			PageReports::class                          => [
+				PluginNavs::NAV_REPORTS,
+				PluginNavs::NAV_REPORTS.PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::NAV_REPORTS.PluginNavs::SUBNAV_REPORTS_CHARTS,
+				PluginNavs::NAV_REPORTS.PluginNavs::SUBNAV_REPORTS_STATS,
+			],
+			PluginAdminPages\PageRulesSummary::class    => [
+				PluginNavs::NAV_RULES_VIEW
+			],
+			PluginAdminPages\PageScansResults::class    => [
+				PluginNavs::NAV_SCANS.PluginNavs::SUBNAV_SCANS_RESULTS
+			],
+			PluginAdminPages\PageScansRun::class        => [
+				PluginNavs::NAV_SCANS.PluginNavs::SUBNAV_SCANS_RUN
+			],
+			PluginAdminPages\PageStats::class           => [
+				PluginNavs::NAV_STATS
+			],
+			PageDocs::class                             => [
+				PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_DOCS
+			],
+			PageDebug::class                            => [
+				PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_DEBUG
+			],
+			PageTrafficLogTable::class                  => [
+				PluginNavs::NAV_TRAFFIC.PluginNavs::SUBNAV_TRAFFIC_LOG
+			],
+			PluginAdminPages\PageUserSessions::class    => [
+				PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_SESSIONS
+			],
+			PluginAdminPages\PageMerlin::class          => [
+				PluginNavs::NAV_WIZARD
+			],
 		];
 	}
 
-	private function getPageTitles() :array {
+	private function getPageTitles( string $nav, string $subnav ) :array {
+		$key = empty( $subnav ) ? $nav : $nav.$subnav;
 		return [
-			PluginURLs::NAV_RESTRICTED     => [
-				__( 'Restricted', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_STATS          => [
-				__( 'Reporting', 'wp-simple-firewall' ),
-				__( 'Quick Stats', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_REPORTS        => [
-				__( 'Reporting', 'wp-simple-firewall' ),
-				__( 'Charts', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_OPTIONS_CONFIG => __( 'Plugin Settings', 'wp-simple-firewall' ),
-			'dashboard'                    => __( 'Dashboard', 'wp-simple-firewall' ),
-			PluginURLs::NAV_OVERVIEW       => __( 'Security Overview', 'wp-simple-firewall' ),
-			PluginURLs::NAV_SCANS_RESULTS  => [
-				__( 'Scans', 'wp-simple-firewall' ),
-				__( 'Scan Results', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_SCANS_RUN      => [
-				__( 'Scans', 'wp-simple-firewall' ),
-				__( 'Run Manual Scan', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_IP_RULES       => [
-				__( 'IPs', 'wp-simple-firewall' ),
-				__( 'Management & Analysis', 'wp-simple-firewall' ),
-			],
-			'audit'                        => __( 'Activity Log', 'wp-simple-firewall' ),
-			PluginURLs::NAV_ACTIVITY_LOG   => [
-				__( 'Logs', 'wp-simple-firewall' ),
-				__( 'View Activity Logs', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_TRAFFIC_VIEWER => [
-				__( 'Logs', 'wp-simple-firewall' ),
-				__( 'View Traffic Logs', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_USER_SESSIONS  => [
-				__( 'Users', 'wp-simple-firewall' ),
-				__( 'Sessions', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_LICENSE        => [
-				__( 'Licensing', 'wp-simple-firewall' ),
-				__( 'ShieldPRO', 'wp-simple-firewall' ),
-			],
-			'free_trial'                   => [
-				__( 'Licensing', 'wp-simple-firewall' ),
-				__( 'Free Trial', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_IMPORT_EXPORT  => [
-				__( 'Tools', 'wp-simple-firewall' ),
-				sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
-			],
-			PluginURLs::NAV_DEBUG          => [
-				__( 'Tools', 'wp-simple-firewall' ),
-				__( 'Debug', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_DOCS           => [
-				__( 'Tools', 'wp-simple-firewall' ),
-				__( 'Docs', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_RULES_VIEW     => [
-				__( 'Tools', 'wp-simple-firewall' ),
-				__( 'Rules', 'wp-simple-firewall' ),
-			],
-			PluginURLs::NAV_WIZARD         => [
-				__( 'Wizard', 'wp-simple-firewall' ),
-				__( 'Guided Setup', 'wp-simple-firewall' ),
-			],
-		];
+				   PluginNavs::NAV_RESTRICTED                                      => [
+					   __( 'Restricted', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_STATS                                           => [
+					   __( 'Reporting', 'wp-simple-firewall' ),
+					   __( 'Quick Stats', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_REPORTS                                         => [
+					   __( 'Reporting', 'wp-simple-firewall' ),
+					   __( 'Charts', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_OPTIONS_CONFIG                                  => [
+					   __( 'Plugin Config', 'wp-simple-firewall' )
+				   ],
+				   PluginNavs::NAV_DASHBOARD.PluginNavs::SUBNAV_DASHBOARD_GRADES => [
+					   __( 'Security Overview (Meters)', 'wp-simple-firewall' )
+				   ],
+				   PluginNavs::NAV_DASHBOARD.PluginNavs::SUBNAV_DASHBOARD_OVERVIEW => [
+					   __( 'Security Overview', 'wp-simple-firewall' )
+				   ],
+				   PluginNavs::NAV_SCANS.PluginNavs::SUBNAV_SCANS_RESULTS          => [
+					   __( 'Scans', 'wp-simple-firewall' ),
+					   __( 'Scan Results', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_SCANS.PluginNavs::SUBNAV_SCANS_RUN              => [
+					   __( 'Scans', 'wp-simple-firewall' ),
+					   __( 'Run Manual Scan', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_IPS.PluginNavs::SUBNAV_IPS_RULES                => [
+					   __( 'IPs', 'wp-simple-firewall' ),
+					   __( 'Management & Analysis', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_ACTIVITY.PluginNavs::SUBNAV_ACTIVITY_LOG        => [
+					   __( 'Logs', 'wp-simple-firewall' ),
+					   __( 'View Activity Logs', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_TRAFFIC.PluginNavs::SUBNAV_TRAFFIC_LOG          => [
+					   __( 'Logs', 'wp-simple-firewall' ),
+					   __( 'View Traffic Logs', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_LICENSE                                         => [
+					   __( 'Licensing', 'wp-simple-firewall' ),
+					   __( 'ShieldPRO', 'wp-simple-firewall' ),
+				   ],
+				   'free_trial'                                                    => [
+					   __( 'Licensing', 'wp-simple-firewall' ),
+					   __( 'Free Trial', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_SESSIONS         => [
+					   __( 'Users', 'wp-simple-firewall' ),
+					   __( 'Sessions', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_IMPORT           => [
+					   __( 'Tools', 'wp-simple-firewall' ),
+					   sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
+				   ],
+				   PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_DEBUG            => [
+					   __( 'Tools', 'wp-simple-firewall' ),
+					   __( 'Debug', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_DOCS             => [
+					   __( 'Tools', 'wp-simple-firewall' ),
+					   __( 'Docs', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_RULES_VIEW                                      => [
+					   __( 'Tools', 'wp-simple-firewall' ),
+					   __( 'Rules', 'wp-simple-firewall' ),
+				   ],
+				   PluginNavs::NAV_WIZARD                                          => [
+					   __( 'Wizard', 'wp-simple-firewall' ),
+					   __( 'Guided Setup', 'wp-simple-firewall' ),
+				   ],
+			   ][ $key ] ?? [
+				   __( 'UNSET TITLE', 'wp-simple-firewall' ),
+			   ];
 	}
 }

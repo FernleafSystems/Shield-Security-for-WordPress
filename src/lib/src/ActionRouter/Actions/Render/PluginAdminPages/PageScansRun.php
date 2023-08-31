@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
@@ -19,7 +19,7 @@ class PageScansRun extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			[
 				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
@@ -47,7 +47,7 @@ class PageScansRun extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),

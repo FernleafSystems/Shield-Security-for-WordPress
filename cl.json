@@ -1,4 +1,46 @@
 {
+  "18.3": {
+    "version":     "18.3",
+    "released_at": 1693575000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease183",
+      "upgrade": "https://shsec.io/shieldupgradeguide183"
+    },
+    "title":       "All-New Reporting",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Custom Reports",
+        "description": [
+          "You can now create custom reports for any period for which you have data."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "View Reports Archive",
+        "description": [
+          "Automated and scheduled reports are now full HTML pages and are saved/archived for future reference."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Enhanced Summary Dashboard",
+        "description": [
+          "We've created a brand new dashboard which is to be used as a jumping-off point for any security actions."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.2": {
     "version":     "18.2",
     "released_at": 1690360000,

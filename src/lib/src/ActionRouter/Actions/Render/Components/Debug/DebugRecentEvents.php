@@ -11,7 +11,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'render_debug_recentevents';
-	public const TEMPLATE = '/wpadmin_pages/insights/overview/recent_events.twig';
+	public const TEMPLATE = '/wpadmin/components/recent_events.twig';
 
 	protected function getRenderData() :array {
 		return [

@@ -8,6 +8,7 @@ abstract class ReportingChartBase extends BaseAction {
 
 	protected function renderChart( array $data ) {
 		try {
+			error_log( var_export( $data, true ) );
 			$chartData = ( new Charts\CustomChartData() )
 				->setChartRequest( ( new Charts\CustomChartRequestVO() )->applyFromArray( $data ) )
 				->build();

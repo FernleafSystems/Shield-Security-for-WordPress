@@ -30,7 +30,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'person-lines-fill' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Users, Visitors & Bots Activity', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Acitivity By Users, Visitors & Bots', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Track and monitor activity on your site by users, visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

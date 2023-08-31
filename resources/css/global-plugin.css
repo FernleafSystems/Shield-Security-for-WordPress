@@ -1,4 +1,17 @@
 @CHARSET "ISO-8859-1";
+#adminmenu #toplevel_page_icwp-wpsf-plugin li.gh_tools:before,
+#adminmenu #toplevel_page_icwp-wpsf-plugin li.gh_go_pro:before,
+#adminmenu #toplevel_page_icwp-wpsf-plugin li.gh_contacts:before {
+	background: #b4b9be;
+	content: "";
+	display: block;
+	height: 1px;
+	margin: 5px 0;
+	width: 100%;
+	opacity: .4;
+}
+
+
 .plugin_update_message {
 	color: #dd3333;
 	font-weight: bolder;

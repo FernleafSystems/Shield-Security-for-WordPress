@@ -1,11 +1,6 @@
-<div class="alert alert-warning">
-	Please note that these charts are new and experimental and are provided for early illustration of Shield's activity.
-	<br />They will be enhanced with ongoing development.
-</div>
-
 <div class="row" id="SectionStats">
 	{% for stat in vars.stats %}
-		<div class="col-xl-2 col-4 insights_section">
+		<div class="col-xl-2 col-md-4 mt-4">
 			<div class="stat card text-center" id="statcard-{{ stat.id }}"
 				 {% if stat.tooltip is defined %}title="{{ stat.tooltip }}"{% endif %}
 			>

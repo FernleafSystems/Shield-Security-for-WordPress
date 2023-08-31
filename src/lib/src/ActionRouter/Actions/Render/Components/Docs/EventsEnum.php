@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class DocsEvents extends Actions\Render\BaseRender {
+class EventsEnum extends Actions\Render\BaseRender {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'render_docs_events';
-	public const TEMPLATE = '/wpadmin_pages/insights/docs/events.twig';
+	public const TEMPLATE = '/wpadmin/components/events_enum.twig';
 
 	protected function getRenderData() :array {
 		$srvEvents = self::con()->loadEventsService();

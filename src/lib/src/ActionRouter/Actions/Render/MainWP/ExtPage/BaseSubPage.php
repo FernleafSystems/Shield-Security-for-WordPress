@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerAc
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
@@ -146,10 +146,13 @@ class BaseSubPage extends BaseMWP {
 				$shd[ 'issues' ] = \array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 			}
 
-			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ) );
+			$shd[ 'href_issues' ] = $this->getJumpUrlFor(
+				(string)$site[ 'id' ],
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
+			);
 			$gradeLetter = $sync->modules[ 'plugin' ][ 'grades' ][ 'integrity' ][ 'totals' ][ 'letter_score' ] ?? '-';
 			$shd[ 'grades' ] = [
-				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ) ),
+				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminHome() ),
 				'integrity' => $gradeLetter,
 				'good'      => \in_array( $gradeLetter, [ 'A', 'B' ] ),
 			];

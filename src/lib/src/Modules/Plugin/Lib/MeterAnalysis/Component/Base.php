@@ -16,21 +16,22 @@ abstract class Base {
 
 	public function build() :array {
 		return [
-			'slug'              => $this->slug(),
-			'categories'        => $this->categories(),
-			'weight'            => $this->weight(),
-			'score'             => $this->score(),
-			'title'             => $this->title(),
-			'title_protected'   => $this->titleProtected(),
-			'title_unprotected' => $this->titleUnprotected(),
-			'desc_protected'    => $this->descProtected(),
-			'desc_unprotected'  => $this->descUnprotected(),
-			'href_offcanvas'    => $this->hrefOffCanvas(),
-			'href_full'         => $this->hrefFull(),
-			'is_protected'      => $this->isProtected(),
-			'is_applicable'     => $this->isApplicable(),
-			'is_critical'       => $this->isCritical(),
-			'is_optcfg'         => $this->isOptConfigBased(),
+			'slug'                   => $this->slug(),
+			'categories'             => $this->categories(),
+			'weight'                 => $this->weight(),
+			'score'                  => $this->score(),
+			'title'                  => $this->title(),
+			'title_protected'        => $this->titleProtected(),
+			'title_unprotected'      => $this->titleUnprotected(),
+			'desc_protected'         => $this->descProtected(),
+			'desc_unprotected'       => $this->descUnprotected(),
+			'href_offcanvas'         => $this->hrefOffCanvas(),
+			'href_full'              => $this->hrefFull(),
+			'href_full_target_blank' => $this->hrefFullTargetBlank(),
+			'is_protected'           => $this->isProtected(),
+			'is_applicable'          => $this->isApplicable(),
+			'is_critical'            => $this->isCritical(),
+			'is_optcfg'              => $this->isOptConfigBased(),
 		];
 	}
 
@@ -60,6 +61,10 @@ abstract class Base {
 
 	protected function hrefFull() :string {
 		return '';
+	}
+
+	protected function hrefFullTargetBlank() :bool {
+		return true;
 	}
 
 	protected function isCritical() :bool {

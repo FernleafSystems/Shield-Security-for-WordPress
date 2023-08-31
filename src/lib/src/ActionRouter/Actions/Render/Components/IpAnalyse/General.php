@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class General extends Base {
 
 	public const SLUG = 'ipanalyse_general';
-	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_general.twig';
+	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_general.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();

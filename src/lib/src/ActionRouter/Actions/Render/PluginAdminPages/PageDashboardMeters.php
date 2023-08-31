@@ -5,10 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\ProgressMeters;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityOverviewViewAs;
 
-class PageOverview extends BasePluginAdminPage {
+class PageDashboardMeters extends BasePluginAdminPage {
 
-	public const SLUG = 'admin_plugin_page_overview';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/overview.twig';
+	public const SLUG = 'plugin_admin_page_dashboard_meters';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/dashboard_meters.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$hrefs = [];
@@ -25,7 +25,7 @@ class PageOverview extends BasePluginAdminPage {
 		$con = self::con();
 		$URLs = $con->plugin_urls;
 
-		$currentViewAs = self::con()->getModule_Plugin()->getOptions()->getOpt( 'sec_overview_prefs' )[ 'view_as' ]
+		$currentViewAs = self::con()->getModule_Plugin()->opts()->getOpt( 'sec_overview_prefs' )[ 'view_as' ]
 						 ?? 'business';
 
 		if ( !$con->isPremiumActive() ) { // Free
@@ -37,7 +37,7 @@ class PageOverview extends BasePluginAdminPage {
 				'text' => $currentViewAs === 'free' ? __( 'View As ShieldPRO', 'wp-simple-firewall' ) : __( 'View As ShieldFREE', 'wp-simple-firewall' ),
 				'href' => $URLs->noncedPluginAction(
 					SecurityOverviewViewAs::class,
-					$URLs->adminTopNav( $URLs::NAV_OVERVIEW ),
+					$URLs->adminHome(),
 					[
 						'view_as' => $currentViewAs === 'free' ? 'business' : 'free',
 					]

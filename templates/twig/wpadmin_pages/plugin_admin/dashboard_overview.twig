@@ -1,0 +1,23 @@
+{% extends '/wpadmin_pages/plugin_admin/inner_page.twig' %}
+
+{% block inner_page_body %}
+
+	{{ content.summary_charts|raw }}
+
+	<div class="row">
+		<div class="col-md-6 mt-4">
+			<div class="card">
+				<div class="card-header">Overall Security Grade</div>
+				<div class="card-body">{{ content.primary_meter|raw }}</div>
+			</div>
+		</div>
+
+		<div class="col-md-6 mt-4">
+			<div class="card">
+				<div class="card-header">Latest Security Reports</div>
+				<div class="card-body">{{ content.latest_reports|raw }}</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

@@ -25,7 +25,7 @@ class ReportAreaScansResults extends ReportAreaBase {
 				'has_results' => $totalResults > 0,
 			],
 			'hrefs'   => [
-				'view_scan_results' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS_RESULTS ),
+				'view_scan_results' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'strings' => [
 				'view_scan_results' => __( 'View Scan Results In-Full', 'wp-simple-firewall' ),

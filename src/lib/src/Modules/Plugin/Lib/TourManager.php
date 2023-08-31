@@ -18,7 +18,7 @@ class TourManager {
 
 	public function getStates() :array {
 		$allowed = self::con()->isPluginAdminPageRequest()
-				   && Services::Request()->query( PluginNavs::NAV_FIELD_ID ) !== PluginNavs::NAV_WIZARD;
+				   && Services::Request()->query( PluginNavs::FIELD_NAV ) !== PluginNavs::NAV_WIZARD;
 		$forced = Services::Request()->query( 'force_tour' ) == '1';
 		return [
 			'navigation_v1' => [

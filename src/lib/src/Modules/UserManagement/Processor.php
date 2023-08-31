@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
@@ -50,7 +51,7 @@ class Processor extends BaseShield\Processor {
 
 			$thisGroup = [
 				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminTopNav( $con->plugin_urls::NAV_USER_SESSIONS ),
+				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
 				'items' => [],
 			];
 

@@ -11,12 +11,12 @@
 	  <ul class="list-group">
 
 		  {% for slug,comp in vars.components %}
-				{% set comp_href = comp.is_optcfg ? comp.href_offcanvas : comp.href_full %}
+			  {% set comp_href = comp.is_optcfg ? comp.href_offcanvas : comp.href_full %}
 			  {% if comp_href is empty %}
 				  <span
 			  {% else %}
 				  <a href="{{ comp_href }}"
-				  {% if not comp.is_optcfg|default(false) %}target="_blank"{% endif %}
+				  {% if comp.is_optcfg|default(false) or not component.href_full_target_blank %}{% else %}target="_blank"{% endif %}
 			  {% endif %}
 			  class="meter-analysis-link list-group-item list-group-item-action
 				     {{ comp.is_critical|default(false) ? 'list-group-item-danger' : (comp.is_protected ? 'list-group-item-success' : 'list-group-item-warning') }}"

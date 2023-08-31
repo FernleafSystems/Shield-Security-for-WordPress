@@ -1,6 +1,7 @@
-{% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
+{% extends '/wpadmin_pages/plugin_admin/inner_page.twig' %}
 
 {% block inner_page_body %}
+
 	{% if flags.is_show_view_as_message %}
 		<div class="row justify-content-center">
 			<div class="col-auto">
@@ -10,5 +11,6 @@
 			</div>
 		</div>
 	{% endif %}
-	{{ content.progress_meters|raw }}
+
+	{{ parent() }}
 {% endblock %}

@@ -556,6 +556,11 @@ jQueryDoc.ready( function () {
 		evt.currentTarget.action = window.location.href;
 	} );
 
+	jQuery( document ).on( 'click', '.progress-meter .description', function ( evt ) {
+		let $this = jQuery( this );
+		jQuery( '.toggleable', $this ).toggleClass( 'hidden' );
+	} );
+
 	jQuery( document ).icwpWpsfTours();
 	jQuery( document ).icwpWpsfPluginNavigation();
 	jQuery( '#SuperSearchBox select' ).select2( {

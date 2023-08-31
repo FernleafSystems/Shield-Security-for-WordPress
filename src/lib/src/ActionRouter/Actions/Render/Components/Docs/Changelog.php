@@ -5,12 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\ShieldChangelogRetrieve;
 
-class DocsChangelog extends Actions\Render\BaseRender {
+class Changelog extends Actions\Render\BaseRender {
 
 	use Actions\Traits\SecurityAdminNotRequired;
 
-	public const SLUG = 'render_docs_changelog';
-	public const TEMPLATE = '/wpadmin_pages/insights/overview/updates/index.twig';
+	public const SLUG = 'render_changelog';
+	public const TEMPLATE = '/wpadmin/components/changelog.twig';
 
 	protected function getRenderData() :array {
 		try {

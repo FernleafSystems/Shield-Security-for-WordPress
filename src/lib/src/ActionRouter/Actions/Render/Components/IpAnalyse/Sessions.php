@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Sessions extends Base {
 
 	public const SLUG = 'ipanalyse_sessions';
-	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_sessions.twig';
+	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_sessions.twig';
 
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();

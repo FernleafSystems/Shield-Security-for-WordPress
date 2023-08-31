@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class ShieldPro extends Base {
 
@@ -18,7 +18,7 @@ class ShieldPro extends Base {
 	}
 
 	public function hrefFull() :string {
-		return self::con()->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE );
+		return self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE );
 	}
 
 	public function title() :string {

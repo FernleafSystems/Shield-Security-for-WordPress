@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginDeleteForceOff
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -43,14 +43,16 @@ class AssetsCustomizer {
 
 		if ( self::con()->isPluginAdminPageRequest() ) {
 			$nav = Services::Request()->query( Constants::NAV_ID );
+			$subNav = Services::Request()->query( Constants::NAV_SUB_ID );
 			switch ( $nav ) {
 
-				case PluginURLs::NAV_IMPORT_EXPORT:
-					$enq[ Enqueue::JS ][] = 'shield/import';
+				case PluginNavs::NAV_TOOLS:
+					if ( $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT ) {
+						$enq[ Enqueue::JS ][] = 'shield/import';
+					}
 					break;
-				case PluginURLs::NAV_OVERVIEW:
-					break;
-				case PluginURLs::NAV_REPORTS:
+				case PluginNavs::NAV_DASHBOARD:
+				case PluginNavs::NAV_REPORTS:
 					$enq[ Enqueue::JS ] = \array_merge( $enq[ Enqueue::JS ], [
 						'chartist',
 						'chartist-plugin-legend',
@@ -62,14 +64,14 @@ class AssetsCustomizer {
 						'shield/charts'
 					] );
 					break;
-				case PluginURLs::NAV_WIZARD:
+				case PluginNavs::NAV_WIZARD:
 					$enq[ Enqueue::JS ][] = 'shield/merlin';
 					$enq[ Enqueue::CSS ][] = 'shield/merlin';
 					break;
 
 				default:
 					$enq[ Enqueue::JS ][] = 'shield/tables';
-					if ( \in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
+					if ( $nav === PluginNavs::NAV_SCANS ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					break;
@@ -252,7 +254,7 @@ class AssetsCustomizer {
 
 		$custom = null;
 		if ( $this->isIpAutoDetectRequired() ) {
-			self::con()->getModule_Plugin()->getOptions()->setOpt( 'ipdetect_at', $req->ts() );
+			self::con()->getModule_Plugin()->opts()->setOpt( 'ipdetect_at', $req->ts() );
 			$custom = [
 				'shield/ip_detect',
 				'icwp_wpsf_vars_ipdetect',
@@ -276,7 +278,7 @@ class AssetsCustomizer {
 
 	private function isIpAutoDetectRequired() :bool {
 		$req = Services::Request();
-		$optsPlugin = self::con()->getModule_Plugin()->getOptions();
+		$optsPlugin = self::con()->getModule_Plugin()->opts();
 		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > \MONTH_IN_SECONDS )
 			   || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
 	}

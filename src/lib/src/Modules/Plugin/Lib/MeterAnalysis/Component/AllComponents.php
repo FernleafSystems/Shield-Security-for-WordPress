@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterOverallConfig;
 
@@ -20,9 +21,16 @@ class AllComponents extends Base {
 		);
 	}
 
+	protected function hrefFull() :string {
+		return self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES );
+	}
+
+	protected function hrefFullTargetBlank() :bool {
+		return false;
+	}
+
 	public function title() :string {
-		return sprintf( __( 'Overall %s Plugin Configuration', 'wp-simple-firewall' ),
-			self::con()->getHumanName() );
+		return sprintf( __( 'Overall %s Plugin Configuration', 'wp-simple-firewall' ), self::con()->getHumanName() );
 	}
 
 	public function descProtected() :string {

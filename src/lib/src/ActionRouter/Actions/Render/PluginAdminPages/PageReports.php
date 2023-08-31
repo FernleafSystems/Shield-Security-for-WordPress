@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 class PageReports extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_reports';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/inner_page.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();
@@ -39,13 +39,13 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_REPORTS_CREATE:
+			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$title = __( 'Create New Security Report', 'wp-simple-firewall' );
 				break;
-			case PluginNavs::SUBNAV_CHARTS:
+			case PluginNavs::SUBNAV_REPORTS_CHARTS:
 				$title = __( 'Security Performance Charts', 'wp-simple-firewall' );
 				break;
-			case PluginNavs::SUBNAV_STATS:
+			case PluginNavs::SUBNAV_REPORTS_STATS:
 				$title = __( 'Key Stats At A Glance', 'wp-simple-firewall' );
 				break;
 			default:
@@ -57,13 +57,13 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageSubTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_REPORTS_CREATE:
+			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$title = __( 'Build a new report on your website security.', 'wp-simple-firewall' );
 				break;
-			case PluginNavs::SUBNAV_CHARTS:
+			case PluginNavs::SUBNAV_REPORTS_CHARTS:
 				$title = __( 'Basic charts - this is in beta and will be developed over time.', 'wp-simple-firewall' );
 				break;
-			case PluginNavs::SUBNAV_STATS:
+			case PluginNavs::SUBNAV_REPORTS_STATS:
 				$title = __( 'View key Shield stats.', 'wp-simple-firewall' );
 				break;
 			default:
@@ -76,12 +76,12 @@ class PageReports extends BasePluginAdminPage {
 	private function buildContent() :array {
 		$AR = self::con()->action_router;
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_REPORTS_CREATE:
+			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$content = [
 					'create_report' => $AR->render( Reports\PageReportsView::SLUG ),
 				];
 				break;
-			case PluginNavs::SUBNAV_CHARTS:
+			case PluginNavs::SUBNAV_REPORTS_CHARTS:
 				$content = [
 					'summary_stats' => $AR->render( Reports\ChartsSummary::SLUG ),
 					'custom_chart'  => $AR->render( Reports\ChartsCustom::SLUG ),

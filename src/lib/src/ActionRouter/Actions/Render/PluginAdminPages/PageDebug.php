@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -18,7 +18,10 @@ class PageDebug extends BasePluginAdminPage {
 		return [
 			[
 				'text' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
-				'href' => URL::Build( self::con()->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), [ 'shield_check_ip_source' => '1' ] ),
+				'href' => URL::Build(
+					self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+					[ 'shield_check_ip_source' => '1' ]
+				),
 			],
 		];
 	}
@@ -55,7 +58,7 @@ class PageDebug extends BasePluginAdminPage {
 				'display_tests' => !empty( $availableTests ),
 			],
 			'hrefs'   => [
-				'display_rules' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_RULES_VIEW ),
+				'display_rules' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES_VIEW ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'patch-question' ),

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 class MeterCard extends BaseRender {
 
 	public const SLUG = 'render_progress_meter_card';
-	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/meter.twig';
+	public const TEMPLATE = '/wpadmin/components/progress_meter/meter.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();

@@ -10,7 +10,15 @@ class PageReportsView extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 	protected function getRenderData() :array {
 		return [
 			'content' => [
-				'reports_table' => self::con()->action_router->render( AllReportsTable::class ),
+				'reports_table' => self::con()->action_router->render( ReportsTable::class ),
+			],
+			'hrefs'   => [
+				'create_custom_report' => self::con()->plugin_urls->offCanvasTrigger( 'renderReportCreate()' ),
+			],
+			'strings' => [
+				'table_title'          => __( 'Security Reports', 'wp-simple-firewall' ),
+				'create_custom_report' => __( 'Create Custom Report', 'wp-simple-firewall' ),
+				'view_report'          => __( 'View Report', 'wp-simple-firewall' ),
 			],
 		];
 	}

@@ -1,15 +1,9 @@
+<h5 class="my-3">
+	{{ strings.table_title }}
+	<small class="float-end">
+		<a href="{{ hrefs.create_custom_report }}" class="btn btn-sm btn-primary">{{ strings.create_custom_report }}</a>
+	</small>
+</h5>
 <div id="ReportsTable">
 	{{ content.reports_table|raw }}
 </div>
-
-{% block inline_scripts %}
-
-	{% if flags.can_run_report %}
-		<script type="text/javascript">
-		  (function ( $ ) {
-			  $( document ).ready( function () {
-			  } );
-		  })( jQuery );
-		</script>
-	{% endif %}
-{% endblock %}

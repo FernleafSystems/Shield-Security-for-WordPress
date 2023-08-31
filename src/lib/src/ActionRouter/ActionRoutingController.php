@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,7 +16,7 @@ class ActionRoutingController {
 	public const ACTION_SHIELD = 2;
 
 	protected function run() {
-		$this->captureRedirects();
+		( new CaptureRedirects() )->run();
 		( new CaptureShieldAction() )->execute();
 		( new CaptureAjaxAction() )->execute();
 	}
@@ -91,46 +90,10 @@ class ActionRoutingController {
 		return $output;
 	}
 
+	/**
+	 * @deprecated 18.3
+	 */
 	private function captureRedirects() {
-		$con = self::con();
-		$urls = $con->plugin_urls;
-		$req = Services::Request();
-
-		if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
-
-			$redirectTo = null;
-			$page = (string)$req->query( 'page' );
-
-			if ( \strpos( $page, $con->prefix() ) === 0 ) {
-
-				$navID = (string)$req->query( Constants::NAV_ID );
-				$subNavID = (string)$req->query( Constants::NAV_SUB_ID );
-
-				if ( $page === $urls->rootAdminPageSlug() ) {
-					if ( empty( $navID ) ) {
-						$redirectTo = $urls->adminHome();
-					}
-					elseif ( $navID === PluginNavs::NAV_OPTIONS_CONFIG && empty( $subNavID ) ) {
-						$redirectTo = $urls->modCfg( $con->getModule_Plugin() );
-					}
-					elseif ( $navID === PluginNavs::NAV_REPORTS && empty( $subNavID ) ) {
-						$redirectTo = $urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CREATE );
-					}
-				}
-				else {
-					if ( !$urls->isValidNav( $navID ) ) {
-						$navID = \explode( '-', $page )[ 2 ] ?? '';
-					}
-					$redirectTo = $urls->isValidNav( $navID ) ? $urls->adminTopNav( $navID ) : $urls->adminHome();
-				}
-			}
-			elseif ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
-				$redirectTo = $urls->adminTopNav( PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME );
-			}
-
-			if ( !empty( $redirectTo ) ) {
-				Services::Response()->redirect( $redirectTo, [], true, false );
-			}
-		}
+		( new CaptureRedirects() )->run();
 	}
 }

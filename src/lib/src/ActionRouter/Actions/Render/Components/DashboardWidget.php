@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
@@ -31,11 +31,11 @@ class DashboardWidget extends BaseRender {
 										  ->diffForHumans();
 		return [
 			'hrefs'   => [
-				'overview'     => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
-				'logo'         => $con->labels->PluginURI,
-				'activity_log' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
-				'sessions'     => $con->plugin_urls->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
-				'ips'          => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
+				'overview' => $con->plugin_urls->adminHome(),
+				'logo'     => $con->labels->PluginURI,
+				'activity' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+				'sessions' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+				'ips'      => $con->plugin_urls->adminIpRules(),
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()
@@ -80,22 +80,22 @@ class DashboardWidget extends BaseRender {
 				'security_progress'  => ( new Handler() )->getMeter( MeterSummary::class ),
 				'jump_links'         => [
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
+						'href' => $con->plugin_urls->adminHome(),
 						'text' => __( 'Dashboard', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'speedometer.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
+						'href' => $con->plugin_urls->adminIpRules(),
 						'text' => __( 'IPs', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'diagram-3.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
+						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'person-lines-fill.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_TRAFFIC_VIEWER ),
+						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'stoplights.svg' ),
 					],
@@ -120,6 +120,7 @@ class DashboardWidget extends BaseRender {
 						$recent->getRecentEvents(),
 						function ( $evt ) {
 							return \in_array( $evt->event, [
+								'conn_kill',
 								'login_block',
 								'firewall_block',
 								'ip_blocked',
