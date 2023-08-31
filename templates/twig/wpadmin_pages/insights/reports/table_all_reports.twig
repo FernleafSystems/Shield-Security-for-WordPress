@@ -1,29 +1,53 @@
+<style>
+	.shield_legend_table .row:nth-of-type(odd) div {
+		background-color: #f3f3f3;
+	}
+	.shield_legend_table .row:nth-of-type(even) div {
+		background: #f9f9f9;
+	}
+</style>
 <h5 class="my-3">
-	Existing Reports
+	{{ strings.table_title }}
 	<small class="float-end">
 		<a href="{{ hrefs.create_custom_report }}" class="btn btn-sm btn-primary">{{ strings.create_custom_report }}</a>
 	</small>
 </h5>
 
-<div class="row mb-1 border-bottom fw-bold py-2 bg-white">
-	<div class="col-4">Title</div>
+<div class="row border-bottom fw-bold py-2 bg-white">
+	<div class="col-1">Type</div>
+	<div class="col-3">Title</div>
 	<div class="col-3">Date Generated</div>
-	<div class="col-5">Report ID</div>
+	<div class="col-4">Report ID</div>
+	<div class="col-1">Actions</div>
 </div>
-{% for report in vars.reports %}
-	<div class="row {{ report.is_active ? 'bg-info text-white' :'' }} border-bottom my-2">
-		<div class="col-4 text-black fw-bold">
-			<a href="{{ report.href }}"
-			   class="d-block py-2 ps-2"
-			   target="_blank"
-			   title="{{ strings.view_report }}"
-			>{{ report.title }}<span class="badge bg-{{ report.class }} ms-2 text-dark">{{ report.type }}</span> </a>
+<div class="shield_legend_table">
+	{% for report in vars.reports %}
+		<div class="row {{ report.is_active ? 'bg-info text-white' :'' }} ">
+			<div class="col-1 py-2 text-black">
+				<span class="badge bg-{{ report.class }}">{{ report.type }}</span>
+			</div>
+			<div class="col-3 text-black fw-bold">
+				<a href="{{ report.href }}"
+				   class="d-block py-2 ps-2"
+				   target="_blank"
+				   title="{{ strings.view_report }}"
+				>{{ report.title }}</a>
+			</div>
+			<div class="col-3 py-2 text-black">
+				{{ report.created_at }}
+			</div>
+			<div class="col-4 py-2 text-black">
+				<code>{{ report.unique_id }}</code>
+			</div>
+			<div class="col-1 py-2 text-black">
+				{% for action in report.actions %}
+					<a href="javascript:{}"
+					   class="btn svg-container p-1 shield_dynamic_action_button {{ action.classes|join(' ') }}"
+					   title="{{ action.title }}"
+					   {% for data_key,data_value in action.data %}data-{{ data_key }}="{{ data_value }}" {% endfor %}
+					>{{ action.svg|raw }}</a>
+				{% endfor %}
+			</div>
 		</div>
-		<div class="col-3 py-2 text-black">
-			{{ report.created_at }}
-		</div>
-		<div class="col-5 py-2 text-black">
-			<code>{{ report.unique_id }}</code>
-		</div>
-	</div>
-{% endfor %}
+	{% endfor %}
+</div>

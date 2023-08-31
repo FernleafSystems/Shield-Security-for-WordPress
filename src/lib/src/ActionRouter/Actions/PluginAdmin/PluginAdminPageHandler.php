@@ -83,9 +83,9 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			PluginURLs::NAV_OVERVIEW       => __( 'Security Dashboard', 'wp-simple-firewall' ),
 			PluginURLs::NAV_IP_RULES       => __( 'IP Manager', 'wp-simple-firewall' ),
 			PluginURLs::NAV_SCANS_RESULTS  => __( 'Scans', 'wp-simple-firewall' ),
+			PluginURLs::NAV_REPORTS        => __( 'Reports', 'wp-simple-firewall' ),
 			PluginURLs::NAV_ACTIVITY_LOG   => __( 'Activity', 'wp-simple-firewall' ),
 			PluginURLs::NAV_TRAFFIC_VIEWER => __( 'Traffic', 'wp-simple-firewall' ),
-			PluginURLs::NAV_REPORTS        => __( 'Reports', 'wp-simple-firewall' ),
 			PluginURLs::NAV_OPTIONS_CONFIG => __( 'Configuration', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {

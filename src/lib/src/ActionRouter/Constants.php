@@ -77,6 +77,7 @@ class Constants {
 		Actions\ReportingChartCustom::class,
 		Actions\ReportingChartSummary::class,
 		Actions\ReportCreateCustom::class,
+		Actions\ReportTableAction::class,
 		Actions\SecurityAdminAuthClear::class,
 		Actions\SecurityAdminCheck::class,
 		Actions\SecurityAdminLogin::class,
