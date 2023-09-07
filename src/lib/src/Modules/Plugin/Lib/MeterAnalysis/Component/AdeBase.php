@@ -11,7 +11,7 @@ abstract class AdeBase extends Base {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_LoginGuard();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled() && $opts->isEnabledAntiBot();
 	}
 

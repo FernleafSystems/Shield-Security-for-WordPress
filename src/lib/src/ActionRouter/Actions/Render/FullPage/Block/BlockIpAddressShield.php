@@ -56,7 +56,7 @@ class BlockIpAddressShield extends BaseBlock {
 
 	protected function getRestrictionDetailsPoints() :array {
 		/** @var IPs\Options $opts */
-		$opts = self::con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->opts();
 		return \array_merge(
 			[
 				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()

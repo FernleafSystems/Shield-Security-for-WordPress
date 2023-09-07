@@ -12,7 +12,7 @@ class AdeLogin extends AdeBase {
 		/** @var Options $opts */
 		$opts = self::con()
 					->getModule_LoginGuard()
-					->getOptions();
+					->opts();
 		return parent::testIfProtected() && $opts->isProtectLogin();
 	}
 

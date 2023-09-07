@@ -14,7 +14,7 @@ class Options extends Base\Options {
 		if ( empty( $installedAt ) ) {
 			return 0;
 		}
-		return (int)round( ( Services::Request()->ts() - $installedAt )/DAY_IN_SECONDS );
+		return (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 	}
 
 	public function isShowPluginNotices() :bool {
@@ -24,7 +24,7 @@ class Options extends Base\Options {
 	public function isShowPromoAdminNotices() :bool {
 		return self::con()
 				   ->getModule_Plugin()
-				   ->getOptions()
+				   ->opts()
 				   ->isOpt( 'enable_upgrade_admin_notice', 'Y' );
 	}
 }

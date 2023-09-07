@@ -18,7 +18,7 @@ class SecurityAdminOptions extends Base {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_SecAdmin();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
 			   && $mod->getSecurityAdminController()->isEnabledSecAdmin()
 			   && $opts->isRestrictWpOptions();

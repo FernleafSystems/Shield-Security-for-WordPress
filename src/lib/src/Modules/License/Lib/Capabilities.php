@@ -181,7 +181,7 @@ class Capabilities {
 			$max = 31;
 		}
 		else {
-			$max = self::con()->getModule_AuditTrail()->getOptions()->getDef( 'max_free_days' );
+			$max = self::con()->getModule_AuditTrail()->opts()->getDef( 'max_free_days' );
 		}
 		return $max;
 	}

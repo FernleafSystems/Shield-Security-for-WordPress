@@ -11,7 +11,7 @@ class IpAutoBlockCrowdsec extends IpBase {
 
 	protected function testIfProtected() :bool {
 		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->opts();
 		return parent::testIfProtected() && $opts->isEnabledCrowdSecAutoBlock();
 	}
 

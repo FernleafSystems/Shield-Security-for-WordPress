@@ -76,7 +76,7 @@ class Controller {
 		/** @var NoticeVO[] $notices */
 		$notices = [];
 		foreach ( self::con()->modules as $mod ) {
-			if ( !empty( $mod->getOptions()->getAdminNotices() ) ) {
+			if ( !empty( $mod->opts()->getAdminNotices() ) ) {
 				$notices = \array_merge( $notices, $mod->getAdminNotices()->getNotices() );
 			}
 		}

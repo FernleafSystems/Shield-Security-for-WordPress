@@ -179,7 +179,7 @@ class Enqueue {
 							$handle,
 							$con->urls->forCss( $key ),
 							$this->prefixKeys( $deps ),
-							$con->getVersion()
+							$con->cfg->version()
 						);
 					}
 					else {
@@ -191,7 +191,7 @@ class Enqueue {
 							$handle,
 							$con->urls->forJs( $key ),
 							$this->prefixKeys( $deps ),
-							$con->getVersion(),
+							$con->cfg->version(),
 							$spec[ 'footer' ] ?? false
 						);
 					}

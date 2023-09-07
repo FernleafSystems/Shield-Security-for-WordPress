@@ -11,7 +11,7 @@ class IpAutoBlockShield extends IpBase {
 
 	protected function testIfProtected() :bool {
 		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->opts();
 		return parent::testIfProtected() && $opts->isEnabledAutoBlackList();
 	}
 
@@ -26,7 +26,7 @@ class IpAutoBlockShield extends IpBase {
 	public function descProtected() :string {
 		$mod = self::con()->getModule_IPs();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return sprintf( __( 'Auto IP blocking is turned on with an offense limit of %s.', 'wp-simple-firewall' ),
 			$opts->getOffenseLimit() );
 	}

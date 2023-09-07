@@ -54,7 +54,7 @@ class FirewallBlock extends Base {
 
 	private function preBlock() {
 		$mod = self::con()->getModule_Firewall();
-		if ( $mod->getOptions()->isOpt( 'block_send_email', 'Y' ) ) {
+		if ( $mod->opts()->isOpt( 'block_send_email', 'Y' ) ) {
 			self::con()->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
 				[ 'audit_params' => [ 'to' => $mod->getPluginReportEmail() ] ]

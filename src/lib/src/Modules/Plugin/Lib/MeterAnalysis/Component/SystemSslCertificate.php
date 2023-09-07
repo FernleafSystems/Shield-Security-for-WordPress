@@ -117,7 +117,7 @@ class SystemSslCertificate extends Base {
 
 					$timeRemaining = $expiresAt - Services::Request()->ts();
 					$isExpired = $timeRemaining < 0;
-					$daysLeft = $isExpired ? 0 : (int)round( $timeRemaining/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
+					$daysLeft = $isExpired ? 0 : (int)\round( $timeRemaining/\DAY_IN_SECONDS, 0, \PHP_ROUND_HALF_DOWN );
 					$status = $isExpired ? 'ssl_expired' : ( $daysLeft < 15 ? 'ssl_expires_soon' : 'ssl_valid' );
 				}
 				catch ( \Exception $e ) {

@@ -21,7 +21,7 @@ class Upgrade {
 		$prev = $con->cfg->previous_version;
 
 		$hook = $con->prefix( 'plugin-upgrade' );
-		if ( \version_compare( $prev, $con->getVersion(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
+		if ( \version_compare( $prev, $con->cfg->version(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
 			$con->getModule_Plugin()->deleteAllPluginCrons();
 			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $prev ] );
 		}
@@ -35,6 +35,6 @@ class Upgrade {
 			}
 		} );
 
-		$con->cfg->previous_version = $con->getVersion();
+		$con->cfg->previous_version = $con->cfg->version();
 	}
 }

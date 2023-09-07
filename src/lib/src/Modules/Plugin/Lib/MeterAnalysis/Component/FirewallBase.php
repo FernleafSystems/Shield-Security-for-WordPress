@@ -13,7 +13,7 @@ abstract class FirewallBase extends Base {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_Firewall();
 		return $mod->isModOptEnabled()
-			   && $mod->getOptions()->isOpt( 'block_'.$this->getFirewallKey(), 'Y' );
+			   && $mod->opts()->isOpt( 'block_'.$this->getFirewallKey(), 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {

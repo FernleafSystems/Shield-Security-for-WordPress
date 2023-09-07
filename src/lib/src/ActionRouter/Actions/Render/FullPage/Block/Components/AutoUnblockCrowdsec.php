@@ -13,7 +13,7 @@ class AutoUnblockCrowdsec extends AutoUnblockShield {
 
 	protected function getRenderData() :array {
 		/** @var Options $opts */
-		$opts = self::con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->opts();
 		return [
 			'flags'   => [
 				'is_available' => $opts->isEnabledCrowdSecAutoVisitorUnblock()

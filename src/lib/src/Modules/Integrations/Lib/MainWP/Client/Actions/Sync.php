@@ -33,7 +33,7 @@ class Sync {
 			'is_mainwp_on' => $this->isPermitted(),
 			'installed_at' => $con->getModule_Plugin()->getInstallDate(),
 			'sync_at'      => Services::Request()->ts(),
-			'version'      => $con->getVersion(),
+			'version'      => $con->cfg->version(),
 			'has_update'   => Services::WpPlugins()->isUpdateAvailable( $con->base_file ),
 		];
 	}

@@ -19,7 +19,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 
 	protected function run() {
 		/** @var LoginGuard\Options $opts */
-		$opts = self::con()->getModule_LoginGuard()->getOptions();
+		$opts = self::con()->getModule_LoginGuard()->opts();
 		if ( $opts->isProtectLogin() ) {
 			$this->login();
 		}
@@ -107,7 +107,7 @@ abstract class Base extends Integrations\Lib\Bots\Common\BaseHandler {
 
 	protected function isBotBlockEnabled() :bool {
 		/** @var LoginGuard\Options $loginOpts */
-		$loginOpts = self::con()->getModule_LoginGuard()->getOptions();
+		$loginOpts = self::con()->getModule_LoginGuard()->opts();
 		return $loginOpts->isEnabledAntiBot();
 	}
 

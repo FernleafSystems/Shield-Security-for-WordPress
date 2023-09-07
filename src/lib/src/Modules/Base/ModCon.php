@@ -183,7 +183,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return string[]
 	 */
 	private function getAllDbClasses() {
-		$classes = $this->getOptions()->getDef( 'db_classes' );
+		$classes = $this->opts()->getDef( 'db_classes' );
 		return \is_array( $classes ) ? $classes : [];
 	}
 
@@ -225,7 +225,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function initRestApi() {
-		$cfg = $this->getOptions()->getDef( 'rest_api' );
+		$cfg = $this->opts()->getDef( 'rest_api' );
 		if ( !empty( $cfg[ 'publish' ] ) ) {
 			add_action( 'rest_api_init', function () use ( $cfg ) {
 				try {
@@ -329,14 +329,14 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
-		$this->getOptions()->setOpt( $this->getEnableModOptKey(), $enable ? 'Y' : 'N' );
+		$this->opts()->setOpt( $this->getEnableModOptKey(), $enable ? 'Y' : 'N' );
 		return $this;
 	}
 
 	public function isModuleEnabled() :bool {
 		$con = self::con();
 		/** @var Shield\Modules\Plugin\Options $pluginOpts */
-		$pluginOpts = $con->getModule_Plugin()->getOptions();
+		$pluginOpts = $con->getModule_Plugin()->opts();
 
 		if ( !$this->moduleReadyCheck() ) {
 			$enabled = false;
@@ -362,7 +362,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModOptEnabled() :bool {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' ) || $opts->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
@@ -400,7 +400,7 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return string|array
 	 */
 	public function getLastErrors( bool $asString = false, string $glue = " " ) {
-		$errors = $this->getOptions()->getOpt( 'last_errors' );
+		$errors = $this->opts()->getOpt( 'last_errors' );
 		if ( !\is_array( $errors ) ) {
 			$errors = [];
 		}
@@ -412,7 +412,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getTextOpt( string $key ) :string {
-		$txt = $this->getOptions()->getOpt( $key, 'default' );
+		$txt = $this->opts()->getOpt( $key, 'default' );
 		if ( $txt == 'default' ) {
 			$txt = $this->getTextOptDefault( $key );
 		}
@@ -436,7 +436,7 @@ abstract class ModCon extends DynPropertiesClass {
 				$mErrors = [];
 			}
 		}
-		$this->getOptions()->setOpt( 'last_errors', $mErrors );
+		$this->opts()->setOpt( 'last_errors', $mErrors );
 		return $this;
 	}
 
@@ -444,21 +444,21 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @return string[]
 	 */
 	public function getDismissedNotices() :array {
-		$notices = $this->getOptions()->getOpt( 'dismissed_notices' );
+		$notices = $this->opts()->getOpt( 'dismissed_notices' );
 		return \is_array( $notices ) ? $notices : [];
 	}
 
 	public function getUiTrack() :Lib\Components\UiTrack {
-		$a = $this->getOptions()->getOpt( 'ui_track' );
+		$a = $this->opts()->getOpt( 'ui_track' );
 		return ( new Lib\Components\UiTrack() )->applyFromArray( \is_array( $a ) ? $a : [] );
 	}
 
 	public function setDismissedNotices( array $dis ) {
-		$this->getOptions()->setOpt( 'dismissed_notices', $dis );
+		$this->opts()->setOpt( 'dismissed_notices', $dis );
 	}
 
 	public function setUiTrack( Lib\Components\UiTrack $UI ) {
-		$this->getOptions()->setOpt( 'ui_track', $UI->getRawData() );
+		$this->opts()->setOpt( 'ui_track', $UI->getRawData() );
 	}
 
 	/**
@@ -473,7 +473,7 @@ abstract class ModCon extends DynPropertiesClass {
 		$this->doPrePluginOptionsSave();
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
-		if ( $this->getOptions()->getNeedSave() ) {
+		if ( $this->opts()->getNeedSave() ) {
 			do_action( self::con()->prefix( 'pre_options_store' ), $this );
 		}
 
@@ -491,7 +491,7 @@ abstract class ModCon extends DynPropertiesClass {
 	private function store() {
 		$con = self::con();
 		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->getOptions()->doOptionsSave( false, $con->isPremiumActive() );
+		$this->opts()->doOptionsSave( false, $con->isPremiumActive() );
 		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
@@ -505,7 +505,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onPluginDelete() {
-		$this->getOptions()->deleteStorage();
+		$this->opts()->deleteStorage();
 	}
 
 	protected function buildContextualHelp() {
@@ -556,7 +556,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return null|Shield\Modules\Base\Options|mixed
-	 * @deprecated 18.2.4
+	 * @deprecated 18.3
 	 */
 	public function getOptions() {
 		return \method_exists( $this, 'opts' ) ? $this->opts() : $this->opts;

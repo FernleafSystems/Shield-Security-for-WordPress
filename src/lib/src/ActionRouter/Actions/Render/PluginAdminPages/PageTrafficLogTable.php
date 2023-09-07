@@ -26,7 +26,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		/** @var Options $opts */
-		$opts = self::con()->getModule_Traffic()->getOptions();
+		$opts = self::con()->getModule_Traffic()->opts();
 		return [
 			'ajax'    => [
 				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::class ),

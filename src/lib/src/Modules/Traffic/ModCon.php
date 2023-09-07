@@ -59,7 +59,6 @@ class ModCon extends BaseShield\ModCon {
 					 ->setOpt( 'enable_live_log', 'N' );
 			}
 		}
-		error_log( var_export( $opts->getOpt( 'live_log_started_at' ), true ) );
 	}
 
 	public function runHourlyCron() {

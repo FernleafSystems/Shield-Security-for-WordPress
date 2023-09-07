@@ -8,7 +8,7 @@ class GloballyDisabled extends Base {
 
 	public function check() :?array {
 		/** @var Options $pluginOpts */
-		$pluginOpts = self::con()->getModule_Plugin()->getOptions();
+		$pluginOpts = self::con()->getModule_Plugin()->opts();
 		return $pluginOpts->isPluginGloballyDisabled() ?
 			[
 				'id'        => 'plugin_globally_disabled',

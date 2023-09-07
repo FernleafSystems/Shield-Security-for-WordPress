@@ -22,7 +22,7 @@ class Restore extends BaseOps {
 			/** @var FileLockerDB\Update $update */
 			$update = $this->mod()->getDbH_FileLocker()->getQueryUpdater();
 			$update->markReverted( $record );
-			$this->clearFileLocksCache();
+			$this->mod()->getFileLocker()->clearLocks();
 		}
 
 		return $reverted;

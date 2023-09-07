@@ -16,7 +16,7 @@ class DeleteFileLock extends BaseOps {
 						   ->getQueryDeleter()
 						   ->deleteRecord( $lock );
 		if ( $success ) {
-			$this->clearFileLocksCache();
+			$this->mod()->getFileLocker()->clearLocks();
 		}
 		return $success;
 	}

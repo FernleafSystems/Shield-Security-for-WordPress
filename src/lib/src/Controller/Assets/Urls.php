@@ -39,7 +39,7 @@ class Urls {
 	}
 
 	public function forPluginItem( string $path = '' ) :string {
-		return URL::Build( plugins_url( $path, self::con()->getRootFile() ), [ 'ver' => self::con()->getVersion() ] );
+		return URL::Build( plugins_url( $path, self::con()->getRootFile() ), [ 'ver' => self::con()->cfg->version() ] );
 	}
 
 	protected function lookupAssetUrlInSpec( string $asset, string $type ) :?string {

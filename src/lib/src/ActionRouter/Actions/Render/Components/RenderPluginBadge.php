@@ -21,7 +21,7 @@ class RenderPluginBadge extends BaseRender {
 	protected function getRenderData() :array {
 		$con = self::con();
 		/** @var Options $secAdminOpts */
-		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
+		$secAdminOpts = $con->getModule_SecAdmin()->opts();
 
 		if ( $secAdminOpts->isOpt( 'wl_replace_badge_url', 'Y' ) ) {
 			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );

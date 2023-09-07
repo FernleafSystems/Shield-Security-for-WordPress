@@ -9,7 +9,7 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 	public const SLUG = 'email_send_verify';
 
 	protected function exec() {
-		$opts = self::con()->getModule_LoginGuard()->getOptions();
+		$opts = self::con()->getModule_LoginGuard()->opts();
 
 		if ( $opts->getOpt( 'email_can_send_verified_at' ) < 1 ) {
 			$opts->setOpt( 'email_can_send_verified_at', Services::Request()->ts() );

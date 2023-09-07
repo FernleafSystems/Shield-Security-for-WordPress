@@ -16,7 +16,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->getIdleTimeoutInterval() > $opts->getMaxSessionTime() ) {
 			$opts->setOpt( 'session_idle_timeout_interval', $opts->getOpt( 'session_timeout_interval' )*24 );

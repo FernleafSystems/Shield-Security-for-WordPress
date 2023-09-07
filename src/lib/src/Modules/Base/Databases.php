@@ -15,7 +15,7 @@ class Databases {
 	 * @return string[]
 	 */
 	protected function getDbHandlerClasses() :array {
-		$c = $this->mod()->getOptions()->getDef( 'db_handler_classes' );
+		$c = $this->mod()->opts()->getDef( 'db_handler_classes' );
 		return \is_array( $c ) ? $c : [];
 	}
 

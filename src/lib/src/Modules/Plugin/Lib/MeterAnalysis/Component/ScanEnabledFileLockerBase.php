@@ -20,7 +20,7 @@ abstract class ScanEnabledFileLockerBase extends Base {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_HackGuard();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
 			   && $mod->getFileLocker()->isEnabled()
 			   && \in_array( static::FILE_LOCKER_FILE_KEY, $opts->getFilesToLock() );

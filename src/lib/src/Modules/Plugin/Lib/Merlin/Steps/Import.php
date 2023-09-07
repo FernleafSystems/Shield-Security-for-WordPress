@@ -10,7 +10,7 @@ class Import extends Base {
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$mod = self::con()->getModule_IPs();
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 
 		$offenses = $form[ 'offenses' ] ?? '';
 		if ( empty( $offenses ) ) {

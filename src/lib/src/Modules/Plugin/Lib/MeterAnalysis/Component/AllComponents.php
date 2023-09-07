@@ -16,7 +16,7 @@ class AllComponents extends Base {
 	}
 
 	public function score() :int {
-		return (int)round(
+		return (int)\round(
 			( new Handler() )->getMeter( MeterOverallConfig::class )[ 'totals' ][ 'percentage' ]*static::WEIGHT/100
 		);
 	}

@@ -25,7 +25,7 @@ class PrivacyPolicy extends BaseRender {
 		}
 
 		/** @var AuditTrail\Options $optsAT */
-		$optsAT = $con->getModule_AuditTrail()->getOptions();
+		$optsAT = $con->getModule_AuditTrail()->opts();
 
 		return [
 			'name'             => $name,

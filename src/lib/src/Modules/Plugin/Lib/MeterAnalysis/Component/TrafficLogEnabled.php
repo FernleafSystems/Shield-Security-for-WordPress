@@ -20,7 +20,7 @@ class TrafficLogEnabled extends Base {
 		try {
 			$mod = self::con()->getModule_Traffic();
 			/** @var Options $opts */
-			$opts = $mod->getOptions();
+			$opts = $mod->opts();
 
 			( new Monolog() )->assess();
 			$protected = $mod->isModOptEnabled() && $opts->isTrafficLoggerEnabled();

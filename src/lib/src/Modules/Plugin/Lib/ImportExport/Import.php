@@ -202,7 +202,7 @@ class Import {
 		$anythingChanged = false;
 		foreach ( self::con()->modules as $mod ) {
 			if ( !empty( $data[ $mod->getOptionsStorageKey() ] ) ) {
-				$theseOpts = $mod->getOptions();
+				$theseOpts = $mod->opts();
 				$theseOpts->setMultipleOptions(
 					\array_diff_key(
 						$data[ $mod->getOptionsStorageKey() ] ?? [],

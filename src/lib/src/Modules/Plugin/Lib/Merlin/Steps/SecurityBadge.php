@@ -35,7 +35,7 @@ class SecurityBadge extends Base {
 		if ( $toEnable ) { // we don't disable the whole module
 			$mod->setIsMainFeatureEnabled( true );
 		}
-		$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
+		$mod->opts()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
 		$mod->saveModOptions();
 
 		$resp = parent::processStepFormSubmit( $form );

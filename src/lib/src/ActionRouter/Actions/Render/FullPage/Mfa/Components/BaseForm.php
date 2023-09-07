@@ -25,7 +25,7 @@ abstract class BaseForm extends Base {
 		$opts = $mod->opts();
 		$WP = Services::WpGeneral();
 
-		$mfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
+		$mfaSkip = (int)( $opts->getMfaSkip()/\DAY_IN_SECONDS );
 
 		return [
 			'content' => [

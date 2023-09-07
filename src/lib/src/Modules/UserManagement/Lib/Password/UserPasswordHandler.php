@@ -229,7 +229,7 @@ class UserPasswordHandler {
 		$success = $req->get(
 			sprintf( '%s/%s', $this->opts()->getDef( 'pwned_api_url_password_range' ), $substrPasswordSHA1 ),
 			[
-				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', self::con()->getVersion() ) ]
+				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', self::con()->cfg->version() ) ]
 			]
 		);
 

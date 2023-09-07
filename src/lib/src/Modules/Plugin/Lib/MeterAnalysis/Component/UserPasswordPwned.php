@@ -15,7 +15,7 @@ class UserPasswordPwned extends UserPasswordPoliciesBase {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_UserManagement();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return parent::testIfProtected() && $opts->isPassPreventPwned();
 	}
 

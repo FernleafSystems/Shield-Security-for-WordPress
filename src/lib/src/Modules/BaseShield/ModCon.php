@@ -9,7 +9,7 @@ abstract class ModCon extends Base\ModCon {
 
 	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
 		/** @var Plugin\Options $plugOpts */
-		$plugOpts = self::con()->getModule_Plugin()->getOptions();
+		$plugOpts = self::con()->getModule_Plugin()->opts();
 		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
 		$cfg->invisible = $cfg->theme === 'invisible';
 

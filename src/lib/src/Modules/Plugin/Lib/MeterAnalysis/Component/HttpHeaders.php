@@ -14,7 +14,7 @@ class HttpHeaders extends Base {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_Headers();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled()
 			   && $opts->isEnabledXFrame()
 			   && $opts->isEnabledXssProtection()

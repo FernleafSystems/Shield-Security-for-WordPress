@@ -13,7 +13,7 @@ class LockdownAuthorDiscovery extends Base {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_Lockdown();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled() && $opts->isBlockAuthorDiscovery();
 	}
 

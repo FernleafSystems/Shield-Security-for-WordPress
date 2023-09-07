@@ -122,7 +122,7 @@ abstract class BaseRender extends BaseAction {
 		$urlBuilder = $con->urls;
 
 		/** @var Options $pluginOptions */
-		$pluginOptions = $con->getModule_Plugin()->getOptions();
+		$pluginOptions = $con->getModule_Plugin()->opts();
 
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
@@ -337,8 +337,7 @@ abstract class BaseRender extends BaseAction {
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
-						$WP->getAdminUrl_Updates(), $con->getVersion() )
-					: $con->getVersion()
+						$WP->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
 			),
 
 			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),

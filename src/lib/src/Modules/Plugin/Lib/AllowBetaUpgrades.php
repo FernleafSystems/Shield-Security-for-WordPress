@@ -57,7 +57,7 @@ class AllowBetaUpgrades {
 				function ( $betaVersion ) {
 					return \is_string( $betaVersion )
 						   && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-						   && \version_compare( $betaVersion, self::con()->getVersion(), '>' );
+						   && \version_compare( $betaVersion, self::con()->cfg->version(), '>' );
 				}
 			);
 			if ( !empty( $betas ) ) {

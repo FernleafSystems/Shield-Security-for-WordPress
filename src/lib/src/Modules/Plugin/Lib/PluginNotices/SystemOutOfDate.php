@@ -15,7 +15,7 @@ class SystemOutOfDate extends Base {
 
 		if ( \is_array( $con->cfg->upgrade_reqs ) ) {
 			foreach ( $con->cfg->upgrade_reqs as $futureVersion => $req ) {
-				if ( \version_compare( $futureVersion, $con->getVersion(), '>' ) ) {
+				if ( \version_compare( $futureVersion, $con->cfg->version(), '>' ) ) {
 					if ( ( !empty( $req[ 'php' ] ) && !$DP->getPhpVersionIsAtLeast( $req[ 'php' ] ) )
 						 || ( !empty( $req[ 'wp' ] ) && !$WP->getWordpressIsAtLeastVersion( $req[ 'wp' ] ) )
 					) {

@@ -75,7 +75,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setupCacheDir() {
 		$url = Services::WpGeneral()->getWpUrl();
-		$lastKnownDirs = $this->getOptions()->getOpt( 'last_known_cache_basedirs' );
+		$lastKnownDirs = $this->opts()->getOpt( 'last_known_cache_basedirs' );
 		if ( empty( $lastKnownDirs ) || !\is_array( $lastKnownDirs ) ) {
 			$lastKnownDirs = [
 				$url => ''
@@ -86,7 +86,7 @@ class ModCon extends BaseShield\ModCon {
 		$workableDir = $cacheDirFinder->dir();
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
 
-		$this->getOptions()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+		$this->opts()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
 		self::con()->cache_dir_handler = $cacheDirFinder;
 	}
 
@@ -116,7 +116,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
 			$opts->setOpt( 'ipdetect_at', 0 );
 		}
@@ -142,7 +142,7 @@ class ModCon extends BaseShield\ModCon {
 	private function setVisitorIpSource() {
 		$con = self::con();
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
 			Services::Request()->setIpDetector(
 				( new RequestIpDetect() )->setPreferredSource( $opts->getIpSource() )
@@ -178,7 +178,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function getPluginReportEmail() :string {
 		$con = self::con();
-		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
+		$e = (string)$this->opts()->getOpt( 'block_send_email_address' );
 		if ( $con->isPremiumActive() ) {
 			$e = apply_filters( $con->prefix( 'report_email' ), $e );
 		}
@@ -191,7 +191,7 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	protected function doPrePluginOptionsSave() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$this->storeRealInstallDate();
 
@@ -211,11 +211,11 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getInstallDate() :int {
-		return (int)$this->getOptions()->getOpt( 'installation_time', 0 );
+		return (int)$this->opts()->getOpt( 'installation_time', 0 );
 	}
 
 	public function isShowAdvanced() :bool {
-		return $this->getOptions()->isOpt( 'show_advanced', 'Y' );
+		return $this->opts()->isOpt( 'show_advanced', 'Y' );
 	}
 
 	/**
@@ -235,7 +235,7 @@ class ModCon extends BaseShield\ModCon {
 
 		$finalDate = \min( $date, $wpDate );
 		Services::WpGeneral()->updateOption( $key, $finalDate );
-		$this->getOptions()->setOpt( 'installation_time', $date );
+		$this->opts()->setOpt( 'installation_time', $date );
 
 		return $finalDate;
 	}
@@ -244,7 +244,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @param string $optionKey
 	 */
 	protected function cleanRecaptchaKey( $optionKey ) {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$captchaKey = \trim( (string)$opts->getOpt( $optionKey, '' ) );
 		$spacePos = \strpos( $captchaKey, ' ' );
 		if ( $spacePos !== false ) {
@@ -255,16 +255,16 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getActivateLength() :int {
-		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
+		return Services::Request()->ts() - (int)$this->opts()->getOpt( 'activated_at', 0 );
 	}
 
 	public function setActivatedAt() {
-		$this->getOptions()->setOpt( 'activated_at', Services::Request()->ts() );
+		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
 	private function cleanImportExportWhitelistUrls() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$cleaned = [];
 		$whitelist = $opts->getImportExportWhitelist();
 		foreach ( $whitelist as $url ) {
@@ -279,7 +279,7 @@ class ModCon extends BaseShield\ModCon {
 
 	private function cleanImportExportMasterImportUrl() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
 		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
@@ -303,7 +303,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public function isModOptEnabled() :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return !$opts->isPluginGloballyDisabled();
 	}
 }

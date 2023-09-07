@@ -16,7 +16,7 @@ class SetBulk extends Base {
 			$def = $this->getOptionData( $opt[ 'key' ] );
 			if ( !empty( $def ) ) {
 				$filterKeys[] = $opt[ 'key' ];
-				$opts = $con->modules[ $def[ 'module' ] ]->getOptions();
+				$opts = $con->modules[ $def[ 'module' ] ]->opts();
 				if ( is_null( $opt[ 'value' ] ) ) {
 					$opts->resetOptToDefault( $opt[ 'key' ] );
 				}

@@ -81,7 +81,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
 			$this->getScansCon()->deleteCron();
@@ -114,7 +114,7 @@ class ModCon extends BaseShield\ModCon {
 
 	private function cleanScanExclusions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$specialDirs = \array_map( 'trailingslashit', [
 			ABSPATH,
@@ -137,7 +137,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setCustomCronSchedules() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$freq = $opts->getScanFrequency();
 		Services::WpCron()->addNewSchedule(
 			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),

@@ -10,7 +10,7 @@ class ConflictAkismet extends Base {
 	public function check() :?array {
 		$mod = self::con()->getModule_Comments();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 
 		$issue = null;
 

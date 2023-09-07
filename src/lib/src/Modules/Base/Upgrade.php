@@ -9,7 +9,7 @@ class Upgrade extends ExecOnceModConsumer {
 	protected $previous;
 
 	protected function canRun() :bool {
-		return !empty( $this->previous ) && \version_compare( $this->previous, self::con()->getVersion(), '<' );
+		return !empty( $this->previous ) && \version_compare( $this->previous, self::con()->cfg->version(), '<' );
 	}
 
 	protected function run() {

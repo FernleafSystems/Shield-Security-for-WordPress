@@ -11,7 +11,7 @@ abstract class IpTrackSignalBase extends IpBase {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_IPs();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return parent::testIfProtected() && $opts->getOffenseCountFor( static::SIGNAL_KEY ) > 0;
 	}
 

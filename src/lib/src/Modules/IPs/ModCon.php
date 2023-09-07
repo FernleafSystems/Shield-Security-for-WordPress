@@ -54,7 +54,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return [
 			Rules\Build\IpWhitelisted::class,
 			Rules\Build\IsPathWhitelisted::class,
@@ -76,7 +76,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( !\defined( \strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$opts->resetOptToDefault( 'auto_expire' );
 		}
@@ -99,7 +99,7 @@ class ModCon extends BaseShield\ModCon {
 	private function cleanPathWhitelist() {
 		$WP = Services::WpGeneral();
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$opts->setOpt( 'request_whitelist',
 			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
 				$opts->getOpt( 'request_whitelist', [] ),

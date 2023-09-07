@@ -38,7 +38,7 @@ class IpDetect extends Base {
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
 		$mod = self::con()->getModule_Plugin();
 		/** @var Shield\Modules\Plugin\Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 
 		$source = $form[ 'ip_source' ] ?? '';
 		if ( empty( $source ) ) {

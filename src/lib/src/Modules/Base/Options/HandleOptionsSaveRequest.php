@@ -63,7 +63,7 @@ class HandleOptionsSaveRequest {
 			function ( $optDef ) {
 				return $optDef[ 'type' ];
 			},
-			$this->mod->getOptions()->getVisibleOptions()
+			$this->mod->opts()->getVisibleOptions()
 		);
 		foreach ( $optsAndTypes as $optKey => $optType ) {
 
@@ -115,7 +115,7 @@ class HandleOptionsSaveRequest {
 
 			// Prevent overwriting of non-editable fields
 			if ( !\in_array( $optType, [ 'noneditable_text' ] ) ) {
-				$this->mod->getOptions()->setOpt( $optKey, $optValue );
+				$this->mod->opts()->setOpt( $optKey, $optValue );
 			}
 		}
 

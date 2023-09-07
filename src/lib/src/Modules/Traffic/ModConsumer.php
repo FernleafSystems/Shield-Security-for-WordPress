@@ -11,6 +11,6 @@ trait ModConsumer {
 	}
 
 	public function opts() :Options {
-		return $this->mod()->getOptions();
+		return $this->mod()->opts();
 	}
 }

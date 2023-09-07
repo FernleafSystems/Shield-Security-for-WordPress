@@ -30,7 +30,7 @@ class AuditLogger extends EventsListener {
 	protected function init() {
 		$con = self::con();
 		/** @var Options $opts */
-		$opts = $con->getModule_AuditTrail()->getOptions();
+		$opts = $con->getModule_AuditTrail()->opts();
 		if ( $opts->isLogToDB() ) {
 			// The Request Logger is required to link up the DB entries.
 			$con->getModule_Traffic()->getRequestLogger()->execute();

@@ -35,7 +35,7 @@ class VerifyConfig {
 	}
 
 	public function verifyCfg( ModCon $mod ) {
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		foreach ( $opts->getOptionsKeys() as $sKey ) {
 			$optType = $opts->getOptionType( $sKey );
 			if ( empty( $optType ) ) {

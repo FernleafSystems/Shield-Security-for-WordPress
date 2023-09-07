@@ -16,7 +16,7 @@ class ScanEnabledAfsAutoRepairPlugins extends ScanEnabledAfsAutoRepairBase {
 	protected function testIfProtected() :bool {
 		$mod = self::con()->getModule_HackGuard();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return parent::testIfProtected()
 			   && $mod->getScansCon()->AFS()->isScanEnabledPlugins()
 			   && $opts->isRepairFilePlugin();

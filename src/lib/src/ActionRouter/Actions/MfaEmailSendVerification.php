@@ -14,7 +14,7 @@ class MfaEmailSendVerification extends BaseAction {
 
 	protected function exec() {
 		/** @var Options $opts */
-		$opts = self::con()->getModule_LoginGuard()->getOptions();
+		$opts = self::con()->getModule_LoginGuard()->opts();
 
 		if ( !$opts->isEnabledEmailAuth() ) {
 			$msg = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );

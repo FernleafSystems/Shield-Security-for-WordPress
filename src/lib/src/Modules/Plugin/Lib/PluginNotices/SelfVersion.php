@@ -71,7 +71,7 @@ class SelfVersion extends Base {
 			Transient::Set( $con->prefix( 'releases' ), $versions, \WEEK_IN_SECONDS );
 		}
 
-		$currentMajor = intval( \substr( $con->getVersion(), 0, \strpos( $con->getVersion(), '.' ) ) );
+		$currentMajor = \intval( \substr( $con->cfg->version(), 0, \strpos( $con->cfg->version(), '.' ) ) );
 		if ( !empty( $versions ) && !empty( $currentMajor ) ) {
 
 			$majorVersionsNewerThanCurrent = \array_filter(

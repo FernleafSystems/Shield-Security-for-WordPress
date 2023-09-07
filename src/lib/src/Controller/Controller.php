@@ -908,7 +908,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.2.4
+	 * @deprecated 18.3
 	 */
 	public function getVersion() :string {
 		return $this->cfg->version();

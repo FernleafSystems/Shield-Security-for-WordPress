@@ -142,7 +142,7 @@ class Export {
 	public function getRawOptionsExport( bool $filterExcluded = true ) :array {
 		$all = [];
 		foreach ( self::con()->modules as $mod ) {
-			$opts = $mod->getOptions();
+			$opts = $mod->opts();
 			$xfr = $opts->getTransferableOptions();
 			if ( $filterExcluded ) {
 				$xfr = \array_diff_key(
