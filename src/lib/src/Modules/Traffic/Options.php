@@ -47,11 +47,10 @@ class Options extends BaseShield\Options {
 
 	public function liveLoggingTimeRemaining() :int {
 		$now = Services::Request()->ts();
-		$maxDuration = apply_filters( 'shield/live_traffic_log_duration', \HOUR_IN_SECONDS );
 
 		if ( $this->isOpt( 'enable_live_log', 'Y' ) ) {
 			if ( $this->getOpt( 'live_log_started_at' ) > 0 ) {
-				if ( $maxDuration <= $now - $this->getOpt( 'live_log_started_at' ) ) {
+				if ( $this->liveLoggingDuration() <= $now - $this->getOpt( 'live_log_started_at' ) ) {
 					$this->setOpt( 'live_log_started_at', 0 )
 						 ->setOpt( 'enable_live_log', 'N' );
 				}
@@ -65,6 +64,10 @@ class Options extends BaseShield\Options {
 		}
 
 		$startedAt = $this->getOpt( 'live_log_started_at' );
-		return $startedAt > 0 ? \max( 0, $maxDuration - ( $now - $startedAt ) ) : 0;
+		return $startedAt > 0 ? \max( 0, $this->liveLoggingDuration() - ( $now - $startedAt ) ) : 0;
+	}
+
+	public function liveLoggingDuration() :int {
+		return (int)\min( \DAY_IN_SECONDS, \max( \MINUTE_IN_SECONDS, apply_filters( 'shield/live_traffic_log_duration', \HOUR_IN_SECONDS/2 ) ) );
 	}
 }

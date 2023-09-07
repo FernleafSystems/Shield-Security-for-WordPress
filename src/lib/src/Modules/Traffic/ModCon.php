@@ -13,6 +13,12 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $requestLogger;
 
+	public function onWpInit() {
+		/** @var Options $opts */
+		$opts = $this->opts();
+		$opts->liveLoggingTimeRemaining();
+	}
+
 	public function getRequestLogger() :Lib\RequestLogger {
 		return $this->requestLogger ?? $this->requestLogger = new Lib\RequestLogger();
 	}
@@ -40,6 +46,11 @@ class ModCon extends BaseShield\ModCon {
 			if ( $opts->getAutoCleanDays() === 0 ) {
 				$opts->resetOptToDefault( 'auto_clean' );
 			}
+		}
+
+		if ( $opts->isOpt( 'enable_live_log', 'Y' ) && !$opts->isTrafficLoggerEnabled() ) {
+			$opts->setOpt( 'enable_live_log', 'N' )
+				 ->setOpt( 'live_log_started_at', 0 );
 		}
 	}
 
