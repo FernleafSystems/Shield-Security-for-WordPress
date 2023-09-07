@@ -11,6 +11,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops;
  * @property int    $code
  * @property int    $uid
  * @property bool   $offense
+ * @property bool   $is_transient
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
@@ -19,16 +20,14 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		$value = parent::__get( $key );
 
 		switch ( $key ) {
-
 			case 'offense':
+			case 'is_transient':
 				$value = (bool)$value;
 				break;
-
 			case 'code':
 			case 'uid':
 				$value = (int)$value;
 				break;
-
 			default:
 				break;
 		}

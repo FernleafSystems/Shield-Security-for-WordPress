@@ -53,52 +53,57 @@
       "has_updated_at": false,
       "has_deleted_at": false,
       "cols_custom":    {
-        "req_id":  {
+        "req_id":       {
           "macro_type": "varchar",
           "length":     10,
           "attr":       [
             "UNIQUE"
           ]
         },
-        "ip_ref":  {
+        "ip_ref":       {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_ips"
           }
         },
-        "type":    {
+        "type":         {
           "macro_type": "char",
           "length":     1,
           "comment":    "Type of requests"
         },
-        "verb":    {
+        "verb":         {
           "macro_type": "varchar",
           "length":     8,
           "comment":    "Request Verb"
         },
-        "path":    {
+        "path":         {
           "macro_type": "varchar",
           "length":     512,
           "comment":    "Request Path"
         },
-        "code":    {
+        "code":         {
           "macro_type": "unsigned_int",
           "type":       "smallint",
           "length":     3,
           "default":    0,
           "comment":    "Response Code"
         },
-        "uid":     {
+        "uid":          {
           "macro_type": "bigint",
           "comment":    "User ID",
           "no_length":  true
         },
-        "offense": {
+        "offense":      {
           "macro_type": "bool",
           "default":    0,
           "comment":    "Was Offense"
         },
-        "meta":    {
+        "transient": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Request log transient"
+        },
+        "meta":         {
           "macro_type": "meta"
         }
       }

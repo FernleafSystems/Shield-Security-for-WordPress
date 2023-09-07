@@ -55,6 +55,14 @@ class CleanDatabases {
 		$con->getModule_Data()
 			->getDbH_ReqLogs()
 			->tableCleanExpired( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+
+		// 2. Delete transient logs older than 1 hr.
+		$con->getModule_Data()
+			->getDbH_ReqLogs()
+			->getQueryDeleter()
+			->addWhereOlderThan( Services::Request()->carbon( true )->subHour()->timestamp )
+			->addWhereEquals( 'transient', '1' )
+			->query();
 	}
 
 	public function cleanStaleReports() :void {

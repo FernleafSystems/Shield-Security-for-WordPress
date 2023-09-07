@@ -60,7 +60,7 @@ class AuditLogger extends EventsListener {
 	protected function initLogger() {
 		$con = self::con();
 		/** @var Options $opts */
-		$opts = $con->getModule_AuditTrail()->getOptions();
+		$opts = $con->getModule_AuditTrail()->opts();
 
 		if ( $this->isMonologLibrarySupported() ) {
 
@@ -147,6 +147,6 @@ class AuditLogger extends EventsListener {
 	}
 
 	private function getLogLevelsFile() :array {
-		return self::con()->getModule_AuditTrail()->getOptions()->getOpt( 'log_level_file' );
+		return self::con()->getModule_AuditTrail()->opts()->getOpt( 'log_level_file' );
 	}
 }

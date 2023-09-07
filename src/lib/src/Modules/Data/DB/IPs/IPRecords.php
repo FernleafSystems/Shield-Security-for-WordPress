@@ -11,6 +11,9 @@ class IPRecords {
 
 	private static $ips = [];
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadIP( string $ip, bool $autoCreate = true, bool $cacheRecord = true ) :Ops\Record {
 
 		if ( !empty( self::$ips[ $ip ] ) ) {

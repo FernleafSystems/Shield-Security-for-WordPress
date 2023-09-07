@@ -117,11 +117,19 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
-		$ipRecordID = ( new IPRecords() )
-			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
-			->id;
+		// Create the underlying request log.
+		self::con()
+			->getModule_Traffic()
+			->getRequestLogger()
+			->createDependentLog();
+
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
-			->loadReq( $this->log[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
+			->loadReq(
+				$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
+				( new IPRecords() )
+					->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
+					->id
+			)
 			->id;
 
 		$success = $dbh->getQueryInserter()->insert( $record );

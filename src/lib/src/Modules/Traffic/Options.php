@@ -33,6 +33,10 @@ class Options extends BaseShield\Options {
 		return (int)$this->getOpt( 'limit_time_span' );
 	}
 
+	public function isLiveTrafficEnabled() :bool {
+		return $this->isOpt( 'enable_live_log', 'Y' );
+	}
+
 	public function isTrafficLoggerEnabled() :bool {
 		return $this->isOpt( 'enable_traffic', 'Y' )
 			   && $this->isOpt( 'enable_logger', 'Y' )

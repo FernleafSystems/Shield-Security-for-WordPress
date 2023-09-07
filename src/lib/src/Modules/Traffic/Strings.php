@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
@@ -87,6 +87,16 @@ class Strings extends Base\Strings {
 					__( "There's no need to have unnecessary traffic noise in your logs, so we automatically exclude certain types of requests.", 'wp-simple-firewall' ),
 					__( "Select request types that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' ),
 					__( 'If a request matches any exclusion rule, it wont show in the traffic logs.', 'wp-simple-firewall' )
+				];
+				break;
+
+			case 'enable_live_log' :
+				$name = __( 'Live Traffic', 'wp-simple-firewall' );
+				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );
+				$desc = [
+					__( "When enabled, all requests to the site will be logged.", 'wp-simple-firewall' ),
+					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
+					__( 'This setting will automatically be disabled after 1 hour and all logged requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' )
 				];
 				break;
 

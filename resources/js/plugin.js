@@ -132,7 +132,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 		setTimeout( function () {
 			if ( $form.data( 'context' ) !== 'offcanvas' || response.data.page_reload ) {
-				alert( 'reload' );
 				window.location.reload();
 			}
 			else {
