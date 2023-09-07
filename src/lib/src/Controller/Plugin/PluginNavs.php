@@ -10,6 +10,7 @@ class PluginNavs {
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
 	public const NAV_LICENSE = 'license';
+	public const SUBNAV_LICENSE_CHECK = 'check';
 	public const NAV_OPTIONS_CONFIG = 'config';
 	public const NAV_DASHBOARD = 'dashboard';
 	public const SUBNAV_DASHBOARD_GRADES = 'grades';

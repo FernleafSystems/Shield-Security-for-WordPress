@@ -102,7 +102,7 @@ class PageAdminPlugin extends BaseRender {
 				PluginNavs::NAV_IPS.PluginNavs::SUBNAV_IPS_RULES
 			],
 			PluginAdminPages\PageLicense::class         => [
-				PluginNavs::NAV_LICENSE
+				PluginNavs::NAV_LICENSE.PluginNavs::SUBNAV_LICENSE_CHECK
 			],
 			PluginAdminPages\PageDashboardMeters::class => [
 				PluginNavs::NAV_DASHBOARD.PluginNavs::SUBNAV_DASHBOARD_GRADES,

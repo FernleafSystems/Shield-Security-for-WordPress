@@ -9,7 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	IPs\Lib\IpRules\IpRuleStatus,
 	LoginGuard,
 	Plugin\Lib\Captcha\CheckCaptchaSettings,
-	PluginControllerConsumer
+	PluginControllerConsumer,
+	Traffic\Options
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
@@ -117,6 +118,16 @@ class SectionNotices {
 					$warnings[] = __( "Logging isn't currently available on this site.", 'wp-simple-firewall' )
 								  .'<br/>'.sprintf( '%s: %s', __( 'Reason', 'wp-simple-firewall' ), $e->getMessage() );
 				}
+
+				/** @var Options $trafficOpts */
+				$trafficOpts = $con->getModule_Traffic()->opts();
+				if ( $section === 'section_traffic_options' && $trafficOpts->liveLoggingTimeRemaining() > 0 ) {
+					$warnings[] = \implode(' ', [
+						__( 'Live traffic logging increases load on your database and is designed to active only temporarily.', 'wp-simple-firewall' ),
+						__( 'We recommend disabling it if you no longer need it running.', 'wp-simple-firewall' ),
+					]);
+				}
+
 				break;
 
 			case 'section_whitelabel':
@@ -291,7 +302,7 @@ class SectionNotices {
 										->getShieldNetApiController()
 										->canHandshake();
 					if ( !$canHandshake ) {
-						$warnings[] = sprintf( __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
+						$warnings[] = __( 'Not available as your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' );
 					}
 				}
 
@@ -317,8 +328,8 @@ class SectionNotices {
 						);
 					}
 				}
-
 				break;
+
 			default:
 				break;
 		}

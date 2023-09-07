@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ModCon extends BaseShield\ModCon {
 
@@ -42,27 +41,6 @@ class ModCon extends BaseShield\ModCon {
 				$opts->resetOptToDefault( 'auto_clean' );
 			}
 		}
-
-		$this->autoSwitchLiveTraffic();
-	}
-
-	protected function autoSwitchLiveTraffic() :void {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		if ( $opts->isLiveTrafficEnabled() ) {
-			$now = Services::Request()->ts();
-			if ( $opts->getOpt( 'live_log_started_at' ) === 0 ) {
-				$opts->setOpt( 'live_log_started_at', $now );
-			}
-			elseif ( $opts->getOpt( 'live_log_started_at' ) < $now - \HOUR_IN_SECONDS ) {
-				$opts->setOpt( 'live_log_started_at', 0 )
-					 ->setOpt( 'enable_live_log', 'N' );
-			}
-		}
-	}
-
-	public function runHourlyCron() {
-		$this->autoSwitchLiveTraffic();
 	}
 
 	protected function isReadyToExecute() :bool {

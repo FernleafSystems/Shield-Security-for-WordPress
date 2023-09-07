@@ -32,7 +32,7 @@ class RequestLogger {
 	protected function run() {
 		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
 			if ( !self::con()->plugin_deleting
-				 && ( $this->opts()->isLiveTrafficEnabled() || ( new IsRequestLogged() )->isLogged() ) ) {
+				 && ( $this->opts()->liveLoggingTimeRemaining() > 0 || ( new IsRequestLogged() )->isLogged() ) ) {
 				$this->createLog();
 			}
 		}, 1000 ); // high enough to come after audit trail

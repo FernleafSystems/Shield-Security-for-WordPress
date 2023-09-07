@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
@@ -98,6 +99,20 @@ class Strings extends Base\Strings {
 					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
 					__( 'This setting will automatically be disabled after 1 hour and all logged requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' )
 				];
+
+				/** @var Options $opts */
+				$opts = $this->opts();
+				$remaining = $opts->liveLoggingTimeRemaining();
+				if ( $remaining > 0 ) {
+					$desc[] = sprintf(
+						__( 'Live logging will be automatically disabled: %s', 'wp-simple-firewall' ),
+						sprintf( '<code>%s</code>', Services::Request()
+															->carbon()
+															->addSeconds( $remaining )
+															->diffForHumans()
+						)
+					);
+				}
 				break;
 
 			case 'custom_exclusions' :

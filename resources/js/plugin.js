@@ -135,7 +135,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				window.location.reload();
 			}
 			else {
-				alert( 'closeCanvas' );
 				iCWP_WPSF_OffCanvas.closeCanvas();
 			}
 		}, 1000 );

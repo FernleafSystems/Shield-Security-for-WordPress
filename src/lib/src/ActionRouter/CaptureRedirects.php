@@ -61,6 +61,9 @@ class CaptureRedirects {
 			case PluginNavs::NAV_IPS:
 				$redirect = $urls->adminIpRules();
 				break;
+			case PluginNavs::NAV_LICENSE:
+				$redirect = $urls->adminTopNav( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK );
+				break;
 			case PluginNavs::NAV_REPORTS:
 				$redirect = $urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST );
 				break;
