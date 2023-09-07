@@ -40,7 +40,7 @@ abstract class ModCon extends DynPropertiesClass {
 	/**
 	 * @var Shield\Databases\Base\Handler[]
 	 */
-	private $aDbHandlers;
+	private $legacyDbHandlers;
 
 	/**
 	 * @var Databases
@@ -123,31 +123,6 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function doPostConstruction() {
 	}
 
-	public function runDailyCron() {
-		$this->cleanupDatabases();
-	}
-
-	protected function cleanupDatabases() {
-		foreach ( $this->getDbHandlers( true ) as $dbh ) {
-			if ( $dbh instanceof Shield\Databases\Base\Handler && $dbh->isReady() ) {
-				$dbh->autoCleanDb();
-			}
-		}
-	}
-
-	/**
-	 * @param bool $initAll
-	 * @return Shield\Databases\Base\Handler[]
-	 */
-	public function getDbHandlers( $initAll = false ) {
-		if ( $initAll ) {
-			foreach ( $this->getAllDbClasses() as $dbSlug => $dbClass ) {
-				$this->getDbH( $dbSlug );
-			}
-		}
-		return \is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
-	}
-
 	/**
 	 * @param string $dbhKey
 	 * @return Shield\Databases\Base\Handler|mixed|false
@@ -155,36 +130,28 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function getDbH( $dbhKey ) {
 		$dbh = false;
 
-		if ( !\is_array( $this->aDbHandlers ) ) {
-			$this->aDbHandlers = [];
+		if ( !\is_array( $this->legacyDbHandlers ) ) {
+			$this->legacyDbHandlers = [];
 		}
 
-		if ( !empty( $this->aDbHandlers[ $dbhKey ] ) ) {
-			$dbh = $this->aDbHandlers[ $dbhKey ];
+		if ( !empty( $this->legacyDbHandlers[ $dbhKey ] ) ) {
+			$dbh = $this->legacyDbHandlers[ $dbhKey ];
 		}
 		else {
-			$aDbClasses = $this->getAllDbClasses();
-			if ( isset( $aDbClasses[ $dbhKey ] ) ) {
+			$dbClasses = $this->opts()->getDef( 'db_classes' );
+			if ( isset( $dbClasses[ $dbhKey ] ) ) {
 				/** @var Shield\Databases\Base\Handler $dbh */
-				$dbh = new $aDbClasses[ $dbhKey ]( $dbhKey );
+				$dbh = new $dbClasses[ $dbhKey ]( $dbhKey );
 				try {
 					$dbh->setMod( $this )->execute();
 				}
 				catch ( \Exception $e ) {
 				}
 			}
-			$this->aDbHandlers[ $dbhKey ] = $dbh;
+			$this->legacyDbHandlers[ $dbhKey ] = $dbh;
 		}
 
 		return $dbh;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function getAllDbClasses() {
-		$classes = $this->opts()->getDef( 'db_classes' );
-		return \is_array( $classes ) ? $classes : [];
 	}
 
 	/**
@@ -670,5 +637,12 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * @deprecated 18.3
+	 */
+	private function getAllDbClasses() :array {
+		return [];
 	}
 }

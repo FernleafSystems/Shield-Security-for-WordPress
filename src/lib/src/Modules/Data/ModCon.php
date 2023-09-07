@@ -21,7 +21,7 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbHandler()->loadDbH( 'req_logs' );
 	}
 
-	protected function cleanupDatabases() {
+	public function runDailyCron() {
 		( new Lib\CleanDatabases() )->execute();
 	}
 }
