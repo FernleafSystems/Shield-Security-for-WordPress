@@ -2,10 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Apc;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Wpv;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Afs,
+	Apc,
+	Wpv
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 
@@ -13,12 +18,68 @@ class BuildForScans extends BuildBase {
 
 	public function build() :array {
 		return [
-			'new'     => $this->buildForContext( RetrieveCount::CONTEXT_NOT_YET_NOTIFIED ),
-			'current' => $this->buildForContext( RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ),
+			'scan_results_new'     => $this->buildForResultsContext( RetrieveCount::CONTEXT_NOT_YET_NOTIFIED ),
+			'scan_results_current' => $this->buildForResultsContext( RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ),
+			'scan_repairs'         => $this->buildForRepairs(),
 		];
 	}
 
-	private function buildForContext( int $context ) :array {
+	private function buildForRepairs() :array {
+		/** @var EventsDB\Select $selectorEvents */
+		$selectorEvents = self::con()
+							  ->getModule_Events()
+							  ->getDbH_Events()
+							  ->getQuerySelector();
+
+		$repairs = [];
+		$repairEvents = [
+			'scan_item_repair_success',
+			//			'scan_item_repair_fail',
+			//			'scan_item_delete_success',
+		];
+
+		foreach ( $repairEvents as $event ) {
+			$eventTotal = $selectorEvents
+				->filterByBoundary( $this->report->start_at, $this->report->end_at )
+				->sumEvent( $event );
+
+			if ( $eventTotal > 0 ) {
+				/** @var LogsDB\Select $logSelect */
+				$logSelect = self::con()->getModule_AuditTrail()->getDbH_Logs()->getQuerySelector();
+				/** @var LogsDB\Record[] $logs */
+				$logIDs = \array_map(
+					function ( $log ) {
+						return $log->id;
+					},
+					$logSelect->filterByEvent( $event )
+							  ->filterByBoundary( $this->report->start_at, $this->report->end_at )
+							  ->setLimit( $eventTotal )
+							  ->queryWithResult()
+				);
+
+				/** @var MetaDB\Select $metaSelect */
+				$metaSelect = self::con()->getModule_AuditTrail()->getDbH_Meta()->getQuerySelector();
+
+				$repairs[ $event ] = [
+					'name'    => self::con()->service_events->getEventName( $event ),
+					'count'   => $eventTotal,
+					'repairs' => \array_unique( \array_map(
+						function ( $meta ) {
+							/** @var MetaDB\Record $meta */
+							return \str_replace( ABSPATH, '', $meta->meta_value );
+						},
+						$metaSelect->filterByLogRefs( $logIDs )
+								   ->filterByMetaKey( 'path_full' )
+								   ->queryWithResult()
+					) ),
+				];
+			}
+		}
+
+		return $repairs;
+	}
+
+	private function buildForResultsContext( int $context ) :array {
 		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
 		$c = new Counts( $context );
 		$scanCounts = [

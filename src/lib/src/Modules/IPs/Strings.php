@@ -307,10 +307,8 @@ class Strings extends Base\Strings {
 				$name = __( 'Auto Block Expiration', 'wp-simple-firewall' );
 				$summary = __( 'After 1 "X" a black listed IP will be removed from the black list', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Blocked IP addresses are eventually removed.', 'wp-simple-firewall' )
-					.'<br/>'.__( 'This option lets you specify how long they should be kept.', 'wp-simple-firewall' ),
-					__( 'Large, permanent IP Block Lists will degrade site performance.', 'wp-simple-firewall' ),
-					__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.', 'wp-simple-firewall' )
+					__( 'This option lets you choose how long blocked IP addresses should stay blocked.', 'wp-simple-firewall' ),
+					__( 'Performance of your block lists is optimised by automatically removing stale IP addresses, keeping the list small and fast.', 'wp-simple-firewall' )
 				];
 				break;
 

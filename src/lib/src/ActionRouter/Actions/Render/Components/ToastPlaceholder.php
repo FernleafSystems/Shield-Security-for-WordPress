@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 
 class ToastPlaceholder extends BaseRender {
 
-	use Traits\AuthNotRequired;
+	use AuthNotRequired;
 
 	public const SLUG = 'render_toast_placeholder';
 	public const TEMPLATE = '/snippets/toaster.twig';

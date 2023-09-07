@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DebugRecentEvents extends Actions\Render\BaseRender {
@@ -36,7 +36,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 			}
 		);
 
-		/** @var Events\Select $selector */
+		/** @var EventsDB\Select $selector */
 		$selector = self::con()
 						->getModule_Events()
 						->getDbH_Events()
@@ -45,7 +45,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 		$recent = \array_intersect_key(
 			\array_filter( \array_map(
 				function ( $entry ) use ( $srvEvents ) {
-					/** @var Events\EntryVO $entry */
+					/** @var EventsDB\Record $entry */
 					return $srvEvents->eventExists( $entry->event ) ?
 						[
 							'name' => $srvEvents->getEventName( $entry->event ),
@@ -58,12 +58,11 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 			$theStats
 		);
 
-		$notYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
 		foreach ( \array_keys( $theStats ) as $eventKey ) {
 			if ( !isset( $recent[ $eventKey ] ) ) {
 				$recent[ $eventKey ] = [
 					'name' => $srvEvents->getEventName( $eventKey ),
-					'val'  => $notYetRecorded
+					'val'  => __( 'Not yet recorded', 'wp-simple-firewall' )
 				];
 			}
 		}

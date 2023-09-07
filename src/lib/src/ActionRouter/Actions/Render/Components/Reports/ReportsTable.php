@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
@@ -56,10 +57,16 @@ class ReportsTable extends BaseRender {
 		) );
 
 		return [
-			'flags' => [
+			'flags'   => [
 				'has_reports' => \count( $reports ) > 0,
 			],
-			'vars'  => [
+			'hrefs'   => [
+				'page_reports' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS ),
+			],
+			'strings' => [
+				'no_reports' => __( 'No reports have been generated yet.' ),
+			],
+			'vars'    => [
 				'reports' => $reports,
 			],
 		];

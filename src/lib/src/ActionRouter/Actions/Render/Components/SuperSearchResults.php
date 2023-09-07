@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\BaseRender,
-	Traits
+	Traits\SecurityAdminRequired
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
 
 class SuperSearchResults extends BaseRender {
 
-	use Traits\SecurityAdminRequired;
+	use SecurityAdminRequired;
 
 	public const SLUG = 'render_super_search_results';
 	public const TEMPLATE = '/wpadmin/components/search/super_search_results.twig';

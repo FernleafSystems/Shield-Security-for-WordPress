@@ -79,8 +79,9 @@ class ReportingController {
 				'user_access'   => __( 'User Access', 'wp-simple-firewall' ),
 			],
 			Constants::REPORT_AREA_SCANS   => [
-				'new'     => __( 'New Results' ),
-				'current' => __( 'Current Summary' ),
+				'scan_results_new'     => __( 'New Results' ),
+				'scan_results_current' => __( 'Current Summary' ),
+				'scan_repairs'         => __( 'Scan File Repairs' ),
 			],
 		];
 

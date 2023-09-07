@@ -58,7 +58,7 @@ class FormCreateReport extends BaseRender {
 						'zones'           => $reportAreas[ Constants::REPORT_AREA_STATS ],
 					],
 					[
-						'title'           => __( 'Scan Results', 'wp-simple-firewall' ),
+						'title'           => __( 'Scans', 'wp-simple-firewall' ),
 						'form_field_name' => 'scans_zones',
 						'zones'           => $reportAreas[ Constants::REPORT_AREA_SCANS ],
 					],

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Fu
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\{
 	ReportAreaChanges,
+	ReportAreaScansRepairs,
 	ReportAreaScansResults,
 	ReportAreaStats
 };
@@ -27,23 +28,33 @@ class SecurityReport extends BaseFullPageRender {
 
 		$areas = [];
 		if ( !empty( $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
-			if ( \in_array( 'new', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
-				$areas[ 'scans_new' ] = [
-					'slug'    => 'scans_new',
+			if ( \in_array( 'scan_results_new', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
+				$areas[ 'scan_results_new' ] = [
+					'slug'    => 'scan_results_new',
 					'title'   => __( 'New Scan Results', 'wp-simple-firewall' ),
 					'content' => $con->action_router->render( ReportAreaScansResults::class, [
 						'report'       => $this->action_data[ 'report' ],
-						'results_type' => 'new'
+						'results_type' => 'scan_results_new'
 					] ),
 				];
 			}
-			if ( \in_array( 'current', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
-				$areas[ 'scans_current' ] = [
-					'slug'    => 'scans_current',
+			if ( \in_array( 'scan_results_current', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
+				$areas[ 'scan_results_current' ] = [
+					'slug'    => 'scan_results_current',
 					'title'   => __( 'Current Scan Results', 'wp-simple-firewall' ),
 					'content' => $con->action_router->render( ReportAreaScansResults::class, [
 						'report'       => $this->action_data[ 'report' ],
-						'results_type' => 'current'
+						'results_type' => 'scan_results_current'
+					] ),
+				];
+			}
+			if ( \in_array( 'scan_repairs', $report->areas[ Constants::REPORT_AREA_SCANS ] ) ) {
+				$areas[ 'scan_repairs' ] = [
+					'slug'    => 'scan_repairs',
+					'title'   => __( 'Scan File Repairs', 'wp-simple-firewall' ),
+					'content' => $con->action_router->render( ReportAreaScansRepairs::class, [
+						'report'       => $this->action_data[ 'report' ],
+						'results_type' => 'scan_repairs'
 					] ),
 				];
 			}

@@ -199,10 +199,6 @@ class PageAdminPlugin extends BaseRender {
 					   __( 'Licensing', 'wp-simple-firewall' ),
 					   __( 'ShieldPRO', 'wp-simple-firewall' ),
 				   ],
-				   'free_trial'                                                    => [
-					   __( 'Licensing', 'wp-simple-firewall' ),
-					   __( 'Free Trial', 'wp-simple-firewall' ),
-				   ],
 				   PluginNavs::NAV_TOOLS.PluginNavs::SUBNAV_TOOLS_SESSIONS         => [
 					   __( 'Users', 'wp-simple-firewall' ),
 					   __( 'Sessions', 'wp-simple-firewall' ),

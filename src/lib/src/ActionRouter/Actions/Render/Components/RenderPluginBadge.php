@@ -6,14 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginBadgeClose,
 	Render\BaseRender,
-	Traits
+	Traits\AuthNotRequired
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class RenderPluginBadge extends BaseRender {
 
-	use Traits\AuthNotRequired;
+	use AuthNotRequired;
 
 	public const SLUG = 'render_plugin_badge';
 	public const TEMPLATE = '/snippets/plugin_badge_widget.twig';

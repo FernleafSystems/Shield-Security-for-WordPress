@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary
@@ -15,9 +14,9 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
-class DashboardWidget extends BaseRender {
+class DashboardWidget extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
-	use Traits\SecurityAdminNotRequired;
+	use SecurityAdminNotRequired;
 
 	public const SLUG = 'render_dashboard_widget';
 	public const TEMPLATE = '/admin/admin_dashboard_widget.twig';
@@ -107,7 +106,7 @@ class DashboardWidget extends BaseRender {
 				],
 				'recent_events'      => \array_map(
 					function ( $evt ) {
-						/** @var EntryVO $evt */
+						/** @var EventsDB\Record $evt */
 						return [
 							'name' => self::con()->loadEventsService()->getEventName( $evt->event ),
 							'at'   => Services::Request()
@@ -163,13 +162,11 @@ class DashboardWidget extends BaseRender {
 				),
 				'recent_users'       => \array_map(
 					function ( $sess ) {
-
 						$user = $sess[ 'user_login' ];
 						$userHref = Services::WpUsers()->getAdminUrl_ProfileEdit( $sess[ 'user_id' ] );
-						if ( $this->isObfuscateData() ) {
+						if ( !self::con()->isPluginAdmin() ) {
 							$user = is_email( $user ) ?
-								Obfuscate::Email( $user )
-								: \substr( $user, 0, 1 ).'****'.substr( $user, -1, 1 );
+								Obfuscate::Email( $user ) : \substr( $user, 0, 1 ).'****'.\substr( $user, -1, 1 );
 							$userHref = '#';
 						}
 
@@ -191,9 +188,5 @@ class DashboardWidget extends BaseRender {
 		}
 
 		return $vars;
-	}
-
-	private function isObfuscateData() :bool {
-		return !self::con()->isPluginAdmin();
 	}
 }

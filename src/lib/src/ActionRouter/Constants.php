@@ -147,6 +147,7 @@ class Constants {
 		Actions\Render\Components\Reports\PageReportsView::class,
 		Actions\Render\Components\Reports\Components\ReportAreaChanges::class,
 		Actions\Render\Components\Reports\Components\ReportAreaStats::class,
+		Actions\Render\Components\Reports\Components\ReportAreaScansRepairs::class,
 		Actions\Render\Components\Reports\Components\ReportAreaScansResults::class,
 		Actions\Render\Components\Reports\ChartsCustom::class,
 		Actions\Render\Components\Reports\ChartsSummary::class,

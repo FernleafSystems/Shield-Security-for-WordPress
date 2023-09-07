@@ -42,8 +42,9 @@ class CreateReportVO {
 			case Constants::REPORT_TYPE_ALERT:
 				$this->rep->areas = [
 					Constants::REPORT_AREA_SCANS => [
-						'new',
-						'current',
+						'scan_results_new',
+						'scan_results_current',
+						'scan_repairs',
 					],
 				];
 				break;
