@@ -218,24 +218,33 @@ class RetrieveItems extends RetrieveBase {
 	 */
 	private function addMetaToResults( array $results ) {
 
-		$resultItemIDs = \array_map( function ( $res ) {
-			return $res->resultitem_id;
-		}, $results );
+		$offset = 0;
+		$length = 200;
+		do {
+			$resultsSlice = \array_slice( $results, $offset, $length );
+			if ( !empty( $resultsSlice ) ) {
+				$resultItemIDs = \array_map( function ( $res ) {
+					return $res->resultitem_id;
+				}, $resultsSlice );
 
-		/** @var ResultItemMetaDB\Ops\Select $rimSelector */
-		$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
-		/** @var ResultItemMetaDB\Ops\Record[] $metas */
-		$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
+				/** @var ResultItemMetaDB\Ops\Select $rimSelector */
+				$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
+				/** @var ResultItemMetaDB\Ops\Record[] $metas */
+				$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
-		foreach ( $results as $result ) {
-			$meta = $result->meta;
-			foreach ( $metas as $metaRecord ) {
-				if ( $metaRecord->ri_ref == $result->resultitem_id ) {
-					$meta[ $metaRecord->meta_key ] = $metaRecord->meta_value;
+				foreach ( $resultsSlice as $result ) {
+					$meta = $result->meta;
+					foreach ( $metas as $metaRecord ) {
+						if ( $metaRecord->ri_ref == $result->resultitem_id ) {
+							$meta[ $metaRecord->meta_key ] = $metaRecord->meta_value;
+						}
+					}
+					$result->meta = $meta;
 				}
+				$offset += $length;
 			}
-			$result->meta = $meta;
-		}
+
+		} while ( !empty( $resultsSlice ) );
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
