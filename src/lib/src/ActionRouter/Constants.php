@@ -110,7 +110,7 @@ class Constants {
 		Actions\Render\GenericRender::class,
 
 		Actions\Render\Components\AdminNotice::class,
-		Actions\Render\Components\DashboardWidget::class,
+		Actions\Render\Components\Widgets\WpDashboardSummary::class,
 		Actions\Render\Components\FormSecurityAdminLoginBox::class,
 		Actions\Render\Components\PrivacyPolicy::class,
 		Actions\Render\Components\ToastPlaceholder::class,

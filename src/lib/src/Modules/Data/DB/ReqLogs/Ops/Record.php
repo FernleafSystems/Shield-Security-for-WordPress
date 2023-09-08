@@ -28,6 +28,9 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 			case 'uid':
 				$value = (int)$value;
 				break;
+			case 'path':
+				$value = (string)$value;
+				break;
 			default:
 				break;
 		}

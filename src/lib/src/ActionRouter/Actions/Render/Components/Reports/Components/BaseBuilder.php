@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
 
+/**
+ * @deprecated 18.3.0
+ */
 abstract class BaseBuilder extends ReportsCollatorBase {
 
 	public const TYPE = Constants::REPORT_TYPE_INFO;

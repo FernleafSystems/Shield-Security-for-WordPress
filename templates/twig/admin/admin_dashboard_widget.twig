@@ -28,12 +28,6 @@
 {% if vars.recent_ips_blocked|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
-			<thead>
-			<tr>
-				<th>IP</th>
-				<th>{{ strings.blocked }}</th>
-			</tr>
-			</thead>
 			<tbody>
 			{% for ip in vars.recent_ips_blocked %}
 				<tr>
@@ -63,12 +57,6 @@
 {% if vars.recent_ips_offense|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
-			<thead>
-			<tr>
-				<th>IP</th>
-				<th>{{ strings.last_offense }}</th>
-			</tr>
-			</thead>
 			<tbody>
 			{% for ip in vars.recent_ips_offense %}
 				<tr>
@@ -98,13 +86,6 @@
 {% if vars.recent_users|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
-			<thead>
-			<tr>
-				<th>{{ strings.user }}</th>
-				<th>IP</th>
-				<th>{{ strings.session_started }}</th>
-			</tr>
-			</thead>
 			<tbody>
 			{% for session in vars.recent_users %}
 				<tr>
@@ -139,12 +120,6 @@
 {% if vars.recent_events|default([])|length > 0 %}
 	<div class="mini-scrolling-table">
 		<table class="table-recent wp-list-table widefat fixed striped">
-			<thead>
-			<tr>
-				<th>{{ strings.events }}</th>
-				<th>{{ strings.time }}</th>
-			</tr>
-			</thead>
 			<tbody>
 			{% for event in vars.recent_events %}
 				<tr>

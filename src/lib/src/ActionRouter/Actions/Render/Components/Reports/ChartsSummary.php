@@ -39,17 +39,6 @@ class ChartsSummary extends Base {
 					\number_format( $eventSelector->clearWheres()->sumEventsLike( 'bottrack_' ) ) ),
 				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
 			],
-			'comments'       => [
-				'id'        => 'comment_block',
-				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
-					\number_format( $eventSelector->clearWheres()->sumEvents( [
-						'spam_block_bot',
-						'spam_block_human',
-						'spam_block_recaptcha'
-					] ) ) ),
-				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
-			],
 			'transgressions' => [
 				'id'        => 'ip_offense',
 				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
@@ -75,10 +64,21 @@ class ChartsSummary extends Base {
 				),
 				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
 			],
+			'comments'       => [
+				'id'        => 'comment_block',
+				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
+					\number_format( $eventSelector->clearWheres()->sumEvents( [
+						'spam_block_bot',
+						'spam_block_human',
+						'spam_block_recaptcha'
+					] ) ) ),
+				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
+			],
 		];
 
 		foreach ( $statsData as $key => $statData ) {
-			$subtitle = sprintf( __( 'previous %s %s', 'wp-simple-firewall' ), 7, __( 'days', 'wp-simple-firewall' ) );
+			$subtitle = sprintf( __( '7 %s', 'wp-simple-firewall' ), __( 'days', 'wp-simple-firewall' ) );
 			$statsData[ $key ][ 'title_sub' ] = $subtitle;
 			$statsData[ $key ][ 'tooltip_chart' ] = sprintf( '%s: %s.', __( 'Stats', 'wp-simple-firewall' ), $subtitle );
 		}

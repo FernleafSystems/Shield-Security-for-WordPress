@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCardPrimary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewActivity;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewIpBlocks;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewIpOffenses;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OverviewTraffic;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
@@ -37,18 +41,54 @@ class PageDashboardOverview extends BasePluginAdminPage {
 			'vars'    => [
 				'widgets' => [
 					[
-						'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
-						'title'   => __( 'View All Security Grades', 'wp-simple-firewall' ),
-						'content' => $con->action_router->render( MeterCardPrimary::class, [
+						'title'     => false,
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
+						'href_text' => __( 'View All Security Grades', 'wp-simple-firewall' ),
+						'content'   => $con->action_router->render( MeterCardPrimary::class, [
 							'meter_slug' => MeterSummary::SLUG,
 							'meter_data' => ( new Handler() )->getMeter( MeterSummary::class ),
 						] ),
 					],
 					[
-						'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
-						'title'   => __( 'View/Create Reports', 'wp-simple-firewall' ),
-						'content' => $con->action_router->render( ReportsTable::class, [
+						'title'     => __( 'IP Offenses', 'wp-simple-firewall' ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ),
+						'href_text' => __( 'IP Rules', 'wp-simple-firewall' ),
+						'content'   => $con->action_router->render( OverviewIpOffenses::class, [
+							'limit' => 5,
+						] ),
+						'width'     => 3,
+					],
+					[
+						'title'     => __( 'IP Blocks', 'wp-simple-firewall' ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ),
+						'href_text' => __( 'IP Rules', 'wp-simple-firewall' ),
+						'content'   => $con->action_router->render( OverviewIpBlocks::class, [
+							'limit' => 5,
+						] ),
+						'width'     => 3,
+					],
+					[
+						'title'     => __( 'Recent Reports', 'wp-simple-firewall' ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+						'href_text' => __( 'View/Create Reports', 'wp-simple-firewall' ),
+						'content'   => $con->action_router->render( ReportsTable::class, [
 							'reports_limit' => 5,
+						] ),
+					],
+					[
+						'title'     => __( 'Recent Activity', 'wp-simple-firewall' ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+						'href_text' => __( 'View Activity Logs', 'wp-simple-firewall' ),
+						'content'   => $con->action_router->render( OverviewActivity::class, [
+							'limit' => 5,
+						] ),
+					],
+					[
+						'title'     => __( 'Recent Traffic', 'wp-simple-firewall' ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+						'href_text' => __( 'View Site Traffic', 'wp-simple-firewall' ),
+						'content'   => $con->action_router->render( OverviewTraffic::class, [
+							'limit' => 5,
 						] ),
 					],
 				],

@@ -9,9 +9,12 @@
 			<div class="col-xl-{{ widget.width|default(6) }} mt-4">
 				<div class="card">
 					<div class="card-body">
+						{% if widget.title|default(false) %}
+							<div class="card-title fw-bold">{{ widget.title }}</div>
+						{% endif %}
 						{{ widget.content|raw }}
 						<h6 class="card-title mb-0 mt-3">
-							<a href="{{ widget.href }}" class="fw-normal">{{ widget.title }} &rarr;</a>
+							<a href="{{ widget.href }}" class="fw-normal">{{ widget.href_text }} &rarr;</a>
 						</h6>
 					</div>
 				</div>

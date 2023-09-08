@@ -10,7 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginAutoDbRepair,
-	PluginDeleteForceOff
+	PluginDeleteForceOff,
+	Render\Components
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -181,11 +182,11 @@ class AssetsCustomizer {
 						],
 					],
 					'offcanvas'     => [
-						'ip_analysis'        => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
-						'form_ip_rule_add'   => Actions\Render\Components\OffCanvas\IpRuleAddForm::SLUG,
-						'form_report_create' => Actions\Render\Components\OffCanvas\FormReportCreate::SLUG,
-						'meter_analysis'     => Actions\Render\Components\OffCanvas\MeterAnalysis::SLUG,
-						'mod_config'         => Actions\Render\Components\OffCanvas\ModConfig::SLUG,
+						'ip_analysis'        => Components\OffCanvas\IpAnalysis::SLUG,
+						'form_ip_rule_add'   => Components\OffCanvas\IpRuleAddForm::SLUG,
+						'form_report_create' => Components\OffCanvas\FormReportCreate::SLUG,
+						'meter_analysis'     => Components\OffCanvas\MeterAnalysis::SLUG,
+						'mod_config'         => Components\OffCanvas\ModConfig::SLUG,
 					],
 					'mod_options'   => [
 						'ajax' => [
@@ -194,7 +195,7 @@ class AssetsCustomizer {
 					],
 					'super_search'  => [
 						'vars' => [
-							'render_slug' => Actions\Render\Components\SuperSearchResults::SLUG,
+							'render_slug' => Components\SuperSearchResults::SLUG,
 						],
 					],
 					'select_search' => [
@@ -235,7 +236,7 @@ class AssetsCustomizer {
 					'ajax_render'      => ActionData::Build( Actions\AjaxRender::class ),
 					'dashboard_widget' => [
 						'ajax' => [
-							'render_dashboard_widget' => Actions\Render\Components\DashboardWidget::SLUG
+							'render_dashboard_widget' => Components\Widgets\WpDashboardSummary::SLUG
 						]
 					],
 					'notices'          => [
