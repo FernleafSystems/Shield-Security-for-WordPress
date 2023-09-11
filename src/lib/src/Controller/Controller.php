@@ -531,7 +531,7 @@ class Controller extends DynPropertiesClass {
 	 * @param array $headers
 	 * @return array
 	 */
-	public function adjustNocacheHeaders( $headers ) {
+	public function adjustNocacheHeaders( $headers ) :array {
 		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
 			$Hs = \array_map( '\trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
 			$Hs[] = 'no-store';
@@ -734,9 +734,7 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpShutdown() {
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
-		if ( $this->opts !== null ) {
-			$this->opts->commit();
-		}
+		$this->opts->commit();
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();

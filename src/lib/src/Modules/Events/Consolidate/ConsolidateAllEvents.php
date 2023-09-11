@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Consolidate;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,33 +30,31 @@ class ConsolidateAllEvents {
 
 		$hourCount = 0;
 		do {
-			/** @var Events\Select $select */
+			/** @var EventsDB\Select $select */
 			$select = $dbh->getQuerySelector();
 			$nRecords = $select->filterByBoundary_Hour( $time->timestamp )
 							   ->filterByEvent( $event )
 							   ->count();
 
 			if ( $nRecords > 1 ) {
-				/** @var Events\Select $select */
+				/** @var EventsDB\Select $select */
 				$select = $dbh->getQuerySelector();
-				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $select->filterByBoundary_Hour( $time->timestamp )
-							   ->sumEvent( $event );
-				if ( $nSum > 0 ) {
+				$sum = $select->filterByBoundary_Hour( $time->timestamp )
+							  ->sumEvent( $event );
+				if ( $sum > 0 ) {
 
-					/** @var Events\Delete $deleter */
+					/** @var EventsDB\Delete $deleter */
 					$deleter = $dbh->getQueryDeleter();
 					$deleter->filterByBoundary_Hour( $time->timestamp )
 							->filterByEvent( $event )
 							->query();
 
-					$entry = new Events\EntryVO();
-					$entry->event = $event;
-					$entry->count = $nSum;
-					$entry->created_at = $time->timestamp + 1;
-					/** @var Events\Insert $inserter */
-					$inserter = $dbh->getQueryInserter();
-					$inserter->insert( $entry );
+					/** @var EventsDB\Record $record */
+					$record = $dbh->getRecord();
+					$record->event = $event;
+					$record->count = $sum;
+					$record->created_at = $time->timestamp + 1;
+					$dbh->getQueryInserter()->insert( $record );
 				}
 			}
 
@@ -79,32 +77,30 @@ class ConsolidateAllEvents {
 
 		$count = 0;
 		do {
-			/** @var Events\Select $select */
+			/** @var EventsDB\Select $select */
 			$select = $dbh->getQuerySelector();
 			$recordsCount = $select->filterByBoundary_Day( $time->timestamp )
 								   ->filterByEvent( $event )
 								   ->count();
 
 			if ( $recordsCount > 1 ) {
-				/** @var Events\Select $select */
+				/** @var EventsDB\Select $select */
 				$select = $dbh->getQuerySelector();
-				/** @var Events\EntryVO[] $aRecords */
 				$sum = $select->filterByBoundary_Day( $time->timestamp )->sumEvent( $event );
 				if ( $sum > 0 ) {
 
-					/** @var Events\Delete $deleter */
+					/** @var EventsDB\Delete $deleter */
 					$deleter = $dbh->getQueryDeleter();
 					$deleter->filterByBoundary_Day( $time->timestamp )
 							->filterByEvent( $event )
 							->query();
 
-					$entry = new Events\EntryVO();
-					$entry->event = $event;
-					$entry->count = $sum;
-					$entry->created_at = $time->timestamp + 1;
-					/** @var Events\Insert $inserter */
-					$inserter = $dbh->getQueryInserter();
-					$inserter->insert( $entry );
+					/** @var EventsDB\Record $record */
+					$record = $dbh->getRecord();
+					$record->event = $event;
+					$record->count = $sum;
+					$record->created_at = $time->timestamp + 1;
+					$dbh->getQueryInserter()->insert( $record );
 				}
 			}
 
@@ -127,33 +123,30 @@ class ConsolidateAllEvents {
 
 		$count = 0;
 		do {
-			/** @var Events\Select $select */
+			/** @var EventsDB\Select $select */
 			$select = $dbh->getQuerySelector();
 			$records = $select->filterByBoundary_Week( $time->timestamp )
 							  ->filterByEvent( $event )
 							  ->count();
 
 			if ( $records > 1 ) {
-				/** @var Events\Select $select */
+				/** @var EventsDB\Select $select */
 				$select = $dbh->getQuerySelector();
-				/** @var Events\EntryVO[] $aRecords */
-				$sum = $select->filterByBoundary_Week( $time->timestamp )
-							  ->sumEvent( $event );
+				$sum = $select->filterByBoundary_Week( $time->timestamp )->sumEvent( $event );
 
 				if ( $sum > 0 ) {
-					/** @var Events\Delete $deleter */
+					/** @var EventsDB\Delete $deleter */
 					$deleter = $dbh->getQueryDeleter();
 					$deleter->filterByBoundary_Week( $time->timestamp )
 							->filterByEvent( $event )
 							->query();
 
-					$entry = new Events\EntryVO();
-					$entry->event = $event;
-					$entry->count = $sum;
-					$entry->created_at = $time->timestamp + 1;
-					/** @var Events\Insert $inserter */
-					$inserter = $dbh->getQueryInserter();
-					$inserter->insert( $entry );
+					/** @var EventsDB\Record $record */
+					$record = $dbh->getRecord();
+					$record->event = $event;
+					$record->count = $sum;
+					$record->created_at = $time->timestamp + 1;
+					$dbh->getQueryInserter()->insert( $record );
 				}
 			}
 
@@ -172,32 +165,30 @@ class ConsolidateAllEvents {
 
 		$count = 0;
 		do {
-			/** @var Events\Select $select */
+			/** @var EventsDB\Select $select */
 			$select = $dbh->getQuerySelector();
 			$recordsCount = $select->filterByBoundary_Month( $time->timestamp )
 								   ->filterByEvent( $event )
 								   ->count();
 
 			if ( $recordsCount > 1 ) {
-				/** @var Events\Select $select */
+				/** @var EventsDB\Select $select */
 				$select = $dbh->getQuerySelector();
-				/** @var Events\EntryVO[] $aRecords */
 				$sum = $select->filterByBoundary_Month( $time->timestamp )->sumEvent( $event );
 
 				if ( $sum > 0 ) {
-					/** @var Events\Delete $oDel */
-					$oDel = $dbh->getQueryDeleter();
-					$oDel->filterByBoundary_Month( $time->timestamp )
-						 ->filterByEvent( $event )
-						 ->query();
+					/** @var EventsDB\Delete $deleter */
+					$deleter = $dbh->getQueryDeleter();
+					$deleter->filterByBoundary_Month( $time->timestamp )
+							->filterByEvent( $event )
+							->query();
 
-					$entry = new Events\EntryVO();
-					$entry->event = $event;
-					$entry->count = $sum;
-					$entry->created_at = $time->timestamp + 1;
-					/** @var Events\Insert $inserter */
-					$inserter = $dbh->getQueryInserter();
-					$inserter->insert( $entry );
+					/** @var EventsDB\Record $record */
+					$record = $dbh->getRecord();
+					$record->event = $event;
+					$record->count = $sum;
+					$record->created_at = $time->timestamp + 1;
+					$dbh->getQueryInserter()->insert( $record );
 				}
 			}
 
@@ -214,38 +205,36 @@ class ConsolidateAllEvents {
 						->subYear()
 						->startOfYear();
 
-		/** @var Events\Select $selector */
+		/** @var EventsDB\Select $selector */
 		$selector = $dbh->getQuerySelector();
 		$oldest = $selector->getOldestForEvent( $event );
 
 		do {
-			/** @var Events\Select $selector */
+			/** @var EventsDB\Select $selector */
 			$selector = $dbh->getQuerySelector();
-			$nRecords = $selector->filterByBoundary_Year( $time->timestamp )
-								 ->filterByEvent( $event )
-								 ->count();
+			$records = $selector->filterByBoundary_Year( $time->timestamp )
+								->filterByEvent( $event )
+								->count();
 
-			if ( $nRecords > 1 ) {
-				/** @var Events\Select $selector */
+			if ( $records > 1 ) {
+				/** @var EventsDB\Select $selector */
 				$selector = $dbh->getQuerySelector();
-				/** @var Events\EntryVO[] $aRecords */
-				$nSum = $selector->filterByBoundary_Year( $time->timestamp )
-								 ->sumEvent( $event );
+				$sum = $selector->filterByBoundary_Year( $time->timestamp )->sumEvent( $event );
 
-				if ( $nSum > 0 ) {
-					/** @var Events\Delete $deleter */
+				if ( $sum > 0 ) {
+					/** @var EventsDB\Delete $deleter */
 					$deleter = $dbh->getQueryDeleter();
 					$deleter->filterByBoundary_Year( $time->timestamp )
 							->filterByEvent( $event )
 							->query();
 
-					$entry = new Events\EntryVO();
-					$entry->event = $event;
-					$entry->count = $nSum;
-					$entry->created_at = $time->timestamp + 1;
-					/** @var Events\Insert $inserter */
-					$inserter = $dbh->getQueryInserter();
-					$inserter->insert( $entry );
+					/** @var EventsDB\Record $record */
+					$record = $dbh->getRecord();
+					$record->event = $event;
+					$record->count = $sum;
+					$record->created_at = $time->timestamp + 1;
+					/** @var EventsDB\Insert $inserter */
+					$dbh->getQueryInserter()->insert( $record );
 				}
 			}
 
@@ -257,7 +246,7 @@ class ConsolidateAllEvents {
 	 * @return string[]
 	 */
 	protected function getAllEvents() :array {
-		/** @var Events\Select $select */
+		/** @var EventsDB\Select $select */
 		$select = $this->mod()->getDbH_Events()->getQuerySelector();
 		return \array_filter(
 			$select->getAllEvents(),

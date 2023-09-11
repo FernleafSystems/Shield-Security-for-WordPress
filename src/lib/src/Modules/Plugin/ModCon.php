@@ -43,6 +43,11 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $sessionCon;
 
+	/**
+	 * @var Lib\TrackingVO
+	 */
+	private $tracking;
+
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		return $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController();
 	}
@@ -67,7 +72,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @deprecated 18.3.1
 	 */
 	public function getDbH_ReportLogs() :DB\Reports\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'report' );
+		return $this->getDbHandler()->loadDbH( 'reports' );
 	}
 
 	public function getDbH_Reports() :DB\Reports\Ops\Handler {
@@ -78,6 +83,14 @@ class ModCon extends BaseShield\ModCon {
 		$this->setVisitorIpSource();
 		$this->setupCacheDir();
 		$this->declareWooHposCompat();
+	}
+
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+
+		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
+			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
+		}
 	}
 
 	protected function setupCacheDir() {
@@ -306,6 +319,16 @@ class ModCon extends BaseShield\ModCon {
 				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
+	}
+
+	public function getTracking() :Lib\TrackingVO {
+		if ( !isset( $this->tracking ) ) {
+			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( $this->opts()->getOpt( 'transient_tracking' ) );
+			add_action( self::con()->prefix( 'pre_options_store' ), function () {
+				$this->opts()->setOpt( 'transient_tracking', $this->tracking->getRawData() );
+			} );
+		}
+		return $this->tracking;
 	}
 
 	public function isModOptEnabled() :bool {

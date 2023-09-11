@@ -34,8 +34,7 @@ class Upgrade extends ExecOnceModConsumer {
 	 * version is less than the upgrade version, run the upgrade code.
 	 */
 	protected function upgradeModule() {
-		$con = self::con();
-		$upgrades = $con->cfg->version_upgrades;
+		$upgrades = self::con()->cfg->version_upgrades;
 		\asort( $upgrades );
 		foreach ( $upgrades as $version ) {
 			$upgradeMethod = 'upgrade_'.\str_replace( '.', '', $version );

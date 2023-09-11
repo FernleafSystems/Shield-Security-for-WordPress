@@ -23,10 +23,8 @@ class Upgrade {
 		$hook = $con->prefix( 'plugin-upgrade' );
 		if ( \version_compare( $prev, $con->cfg->version(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
 			$con->getModule_Plugin()->deleteAllPluginCrons();
-			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $prev ] );
+			wp_schedule_single_event( Services::Request()->ts() + 1, $hook, [ $prev ] );
 		}
-
-		$this->preUpgrade();
 
 		add_action( $hook, function ( $previousVersion ) {
 			foreach ( self::con()->modules as $mod ) {
@@ -38,9 +36,5 @@ class Upgrade {
 		} );
 
 		$con->cfg->previous_version = $con->cfg->version();
-	}
-
-	private function preUpgrade() :void {
-		Services::WpDb()->clearResultShowTables();
 	}
 }

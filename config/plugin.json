@@ -488,6 +488,13 @@
       "description":   "Decide when you should be sent non-critical information and reports about your site security."
     },
     {
+      "key":          "transient_tracking",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
       "key":          "tracking_last_sent_at",
       "section":      "section_non_ui",
       "transferable": false,

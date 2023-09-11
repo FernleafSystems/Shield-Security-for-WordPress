@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Core;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Databases {
 
@@ -35,6 +36,7 @@ class Databases {
 	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
+		$req = Services::Request();
 		$con = self::con();
 
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;
@@ -56,11 +58,12 @@ class Databases {
 				throw new \Exception( sprintf( 'DB Handler Class for key (%s) is not valid', $dbKey ) );
 			}
 
+			$modPlugin = $con->getModule_Plugin();
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 			/** @var Core\Databases\Base\Handler|mixed $dbh */
 			$dbh = new $dbClass( $dbDef );
-			$dbh->use_table_ready_cache = $con->getModule_Plugin()->getActivateLength()
-										  > Core\Databases\Common\TableReadyCache::READY_LIFETIME;
+			$dbh->use_table_ready_cache = $modPlugin->getActivateLength() > Core\Databases\Common\TableReadyCache::READY_LIFETIME
+										  && ( $req->ts() - $modPlugin->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ] = $dbh;

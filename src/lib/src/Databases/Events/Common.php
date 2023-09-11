@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
+/**
+ * @deprecated 18.3.1
+ */
 trait Common {
 
 	/**

@@ -101,7 +101,7 @@
         "transient": {
           "macro_type": "bool",
           "default":    0,
-          "comment":    "Request log transient"
+          "comment":    "Temporary Log"
         },
         "meta":         {
           "macro_type": "meta"

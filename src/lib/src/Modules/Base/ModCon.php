@@ -445,7 +445,7 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 
 		if ( $store ) {
-			self::con()->opts === null ? $this->store() : self::con()->opts->store();
+			self::con()->opts->store();
 		}
 	}
 
