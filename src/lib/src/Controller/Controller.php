@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\ConfigVO                                        $cfg
  * @property Config\OptsHandler                                     $opts
  * @property ActionRoutingController                                $action_router
+ * @property Database\DbCon                                         $db_con
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -133,6 +134,13 @@ class Controller extends DynPropertiesClass {
 				if ( \is_null( $val ) ) {
 					$val = $this->labels();
 					$this->labels = $val;
+				}
+				break;
+
+			case 'db_con':
+				if ( !$val instanceof Database\DbCon ) {
+					$val = new Database\DbCon();
+					$this->db_con = $val;
 				}
 				break;
 

@@ -12,7 +12,7 @@ class PreModulesBootCheck {
 
 	use PluginControllerConsumer;
 
-	public function run( bool $ensureFreshResults = false ) :array {
+	public function run() :array {
 		$con = self::con();
 
 		$checks = [
@@ -20,11 +20,10 @@ class PreModulesBootCheck {
 			]
 		];
 
-		foreach ( $con->modules as $mod ) {
+		foreach ( \array_keys( $con->db_con->getHandlers() ) as $dbKey ) {
 			try {
-				foreach ( $mod->getDbHandler()->loadAllDbHandlers( $ensureFreshResults ) as $dbh ) {
-					$checks[ 'dbs' ][ $dbh->getTableSchema()->slug ] = $dbh->isReady();
-				}
+				$dbh = $con->db_con->loadDbH( $dbKey );
+				$checks[ 'dbs' ][ $dbh->getTableSchema()->slug ] = $dbh->isReady();
 			}
 			catch ( \Exception $e ) {
 			}

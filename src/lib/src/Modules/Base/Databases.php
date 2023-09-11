@@ -34,10 +34,15 @@ class Databases {
 	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 * @throws \Exception
+	 * @deprecated 18.3.1
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$req = Services::Request();
 		$con = self::con();
+
+		if ( $con->db_con !== null ) {
+			return $con->db_con->loadDbH( $dbKey );
+		}
 
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;
 
