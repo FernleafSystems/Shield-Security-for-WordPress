@@ -5,20 +5,25 @@
 	{{ content.summary_charts|raw }}
 
 	<div class="row">
-		{% for widget in vars.widgets %}
-			<div class="col-xl-{{ widget.width|default(6) }} mt-4">
-				<div class="card">
-					<div class="card-body">
-						{% if widget.title|default(false) %}
-							<div class="card-title fw-bold">{{ widget.title }}</div>
-						{% endif %}
-						{{ widget.content|raw }}
-						<h6 class="card-title mb-0 mt-3">
-							<a href="{{ widget.href }}" class="fw-normal">{{ widget.href_text }} &rarr;</a>
-						</h6>
-					</div>
-				</div>
+		<div class="col-xl-6">
+			<div class="row">
+				{% for widget in vars.widget_grade %}
+					{% include '/wpadmin_pages/plugin_admin/dashboard_overview_widget.twig' %}
+				{% endfor %}
 			</div>
+		</div>
+		<div class="col-xl-6">
+			<div class="row">
+				{% for widget in vars.widget_scans %}
+					{% include '/wpadmin_pages/plugin_admin/dashboard_overview_widget.twig' %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		{% for widget in vars.widget_general %}
+			{% include '/wpadmin_pages/plugin_admin/dashboard_overview_widget.twig' %}
 		{% endfor %}
 	</div>
 

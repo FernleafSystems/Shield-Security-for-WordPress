@@ -1221,3 +1221,8 @@ td.status_file_size {
 .shield_legend_table .row:nth-of-type(even) div {
 	background: #f9f9f9;
 }
+.dashboard_overview_widget .card.text-bg-secondary a,
+.dashboard_overview_widget .card.text-bg-danger a,
+.dashboard_overview_widget .card.text-bg-success a {
+	color: white;
+}
