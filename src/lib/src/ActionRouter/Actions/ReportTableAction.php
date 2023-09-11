@@ -11,7 +11,7 @@ class ReportTableAction extends BaseAction {
 			case 'delete':
 				$success = self::con()
 							   ->getModule_Plugin()
-							   ->getDbH_ReportLogs()
+							   ->getDbH_Reports()
 							   ->getQueryDeleter()
 							   ->deleteById( (int)$this->action_data[ 'rid' ] );
 				$msg = 'Report deleted.';

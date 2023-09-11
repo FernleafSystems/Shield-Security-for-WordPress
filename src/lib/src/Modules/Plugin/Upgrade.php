@@ -15,7 +15,7 @@ class Upgrade extends Base\Upgrade {
 		}
 	}
 
-	protected function upgrade_1800() {
+	protected function upgrade_1831() {
 		// remove old tables
 		$WPDB = Services::WpDb();
 		foreach (
@@ -25,6 +25,7 @@ class Upgrade extends Base\Upgrade {
 				'spambot_comments_filter',
 				'statistics',
 				'ip_lists',
+				'report',
 				'sessions'
 			] as $table
 		) {

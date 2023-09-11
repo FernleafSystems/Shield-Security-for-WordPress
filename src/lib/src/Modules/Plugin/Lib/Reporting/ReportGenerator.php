@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
@@ -100,7 +100,7 @@ class ReportGenerator {
 		}
 
 		/** @var ReportsDB\Record $record */
-		$record = $this->mod()->getDbH_ReportLogs()->getRecord();
+		$record = $this->mod()->getDbH_Reports()->getRecord();
 		$record->interval_start_at = $report->start_at;
 		$record->interval_end_at = $report->end_at;
 		$record->interval_length = $report->interval ?? 'custom';
@@ -109,7 +109,7 @@ class ReportGenerator {
 		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;
 		$record->title = $report->title;
 		$record->content = \function_exists( '\gzdeflate' ) ? \gzdeflate( $report->content ) : $report->content;
-		$this->mod()->getDbH_ReportLogs()->getQueryInserter()->insert( $record );
+		$this->mod()->getDbH_Reports()->getQueryInserter()->insert( $record );
 
 		self::con()->fireEvent( 'report_generated', [
 			'audit_params' => [

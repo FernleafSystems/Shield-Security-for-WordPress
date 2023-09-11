@@ -63,8 +63,15 @@ class ModCon extends BaseShield\ModCon {
 		return $this->shieldNetCon ?? $this->shieldNetCon = new Shield\ShieldNetApi\ShieldNetApiController();
 	}
 
-	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {
+	/**
+	 * @deprecated 18.3.1
+	 */
+	public function getDbH_ReportLogs() :DB\Reports\Ops\Handler {
 		return $this->getDbHandler()->loadDbH( 'report' );
+	}
+
+	public function getDbH_Reports() :DB\Reports\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'reports' );
 	}
 
 	protected function doPostConstruction() {

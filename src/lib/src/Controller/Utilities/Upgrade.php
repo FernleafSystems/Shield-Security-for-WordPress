@@ -26,6 +26,8 @@ class Upgrade {
 			wp_schedule_single_event( Services::Request()->ts() + 3, $hook, [ $prev ] );
 		}
 
+		$this->preUpgrade();
+
 		add_action( $hook, function ( $previousVersion ) {
 			foreach ( self::con()->modules as $mod ) {
 				$H = $mod->getUpgradeHandler();
@@ -36,5 +38,9 @@ class Upgrade {
 		} );
 
 		$con->cfg->previous_version = $con->cfg->version();
+	}
+
+	private function preUpgrade() :void {
+		Services::WpDb()->clearResultShowTables();
 	}
 }

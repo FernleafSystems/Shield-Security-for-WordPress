@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops\Record;
 
 /**
  * @property string       $type

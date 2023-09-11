@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops;
 
 trait Common {
 

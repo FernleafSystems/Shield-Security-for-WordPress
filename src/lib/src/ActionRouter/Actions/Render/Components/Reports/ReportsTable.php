@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,7 +17,7 @@ class ReportsTable extends BaseRender {
 
 	protected function getRenderData() :array {
 		/** @var ReportDB\Select $selector */
-		$selector = self::con()->getModule_Plugin()->getDbH_ReportLogs()->getQuerySelector();
+		$selector = self::con()->getModule_Plugin()->getDbH_Reports()->getQuerySelector();
 		$limit = $this->action_data[ 'reports_limit' ] ?? 0;
 		if ( $limit > 0 ) {
 			$selector->setLimit( $limit );

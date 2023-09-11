@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportDB;
 
 class DisplayReport extends FullPageDisplayStatic {
 
@@ -16,7 +16,7 @@ class DisplayReport extends FullPageDisplayStatic {
 		/** @var ReportDB\Select $select */
 		$select = self::con()
 					  ->getModule_Plugin()
-					  ->getDbH_ReportLogs()
+					  ->getDbH_Reports()
 					  ->getQuerySelector();
 		/** @var ?|ReportDB\Record $report */
 		$report = $select->filterByReportID( $this->action_data[ 'report_unique_id' ] )->first();

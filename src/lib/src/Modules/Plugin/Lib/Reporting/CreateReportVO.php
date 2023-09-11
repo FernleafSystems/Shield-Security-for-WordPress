@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Report\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CreateReportVO {
@@ -72,7 +72,7 @@ class CreateReportVO {
 	private function setPreviousReport() :self {
 		$mod = $this->mod();
 		/** @var ReportsDB\Select $sel */
-		$sel = $mod->getDbH_ReportLogs()->getQuerySelector();
+		$sel = $mod->getDbH_Reports()->getQuerySelector();
 		$this->rep->previous = $sel->filterByType( $this->rep->type )
 								   ->filterByInterval( $this->rep->interval )
 								   ->setOrderBy( 'created_at' )

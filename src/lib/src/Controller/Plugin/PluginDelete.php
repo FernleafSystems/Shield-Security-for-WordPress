@@ -56,7 +56,7 @@ class PluginDelete {
 							$con->getModule_Data()->getDbH_UserMeta(),
 							$con->getModule_Data()->getDbH_IPs(),
 							$con->getModule_Events()->getDbH_Events(),
-							$con->getModule_Plugin()->getDbH_ReportLogs(),
+							$con->getModule_Plugin()->getDbH_Reports(),
 						]
 					),
 					[
