@@ -18,6 +18,7 @@ class Handler {
 		Meter\MeterLogin::SLUG         => Meter\MeterLogin::class,
 		Meter\MeterUsers::SLUG         => Meter\MeterUsers::class,
 		Meter\MeterSpam::SLUG          => Meter\MeterSpam::class,
+		Meter\MeterSystem::SLUG        => Meter\MeterSystem::class,
 	];
 
 	private static $BuiltMeters;

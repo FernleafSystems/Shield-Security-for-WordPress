@@ -13,12 +13,12 @@ class VerifyMeterComponents {
 
 		$declaredButNotExists = [];
 		foreach ( Components::COMPONENTS as $component ) {
-			if ( !class_exists( $component ) ) {
+			if ( !\class_exists( $component ) ) {
 				$declaredButNotExists[] = $component;
 			}
 		}
 		if ( !empty( $declaredButNotExists ) ) {
-			var_dump( 'Meter Components classes exist, but not declared: '.var_export( $declaredButNotExists, true ) );
+			var_dump( 'Meter Components classes exist, but not declared: '.\var_export( $declaredButNotExists, true ) );
 		}
 	}
 }

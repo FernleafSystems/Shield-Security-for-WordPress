@@ -38,14 +38,10 @@ class MeterSummary extends MeterBase {
 	protected function getComponents() :array {
 		return [
 			Component\AllComponents::class,
-			Component\SystemSslCertificate::class,
-			Component\SystemLibOpenssl::class,
-			Component\WpDbPassword::class,
 			Component\SecurityAdmin::class,
+			Component\ShieldPro::class,
 			Component\ActivityLogEnabled::class,
 			Component\TrafficLogEnabled::class,
-			Component\ShieldPro::class,
-			Component\PluginReportEmail::class,
 		];
 	}
 }

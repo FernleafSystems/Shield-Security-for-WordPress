@@ -37,7 +37,7 @@ class PluginBadge {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		if ( !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
+		if ( !\class_exists( 'Tribe_WP_Widget_Factory' ) ) {
 			register_widget( BadgeWidget::class );
 		}
 	}

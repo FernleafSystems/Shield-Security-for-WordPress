@@ -34,10 +34,4 @@ class IpAutoBlockCrowdsec extends IpBase {
 	public function descUnprotected() :string {
 		return __( 'Crowd-Sourced IP Blocking with CrowdSec is switched OFF.', 'wp-simple-firewall' );
 	}
-
-	protected function score() :int {
-		return $this->testIfProtected() ?
-			( self::con()->caps->canCrowdsecLevel2() ? static::WEIGHT : static::WEIGHT/3 )
-			: 0;
-	}
 }
