@@ -61,21 +61,6 @@ abstract class Base {
 		}
 	}
 
-	public function countScanProblems() :int {
-		if ( !isset( self::$resultsCounts[ $this->getSlug() ] ) ) {
-			if ( $this->isRestricted() ) {
-				$count = 0;
-			}
-			else {
-				$count = ( new RetrieveCount() )
-					->setScanController( $this )
-					->count();
-			}
-			self::$resultsCounts[ $this->getSlug() ] = $count;
-		}
-		return self::$resultsCounts[ $this->getSlug() ];
-	}
-
 	public function getScansController() :HackGuard\Scan\ScansController {
 		return $this->mod()->getScansCon();
 	}
