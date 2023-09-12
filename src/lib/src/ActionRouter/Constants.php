@@ -16,6 +16,7 @@ class Constants {
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
 		Actions\FileDownload::class,
+		Actions\FileDownloadAsStream::class,
 		Actions\IpAnalyseAction::class,
 		Actions\IpRuleAddSubmit::class,
 		Actions\IpRuleDelete::class,

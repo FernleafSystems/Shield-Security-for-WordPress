@@ -21,6 +21,15 @@
       },
       {
         "type":        "new",
+        "pro_only":    true,
+        "title":       "Live Traffic Log",
+        "description": [
+          "You can now temporarily switch the Traffic Log to live logging mode to capture all WordPress requests."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
         "pro_only":    false,
         "title":       "View Reports Archive",
         "description": [
@@ -34,6 +43,15 @@
         "title":       "Enhanced Summary Dashboard",
         "description": [
           "We've created a brand new dashboard which is to be used as a launchpad for any security actions."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Traffic Log Download",
+        "description": [
+          "All traffic logs can be downloaded to plain-text log files."
         ],
         "href":        ""
       }

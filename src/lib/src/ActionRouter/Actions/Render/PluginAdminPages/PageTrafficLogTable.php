@@ -18,6 +18,10 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
+				'text' => __( 'Download Traffic Logs', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
+			],
+			[
 				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
 				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_Traffic()->cfg->slug ),
 			],

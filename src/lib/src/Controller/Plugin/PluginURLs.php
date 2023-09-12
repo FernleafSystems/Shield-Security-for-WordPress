@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\FileDownload,
-	Constants
-};
+	Actions\FileDownloadAsStream,
+	Constants};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -110,6 +110,14 @@ class PluginURLs {
 	public function fileDownload( string $downloadCategory, array $params = [] ) :string {
 		return $this->noncedPluginAction(
 			FileDownload::class,
+			Services::WpGeneral()->getAdminUrl(),
+			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
+		);
+	}
+
+	public function fileDownloadAsStream( string $downloadCategory, array $params = [] ) :string {
+		return $this->noncedPluginAction(
+			FileDownloadAsStream::class,
 			Services::WpGeneral()->getAdminUrl(),
 			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
