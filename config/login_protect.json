@@ -3,7 +3,7 @@
   "properties":    {
     "slug":                  "login_protect",
     "load_priority":         100,
-    "name":                  "Login Guard",
+    "name":                  "Login Protection",
     "namespace":             "LoginGuard",
     "sidebar_name":          "Login Protection",
     "show_module_menu_item": false,

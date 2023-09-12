@@ -73,7 +73,7 @@ class PageDashboardMeters extends BasePluginAdminPage {
 				'inner_page_title_icon' => $con->svgs->raw( 'speedometer' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Security Overview', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Security Analysis', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View your entire WordPress site security at a glance and discover where you can improve.', 'wp-simple-firewall' ),
 
 				'click_clear_filter' => __( 'Click To Filter By Security Area or Status', 'wp-simple-firewall' ),

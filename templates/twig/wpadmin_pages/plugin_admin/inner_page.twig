@@ -3,11 +3,17 @@
 {% block inner_page_header %}
 
 	{% if strings.inner_page_title|default('') is not empty %}
-		<div class="row border-bottom mb-2 pb-2 inner-page-header">
+		<div class="row border-bottom mb-2 inner-page-header">
 			<div class="col">
-				<h4 class="mb-1 inner-page-header-title d-flex align-items-center">
+				<h4 class="mb-2 inner-page-header-title d-flex align-items-center">
 					{{ imgs.inner_page_title_icon|default('')|raw }}
-					{{ strings.inner_page_title|default('No inner page title set') }}
+					<div class="d-inline-block">
+						{% for breadcrumb in hrefs.breadcrumbs %}
+							<a href="{{ breadcrumb.href }}" class="border-bottom">{{ breadcrumb.text }}</a>
+							<span class="mx-1 fs-6" style="line-height: inherit">&raquo;</span>
+						{% endfor %}
+						{{ strings.inner_page_title|default('No inner page title set') }}
+					</div>
 					{% block inner_page_title_after %}{% endblock %}
 				</h4>
 				{% if strings.inner_page_subtitle|default('') is not empty %}
@@ -24,14 +30,14 @@
 				{% if hrefs.inner_page_contextual_hrefs|default('') is not empty %}
 
 					<div class="btn-group dropstart tour-navigation_v1"
-					     data-introtitle="Action Menu"
-					     data-introposition="left"
-					     data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options."
+						 data-introtitle="Action Menu"
+						 data-introposition="left"
+						 data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options."
 					>
 								<button type="button"
-								        class="btn btn-link dropdown-toggle"
-								        data-bs-toggle="dropdown"
-								        aria-expanded="false">{{ imgs.svgs.settings|raw }}</button>
+										class="btn btn-link dropdown-toggle"
+										data-bs-toggle="dropdown"
+										aria-expanded="false">{{ imgs.svgs.settings|raw }}</button>
 								<ul class="dropdown-menu">
 									{% for item in hrefs.inner_page_contextual_hrefs %}
 										<li>

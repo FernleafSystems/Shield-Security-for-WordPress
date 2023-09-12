@@ -48,7 +48,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'current_master_url' => $opts->getImportExportMasterImportUrl(),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Import Configuration', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Import/Export', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Quickly setup your site by importing from another site or a backup.', 'wp-simple-firewall' ),
 
 				'tab_by_file'        => __( 'Import From File', 'wp-simple-firewall' ),

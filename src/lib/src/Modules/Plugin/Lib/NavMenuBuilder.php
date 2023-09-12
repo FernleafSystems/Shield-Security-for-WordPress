@@ -316,38 +316,6 @@ class NavMenuBuilder {
 		];
 	}
 
-	private function reportsOld() :array {
-		$con = self::con();
-		return [
-			'slug'      => PluginNavs::NAV_REPORTS,
-			'title'     => __( 'Reports', 'wp-simple-firewall' ),
-			'subtitle'  => __( "See What's Happening", 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'clipboard-data-fill' ),
-			'introjs'   => [
-				'title' => __( 'Reports', 'wp-simple-firewall' ),
-				'body'  => __( "Security Reports.", 'wp-simple-firewall' ),
-			],
-			'sub_items' => [
-				$this->createSubItemForNavAndSub(
-					__( 'View/Create', 'wp-simple-firewall' ),
-					PluginNavs::NAV_REPORTS,
-					PluginNavs::SUBNAV_REPORTS_LIST
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Charts', 'wp-simple-firewall' ),
-					PluginNavs::NAV_REPORTS,
-					PluginNavs::SUBNAV_REPORTS_CHARTS
-				),
-//				[
-//					'slug'   => PluginNavs::NAV_REPORTS.'-stats',
-//					'title'  => __( 'Stats', 'wp-simple-firewall' ),
-//					'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_STATS ),
-//					'active' => $this->inav() === PluginNavs::NAV_STATS
-//				],
-			],
-		];
-	}
-
 	private function traffic() :array {
 		$con = self::con();
 		return [

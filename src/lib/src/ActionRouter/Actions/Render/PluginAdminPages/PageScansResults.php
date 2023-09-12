@@ -106,7 +106,7 @@ class PageScansResults extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
 			],
 			'strings'     => [
-				'inner_page_title'    => __( 'Scan Results', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'View Results', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage all scan results.', 'wp-simple-firewall' ),
 
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),

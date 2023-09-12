@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEn
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	HackGuard,
 	IPs,
@@ -77,9 +78,20 @@ class PageConfig extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
 			],
 			'strings' => [
-				'inner_page_title'    => sprintf( '%s > %s', __( 'Configuration', 'wp-simple-firewall' ), $mod->getDescriptors()[ 'title' ] ),
+				'inner_page_title'    => $mod->getDescriptors()[ 'title' ],
 				'inner_page_subtitle' => $mod->getDescriptors()[ 'subtitle' ],
 			],
 		];
+	}
+
+	/**
+	 * Must manually build breadcrumbs for dynamic loaded config.
+	 */
+	protected function getBreadCrumbs() :array {
+		$crumbs = parent::getBreadCrumbs();
+		if ( empty( $crumbs ) ) {
+			$crumbs = ( new BuildBreadCrumbs() )->for( PluginNavs::NAV_OPTIONS_CONFIG, $this->action_data[ 'mod_slug' ] );
+		}
+		return $crumbs;
 	}
 }

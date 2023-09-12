@@ -45,7 +45,7 @@ class PageTrafficLogTable extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'stoplights' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Traffic & Request Logs', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Request Logs', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and explore details of HTTP requests made to your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

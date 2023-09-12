@@ -53,7 +53,7 @@ class PageScansRun extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Scan Your Site', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),
 
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),

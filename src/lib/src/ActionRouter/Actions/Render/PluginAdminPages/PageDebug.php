@@ -58,7 +58,7 @@ class PageDebug extends BasePluginAdminPage {
 				'display_tests' => !empty( $availableTests ),
 			],
 			'hrefs'   => [
-				'display_rules' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES_VIEW ),
+				'display_rules' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'patch-question' ),

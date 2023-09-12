@@ -27,7 +27,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
-				'inner_page_title'    => __( 'Manage IP Rules', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Manage Rules', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
