@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Docs;
 
 /**
- * @deprecated 18.3.0
+ * @deprecated 18.3.2
  */
-class DocsChangeLog extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
+class DocsChangelog extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 }
