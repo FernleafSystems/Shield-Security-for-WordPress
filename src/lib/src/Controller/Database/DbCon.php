@@ -62,7 +62,20 @@ class DbCon {
 				throw new \Exception( sprintf( 'DB Definition for key (%s) is empty', $dbKey ) );
 			}
 
+			/**
+			 * We need to ensure that any dependent (foreign key references) tables are initiated before
+			 * attempting to initiate ourselves.
+			 */
 			$dbDef = $dbh[ 'def' ];
+			foreach ( $dbDef[ 'cols_custom' ] as $colDef ) {
+				if ( ( $colDef[ 'macro_type' ] ?? '' ) === Databases\Common\Types::MACROTYPE_FOREIGN_KEY_ID ) {
+					$table = $colDef[ 'foreign_key' ][ 'ref_table' ];
+					if ( \str_starts_with( $table, $con->getPluginPrefix( '_' ) ) ) {
+						$this->loadDbH( \str_replace( $con->getPluginPrefix( '_' ).'_', '', $table ) );
+					}
+				}
+			}
+
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
 			$modPlugin = $con->getModule_Plugin();
