@@ -22,7 +22,7 @@ class SystemPhpVersion extends Base {
 	}
 
 	public function descProtected() :string {
-		return sprintf( __( "WordPress is running on recent version (%s) of PHP (at least %s).", 'wp-simple-firewall' ),
+		return sprintf( __( "WordPress is running on a recent version (%s) of PHP (at least %s).", 'wp-simple-firewall' ),
 			Services::Data()->getPhpVersionCleaned(), '7.4' );
 	}
 

@@ -41,6 +41,7 @@ class Sessions extends BaseBuild {
 									  ->setSelectResultsFormat( ARRAY_A )
 									  ->setColumnsToSelect( [ 'user_id' ] )
 									  ->setOrderBy( 'updated_at' )
+									  ->setPage( ( $params[ 'paged' ] ?? 1 ) - 1 )
 									  ->setLimit( 20 )
 									  ->queryWithResult();
 				$UIDs = \array_map(

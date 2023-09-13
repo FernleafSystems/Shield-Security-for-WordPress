@@ -13,17 +13,16 @@ class MetaRecords {
 		$dbh = $this->mod()->getDbH_UserMeta();
 		/** @var Ops\Select $select */
 		$select = $dbh->getQuerySelector();
-		if ( \method_exists( $select, 'setNoOrderBy' ) ) {
-			$select->setNoOrderBy();
-		}
-		$record = $select->filterByUser( $userID )->first();
+		$record = $select->setNoOrderBy()
+						 ->filterByUser( $userID )
+						 ->first();
 
 		if ( empty( $record ) && $autoCreate && $this->addMeta( $userID ) ) {
 			$record = $this->loadMeta( $userID, false );
 		}
 
 		if ( !empty( $record ) ) {
-			$record->setDbHandler( $dbh );
+			$record->setDbH( $dbh );
 		}
 
 		return $record;

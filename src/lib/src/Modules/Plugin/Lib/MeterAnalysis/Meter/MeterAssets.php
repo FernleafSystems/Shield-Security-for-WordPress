@@ -36,7 +36,6 @@ class MeterAssets extends MeterBase {
 			Component\ScanEnabledWpv::class,
 			Component\ScanEnabledWpvAutoupdate::class,
 			Component\ScanEnabledApc::class,
-			Component\WpUpdates::class,
 			Component\WpPluginsUpdates::class,
 			Component\WpThemesUpdates::class,
 			Component\WpPluginsInactive::class,

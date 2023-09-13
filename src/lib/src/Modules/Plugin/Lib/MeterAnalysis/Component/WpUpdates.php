@@ -22,7 +22,7 @@ class WpUpdates extends Base {
 	}
 
 	public function descProtected() :string {
-		return __( "WordPress is up-to-date with all upgrades applied.", 'wp-simple-firewall' );
+		return __( "WordPress has all available upgrades applied.", 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {
