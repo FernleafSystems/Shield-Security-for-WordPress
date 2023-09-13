@@ -12,16 +12,19 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();
-		return [
-			[
-				'text' => __( 'Create Custom Report', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasTrigger( 'renderReportCreate()' ),
-			],
+		$hrefs = [
 			[
 				'text' => __( 'Configure Reporting', 'wp-simple-firewall' ),
 				'href' => $con->plugin_urls->offCanvasConfigRender( 'section_reporting' ),
 			]
 		];
+		if ( $con->caps->canReportsLocal() ) {
+			\array_unshift( $hrefs, [
+				'text' => __( 'Create Custom Report', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasTrigger( 'renderReportCreate()' ),
+			] );
+		}
+		return $hrefs;
 	}
 
 	protected function getRenderData() :array {
