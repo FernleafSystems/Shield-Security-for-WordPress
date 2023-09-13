@@ -61,8 +61,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 
 	public function storeVoData() {
 		$this->vo->data_last_saved_at = Services::Request()->ts();
-		$opts = \method_exists( $this, 'getOptions' ) ? $this->getOptions() : $this->opts();
-		$opts->setOpt( 'snapi_data', $this->vo->getRawData() );
+		$this->opts()->setOpt( 'snapi_data', $this->vo->getRawData() );
 		$this->mod()->saveModOptions();
 	}
 
@@ -70,15 +69,13 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * @inerhitDoc
 	 */
 	public function __get( string $key ) {
-		$opts = \method_exists( $this, 'getOptions' ) ? $this->getOptions() : $this->opts();
-
 		$value = parent::__get( $key );
 
 		switch ( $key ) {
 
 			case 'vo':
 				if ( empty( $value ) ) {
-					$data = $opts->getOpt( 'snapi_data', [] );
+					$data = $this->opts()->getOpt( 'snapi_data', [] );
 					$value = ( new ShieldNetApiDataVO() )->applyFromArray( \is_array( $data ) ? $data : [] );
 					$this->vo = $value;
 				}

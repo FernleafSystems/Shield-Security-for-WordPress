@@ -205,4 +205,8 @@ class PluginNavs {
 			]
 		);
 	}
+
+	public static function NavExists( string $nav ) :bool {
+		return isset( self::GetNavHierarchy()[ $nav ] );
+	}
 }

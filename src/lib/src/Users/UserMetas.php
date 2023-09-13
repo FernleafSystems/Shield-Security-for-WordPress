@@ -58,9 +58,6 @@ class UserMetas {
 	private function loadMetaRecord( Shield\Users\ShieldUserMeta $meta ) {
 
 		$metaLoader = new Shield\Modules\Data\DB\UserMeta\MetaRecords();
-		if ( \method_exists( $metaLoader, 'setMod' ) ) {
-			$metaLoader->setMod( self::con()->getModule_Data() );
-		}
 		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 
 		if ( empty( $metaRecord ) ) {

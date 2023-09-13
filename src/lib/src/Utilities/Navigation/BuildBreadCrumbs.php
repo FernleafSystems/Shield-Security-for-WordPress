@@ -47,14 +47,17 @@ class BuildBreadCrumbs {
 
 		$crumbs[] = [
 			'text' => $navStruct[ 'name' ],
+			'title' => sprintf( '%s: %s', __( 'Navigation' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
 			'href' => $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) ),
 		];
 
 		foreach ( $navStruct[ 'parents' ] as $parentNav ) {
 			if ( $parentNav !== $nav ) {
+				$name = $hierarchy[ $parentNav ][ 'name' ];
 				\array_unshift( $crumbs, [
-					'text' => $hierarchy[ $parentNav ][ 'name' ],
-					'href' => $urls->adminTopNav( $parentNav, \key( $hierarchy[ $parentNav ][ 'sub_navs' ] ) ),
+					'text'  => $name,
+					'title' => sprintf( '%s: %s', __( 'Navigation' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $name ) ),
+					'href'  => $urls->adminTopNav( $parentNav, \key( $hierarchy[ $parentNav ][ 'sub_navs' ] ) ),
 				] );
 			}
 		}

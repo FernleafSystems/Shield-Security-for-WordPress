@@ -25,7 +25,7 @@ class CaptureRedirects {
 				$navID = (string)$req->query( Constants::NAV_ID );
 				$subnav = (string)$req->query( Constants::NAV_SUB_ID );
 
-				if ( empty( $navID ) ) {
+				if ( !PluginNavs::NavExists( $navID ) ) {
 					$redirectTo = $urls->adminHome();
 				}
 				elseif ( empty( $subnav ) || $subnav === PluginNavs::SUBNAV_INDEX ) {
@@ -33,7 +33,8 @@ class CaptureRedirects {
 				}
 			}
 			elseif ( \preg_match( sprintf( '#^%s-([a-z_]+)$#', \preg_quote( $con->prefix(), '#' ) ), $page, $matches ) ) {
-				$redirectTo = $urls->adminTopNav( $matches[ 1 ], PluginNavs::GetDefaultSubNavForNav( $matches[ 1 ] ) );
+				$navID = PluginNavs::NavExists( $matches[ 1 ] ) ? $matches[ 1 ] : PluginNavs::NAV_DASHBOARD;
+				$redirectTo = $urls->adminTopNav( $navID, PluginNavs::GetDefaultSubNavForNav( $navID ) );
 			}
 			elseif ( $con->getModule_Plugin()->getActivateLength() < 5 ) {
 				$redirectTo = $urls->adminTopNav( PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME );
