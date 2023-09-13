@@ -1,7 +1,7 @@
 {
   "18.3": {
     "version":     "18.3",
-    "released_at": 1694607000,
+    "released_at": 1694610000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease183",
       "upgrade": "https://shsec.io/shieldupgradeguide183"
