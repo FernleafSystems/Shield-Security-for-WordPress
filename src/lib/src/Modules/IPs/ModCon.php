@@ -39,12 +39,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
-		self::con()->getModule_Data()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
 	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
-		self::con()->getModule_Data()->getDbH_IPs();
 		return $this->getDbHandler()->loadDbH( 'ip_rules' );
 	}
 

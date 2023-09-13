@@ -25,12 +25,10 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		self::con()->getModule_Data()->getDbH_ReqLogs();
 		return $this->getDbHandler()->loadDbH( 'at_logs' );
 	}
 
 	public function getDbH_Meta() :DB\Meta\Ops\Handler {
-		$this->getDbH_Logs();
 		return $this->getDbHandler()->loadDbH( 'at_meta' );
 	}
 
