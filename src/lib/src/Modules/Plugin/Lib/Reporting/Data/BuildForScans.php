@@ -32,13 +32,7 @@ class BuildForScans extends BuildBase {
 							  ->getQuerySelector();
 
 		$repairs = [];
-		$repairEvents = [
-			'scan_item_repair_success',
-			//			'scan_item_repair_fail',
-			//			'scan_item_delete_success',
-		];
-
-		foreach ( $repairEvents as $event ) {
+		foreach ( [ 'scan_item_repair_success', 'scan_item_delete_success', /*'scan_item_repair_fail'*/ ] as $event ) {
 			$eventTotal = $selectorEvents
 				->filterByBoundary( $this->report->start_at, $this->report->end_at )
 				->sumEvent( $event );
