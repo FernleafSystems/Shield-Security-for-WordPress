@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class PageDebug extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_debug';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/debug.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/debug.twig';
 
 	protected function getPageContextualHrefs() :array {
 		return [

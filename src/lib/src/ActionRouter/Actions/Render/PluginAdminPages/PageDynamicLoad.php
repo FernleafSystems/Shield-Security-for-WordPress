@@ -5,5 +5,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 class PageDynamicLoad extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_dynamic';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/dynamic.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/dynamic.twig';
 }

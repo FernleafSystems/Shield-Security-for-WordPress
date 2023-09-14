@@ -217,6 +217,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageScansRun::class,
 		Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class,
 		Actions\Render\PluginAdminPages\PageStats::class,
+		Actions\Render\PluginAdminPages\PageTrafficLogLive::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
 	];

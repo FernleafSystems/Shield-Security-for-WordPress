@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityL
 class PageActivityLogTable extends BasePluginAdminPage {
 
 	public const SLUG = 'page_admin_plugin_activity_log_table';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_activity.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_activity.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();

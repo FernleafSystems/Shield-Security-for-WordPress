@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 class PageUserSessions extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_user_sessions';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_sessions.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_sessions.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();

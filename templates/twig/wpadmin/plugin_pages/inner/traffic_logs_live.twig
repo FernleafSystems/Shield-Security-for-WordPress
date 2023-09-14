@@ -1,0 +1,23 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="row insights_widget shield-section-datatable" id="SectionTrafficTable">
+		<div class="col">
+			<table id="table_id-traffic"
+			       class="table table-striped table-bordered" style="width: 100%;"></table>
+		</div>
+	</div>
+
+		<script>
+		jQuery( document ).ready( function () {
+		  jQuery( '#table_id-traffic' ).icwpWpsfTrafficTableActions(
+			  {
+				  'ajax': {
+					  'logtable_action':{{ ajax.traffictable_action|raw }},
+				  },
+				  'datatables_init': {{ vars.datatables_init|raw }}
+			  }
+		  );
+	  } );
+	</script>
+{% endblock %}

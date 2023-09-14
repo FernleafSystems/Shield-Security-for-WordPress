@@ -21,7 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Met
 class PageDashboardOverview extends BasePluginAdminPage {
 
 	public const SLUG = 'plugin_admin_page_dashboard_overview';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/dashboard_overview.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/dashboard_overview.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();

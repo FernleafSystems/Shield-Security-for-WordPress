@@ -26,7 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\{
 class PageScansResults extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_scans_results';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_results.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_results.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();

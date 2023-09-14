@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 class PageRulesSummary extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_rules_summary';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/rules_summary.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/rules_summary.twig';
 
 	protected function getRenderData() :array {
 		$rules = self::con()->rules->getRules();

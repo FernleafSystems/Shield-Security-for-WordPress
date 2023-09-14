@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 class PageScansRun extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_scans_run';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_run.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/scan_run.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();

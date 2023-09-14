@@ -33,6 +33,7 @@ class PluginNavs {
 	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
 	public const SUBNAV_TRAFFIC_LOG = 'log';
+	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
@@ -41,6 +42,7 @@ class PluginNavs {
 	public const NAV_WIZARD = 'merlin';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index';
+	public const SUBNAV_LOGS = 'logs';
 	/** @deprecated 18.3 */
 	public const NAV_OVERVIEW = 'overview';
 	public const NAV_IMPORT_EXPORT = 'importexport';
@@ -191,6 +193,9 @@ class PluginNavs {
 					'sub_navs' => [
 						self::SUBNAV_TRAFFIC_LOG => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
+						],
+						self::SUBNAV_LIVE => [
+							'handler' => PluginAdminPages\PageTrafficLogLive::class,
 						],
 					],
 				],
