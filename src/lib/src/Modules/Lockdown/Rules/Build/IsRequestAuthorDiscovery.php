@@ -48,7 +48,7 @@ class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 
 	protected function getResponses() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,

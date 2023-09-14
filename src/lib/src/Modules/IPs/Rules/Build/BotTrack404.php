@@ -66,7 +66,7 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 
 	protected function getResponses() :array {
 		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,

@@ -56,7 +56,7 @@ class AdminRemove extends BaseWpCliCmd {
 		$oU = $this->loadUserFromArgs( $aA );
 
 		/** @var SecurityAdmin\Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$current = $opts->getSecurityAdminUsers();
 		if ( !\in_array( $oU->user_login, $current ) ) {
 			WP_CLI::success( "This user isn't currently a security admin." );

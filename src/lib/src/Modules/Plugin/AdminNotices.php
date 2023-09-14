@@ -90,7 +90,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		switch ( $notice->id ) {
 			case 'override-forceoff':

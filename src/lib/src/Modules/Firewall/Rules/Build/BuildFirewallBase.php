@@ -65,7 +65,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			];
 		}
 
-		if ( $this->getOptions()->isOpt( 'whitelist_admins', 'Y' ) ) {
+		if ( $this->opts()->isOpt( 'whitelist_admins', 'Y' ) ) {
 			$conditions[ 'group' ][] = [
 				'condition'    => Conditions\IsUserAdminNormal::SLUG,
 				'invert_match' => true,
@@ -134,7 +134,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 	protected function getExclusions() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$exclusions = $opts->getDef( 'default_whitelist' );
 		foreach ( $opts->getCustomWhitelist() as $page => $params ) {
 			if ( empty( $params ) || !\is_array( $params ) ) {
@@ -172,7 +172,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getFirewallPatterns() :array {
-		return $this->getOptions()->getDef( 'firewall_patterns' )[ static::SCAN_CATEGORY ] ?? [];
+		return $this->opts()->getDef( 'firewall_patterns' )[ static::SCAN_CATEGORY ] ?? [];
 	}
 
 	protected function getFirewallPatterns_Regex() :array {

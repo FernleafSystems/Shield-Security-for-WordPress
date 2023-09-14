@@ -81,7 +81,7 @@ class BuildForDisplay {
 	}
 
 	protected function buildAvailableSections() :array {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$optionsData = [];
 
@@ -111,7 +111,7 @@ class BuildForDisplay {
 
 	protected function buildOptionsForSection( string $section ) :array {
 		$con = self::con();
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$isPremiumActive = $con->isPremiumActive();
 

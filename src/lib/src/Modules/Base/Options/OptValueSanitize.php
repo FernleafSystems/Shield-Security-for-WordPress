@@ -15,7 +15,7 @@ class OptValueSanitize {
 	 * @throws \Exception
 	 */
 	public function run( string $key, $value ) {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( !\in_array( $key, $opts->getOptionsKeys() ) ) {
 			throw new \Exception( sprintf( 'Not a valid option key for module: %s', $key ) );
 		}

@@ -102,7 +102,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function getXFrameHeader() :array {
-		switch ( $this->getOptions()->getOpt( 'x_frame' ) ) {
+		switch ( $this->opts()->getOpt( 'x_frame' ) ) {
 			case 'on_sameorigin':
 				$xFrame = 'SAMEORIGIN';
 				break;
@@ -118,25 +118,25 @@ class Processor extends BaseShield\Processor {
 
 	private function getXssProtectionHeader() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return $opts->isEnabledXssProtection() ? [ 'X-XSS-Protection' => '1; mode=block' ] : [];
 	}
 
 	private function getContentTypeOptionHeader() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return $opts->isEnabledContentTypeHeader() ? [ 'X-Content-Type-Options' => 'nosniff' ] : [];
 	}
 
 	private function getReferrerPolicyHeader() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return $opts->isReferrerPolicyEnabled() ? [ 'Referrer-Policy' => $opts->getReferrerPolicyValue() ] : [];
 	}
 
 	private function setContentSecurityPolicyHeader() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return $opts->isEnabledContentSecurityPolicy() ?
 			[ 'Content-Security-Policy' => \implode( ' ', $opts->getCspCustomRules() ) ] : [];
 	}

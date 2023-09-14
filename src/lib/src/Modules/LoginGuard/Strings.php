@@ -353,7 +353,7 @@ class Strings extends Base\Strings {
 					__( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' ),
 					__( 'Zero (0) turns this off.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ),
-						$this->getOptions()->getOptDefault( 'login_limit_interval' ) )
+						$this->opts()->getOptDefault( 'login_limit_interval' ) )
 				];
 				break;
 

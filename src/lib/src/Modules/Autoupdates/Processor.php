@@ -18,7 +18,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	protected function run() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$priority = $this->getHookPriority();
 		if ( Services::WpGeneral()->isClassicPress() ) {
@@ -55,7 +55,7 @@ class Processor extends BaseShield\Processor {
 	public function onWpLoaded() {
 		parent::onWpLoaded();
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( $opts->isDisableAllAutoUpdates() ) {
 			$this->disableAllAutoUpdates();
 		}
@@ -100,7 +100,7 @@ class Processor extends BaseShield\Processor {
 
 		if ( !empty( $updates ) && isset( $updates->updates ) && \is_array( $updates->updates ) ) {
 			/** @var Options $opts */
-			$opts = $this->getOptions();
+			$opts = $this->opts();
 
 			$delayTracking = $opts->getDelayTracking();
 			$item = $delayTracking[ 'core' ][ 'wp' ] ?? [];
@@ -137,7 +137,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	protected function trackUpdateTimeCommon( $updates, $context ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
 
@@ -168,7 +168,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function autoupdate_core_major( $toUpdate ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isDisableAllAutoUpdates() || $opts->isAutoUpdateCoreNever() ) {
 			$toUpdate = false;
@@ -188,7 +188,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function autoupdate_core_minor( $toUpdate ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isDisableAllAutoUpdates() || $opts->isAutoUpdateCoreNever() ) {
 			$toUpdate = false;
@@ -206,7 +206,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function autoupdate_core( $isDoUpdate, $coreUpgrade ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isDisableAllAutoUpdates() ) {
 			$isDoUpdate = false;
@@ -225,7 +225,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function autoupdate_plugins( $doUpdate, $mItem ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isDisableAllAutoUpdates() ) {
 			$doUpdate = false;
@@ -260,7 +260,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function autoupdate_themes( $doAutoUpdate, $mItem ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isDisableAllAutoUpdates() ) {
 			$doAutoUpdate = false;
@@ -285,7 +285,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	private function isDelayed( $slug, $context = 'plugins' ) :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$delayed = false;
 
@@ -325,7 +325,7 @@ class Processor extends BaseShield\Processor {
 	 */
 	public function autoupdate_send_email( $sendEmail ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return $opts->isSendAutoupdatesNotificationEmail();
 	}
 
@@ -335,7 +335,7 @@ class Processor extends BaseShield\Processor {
 	 * @return array
 	 */
 	public function autoupdate_email_override( $emailParams ) {
-		$override = $this->getOptions()->getOpt( 'override_email_address', '' );
+		$override = $this->opts()->getOpt( 'override_email_address', '' );
 		if ( Services::Data()->validEmail( $override ) ) {
 			$emailParams[ 'to' ] = $override;
 		}
@@ -440,7 +440,7 @@ class Processor extends BaseShield\Processor {
 		$this->mod()
 			 ->getEmailProcessor()
 			 ->sendEmailWithWrap(
-				 $this->getOptions()->getOpt( 'override_email_address' ),
+				 $this->opts()->getOpt( 'override_email_address' ),
 				 sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) ),
 				 $body
 			 );
@@ -448,6 +448,6 @@ class Processor extends BaseShield\Processor {
 	}
 
 	private function getHookPriority() :int {
-		return (int)$this->getOptions()->getDef( 'action_hook_priority' );
+		return (int)$this->opts()->getDef( 'action_hook_priority' );
 	}
 }

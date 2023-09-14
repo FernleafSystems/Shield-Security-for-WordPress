@@ -158,7 +158,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$name = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {

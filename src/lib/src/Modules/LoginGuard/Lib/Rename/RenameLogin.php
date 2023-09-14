@@ -127,13 +127,13 @@ class RenameLogin {
 		if ( !$doBlock ) {
 			$path = \trim( Services::Request()->getPath(), '/' );
 			$possible = [
-				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
-				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
-				trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
+				\trim( home_url( 'wp-login.php', 'relative' ), '/' ),
+				\trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
+				\trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
 				// \trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
-				trim( \rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
-				trim( home_url( 'login', 'relative' ), '/' ),
-				trim( site_url( 'login', 'relative' ), '/' )
+				\trim( \rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
+				\trim( home_url( 'login', 'relative' ), '/' ),
+				\trim( site_url( 'login', 'relative' ), '/' )
 			];
 			$doBlock = !empty( $path )
 					   && ( \in_array( $path, $possible ) || \preg_match( '/wp-login\.php/i', $path ) );

@@ -65,13 +65,13 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				);
 				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},
-			$this->getOptions()->getAdminNotices()
+			$this->opts()->getAdminNotices()
 		);
 	}
 
 	protected function preProcessNotice( NoticeVO $notice ) {
 		$con = self::con();
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';

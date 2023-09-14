@@ -13,7 +13,7 @@ class PushSignals extends BaseAuth {
 	 */
 	public function run( array $signals ) :bool {
 		$this->request_method = 'post';
-		$this->params_body = $signals;
+		$this->params_body = \array_filter( $signals );
 		$raw = $this->sendReq();
 		if ( !\is_array( $raw ) || ( $raw[ 'message' ] ?? '' ) !== 'OK' ) {
 			throw new PushSignalsFailedException( sprintf( 'Failed to push signals: %s',

@@ -28,7 +28,7 @@ trait ModConsumer {
 	}
 
 	public function opts() {
-		return $this->getOptions();
+		return $this->mod()->opts();
 	}
 
 	/**
@@ -47,6 +47,7 @@ trait ModConsumer {
 
 	/**
 	 * @return Modules\Base\Options
+	 * @deprecated 18.3.4
 	 */
 	public function getOptions() {
 		return $this->mod()->opts();

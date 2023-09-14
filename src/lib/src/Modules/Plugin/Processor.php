@@ -18,12 +18,12 @@ class Processor extends BaseShield\Processor {
 		( new Lib\AllowBetaUpgrades() )->execute();
 		( new Lib\SiteHealthController() )->execute();
 
-		if ( $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) ) {
+		if ( $this->opts()->isOpt( 'importexport_enable', 'Y' ) ) {
 			$mod->getImpExpController()->execute();
 		}
 
 		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
-			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
+			return $isDelete || $this->opts()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
 		$mod->getReportingController()->execute();
