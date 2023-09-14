@@ -1,23 +1,72 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="row insights_widget shield-section-datatable" id="SectionTrafficTable">
+	<style>
+		    .blink {
+				animation: blinker 2s infinite;
+			}
+			@keyframes blinker {
+				from {
+					opacity: 1.0;
+				}
+				50% {
+					opacity: 0.25;
+				}
+				to {
+					opacity: 1.0;
+				}
+			}
+	</style>
+	<div class="row" id="SectionTrafficLiveLogs">
 		<div class="col">
-			<table id="table_id-traffic"
-			       class="table table-striped table-bordered" style="width: 100%;"></table>
+			<div class="live_logs">
+				<div class="blink fs-3 text-center">&hellip;</div>
+				<textarea class="output w-100 font-monospace" rows="100" readonly disabled></textarea>
+			</div>
 		</div>
 	</div>
 
-		<script>
+	<script>
 		jQuery( document ).ready( function () {
-		  jQuery( '#table_id-traffic' ).icwpWpsfTrafficTableActions(
-			  {
-				  'ajax': {
-					  'logtable_action':{{ ajax.traffictable_action|raw }},
-				  },
-				  'datatables_init': {{ vars.datatables_init|raw }}
-			  }
-		  );
-	  } );
+
+			function sleep( ms ) {
+				return new Promise( resolve => setTimeout( resolve, ms ) );
+			}
+
+			async function runAutoTrafficUpdate() {
+				document.querySelector( '#SectionTrafficLiveLogs .output' ).focus();
+				let max = 256;
+				do {
+					if ( document.hasFocus() ) {
+						updateTraffic();
+					}
+					await sleep( 7000 );
+					console.log( max );
+				} while ( max-- > 0 )
+			}
+
+			let updateTraffic = function () {
+				Shield_AjaxRender
+				.send_ajax_req( {{ ajax.load_live_logs|raw }} )
+				.then( ( response ) => {
+					if ( response.success ) {
+						let $logsContainer = jQuery( '#SectionTrafficLiveLogs .live_logs .output' );
+						$logsContainer.html( response.data.html );
+					}
+					else {
+						alert( response.data.message );
+						// console.log( response );
+					}
+				} )
+				.catch( ( error ) => {
+					console.log( error );
+				} )
+				.finally( ( response ) => {
+					iCWP_WPSF_BodyOverlay.hide();
+				} );
+			};
+
+			runAutoTrafficUpdate();
+		} );
 	</script>
 {% endblock %}

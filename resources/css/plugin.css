@@ -1226,3 +1226,15 @@ td.status_file_size {
 .dashboard_overview_widget .card.text-bg-success a {
 	color: white;
 }
+.live_logs .output {
+	background-color: transparent;
+	border: 1px solid transparent;
+	color: black;
+	box-shadow: none;
+}
+.live_logs .output:active,
+.live_logs .output:focus-within,
+.live_logs .output:focus {
+	background-color: white;
+	border: 1px solid transparent;
+}

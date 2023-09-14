@@ -4,11 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\TrafficLogTableAction
+	Actions\Render\Components\Traffic\TrafficLiveLogs,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 
 class PageTrafficLogLive extends PageTrafficLogBase {
 
@@ -29,7 +28,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 		$opts = self::con()->getModule_Traffic()->opts();
 		return [
 			'ajax'    => [
-				'load_live_logs' => ActionData::BuildJson( TrafficLogTableAction::class ),
+				'load_live_logs' => ActionData::BuildJson( TrafficLiveLogs::class ),
 			],
 			'flags'   => [
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),

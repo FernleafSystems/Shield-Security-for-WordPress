@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\ConvertLogsToFlatText;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
 
@@ -38,7 +38,6 @@ class FileDownloadAsStream extends BaseAction {
 	}
 
 	public function downloadTrafficLogs() :\Generator {
-		$WP = Services::WpGeneral();
 		$page = 0;
 		$length = 200;
 		do {
@@ -51,20 +50,7 @@ class FileDownloadAsStream extends BaseAction {
 			if ( empty( $results ) ) {
 				break;
 			}
-			yield \implode( "\n", \array_map(
-				function ( LogRecord $record ) use ( $WP ) {
-					return sprintf( "%s %s %s [%s] \"%s %s\" %s",
-						$record->ip,
-						'-',
-						empty( $record->uid ) ? '-' : $record->uid,
-						$WP->getTimeStampForDisplay( $record->created_at ),
-						$record->verb,
-						$record->path,
-						$record->code
-					);
-				},
-				$results
-			) );
+			yield \implode( "\n", ConvertLogsToFlatText::convert( $results ) );
 		} while ( true );
 	}
 }

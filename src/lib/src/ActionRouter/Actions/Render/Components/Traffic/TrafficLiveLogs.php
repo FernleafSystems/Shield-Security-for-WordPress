@@ -4,14 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\ConvertLogsToFlatText;
 
 class TrafficLiveLogs extends BaseRender {
 
 	public const SLUG = 'render_traffic_live_logs';
-	public const TEMPLATE = '/wpadmin/components/live_log.twig';
+	public const TEMPLATE = '/wpadmin/components/traffic/live_logs.twig';
 
 	protected function getRenderData() :array {
-
 		$logLoader = new LoadRequestLogs();
 		$logLoader->limit = 200;
 		$logLoader->offset = 0;
@@ -19,16 +19,8 @@ class TrafficLiveLogs extends BaseRender {
 		$logLoader->order_dir = 'DESC';
 		return [
 			'vars' => [
-				'logs' => $logLoader->select(),
+				'logs' => ConvertLogsToFlatText::convert( $logLoader->select() ),
 			]
-		];
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'current_scan',
-			'remaining_scans',
-			'progress',
 		];
 	}
 }

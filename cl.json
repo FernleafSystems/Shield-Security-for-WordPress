@@ -30,6 +30,15 @@
       },
       {
         "type":        "new",
+        "pro_only":    true,
+        "title":       "Live Traffic Log View",
+        "description": [
+          "Live logging tool lets you view all requests sent to the site, and automatically refreshes with the latest requests."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
         "pro_only":    false,
         "title":       "Reports Archive",
         "description": [
