@@ -15,7 +15,7 @@ class Upgrade extends Base\Upgrade {
 		}
 	}
 
-	protected function upgrade_1833() {
+	protected function upgrade_1834() {
 		// remove old tables
 		$WPDB = Services::WpDb();
 		foreach (
