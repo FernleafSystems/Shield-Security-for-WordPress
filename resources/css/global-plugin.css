@@ -216,6 +216,11 @@ tr.icwp-plugin-vulnerability dd {
 }
 #ShieldDashboardWidget a {
 	color: #008000 !important;
+	text-decoration: none;
+	text-shadow: 0 0 0 rgba(0, 0, 0, 0.4);
+}
+#ShieldDashboardWidget p {
+	font-size: 14px;
 }
 #ShieldDashboardWidget p.no-entries {
 	margin: 3px 0 0 0;
@@ -223,6 +228,9 @@ tr.icwp-plugin-vulnerability dd {
 #ShieldDashboardWidget .subheader {
 	font-weight: bolder;
 	margin: 1rem 0 0;
+}
+#ShieldDashboardWidget .subheader > small {
+	font-weight: normal;
 }
 #ShieldDashboardWidget table thead th {
 	background-color: #97b797;

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Marketing\OurLatestBlogPosts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary
@@ -30,11 +31,12 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 										  ->diffForHumans();
 		return [
 			'hrefs'   => [
-				'overview' => $con->plugin_urls->adminHome(),
-				'logo'     => $con->labels->PluginURI,
-				'activity' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
-				'sessions' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
-				'ips'      => $con->plugin_urls->adminIpRules(),
+				'overview'   => $con->plugin_urls->adminHome(),
+				'logo'       => $con->labels->PluginURI,
+				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+				'sessions'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+				'ips'        => $con->plugin_urls->adminIpRules(),
+				'blog_posts' => 'https://shsec.io/recentblogposts',
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()
@@ -47,6 +49,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'security_progress' => __( 'Overall Security Progress', 'wp-simple-firewall' ),
 				'progress_overview' => __( 'Go To Overview', 'wp-simple-firewall' ),
 				'recent_blocked'    => __( 'Recently Blocked', 'wp-simple-firewall' ),
+				'recent_blogs'      => __( 'Recent Blog Posts', 'wp-simple-firewall' ),
 				'recent_offenses'   => __( 'Recent Offenses', 'wp-simple-firewall' ),
 				'recent_sessions'   => __( 'Recent Sessions', 'wp-simple-firewall' ),
 				'recent_activity'   => __( 'Recent Activity', 'wp-simple-firewall' ),
@@ -104,6 +107,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 						'svg'  => $con->svgs->raw( 'sliders.svg' ),
 					],
 				],
+				'blog_posts'         => ( new OurLatestBlogPosts() )->retrieve(),
 				'recent_events'      => \array_map(
 					function ( $evt ) {
 						/** @var EventsDB\Record $evt */
