@@ -39,14 +39,12 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getEmail2FaRoles() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 		$roles = apply_filters(
 			'shield/2fa_email_enforced_user_roles',
 			apply_filters( 'odp-shield-2fa_email_user_roles', $this->getOpt( 'two_factor_auth_user_roles' ) )
 		);
 		return \array_unique( \array_filter( \array_map( 'sanitize_key',
-			\is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
+			\is_array( $roles ) ? $roles : $this->getOptDefault( 'two_factor_auth_user_roles' )
 		) ) );
 	}
 

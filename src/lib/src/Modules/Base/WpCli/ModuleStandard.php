@@ -41,7 +41,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'key',
 					'optional'    => false,
-					'options'     => $this->getOptions()->getOptionsForWpCli(),
+					'options'     => $this->opts()->getOptionsForWpCli(),
 					'description' => 'The option key to get.',
 				],
 			],
@@ -56,7 +56,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'key',
 					'optional'    => false,
-					'options'     => $this->getOptions()->getOptionsForWpCli(),
+					'options'     => $this->opts()->getOptionsForWpCli(),
 					'description' => 'The option key to updateModuleStandard.php
 					.',
 				],
@@ -116,12 +116,8 @@ class ModuleStandard extends BaseWpCliCmd {
 		}
 	}
 
-	/**
-	 * @param array $null
-	 * @param array $args
-	 */
 	public function cmdOptGet( array $null, array $args ) {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$mVal = $opts->getOpt( $args[ 'key' ], $null );
 		$aOpt = $opts->getOptDefinition( $args[ 'key' ] );
@@ -147,12 +143,12 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdOptSet( array $null, array $args ) {
-		$this->getOptions()->setOpt( $args[ 'key' ], $args[ 'value' ] );
+		$this->opts()->setOpt( $args[ 'key' ], $args[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
 	}
 
 	public function cmdOptList( array $null, array $args ) {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$strings = $this->mod()->getStrings();
 		$optsList = [];
 		foreach ( $opts->getOptionsForWpCli() as $key ) {

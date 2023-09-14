@@ -238,7 +238,7 @@ class Strings extends Base\Strings {
 					__( "Think of 'offenses' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
 					.' '.sprintf(
 						__( 'When the counter reaches the limit below (default: %s), %s will block that IP completely.', 'wp-simple-firewall' ),
-						$this->getOptions()->getOptDefault( 'transgression_limit' ),
+						$this->opts()->getOptDefault( 'transgression_limit' ),
 						$pluginName
 					)
 				];
@@ -278,7 +278,7 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( string $key ) :array {
 		$con = self::con();
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$pluginName = $con->getHumanName();
 		$modName = $this->mod()->getMainFeatureName();
 

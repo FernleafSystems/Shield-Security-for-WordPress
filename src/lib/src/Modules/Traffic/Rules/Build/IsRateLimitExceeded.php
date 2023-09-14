@@ -25,7 +25,7 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [

@@ -40,7 +40,8 @@ class PushSignalsToCS {
 			$records = $this->getNextRecordSet();
 			if ( !empty( $records ) ) {
 				try {
-					( new PushSignals( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )->run( $this->convertRecordsToPayload( $records ) );
+					( new PushSignals( $api->getAuthorizationToken(), $api->getApiUserAgent() ) )
+						->run( $this->convertRecordsToPayload( $records ) );
 				}
 				catch ( PushSignalsFailedException $e ) {
 				}
@@ -71,7 +72,7 @@ class PushSignalsToCS {
 				$carbon->setTimestamp( $record->created_at );
 				$carbon->setTimezone( 'UTC' );
 				$ts = \str_replace( '+00:00', sprintf( '.%sZ', $record->milli_at === 0 ? '000' : $record->milli_at ),
-					trim( $carbon->toRfc3339String(), 'Z' ) );
+					\trim( $carbon->toRfc3339String(), 'Z' ) );
 				return [
 					'machine_id'       => $api->getMachineID(),
 					'scenario'         => 'shield/'.$record->scenario,

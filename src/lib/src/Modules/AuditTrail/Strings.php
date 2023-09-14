@@ -390,7 +390,7 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( string $key ) :array {
 		$con = self::con();
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {

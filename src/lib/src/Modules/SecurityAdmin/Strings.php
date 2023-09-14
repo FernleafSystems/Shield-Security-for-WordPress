@@ -93,7 +93,7 @@ class Strings extends Base\Strings {
 
 	public function getOptionStrings( string $key ) :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$plugName = self::con()->getHumanName();
 
 		switch ( $key ) {

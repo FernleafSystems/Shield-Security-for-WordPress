@@ -48,7 +48,7 @@ class Databases {
 
 		if ( $reload || empty( $dbh ) ) {
 
-			$dbDef = $this->getOptions()->getDef( 'db_table_'.$dbKey );
+			$dbDef = $this->opts()->getDef( 'db_table_'.$dbKey );
 			if ( empty( $dbDef ) ) {
 				throw new \Exception( sprintf( 'DB Definition for key (%s) is empty', $dbKey ) );
 			}

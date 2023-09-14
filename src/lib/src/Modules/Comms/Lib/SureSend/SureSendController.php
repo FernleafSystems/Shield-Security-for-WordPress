@@ -18,7 +18,7 @@ class SureSendController {
 	}
 
 	private function isEnabled( string $slug ) :bool {
-		$emails = $this->getOptions()->getOpt( 'suresend_emails' );
+		$emails = $this->opts()->getOpt( 'suresend_emails' );
 		return \in_array( $slug, \is_array( $emails ) ? $emails : [] );
 	}
 }

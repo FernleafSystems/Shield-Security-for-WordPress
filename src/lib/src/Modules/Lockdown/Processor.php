@@ -13,7 +13,7 @@ class Processor extends BaseShield\Processor {
 
 	public function onWpInit() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( !Services::WpUsers()->isUserLoggedIn() && $opts->isRestApiAnonymousAccessDisabled() ) {
 			add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
 		}

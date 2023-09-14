@@ -53,7 +53,7 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 				}
 				return '^'.$regEx;
 			},
-			self::con()->isPremiumActive() ? $this->getOptions()->getOpt( 'request_whitelist', [] ) : []
+			self::con()->isPremiumActive() ? $this->opts()->getOpt( 'request_whitelist', [] ) : []
 		);
 	}
 }
