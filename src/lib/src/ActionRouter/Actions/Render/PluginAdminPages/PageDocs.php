@@ -9,7 +9,7 @@ class PageDocs extends BasePluginAdminPage {
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'admin_plugin_page_docs';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/docs.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/docs.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();

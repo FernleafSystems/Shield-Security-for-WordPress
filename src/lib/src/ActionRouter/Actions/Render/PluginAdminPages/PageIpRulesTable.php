@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 class PageIpRulesTable extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_ip_rules_table';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/ip_rules.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/ip_rules.twig';
 
 	protected function getPageContextualHrefs() :array {
 		return [

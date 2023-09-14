@@ -169,6 +169,7 @@ class Constants {
 		Actions\Render\Components\Scans\ItemAnalysis\Malai::class,
 		Actions\Render\Components\SuperSearchResults::class,
 		Actions\Render\Components\SiteHealth\Analysis::class,
+		Actions\Render\Components\Traffic\TrafficLiveLogs::class,
 		Actions\Render\Components\UserMfa\ConfigPage::class,
 		Actions\Render\Components\UserMfa\ConfigEdit::class,
 		Actions\Render\Components\UserMfa\ConfigForm::class,
@@ -217,6 +218,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageScansRun::class,
 		Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class,
 		Actions\Render\PluginAdminPages\PageStats::class,
+		Actions\Render\PluginAdminPages\PageTrafficLogLive::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
 	];

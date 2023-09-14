@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityOvervie
 class PageDashboardMeters extends BasePluginAdminPage {
 
 	public const SLUG = 'plugin_admin_page_dashboard_meters';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/dashboard_meters.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/dashboard_meters.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$hrefs = [];

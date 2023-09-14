@@ -27,12 +27,14 @@ class PluginNavs {
 	public const NAV_REPORTS = 'reports';
 	public const SUBNAV_REPORTS_LIST = 'list';
 	public const NAV_RULES = 'rules';
+	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
 	public const SUBNAV_SCANS_RESULTS = 'results';
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
 	public const SUBNAV_TRAFFIC_LOG = 'log';
+	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
@@ -40,7 +42,8 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
-	public const SUBNAV_INDEX = 'index';
+	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
+	public const SUBNAV_LOGS = 'logs';
 	/** @deprecated 18.3 */
 	public const NAV_OVERVIEW = 'overview';
 	public const NAV_IMPORT_EXPORT = 'importexport';
@@ -73,7 +76,7 @@ class PluginNavs {
 	 * Handle special case for Config, so we ensure plugin general config is always default.
 	 */
 	public static function GetDefaultSubNavForNav( string $nav ) :string {
-		return $nav === self::NAV_OPTIONS_CONFIG ? ModCon::SLUG :\key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] ) ;
+		return $nav === self::NAV_OPTIONS_CONFIG ? ModCon::SLUG : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
 	}
 
 	public static function GetNavHierarchy() :array {
@@ -153,7 +156,7 @@ class PluginNavs {
 				self::NAV_RULES          => [
 					'name'     => __( 'Rules', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_INDEX => [
+						self::SUBNAV_RULES_SUMMARY => [
 							'handler' => PluginAdminPages\PageRulesSummary::class,
 						],
 					],
@@ -191,6 +194,9 @@ class PluginNavs {
 					'sub_navs' => [
 						self::SUBNAV_TRAFFIC_LOG => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
+						],
+						self::SUBNAV_LIVE        => [
+							'handler' => PluginAdminPages\PageTrafficLogLive::class,
 						],
 					],
 				],

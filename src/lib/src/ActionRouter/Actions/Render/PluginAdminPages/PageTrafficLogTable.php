@@ -6,26 +6,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\TrafficLogTableAction
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 
-class PageTrafficLogTable extends BasePluginAdminPage {
+class PageTrafficLogTable extends PageTrafficLogBase {
 
 	public const SLUG = 'page_admin_plugin_traffic_log_table';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_traffic.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_traffic.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = self::con();
-		return [
-			[
-				'text' => __( 'Download Traffic Logs', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
-			],
-			[
-				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_Traffic()->cfg->slug ),
-			],
-		];
+		$hrefs = parent::getPageContextualHrefs();
+		\array_unshift( $hrefs, [
+			'text' => __( 'Switch To Live Logs', 'wp-simple-firewall' ),
+			'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+		] );
+		return $hrefs;
 	}
 
 	protected function getRenderData() :array {
