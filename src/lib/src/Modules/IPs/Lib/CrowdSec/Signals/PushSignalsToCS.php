@@ -6,8 +6,10 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
+	ModConsumer,
+	Options
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class PushSignalsToCS {
@@ -67,7 +69,7 @@ class PushSignalsToCS {
 	private function convertRecordsToPayload( array $records ) :array {
 		$api = $this->mod()->getCrowdSecCon()->getApi();
 		return \array_map(
-			function ( $record ) use ( $api ) {
+			function ( CrowdsecSignalsDB\Record $record ) use ( $api ) {
 				$carbon = Services::Request()->carbon();
 				$carbon->setTimestamp( $record->created_at );
 				$carbon->setTimezone( 'UTC' );
@@ -89,8 +91,20 @@ class PushSignalsToCS {
 					'stop_at'          => $ts
 				];
 			},
-			$records
+			\array_filter( $records, function ( CrowdsecSignalsDB\Record $record ) {
+				return $this->shouldRecordBeSent( $record );
+			} )
 		);
+	}
+
+	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
+		$send = true;
+		if ( $record->scenario === 'btxml' ) {
+			/** @var Options $opts */
+			$opts = self::con()->getModule_IPs()->opts();
+			$send = $opts->isTrackOptImmediateBlock( 'track_xmlrpc' ) || $opts->getOffenseCountFor( 'track_xmlrpc' ) > 0;
+		}
+		return $send;
 	}
 
 	/**
