@@ -396,6 +396,5 @@ var iCWP_WPSF_BodyOverlay = new function () {
 				Shield_WP_Admin_notices.initialise( globalVars.vars.notices );
 			}
 		}
-
 	} );
 })( jQuery );
