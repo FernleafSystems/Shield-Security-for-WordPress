@@ -324,7 +324,13 @@ let iCWP_WPSF_OffCanvas = new function () {
 
 	this.renderIpRuleAddForm = function ( ip ) {
 		this.renderCanvas( {
-			render_slug: data.ip_rule_add_form
+			render_slug: data.form_ip_rule_add
+		} );
+	};
+
+	this.renderReportCreate = function ( ip ) {
+		this.renderCanvas( {
+			render_slug: data.form_report_create
 		} );
 	};
 
@@ -533,9 +539,24 @@ jQueryDoc.ready( function () {
 		} );
 	} );
 
+	jQuery( document ).on( 'click', 'a.shield_dynamic_action_button', function ( evt ) {
+		evt.preventDefault()
+		let data = evt.currentTarget.dataset;
+		if ( !(data[ 'confirm' ] ?? false) || confirm( 'Are you sure?' ) ) {
+			delete data[ 'confirm' ];
+			iCWP_WPSF_StandardAjax.send_ajax_req( data );
+		}
+		return false;
+	} );
+
 	/** TODO: test this fully */
 	jQuery( document ).on( "submit", 'form.icwp-form-dynamic-action', function ( evt ) {
 		evt.currentTarget.action = window.location.href;
+	} );
+
+	jQuery( document ).on( 'click', '.progress-meter .description', function ( evt ) {
+		let $this = jQuery( this );
+		jQuery( '.toggleable', $this ).toggleClass( 'hidden' );
 	} );
 
 	jQuery( document ).icwpWpsfTours();

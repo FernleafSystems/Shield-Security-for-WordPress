@@ -170,7 +170,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
 				$recordDeleteID,
 				__( 'Delete IP', 'wp-simple-firewall' ),
-				$this->con()->svgs->raw( 'trash3-fill.svg' )
+				self::con()->svgs->raw( 'trash3-fill.svg' )
 			);
 
 			$content = \implode( '', \array_filter( [
@@ -200,7 +200,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		elseif ( Services::IP()->isValidIp( $ip ) ) {
 			$content = sprintf(
 				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
-				$this->con()->plugin_urls->ipAnalysis( $ip ),
+				self::con()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
 				'render_ip_analysis ipv'.Services::IP()->version( $ip ),
 				$ip,

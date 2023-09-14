@@ -276,9 +276,9 @@
       "cap":         "scan_vulnerabilities",
       "type":        "checkbox",
       "default":     "Y",
+      "beacon_id":   134,
       "link_info":   "https://shsec.io/du",
       "link_blog":   "https://shsec.io/ah",
-      "beacon_id":   134,
       "name":        "Vulnerability Scanner",
       "summary":     "Enable The Vulnerability Scanner",
       "description": "Scan all your WordPress assets for known security vulnerabilities."

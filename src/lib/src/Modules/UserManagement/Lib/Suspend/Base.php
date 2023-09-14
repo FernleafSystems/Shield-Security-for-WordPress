@@ -25,7 +25,7 @@ abstract class Base {
 	 */
 	public function checkUser( $user ) {
 		if ( $user instanceof \WP_User ) {
-			$meta = $this->con()->user_metas->for( $user );
+			$meta = self::con()->user_metas->for( $user );
 			if ( !empty( $meta ) ) {
 				$user = $this->processUser( $user, $meta );
 			}

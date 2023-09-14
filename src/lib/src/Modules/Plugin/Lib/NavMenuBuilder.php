@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,20 +15,18 @@ class NavMenuBuilder {
 
 	public function build() :array {
 		$menu = [
-			$this->overview(),
+			$this->dashboard(),
+			$this->reports(),
 			$this->ips(),
 			$this->scans(),
 			$this->activity(),
 			$this->traffic(),
-			$this->users(),
 			$this->configuration(),
-			$this->reports(),
 			$this->tools(),
 			$this->gopro(),
-			$this->docs(),
 		];
 
-		$isSecAdmin = $this->con()->isPluginAdmin();
+		$isSecAdmin = self::con()->isPluginAdmin();
 		foreach ( $menu as $key => $item ) {
 			$item = Services::DataManipulation()->mergeArraysRecursive( [
 				'slug'      => 'no-slug',
@@ -92,16 +89,15 @@ class NavMenuBuilder {
 	}
 
 	private function ips() :array {
-		$con = $this->con();
-		$slug = PluginURLs::NAV_IP_RULES;
+		$con = self::con();
 		return [
-			'slug'      => $slug,
+			'slug'   => PluginNavs::NAV_IPS,
 			'title'     => __( 'IP Rules', 'wp-simple-firewall' ),
 			'subtitle'  => __( "Blocked & Bypass IPs", 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'diagram-3' ),
 			'img_hover' => $con->svgs->raw( 'diagram-3-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_IP_RULES ),
-			'active'    => $this->inav() === PluginURLs::NAV_IP_RULES,
+			'href'   => $con->plugin_urls->adminIpRules(),
+			'active' => $this->inav() === PluginNavs::NAV_IPS,
 			'introjs'   => [
 				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
 				'body'  => __( "Protection start by detecting bad bots - Review all IP Rules that have an impact on your site visitors.", 'wp-simple-firewall' ),
@@ -110,15 +106,14 @@ class NavMenuBuilder {
 	}
 
 	private function activity() :array {
-		$con = $this->con();
-		$slug = PluginURLs::NAV_ACTIVITY_LOG;
+		$con = self::con();
 		return [
-			'slug'     => $slug.'-log',
+			'slug'   => PluginNavs::NAV_ACTIVITY,
 			'title'    => __( 'Activity', 'wp-simple-firewall' ),
 			'subtitle' => __( "All WP Site Activity", 'wp-simple-firewall' ),
-			'img'      => $this->con()->svgs->raw( 'person-lines-fill' ),
-			'href'     => $con->plugin_urls->adminTopNav( $slug ),
-			'active'   => $this->inav() === $slug,
+			'img'      => self::con()->svgs->raw( 'person-lines-fill' ),
+			'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+			'active' => $this->inav() === PluginNavs::NAV_ACTIVITY,
 			'introjs'  => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
 				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
@@ -127,31 +122,31 @@ class NavMenuBuilder {
 	}
 
 	private function scans() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
-			'slug'      => 'scans',
+			'slug'      => PluginNavs::NAV_SCANS,
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'shield-shaded' ),
 			'img_hover' => $con->svgs->raw( 'shield-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
-			'active'    => \in_array( $this->inav(), [ PluginNavs::NAV_SCANS_RESULTS, PluginNavs::NAV_SCANS_RUN ] ),
+			'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+			'active' => $this->inav() === PluginNavs::NAV_SCANS,
 			'introjs'   => [
 				'title' => __( 'Security Scans', 'wp-simple-firewall' ),
 				'body'  => sprintf( __( "Run a %s scan at any time, or view the results from the latest scan.", 'wp-simple-firewall' ),
-					$this->con()->getHumanName() ),
+					self::con()->getHumanName() ),
 			],
 		];
 	}
 
-	private function overview() :array {
-		$con = $this->con();
+	private function dashboard() :array {
+		$con = self::con();
 		return [
-			'slug'     => 'overview',
-			'title'    => __( 'Overview', 'wp-simple-firewall' ),
+			'slug' => PluginNavs::NAV_DASHBOARD,
+			'title'    => __( 'Dashboard', 'wp-simple-firewall' ),
 			'subtitle' => __( 'Security Posture At A Glance', 'wp-simple-firewall' ),
 			'img'      => $con->svgs->raw( 'speedometer' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ),
+			'href' => $con->plugin_urls->adminHome(),
 			'introjs'  => [
 				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
 				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ),
@@ -161,9 +156,7 @@ class NavMenuBuilder {
 	}
 
 	private function configuration() :array {
-		$con = $this->con();
-
-		$slug = 'configuration';
+		$con = self::con();
 
 		$baseClasses = [
 			'dynamic_body_load',
@@ -176,7 +169,7 @@ class NavMenuBuilder {
 			if ( $cfg->properties[ 'show_module_options' ] ) {
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
-					'slug'          => $slug.'-'.$cfg->slug,
+					'slug' => PluginNavs::NAV_OPTIONS_CONFIG.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
 					'tooltip'       => $module->isModOptEnabled() ?
 						sprintf( 'Configure options for %s', __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ) )
@@ -208,31 +201,21 @@ class NavMenuBuilder {
 		} );
 
 		return [
-			'slug'      => $slug,
+			'slug' => PluginNavs::NAV_OPTIONS_CONFIG,
 			'title'     => __( 'Config', 'wp-simple-firewall' ),
 			'subtitle'  => __( "Setup Your Security", 'wp-simple-firewall' ),
-			'img'       => $this->con()->svgs->raw( 'sliders' ),
+			'img'       => self::con()->svgs->raw( 'sliders' ),
 			'introjs'   => [
 				'title' => __( 'Plugin Configuration', 'wp-simple-firewall' ),
 				'body'  => sprintf( __( "%s is a big plugin split into modules, and each with their own options - use these jump-off points to find the specific option you need.", 'wp-simple-firewall' ),
-					$this->con()->getHumanName() ),
+					self::con()->getHumanName() ),
 			],
 			'sub_items' => $subItems,
 		];
 	}
 
-	private function docs() :array {
-		return [
-			'slug'     => 'docs',
-			'title'    => __( 'Docs', 'wp-simple-firewall' ),
-			'subtitle' => __( 'Changelog, Knowledgebase', 'wp-simple-firewall' ),
-			'img'      => $this->con()->svgs->raw( 'book-half' ),
-			'href'     => $this->con()->plugin_urls->adminTopNav( PluginURLs::NAV_DOCS ),
-		];
-	}
-
 	private function gopro() :array {
-		$con = $this->con();
+		$con = self::con();
 		if ( $con->isPremiumActive() ) {
 			$subItems = [];
 		}
@@ -241,8 +224,8 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'license-gopro',
 					'title'  => __( 'Check License', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE ),
-					'active' => $this->inav() === PluginURLs::NAV_LICENSE
+					'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
+					'active' => $this->inav() === PluginNavs::NAV_LICENSE
 				],
 				[
 					'slug'   => 'license-trial',
@@ -260,108 +243,88 @@ class NavMenuBuilder {
 		}
 
 		return [
-			'slug'      => 'license',
+			'slug' => PluginNavs::NAV_LICENSE,
 			'title'     => $con->isPremiumActive() ? __( 'ShieldPRO', 'wp-simple-firewall' ) : __( 'Go PRO!', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'award' ),
 			'img_hover' => $con->svgs->raw( 'award-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_LICENSE ),
+			'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
 			'sub_items' => $subItems,
 		];
 	}
 
 	private function tools() :array {
-		$con = $this->con();
-		$pageURLs = $con->plugin_urls;
-		$slug = 'tools';
+		$pageURLs = self::con()->plugin_urls;
 		return [
-			'slug'      => $slug,
+			'slug'      => PluginNavs::NAV_TOOLS,
 			'title'     => __( 'Tools', 'wp-simple-firewall' ),
 			'subtitle'  => __( "Import, Whitelabel, Wizard", 'wp-simple-firewall' ),
-			'img'       => $this->con()->svgs->raw( 'tools' ),
+			'img'       => self::con()->svgs->raw( 'tools' ),
 			'introjs'   => [
 				'title' => __( 'Security Tools', 'wp-simple-firewall' ),
-				'body'  => __( "Important security tools, such a import/export, whitelabel and admin notes.", 'wp-simple-firewall' ),
+				'body'  => __( "Important security tools, such a import/export, whitelabel, debug.", 'wp-simple-firewall' ),
 			],
 			'sub_items' => [
+				$this->createSubItemForNavAndSub(
+					__( 'User Sessions', 'wp-simple-firewall' ),
+					PluginNavs::NAV_TOOLS,
+					PluginNavs::SUBNAV_TOOLS_SESSIONS
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Import/Export', 'wp-simple-firewall' ),
+					PluginNavs::NAV_TOOLS,
+					PluginNavs::SUBNAV_TOOLS_IMPORT
+				),
 				[
-					'slug'   => $slug.'-importexport',
-					'title'  => __( 'Import', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_IMPORT_EXPORT ),
-					'active' => $this->inav() === PluginURLs::NAV_IMPORT_EXPORT
-				],
-				[
-					'slug'  => $slug.'-whitelabel',
+					'slug' => PluginNavs::NAV_TOOLS.'-whitelabel',
 					'title' => __( 'White Label', 'wp-simple-firewall' ),
-					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_whitelabel' ),
+					'href' => $pageURLs->offCanvasConfigRender( 'section_whitelabel' ),
 				],
 				[
-					'slug'   => $slug.'-notes',
-					'title'  => __( 'Admin Notes', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_NOTES ),
-					'active' => $this->inav() === PluginURLs::NAV_NOTES
-				],
-				[
-					'slug'   => $slug.'-'.PluginURLs::NAV_WIZARD,
+					'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
 					'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
 					'href'   => $pageURLs->wizard( Wizards::WIZARD_WELCOME ),
-					'active' => $this->inav() === PluginURLs::NAV_WIZARD
+					'active' => $this->inav() === PluginNavs::NAV_WIZARD
 				],
-				[
-					'slug'   => $slug.'-debug',
-					'title'  => __( "Debug Info", 'wp-simple-firewall' ),
-					'href'   => $pageURLs->adminTopNav( PluginURLs::NAV_DEBUG ),
-					'active' => $this->inav() === PluginURLs::NAV_DEBUG
-				]
+				$this->createSubItemForNavAndSub(
+					__( 'Docs', 'wp-simple-firewall' ),
+					PluginNavs::NAV_TOOLS,
+					PluginNavs::SUBNAV_TOOLS_DOCS
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Debug Info', 'wp-simple-firewall' ),
+					PluginNavs::NAV_TOOLS,
+					PluginNavs::SUBNAV_TOOLS_DEBUG
+				),
 			],
 		];
 	}
 
 	private function reports() :array {
-		$con = $this->con();
-		$slug = 'reports';
+		$con = self::con();
 		return [
-			'slug'      => $slug,
+			'slug'      => PluginNavs::NAV_REPORTS,
 			'title'     => __( 'Reports', 'wp-simple-firewall' ),
 			'subtitle'  => __( "See What's Happening", 'wp-simple-firewall' ),
 			'img'       => $con->svgs->raw( 'clipboard-data-fill' ),
+			'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+			'active' => $this->inav() === PluginNavs::NAV_REPORTS,
 			'introjs'   => [
 				'title' => __( 'Reports', 'wp-simple-firewall' ),
 				'body'  => __( "Security Reports.", 'wp-simple-firewall' ),
-			],
-			'sub_items' => [
-				[
-					'slug'   => $slug.'-change',
-					'title'  => __( 'Changes', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_CHANGE_TRACK ),
-					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_CHANGE_TRACK,
-				],
-				[
-					'slug'   => $slug.'-charts',
-					'title'  => __( 'Charts', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_REPORTS, PluginNavs::SUBNAV_CHARTS ),
-					'active' => $this->inav() === PluginURLs::NAV_REPORTS && $this->subnav() === PluginNavs::SUBNAV_CHARTS,
-				],
-				[
-					'slug'   => $slug.'-stats',
-					'title'  => __( 'Stats', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginURLs::NAV_STATS, PluginNavs::SUBNAV_STATS ),
-					'active' => $this->inav() === PluginURLs::NAV_STATS
-				],
 			],
 		];
 	}
 
 	private function traffic() :array {
-		$con = $this->con();
-		$slug = PluginURLs::NAV_TRAFFIC_VIEWER;
+		$con = self::con();
 		return [
-			'slug'     => $slug.'-log',
-			'title'    => __( 'Traffic', 'wp-simple-firewall' ),
+			'slug'   => PluginNavs::NAV_TRAFFIC.'-log',
+			'title'    => __( 'Site Traffic', 'wp-simple-firewall' ),
 			'subtitle' => __( "View HTTP Requests", 'wp-simple-firewall' ),
 			'img'      => $con->svgs->raw( 'stoplights' ),
-			'href'     => $con->plugin_urls->adminTopNav( $slug ),
-			'active'   => $this->inav() === $slug,
+			'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+			'active' => $this->inav() === PluginNavs::NAV_TRAFFIC,
 			'introjs'  => [
 				'title' => __( 'Traffic Log', 'wp-simple-firewall' ),
 				'body'  => __( "Dig deeper into your WordPress traffic as it hits your site.", 'wp-simple-firewall' ),
@@ -369,45 +332,12 @@ class NavMenuBuilder {
 		];
 	}
 
-	private function users() :array {
-		$con = $this->con();
+	private function createSubItemForNavAndSub( string $name, string $nav, string $subnav ) :array {
 		return [
-			'slug'     => 'users',
-			'title'    => __( 'Users', 'wp-simple-firewall' ),
-			'subtitle' => __( "Manage User Sessions", 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'person-badge' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
-			'introjs'  => [
-				'title' => __( 'User Management', 'wp-simple-firewall' ),
-				'body'  => __( 'View sessions, and configure session timeouts and passwords requirements.', 'wp-simple-firewall' ),
-			],
-			//			'sub_items' => [
-			//				[
-			//					'slug'  => 'users-sessions',
-			//					'title' => __( 'View Sessions', 'wp-simple-firewall' ),
-			//					'href'  => $con->plugin_urls->adminTop( PluginURLs::NAV_USER_SESSIONS ),
-			//				],
-			//				[
-			//					'slug'  => 'users-secadmin',
-			//					'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ),
-			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_security_admin_settings' ),
-			//				],
-			//				[
-			//					'slug'  => 'users-settings',
-			//					'title' => sprintf( '%s: %s', __( 'Config', 'wp-simple-firewall' ), __( 'Sessions', 'wp-simple-firewall' ) ),
-			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_user_session_management' ),
-			//				],
-			//				[
-			//					'slug'  => 'users-passwords',
-			//					'title' => __( 'Password Policies', 'wp-simple-firewall' ),
-			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_passwords' ),
-			//				],
-			//				[
-			//					'slug'  => 'users-suspend',
-			//					'title' => __( 'User Suspension', 'wp-simple-firewall' ),
-			//					'href'  => $con->plugin_urls->offCanvasConfigRender( 'section_suspend' ),
-			//				],
-			//			],
+			'slug'   => $nav.'-'.$subnav,
+			'title'  => $name,
+			'href'   => self::con()->plugin_urls->adminTopNav( $nav, $subnav ),
+			'active' => $this->inav() === $nav && $this->subnav() === $subnav,
 		];
 	}
 

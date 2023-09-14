@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Arrays;
 class GoPro extends Base {
 
 	public function check() :?array {
-		$con = $this->con();
+		$con = self::con();
 		$issue = null;
 		if ( !$con->isPremiumActive() ) {
 			$issue = [

@@ -10,7 +10,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		// clean roles
 		$opts->setOpt( 'trusted_user_roles',

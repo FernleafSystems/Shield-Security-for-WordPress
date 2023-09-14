@@ -18,12 +18,12 @@ class Processor extends BaseShield\Processor {
 		( new Lib\AllowBetaUpgrades() )->execute();
 		( new Lib\SiteHealthController() )->execute();
 
-		if ( $this->getOptions()->isOpt( 'importexport_enable', 'Y' ) ) {
+		if ( $this->opts()->isOpt( 'importexport_enable', 'Y' ) ) {
 			$mod->getImpExpController()->execute();
 		}
 
-		add_filter( $this->con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
-			return $isDelete || $this->getOptions()->isOpt( 'delete_on_deactivate', 'Y' );
+		add_filter( self::con()->prefix( 'delete_on_deactivate' ), function ( $isDelete ) {
+			return $isDelete || $this->opts()->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 
 		$mod->getReportingController()->execute();
@@ -44,7 +44,7 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function runDailyCron() {
-		$this->con()->fireEvent( 'test_cron_run' );
+		self::con()->fireEvent( 'test_cron_run' );
 		( new Lib\PluginTelemetry() )->collectAndSend();
 	}
 

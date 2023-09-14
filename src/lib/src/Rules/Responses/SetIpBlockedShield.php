@@ -12,7 +12,7 @@ class SetIpBlockedShield extends Base {
 	public const SLUG = 'set_ip_blocked_shield';
 
 	protected function execResponse() :bool {
-		$con = $this->con();
+		$con = self::con();
 
 		$con->this_req->is_ip_blocked_shield = true;
 
@@ -30,10 +30,10 @@ class SetIpBlockedShield extends Base {
 			throw new \Exception( 'SetIpBlocked: should never get here' );
 		}
 		/** @var Update $upd */
-		$upd = $this->con()
-					->getModule_IPs()
-					->getDbH_IPRules()
-					->getQueryUpdater();
+		$upd = self::con()
+				   ->getModule_IPs()
+				   ->getDbH_IPRules()
+				   ->getQueryUpdater();
 		$upd->updateLastAccessAt( $IP );
 
 		add_action( 'init', function () {

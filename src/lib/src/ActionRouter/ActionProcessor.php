@@ -48,7 +48,7 @@ class ActionProcessor {
 
 	private function findActionFromSlug( string $slug ) :string {
 		foreach ( Constants::ACTIONS as $action ) {
-			if ( $action::SLUG === $slug ) {
+			if ( \class_exists( $action ) && $action::SLUG === $slug ) {
 				return self::$actions[ $slug ] = $action;
 			}
 		}

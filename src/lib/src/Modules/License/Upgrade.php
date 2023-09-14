@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgrade {
 
 	protected function upgrade_1820() {
-		if ( $this->con()->isPremiumActive() ) {
+		if ( self::con()->isPremiumActive() ) {
 			try {
-				$this->con()->action_router->action( LicenseScheduleCheck::class );
+				self::con()->action_router->action( LicenseScheduleCheck::class );
 			}
 			catch ( ActionException $e ) {
 			}

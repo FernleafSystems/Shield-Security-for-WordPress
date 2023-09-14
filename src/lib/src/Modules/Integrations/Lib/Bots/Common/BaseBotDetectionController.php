@@ -13,7 +13,7 @@ abstract class BaseBotDetectionController {
 	private $installedProviders;
 
 	protected function canRun() :bool {
-		return !$this->con()->this_req->request_bypasses_all_restrictions;
+		return !self::con()->this_req->request_bypasses_all_restrictions;
 	}
 
 	/**

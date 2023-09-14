@@ -30,7 +30,7 @@ class Options extends BaseShield\Options {
 
 	public function getSecurityAdminUsers() :array {
 		$users = $this->getOpt( 'sec_admin_users', [] );
-		return ( \is_array( $users ) && $this->con()->isPremiumActive() ) ? $users : [];
+		return ( \is_array( $users ) && self::con()->isPremiumActive() ) ? $users : [];
 	}
 
 	public function getSecurityPIN() :string {
@@ -51,12 +51,5 @@ class Options extends BaseShield\Options {
 
 	public function isRestrictWpOptions() :bool {
 		return $this->isOpt( 'admin_access_restrict_options', 'Y' );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isEnabledMU() :bool {
-		return $this->isOpt( 'enable_mu', 'Y' );
 	}
 }

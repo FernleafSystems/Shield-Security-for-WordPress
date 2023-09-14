@@ -29,13 +29,13 @@ class SecurityBadge extends Base {
 			throw new \Exception( 'Please select one of the options, or proceed to the next step.' );
 		}
 
-		$mod = $this->con()->getModule_Plugin();
+		$mod = self::con()->getModule_Plugin();
 
 		$toEnable = $value === 'Y';
 		if ( $toEnable ) { // we don't disable the whole module
 			$mod->setIsMainFeatureEnabled( true );
 		}
-		$mod->getOptions()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
+		$mod->opts()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
 		$mod->saveModOptions();
 
 		$resp = parent::processStepFormSubmit( $form );

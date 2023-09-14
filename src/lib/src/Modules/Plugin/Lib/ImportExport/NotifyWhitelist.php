@@ -16,7 +16,7 @@ class NotifyWhitelist {
 	}
 
 	protected function run() {
-		$cronHook = $this->con()->prefix( 'importexport_notify' );
+		$cronHook = self::con()->prefix( 'importexport_notify' );
 
 		add_action( 'shield/after_form_submit_options_save', function () use ( $cronHook ) {
 			// auto-import notify: ONLY when the options are being updated with a MANUAL save.
@@ -29,7 +29,7 @@ class NotifyWhitelist {
 			}
 		} );
 
-		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->con()->prefix() );
+		$q = new WhitelistNotifyQueue( 'whitelist_notify_urls', self::con()->prefix() );
 		add_action( $cronHook, function () use ( $q ) {
 			foreach ( $this->opts()->getImportExportWhitelist() as $url ) {
 				$q->push_to_queue( $url );

@@ -149,7 +149,7 @@ class ForTraffic extends Base {
 				'searchable' => false,
 				'visible'    => false,
 			],
-			'user'       => [
+			'user'     => [
 				'data'           => 'user',
 				'title'          => __( 'User' ),
 				'className'      => 'user',

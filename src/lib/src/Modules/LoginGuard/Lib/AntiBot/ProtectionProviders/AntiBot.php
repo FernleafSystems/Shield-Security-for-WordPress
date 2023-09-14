@@ -8,10 +8,10 @@ class AntiBot extends BaseProtectionProvider {
 		if ( $this->isFactorTested() ) {
 			return;
 		}
-		$isBot = $this->con()
-					  ->getModule_IPs()
-					  ->getBotSignalsController()
-					  ->isBot( $this->con()->this_req->ip );
+		$isBot = self::con()
+					 ->getModule_IPs()
+					 ->getBotSignalsController()
+					 ->isBot( self::con()->this_req->ip );
 		if ( $isBot ) {
 			$this->processFailure();
 			throw new \Exception( __( 'Failed AntiBot Test', 'wp-simple-firewall' ) );

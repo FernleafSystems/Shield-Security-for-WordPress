@@ -10,7 +10,7 @@ class SetIpWhitelisted extends Base {
 	public const SLUG = 'set_ip_whitelisted';
 
 	protected function execResponse() :bool {
-		$con = $this->con();
+		$con = self::con();
 
 		$ipRecord = \current( ( new IpRuleStatus( $con->this_req->ip ) )->getRulesForBypass() );
 		if ( !empty( $ipRecord ) ) {

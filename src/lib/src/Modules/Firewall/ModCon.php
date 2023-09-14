@@ -11,7 +11,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		return \array_filter(
 			[
@@ -31,7 +31,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getBlockResponse() :string {
-		$response = $this->getOptions()->getOpt( 'block_response', '' );
+		$response = $this->opts()->getOpt( 'block_response', '' );
 		return !empty( $response ) ? $response : 'redirect_die_message'; // TODO: use default
 	}
 }

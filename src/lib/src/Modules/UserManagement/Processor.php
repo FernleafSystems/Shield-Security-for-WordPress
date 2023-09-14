@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
@@ -34,7 +35,7 @@ class Processor extends BaseShield\Processor {
 
 		// All newly created users have their first seen and password start date set
 		add_action( 'user_register', function ( $userID ) {
-			$this->con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
+			self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) );
 		} );
 
 		if ( !$con->this_req->request_bypasses_all_restrictions ) {
@@ -45,12 +46,12 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		$con = $this->con();
+		$con = self::con();
 		if ( $con->isValidAdminArea() ) {
 
 			$thisGroup = [
 				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminTopNav( $con->plugin_urls::NAV_USER_SESSIONS ),
+				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
 				'items' => [],
 			];
 
@@ -84,7 +85,7 @@ class Processor extends BaseShield\Processor {
 	public function addUserStatusLastLogin( $cols ) {
 
 		if ( \is_array( $cols ) ) {
-			$customColName = $this->con()->prefix( 'col_user_status' );
+			$customColName = self::con()->prefix( 'col_user_status' );
 			if ( !isset( $cols[ $customColName ] ) ) {
 				$cols[ $customColName ] = __( 'User Status', 'wp-simple-firewall' );
 			}
@@ -95,7 +96,7 @@ class Processor extends BaseShield\Processor {
 					$user = Services::WpUsers()->getUserById( $userID );
 					if ( $user instanceof \WP_User ) {
 
-						$lastLoginAt = (int)$this->con()->user_metas->for( $user )->record->last_login_at;
+						$lastLoginAt = (int)self::con()->user_metas->for( $user )->record->last_login_at;
 						$carbon = Services::Request()
 										  ->carbon()
 										  ->setTimestamp( $lastLoginAt );

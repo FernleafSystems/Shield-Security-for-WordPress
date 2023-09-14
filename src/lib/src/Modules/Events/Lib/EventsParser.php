@@ -40,7 +40,6 @@ class EventsParser {
 
 	public function accounts() :array {
 		return $this->extract( [
-			'user_registered',
 			'user_promoted',
 			'user_demoted',
 			'user_deleted',
@@ -53,8 +52,11 @@ class EventsParser {
 	public function userAccess() :array {
 		return $this->extract( [
 			'user_login',
+			'user_registered',
 			'2fa_verify_success',
 			'2fa_verify_fail',
+			'user_hard_suspended',
+			'user_hard_unsuspended',
 		] );
 	}
 

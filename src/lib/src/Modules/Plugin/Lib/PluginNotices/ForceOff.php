@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDeleteFor
 class ForceOff extends Base {
 
 	public function check() :?array {
-		$con = $this->con();
+		$con = self::con();
 		return $con->this_req->is_force_off ?
 			[
 				'id'        => 'force_off_active',

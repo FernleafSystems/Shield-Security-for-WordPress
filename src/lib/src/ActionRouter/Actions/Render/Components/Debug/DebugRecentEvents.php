@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DebugRecentEvents extends Actions\Render\BaseRender {
@@ -11,14 +11,14 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'render_debug_recentevents';
-	public const TEMPLATE = '/wpadmin_pages/insights/overview/recent_events.twig';
+	public const TEMPLATE = '/wpadmin/components/recent_events.twig';
 
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
 				'title_recent'        => __( 'Recent Events Log', 'wp-simple-firewall' ),
 				'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ),
-					$this->con()->getHumanName() ),
+					self::con()->getHumanName() ),
 			],
 			'vars'    => [
 				'insight_events' => $this->getData()
@@ -27,7 +27,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	}
 
 	private function getData() :array {
-		$srvEvents = $this->con()->loadEventsService();
+		$srvEvents = self::con()->loadEventsService();
 
 		$theStats = \array_filter(
 			$srvEvents->getEvents(),
@@ -36,16 +36,16 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 			}
 		);
 
-		/** @var Events\Select $selector */
-		$selector = $this->con()
-						 ->getModule_Events()
-						 ->getDbH_Events()
-						 ->getQuerySelector();
+		/** @var EventsDB\Select $selector */
+		$selector = self::con()
+						->getModule_Events()
+						->getDbH_Events()
+						->getQuerySelector();
 
 		$recent = \array_intersect_key(
 			\array_filter( \array_map(
 				function ( $entry ) use ( $srvEvents ) {
-					/** @var Events\EntryVO $entry */
+					/** @var EventsDB\Record $entry */
 					return $srvEvents->eventExists( $entry->event ) ?
 						[
 							'name' => $srvEvents->getEventName( $entry->event ),
@@ -58,12 +58,11 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 			$theStats
 		);
 
-		$notYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
 		foreach ( \array_keys( $theStats ) as $eventKey ) {
 			if ( !isset( $recent[ $eventKey ] ) ) {
 				$recent[ $eventKey ] = [
 					'name' => $srvEvents->getEventName( $eventKey ),
-					'val'  => $notYetRecorded
+					'val'  => __( 'Not yet recorded', 'wp-simple-firewall' )
 				];
 			}
 		}

@@ -26,7 +26,7 @@ class ReinstallDialog extends BaseScans {
 				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				'download'           => sprintf(
 					__( 'For best security practices, %s will download and re-install the latest available version of this plugin.', 'wp-simple-firewall' ),
-					$this->con()->getHumanName()
+					self::con()->getHumanName()
 				)
 			],
 			'js_snippets' => []

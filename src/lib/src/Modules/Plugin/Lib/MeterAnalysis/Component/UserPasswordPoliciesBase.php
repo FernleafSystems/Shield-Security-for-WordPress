@@ -13,9 +13,9 @@ abstract class UserPasswordPoliciesBase extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_UserManagement();
+		$mod = self::con()->getModule_UserManagement();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled() && $opts->isPasswordPoliciesEnabled();
 	}
 }

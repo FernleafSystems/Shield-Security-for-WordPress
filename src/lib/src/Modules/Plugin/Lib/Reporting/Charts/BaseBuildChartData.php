@@ -49,9 +49,8 @@ class BaseBuildChartData {
 		$req = $this->getChartRequest();
 		$legend = [];
 		if ( !$req->combine_events ) {
-			$srvEvents = $this->con()->loadEventsService();
 			foreach ( $req->events as $event ) {
-				$legend[] = $srvEvents->getEventName( $event );
+				$legend[] = self::con()->loadEventsService()->getEventName( $event );
 			}
 		}
 		return $legend;
@@ -82,7 +81,7 @@ class BaseBuildChartData {
 
 	protected function buildDataForEvents( array $events ) :array {
 		$req = $this->getChartRequest();
-		$dbhEvents = $this->con()->getModule_Events()->getDbH_Events();
+		$dbhEvents = self::con()->getModule_Events()->getDbH_Events();
 
 		$tick = 0;
 		$carbon = Services::Request()->carbon();

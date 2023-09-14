@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Themes,
 	Wordpress
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
@@ -29,11 +29,11 @@ class PageScansResults extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_results.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Run Manual Scan', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RUN ),
+				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
 			],
 			[
 				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
@@ -43,7 +43,7 @@ class PageScansResults extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_HackGuard();
 		$scansCon = $mod->getScansCon();
 
@@ -100,13 +100,13 @@ class PageScansResults extends BasePluginAdminPage {
 			],
 			'hrefs'       => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
-			'imgs'    => [
+			'imgs'        => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
 			],
 			'strings'     => [
-				'inner_page_title'    => __( 'Scan Results', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'View Results', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and manage all scan results.', 'wp-simple-firewall' ),
 
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),

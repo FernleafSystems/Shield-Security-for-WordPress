@@ -20,11 +20,11 @@ class LoadFileLocks {
 	public function loadLocks() :array {
 		$records = [];
 		if ( $this->mod()->getFileLocker()->isEnabled() ) {
-			$selector = $this->mod()->getDbH_FileLocker()->getQuerySelector();
-			if ( \method_exists( $selector, 'setNoOrderBy' ) ) {
-				$selector->setNoOrderBy();
-			}
-			$all = $selector->all();
+			$all = $this->mod()
+						->getDbH_FileLocker()
+						->getQuerySelector()
+						->setNoOrderBy()
+						->all();
 			foreach ( \is_array( $all ) ? $all : [] as $lock ) {
 				$records[ $lock->id ] = $lock;
 			}

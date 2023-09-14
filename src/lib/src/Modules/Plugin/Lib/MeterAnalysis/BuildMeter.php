@@ -48,8 +48,8 @@ class BuildMeter {
 		}
 
 		foreach ( $meter[ 'components' ] as &$comp ) {
-			$comp[ 'score_as_percent' ] = (int)round( 100*$comp[ 'score' ]/$totalWeight );
-			$comp[ 'weight_as_percent' ] = (int)round( 100*$comp[ 'weight' ]/$totalWeight );
+			$comp[ 'score_as_percent' ] = (int)\round( 100*$comp[ 'score' ]/$totalWeight );
+			$comp[ 'weight_as_percent' ] = (int)\round( 100*$comp[ 'weight' ]/$totalWeight );
 		}
 
 		// Put critical components to the top of the list.
@@ -60,7 +60,7 @@ class BuildMeter {
 			return $a[ 'is_critical' ] ? -1 : 1;
 		} );
 
-		$percentage = (int)round( 100*$totalScore/$totalWeight );
+		$percentage = (int)\round( 100*$totalScore/$totalWeight );
 		$meter[ 'totals' ] = [
 			'score'        => $totalScore,
 			'max_weight'   => $totalWeight,

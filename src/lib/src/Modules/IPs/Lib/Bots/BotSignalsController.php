@@ -28,7 +28,7 @@ class BotSignalsController {
 	private $isBots = [];
 
 	protected function canRun() :bool {
-		return $this->con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' );
+		return self::con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' );
 	}
 
 	protected function run() {
@@ -52,10 +52,10 @@ class BotSignalsController {
 			$opts = $this->opts();
 
 			if ( !$opts->isEnabledAntiBotEngine() ) {
-				$this->con()->fireEvent( 'ade_check_option_disabled' );
+				self::con()->fireEvent( 'ade_check_option_disabled' );
 			}
 			elseif ( !$this->mod()->isModOptEnabled() ) {
-				$this->con()->fireEvent( 'ade_check_module_disabled' );
+				self::con()->fireEvent( 'ade_check_module_disabled' );
 			}
 			else {
 				$botScoreMinimum = (int)apply_filters( 'shield/antibot_score_minimum', $opts->getAntiBotMinimum() );
@@ -63,13 +63,13 @@ class BotSignalsController {
 				if ( $botScoreMinimum > 0 ) {
 
 					$score = ( new Calculator\CalculateVisitorBotScores() )
-						->setIP( empty( $IP ) ? $this->con()->this_req->ip : $IP )
+						->setIP( empty( $IP ) ? self::con()->this_req->ip : $IP )
 						->probability();
 
 					$this->isBots[ $IP ] = $score < $botScoreMinimum;
 
 					if ( $allowEventFire ) {
-						$this->con()->fireEvent(
+						self::con()->fireEvent(
 							'antibot_'.( $this->isBots[ $IP ] ? 'fail' : 'pass' ),
 							[
 								'audit_params' => [
@@ -105,7 +105,7 @@ class BotSignalsController {
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$this->con()->this_req->request_bypasses_all_restrictions ) {
+			if ( !self::con()->this_req->request_bypasses_all_restrictions ) {
 				if ( $this->opts()->isEnabledTrackLoginFailed() ) {
 					$trackers[] = BotTrack\TrackLoginFailed::class;
 				}
@@ -123,10 +123,10 @@ class BotSignalsController {
 	}
 
 	private function registerFrontPageLoad() {
-		add_action( $this->con()->prefix( 'pre_plugin_shutdown' ), function () {
+		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
 			if ( Services::Request()->isGet() && did_action( 'wp' )
 				 && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
-				$this->getEventListener()->fireEventForIP( $this->con()->this_req->ip, 'frontpage_load' );
+				$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
 			}
 		} );
 	}
@@ -135,7 +135,7 @@ class BotSignalsController {
 		add_action( 'login_footer', function () {
 			$req = Services::Request();
 			if ( $req->isGet() ) {
-				$this->getEventListener()->fireEventForIP( $this->con()->this_req->ip, 'loginpage_load' );
+				$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'loginpage_load' );
 			}
 		} );
 	}

@@ -43,6 +43,11 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $sessionCon;
 
+	/**
+	 * @var Lib\TrackingVO
+	 */
+	private $tracking;
+
 	public function getImpExpController() :Lib\ImportExport\ImportExportController {
 		return $this->importExportCon ?? $this->importExportCon = new Lib\ImportExport\ImportExportController();
 	}
@@ -63,8 +68,15 @@ class ModCon extends BaseShield\ModCon {
 		return $this->shieldNetCon ?? $this->shieldNetCon = new Shield\ShieldNetApi\ShieldNetApiController();
 	}
 
-	public function getDbH_ReportLogs() :DB\Report\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'report' );
+	/**
+	 * @deprecated 18.3.1
+	 */
+	public function getDbH_ReportLogs() :DB\Reports\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'reports' );
+	}
+
+	public function getDbH_Reports() :DB\Reports\Ops\Handler {
+		return $this->getDbHandler()->loadDbH( 'reports' );
 	}
 
 	protected function doPostConstruction() {
@@ -73,9 +85,17 @@ class ModCon extends BaseShield\ModCon {
 		$this->declareWooHposCompat();
 	}
 
+	public function onWpLoaded() {
+		parent::onWpLoaded();
+
+		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
+			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
+		}
+	}
+
 	protected function setupCacheDir() {
 		$url = Services::WpGeneral()->getWpUrl();
-		$lastKnownDirs = $this->getOptions()->getOpt( 'last_known_cache_basedirs' );
+		$lastKnownDirs = $this->opts()->getOpt( 'last_known_cache_basedirs' );
 		if ( empty( $lastKnownDirs ) || !\is_array( $lastKnownDirs ) ) {
 			$lastKnownDirs = [
 				$url => ''
@@ -86,8 +106,8 @@ class ModCon extends BaseShield\ModCon {
 		$workableDir = $cacheDirFinder->dir();
 		$lastKnownDirs[ $url ] = empty( $workableDir ) ? '' : \dirname( $workableDir );
 
-		$this->getOptions()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
-		$this->con()->cache_dir_handler = $cacheDirFinder;
+		$this->opts()->setOpt( 'last_known_cache_basedirs', $lastKnownDirs );
+		self::con()->cache_dir_handler = $cacheDirFinder;
 	}
 
 	/**
@@ -116,7 +136,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
 			$opts->setOpt( 'ipdetect_at', 0 );
 		}
@@ -124,7 +144,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function deleteAllPluginCrons() {
-		$con = $this->con();
+		$con = self::con();
 		$wpCrons = Services::WpCron();
 
 		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
@@ -140,9 +160,9 @@ class ModCon extends BaseShield\ModCon {
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		if ( $opts->getIpSource() !== 'AUTO_DETECT_IP' ) {
 			Services::Request()->setIpDetector(
 				( new RequestIpDetect() )->setPreferredSource( $opts->getIpSource() )
@@ -173,12 +193,12 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getLinkToTrackingDataDump() :string {
-		return $this->con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
+		return self::con()->plugin_urls->noncedPluginAction( Actions\PluginDumpTelemetry::class );
 	}
 
 	public function getPluginReportEmail() :string {
-		$con = $this->con();
-		$e = (string)$this->getOptions()->getOpt( 'block_send_email_address' );
+		$con = self::con();
+		$e = (string)$this->opts()->getOpt( 'block_send_email_address' );
 		if ( $con->isPremiumActive() ) {
 			$e = apply_filters( $con->prefix( 'report_email' ), $e );
 		}
@@ -191,7 +211,7 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	protected function doPrePluginOptionsSave() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$this->storeRealInstallDate();
 
@@ -207,22 +227,22 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFirstInstallDate() :int {
-		return (int)Services::WpGeneral()->getOption( $this->con()->prefixOption( 'install_date' ) );
+		return (int)Services::WpGeneral()->getOption( self::con()->prefixOption( 'install_date' ) );
 	}
 
 	public function getInstallDate() :int {
-		return (int)$this->getOptions()->getOpt( 'installation_time', 0 );
+		return (int)$this->opts()->getOpt( 'installation_time', 0 );
 	}
 
 	public function isShowAdvanced() :bool {
-		return $this->getOptions()->isOpt( 'show_advanced', 'Y' );
+		return $this->opts()->isOpt( 'show_advanced', 'Y' );
 	}
 
 	/**
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$key = $this->con()->prefixOption( 'install_date' );
+		$key = self::con()->prefixOption( 'install_date' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
 			$wpDate = Services::Request()->ts();
@@ -235,7 +255,7 @@ class ModCon extends BaseShield\ModCon {
 
 		$finalDate = \min( $date, $wpDate );
 		Services::WpGeneral()->updateOption( $key, $finalDate );
-		$this->getOptions()->setOpt( 'installation_time', $date );
+		$this->opts()->setOpt( 'installation_time', $date );
 
 		return $finalDate;
 	}
@@ -244,7 +264,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @param string $optionKey
 	 */
 	protected function cleanRecaptchaKey( $optionKey ) {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$captchaKey = \trim( (string)$opts->getOpt( $optionKey, '' ) );
 		$spacePos = \strpos( $captchaKey, ' ' );
 		if ( $spacePos !== false ) {
@@ -255,16 +275,16 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getActivateLength() :int {
-		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
+		return Services::Request()->ts() - (int)$this->opts()->getOpt( 'activated_at', 0 );
 	}
 
 	public function setActivatedAt() {
-		$this->getOptions()->setOpt( 'activated_at', Services::Request()->ts() );
+		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
 	private function cleanImportExportWhitelistUrls() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$cleaned = [];
 		$whitelist = $opts->getImportExportWhitelist();
 		foreach ( $whitelist as $url ) {
@@ -279,7 +299,7 @@ class ModCon extends BaseShield\ModCon {
 
 	private function cleanImportExportMasterImportUrl() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
 		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
@@ -293,28 +313,27 @@ class ModCon extends BaseShield\ModCon {
 		return (bool)apply_filters( 'shield/allow_xmlrpc_login_bypass', false );
 	}
 
-	public function getDbHandler_Notes() :Shield\Databases\AdminNotes\Handler {
-		return $this->getDbH( 'notes' );
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getCaptchaEnqueue() :Shield\Utilities\ReCaptcha\Enqueue {
-		return $this->oCaptchaEnqueue ?? $this->oCaptchaEnqueue = new Shield\Utilities\ReCaptcha\Enqueue();
-	}
-
 	protected function setupCustomHooks() {
 		add_action( 'admin_footer', function () {
-			if ( $this->con()->isPluginAdminPageRequest() ) {
-				echo $this->con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
+			if ( self::con()->isPluginAdminPageRequest() ) {
+				echo self::con()->action_router->render( Actions\Render\Components\ToastPlaceholder::SLUG );
 			}
 		}, 100, 0 );
 	}
 
+	public function getTracking() :Lib\TrackingVO {
+		if ( !isset( $this->tracking ) ) {
+			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( $this->opts()->getOpt( 'transient_tracking' ) );
+			add_action( self::con()->prefix( 'pre_options_store' ), function () {
+				$this->opts()->setOpt( 'transient_tracking', $this->tracking->getRawData() );
+			} );
+		}
+		return $this->tracking;
+	}
+
 	public function isModOptEnabled() :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return !$opts->isPluginGloballyDisabled();
 	}
 }

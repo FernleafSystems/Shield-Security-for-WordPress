@@ -37,7 +37,7 @@ abstract class BaseBlock extends BaseFullPageRender {
 	protected function getRestrictionDetailsPoints() :array {
 		$WP = Services::WpGeneral();
 		return [
-			__( 'Your IP Address', 'wp-simple-firewall' ) => $this->con()->this_req->ip,
+			__( 'Your IP Address', 'wp-simple-firewall' ) => self::con()->this_req->ip,
 			__( 'Time Now', 'wp-simple-firewall' )        => $WP->getTimeStringForDisplay(),
 			__( 'Homepage', 'wp-simple-firewall' )        => $WP->getHomeUrl(),
 		];

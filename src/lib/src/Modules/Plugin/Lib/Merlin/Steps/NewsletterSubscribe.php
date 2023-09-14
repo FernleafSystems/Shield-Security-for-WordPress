@@ -41,7 +41,7 @@ class NewsletterSubscribe extends Base {
 			$resp->success = ( new \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\NewsletterSubscribe() )
 				->run( $form );
 			if ( $resp->success ) {
-				$meta = $this->con()->user_metas->current();
+				$meta = self::con()->user_metas->current();
 				$flags = $meta->flags;
 				$flags[ 'merlin_step_newsletter_subscribe' ] = Services::Request()->ts();
 				$meta->flags = $flags;
@@ -55,10 +55,10 @@ class NewsletterSubscribe extends Base {
 	}
 
 	public function skipStep() :bool {
-		return isset( $this->con()->user_metas->current()->flags[ 'merlin_step_newsletter_subscribe' ] )
-			   || !$this->con()
-						->getModule_Plugin()
-						->getShieldNetApiController()
-						->canHandshake();
+		return isset( self::con()->user_metas->current()->flags[ 'merlin_step_newsletter_subscribe' ] )
+			   || !self::con()
+					   ->getModule_Plugin()
+					   ->getShieldNetApiController()
+					   ->canHandshake();
 	}
 }

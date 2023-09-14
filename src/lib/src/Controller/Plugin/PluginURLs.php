@@ -2,9 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FileDownload;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\FileDownload,
+	Actions\FileDownloadAsStream,
+	Constants};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -21,7 +23,6 @@ class PluginURLs {
 	public const NAV_IMPORT_EXPORT = 'importexport';
 	public const NAV_IP_RULES = 'ips';
 	public const NAV_LICENSE = 'license';
-	public const NAV_NOTES = 'notes';
 	public const NAV_OPTIONS_CONFIG = 'config';
 	public const NAV_OVERVIEW = 'overview';
 	public const NAV_RESTRICTED = 'restricted';
@@ -36,11 +37,11 @@ class PluginURLs {
 
 	public function rootAdminPage() :string {
 		return Services::WpGeneral()->getUrl_AdminPage(
-			$this->rootAdminPageSlug(), (bool)$this->con()->cfg->properties[ 'wpms_network_admin_only' ] );
+			$this->rootAdminPageSlug(), (bool)self::con()->cfg->properties[ 'wpms_network_admin_only' ] );
 	}
 
 	public function rootAdminPageSlug() :string {
-		return $this->con()->getModule_Plugin()->getModSlug();
+		return self::con()->getModule_Plugin()->getModSlug();
 	}
 
 	public static function GetAllNavs() :array {
@@ -54,7 +55,7 @@ class PluginURLs {
 	}
 
 	public function adminHome() :string {
-		return $this->adminTopNav( PluginURLs::NAV_OVERVIEW );
+		return $this->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW );
 	}
 
 	public function adminTopNav( string $nav, string $subNav = '' ) :string {
@@ -65,14 +66,11 @@ class PluginURLs {
 	}
 
 	public function wizard( string $wizardKey ) :string {
-		return URL::Build( $this->rootAdminPage(), [
-			Constants::NAV_ID     => PluginURLs::NAV_WIZARD,
-			Constants::NAV_SUB_ID => sanitize_key( $wizardKey ),
-		] );
+		return $this->adminTopNav( PluginNavs::NAV_WIZARD, $wizardKey );
 	}
 
 	public function adminIpRules() :string {
-		return $this->adminTopNav( self::NAV_IP_RULES );
+		return $this->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES );
 	}
 
 	public function ipAnalysis( string $ip ) :string {
@@ -83,12 +81,12 @@ class PluginURLs {
 	 * @param ModCon|mixed $mod
 	 */
 	public function modCfg( $mod ) :string {
-		return $this->adminTopNav( PluginURLs::NAV_OPTIONS_CONFIG, $mod->cfg->slug );
+		return $this->adminTopNav( PluginNavs::NAV_OPTIONS_CONFIG, $mod->cfg->slug );
 	}
 
 	public function modCfgOption( string $optKey ) :string {
 		$mod = OptUtils::ModFromOpt( $optKey );
-		$def = $mod->getOptions()->getOptDefinition( $optKey );
+		$def = $mod->opts()->getOptDefinition( $optKey );
 		return empty( $def[ 'section' ] ) ? $this->modCfg( $mod ) : $this->modCfgSection( $mod, $def[ 'section' ] );
 	}
 
@@ -117,14 +115,29 @@ class PluginURLs {
 		);
 	}
 
+	public function fileDownloadAsStream( string $downloadCategory, array $params = [] ) :string {
+		return $this->noncedPluginAction(
+			FileDownloadAsStream::class,
+			Services::WpGeneral()->getAdminUrl(),
+			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
+		);
+	}
+
+	/**
+	 * @param string $trigger - option, section, module
+	 */
+	public function offCanvasTrigger( string $trigger ) :string {
+		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.%s}", $trigger );
+	}
+
 	/**
 	 * @param string $for - option, section, module
 	 */
 	public function offCanvasConfigRender( string $for ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.renderConfig('%s')}", $for );
+		return $this->offCanvasTrigger( sprintf( "renderConfig('%s')", $for ) );
 	}
 
 	public function isValidNav( string $navID ) :bool {
-		return \in_array( $navID, self::GetAllNavs() );
+		return \in_array( $navID, PluginNavs::GetAllNavs() );
 	}
 }

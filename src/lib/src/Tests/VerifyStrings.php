@@ -12,8 +12,8 @@ class VerifyStrings {
 
 		$descNotArray = [];
 
-		foreach ( $this->con()->modules as $module ) {
-			foreach ( $module->getOptions()->getVisibleOptionsKeys() as $visibleOptionsKey ) {
+		foreach ( self::con()->modules as $module ) {
+			foreach ( $module->opts()->getVisibleOptionsKeys() as $visibleOptionsKey ) {
 				try {
 					$strings = $module->getStrings()->getOptionStrings( $visibleOptionsKey );
 					if ( !\is_array( $strings[ 'description' ] ) ) {

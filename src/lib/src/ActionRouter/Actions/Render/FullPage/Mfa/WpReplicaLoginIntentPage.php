@@ -18,7 +18,7 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'content' => [
 				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::SLUG,

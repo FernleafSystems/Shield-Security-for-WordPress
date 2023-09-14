@@ -27,7 +27,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_CertainOptionsRestricted( NoticeVO $notice ) {
-		$con = $this->con();
+		$con = self::con();
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -47,7 +47,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_AdminUsersRestricted( NoticeVO $notice ) {
-		$con = $this->con();
+		$con = self::con();
 		$notice->render_data = [
 			'notice_attributes' => [], // TODO
 			'strings'           => [
@@ -74,7 +74,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$current = Services::WpPost()->getCurrentPage();
 

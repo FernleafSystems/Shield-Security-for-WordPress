@@ -74,7 +74,7 @@ abstract class Handler extends ExecOnceModConsumer {
 				'autoexpire'      => 0,
 				'has_ip_col'      => false,
 			],
-			$this->getOptions()->getDef( 'db_table_'.$this->slug )
+			$this->opts()->getDef( 'db_table_'.$this->slug )
 		) );
 
 		$this->schema->table = $this->getTable();
@@ -102,7 +102,7 @@ abstract class Handler extends ExecOnceModConsumer {
 
 	public function getTable() :string {
 		return Services::WpDb()->getPrefix()
-			   .esc_sql( $this->con()->prefixOption( $this->getTableSchema()->slug ) );
+			   .esc_sql( self::con()->prefixOption( $this->getTableSchema()->slug ) );
 	}
 
 	/**

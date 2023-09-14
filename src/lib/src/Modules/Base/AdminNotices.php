@@ -65,13 +65,13 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 				);
 				return ( new NoticeVO() )->applyFromArray( $noticeDef );
 			},
-			$this->getOptions()->getAdminNotices()
+			$this->opts()->getAdminNotices()
 		);
 	}
 
 	protected function preProcessNotice( NoticeVO $notice ) {
-		$con = $this->con();
-		$opts = $this->getOptions();
+		$con = self::con();
+		$opts = $this->opts();
 
 		if ( $notice->plugin_page_only && !$con->isPluginAdminPageRequest() ) {
 			$notice->non_display_reason = 'plugin_page_only';
@@ -129,7 +129,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	protected function isNoticeDismissedForCurrentUser( NoticeVO $notice ) :bool {
 		$dismissed = false;
 
-		$meta = $this->con()->user_metas->current();
+		$meta = self::con()->user_metas->current();
 		if ( !empty( $meta ) ) {
 			$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
@@ -156,7 +156,7 @@ class AdminNotices extends Shield\Modules\Base\Common\ExecOnceModConsumer {
 	public function setNoticeDismissed( NoticeVO $notice ) {
 		$ts = Services::Request()->ts();
 
-		$meta = $this->con()->user_metas->current();
+		$meta = self::con()->user_metas->current();
 		$noticeMetaKey = $this->getNoticeMetaKey( $notice );
 
 		if ( $notice->per_user ) {

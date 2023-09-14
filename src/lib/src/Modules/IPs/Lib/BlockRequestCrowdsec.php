@@ -17,12 +17,12 @@ class BlockRequestCrowdsec {
 	use ModConsumer;
 
 	protected function canRun() :bool {
-		return $this->con()->this_req->is_ip_blocked_crowdsec;
+		return self::con()->this_req->is_ip_blocked_crowdsec;
 	}
 
 	protected function run() {
 
-		foreach ( ( new IpRuleStatus( $this->con()->this_req->ip ) )->getRulesForCrowdsec() as $record ) {
+		foreach ( ( new IpRuleStatus( self::con()->this_req->ip ) )->getRulesForCrowdsec() as $record ) {
 			/** @var IpRulesDB\Update $updater */
 			$updater = $this->mod()->getDbH_IPRules()->getQueryUpdater();
 			$updater->updateLastAccessAt( $record );
@@ -30,10 +30,10 @@ class BlockRequestCrowdsec {
 
 		do_action( 'shield/maybe_intercept_block_crowdsec' );
 
-		$this->con()->fireEvent( 'conn_kill_crowdsec' );
+		self::con()->fireEvent( 'conn_kill_crowdsec' );
 
 		try {
-			$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
+			self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 				'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressCrowdsec::SLUG
 			] );
 		}

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 class WpCli extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\WpCli {
 
 	protected function isFeatureAvailable() :bool {
-		return $this->con()->caps->canWpcliLevel1();
+		return self::con()->caps->canWpcliLevel1();
 	}
 
 	protected function enumCmdHandlers() :array {

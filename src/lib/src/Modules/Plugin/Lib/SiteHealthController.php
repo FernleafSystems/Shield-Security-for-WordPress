@@ -36,7 +36,7 @@ class SiteHealthController {
 		}, 11 );
 		add_action( 'site_health_tab_content', function ( $tab ) {
 			if ( $tab === self::TAB_SLUG ) {
-				echo $this->con()->action_router->render( Analysis::SLUG );
+				echo self::con()->action_router->render( Analysis::SLUG );
 			}
 		} );
 	}

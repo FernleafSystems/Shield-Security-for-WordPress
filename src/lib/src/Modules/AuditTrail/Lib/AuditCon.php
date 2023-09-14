@@ -61,7 +61,7 @@ class AuditCon {
 	}
 
 	private function primeSnapshots() {
-		$primerHook = $this->con()->prefix( 'auditcon_prime_snapshots' );
+		$primerHook = self::con()->prefix( 'auditcon_prime_snapshots' );
 
 		if ( !wp_next_scheduled( $primerHook ) ) {
 			$countAllSnappers = \count( \array_filter( \array_map(
@@ -93,7 +93,7 @@ class AuditCon {
 		if ( empty( $this->auditors ) ) {
 			$this->auditors = [];
 			$auditClasses = \array_merge( Constants::AUDITORS,
-				$this->con()->caps->canThirdPartyActivityLog() ? Constants::THIRDPARTY_AUDITORS : [] );
+				self::con()->caps->canThirdPartyActivityLog() ? Constants::THIRDPARTY_AUDITORS : [] );
 			foreach ( $auditClasses as $auditorClass ) {
 				/** @var Auditors\Base $auditor */
 				$this->auditors[ $auditorClass::Slug() ] = new $auditorClass();
@@ -247,6 +247,6 @@ class AuditCon {
 
 	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
 		return $this->snapshotDiscoveryQueue ?? $this->snapshotDiscoveryQueue = new Snapshots\Queues\SnapshotDiscovery(
-			'snapshot_discovery', $this->con()->prefix() );
+			'snapshot_discovery', self::con()->prefix() );
 	}
 }

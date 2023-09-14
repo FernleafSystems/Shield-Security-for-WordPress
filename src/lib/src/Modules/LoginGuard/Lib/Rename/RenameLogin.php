@@ -15,7 +15,7 @@ class RenameLogin {
 	protected function canRun() :bool {
 		return !Services::IP()->isLoopback()
 			   && !empty( $this->opts()->getCustomLoginPath() )
-			   && !$this->con()->this_req->is_ip_whitelisted
+			   && !self::con()->this_req->is_ip_whitelisted
 			   && !$this->hasPluginConflict() && !$this->hasUnsupportedConfiguration();
 	}
 
@@ -88,13 +88,13 @@ class RenameLogin {
 		}
 
 		if ( $isConflicted ) {
-			$this->con()
-				 ->getAdminNotices()
-				 ->addFlash(
-					 sprintf( '<strong>%s</strong>: %s', __( 'Warning', 'wp-simple-firewall' ), $msg ),
-					 null,
-					 true
-				 );
+			self::con()
+				->getAdminNotices()
+				->addFlash(
+					sprintf( '<strong>%s</strong>: %s', __( 'Warning', 'wp-simple-firewall' ), $msg ),
+					null,
+					true
+				);
 		}
 
 		return $isConflicted;
@@ -103,17 +103,17 @@ class RenameLogin {
 	private function hasUnsupportedConfiguration() :bool {
 		$unsupported = empty( Services::Request()->getPath() );
 		if ( $unsupported ) {
-			$this->con()
-				 ->getAdminNotices()
-				 ->addFlash(
-					 sprintf(
-						 '<strong>%s</strong>: %s',
-						 __( 'Warning', 'wp-simple-firewall' ),
-						 __( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
-					 ),
-					 null,
-					 true
-				 );
+			self::con()
+				->getAdminNotices()
+				->addFlash(
+					sprintf(
+						'<strong>%s</strong>: %s',
+						__( 'Warning', 'wp-simple-firewall' ),
+						__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
+					),
+					null,
+					true
+				);
 		}
 		return $unsupported;
 	}
@@ -127,13 +127,13 @@ class RenameLogin {
 		if ( !$doBlock ) {
 			$path = \trim( Services::Request()->getPath(), '/' );
 			$possible = [
-				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
-				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
-				trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
+				\trim( home_url( 'wp-login.php', 'relative' ), '/' ),
+				\trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
+				\trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
 				// \trim( site_url( 'wp-login.php', 'relative' ), '/' ), our own filters in run() scuttle us here so we have to build it manually
-				trim( \rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
-				trim( home_url( 'login', 'relative' ), '/' ),
-				trim( site_url( 'login', 'relative' ), '/' )
+				\trim( \rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
+				\trim( home_url( 'login', 'relative' ), '/' ),
+				\trim( site_url( 'login', 'relative' ), '/' )
 			];
 			$doBlock = !empty( $path )
 					   && ( \in_array( $path, $possible ) || \preg_match( '/wp-login\.php/i', $path ) );
@@ -221,7 +221,7 @@ class RenameLogin {
 	 */
 	protected function doWpLoginFailedRedirect404() {
 
-		$this->con()->fireEvent( 'hide_login_url' );
+		self::con()->fireEvent( 'hide_login_url' );
 
 		$redirectPath = $this->opts()->getHiddenLoginRedirect();
 		$redirectUrl = empty( $redirectPath ) ? '' : site_url( $redirectPath );

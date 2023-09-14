@@ -24,7 +24,7 @@ class Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( string $key ) :array {
-		$opt = $this->getOptions()->getOptDefinition( $key );
+		$opt = $this->opts()->getOptDefinition( $key );
 		if ( !empty( $opt[ 'name' ] ) && !empty( $opt[ 'summary' ] ) && !empty( $opt[ 'description' ] ) ) {
 			return [
 				'name'        => __( $opt[ 'name' ], 'wp-simple-firewall' ),
@@ -40,7 +40,7 @@ class Strings {
 	 */
 	public function getSectionStrings( string $section ) :array {
 
-		$section = $this->getOptions()->getSection( $section );
+		$section = $this->opts()->getSection( $section );
 		if ( \is_array( $section ) && !empty( $section[ 'title' ] ) && !empty( $section[ 'title_short' ] ) ) {
 			$title = __( $section[ 'title' ], 'wp-simple-firewall' );
 			$titleShort = __( $section[ 'title_short' ], 'wp-simple-firewall' );

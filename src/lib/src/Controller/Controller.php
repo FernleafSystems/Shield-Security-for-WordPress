@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\ConfigVO                                        $cfg
  * @property Config\OptsHandler                                     $opts
  * @property ActionRoutingController                                $action_router
+ * @property Database\DbCon                                         $db_con
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -133,6 +134,13 @@ class Controller extends DynPropertiesClass {
 				if ( \is_null( $val ) ) {
 					$val = $this->labels();
 					$this->labels = $val;
+				}
+				break;
+
+			case 'db_con':
+				if ( !$val instanceof Database\DbCon ) {
+					$val = new Database\DbCon();
+					$this->db_con = $val;
 				}
 				break;
 
@@ -531,7 +539,7 @@ class Controller extends DynPropertiesClass {
 	 * @param array $headers
 	 * @return array
 	 */
-	public function adjustNocacheHeaders( $headers ) {
+	public function adjustNocacheHeaders( $headers ) :array {
 		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
 			$Hs = \array_map( '\trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
 			$Hs[] = 'no-store';
@@ -734,9 +742,7 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpShutdown() {
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
-		if ( $this->opts !== null ) {
-			$this->opts->commit();
-		}
+		$this->opts->commit();
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
@@ -823,21 +829,6 @@ class Controller extends DynPropertiesClass {
 		}
 	}
 
-	/**
-	 * @return mixed|null
-	 * @deprecated 18.2.4
-	 */
-	protected function getCfgProperty( string $key ) {
-		return $this->cfg->properties[ $key ] ?? null;
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getBasePermissions() :string {
-		return $this->cfg->properties[ 'base_permissions' ];
-	}
-
 	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
 		if ( $checkUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
@@ -893,27 +884,6 @@ class Controller extends DynPropertiesClass {
 		return \strpos( Services::WpGeneral()->getCurrentWpAdminPage(), $this->getPluginPrefix() ) === 0;
 	}
 
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getIsWpmsNetworkAdminOnly() :bool {
-		return (bool)$this->cfg->properties[ 'wpms_network_admin_only' ] ?? true;
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getParentSlug() :string {
-		return $this->cfg->properties[ 'slug_parent' ];
-	}
-
-	/**
-	 * @deprecated 18.2.4
-	 */
-	public function getPluginSlug() :string {
-		return $this->cfg->properties[ 'slug_plugin' ];
-	}
-
 	public function getPath_Languages() :string {
 		return trailingslashit( \path_join( $this->getRootDir(), $this->cfg->paths[ 'languages' ] ) );
 	}
@@ -944,7 +914,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.2.4
+	 * @deprecated 18.3
 	 */
 	public function getVersion() :string {
 		return $this->cfg->version();

@@ -12,7 +12,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/table_activity.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
@@ -30,7 +30,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'person-lines-fill' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Users, Visitors & Bots Activity', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'View Logs', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Track and monitor activity on your site by users, visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

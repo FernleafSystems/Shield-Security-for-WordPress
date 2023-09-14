@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
 	IpBlockedException,
@@ -15,6 +13,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -69,7 +69,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	 * @throws UserAuthRequiredException
 	 */
 	protected function checkAccess() {
-		$con = $this->con();
+		$con = self::con();
 		if ( $con->this_req->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
 			throw new IpBlockedException( sprintf( 'IP Address blocked so cannot process action: %s', static::SLUG ) );
 		}
@@ -115,7 +115,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	protected function getMinimumUserAuthCapability() :string {
-		return $this->con()->cfg->properties[ 'base_permissions' ] ?? 'manage_options';
+		return self::con()->cfg->properties[ 'base_permissions' ] ?? 'manage_options';
 	}
 
 	protected function canBypassIpAddressBlock() :bool {
@@ -123,7 +123,7 @@ abstract class BaseAction extends DynPropertiesClass {
 	}
 
 	protected function isNonceVerifyRequired() :bool {
-		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? $this->con()->this_req->wp_is_ajax );
+		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? self::con()->this_req->wp_is_ajax );
 	}
 
 	protected function isUserAuthRequired() :bool {

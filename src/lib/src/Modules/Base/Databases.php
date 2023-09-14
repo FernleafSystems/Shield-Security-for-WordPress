@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Core;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Databases {
 
@@ -15,7 +16,7 @@ class Databases {
 	 * @return string[]
 	 */
 	protected function getDbHandlerClasses() :array {
-		$c = $this->mod()->getOptions()->getDef( 'db_handler_classes' );
+		$c = $this->mod()->opts()->getDef( 'db_handler_classes' );
 		return \is_array( $c ) ? $c : [];
 	}
 
@@ -33,15 +34,21 @@ class Databases {
 	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 * @throws \Exception
+	 * @deprecated 18.3.1
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
-		$con = $this->con();
+		$req = Services::Request();
+		$con = self::con();
+
+		if ( $con->db_con !== null ) {
+			return $con->db_con->loadDbH( $dbKey );
+		}
 
 		$dbh = $this->dbHandlers[ $dbKey ] ?? null;
 
 		if ( $reload || empty( $dbh ) ) {
 
-			$dbDef = $this->getOptions()->getDef( 'db_table_'.$dbKey );
+			$dbDef = $this->opts()->getDef( 'db_table_'.$dbKey );
 			if ( empty( $dbDef ) ) {
 				throw new \Exception( sprintf( 'DB Definition for key (%s) is empty', $dbKey ) );
 			}
@@ -56,11 +63,12 @@ class Databases {
 				throw new \Exception( sprintf( 'DB Handler Class for key (%s) is not valid', $dbKey ) );
 			}
 
+			$modPlugin = $con->getModule_Plugin();
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 			/** @var Core\Databases\Base\Handler|mixed $dbh */
 			$dbh = new $dbClass( $dbDef );
-			$dbh->use_table_ready_cache = $con->getModule_Plugin()->getActivateLength()
-										  > Core\Databases\Common\TableReadyCache::READY_LIFETIME;
+			$dbh->use_table_ready_cache = $modPlugin->getActivateLength() > Core\Databases\Common\TableReadyCache::READY_LIFETIME
+										  && ( $req->ts() - $modPlugin->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ] = $dbh;

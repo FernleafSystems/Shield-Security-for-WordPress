@@ -14,7 +14,7 @@ class PasswordExpiry extends Base {
 		if ( $this->isPassExpired( $meta ) ) {
 
 			$user = new \WP_Error(
-				$this->con()->prefix( 'pass-expired' ),
+				self::con()->prefix( 'pass-expired' ),
 				\implode( ' ', [
 					__( 'Sorry, this account is suspended because the password has expired.', 'wp-simple-firewall' ),
 					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),

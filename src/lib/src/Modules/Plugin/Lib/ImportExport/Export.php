@@ -49,7 +49,7 @@ class Export {
 			$data = $this->getExportData();
 			$msg = 'Options Exported Successfully';
 
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'options_exported',
 				[ 'audit_params' => [ 'site' => $url ] ]
 			);
@@ -59,14 +59,14 @@ class Export {
 
 			if ( $networkOpt === 'Y' ) {
 				$ieCon->addUrlToImportExportWhitelistUrls( $url );
-				$this->con()->fireEvent(
+				self::con()->fireEvent(
 					'whitelist_site_added',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
 			}
 			elseif ( !empty( $networkOpt ) ) {
 				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
-				$this->con()->fireEvent(
+				self::con()->fireEvent(
 					'whitelist_site_removed',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
@@ -112,14 +112,14 @@ class Export {
 	public function getExportData() :array {
 		$all = [];
 		foreach ( $this->getRawOptionsExport() as $modSlug => $modOptions ) {
-			$mod = $this->con()->modules[ $modSlug ];
+			$mod = self::con()->modules[ $modSlug ];
 			$all[ $mod->getOptionsStorageKey() ] = $modOptions;
 		}
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ir`.`type`='%s'", $this->con()->getModule_IPs()->getDbH_IPRules()::T_MANUAL_BYPASS ),
+				sprintf( "`ir`.`type`='%s'", self::con()->getModule_IPs()->getDbH_IPRules()::T_MANUAL_BYPASS ),
 				"`ir`.`can_export`='1'"
 			];
 			$loader->limit = 100;
@@ -141,8 +141,8 @@ class Export {
 
 	public function getRawOptionsExport( bool $filterExcluded = true ) :array {
 		$all = [];
-		foreach ( $this->con()->modules as $mod ) {
-			$opts = $mod->getOptions();
+		foreach ( self::con()->modules as $mod ) {
+			$opts = $mod->opts();
 			$xfr = $opts->getTransferableOptions();
 			if ( $filterExcluded ) {
 				$xfr = \array_diff_key(

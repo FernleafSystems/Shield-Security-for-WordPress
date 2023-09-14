@@ -17,7 +17,7 @@ class Processor extends BaseShield\Processor {
 
 	protected function getEmailFooter() :array {
 		return apply_filters( 'icwp_shield_email_footer', [
-			$this->con()->action_router->render( Footer::SLUG )
+			self::con()->action_router->render( Footer::SLUG )
 		] );
 	}
 
@@ -109,10 +109,10 @@ class Processor extends BaseShield\Processor {
 			$name = $proposed;
 		}
 		elseif ( empty( $name ) ) {
-			$name = $this->con()->getHumanName();
+			$name = self::con()->getHumanName();
 		}
 		else {
-			$name = sprintf( '%s - %s', $name, $this->con()->getHumanName() );
+			$name = sprintf( '%s - %s', $name, self::con()->getHumanName() );
 		}
 		return $name;
 	}

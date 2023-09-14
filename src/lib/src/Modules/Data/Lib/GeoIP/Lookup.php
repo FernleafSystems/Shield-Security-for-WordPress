@@ -44,13 +44,13 @@ class Lookup {
 				}
 
 				$ipRecord->geo = $this->redirectliIpLookup();
-				$this->con()
-					 ->getModule_Data()
-					 ->getDbH_IPs()
-					 ->getQueryUpdater()
-					 ->updateById( $ipRecord->id, [
-						 'geo' => $ipRecord->getRawData()[ 'geo' ]
-					 ] );
+				self::con()
+					->getModule_Data()
+					->getDbH_IPs()
+					->getQueryUpdater()
+					->updateById( $ipRecord->id, [
+						'geo' => $ipRecord->getRawData()[ 'geo' ]
+					] );
 			}
 
 			$geoData = \is_array( $ipRecord->geo ) ? $ipRecord->geo : [];

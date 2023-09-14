@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
 	SecurityAdminNotRequired
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -26,7 +26,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	protected function exec() {
 		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
 
-			if ( apply_filters( 'shield/show_admin_menu', $this->con()->cfg->menu[ 'show' ] ?? true ) ) {
+			if ( apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
 				add_action( 'admin_menu', function () {
 					$this->createAdminMenu();
 				} );
@@ -40,7 +40,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	private function createAdminMenu() {
-		$con = $this->con();
+		$con = self::con();
 		$menu = $con->cfg->menu;
 
 		if ( $menu[ 'top_level' ] ) {
@@ -62,6 +62,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 				global $submenu;
 				$menuID = $this->getPrimaryMenuSlug();
 				if ( isset( $submenu[ $menuID ] ) ) {
+//					$submenu[ $menuID ][ 0 ][ 0 ] = __( 'Security Dashboard', 'wp-simple-firewall' );
 					unset( $submenu[ $menuID ][ 0 ] );
 				}
 				else {
@@ -77,32 +78,30 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	protected function addSubMenuItems() {
-		$con = $this->con();
+		$con = self::con();
 
 		$navs = [
-			PluginURLs::NAV_OVERVIEW       => __( 'Security Dashboard', 'wp-simple-firewall' ),
-			PluginURLs::NAV_IP_RULES       => __( 'IP Manager', 'wp-simple-firewall' ),
-			PluginURLs::NAV_SCANS_RESULTS  => __( 'Scans', 'wp-simple-firewall' ),
-			PluginURLs::NAV_ACTIVITY_LOG   => __( 'Activity', 'wp-simple-firewall' ),
-			PluginURLs::NAV_TRAFFIC_VIEWER => __( 'Traffic', 'wp-simple-firewall' ),
-			PluginURLs::NAV_OPTIONS_CONFIG => __( 'Configuration', 'wp-simple-firewall' ),
+			PluginNavs::NAV_DASHBOARD      => __( 'Security Dashboard', 'wp-simple-firewall' ),
+			PluginNavs::NAV_REPORTS        => __( 'Reports', 'wp-simple-firewall' ),
+			PluginNavs::NAV_IPS            => __( 'IP Manager', 'wp-simple-firewall' ),
+			PluginNavs::NAV_SCANS          => __( 'Scans', 'wp-simple-firewall' ),
+			PluginNavs::NAV_ACTIVITY       => __( 'Activity', 'wp-simple-firewall' ),
+			PluginNavs::NAV_TRAFFIC        => __( 'Traffic', 'wp-simple-firewall' ),
+			PluginNavs::NAV_OPTIONS_CONFIG => __( 'Configuration', 'wp-simple-firewall' ),
 		];
-		if ( !$this->con()->isPremiumActive() ) {
-			$navs[ PluginURLs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );
+		if ( !self::con()->isPremiumActive() ) {
+			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );
 		}
 
 		$currentNav = (string)Services::Request()->query( Constants::NAV_ID );
 		foreach ( $navs as $submenuNavID => $submenuTitle ) {
 
 			$markupTitle = sprintf( '<span style="color:#fff;font-weight: 600">%s</span>', $submenuTitle );
-			$doMarkupTitle = $currentNav === $submenuNavID
-							 || ( $submenuNavID === PluginURLs::NAV_OVERVIEW
-								  && !isset( $navs[ $currentNav ] )
-								  && \in_array( $currentNav, PluginURLs::GetAllNavs() ) );
+			$doMarkupTitle = $currentNav === $submenuNavID;
 
 			add_submenu_page(
 				$this->getPrimaryMenuSlug(),
-				sprintf( '%s | %s', $submenuTitle, $this->con()->getHumanName() ),
+				sprintf( '%s | %s', $submenuTitle, self::con()->getHumanName() ),
 				$doMarkupTitle ? $markupTitle : $submenuTitle,
 				$con->cfg->properties[ 'base_permissions' ],
 				$con->prefix( $submenuNavID ),
@@ -112,10 +111,10 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	}
 
 	public function displayModuleAdminPage() {
-		echo $this->con()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
+		echo self::con()->action_router->render( Actions\Render\PageAdminPlugin::SLUG );
 	}
 
 	private function getPrimaryMenuSlug() :string {
-		return $this->con()->getModule_Plugin()->getModSlug();
+		return self::con()->getModule_Plugin()->getModSlug();
 	}
 }

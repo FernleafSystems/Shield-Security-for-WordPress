@@ -22,7 +22,7 @@ class WhitelabelController {
 	}
 
 	protected function run() {
-		$con = $this->con();
+		$con = self::con();
 		add_filter( $con->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $con->prefix( 'labels' ), [ $this, 'applyWhiteLabels' ], 200 );
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
@@ -99,7 +99,7 @@ class WhitelabelController {
 	 * @return array
 	 */
 	public function adjustUpdateDataCount( $updateData ) {
-		$file = $this->con()->base_file;
+		$file = self::con()->base_file;
 		if ( Services::WpPlugins()->isUpdateAvailable( $file ) ) {
 			$updateData[ 'counts' ][ 'total' ]--;
 			$updateData[ 'counts' ][ 'plugins' ]--;
@@ -124,7 +124,7 @@ class WhitelabelController {
 	 * @return array
 	 */
 	public function removePluginMetaLinks( $pluginMeta, $pluginBaseFile ) {
-		if ( $pluginBaseFile == $this->con()->base_file ) {
+		if ( $pluginBaseFile == self::con()->base_file ) {
 			unset( $pluginMeta[ 2 ] ); // View details
 			unset( $pluginMeta[ 3 ] ); // Rate 5*
 		}
@@ -137,7 +137,7 @@ class WhitelabelController {
 	 * @return \stdClass
 	 */
 	public function hidePluginUpdatesFromUI( $plugins ) {
-		unset( $plugins->response[ $this->con()->base_file ] );
+		unset( $plugins->response[ self::con()->base_file ] );
 		return $plugins;
 	}
 
@@ -156,20 +156,13 @@ class WhitelabelController {
 			$url = $opts->getOpt( $key );
 		}
 		if ( !empty( $url ) && !Services::Data()->isValidWebUrl( $url ) && \strpos( $url, '/' ) !== 0 ) {
-			$url = $this->con()->urls->forImage( $url );
+			$url = self::con()->urls->forImage( $url );
 			if ( empty( $url ) ) {
 				$opts->resetOptToDefault( $key );
-				$url = $this->con()->urls->forImage( $opts->getOpt( $key ) );
+				$url = self::con()->urls->forImage( $opts->getOpt( $key ) );
 			}
 		}
 
 		return $url;
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isReplacePluginBadge() :bool {
-		return $this->opts()->isOpt( 'wl_replace_badge_url', 'Y' );
 	}
 }

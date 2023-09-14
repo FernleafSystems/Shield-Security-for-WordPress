@@ -5,7 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	AuditTrail,
+	Events,
+	Plugin
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\RunTests;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
@@ -34,6 +38,15 @@ class SimplePluginTests extends BaseAction {
 		die( 'end tests' );
 	}
 
+	private function dbg_eventsSum() {
+		$dbhEvents = self::con()->getModule_Events()->getDbH_Events();
+		/** @var Events\DB\Event\Ops\Select $select */
+		$select = $dbhEvents->getQuerySelector();
+		$res = $select->filterByBoundary( 1692677238, Services::Request()->carbon()->timestamp )
+					  ->sumEventsSeparately( \array_keys( ( new Events\Lib\EventsParser() )->wordpress() ) );
+		var_dump( $res );
+	}
+
 	private function dbg_db() {
 		$column = 'data';
 		$schema = self::con()->getModule_AuditTrail()->getDbH_Snapshots()->getTableSchema();
@@ -54,9 +67,9 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_snapshots() {
 		$audCon = self::con()->getModule_AuditTrail()->getAuditCon();
-		$slug = Modules\AuditTrail\Auditors\Comments::Slug();
+		$slug = AuditTrail\Auditors\Comments::Slug();
 		try {
-			$current = ( new Modules\AuditTrail\Lib\Snapshots\Ops\Build() )->run( $slug );
+			$current = ( new AuditTrail\Lib\Snapshots\Ops\Build() )->run( $slug );
 			var_dump( $current );
 			$audCon->updateStoredSnapshot( $audCon->getAuditors()[ $slug ], $current );
 			var_dump( $audCon->getSnapshot( $slug )->data );
@@ -77,9 +90,9 @@ class SimplePluginTests extends BaseAction {
 	}
 
 	private function dbg_apitoken() {
-		$this->con()->getModule_License()->getWpHashesTokenManager()
-			 ->setCanRequestOverride( true )
-			 ->getToken();
+		self::con()->getModule_License()->getWpHashesTokenManager()
+			->setCanRequestOverride( true )
+			->getToken();
 	}
 
 	private function dbg_changetrack() {
@@ -112,7 +125,7 @@ class SimplePluginTests extends BaseAction {
 
 	private function dbg_importnotify() {
 		try {
-			( new Modules\Plugin\Lib\ImportExport\NotifyWhitelist() )->execute();
+			( new Plugin\Lib\ImportExport\NotifyWhitelist() )->execute();
 		}
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );
@@ -128,20 +141,11 @@ class SimplePluginTests extends BaseAction {
 		}
 	}
 
-	private function dbg_reporting() {
-		try {
-			echo ( new Modules\Plugin\Lib\Reporting\ReportGenerator() )->adHoc();
-		}
-		catch ( \Exception $e ) {
-			var_dump( $e->getMessage() );
-		}
-	}
-
 	private function dbg_plugin_tests() {
 		( new RunTests() )->run();
 	}
 
 	private function dbg_telemetry() {
-		( new Modules\Plugin\Lib\PluginTelemetry() )->collectAndSend( true );
+		( new Plugin\Lib\PluginTelemetry() )->collectAndSend( true );
 	}
 }

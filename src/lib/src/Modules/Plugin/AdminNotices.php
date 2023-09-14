@@ -28,7 +28,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
-		$name = $this->con()->getHumanName();
+		$name = self::con()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -45,7 +45,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	}
 
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
-		$name = $this->con()->getHumanName();
+		$name = self::con()->getHumanName();
 
 		$notice->render_data = [
 			'notice_attributes' => [],
@@ -68,7 +68,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
-				'link_to_see'      => $this->con()->getModule_Plugin()->getLinkToTrackingDataDump(),
+				'link_to_see'      => self::con()->getModule_Plugin()->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
 
 			]
@@ -90,11 +90,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		switch ( $notice->id ) {
 			case 'override-forceoff':
-				$needed = $this->con()->this_req->is_force_off && !$this->con()->isPluginAdminPageRequest();
+				$needed = self::con()->this_req->is_force_off && !self::con()->isPluginAdminPageRequest();
 				break;
 			case 'allow-tracking':
 				$needed = !$opts->isTrackingPermissionSet();

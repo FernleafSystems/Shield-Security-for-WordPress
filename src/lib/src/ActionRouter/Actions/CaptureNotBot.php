@@ -11,20 +11,20 @@ class CaptureNotBot extends BaseAction {
 	public const SLUG = 'capture_not_bot';
 
 	protected function exec() {
-		$notBotHandler = $this->con()
-							  ->getModule_IPs()
-							  ->getBotSignalsController()
-							  ->getHandlerNotBot();
+		$notBotHandler = self::con()
+							 ->getModule_IPs()
+							 ->getBotSignalsController()
+							 ->getHandlerNotBot();
 
 		$cookieLife = apply_filters( 'shield/notbot_cookie_life', $notBotHandler::LIFETIME );
 		$ts = Services::Request()->ts() + $cookieLife;
 		Services::Response()->cookieSet(
-			$this->con()->prefix( $notBotHandler::SLUG ),
+			self::con()->prefix( $notBotHandler::SLUG ),
 			sprintf( '%sz%s', $ts, $notBotHandler->getHashForVisitorTS( $ts ) ),
 			$cookieLife
 		);
 
-		$this->con()->fireEvent( 'bottrack_notbot' );
+		self::con()->fireEvent( 'bottrack_notbot' );
 
 		$this->response()->success = true;
 	}

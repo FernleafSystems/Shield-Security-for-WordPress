@@ -20,59 +20,60 @@ class PluginDelete {
 
 	private function deleteOptions() {
 		self::con()->opts->delete();
+		foreach (
+			[
+				'icwp-wpsf-cs_auths',
+				'icwp-wpsf-rules',
+			] as $opt
+		) {
+			Services::WpGeneral()->deleteOption( $opt );
+		}
 	}
 
 	private function deleteTmpDir() {
-		$path = $this->con()->cache_dir_handler->dir();
+		$path = self::con()->cache_dir_handler->dir();
 		if ( !empty( $path ) ) {
 			Services::WpFs()->deleteDir( $path );
 		}
 	}
 
 	private function deleteDatabases() {
-		$con = $this->con();
-		$WPDB = Services::WpDb();
+		$con = self::con();
 
-		// Delete all the legacy tables first (i.e. no inter-dependencies)
-		\array_map(
-			function ( $module ) {
-				/** @var Shield\Modules\Base\ModCon $module */
-				foreach ( $module->getDbHandlers( true ) as $dbh ) {
-					$dbh->tableDelete();
-				}
+		$builtInTablesToDelete = \array_map(
+			function ( $dbh ) {
+				/** @var $dbh Handler */
+				return $dbh->getTableSchema()->table;
 			},
 			[
-				$con->getModule_Plugin(),
-				$con->getModule_Events(),
-				$con->getModule_HackGuard(),
-				$con->getModule_IPs(),
-				$con->getModule_Plugin(),
+				// Order is critical
+				$con->getModule_AuditTrail()->getDbH_Meta(),
+				$con->getModule_AuditTrail()->getDbH_Logs(),
+				$con->getModule_AuditTrail()->getDbH_Snapshots(),
+				$con->getModule_HackGuard()->getDbH_ScanResults(),
+				$con->getModule_HackGuard()->getDbH_ResultItemMeta(),
+				$con->getModule_HackGuard()->getDbH_ResultItems(),
+				$con->getModule_HackGuard()->getDbH_ScanItems(),
+				$con->getModule_HackGuard()->getDbH_Scans(),
+				$con->getModule_HackGuard()->getDbH_FileLocker(),
+				$con->getModule_HackGuard()->getDbH_Malware(),
+				$con->getModule_IPs()->getDbH_CrowdSecSignals(),
+				$con->getModule_IPs()->getDbH_BotSignal(),
+				$con->getModule_IPs()->getDbH_IPRules(),
+				$con->getModule_Data()->getDbH_ReqLogs(),
+				$con->getModule_Data()->getDbH_UserMeta(),
+				$con->getModule_Data()->getDbH_IPs(),
+				$con->getModule_Events()->getDbH_Events(),
+				$con->getModule_Plugin()->getDbH_Reports(),
 			]
 		);
 
-		$WPDB->doDropTable(
-			\implode( '`,`', \array_map(
-					function ( $dbh ) {
-						/** @var $dbh Handler */
-						return $dbh->getTableSchema()->table;
-					},
+		Services::WpDb()->doDropTable(
+			\implode( '`,`',
+				\array_merge(
+					$builtInTablesToDelete,
 					[
-						// Order is critical
-						$con->getModule_AuditTrail()->getDbH_Meta(),
-						$con->getModule_AuditTrail()->getDbH_Logs(),
-						$con->getModule_HackGuard()->getDbH_ScanResults(),
-						$con->getModule_HackGuard()->getDbH_ResultItemMeta(),
-						$con->getModule_HackGuard()->getDbH_ResultItems(),
-						$con->getModule_HackGuard()->getDbH_ScanItems(),
-						$con->getModule_HackGuard()->getDbH_Scans(),
-						$con->getModule_HackGuard()->getDbH_FileLocker(),
-						$con->getModule_IPs()->getDbH_CrowdSecSignals(),
-						$con->getModule_IPs()->getDbH_BotSignal(),
-						$con->getModule_IPs()->getDbH_IPRules(),
-						$con->getModule_Data()->getDbH_ReqLogs(),
-						$con->getModule_Data()->getDbH_UserMeta(),
-						$con->getModule_Data()->getDbH_IPs(),
-						$con->getModule_Plugin()->getDbH_ReportLogs(),
+						sprintf( '%s%s', Services::WpDb()->getPrefix(), $con->prefixOption( 'events' ) ),
 					]
 				)
 			)

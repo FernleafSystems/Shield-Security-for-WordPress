@@ -31,7 +31,7 @@ class BlockIpAddressShield extends BaseBlock {
 			],
 			'strings' => [
 				'page_title'    => sprintf( '%s | %s', __( 'Access Restricted', 'wp-simple-firewall' ),
-					$this->con()->getHumanName() ),
+					self::con()->getHumanName() ),
 				'title'         => __( 'Access Restricted', 'wp-simple-firewall' ),
 				'subtitle'      => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
@@ -40,7 +40,7 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function renderAutoUnblock() :string {
-		return $this->con()->action_router->render( Components\AutoUnblockShield::SLUG );
+		return self::con()->action_router->render( Components\AutoUnblockShield::SLUG );
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
@@ -56,7 +56,7 @@ class BlockIpAddressShield extends BaseBlock {
 
 	protected function getRestrictionDetailsPoints() :array {
 		/** @var IPs\Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->opts();
 		return \array_merge(
 			[
 				__( 'Restrictions Lifted', 'wp-simple-firewall' ) => Services::Request()
@@ -69,6 +69,6 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function renderEmailMagicLinkContent() :string {
-		return $this->con()->action_router->render( Components\MagicLink::SLUG );
+		return self::con()->action_router->render( Components\MagicLink::SLUG );
 	}
 }

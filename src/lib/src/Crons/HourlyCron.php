@@ -15,7 +15,7 @@ class HourlyCron extends BaseCron {
 	}
 
 	protected function getCronName() :string {
-		return $this->con()->prefix( 'hourly' );
+		return self::con()->prefix( 'hourly' );
 	}
 
 	public function getFirstRunTimestamp() :int {
@@ -27,6 +27,6 @@ class HourlyCron extends BaseCron {
 	}
 
 	public function runCron() {
-		do_action( $this->con()->prefix( 'hourly_cron' ) );
+		do_action( self::con()->prefix( 'hourly_cron' ) );
 	}
 }

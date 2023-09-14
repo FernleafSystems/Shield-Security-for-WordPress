@@ -92,7 +92,7 @@ class ImportDecisions {
 	}
 
 	private function getImportInterval() {
-		return $this->con()->isPremiumActive() ?
+		return self::con()->isPremiumActive() ?
 			apply_filters( 'shield/crowdsec/decisions_update_interval', \HOUR_IN_SECONDS*2 ) : \WEEK_IN_SECONDS;
 	}
 }

@@ -1,0 +1,14 @@
+{% if flags.has_logs %}
+	<ul class="list-group list-group-flush">
+		{% for log in vars.logs %}
+			<li class="list-group-item">
+				<p class="m-0" style="word-break: break-all;">
+					<span class="font-monospace">{{ log.path }}</span>
+					<br/><small class="fw-bold">{{ log.ip }} | {{ log.ago }}</small>
+				</p>
+			</li>
+		{% endfor %}
+	</ul>
+{% else %}
+	<p class="m-0">{{ strings.no_logs }}</p>
+{% endif %}

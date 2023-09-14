@@ -36,7 +36,7 @@ class Wpv extends BaseForAssets {
 		$status = $this->getScansController()->getScanResultsCount();
 
 		$template = [
-			'id'    => $this->con()->prefix( 'problems-'.$this->getSlug() ),
+			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
 			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
 		];
 
@@ -53,7 +53,7 @@ class Wpv extends BaseForAssets {
 	}
 
 	/**
-	 * @param bool             $doAutoUpdate
+	 * @param bool|mixed       $doAutoUpdate
 	 * @param \stdClass|string $mItem
 	 */
 	public function autoupdateVulnerablePlugins( $doAutoUpdate, $mItem ) :bool {
@@ -78,12 +78,9 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' );
+		return $this->opts()->isOpt( 'enable_wpvuln_scan', 'Y' ) && !$this->isRestricted();
 	}
 
-	/**
-	 * @throws \Exception
-	 */
 	public function buildScanAction() :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
 			->setScanController( $this )

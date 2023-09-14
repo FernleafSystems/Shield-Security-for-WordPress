@@ -182,8 +182,7 @@ label input[type=checkbox] {
 }
 #WizardTop {
 	height: 40px;
-	background-color: #fafafa;
-	background: linear-gradient(to top, rgba(250, 250, 250, 0.95), rgba(250, 250, 250, 0.7));
+	background: #fafafa linear-gradient(to top, rgba(250, 250, 250, 0.95), rgba(250, 250, 250, 0.7));
 }
 .icon-flag {
 	vertical-align: text-bottom;
@@ -380,7 +379,6 @@ table.odp-table.scan-table td.column-path code {
 	font-size: 0.7rem;
 	padding: 0;
 }
-#TableAdminNotes .tablenav.bottom,
 #TableSessions .tablenav.bottom,
 .container-scantable .tablenav.bottom {
 	display: none;
@@ -951,7 +949,6 @@ body.folded #FooterBannerGoPro {
 }
 .progress-meter-summary {
 	padding: 30px 0;
-	border-bottom: 2px dashed rgba(0, 0, 0, 0.2)
 }
 #ScanResultsTabs table td.actions {
 	white-space: nowrap;
@@ -1140,6 +1137,9 @@ td.status_file_size {
 #ShieldOffcanvas.offcanvas_ipanalysis {
 	width: 800px;
 }
+#ShieldOffcanvas.offcanvas_form_report_create {
+	width: 800px;
+}
 .row.option_form_row.focus_option {
 	background-color: #e1ffdebb;
 	border: 1px solid #00800044;
@@ -1170,7 +1170,7 @@ td.status_file_size {
 	overflow: hidden;
 	border-radius: 5px;
 }
-.activity {
+#ShieldLoadingPlaceholder .activity {
 	position: absolute;
 	left: -45%;
 	height: 100%;
@@ -1211,4 +1211,18 @@ td.status_file_size {
 	display: none !important;
 	visibility: hidden !important;
 	z-index: -1 !important;
+}
+#ReportsTable a.shield_dynamic_action_button {
+	line-height: 16px;
+}
+.shield_legend_table .row:nth-of-type(odd) div {
+	background-color: #f3f3f3;
+}
+.shield_legend_table .row:nth-of-type(even) div {
+	background: #f9f9f9;
+}
+.dashboard_overview_widget .card.text-bg-secondary a,
+.dashboard_overview_widget .card.text-bg-danger a,
+.dashboard_overview_widget .card.text-bg-success a {
+	color: white;
 }

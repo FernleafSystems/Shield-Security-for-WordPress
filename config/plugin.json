@@ -488,6 +488,13 @@
       "description":   "Decide when you should be sent non-critical information and reports about your site security."
     },
     {
+      "key":          "transient_tracking",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
       "key":          "tracking_last_sent_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -598,11 +605,11 @@
       }
     },
     "db_handler_classes":  {
-      "report": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Report\\Ops\\Handler"
+      "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Reports\\Ops\\Handler"
     },
-    "db_table_report":     {
+    "db_table_reports":    {
       "autoexpire":      30,
-      "slug":            "report",
+      "slug":            "reports",
       "has_updated_at":  false,
       "has_deleted_at":  false,
       "col_older_than":  "created_at",
@@ -616,29 +623,44 @@
           "macro_type": "varchar",
           "length":     10,
           "comment":    "Report Interval"
+        },
+        "unique_id":       {
+          "type":    "char",
+          "length":  36,
+          "attr":    [
+            "UNIQUE",
+            "NOT NULL"
+          ],
+          "comment": "Unique ID"
+        },
+        "title":           {
+          "macro_type": "varchar",
+          "length":     64,
+          "comment":    "Report Title"
+        },
+        "content":         {
+          "type":    "mediumblob",
+          "comment": "Report Content"
+        },
+        "protected":       {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Protected against deletion"
         }
       },
       "cols_timestamps": {
-        "interval_end_at": {
+        "interval_start_at": {
+          "comment": "Interval Start"
+        },
+        "interval_end_at":   {
           "comment": "Interval End"
         },
-        "created_at":      {
+        "created_at":        {
           "comment": "Report Sent At"
         }
       }
     },
     "href_privacy_policy": "https://shsec.io/wpshieldprivacypolicy",
-    "db_classes":          {
-      "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
-    },
-    "db_table_notes":      {
-      "slug":           "notes",
-      "has_updated_at": true,
-      "cols_custom":    {
-        "wp_username": "varchar(255) NOT NULL DEFAULT 'unknown'",
-        "note":        "TEXT"
-      }
-    },
     "events":              {
       "debug_log":                 {
         "audit_params": [

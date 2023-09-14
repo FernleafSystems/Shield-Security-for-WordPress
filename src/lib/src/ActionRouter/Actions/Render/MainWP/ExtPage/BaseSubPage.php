@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerAc
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
@@ -99,7 +99,7 @@ class BaseSubPage extends BaseMWP {
 	protected function buildEntireSiteData( array $site ) :array {
 		$WP = Services::WpGeneral();
 		$req = Services::Request();
-		$con = $this->con();
+		$con = self::con();
 		$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
 		$sync = LoadShieldSyncData::Load( $mwpSite );
 		$meta = $sync->meta;
@@ -146,10 +146,13 @@ class BaseSubPage extends BaseMWP {
 				$shd[ 'issues' ] = \array_sum( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] );
 			}
 
-			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ) );
+			$shd[ 'href_issues' ] = $this->getJumpUrlFor(
+				(string)$site[ 'id' ],
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
+			);
 			$gradeLetter = $sync->modules[ 'plugin' ][ 'grades' ][ 'integrity' ][ 'totals' ][ 'letter_score' ] ?? '-';
 			$shd[ 'grades' ] = [
-				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminTopNav( PluginURLs::NAV_OVERVIEW ) ),
+				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], $con->plugin_urls->adminHome() ),
 				'integrity' => $gradeLetter,
 				'good'      => \in_array( $gradeLetter, [ 'A', 'B' ] ),
 			];
@@ -222,7 +225,7 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getExtensionRootUri() :string {
 		$req = Services::Request();
-		$mwp = $this->con()->mwpVO->official_extension_data;
+		$mwp = self::con()->mwpVO->official_extension_data;
 		return URL::Build( $req->getPath(), [
 			'page' => $mwp[ 'page' ] ?? 'Extensions-Wp-Simple-Firewall',
 		] );
@@ -233,7 +236,7 @@ class BaseSubPage extends BaseMWP {
 	}
 
 	protected function getSites() :string {
-		$mwp = $this->con()->mwpVO;
+		$mwp = self::con()->mwpVO;
 		return apply_filters( 'mainwp_getsites', $mwp->child_file, $mwp->child_key );
 	}
 

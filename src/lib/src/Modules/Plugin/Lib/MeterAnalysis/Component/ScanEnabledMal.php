@@ -15,7 +15,7 @@ class ScanEnabledMal extends ScanEnabledBase {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 		try {
 			return $mod->isModOptEnabled() &&
 				   $mod->getScansCon()
@@ -32,7 +32,7 @@ class ScanEnabledMal extends ScanEnabledBase {
 	}
 
 	public function descProtected() :string {
-		return $this->con()->caps->canScanMalwareMalai() ?
+		return self::con()->caps->canScanMalwareMalai() ?
 			__( 'Advanced AI PHP malware scanner is enabled.', 'wp-simple-firewall' )
 			: __( "Local PHP malware scanner is enabled but AI Malware scanning is available on an upgraded plan.", 'wp-simple-firewall' );
 	}
@@ -42,6 +42,6 @@ class ScanEnabledMal extends ScanEnabledBase {
 	}
 
 	protected function score() :int {
-		return $this->con()->caps->canScanMalwareMalai() ? static::WEIGHT : static::WEIGHT/2;
+		return self::con()->caps->canScanMalwareMalai() ? static::WEIGHT : static::WEIGHT/2;
 	}
 }

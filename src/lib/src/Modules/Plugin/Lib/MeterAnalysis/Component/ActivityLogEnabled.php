@@ -14,9 +14,9 @@ class ActivityLogEnabled extends Base {
 
 	protected function testIfProtected() :bool {
 		try {
-			$mod = $this->con()->getModule_AuditTrail();
+			$mod = self::con()->getModule_AuditTrail();
 			/** @var Options $opts */
-			$opts = $mod->getOptions();
+			$opts = $mod->opts();
 
 			( new Monolog() )->assess();
 			$protected = $mod->isModOptEnabled() && $opts->isLogToDB();

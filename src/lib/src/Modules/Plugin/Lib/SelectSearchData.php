@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -49,7 +49,7 @@ class SelectSearchData {
 		);
 
 		$results = [];
-		$dbhIPs = $this->con()->getModule_Data()->getDbH_IPs();
+		$dbhIPs = self::con()->getModule_Data()->getDbH_IPs();
 		foreach ( $ipTerms as $ipTerm ) {
 			$ips = $dbhIPs->getQuerySelector()
 						  ->addRawWhere( [
@@ -84,7 +84,7 @@ class SelectSearchData {
 							'id'          => 'ip_'.$ip,
 							'text'        => $ip,
 							'link'        => [
-								'href'    => $this->con()->plugin_urls->ipAnalysis( $ip ),
+								'href'    => self::con()->plugin_urls->ipAnalysis( $ip ),
 								'classes' => [ 'render_ip_analysis' ],
 								'data'    => [
 									'ip' => $ip
@@ -92,7 +92,7 @@ class SelectSearchData {
 							],
 							'ip'          => $ip,
 							'is_external' => false,
-							'icon'        => $this->con()->svgs->raw( 'diagram-2-fill.svg' ),
+							'icon'        => self::con()->svgs->raw( 'diagram-2-fill.svg' ),
 						];
 					},
 					\array_unique( $results )
@@ -158,7 +158,7 @@ class SelectSearchData {
 	}
 
 	private function getExternalSearch() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text'     => __( 'External Links', 'wp-simple-firewall' ),
@@ -239,7 +239,7 @@ class SelectSearchData {
 	}
 
 	private function getToolsSearch() :array {
-		$con = $this->con();
+		$con = self::con();
 		$pageURLs = $con->plugin_urls;
 		return [
 			[
@@ -249,7 +249,7 @@ class SelectSearchData {
 						'id'     => 'tool_ip_manager',
 						'text'   => __( 'Manage IP Rules', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_IP_RULES ),
+							'href' => $pageURLs->adminIpRules(),
 						],
 						'tokens' => 'tool ips ip address analyse analysis rules rule manager block black white list lists bypass crowdsec table',
 						'icon'   => $con->svgs->raw( 'diagram-3-fill.svg' ),
@@ -258,7 +258,7 @@ class SelectSearchData {
 						'id'     => 'tool_scan_run',
 						'text'   => __( 'Run A File Scan', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_SCANS_RUN ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
 						],
 						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware',
 						'icon'   => $con->svgs->raw( 'shield-shaded.svg' ),
@@ -267,7 +267,7 @@ class SelectSearchData {
 						'id'     => 'tool_scan_results',
 						'text'   => __( 'View Scan Results', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 						],
 						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore',
 						'icon'   => $con->svgs->raw( 'shield-fill.svg' ),
@@ -276,7 +276,7 @@ class SelectSearchData {
 						'id'     => 'tool_activity_log',
 						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_ACTIVITY_LOG ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
 						],
 						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
 						'icon'   => $con->svgs->raw( 'person-lines-fill.svg' ),
@@ -285,7 +285,7 @@ class SelectSearchData {
 						'id'     => 'tool_traffic_log',
 						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_TRAFFIC_VIEWER ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
 						],
 						'tokens' => 'tool activity log table traffic request requests bots review',
 						'icon'   => $con->svgs->raw( 'stoplights.svg' ),
@@ -294,7 +294,7 @@ class SelectSearchData {
 						'id'     => 'tool_sessions',
 						'text'   => __( 'View User Sessions', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_USER_SESSIONS ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
 						],
 						'tokens' => 'tool user users session sessions expire discard logout',
 						'icon'   => $con->svgs->raw( 'person-badge.svg' ),
@@ -303,25 +303,16 @@ class SelectSearchData {
 						'id'     => 'tool_license',
 						'text'   => __( 'Activate ShieldPRO License', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_LICENSE ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_LICENSE ),
 						],
 						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing',
 						'icon'   => $con->svgs->raw( 'award.svg' ),
 					],
 					[
-						'id'     => 'tool_notes',
-						'text'   => __( 'Review Admin Notes', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_NOTES ),
-						],
-						'tokens' => 'tool admin notes note',
-						'icon'   => $con->svgs->raw( 'pencil-square.svg' ),
-					],
-					[
 						'id'     => 'tool_importexport',
 						'text'   => __( 'Import / Export Settings', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_IMPORT_EXPORT ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ),
 						],
 						'tokens' => 'tool sync import export transfer download settings configuration options slave master network',
 						'icon'   => $con->svgs->raw( 'arrows-expand.svg' ),
@@ -330,7 +321,7 @@ class SelectSearchData {
 						'id'     => 'tool_overview',
 						'text'   => __( 'My Security Overview', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_OVERVIEW ),
+							'href' => $pageURLs->adminHome(),
 						],
 						'tokens' => 'tool overview grade grading charts performance dashboard summary',
 						'icon'   => $con->svgs->raw( 'speedometer.svg' ),
@@ -339,7 +330,7 @@ class SelectSearchData {
 						'id'     => 'tool_guidedsetup',
 						'text'   => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_WIZARD ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_WIZARD ),
 						],
 						'tokens' => 'tool setup guide guided wizard',
 						'icon'   => $con->svgs->raw( 'magic.svg' ),
@@ -348,7 +339,7 @@ class SelectSearchData {
 						'id'     => 'tool_debug',
 						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginURLs::NAV_DEBUG ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
 						],
 						'tokens' => 'tool debug info help',
 						'icon'   => $con->svgs->raw( 'tools.svg' ),
@@ -359,7 +350,7 @@ class SelectSearchData {
 	}
 
 	private function getIntegrationsSearch() :array {
-		$con = $this->con();
+		$con = self::con();
 		$modIntegrations = $con->getModule_Integrations();
 
 		$integrations = [
@@ -375,7 +366,7 @@ class SelectSearchData {
 		];
 
 		foreach (
-			$modIntegrations->getOptions()->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item
+			$modIntegrations->opts()->getOptDefinition( 'user_form_providers' )[ 'value_options' ] as $item
 		) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
@@ -389,7 +380,7 @@ class SelectSearchData {
 		}
 
 		foreach (
-			$modIntegrations->getOptions()->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item
+			$modIntegrations->opts()->getOptDefinition( 'form_spam_providers' )[ 'value_options' ] as $item
 		) {
 			$integrations[] = [
 				'id'     => 'integration_'.$item[ 'value_key' ],
@@ -411,13 +402,13 @@ class SelectSearchData {
 	}
 
 	private function getConfigSearch() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$search = [];
 		foreach ( $con->modules as $module ) {
 			if ( $module->cfg->properties[ 'show_module_options' ] ) {
 				$config = [];
-				foreach ( $module->getOptions()->getVisibleOptionsKeys() as $optKey ) {
+				foreach ( $module->opts()->getVisibleOptionsKeys() as $optKey ) {
 					try {
 						$config[] = [
 							'id'     => 'config_'.$optKey,
@@ -449,7 +440,7 @@ class SelectSearchData {
 	 * @throws \Exception
 	 */
 	private function getSearchableTextForModuleOption( $mod, string $optKey ) :string {
-		$modOpts = $mod->getOptions();
+		$modOpts = $mod->opts();
 		$modStrings = $mod->getStrings();
 
 		$strSection = $modStrings->getSectionStrings( $modOpts->getOptDefinition( $optKey )[ 'section' ] );

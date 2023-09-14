@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\FileDo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
 
 class FileDownload extends BaseAction {
 
@@ -20,8 +21,8 @@ class FileDownload extends BaseAction {
 			}
 			$contents = $this->getFileDownloadContents( $id );
 
-			\header( 'Set-Cookie: fileDownload=true; path=/' );
-			Services::Response()->downloadStringAsFile( $contents[ 'content' ], $contents[ 'name' ] );
+			( new IssueFileDownloadResponse( $contents[ 'name' ] ) )
+				->fromString( $contents[ 'content' ], [ 'Set-cookie' => 'fileDownload=true; path=/' ] );
 		}
 		catch ( \Exception $e ) {
 			$resp = $this->response();
@@ -35,7 +36,7 @@ class FileDownload extends BaseAction {
 	 * @throws \Exception
 	 */
 	private function getFileDownloadContents( string $downloadID ) :array {
-		$con = $this->con();
+		$con = self::con();
 
 		switch ( $downloadID ) {
 

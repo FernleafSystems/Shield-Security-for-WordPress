@@ -9,9 +9,9 @@ abstract class IpTrackSignalBase extends IpBase {
 	protected const SIGNAL_KEY = '';
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_IPs();
+		$mod = self::con()->getModule_IPs();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return parent::testIfProtected() && $opts->getOffenseCountFor( static::SIGNAL_KEY ) > 0;
 	}
 

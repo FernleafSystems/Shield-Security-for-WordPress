@@ -24,7 +24,7 @@ abstract class EventsListener {
 			$this->captureEvent( (string)$event, \is_array( $meta ) ? $meta : [], \is_array( $def ) ? $def : [] );
 		}, 10, 3 );
 
-		add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {
+		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
 			$this->onShutdown();
 		}, 100 );
 

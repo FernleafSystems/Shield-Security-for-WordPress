@@ -38,7 +38,7 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s',
 						__( 'Purpose', 'wp-simple-firewall' ),
 						sprintf( __( 'Allows the %s plugin to automatically update itself when an update is available.', 'wp-simple-firewall' ),
-							$this->con()->getHumanName() )
+							self::con()->getHumanName() )
 					),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this option turned on.', 'wp-simple-firewall' ) )
 				];
@@ -78,7 +78,7 @@ class Strings extends Base\Strings {
 	 */
 	public function getOptionStrings( string $key ) :array {
 		$modName = $this->mod()->getMainFeatureName();
-		$pluginName = $this->con()->getHumanName();
+		$pluginName = self::con()->getHumanName();
 
 		switch ( $key ) {
 

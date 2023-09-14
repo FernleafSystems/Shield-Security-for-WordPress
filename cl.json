@@ -1,4 +1,91 @@
 {
+  "18.3": {
+    "version":     "18.3",
+    "released_at": 1694690000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease183",
+      "upgrade": "https://shsec.io/shieldupgradeguide183"
+    },
+    "title":       "All-New Reporting",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Custom Reports",
+        "description": [
+          "You can now create custom reports on-demand, for any period for which you have data."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Live Traffic Log",
+        "description": [
+          "You can now temporarily switch the Traffic Log to live logging mode to capture all WordPress requests."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Reports Archive",
+        "description": [
+          "Automated and manually-created reports are now full HTML pages and are saved/archived for future reference."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Enhanced Summary Dashboard",
+        "description": [
+          "We've created a brand new dashboard, to be used as a launchpad for many security actions."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Traffic Log Download",
+        "description": [
+          "All traffic logs can be downloaded to plain-text log files."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Breadcrumbs For Better Navigation",
+        "description": [
+          "Navigating the plugin and various pages is improved and more intuitive for users."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "User Sessions Management",
+        "description": [
+          "Improved the loading of user sessions to be more thorough."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Many Code Improvements",
+        "description": [
+          "Major reworking and improvements of code."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.2": {
     "version":     "18.2",
     "released_at": 1690360000,

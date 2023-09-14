@@ -12,9 +12,9 @@ class CommentApprovedMinimum extends Base {
 	public const WEIGHT = 1;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_Comments();
+		$mod = self::con()->getModule_Comments();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled() && $opts->getApprovedMinimum() > 1;
 	}
 

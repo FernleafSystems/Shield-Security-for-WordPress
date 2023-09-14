@@ -12,13 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 class ProgressMeters extends BaseRender {
 
 	public const SLUG = 'render_progress_meters';
-	public const TEMPLATE = '/wpadmin_pages/insights/overview/progress_meter/progress_meters.twig';
+	public const TEMPLATE = '/wpadmin/components/progress_meter/progress_meters.twig';
 
 	protected function getRenderData() :array {
 		$componentBuilder = new Handler();
 
 		$meters = [];
-		$AR = $this->con()->action_router;
+		$AR = self::con()->action_router;
 		foreach ( $componentBuilder->getAllMeters() as $meterSlug => $meter ) {
 			if ( !\in_array( $meterSlug, [ MeterSummary::SLUG, MeterOverallConfig::SLUG ] ) ) {
 				$meters[ $meterSlug ] = $AR->render( MeterCard::SLUG, [

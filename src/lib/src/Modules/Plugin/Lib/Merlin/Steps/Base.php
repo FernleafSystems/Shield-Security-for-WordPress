@@ -26,7 +26,7 @@ abstract class Base {
 			$stepData[ 'vars' ] = [];
 		}
 		$stepData[ 'vars' ][ 'step_slug' ] = static::SLUG;
-		return $this->con()->action_router->render( Actions\Render\Components\Merlin\MerlinStep::SLUG, $stepData );
+		return self::con()->action_router->render( Actions\Render\Components\Merlin\MerlinStep::SLUG, $stepData );
 	}
 
 	/**

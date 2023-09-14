@@ -11,7 +11,7 @@ class ModConfig extends OffCanvasBase {
 	public const SLUG = 'offcanvas_modconfig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$module = null;
 		$itemType = null;
@@ -25,12 +25,12 @@ class ModConfig extends OffCanvasBase {
 		}
 		else {
 			foreach ( $con->modules as $maybe ) {
-				if ( \in_array( $configItem, $maybe->getOptions()->getVisibleOptionsKeys() ) ) {
+				if ( \in_array( $configItem, $maybe->opts()->getVisibleOptionsKeys() ) ) {
 					$module = $maybe;
 					$itemType = 'option';
 					break;
 				}
-				if ( \in_array( $configItem, \array_keys( $maybe->getOptions()->getSections() ) ) ) {
+				if ( \in_array( $configItem, \array_keys( $maybe->opts()->getSections() ) ) ) {
 					$module = $maybe;
 					$itemType = 'section';
 					break;

@@ -24,7 +24,7 @@ class AllowBetaUpgrades {
 	private $beta;
 
 	protected function canRun() :bool {
-		return $this->con()->isPremiumActive()
+		return self::con()->isPremiumActive()
 			   && apply_filters( 'shield/enable_beta', $this->opts()->isOpt( 'enable_beta', 'Y' ) );
 	}
 
@@ -34,10 +34,10 @@ class AllowBetaUpgrades {
 			if ( \is_object( $updates )
 				 && isset( $updates->response )
 				 && \is_array( $updates->response )
-				 && empty( $updates->response[ $this->con()->base_file ] ) ) {
+				 && empty( $updates->response[ self::con()->base_file ] ) ) {
 
 				if ( !empty( $this->getBeta() ) ) {
-					$updates->response[ $this->con()->base_file ] = $this->getBeta();
+					$updates->response[ self::con()->base_file ] = $this->getBeta();
 				}
 			}
 			return $updates;
@@ -46,7 +46,7 @@ class AllowBetaUpgrades {
 
 	private function getBeta() {
 		if ( !isset( $this->beta ) ) {
-			$con = $this->con();
+			$con = self::con();
 
 			$this->beta = false;
 
@@ -57,7 +57,7 @@ class AllowBetaUpgrades {
 				function ( $betaVersion ) {
 					return \is_string( $betaVersion )
 						   && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-						   && \version_compare( $betaVersion, $this->con()->getVersion(), '>' );
+						   && \version_compare( $betaVersion, self::con()->cfg->version(), '>' );
 				}
 			);
 			if ( !empty( $betas ) ) {

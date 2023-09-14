@@ -1,0 +1,33 @@
+{% if zone_changes is empty %}
+	{% if flags.show_empty_zones %}
+		<h3 class="my-3">{{ zone_title }}</h3>
+		<div class="alert alert-secondary d-inline-block">
+			There were no changes detected for this zone.
+		</div>
+	{% endif %}
+{% else %}
+	{#  <h3 class="my-3">{{ zone_title }}</h3> #}
+	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 g-3">
+		{% for item in zone_changes %}
+			<div class="col">
+				<div class="card">
+					<div class="card-body text-bg-light">
+						<h6 class="card-title m-0">{{ item.name|raw }}</h6>
+					</div>
+					<ul class="list-group list-group-flush" style="list-style-type: square">
+						{% for row in item.rows %}
+							<li class="list-group-item list-group-item-action">
+								{{ row|raw }}
+							</li>
+						{% endfor %}
+					</ul>
+					{% if item.link|default([]) is not empty %}
+						<div class="card-footer">
+							<a href="{{ item.link.href|raw }}" target="_blank" class="card-link">{{ item.link.text }} &rarr;</a>
+						</div>
+					{% endif %}
+				</div>
+		  </div>
+		{% endfor %}
+	</div>
+{% endif %}

@@ -10,7 +10,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return [
 			$opts->isXmlrpcDisabled() ? Rules\Build\DisableXmlrpc::class : null,
 			$opts->isOptFileEditingDisabled() ? Rules\Build\DisableFileEditing::class : null,
@@ -26,7 +26,7 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	public function isPermittedAnonRestApiNamespace( $namespace ) {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return \in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
 	}
 
@@ -36,7 +36,7 @@ class ModCon extends BaseShield\ModCon {
 
 	private function cleanApiExclusions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$opts->setOpt(
 			'api_namespace_exclusions',
 			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^\da-z_-]#i' )

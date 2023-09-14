@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Data,
 	HackGuard,
 	IPs,
+	Plugin,
 	Traffic
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,6 +24,7 @@ class CleanDatabases {
 		$this->cleanIpRules();
 		$this->cleanBotSignals();
 		$this->cleanUserMeta();
+		$this->cleanStaleReports();
 		$this->cleanStaleScans();
 		$this->purgeUnreferencedIPs();
 	}
@@ -41,7 +43,7 @@ class CleanDatabases {
 	}
 
 	private function cleanRequestLogs() {
-		$con = $this->con();
+		$con = self::con();
 
 		// 1. Clean Requests & Audit Trail
 		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
@@ -53,6 +55,22 @@ class CleanDatabases {
 		$con->getModule_Data()
 			->getDbH_ReqLogs()
 			->tableCleanExpired( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+
+		// 2. Delete transient logs older than 1 hr.
+		$con->getModule_Data()
+			->getDbH_ReqLogs()
+			->getQueryDeleter()
+			->addWhereOlderThan( Services::Request()->carbon( true )->subHour()->timestamp )
+			->addWhereEquals( 'transient', '1' )
+			->query();
+	}
+
+	public function cleanStaleReports() :void {
+		/** @var Plugin\DB\Reports\Ops\Delete $deleter */
+		$deleter = self::con()->getModule_Plugin()->getDbH_Reports()->getQueryDeleter();
+		$deleter->filterByProtected( false )
+				->addWhereOlderThan( Services::Request()->carbon( true )->startOfDay()->subDay()->timestamp )
+				->query();
 	}
 
 	public function cleanStaleScans() :void {
@@ -67,7 +85,7 @@ class CleanDatabases {
 		Services::WpDb()->doSql( sprintf(
 			'DELETE `meta` FROM `%s` as `meta`
 				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
-			$this->con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
+			self::con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
 			Services::WpDb()->getTable_Users()
 		) );
 	}

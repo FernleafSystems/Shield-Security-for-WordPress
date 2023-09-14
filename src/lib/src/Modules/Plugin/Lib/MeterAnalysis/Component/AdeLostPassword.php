@@ -10,9 +10,9 @@ class AdeLostPassword extends AdeBase {
 
 	protected function testIfProtected() :bool {
 		/** @var Options $opts */
-		$opts = $this->con()
-					 ->getModule_LoginGuard()
-					 ->getOptions();
+		$opts = self::con()
+					->getModule_LoginGuard()
+					->opts();
 		return parent::testIfProtected() && $opts->isProtectLostPassword();
 	}
 

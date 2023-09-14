@@ -40,7 +40,7 @@ abstract class Base {
 
 	protected function run() {
 		add_action(
-			$this->con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
+			self::con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
 			function () {
 				$this->mod()->getScansCon()->startNewScans( [ $this->getSlug() ] );
 			}
@@ -59,21 +59,6 @@ abstract class Base {
 		foreach ( $this->getAllResults()->getItems() as $item ) {
 			$this->cleanStaleResultItem( $item );
 		}
-	}
-
-	public function countScanProblems() :int {
-		if ( !isset( self::$resultsCounts[ $this->getSlug() ] ) ) {
-			if ( $this->isRestricted() ) {
-				$count = 0;
-			}
-			else {
-				$count = ( new RetrieveCount() )
-					->setScanController( $this )
-					->count();
-			}
-			self::$resultsCounts[ $this->getSlug() ] = $count;
-		}
-		return self::$resultsCounts[ $this->getSlug() ];
 	}
 
 	public function getScansController() :HackGuard\Scan\ScansController {
@@ -180,7 +165,7 @@ abstract class Base {
 	}
 
 	public function isRestricted() :bool {
-		return $this->isPremiumOnly() && !$this->con()->isPremiumActive();
+		return $this->isPremiumOnly() && !self::con()->isPremiumActive();
 	}
 
 	/**
@@ -243,7 +228,7 @@ abstract class Base {
 	}
 
 	protected function scheduleOnDemandScan() {
-		$hook = $this->con()->prefix( 'ondemand_scan_'.$this->getSlug() );
+		$hook = self::con()->prefix( 'ondemand_scan_'.$this->getSlug() );
 		if ( !wp_next_scheduled( $hook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + 10, $hook );
 		}

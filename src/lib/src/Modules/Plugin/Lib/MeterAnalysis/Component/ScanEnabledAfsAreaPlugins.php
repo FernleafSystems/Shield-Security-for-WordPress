@@ -7,7 +7,7 @@ class ScanEnabledAfsAreaPlugins extends ScanEnabledAfsAreaBase {
 	public const SLUG = 'scan_enabled_afs_plugins';
 
 	protected function testIfProtected() :bool {
-		return $this->con()->getModule_HackGuard()->getScansCon()->AFS()->isScanEnabledPlugins();
+		return self::con()->getModule_HackGuard()->getScansCon()->AFS()->isScanEnabledPlugins();
 	}
 
 	public function title() :string {

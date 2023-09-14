@@ -15,7 +15,7 @@ class WpCli extends ExecOnceModConsumer {
 	}
 
 	protected function isFeatureAvailable() :bool {
-		return $this->con()->caps->canWpcliLevel2();
+		return self::con()->caps->canWpcliLevel2();
 	}
 
 	protected function run() {
@@ -55,7 +55,7 @@ class WpCli extends ExecOnceModConsumer {
 		return \array_merge(
 			[
 				'enabled'          => false,
-				'cmd_root'         => $this->con()->getPluginPrefix(),
+				'cmd_root'         => self::con()->getPluginPrefix(),
 				'cmd_base'         => $this->mod()->cfg->slug,
 				'inc_mod_standard' => false,
 			],

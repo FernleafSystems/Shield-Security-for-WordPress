@@ -12,8 +12,14 @@ class VerifyPinRequest {
 		$valid = false;
 
 		if ( !empty( $pin ) ) {
-			$valid = \hash_equals( $this->opts()->getSecurityPIN(), \md5( $pin ) );
-			$this->con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
+			if ( wp_check_password( $pin, $this->opts()->getSecurityPIN() ) ) {
+				$valid = true;
+			}
+			elseif ( \hash_equals( $this->opts()->getSecurityPIN(), \md5( $pin ) ) ) {
+				$this->opts()->setOpt( 'admin_access_key', wp_hash_password( $pin ) );
+				$valid = true;
+			}
+			self::con()->fireEvent( $valid ? 'key_success' : 'key_fail' );
 		}
 
 		return $valid;

@@ -23,10 +23,10 @@ abstract class MeterBase {
 	}
 
 	public function warning() :array {
-		$con = $this->con();
+		$con = self::con();
 		$pluginMod = $con->getModule_Plugin();
 		/** @var Plugin\Options $pluginOpts */
-		$pluginOpts = $pluginMod->getOptions();
+		$pluginOpts = $pluginMod->opts();
 		$warning = [];
 		if ( $pluginOpts->isPluginGloballyDisabled() ) {
 			$warning = [
@@ -49,8 +49,8 @@ abstract class MeterBase {
 	}
 
 	public function buildComponents() :array {
-		$con = $this->con();
-		$pluginOpts = $con->getModule_Plugin()->getOptions();
+		$con = self::con();
+		$pluginOpts = $con->getModule_Plugin()->opts();
 		$prefs = $pluginOpts->getOpt( 'sec_overview_prefs' );
 
 		$viewAs = $prefs[ 'view_as' ] ?? '';

@@ -10,7 +10,7 @@ class Processor extends BaseShield\Processor {
 	public function onWpInit() {
 		$WPU = Services::WpUsers();
 
-		$bypass = $this->con()->this_req->request_bypasses_all_restrictions;
+		$bypass = self::con()->this_req->request_bypasses_all_restrictions;
 		if ( !$bypass && $WPU->isUserLoggedIn() ) {
 			$testTrustedUser = new Scan\IsEmailTrusted();
 			$bypass = $testTrustedUser->roleTrusted( $WPU->getCurrentWpUser() )
@@ -35,7 +35,7 @@ class Processor extends BaseShield\Processor {
 	 * @return array
 	 */
 	public function clearCommentNotificationEmail( $emails ) {
-		$status = apply_filters( $this->con()->prefix( 'cf_status' ), '' );
+		$status = apply_filters( self::con()->prefix( 'cf_status' ), '' );
 		return \in_array( $status, [ 'reject', 'trash' ] ) ? [] : $emails;
 	}
 }

@@ -67,7 +67,7 @@ class Options extends BaseShield\Options {
 	}
 
 	public function getValidateEmailOnRegistration() :string {
-		return $this->con()->isPremiumActive() ?
+		return self::con()->isPremiumActive() ?
 			(string)$this->getOpt( 'reg_email_validate', 'disabled' ) : 'disabled';
 	}
 
@@ -77,26 +77,5 @@ class Options extends BaseShield\Options {
 
 	public function isValidateEmailOnRegistration() :bool {
 		return $this->getValidateEmailOnRegistration() !== 'disabled' && !empty( $this->getEmailValidationChecks() );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function getPassMinStrength() :int {
-		return (int)$this->getOpt( 'pass_min_strength' );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isPassExpirationEnabled() :bool {
-		return $this->getOpt( 'pass_expire' ) > 0;
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function getPassExpireDays() :int {
-		return (int)$this->getOpt( 'pass_expire' );
 	}
 }

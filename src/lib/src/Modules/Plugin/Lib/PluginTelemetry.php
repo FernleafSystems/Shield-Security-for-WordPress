@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Tools\SendPluginTelemetry;
 use FernleafSystems\Wordpress\Services\Services;
@@ -34,7 +34,7 @@ class PluginTelemetry {
 	 * @return array[]
 	 */
 	public function collectTrackingData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$data = $this->getBaseTrackingData();
 		foreach ( $con->modules as $mod ) {
@@ -42,7 +42,7 @@ class PluginTelemetry {
 		}
 
 		if ( !empty( $data[ 'events' ] ) ) {
-			/** @var Select $select */
+			/** @var EventsDB\Select $select */
 			$select = $con->getModule_Events()
 						  ->getDbH_Events()
 						  ->getQuerySelector();
@@ -67,13 +67,7 @@ class PluginTelemetry {
 		}
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
-			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = $this->con()->getInstallationID()[ 'id' ];
-			$dbhNotes = self::con()->getModule_Plugin()->getDbHandler_Notes();
-			$count = $dbhNotes->getQuerySelector()->count();
-			$data[ 'plugin' ][ 'dbs' ][ $dbhNotes->getTableSchema()->slug ] = [
-				'rows'           => $count,
-				'last_insert_at' => $count > 0 ? $dbhNotes->getQuerySelector()->first()->created_at : 0,
-			];
+			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = self::con()->getInstallationID()[ 'id' ];
 		}
 
 		return $data;
@@ -106,7 +100,7 @@ class PluginTelemetry {
 	}
 
 	private function getBaseTrackingData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$WP = Services::WpGeneral();
 		$WPP = Services::WpPlugins();
 		return [

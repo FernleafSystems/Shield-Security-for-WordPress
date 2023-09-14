@@ -59,7 +59,6 @@ class ResultsSet {
 	public function getNotIgnored() {
 		$res = clone $this;
 		$res->setItems( [] );
-		/** @var ResultItem $item */
 		foreach ( $this->getItems() as $item ) {
 			if ( $item->VO->ignored_at == 0 ) {
 				$res->addItem( $item );

@@ -23,12 +23,12 @@ class UserMetas {
 		if ( $user instanceof \WP_User ) {
 			$this->user = $user;
 			try {
-				$meta = Shield\Users\ShieldUserMeta::Load( $this->con()->prefix(), (int)$user->ID );
+				$meta = Shield\Users\ShieldUserMeta::Load( self::con()->prefix(), (int)$user->ID );
 				if ( !isset( $meta->record ) ) {
 					$this->loadMetaRecord( $meta );
 					$this->setup( $meta );
 					// TODO: a query to delete all of these
-					Services::WpUsers()->deleteUserMeta( $this->con()->prefix( 'meta-version' ), $user->ID );
+					Services::WpUsers()->deleteUserMeta( self::con()->prefix( 'meta-version' ), $user->ID );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -58,13 +58,10 @@ class UserMetas {
 	private function loadMetaRecord( Shield\Users\ShieldUserMeta $meta ) {
 
 		$metaLoader = new Shield\Modules\Data\DB\UserMeta\MetaRecords();
-		if ( \method_exists( $metaLoader, 'setMod' ) ) {
-			$metaLoader->setMod( $this->con()->getModule_Data() );
-		}
 		$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 
 		if ( empty( $metaRecord ) ) {
-			$metaRecord = $this->con()->getModule_Data()->getDbH_UserMeta()->getRecord();
+			$metaRecord = self::con()->getModule_Data()->getDbH_UserMeta()->getRecord();
 		}
 		else {
 			$dataToUpdate = [];
@@ -98,11 +95,11 @@ class UserMetas {
 			}
 
 			if ( !empty( $dataToUpdate ) ) {
-				$this->con()
-					 ->getModule_Data()
-					 ->getDbH_UserMeta()
-					 ->getQueryUpdater()
-					 ->updateRecord( $metaRecord, $dataToUpdate );
+				self::con()
+					->getModule_Data()
+					->getDbH_UserMeta()
+					->getQueryUpdater()
+					->updateRecord( $metaRecord, $dataToUpdate );
 				$metaRecord = $metaLoader->loadMeta( (int)$meta->user_id );
 			}
 		}

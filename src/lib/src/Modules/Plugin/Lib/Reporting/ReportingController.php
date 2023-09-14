@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\DisplayReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
@@ -26,6 +27,20 @@ class ReportingController {
 		( new ReportGenerator() )->auto();
 	}
 
+	public function getReportURL( string $uniqueReportID ) :string {
+		return self::con()->plugin_urls->noncedPluginAction( DisplayReport::class, null, [
+			'report_unique_id' => $uniqueReportID,
+		] );
+	}
+
+	public function getReportTypeName( string $type ) :string {
+		return [
+				   Constants::REPORT_TYPE_ALERT  => __( 'Alert', 'wp-simple-firewall' ),
+				   Constants::REPORT_TYPE_INFO   => __( 'Info', 'wp-simple-firewall' ),
+				   Constants::REPORT_TYPE_CUSTOM => __( 'Custom', 'wp-simple-firewall' ),
+			   ][ $type ] ?? 'invalid report type';
+	}
+
 	/**
 	 * @return BaseBuilder[]
 	 */
@@ -42,5 +57,38 @@ class ReportingController {
 				}
 			)
 		);
+	}
+
+	public function getReportAreas( bool $slugsOnly = false ) :array {
+		$areas = [
+			Constants::REPORT_AREA_CHANGES => \array_filter( \array_map(
+				function ( $auditor ) {
+					try {
+						return $auditor->getReporter()->getZoneName();
+					}
+					catch ( \Exception $e ) {
+						return null;
+					}
+				},
+				self::con()->getModule_AuditTrail()->getAuditCon()->getAuditors()
+			) ),
+			Constants::REPORT_AREA_STATS   => [
+				'security'      => __( 'Security' ),
+				'wordpress'     => __( 'WordPress' ),
+				'user_accounts' => __( 'User Accounts', 'wp-simple-firewall' ),
+				'user_access'   => __( 'User Access', 'wp-simple-firewall' ),
+			],
+			Constants::REPORT_AREA_SCANS   => [
+				'scan_results_new'     => __( 'New Results' ),
+				'scan_results_current' => __( 'Current Summary' ),
+				'scan_repairs'         => __( 'Scan File Repairs' ),
+			],
+		];
+
+		return $slugsOnly ?
+			\array_map( function ( array $area ) {
+				return \array_keys( $area );
+			}, $areas )
+			: $areas;
 	}
 }

@@ -12,11 +12,11 @@ class CaptureNotBotNonce extends BaseAction {
 	public const SLUG = 'capture_not_bot_nonce';
 
 	protected function exec() {
-		$this->con()
-			 ->getModule_IPs()
-			 ->getBotSignalsController()
-			 ->getHandlerNotBot()
-			 ->sendNotBotNonceCookie();
+		self::con()
+			->getModule_IPs()
+			->getBotSignalsController()
+			->getHandlerNotBot()
+			->sendNotBotNonceCookie();
 
 		$this->response()->success = true;
 		$this->response()->action_response_data = [

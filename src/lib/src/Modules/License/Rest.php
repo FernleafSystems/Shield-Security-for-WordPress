@@ -12,6 +12,6 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Rest {
 	}
 
 	protected function isFeatureAvailable() :bool {
-		return $this->con()->caps->canRestAPILevel1();
+		return self::con()->caps->canRestAPILevel1();
 	}
 }

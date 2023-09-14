@@ -12,10 +12,10 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return $this->con()
-					->getModule_Data()
-					->getDbH_UserMeta()
-					->isReady();
+		return self::con()
+				   ->getModule_Data()
+				   ->getDbH_UserMeta()
+				   ->isReady();
 	}
 
 	protected function run() {
@@ -31,7 +31,7 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 			function ( $ID ) {
 				if ( \is_array( $ID ) && !empty( $ID[ 'ID' ] ) ) {
 					$user = Services::WpUsers()->getUserById( $ID[ 'ID' ] );
-					$this->con()->user_metas->for( $user );
+					self::con()->user_metas->for( $user );
 				}
 			},
 			\is_array( $IDs ) ? $IDs : []
@@ -40,10 +40,10 @@ class BulkUpdateUserMeta extends ExecOnceModConsumer {
 
 	private function getExistingUserMetaIDsQuery() :string {
 		/** @var Select $metaSelect */
-		$metaSelect = $this->con()
-						   ->getModule_Data()
-						   ->getDbH_UserMeta()
-						   ->getQuerySelector();
+		$metaSelect = self::con()
+						  ->getModule_Data()
+						  ->getDbH_UserMeta()
+						  ->getQuerySelector();
 		return $metaSelect->setResultsAsVo( false )
 						  ->setSelectResultsFormat( ARRAY_A )
 						  ->setColumnsToSelect( [ 'user_id' ] )

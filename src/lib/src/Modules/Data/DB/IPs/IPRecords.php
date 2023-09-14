@@ -11,6 +11,9 @@ class IPRecords {
 
 	private static $ips = [];
 
+	/**
+	 * @throws \Exception
+	 */
 	public function loadIP( string $ip, bool $autoCreate = true, bool $cacheRecord = true ) :Ops\Record {
 
 		if ( !empty( self::$ips[ $ip ] ) ) {
@@ -23,14 +26,12 @@ class IPRecords {
 			}
 			$ip = \explode( '/', $parsedRange->asSubnet()->toString() )[ 0 ];
 
-			$dbh = $this->con()->getModule_Data()->getDbH_IPs();
+			$dbh = self::con()->getModule_Data()->getDbH_IPs();
 			/** @var Ops\Select $select */
 			$select = $dbh->getQuerySelector();
-			$select->filterByIPHuman( $ip );
-			if ( \method_exists( $select, 'setNoOrderBy' ) ) {
-				$select->setNoOrderBy();
-			}
-			$record = $select->first();
+			$record = $select->filterByIPHuman( $ip )
+							 ->setNoOrderBy()
+							 ->first();
 
 			if ( empty( $record ) && $autoCreate ) {
 				$this->addIP( $ip );
@@ -50,7 +51,7 @@ class IPRecords {
 	}
 
 	public function addIP( string $ip ) {
-		$dbh = $this->con()->getModule_Data()->getDbH_IPs();
+		$dbh = self::con()->getModule_Data()->getDbH_IPs();
 		/** @var Ops\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var Ops\Record $record */

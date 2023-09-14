@@ -88,7 +88,7 @@ class Retrieve {
 	 * @throws \Exception
 	 */
 	private function fromCsHashes( $vo ) :array {
-		if ( !$this->con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
+		if ( !self::con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
 			throw new \Exception( 'Insufficient permissions to use CS Hashes for premium plugins/themes.' );
 		}
 		$hashes = ( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo );
@@ -96,28 +96,5 @@ class Retrieve {
 			throw new \Exception( 'No CS Hashes available.' );
 		}
 		return $hashes;
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array|null
-	 * @deprecated 18.2
-	 */
-	private function getAssetHashesFromCache( $vo ) :?array {
-		$key = ( $vo->asset_type == 'plugin' ) ? 'plugins' : 'themes';
-		return self::$hashes[ $key ][ $vo->slug ] ?? null;
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $vo
-	 * @deprecated 18.2
-	 */
-	private function addItemHashesToCache( $vo, array $hashes ) {
-		if ( $vo->asset_type == 'plugin' ) {
-			self::$hashes[ 'plugins' ][ $vo->slug ] = $hashes;
-		}
-		else {
-			self::$hashes[ 'themes' ][ $vo->slug ] = $hashes;
-		}
 	}
 }

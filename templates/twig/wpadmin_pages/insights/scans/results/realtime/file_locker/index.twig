@@ -12,7 +12,8 @@
 						<div class="col mt-4 mb-2">
 							<h6 class="text-center">
 								{{ icwp_macros.svg(imgs.svgs.video) }}
-								<a href="#" class="option-video" data-vimeoid="815602380">What is the FileLocker feature</a>?
+								<a href="#" class="option-video"
+								   data-vimeoid="815602380">What is the FileLocker feature</a>?
 							</h6>
 						</div>
 					</div>
@@ -42,7 +43,7 @@
 									{% endfor %}
 									{% for lock_key, file_lock in vars.file_locks.good %}
 										<option value="{{ lock_key }}"
-										        class="text-success">{{ file_lock.path }}</option>
+												class="text-success">{{ file_lock.path }}</option>
 									{% endfor %}
 								</select>
 							 </div>
@@ -80,17 +81,6 @@
 				{% endif %}
 			</div>
 
-			<div class="card-footer">
-				<div class="row">
-					<div class="col-sm-6">
-					</div>
-					<div class="col-sm-6 text-end">
-						<a href="{{ hrefs.options }}"
-						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
-					</div>
-				</div>
-			</div>
-
 		</div>
 	</div>
 </div>
@@ -98,64 +88,64 @@
 {% if not flags.is_restricted %}
 	<script type="text/javascript">
 	jQuery( '#FileLockerFileSelect' ).on( 'change', function ( e ) {
-	  let $this = jQuery( this );
-	  let current = $this.find( ":selected" ).val();
-	  if ( current !== '-' ) {
-		  Shield_AjaxRender
-		  .send_ajax_req( {
-			  render_slug: '{{ ajax.filelocker_showdiff }}',
-			  rid: jQuery( this ).val()
-		  } )
-		  .then( ( response ) => {
-			  if ( response.success ) {
-				  jQuery( '#FileLockerDiffContents' ).html( response.data.html );
-			  }
-			  else {
-				  alert( response.data.error );
-			  }
-		  } )
-		  .catch( ( error ) => {
-			  alert( 'Sorry, something went wrong with the request.' );
-			  console.log( error );
-		  } );
-		  jQuery( 'option[value="-"]', $this ).prop( 'selected', true );
-	  }
-  } );
+		let $this = jQuery( this );
+		let current = $this.find( ":selected" ).val();
+		if ( current !== '-' ) {
+			Shield_AjaxRender
+			.send_ajax_req( {
+				render_slug: '{{ ajax.filelocker_showdiff }}',
+				rid: jQuery( this ).val()
+			} )
+			.then( ( response ) => {
+				if ( response.success ) {
+					jQuery( '#FileLockerDiffContents' ).html( response.data.html );
+				}
+				else {
+					alert( response.data.error );
+				}
+			} )
+			.catch( ( error ) => {
+				alert( 'Sorry, something went wrong with the request.' );
+				console.log( error );
+			} );
+			jQuery( 'option[value="-"]', $this ).prop( 'selected', true );
+		}
+	} );
 
-  jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
-	  evt.preventDefault();
-	  iCWP_WPSF_BodyOverlay.show();
-	  let ajax_vars ={{ ajax.filelocker_fileaction|raw }};
-	  let $oButton = jQuery( 'input[type=submit]', this );
-	  ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
-	  ajax_vars.rid = $oButton.data( 'rid' );
-	  ajax_vars.file_action = $oButton.data( 'action' );
+	jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
+		evt.preventDefault();
+		iCWP_WPSF_BodyOverlay.show();
+		let ajax_vars ={{ ajax.filelocker_fileaction|raw }};
+		let $oButton = jQuery( 'input[type=submit]', this );
+		ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
+		ajax_vars.rid = $oButton.data( 'rid' );
+		ajax_vars.file_action = $oButton.data( 'action' );
 
-	  jQuery.post( ajaxurl, ajax_vars,
-		  function ( oResponse ) {
-			  let sMessage = '';
-			  if ( oResponse === null || typeof oResponse.data === 'undefined'
-				  || typeof oResponse.data.message === 'undefined' ) {
-				  sMessage = oResponse.success ? 'Success' : 'Failure';
-			  }
-			  else {
-				  sMessage = oResponse.data.message;
-			  }
-			  iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
-			  if ( oResponse.success ) {
-				  setTimeout( function () {
-					  location.reload();
-				  }, 500 );
-			  }
-		  }
-	  ).fail(
-		  function () {
-		  }
-	  ).always( function () {
-			  iCWP_WPSF_BodyOverlay.hide();
-		  }
-	  );
-	  return false;
-  } );
+		jQuery.post( ajaxurl, ajax_vars,
+			function ( oResponse ) {
+				let sMessage = '';
+				if ( oResponse === null || typeof oResponse.data === 'undefined'
+					|| typeof oResponse.data.message === 'undefined' ) {
+					sMessage = oResponse.success ? 'Success' : 'Failure';
+				}
+				else {
+					sMessage = oResponse.data.message;
+				}
+				iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+				if ( oResponse.success ) {
+					setTimeout( function () {
+						location.reload();
+					}, 500 );
+				}
+			}
+		).fail(
+			function () {
+			}
+		).always( function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+		return false;
+	} );
 </script>
 {% endif %}

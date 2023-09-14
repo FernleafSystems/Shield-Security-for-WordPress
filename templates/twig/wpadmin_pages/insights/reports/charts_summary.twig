@@ -1,23 +1,16 @@
-<div class="alert alert-warning">
-	Please note that these charts are new and experimental and are provided for early illustration of Shield's activity.
-	<br />They will be enhanced with ongoing development.
-</div>
-
 <div class="row" id="SectionStats">
 	{% for stat in vars.stats %}
-		<div class="col-xl-2 col-4 insights_section">
+		<div class="col-xl-2 col-md-4 mt-4">
 			<div class="stat card text-center" id="statcard-{{ stat.id }}"
 				 {% if stat.tooltip is defined %}title="{{ stat.tooltip }}"{% endif %}
 			>
-				<div class="card-header">
-					<p class="mb-0">{{ stat.title }}</p>
-					<span>({{ stat.title_sub }})</span>
-				</div>
 				<div class="card-body">
 					<div class="stat-chart"
-						 {% if stat.tooltip_chart is defined %}title="{{ stat.tooltip_chart }}"{% endif %}></div>
-					<h6 style="font-size: small"
-						{% if stat.tooltip_p is defined %}title="{{ stat.tooltip_p }}"{% endif %}>{{ stat.val }}</h6>
+						 {% if stat.tooltip_chart is defined %}title="{{ stat.tooltip_chart }}"{% endif %}>
+					</div>
+					<h6 style="font-size: small">{{ stat.title }}
+						<br/><span style="font-size: smaller">({{ stat.title_sub }})</span>
+					</h6>
 				</div>
 			</div>
 		</div>

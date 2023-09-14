@@ -24,7 +24,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'             => $this->con()->getHumanName()
+				'title'             => self::con()->getHumanName()
 									   .': '.__( 'Please verify email has been received', 'wp-simple-firewall' ),
 				'need_you_confirm'  => __( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
 				'please_click_link' => __( "Please click the link in the email you received.", 'wp-simple-firewall' ),
@@ -44,7 +44,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		switch ( $notice->id ) {
 

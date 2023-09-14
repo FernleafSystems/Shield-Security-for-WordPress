@@ -9,10 +9,10 @@ class MfaBackupCodeAdd extends MfaUserConfigBase {
 	public const SLUG = 'mfa_profile_backup_code_add';
 
 	protected function exec() {
-		$available = $this->con()
-						  ->getModule_LoginGuard()
-						  ->getMfaController()
-						  ->getProvidersAvailableToUser( $this->getActiveWPUser() );
+		$available = self::con()
+						 ->getModule_LoginGuard()
+						 ->getMfaController()
+						 ->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var ?BackupCodes $provider */
 		$provider = $available[ BackupCodes::ProviderSlug() ] ?? null;
 		if ( empty( $provider ) ) {

@@ -1,0 +1,14 @@
+{# https://github.com/tomik23/circular-progress-bar #}
+<div class="row row-cols-1 justify-content-center">
+	<div class="col mt-1 mb-5">
+		{{ content.primary_meter|raw }}
+  </div>
+</div>
+
+{% for meter in content.meters %}
+	<div class="row row-cols-1">
+		<div class="col mb-4 pb-4">
+			{{ meter|raw }}
+	  </div>
+	</div>
+{% endfor %}

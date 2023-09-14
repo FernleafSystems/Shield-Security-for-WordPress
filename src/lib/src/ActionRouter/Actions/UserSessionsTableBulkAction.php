@@ -21,7 +21,7 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			$sessionCon = $this->con()->getModule_Plugin()->getSessionCon();
+			$sessionCon = self::con()->getModule_Plugin()->getSessionCon();
 			$yourId = $sessionCon->current()->shield[ 'unique' ] ?? '';
 			$includesYourSession = false;
 

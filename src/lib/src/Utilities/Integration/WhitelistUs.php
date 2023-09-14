@@ -17,7 +17,7 @@ class WhitelistUs {
 
 	public function wordfence() :void {
 		if ( ( new Find() )->isPluginActive( Find::WORDFENCE ) && \method_exists( '\wordfence', 'whitelistIP' ) ) {
-			foreach ( $this->getIpsForShield()	as $ip ) {
+			foreach ( $this->getIpsForShield() as $ip ) {
 				\wordfence::whitelistIP( $ip );
 			}
 		}

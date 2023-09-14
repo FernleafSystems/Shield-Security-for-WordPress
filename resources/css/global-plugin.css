@@ -1,4 +1,15 @@
 @CHARSET "ISO-8859-1";
+#adminmenu #toplevel_page_icwp-wpsf-plugin li.gh_tools:before,
+#adminmenu #toplevel_page_icwp-wpsf-plugin li.gh_go_pro:before,
+#adminmenu #toplevel_page_icwp-wpsf-plugin li.gh_contacts:before {
+	background: #b4b9be;
+	content: "";
+	display: block;
+	height: 1px;
+	margin: 5px 0;
+	width: 100%;
+	opacity: .4;
+}
 .plugin_update_message {
 	color: #dd3333;
 	font-weight: bolder;
@@ -19,7 +30,6 @@ tr.icwp-plugin-vulnerability > td {
 	background: -webkit-linear-gradient(top, #fff4f4 0%, #f7e3e3 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #fff4f4 0%, #f7e3e3 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff4f4', endColorstr='#f7e3e3', GradientType=0); /* IE6-9 */
-
 	padding: 12px 40px;
 	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .1);
 }
@@ -201,18 +211,15 @@ tr.icwp-plugin-vulnerability dd {
 	margin-left: 6px;
 	/*background-color: rgb(0, 128, 0);*/
 }
-
 #wp-admin-bar-icwp-wpsf-adminbarmenu .ab-submenu > li {
 	padding: 0 0 5px;
 }
-
 #ShieldDashboardWidget a {
 	color: #008000 !important;
 }
 #ShieldDashboardWidget p.no-entries {
 	margin: 3px 0 0 0;
 }
-
 #ShieldDashboardWidget .subheader {
 	font-weight: bolder;
 	margin: 1rem 0 0;
@@ -223,7 +230,6 @@ tr.icwp-plugin-vulnerability dd {
 	font-weight: bolder;
 	text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
 }
-
 #ShieldDashboardWidget table.table-recent {
 	border-collapse: collapse;
 	box-shadow: 3px 3px 2px rgb(0 0 0 / 10%);
@@ -236,14 +242,12 @@ tr.icwp-plugin-vulnerability dd {
 }
 #ShieldDashboardWidget .mini-scrolling-table th {
 	padding: 2px 10px;
-
 	position: sticky;
 	top: 0;
 	z-index: 1;
 }
 #ShieldDashboardWidget .jump-buttons {
 	margin: 20px 3px 14px;
-
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
@@ -304,5 +308,19 @@ tr.icwp-plugin-vulnerability dd {
 	background-color: #f0a3a3;
 	background-image: linear-gradient(to bottom, #f0a3a3, #f42323);
 }
-
 /* override boostrap */
+/** Menu Separators */
+#toplevel_page_icwp-wpsf-plugin li {
+	clear: both;
+}
+#toplevel_page_icwp-wpsf-plugin li:not(:last-child) a[href^="admin.php?page=icwp-wpsf-dashboard"]:after,
+#toplevel_page_icwp-wpsf-plugin li:not(:last-child) a[href^="admin.php?page=icwp-wpsf-reports"]:after,
+#toplevel_page_icwp-wpsf-plugin li:not(:last-child) a[href^="admin.php?page=icwp-wpsf-traffic"]:after,
+#toplevel_page_icwp-wpsf-plugin li:not(:last-child) a[href^="admin.php?page=icwp-wpsf-config"]:after {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+	display: block;
+	float: left;
+	margin: 10px 0 4px;
+	content: "";
+	width: calc(100%);
+}

@@ -6,22 +6,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginBadgeClose,
 	Render\BaseRender,
-	Traits
+	Traits\AuthNotRequired
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class RenderPluginBadge extends BaseRender {
 
-	use Traits\AuthNotRequired;
+	use AuthNotRequired;
 
 	public const SLUG = 'render_plugin_badge';
 	public const TEMPLATE = '/snippets/plugin_badge_widget.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		/** @var Options $secAdminOpts */
-		$secAdminOpts = $con->getModule_SecAdmin()->getOptions();
+		$secAdminOpts = $con->getModule_SecAdmin()->opts();
 
 		if ( $secAdminOpts->isOpt( 'wl_replace_badge_url', 'Y' ) ) {
 			$badgeUrl = $secAdminOpts->getOpt( 'wl_homeurl' );

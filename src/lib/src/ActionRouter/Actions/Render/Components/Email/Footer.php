@@ -10,7 +10,7 @@ class Footer extends Base {
 	public const TEMPLATE = '/email/footer.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$WP = Services::WpGeneral();
 
 		$goPro = [
@@ -53,7 +53,7 @@ class Footer extends Base {
 				'upgrade'             => $goPro[ \array_rand( $goPro ) ],
 				'sent_from'           => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 					$con->getHumanName(),
-					$con->getVersion(),
+					$con->cfg->version(),
 					$WP->getHomeUrl()
 				),
 				'delays'              => __( 'Note: Any email delays or delivery issues are caused by website hosting and email providers.', 'wp-simple-firewall' ),

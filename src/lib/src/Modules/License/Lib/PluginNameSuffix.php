@@ -12,13 +12,13 @@ class PluginNameSuffix {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		$con = $this->con();
+		$con = self::con();
 		return (bool)apply_filters( 'shield/add_pro_suffix',
 			$con->isPremiumActive() && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() );
 	}
 
 	protected function run() {
-		add_filter( $this->con()->prefix( 'labels' ), function ( Labels $labels ) {
+		add_filter( self::con()->prefix( 'labels' ), function ( Labels $labels ) {
 			$labels->Name = 'ShieldPRO';
 			$labels->Title = 'ShieldPRO';
 			$labels->MenuTitle = 'ShieldPRO';

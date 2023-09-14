@@ -19,14 +19,14 @@ class BlockRequest {
 		do_action( 'shield/maybe_intercept_block_shield' );
 		// This can still be stopped.
 		if ( $this->isRequestBlocked() ) {
-			$this->con()->fireEvent( 'conn_kill' );
-			$this->con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
+			self::con()->fireEvent( 'conn_kill' );
+			self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 				'render_slug' => Actions\Render\FullPage\Block\BlockIpAddressShield::SLUG
 			] );
 		}
 	}
 
 	private function isRequestBlocked() :bool {
-		return (bool)apply_filters( 'shield/is_request_blocked', $this->con()->this_req->is_ip_blocked_shield );
+		return (bool)apply_filters( 'shield/is_request_blocked', self::con()->this_req->is_ip_blocked_shield );
 	}
 }

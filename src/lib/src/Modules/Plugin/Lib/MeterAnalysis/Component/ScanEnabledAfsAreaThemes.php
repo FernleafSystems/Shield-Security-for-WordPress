@@ -7,7 +7,7 @@ class ScanEnabledAfsAreaThemes extends ScanEnabledAfsAreaBase {
 	public const SLUG = 'scan_enabled_afs_themes';
 
 	protected function testIfProtected() :bool {
-		return $this->con()->getModule_HackGuard()->getScansCon()->AFS()->isScanEnabledThemes();
+		return self::con()->getModule_HackGuard()->getScansCon()->AFS()->isScanEnabledThemes();
 	}
 
 	public function title() :string {

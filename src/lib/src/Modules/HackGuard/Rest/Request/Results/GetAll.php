@@ -22,11 +22,11 @@ class GetAll extends Base {
 
 		$results = [];
 		foreach ( $req->scan_slugs as $scanSlug ) {
-			$RS = $this->con()
-					   ->getModule_HackGuard()
-					   ->getScansCon()
-					   ->getScanCon( $scanSlug )
-					   ->getAllResults();
+			$RS = self::con()
+					  ->getModule_HackGuard()
+					  ->getScansCon()
+					  ->getScanCon( $scanSlug )
+					  ->getAllResults();
 			$thisResults = [];
 			foreach ( $RS->getAllItems() as $item ) {
 				$item = \array_merge(

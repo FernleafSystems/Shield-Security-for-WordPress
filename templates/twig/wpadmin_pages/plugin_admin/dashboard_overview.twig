@@ -1,0 +1,30 @@
+{% extends '/wpadmin_pages/plugin_admin/inner_page.twig' %}
+
+{% block inner_page_body %}
+
+	{{ content.summary_charts|raw }}
+
+	<div class="row">
+		<div class="col-xl-6">
+			<div class="row">
+				{% for widget in vars.widget_grade %}
+					{% include '/wpadmin_pages/plugin_admin/dashboard_overview_widget.twig' %}
+				{% endfor %}
+			</div>
+		</div>
+		<div class="col-xl-6">
+			<div class="row">
+				{% for widget in vars.widget_scans %}
+					{% include '/wpadmin_pages/plugin_admin/dashboard_overview_widget.twig' %}
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		{% for widget in vars.widget_general %}
+			{% include '/wpadmin_pages/plugin_admin/dashboard_overview_widget.twig' %}
+		{% endfor %}
+	</div>
+
+{% endblock %}

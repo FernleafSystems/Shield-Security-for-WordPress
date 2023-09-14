@@ -14,6 +14,6 @@ class PluginRequest {
 	}
 
 	public static function IsNav( string $nav ) :bool {
-		return Services::Request()->query( PluginNavs::NAV_FIELD_ID ) === $nav;
+		return Services::Request()->query( PluginNavs::FIELD_NAV ) === $nav;
 	}
 }

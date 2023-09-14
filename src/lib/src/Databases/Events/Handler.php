@@ -2,28 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Services\Services;
+/**
+ * @deprecated 18.3.1
+ */
+class Handler extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler {
 
-class Handler extends Base\Handler {
-
-	/**
-	 * @param $events - array of events: key event slug, value created_at timestamp
-	 */
-	public function commitEvents( array $events ) {
-		foreach ( $events as $event => $count ) {
-			$this->commitEvent( $event, $count );
-		}
-	}
-
-	public function commitEvent( string $evt, int $count = 1 ) :bool {
-		/** @var EntryVO $entry */
-		$entry = $this->getVo();
-		$entry->event = $evt;
-		$entry->count = \max( 1, $count );
-		$entry->created_at = Services::Request()->ts();
-		/** @var Insert $QI */
-		$QI = $this->getQueryInserter();
-		return $QI->insert( $entry );
-	}
 }

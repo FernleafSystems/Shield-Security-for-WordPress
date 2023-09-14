@@ -40,9 +40,9 @@ class ModCon extends BaseShield\ModCon {
 
 	private function runMuHandler() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
-		$mu = $this->con()->mu_handler;
+		$mu = self::con()->mu_handler;
 		try {
 			$opts->isOpt( 'enable_mu', 'Y' ) ? $mu->convertToMU() : $mu->convertToStandard();
 		}
@@ -53,7 +53,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		// Verify whitelabel images
 		$this->getWhiteLabelController()->verifyUrls();
@@ -70,7 +70,7 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	protected function doPrePluginOptionsSave() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		// Restricting Activate Plugins also means restricting the rest.
 		$plugins = $opts->getOpt( 'admin_access_restrict_plugins', [] );

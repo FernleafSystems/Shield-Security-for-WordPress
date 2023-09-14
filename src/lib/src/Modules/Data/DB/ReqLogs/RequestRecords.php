@@ -11,7 +11,7 @@ class RequestRecords {
 
 	public function loadReq( string $reqID, int $ipRefID, bool $autoCreate = true ) :ReqLogsDB\Record {
 		/** @var ReqLogsDB\Select $select */
-		$select = $this->con()->getModule_Data()->getDbH_ReqLogs()->getQuerySelector();
+		$select = self::con()->getModule_Data()->getDbH_ReqLogs()->getQuerySelector();
 		/** @var ReqLogsDB\Record|null $record */
 		$record = $select->filterByReqID( $reqID )->first();
 
@@ -23,7 +23,7 @@ class RequestRecords {
 	}
 
 	public function addReq( string $reqID, int $ipRef ) :bool {
-		$dbh = $this->con()->getModule_Data()->getDbH_ReqLogs();
+		$dbh = self::con()->getModule_Data()->getDbH_ReqLogs();
 		/** @var ReqLogsDB\Insert $insert */
 		$insert = $dbh->getQueryInserter();
 		/** @var ReqLogsDB\Record $record */

@@ -10,11 +10,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class BotSignals extends Base {
 
 	public const SLUG = 'ipanalyse_botsignals';
-	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_botsignals.twig';
+	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_botsignals.twig';
 
 	protected function getRenderData() :array {
 		/** @var Strings $strings */
-		$strings = $this->con()->getModule_IPs()->getStrings();
+		$strings = self::con()->getModule_IPs()->getStrings();
 
 		$signals = [];
 		$scores = ( new CalculateVisitorBotScores() )

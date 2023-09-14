@@ -12,11 +12,11 @@ class VerifyUniqueEvents {
 	use PluginControllerConsumer;
 
 	public function run() {
-		$con = $this->con();
+		$con = self::con();
 
 		$all = [];
 		foreach ( $con->modules as $mod ) {
-			$all = \array_merge( $all, \array_keys( $mod->getOptions()->getEvents() ) );
+			$all = \array_merge( $all, \array_keys( $mod->opts()->getEvents() ) );
 		}
 		if ( \count( $all ) != \count( \array_unique( $all ) ) ) {
 			echo "duplicates!\n";

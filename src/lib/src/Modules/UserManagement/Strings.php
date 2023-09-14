@@ -158,7 +158,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$name = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {
@@ -176,7 +176,7 @@ class Strings extends Base\Strings {
 					__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' ),
 					__( 'No email address - No Notification.', 'wp-simple-firewall' ),
 				];
-				$desc[] = $this->con()->isPremiumActive() ?
+				$desc[] = self::con()->isPremiumActive() ?
 					__( 'Multiple email addresses may be supplied, separated by a comma.', 'wp-simple-firewall' ) :
 					__( 'Please upgrade your plan if you need to notify multiple email addresses.', 'wp-simple-firewall' );
 				break;

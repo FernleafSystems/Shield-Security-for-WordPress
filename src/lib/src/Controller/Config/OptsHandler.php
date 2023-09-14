@@ -177,7 +177,7 @@ class OptsHandler extends DynPropertiesClass {
 		}
 
 		foreach ( $diffs as $params ) {
-			$this->con()->fireEvent( 'plugin_option_changed', [
+			self::con()->fireEvent( 'plugin_option_changed', [
 				'audit_params' => $params
 			] );
 		}

@@ -9,8 +9,8 @@ class FindSessions {
 
 	use PluginControllerConsumer;
 
-	public function mostRecent() :array {
-		return $this->lookupFromUserMeta( [ "`user_meta`.`last_login_at`!=0" ] );
+	public function mostRecent( int $limit = 10 ) :array {
+		return $this->lookupFromUserMeta( [ "`user_meta`.`last_login_at`!=0" ], $limit );
 	}
 
 	public function byIP( string $ip ) :array {
@@ -28,20 +28,20 @@ class FindSessions {
 	}
 
 	public function lookupFromUserMeta( array $wheres = [], int $limit = 10, string $orderBy = '`user_meta`.`last_login_at`' ) :array {
-		$modData = $this->con()->getModule_Data();
+		$modData = self::con()->getModule_Data();
 
 		$DB = Services::WpDb();
 		$results = $DB->selectCustom(
-			sprintf( 'SELECT `user_meta`.user_id as user_id,
-       					`user_meta`.last_login_at as last_login_at,
-       					INET6_NTOA(`ips`.ip) as ip,
-       					`wp_users`.user_login as user_login
+			sprintf( 'SELECT `user_meta`.`user_id` as `user_id`,
+       					`user_meta`.`last_login_at` as `last_login_at`,
+       					INET6_NTOA(`ips`.`ip`) as `ip`,
+       					`wp_users`.`user_login` as `user_login`
 
 						FROM `%s` as `user_meta`
 						INNER JOIN `%s` as `ips`
-						    ON `user_meta`.ip_ref = `ips`.id
+						    ON `user_meta`.`ip_ref` = `ips`.`id`
 						INNER JOIN `%s` as `wp_users` 
-						    ON `user_meta`.user_id = `wp_users`.id
+						    ON `user_meta`.`user_id` = `wp_users`.`id`
 						%s
 						ORDER BY %s DESC
 						%s;',
@@ -63,6 +63,6 @@ class FindSessions {
 	}
 
 	private function getWhere_IPEquals( string $ip ) :string {
-		return sprintf( "`ips`.ip=INET6_ATON('%s')", $ip );
+		return sprintf( "`ips`.`ip`=INET6_ATON('%s')", $ip );
 	}
 }

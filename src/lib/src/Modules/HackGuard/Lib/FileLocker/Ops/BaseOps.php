@@ -31,15 +31,6 @@ class BaseOps {
 	}
 
 	/**
-	 * @return FileLockerDB\Record[]
-	 * @deprecated 18.2.9
-	 */
-	protected function getFileLocks() :array {
-		$flCon = $this->mod()->getFileLocker();
-		return \method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : ( new LoadFileLocks() )->loadLocks();
-	}
-
-	/**
 	 * @throws PublicKeyRetrievalFailure
 	 */
 	protected function getPublicKey() :array {
@@ -60,18 +51,27 @@ class BaseOps {
 	}
 
 	/**
-	 * @deprecated 18.2.9
-	 */
-	protected function clearFileLocksCache() {
-		$flCon = $this->mod()->getFileLocker();
-		\method_exists( $flCon, 'clearLocks' ) ? $flCon->clearLocks() : ( new LoadFileLocks() )->clearLocksCache();
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function setWorkingFile( FileLocker\File $file ) {
 		$this->file = $file;
 		return $this;
+	}
+
+	/**
+	 * @return FileLockerDB\Record[]
+	 * @deprecated 18.3
+	 */
+	protected function getFileLocks() :array {
+		$flCon = $this->mod()->getFileLocker();
+		return \method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : ( new LoadFileLocks() )->loadLocks();
+	}
+
+	/**
+	 * @deprecated 18.3
+	 */
+	protected function clearFileLocksCache() {
+		$flCon = $this->mod()->getFileLocker();
+		\method_exists( $flCon, 'clearLocks' ) ? $flCon->clearLocks() : ( new LoadFileLocks() )->clearLocksCache();
 	}
 }

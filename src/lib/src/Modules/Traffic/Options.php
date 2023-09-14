@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
 
@@ -10,13 +11,13 @@ class Options extends BaseShield\Options {
 	 * @inheritDoc
 	 */
 	protected function preSetOptChecks( string $key, $newValue ) {
-		if ( $key === 'auto_clean' && $newValue > $this->con()->caps->getMaxLogRetentionDays() ) {
+		if ( $key === 'auto_clean' && $newValue > self::con()->caps->getMaxLogRetentionDays() ) {
 			throw new \Exception( 'Cannot set log retention days to anything longer than max' );
 		}
 	}
 
 	public function getAutoCleanDays() :int {
-		$days = (int)\min( $this->getOpt( 'auto_clean' ), $this->con()->caps->getMaxLogRetentionDays() );
+		$days = (int)\min( $this->getOpt( 'auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
 		$this->setOpt( 'auto_clean', $days );
 		return $days;
 	}
@@ -44,11 +45,29 @@ class Options extends BaseShield\Options {
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
 
-	/**
-	 * @deprecated 18.2
-	 */
-	public function getReqTypeExclusions() :array {
-		$ex = $this->getOpt( 'type_exclusions' );
-		return \is_array( $ex ) ? $ex : [];
+	public function liveLoggingTimeRemaining() :int {
+		$now = Services::Request()->ts();
+
+		if ( $this->isOpt( 'enable_live_log', 'Y' ) ) {
+			if ( $this->getOpt( 'live_log_started_at' ) > 0 ) {
+				if ( $this->liveLoggingDuration() <= $now - $this->getOpt( 'live_log_started_at' ) ) {
+					$this->setOpt( 'live_log_started_at', 0 )
+						 ->setOpt( 'enable_live_log', 'N' );
+				}
+			}
+			elseif ( $this->getOpt( 'live_log_started_at' ) === 0 ) {
+				$this->setOpt( 'live_log_started_at', $now );
+			}
+		}
+		else {
+			$this->setOpt( 'live_log_started_at', 0 );
+		}
+
+		$startedAt = $this->getOpt( 'live_log_started_at' );
+		return $startedAt > 0 ? \max( 0, $this->liveLoggingDuration() - ( $now - $startedAt ) ) : 0;
+	}
+
+	public function liveLoggingDuration() :int {
+		return (int)\min( \DAY_IN_SECONDS, \max( \MINUTE_IN_SECONDS, apply_filters( 'shield/live_traffic_log_duration', \HOUR_IN_SECONDS/2 ) ) );
 	}
 }

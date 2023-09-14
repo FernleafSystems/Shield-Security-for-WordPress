@@ -10,10 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	PluginAutoDbRepair,
-	PluginDeleteForceOff
+	PluginDeleteForceOff,
+	Render\Components
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -41,16 +42,18 @@ class AssetsCustomizer {
 			$enq[ Enqueue::JS ][] = 'ip_detect';
 		}
 
-		if ( $this->con()->isPluginAdminPageRequest() ) {
+		if ( self::con()->isPluginAdminPageRequest() ) {
 			$nav = Services::Request()->query( Constants::NAV_ID );
+			$subNav = Services::Request()->query( Constants::NAV_SUB_ID );
 			switch ( $nav ) {
 
-				case PluginURLs::NAV_IMPORT_EXPORT:
-					$enq[ Enqueue::JS ][] = 'shield/import';
+				case PluginNavs::NAV_TOOLS:
+					if ( $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT ) {
+						$enq[ Enqueue::JS ][] = 'shield/import';
+					}
 					break;
-				case PluginURLs::NAV_OVERVIEW:
-					break;
-				case PluginURLs::NAV_REPORTS:
+				case PluginNavs::NAV_DASHBOARD:
+				case PluginNavs::NAV_REPORTS:
 					$enq[ Enqueue::JS ] = \array_merge( $enq[ Enqueue::JS ], [
 						'chartist',
 						'chartist-plugin-legend',
@@ -62,14 +65,14 @@ class AssetsCustomizer {
 						'shield/charts'
 					] );
 					break;
-				case PluginURLs::NAV_WIZARD:
+				case PluginNavs::NAV_WIZARD:
 					$enq[ Enqueue::JS ][] = 'shield/merlin';
 					$enq[ Enqueue::CSS ][] = 'shield/merlin';
 					break;
 
 				default:
 					$enq[ Enqueue::JS ][] = 'shield/tables';
-					if ( \in_array( $nav, [ PluginURLs::NAV_SCANS_RESULTS, PluginURLs::NAV_SCANS_RUN ] ) ) {
+					if ( $nav === PluginNavs::NAV_SCANS ) {
 						$enq[ Enqueue::JS ][] = 'shield/scans';
 					}
 					break;
@@ -146,17 +149,15 @@ class AssetsCustomizer {
 			'shield/tours',
 			'shield_vars_tourmanager',
 			[
-				'ajax'        => ActionData::Build( Actions\PluginMarkTourFinished::class ),
-				'tours'       => $tourManager->getAllTours(),
-				'states'      => $tourManager->getStates(),
-				/** @deprecated 18.2 */
-				'tour_states' => $tourManager->getUserTourStates(),
+				'ajax'   => ActionData::Build( Actions\PluginMarkTourFinished::class ),
+				'tours'  => $tourManager->getAllTours(),
+				'states' => $tourManager->getStates(),
 			]
 		];
 	}
 
 	private function shieldPlugin() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'plugin',
 			'icwp_wpsf_vars_plugin',
@@ -181,10 +182,11 @@ class AssetsCustomizer {
 						],
 					],
 					'offcanvas'     => [
-						'ip_analysis'      => Actions\Render\Components\OffCanvas\IpAnalysis::SLUG,
-						'ip_rule_add_form' => Actions\Render\Components\OffCanvas\IpRuleAddForm::SLUG,
-						'meter_analysis'   => Actions\Render\Components\OffCanvas\MeterAnalysis::SLUG,
-						'mod_config'       => Actions\Render\Components\OffCanvas\ModConfig::SLUG,
+						'ip_analysis'        => Components\OffCanvas\IpAnalysis::SLUG,
+						'form_ip_rule_add'   => Components\OffCanvas\IpRuleAddForm::SLUG,
+						'form_report_create' => Components\OffCanvas\FormReportCreate::SLUG,
+						'meter_analysis'     => Components\OffCanvas\MeterAnalysis::SLUG,
+						'mod_config'         => Components\OffCanvas\ModConfig::SLUG,
 					],
 					'mod_options'   => [
 						'ajax' => [
@@ -193,7 +195,7 @@ class AssetsCustomizer {
 					],
 					'super_search'  => [
 						'vars' => [
-							'render_slug' => Actions\Render\Components\SuperSearchResults::SLUG,
+							'render_slug' => Components\SuperSearchResults::SLUG,
 						],
 					],
 					'select_search' => [
@@ -234,7 +236,7 @@ class AssetsCustomizer {
 					'ajax_render'      => ActionData::Build( Actions\AjaxRender::class ),
 					'dashboard_widget' => [
 						'ajax' => [
-							'render_dashboard_widget' => Actions\Render\Components\DashboardWidget::SLUG
+							'render_dashboard_widget' => Components\Widgets\WpDashboardSummary::SLUG
 						]
 					],
 					'notices'          => [
@@ -253,7 +255,7 @@ class AssetsCustomizer {
 
 		$custom = null;
 		if ( $this->isIpAutoDetectRequired() ) {
-			$this->con()->getModule_Plugin()->getOptions()->setOpt( 'ipdetect_at', $req->ts() );
+			self::con()->getModule_Plugin()->opts()->setOpt( 'ipdetect_at', $req->ts() );
 			$custom = [
 				'shield/ip_detect',
 				'icwp_wpsf_vars_ipdetect',
@@ -277,7 +279,7 @@ class AssetsCustomizer {
 
 	private function isIpAutoDetectRequired() :bool {
 		$req = Services::Request();
-		$optsPlugin = $this->con()->getModule_Plugin()->getOptions();
+		$optsPlugin = self::con()->getModule_Plugin()->opts();
 		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > \MONTH_IN_SECONDS )
 			   || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
 	}

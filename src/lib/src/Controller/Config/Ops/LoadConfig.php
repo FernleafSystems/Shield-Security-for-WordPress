@@ -43,7 +43,7 @@ class LoadConfig {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 
 			$rebuild = empty( $def[ 'hash' ] ) || !hash_equals( $def[ 'hash' ], $specHash )
-					   || ( $version !== $WPP->getPluginAsVo( $this->con()->base_file )->Version );
+					   || ( $version !== $WPP->getPluginAsVo( self::con()->base_file )->Version );
 			$def[ 'hash' ] = $specHash;
 		}
 
@@ -60,7 +60,7 @@ class LoadConfig {
 			$cfg->previous_version = $cfg->properties[ 'version' ];
 		}
 
-		if ( $cfg->properties[ 'version' ] !== $WPP->getPluginAsVo( $this->con()->base_file )->Version ) {
+		if ( $cfg->properties[ 'version' ] !== $WPP->getPluginAsVo( self::con()->base_file )->Version ) {
 			throw new VersionMismatchException();
 		}
 

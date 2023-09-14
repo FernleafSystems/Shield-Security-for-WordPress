@@ -98,7 +98,7 @@ class Themes extends Base {
 			 && current_user_can( 'edit_themes' )
 			 && wp_verify_nonce( $req->post( 'nonce' ), 'edit-theme_'.$theme.'_'.$req->post( 'file' ) )
 		) {
-			$this->con()->fireEvent(
+			self::con()->fireEvent(
 				'theme_file_edited',
 				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
 			);
@@ -122,7 +122,7 @@ class Themes extends Base {
 	}
 
 	public function auditUpgrade2( $true, $hooksExtra ) {
-		add_action( $this->con()->prefix( 'pre_plugin_shutdown' ),
+		add_action( self::con()->prefix( 'pre_plugin_shutdown' ),
 			function () use ( $hooksExtra ) {
 				if ( !empty( $hooksExtra[ 'theme' ] ) ) {
 					$this->handleThemeUpgrades( $hooksExtra[ 'theme' ] );

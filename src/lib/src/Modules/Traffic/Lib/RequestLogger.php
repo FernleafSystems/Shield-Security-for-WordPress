@@ -6,8 +6,6 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use Monolog\Logger;
 
 class RequestLogger {
@@ -20,21 +18,45 @@ class RequestLogger {
 	 */
 	private $logger;
 
+	private $hasLogged = false;
+
+	private $isDependentLog = false;
+
+	protected function canRun() :bool {
+		return !self::con()->plugin_deleting;
+	}
+
 	/**
 	 * We initialise the loggers as late on as possible to prevent Monolog conflicts.
 	 */
 	protected function run() {
-		add_action( $this->con()->prefix( 'plugin_shutdown' ), function () {
-			if ( $this->isRequestToBeLogged() ) {
-				try {
-					( new Monolog() )->assess();
-					$this->initLogger();
-					$this->getLogger()->log( 'debug', 'log request' );
-				}
-				catch ( \Exception $e ) {
-				}
+		add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
+			if ( !self::con()->plugin_deleting
+				 && ( $this->opts()->liveLoggingTimeRemaining() > 0 || ( new IsRequestLogged() )->isLogged() ) ) {
+				$this->createLog();
 			}
 		}, 1000 ); // high enough to come after audit trail
+	}
+
+	public function createDependentLog() :void {
+		$this->isDependentLog = true;
+		$this->createLog();
+	}
+
+	private function createLog() {
+		if ( !$this->hasLogged ) {
+			try {
+				( new Monolog() )->assess();
+				$this->initLogger();
+				$this->getLogger()->log( 'debug', 'log request' );
+			}
+			catch ( \Exception $e ) {
+				error_log( $e->getMessage() );
+			}
+			finally {
+				$this->hasLogged = true;
+			}
+		}
 	}
 
 	private function initLogger() {
@@ -42,8 +64,12 @@ class RequestLogger {
 		$this->pushCustomHandlers();
 	}
 
+	public function isDependentLog() :bool {
+		return $this->isDependentLog;
+	}
+
 	private function pushCustomHandlers() {
-		if ( $this->con()->caps->canActivityLogsSendToIntegrations() ) {
+		if ( self::con()->caps->canActivityLogsSendToIntegrations() ) {
 			$custom = apply_filters( 'shield/custom_request_log_handlers', [] );
 			\array_map(
 				function ( $handler ) {
@@ -52,13 +78,6 @@ class RequestLogger {
 				\is_array( $custom ) ? $custom : []
 			);
 		}
-	}
-
-	private function isRequestToBeLogged() :bool {
-		return !$this->con()->plugin_deleting
-			   && apply_filters( 'shield/is_log_traffic', $this->opts()->isTrafficLoggerEnabled()
-														  && !$this->isCustomExcluded()
-														  && !$this->isRequestTypeExcluded() );
 	}
 
 	public function getLogger() :Logger {
@@ -79,37 +98,24 @@ class RequestLogger {
 		];
 	}
 
-	private function isRequestTypeExcluded() :bool {
-		$srvProviders = Services::ServiceProviders();
-		$ipID = Services::IP()->getIpDetector()->getIPIdentity();
-		$excl = $this->opts()->getOpt( 'type_exclusions' );
-		$isLoggedIn = Services::WpUsers()->isUserLoggedIn();
-
-		$exclude = ( \in_array( 'logged_in', $excl ) && $isLoggedIn )
-				   || ( \in_array( 'cron', $excl ) && Services::WpGeneral()->isCron() )
-				   || ( \in_array( 'server', $excl ) && $ipID === IpID::THIS_SERVER );
-
-		if ( !$exclude && !$isLoggedIn ) {
-			$exclude = ( \in_array( 'search', $excl ) && \in_array( $ipID, $srvProviders->getSearchProviders() ) )
-					   || ( \in_array( 'uptime', $excl ) && \in_array( $ipID, $srvProviders->getUptimeProviders() ) );
-		}
-
-		return $exclude;
+	/**
+	 * @deprecated 18.3
+	 */
+	private function isRequestToBeLogged() :bool {
+		return false;
 	}
 
+	/**
+	 * @deprecated 18.3
+	 */
+	private function isRequestTypeExcluded() :bool {
+		return true;
+	}
+
+	/**
+	 * @deprecated 18.3
+	 */
 	private function isCustomExcluded() :bool {
-		$req = Services::Request();
-
-		$agent = $req->getUserAgent();
-		$path = $req->getPath().( empty( $_GET ) ? '' : '?'.\http_build_query( $_GET ) );
-
-		$exclude = false;
-		foreach ( $this->opts()->getCustomExclusions() as $excl ) {
-			if ( \stripos( $agent, $excl ) !== false || \stripos( $path, $excl ) !== false ) {
-				$exclude = true;
-				break;
-			}
-		}
-		return $exclude;
+		return true;
 	}
 }

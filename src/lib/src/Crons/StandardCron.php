@@ -20,7 +20,7 @@ trait StandardCron {
 		}
 		catch ( \Exception $e ) {
 		}
-		add_action( $this->con()->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
+		add_action( self::con()->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
 	}
 
 	/**
@@ -29,7 +29,7 @@ trait StandardCron {
 	protected function getCronRecurrence() {
 		$frequency = $this->getCronFrequency();
 		return \in_array( $frequency, \array_keys( wp_get_schedules() ) ) ? $frequency
-			: $this->con()->prefix( sprintf( 'per-day-%s', $frequency ) );
+			: self::con()->prefix( sprintf( 'per-day-%s', $frequency ) );
 	}
 
 	/**

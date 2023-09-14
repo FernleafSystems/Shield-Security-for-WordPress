@@ -118,16 +118,4 @@ class Wordpress extends Base {
 	public function getReporter() :ZoneReportWordpress {
 		return new ZoneReportWordpress();
 	}
-
-	/**
-	 * @param string $old
-	 * @param string $new
-	 * @deprecated 18.2
-	 */
-	public function auditPermalinkStructure( $old, $new ) {
-		$this->fireAuditEvent( 'permalinks_structure', [
-			'from' => $old,
-			'to'   => $new,
-		] );
-	}
 }

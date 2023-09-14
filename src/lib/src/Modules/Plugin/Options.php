@@ -43,7 +43,7 @@ class Options extends BaseShield\Options {
 	private function getFrequency( string $type ) :string {
 		$key = 'frequency_'.$type;
 		$default = $this->getOptDefault( $key );
-		return ( $this->con()->isPremiumActive() || \in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
+		return ( self::con()->isPremiumActive() || \in_array( $this->getOpt( $key ), [ 'disabled', $default ] ) )
 			? $this->getOpt( $key )
 			: $default;
 	}
@@ -57,11 +57,11 @@ class Options extends BaseShield\Options {
 	}
 
 	public function isTrackingEnabled() :bool {
-		return $this->con()->isPremiumActive() || $this->isOpt( 'enable_tracking', 'Y' );
+		return self::con()->isPremiumActive() || $this->isOpt( 'enable_tracking', 'Y' );
 	}
 
 	public function isEnabledWpcli() :bool {
-		return $this->con()->isPremiumActive()
+		return self::con()->isPremiumActive()
 			   && apply_filters( 'shield/enable_wpcli', $this->isOpt( 'enable_wpcli', 'Y' ) );
 	}
 

@@ -53,10 +53,7 @@ class Options {
 
 	public function getAllOptionsValues() :array {
 		try {
-			if ( $this->con()->opts === null ) {
-				throw new \Exception( 'Opts not ready.' );
-			}
-			$values = $this->con()->opts->getFor( $this->mod() );
+			$values = self::con()->opts->getFor( $this->mod() );
 			if ( $values === null ) {
 				throw new \Exception( 'No shared-stored options available' );
 			}
@@ -68,9 +65,7 @@ class Options {
 			catch ( \Exception $e ) {
 				$values = [];
 			}
-			if ( $this->con()->opts !== null ) {
-				$this->con()->opts->setFor( $this->mod(), $values );
-			}
+			self::con()->opts->setFor( $this->mod(), $values );
 		}
 		return $values;
 	}
@@ -318,7 +313,7 @@ class Options {
 		}
 
 		$cap = $this->optCap( $key );
-		if ( empty( $cap ) || $this->con()->caps->hasCap( $cap ) ) {
+		if ( empty( $cap ) || self::con()->caps->hasCap( $cap ) ) {
 			$value = $this->getAllOptionsValues()[ $key ] ?? $mDefault;
 		}
 		else {
@@ -381,20 +376,6 @@ class Options {
 
 	public function getRawData_FullFeatureConfig() :array {
 		return $this->cfg()->getRawData();
-	}
-
-	/**
-	 * @deprecated 18.2.5
-	 */
-	protected function getRawData_AllOptions() :array {
-		return $this->cfg()->options ?? [];
-	}
-
-	/**
-	 * @deprecated 18.2.5
-	 */
-	protected function getRawData_OptionsSections() :array {
-		return $this->cfg()->sections ?? [];
 	}
 
 	public function getSelectOptionValueKeys( string $key ) :array {
@@ -604,16 +585,6 @@ class Options {
 	}
 
 	/**
-	 * @deprecated 18.2.5
-	 */
-	private function cleanOptions() {
-	}
-
-	private function getOptsStorage() :Options\Storage {
-		return $this->optsStorage ?? $this->optsStorage = ( new Options\Storage() )->setMod( $this->mod() );
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function setOptionsValues( array $values = [] ) {
@@ -629,43 +600,11 @@ class Options {
 		if ( isset( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = $values;
 		}
-		if ( self::con()->opts !== null ) {
-			$this->con()->opts->setFor( $this->mod(), $values );
-		}
+
+		self::con()->opts->setFor( $this->mod(), $values );
 
 		$this->setNeedSave( true );
 
 		return $this;
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 18.2.5
-	 */
-	public function setOptAt( string $key ) {
-		return $this->setOpt( $key, Services::Request()->ts() );
-	}
-
-	/**
-	 * @deprecated 18.2.5
-	 */
-	public function isValidOptionKey( string $key ) :bool {
-		return \in_array( $key, $this->getOptionsKeys() );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isOptReqsMet( string $key ) :bool {
-		return $this->isSectionReqsMet( $this->getOptProperty( $key, 'section' ) );
-	}
-
-	/**
-	 * @deprecated 18.2.6
-	 */
-	public function isSectionReqsMet( string $slug ) :bool {
-		$reqs = $this->getSection_Requirements( $slug );
-		return Services::Data()->getPhpVersionIsAtLeast( $reqs[ 'php_min' ] )
-			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $reqs[ 'wp_min' ] );
 	}
 }

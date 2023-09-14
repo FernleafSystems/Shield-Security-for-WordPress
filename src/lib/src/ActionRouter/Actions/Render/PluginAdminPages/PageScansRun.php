@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
 
@@ -15,11 +15,11 @@ class PageScansRun extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin_pages/plugin_admin/scan_run.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			[
 				'text' => __( 'Scan Results', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			[
 				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
@@ -29,7 +29,7 @@ class PageScansRun extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_HackGuard();
 
 		( new CleanQueue() )->execute();
@@ -47,13 +47,13 @@ class PageScansRun extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'scanner_mod_config' => $con->plugin_urls->modCfgSection( $mod, 'section_enable_plugin_feature_hack_protection_tools' ),
-				'scans_results'      => $con->plugin_urls->adminTopNav( PluginURLs::NAV_SCANS_RESULTS ),
+				'scans_results'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Scan Your Site', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Run Manual Scan', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),
 
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
@@ -80,7 +80,7 @@ class PageScansRun extends BasePluginAdminPage {
 	}
 
 	private function buildScansVars() :array {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 		$scanStrings = $strings->getScanStrings();

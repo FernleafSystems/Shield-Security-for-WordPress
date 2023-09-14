@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\GetAllAvailableLocales;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -151,7 +151,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getSectionStrings( string $section ) :array {
-		$name = $this->con()->getHumanName();
+		$name = self::con()->getHumanName();
 
 		switch ( $section ) {
 
@@ -180,7 +180,7 @@ class Strings extends Base\Strings {
 						'<code>'.$this->mod()->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
-						$this->con()->plugin_urls->modCfgOption( 'block_send_email_address' ),
+						self::con()->plugin_urls->modCfgOption( 'block_send_email_address' ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),
@@ -229,7 +229,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->con();
+		$con = self::con();
 		switch ( $key ) {
 
 			case 'global_enable_plugin_features' :
@@ -237,7 +237,10 @@ class Strings extends Base\Strings {
 				$summary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $con->getHumanName() ),
-					sprintf( '<a href="%s">%s</a>', $con->plugin_urls->adminTopNav( PluginURLs::NAV_DEBUG ), 'Launch Debug Info Page' )
+					sprintf( '<a href="%s">%s</a>',
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+						'Launch Debug Info Page'
+					)
 				];
 				break;
 

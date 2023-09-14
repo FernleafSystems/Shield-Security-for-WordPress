@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Processor extends BaseShield\Processor {
@@ -16,11 +17,9 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		if ( $this->con()->isValidAdminArea() ) {
-			$urls = $this->con()->plugin_urls;
-
+		if ( self::con()->isValidAdminArea() ) {
 			$thisGroup = [
-				'href'  => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
+				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 				'items' => [],
 			];
 			foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {

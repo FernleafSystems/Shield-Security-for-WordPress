@@ -18,7 +18,7 @@ class Enqueue {
 
 	protected function canRun() :bool {
 		$WP = Services::WpGeneral();
-		return !$WP->isAjax() && !$WP->isCron() && !empty( $this->con()->cfg->includes[ 'register' ] );
+		return !$WP->isAjax() && !$WP->isCron() && !empty( self::con()->cfg->includes[ 'register' ] );
 	}
 
 	protected function run() {
@@ -59,7 +59,7 @@ class Enqueue {
 	private function removeConflictingAdminAssets( $depContainer ) {
 		$toDequeue = [];
 
-		if ( $this->con()->getIsPage_PluginAdmin() ) {
+		if ( self::con()->getIsPage_PluginAdmin() ) {
 			$default = [
 				'cerber_css',
 				'bootstrap',
@@ -91,7 +91,7 @@ class Enqueue {
 		if ( !empty( $conflictHandlesRegEx ) ) {
 			foreach ( $depContainer->queue as $script ) {
 				$handle = (string)$depContainer->registered[ $script ]->handle;
-				if ( \strpos( $handle, $this->con()->prefix() ) === false
+				if ( \strpos( $handle, self::con()->prefix() ) === false
 					 && \preg_match( sprintf( '/(%s)/i', $conflictHandlesRegEx ), $handle ) ) {
 					$toDequeue[] = $handle;
 				}
@@ -156,7 +156,7 @@ class Enqueue {
 	 * plugin to cater for most shared assets.
 	 */
 	private function registerAssets() {
-		$con = $this->con();
+		$con = self::con();
 
 		$assetKeys = [
 			self::CSS => [],
@@ -179,7 +179,7 @@ class Enqueue {
 							$handle,
 							$con->urls->forCss( $key ),
 							$this->prefixKeys( $deps ),
-							$con->getVersion()
+							$con->cfg->version()
 						);
 					}
 					else {
@@ -191,7 +191,7 @@ class Enqueue {
 							$handle,
 							$con->urls->forJs( $key ),
 							$this->prefixKeys( $deps ),
-							$con->getVersion(),
+							$con->cfg->version(),
 							$spec[ 'footer' ] ?? false
 						);
 					}
@@ -217,13 +217,13 @@ class Enqueue {
 	}
 
 	private function normaliseHandle( string $handle ) :string {
-		return \str_replace( '/', '-', $this->con()->prefix(
+		return \str_replace( '/', '-', self::con()->prefix(
 			\FernleafSystems\Wordpress\Services\Utilities\File\Paths::RemoveExt( $handle )
 		) );
 	}
 
 	private function getAdminAssetsToEnq() {
-		$con = $this->con();
+		$con = self::con();
 		$admin = $con->cfg->includes[ 'admin' ];
 		if ( $con->getIsPage_PluginAdmin() ) {
 			$plugin = $con->cfg->includes[ 'plugin_admin' ];
@@ -234,7 +234,7 @@ class Enqueue {
 	}
 
 	private function getFrontendAssetsToEnq() :array {
-		return $this->con()->cfg->includes[ 'frontend' ] ?? [];
+		return self::con()->cfg->includes[ 'frontend' ] ?? [];
 	}
 
 	private function runEnqueueOnAssets( string $type, array $asset ) {

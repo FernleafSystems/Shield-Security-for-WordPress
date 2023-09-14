@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminAuthClear;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 
 abstract class BasePluginAdminPage extends BaseRender {
 
@@ -30,10 +31,10 @@ abstract class BasePluginAdminPage extends BaseRender {
 	}
 
 	protected function getCommonAdminPageRenderData() :array {
-		$urls = $this->con()->plugin_urls;
+		$urls = self::con()->plugin_urls;
 
 		$hrefs = $this->getPageContextualHrefs();
-		if ( $this->con()->getModule_SecAdmin()->getSecurityAdminController()->hasActiveSession() ) {
+		if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->hasActiveSession() ) {
 			$hrefs[] = [
 				'text' => __( 'End Security Admin Session', 'wp-simple-firewall' ),
 				'href' => $urls->noncedPluginAction( SecurityAdminAuthClear::class, $urls->adminHome() ),
@@ -42,8 +43,13 @@ abstract class BasePluginAdminPage extends BaseRender {
 
 		return [
 			'hrefs' => [
+				'breadcrumbs'                 => $this->getBreadCrumbs(),
 				'inner_page_contextual_hrefs' => $hrefs,
 			],
 		];
+	}
+
+	protected function getBreadCrumbs() :array {
+		return ( new BuildBreadCrumbs() )->current();
 	}
 }

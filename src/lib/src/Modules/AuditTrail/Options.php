@@ -11,7 +11,7 @@ class Options extends BaseShield\Options {
 	 * @inheritDoc
 	 */
 	protected function preSetOptChecks( string $key, $newValue ) {
-		if ( $key === 'audit_trail_auto_clean' && $newValue > $this->con()->caps->getMaxLogRetentionDays() ) {
+		if ( $key === 'audit_trail_auto_clean' && $newValue > self::con()->caps->getMaxLogRetentionDays() ) {
 			throw new \Exception( 'Cannot set log retentions days to anything longer than max' );
 		}
 	}
@@ -47,39 +47,12 @@ class Options extends BaseShield\Options {
 	 * Don't put caps into cfg as this option is always available, but limited to 7.
 	 */
 	public function getAutoCleanDays() :int {
-		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), $this->con()->caps->getMaxLogRetentionDays() );
+		$days = (int)\min( $this->getOpt( 'audit_trail_auto_clean' ), self::con()->caps->getMaxLogRetentionDays() );
 		$this->setOpt( 'audit_trail_auto_clean', $days );
 		return $days;
 	}
 
 	public function isLogToDB() :bool {
 		return !\in_array( 'disabled', $this->getLogLevelsDB() );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isLogToFile() :bool {
-		return !\in_array( 'disabled', $this->getLogLevelsFile() ) && !empty( $this->getLogFilePath() );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function getLogLevelsFile() :array {
-		$levels = $this->getOpt( 'log_level_file', [] );
-		if ( empty( $levels ) ) {
-			$this->resetOptToDefault( 'log_level_file' );
-		}
-		elseif ( \count( $levels ) > 1 ) {
-			if ( \in_array( 'disabled', $levels ) ) {
-				$this->setOpt( 'log_level_file', [ 'disabled' ] );
-			}
-			elseif ( \in_array( 'same_as_db', $levels ) ) {
-				$this->setOpt( 'log_level_file', [ 'same_as_db' ] );
-			}
-		}
-		$levels = $this->getOpt( 'log_level_file', [] );
-		return \in_array( 'same_as_db', $levels ) ? $this->getLogLevelsDB() : $levels;
 	}
 }

@@ -13,10 +13,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class ChartRequestVO extends DynPropertiesClass {
 
-	/**
-	 * @param string $key
-	 * @return mixed
-	 */
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {

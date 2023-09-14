@@ -1,8 +1,9 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
@@ -63,7 +64,7 @@ class Strings extends Base\Strings {
 	}
 
 	public function getOptionStrings( string $key ) :array {
-		$con = $this->con();
+		$con = self::con();
 		$modName = $this->mod()->getMainFeatureName();
 
 		switch ( $key ) {
@@ -88,6 +89,33 @@ class Strings extends Base\Strings {
 					__( "Select request types that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' ),
 					__( 'If a request matches any exclusion rule, it wont show in the traffic logs.', 'wp-simple-firewall' )
 				];
+				break;
+
+			case 'enable_live_log' :
+				/** @var Options $opts */
+				$opts = $this->opts();
+				$max = \round( $opts->liveLoggingDuration()/\MINUTE_IN_SECONDS );
+
+				$name = __( 'Live Traffic', 'wp-simple-firewall' );
+				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );
+				$desc = [
+					__( "Requires standard traffic logging to be switched-on and logs all requests to the site (nothing is excluded).", 'wp-simple-firewall' ),
+					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
+					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
+						sprintf( _n( '%s minute', '%s minutes', $max ), $max ) ),
+				];
+
+				$remaining = $opts->liveLoggingTimeRemaining();
+				if ( $remaining > 0 ) {
+					$desc[] = sprintf(
+						__( 'Live logging will be automatically disabled: %s', 'wp-simple-firewall' ),
+						sprintf( '<code>%s</code>', Services::Request()
+															->carbon()
+															->addSeconds( $remaining )
+															->diffForHumans()
+						)
+					);
+				}
 				break;
 
 			case 'custom_exclusions' :

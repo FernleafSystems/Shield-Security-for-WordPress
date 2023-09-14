@@ -8,13 +8,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\Options {
 
 	public function getInstallationDays() :int {
-		$installedAt = $this->con()
-							->getModule_Plugin()
-							->getInstallDate();
+		$installedAt = self::con()
+						   ->getModule_Plugin()
+						   ->getInstallDate();
 		if ( empty( $installedAt ) ) {
 			return 0;
 		}
-		return (int)round( ( Services::Request()->ts() - $installedAt )/DAY_IN_SECONDS );
+		return (int)\round( ( Services::Request()->ts() - $installedAt )/\DAY_IN_SECONDS );
 	}
 
 	public function isShowPluginNotices() :bool {
@@ -22,9 +22,9 @@ class Options extends Base\Options {
 	}
 
 	public function isShowPromoAdminNotices() :bool {
-		return $this->con()
-					->getModule_Plugin()
-					->getOptions()
-					->isOpt( 'enable_upgrade_admin_notice', 'Y' );
+		return self::con()
+				   ->getModule_Plugin()
+				   ->opts()
+				   ->isOpt( 'enable_upgrade_admin_notice', 'Y' );
 	}
 }

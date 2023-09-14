@@ -73,10 +73,10 @@ class RetrieveItems extends RetrieveBase {
 		$WPDB = Services::WpDb();
 
 		// Need to determine the scan from the scan result.
-		$scan = $WPDB->getVar( sprintf( "SELECT `scans`.scan
+		$scan = $WPDB->getVar( sprintf( "SELECT `scans`.`scan`
 					FROM `%s` as `scans`
 					INNER JOIN `%s` as `sr`
-						ON `sr`.scan_ref = `scans`.id AND `sr`.id = %s 
+						ON `sr`.`scan_ref` = `scans`.`id` AND `sr`.`id` = %s 
 					LIMIT 1;",
 			$this->mod()->getDbH_Scans()->getTableSchema()->table,
 			$this->mod()->getDbH_ScanResults()->getTableSchema()->table,
@@ -189,7 +189,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$this->addMetaToResults( $scanResults );
 
-		$scansCon = $this->con()->getModule_HackGuard()->getScansCon();
+		$scansCon = self::con()->getModule_HackGuard()->getScansCon();
 		foreach ( $scanResults as $vo ) {
 
 			// we haven't specified a type of scan, so we're collecting all results.
@@ -218,24 +218,33 @@ class RetrieveItems extends RetrieveBase {
 	 */
 	private function addMetaToResults( array $results ) {
 
-		$resultItemIDs = \array_map( function ( $res ) {
-			return $res->resultitem_id;
-		}, $results );
+		$offset = 0;
+		$length = 200;
+		do {
+			$resultsSlice = \array_slice( $results, $offset, $length );
+			if ( !empty( $resultsSlice ) ) {
+				$resultItemIDs = \array_map( function ( $res ) {
+					return $res->resultitem_id;
+				}, $resultsSlice );
 
-		/** @var ResultItemMetaDB\Ops\Select $rimSelector */
-		$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
-		/** @var ResultItemMetaDB\Ops\Record[] $metas */
-		$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
+				/** @var ResultItemMetaDB\Ops\Select $rimSelector */
+				$rimSelector = $this->mod()->getDbH_ResultItemMeta()->getQuerySelector();
+				/** @var ResultItemMetaDB\Ops\Record[] $metas */
+				$metas = $rimSelector->filterByResultItems( $resultItemIDs )->queryWithResult();
 
-		foreach ( $results as $result ) {
-			$meta = $result->meta;
-			foreach ( $metas as $metaRecord ) {
-				if ( $metaRecord->ri_ref == $result->resultitem_id ) {
-					$meta[ $metaRecord->meta_key ] = $metaRecord->meta_value;
+				foreach ( $resultsSlice as $result ) {
+					$meta = $result->meta;
+					foreach ( $metas as $metaRecord ) {
+						if ( $metaRecord->ri_ref == $result->resultitem_id ) {
+							$meta[ $metaRecord->meta_key ] = $metaRecord->meta_value;
+						}
+					}
+					$result->meta = $meta;
 				}
+				$offset += $length;
 			}
-			$result->meta = $meta;
-		}
+
+		} while ( !empty( $resultsSlice ) );
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
@@ -269,9 +278,10 @@ class RetrieveItems extends RetrieveBase {
 	private function standardSelectFields() :array {
 		return [
 			'`scans`.`scan`',
-			'`scans`.`id` as scan_id',
-			'`sr`.`id` as scanresult_id',
-			'`ri`.`id` as resultitem_id',
+			'`scans`.`created_at` as `scan_created_at`',
+			'`scans`.`id` as `scan_id`',
+			'`sr`.`id` as `scanresult_id`',
+			'`ri`.`id` as `resultitem_id`',
 			'`ri`.`item_type`',
 			'`ri`.`item_id`',
 			'`ri`.`ignored_at`',

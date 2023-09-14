@@ -83,7 +83,7 @@ class U2F extends AbstractShieldProvider {
 	 * @throws \u2flib_server\Error
 	 */
 	private function createNewU2fRegistrationRequest() :array {
-		$meta = $this->con()->user_metas->for( $this->getUser() );
+		$meta = self::con()->user_metas->for( $this->getUser() );
 		[ $newRegRequest, $signRequests ] = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 			->getRegisterData( $this->getRegistrations() );
 
@@ -166,7 +166,7 @@ class U2F extends AbstractShieldProvider {
 	}
 
 	public function addNewRegistration( array $u2fResponse ) :StdResponse {
-		$meta = $this->con()->user_metas->for( $this->getUser() );
+		$meta = self::con()->user_metas->for( $this->getUser() );
 
 		$response = new StdResponse();
 		try {

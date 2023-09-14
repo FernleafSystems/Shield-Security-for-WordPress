@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
 	FileContentsEncodingFailure,
@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	PublicKeyRetrievalFailure,
 	UnsupportedFileLockType
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\CipherTests;
 
@@ -33,27 +34,25 @@ class FileLockerController {
 	public function isEnabled() :bool {
 		return ( \count( $this->opts()->getFilesToLock() ) > 0 )
 			   && $this->mod()->getDbH_FileLocker()->isReady()
-			   && $this->con()
-					   ->getModule_Plugin()
-					   ->getShieldNetApiController()
-					   ->canHandshake();
+			   && self::con()
+					  ->getModule_Plugin()
+					  ->getShieldNetApiController()
+					  ->canHandshake();
 	}
 
 	protected function run() {
 		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
-		add_filter( $this->con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
 	public function addAdminMenuBarItem( array $items ) :array {
 		$count = \count( ( new Ops\LoadFileLocks() )->withProblems() );
 		if ( $count > 0 ) {
-			$con = $this->con();
-			$urls = $con->plugin_urls;
 			$items[] = [
-				'id'       => $this->con()->prefix( 'filelocker_problems' ),
+				'id'       => self::con()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $count ),
-				'href'     => $urls->adminTopNav( $urls::NAV_SCANS_RESULTS ),
+				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 				'warnings' => $count
 			];
 		}
@@ -63,7 +62,7 @@ class FileLockerController {
 	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
-			$links[ $type ] = $this->con()->plugin_urls->fileDownload( 'filelocker', [
+			$links[ $type ] = self::con()->plugin_urls->fileDownload( 'filelocker', [
 				'type' => $type,
 				'rid'  => $lock->id,
 				'rand' => \uniqid(),
@@ -158,7 +157,7 @@ class FileLockerController {
 
 	private function maybeRunLocksCreation() {
 		if ( !empty( ( new Ops\GetFileLocksToCreate() )->run() ) ) {
-			$con = $this->con();
+			$con = self::con();
 			$hook = $con->prefix( 'create_file_locks' );
 
 			if ( wp_next_scheduled( $hook ) ) {

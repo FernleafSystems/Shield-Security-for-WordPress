@@ -10,15 +10,15 @@ class Paths {
 	use PluginControllerConsumer;
 
 	public function forAsset( string $asset = '' ) :string {
-		return $this->forPluginItem( $this->con()->cfg->paths[ 'assets' ].'/'.\ltrim( $asset, '/' ) );
+		return $this->forPluginItem( self::con()->cfg->paths[ 'assets' ].'/'.\ltrim( $asset, '/' ) );
 	}
 
 	public function forModuleConfig( string $module ) :string {
-		return $this->forPluginItem( $this->con()->cfg->paths[ 'config' ].'/'.$module.'.json' );
+		return $this->forPluginItem( self::con()->cfg->paths[ 'config' ].'/'.$module.'.json' );
 	}
 
 	public function forFlag( string $flag = '' ) :string {
-		return $this->forPluginItem( $this->con()->cfg->paths[ 'flags' ].'/'.\ltrim( $flag, '/' ) );
+		return $this->forPluginItem( self::con()->cfg->paths[ 'flags' ].'/'.\ltrim( $flag, '/' ) );
 	}
 
 	public function forImage( string $asset ) :string {
@@ -34,14 +34,14 @@ class Paths {
 	}
 
 	public function forPluginItem( string $item = '' ) :string {
-		return path_join( $this->con()->getRootDir(), \ltrim( $item, '/' ) );
+		return path_join( self::con()->getRootDir(), \ltrim( $item, '/' ) );
 	}
 
 	public function forSource( string $source = '' ) :string {
-		return $this->forPluginItem( $this->con()->cfg->paths[ 'source' ].'/'.\ltrim( $source, '/' ) );
+		return $this->forPluginItem( self::con()->cfg->paths[ 'source' ].'/'.\ltrim( $source, '/' ) );
 	}
 
 	public function forTemplate( string $item = '' ) :string {
-		return $this->forPluginItem( $this->con()->cfg->paths[ 'templates' ].'/'.\ltrim( $item, '/' ) );
+		return $this->forPluginItem( self::con()->cfg->paths[ 'templates' ].'/'.\ltrim( $item, '/' ) );
 	}
 }

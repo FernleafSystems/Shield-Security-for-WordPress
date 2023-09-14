@@ -60,7 +60,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
-		$this->getDbH_Scans();
 		return $this->getDbHandler()->loadDbH( 'scanitems' );
 	}
 
@@ -69,19 +68,16 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
-		$this->getDbH_ResultItems();
 		return $this->getDbHandler()->loadDbH( 'resultitem_meta' );
 	}
 
 	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
-		$this->getDbH_Scans();
-		$this->getDbH_ResultItems();
 		return $this->getDbHandler()->loadDbH( 'scanresults' );
 	}
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		if ( $opts->isOptChanged( 'scan_frequency' ) ) {
 			$this->getScansCon()->deleteCron();
@@ -94,10 +90,10 @@ class ModCon extends BaseShield\ModCon {
 				$opts->setOpt( 'file_locker', $lockFiles );
 			}
 
-			if ( \count( $opts->getFilesToLock() ) === 0 || !$this->con()
-																  ->getModule_Plugin()
-																  ->getShieldNetApiController()
-																  ->canHandshake() ) {
+			if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
+																 ->getModule_Plugin()
+																 ->getShieldNetApiController()
+																 ->canHandshake() ) {
 				$opts->setOpt( 'file_locker', [] );
 				$this->getFileLocker()->purge();
 			}
@@ -114,7 +110,7 @@ class ModCon extends BaseShield\ModCon {
 
 	private function cleanScanExclusions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$specialDirs = \array_map( 'trailingslashit', [
 			ABSPATH,
@@ -137,10 +133,10 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function setCustomCronSchedules() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$freq = $opts->getScanFrequency();
 		Services::WpCron()->addNewSchedule(
-			$this->con()->prefix( sprintf( 'per-day-%s', $freq ) ),
+			self::con()->prefix( sprintf( 'per-day-%s', $freq ) ),
 			[
 				'interval' => \DAY_IN_SECONDS/$freq,
 				'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $freq )

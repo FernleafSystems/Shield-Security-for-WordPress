@@ -25,7 +25,7 @@ class BuildForDisplay {
 	 * It has to handle the conversion of stored values to data to be displayed to the user.
 	 */
 	public function standard() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$isPremium = (bool)$con->cfg->properties[ 'enable_premium' ] ?? false;
 		$showAdvanced = $con->getModule_Plugin()->isShowAdvanced();
@@ -81,7 +81,7 @@ class BuildForDisplay {
 	}
 
 	protected function buildAvailableSections() :array {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 
 		$optionsData = [];
 
@@ -98,7 +98,7 @@ class BuildForDisplay {
 
 			if ( !empty( $section[ 'options' ] ) ) {
 
-				if ( $this->con()->labels->is_whitelabelled ) {
+				if ( self::con()->labels->is_whitelabelled ) {
 					$section[ 'beacon_id' ] = false;
 				}
 
@@ -110,8 +110,8 @@ class BuildForDisplay {
 	}
 
 	protected function buildOptionsForSection( string $section ) :array {
-		$con = $this->con();
-		$opts = $this->getOptions();
+		$con = self::con();
+		$opts = $this->opts();
 
 		$isPremiumActive = $con->isPremiumActive();
 
@@ -168,7 +168,7 @@ class BuildForDisplay {
 	}
 
 	protected function buildOptionForUi( array $option ) :array {
-		$con = $this->con();
+		$con = self::con();
 
 		$value = $option[ 'value' ];
 

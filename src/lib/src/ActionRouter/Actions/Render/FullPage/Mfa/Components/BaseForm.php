@@ -19,13 +19,13 @@ abstract class BaseForm extends Base {
 	}
 
 	protected function getCommonFormData() :array {
-		$con = $this->con();
+		$con = self::con();
 		$mod = $con->getModule_LoginGuard();
 		/** @var LoginGuard\Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		$WP = Services::WpGeneral();
 
-		$mfaSkip = (int)( $opts->getMfaSkip()/DAY_IN_SECONDS );
+		$mfaSkip = (int)( $opts->getMfaSkip()/\DAY_IN_SECONDS );
 
 		return [
 			'content' => [
@@ -116,10 +116,10 @@ abstract class BaseForm extends Base {
 	}
 
 	protected function getLoginIntentExpiresAt() :int {
-		$mod = $this->con()->getModule_LoginGuard();
+		$mod = self::con()->getModule_LoginGuard();
 		$mfaCon = $mod->getMfaController();
 		/** @var LoginGuard\Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 
 		$intentAt = $mfaCon->getActiveLoginIntents( $this->getWpUser() )
 					[ $mfaCon->findHashedNonce( $this->getWpUser(), $this->action_data[ 'plain_login_nonce' ] ) ][ 'start' ] ?? 0;

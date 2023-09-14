@@ -9,14 +9,14 @@ class PageDocs extends BasePluginAdminPage {
 	use Actions\Traits\SecurityAdminNotRequired;
 
 	public const SLUG = 'admin_plugin_page_docs';
-	public const TEMPLATE = '/wpadmin_pages/insights/docs/index.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/docs.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'content' => [
-				'tab_updates' => $con->action_router->render( Actions\Render\Components\Docs\DocsChangelog::SLUG ),
-				'tab_events'  => $con->action_router->render( Actions\Render\Components\Docs\DocsEvents::SLUG ),
+				'tab_changelog' => $con->action_router->render( Actions\Render\Components\Docs\Changelog::SLUG ),
+				'tab_events'    => $con->action_router->render( Actions\Render\Components\Docs\EventsEnum::SLUG ),
 			],
 			'flags'   => [
 				'show_free_trial' => !$con->isPremiumActive(),
@@ -29,7 +29,7 @@ class PageDocs extends BasePluginAdminPage {
 				'inner_page_title_icon' => self::con()->svgs->raw( 'book-half' ),
 			],
 			'strings' => [
-				'tab_updates'       => __( 'Updates and Changes', 'wp-simple-firewall' ),
+				'tab_changelog'     => __( 'Updates and Changes', 'wp-simple-firewall' ),
 				'tab_knowledgebase' => __( 'Knowledgebase', 'wp-simple-firewall' ),
 				'tab_events'        => __( 'Event Details', 'wp-simple-firewall' ),
 				'tab_freetrial'     => __( 'Free Trial', 'wp-simple-firewall' ),

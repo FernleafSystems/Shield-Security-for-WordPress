@@ -13,13 +13,19 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $requestLogger;
 
+	public function onWpInit() {
+		/** @var Options $opts */
+		$opts = $this->opts();
+		$opts->liveLoggingTimeRemaining();
+	}
+
 	public function getRequestLogger() :Lib\RequestLogger {
 		return $this->requestLogger ?? $this->requestLogger = new Lib\RequestLogger();
 	}
 
 	protected function enumRuleBuilders() :array {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return [
 			$opts->isTrafficLimitEnabled() ? Rules\Build\IsRateLimitExceeded::class : null,
 		];
@@ -27,7 +33,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function preProcessOptions() {
 		/** @var Options $opts */
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		$opts->setOpt( 'custom_exclusions', \array_filter( \array_map(
 			function ( $excl ) {
 				return \trim( esc_js( $excl ) );
@@ -41,9 +47,14 @@ class ModCon extends BaseShield\ModCon {
 				$opts->resetOptToDefault( 'auto_clean' );
 			}
 		}
+
+		if ( $opts->isOpt( 'enable_live_log', 'Y' ) && !$opts->isTrafficLoggerEnabled() ) {
+			$opts->setOpt( 'enable_live_log', 'N' )
+				 ->setOpt( 'live_log_started_at', 0 );
+		}
 	}
 
 	protected function isReadyToExecute() :bool {
-		return $this->con()->getModule_Data()->getDbH_ReqLogs()->isReady() && parent::isReadyToExecute();
+		return self::con()->getModule_Data()->getDbH_ReqLogs()->isReady() && parent::isReadyToExecute();
 	}
 }

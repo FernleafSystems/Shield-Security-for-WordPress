@@ -20,7 +20,7 @@ class EasyDigitalDownloads extends BaseFormProvider {
 		}
 		catch ( \Exception $e ) {
 			if ( \function_exists( 'edd_set_error' ) ) {
-				edd_set_error( $this->con()->prefix( uniqid() ), $e->getMessage() );
+				edd_set_error( self::con()->prefix( uniqid() ), $e->getMessage() );
 			}
 		}
 	}

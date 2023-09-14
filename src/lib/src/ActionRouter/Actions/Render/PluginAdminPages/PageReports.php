@@ -8,16 +8,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 class PageReports extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_reports';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/reports.twig';
+	public const TEMPLATE = '/wpadmin_pages/plugin_admin/inner_page.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = $this->con();
-		return [
+		$con = self::con();
+		$hrefs = [
 			[
-				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_AuditTrail()->cfg->slug ),
+				'text' => __( 'Configure Reporting', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasConfigRender( 'section_reporting' ),
 			]
 		];
+		if ( $con->caps->canReportsLocal() ) {
+			\array_unshift( $hrefs, [
+				'text' => __( 'Create Custom Report', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->offCanvasTrigger( 'renderReportCreate()' ),
+			] );
+		}
+		return $hrefs;
 	}
 
 	protected function getRenderData() :array {
@@ -35,14 +42,8 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_CHANGE_TRACK:
-				$title = __( 'Site Change Tracking Reports', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_CHARTS:
-				$title = __( 'Security Performance Charts', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_STATS:
-				$title = __( 'Key Stats At A Glance', 'wp-simple-firewall' );
+			case PluginNavs::SUBNAV_REPORTS_LIST:
+				$title = __( 'View & Create', 'wp-simple-firewall' );
 				break;
 			default:
 				$title = __( 'Security Reports', 'wp-simple-firewall' );
@@ -53,14 +54,8 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageSubTitle() :string {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_CHANGE_TRACK:
-				$title = __( 'View changes to your site between two dates.', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_CHARTS:
-				$title = __( 'Basic charts - this is in beta and will be developed over time.', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_STATS:
-				$title = __( 'View key Shield stats.', 'wp-simple-firewall' );
+			case PluginNavs::SUBNAV_REPORTS_LIST:
+				$title = __( 'View and create new security reports.', 'wp-simple-firewall' );
 				break;
 			default:
 				$title = __( 'Summary Security Reports.', 'wp-simple-firewall' );
@@ -70,22 +65,15 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	private function buildContent() :array {
-		$AR = $this->con()->action_router;
+		$AR = self::con()->action_router;
 		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_CHANGE_TRACK:
+			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$content = [
-					'changetracking_default' => $AR->render( Reports\ChangeTrack\PageReportGenerateNewChangeTrack::SLUG ),
-				];
-				break;
-			case PluginNavs::SUBNAV_CHARTS:
-				$content = [
-					'summary_stats' => $AR->render( Reports\ChartsSummary::SLUG ),
-					'custom_chart'  => $AR->render( Reports\ChartsCustom::SLUG ),
+					'create_report' => $AR->render( Reports\PageReportsView::SLUG ),
 				];
 				break;
 			default:
-				$content = [
-				];
+				$content = [];
 				break;
 		}
 		return $content;

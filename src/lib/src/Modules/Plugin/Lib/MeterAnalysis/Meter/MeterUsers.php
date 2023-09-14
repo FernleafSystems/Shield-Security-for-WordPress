@@ -10,8 +10,8 @@ class MeterUsers extends MeterBase {
 
 	protected function getWorkingMods() :array {
 		return [
-			$this->con()->getModule_LoginGuard(),
-			$this->con()->getModule_UserManagement()
+			self::con()->getModule_LoginGuard(),
+			self::con()->getModule_UserManagement()
 		];
 	}
 
@@ -44,7 +44,7 @@ class MeterUsers extends MeterBase {
 			Component\UserPasswordStrength::class,
 			Component\HttpHeaders::class,
 		];
-		if ( !$this->con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$components[] = Component\PluginBadge::class;
 		}
 		return $components;

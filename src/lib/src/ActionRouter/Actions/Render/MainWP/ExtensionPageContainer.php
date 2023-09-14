@@ -31,11 +31,11 @@ class ExtensionPageContainer extends BaseMWP {
 
 	protected function getCommonMwpData() :array {
 		\ob_start();
-		do_action( 'mainwp_pageheader_extensions', $this->con()->getRootFile() );
+		do_action( 'mainwp_pageheader_extensions', self::con()->getRootFile() );
 		$mainwpHeader = \ob_get_clean();
 
 		\ob_start();
-		do_action( 'mainwp_pagefooter_extensions', $this->con()->getRootFile() );
+		do_action( 'mainwp_pagefooter_extensions', self::con()->getRootFile() );
 		$mainwpFooter = \ob_get_clean();
 
 		return [
@@ -47,7 +47,7 @@ class ExtensionPageContainer extends BaseMWP {
 	}
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 
 		if ( !$con->isPremiumActive() ) {
 			$bodyToRender = NotShieldPro::SLUG;

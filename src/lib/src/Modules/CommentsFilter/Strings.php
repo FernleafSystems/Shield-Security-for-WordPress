@@ -152,7 +152,7 @@ class Strings extends Base\Strings {
 				$summary = __( "Use ADE To Detect SPAM Bots And Block Comment SPAM", 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
-						$this->con()->getHumanName() ),
+						self::con()->getHumanName() ),
 					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
 				];
 				break;
@@ -177,7 +177,7 @@ class Strings extends Base\Strings {
 				$summary = __( 'Where To Put SPAM Comments', 'wp-simple-firewall' );
 				$desc = [
 					sprintf( __( 'When a comment is detected as being SPAM, %s will put the comment in the specified folder.', 'wp-simple-firewall' ),
-						$this->con()->getHumanName() )
+						self::con()->getHumanName() )
 				];
 				break;
 

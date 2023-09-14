@@ -14,7 +14,7 @@ class UnblockIpByFlag {
 	use IPs\ModConsumer;
 
 	protected function canRun() :bool {
-		return !empty( Services::WpFs()->findFileInDir( 'unblock', $this->con()->paths->forFlag() ) );
+		return !empty( Services::WpFs()->findFileInDir( 'unblock', self::con()->paths->forFlag() ) );
 	}
 
 	protected function run() {
@@ -22,7 +22,7 @@ class UnblockIpByFlag {
 
 		$IPs = [];
 
-		$path = $FS->findFileInDir( 'unblock', $this->con()->paths->forFlag() );
+		$path = $FS->findFileInDir( 'unblock', self::con()->paths->forFlag() );
 		if ( !empty( $path ) && $FS->isAccessibleFile( $path ) ) {
 			$content = $FS->getFileContent( $path );
 			if ( !empty( $content ) ) {
@@ -33,7 +33,7 @@ class UnblockIpByFlag {
 							$removed = ( new IPs\Lib\IpRules\DeleteRule() )->byRecord( $record );
 							if ( $removed ) {
 								$IPs[] = $ip;
-								$this->con()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
+								self::con()->fireEvent( 'ip_unblock_flag', [ 'audit_params' => [ 'ip' => $ip ] ] );
 							}
 						}
 					}
@@ -43,7 +43,7 @@ class UnblockIpByFlag {
 		}
 
 		try {
-			$myIP = $this->con()->this_req->ip;
+			$myIP = self::con()->this_req->ip;
 			if ( !empty( $IPs ) && !empty( $myIP ) && Services::IP()->IpIn( $myIP, $IPs ) ) {
 				Services::Response()->redirectHere();
 			}

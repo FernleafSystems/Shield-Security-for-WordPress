@@ -98,7 +98,7 @@ class ScansController {
 	}
 
 	private function handlePostScanCron() {
-		add_action( $this->con()->prefix( 'post_scan' ), function () {
+		add_action( self::con()->prefix( 'post_scan' ), function () {
 			( new ReportToMalai() )->run();
 			$this->runAutoRepair();
 		} );
@@ -132,7 +132,7 @@ class ScansController {
 	public function getReasonsScansCantExecute() :array {
 		try {
 			$reasons = \array_keys( \array_filter( [
-				'reason_not_call_self' => !$this->con()->getModule_Plugin()->canSiteLoopback()
+				'reason_not_call_self' => !self::con()->getModule_Plugin()->canSiteLoopback()
 			] ) );
 		}
 		catch ( \Exception $e ) {
@@ -213,6 +213,6 @@ class ScansController {
 	}
 
 	protected function getCronName() :string {
-		return $this->con()->prefix( 'all-scans' );
+		return self::con()->prefix( 'all-scans' );
 	}
 }

@@ -6,13 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 class IpRuleAddForm extends OffCanvasBase {
 
-	public const SLUG = 'offcanvas_ip_rule_add_form';
+	public const SLUG = 'offcanvas_form_ip_rule_add';
 
 	protected function buildCanvasTitle() :string {
 		return __( 'Create New IP Rule', 'wp-simple-firewall' );
 	}
 
 	protected function buildCanvasBody() :string {
-		return $this->con()->action_router->render( FormIpRuleAdd::SLUG );
+		return self::con()->action_router->render( FormIpRuleAdd::SLUG );
 	}
 }

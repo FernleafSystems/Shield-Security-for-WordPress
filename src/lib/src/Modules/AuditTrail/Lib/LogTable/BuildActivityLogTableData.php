@@ -39,7 +39,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'identity' ] = $this->getColumnContent_Identity();
-				$data[ 'event' ] = $this->con()->loadEventsService()->getEventName( $this->log->event_slug );
+				$data[ 'event' ] = self::con()->loadEventsService()->getEventName( $this->log->event_slug );
 				$this->log->created_at = \max( $this->log->updated_at, $this->log->created_at );
 				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
@@ -124,7 +124,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		return \array_filter(
 			$loader->run(),
 			function ( $logRecord ) {
-				return $this->con()->loadEventsService()->eventExists( $logRecord->event_slug );
+				return self::con()->loadEventsService()->eventExists( $logRecord->event_slug );
 			}
 		);
 	}
@@ -198,7 +198,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	private function getColumnContent_Message() :string {
 		$msg = ActivityLogMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
 		return sprintf( '<span class="message-header">%s</span><p class="m-0">%s</p>',
-			$this->con()->loadEventsService()->getEventName( $this->log->event_slug ),
+			self::con()->loadEventsService()->getEventName( $this->log->event_slug ),
 			sanitize_textarea_field( \implode( "<br/>", $msg ) )
 		);
 	}
@@ -209,13 +209,13 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 			' data-toggle="popover"'.
 			' data-rid="%s">%s</button>', $this->log->rid,
 			sprintf( '<span class="meta-icon">%s</span>',
-				$this->con()->svgs->raw( 'tags.svg' )
+				self::con()->svgs->raw( 'tags.svg' )
 			)
 		);
 	}
 
 	private function getColumnContent_Level() :string {
-		return $this->con()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ];
+		return self::con()->loadEventsService()->getEventDef( $this->log->event_slug )[ 'level' ];
 	}
 
 	private function getColumnContent_SeverityIcon() :string {
@@ -238,7 +238,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 							],
 						][ $level ];
 		return sprintf( '<div class="severity-%s severity-icon">%s</div>', $level,
-			$this->con()->svgs->raw( $levelDetails[ 'icon' ] )
+			self::con()->svgs->raw( $levelDetails[ 'icon' ] )
 		);
 	}
 }

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\StandardFullPageDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\{
 	ShieldLoginIntentPage,
 	WpReplicaLoginIntentPage
@@ -24,7 +24,7 @@ class LoginRequestCapture {
 	}
 
 	protected function captureLogin( \WP_User $user ) {
-		$con = $this->con();
+		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 
@@ -54,7 +54,7 @@ class LoginRequestCapture {
 				Services::WpUsers()->logoutUser( true );
 				$req = Services::Request();
 				try {
-					$con->action_router->action( StandardFullPageDisplay::class, [
+					$con->action_router->action( FullPageDisplayDynamic::class, [
 						'render_slug' => ( $opts->getMfaLoginIntentFormat() === $mfaCon::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
 							ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 						'render_data' => [

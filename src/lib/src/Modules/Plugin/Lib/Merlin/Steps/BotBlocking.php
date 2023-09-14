@@ -9,8 +9,8 @@ class BotBlocking extends Base {
 	public const SLUG = 'ip_blocking';
 
 	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
-		$mod = $this->con()->getModule_IPs();
-		$opts = $mod->getOptions();
+		$mod = self::con()->getModule_IPs();
+		$opts = $mod->opts();
 
 		$offenses = $form[ 'offenses' ] ?? '';
 		if ( empty( $offenses ) ) {
@@ -54,7 +54,7 @@ class BotBlocking extends Base {
 
 	protected function getStepRenderData() :array {
 		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->con()->getModule_IPs()->getOptions();
+		$opts = self::con()->getModule_IPs()->opts();
 		return [
 			'strings' => [
 				'step_title' => __( 'Automatically Block Malicious IP Addresses', 'wp-simple-firewall' ),

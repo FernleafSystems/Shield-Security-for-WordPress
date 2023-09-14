@@ -9,14 +9,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class Activity extends Base {
 
 	public const SLUG = 'ipanalyse_activity_log';
-	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/ip_audittrail.twig';
+	public const TEMPLATE = '/wpadmin/components/ip_analyse/ip_audittrail.twig';
 
 	protected function getRenderData() :array {
 		$logLoader = ( new LoadLogs() )->setIP( $this->action_data[ 'ip' ] );
 		$logLoader->limit = 100;
 
 		$logs = [];
-		$srvEvents = $this->con()->loadEventsService();
+		$srvEvents = self::con()->loadEventsService();
 		foreach ( $logLoader->run() as $key => $record ) {
 			if ( $srvEvents->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();

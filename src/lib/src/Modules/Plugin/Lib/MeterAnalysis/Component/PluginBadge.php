@@ -16,9 +16,9 @@ class PluginBadge extends Base {
 	}
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_Plugin();
+		$mod = self::con()->getModule_Plugin();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled() && $opts->isOpt( 'display_plugin_badge', 'Y' );
 	}
 

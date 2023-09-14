@@ -32,7 +32,7 @@ class Sms extends AbstractShieldProvider {
 	 * @throws \Exception
 	 */
 	public function verifyProvisionalRegistration( string $country, string $phone, string $code ) :bool {
-		$meta = $this->con()->user_metas->for( $this->getUser() );
+		$meta = self::con()->user_metas->for( $this->getUser() );
 		$reg = \is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
 		if ( @$reg[ 'country' ] === $country && @$reg[ 'phone' ] === $phone
@@ -62,7 +62,7 @@ class Sms extends AbstractShieldProvider {
 	 */
 	public function addProvisionalRegistration( string $country, string $phone ) :string {
 		$user = $this->getUser();
-		$meta = $this->con()->user_metas->for( $user );
+		$meta = self::con()->user_metas->for( $user );
 		$reg = \is_array( $meta->sms_registration ) ? $meta->sms_registration : [];
 
 		$country = \strtoupper( $country );
@@ -97,7 +97,7 @@ class Sms extends AbstractShieldProvider {
 	 * @throws \Exception
 	 */
 	public function startLoginIntent() {
-		$meta = $this->con()->user_metas->for( $this->getUser() );
+		$meta = self::con()->user_metas->for( $this->getUser() );
 
 		$reg = $meta->sms_registration;
 		$reg[ 'code' ] = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
@@ -108,7 +108,7 @@ class Sms extends AbstractShieldProvider {
 
 	public function postSuccessActions() {
 		parent::postSuccessActions();
-		$meta = $this->con()->user_metas->for( $this->getUser() );
+		$meta = self::con()->user_metas->for( $this->getUser() );
 		$reg = $meta->sms_registration;
 		unset( $reg[ 'code' ] );
 		$meta->sms_registration = $reg;
@@ -116,7 +116,7 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		$meta = $this->con()->user_metas->for( $this->getUser() );
+		$meta = self::con()->user_metas->for( $this->getUser() );
 		return !empty( $meta->sms_registration[ 'code' ] )
 			   && $meta->sms_registration[ 'code' ] === \strtoupper( $otp );
 	}
@@ -143,7 +143,7 @@ class Sms extends AbstractShieldProvider {
 	}
 
 	public function removeFromProfile() {
-		$this->con()->user_metas->for( $this->getUser() )->sms_registration = [];
+		self::con()->user_metas->for( $this->getUser() )->sms_registration = [];
 		parent::removeFromProfile();
 	}
 
@@ -152,7 +152,7 @@ class Sms extends AbstractShieldProvider {
 
 		$validatedNumber = '';
 		if ( $this->hasValidatedProfile() ) {
-			$smsReg = $this->con()->user_metas->for( $this->getUser() )->sms_registration;
+			$smsReg = self::con()->user_metas->for( $this->getUser() )->sms_registration;
 			$validatedNumber = sprintf( '[%s] (+%s) %s',
 				$smsReg[ 'country' ], $countries[ $smsReg[ 'country' ] ][ 'code' ], $smsReg[ 'phone' ] );
 		}
@@ -171,7 +171,7 @@ class Sms extends AbstractShieldProvider {
 					'description_sms_auth_submit' => __( 'Verifying your number will send an SMS to your phone with a verification code.', 'wp-simple-firewall' )
 													 .' '.__( 'This will consume your SMS credits, if available, just as with any standard 2FA SMS.', 'wp-simple-firewall' ),
 					'provided_by'                 => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						$this->con()->getHumanName() ),
+						self::con()->getHumanName() ),
 					'registered_number'           => __( 'Registered Mobile Number', 'wp-simple-firewall' ),
 				],
 				'vars'    => [

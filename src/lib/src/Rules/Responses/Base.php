@@ -41,7 +41,7 @@ abstract class Base {
 	}
 
 	public function run() {
-		$con = $this->con();
+		$con = self::con();
 		if ( $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
 			$this->runExecResponse();
 		}

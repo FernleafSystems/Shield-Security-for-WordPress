@@ -7,7 +7,7 @@ class ScanResultsWcf extends ScanResultsBase {
 	public const SLUG = 'scan_results_wcf';
 
 	protected function countResults() :int {
-		return $this->con()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countWPFiles();
+		return self::con()->getModule_HackGuard()->getScansCon()->getScanResultsCount()->countWPFiles();
 	}
 
 	public function title() :string {

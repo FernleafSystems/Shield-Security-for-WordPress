@@ -7,14 +7,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class Container extends Base {
 
 	public const SLUG = 'ipanalyse_container';
-	public const TEMPLATE = '/wpadmin_pages/insights/ips/ip_analyse/container.twig';
+	public const TEMPLATE = '/wpadmin/components/ip_analyse/container.twig';
 
 	protected function getRenderData() :array {
 		$ip = $this->action_data[ 'ip' ];
 		if ( !Services::IP()->isValidIp( $ip ) ) {
 			throw new \Exception( "A valid IP address wasn't provided." );
 		}
-		$actionRouter = $this->con()->action_router;
+		$actionRouter = self::con()->action_router;
 		return [
 			'content' => [
 				'general'  => $actionRouter->render( General::SLUG, [

@@ -20,14 +20,14 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function getLoginIntentMinutes() :int {
 		return (int)\max( 1, apply_filters(
-			$this->con()->prefix( 'login_intent_timeout' ),
+			self::con()->prefix( 'login_intent_timeout' ),
 			$this->getDef( 'login_intent_timeout' )
 		) );
 	}
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return $this->con()->isPremiumActive() ? $ids : [];
+		return self::con()->isPremiumActive() ? $ids : [];
 	}
 
 	public function getCooldownInterval() :int {
@@ -39,14 +39,12 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	public function getEmail2FaRoles() :array {
-		/** @var Options $opts */
-		$opts = $this->getOptions();
 		$roles = apply_filters(
 			'shield/2fa_email_enforced_user_roles',
 			apply_filters( 'odp-shield-2fa_email_user_roles', $this->getOpt( 'two_factor_auth_user_roles' ) )
 		);
 		return \array_unique( \array_filter( \array_map( 'sanitize_key',
-			\is_array( $roles ) ? $roles : $opts->getOptDefault( 'two_factor_auth_user_roles' )
+			\is_array( $roles ) ? $roles : $this->getOptDefault( 'two_factor_auth_user_roles' )
 		) ) );
 	}
 
@@ -92,7 +90,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function isEnabledEmailAuthAnyUserSet() :bool {
 		return $this->isEmailAuthenticationActive()
-			   && $this->isOpt( 'email_any_user_set', 'Y' ) && $this->con()->isPremiumActive();
+			   && $this->isOpt( 'email_any_user_set', 'Y' ) && self::con()->isPremiumActive();
 	}
 
 	public function isEnabledGoogleAuthenticator() :bool {
@@ -129,19 +127,5 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	private function isYubikeyConfigReady() :bool {
 		return !empty( $this->getOpt( 'yubikey_app_id' ) ) && !empty( $this->getOpt( 'yubikey_api_key' ) );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isEnabledBackupCodes() :bool {
-		return $this->con()->isPremiumActive() && $this->isOpt( 'allow_backupcodes', 'Y' );
-	}
-
-	/**
-	 * @deprecated 18.2
-	 */
-	public function isMfaSkip() :bool {
-		return $this->getMfaSkip() > 0;
 	}
 }

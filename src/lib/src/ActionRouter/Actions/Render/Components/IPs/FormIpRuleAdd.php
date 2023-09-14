@@ -11,7 +11,7 @@ class FormIpRuleAdd extends BaseRender {
 	public const TEMPLATE = '/components/forms/ip_rule_add.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
+		$con = self::con();
 		return [
 			'flags'   => [
 				'is_blacklist_allowed' => $con->isPremiumActive(),

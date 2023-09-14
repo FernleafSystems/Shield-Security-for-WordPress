@@ -11,9 +11,9 @@ abstract class FirewallBase extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_Firewall();
+		$mod = self::con()->getModule_Firewall();
 		return $mod->isModOptEnabled()
-			   && $mod->getOptions()->isOpt( 'block_'.$this->getFirewallKey(), 'Y' );
+			   && $mod->opts()->isOpt( 'block_'.$this->getFirewallKey(), 'Y' );
 	}
 
 	protected function getOptConfigKey() :string {
@@ -39,12 +39,12 @@ abstract class FirewallBase extends Base {
 	}
 
 	protected function getFirewallKey() :string {
-		return \explode( '_', static::SLUG, 2 )[ 1 ];
+		return \explode( '_', static::slug(), 2 )[ 1 ];
 	}
 
 	protected function getFirewallCategoryName() :string {
 		/** @var Strings $strings */
-		$strings = $this->con()->getModule_Firewall()->getStrings();
+		$strings = self::con()->getModule_Firewall()->getStrings();
 		return $strings->getFirewallCategoryName( $this->getFirewallKey() );
 	}
 }

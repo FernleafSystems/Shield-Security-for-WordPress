@@ -14,10 +14,9 @@ class ProfileSuspend extends BaseRender {
 	public const TEMPLATE = '/admin/user/profile/suspend.twig';
 
 	protected function getRenderData() :array {
-		$con = $this->con();
 		$WPU = Services::WpUsers();
 		$editUser = $WPU->getUserById( $this->action_data[ 'user_id' ] );
-		$meta = $con->user_metas->for( $editUser );
+		$meta = self::con()->user_metas->for( $editUser );
 		return [
 			'strings' => [
 				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
@@ -28,7 +27,7 @@ class ProfileSuspend extends BaseRender {
 					Services::WpGeneral()->getTimeStringForDisplay( $meta->record->hard_suspended_at ) ),
 			],
 			'flags'   => [
-				'can_suspend'  => $con->getModule_UserManagement()->getUserSuspendCon()->canManuallySuspend()
+				'can_suspend'  => self::con()->getModule_UserManagement()->getUserSuspendCon()->canManuallySuspend()
 								  || ( !$WPU->isUserAdmin( $editUser ) && $WPU->isUserAdmin() ),
 				'is_suspended' => $meta->record->hard_suspended_at > 0
 			],

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions\FullPageDisplay\StandardFullPageDisplay,
+	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
 	Exceptions\ActionException
@@ -37,7 +37,7 @@ class LoginIntentRequestCapture {
 	}
 
 	public function runCapture() {
-		$con = $this->con();
+		$con = self::con();
 		$req = Services::Request();
 
 		try {
@@ -81,7 +81,7 @@ class LoginIntentRequestCapture {
 			// Allow a further attempt to 2FA
 			try {
 				$useShieldLoginIntentPage = $con->getModule_LoginGuard()->getMfaController()->useLoginIntentPage();
-				$con->action_router->action( StandardFullPageDisplay::class, [
+				$con->action_router->action( FullPageDisplayDynamic::class, [
 					'render_slug' => $useShieldLoginIntentPage ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
@@ -114,7 +114,7 @@ class LoginIntentRequestCapture {
 	 * @throws TooManyAttemptsException
 	 */
 	private function capture() {
-		$con = $this->con();
+		$con = self::con();
 		$req = Services::Request();
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
@@ -137,7 +137,7 @@ class LoginIntentRequestCapture {
 					return '';
 				}, 100, 0 );
 
-				$con->action_router->action( StandardFullPageDisplay::class, [
+				$con->action_router->action( FullPageDisplayDynamic::class, [
 					'render_slug' => WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,

@@ -15,7 +15,7 @@ class Upgrade extends Base\Upgrade {
 		}
 	}
 
-	protected function upgrade_1800() {
+	protected function upgrade_1834() {
 		// remove old tables
 		$WPDB = Services::WpDb();
 		foreach (
@@ -25,14 +25,27 @@ class Upgrade extends Base\Upgrade {
 				'spambot_comments_filter',
 				'statistics',
 				'ip_lists',
+				'notes',
+				'report',
 				'sessions'
 			] as $table
 		) {
-			$table = sprintf( '%s%s%s', $WPDB->getPrefix(), $this->con()->getOptionStoragePrefix(), $table );
+			$table = sprintf( '%s%s%s', $WPDB->getPrefix(), self::con()->getOptionStoragePrefix(), $table );
 			if ( $WPDB->tableExists( $table ) ) {
 				$WPDB->doDropTable( $table );
 			}
 		}
+
+		foreach (
+			[
+				'icwp_wpsf_reporting_options',
+				'icwp_wpsf_sessions_options',
+				'icwp_wpsf_install_id',
+			] as $opt
+		) {
+			Services::WpGeneral()->deleteOption( $opt );
+		}
+
 		$WPDB->clearResultShowTables();
 	}
 }

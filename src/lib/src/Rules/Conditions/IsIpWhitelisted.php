@@ -12,7 +12,7 @@ class IsIpWhitelisted extends Base {
 	public const SLUG = 'is_ip_whitelisted';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = $this->con()->this_req;
+		$thisReq = self::con()->this_req;
 		return $thisReq->is_ip_whitelisted ??
 			   $thisReq->is_ip_whitelisted = ( new IpRuleStatus( $this->getRequestIP() ) )->isBypass();
 	}

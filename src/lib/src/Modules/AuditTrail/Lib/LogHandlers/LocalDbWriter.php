@@ -68,10 +68,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
 		/** @var ReqLogs\Ops\Select $reqSelector */
-		$reqSelector = $this->con()
-							->getModule_Data()
-							->getDbH_ReqLogs()
-							->getQuerySelector();
+		$reqSelector = self::con()
+						   ->getModule_Data()
+						   ->getDbH_ReqLogs()
+						   ->getQuerySelector();
 		$reqIDs = \array_map(
 			function ( $rawRecord ) {
 				return $rawRecord->id;
@@ -117,11 +117,23 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
-		$ipRecordID = ( new IPRecords() )
-			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
-			->id;
+		// Create the underlying request log.
+		$reqLogger = self::con()
+						 ->getModule_Traffic()
+						 ->getRequestLogger();
+		/** @deprecated 18.3.2 - remove this check */
+		if ( !\method_exists( $reqLogger, 'createDependentLog' ) ) {
+			throw new \Exception( 'We appear to be upgrading, aborting log creation.' );
+		}
+		$reqLogger->createDependentLog();
+
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
-			->loadReq( $this->log[ 'extra' ][ 'meta_request' ][ 'rid' ], $ipRecordID )
+			->loadReq(
+				$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
+				( new IPRecords() )
+					->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
+					->id
+			)
 			->id;
 
 		$success = $dbh->getQueryInserter()->insert( $record );

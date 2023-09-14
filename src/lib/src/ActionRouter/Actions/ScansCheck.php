@@ -11,7 +11,7 @@ class ScansCheck extends ScansBase {
 	public const SLUG = 'scans_check';
 
 	protected function exec() {
-		$mod = $this->con()->getModule_HackGuard();
+		$mod = self::con()->getModule_HackGuard();
 		/** @var Strings $strings */
 		$strings = $mod->getStrings();
 
@@ -25,7 +25,7 @@ class ScansCheck extends ScansBase {
 			'success' => true,
 			'running' => $queueCon->getScansRunningStates(),
 			'vars'    => [
-				'progress_html' => $this->con()->action_router->render( ScansProgress::SLUG, [
+				'progress_html' => self::con()->action_router->render( ScansProgress::SLUG, [
 					'current_scan'    => $currentScan,
 					'remaining_scans' => $running === 0 ?
 						__( 'No scans remaining.', 'wp-simple-firewall' )

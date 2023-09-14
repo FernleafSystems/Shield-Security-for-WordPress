@@ -14,19 +14,19 @@ class Processor extends BaseShield\Processor {
 	}
 
 	public function addAdminBarMenuGroup( array $groups ) :array {
-		if ( $this->con()->isValidAdminArea() ) {
+		if ( self::con()->isValidAdminArea() ) {
 			$recentStats = new RecentStats();
 			$IPs = $recentStats->getRecentlyBlockedIPs();
 
 			if ( !empty( $IPs ) ) {
 				$groups[] = [
 					'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
-					'href'  => $this->con()->plugin_urls->adminIpRules(),
+					'href'  => self::con()->plugin_urls->adminIpRules(),
 					'items' => \array_map( function ( $ip ) {
 						return [
-							'id'    => $this->con()->prefix( 'ip-'.$ip->id ),
+							'id'    => self::con()->prefix( 'ip-'.$ip->id ),
 							'title' => $ip->ip,
-							'href'  => $this->con()->plugin_urls->ipAnalysis( $ip->ip ),
+							'href'  => self::con()->plugin_urls->ipAnalysis( $ip->ip ),
 						];
 					}, $IPs ),
 				];
@@ -36,12 +36,12 @@ class Processor extends BaseShield\Processor {
 			if ( !empty( $IPs ) ) {
 				$groups[] = [
 					'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
-					'href'  => $this->con()->plugin_urls->adminIpRules(),
+					'href'  => self::con()->plugin_urls->adminIpRules(),
 					'items' => \array_map( function ( $ip ) {
 						return [
-							'id'    => $this->con()->prefix( 'ip-'.$ip->id ),
+							'id'    => self::con()->prefix( 'ip-'.$ip->id ),
 							'title' => $ip->ip,
-							'href'  => $this->con()->plugin_urls->ipAnalysis( $ip->ip ),
+							'href'  => self::con()->plugin_urls->ipAnalysis( $ip->ip ),
 						];
 					}, $IPs ),
 				];

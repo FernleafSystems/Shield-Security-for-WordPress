@@ -58,7 +58,7 @@ class TrackLinkCheese extends Base {
 		$WP = Services::WpGeneral();
 
 		return $WP->isPermalinksEnabled() ?
-			trim( $req->getPath(), '/' ) === \trim( (string)\parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), PHP_URL_PATH ), '/' )
+			\trim( $req->getPath(), '/' ) === \trim( (string)\parse_url( $WP->getHomeUrl( $this->getCheeseWord() ), \PHP_URL_PATH ), '/' )
 			: $req->query( $this->getCheeseWord() ) == '1';
 	}
 
@@ -81,6 +81,6 @@ class TrackLinkCheese extends Base {
 	}
 
 	private function getCheeseWord() :string {
-		return $this->con()->prefix( self::CHEESE_WORD );
+		return self::con()->prefix( self::CHEESE_WORD );
 	}
 }

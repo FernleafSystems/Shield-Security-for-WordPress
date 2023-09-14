@@ -50,7 +50,7 @@ abstract class BaseRender extends BaseAction {
 		}
 
 		try {
-			$renderer = $this->con()->getRenderer();
+			$renderer = self::con()->getRenderer();
 
 			$ext = Paths::Ext( $template );
 			if ( empty( $ext ) || \strtolower( $ext ) === 'twig' ) {
@@ -117,12 +117,12 @@ abstract class BaseRender extends BaseAction {
 
 	public function getCommonDisplayData() :array {
 		$WP = Services::WpGeneral();
-		$con = $this->con();
+		$con = self::con();
 		$thisReq = $con->this_req;
 		$urlBuilder = $con->urls;
 
 		/** @var Options $pluginOptions */
-		$pluginOptions = $con->getModule_Plugin()->getOptions();
+		$pluginOptions = $con->getModule_Plugin()->opts();
 
 		$ipStatus = new IpRuleStatus( $thisReq->ip );
 
@@ -137,7 +137,7 @@ abstract class BaseRender extends BaseAction {
 			'classes' => [
 				'top_container' => \implode( ' ', \array_filter( [
 					'odp-outercontainer',
-					$this->con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
+					self::con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 					Services::Request()->query( Constants::NAV_ID, '' )
 				] ) )
 			],
@@ -230,7 +230,7 @@ abstract class BaseRender extends BaseAction {
 
 	private function getDisplayStrings() :array {
 		$WP = Services::WpGeneral();
-		$con = $this->con();
+		$con = self::con();
 		$name = $con->getHumanName();
 
 		$proFeatures = [
@@ -248,7 +248,7 @@ abstract class BaseRender extends BaseAction {
 		$proFeaturesDisplay = \array_slice( $proFeatures, 0, 6 );
 		$proFeaturesDisplay[] = __( 'and much more!' );
 
-		$isAdvanced = $this->con()->getModule_Plugin()->isShowAdvanced();
+		$isAdvanced = self::con()->getModule_Plugin()->isShowAdvanced();
 
 		return [
 			'btn_save'          => __( 'Save Options' ),
@@ -337,8 +337,7 @@ abstract class BaseRender extends BaseAction {
 			'running_version' => sprintf( '%s %s', $con->getHumanName(),
 				Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
 					sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
-						$WP->getAdminUrl_Updates(), $con->getVersion() )
-					: $con->getVersion()
+						$WP->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
 			),
 
 			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),

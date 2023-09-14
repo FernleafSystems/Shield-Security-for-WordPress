@@ -41,50 +41,52 @@ class BuildScanItems {
 		$themesDir = \dirname( Services::WpThemes()->getCurrent()->get_stylesheet_directory() );
 
 		$rootDirs = [];
-		foreach ( [
-			ABSPATH                          => [
-				'depth' => 1,
-				'areas' => [
-					'wproot',
-					'malware_php',
+		foreach (
+			[
+				ABSPATH                          => [
+					'depth' => 1,
+					'areas' => [
+						'wproot',
+						'malware_php',
+					],
 				],
-			],
-			path_join( ABSPATH, WPINC )      => [
-				'depth' => 0,
-				'areas' => [
-					'wp',
-					'malware_php',
+				path_join( ABSPATH, WPINC )      => [
+					'depth' => 0,
+					'areas' => [
+						'wp',
+						'malware_php',
+					],
 				],
-			],
-			path_join( ABSPATH, 'wp-admin' ) => [
-				'depth' => 0,
-				'areas' => [
-					'wp',
-					'malware_php',
+				path_join( ABSPATH, 'wp-admin' ) => [
+					'depth' => 0,
+					'areas' => [
+						'wp',
+						'malware_php',
+					],
 				],
-			],
-			WP_CONTENT_DIR                   => [
-				'depth' => 0,
-				'areas' => [
-					'wpcontent',
-					'malware_php',
+				WP_CONTENT_DIR                   => [
+					'depth' => 0,
+					'areas' => [
+						'wpcontent',
+						'malware_php',
+					],
 				],
-			],
-			$pluginsDir                      => [
-				'depth' => 0,
-				'areas' => [
-					'plugins',
-					'malware_php',
+				$pluginsDir                      => [
+					'depth' => 0,
+					'areas' => [
+						'plugins',
+						'malware_php',
+					],
 				],
-			],
-			$themesDir                       => [
-				'depth' => 0,
-				'areas' => [
-					'themes',
-					'malware_php',
+				$themesDir                       => [
+					'depth' => 0,
+					'areas' => [
+						'themes',
+						'malware_php',
+					],
 				],
-			],
-		] as $dir => $dirAttr ) {
+			] as $dir => $dirAttr
+		) {
 			if ( \count( \array_intersect( $dirAttr[ 'areas' ], $this->opts()->getFileScanAreas() ) ) > 0 ) {
 				// we don't include the plugins and themes if WP Content Dir is already included.
 				if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
@@ -147,7 +149,7 @@ class BuildScanItems {
 		 * and this is PRO-only anyway.
 		 */
 		return (
-				   !$this->con()->isPremiumActive()
+				   !self::con()->isPremiumActive()
 				   && \strpos( wp_normalize_path( $file->getPathname() ), '/wp-content/' ) !== false
 			   )
 			   ||

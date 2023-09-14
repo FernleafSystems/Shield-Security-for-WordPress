@@ -12,9 +12,9 @@ class LoginCooldown extends Base {
 	public const WEIGHT = 4;
 
 	protected function testIfProtected() :bool {
-		$mod = $this->con()->getModule_LoginGuard();
+		$mod = self::con()->getModule_LoginGuard();
 		/** @var Options $opts */
-		$opts = $mod->getOptions();
+		$opts = $mod->opts();
 		return $mod->isModOptEnabled() && $opts->isEnabledCooldown();
 	}
 

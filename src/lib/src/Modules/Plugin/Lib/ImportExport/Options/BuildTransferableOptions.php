@@ -12,7 +12,7 @@ class BuildTransferableOptions {
 	 * @return array[]
 	 */
 	public function build() :array {
-		$opts = $this->getOptions();
+		$opts = $this->opts();
 		return \array_merge(
 			\array_fill_keys( $opts->getOptionsKeys(), false ),
 			\array_fill_keys( \array_keys( $opts->getTransferableOptions() ), 'Y' ),

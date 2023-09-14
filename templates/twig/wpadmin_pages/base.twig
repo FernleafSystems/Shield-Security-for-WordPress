@@ -15,11 +15,11 @@
 				{% if flags.show_sidebar_nav|default(true) %}
 					<div id="apto-PageMainSide" class="d-flex flex-column">
 
-						{% include '/wpadmin_pages/components/page/logo_sidebar.twig' %}
-						{% include '/wpadmin_pages/components/search/super_search.twig' %}
+						{% include '/wpadmin/components/page/logo_sidebar.twig' %}
+						{% include '/wpadmin/components/search/super_search.twig' %}
 
 						{% block page_main_side %}
-							{% include '/wpadmin_pages/components/page/nav_sidebar.twig' %}
+							{% include '/wpadmin/components/page/nav_sidebar.twig' %}
 						{% endblock %}
 					</div>
 				{% endif %}

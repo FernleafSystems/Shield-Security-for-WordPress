@@ -1,4 +1,4 @@
-{% extends '/wpadmin_pages/plugin_admin/base_inner_page.twig' %}
+{% extends '/wpadmin_pages/plugin_admin/inner_page.twig' %}
 
 {% block inner_page_body %}
 
@@ -40,7 +40,7 @@
 						{% if flags.can_importexport_file %}
 							{% include '/wpadmin_pages/insights/importexport/from_file.twig' %}
 						{% else %}
-							{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
+							{% include '/wpadmin/components/feature_unavailable.twig' %}
 						{% endif %}
 					</div>
 				</div>
@@ -52,7 +52,7 @@
 						{% if flags.can_importexport_file %}
 							{% include '/wpadmin_pages/insights/importexport/to_file.twig' %}
 						{% else %}
-							{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
+							{% include '/wpadmin/components/feature_unavailable.twig' %}
 						{% endif %}
 					</div>
 				</div>
@@ -64,7 +64,7 @@
 						{% if flags.can_importexport_sync %}
 							{% include '/wpadmin_pages/insights/importexport/from_site.twig' %}
 						{% else %}
-							{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
+							{% include '/wpadmin/components/feature_unavailable.twig' %}
 						{% endif %}
 					</div>
 				</div>
@@ -74,7 +74,7 @@
 	{% else %}
 		<div class="row">
 			<div class="col-12 insights_section">
-				{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
+				{% include '/wpadmin/components/feature_unavailable.twig' %}
 			</div>
 		</div>
 	{% endif %}

@@ -31,7 +31,7 @@ class MainwpServerClientActionHandler extends MainwpBase {
 		$actionParams = $clientSiteActionData[ 'site_action_params' ] ?? [];
 		$actionParams[ 'client_site_id' ] = $this->action_data[ 'client_site_id' ];
 
-		return $this->con()->action_router
+		return self::con()->action_router
 			->action( $clientSiteActionData[ 'site_action_slug' ], $actionParams )
 			->action_response_data;
 	}

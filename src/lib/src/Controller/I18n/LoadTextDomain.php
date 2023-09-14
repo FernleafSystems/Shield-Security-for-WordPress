@@ -16,16 +16,16 @@ class LoadTextDomain {
 		 * system is full of friction, though that's where we'd like to end-up eventually.
 		 */
 		add_filter( 'load_textdomain_mofile', function ( $moFile, $domain ) {
-			if ( $domain == $this->con()->getTextDomain() ) {
+			if ( $domain == self::con()->getTextDomain() ) {
 				$moFile = $this->overrideTranslations( (string)$moFile );
 			}
 			return $moFile;
 		}, 100, 2 );
 
 		load_plugin_textdomain(
-			$this->con()->getTextDomain(),
+			self::con()->getTextDomain(),
 			false,
-			plugin_basename( $this->con()->getPath_Languages() )
+			plugin_basename( self::con()->getPath_Languages() )
 		);
 	}
 
@@ -34,7 +34,7 @@ class LoadTextDomain {
 	 * wp-content/languages/plugins/wp-simple-firewall-de_DE.mo
 	 */
 	private function overrideTranslations( string $moFilePath ) :string {
-		$con = $this->con();
+		$con = self::con();
 
 		// use determine_locale() as it also considers the user's profile preference
 		$locale = \function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale();

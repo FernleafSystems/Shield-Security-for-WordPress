@@ -15,7 +15,7 @@ class SendEmail extends BaseShieldNetApi {
 			$to->user_email,
 			[
 				'code' => $code,
-				'ip'   => $this->con()->this_req->ip,
+				'ip'   => self::con()->this_req->ip,
 			]
 		);
 	}
@@ -37,7 +37,7 @@ class SendEmail extends BaseShieldNetApi {
 		$raw = $this->sendReq();
 		$success = \is_array( $raw ) && empty( $raw[ 'error' ] );
 
-		$this->con()->fireEvent(
+		self::con()->fireEvent(
 			$success ? 'suresend_success' : 'suresend_fail',
 			[
 				'audit_params' => [

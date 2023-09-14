@@ -12,7 +12,7 @@ class ShieldChangelogRetrieve {
 
 	public function fromFile() :array {
 		return \json_decode( Services::WpFs()->getFileContent(
-			path_join( $this->con()->getRootDir(), 'cl.json' )
+			path_join( self::con()->getRootDir(), 'cl.json' )
 		), true );
 	}
 
