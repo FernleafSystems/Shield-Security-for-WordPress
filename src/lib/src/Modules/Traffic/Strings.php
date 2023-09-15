@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -103,6 +104,11 @@ class Strings extends Base\Strings {
 					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
 					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
 						sprintf( _n( '%s minute', '%s minutes', $max ), $max ) ),
+					sprintf( '<a href="%s">%s &rarr;</a>',
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+						__( 'Live Logs Viewer', 'wp-simple-firewall' )
+					),
+
 				];
 
 				$remaining = $opts->liveLoggingTimeRemaining();

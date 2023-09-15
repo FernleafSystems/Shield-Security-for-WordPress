@@ -50,7 +50,7 @@ class FileDownloadAsStream extends BaseAction {
 			if ( empty( $results ) ) {
 				break;
 			}
-			yield \implode( "\n", ConvertLogsToFlatText::convert( $results ) );
+			yield \implode( "\n", ( new ConvertLogsToFlatText() )->convert( $results ) );
 		} while ( true );
 	}
 }

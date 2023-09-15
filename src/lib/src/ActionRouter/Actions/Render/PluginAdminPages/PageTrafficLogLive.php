@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 class PageTrafficLogLive extends PageTrafficLogBase {
 
@@ -26,9 +27,12 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 	protected function getRenderData() :array {
 		/** @var Options $opts */
 		$opts = self::con()->getModule_Traffic()->opts();
+		$limit = $this->action_data[ 'limit' ] ?? 200;
 		return [
 			'ajax'    => [
-				'load_live_logs' => ActionData::BuildJson( TrafficLiveLogs::class ),
+				'load_live_logs' => ActionData::BuildJson( TrafficLiveLogs::class, true, [
+					'limit' => \is_numeric( $limit ) ? $limit : 200,
+				] ),
 			],
 			'flags'   => [
 				'is_enabled' => $opts->liveLoggingTimeRemaining() > 0,
