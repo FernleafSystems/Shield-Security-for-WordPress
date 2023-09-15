@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "18.3.4",
-    "release_timestamp":       1694690000,
-    "build":                   "202309.1401",
+    "version":                 "18.3.5",
+    "release_timestamp":       1694786000,
+    "build":                   "202309.1501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -234,7 +234,8 @@
         "jquery/jquery.qrcode":              {
           "deps": [
             "wp-jquery"
-          ]
+          ],
+          "footer": true
         },
         "jquery/smartwizard":                {
           "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",

@@ -1,0 +1,79 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<style>
+		    .blink {
+				animation: blinker 2s infinite;
+			}
+			@keyframes blinker {
+				from {
+					opacity: 1.0;
+				}
+				50% {
+					opacity: 0.25;
+				}
+				to {
+					opacity: 1.0;
+				}
+			}
+	</style>
+	<div class="row" id="SectionTrafficLiveLogs">
+		<div class="col">
+			{% if not flags.is_enabled %}
+				<div class="alert alert-secondary d-inline-block">{{ strings.not_enabled }}</div>
+			{% endif %}
+			<div class="text-start">
+				<span class="font-monospace">&gt;</span> <span class="blink text-start">&hellip;</span>
+			</div>
+		</div>
+	</div>
+	<div class="row" id="SectionTrafficLiveLogs">
+		<div class="col">
+			<div class="live_logs">
+				<div class="output w-100 font-monospace"></div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		jQuery( document ).ready( function () {
+
+			function sleep( ms ) {
+				return new Promise( resolve => setTimeout( resolve, ms ) );
+			}
+
+			async function runAutoTrafficUpdate() {
+				document.querySelector( '#SectionTrafficLiveLogs .output' ).focus();
+				let max = 256;
+				do {
+					if ( document.hasFocus() ) {
+						updateTraffic();
+					}
+					await sleep( 7000 );
+				} while ( max-- > 0 )
+			}
+
+			let updateTraffic = function () {
+				Shield_AjaxRender
+				.send_ajax_req( {{ ajax.load_live_logs|raw }}, false )
+				.then( ( response ) => {
+					if ( response.success ) {
+						jQuery( '#SectionTrafficLiveLogs .live_logs .output' ).html( response.data.html );
+					}
+					else {
+						alert( response.data.message );
+						// console.log( response );
+					}
+				} )
+				.catch( ( error ) => {
+					console.log( error );
+				} )
+				.finally( ( response ) => {
+					iCWP_WPSF_BodyOverlay.hide();
+				} );
+			};
+
+			runAutoTrafficUpdate();
+		} );
+	</script>
+{% endblock %}

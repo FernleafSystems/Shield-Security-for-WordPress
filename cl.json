@@ -1,7 +1,7 @@
 {
   "18.3": {
     "version":     "18.3",
-    "released_at": 1694690000,
+    "released_at": 1694786000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease183",
       "upgrade": "https://shsec.io/shieldupgradeguide183"
@@ -25,6 +25,15 @@
         "title":       "Live Traffic Log",
         "description": [
           "You can now temporarily switch the Traffic Log to live logging mode to capture all WordPress requests."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Live Traffic Log View",
+        "description": [
+          "Live logging tool lets you view all requests sent to the site, and automatically refreshes with the latest requests."
         ],
         "href":        ""
       },

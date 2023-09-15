@@ -20,11 +20,11 @@ class ReportDataInspector {
 	}
 
 	public function countScanResultsCurrent() :int {
-		return $this->countScanResults( 'current' );
+		return $this->countScanResults( 'scan_results_current' );
 	}
 
 	public function countScanResultsNew() :int {
-		return $this->countScanResults( 'new' );
+		return $this->countScanResults( 'scan_results_new' );
 	}
 
 	public function countStatZonesWithNonZeroStats() :int {

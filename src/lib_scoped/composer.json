@@ -1,0 +1,36 @@
+{
+  "name":              "apto-shield/requirements_monolog",
+  "description":       "shield requirements (scoped)",
+  "authors":           [
+    {
+      "name":     "Paul Goodchild",
+      "email":    "paul@paulgoodchild.me",
+      "homepage": "https://paulgoodchild.me"
+    }
+  ],
+  "config":            {
+    "allow-plugins": {
+      "wpify/scoper": true
+    }
+  },
+  "require":           {
+    "php": ">=7.2"
+  },
+  "require-dev":       {
+    "wpify/scoper": "^2.5"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable":     true,
+  "extra":             {
+    "wpify-scoper": {
+      "prefix":       "AptowebDeps",
+      "folder":       "vendor",
+      "globals":      [
+        "wordpress",
+        "woocommerce"
+      ],
+      "composerjson": "composer-deps.json",
+      "composerlock": "composer-deps.lock"
+    }
+  }
+}

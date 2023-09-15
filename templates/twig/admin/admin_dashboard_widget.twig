@@ -7,7 +7,7 @@
 		{% endif %}
 		">
 	  <a class="thebar" style="width: {{ vars.security_progress.totals.percentage }}%"
-	     href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
+		 href="{{ hrefs.overview }}" title="{{ strings.progress_overview }}">
 			<div class="thepercent">{{ strings.security_level }}: {{ vars.security_progress.totals.letter_score }}</div>
 	  </a>
 	</div>
@@ -17,6 +17,17 @@
 	</a>
 </div>
 
+{% if vars.blog_posts|default([])|length > 0 %}
+	<h3 class="subheader">{{ strings.recent_blogs }}
+		<small>
+			[ <a href="{{ hrefs.blog_posts }}" target="_blank"style="font-weight: normal;">getshieldsecurity.com</a> ]
+		</small>
+	</h3>
+	{% for post in vars.blog_posts %}
+		<h4 style="margin:7px 5px 3px 5px"><a href="{{ post.href }}" target="_blank">{{ post.title }}</a></h4>
+		<p style="margin:3px 5px;">{{ post.excerpt|raw }}</p>
+	{% endfor %}
+{% endif %}
 
 <h3 class="subheader">
 	{{ strings.recent_blocked }}

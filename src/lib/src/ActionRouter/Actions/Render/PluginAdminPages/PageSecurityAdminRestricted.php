@@ -11,7 +11,7 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'admin_plugin_page_security_admin_restricted';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/security_admin.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/security_admin.twig';
 
 	protected function getPageContextualHrefs() :array {
 		return [

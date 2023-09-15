@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class PageLicense extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_license';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/license.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/license.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();

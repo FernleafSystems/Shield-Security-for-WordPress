@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\IsRequestLogged;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
-use Monolog\Handler\AbstractProcessingHandler;
+use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
 
 /**
  * Logic is a bit convoluted here. Basically a request is logged when:

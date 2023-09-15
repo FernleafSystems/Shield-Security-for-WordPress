@@ -8,21 +8,30 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRe
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	AuditTrail,
 	HackGuard,
 	IPs,
-	SecurityAdmin
+	SecurityAdmin,
+	Traffic
 };
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageConfig extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_config';
-	public const TEMPLATE = '/wpadmin_pages/plugin_admin/inner_page.twig';
+	public const TEMPLATE = '/wpadmin/plugin_pages/base_inner_page.twig';
 
 	protected function getPageContextualHrefs() :array {
 		$URLs = self::con()->plugin_urls;
 		$hrefs = [];
 		switch ( $this->action_data[ 'mod_slug' ] ) {
+
+			case AuditTrail\ModCon::SLUG:
+				$hrefs[] = [
+					'text' => __( 'View Activity Log', 'wp-simple-firewall' ),
+					'href' => $URLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+				];
+				break;
 
 			case SecurityAdmin\ModCon::SLUG:
 				if ( self::con()->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
@@ -57,6 +66,13 @@ class PageConfig extends BasePluginAdminPage {
 						CrowdsecResetEnrollment::class,
 						$URLs->modCfg( self::con()->getModule_IPs() )
 					),
+				];
+				break;
+
+			case Traffic\ModCon::SLUG:
+				$hrefs[] = [
+					'text' => __( 'View Traffic Log', 'wp-simple-firewall' ),
+					'href' => $URLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 				];
 				break;
 

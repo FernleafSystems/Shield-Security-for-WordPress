@@ -1,0 +1,6 @@
+{% for row in vars.logs %}
+	<div class="m-0 font-monospace d-flex">
+		<div class="me-1">&gt;</div>
+		<div class="" style="word-break: break-all;">{{ row|raw }}</div>
+	</div>
+{% endfor %}
