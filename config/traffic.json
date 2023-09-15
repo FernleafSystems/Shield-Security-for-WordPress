@@ -105,6 +105,7 @@
     {
       "key":         "enable_live_log",
       "section":     "section_traffic_options",
+      "cap":         "traffic_live_log",
       "advanced":    true,
       "premium":     true,
       "default":     "N",

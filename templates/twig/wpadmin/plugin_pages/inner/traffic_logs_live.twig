@@ -19,6 +19,9 @@
 	</style>
 	<div class="row" id="SectionTrafficLiveLogs">
 		<div class="col">
+			{% if not flags.is_enabled %}
+				<div class="alert alert-secondary d-inline-block">{{ strings.not_enabled }}</div>
+			{% endif %}
 			<div class="live_logs">
 				<div class="blink fs-3 text-center">&hellip;</div>
 				<textarea class="output w-100 font-monospace" rows="100" readonly disabled></textarea>
@@ -41,7 +44,6 @@
 						updateTraffic();
 					}
 					await sleep( 7000 );
-					console.log( max );
 				} while ( max-- > 0 )
 			}
 
@@ -50,8 +52,7 @@
 				.send_ajax_req( {{ ajax.load_live_logs|raw }} )
 				.then( ( response ) => {
 					if ( response.success ) {
-						let $logsContainer = jQuery( '#SectionTrafficLiveLogs .live_logs .output' );
-						$logsContainer.html( response.data.html );
+						jQuery( '#SectionTrafficLiveLogs .live_logs .output' ).html( response.data.html );
 					}
 					else {
 						alert( response.data.message );

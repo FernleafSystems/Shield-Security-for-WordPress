@@ -18,7 +18,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 		$hrefs = parent::getPageContextualHrefs();
 		\array_unshift( $hrefs, [
 			'text' => __( 'Switch To Normal Logs', 'wp-simple-firewall' ),
-			'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+			'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 		] );
 		return $hrefs;
 	}
@@ -31,7 +31,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 				'load_live_logs' => ActionData::BuildJson( TrafficLiveLogs::class ),
 			],
 			'flags'   => [
-				'is_enabled' => $opts->isTrafficLoggerEnabled(),
+				'is_enabled' => $opts->liveLoggingTimeRemaining() > 0,
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'stoplights' ),
@@ -39,6 +39,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 			'strings' => [
 				'inner_page_title'    => __( 'Live Logs', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View live traffic logs as they occur on your site.', 'wp-simple-firewall' ),
+				'not_enabled'         => __( "Live traffic logging isn't switched-on, so you may not see many updates.", 'wp-simple-firewall' ),
 			],
 		];
 	}
