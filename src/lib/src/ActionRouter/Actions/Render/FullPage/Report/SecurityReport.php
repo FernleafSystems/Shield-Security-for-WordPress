@@ -83,6 +83,7 @@ class SecurityReport extends BaseFullPageRender {
 			],
 			'strings' => [
 				'report_header_title' => sprintf( __( '%s Website Security Report', 'wp-simple-firewall' ), $con->getHumanName() ),
+				'intro'               => __( 'This report outlines the most significant events and statistics on your WordPress site for given reporting period.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'dates'         => [
