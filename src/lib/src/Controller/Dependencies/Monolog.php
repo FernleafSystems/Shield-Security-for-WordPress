@@ -17,6 +17,11 @@ class Monolog {
 	 * @throws Exceptions\LibraryTooOldToBeUseableException
 	 */
 	public function assess() :void {
+		/** @deprecated 18.3.6 - remove this check for the old autoload and leave note about this scenario. */
+		if ( \version_compare( $this->con()->cfg->version(), '18.3.5', '<' ) ) {
+			throw new Exceptions\LibraryNotFoundException( 'This appears to be an upgrade. Aborting.' );
+		}
+
 		$newAutoLoad = path_join( \dirname( self::con()->root_file ), 'src/lib_scoped/vendor/scoper-autoload.php' );
 		if ( Services::WpFs()->isAccessibleFile( $newAutoLoad ) ) {
 			require_once( $newAutoLoad );
