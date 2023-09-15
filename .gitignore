@@ -2,7 +2,7 @@
 /config/deprecated/
 /src/lib/strauss.phar
 /src/lib/vendor/
-/src/lib_monolog/vendor/
+/src/lib_scoped/vendor/
 composer.lock
 /node_modules/
 /package-lock.json

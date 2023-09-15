@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
+use AptowebDeps\Monolog\Handler\StreamHandler;
+use AptowebDeps\Monolog\Logger;
 
 class LogFileHandler extends StreamHandler {
 
