@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
-use Monolog\Logger;
+use AptowebDeps\Monolog\Logger;
 
 class RequestLogger {
 

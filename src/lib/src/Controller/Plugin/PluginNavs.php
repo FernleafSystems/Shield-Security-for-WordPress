@@ -97,6 +97,9 @@ class PluginNavs {
 						self::SUBNAV_ACTIVITY_LOG => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
+						self::SUBNAV_LOGS => [
+							'handler' => PluginAdminPages\PageActivityLogTable::class,
+						],
 					],
 				],
 				self::NAV_DASHBOARD      => [
@@ -148,7 +151,7 @@ class PluginNavs {
 				self::NAV_RESTRICTED     => [
 					'name'     => __( 'Restricted', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_TRAFFIC_LOG => [
+						self::SUBNAV_INDEX => [
 							'handler' => PluginAdminPages\PageSecurityAdminRestricted::class,
 						],
 					],
@@ -193,6 +196,9 @@ class PluginNavs {
 					'name'     => __( 'Traffic', 'wp-simple-firewall' ),
 					'sub_navs' => [
 						self::SUBNAV_TRAFFIC_LOG => [
+							'handler' => PluginAdminPages\PageTrafficLogTable::class,
+						],
+						self::SUBNAV_LOGS => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
 						],
 						self::SUBNAV_LIVE        => [

@@ -1,5 +1,5 @@
 {
-  "name":              "apto-shield/requirements_monolog",
+  "name":              "apto-shield/requirements_scoped",
   "description":       "shield requirement",
   "authors":           [
     {
@@ -10,14 +10,13 @@
   ],
   "config":            {
     "platform": {
-      "php": "7.2"
+      "php": "7.2.5"
     }
   },
   "require":           {
-    "php":             ">=7.2",
-    "monolog/monolog": "^2.9"
-  },
-  "require-dev":       {
+    "php":             "^7.2",
+    "monolog/monolog": "^2.9",
+    "psr/log":         "^1.0"
   },
   "minimum-stability": "dev",
   "prefer-stable":     true

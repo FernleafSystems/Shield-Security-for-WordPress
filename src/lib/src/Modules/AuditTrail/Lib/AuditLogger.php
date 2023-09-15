@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\EventsListener;
-use Monolog\Formatter\JsonFormatter;
-use Monolog\Handler\FilterHandler;
-use Monolog\Logger;
+use AptowebDeps\Monolog\Formatter\JsonFormatter;
+use AptowebDeps\Monolog\Handler\FilterHandler;
+use AptowebDeps\Monolog\Logger;
 
 class AuditLogger extends EventsListener {
 

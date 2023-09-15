@@ -299,12 +299,14 @@ let Shield_AjaxRender = new function () {
 					iCWP_WPSF_BodyOverlay.show();
 				}
 
+				let params = JSON.parse(JSON.stringify(ajax_req_vars));
+
 				reqData.apto_wrap_response = 1;
 
 				jQuery.ajax( {
 					type: 'POST',
 					url: ajaxurl,
-					data: jQuery.extend( ajax_req_vars, reqData ),
+					data: jQuery.extend( params, reqData ),
 					dataType: "text",
 					success: function ( data ) {
 						if ( showOverlay ) {

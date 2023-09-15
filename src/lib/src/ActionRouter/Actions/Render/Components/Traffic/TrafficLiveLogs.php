@@ -13,13 +13,13 @@ class TrafficLiveLogs extends BaseRender {
 
 	protected function getRenderData() :array {
 		$logLoader = new LoadRequestLogs();
-		$logLoader->limit = 200;
+		$logLoader->limit = $this->action_data[ 'limit' ] ?? 200;
 		$logLoader->offset = 0;
 		$logLoader->order_by = 'id';
 		$logLoader->order_dir = 'DESC';
 		return [
 			'vars' => [
-				'logs' => ConvertLogsToFlatText::convert( $logLoader->select() ),
+				'logs' => ( new ConvertLogsToFlatText() )->convert( $logLoader->select(), true ),
 			]
 		];
 	}
