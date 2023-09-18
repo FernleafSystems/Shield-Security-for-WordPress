@@ -50,7 +50,10 @@
 													item.href,
 													item.text,
 													item.id|default(''),
-													item.classes|default([])|merge(['dropdown-item'])
+													item.classes|default([])|merge(['dropdown-item']),
+													false,
+													item.datas|default([]),
+													item.disabled|default(false)
 												) }}
 											{% endif %}
 										</li>

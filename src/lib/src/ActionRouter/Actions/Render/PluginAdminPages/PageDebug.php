@@ -23,6 +23,10 @@ class PageDebug extends BasePluginAdminPage {
 					[ 'shield_check_ip_source' => '1' ]
 				),
 			],
+			[
+				'text' => __( 'Print', 'wp-simple-firewall' ),
+				'href' => "javascript:{iCWP_Print_Div('apto-PageMainBody-Inner');}",
+			],
 		];
 	}
 

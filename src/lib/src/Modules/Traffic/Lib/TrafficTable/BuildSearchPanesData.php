@@ -17,23 +17,25 @@ class BuildSearchPanesData {
 
 	public function build() :array {
 		return [
-			'options' => [
+			'options' => \array_map( '\array_values', [
 				'day'     => $this->buildForDay(),
 				'ip'      => $this->buildForIPs(),
 				'type'    => $this->buildForType(),
 				'offense' => $this->buildForOffense(),
 				'code'    => $this->buildForCodes(),
 				'user'    => $this->buildForUsers(),
-			]
+			] )
 		];
 	}
 
 	private function buildForDay() :array {
-		return ( new BuildDataForDays() )->build(
-			$this->mod()
-				 ->getDbH_ReqLogs()
-				 ->getQuerySelector()
-				 ->getDistinctForColumn( 'created_at' )
+		$first = $this->mod()
+					  ->getDbH_ReqLogs()
+					  ->getQuerySelector()
+					  ->setOrderBy( 'created_at', 'ASC' )
+					  ->first();
+		return ( new BuildDataForDays() )->buildFromOldestToNewest(
+			empty( $first ) ? Services::Request()->ts() : $first->created_at
 		);
 	}
 

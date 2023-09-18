@@ -221,5 +221,6 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageTrafficLogLive::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
+		Actions\Render\Utility\DbDescribeTable::class,
 	];
 }

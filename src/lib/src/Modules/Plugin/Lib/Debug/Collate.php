@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Utility\DbDescribeTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -25,7 +27,7 @@ class Collate {
 		return [
 			'Shield Info'    => [
 				'Summary'      => $this->getShieldSummary(),
-				'Integrity'    => $this->getShieldIntegrity(),
+				'Databases'    => $this->getShieldDatabases(),
 				'Snapshots'    => $this->snapshots(),
 				'Capabilities' => $this->getShieldCapabilities(),
 			],
@@ -154,6 +156,24 @@ class Collate {
 		}
 
 		return $data;
+	}
+
+	private function getShieldDatabases() :array {
+		$WPDB = Services::WpDb();
+		$DBs = [];
+		foreach ( self::con()->db_con->loadAll() as $dbhDef ) {
+			/** @var Handler $dbh */
+			$dbh = $dbhDef[ 'handler' ];
+			$DBs[ $dbhDef[ 'name' ] ] = sprintf( '<code>%s</code> | %s | %s | %s',
+				$dbh->getTableSchema()->table,
+				$dbh->isReady() ? 'Ready' : 'Not Ready',
+				sprintf( 'Rows: %s', $dbh->isReady() ? $dbh->getQuerySelector()->count() : '-' ),
+				self::con()->action_router->render( DbDescribeTable::class, [
+					'show_table' => $WPDB->selectCustom( sprintf( 'DESCRIBE %s', $dbh->getTableSchema()->table ) )
+				] )
+			);
+		}
+		return $DBs;
 	}
 
 	private function getShieldIntegrity() :array {

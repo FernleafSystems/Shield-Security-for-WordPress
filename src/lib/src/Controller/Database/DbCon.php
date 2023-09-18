@@ -24,15 +24,31 @@ class DbCon {
 			foreach ( self::con()->modules as $mod ) {
 				$classes = $mod->opts()->getDef( 'db_handler_classes' );
 				foreach ( \is_array( $classes ) ? $classes : [] as $dbKey => $dbClass ) {
+					$def = $mod->opts()->getDef( 'db_table_'.$dbKey );
 					$this->dbHandlers[ $dbKey ] = [
+						'name'    => $def[ 'name' ] ?? $dbKey,
 						'class'   => $dbClass,
-						'def'     => $mod->opts()->getDef( 'db_table_'.$dbKey ),
+						'def'     => $def,
 						'handler' => null,
 					];
 				}
 			}
 		}
 		return $this->dbHandlers;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function loadAll() :array {
+		foreach ( \array_keys( $this->getHandlers() ) as $dbhKey ) {
+			try {
+				$this->loadDbH( $dbhKey );
+			}
+			catch ( \Exception $exception ) {
+			}
+		}
+		return $this->getHandlers();
 	}
 
 	/**
