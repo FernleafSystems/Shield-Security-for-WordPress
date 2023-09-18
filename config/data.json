@@ -29,6 +29,7 @@
       "user_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\UserMeta\\Ops\\Handler"
     },
     "db_table_ips":       {
+      "name":           "IP Addresses",
       "autoexpire":     0,
       "slug":           "ips",
       "has_updated_at": false,
@@ -48,6 +49,7 @@
       }
     },
     "db_table_req_logs":  {
+      "name":           "Request Logs",
       "slug":           "req_logs",
       "autoexpire":     0,
       "has_updated_at": false,
@@ -109,6 +111,7 @@
       }
     },
     "db_table_user_meta": {
+      "name":            "User Meta",
       "slug":            "user_meta",
       "autoexpire":      0,
       "has_updated_at":  true,

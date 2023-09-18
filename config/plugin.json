@@ -608,6 +608,7 @@
       "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Plugin\\DB\\Reports\\Ops\\Handler"
     },
     "db_table_reports":    {
+      "name":            "Security Reports",
       "autoexpire":      30,
       "slug":            "reports",
       "has_updated_at":  false,
