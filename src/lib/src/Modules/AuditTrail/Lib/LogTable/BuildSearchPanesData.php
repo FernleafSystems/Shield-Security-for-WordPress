@@ -13,12 +13,12 @@ class BuildSearchPanesData {
 
 	public function build() :array {
 		return [
-			'options' => [
+			'options' => \array_map( '\array_values', [
 				'day'   => $this->buildForDay(),
 				'ip'    => $this->buildForIPs(),
 				'event' => $this->buildForEvents(),
 				'user'  => $this->buildForUsers(),
-			]
+			] )
 		];
 	}
 
@@ -34,11 +34,13 @@ class BuildSearchPanesData {
 	}
 
 	private function buildForDay() :array {
-		return ( new BuildDataForDays() )->build(
-			$this->mod()
-				 ->getDbH_Logs()
-				 ->getQuerySelector()
-				 ->getDistinctForColumn( 'created_at' )
+		$first = $this->mod()
+					  ->getDbH_Logs()
+					  ->getQuerySelector()
+					  ->setOrderBy( 'created_at', 'ASC' )
+					  ->first();
+		return ( new BuildDataForDays() )->buildFromOldestToNewest(
+			empty( $first ) ? Services::Request()->ts() : $first->created_at
 		);
 	}
 
