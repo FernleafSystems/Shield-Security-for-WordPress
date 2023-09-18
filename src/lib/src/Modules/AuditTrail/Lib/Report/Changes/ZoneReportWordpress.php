@@ -12,6 +12,9 @@ class ZoneReportWordpress extends BaseZoneReport {
 				$text = sprintf( __( 'Core Upgraded: %s&rarr;%s', 'wp-simple-firewall' ),
 					$log->meta_data[ 'from' ], $log->meta_data[ 'to' ] );
 				break;
+			case 'core_reinstalled':
+				$text = sprintf( __( 'Core Reinstalled: v%s', 'wp-simple-firewall' ), $log->meta_data[ 'version' ] );
+				break;
 			case 'permalinks_structure':
 				$text = sprintf( 'Permalinks Changed: %s&rarr;%s',
 					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
@@ -75,6 +78,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 		return [
 			sprintf( "(`log`.`event_slug` IN ('%s') OR `log`.`event_slug` LIKE 'wp_option_%%')", \implode( "','", [
 				'core_updated',
+				'core_reinstalled',
 				'permalinks_structure',
 			] ) ),
 		];
@@ -83,6 +87,7 @@ class ZoneReportWordpress extends BaseZoneReport {
 	protected function getNameForLog( LogRecord $log ) :string {
 		return [
 				   'core_updated'                 => __( 'WordPress Upgraded', 'wp-simple-firewall' ),
+				   'core_reinstalled'             => __( 'WordPress Reinstalled', 'wp-simple-firewall' ),
 				   'permalinks_structure'         => __( 'Permalinks', 'wp-simple-firewall' ),
 				   'wp_option_admin_email'        => __( 'Site Admin Email', 'wp-simple-firewall' ),
 				   'wp_option_blogname'           => __( 'Site Title', 'wp-simple-firewall' ),
