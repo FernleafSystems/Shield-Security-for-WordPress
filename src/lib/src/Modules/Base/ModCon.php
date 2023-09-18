@@ -638,11 +638,4 @@ abstract class ModCon extends DynPropertiesClass {
 	public function savePluginOptions() {
 		$this->saveModOptions();
 	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function getAllDbClasses() :array {
-		return [];
-	}
 }

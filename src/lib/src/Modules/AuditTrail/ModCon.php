@@ -44,7 +44,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getAuditLogger() :Lib\AuditLogger {
-		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger( self::con() );
+		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger();
 	}
 
 	/**

@@ -44,15 +44,6 @@ class PluginNavs {
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
-	/** @deprecated 18.3 */
-	public const NAV_OVERVIEW = 'overview';
-	public const NAV_IMPORT_EXPORT = 'importexport';
-	public const NAV_SCANS_RESULTS = 'scans_results';
-	public const NAV_SCANS_RUN = 'scans_run';
-	public const NAV_USER_SESSIONS = 'users';
-	public const NAV_RULES_VIEW = 'rules';
-	public const SUBNAV_REPORTS_CHARTS = 'charts';
-	public const SUBNAV_REPORTS_STATS = 'stats';
 
 	public static function GetNav() :string {
 		return (string)Services::Request()->query( self::FIELD_NAV );

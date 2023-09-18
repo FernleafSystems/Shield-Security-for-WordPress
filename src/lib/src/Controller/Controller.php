@@ -913,13 +913,6 @@ class Controller extends DynPropertiesClass {
 		return $this->cfg->properties[ 'text_domain' ];
 	}
 
-	/**
-	 * @deprecated 18.3
-	 */
-	public function getVersion() :string {
-		return $this->cfg->version();
-	}
-
 	public function isPremiumActive() :bool {
 		return isset( $this->modules[ Shield\Modules\License\ModCon::SLUG ] )
 			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();

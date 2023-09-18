@@ -35,7 +35,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {
-		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker( self::con() );
+		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker();
 	}
 
 	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {

@@ -97,25 +97,4 @@ class RequestLogger {
 			Processors\WpMetaProcessor::class,
 		];
 	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function isRequestToBeLogged() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function isRequestTypeExcluded() :bool {
-		return true;
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function isCustomExcluded() :bool {
-		return true;
-	}
 }

@@ -57,21 +57,4 @@ class BaseOps {
 		$this->file = $file;
 		return $this;
 	}
-
-	/**
-	 * @return FileLockerDB\Record[]
-	 * @deprecated 18.3
-	 */
-	protected function getFileLocks() :array {
-		$flCon = $this->mod()->getFileLocker();
-		return \method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : ( new LoadFileLocks() )->loadLocks();
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	protected function clearFileLocksCache() {
-		$flCon = $this->mod()->getFileLocker();
-		\method_exists( $flCon, 'clearLocks' ) ? $flCon->clearLocks() : ( new LoadFileLocks() )->clearLocksCache();
-	}
 }

@@ -118,14 +118,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		// Create the underlying request log.
-		$reqLogger = self::con()
-						 ->getModule_Traffic()
-						 ->getRequestLogger();
-		/** @deprecated 18.3.2 - remove this check */
-		if ( !\method_exists( $reqLogger, 'createDependentLog' ) ) {
-			throw new \Exception( 'We appear to be upgrading, aborting log creation.' );
-		}
-		$reqLogger->createDependentLog();
+		self::con()
+			->getModule_Traffic()
+			->getRequestLogger()
+			->createDependentLog();
 
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
 			->loadReq(

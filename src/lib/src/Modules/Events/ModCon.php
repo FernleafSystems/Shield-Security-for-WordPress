@@ -27,15 +27,12 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 	public function onWpLoaded() {
 		parent::onWpLoaded();
-		$this->getMigrator();
 	}
 
+	/**
+	 * @deprecated 18.4
+	 */
 	public function getMigrator() :Lib\QueueEventsDbMigrator {
 		return $this->eventsMigrator ?? $this->eventsMigrator = new Lib\QueueEventsDbMigrator();
-	}
-
-	public function runDailyCron() {
-		parent::runDailyCron();
-		$this->getMigrator()->dispatch();
 	}
 }

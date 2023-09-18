@@ -89,11 +89,4 @@ class ActionRoutingController {
 
 		return $output;
 	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function captureRedirects() {
-		( new CaptureRedirects() )->run();
-	}
 }
