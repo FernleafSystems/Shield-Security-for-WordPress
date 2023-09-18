@@ -1,7 +1,7 @@
 {
   "18.3": {
     "version":     "18.3",
-    "released_at": 1694790000,
+    "released_at": 1695036000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease183",
       "upgrade": "https://shsec.io/shieldupgradeguide183"
@@ -57,7 +57,7 @@
       },
       {
         "type":        "new",
-        "pro_only":    false,
+        "pro_only":    true,
         "title":       "Traffic Log Download",
         "description": [
           "All traffic logs can be downloaded to plain-text log files."
@@ -85,9 +85,18 @@
       {
         "type":        "improved",
         "pro_only":    false,
+        "title":       "Activity and Traffic Logging Conflicts Resolved",
+        "description": [
+          "In the case that logging was disabled where you had a conflicting PHP logging library, logs are now available for you again."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
         "title":       "Many Code Improvements",
         "description": [
-          "Major reworking and improvements of code."
+          "Major reworking and improvements of code for reliability and performance."
         ],
         "href":        ""
       }
