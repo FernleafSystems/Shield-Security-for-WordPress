@@ -11,9 +11,9 @@
 		{% for component in components %}
 			<h4 class="health-check-accordion-heading">
 				<button aria-expanded="false"
-				        class="health-check-accordion-trigger"
-				        aria-controls="health-check-accordion-block-shield_{{ component.slug }}"
-				        type="button">
+						class="health-check-accordion-trigger"
+						aria-controls="health-check-accordion-block-shield_{{ component.slug }}"
+						type="button">
 					<span
 							class="title">{{ component.is_protected ? component.desc_protected : component.desc_unprotected }}</span>
 					{% for cat in component.categories %}
@@ -23,11 +23,11 @@
 				</button>
 			</h4>
 			<div class="health-check-accordion-panel"
-			     id="health-check-accordion-block-shield_{{ component.slug }}"
-			     hidden="hidden">
+				 id="health-check-accordion-block-shield_{{ component.slug }}"
+				 hidden="hidden">
 						<p>
 							<a href="{{ component.href_full }}"
-							   {{ component.href_full_target_blank ? 'target="_blank"' : '' }}
+									{{ component.href_full_target_blank ? 'target="_blank"' : '' }}
 							>{{ strings.to_address_this_issue }}</a>
 						</p>
 					</div>
@@ -35,14 +35,15 @@
 	</div>
 {% endmacro %}
 
-{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[]) %}
-	<a href="{{ href }}"
-	   class="{{ classes|join(' ') }}"
-	    {% if id is not empty %}id="{{ id }}"{% endif %}
-	    {% if new_window %}target="_blank"{% endif %}
+{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false) %}
+	<a href="{{ disabled ? '#' : href }}"
+	   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"
+	   {% if id is not empty %}id="{{ id }}"{% endif %}
+			{% if new_window %}target="_blank"{% endif %}
 			{% if datas is not empty %}
 				{% for data_key,data_value in datas %}data-{{ data_key }}="{{ data_value }}"{% endfor %}
 			{% endif %}
+			{{ disabled ? 'disabled="disabled"' : '' }}
 	>{{ text }}</a>
 {% endmacro %}
 
@@ -65,8 +66,8 @@
 		<div class="col-8">
 			<div class="form-check">
 				<input type="checkbox" name="{{ name }}"
-				       class="form-check-input"
-				       id="{{ id }}" value="{{ value }}"
+					   class="form-check-input"
+					   id="{{ id }}" value="{{ value }}"
 						{{ checked ? 'checked checked="checked"' : '' }}
 				/>
 				<label class="form-check-label" for="{{ id }}">
@@ -108,8 +109,8 @@
 				{% for value,label in values %}
 					<label class="form-check-label">
 						<input type="radio" name="{{ name }}"
-						       class="form-check-input"
-						       id="{{ name~value }}" value="{{ value }}">
+							   class="form-check-input"
+							   id="{{ name~value }}" value="{{ value }}">
 						{{ label|raw }}
 					</label>
 				{% endfor %}
@@ -131,7 +132,7 @@
 	<div class="row">
 		<div class="col-8 offset-4">
 			<button type="submit"
-			        class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %} {{ classes }}"
+					class="button button-{{ btn|default('primary') }} {% if large %}py-2 px-4{% endif %} {{ classes }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
@@ -143,7 +144,7 @@
 		<div class="col-6"></div>
 		<div class="col-6">
 			<button type="submit"
-			        class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
+					class="{% if large == true %} btn-block {% endif %} button button-{{ btn|default('primary') }}"
 					{% if name is defined %} name="{{ name }}" {% endif %}
 			>{{ label|default('Submit')|raw }}</button>
 		</div>
@@ -159,8 +160,8 @@
 		<label class="col-4 col-form-label" for="{{ id }}">{{ label }}</label>
 		<div class="col-8">
 			<input name="{{ name }}" value="{{ value }}" type="{{ type }}"
-			       class="form-control {{ classes }}" id="{{ id }}" placeholder="{{ placeholder|default('') }}"
-			       {% if type is not empty %}type="{{ type }}"{% endif %}
+				   class="form-control {{ classes }}" id="{{ id }}" placeholder="{{ placeholder|default('') }}"
+				   {% if type is not empty %}type="{{ type }}"{% endif %}
 			>
 			{% if help is defined and help|length > 0 %}
 				<small class="form-text text-muted">{{ help|raw }}</small>
@@ -171,18 +172,18 @@
 
 {% macro embedVimeo( video_id, width, height, class, id ) %}
 	<div class="embed-vimeo embed-responsive {{ class|default('embed-responsive-16by9') }}"
-	     id="{{ id|default('') }}">
+		 id="{{ id|default('') }}">
 		<iframe src="https://player.vimeo.com/video/{{ video_id }}"
-		        width="{{ width|default(640) }}" height="{{ height|default(480) }}"
-		        frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+				width="{{ width|default(640) }}" height="{{ height|default(480) }}"
+				frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 	</div>
 {% endmacro %}
 
 {% macro embedVimeoFeather( video_id, img_url, img_play, id ) %}
 	<style>
 		.vimeo-feather a {
-		background-image: url({{ img_play }});
-	}
+			background-image: url({{ img_play }});
+		}
 	</style>
 	<div class="d-flex justify-content-center">
 		<div class="vimeo-feather">
