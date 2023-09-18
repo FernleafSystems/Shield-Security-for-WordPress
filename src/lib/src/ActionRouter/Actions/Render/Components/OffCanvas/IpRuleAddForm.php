@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IPs\FormIpRuleAdd;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 
 class IpRuleAddForm extends OffCanvasBase {
+
+	use SecurityAdminRequired;
 
 	public const SLUG = 'offcanvas_form_ip_rule_add';
 

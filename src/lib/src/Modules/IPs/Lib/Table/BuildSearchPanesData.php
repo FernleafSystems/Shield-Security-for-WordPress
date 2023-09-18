@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRulesIterator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,22 +17,25 @@ class BuildSearchPanesData {
 
 	public function build() :array {
 		return [
-			'options' => [
+			'options' => \array_map( '\array_values', [
 				'day'        => $this->buildForDay(),
 				'type'       => $this->buildForIpType(),
 				//				'ip'         => $this->buildForIP(),
 				//				'ip'         => $this->buildForIpWithoutIterator(),
 				'is_blocked' => $this->buildForIsBlocked(),
-			]
+			] )
 		];
 	}
 
 	private function buildForDay() :array {
-		return ( new BuildDataForDays() )->build(
-			$this->mod()
-				 ->getDbH_IPRules()
-				 ->getQuerySelector()
-				 ->getDistinctForColumn( 'last_access_at' )
+		/** @var ?Record $first */
+		$first = $this->mod()
+					  ->getDbH_IPRules()
+					  ->getQuerySelector()
+					  ->setOrderBy( 'last_access_at', 'ASC' )
+					  ->first();
+		return ( new BuildDataForDays() )->buildFromOldestToNewest(
+			empty( $first ) ? Services::Request()->ts() : $first->last_access_at
 		);
 	}
 

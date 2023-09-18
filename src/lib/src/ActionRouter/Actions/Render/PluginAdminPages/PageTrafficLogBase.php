@@ -8,8 +8,9 @@ abstract class PageTrafficLogBase extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
-				'text' => __( 'Download Traffic Logs', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
+				'text'     => __( 'Download Traffic Logs', 'wp-simple-firewall' ),
+				'href'     => $con->plugin_urls->fileDownloadAsStream( 'traffic' ),
+				'disabled' => !$con->isPremiumActive(),
 			],
 			[
 				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),

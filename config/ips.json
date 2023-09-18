@@ -645,6 +645,7 @@
       "crowdsec_signals": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\DB\\CrowdSecSignals\\Ops\\Handler"
     },
     "db_table_botsignal":        {
+      "name":           "Bot Signals Tracking",
       "autoexpire":     0,
       "slug":           "botsignal",
       "has_updated_at": true,
@@ -763,6 +764,7 @@
       }
     },
     "db_table_ip_rules":         {
+      "name":            "IP Rules",
       "autoexpire":      0,
       "slug":            "ip_rules",
       "has_updated_at":  true,
@@ -835,6 +837,7 @@
       ]
     },
     "db_table_crowdsec_signals": {
+      "name":            "CrowdSec Signals",
       "autoexpire":      0,
       "slug":            "crowdsec_signals",
       "has_updated_at":  false,

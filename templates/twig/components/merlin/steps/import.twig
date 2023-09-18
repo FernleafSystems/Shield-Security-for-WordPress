@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block slide_body_action_area %}
+	{% import '/common/macros.twig' as icwp_macros %}
 TODO!
 	<form class="form-horizontal merlin-form" autocomplete="off" method="post" action="" enctype="multipart/form-data">
 					{% for input_name,input_value in vars.file_upload_nonce %}
