@@ -103,8 +103,8 @@
     ],
     "patches":     [
       {
-        "version":     "8",
-        "released_at": 1695216000,
+        "version":     "9",
+        "released_at": 1695216600,
         "items":       [
           {
             "title": "Add activity log event for WP Core Reinstall (distinct from core upgrade)",

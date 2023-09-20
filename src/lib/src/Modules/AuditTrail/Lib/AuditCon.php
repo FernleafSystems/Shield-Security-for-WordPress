@@ -242,7 +242,7 @@ class AuditCon {
 		$WPUsers = Services::WpUsers();
 		return ( new AuditFlags() )->applyFromArray(
 			apply_filters( 'shield/auditing_flags', [
-				'users_audit_snapshot_admins_only' => \method_exists( $WPUsers, 'count' ) ? $WPUsers->count() : false,
+				'users_audit_snapshot_admins_only' => \method_exists( $WPUsers, 'count' ) && $WPUsers->count() > 10000,
 			] )
 		);
 	}
