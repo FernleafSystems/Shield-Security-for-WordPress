@@ -68,6 +68,15 @@ class FileDownload extends BaseAction {
 				$fileDetails = ( new Export() )->toFile();
 				break;
 
+			case 'report_download_pdf':
+				$fileDetails = [
+					'name'    => wp_rand().'.pdf',
+					'content' => $con->getModule_Plugin()
+									 ->getReportingController()
+									 ->convertToPdf( (int)Services::Request()->query( 'rid', -1 ) )
+				];
+				break;
+
 			default:
 				throw new \Exception( 'Invalid download request.' );
 		}

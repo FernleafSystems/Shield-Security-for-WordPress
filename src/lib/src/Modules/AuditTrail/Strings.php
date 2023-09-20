@@ -107,6 +107,12 @@ class Strings extends Base\Strings {
 					__( 'WordPress Core was updated from "{{from}}" to "{{to}}".', 'wp-simple-firewall' ),
 				],
 			],
+			'core_reinstalled'             => [
+				'name'  => __( 'WordPress Reinstalled', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'WordPress Core v{{version}} was reinstalled.', 'wp-simple-firewall' ),
+				],
+			],
 			'permalinks_structure'         => [
 				'name'  => __( 'Permalinks Updated', 'wp-simple-firewall' ),
 				'audit' => [
