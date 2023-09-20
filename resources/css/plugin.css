@@ -1212,7 +1212,7 @@ td.status_file_size {
 	visibility: hidden !important;
 	z-index: -1 !important;
 }
-#ReportsTable a.shield_dynamic_action_button {
+#ReportsTable a.btn.report_action {
 	line-height: 16px;
 }
 .shield_legend_table .row:nth-of-type(odd) div {

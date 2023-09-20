@@ -6,7 +6,9 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\DisplayReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ConvertHtmlToPDF;
 
 class ReportingController {
 
@@ -25,6 +27,21 @@ class ReportingController {
 
 	public function runHourlyCron() {
 		( new ReportGenerator() )->auto();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function convertToPdf( int $reportID ) :string {
+		/** @var Record $report */
+		$report = $this->mod()
+					   ->getDbH_Reports()
+					   ->getQuerySelector()
+					   ->byId( $reportID );
+		if ( empty( $report ) ) {
+			throw new \Exception( 'Invalid report' );
+		}
+		return ( new ConvertHtmlToPDF() )->run( \gzinflate( $report->content ) );
 	}
 
 	public function getReportURL( string $uniqueReportID ) :string {
