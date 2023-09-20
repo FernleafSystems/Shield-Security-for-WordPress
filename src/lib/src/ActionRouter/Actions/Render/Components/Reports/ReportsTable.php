@@ -16,8 +16,9 @@ class ReportsTable extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/reports/table_reports.twig';
 
 	protected function getRenderData() :array {
+		$con = self::con();
 		/** @var ReportDB\Select $selector */
-		$selector = self::con()->getModule_Plugin()->getDbH_Reports()->getQuerySelector();
+		$selector = $con->getModule_Plugin()->getDbH_Reports()->getQuerySelector();
 		$limit = $this->action_data[ 'reports_limit' ] ?? 0;
 		if ( $limit > 0 ) {
 			$selector->setLimit( $limit );
@@ -25,10 +26,8 @@ class ReportsTable extends BaseRender {
 		$activeID = $this->action_data[ 'active_id' ] ?? '';
 
 		$reports = \array_filter( \array_map(
-			function ( ReportDB\Record $report ) use ( $activeID ) {
-				$repCon = self::con()
-							  ->getModule_Plugin()
-							  ->getReportingController();
+			function ( ReportDB\Record $report ) use ( $con, $activeID ) {
+				$repCon = $con->getModule_Plugin()->getReportingController();
 				return empty( $report->content ) ? null
 					: [
 						'href'       => $repCon->getReportURL( $report->unique_id ),
@@ -40,16 +39,26 @@ class ReportsTable extends BaseRender {
 							( $report->type === Constants::REPORT_TYPE_ALERT ? 'warning' : 'dark' ),
 						'created_at' => Services::WpGeneral()->getTimeStringForDisplay( $report->created_at ),
 						'actions'    => [
-							'delete' => [
+							'delete'   => [
 								'title'   => __( 'Delete' ),
-								'classes' => [ 'btn-danger' ],
-								'svg'     => self::con()->svgs->raw( 'trash3-fill.svg' ),
+								'classes' => [ 'btn-danger', 'shield_dynamic_action_button' ],
+								'svg'     => $con->svgs->raw( 'trash3-fill.svg' ),
 								'data'    => ActionData::Build( ReportTableAction::class, false, [
 									'report_action' => 'delete',
 									'rid'           => $report->id,
 									'confirm'       => true,
 								] ),
 							],
+							/*
+							'download' => [
+								'title'   => __( 'Download as PDF' ),
+								'classes' => [ 'btn-light' ],
+								'href'    => $con->plugin_urls->fileDownload( 'report_download_pdf', [
+									'rid' => $report->id
+								] ),
+								'svg'     => $con->svgs->raw( 'file-earmark-pdf.svg' ),
+							],
+							*/
 						],
 					];
 			},
@@ -61,7 +70,7 @@ class ReportsTable extends BaseRender {
 				'has_reports' => \count( $reports ) > 0,
 			],
 			'hrefs'   => [
-				'page_reports' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS ),
+				'page_reports' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS ),
 			],
 			'strings' => [
 				'no_reports' => __( 'No reports have been generated yet.' ),

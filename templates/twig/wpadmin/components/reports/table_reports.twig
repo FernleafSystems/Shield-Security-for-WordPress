@@ -23,10 +23,12 @@
 				</div>
 				<div class="col-lg-2 py-2 text-black">
 					{% for action in report.actions %}
-						<a href="javascript:{}"
-						   class="btn svg-container p-1 shield_dynamic_action_button {{ action.classes|join(' ') }}"
+						<a href="{{ action.href|default('javascript:{}') }}"
+						   class="btn report_action svg-container p-1 {{ action.classes|join(' ') }}"
 						   title="{{ action.title }}"
-						   {% for data_key,data_value in action.data %}data-{{ data_key }}="{{ data_value }}" {% endfor %}
+						   {% for data_key,data_value in action.data|default([]) %}
+							   data-{{ data_key }}="{{ data_value }}"
+						   {% endfor %}
 						>{{ action.svg|raw }}</a>
 					{% endfor %}
 				</div>

@@ -35,7 +35,7 @@ class Wordpress extends Base {
 
 	public function auditWpOptions( $old, $new, $option ) {
 		// So that the logs for checkboxes is more humane. Must also align with what SnapWP does.
-		if ( \in_array( $option, [ 'users_can_register' ] ) ) {
+		if ( $option === 'users_can_register' ) {
 			$old = $old == 0 ? 'off' : 'on';
 			$new = $new == 0 ? 'off' : 'on';
 		}
@@ -50,10 +50,17 @@ class Wordpress extends Base {
 	 * @param string $newVersion
 	 */
 	public function auditCoreUpdated( $newVersion ) {
-		$this->fireAuditEvent( 'core_updated', [
-			'from' => Services::WpGeneral()->getVersion(),
-			'to'   => $newVersion,
-		] );
+		if ( Services::WpGeneral()->getVersion() === $newVersion ) {
+			$this->fireAuditEvent( 'core_reinstalled', [
+				'version' => $newVersion,
+			] );
+		}
+		elseif ( !empty( $newVersion ) ) {
+			$this->fireAuditEvent( 'core_updated', [
+				'from' => Services::WpGeneral()->getVersion(),
+				'to'   => $newVersion,
+			] );
+		}
 	}
 
 	/**

@@ -12,8 +12,9 @@ class OurLatestBlogPosts {
 		$posts = Transient::Get( 'apto-shield-latest-blog-posts' );
 		if ( !\is_array( $posts ) ) {
 			$rawPosts = @\json_decode(
-				Services::HttpRequest()
-						->getContent( 'https://getshieldsecurity.com/wp-json/wp/v2/posts?per_page=4&type=download' ),
+				Services::HttpRequest()->getContent( URL::Build( 'https://getshieldsecurity.com/wp-json/wp/v2/posts', [
+					'per_page' => '5'
+				] ) ),
 				true
 			);
 			$posts = \array_slice( \array_filter( \array_map(
