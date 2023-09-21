@@ -150,8 +150,8 @@ class RenameLogin {
 	 */
 	public function fCheckForLoginPhp( $location ) {
 
-		$redirectPath = wp_parse_url( $location, PHP_URL_PATH );
-		if ( \strpos( $redirectPath, 'wp-login.php' ) !== false ) {
+		$redirectPath = wp_parse_url( $location, \PHP_URL_PATH );
+		if ( !empty( $redirectPath ) && \str_starts_with( $redirectPath, 'wp-login.php' ) !== false ) {
 
 			$queryArgs = \explode( '?', $location );
 			$location = home_url( $this->opts()->getCustomLoginPath() );
@@ -169,9 +169,9 @@ class RenameLogin {
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $location ) {
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
-			$sRedirectPath = \trim( parse_url( $location, PHP_URL_PATH ), '/' );
-			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->opts()->getCustomLoginPath() );
-			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
+			if ( \trim( (string)\parse_url( $location, \PHP_URL_PATH ), '/' ) === $this->opts()->getCustomLoginPath()
+				 && !Services::WpUsers()->isUserLoggedIn()
+			) {
 				$this->doWpLoginFailedRedirect404();
 			}
 		}

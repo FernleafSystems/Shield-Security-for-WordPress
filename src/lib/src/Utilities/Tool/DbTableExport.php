@@ -46,7 +46,7 @@ class DbTableExport {
 	}
 
 	protected function getActualColumns() :array {
-		return Services::WpDb()->getColumnsForTable( $this->getDbH()->getTableSchema()->table, 'strtolower' );
+		return Services::WpDb()->getColumnsForTable( $this->getDbH()->getTableSchema()->table, '\strtolower' );
 	}
 
 	protected function getFileName() :string {
