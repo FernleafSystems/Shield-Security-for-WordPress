@@ -30,35 +30,8 @@ class MfaController {
 	protected function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling
+		add_action( 'admin_init', [ $this, 'onAdminInit' ] );
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
-	}
-
-	private function addToUserStatusColumn() {
-		// Display manually suspended on the user list table; TODO: add auto suspended
-		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
-
-			$twoFAat = self::con()->user_metas->for( $user )->record->last_2fa_verified_at;
-			$carbon = Services::Request()
-							  ->carbon()
-							  ->setTimestamp( $twoFAat );
-
-			$content[] = sprintf( '<em title="%s">%s</em>: %s',
-				$twoFAat > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
-				__( '2FA At', 'wp-simple-firewall' ),
-				$twoFAat > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
-			);
-
-			$providers = \array_map(
-				function ( $provider ) {
-					return $provider->getProviderName();
-				},
-				$this->getProvidersActiveForUser( $user )
-			);
-			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
-				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $providers ) );
-
-			return $content;
-		}, 10, 2 );
 	}
 
 	/**
@@ -123,7 +96,38 @@ class MfaController {
 
 	public function onWpLoaded() {
 		$this->getMfaProfilesCon()->execute();
+	}
+
+	public function onAdminInit() {
 		$this->addToUserStatusColumn();
+	}
+
+	private function addToUserStatusColumn() {
+		// Display manually suspended on the user list table; TODO: add auto suspended
+		add_filter( 'shield/user_status_column', function ( array $content, \WP_User $user ) {
+
+			$twoFAat = self::con()->user_metas->for( $user )->record->last_2fa_verified_at;
+			$carbon = Services::Request()
+							  ->carbon()
+							  ->setTimestamp( $twoFAat );
+
+			$content[] = sprintf( '<em title="%s">%s</em>: %s',
+				$twoFAat > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
+				__( '2FA At', 'wp-simple-firewall' ),
+				$twoFAat > 0 ? $carbon->diffForHumans() : __( 'Not Recorded', 'wp-simple-firewall' )
+			);
+
+			$providers = \array_map(
+				function ( $provider ) {
+					return $provider->getProviderName();
+				},
+				$this->getProvidersActiveForUser( $user )
+			);
+			$content[] = sprintf( '<em>%s</em>: %s', __( 'Active 2FA', 'wp-simple-firewall' ),
+				empty( $providers ) ? __( 'None', 'wp-simple-firewall' ) : \implode( ', ', $providers ) );
+
+			return $content;
+		}, 10, 2 );
 	}
 
 	/**

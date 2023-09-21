@@ -50,9 +50,8 @@ class MfaProfilesController {
 
 	private function provideUserLoginSecurityPage() {
 		add_action( 'admin_menu', function () {
-			$con = self::con();
 			add_users_page(
-				sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), $con->getHumanName() ),
+				sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), self::con()->getHumanName() ),
 				__( 'Login Security', 'wp-simple-firewall' ),
 				'read',
 				'shield-login-security',
