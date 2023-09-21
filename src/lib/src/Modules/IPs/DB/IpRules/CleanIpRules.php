@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -32,7 +33,7 @@ class CleanIpRules {
 		$this->duplicates_AutoBlock();
 	}
 
-	public function expired_AutoBlock() {
+	private function expired_AutoBlock() {
 		// Expired AutoBlock
 		/** @var Ops\Delete $deleter */
 		$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
@@ -53,6 +54,8 @@ class CleanIpRules {
 		$deleter->filterByType( Handler::T_CROWDSEC )
 				->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 				->query();
+
+		IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
 	}
 
 	public function duplicates_AutoBlock() {
@@ -90,7 +93,7 @@ class CleanIpRules {
 			/** @var Ops\Delete $deleter */
 			$deleter = $this->mod()->getDbH_IPRules()->getQueryDeleter();
 			$deleter
-				->filterByType( Handler::T_AUTO_BLOCK )
+				->filterByType( Handler::T_CROWDSEC )
 				->addWhereIn( 'id', $deleteIDs )
 				->query();
 		}

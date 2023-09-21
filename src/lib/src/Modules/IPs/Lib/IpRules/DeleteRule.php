@@ -26,6 +26,10 @@ class DeleteRule {
 						->getQueryDeleter()
 						->deleteById( $record->id );
 
+		if ( $record->is_range ) {
+			IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+		}
+
 		if ( $deleted ) {
 			switch ( $record->type ) {
 
