@@ -25,7 +25,10 @@ class Afs extends BaseForFiles {
 			->execute();
 
 		$this->setupCronHooks();
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+
+		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
+			( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->schedule();
+		} );
 	}
 
 	public function getAdminMenuItems() :array {
@@ -76,8 +79,10 @@ class Afs extends BaseForFiles {
 		return $items;
 	}
 
+	/**
+	 * @deprecated 18.4
+	 */
 	public function onWpLoaded() {
-		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->schedule();
 	}
 
 	public function runHourlyCron() {
@@ -227,7 +232,7 @@ class Afs extends BaseForFiles {
 		return false;
 	}
 
-	public function buildScanAction():Scans\Afs\ScanActionVO {
+	public function buildScanAction() :Scans\Afs\ScanActionVO {
 		return ( new Scans\Afs\BuildScanAction() )
 			->setScanController( $this )
 			->build()
