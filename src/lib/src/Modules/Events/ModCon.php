@@ -25,10 +25,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return $this->getDbH_Events()->isReady();
 	}
 
-	public function onWpLoaded() {
-		parent::onWpLoaded();
-	}
-
 	/**
 	 * @deprecated 18.4
 	 */

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
@@ -56,7 +55,7 @@ class IpRuleStatus {
 		$ip = $this->getIP();
 		if ( !isset( self::$cache[ $ip ] ) ) {
 			try {
-				self::$cache[ $ip ] = $this->loadRecordsForIP();
+				self::$cache[ $ip ] = IpRulesCache::Has( $this->getIP(), IpRulesCache::GROUP_NO_RULES ) ? [] : $this->loadRecordsForIP();
 			}
 			catch ( \Exception $e ) {
 				self::$cache[ $ip ] = [];
@@ -287,6 +286,14 @@ class IpRuleStatus {
 		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
+
+			$cachedRanges = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+			if ( self::$ranges === null && \is_array( $cachedRanges ) ) {
+				self::$ranges = \array_map( function ( array $record ) {
+					return ( new IpRuleRecord() )->applyFromArray( $record );
+				}, $cachedRanges );
+			}
+
 			if ( self::$ranges === null ) {
 				self::$ranges = [];
 				$buildRanges = true;
@@ -320,6 +327,16 @@ class IpRuleStatus {
 				else {
 					$records[] = $record;
 				}
+			}
+
+			if ( $buildRanges && \count( self::$ranges ) < 30 ) {
+				IpRulesCache::Add( IpRulesCache::COLLECTION_RANGES, \array_map( function ( IpRuleRecord $record ) {
+					return $record->getRawData();
+				}, self::$ranges ), IpRulesCache::GROUP_COLLECTIONS );
+			}
+
+			if ( \count( $records ) === 0 ) {
+				IpRulesCache::Add( $this->getIP(), $this->getIP(), IpRulesCache::GROUP_NO_RULES );
 			}
 		}
 

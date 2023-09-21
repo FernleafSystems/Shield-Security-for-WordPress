@@ -223,6 +223,11 @@ class AddRule {
 
 		$ruleStatus::ClearStatusForIP( $ip );
 
+		IpRulesCache::Remove( $this->getIP(), IpRulesCache::GROUP_NO_RULES );
+		if ( $tmp->is_range ) {
+			IpRulesCache::Remove( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+		}
+
 		return $ipRuleRecord;
 	}
 }
