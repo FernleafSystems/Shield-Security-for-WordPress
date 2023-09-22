@@ -20,7 +20,7 @@ class LoginIntentFormShield extends BaseForm {
 		}
 
 		if ( !empty( $msg ) && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
-			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldcantaccess', __( 'More Info', 'wp-simple-firewall' ) );
+			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldwhatis2fa', __( 'More Info', 'wp-simple-firewall' ) );
 		}
 
 		return [

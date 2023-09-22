@@ -23,7 +23,7 @@
 
 <form action="{{ hrefs.form_action }}" method="post" class="form-horizontal" id="loginform" class="shield-2fa-custom">
 	{% for hidden_field_name,hidden_field_value in vars.form_hidden_fields %}
-		<input type="hidden" id="{{ hidden_field_name }}" name="{{ hidden_field_name }}" value="{{ hidden_field_value }}" />
+		<input type="hidden" id="{{ hidden_field_name }}" name="{{ hidden_field_name }}" value="{{ hidden_field_value|raw }}" />
 	{% endfor %}
 
 	{% for login_field in content.login_fields %}

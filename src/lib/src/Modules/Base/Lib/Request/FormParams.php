@@ -41,7 +41,7 @@ class FormParams {
 					break;
 			}
 
-			parse_str( (string)$raw, $formParams );
+			\parse_str( (string)$raw, $formParams );
 		}
 
 		return \is_array( $formParams ) ? $formParams : [];
