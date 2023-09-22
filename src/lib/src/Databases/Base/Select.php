@@ -279,7 +279,7 @@ class Select extends BaseQuery {
 	public function setColumnsToSelect( array $columns ) {
 		$this->aColumnsToSelect = \array_intersect(
 			$this->getDbH()->getTableSchema()->getColumnNames(),
-			\array_map( 'strtolower', $columns )
+			\array_map( '\strtolower', $columns )
 		);
 		return $this;
 	}

@@ -94,7 +94,7 @@ abstract class BaseForm extends Base {
 
 		$cancelHref = $req->post( 'cancel_href', '' );
 		if ( empty( $cancelHref ) && Services::Data()->isValidWebUrl( $referUrl ) ) {
-			$cancelHref = parse_url( $referUrl, PHP_URL_PATH );
+			$cancelHref = \parse_url( $referUrl, \PHP_URL_PATH );
 		}
 
 		global $interim_login;

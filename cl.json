@@ -103,6 +103,20 @@
     ],
     "patches":     [
       {
+        "version":     "10",
+        "released_at": 1695378000,
+        "items":       [
+          {
+            "title": "Provide a filter for admins to adjust the lost password URL for suspended users",
+            "type":  "new"
+          },
+          {
+            "title": "Major performance improvements for page loading through various optimisations.",
+            "type":  "improved"
+          }
+        ]
+      },
+      {
         "version":     "9",
         "released_at": 1695216600,
         "items":       [

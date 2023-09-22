@@ -18,10 +18,7 @@ class PasswordExpiry extends Base {
 				\implode( ' ', [
 					__( 'Sorry, this account is suspended because the password has expired.', 'wp-simple-firewall' ),
 					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s">%s &rarr;</a>',
-						Services::WpGeneral()->getLostPasswordUrl(),
-						__( 'Reset', 'wp-simple-firewall' )
-					),
+					sprintf( '<a href="%s">%s &rarr;</a>', $this->getResetPasswordURL( 'password_expired' ), __( 'Reset', 'wp-simple-firewall' ) ),
 				] )
 			);
 		}

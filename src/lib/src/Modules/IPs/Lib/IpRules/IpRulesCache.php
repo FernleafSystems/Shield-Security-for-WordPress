@@ -17,7 +17,7 @@ class IpRulesCache {
 			'limit'    => 30,
 		],
 		self::GROUP_COLLECTIONS => [
-			'lifetime' => 120,
+			'lifetime' => 600,
 			'limit'    => 30,
 		],
 	];
@@ -49,19 +49,11 @@ class IpRulesCache {
 		}
 	}
 
-	public static function AddMultiple( array $values, string $group ) :void {
-		foreach ( $values as $key => $value ) {
-			self::Add( $key, $value, $group, false );
-		}
-		self::StoreCache();
-	}
-
 	/**
 	 * @return mixed|null
-	 * @throws \Exception
 	 */
 	public static function Get( string $key, string $group ) {
-		return self::GetGroup( $group )[ $key ][ 'data' ] ?? null;
+		return self::LoadCache()[ $group ][ $key ][ 'data' ] ?? null;
 	}
 
 	public static function Delete( string $key, string $group ) :void {
@@ -70,27 +62,8 @@ class IpRulesCache {
 		self::StoreCache();
 	}
 
-	public static function GetGroup( string $group ) :array {
-		return self::LoadCache()[ $group ];
-	}
-
-	public static function GetGroupValues( string $group ) :array {
-		return \array_map(
-			function ( array $groupItem ) {
-				return $groupItem[ 'data' ];
-			},
-			self::LoadCache()[ $group ]
-		);
-	}
-
 	public static function Has( string $key, string $group ) :bool {
-		return isset( self::GetGroup( $group )[ $key ] );
-	}
-
-	public static function Remove( string $key, string $group ) :void {
-		self::LoadCache();
-		unset( self::$ipCache[ $group ][ $key ] );
-		self::StoreCache();
+		return isset( self::LoadCache()[ $group ][ $key ] );
 	}
 
 	private static function StoreCache() {

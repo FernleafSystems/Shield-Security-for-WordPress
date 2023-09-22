@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Sus
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -38,4 +39,9 @@ abstract class Base {
 	 * @return \WP_Error|\WP_User
 	 */
 	abstract protected function processUser( \WP_User $user, ShieldUserMeta $meta );
+
+	protected function getResetPasswordURL( string $context ) :string {
+		return apply_filters( 'shield/user_suspend_reset_password_url',
+			Services::WpGeneral()->getLostPasswordUrl(), $context );
+	}
 }
