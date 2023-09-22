@@ -80,7 +80,7 @@ class Afs extends BaseForFiles {
 	}
 
 	/**
-	 * @deprecated 18.4
+	 * @deprecated 18.5
 	 */
 	public function onWpLoaded() {
 	}

@@ -26,7 +26,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	}
 
 	/**
-	 * @deprecated 18.4
+	 * @deprecated 18.5
 	 */
 	public function onWpLoaded() {
 		parent::onWpLoaded();
@@ -34,7 +34,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	}
 
 	/**
-	 * @deprecated 18.4
+	 * @deprecated 18.5
 	 */
 	public function getMigrator() :Lib\QueueEventsDbMigrator {
 		return $this->eventsMigrator ?? $this->eventsMigrator = new Lib\QueueEventsDbMigrator();
