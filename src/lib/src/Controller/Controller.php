@@ -775,10 +775,7 @@ class Controller extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	private function loadConfig() {
-		$this->cfg = ( new Config\Ops\LoadConfig(
-			$this->paths->forPluginItem( 'plugin.json' ),
-			$this->getConfigStoreKey() )
-		)->run();
+		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
 
 		$this->plugin_urls;
 		$this->loadModConfigs();
