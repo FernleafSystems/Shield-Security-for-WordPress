@@ -1,15 +1,14 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Email;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Email;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\Footer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 18.4.1
- */
-class Processor extends BaseShield\Processor {
+class EmailCon {
+
+	use PluginControllerConsumer;
 
 	protected function getEmailHeader() :array {
 		return [
@@ -32,12 +31,11 @@ class Processor extends BaseShield\Processor {
 	 * @return bool
 	 */
 	public function sendEmailWithWrap( $to = '', $subject = '', $message = [] ) :bool {
-		$WP = Services::WpGeneral();
 		return $this->send(
 			$to,
 			$subject,
 			sprintf( '<html lang="%s">%s</html>',
-				$WP->getLocale( '-' ),
+				Services::WpGeneral()->getLocale( '-' ),
 				\implode( "<br />", \array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
 			)
 		);
@@ -51,11 +49,10 @@ class Processor extends BaseShield\Processor {
 	 * @uses wp_mail
 	 */
 	public function send( $to = '', $subject = '', $body = '' ) :bool {
-
 		$this->emailFilters( true );
 		$success = wp_mail(
 			$this->verifyEmailAddress( $to ),
-			sprintf( '[%s] %s', html_entity_decode( Services::WpGeneral()->getSiteName(), ENT_QUOTES ), $subject ),
+			sprintf( '[%s] %s', html_entity_decode( Services::WpGeneral()->getSiteName(), \ENT_QUOTES ), $subject ),
 			$body
 		);
 		$this->emailFilters( false );
@@ -87,11 +84,9 @@ class Processor extends BaseShield\Processor {
 	 * @return string
 	 */
 	public function setMailFrom( $from ) {
-		$DP = Services::Data();
-
 		$proposed = \trim( (string)apply_filters( 'shield/email_from', apply_filters( 'icwp_shield_from_email', $from ) ) );
 
-		if ( $DP->validEmail( $proposed ) ) {
+		if ( Services::Data()->validEmail( $proposed ) ) {
 			$from = $proposed;
 		}
 
@@ -131,10 +126,10 @@ class Processor extends BaseShield\Processor {
 	}
 
 	/**
-	 * @param string $email
+	 * @param string $e
 	 * @return string
 	 */
-	public function verifyEmailAddress( $email = '' ) {
-		return Services::Data()->validEmail( $email ) ? $email : Services::WpGeneral()->getSiteAdminEmail();
+	public function verifyEmailAddress( $e = '' ) {
+		return Services::Data()->validEmail( $e ) ? $e : self::con()->getModule_Plugin()->getPluginReportEmail();
 	}
 }

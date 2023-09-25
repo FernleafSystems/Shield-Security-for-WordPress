@@ -51,7 +51,7 @@ class ModCon extends BaseShield\ModCon {
 		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 
@@ -68,7 +68,7 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * This is the point where you would want to do any options verification
 	 */
-	protected function doPrePluginOptionsSave() {
+	public function doPrePluginOptionsSave() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 

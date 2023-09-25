@@ -120,7 +120,7 @@ class SecurityAdminController {
 						],
 						'strings' => [
 							'confirm_disable'    => sprintf( __( "An confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
-								Obfuscate::Email( $this->mod()->getPluginReportEmail() ) ),
+								Obfuscate::Email( self::con()->getModule_Plugin()->getPluginReportEmail() ) ),
 							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
 							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
 							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),

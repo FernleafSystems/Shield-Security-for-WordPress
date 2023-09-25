@@ -177,7 +177,7 @@ class Strings extends Base\Strings {
 				$summary = [
 					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
 					sprintf( 'Your reporting email address is: %s',
-						'<code>'.$this->mod()->getPluginReportEmail().'</code>' )
+						'<code>'.self::con()->getModule_Plugin()->getPluginReportEmail().'</code>' )
 					.' '.
 					sprintf( '<br/><a href="%s" class="fw-bolder">%s</a>',
 						self::con()->plugin_urls->modCfgOption( 'block_send_email_address' ),

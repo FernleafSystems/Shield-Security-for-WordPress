@@ -30,16 +30,14 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 			throw new \Exception( 'IP does not match.' );
 		}
 
-		$this->mod()
-			 ->getEmailProcessor()
-			 ->send(
-				 $user->user_email,
-				 __( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
-				 $con->action_router->render( UnblockMagicLink::SLUG, [
-					 'home_url' => Services::WpGeneral()->getHomeUrl(),
-					 'ip'       => $con->this_req->ip,
-					 'user_id'  => $user->ID,
-				 ] )
-			 );
+		$con->email_con->send(
+			$user->user_email,
+			__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
+			$con->action_router->render( UnblockMagicLink::SLUG, [
+				'home_url' => Services::WpGeneral()->getHomeUrl(),
+				'ip'       => $con->this_req->ip,
+				'user_id'  => $user->ID,
+			] )
+		);
 	}
 }

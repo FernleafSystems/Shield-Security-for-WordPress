@@ -24,11 +24,6 @@ class ModCon extends BaseShield\ModCon {
 	private $pluginBadgeCon;
 
 	/**
-	 * @var Shield\Utilities\ReCaptcha\Enqueue
-	 */
-	private $oCaptchaEnqueue;
-
-	/**
 	 * @var Lib\Reporting\ReportingController
 	 */
 	private $reportsCon;
@@ -76,7 +71,8 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_Reports() :DB\Reports\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'reports' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'reports' ) : $this->getDbHandler()->loadDbH( 'reports' );
 	}
 
 	protected function doPostConstruction() {
@@ -86,8 +82,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onWpLoaded() {
-		parent::onWpLoaded();
-
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}
@@ -134,7 +128,7 @@ class ModCon extends BaseShield\ModCon {
 		];
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
@@ -209,7 +203,7 @@ class ModCon extends BaseShield\ModCon {
 	/**
 	 * This is the point where you would want to do any options verification
 	 */
-	protected function doPrePluginOptionsSave() {
+	public function doPrePluginOptionsSave() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 

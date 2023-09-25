@@ -76,7 +76,7 @@ class OptsHandler extends DynPropertiesClass {
 
 		$allOptsValues = $this->{'mod_opts_'.$type};
 		$allOptsValues[ $mod->cfg->slug ] = $values;
-		$this->{'mod_opts_'.$type} = $allOptsValues;
+		$this->{'mod_opts_'.$type} = \array_intersect_key( $allOptsValues, self::con()->modules );
 
 		if ( $type === self::TYPE_PRO ) {
 			$this->setFor( $mod, $values, self::TYPE_FREE );
@@ -141,7 +141,7 @@ class OptsHandler extends DynPropertiesClass {
 		$latest = $this->{'mod_opts_'.$type};
 		$stored = Services::WpGeneral()->getOption( $this->key( $type ) );
 		$diffs = [];
-		foreach ( $latest as $slug => $options ) {
+		foreach ( \array_intersect_key( $latest, $con->modules ) as $slug => $options ) {
 			$mod = $con->modules[ $slug ];
 			$opts = $mod->opts();
 			$hidden = \array_keys( $opts->getHiddenOptions() );

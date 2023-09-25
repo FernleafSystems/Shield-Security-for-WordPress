@@ -30,7 +30,7 @@ class ModCon extends BaseShield\ModCon {
 		return \in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		$this->cleanApiExclusions();
 	}
 

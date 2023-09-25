@@ -57,7 +57,7 @@ class FirewallBlock extends Base {
 		if ( $mod->opts()->isOpt( 'block_send_email', 'Y' ) ) {
 			self::con()->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
-				[ 'audit_params' => [ 'to' => $mod->getPluginReportEmail() ] ]
+				[ 'audit_params' => [ 'to' => self::con()->getModule_Plugin()->getPluginReportEmail() ] ]
 			);
 		}
 	}
@@ -77,15 +77,13 @@ class FirewallBlock extends Base {
 		}
 		$blockMeta[ 'firewall_rule_name' ] = $ruleName;
 
-		return $con->getModule_Plugin()
-				   ->getEmailProcessor()
-				   ->send(
-					   $con->getModule_Plugin()->getPluginReportEmail(),
-					   __( 'Firewall Block Alert', 'wp-simple-firewall' ),
-					   $con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
-						   'ip'         => $con->this_req->ip,
-						   'block_meta' => $blockMeta
-					   ] )
-				   );
+		return $con->email_con->send(
+			$con->getModule_Plugin()->getPluginReportEmail(),
+			__( 'Firewall Block Alert', 'wp-simple-firewall' ),
+			$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
+				'ip'         => $con->this_req->ip,
+				'block_meta' => $blockMeta
+			] )
+		);
 	}
 }
