@@ -4,12 +4,33 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	Base,
+	AuditTrail,
+	Autoupdates,
+	CommentsFilter,
+	Comms,
+	Data,
+	Email,
+	Events,
+	Firewall,
+	HackGuard,
+	Headers,
+	Integrations,
+	IPs,
+	License,
+	Lockdown,
+	LoginGuard,
+	Plugin,
+	SecurityAdmin,
+	Traffic,
+	UserManagement,
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionRoutingController,
 	Actions,
 	Exceptions\ActionException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
@@ -408,41 +429,46 @@ class Controller extends DynPropertiesClass {
 			$this->modules_loaded = true;
 
 			$enum = [
-				'admin_access_restriction' => Shield\Modules\SecurityAdmin\ModCon::class,
-				'audit_trail'              => Shield\Modules\AuditTrail\ModCon::class,
-				'autoupdates'              => Shield\Modules\Autoupdates\ModCon::class,
-				'comments_filter'          => Shield\Modules\CommentsFilter\ModCon::class,
-				'comms'                    => Shield\Modules\Comms\ModCon::class,
-				'data'                     => Shield\Modules\Data\ModCon::class,
-				'email'                    => Shield\Modules\Email\ModCon::class,
-				'events'                   => Shield\Modules\Events\ModCon::class,
-				'firewall'                 => Shield\Modules\Firewall\ModCon::class,
-				'hack_protect'             => Shield\Modules\HackGuard\ModCon::class,
-				'headers'                  => Shield\Modules\Headers\ModCon::class,
-				'integrations'             => Shield\Modules\Integrations\ModCon::class,
-				'ips'                      => Shield\Modules\IPs\ModCon::class,
-				'license'                  => Shield\Modules\License\ModCon::class,
-				'lockdown'                 => Shield\Modules\Lockdown\ModCon::class,
-				'login_protect'            => Shield\Modules\LoginGuard\ModCon::class,
-				'plugin'                   => Shield\Modules\Plugin\ModCon::class,
-				'traffic'                  => Shield\Modules\Traffic\ModCon::class,
-				'user_management'          => Shield\Modules\UserManagement\ModCon::class,
+				SecurityAdmin\ModCon::class,
+				AuditTrail\ModCon::class,
+				Autoupdates\ModCon::class,
+				CommentsFilter\ModCon::class,
+				Comms\ModCon::class,
+				Data\ModCon::class,
+				Email\ModCon::class,
+				Events\ModCon::class,
+				Firewall\ModCon::class,
+				HackGuard\ModCon::class,
+				Headers\ModCon::class,
+				Integrations\ModCon::class,
+				IPs\ModCon::class,
+				License\ModCon::class,
+				Lockdown\ModCon::class,
+				LoginGuard\ModCon::class,
+				Plugin\ModCon::class,
+				Traffic\ModCon::class,
+				UserManagement\ModCon::class,
 			];
 
 			$modules = $this->modules ?? [];
 			foreach ( $this->cfg->mods_cfg as $cfg ) {
 
 				$slug = $cfg->properties[ 'slug' ];
-				if ( !isset( $enum[ $slug ] ) ) {
-					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
-					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $enum[ $slug ] ) );
+				$theModClass = null;
+				foreach ( $enum as $key => $modClass ) {
+					/** @var string|Base\ModCon $modClass */
+					if ( @\class_exists( $modClass ) && $slug === $modClass::SLUG ) {
+						$theModClass = $modClass;
+						unset( $enum[ $key ] );
+						break;
+					}
 				}
-				if ( !\class_exists( $enum[ $slug ] ) ) {
+				if ( empty( $theModClass ) ) {
 					// Prevent fatal errors if the plugin doesn't install/upgrade correctly
-					throw new \Exception( sprintf( 'Class for module "%s" is missing.', $enum[ $slug ] ) );
+					throw new \Exception( sprintf( 'Class for module "%s" is not defined.', $slug ) );
 				}
 
-				$modules[ $slug ] = new $enum[ $slug ]( $cfg );
+				$modules[ $slug ] = new $theModClass( $cfg );
 				$this->modules = $modules;
 			}
 
@@ -483,7 +509,7 @@ class Controller extends DynPropertiesClass {
 	public function deletePlugin() {
 		$this->plugin_deleting = true;
 		do_action( $this->prefix( 'delete_plugin' ) );
-		( new Plugin\PluginDelete() )->execute();
+		( new Shield\Controller\Plugin\PluginDelete() )->execute();
 	}
 
 	/**
@@ -811,8 +837,8 @@ class Controller extends DynPropertiesClass {
 
 		// Order Modules
 		\uasort( $modConfigs, function ( $a, $b ) {
-			/** @var Shield\Modules\Base\Config\ModConfigVO $a */
-			/** @var Shield\Modules\Base\Config\ModConfigVO $b */
+			/** @var Base\Config\ModConfigVO $a */
+			/** @var Base\Config\ModConfigVO $b */
 			if ( $a->properties[ 'load_priority' ] == $b->properties[ 'load_priority' ] ) {
 				return 0;
 			}

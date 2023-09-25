@@ -24,6 +24,7 @@ class PluginDelete {
 			[
 				'icwp-wpsf-cs_auths',
 				'icwp-wpsf-rules',
+				self::con()->prefixOption( 'ip_rules_cache' ),
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );

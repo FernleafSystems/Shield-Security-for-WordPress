@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,33 +22,27 @@ class VerifyDatabaseIntegrity {
 		$WPDB = Services::WpDb();
 
 		$tablesToDelete = [];
-		foreach ( self::con()->modules as $mod ) {
-			try {
-				$dbhs = $mod->getDbHandler()->loadAllDbHandlers();
-			}
-			catch ( \Exception $e ) {
-				continue;
-			}
-			foreach ( $dbhs as $dbh ) {
-				$schema = $dbh->getTableSchema();
+		foreach ( self::con()->db_con->loadAll() as $dbhDef ) {
+			/** @var Handler $dbh */
+			$dbh = $dbhDef[ 'handler' ];
 
-				foreach ( $dbh->getTableSchema()->getColumnsDefs() as $col => $def ) {
-					if ( !empty( $def[ 'foreign_key' ] ) ) {
+			$schema = $dbh->getTableSchema();
+			foreach ( $schema->getColumnsDefs() as $col => $def ) {
+				if ( !empty( $def[ 'foreign_key' ] ) ) {
 
-						$fk = $def[ 'foreign_key' ];
-						$ft = sprintf( '%s%s', ( $fk[ 'wp_prefix' ] ?? true ) ? $WPDB->getPrefix() : '', $fk[ 'ref_table' ] );
+					$fk = $def[ 'foreign_key' ];
+					$ft = sprintf( '%s%s', ( $fk[ 'wp_prefix' ] ?? true ) ? $WPDB->getPrefix() : '', $fk[ 'ref_table' ] );
 
-						$constraintFound = false;
-						foreach ( $this->getForeignKeyConstraintsOn( $ft ) as $fkConstraint ) {
-							$constraintFound = ( $fkConstraint[ 'TABLE_NAME' ] ?? '' ) === $schema->table
-											   && ( $fkConstraint[ 'COLUMN_NAME' ] ?? '' ) === $col;
-							if ( $constraintFound ) {
-								break;
-							}
+					$constraintFound = false;
+					foreach ( $this->getForeignKeyConstraintsOn( $ft ) as $fkConstraint ) {
+						$constraintFound = ( $fkConstraint[ 'TABLE_NAME' ] ?? '' ) === $schema->table
+										   && ( $fkConstraint[ 'COLUMN_NAME' ] ?? '' ) === $col;
+						if ( $constraintFound ) {
+							break;
 						}
-						if ( !$constraintFound ) {
-							$tablesToDelete[] = $schema->table;
-						}
+					}
+					if ( !$constraintFound ) {
+						$tablesToDelete[] = $schema->table;
 					}
 				}
 			}

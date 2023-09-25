@@ -76,7 +76,8 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_Reports() :DB\Reports\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'reports' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'reports' ) : $this->getDbHandler()->loadDbH( 'reports' );
 	}
 
 	protected function doPostConstruction() {
