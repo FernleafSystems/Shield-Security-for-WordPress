@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Arrays;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class IpRulesCache {
 
 	public const GROUP_NO_RULES = 'no_rules';
 	public const GROUP_COLLECTIONS = 'collections';
 	public const COLLECTION_RANGES = 'ranges';
+	public const COLLECTION_BYPASS = 'white';
 	private const GROUPS = [
 		self::GROUP_NO_RULES    => [
 			'lifetime' => 120,
@@ -67,12 +67,12 @@ class IpRulesCache {
 	}
 
 	private static function StoreCache() {
-		Transient::Set( 'shield_ip_rules_cache', self::LoadCache(), DAY_IN_SECONDS );
+		Services::WpGeneral()->updateOption( 'shield_ip_rules_cache', self::LoadCache() );
 	}
 
 	private static function LoadCache() :array {
 		if ( self::$ipCache === null ) {
-			$cache = Transient::Get( 'shield_ip_rules_cache' );
+			$cache = Services::WpGeneral()->getOption( 'shield_ip_rules_cache' );
 
 			$cache = \array_intersect_key(
 				\array_merge(
