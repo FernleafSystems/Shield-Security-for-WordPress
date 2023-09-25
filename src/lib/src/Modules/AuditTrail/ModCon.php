@@ -25,22 +25,18 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'at_logs' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'at_logs' ) : $this->getDbHandler()->loadDbH( 'at_logs' );
 	}
 
 	public function getDbH_Meta() :DB\Meta\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'at_meta' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'at_meta' ) : $this->getDbHandler()->loadDbH( 'at_meta' );
 	}
 
 	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'snapshots' );
-	}
-
-	/**
-	 * @deprecated 12.1
-	 */
-	public function getDbHandler_AuditTrail() :Shield\Databases\AuditTrail\Handler {
-		return $this->getDbH( 'audit_trail' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'snapshots' ) : $this->getDbHandler()->loadDbH( 'snapshots' );
 	}
 
 	public function getAuditLogger() :Lib\AuditLogger {

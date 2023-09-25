@@ -38,11 +38,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $wpCli;
 
 	/**
-	 * @var Shield\Databases\Base\Handler[]
-	 */
-	private $legacyDbHandlers;
-
-	/**
 	 * @var Databases
 	 */
 	private $dbHandler;
@@ -121,37 +116,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function doPostConstruction() {
-	}
-
-	/**
-	 * @param string $dbhKey
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 */
-	protected function getDbH( $dbhKey ) {
-		$dbh = false;
-
-		if ( !\is_array( $this->legacyDbHandlers ) ) {
-			$this->legacyDbHandlers = [];
-		}
-
-		if ( !empty( $this->legacyDbHandlers[ $dbhKey ] ) ) {
-			$dbh = $this->legacyDbHandlers[ $dbhKey ];
-		}
-		else {
-			$dbClasses = $this->opts()->getDef( 'db_classes' );
-			if ( isset( $dbClasses[ $dbhKey ] ) ) {
-				/** @var Shield\Databases\Base\Handler $dbh */
-				$dbh = new $dbClasses[ $dbhKey ]( $dbhKey );
-				try {
-					$dbh->setMod( $this )->execute();
-				}
-				catch ( \Exception $e ) {
-				}
-			}
-			$this->legacyDbHandlers[ $dbhKey ] = $dbh;
-		}
-
-		return $dbh;
 	}
 
 	/**

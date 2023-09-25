@@ -64,8 +64,6 @@ class DbCon {
 			throw new \Exception( sprintf( 'Invalid DBH Key %s', $dbKey ) );
 		}
 
-		// TODO parse the columns looking for foreign keys and init the table if 1 is found.
-
 		if ( $reload || empty( $dbh[ 'handler' ] ) ) {
 
 			if ( empty( $dbh[ 'class' ] ) ) {

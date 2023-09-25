@@ -133,7 +133,7 @@ class FileLockerController {
 	}
 
 	/**
-	 * @deprecated 18.4 - switch to private.
+	 * @deprecated 18.5 - switch to private.
 	 */
 	public function runAnalysis() {
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
