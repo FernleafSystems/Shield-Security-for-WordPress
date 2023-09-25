@@ -285,54 +285,17 @@ class IpRuleStatus {
 
 		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
 
+			$this->primeRanges();
+
 			$loader = new LoadIpRules();
+			$loader->wheres = [
+				sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
+			];
 
-			$cachedRanges = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
-			if ( self::$ranges === null && \is_array( $cachedRanges ) ) {
-				self::$ranges = \array_map( function ( array $record ) {
-					return ( new IpRuleRecord() )->applyFromArray( $record );
-				}, $cachedRanges );
-			}
-
-			if ( self::$ranges === null ) {
-				self::$ranges = [];
-				$buildRanges = true;
-
-				$loader->wheres = [
-					sprintf( '(%s) OR (%s)',
-						sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
-						"`ir`.`is_range`='1'"
-					)
-				];
-			}
-			else {
-				$buildRanges = false;
-				$loader->wheres = [
-					sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
-				];
-			}
-
-			foreach ( $buildRanges ? $loader->select() : \array_merge( $loader->select(), self::$ranges ) as $record ) {
-				if ( $record->is_range ) {
-					$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
-					if ( !empty( $maybeParsed ) ) {
-						if ( $buildRanges ) {
-							self::$ranges[] = $record;
-						}
-						if ( $maybeParsed->containsRange( $parsedIP ) ) {
-							$records[] = $record;
-						}
-					}
+			foreach ( \array_merge( $loader->select(), self::$ranges ) as $rec ) {
+				if ( !$rec->is_range || Services::IP()->IpIn( $this->getIP(), [ $rec->ipAsSubnetRange( true ) ] ) ) {
+					$records[] = $rec;
 				}
-				else {
-					$records[] = $record;
-				}
-			}
-
-			if ( $buildRanges && \count( self::$ranges ) < 30 ) {
-				IpRulesCache::Add( IpRulesCache::COLLECTION_RANGES, \array_map( function ( IpRuleRecord $record ) {
-					return $record->getRawData();
-				}, self::$ranges ), IpRulesCache::GROUP_COLLECTIONS );
 			}
 
 			if ( \count( $records ) === 0 ) {
@@ -341,5 +304,33 @@ class IpRuleStatus {
 		}
 
 		return $records;
+	}
+
+	private function primeRanges() :void {
+		if ( self::$ranges === null ) {
+
+			$cachedRanges = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+			if ( \is_array( $cachedRanges ) ) {
+				self::$ranges = \array_map( function ( array $record ) {
+					return ( new IpRuleRecord() )->applyFromArray( $record );
+				}, $cachedRanges );
+			}
+			else {
+				$loader = new LoadIpRules();
+				$loader->wheres = [ "`ir`.`is_range`='1'" ];
+				foreach ( $loader->select() as $record ) {
+					$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
+					if ( !empty( $maybeParsed ) ) {
+						self::$ranges[] = $record;
+					}
+				}
+
+				if ( \count( self::$ranges ) < 30 ) {
+					IpRulesCache::Add( IpRulesCache::COLLECTION_RANGES, \array_map( function ( IpRuleRecord $record ) {
+						return $record->getRawData();
+					}, self::$ranges ), IpRulesCache::GROUP_COLLECTIONS );
+				}
+			}
+		}
 	}
 }

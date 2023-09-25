@@ -151,7 +151,7 @@ class RenameLogin {
 	public function fCheckForLoginPhp( $location ) {
 
 		$redirectPath = wp_parse_url( $location, \PHP_URL_PATH );
-		if ( !empty( $redirectPath ) && \str_starts_with( $redirectPath, 'wp-login.php' ) !== false ) {
+		if ( !empty( $redirectPath ) && \str_contains( $redirectPath, 'wp-login.php' ) ) {
 
 			$queryArgs = \explode( '?', $location );
 			$location = home_url( $this->opts()->getCustomLoginPath() );
