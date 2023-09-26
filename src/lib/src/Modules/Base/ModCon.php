@@ -38,11 +38,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $wpCli;
 
 	/**
-	 * @var Databases
-	 */
-	private $dbHandler;
-
-	/**
 	 * @var AdminNotices
 	 */
 	private $adminNotices;
@@ -231,23 +226,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
-	 * @return Modules\Email\ModCon
-	 * @throws \Exception
-	 * @deprecated 18.4.1
-	 */
-	public function getEmailHandler() {
-		return self::con()->getModule_Email();
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailCon
-	 */
-	public function getEmailProcessor() {
-		return self::con()->email_con ? self::con()->email_con : $this->getEmailHandler()->getProcessor();
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
@@ -408,16 +386,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.2.5
-	 */
-	private function store() {
-		$con = self::con();
-		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->opts()->doOptionsSave( false, $con->isPremiumActive() );
-		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-	}
-
-	/**
 	 * This is the point where you would want to do any options verification
 	 */
 	public function doPrePluginOptionsSave() {
@@ -474,14 +442,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return null|Shield\Modules\Base\Options|mixed
-	 * @deprecated 18.3
-	 */
-	public function getOptions() {
-		return \method_exists( $this, 'opts' ) ? $this->opts() : $this->opts;
-	}
-
-	/**
-	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function opts() {
 		return $this->opts ?? $this->opts = $this->loadModElement( 'Options' );
@@ -503,13 +463,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function getAdminNotices() {
 		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
-	}
-
-	/**
-	 * @return Shield\Modules\Base\Databases|mixed
-	 */
-	public function getDbHandler() {
-		return $this->dbHandler ?? $this->dbHandler = $this->loadModElement( 'Databases' );
 	}
 
 	/**

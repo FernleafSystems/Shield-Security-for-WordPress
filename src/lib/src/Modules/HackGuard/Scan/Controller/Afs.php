@@ -101,12 +101,6 @@ class Afs extends Base {
 		return $record;
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	public function onWpLoaded() {
-	}
-
 	public function runHourlyCron() {
 		( new Lib\Snapshots\StoreAction\CleanStale() )->execute();
 		( new Lib\Snapshots\StoreAction\TouchAll() )->execute();

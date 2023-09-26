@@ -1009,13 +1009,6 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'data' );
 	}
 
-	/**
-	 * @deprecated 18.4.1
-	 */
-	public function getModule_Email() :Shield\Modules\Email\ModCon {
-		return $this->getModule( 'email' );
-	}
-
 	public function getModule_Events() :Shield\Modules\Events\ModCon {
 		return $this->getModule( 'events' );
 	}

@@ -48,38 +48,31 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'file_locker' ) : $this->getDbHandler()->loadDbH( 'file_locker' );
+		return self::con()->db_con->loadDbH( 'file_locker' );
 	}
 
 	public function getDbH_Malware() :DB\Malware\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'malware' ) : $this->getDbHandler()->loadDbH( 'malware' );
+		return self::con()->db_con->loadDbH( 'malware' );
 	}
 
 	public function getDbH_Scans() :DB\Scans\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'scans' ) : $this->getDbHandler()->loadDbH( 'scans' );
+		return self::con()->db_con->loadDbH( 'scans' );
 	}
 
 	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'scanitems' ) : $this->getDbHandler()->loadDbH( 'scanitems' );
+		return self::con()->db_con->loadDbH( 'scanitems' );
 	}
 
 	public function getDbH_ResultItems() :DB\ResultItems\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'resultitems' ) : $this->getDbHandler()->loadDbH( 'resultitems' );
+		return self::con()->db_con->loadDbH( 'resultitems' );
 	}
 
 	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'resultitem_meta' ) : $this->getDbHandler()->loadDbH( 'resultitem_meta' );
+		return self::con()->db_con->loadDbH( 'resultitem_meta' );
 	}
 
 	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'scanresults' ) : $this->getDbHandler()->loadDbH( 'scanresults' );
+		return self::con()->db_con->loadDbH( 'scanresults' );
 	}
 
 	public function preProcessOptions() {
