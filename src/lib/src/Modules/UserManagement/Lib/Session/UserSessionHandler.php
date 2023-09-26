@@ -138,45 +138,41 @@ class UserSessionHandler {
 			$homeURL = Services::WpGeneral()->getHomeUrl();
 
 			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
-				$this->mod()
-					 ->getEmailProcessor()
-					 ->sendEmailWithWrap(
-						 $to,
-						 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
-						 [
-							 sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
-								 $con->getHumanName(),
-								 $pluginName
-							 ),
-							 '',
-							 sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
-							 '',
-							 __( 'Details for this user are below:', 'wp-simple-firewall' ),
-							 '- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
-							 '- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
-							 '- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
-							 '- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
-							 '',
-							 __( 'Thanks.', 'wp-simple-firewall' )
-						 ]
-					 );
+				$con->email_con->sendEmailWithWrap(
+					$to,
+					sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $pluginName, $homeURL ) ),
+					[
+						sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
+							$con->getHumanName(),
+							$pluginName
+						),
+						'',
+						sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
+						'',
+						__( 'Details for this user are below:', 'wp-simple-firewall' ),
+						'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $homeURL ),
+						'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $user->user_login ),
+						'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $user->user_email ),
+						'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $con->this_req->ip ),
+						'',
+						__( 'Thanks.', 'wp-simple-firewall' )
+					]
+				);
 			}
 		}
 	}
 
 	private function sendUserLoginEmailNotification( \WP_User $user ) {
-		$this->mod()
-			 ->getEmailProcessor()
-			 ->send(
-				 $user->user_email,
-				 sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-				 self::con()->action_router->render( UserLoginNotice::SLUG, [
-					 'home_url'  => Services::WpGeneral()->getHomeUrl(),
-					 'username'  => $user->user_login,
-					 'ip'        => self::con()->this_req->ip,
-					 'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
-				 ] )
-			 );
+		self::con()->email_con->send(
+			$user->user_email,
+			sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
+			self::con()->action_router->render( UserLoginNotice::SLUG, [
+				'home_url'  => Services::WpGeneral()->getHomeUrl(),
+				'username'  => $user->user_login,
+				'ip'        => self::con()->this_req->ip,
+				'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
+			] )
+		);
 	}
 
 	public function onWpLoaded() {

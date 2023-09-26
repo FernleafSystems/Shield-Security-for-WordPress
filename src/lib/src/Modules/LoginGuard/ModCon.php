@@ -19,7 +19,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController();
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {

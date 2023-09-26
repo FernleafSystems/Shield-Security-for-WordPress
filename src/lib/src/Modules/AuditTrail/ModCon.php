@@ -129,7 +129,7 @@ class ModCon extends BaseShield\ModCon {
 		return $data;
 	}
 
-	protected function doPrePluginOptionsSave() {
+	public function doPrePluginOptionsSave() {
 		$opts = $this->opts();
 		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
 			$current = $opts->getOpt( $optKey );

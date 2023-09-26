@@ -37,10 +37,6 @@
 		<td>
 			<div style="width: 350px; margin-bottom: 8px; text-align: center" id="SvgQrCode"></div>
 			<div style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;" id="shield_ga_secret">{{ vars.ga_secret }}</div>
-			<script>
-				/** https://github.com/jeromeetienne/jquery-qrcode **/
-				jQuery( '#SvgQrCode' ).qrcode( '{{ hrefs.qr_code_auth|raw }}' );
-			</script>
 
 			<input class="regular-text"
 			       type="text"

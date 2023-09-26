@@ -8,7 +8,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public const SLUG = 'headers';
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		$this->cleanCustomRules();
 	}
 

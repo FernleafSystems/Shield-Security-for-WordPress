@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @deprecated 18.4.0
+ * @deprecated 18.4.1
  */
 class Databases {
 
@@ -26,7 +26,7 @@ class Databases {
 	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 * @throws \Exception
-	 * @deprecated 18.4.0
+	 * @deprecated 18.4.1
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$req = Services::Request();

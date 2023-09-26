@@ -82,7 +82,7 @@ class ModCon extends BaseShield\ModCon {
 			self::con()->db_con->loadDbH( 'scanresults' ) : $this->getDbHandler()->loadDbH( 'scanresults' );
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 

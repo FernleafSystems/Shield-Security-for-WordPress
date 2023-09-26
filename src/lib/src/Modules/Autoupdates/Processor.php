@@ -437,13 +437,11 @@ class Processor extends BaseShield\Processor {
 
 		$body[] = __( 'Thank you.', 'wp-simple-firewall' );
 
-		$this->mod()
-			 ->getEmailProcessor()
-			 ->sendEmailWithWrap(
-				 $this->opts()->getOpt( 'override_email_address' ),
-				 sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) ),
-				 $body
-			 );
+		( self::con()->email_con ? self::con()->email_con : $this->mod()->getEmailProcessor() )->sendEmailWithWrap(
+			$this->opts()->getOpt( 'override_email_address' ),
+			sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) ),
+			$body
+		);
 		die();
 	}
 

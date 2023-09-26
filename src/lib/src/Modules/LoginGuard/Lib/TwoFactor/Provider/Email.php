@@ -97,18 +97,17 @@ class Email extends AbstractShieldProvider {
 			$otp = $this->generate2faCode( $hashedNonce );
 
 			$success = ( $useSureSend && ( new SendEmail() )->send2FA( $this->getUser(), $otp ) )
-					   || $this->mod()
-							   ->getEmailProcessor()
-							   ->send(
-								   $user->user_email,
-								   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-								   $con->action_router->render( MfaLoginCode::SLUG, [
-									   'home_url' => Services::WpGeneral()->getHomeUrl(),
-									   'ip'       => $con->this_req->ip,
-									   'user_id'  => $user->ID,
-									   'otp'      => $otp,
-								   ] )
-							   );
+					   ||
+					   $con->email_con->send(
+						   $user->user_email,
+						   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+						   $con->action_router->render( MfaLoginCode::SLUG, [
+							   'home_url' => Services::WpGeneral()->getHomeUrl(),
+							   'ip'       => $con->this_req->ip,
+							   'user_id'  => $user->ID,
+							   'otp'      => $otp,
+						   ] )
+					   );
 		}
 		catch ( \Exception $e ) {
 		}

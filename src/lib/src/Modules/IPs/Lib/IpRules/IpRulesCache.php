@@ -16,7 +16,7 @@ class IpRulesCache {
 	public const COLLECTION_BYPASS = 'white';
 	private const GROUPS = [
 		self::GROUP_NO_RULES    => [
-			'lifetime' => 120,
+			'lifetime' => 60,
 			'limit'    => 30,
 		],
 		self::GROUP_COLLECTIONS => [

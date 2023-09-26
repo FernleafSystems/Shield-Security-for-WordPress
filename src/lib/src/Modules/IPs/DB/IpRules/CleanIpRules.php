@@ -55,6 +55,15 @@ class CleanIpRules {
 				->addWhereOlderThan( Services::Request()->ts(), 'expires_at' )
 				->query();
 
+		/**
+		 * @since 18.4 - delete crowdsec IPs that have never been accessed, and that expire within 2 days.
+		 */
+		$deleter->reset()
+				->filterByType( Handler::T_CROWDSEC )
+				->addWhere( 'last_access_at', 0 )
+				->addWhereOlderThan( Services::Request()->ts() + DAY_IN_SECONDS*2, 'expires_at' )
+				->query();
+
 		IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
 	}
 

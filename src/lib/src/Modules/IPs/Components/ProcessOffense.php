@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
@@ -77,5 +78,8 @@ class ProcessOffense {
 				);
 			}
 		}
+
+		/** This isn't really needed here, but to make absolutely sure, we remove the IP from the no-rules cache */
+		IpRulesCache::Delete( $this->getIP(), IpRulesCache::GROUP_NO_RULES );
 	}
 }

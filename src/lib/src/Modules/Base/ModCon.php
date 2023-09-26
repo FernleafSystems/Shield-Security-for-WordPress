@@ -78,17 +78,10 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	protected function setupHooks() {
-		$con = self::con();
-
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( 'rest_api_init', [ $this, 'onRestApiInit' ] );
 
-		add_action( $con->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
-		add_action( $con->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-
-//		if ( $this->isAdminOptionsPage() ) {
-//			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
-//		}
 		$this->collateRuleBuilders();
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
@@ -150,26 +143,25 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( self::con()->is_rest_enabled ) {
-			$this->initRestApi();
-		}
 	}
 
-	protected function initRestApi() {
-		$cfg = $this->opts()->getDef( 'rest_api' );
-		if ( !empty( $cfg[ 'publish' ] ) ) {
-			add_action( 'rest_api_init', function () use ( $cfg ) {
-				try {
-					$restClass = $this->findElementClass( 'Rest' );
-					/** @var Shield\Modules\Base\Rest $rest */
-					if ( @\class_exists( $restClass ) ) {
-						$rest = new $restClass( $cfg );
-						$rest->setMod( $this )->init();
+	public function onRestApiInit() {
+		if ( self::con()->is_rest_enabled ) {
+			$cfg = $this->opts()->getDef( 'rest_api' );
+			if ( !empty( $cfg[ 'publish' ] ) ) {
+				add_action( 'rest_api_init', function () use ( $cfg ) {
+					try {
+						$restClass = $this->findElementClass( 'Rest' );
+						/** @var Shield\Modules\Base\Rest $rest */
+						if ( @\class_exists( $restClass ) ) {
+							$rest = new $restClass( $cfg );
+							$rest->setMod( $this )->init();
+						}
 					}
-				}
-				catch ( \Exception $e ) {
-				}
-			} );
+					catch ( \Exception $e ) {
+					}
+				} );
+			}
 		}
 	}
 
@@ -242,21 +234,20 @@ abstract class ModCon extends DynPropertiesClass {
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return Modules\Email\ModCon
 	 * @throws \Exception
-	 * @deprecated 10.2
+	 * @deprecated 18.4.1
 	 */
 	public function getEmailHandler() {
 		return self::con()->getModule_Email();
 	}
 
 	/**
-	 * @return Modules\Email\Processor
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailCon
 	 */
 	public function getEmailProcessor() {
-		return $this->getEmailHandler()->getProcessor();
+		return self::con()->email_con ? self::con()->email_con : $this->getEmailHandler()->getProcessor();
 	}
 
 	/**
-	 * @param bool $enable
 	 * @return $this
 	 */
 	public function setIsMainFeatureEnabled( bool $enable ) {
@@ -293,8 +284,8 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function isModOptEnabled() :bool {
-		$opts = $this->opts();
-		return $opts->isOpt( $this->getEnableModOptKey(), 'Y' ) || $opts->isOpt( $this->getEnableModOptKey(), true, true );
+		return $this->opts()->isOpt( $this->getEnableModOptKey(), 'Y' )
+			   || $this->opts()->isOpt( $this->getEnableModOptKey(), true, true );
 	}
 
 	public function getEnableModOptKey() :string {
@@ -413,7 +404,7 @@ abstract class ModCon extends DynPropertiesClass {
 		}
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 	}
 
 	/**
@@ -429,14 +420,10 @@ abstract class ModCon extends DynPropertiesClass {
 	/**
 	 * This is the point where you would want to do any options verification
 	 */
-	protected function doPrePluginOptionsSave() {
+	public function doPrePluginOptionsSave() {
 	}
 
 	public function onPluginDeactivate() {
-	}
-
-	public function onPluginDelete() {
-		$this->opts()->deleteStorage();
 	}
 
 	protected function buildContextualHelp() {

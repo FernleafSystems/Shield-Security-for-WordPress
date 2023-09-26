@@ -31,6 +31,9 @@ class GoogleAuth extends AbstractShieldProvider {
 			'ajax' => [
 				'profile_ga_toggle' => ActionData::Build( MfaGoogleAuthToggle::class ),
 			],
+			'vars' => [
+				'qr_code_auth' => $this->getQrUrl(),
+			],
 		];
 	}
 
@@ -41,10 +44,6 @@ class GoogleAuth extends AbstractShieldProvider {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[
-				'hrefs'   => [
-					'qr_code_auth' => $validatedProfile ? '' : $this->getQrUrl(),
-					//				'src_chart_url' => $validatedProfile ? '' : $this->getQrImage(), // opt now for JS-based render
-				],
 				'vars'    => [
 					'ga_secret' => $validatedProfile ? $this->getSecret() : $this->resetSecret(),
 				],
@@ -148,7 +147,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	private function getGaSecret() :Secret {
 		if ( !isset( $this->workingSecret ) ) {
 			$this->workingSecret = ( new SecretFactory() )->create(
-				preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
+				\preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
 				sanitize_user( $this->getUser()->user_login )
 			);
 		}

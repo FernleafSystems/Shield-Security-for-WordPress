@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	CommentsFilter,
 	Comms,
 	Data,
-	Email,
 	Events,
 	Firewall,
 	HackGuard,
@@ -41,6 +40,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\OptsHandler                                     $opts
  * @property ActionRoutingController                                $action_router
  * @property Database\DbCon                                         $db_con
+ * @property Email\EmailCon                                         $email_con
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -162,6 +162,13 @@ class Controller extends DynPropertiesClass {
 				if ( !$val instanceof Database\DbCon ) {
 					$val = new Database\DbCon();
 					$this->db_con = $val;
+				}
+				break;
+
+			case 'email_con':
+				if ( !$val instanceof Email\EmailCon ) {
+					$val = new Email\EmailCon();
+					$this->email_con = $val;
 				}
 				break;
 
@@ -435,7 +442,6 @@ class Controller extends DynPropertiesClass {
 				CommentsFilter\ModCon::class,
 				Comms\ModCon::class,
 				Data\ModCon::class,
-				Email\ModCon::class,
 				Events\ModCon::class,
 				Firewall\ModCon::class,
 				HackGuard\ModCon::class,
@@ -1003,6 +1009,9 @@ class Controller extends DynPropertiesClass {
 		return $this->getModule( 'data' );
 	}
 
+	/**
+	 * @deprecated 18.4.1
+	 */
 	public function getModule_Email() :Shield\Modules\Email\ModCon {
 		return $this->getModule( 'email' );
 	}

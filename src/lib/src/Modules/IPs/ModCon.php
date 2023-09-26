@@ -75,7 +75,7 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		if ( !\defined( \strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {

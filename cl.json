@@ -1,7 +1,7 @@
 {
   "18.4": {
     "version":     "18.4",
-    "released_at": 1695381500,
+    "released_at": 1695730000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease184",
       "upgrade": "https://shsec.io/shieldupgradeguide184"
@@ -34,6 +34,15 @@
         "title":       "2FA Login Redirects",
         "description": [
           "Fixed a rare scenario where the redirect_to flag for WP logins wasn't being completely honoured when 2FA was used."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "fixed",
+        "pro_only":    false,
+        "title":       "Google Authenticator QR Codes",
+        "description": [
+          "Fixed broken rendering of QR Codes for Google Authenticator."
         ],
         "href":        ""
       }
