@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.4.2
+ */
 abstract class BaseForFiles extends Base {
 
 	public function buildScanResult( array $rawResult ) :ResultItems\Ops\Record {

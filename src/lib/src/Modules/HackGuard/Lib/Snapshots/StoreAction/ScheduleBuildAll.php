@@ -10,19 +10,23 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class ScheduleBuildAll extends Base {
+class ScheduleBuildAll extends BaseExec {
 
-	public function schedule() {
-		if ( $this->isTempDirAvailable() ) {
-			$hook = self::con()->prefix( 'ptg_build_snapshots' );
-			if ( is_main_network() ) {
-				add_action( $hook, function () {
-					$this->build();
-				} );
-			}
-			if ( wp_next_scheduled( $hook ) === false && \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-				wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
-			}
+	protected function run() {
+		$hook = self::con()->prefix( 'ptg_build_snapshots' );
+
+		if ( is_main_network() ) {
+			add_action( $hook, function () {
+				$this->build();
+			} );
+		}
+
+		if ( wp_next_scheduled( $hook ) === false ) {
+			add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () use ( $hook ) {
+				if ( \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
+				}
+			} );
 		}
 	}
 
@@ -76,5 +80,11 @@ class ScheduleBuildAll extends Base {
 				return $needBuilt;
 			}
 		);
+	}
+
+	/**
+	 * @deprecated 18.4.2
+	 */
+	public function schedule() {
 	}
 }

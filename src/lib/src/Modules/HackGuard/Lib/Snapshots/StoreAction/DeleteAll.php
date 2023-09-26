@@ -2,13 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\HashesStorageDir;
 use FernleafSystems\Wordpress\Services\Services;
 
-class DeleteAll extends Base {
+class DeleteAll extends BaseExec {
 
-	public function run() {
-		if ( $this->isTempDirAvailable() ) {
-			Services::WpFs()->deleteDir( $this->getTempDir() );
-		}
+	protected function run() {
+		Services::WpFs()->deleteDir( ( new HashesStorageDir() )->getTempDir() );
 	}
 }
