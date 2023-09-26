@@ -223,6 +223,22 @@ class AddRule {
 
 		$ruleStatus::ClearStatusForIP( $ip );
 
+		$this->clearCaches( $tmp );
+
 		return $ipRuleRecord;
+	}
+
+	private function clearCaches( IpRulesDB\Record $record ) {
+
+		if ( $record->type === IpRulesDB\Handler::T_MANUAL_BYPASS ) {
+			IpRulesCache::Delete( IpRulesCache::COLLECTION_BYPASS, IpRulesCache::GROUP_COLLECTIONS );
+		}
+		if ( $record->is_range ) {
+			IpRulesCache::ResetGroup( IpRulesCache::GROUP_NO_RULES );
+			IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+		}
+		else {
+			IpRulesCache::Delete( $this->getIP(), IpRulesCache::GROUP_NO_RULES );
+		}
 	}
 }

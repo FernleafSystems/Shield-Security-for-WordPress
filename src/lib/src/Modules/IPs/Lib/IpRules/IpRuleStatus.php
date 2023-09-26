@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	IpRuleRecord,
@@ -31,6 +30,11 @@ class IpRuleStatus {
 	 */
 	private static $ranges = null;
 
+	/**
+	 * @var IpRuleRecord[]
+	 */
+	private static $bypass = null;
+
 	public function __construct( string $ipOrRange ) {
 		$this->ipOrRange = $ipOrRange;
 	}
@@ -56,7 +60,7 @@ class IpRuleStatus {
 		$ip = $this->getIP();
 		if ( !isset( self::$cache[ $ip ] ) ) {
 			try {
-				self::$cache[ $ip ] = $this->loadRecordsForIP();
+				self::$cache[ $ip ] = IpRulesCache::Has( $this->getIP(), IpRulesCache::GROUP_NO_RULES ) ? [] : $this->loadRecordsForIP();
 			}
 			catch ( \Exception $e ) {
 				self::$cache[ $ip ] = [];
@@ -287,42 +291,90 @@ class IpRuleStatus {
 		if ( $this->mod()->getDbH_IPRules()->isReady() ) {
 
 			$loader = new LoadIpRules();
-			if ( self::$ranges === null ) {
-				self::$ranges = [];
-				$buildRanges = true;
+			$loader->wheres = [
+				sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
+			];
 
-				$loader->wheres = [
-					sprintf( '(%s) OR (%s)',
-						sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() ),
-						"`ir`.`is_range`='1'"
-					)
-				];
-			}
-			else {
-				$buildRanges = false;
-				$loader->wheres = [
-					sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
-				];
+			foreach ( \array_merge( $this->getRanges(), $this->getBypasses(), $loader->select() ) as $rec ) {
+				if ( Services::IP()->IpIn( $this->getIP(), [ $rec->ipAsSubnetRange( true ) ] ) ) {
+					$records[] = $rec;
+				}
 			}
 
-			foreach ( $buildRanges ? $loader->select() : \array_merge( $loader->select(), self::$ranges ) as $record ) {
-				if ( $record->is_range ) {
-					$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
-					if ( !empty( $maybeParsed ) ) {
-						if ( $buildRanges ) {
-							self::$ranges[] = $record;
-						}
-						if ( $maybeParsed->containsRange( $parsedIP ) ) {
-							$records[] = $record;
-						}
-					}
-				}
-				else {
-					$records[] = $record;
-				}
+			if ( \count( $records ) === 0 ) {
+				IpRulesCache::Add( $this->getIP(), $this->getIP(), IpRulesCache::GROUP_NO_RULES );
 			}
 		}
 
 		return $records;
+	}
+
+	private function getRanges() :array {
+		if ( self::$ranges === null ) {
+
+			$cachedRanges = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+			if ( \is_array( $cachedRanges ) ) {
+				self::$ranges = \array_map( function ( array $record ) {
+					return ( new IpRuleRecord() )->applyFromArray( $record );
+				}, $cachedRanges );
+			}
+			else {
+				self::$ranges = [];
+
+				$loader = new LoadIpRules();
+				$loader->wheres = [ "`ir`.`is_range`='1'" ];
+				foreach ( $loader->select() as $record ) {
+					$maybeParsed = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
+					if ( !empty( $maybeParsed ) ) {
+						self::$ranges[] = $record;
+					}
+				}
+
+				if ( \count( self::$ranges ) < 30 ) {
+					IpRulesCache::Add(
+						IpRulesCache::COLLECTION_RANGES,
+						\array_map( function ( IpRuleRecord $record ) {
+							return $record->getRawData();
+						}, self::$ranges ),
+						IpRulesCache::GROUP_COLLECTIONS
+					);
+				}
+			}
+		}
+		return self::$ranges;
+	}
+
+	private function getBypasses() :array {
+		if ( self::$bypass === null ) {
+
+			$cachedBypasses = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+			if ( \is_array( $cachedBypasses ) ) {
+				self::$bypass = \array_map( function ( array $record ) {
+					return ( new IpRuleRecord() )->applyFromArray( $record );
+				}, $cachedBypasses );
+			}
+			else {
+				self::$bypass = [];
+
+				$loader = new LoadIpRules();
+				$loader->wheres = [
+					sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() ),
+					sprintf( "`ir`.`type`='%s'", Handler::T_MANUAL_BYPASS ),
+					"`ir`.`is_range`='0'",
+				];
+				self::$bypass = \array_values( $loader->select() );
+
+				if ( \count( self::$bypass ) < 50 ) {
+					IpRulesCache::Add(
+						IpRulesCache::COLLECTION_BYPASS,
+						\array_map( function ( IpRuleRecord $record ) {
+							return $record->getRawData();
+						}, self::$bypass ),
+						IpRulesCache::GROUP_COLLECTIONS
+					);
+				}
+			}
+		}
+		return self::$bypass;
 	}
 }

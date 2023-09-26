@@ -6,6 +6,10 @@ jQuery.fn.ShieldUserProfile = function ( options ) {
 	let $emailStartState;
 
 	let initGA = function ( shield_vars ) {
+
+		/** https://github.com/jeromeetienne/jquery-qrcode **/
+		jQuery( '#SvgQrCode' ).qrcode( shield_vars.vars.qr_code_auth );
+
 		let $gaCode = jQuery( 'input[type=text]#shield_gacode' );
 		if ( $gaCode.length > 0 ) {
 			jQuery( document ).on( 'change, keyup', $gaCode, function ( evt ) {

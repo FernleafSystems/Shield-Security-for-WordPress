@@ -5,28 +5,25 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated 18.4.2
- */
-class StorageDir {
+class HashesStorageDir {
 
 	use PluginControllerConsumer;
 
 	public const SUFFIX_LENGTH = 16;
 
-	private $tempDir;
+	private static $dir = null;
 
 	public function getTempDir() :string {
-		if ( \is_null( $this->tempDir ) ) {
+		if ( \is_null( self::$dir ) ) {
 			try {
 				$dir = $this->locateTempDir();
 			}
 			catch ( \Exception $e ) {
 				$dir = self::con()->cache_dir_handler->buildSubDir( 'ptguard-'.wp_generate_password( self::SUFFIX_LENGTH, false ) );
 			}
-			$this->tempDir = $dir;
+			self::$dir = $dir;
 		}
-		return $this->tempDir;
+		return self::$dir;
 	}
 
 	/**

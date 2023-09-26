@@ -7,12 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
 	Scan
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops\Update;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Afs extends BaseForFiles {
+class Afs extends Base {
 
 	use PluginCronsConsumer;
 
@@ -25,7 +24,8 @@ class Afs extends BaseForFiles {
 			->execute();
 
 		$this->setupCronHooks();
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+
+		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->execute();
 	}
 
 	public function getAdminMenuItems() :array {
@@ -76,13 +76,40 @@ class Afs extends BaseForFiles {
 		return $items;
 	}
 
+	public function buildScanResult( array $rawResult ) :ResultItemsDB\Record {
+		$autoFiltered = $rawResult[ 'auto_filter' ] ?? false;
+
+		/** @var ResultItemsDB\Record $record */
+		$record = $this->mod()->getDbH_ResultItems()->getRecord();
+		$record->auto_filtered_at = $autoFiltered ? Services::Request()->ts() : 0;
+		$record->item_id = $rawResult[ 'path_fragment' ];
+		$record->item_type = ResultItemsDB\Handler::ITEM_TYPE_FILE;
+
+		$metaToClear = [
+			'auto_filter',
+			'path_full',
+			'scan',
+			'hash',
+		];
+		foreach ( $metaToClear as $metaItem ) {
+			unset( $rawResult[ $metaItem ] );
+		}
+
+		$meta = $rawResult;
+		$record->meta = $meta;
+
+		return $record;
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
 	public function onWpLoaded() {
-		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->schedule();
 	}
 
 	public function runHourlyCron() {
-		( new Lib\Snapshots\StoreAction\CleanStale() )->run();
-		( new Lib\Snapshots\StoreAction\TouchAll() )->run();
+		( new Lib\Snapshots\StoreAction\CleanStale() )->execute();
+		( new Lib\Snapshots\StoreAction\TouchAll() )->execute();
 	}
 
 	public function actionPluginReinstall( string $file ) :bool {
@@ -132,7 +159,7 @@ class Afs extends BaseForFiles {
 	 */
 	public function cleanStaleResultItem( $item ) {
 		$dbhResultItems = $this->mod()->getDbH_ResultItems();
-		/** @var Update $updater */
+		/** @var ResultItemsDB\Update $updater */
 		$updater = $dbhResultItems->getQueryUpdater();
 
 		if ( ( $item->is_unrecognised || $item->is_mal ) && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
@@ -151,7 +178,7 @@ class Afs extends BaseForFiles {
 			try {
 				$verifiedHash = ( new Lib\Hashes\Query() )->verifyHash( $item->path_full );
 				if ( $item->is_checksumfail && $verifiedHash ) {
-					/** @var Update $updater */
+					/** @var ResultItemsDB\Update $updater */
 					$updater = $dbhResultItems->getQueryUpdater();
 					$updater->setItemRepaired( $item->VO->resultitem_id );
 				}
@@ -227,7 +254,7 @@ class Afs extends BaseForFiles {
 		return false;
 	}
 
-	public function buildScanAction():Scans\Afs\ScanActionVO {
+	public function buildScanAction() :Scans\Afs\ScanActionVO {
 		return ( new Scans\Afs\BuildScanAction() )
 			->setScanController( $this )
 			->build()
@@ -240,6 +267,6 @@ class Afs extends BaseForFiles {
 	 */
 	public function purge() {
 		parent::purge();
-		( new Lib\Snapshots\StoreAction\DeleteAll() )->run();
+		( new Lib\Snapshots\StoreAction\DeleteAll() )->execute();
 	}
 }

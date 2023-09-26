@@ -81,7 +81,7 @@ abstract class BaseForm extends Base {
 		if ( empty( $redirectTo ) ) {
 
 			if ( !empty( $referQuery ) ) {
-				parse_str( $referQuery, $referQueryItems );
+				\parse_str( $referQuery, $referQueryItems );
 				if ( !empty( $referQueryItems[ 'redirect_to' ] ) ) {
 					$redirectTo = $referQueryItems[ 'redirect_to' ];
 				}
@@ -94,7 +94,7 @@ abstract class BaseForm extends Base {
 
 		$cancelHref = $req->post( 'cancel_href', '' );
 		if ( empty( $cancelHref ) && Services::Data()->isValidWebUrl( $referUrl ) ) {
-			$cancelHref = parse_url( $referUrl, PHP_URL_PATH );
+			$cancelHref = \parse_url( $referUrl, \PHP_URL_PATH );
 		}
 
 		global $interim_login;
@@ -103,8 +103,8 @@ abstract class BaseForm extends Base {
 			'interim-login' => ( $interim_login || ( $this->action_data[ 'interim_login' ] ?? '0' ) ) ? '1' : false,
 			'login_nonce'   => $this->action_data[ 'plain_login_nonce' ],
 			'rememberme'    => esc_attr( $this->action_data[ 'rememberme' ] ),
-			'redirect_to'   => esc_attr( esc_url( $redirectTo ) ),
-			'cancel_href'   => esc_attr( esc_url( $cancelHref ) ),
+			'redirect_to'   => esc_attr( esc_url_raw( $redirectTo ) ),
+			'cancel_href'   => esc_attr( esc_url_raw( $cancelHref ) ),
 			/**
 			 * This server produced HTTP 402 error if the request to the login form didn't include wp-submit
 			 * https://secure.helpscout.net/conversation/1781553925/1153

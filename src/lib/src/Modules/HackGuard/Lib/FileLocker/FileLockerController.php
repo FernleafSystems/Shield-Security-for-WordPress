@@ -41,7 +41,9 @@ class FileLockerController {
 	}
 
 	protected function run() {
-		add_action( 'wp_loaded', [ $this, 'runAnalysis' ] );
+		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
+			$this->runAnalysis();
+		} );
 		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
@@ -52,7 +54,7 @@ class FileLockerController {
 				'id'       => self::con()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $count ),
-				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href'     => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 				'warnings' => $count
 			];
 		}
@@ -130,6 +132,9 @@ class FileLockerController {
 		return $lock;
 	}
 
+	/**
+	 * @deprecated 18.5 - switch to private.
+	 */
 	public function runAnalysis() {
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 			$this->opts()->setOpt( 'file_locker', [] );

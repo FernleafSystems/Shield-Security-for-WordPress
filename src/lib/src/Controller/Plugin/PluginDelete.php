@@ -19,15 +19,23 @@ class PluginDelete {
 	}
 
 	private function deleteOptions() {
+
+		foreach ( self::con()->modules as $mod ) {
+			$mod->opts()->deleteStorage();
+		}
+
 		self::con()->opts->delete();
+
 		foreach (
 			[
 				'icwp-wpsf-cs_auths',
 				'icwp-wpsf-rules',
+				self::con()->prefixOption( 'ip_rules_cache' ),
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );
 		}
+
 	}
 
 	private function deleteTmpDir() {

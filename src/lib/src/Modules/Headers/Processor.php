@@ -63,7 +63,7 @@ class Processor extends BaseShield\Processor {
 	public function sendHeaders() {
 		if ( !$this->pushed ) {
 
-			$sent = \array_map( 'strtolower', \array_keys( $this->getAlreadySentHeaders() ) );
+			$sent = \array_map( '\strtolower', \array_keys( $this->getAlreadySentHeaders() ) );
 			foreach ( $this->gatherSecurityHeaders() as $name => $value ) {
 				if ( !\in_array( \strtolower( $name ), $sent ) ) {
 					@\header( sprintf( '%s: %s', $name, $value ) );

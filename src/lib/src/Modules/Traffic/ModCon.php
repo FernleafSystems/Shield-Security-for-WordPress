@@ -31,7 +31,7 @@ class ModCon extends BaseShield\ModCon {
 		];
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		$opts->setOpt( 'custom_exclusions', \array_filter( \array_map(

@@ -39,15 +39,18 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'botsignal' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'botsignal' ) : $this->getDbHandler()->loadDbH( 'botsignal' );
 	}
 
 	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'ip_rules' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'ip_rules' ) : $this->getDbHandler()->loadDbH( 'ip_rules' );
 	}
 
 	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
+		return self::con()->db_con ?
+			self::con()->db_con->loadDbH( 'crowdsec_signals' ) : $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -72,7 +75,7 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		if ( !\defined( \strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {

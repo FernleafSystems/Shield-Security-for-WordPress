@@ -33,6 +33,7 @@ class BuildSearchPanesData {
 					  ->getDbH_IPRules()
 					  ->getQuerySelector()
 					  ->setOrderBy( 'last_access_at', 'ASC' )
+					  ->addWhereNewerThan( 0, 'last_access_at' )
 					  ->first();
 		return ( new BuildDataForDays() )->buildFromOldestToNewest(
 			empty( $first ) ? Services::Request()->ts() : $first->last_access_at

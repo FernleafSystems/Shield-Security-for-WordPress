@@ -23,7 +23,13 @@ class LoadConfig {
 	 */
 	private $store_key;
 
+	/**
+	 * @throws \Exception
+	 */
 	public function __construct( string $path, string $storeKey ) {
+		if ( !Services::WpFs()->isAccessibleFile( $path ) ) {
+			throw new \Exception( sprintf( "Path to plugin config (%s) doesn't exist. Please reinstall the plugin.", $path ) );
+		}
 		$this->path = $path;
 		$this->store_key = $storeKey;
 	}
@@ -42,7 +48,7 @@ class LoadConfig {
 		if ( !$rebuild ) {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 
-			$rebuild = empty( $def[ 'hash' ] ) || !hash_equals( $def[ 'hash' ], $specHash )
+			$rebuild = empty( $def[ 'hash' ] ) || !\hash_equals( $def[ 'hash' ], $specHash )
 					   || ( $version !== $WPP->getPluginAsVo( self::con()->base_file )->Version );
 			$def[ 'hash' ] = $specHash;
 		}

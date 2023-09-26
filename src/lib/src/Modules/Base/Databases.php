@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Core;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.4.1
+ */
 class Databases {
 
 	use ModConsumer;
@@ -21,20 +24,9 @@ class Databases {
 	}
 
 	/**
-	 * @return Core\Databases\Base\Handler[]
-	 * @throws \Exception
-	 */
-	public function loadAllDbHandlers( bool $reload = false ) :array {
-		foreach ( \array_keys( $this->getDbHandlerClasses() ) as $dbKey ) {
-			$this->loadDbH( $dbKey, $reload );
-		}
-		return $this->dbHandlers;
-	}
-
-	/**
 	 * @return Core\Databases\Base\Handler|mixed|null
 	 * @throws \Exception
-	 * @deprecated 18.3.1
+	 * @deprecated 18.4.1
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
 		$req = Services::Request();

@@ -8,7 +8,7 @@ class ModCon extends BaseShield\ModCon {
 
 	public const SLUG = 'comments_filter';
 
-	protected function preProcessOptions() {
+	public function preProcessOptions() {
 		/** @var Options $opts */
 		$opts = $this->opts();
 

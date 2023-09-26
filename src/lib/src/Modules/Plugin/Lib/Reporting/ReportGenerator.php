@@ -146,19 +146,17 @@ class ReportGenerator {
 		$con = self::con();
 
 		try {
-			$this->mod()
-				 ->getEmailProcessor()
-				 ->send(
-					 $this->mod()->getPluginReportEmail(),
-					 __( 'Security Report', 'wp-simple-firewall' ).' - '.$con->getHumanName(),
-					 $con->action_router->render(
-						 ReportsActions\Contexts\EmailReport::SLUG,
-						 [
-							 'home_url' => Services::WpGeneral()->getHomeUrl(),
-							 'reports'  => $reports,
-						 ]
-					 )
-				 );
+			$con->email_con->send(
+				$con->getModule_Plugin()->getPluginReportEmail(),
+				__( 'Security Report', 'wp-simple-firewall' ).' - '.$con->getHumanName(),
+				$con->action_router->render(
+					ReportsActions\Contexts\EmailReport::SLUG,
+					[
+						'home_url' => Services::WpGeneral()->getHomeUrl(),
+						'reports'  => $reports,
+					]
+				)
+			);
 
 			$con->fireEvent( 'report_sent', [
 				'audit_params' => [

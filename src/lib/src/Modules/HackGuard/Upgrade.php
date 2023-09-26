@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\MoveHashFiles;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\CleanOutOldGuardFiles;
 
 class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgrade {
@@ -16,9 +15,5 @@ class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgr
 	 */
 	protected function upgrade_16114() {
 		( new CleanOutOldGuardFiles() )->execute();
-	}
-
-	protected function upgrade_1617() {
-		( new MoveHashFiles() )->run();
 	}
 }

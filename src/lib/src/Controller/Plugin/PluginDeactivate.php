@@ -12,7 +12,15 @@ class PluginDeactivate {
 	use ExecOnce;
 
 	protected function run() {
+		$this->modDeactivate();
 		$this->deleteCrons();
+	}
+
+	private function modDeactivate() {
+		// 1. Clean out the scanners
+		foreach ( self::con()->modules as $mod ) {
+			$mod->onPluginDeactivate();
+		}
 	}
 
 	private function deleteCrons() {
