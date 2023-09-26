@@ -76,7 +76,6 @@
         "select2",
         "plugin",
         "jquery/featherlight",
-        "jquery/fileDownload",
         "shield/ipanalyse",
         "shield/scanners",
         "shield/tours",
@@ -225,7 +224,6 @@
           "url": "https://cdn.jsdelivr.net/npm/js-base64@2.6.4/base64.min.js"
         },
         "lz-string.min":                     {},
-        "jquery/fileDownload":               {},
         "jquery/jquery.qrcode":              {
           "deps": [
             "wp-jquery"
