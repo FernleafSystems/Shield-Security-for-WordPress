@@ -10,14 +10,9 @@ class CleanStale extends BaseExec {
 
 	protected function run() {
 		try {
-			if ( !( new HashesStorageDir() )->getTempDir() ) {
-				throw new \Exception( 'temporary directory is unavailable' );
-			}
-
 			$boundary = Services::Request()
 								->carbon()
 								->subDay()->timestamp;
-
 			foreach ( StandardDirectoryIterator::create( ( new HashesStorageDir() )->getTempDir() ) as $file ) {
 				/** @var \SplFileInfo $file */
 				if ( $boundary > $file->getMTime() ) {

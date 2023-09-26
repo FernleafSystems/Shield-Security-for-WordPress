@@ -17,8 +17,6 @@ class Afs extends Base {
 
 	public const SCAN_SLUG = 'afs';
 
-	private static $storageDir;
-
 	protected function run() {
 		parent::run();
 		( new Scan\Utilities\PtgAddReinstallLinks() )
