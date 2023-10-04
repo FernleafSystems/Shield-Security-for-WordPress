@@ -1,4 +1,5 @@
 .idea/
+/assets/dist
 /config/deprecated/
 /src/lib/strauss.phar
 /src/lib/vendor/

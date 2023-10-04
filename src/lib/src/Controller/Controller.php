@@ -571,7 +571,7 @@ class Controller extends DynPropertiesClass {
 	 * @param array $headers
 	 * @return array
 	 */
-	public function adjustNocacheHeaders( $headers ) :array {
+	public function adjustNocacheHeaders( $headers ) {
 		if ( \is_array( $headers ) && !empty( $headers[ 'Cache-Control' ] ) ) {
 			$Hs = \array_map( '\trim', \explode( ',', $headers[ 'Cache-Control' ] ) );
 			$Hs[] = 'no-store';
