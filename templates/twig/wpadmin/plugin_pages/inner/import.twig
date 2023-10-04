@@ -8,16 +8,17 @@
 				<ul class="nav nav-tabs insights-sub-nav">
 
 					<li class="nav-item">
-						<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#byFile" aria-selected="true"
+						<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#toFile"
+						   aria-selected="true"
 						   data-bs-toggle="tab">
-							{{ strings.tab_by_file }}
+							{{ strings.tab_to_file }}
 						</a>
 					</li>
 
 					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#toFile"
+						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#byFile"
 						   data-bs-toggle="tab">
-							{{ strings.tab_to_file }}
+							{{ strings.tab_by_file }}
 						</a>
 					</li>
 
@@ -34,11 +35,11 @@
 
 		<div class="tab-content">
 
-			<div class="tab-pane fade show active" id="byFile" role="tabpanel" aria-labelledby="byFile">
+			<div class="tab-pane fade show active" id="toFile" role="tabpanel" aria-labelledby="toFile">
 				<div class="row">
 					<div class="col">
 						{% if flags.can_importexport_file %}
-							{% include '/wpadmin_pages/insights/importexport/from_file.twig' %}
+							{% include '/wpadmin_pages/insights/importexport/to_file.twig' %}
 						{% else %}
 							{% include '/wpadmin/components/feature_unavailable.twig' %}
 						{% endif %}
@@ -46,11 +47,11 @@
 				</div>
 			</div>
 
-			<div class="tab-pane fade" id="toFile" role="tabpanel" aria-labelledby="toFile">
+			<div class="tab-pane fade" id="byFile" role="tabpanel" aria-labelledby="byFile">
 				<div class="row">
 					<div class="col">
 						{% if flags.can_importexport_file %}
-							{% include '/wpadmin_pages/insights/importexport/to_file.twig' %}
+							{% include '/wpadmin_pages/insights/importexport/from_file.twig' %}
 						{% else %}
 							{% include '/wpadmin/components/feature_unavailable.twig' %}
 						{% endif %}

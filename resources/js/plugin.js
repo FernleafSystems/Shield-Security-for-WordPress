@@ -283,23 +283,6 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 	return this;
 };
 
-if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
-
-	jQuery( document ).ready( function () {
-		jQuery( document ).on( 'click', 'a.shield_file_download', function ( evt ) {
-			evt.preventDefault();
-			/** Cache busting **/
-			let url = jQuery( this ).attr( 'href' ) + '&rand='
-				+ Math.floor( 10000 * Math.random() );
-			jQuery.fileDownload( url, {
-				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
-				failMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file_problem
-			} );
-			return false;
-		} );
-	} );
-}
-
 let iCWP_Print_Div = function ( divID ){
 	let divContents = document.getElementById(divID).innerHTML;
 	let a = window.open('', '', 'height=800, width=800');

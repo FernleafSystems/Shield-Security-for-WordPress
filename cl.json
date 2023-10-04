@@ -49,6 +49,20 @@
     ],
     "patches":     [
       {
+        "version":     "4",
+        "released_at": 1696417000,
+        "items":       [
+          {
+            "title": "Scenario where FileLocker wasn't creating file locks on the WP Cron.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Some file download links weren't working correctly.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "3",
         "released_at": 1695907000,
         "items":       [
