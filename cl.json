@@ -48,6 +48,16 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "3",
+        "released_at": 1695907000,
+        "items":       [
+          {
+            "title": "Fixed potential error on loading Shield admin screens.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "18.3": {
