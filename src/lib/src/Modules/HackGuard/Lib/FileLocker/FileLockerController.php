@@ -41,9 +41,20 @@ class FileLockerController {
 	}
 
 	protected function run() {
+
+		/**
+		 * This cron block must ALWAYS be executed on or before wp_loaded. ALWAYS.
+		 */
+		if ( wp_next_scheduled( $this->getCronHook() ) ) {
+			add_action( $this->getCronHook(), function () {
+				$this->runLocksCreation();
+			} );
+		}
+
 		add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () {
 			$this->runAnalysis();
 		} );
+
 		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
 	}
 
@@ -151,26 +162,23 @@ class FileLockerController {
 			( new Ops\AssessLocks() )->run();
 
 			// 3. Create any outstanding locks.
-			if ( is_main_network() ) {
-				$this->maybeRunLocksCreation();
+			if ( is_main_network()
+				 && !Services::WpGeneral()->isCron()
+				 && !empty( ( new Ops\GetFileLocksToCreate() )->run() )
+			) {
+				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
 			}
 		}
 	}
 
+	/**
+	 * @deprecated 18.4.4
+	 */
 	private function maybeRunLocksCreation() {
-		if ( !empty( ( new Ops\GetFileLocksToCreate() )->run() ) ) {
-			$con = self::con();
-			$hook = $con->prefix( 'create_file_locks' );
+	}
 
-			if ( wp_next_scheduled( $hook ) ) {
-				add_action( $hook, function () {
-					$this->runLocksCreation();
-				} );
-			}
-			elseif ( !Services::WpGeneral()->isCron() ) {
-				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $hook );
-			}
-		}
+	private function getCronHook() :string {
+		return self::con()->prefix( 'create_file_locks' );
 	}
 
 	/**
