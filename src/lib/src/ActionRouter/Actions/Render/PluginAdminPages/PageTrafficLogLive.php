@@ -43,7 +43,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 			'strings' => [
 				'inner_page_title'    => __( 'Live Logs', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View live traffic logs as they occur on your site.', 'wp-simple-firewall' ),
-				'not_enabled'         => __( "Live traffic logging isn't switched-on, so you may not see many updates.", 'wp-simple-firewall' ),
+				'not_enabled'         => __( "The Live Traffic Logging option isn't switched-on, so you may not see many updates.", 'wp-simple-firewall' ),
 			],
 		];
 	}
