@@ -34,11 +34,10 @@ class ActionData {
 	}
 
 	public static function BuildVO( ActionDataVO $VO ) :array {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction $actionClass */
 		$data = \array_merge( [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
-			self::FIELD_EXECUTE => $actionClass::SLUG,
-			self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$actionClass::SLUG, $VO->ip_in_nonce ),
+			self::FIELD_EXECUTE => $VO->action::SLUG,
+			self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$VO->action::SLUG, $VO->ip_in_nonce ),
 		], $VO->aux );
 
 		if ( $VO->is_ajax ) {
