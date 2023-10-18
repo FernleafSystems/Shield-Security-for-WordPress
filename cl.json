@@ -49,6 +49,16 @@
     ],
     "patches":     [
       {
+        "version":     "5",
+        "released_at": 1696417000,
+        "items":       [
+          {
+            "title": "Email 2FA One-Time-Password is numeric only. OTP may be modified via supplied filter.",
+            "type":  "changed"
+          }
+        ]
+      },
+      {
         "version":     "4",
         "released_at": 1696417000,
         "items":       [
