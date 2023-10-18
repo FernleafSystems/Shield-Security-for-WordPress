@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionDataVO;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBotNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
@@ -60,19 +61,24 @@ class InsertNotBotJs {
 			 * @since 11.2 - don't fire for GTMetrix page requests
 			 */
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
+				$notBotVO = new ActionDataVO();
+				$notBotVO->action = CaptureNotBot::class;
+				$notBotVO->ip_in_nonce = false;
+
+				$notBotNonceVO = new ActionDataVO();
+				$notBotNonceVO->action = CaptureNotBotNonce::class;
+				$notBotNonceVO->excluded_fields = [
+					ActionData::FIELD_NONCE,
+					ActionData::FIELD_AJAXURL,
+				];
+
 				$localz[] = [
 					'shield/notbot',
 					'shield_vars_notbotjs',
 					apply_filters( 'shield/notbot_data_js', [
 						'ajax'  => [
-							'not_bot'       => ActionData::Build( CaptureNotBot::class, false ),
-							'not_bot_nonce' => \array_diff_key(
-								ActionData::Build( CaptureNotBotNonce::class ),
-								\array_flip( [
-									ActionData::FIELD_NONCE,
-									ActionData::FIELD_AJAXURL,
-								] )
-							),
+							'not_bot'       => ActionData::BuildVO( $notBotVO ),
+							'not_bot_nonce' => ActionData::BuildVO( $notBotNonceVO ),
 						],
 						'flags' => [
 							'run' => !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
