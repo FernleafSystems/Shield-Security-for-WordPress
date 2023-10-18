@@ -4,10 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionRoutingController,
+	Actions,
+	Exceptions\ActionException
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Base,
 	AuditTrail,
 	Autoupdates,
+	Base,
 	CommentsFilter,
 	Comms,
 	Data,
@@ -25,12 +31,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionRoutingController,
-	Actions,
-	Exceptions\ActionException
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;

@@ -16,8 +16,11 @@ class Email extends AbstractShieldProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::class ),
+			],
+			'flags' => [
+				'is_available' => $this->isProviderAvailableToUser(),
 			],
 		];
 	}
@@ -146,6 +149,7 @@ class Email extends AbstractShieldProvider {
 		}
 
 		$otp = apply_filters( 'shield/2fa_email_otp', PasswordGenerator::Gen( 6, true, false, false ) );
+		error_log( var_export( $otp, true ) );
 		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
 
 		// Clean old secrets linked to expired login intents

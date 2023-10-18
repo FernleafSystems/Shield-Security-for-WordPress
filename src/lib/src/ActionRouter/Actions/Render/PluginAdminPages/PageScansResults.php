@@ -2,11 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	ScansCheck,
-	ScansStart
-};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
@@ -36,8 +31,12 @@ class PageScansResults extends BasePluginAdminPage {
 				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
 			],
 			[
-				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_HackGuard()->cfg->slug ),
+				'text'    => __( 'Configure Scans', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => $con->getModule_HackGuard()->cfg->slug
+				],
 			],
 		];
 	}
@@ -79,10 +78,6 @@ class PageScansResults extends BasePluginAdminPage {
 		}
 
 		return [
-			'ajax'        => [
-				'scans_start' => ActionData::BuildJson( ScansStart::class ),
-				'scans_check' => ActionData::BuildJson( ScansCheck::class ),
-			],
 			'content'     => [
 				'section' => [
 					'plugins'    => $con->action_router->render( Plugins::SLUG ),
@@ -124,8 +119,7 @@ class PageScansResults extends BasePluginAdminPage {
 				'review_scanner_config' => __( "Review Scanner Module configuration", 'wp-simple-firewall' ),
 			],
 			'vars'        => [
-				'initial_check' => $mod->getScanQueueController()->hasRunningScans(),
-				'sections'      => [
+				'sections' => [
 					'plugins'   => [
 						'count' => $counter->countPluginFiles() + $vulnerableOrAbandonedPlugins,
 					],

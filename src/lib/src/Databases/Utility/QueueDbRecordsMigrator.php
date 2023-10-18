@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Utility;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base as LegacyDB;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base as LegacyDB;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 abstract class QueueDbRecordsMigrator extends Utilities\BackgroundProcessing\BackgroundProcess {

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 use WP_CLI;
 
 class License extends Base\WpCli\BaseWpCliCmd {

@@ -15,8 +15,12 @@ class PageActivityLogTable extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
-				'text' => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_AuditTrail()->cfg->slug ),
+				'text'    => __( 'Configure Activity Logging', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => $con->getModule_AuditTrail()->cfg->slug
+				],
 			]
 		];
 	}

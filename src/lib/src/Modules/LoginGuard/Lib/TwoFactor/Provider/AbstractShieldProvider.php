@@ -8,7 +8,11 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	public function getJavascriptVars() :array {
-		return [];
+		return [
+			'flags' => [
+				'is_available' => $this->isProviderAvailableToUser(),
+			],
+		];
 	}
 
 	/**

@@ -10,14 +10,13 @@ class MeterCard extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/progress_meter/meter.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
 		return [
 			'strings' => [
 				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
 				'svgs' => [
-					'analysis' => $con->svgs->raw( 'clipboard2-data-fill.svg' ),
+					'analysis' => self::con()->svgs->raw( 'clipboard2-data-fill.svg' ),
 				],
 			],
 			'vars'    => [

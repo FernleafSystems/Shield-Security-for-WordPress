@@ -53,6 +53,10 @@ class PluginNavs {
 		return (string)Services::Request()->query( self::FIELD_SUBNAV );
 	}
 
+	public static function IsNavs( string $nav, string $subNav ) :bool {
+		return self::GetNav() === $nav && self::GetSubNav() === $subNav;
+	}
+
 	public static function GetAllNavs() :array {
 		$cons = ( new \ReflectionClass( __CLASS__ ) )->getConstants();
 		return \array_intersect_key( $cons, \array_flip( \array_filter(
@@ -88,7 +92,7 @@ class PluginNavs {
 						self::SUBNAV_ACTIVITY_LOG => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
-						self::SUBNAV_LOGS => [
+						self::SUBNAV_LOGS         => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
 					],
@@ -189,7 +193,7 @@ class PluginNavs {
 						self::SUBNAV_TRAFFIC_LOG => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
 						],
-						self::SUBNAV_LOGS => [
+						self::SUBNAV_LOGS        => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
 						],
 						self::SUBNAV_LIVE        => [

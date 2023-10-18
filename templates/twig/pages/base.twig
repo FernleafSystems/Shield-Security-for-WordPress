@@ -24,8 +24,8 @@
 		{% block head_inline_styles %}
 			<style>
 				body {
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		}
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				}
 			</style>
 		{% endblock %}
 
@@ -79,6 +79,16 @@
 		{% block body_end %}
 		{% endblock %}
 	</main>
+
+	{% block inline_js %}
+		{% if vars.inline_js|default([]) is not empty %}
+			<script type="text/javascript">
+				{% for ijs in vars.inline_js %}
+				{{ ijs|raw }}
+				{% endfor %}
+			</script>
+		{% endif %}
+	{% endblock %}
 
 	{% block pre_body_close %}
 	{% endblock %}

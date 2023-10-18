@@ -35,7 +35,6 @@ class PluginDelete {
 		) {
 			Services::WpGeneral()->deleteOption( $opt );
 		}
-
 	}
 
 	private function deleteTmpDir() {

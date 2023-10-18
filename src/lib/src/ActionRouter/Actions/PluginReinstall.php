@@ -34,6 +34,10 @@ class PluginReinstall extends ScansBase {
 			}
 		}
 
-		$this->response()->success = $success;
+		$this->response()->action_response_data = [
+			'success'     => $success,
+			'message'     => $success ? __( 'Plugin re-installed. Reloading...' ) : __( 'Re-install failed.' ),
+			'page_reload' => $success
+		];
 	}
 }

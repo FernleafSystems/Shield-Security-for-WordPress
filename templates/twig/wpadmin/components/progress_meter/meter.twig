@@ -15,18 +15,29 @@
 	{# https://github.com/tomik23/circular-progress-bar #}
 		<div class="row">
 			<div class="{{ vars.display.dimensions_column_chart|default('col-lg-3 col-xl-2') }} d-flex justify-content-center align-items-start">
-				<div class="pie d-flex align-items-center justify-content-center mx-auto" data-pie='{
-				  "number": false,
-				  "colorCircle": "rgba( {{ meter.rgbs|join(',') }},0.2 )",
-				  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )",
-				  "percent": {{ meter.totals.percentage }},
-				  "size": {{ vars.display.progress_chart_size|default(120) }}
-				}'>
-					<div class="letter-score"
-					     style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div>
+				<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
+					 data-value="{{ meter.totals.percentage }}"
+					 data-grade="{{ meter.totals.letter_score }}"
+					 data-rgbs="{{ meter.rgbs|join(',') }}"
+				>
+{#					<div class="letter-score"#}
+{#						 style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div>#}
 				</div>
 
 			</div>
+			{#            <div class="{{ vars.display.dimensions_column_chart|default('col-lg-3 col-xl-2') }} d-flex justify-content-center align-items-start"> #}
+			{#                <div class="pie d-flex align-items-center justify-content-center mx-auto" data-pie='{ #}
+			{#                  "number": false, #}
+			{#                  "colorCircle": "rgba( {{ meter.rgbs|join(',') }},0.2 )", #}
+			{#                  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )", #}
+			{#                  "percent": {{ meter.totals.percentage }}, #}
+			{#                  "size": {{ vars.display.progress_chart_size|default(120) }} #}
+			{#                }'> #}
+			{#                    <div class="letter-score" #}
+			{#                         style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div> #}
+			{#                </div> #}
+
+			{#            </div> #}
 			<div class="{{ vars.display.dimensions_column_description|default('col') }} description pb-1 px-4">
 			  <h6>
 		      {{ meter.title }}
@@ -36,7 +47,8 @@
 				{% if meter.warning|default([]) is not empty %}
 					<div class="alert alert-danger">
 			      {{ meter.warning.text }}
-						<a href="{{ meter.warning.href }}" class="alert-link" target="_blank">{{ strings.view_details }}</a>
+						<a href="{{ meter.warning.href }}" class="alert-link"
+						   target="_blank">{{ strings.view_details }}</a>
 		      </div>
 				{% endif %}
 
@@ -57,11 +69,12 @@
 			</div>
 
 			<div class="{{ vars.display.dimensions_column_analysis|default('col-2') }} d-flex justify-content-center align-items-start">
-		    <a class="mt-2 btn {% if meter.status == 'l' %}btn-danger{% elseif meter.status == 'm' %}btn-warning{% elseif meter.status == 'h' %}btn-success{% else %}btn-primary{% endif %}"
-		       href="javascript:{iCWP_WPSF_OffCanvas.renderMeterAnalysis('{{ meter_slug }}')}"
-		       aria-controls="ShieldProgressMeterOffcanvas">
-					<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
-			    {{ strings.analysis }}
+		    <a class="mt-2 btn offcanvas_meter_analysis {% if meter.status == 'l' %}btn-danger{% elseif meter.status == 'm' %}btn-warning{% elseif meter.status == 'h' %}btn-success{% else %}btn-primary{% endif %}"
+			   data-meter="{{ meter_slug }}"
+			   href="javascript:{}"
+			   aria-controls="ShieldProgressMeterOffcanvas">
+				<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+				{{ strings.analysis }}
 				</a>
 			</div>
 

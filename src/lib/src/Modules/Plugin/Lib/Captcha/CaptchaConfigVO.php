@@ -13,6 +13,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property bool   $ready
  * @property string $url_api
  * @property string $js_handle
+ * @deprecated 18.5
  */
 class CaptchaConfigVO extends DynPropertiesClass {
 

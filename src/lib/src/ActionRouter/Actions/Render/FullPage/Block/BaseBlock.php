@@ -42,4 +42,13 @@ abstract class BaseBlock extends BaseFullPageRender {
 			__( 'Homepage', 'wp-simple-firewall' )        => $WP->getHomeUrl(),
 		];
 	}
+
+	protected function getScripts() :array {
+		$scripts = parent::getScripts();
+		$scripts[ 51 ] = [
+			'src' => self::con()->urls->forDistJS( 'blockpage' ),
+			'id'  => 'shield/blockpage',
+		];
+		return $scripts;
+	}
 }

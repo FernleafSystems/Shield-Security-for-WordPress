@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 
 class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
@@ -44,10 +43,8 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		$opts->setOpt( 'antibot_form_ids', \array_values( \array_unique( $IDs ) ) );
 
 		$this->cleanLoginUrlPath();
-		$this->ensureCorrectCaptchaConfig();
 
 		if ( $opts->isEnabledAntiBot() ) {
-			$opts->setOpt( 'enable_google_recaptcha_login', 'disabled' );
 			$opts->setOpt( 'enable_login_gasp_check', 'N' );
 		}
 
@@ -65,24 +62,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 
 		if ( empty( $opts->getOpt( 'mfa_user_setup_pages' ) ) ) {
 			$opts->setOpt( 'mfa_user_setup_pages', [ 'profile' ] );
-		}
-	}
-
-	public function ensureCorrectCaptchaConfig() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		$style = $opts->getOpt( 'enable_google_recaptcha_login' );
-		if ( self::con()->isPremiumActive() ) {
-			$cfg = $this->getCaptchaCfg();
-			if ( $cfg->provider == $cfg::PROV_GOOGLE_RECAP2 ) {
-				if ( !$cfg->invisible && $style == 'invisible' ) {
-					$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
-				}
-			}
-		}
-		elseif ( !\in_array( $style, [ 'disabled', 'default' ] ) ) {
-			$opts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
 	}
 
@@ -115,21 +94,6 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return stripslashes( $this->getTextOpt( 'text_pleasecheckbox' ) );
 	}
 
-	public function isEnabledCaptcha() :bool {
-		return !$this->opts()->isOpt( 'enable_google_recaptcha_login', 'disabled' )
-			   && $this->getCaptchaCfg()->ready;
-	}
-
-	public function getCaptchaCfg() :CaptchaConfigVO {
-		$cfg = parent::getCaptchaCfg();
-		$style = $this->opts()->getOpt( 'enable_google_recaptcha_login' );
-		if ( $style !== 'default' && self::con()->isPremiumActive() ) {
-			$cfg->theme = $style;
-			$cfg->invisible = $cfg->theme == 'invisible';
-		}
-		return $cfg;
-	}
-
 	public function getTextOptDefault( string $key ) :string {
 		switch ( $key ) {
 			case 'text_imahuman':
@@ -143,5 +107,25 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 				break;
 		}
 		return $text;
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function ensureCorrectCaptchaConfig() {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function isEnabledCaptcha() :bool {
+		return false;
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function getCaptchaCfg() {
+		return parent::getCaptchaCfg();
 	}
 }

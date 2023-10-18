@@ -25,14 +25,18 @@ abstract class Base {
 			'title_unprotected'      => $this->titleUnprotected(),
 			'desc_protected'         => $this->descProtected(),
 			'desc_unprotected'       => $this->descUnprotected(),
-			'href_offcanvas'         => $this->hrefOffCanvas(),
 			'href_full'              => $this->hrefFull(),
 			'href_full_target_blank' => $this->hrefFullTargetBlank(),
 			'is_protected'           => $this->isProtected(),
 			'is_applicable'          => $this->isApplicable(),
 			'is_critical'            => $this->isCritical(),
 			'is_optcfg'              => $this->isOptConfigBased(),
+			'config_item'            => $this->cfgItem(),
 		];
+	}
+
+	protected function cfgItem() :string {
+		return '';
 	}
 
 	public function title() :string {
@@ -53,10 +57,6 @@ abstract class Base {
 
 	protected function href() :string {
 		return $this->hrefFull();
-	}
-
-	protected function hrefOffCanvas() :string {
-		return '';
 	}
 
 	protected function hrefFull() :string {

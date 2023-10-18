@@ -18,7 +18,6 @@ class AntibotSetup {
 	}
 
 	protected function run() {
-		$mod = $this->mod();
 		$opts = $this->opts();
 
 		$providers = [];
@@ -26,20 +25,8 @@ class AntibotSetup {
 			$providers[] = new AntiBot\ProtectionProviders\CoolDown();
 		}
 
-		if ( !$opts->isEnabledAntiBot() ) {
-			if ( $opts->isEnabledGaspCheck() ) {
-				$providers[] = new AntiBot\ProtectionProviders\GaspJs();
-			}
-
-			if ( $mod->isEnabledCaptcha() ) {
-				$cfg = $mod->getCaptchaCfg();
-				if ( $cfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-					$providers[] = new AntiBot\ProtectionProviders\GoogleRecaptcha();
-				}
-				elseif ( $cfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
-					$providers[] = new AntiBot\ProtectionProviders\HCaptcha();
-				}
-			}
+		if ( !$opts->isEnabledAntiBot() && $opts->isEnabledGaspCheck() ) {
+			$providers[] = new AntiBot\ProtectionProviders\GaspJs();
 		}
 
 		if ( !empty( $providers ) ) {

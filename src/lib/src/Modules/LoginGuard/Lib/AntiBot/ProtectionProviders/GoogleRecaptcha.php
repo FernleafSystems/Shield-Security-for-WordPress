@@ -2,26 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha\TestRequest;
 
+/**
+ * @deprecated 18.5
+ */
 class GoogleRecaptcha extends BaseProtectionProvider {
 
 	public function setup() {
-		( new Enqueue() )->setToEnqueue();
 	}
 
 	public function performCheck( $formProvider ) {
-		if ( !$this->isFactorTested() ) {
-			$this->setFactorTested( true );
-			try {
-				$this->getResponseTester()->test();
-			}
-			catch ( \Exception $e ) {
-				$this->processFailure();
-				throw $e;
-			}
-		}
 	}
 
 	/**
@@ -32,16 +23,10 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	}
 
 	public function buildFormInsert( $formProvider ) :string {
-		return $this->getCaptchaHtml();
+		return '';
 	}
 
 	private function getCaptchaHtml() :string {
-		if ( $this->mod()->getCaptchaCfg()->invisible ) {
-			$extraStyles = '';
-		}
-		else {
-			$extraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.895);-webkit-transform:scale(0.895);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
-		}
-		return $extraStyles.( new Enqueue() )->getCaptchaHtml();
+		return '';
 	}
 }

@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
@@ -130,18 +128,14 @@ abstract class BaseRender extends BaseAction {
 		return [
 			'unique_render_id' => uniqid(),
 			'nonce_field'      => wp_nonce_field( $con->getPluginPrefix(), '_wpnonce', true, false ),
-
-			'ajax'    => [
-				'sec_admin_login' => ActionData::Build( SecurityAdminLogin::class ),
-			],
-			'classes' => [
+			'classes'          => [
 				'top_container' => \implode( ' ', \array_filter( [
 					'odp-outercontainer',
 					self::con()->isPremiumActive() ? 'is-pro' : 'is-not-pro',
 					Services::Request()->query( Constants::NAV_ID, '' )
 				] ) )
 			],
-			'flags'   => [
+			'flags'            => [
 				'has_session'             => $con->getModule_Plugin()->getSessionCon()->current()->valid,
 				'display_helpdesk_widget' => !$isWhitelabelled,
 				'is_whitelabelled'        => $isWhitelabelled,
@@ -153,7 +147,7 @@ abstract class BaseRender extends BaseAction {
 				'is_wpcli'                => $pluginOptions->isEnabledWpcli(),
 				'is_security_admin'       => $con->isPluginAdmin(),
 			],
-			'head'    => [
+			'head'             => [
 				'html'    => [
 					'lang' => $WP->getLocale( '-' ),
 					'dir'  => is_rtl() ? 'rtl' : 'ltr',
@@ -182,7 +176,7 @@ abstract class BaseRender extends BaseAction {
 				],
 				'scripts' => []
 			],
-			'hrefs'   => [
+			'hrefs'            => [
 				'ajax' => $WP->ajaxURL(),
 
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
@@ -196,7 +190,7 @@ abstract class BaseRender extends BaseAction {
 
 				'facebook_group' => 'https://shsec.io/pluginshieldsecuritygroupfb',
 			],
-			'imgs'    => [
+			'imgs'             => [
 				'svgs'           => [
 					'exit'        => $con->svgs->raw( 'box-arrow-left.svg' ),
 					'help'        => $con->svgs->raw( 'question-circle.svg' ),
@@ -218,13 +212,13 @@ abstract class BaseRender extends BaseAction {
 				'plugin_banner'  => $urlBuilder->forImage( 'banner-1500x500-transparent.png' ),
 				'background_svg' => $urlBuilder->forImage( 'shield/background-blob.svg' )
 			],
-			'content' => [
+			'content'          => [
 				'options_form' => '',
 				'alt'          => '',
 				'actions'      => '',
 				'help'         => '',
 			],
-			'strings' => $this->getDisplayStrings(),
+			'strings'          => $this->getDisplayStrings(),
 		];
 	}
 

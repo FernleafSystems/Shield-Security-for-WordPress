@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\FileDownload,
 	Actions\FileDownloadAsStream,
-	Constants};
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -125,13 +126,15 @@ class PluginURLs {
 
 	/**
 	 * @param string $trigger - option, section, module
+	 * @deprecated 18.5
 	 */
 	public function offCanvasTrigger( string $trigger ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.%s}", $trigger );
+		return sprintf( "javascript:{shieldServices.offCanvas().%s}", $trigger );
 	}
 
 	/**
 	 * @param string $for - option, section, module
+	 * @deprecated 18.5
 	 */
 	public function offCanvasConfigRender( string $for ) :string {
 		return $this->offCanvasTrigger( sprintf( "renderConfig('%s')", $for ) );

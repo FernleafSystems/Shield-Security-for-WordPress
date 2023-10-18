@@ -60,12 +60,8 @@ abstract class BaseFullPageRender extends BaseRender {
 				'id'  => 'wp_jquery',
 			],
 			20 => [
-				'src' => $urlBuilder->forJs( 'bootstrap' ),
+				'src' => $urlBuilder->forThirdParty( 'bootstrap', 'js' ),
 				'id'  => 'bootstrap',
-			],
-			30 => [
-				'src' => $urlBuilder->forJs( 'global-plugin' ),
-				'id'  => 'shield-global-plugin',
 			],
 		];
 	}
@@ -74,12 +70,8 @@ abstract class BaseFullPageRender extends BaseRender {
 		$urlBuilder = self::con()->urls;
 		return [
 			20 => [
-				'href' => $urlBuilder->forCss( 'bootstrap' ),
+				'href' => $urlBuilder->forThirdParty( 'bootstrap', 'css' ),
 				'id'   => 'bootstrap',
-			],
-			30 => [
-				'href' => $urlBuilder->forCss( 'global-plugin' ),
-				'id'   => 'shield-global-plugin',
 			],
 		];
 	}

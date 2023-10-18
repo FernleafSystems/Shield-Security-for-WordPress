@@ -196,22 +196,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_third_party_captcha' :
-				$title = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$titleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup CAPTCHA for use across %s.', 'wp-simple-firewall' ), $name ) ),
-					sprintf( '%s - %s',
-						__( 'Recommendation', 'wp-simple-firewall' ),
-						__( 'Use of this feature is highly recommend.', 'wp-simple-firewall' )
-						.sprintf( ' %s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You must create your own CAPTCHA API Keys.', 'wp-simple-firewall' ) )
-						.'<ul class="mt-1"><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', __( 'Google reCAPTCHA Keys', 'wp-simple-firewall' ) )
-						.'</li><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://dashboard.hcaptcha.com/', __( 'hCaptcha Keys', 'wp-simple-firewall' ) ).'</li></ul>'
-					),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Invisible CAPTCHA is available with %s Pro.', 'wp-simple-firewall' ), $name ) )
-				];
-				break;
-
 			case 'section_third_party_duo' :
 				$title = __( 'Duo Security', 'wp-simple-firewall' );
 				$titleShort = __( 'Duo Security', 'wp-simple-firewall' );
@@ -400,43 +384,6 @@ class Strings extends Base\Strings {
 				$name = __( 'Secret Key', 'wp-simple-firewall' );
 				$summary = __( 'Import/Export Secret Key', 'wp-simple-firewall' );
 				$desc = [ __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' ) ];
-				break;
-
-			case 'captcha_provider' :
-				$name = __( 'CAPTCHA Provider', 'wp-simple-firewall' );
-				$summary = __( 'Which CAPTCHA Provider To Use Throughout', 'wp-simple-firewall' );
-				$desc = [
-					__( 'You can choose the CAPTCHA provider depending on your preferences.', 'wp-simple-firewall' ),
-					__( 'Ensure your Site Keys and Secret Keys are supplied from the appropriate provider.', 'wp-simple-firewall' ),
-					sprintf( '<strong>%s</strong>',
-						sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
-							__( 'Keys for different providers are not interchangeable.', 'wp-simple-firewall' ) )
-					),
-				];
-				break;
-
-			case 'google_recaptcha_secret_key' :
-				$name = __( 'CAPTCHA Secret', 'wp-simple-firewall' );
-				$summary = __( 'CAPTCHA Secret Key', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Enter your CAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' ),
-					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			case 'google_recaptcha_site_key' :
-				$name = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
-				$summary = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Enter your CAPTCHA site key for use throughout the plugin.', 'wp-simple-firewall' ),
-					sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			case 'google_recaptcha_style' :
-				$name = __( 'CAPTCHA Style', 'wp-simple-firewall' );
-				$summary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
-				$desc = [ __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' ) ];
 				break;
 
 			case 'frequency_alert' :

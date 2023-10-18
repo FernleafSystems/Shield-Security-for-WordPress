@@ -27,7 +27,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return self::con()->isPremiumActive() ? $ids : [];
+		return \array_merge( [
+			'#loginform',
+		], self::con()->isPremiumActive() ? $ids : [] );
 	}
 
 	public function getCooldownInterval() :int {
@@ -97,6 +99,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
+	/**
+	 * @deprecated 18.4
+	 */
 	public function isEnabledU2F() :bool {
 		return $this->isOpt( 'enable_u2f', 'Y' );
 	}

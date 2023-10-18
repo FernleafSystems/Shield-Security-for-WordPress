@@ -85,7 +85,6 @@ class LoadSessions {
 				}
 
 				$page++;
-
 			} while ( true );
 		}
 		return $this->sessions;

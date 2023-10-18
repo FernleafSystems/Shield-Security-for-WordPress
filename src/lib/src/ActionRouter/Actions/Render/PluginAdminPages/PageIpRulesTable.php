@@ -14,12 +14,17 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => __( 'Create New IP Rule', 'wp-simple-firewall' ),
-				'href' => 'javascript:{iCWP_WPSF_OffCanvas.renderIpRuleAddForm()}',
+				'text'    => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'href'    => 'javascript:{}',
+				'classes' => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
-				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
-				'href' => self::con()->plugin_urls->offCanvasConfigRender( self::con()->getModule_IPs()->cfg->slug ),
+				'text'    => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => self::con()->getModule_IPs()->cfg->slug
+				],
 			],
 		];
 	}

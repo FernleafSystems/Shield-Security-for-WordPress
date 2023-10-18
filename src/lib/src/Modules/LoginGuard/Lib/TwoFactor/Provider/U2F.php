@@ -3,15 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	MfaU2fAdd,
-	MfaU2fRemove
-};
 use FernleafSystems\Wordpress\Services\Services;
-use u2flib_server\RegisterRequest;
-use u2flib_server\SignRequest;
 
+/**
+ * @deprecated
+ */
 class U2F extends AbstractShieldProvider {
 
 	protected const SLUG = 'u2f';
@@ -25,12 +21,9 @@ class U2F extends AbstractShieldProvider {
 		return [
 			'reg_request' => $reg,
 			'signs'       => $signs,
-			'ajax'        => [
-				'profile_u2f_add'    => ActionData::Build( MfaU2fAdd::class ),
-				'profile_u2f_remove' => ActionData::Build( MfaU2fRemove::class ),
-			],
 			'flags'       => [
-				'has_validated' => $this->hasValidatedProfile()
+				'has_validated' => $this->hasValidatedProfile(),
+				'is_available'  => $this->isProviderAvailableToUser(),
 			],
 			'strings'     => [
 				'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),

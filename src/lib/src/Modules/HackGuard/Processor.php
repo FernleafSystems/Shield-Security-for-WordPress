@@ -19,7 +19,7 @@ class Processor extends BaseShield\Processor {
 	public function addAdminBarMenuGroup( array $groups ) :array {
 		if ( self::con()->isValidAdminArea() ) {
 			$thisGroup = [
-				'href' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 				'items' => [],
 			];
 			foreach ( $this->mod()->getScansCon()->getAllScanCons() as $scanCon ) {

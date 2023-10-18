@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromSite;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 class PageImportExport extends BasePluginAdminPage {
@@ -15,8 +14,12 @@ class PageImportExport extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		return [
 			[
-				'text' => __( 'Configure Auto Import', 'wp-simple-firewall' ),
-				'href' => self::con()->plugin_urls->offCanvasConfigRender( 'section_importexport' ),
+				'text'    => __( 'Configure Auto Import', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => 'section_importexport'
+				],
 			],
 		];
 	}
@@ -26,9 +29,6 @@ class PageImportExport extends BasePluginAdminPage {
 		/** @var Options $opts */
 		$opts = $con->getModule_Plugin()->opts();
 		return [
-			'ajax'    => [
-				'import_from_site' => ActionData::BuildJson( PluginImportFromSite::class ),
-			],
 			'flags'   => [
 				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),
 				'can_importexport_file' => $con->caps->canImportExportFile(),

@@ -33,7 +33,9 @@ abstract class BaseForm extends Base {
 					function ( $provider ) use ( $opts ) {
 						return $provider->renderLoginIntentFormField( $opts->getMfaLoginIntentFormat() );
 					},
-					$mod->getMfaController()->getProvidersActiveForUser( $this->getWpUser() )
+					$mod->getMfaController()->getProvidersActiveForUser(
+						Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] )
+					)
 				) ),
 			],
 			'flags'   => [
@@ -49,8 +51,6 @@ abstract class BaseForm extends Base {
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
 				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
 				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
-				'seconds'         => \strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
-				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
 				'skip_mfa'        => sprintf(
 					__( "Remember me for %s", 'wp-simple-firewall' ),
@@ -60,7 +60,6 @@ abstract class BaseForm extends Base {
 			'vars'    => [
 				'form_hidden_fields' => $this->getHiddenFields(),
 				'show_branded_links' => !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled(),
-				'time_remaining'     => $this->getLoginIntentExpiresAt() - Services::Request()->ts(),
 				'message_type'       => 'info',
 			]
 		];
@@ -111,22 +110,8 @@ abstract class BaseForm extends Base {
 			 */
 			'wp-submit'     => 'Complete Login',
 		] );
-		$fields[ 'wp_user_id' ] = $this->getWpUser()->ID;
+		$fields[ 'wp_user_id' ] = $this->action_data[ 'user_id' ];
 		return $fields;
-	}
-
-	protected function getLoginIntentExpiresAt() :int {
-		$mod = self::con()->getModule_LoginGuard();
-		$mfaCon = $mod->getMfaController();
-		/** @var LoginGuard\Options $opts */
-		$opts = $mod->opts();
-
-		$intentAt = $mfaCon->getActiveLoginIntents( $this->getWpUser() )
-					[ $mfaCon->findHashedNonce( $this->getWpUser(), $this->action_data[ 'plain_login_nonce' ] ) ][ 'start' ] ?? 0;
-		return Services::Request()
-					   ->carbon()
-					   ->setTimestamp( $intentAt )
-					   ->addMinutes( $opts->getLoginIntentMinutes() )->timestamp;
 	}
 
 	protected function getWpUser() :\WP_User {

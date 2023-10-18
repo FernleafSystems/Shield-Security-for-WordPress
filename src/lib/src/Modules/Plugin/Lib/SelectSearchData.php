@@ -85,7 +85,7 @@ class SelectSearchData {
 							'text'        => $ip,
 							'link'        => [
 								'href'    => self::con()->plugin_urls->ipAnalysis( $ip ),
-								'classes' => [ 'render_ip_analysis' ],
+								'classes' => [ 'offcanvas_ip_analysis' ],
 								'data'    => [
 									'ip' => $ip
 								],

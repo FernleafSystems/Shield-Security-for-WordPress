@@ -1,50 +1,26 @@
 {% if flags.is_available %}
 	<div>
-	<p>{{ strings.you_may }}</p>
-	<ul>
-		<li>{{ strings.this_will_send }}</li>
-		<li><strong>{{ strings.same_browser }}</strong></li>
-		<li>{{ strings.assumes_email }}</li>
-		<li>{{ strings.dont_receive }}</li>
-		<li>{{ strings.limit_60 }}</li>
-	</ul>
-	<p style="text-align: center">
-		<a href="javascript:{ sendEmail() }" class="btn btn-warning">
-			{{ strings.click_to_send }} <code>{{ vars.email }}</code></a>
-	</p>
-</div>
-	<script>
-	let sendEmail = function () {
+		<p>{{ strings.you_may }}</p>
+		<ul>
+			<li>{{ strings.this_will_send }}</li>
+			<li><strong>{{ strings.same_browser }}</strong></li>
+			<li>{{ strings.assumes_email }}</li>
+			<li>{{ strings.dont_receive }}</li>
+			<li>{{ strings.limit_60 }}</li>
+		</ul>
+		<p class="text-center">
+			<a href="#"
+			   id="MagicLinkSendEmail"
+			   class="btn btn-warning"
+			>{{ strings.click_to_send }}<code class="ms-1">{{ vars.email }}</code></a>
+		</p>
+	</div>
 
-	  try {
-		  fetch( '{{ hrefs.ajaxurl|raw }}', {
-			  method: 'POST',
-			  body: (new URLSearchParams( {{ vars.nonce_unblock|raw }} )).toString(),
-			  headers: {
-				  'Accept': 'application/json',
-				  'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				  'X-Requested-With': 'XMLHttpRequest',
-			  }
-		  } )
-		  .then( function ( response ) {
-			  if ( !response.ok ) {
-				  throw Error( 'request appeared to fail.' );
-			  }
-			  return response.json();
-		  } )
-		  .then( function ( response ) {
-			  response.success ? alert( 'Please check your email for a link to confirm.' )
-				  : alert( "Request Failed. Perhaps you've tried to unblock your IP too soon after the previous attempt." );
-			  return response;
-		  } )
-		  .catch( function ( error ) {
-			  alert( "Request Failed. Perhaps you've tried to request an email too soon after the previous attempt." );
-			  console.log( error );
-		  } );
-	  }
-	  catch ( error ) {
-		  console.log( error );
-	  }
-  };
-</script>
+	{% if vars.inline_js|default([]) is not empty %}
+		<script type="text/javascript">
+			{% for ijs in vars.inline_js %}
+			{{ ijs|raw }}
+			{% endfor %}
+		</script>
+	{% endif %}
 {% endif %}

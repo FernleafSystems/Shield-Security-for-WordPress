@@ -20,7 +20,7 @@
 {% if vars.blog_posts|default([])|length > 0 %}
 	<h3 class="subheader">{{ strings.recent_blogs }}
 		<small>
-			[ <a href="{{ hrefs.blog_posts }}" target="_blank"style="font-weight: normal;">getshieldsecurity.com</a> ]
+			[ <a href="{{ hrefs.blog_posts }}" target="_blank" style="font-weight: normal;">getshieldsecurity.com</a> ]
 		</small>
 	</h3>
 	{% for post in vars.blog_posts %}
@@ -157,6 +157,6 @@
 
 <div>
 	<p style="text-align: center; font-size: smaller">{{ strings.generated }}: {{ vars.generated_at }}
-		<a href="javascript:{ Shield_WP_Dashboard_Widget.render( 1 ) }">{{ strings.refresh }}</a>
+		<a href="#" class="refresh_widget">{{ strings.refresh }}</a>
 	</p>
 </div>

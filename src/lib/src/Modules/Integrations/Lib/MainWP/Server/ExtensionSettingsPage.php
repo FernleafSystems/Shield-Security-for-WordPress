@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 
 class ExtensionSettingsPage {
@@ -12,31 +11,29 @@ class ExtensionSettingsPage {
 	use ModConsumer;
 
 	protected function run() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook ) {
+
+		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook ) {
 			if ( $this->mod()->getControllerMWP()->isServerExtensionLoaded()
 				 && 'mainwp_page_'.self::con()->mwpVO->extension->page === $hook ) {
-
-				$enqueues[ Enqueue::JS ][] = 'shield/integrations/mainwp-server';
-				$enqueues[ Enqueue::CSS ][] = 'shield/integrations/mainwp-server';
-
-//				$handle = 'semantic-ui-datatables-select';
-//				wp_register_script(
-//					$handle,
-//					'https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js',
-//					[ 'semantic-ui-datatables' ],
-//					$con->getVersion(),
-//					true
-//				);
-//				wp_enqueue_script( 'semantic-ui-datatables-select' );
-//				wp_register_style(
-//					$handle,
-//					'https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css',
-//					[ 'semantic-ui-datatables' ],
-//					$con->getVersion()
-//				);
-//				wp_enqueue_style( 'semantic-ui-datatables-select' );
+				$assets[] = 'mainwp_server';
 			}
-			return $enqueues;
+			return $assets;
+		}, 10, 2 );
+
+		add_filter( 'shield/custom_localisations/components', function ( array $components, string $hook ) {
+			$components[ 'mainwp_server' ] = [
+				'key'     => 'mainwp_server',
+				'handles' => [
+					'mainwp_server',
+				],
+				'data'    => function () {
+					return [
+						'ajax' => [
+						],
+					];
+				},
+			];
+			return $components;
 		}, 10, 2 );
 	}
 }

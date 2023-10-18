@@ -2,8 +2,8 @@
 	{{ strings.table_title }}
 	<small class="float-end">
 		{% if flags.can_create_report %}
-			<a href="{{ hrefs.create_custom_report }}"
-			   class="btn btn-sm btn-primary"
+			<a href="#"
+			   class="btn btn-sm btn-primary offcanvas_report_create_form"
 			   title="">{{ strings.create_custom_report }}</a>
 		{% else %}
 			<button disabled="disabled" aria-disabled="true"

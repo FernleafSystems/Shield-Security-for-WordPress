@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 
 class FileLocker extends Actions\Render\Components\Scans\BaseScans {
@@ -21,10 +18,6 @@ class FileLocker extends Actions\Render\Components\Scans\BaseScans {
 		$problemLocks = ( new LoadFileLocks() )->withProblems();
 
 		return [
-			'ajax'    => [
-				'filelocker_showdiff'   => ScansFileLockerDiff::SLUG,
-				'filelocker_fileaction' => ActionData::BuildJson( ScansFileLockerAction::class ),
-			],
 			'flags'   => [
 				'is_enabled'    => $lockerCon->isEnabled(),
 				'is_restricted' => !self::con()->isPremiumActive(),

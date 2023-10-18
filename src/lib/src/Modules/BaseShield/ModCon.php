@@ -7,27 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 abstract class ModCon extends Base\ModCon {
 
-	public function getCaptchaCfg() :Plugin\Lib\Captcha\CaptchaConfigVO {
-		/** @var Plugin\Options $plugOpts */
-		$plugOpts = self::con()->getModule_Plugin()->opts();
-		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
-		$cfg->invisible = $cfg->theme === 'invisible';
-
-		if ( $cfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-			$cfg->url_api = 'https://www.google.com/recaptcha/api.js';
-		}
-		elseif ( $cfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_HCAPTCHA ) {
-			$cfg->url_api = 'https://hcaptcha.com/1/api.js';
-		}
-		else {
-			error_log( 'CAPTCHA Provider not supported: '.$cfg->provider );
-		}
-
-		$cfg->js_handle = self::con()->prefix( $cfg->provider );
-
-		return $cfg;
-	}
-
 	public function getPluginReportEmail() :string {
 		return self::con()
 				   ->getModule_Plugin()
@@ -70,5 +49,18 @@ abstract class ModCon extends Base\ModCon {
 			self::con()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function getCaptchaCfg() {
+		/** @var Plugin\Options $plugOpts */
+		$plugOpts = self::con()->getModule_Plugin()->opts();
+		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
+		$cfg->invisible = $cfg->theme === 'invisible';
+		$cfg->url_api = '';
+		$cfg->js_handle = self::con()->prefix( $cfg->provider );
+		return $cfg;
 	}
 }

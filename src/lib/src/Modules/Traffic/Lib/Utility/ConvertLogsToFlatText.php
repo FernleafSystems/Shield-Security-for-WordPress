@@ -30,7 +30,7 @@ class ConvertLogsToFlatText {
 		}
 		return sprintf( "%s %s %s [%s] \"%s %s\" %s",
 			( $markUpHtml && Services::IP()->isValidIp( $rec->ip ) ) ?
-				sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>',
+				sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>',
 					self::con()->plugin_urls->ipAnalysis( $rec->ip ),
 					$rec->ip,
 					$rec->ip

@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.5
+ */
 class UserSessionsTableBulkAction extends SecurityAdminBase {
 
 	public const SLUG = 'user_sessions_bulk_action';

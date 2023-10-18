@@ -38,7 +38,7 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 						__( 'Previously created One-Time Passwords are invalid.', 'wp-simple-firewall' ) )
 				] )
 				: __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ),
-			'page_reload' => true
+			'page_reload' => false
 		];
 	}
 }

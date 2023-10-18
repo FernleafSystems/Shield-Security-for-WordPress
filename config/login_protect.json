@@ -384,40 +384,6 @@
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {
-      "key":           "enable_google_recaptcha_login",
-      "section":       "section_deprecated",
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "default",
-          "text":      "Default Style"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible"
-        }
-      ],
-      "link_info":     "https://shsec.io/9m",
-      "link_blog":     "",
-      "beacon_id":     269,
-      "name":          "CAPTCHA",
-      "summary":       "Enable CAPTCHA",
-      "description":   "Use CAPTCHA on the login screen."
-    },
-    {
       "key":         "antibot_form_ids",
       "section":     "section_deprecated",
       "advanced":    true,
@@ -430,20 +396,6 @@
       "name":        "AntiBot Forms",
       "summary":     "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",
       "description": "For Use With AnitBot JS (above)."
-    },
-    {
-      "key":         "enable_u2f",
-      "section":     "section_hardware_authentication",
-      "premium":     true,
-      "cap":         "2fa_u2f",
-      "default":     "N",
-      "type":        "checkbox",
-      "beacon_id":   757,
-      "link_info":   "",
-      "link_blog":   "https://shsec.io/i9",
-      "name":        "Allow U2F",
-      "summary":     "Allow Registration Of U2F Devices",
-      "description": "Allow Registration Of U2F Devices."
     },
     {
       "key":         "enable_yubikey",

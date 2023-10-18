@@ -3,10 +3,12 @@
 	<div class="row">
 		<div class="col text-center">
 			<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-				<input type="radio" class="btn-check" name="change_report_type" id="TypeSummary" autocomplete="off" checked value="summary">
+				<input type="radio" class="btn-check" name="change_report_type" id="TypeSummary" autocomplete="off"
+					   checked value="summary">
 				<label class="btn btn-outline-secondary" for="TypeSummary">Summary</label>
 
-				<input type="radio" class="btn-check" name="change_report_type" id="TypeDetailed" autocomplete="off" value="detailed">
+				<input type="radio" class="btn-check" name="change_report_type" id="TypeDetailed" autocomplete="off"
+					   value="detailed">
 				<label class="btn btn-outline-secondary" for="TypeDetailed">Detailed</label>
 			</div>
 		</div>
@@ -40,26 +42,6 @@
 			{% set loopCount = loopCount + 1 %}
 		{% endfor %}
 	</div>
-
-	<script type="text/javascript">
-		(function ( $ ) {
-			$( document ).ready( function () {
-
-				jQuery( document ).on( "click", 'input[name=change_report_type]', function ( evt ) {
-
-					let $radio = $( this );
-					if ( $radio.val() === 'detailed' ) {
-						$( '#ChangeTrackingReport div.detailed.d-none' ).removeClass( 'd-none' );
-					}
-					else {
-						$( '#ChangeTrackingReport div.detailed' ).addClass( 'd-none' );
-					}
-					return true;
-				} );
-			} );
-		})( jQuery );
-
-	</script>
 
 {% else %}
 	<p>There were no changes detected for the given reporting criteria.</p>

@@ -14,30 +14,4 @@
 
 		<a class="text-dark" href="#" id="icwpButtonPluginTrackingDisagree">{{ strings.no_help }}</a>
 	</p>
-
-	<script type="text/javascript">
-		let $oContainer = jQuery( '#{{ unique_render_id }}' );
-
-		jQuery( document ).on( 'click', 'a#icwpButtonPluginTrackingAgree', icwp_PluginTrackingAgree );
-		jQuery( document ).on( 'click', 'a#icwpButtonPluginTrackingDisagree', icwp_PluginTrackingDisagree );
-
-		function icwp_PluginTrackingAgree() {
-			icwp_PluginTrackingAgreement( 1 );
-		}
-
-		function icwp_PluginTrackingDisagree() {
-			icwp_PluginTrackingAgreement( 0 );
-		}
-
-		function icwp_PluginTrackingAgreement( bAgree ) {
-			let requestData = {{ ajax.set_plugin_tracking|raw }};
-			requestData[ 'agree' ] = bAgree;
-			requestData[ 'notice_id' ] = '{{ notice_id }}';
-
-			jQuery.get( ajaxurl, requestData );
-			$oContainer.fadeOut( 500, function () {
-				$oContainer.remove();
-			} );
-		}
-	</script>
 {% endblock %}

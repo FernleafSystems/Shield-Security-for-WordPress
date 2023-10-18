@@ -71,7 +71,6 @@ class ChartsSummary extends Base {
 					\number_format( $eventSelector->clearWheres()->sumEvents( [
 						'spam_block_bot',
 						'spam_block_human',
-						'spam_block_recaptcha'
 					] ) ) ),
 				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
 			],
@@ -84,10 +83,10 @@ class ChartsSummary extends Base {
 		}
 
 		return [
-			'ajax'  => [
+			'ajax' => [
 				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
 			],
-			'vars'  => [
+			'vars' => [
 				'stats' => $statsData,
 			],
 		];

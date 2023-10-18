@@ -2,12 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
-class AdminNotices extends Shield\Modules\Base\AdminNotices {
+class AdminNotices extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AdminNotices {
 
 	protected function processNotice( NoticeVO $notice ) {
 		switch ( $notice->id ) {
@@ -35,24 +32,17 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'how_resend_email'  => __( "Resend verification email", 'wp-simple-firewall' ),
 				'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 			],
-			'ajax'              => [
-				'resend_verification_email' => ActionData::BuildJson( Actions\MfaEmailSendVerification::class ),
-				'profile_email2fa_disable'  => ActionData::BuildJson( Actions\MfaEmailDisable::class ),
-			],
 		];
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
 		/** @var Options $opts */
 		$opts = $this->opts();
-
 		switch ( $notice->id ) {
-
 			case 'email-verification-sent':
 				$needed = $opts->isEnabledEmailAuth()
 						  && !$opts->isEmailAuthenticationActive() && !$opts->getIfCanSendEmailVerified();
 				break;
-
 			default:
 				$needed = parent::isDisplayNeeded( $notice );
 				break;

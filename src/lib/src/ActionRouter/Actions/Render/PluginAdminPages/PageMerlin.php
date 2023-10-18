@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\MerlinController;
 
 class PageMerlin extends BasePluginAdminPage {
 
@@ -17,7 +16,10 @@ class PageMerlin extends BasePluginAdminPage {
 		try {
 			return [
 				'content' => [
-					'steps' => ( new MerlinController() )->buildSteps( $this->action_data[ 'nav_sub' ] )
+					'steps' => self::con()
+								   ->getModule_Plugin()
+								   ->getWizardCon()
+								   ->buildSteps( $this->action_data[ 'nav_sub' ] )
 				],
 				'flags'   => [
 					'show_sidebar_nav' => 0

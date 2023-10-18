@@ -153,7 +153,6 @@ class Strings extends Base\Strings {
 				$desc = [
 					sprintf( __( "AntiBot Detection Engine is %s's exclusive bot-detection technology that removes the needs for CAPTCHA and other challenges.", 'wp-simple-firewall' ),
 						self::con()->getHumanName() ),
-					__( 'This feature is designed to replace the CAPTCHA and Bot Protection options.', 'wp-simple-firewall' ),
 				];
 				break;
 

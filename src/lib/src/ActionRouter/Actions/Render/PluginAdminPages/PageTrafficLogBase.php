@@ -13,8 +13,12 @@ abstract class PageTrafficLogBase extends BasePluginAdminPage {
 				'disabled' => !$con->isPremiumActive(),
 			],
 			[
-				'text' => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_Traffic()->cfg->slug ),
+				'text'    => __( 'Configure Traffic Logging', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => $con->getModule_Traffic()->cfg->slug
+				],
 			],
 		];
 	}

@@ -28,10 +28,13 @@ class GoogleAuth extends AbstractShieldProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'profile_ga_toggle' => ActionData::Build( MfaGoogleAuthToggle::class ),
 			],
-			'vars' => [
+			'flags' => [
+				'is_available' => $this->isProviderAvailableToUser(),
+			],
+			'vars'  => [
 				'qr_code_auth' => $this->getQrUrl(),
 			],
 		];

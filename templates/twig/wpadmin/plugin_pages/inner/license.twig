@@ -3,14 +3,14 @@
 {% block inner_page_body %}
 	<style>
 		#ButtonBuyNow {
-		margin: 20px;
-	}
-	.card {
-		margin-bottom: 20px;
-	}
-	.license-summary .card-body {
-		padding: 0;
-	}
+			margin: 20px;
+		}
+		.card {
+			margin-bottom: 20px;
+		}
+		.license-summary .card-body {
+			padding: 0;
+		}
 
 	</style>
 
@@ -68,17 +68,15 @@
 						</li>
 					</ol>
 
-					<form method="post" class="licenseForm">
-						{% for ajax_key, ajax_val in ajax.license_action_lookup %}
-							<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
-						{% endfor %}
-						<p class="text-center">
-							<button class="btn btn-success m-2" type="submit"
-							        {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-								{{ strings.check_license }}
-							</button>
-						</p>
-					</form>
+					<p class="text-center">
+						<a href="#"
+						   id="LicenseLookup"
+						   class="btn btn-success m-2 license-action"
+						   data-action="lookup"
+						   {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
+							{{ strings.check_license }}
+						</a>
+					</p>
 
 				</div>
 			</div>
@@ -86,16 +84,14 @@
 			<div class="row">
 				<div class="col-6 text-start">
 					{% if flags.is_pro %}
-						<form method="post" class="licenseForm">
-							{% for ajax_key, ajax_val in ajax.license_action_clear %}
-								<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
-							{% endfor %}
-							<button class="btn btn-link p-0" type="submit"
-							        style="text-decoration: none; font-size: small;"
-							        {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-								<span class="text-danger">&#10008; {{ strings.clear_license }}</span>
-							</button>
-						</form>
+						<p class="text-center">
+							<a href="#"
+							   class="btn py-0 px-2 btn-outline-warning text-dark license-action"
+							   data-action="clear"
+							   {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
+								&#10008; {{ strings.clear_license }}
+							</a>
+						</p>
 					{% else %}
 						<a href="https://shsec.io/buyshieldpro" target="_blank" class="card-link"
 						   class="">{{ strings.go_pro }}</a>
@@ -103,16 +99,12 @@
 				</div>
 
 				<div class="col-6 text-end">
-					<form method="post" id="ConnectionDebug">
-						{% for ajax_key, ajax_val in ajax.connection_debug %}
-							<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
-						{% endfor %}
-						<p class="mb-0 text-end">
-							<button class="btn btn-link btn-sm p-0"
-							        title="{{ strings.incase_debug }}"
-							        type="submit">{{ strings.debug }}</button>
-						</p>
-					</form>
+					<p class="mb-0 text-end">
+						<a href="#"
+						   title="{{ strings.incase_debug }}"
+						   data-action="debug"
+						   class="btn btn-link btn-sm p-0 license-action">{{ strings.debug }}</a>
+					</p>
 				</div>
 
 			</div>
@@ -126,8 +118,8 @@
 
 				  <div class="d-grid mb-3">
 					  <a href="https://shsec.io/gp"
-					     target="_blank"
-					     class="btn {{ flags.is_pro ? 'btn-outline-success' : 'btn-success' }}">
+						 target="_blank"
+						 class="btn {{ flags.is_pro ? 'btn-outline-success' : 'btn-success' }}">
 						  See All PRO Features and Extras</a>
 				  </div>
 
@@ -135,26 +127,27 @@
 					  {% for feature_key,feature in strings.pro_features %}
 						  <div class="accordion-item">
 							  <h2 class="accordion-header" id="featureHeading{{ feature_key }}">
-								  <button class="accordion-button {{ feature_key == 0 ? '' : 'collapsed' }}" type="button"
-								          data-bs-toggle="collapse"
-								          data-bs-target="#collapse{{ feature_key }}"
-								          aria-expanded="false" aria-controls="collapse{{ feature_key }}">
+								  <button class="accordion-button {{ feature_key == 0 ? '' : 'collapsed' }}"
+										  type="button"
+										  data-bs-toggle="collapse"
+										  data-bs-target="#collapse{{ feature_key }}"
+										  aria-expanded="false" aria-controls="collapse{{ feature_key }}">
 									  <span class="svg-container me-2 text-success">{{ imgs.svgs.thumbs_up|raw }}</span>
 									  {{ feature.title|raw }}
 								  </button>
 							  </h2>
 
 							  <div id="collapse{{ feature_key }}"
-							       class="accordion-collapse collapse {{ feature_key == 0 ? 'show' : '' }}"
-							       data-bs-parent="#AccordionProFeatures"
-							       aria-labelledby="featureHeading{{ feature_key }}">
+								   class="accordion-collapse collapse {{ feature_key == 0 ? 'show' : '' }}"
+								   data-bs-parent="#AccordionProFeatures"
+								   aria-labelledby="featureHeading{{ feature_key }}">
 								  <div class="accordion-body">
 									  {% for line in feature.lines %}
 										  {{ line|raw }}
 									  {% endfor %}
 									  {% if feature.href|default('') is not empty %}
 										  <br /><a href="{{ feature.href }}" target="_blank"
-										           class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info }}</a>
+												   class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info }}</a>
 									  {% endif %}
 								  </div>
 							  </div>
@@ -168,69 +161,4 @@
 
 	</div>
 	<hr />
-
-	<script type="text/javascript">
-	var iCWP_WPSF_LicenseHandler = new function () {
-
-	  var bRequestCurrentlyRunning = false;
-
-	  var submitLicenseForm = function ( event ) {
-		  iCWP_WPSF_BodyOverlay.show();
-
-		  if ( bRequestCurrentlyRunning ) {
-			  return false;
-		  }
-		  bRequestCurrentlyRunning = true;
-		  event.preventDefault();
-
-		  let $oForm = jQuery( this );
-		  jQuery.post( ajaxurl, $oForm.serialize(),
-			  function ( oResponse ) {
-				  if ( typeof oResponse !== 'undefined' && typeof oResponse.data !== 'undefined' ) {
-					  iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.data.success );
-				  }
-			  }
-		  ).always( function () {
-				  bRequestCurrentlyRunning = false;
-				  // iCWP_WPSF_BodyOverlay.hide();
-				  setTimeout( function () {
-					  location.reload( true );
-				  }, 2000 );
-			  }
-		  );
-	  };
-
-	  this.initialise = function () {
-		  jQuery( document ).ready( function () {
-			  jQuery( document ).on( "submit", "form.licenseForm", submitLicenseForm );
-		  } );
-	  };
-  }();
-
-  var iCWP_WPSF_ConnectionDebug = new function () {
-	  let connectionDebug = function ( event ) {
-		  iCWP_WPSF_BodyOverlay.show();
-		  event.preventDefault();
-
-		  var $oForm = jQuery( this );
-		  jQuery.post( ajaxurl, $oForm.serialize(),
-			  function ( oResponse ) {
-				  alert( oResponse.data.message );
-			  }
-		  ).always( function () {
-				  iCWP_WPSF_BodyOverlay.hide();
-			  }
-		  );
-	  };
-
-	  this.initialise = function () {
-		  jQuery( document ).ready( function () {
-			  jQuery( document ).on( "submit", "form#ConnectionDebug", connectionDebug );
-		  } );
-	  };
-  }();
-
-  iCWP_WPSF_LicenseHandler.initialise();
-  iCWP_WPSF_ConnectionDebug.initialise();
-	</script>
 {% endblock %}

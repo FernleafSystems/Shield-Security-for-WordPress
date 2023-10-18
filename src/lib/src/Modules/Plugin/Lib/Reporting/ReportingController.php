@@ -3,12 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\DisplayReport;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components\BaseBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\FormReportCreate;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportCreateCustom;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as AuditDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ConvertHtmlToPDF;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ReportingController {
 
@@ -58,24 +62,6 @@ class ReportingController {
 			   ][ $type ] ?? 'invalid report type';
 	}
 
-	/**
-	 * @return BaseBuilder[]
-	 */
-	public function getComponentBuilders( string $type ) :array {
-		return \array_map(
-			function ( $builder ) {
-				return new $builder();
-			},
-			\array_filter(
-				Constants::COMPONENT_REPORT_BUILDERS,
-				function ( $builder ) use ( $type ) {
-					/** @var BaseBuilder $builder */
-					return $builder::TYPE === $type;
-				}
-			)
-		);
-	}
-
 	public function getReportAreas( bool $slugsOnly = false ) :array {
 		$areas = [
 			Constants::REPORT_AREA_CHANGES => \array_filter( \array_map(
@@ -107,5 +93,34 @@ class ReportingController {
 				return \array_keys( $area );
 			}, $areas )
 			: $areas;
+	}
+
+	public function getCreateReportFormVars() :array {
+		$req = Services::Request();
+
+		$dbh = $this->con()->getModule_AuditTrail()->getDbH_Logs();
+		/** @var AuditDB\Record $firstAudit */
+		$firstAudit = $dbh->getQuerySelector()
+						  ->setOrderBy( 'created_at', 'ASC', true )
+						  ->first();
+		$lastAudit = $dbh->getQuerySelector()
+						 ->setOrderBy( 'created_at', 'DESC', true )
+						 ->first();
+
+		return [
+			'ajax'  => [
+				'create_report'    => ActionData::Build( ReportCreateCustom::class ),
+				'render_offcanvas' => ActionData::BuildAjaxRender( FormReportCreate::class ),
+			],
+			'flags' => [
+				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
+			],
+			'vars'  => [
+				'earliest_date' => empty( $firstAudit ) ? $req->ts() :
+					$req->carbon( true )->setTimestamp( $firstAudit->created_at )->toIso8601String(),
+				'latest_date'   => empty( $lastAudit ) ? $req->ts() :
+					$req->carbon( true )->setTimestamp( $lastAudit->created_at )->toIso8601String()
+			],
+		];
 	}
 }

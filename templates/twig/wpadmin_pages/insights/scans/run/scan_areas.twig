@@ -89,21 +89,3 @@
 	</div>
 
 </form>
-
-<script>
-	jQuery( 'form#StartScans' ).icwpWpsfScansStart(
-		{
-			'ajax_scans_start': {{ ajax.scans_start|raw }},
-			'ajax_scans_check': {{ ajax.scans_check|raw }},
-			'href_scans_results': "{{ hrefs.scans_results|raw }}"
-		}
-	);
-	{% if vars.initial_check %}
-	jQuery( document ).icwpWpsfScansCheck(
-		{
-			'ajax_scans_check': {{ ajax.scans_check|raw }},
-			'href_scans_results': "{{ hrefs.scans_results|raw }}"
-		}
-	);
-	{% endif %}
-</script>

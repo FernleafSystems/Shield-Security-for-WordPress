@@ -8,6 +8,7 @@ class FormParams {
 
 	public const ENC_NONE = 'none';
 	public const ENC_LZ = 'lz-string';
+	public const ENC_OBSCURE = 'obscure';
 	public const ENC_BASE64 = 'b64';
 
 	public static function Retrieve( string $encoding = self::ENC_NONE ) :array {
@@ -20,20 +21,20 @@ class FormParams {
 		}
 		else {
 			$maybeEncoding = $req->post( 'enc_params' );
-			if ( \in_array( $maybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
+			if ( \in_array( $maybeEncoding, [ self::ENC_NONE, self::ENC_OBSCURE, self::ENC_BASE64 ] ) ) {
 				$encoding = $maybeEncoding;
 			}
 
 			switch ( $encoding ) {
-				case 'lz-string':
-					$raw = \LZCompressor\LZString::decompress( \base64_decode( $raw ) );
+				case self::ENC_OBSCURE:
+					$raw = \base64_decode( \str_replace( 'icwp-', '', \base64_decode( $raw ) ) );
 					break;
 
-				case 'b64':
+				case self::ENC_BASE64:
 					$raw = \base64_decode( $raw );
 					break;
 
-				case 'none':
+				case self::ENC_NONE:
 				default:
 					if ( empty( $raw ) ) {
 						$raw = '';

@@ -21,7 +21,7 @@ class MfaBackupCodeAdd extends MfaUserConfigBase {
 		}
 		else {
 			$pass = \implode( '-', \str_split( $provider->resetSecret(), 5 ) );
-			$msg = sprintf( 'Your backup login code is:<br/><code>%s</code>', $pass );
+			$msg = sprintf( 'Your backup login code is: %s', $pass );
 			$success = true;
 		}
 

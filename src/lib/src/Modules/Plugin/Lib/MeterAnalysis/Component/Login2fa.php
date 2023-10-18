@@ -18,8 +18,7 @@ class Login2fa extends Base {
 		return $mod->isModOptEnabled()
 			   && ( $opts->isEmailAuthenticationActive()
 					|| $opts->isEnabledGoogleAuthenticator()
-					|| $opts->isEnabledYubikey()
-					|| $opts->isEnabledU2F() );
+					|| $opts->isEnabledYubikey() );
 	}
 
 	protected function getOptConfigKey() :string {

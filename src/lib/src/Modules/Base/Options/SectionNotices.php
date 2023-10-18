@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	IPs,
 	IPs\Lib\IpRules\IpRuleStatus,
 	LoginGuard,
-	Plugin\Lib\Captcha\CheckCaptchaSettings,
 	PluginControllerConsumer,
 	Traffic\Options
 };
@@ -122,10 +121,10 @@ class SectionNotices {
 				/** @var Options $trafficOpts */
 				$trafficOpts = $con->getModule_Traffic()->opts();
 				if ( $section === 'section_traffic_options' && $trafficOpts->liveLoggingTimeRemaining() > 0 ) {
-					$warnings[] = \implode(' ', [
+					$warnings[] = \implode( ' ', [
 						__( 'Live traffic logging increases load on your database and is designed to active only temporarily.', 'wp-simple-firewall' ),
 						__( 'We recommend disabling it if you no longer need it running.', 'wp-simple-firewall' ),
-					]);
+					] );
 				}
 
 				break;
@@ -133,19 +132,6 @@ class SectionNotices {
 			case 'section_whitelabel':
 				if ( !$con->getModule_SecAdmin()->getSecurityAdminController()->isEnabledSecAdmin() ) {
 					$warnings[] = __( 'Please also supply a Security Admin PIN, as whitelabel settings are only applied when the Security Admin feature is active.', 'wp-simple-firewall' );
-				}
-				break;
-
-			case 'section_third_party_captcha':
-				$mod = $con->getModule_Plugin();
-				if ( $mod->getCaptchaCfg()->ready ) {
-					if ( $mod->opts()->getOpt( 'captcha_checked_at' ) < 0 ) {
-						( new CheckCaptchaSettings() )->checkAll();
-					}
-					if ( $mod->opts()->getOpt( 'captcha_checked_at' ) == 0 ) {
-						$warnings[] = __( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
-									  .__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' );
-					}
 				}
 				break;
 

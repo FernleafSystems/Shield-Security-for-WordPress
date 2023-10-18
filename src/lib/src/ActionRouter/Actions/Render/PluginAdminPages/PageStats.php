@@ -118,7 +118,6 @@ class PageStats extends BasePluginAdminPage {
 				'events' => [
 					'spam_block_antibot',
 					'spam_block_bot',
-					'spam_block_recaptcha',
 					'spam_block_human',
 				]
 			],

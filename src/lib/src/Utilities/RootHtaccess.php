@@ -46,7 +46,7 @@ class RootHtaccess {
 	}
 
 	private function getTestURL() :string {
-		return URL::Build( self::con()->urls->forJs( 'plugin.js' ), [ 'rand' => \rand( 1000, 9999 ) ] );
+		return URL::Build( self::con()->urls->forDistJS( 'main' ), [ 'rand' => \rand( 1000, 9999 ) ] );
 	}
 
 	private function getPathToHtaccess() :string {

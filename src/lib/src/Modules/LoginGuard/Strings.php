@@ -288,20 +288,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'enable_google_recaptcha_login' :
-				$name = __( 'CAPTCHA', 'wp-simple-firewall' );
-				$summary = sprintf( '[DEPRECATED - %s] : %s',
-					'Please use the newer AntiBot setting',
-					__( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' )
-				);
-				$desc = [
-					__( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ),
-					sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) ),
-					sprintf( '<strong>%s - %s</strong>', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) )
-				];
-				break;
-
 			case 'enable_antibot_check' :
 				$name = __( 'AntiBot Detection Engine (ADE)', 'wp-simple-firewall' );
 				$summary = __( 'Use ADE To Detect Bots And Block Brute Force Logins', 'wp-simple-firewall' );
@@ -366,15 +352,6 @@ class Strings extends Base\Strings {
 				$name = __( 'User Registration', 'wp-simple-firewall' );
 				$summary = __( 'Apply Brute Force Protection To User Registration And Lost Passwords', 'wp-simple-firewall' );
 				$desc = [ __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' ) ];
-				break;
-
-			case 'enable_u2f' :
-				$name = __( 'Allow U2F', 'wp-simple-firewall' );
-				$summary = __( 'Allow Registration Of U2F Devices', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
-					__( "Currently only U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' ),
-				];
 				break;
 
 			case 'enable_yubikey' :

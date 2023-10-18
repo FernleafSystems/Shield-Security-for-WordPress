@@ -2,12 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	LicenseCheckDebug,
-	LicenseClear,
-	LicenseLookup
-};
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageLicense extends BasePluginAdminPage {
@@ -54,11 +48,6 @@ class PageLicense extends BasePluginAdminPage {
 		$license = $mod->getLicenseHandler()->getLicense();
 
 		return [
-			'ajax'    => [
-				'license_action_clear'  => ActionData::Build( LicenseClear::class ),
-				'license_action_lookup' => ActionData::Build( LicenseLookup::class ),
-				'connection_debug'      => ActionData::Build( LicenseCheckDebug::class )
-			],
 			'flags'   => [
 				'show_ads'              => false,
 				'button_enabled_check'  => true,

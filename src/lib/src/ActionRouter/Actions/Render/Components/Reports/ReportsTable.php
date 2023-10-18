@@ -39,7 +39,7 @@ class ReportsTable extends BaseRender {
 							( $report->type === Constants::REPORT_TYPE_ALERT ? 'warning' : 'dark' ),
 						'created_at' => Services::WpGeneral()->getTimeStringForDisplay( $report->created_at ),
 						'actions'    => [
-							'delete'   => [
+							'delete' => [
 								'title'   => __( 'Delete' ),
 								'classes' => [ 'btn-danger', 'shield_dynamic_action_button' ],
 								'svg'     => $con->svgs->raw( 'trash3-fill.svg' ),

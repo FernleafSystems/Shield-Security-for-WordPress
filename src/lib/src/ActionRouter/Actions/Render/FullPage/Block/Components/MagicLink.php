@@ -28,10 +28,14 @@ class MagicLink extends Base {
 				'ajaxurl' => Services::WpGeneral()->ajaxURL(),
 			],
 			'vars'    => [
-				'email'         => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
-				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::class, true, [
-					'ip' => self::con()->this_req->ip
-				] ),
+				'email'     => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
+				'inline_js' => [
+					sprintf( 'var nonce_unblock = %s;',
+						ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::class, true, [
+							'ip' => self::con()->this_req->ip
+						] )
+					)
+				],
 			],
 			'strings' => [
 				'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),

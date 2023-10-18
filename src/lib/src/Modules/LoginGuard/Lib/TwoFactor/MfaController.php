@@ -152,7 +152,6 @@ class MfaController {
 			Provider\GoogleAuth::class,
 			Provider\Yubikey::class,
 			Provider\BackupCodes::class,
-			Provider\U2F::class,
 		];
 		$finalProviders = apply_filters( 'shield/2fa_providers', $shieldProviders );
 
@@ -165,8 +164,8 @@ class MfaController {
 
 		$finalValid = \array_filter( $finalProviders, function ( string $providerClass ) {
 			/** @var Provider\Provider2faInterface $providerClass - not really, but helps with intelli */
-			return isset( class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
-				   && \preg_match( '#^[a-z]+$#', $providerClass::ProviderSlug() );
+			return isset( \class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
+				   && \preg_match( '#^[a-z0-9]+$#', $providerClass::ProviderSlug() );
 		} );
 
 		// Filter out any duplicate slugs.

@@ -42,7 +42,8 @@
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
-	     class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible">
+		 data-notice_id="{{ notice_id }}"
+	     class="{{ notice_classes|default('info') }} odp-admin-notice notice is-dismissible shield-notice-container">
 
 		<div style="display: flex; flex-direction: row; ">
 
@@ -72,27 +73,11 @@
 
 		{% block dismiss_link %}
 			<div class="dismiss-p" style="margin-bottom: 15px">
-				<a class="icwp-notice-dismiss" href="#">{{ strings.dismiss|default('Dismiss') }}</a>
+				<a class="shield-notice-dismiss"
+				   href="#"
+				>{{ strings.dismiss|default('Dismiss') }}</a>
 			</div>
 		{% endblock %}
 
 	</div>
-{% endblock %}
-
-{% block notice_js %}
-	{% if ajax|default([]) is not empty %}
-		<script type="text/javascript">
-			jQuery( document ).on(
-		  'click',
-		  '#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
-		  function () {
-			  let $container = jQuery( '#{{ unique_render_id }}' );
-			  jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
-			  $container.fadeOut( 500, function () {
-				  $container.remove();
-			  } );
-		  }
-	  );
-		</script>
-	{% endif %}
 {% endblock %}

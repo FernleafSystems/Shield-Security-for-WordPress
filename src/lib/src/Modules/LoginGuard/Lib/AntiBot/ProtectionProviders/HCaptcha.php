@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\HCaptcha\TestRequest;
 
+/**
+ * @deprecated 18.5
+ */
 class HCaptcha extends GoogleRecaptcha {
 
 	/**

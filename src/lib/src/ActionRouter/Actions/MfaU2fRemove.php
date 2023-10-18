@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\U2F;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.5
+ */
 class MfaU2fRemove extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_u2f_remove';

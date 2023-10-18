@@ -2,43 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	UserSessionDelete,
-	UserSessionsTableBulkAction,
-	UserSessionsTableRender
-};
-
 class PageUserSessions extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_user_sessions';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_sessions.twig';
 
 	protected function getPageContextualHrefs() :array {
-		$con = self::con();
-		$urls = self::con()->plugin_urls;
 		return [
 			[
-				'text' => __( 'User Controls', 'wp-simple-firewall' ),
-				'href' => $urls->offCanvasConfigRender( $con->getModule_UserManagement()->cfg->slug ),
+				'text'    => __( 'User Controls', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => self::con()->getModule_UserManagement()->cfg->slug
+				],
 			],
 			[
-				'text' => __( 'Configure Security Admin', 'wp-simple-firewall' ),
-				'href' => $urls->offCanvasConfigRender( $con->getModule_SecAdmin()->cfg->slug ),
+				'text'    => __( 'Configure Security Admin', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => self::con()->getModule_SecAdmin()->cfg->slug
+				],
 			],
 		];
 	}
 
 	protected function getRenderData() :array {
 		return [
-			'ajax'    => [
-				'render_table_sessions' => ActionData::BuildJson( UserSessionsTableRender::class, true, [
-					'per_page' => 25,
-				] ),
-				'item_delete'           => ActionData::BuildJson( UserSessionDelete::class ),
-				'bulk_action'           => ActionData::BuildJson( UserSessionsTableBulkAction::class ),
-
-			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->raw( 'person-badge' ),
 			],

@@ -20,10 +20,13 @@ class Sms extends AbstractShieldProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::class ),
 				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::class ),
 				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::class ),
+			],
+			'flags' => [
+				'is_available' => $this->isProviderAvailableToUser(),
 			],
 		];
 	}

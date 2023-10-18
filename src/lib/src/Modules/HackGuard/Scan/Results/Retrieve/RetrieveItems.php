@@ -243,7 +243,6 @@ class RetrieveItems extends RetrieveBase {
 				}
 				$offset += $length;
 			}
-
 		} while ( !empty( $resultsSlice ) );
 	}
 

@@ -2,9 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartCustom;
-
 class ChartsCustom extends Base {
 
 	public const SLUG = 'render_charts_custom';
@@ -12,9 +9,6 @@ class ChartsCustom extends Base {
 
 	protected function getRenderData() :array {
 		return [
-			'ajax'    => [
-				'render_custom_chart' => ActionData::BuildJson( ReportingChartCustom::class ),
-			],
 			'strings' => [
 				'select_events'   => __( 'Events', 'wp-simple-firewall' ),
 				'select_interval' => __( 'Interval', 'wp-simple-firewall' ),

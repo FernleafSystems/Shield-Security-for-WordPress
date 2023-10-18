@@ -3,10 +3,6 @@
 	  font-weight: bold;
 	  display: block;
   }
-  a.input-help {
-	  display: inline-block;
-	  padding: 0 0.5rem;
-  }
   #countdown {
 	  font-weight: bolder;
   }
@@ -58,43 +54,7 @@
 	<div class="col">
 		<p id="TimeRemaining" class="text-center text-dark">
 			{{ strings.time_remaining }}:
-			<span id="countdown">{{ strings.calculating }}</span>
+			<span class="countdown">{{ strings.calculating }}</span>
 		</p>
 	</div>
 </div>
-
-<script type="text/javascript">
-	// Set the date we're counting down to
-  let timeRemaining = {{ vars.time_remaining }};
-  // Update the count down every 1 second
-  let x = setInterval( function () {
-		  timeRemaining -= 1;
-		  var timeRemainingText = '';
-		  if ( timeRemaining < 0 ) {
-			  timeRemainingText = '{{ strings.login_expired }}';
-			  clearInterval( x );
-			  loginExpired();
-			  document.getElementById( "TimeRemaining" ).innerHTML = timeRemainingText;
-		  }
-		  else {
-			  var minutes = Math.floor( timeRemaining / 60 );
-			  var seconds = Math.floor( timeRemaining % 60 );
-			  if ( minutes > 0 ) {
-				  timeRemainingText = minutes + " minutes and " + seconds
-					  + " {{ strings.seconds }}";
-			  }
-			  else {
-				  timeRemainingText = timeRemaining.toFixed( 0 )
-					  + " {{ strings.seconds }}";
-			  }
-			  document.getElementById( "countdown" ).innerHTML = timeRemainingText;
-		  }
-	  },
-	  1000
-  );
-
-  function loginExpired() {
-	  document.getElementById( "mainSubmit" ).setAttribute( 'disabled', 'disabled' );
-	  document.getElementById( "TimeRemaining" ).className = "text-center alert alert-danger";
-  }
-</script>

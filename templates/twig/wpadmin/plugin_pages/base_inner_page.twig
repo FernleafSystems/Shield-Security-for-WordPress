@@ -29,36 +29,36 @@
 			</div>
 			<div class="col-2 text-end inner-page-config">
 
-				{% if hrefs.inner_page_contextual_hrefs|default('') is not empty %}
+				{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
 
 					<div class="btn-group dropstart tour-navigation_v1"
 						 data-introtitle="Action Menu"
 						 data-introposition="left"
 						 data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options."
 					>
-								<button type="button"
-										class="btn btn-link dropdown-toggle"
-										data-bs-toggle="dropdown"
-										aria-expanded="false">{{ imgs.svgs.settings|raw }}</button>
-								<ul class="dropdown-menu">
-									{% for item in hrefs.inner_page_contextual_hrefs %}
-										<li>
-											{% if item.href|default('') is empty %}
-												<h6 class="dropdown-header">{{ item.text }}</h6>
-											{% else %}
-												{{ icwp_macros.tagAnchor(
-													item.href,
-													item.text,
-													item.id|default(''),
-													item.classes|default([])|merge(['dropdown-item']),
-													false,
-													item.datas|default([]),
-													item.disabled|default(false)
-												) }}
-											{% endif %}
-										</li>
-									{% endfor %}
-								</ul>
+						<button type="button"
+								class="btn btn-link dropdown-toggle"
+								data-bs-toggle="dropdown"
+								aria-expanded="false">{{ imgs.svgs.settings|raw }}</button>
+							<ul class="dropdown-menu">
+								{% for item in hrefs.inner_page_contextual_hrefs %}
+									<li>
+										{% if item.href|default('') is empty %}
+											<h6 class="dropdown-header">{{ item.text }}</h6>
+										{% else %}
+											{{ icwp_macros.tagAnchor(
+												item.href,
+												item.text,
+												item.id|default(''),
+												item.classes|default([])|merge(['dropdown-item']),
+												false,
+												item.datas|default([]),
+												item.disabled|default(false)
+											) }}
+										{% endif %}
+									</li>
+								{% endfor %}
+							</ul>
 						</div>
 
 				{% endif %}

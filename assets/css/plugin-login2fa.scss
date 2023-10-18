@@ -1,0 +1,22 @@
+.shield-2fa-wplogin input[type="text"][name="icwp_wpsf_yubi_otp"] {
+  width: 100%;
+}
+
+input[type="text"][name="icwp_wpsf_email_otp"],
+input[type="text"][name="icwp_wpsf_ga_otp"] {
+  font-family: monospace;
+  text-align: center;
+  letter-spacing: 10px;
+  font-size: 18px;
+  font-weight: bolder;
+}
+
+.otp-description {
+  display: block;
+  margin: 6px 0 20px;
+  font-size: 12px;
+}
+
+input {
+  margin-bottom: 0 !important;
+}

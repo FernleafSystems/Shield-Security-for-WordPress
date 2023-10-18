@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
@@ -25,7 +24,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	protected function exec() {
 		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
-
 			if ( apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
 				add_action( 'admin_menu', function () {
 					$this->createAdminMenu();
@@ -34,8 +32,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 					$this->createNetworkAdminMenu();
 				} );
 			}
-
-			( new AssetsCustomizer() )->execute();
 		}
 	}
 

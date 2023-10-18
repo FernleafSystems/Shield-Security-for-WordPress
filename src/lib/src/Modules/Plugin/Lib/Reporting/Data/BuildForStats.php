@@ -104,7 +104,6 @@ class BuildForStats extends BuildBase {
 			'bottrack_xmlrpc',
 			'bottrack_invalidscript',
 			'spam_block_bot',
-			'spam_block_recaptcha',
 			'spam_block_human',
 		];
 	}

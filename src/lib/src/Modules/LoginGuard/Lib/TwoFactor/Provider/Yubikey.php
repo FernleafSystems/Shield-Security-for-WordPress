@@ -19,8 +19,11 @@ class Yubikey extends AbstractShieldProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
+			],
+			'flags' => [
+				'is_available' => $this->isProviderAvailableToUser(),
 			],
 		];
 	}
@@ -165,10 +168,10 @@ class Yubikey extends AbstractShieldProvider {
 						__( 'Your Yubikey APP configuration may be invalid', 'wp-simple-firewall' )
 					);
 				}
+			}
 
-				if ( $response->success ) {
-					$this->setSecret( \implode( ',', \array_unique( \array_filter( $IDs ) ) ) );
-				}
+			if ( $response->success ) {
+				$this->setSecret( \implode( ',', \array_unique( \array_filter( $IDs ) ) ) );
 			}
 		}
 

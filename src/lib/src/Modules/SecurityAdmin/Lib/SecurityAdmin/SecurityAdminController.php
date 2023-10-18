@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	SecurityAdminLogin,
 	SecurityAdminRequestRemoveByEmail
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
@@ -98,15 +97,16 @@ class SecurityAdminController {
 	}
 
 	private function enqueueJS() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
-			$enqueues[ Enqueue::JS ][] = 'shield/secadmin';
-
-			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$isSecAdmin = self::con()->this_req->is_security_admin;
-				$localz[] = [
-					'shield/secadmin',
-					'shield_vars_secadmin',
-					[
+		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+			$components[ 'sec_admin' ] = [
+				'key'     => 'sec_admin',
+				'handles' => [
+					'main',
+					'wpadmin',
+				],
+				'data'    => function () {
+					$isSecAdmin = self::con()->this_req->is_security_admin;
+					return [
 						'ajax'    => [
 							'sec_admin_check'  => ActionData::Build( SecurityAdminCheck::class ),
 							'sec_admin_login'  => ActionData::Build( SecurityAdminLogin::class ),
@@ -137,12 +137,10 @@ class SecurityAdminController {
 							'time_remaining'         => $this->getSecAdminTimeRemaining(), // JS uses milliseconds
 							'wp_options_to_restrict' => $this->opts()->getOptionsToRestrict(),
 						],
-					]
-				];
-				return $localz;
-			} );
-
-			return $enqueues;
+					];
+				},
+			];
+			return $components;
 		} );
 	}
 

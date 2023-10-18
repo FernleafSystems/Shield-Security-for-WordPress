@@ -70,7 +70,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'learn_more'       => 'https://translate.fernleafsystems.com',
 				'link_to_see'      => self::con()->getModule_Plugin()->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
-
 			]
 		];
 	}
