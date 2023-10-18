@@ -12,12 +12,14 @@ class PasswordGenerator {
 		bool $extraSpecial = false,
 		bool $includeAmbiguous = false
 	) :string {
-		$chars = \implode( '', \array_filter( [
+
+		$chars = \implode( '', \array_keys( \array_filter( [
 			'01234567989'                                          => $digits,
 			'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' => $alpha,
 			'!@#$%^&*()'                                           => $special,
 			'-_ []{}<>~`+=,.;:/?|'                                 => $extraSpecial,
-		] ) );
+		] ) ) );
+
 		if ( !$includeAmbiguous ) {
 			$chars = \preg_replace( '#[iol0O1L]#', '', $chars );
 		}
