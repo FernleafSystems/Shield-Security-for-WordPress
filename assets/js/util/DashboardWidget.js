@@ -1,7 +1,7 @@
-import { BaseService } from "./BaseService";
-import { ShieldOverlay } from "./ShieldOverlay";
-import { ObjectOps } from "./ObjectOps";
 import { AjaxService } from "./AjaxService";
+import { BaseService } from "./BaseService";
+import { ObjectOps } from "./ObjectOps";
+import { ShieldOverlay } from "./ShieldOverlay";
 
 export class DashboardWidget extends BaseService {
 

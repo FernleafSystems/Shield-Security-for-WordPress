@@ -1,6 +1,6 @@
 import { BaseService } from "./BaseService";
-import { ShieldTableScanResults } from "./ShieldTableScanResults";
 import { ObjectOps } from "./ObjectOps";
+import { ShieldTableScanResults } from "./ShieldTableScanResults";
 
 export class ShieldTablesScanResultsHandler extends BaseService {
 
@@ -23,7 +23,7 @@ export class ShieldTablesScanResultsHandler extends BaseService {
 									tableData.vars.table_selector = '#' + tableElem.id;
 									tableData.ajax.table_action.type = tableElem.dataset.type;
 									tableData.ajax.table_action.file = tableElem.dataset.file;
-									( new ShieldTableScanResults( tableData ) ).run();
+									new ShieldTableScanResults( tableData );
 								}
 							} );
 				}

@@ -29,6 +29,14 @@ class Paths {
 		return $this->forImage( 'bootstrap/'.Utilities\File\Paths::AddExt( \ltrim( $asset, '/' ), 'svg' ) );
 	}
 
+	public function forDist( string $asset, string $type ) :string {
+		return $this->forAsset( sprintf( 'dist/shield-%s.bundle.%s', $asset, $type ) );
+	}
+
+	public function forDistJs( string $asset ) :string {
+		return $this->forDist( $asset, 'js' );
+	}
+
 	public function forJs( string $asset ) :string {
 		return $this->forAsset( 'js/'.\ltrim( $asset, '/' ) );
 	}

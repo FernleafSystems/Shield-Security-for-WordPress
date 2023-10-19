@@ -27,7 +27,7 @@ class BuildSessionsTableData extends BaseBuildTableData {
 				$shield = $s[ 'shield' ] ?? [];
 				$data = [];
 				$data[ 'details' ] = $this->getColumnContent_Details( $s );
-				$data[ 'is_secadmin' ] = $shield[ 'secadmin_at' ] > 0 ? $this->getColumnContent_Date( $shield[ 'secadmin_at' ] ) : 'no';
+				$data[ 'is_secadmin' ] = ( $shield[ 'secadmin_at' ] ?? 0 ) > 0 ? $this->getColumnContent_Date( $shield[ 'secadmin_at' ] ) : 'no';
 				$data[ 'last_activity_at' ] = $this->getColumnContent_Date( $shield[ 'last_activity_at' ] ?? $s[ 'login' ] );
 				$data[ 'logged_in_at' ] = $this->getColumnContent_Date( $s[ 'login' ] );
 				return $data;

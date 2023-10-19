@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
+import { Forms } from "./Forms";
 import { ObjectOps } from "./ObjectOps";
 import { ScansCheck } from "./ScansCheck";
 
@@ -14,7 +15,9 @@ export class ScansStart extends BaseService {
 		evt.preventDefault();
 
 		( new AjaxService() )
-		.send( ObjectOps.Merge( this._base_data.ajax.start, { 'form_params': $( evt.currentTarget ).serialize() } ) )
+		.send(
+			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( evt.currentTarget ) } )
+		)
 		.then( ( resp ) => {
 
 			if ( resp.success ) {

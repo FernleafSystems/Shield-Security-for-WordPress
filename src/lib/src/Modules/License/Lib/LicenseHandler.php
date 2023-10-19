@@ -70,7 +70,7 @@ class LicenseHandler {
 	 * on the wrong hostname.
 	 */
 	private function runAdhocLicenseCheck() {
-		$licHost = wp_parse_url( $this->getLicense()->url, PHP_URL_HOST );
+		$licHost = wp_parse_url( $this->getLicense()->url, \PHP_URL_HOST );
 		$reqHost = Services::Request()->getHost();
 		if ( !$this->hasValidWorkingLicense() || empty( $licHost ) || empty( $reqHost ) || ( $licHost === $reqHost ) ) {
 			try {

@@ -2,6 +2,7 @@ import $ from "jquery";
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
 import { DateRangePicker } from "vanillajs-datepicker";
+import { Forms } from "./Forms";
 import { ObjectOps } from "./ObjectOps";
 import { OffCanvasService } from "./OffCanvasService";
 
@@ -57,7 +58,9 @@ export class ReportingHandler extends BaseService {
 			}
 			else {
 				( new AjaxService() )
-				.send( ObjectOps.Merge( this._base_data.ajax.create_report, { form_params: $form.serialize() } ) )
+				.send(
+					ObjectOps.Merge( this._base_data.ajax.create_report, { form_params: Forms.Serialize( form ) } )
+				)
 				.catch( () => {
 					buttonSubmit.removeAttribute( 'disabled' );
 				} )

@@ -15,12 +15,4 @@
 			>{{ strings.click_to_send }}<code class="ms-1">{{ vars.email }}</code></a>
 		</p>
 	</div>
-
-	{% if vars.inline_js|default([]) is not empty %}
-		<script type="text/javascript">
-			{% for ijs in vars.inline_js %}
-			{{ ijs|raw }}
-			{% endfor %}
-		</script>
-	{% endif %}
 {% endif %}

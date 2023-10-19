@@ -4,6 +4,7 @@ import { BaseService } from "./BaseService";
 import { ShieldOverlay } from "./ShieldOverlay";
 import { AjaxService } from "./AjaxService";
 import { ObjectOps } from "./ObjectOps";
+import { Forms } from "./Forms";
 
 export class Merlin extends BaseService {
 
@@ -25,11 +26,10 @@ export class Merlin extends BaseService {
 	#runSettingUpdate( evt ) {
 		evt.preventDefault();
 
-		let params = ObjectOps.ObjClone( this._base_data.ajax.action );
-		params.form_params = $( evt.currentTarget ).serialize();
-
 		( new AjaxService() )
-		.send( params )
+		.send(
+			ObjectOps.Merge( this._base_data.ajax.action, { form_params: Forms.Serialize( evt.currentTarget ) } )
+		)
 		.then( ( resp ) => {
 
 			if ( resp.success ) {

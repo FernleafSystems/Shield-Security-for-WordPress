@@ -21,8 +21,9 @@ class ConfigForm extends UserMfaBase {
 	}
 
 	protected function getRenderData() :array {
+		$WPU = Services::WpUsers();
 		$mod = self::con()->getModule_LoginGuard();
-		$user = Services::WpUsers()->getUserById( $this->action_data[ 'user_id' ] );
+		$user = $WPU->getUserById( $this->action_data[ 'user_id' ] ?? $WPU->getCurrentWpUserId() );
 
 		$providerRenders = \array_map(
 			function ( $provider ) {

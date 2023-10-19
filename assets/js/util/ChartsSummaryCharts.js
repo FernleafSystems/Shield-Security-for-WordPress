@@ -5,7 +5,7 @@ export class ChartsSummaryCharts extends BaseService {
 
 	init() {
 		this._base_data.summary_charts.charts.forEach( ( chart, ) => {
-			new Chart( chart, '.summary-chart.summary-chart-' + chart.event_id );
+			new Chart( this._base_data.summary_charts, chart, '.summary-chart.summary-chart-' + chart.event_id );
 		} )
 	}
 }

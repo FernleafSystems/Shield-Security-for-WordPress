@@ -11,29 +11,35 @@ export class ShieldTableBase extends BaseService {
 
 	init() {
 		let selector = this.getTableSelector();
-		if ( selector.length === 0 ) {
-			/* console.log( 'aborting ShieldTable initialisation with empty getTableElementID()' ); */
+		if ( selector.length > 0 ) {
+			this.el = document.querySelector( selector );
+			this.exec();
 		}
 		else {
-			this.el = document.querySelector( selector );
-			if ( this.el === null ) {
-				/* console.log( 'skipping ShieldTable initialisation as element is not available for selection: ' + selector ); */
-			}
-			else {
-				this.$el = $( this.el );
-				this.setupDatatable();
-			}
+			/* console.log( 'aborting ShieldTable initialisation with empty getTableElementID()' ); */
 		}
 	}
 
-	getTableSelector() {
-		return '';
+	canRun() {
+		if ( this.el === null ) {
+			/* console.log( 'skipping ShieldTable initialisation as element is not available for selection: ' + selector ); */
+		}
+		return this.el !== null;
+	}
+
+	run() {
+		this.$el = $( this.el );
+		this.setupDatatable();
 	}
 
 	bindEvents() {
 		[ 'xhr', 'draw', 'select', 'deselect' ].forEach( ( event ) => {
 			this.$table.on( event, () => this.rowSelectionChanged() );
 		} );
+	}
+
+	getTableSelector() {
+		return '';
 	}
 
 	setupDatatable() {
@@ -122,9 +128,11 @@ export class ShieldTableBase extends BaseService {
 		if ( RIDs.length === 0 ) {
 			this.$table
 				.rows( { selected: true } )
-				.each( ( rowIdx ) => {
-					RIDs.push( this.$table.row( rowIdx ).data().rid );
-				} );
+				.every(
+					function ( rowIdx, tableLoop, rowLoop ) {
+						RIDs.push( this.data().rid );
+					}
+				);
 		}
 
 		if ( RIDs.length > 0 ) {

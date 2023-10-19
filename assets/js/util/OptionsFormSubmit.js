@@ -2,10 +2,10 @@ import $ from 'jquery';
 import { Base64 } from 'js-base64';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
+import { Forms } from "./Forms";
 import { ObjectOps } from "./ObjectOps";
-import { ToasterService } from "./ToasterService";
-import { ShieldServicesPlugin } from "./ShieldServicesPlugin";
 import { OffCanvasService } from "./OffCanvasService";
+import { ToasterService } from "./ToasterService";
 
 export class OptionsFormSubmit extends BaseService {
 
@@ -16,22 +16,22 @@ export class OptionsFormSubmit extends BaseService {
 	#submitOptionsForm( evt ) {
 		evt.preventDefault();
 
+		this.form = evt.currentTarget;
 		this.$form = $( evt.currentTarget );
 
-		let $passwordsReady = true;
-		$( 'input[type=password]', this.$form ).each( ( index, passwordField ) => {
-			let $pass = $( passwordField );
-			let $confirm = $( '#' + $pass.attr( 'id' ) + '_confirm', this.$form );
-			if ( typeof $confirm.attr( 'id' ) !== 'undefined' ) {
-				if ( $pass.val() && !$confirm.val() ) {
-					$confirm.addClass( 'is-invalid' );
+		let passwordsReady = true;
+		this.form.querySelectorAll( 'input[type=password]' ).forEach( ( passwordField ) => {
+			if ( passwordField.value ) {
+				const confirmPass = this.form.getElementById( passwordField.id + '_confirm' ) || false;
+				if ( confirmPass && passwordField.value && !confirmPass.value ) {
+					confirmPass.classList.add( 'is-invalid' );
 					alert( 'Form not submitted due to error: password confirmation field not provided.' );
-					$passwordsReady = false;
+					passwordsReady = false;
 				}
 			}
 		} );
 
-		if ( $passwordsReady ) {
+		if ( passwordsReady ) {
 			this.#sendForm( false );
 		}
 
@@ -45,16 +45,13 @@ export class OptionsFormSubmit extends BaseService {
 	 */
 	#sendForm( obscure = false ) {
 
-		let formData = this.$form.serialize();
-		if ( obscure ) {
-			formData = 'icwp-' + Base64.encode( formData );
-		}
+		let formData = Base64.encode( JSON.stringify( Forms.Serialize( this.form ) ) );
 
 		( new AjaxService() )
 		.send(
 			ObjectOps.Merge( this._base_data.ajax.form_save, {
-				'form_params': Base64.encode( formData ),
-				'enc_params': obscure ? 'obscure' : 'b64',
+				form_params: obscure ? 'icwp-' + formData : formData,
+				form_enc: obscure ? [ 'obscure', 'b64', 'json' ] : [ 'b64', 'json' ],
 			} )
 		)
 		.then( ( resp ) => {

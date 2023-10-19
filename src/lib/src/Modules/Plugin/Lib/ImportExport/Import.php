@@ -59,10 +59,10 @@ class Import {
 	 */
 	public function fromFileUpload() {
 		if ( !self::con()->isPluginAdmin() ) {
-			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Not currently logged-in as security admin.', 'wp-simple-firewall' ) );
 		}
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
-			throw new \Exception( __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' ) );
+			throw new \Exception( __( 'Please check the box to confirm.', 'wp-simple-firewall' ) );
 		}
 
 		$FS = Services::WpFs();
@@ -102,6 +102,9 @@ class Import {
 
 		if ( empty( $masterURL ) ) {
 			$masterURL = $opts->getImportExportMasterImportUrl();
+			if ( empty( $masterURL ) ) {
+				throw new \Exception( "No Master Site URL provided.", 4 );
+			}
 		}
 
 		$originalMasterSiteURL = $opts->getImportExportMasterImportUrl();
@@ -112,7 +115,7 @@ class Import {
 		}
 
 		// Ensure we have entries for 'scheme' and 'host'
-		$urlParts = wp_parse_url( $masterURL );
+		$urlParts = wp_parse_url( \strtolower( $masterURL ) );
 		$hasParts = !empty( $urlParts )
 					&& \count(
 						   \array_filter( \array_intersect_key(
@@ -120,8 +123,12 @@ class Import {
 							   \array_flip( [ 'scheme', 'host' ] )
 						   ) )
 					   ) === 2;
+
 		if ( !$hasParts ) {
-			throw new \Exception( "Couldn't parse the URL.", 4 );
+			throw new \Exception( "Master Site doesn't appear to be a valid URL.", 4 );
+		}
+		if ( !\preg_match( '#^https?$#', $urlParts[ 'scheme' ] ) ) {
+			throw new \Exception( "Master Site URL doesn't contain 'http' or 'https'.", 4 );
 		}
 		$masterURL = Services::Data()->validateSimpleHttpUrl( $masterURL ); // final clean
 		if ( empty( $masterURL ) ) {

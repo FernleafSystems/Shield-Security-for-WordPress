@@ -53,15 +53,16 @@ abstract class BaseFullPageRender extends BaseRender {
 	}
 
 	protected function getScripts() :array {
-		$urlBuilder = self::con()->urls;
 		return [
 			10 => [
 				'src' => Services::Includes()->getUrl_Jquery(),
 				'id'  => 'wp_jquery',
+				'footer' => true,
 			],
 			20 => [
-				'src' => $urlBuilder->forThirdParty( 'bootstrap', 'js' ),
+				'src' => self::con()->urls->forThirdParty( 'bootstrap', 'js' ),
 				'id'  => 'bootstrap',
+				'footer' => true,
 			],
 		];
 	}

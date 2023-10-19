@@ -3,18 +3,15 @@ import { BaseService } from "./BaseService";
 export class BlockPageAutoRecover extends BaseService {
 
 	init() {
-		this.the_p = document.getElementById( 'unblock_confirm' );
+		this.the_p = document.getElementById( 'unblock_confirm' ) || false;
+		this.exec();
 	}
 
 	canRun() {
-		return typeof this.the_p !== 'undefined';
+		return this.the_p;
 	}
 
 	run() {
-		window.addEventListener( 'load', () => this.#gasp(), false );
-	}
-
-	#gasp() {
 		let the_cb = document.createElement( "input" );
 		let the_lab = document.createElement( "label" );
 		let the_txt = document.createTextNode( "I confirm that I'm accessing this site legitimately" );
@@ -27,12 +24,14 @@ export class BlockPageAutoRecover extends BaseService {
 		the_lab.appendChild( the_txt );
 
 		the_cb.onchange = function ( evt ) {
-			const button = document.getElementById( "submitUnblock" );
-			if ( evt.target.checked ) {
-				button.removeAttribute( 'disabled' );
-			}
-			else {
-				button.setAttribute( 'disabled', 'disabled' );
+			const button = document.getElementById( "submitUnblock" ) || false;
+			if ( button ) {
+				if ( evt.currentTarget.checked ) {
+					button.removeAttribute( 'disabled' );
+				}
+				else {
+					button.setAttribute( 'disabled', 'disabled' );
+				}
 			}
 		};
 	}

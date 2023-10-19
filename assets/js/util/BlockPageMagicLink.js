@@ -1,5 +1,5 @@
-import { BaseService } from "./BaseService";
 import { AjaxService } from "./AjaxService";
+import { BaseService } from "./BaseService";
 
 export class BlockPageMagicLink extends BaseService {
 
@@ -9,13 +9,14 @@ export class BlockPageMagicLink extends BaseService {
 	}
 
 	canRun() {
-		return this.href && typeof this._base_data !== 'undefined';
+		return this.href;
 	}
 
 	run() {
-		this.href && this.href.addEventListener( 'click', ( evt ) => {
+		const self = this;
+		this.href.addEventListener( 'click', ( evt ) => {
 			( new AjaxService() )
-			.send( this._base_data )
+			.send( self._base_data.ajax.unblock_request )
 			.finally();
 		}, false );
 	}

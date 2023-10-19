@@ -11,7 +11,6 @@ class MfaEmailDisable extends MfaUserConfigBase {
 		$this->response()->action_response_data = [
 			'success'     => true,
 			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
-			'page_reload' => true
 		];
 	}
 }

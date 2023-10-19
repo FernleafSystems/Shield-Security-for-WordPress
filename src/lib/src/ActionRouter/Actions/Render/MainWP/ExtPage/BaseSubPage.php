@@ -38,9 +38,6 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getCommonSubPageData() :array {
 		return [
-			'ajax'    => [
-				'actions' => $this->getAjaxActionsData(),
-			],
 			'vars'    => [
 				'menu_topnav'  => $this->getMenuTopNavItems(),
 				'site_actions' => \array_map(
@@ -197,13 +194,6 @@ class BaseSubPage extends BaseMWP {
 				'icon'    => 'list alternate outline',
 				'active'  => $this->getCurrentTab() === TabSitesListing::TAB,
 			]
-		];
-	}
-
-	protected function getAjaxActionsData() :array {
-		return [
-			'site_action' => ActionData::Build( MainwpServerClientActionHandler::class ),
-			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::class ),
 		];
 	}
 

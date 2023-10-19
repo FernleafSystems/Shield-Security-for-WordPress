@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import { ShieldTableBase } from "./ShieldTableBase";
-import { ShieldOverlay } from "./ShieldOverlay";
-import { ObjectOps } from "./ObjectOps";
 import { AjaxService } from "./AjaxService";
+import { ObjectOps } from "./ObjectOps";
+import { ShieldOverlay } from "./ShieldOverlay";
+import { ShieldTableBase } from "./ShieldTableBase";
 
 export class ShieldTableScanResults extends ShieldTableBase {
 
@@ -21,10 +21,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 		this.$el.on(
 			'click',
-			'button.action.delete',
+			'td.actions > button.action.delete',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shield_vars.strings.are_you_sure ) ) {
+				if ( confirm( this._base_data.strings.are_you_sure ) ) {
 					this.bulkTableAction.call( this, 'delete', [ evt.currentTarget.dataset.rid ] );
 				}
 				return false;
@@ -33,17 +33,17 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 		this.$el.on(
 			'click',
-			'button.action.ignore',
+			'td.actions > button.action.ignore',
 			( evt ) => {
 				evt.preventDefault();
-				this.bulkTableAction.call( this, 'ignore', [ evt.currentTarget.dataset.rid ] );
+				this.bulkTableAction.call( this, 'ignore', ( 'rid' in evt.currentTarget.dataset ) ? [ evt.currentTarget.dataset.rid ] : [] );
 				return false;
 			}
 		);
 
 		this.$el.on(
 			'click',
-			'button.action.repair',
+			'td.actions > button.action.repair',
 			( evt ) => {
 				evt.preventDefault();
 				this.$table.rows().deselect();

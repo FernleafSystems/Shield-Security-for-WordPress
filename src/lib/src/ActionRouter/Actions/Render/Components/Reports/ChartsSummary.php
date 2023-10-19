@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
@@ -83,9 +81,6 @@ class ChartsSummary extends Base {
 		}
 
 		return [
-			'ajax' => [
-				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
-			],
 			'vars' => [
 				'stats' => $statsData,
 			],

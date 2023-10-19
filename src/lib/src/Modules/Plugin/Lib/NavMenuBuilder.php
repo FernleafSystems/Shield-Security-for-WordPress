@@ -112,7 +112,7 @@ class NavMenuBuilder {
 			'title'    => __( 'Activity', 'wp-simple-firewall' ),
 			'subtitle' => __( "All WP Site Activity", 'wp-simple-firewall' ),
 			'img'      => self::con()->svgs->raw( 'person-lines-fill' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 			'active'   => $this->inav() === PluginNavs::NAV_ACTIVITY,
 			'introjs'  => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
@@ -326,7 +326,7 @@ class NavMenuBuilder {
 			'title'    => __( 'Site Traffic', 'wp-simple-firewall' ),
 			'subtitle' => __( "View HTTP Requests", 'wp-simple-firewall' ),
 			'img'      => $con->svgs->raw( 'stoplights' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 			'active'   => $this->inav() === PluginNavs::NAV_TRAFFIC,
 			'introjs'  => [
 				'title' => __( 'Traffic Log', 'wp-simple-firewall' ),

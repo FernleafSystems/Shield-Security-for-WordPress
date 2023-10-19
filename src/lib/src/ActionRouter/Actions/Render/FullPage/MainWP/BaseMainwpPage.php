@@ -15,6 +15,7 @@ abstract class BaseMainwpPage extends Actions\Render\FullPage\BaseFullPageRender
 		$scripts[ 35 ] = [
 			'src' => self::con()->urls->forDistJS( 'mainwp_server' ),
 			'id'  => 'shield-plugin',
+			'footer' => true,
 		];
 		return $scripts;
 	}

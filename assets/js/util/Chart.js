@@ -9,8 +9,8 @@ export class Chart extends BaseService {
 	chartTitleContainer;
 	$chartContainer;
 
-	constructor( chart, containerSelector ) {
-		super();
+	constructor( initData, chart, containerSelector ) {
+		super( initData );
 		this.chart = chart;
 		this.container = document.querySelector( containerSelector );
 		this.reqRunning = false;
@@ -23,10 +23,6 @@ export class Chart extends BaseService {
 		}
 	}
 
-	retrieveBaseData() {
-		return window.shield_vars_main.comps.charts.summary_charts.ajax;
-	}
-
 	reqRenderChart() {
 		if ( this.reqRunning ) {
 			return false;
@@ -37,7 +33,7 @@ export class Chart extends BaseService {
 		// this.chartTitleContainer.html( '' );
 
 		( new AjaxService() )
-		.bg( ObjectOps.Merge( this._base_data.render_summary_chart, this.chart.req_params ) )
+		.bg( ObjectOps.Merge( this._base_data.ajax.render_summary_chart, this.chart.req_params ) )
 		.then( ( resp ) => {
 
 			if ( !resp.success ) {

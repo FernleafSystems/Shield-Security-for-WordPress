@@ -7,17 +7,15 @@ import { NoticeHandler } from "./js/util/NoticeHandler";
 import { SecurityAdmin } from "./js/util/SecurityAdmin";
 import { ShieldServicesWpAdmin } from "./js/util/ShieldServicesWpAdmin";
 
-
 window.addEventListener( 'load', () => {
 	global.shieldServices = ShieldServicesWpAdmin.Instance();
 
-	const comps = window.shield_vars_wpadmin.comps;
-
-	new DashboardWidget( comps.dashboard_widget );
-	new IpSourceAutoDetect( comps.ip_detect );
-	new NoticeHandler( comps.notices );
-	new SecurityAdmin( comps.sec_admin );
-	if ( typeof comps.plugin_reinstall !== 'undefined' ) {
-		new HackGuardPluginReinstall( comps.plugin_reinstall );
+	if ( 'shield_vars_wpadmin' in window ) {
+		const comps = window.shield_vars_wpadmin.comps;
+		( 'dashboard_widget' in comps ) && new DashboardWidget( comps.dashboard_widget );
+		( 'ip_detect' in comps ) && new IpSourceAutoDetect( comps.ip_detect );
+		( 'notices' in comps ) && new NoticeHandler( comps.notices );
+		( 'plugin_reinstall' in comps ) && new HackGuardPluginReinstall( comps.plugin_reinstall );
+		( 'sec_admin' in comps ) && new SecurityAdmin( comps.sec_admin );
 	}
 }, false );

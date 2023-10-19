@@ -1,8 +1,6 @@
-import { OffCanvasService } from "./OffCanvasService";
-import { ShieldServicesBase } from "./ShieldServicesBase";
 import { ToasterService } from "./ToasterService";
 
-export class ShieldServicesPlugin extends ShieldServicesBase {
+export class ShieldServicesPlugin {
 
 	static me;
 

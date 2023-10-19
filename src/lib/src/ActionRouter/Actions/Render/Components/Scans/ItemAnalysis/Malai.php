@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansMalaiFileQuery;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
@@ -37,9 +35,9 @@ class Malai extends Base {
 				'can_malai' => self::con()->caps->canScanMalwareMalai(),
 			],
 			'vars'    => [
-				'malai_query_nonce' => ActionData::Build( ScansMalaiFileQuery::class, true, [
+				'form' => [
 					'rid' => $item->VO->scanresult_id,
-				] ),
+				]
 			],
 			'strings' => [
 				'title'           => sprintf( __( '%s Lookup', 'wp-simple-firewall' ), 'MAL{ai}' ),

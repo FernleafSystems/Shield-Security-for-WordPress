@@ -4,8 +4,8 @@ export class BaseService {
 		return this._init_data;
 	}
 
-	constructor( initData = {} ) {
-		this._init_data = initData;
+	constructor( props = {} ) {
+		this._init_data = props;
 		this._base_data = this.retrieveBaseData();
 		this.init();
 	}

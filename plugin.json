@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "18.4.4",
-    "release_timestamp":       1696417000,
-    "build":                   "202310.0401",
+    "version":                 "18.4.102",
+    "release_timestamp":       1698058818,
+    "build":                   "202310.2301",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -122,7 +122,8 @@
           "page_shield_block"
         ],
         "types":  [
-          "js"
+          "js",
+          "css"
         ],
         "flags":  {
           "admin_only": false
@@ -187,8 +188,11 @@
           "js",
           "css"
         ],
+        "deps":   [
+          "wp-jquery"
+        ],
         "flags":  {
-          "admin_only": true
+          "admin_only": false
         }
       },
       {

@@ -1,7 +1,6 @@
-import { ShieldServicesBase } from "./ShieldServicesBase";
 import { ToastifyService } from "./ToastifyService";
 
-export class ShieldServicesWpAdmin extends ShieldServicesBase {
+export class ShieldServicesWpAdmin {
 
 	static me;
 

@@ -34,39 +34,40 @@ import { ShieldTableSessions } from "./js/util/ShieldTableSessions";
 $( document ).ready( function () {
 	global.shieldServices = ShieldServicesPlugin.Instance();
 
-	if ( typeof window.shield_vars_main === 'undefined' ) {
-		console.log( 'window.shield_vars_main in unavailable!' )
-		return;
+	if ( 'shield_vars_main' in window ) {
+		const comps = window.shield_vars_main.comps;
+
+		/**
+		 * Must init early.
+		 */
+		new OffCanvasService();
+
+		new BootstrapTooltips();
+		( 'charts' in comps ) && new ChartsSummaryCharts( comps.charts );
+		( 'import' in comps ) && new ConfigImport( comps.import );
+		new DynamicActionButtons();
+		( 'file_locker' in comps ) && new FileLocker( comps.file_locker );
+		( 'helpscout' in comps ) && new HelpscoutBeacon( comps.helpscout );
+		( 'ip_detect' in comps ) && new IpSourceAutoDetect( comps.ip_detect );
+		( 'ip_analyse' in comps ) && new IpAnalyse( comps.ip_analyse );
+		( 'ip_rules' in comps ) && new IpRules( comps.ip_rules );
+		( 'leanbe' in comps ) && new LeanBe( comps.leanbe );
+		( 'license' in comps ) && new LicenseHandler( comps.license );
+		( 'merlin' in comps ) && new Merlin( comps.merlin );
+		new MiscHooks();
+		( 'notices' in comps ) && new NoticeHandler( comps.notices );
+		( 'navi' in comps ) && new Navigation( comps.navi );
+		( 'mod_options' in comps ) && new OptionsHandler( comps.mod_options );
+		( 'progress_meters' in comps ) && new ProgressMeters( comps.progress_meters );
+		( 'reports' in comps ) && new ReportingHandler( comps.reports );
+		( 'super_search' in comps ) && new SuperSearchService( comps.super_search );
+		( 'scans' in comps ) && new ScansHandler( comps.scans );
+		( 'sec_admin' in comps ) && new SecurityAdmin( comps.sec_admin );
+		( 'tours' in comps ) && new Tours( comps.tours );
+		( 'traffic' in comps ) && new TrafficLiveLogs( comps.traffic );
+		( 'activity' in comps.tables ) && new ShieldTableActivityLog( comps.tables.activity );
+		( 'ip_rules' in comps.tables ) && new ShieldTableIpRules( comps.tables.ip_rules );
+		( 'sessions' in comps.tables ) && new ShieldTableSessions( comps.tables.sessions );
+		( 'traffic' in comps.tables ) && new ShieldTableTrafficLog( comps.tables.traffic );
 	}
-
-	const comps = window.shield_vars_main.comps;
-
-	new BootstrapTooltips();
-	new ChartsSummaryCharts( comps.charts );
-	new ConfigImport( comps.import_cfg );
-	new DynamicActionButtons();
-	new FileLocker( comps.file_locker );
-	new HelpscoutBeacon( comps.helpscout );
-	new IpSourceAutoDetect( comps.ip_detect );
-	new IpAnalyse( comps.ip_analyse );
-	new IpRules( comps.ip_rules );
-	new LeanBe( comps.leanbe );
-	new LicenseHandler( comps.license );
-	( 'merlin' in comps ) && new Merlin( comps.merlin );
-	new MiscHooks();
-	new NoticeHandler( comps.notices );
-	new Navigation( comps.navi );
-	new OffCanvasService();
-	new OptionsHandler( comps.mod_options );
-	( 'progress_meters' in comps ) && new ProgressMeters( comps.progress_meters );
-	( 'reports' in comps ) && new ReportingHandler( comps.reports );
-	new SuperSearchService( comps.super_search );
-	( 'scans' in comps ) && new ScansHandler( comps.scans );
-	new SecurityAdmin( comps.sec_admin );
-	new Tours( comps.tours );
-	new TrafficLiveLogs( comps.traffic );
-	new ShieldTableActivityLog( comps.tables.activity );
-	new ShieldTableIpRules( comps.tables.ip_rules );
-	new ShieldTableSessions( comps.tables.sessions );
-	new ShieldTableTrafficLog( comps.tables.traffic );
 } );

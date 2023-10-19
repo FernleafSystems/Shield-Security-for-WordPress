@@ -3,14 +3,28 @@ import { BaseService } from "./BaseService";
 export class ReportsHandler extends BaseService {
 
 	init() {
-		const changeReportSection = document.getElementById( 'ChangeTrackingReport' );
-		changeReportSection.querySelectorAll( 'input[name=change_report_type]' ).forEach( ( input ) => {
-			const value = this.value;
-			if ( this.value === 'detailed' ) {
-				changeReportSection.querySelectorAll( 'div.detailed.d-none' ).forEach( ( elem ) => {
-					value === 'detailed' ? elem.classList.remove( 'd-none' ) : elem.classList.add( 'd-none' );
+		this.changeReportSection = document.getElementById( 'ChangeTrackingReport' ) || false;
+		this.exec();
+	}
+
+	canRun() {
+		return this.changeReportSection;
+	}
+
+	run() {
+		this.changeReportSection.querySelectorAll( 'input[name=change_report_type]' ).forEach( ( input ) => {
+
+			input.addEventListener( 'click', ( evt ) => {
+				this.changeReportSection.querySelectorAll( 'div.detailed' ).forEach( ( elem ) => {
+					if ( input.value === 'detailed' ) {
+						elem.classList.remove( 'd-none' )
+					}
+					else if ( !elem.classList.contains( 'd-none') ) {
+						elem.classList.add( 'd-none' )
+					}
 				} );
-			}
+			}, false );
+
 		} );
 	}
 }

@@ -24,7 +24,8 @@ class MfaProfilesController {
 		// shortcode for placing user authentication handling anywhere
 		if ( self::con()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-				return $this->renderUserProfileMFA( \is_array( $attributes ) ? $attributes : [] );
+				$this->rendered = true;
+				return '<div id="ShieldMfaUserProfileForm"><p>Loading ...</p></div>';
 			} );
 		}
 
@@ -108,6 +109,7 @@ class MfaProfilesController {
 							return [
 								'ajax'    => [
 									'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
+									'render_profile' => ActionData::BuildAjaxRender( Actions\Render\Components\UserMfa\ConfigForm::class ),
 								],
 								'vars'    => [
 									'providers' => \array_map( function ( $provider ) {
@@ -137,15 +139,6 @@ class MfaProfilesController {
 
 	public function renderUserProfileMFA( array $attributes = [] ) :string {
 		$this->rendered = true;
-		return self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
-			\array_merge(
-				[
-					'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-					'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() )
-				],
-				$attributes
-			)
-		);
+		return self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG, $attributes );
 	}
 }

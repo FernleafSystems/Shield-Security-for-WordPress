@@ -19,7 +19,6 @@ class MfaYubikeyToggle extends MfaUserConfigBase {
 		$this->response()->action_response_data = [
 			'success'     => $result->success,
 			'message'     => $result->success ? $result->msg_text : $result->error_text,
-			'page_reload' => true
 		];
 	}
 }

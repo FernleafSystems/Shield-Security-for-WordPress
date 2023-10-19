@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import { BaseService } from "./BaseService";
-import { ToasterService } from "./ToasterService";
-import { ShieldOverlay } from "./ShieldOverlay";
-import { ObjectOps } from "./ObjectOps";
 import { AjaxService } from "./AjaxService";
+import { BaseService } from "./BaseService";
+import { ObjectOps } from "./ObjectOps";
+import { ShieldOverlay } from "./ShieldOverlay";
+import { Forms } from "./Forms";
 
 export class SecurityAdmin extends BaseService {
 
@@ -20,7 +20,7 @@ export class SecurityAdmin extends BaseService {
 				evt.preventDefault();
 				( new AjaxService() )
 				.send(
-					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { 'form_params': $( evt.currentTarget ).serialize() } )
+					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { form_params: Forms.Serialize( evt.currentTarget ) } )
 				)
 				.finally();
 				return false;
@@ -53,7 +53,7 @@ export class SecurityAdmin extends BaseService {
 
 			if ( !this.isWarningShown && left < 20 && left > 8 ) {
 				this.isWarningShown = true;
-				( new ToasterService() ).showMessage( this._base_data.strings.nearly, false );
+				shieldServices.notification().showMessage( this._base_data.strings.nearly, false );
 			}
 
 			this.hasCheckInPlace = false;
@@ -65,7 +65,7 @@ export class SecurityAdmin extends BaseService {
 				alert( this._base_data.strings.confirm )
 				window.location.reload();
 			}, 1500 );
-			( new ToasterService() ).showMessage( this._base_data.strings.expired, resp.success );
+			shieldServices.notification().showMessage( this._base_data.strings.expired, resp.success );
 		}
 	};
 

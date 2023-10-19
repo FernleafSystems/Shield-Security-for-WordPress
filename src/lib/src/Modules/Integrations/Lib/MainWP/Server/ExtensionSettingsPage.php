@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\ModConsumer;
 
 class ExtensionSettingsPage {
@@ -20,8 +22,8 @@ class ExtensionSettingsPage {
 			return $assets;
 		}, 10, 2 );
 
-		add_filter( 'shield/custom_localisations/components', function ( array $components, string $hook ) {
-			$components[ 'mainwp_server' ] = [
+		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+			$components[ 'mainwp_server' ] =  [
 				'key'     => 'mainwp_server',
 				'handles' => [
 					'mainwp_server',
@@ -29,11 +31,13 @@ class ExtensionSettingsPage {
 				'data'    => function () {
 					return [
 						'ajax' => [
+							'site_action' => ActionData::Build( MainWP\ServerActions\MainwpServerClientActionHandler::class ),
+							'ext_table'   => ActionData::Build( MainWP\MainwpExtensionTableSites::class ),
 						],
 					];
 				},
 			];
 			return $components;
-		}, 10, 2 );
+		}, 10 );
 	}
 }

@@ -33,7 +33,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			'hrefs'   => [
 				'overview'   => $con->plugin_urls->adminHome(),
 				'logo'       => $con->labels->PluginURI,
-				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				'sessions'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
 				'ips'        => $con->plugin_urls->adminIpRules(),
 				'blog_posts' => 'https://shsec.io/recentblogposts',
@@ -92,12 +92,12 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 						'svg'  => $con->svgs->raw( 'diagram-3.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'person-lines-fill.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'stoplights.svg' ),
 					],

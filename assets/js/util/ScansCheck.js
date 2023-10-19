@@ -22,18 +22,20 @@ export class ScansCheck extends BaseService {
 		.send( this._base_data.ajax.check, false )
 		.then( ( resp ) => {
 
-			this.scansRunning = false;
-			if ( resp.data.running ) {
-				for ( const scanKey of Object.keys( resp.data.running ) ) {
-					if ( resp.data.running[ scanKey ] ) {
-						this.scansRunning = true;
+			if ( resp.data.success ) {
+				this.scansRunning = false;
+				if ( resp.data.running ) {
+					for ( const scanKey of Object.keys( resp.data.running ) ) {
+						if ( resp.data.running[ scanKey ] ) {
+							this.scansRunning = true;
+						}
 					}
 				}
-			}
 
-			let modal = $( '#ScanProgressModal' );
-			$( '.modal-body', modal ).html( resp.data.vars.progress_html );
-			modal.modal( 'show' );
+				let modal = $( '#ScanProgressModal' );
+				$( '.modal-body', modal ).html( resp.data.vars.progress_html );
+				modal.modal( 'show' );
+			}
 		} )
 		.finally( () => {
 			this.scansRunning ?

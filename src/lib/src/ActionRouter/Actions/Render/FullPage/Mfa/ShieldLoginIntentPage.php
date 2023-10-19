@@ -68,6 +68,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		$scripts[ 51 ] = [
 			'src' => self::con()->urls->forDistJS( 'login_2fa' ),
 			'id'  => 'shield/login_2fa',
+			'footer' => true,
 		];
 		return $scripts;
 	}

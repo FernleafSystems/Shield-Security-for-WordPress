@@ -8,7 +8,7 @@
 	  padding: 0 7px;
 	  background-color: whitesmoke;
   }
-  #shield_gacode {
+  .shield_gacode {
 	  text-align: center;
 	  width: 350px
   }
@@ -21,8 +21,8 @@
 			<label for="shield_turn_off_ga" class="form-label">{{ strings.label_check_to_remove }}</label>
 		</th>
 		<td>
-			<button type="button" class="button"
-			        name="shield_turn_off_ga" id="shield_ga_remove"
+			<button type="button" class="button shield_ga_remove"
+			        name="shield_turn_off_ga"
 			>{{ strings.remove_google_auth }}</button>
 			{% if flags.show_explanatory_text %}
 				<p class="description">{{ strings.desc_remove }}</p>
@@ -33,14 +33,14 @@
 {% else %}
 
 	<tr>
-		<th><label for="shield_gacode" class="form-label">{{ strings.title }}</label></th>
+		<th><label for="ShieldGaCode" class="form-label">{{ strings.title }}</label></th>
 		<td style="text-align: center;">
-			<canvas style="margin-bottom: 8px;" id="SvgQrCode"></canvas>
+			<canvas style="margin-bottom: 8px;" class="shield-SvgQrCode"></canvas>
 			<div style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;" id="shield_ga_secret">{{ vars.ga_secret }}</div>
 
-			<input class="regular-text"
+			<input class="regular-text shield_gacode"
 			       type="text"
-			       id="shield_gacode"
+			       id="ShieldGaCode"
 			       name="{{ vars.otp_field_name }}"
 			       placeholder="{{ strings.enter_auth_app_code }}"
 			       value="" autocomplete="off" />

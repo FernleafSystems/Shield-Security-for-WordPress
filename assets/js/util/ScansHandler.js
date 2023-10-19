@@ -6,7 +6,7 @@ import { ScansResults } from "./ScansResults";
 
 export class ScansHandler extends BaseService {
 	init() {
-		new MalaiFileScanQuery();
+		new MalaiFileScanQuery( this._base_data );
 		new ScansStart( this._base_data );
 		new ScansCheck( this._base_data );
 		new ScansResults( this._base_data );

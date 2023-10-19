@@ -14,6 +14,7 @@ class PluginNavs {
 	public const FIELD_NAV = 'nav';
 	public const FIELD_SUBNAV = 'nav_sub';
 	public const NAV_ACTIVITY = 'activity';
+	/** @deprecated 18.5 */
 	public const SUBNAV_ACTIVITY_LOG = 'log';
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
@@ -33,6 +34,7 @@ class PluginNavs {
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
+	/** @deprecated 18.5 */
 	public const SUBNAV_TRAFFIC_LOG = 'log';
 	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';
@@ -89,9 +91,6 @@ class PluginNavs {
 				self::NAV_ACTIVITY       => [
 					'name'     => __( 'Activity', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_ACTIVITY_LOG => [
-							'handler' => PluginAdminPages\PageActivityLogTable::class,
-						],
 						self::SUBNAV_LOGS         => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
@@ -190,13 +189,10 @@ class PluginNavs {
 				self::NAV_TRAFFIC        => [
 					'name'     => __( 'Traffic', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_TRAFFIC_LOG => [
+						self::SUBNAV_LOGS => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
 						],
-						self::SUBNAV_LOGS        => [
-							'handler' => PluginAdminPages\PageTrafficLogTable::class,
-						],
-						self::SUBNAV_LIVE        => [
+						self::SUBNAV_LIVE => [
 							'handler' => PluginAdminPages\PageTrafficLogLive::class,
 						],
 					],

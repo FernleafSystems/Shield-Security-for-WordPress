@@ -1,16 +1,21 @@
-import $ from 'jquery';
 import { ProviderBase } from "./ProviderBase";
+import { ObjectOps } from "../ObjectOps";
 
 export class ProviderEmail extends ProviderBase {
 
-	init() {
-		let $checkbox = $( 'input[type=checkbox]#shield_enable_mfaemail' );
-		$( document ).on( 'change', $checkbox, () => {
-			if ( $checkbox.is( ':checked' ) !== $checkbox.is( ':checked' ) ) {
-				$checkbox.prop( 'disabled', true );
-				this._base_data.ajax.profile_email2fa_toggle.direction = $checkbox.is( ':checked' ) ? 'on' : 'off';
-				this.sendReq( this._base_data.ajax.profile_email2fa_toggle );
-			}
-		} );
+	postRender() {
+		const cb = this.container().querySelector( 'input.shield-enable-mfaemail' );
+		if ( cb ) {
+			const wasChecked = cb.checked;
+			cb.addEventListener( 'change', () => {
+				if ( cb.checked !== wasChecked ) {
+					this.sendReq(
+						ObjectOps.Merge( this._base_data.ajax.profile_email2fa_toggle, {
+							direction: cb.checked ? 'on' : 'off'
+						} )
+					);
+				}
+			}, false );
+		}
 	}
 }

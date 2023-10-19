@@ -1,6 +1,8 @@
 import $ from 'jquery';
-import { BaseService } from "./BaseService";
 import { AjaxService } from "./AjaxService";
+import { BaseService } from "./BaseService";
+import { Forms } from "./Forms";
+import { ObjectOps } from "./ObjectOps";
 
 export class MalaiFileScanQuery extends BaseService {
 
@@ -9,17 +11,16 @@ export class MalaiFileScanQuery extends BaseService {
 			evt.preventDefault();
 
 			let ready = true;
-			let $form = $( evt.currentTarget );
 
-			$( 'input[type=checkbox]', $form ).each( ( evt ) => {
-				if ( !$( evt.currentTarget ).is( ':checked' ) ) {
-					ready = ready && false;
+			evt.currentTarget.querySelectorAll( 'input[type=checkbox]' ).forEach(
+				( checkbox ) => {
+					ready = ready && checkbox.checked;
 				}
-			} );
+			);
 
 			if ( ready ) {
 				( new AjaxService() )
-				.send( $form.serialize() )
+				.send( ObjectOps.Merge( this._base_data.ajax.malai_file_query, Forms.Serialize( evt.target ) ) )
 				.finally();
 			}
 			else {
@@ -27,7 +28,6 @@ export class MalaiFileScanQuery extends BaseService {
 			}
 
 			return false;
-
 		} );
 	}
 }

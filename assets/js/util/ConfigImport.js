@@ -1,21 +1,29 @@
-import $ from 'jquery';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
+import { Forms } from "./Forms";
 import { ObjectOps } from "./ObjectOps";
 
 export class ConfigImport extends BaseService {
 
 	init() {
-		$( document ).on( "submit", 'form#ImportExportFileForm', ( evt ) => this.#submitForm( evt ) );
+		this.form = document.getElementById( 'ImportSiteForm' ) || false;
+		this.exec();
 	}
 
-	#submitForm( evt ) {
-		evt.preventDefault();
+	canRun() {
+		return this.form;
+	}
 
-		( new AjaxService() )
-		.send( ObjectOps.Merge( this._base_data.ajax.import_from_site, { 'form_params': $( evt.currentTarget ).serialize() } ) )
-		.finally();
+	run() {
+		this.form.addEventListener( 'submit', ( evt ) => {
+			evt.preventDefault();
 
-		return false;
-	};
+			( new AjaxService() )
+			.send(
+				ObjectOps.Merge( this._base_data.ajax.import_from_site, { form_params: Forms.Serialize( evt.currentTarget ) } )
+			)
+			.finally();
+
+		}, false );
+	}
 }

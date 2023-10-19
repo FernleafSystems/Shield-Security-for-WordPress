@@ -27,6 +27,7 @@ class HandleOptionsSaveRequest {
 			}
 
 			$form = $this->getForm();
+			error_log( var_export( $form, true ) );
 			if ( empty( $form ) ) {
 				throw new \Exception( 'options form parameters were empty.' );
 			}
@@ -49,7 +50,7 @@ class HandleOptionsSaveRequest {
 	}
 
 	private function getForm() :array {
-		return $this->form ?? $this->form = FormParams::Retrieve( FormParams::ENC_BASE64 );
+		return $this->form ?? $this->form = FormParams::Retrieve();
 	}
 
 	/**
