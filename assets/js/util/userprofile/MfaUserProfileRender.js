@@ -5,6 +5,7 @@ import { ProviderYubikey } from "./ProviderYubikey";
 import { ProviderGA } from "./ProviderGA";
 import { ProviderBackupCodes } from "./ProviderBackupCodes";
 import { ObjectOps } from "../ObjectOps";
+import { ProviderWebauthn } from "./ProviderWebauthn";
 
 export class MfaUserProfileRender extends BaseService {
 
@@ -43,6 +44,9 @@ export class MfaUserProfileRender extends BaseService {
 				}
 				if ( 'backupcode' in providers ) {
 					this.providers[ 'backupcode' ] = new ProviderBackupCodes( providers.backupcode, this );
+				}
+				if ( 'wan' in providers ) {
+					this.providers[ 'wan' ] = new ProviderWebauthn( providers.wan, this );
 				}
 			}
 		} )

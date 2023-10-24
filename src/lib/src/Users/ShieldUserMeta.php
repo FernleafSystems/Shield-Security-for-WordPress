@@ -27,6 +27,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Uuid;
  * @property int      $pass_reset_last_redirect_at
  * @property int      $pass_check_failed_at
  * @property bool     $wc_social_login_valid
+ * @property array    $webauthn
+ * @property array    $webauthn_reg
  * @property array    $tours
  * @property array    $flags
  * /*** VIRTUAL ***
@@ -57,6 +59,8 @@ class ShieldUserMeta extends UserMeta {
 			case 'flags':
 			case 'login_intents':
 			case 'tours':
+			case 'webauthn':
+			case 'webauthn_reg':
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}

@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaWebauthnAuthenticationStart;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaWebauthnAuthenticationVerify;
+use FernleafSystems\Wordpress\Services\Services;
+
 class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 
 	public const SLUG = 'render_login_intent_wploginreplica';
@@ -9,7 +14,32 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 
 	protected function preExec() {
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
-			return \array_merge( $assets, [ 'login_2fa' ] );
+
+			add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+				$components[ 'login_2fa' ] = [
+					'key'     => 'login_2fa',
+					'handles' => [
+						'login_2fa',
+					],
+					'data'    => function () {
+						return [
+							'ajax' => [
+								'wan_auth_start'  => ActionData::Build( MfaWebauthnAuthenticationStart::class, true, [
+									'active_wp_user' => $this->action_data[ 'user_id' ],
+								] ),
+								'wan_auth_verify' => ActionData::Build( MfaWebauthnAuthenticationVerify::class, true, [
+									'active_wp_user' => $this->action_data[ 'user_id' ],
+								] ),
+							],
+						];
+					},
+				];
+				return $components;
+			} );
+
+			return \array_merge( $assets, [
+				'login_2fa'
+			] );
 		} );
 	}
 

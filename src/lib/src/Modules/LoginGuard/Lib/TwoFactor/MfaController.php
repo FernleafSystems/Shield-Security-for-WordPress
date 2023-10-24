@@ -152,6 +152,7 @@ class MfaController {
 			Provider\GoogleAuth::class,
 			Provider\Yubikey::class,
 			Provider\BackupCodes::class,
+			Provider\WebAuthN::class,
 		];
 		$finalProviders = apply_filters( 'shield/2fa_providers', $shieldProviders );
 

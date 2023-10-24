@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { BaseService } from "./BaseService";
 import { Login2faEmail } from "./Login2faEmail";
 import { Login2faGoogleAuth } from "./Login2faGoogleAuth";
+import { Login2faWebauthn } from "./Login2faWebauthn";
 
 export class Login2faHandler extends BaseService {
 
@@ -14,6 +15,7 @@ export class Login2faHandler extends BaseService {
 	run() {
 		new Login2faEmail();
 		new Login2faGoogleAuth();
+		new Login2faWebauthn( this._base_data );
 		if ( this.timeRemainingP ) {
 			this.countdownTimer();
 		}
@@ -22,7 +24,7 @@ export class Login2faHandler extends BaseService {
 	countdownTimer() {
 		// Set the date we're counting down to
 		let timeRemaining = this._base_data.vars.time_remaining;
-		console.log( timeRemaining );
+
 		// Update the countdown every 1 second
 		let x = setInterval( () => {
 			timeRemaining -= 1;

@@ -12,7 +12,7 @@ export class ProviderYubikey extends ProviderBase {
 				return false;
 			}
 		} );
-		$( this.container() ).on( 'click', 'a.shield_yubi_remove', ( evt ) => {
+		$( this.container() ).on( 'click', 'a.shield_remove_yubi', ( evt ) => {
 			evt.preventDefault();
 			this._base_data.ajax.profile_yubikey_toggle.otp = $( evt.currentTarget ).data( 'yubikeyid' );
 			this.sendReq( this._base_data.ajax.profile_yubikey_toggle );

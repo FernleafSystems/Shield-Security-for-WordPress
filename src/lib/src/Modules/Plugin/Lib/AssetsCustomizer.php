@@ -260,15 +260,6 @@ class AssetsCustomizer {
 					],
 				],
 			],
-			'login_2fa'        => [
-				'key'     => 'login_2fa',
-				'handles' => [
-					'login_2fa',
-				],
-				'data'    => [
-					/** The current structure doesn't lend itself to customized vars as we don't have the USER ID "here". */
-				],
-			],
 			'login_guard'      => [
 				'key'     => 'login_guard',
 				'handles' => [
