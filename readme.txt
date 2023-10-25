@@ -7,8 +7,8 @@ Tags: security, activity log, login protection, two-factor authentication, intru
 Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
-Tested up to: 6.3
-Stable tag: 18.4.4
+Tested up to: 6.4
+Stable tag: 18.4.5
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, before they hack your site.
 

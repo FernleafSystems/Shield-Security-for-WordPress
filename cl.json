@@ -50,10 +50,10 @@
     "patches":     [
       {
         "version":     "5",
-        "released_at": 1698228000,
+        "released_at": 1698231000,
         "items":       [
           {
-            "title": "Added a Comment SPAM Cooldown feature to prevent humans that bypass bot checks, from repeatedly posting SPAM.",
+            "title": "Added a Comment SPAM Cooldown feature to prevent humans, that bypass bot checks, from repeatedly posting SPAM.",
             "type":  "new"
           },
           {
