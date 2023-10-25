@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function getCooldown() :string {
+		return $this->getOpt( 'comments_cooldown' );
+	}
+
 	public function getApprovedMinimum() :int {
 		return (int)$this->getOpt( 'trusted_commenter_minimum', 1 );
 	}
