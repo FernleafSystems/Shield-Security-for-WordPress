@@ -50,11 +50,23 @@
     "patches":     [
       {
         "version":     "5",
-        "released_at": 1696417000,
+        "released_at": 1698228000,
         "items":       [
+          {
+            "title": "Added a Comment SPAM Cooldown feature to prevent humans that bypass bot checks, from repeatedly posting SPAM.",
+            "type":  "new"
+          },
           {
             "title": "Email 2FA One-Time-Password is numeric only. OTP may be modified via supplied filter.",
             "type":  "changed"
+          },
+          {
+            "title": "Added helper text to make it clear that renaming the WP Login URL isn't a security setting. It's obscurity.",
+            "type":  "improved"
+          },
+          {
+            "title": "Reduce potential for excess AJAX calls when page caching is used.",
+            "type":  "fixed"
           }
         ]
       },
