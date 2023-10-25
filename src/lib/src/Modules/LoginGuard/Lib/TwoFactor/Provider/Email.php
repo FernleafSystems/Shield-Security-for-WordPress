@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Email extends AbstractShieldProvider {
@@ -145,7 +145,7 @@ class Email extends AbstractShieldProvider {
 			$secrets = [];
 		}
 
-		$otp = LoginGuard\Lib\TwoFactor\Utilties\OneTimePassword::Generate();
+		$otp = apply_filters( 'shield/2fa_email_otp', PasswordGenerator::Gen( 6, true, false, false ) );
 		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
 
 		// Clean old secrets linked to expired login intents

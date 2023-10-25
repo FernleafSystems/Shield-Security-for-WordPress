@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActionData {
@@ -27,6 +28,28 @@ class ActionData {
 
 		if ( $uniq ) {
 			$data[ 'uniq' ] = wp_generate_password( 4, false );
+		}
+
+		return $data;
+	}
+
+	public static function BuildVO( ActionDataVO $VO ) :array {
+		$data = \array_merge( [
+			self::FIELD_ACTION  => self::FIELD_SHIELD,
+			self::FIELD_EXECUTE => $VO->action::SLUG,
+			self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$VO->action::SLUG, $VO->ip_in_nonce ),
+		], $VO->aux );
+
+		if ( $VO->is_ajax ) {
+			$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
+		}
+
+		if ( $VO->unique ) {
+			$data[ 'uniq' ] = PasswordGenerator::Gen( 4, true, true, false );
+		}
+
+		if ( \count( $VO->excluded_fields ) > 0 ) {
+			$data = \array_diff_key( $data, \array_flip( $VO->excluded_fields ) );
 		}
 
 		return $data;

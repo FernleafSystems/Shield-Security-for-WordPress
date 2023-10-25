@@ -104,7 +104,12 @@ class Strings extends Base\Strings {
 				$titleShort = __( 'Hide Login', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.', 'wp-simple-firewall' ) )
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s. %s',
+						__( 'IMPORTANT', 'wp-simple-firewall' ),
+						__( 'If you provide access to the WP Login URL in any areas of your site, you will expose your hidden login URL.', 'wp-simple-firewall' ),
+						__( 'For example, if you set WordPress to require visitors to login to post comments, this will expose your hidden URL.', 'wp-simple-firewall' )
+					),
 				];
 				break;
 

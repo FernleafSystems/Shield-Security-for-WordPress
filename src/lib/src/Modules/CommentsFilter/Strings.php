@@ -126,6 +126,15 @@ class Strings extends Base\Strings {
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) ) ];
 				break;
 
+			case 'comments_cooldown' :
+				$name = __( 'Comments Cooldown', 'wp-simple-firewall' );
+				$summary = __( 'Minimum Time Interval Between Comments', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Prevents comment floods and ensures a minimum period before any further comments are accepted on the site.', 'wp-simple-firewall' ),
+					__( 'Set to zero (0) to disable.', 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'trusted_commenter_minimum' :
 				$name = __( 'Trusted Commenter Minimum', 'wp-simple-firewall' );
 				$summary = __( 'Minimum Number Of Approved Comments Before Commenter Is Trusted', 'wp-simple-firewall' );

@@ -74,7 +74,8 @@ class Scanner {
 				if ( $opts->isEnabledAntiBot() && \in_array( 'antibot', $errorCodes ) ) {
 					$newStatus = $opts->getOpt( 'comments_default_action_spam_bot' );
 				}
-				elseif ( $opts->isEnabledHumanCheck() && \in_array( 'human', $errorCodes ) ) {
+				elseif ( $opts->isEnabledHumanCheck()
+						 && \count( \array_intersect( [ 'human', 'humanrepeated', 'cooldown' ], $errorCodes ) ) > 0 ) {
 					$newStatus = $opts->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
@@ -101,6 +102,8 @@ class Scanner {
 	}
 
 	private function runScans( array $commData ) :\WP_Error {
+		$opts = $this->opts();
+
 		$errors = new \WP_Error();
 
 		$isBot = self::con()
@@ -110,21 +113,29 @@ class Scanner {
 		if ( $isBot ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
-		else {
-			$humanDict = ( new HumanDictionary() )->scan( $commData );
+		elseif ( $opts->isEnabledHumanCheck() ) {
 
-			if ( is_wp_error( $humanDict ) ) {
-				$code = $humanDict->get_error_code();
-				$errors->add( $code, $humanDict->get_error_message( $code ), $humanDict->get_error_data( $code ) );
+			if ( ( new IsCooldownTriggered() )->test() ) {
+				$errors->add( 'cooldown', __( 'Comments Cooldown Triggered', 'wp-simple-firewall' ) );
 			}
 			else {
-				// If the comment passes the dictionary spam lookup, maybe they have earlier detected spam
-				$humanRepeat = ( new HumanRepeat() )->scan( $commData );
-				if ( is_wp_error( $humanRepeat ) ) {
-					$code = $humanRepeat->get_error_code();
-					$errors->add( $code, $humanRepeat->get_error_message( $code ) );
+				$humanDict = ( new HumanDictionary() )->scan( $commData );
+
+				if ( is_wp_error( $humanDict ) ) {
+					$code = $humanDict->get_error_code();
+					$errors->add( $code, $humanDict->get_error_message( $code ), $humanDict->get_error_data( $code ) );
+				}
+				else {
+					// If the comment passes the dictionary spam lookup, maybe they have earlier detected spam
+					$humanRepeat = ( new HumanRepeat() )->scan( $commData );
+					if ( is_wp_error( $humanRepeat ) ) {
+						$code = $humanRepeat->get_error_code();
+						$errors->add( $code, $humanRepeat->get_error_message( $code ) );
+					}
 				}
 			}
+
+			$opts->setOpt( 'last_comment_request_at', Services::Request()->ts() );
 		}
 
 		return $errors;
