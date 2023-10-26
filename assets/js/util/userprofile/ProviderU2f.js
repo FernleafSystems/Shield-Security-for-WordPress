@@ -2,6 +2,9 @@ import $ from 'jquery';
 import '../../deprecated/u2f-bundle.js';
 import { ProviderBase } from "./ProviderBase";
 
+/**
+ * @deprecated 18.5
+ */
 export class ProviderU2f extends ProviderBase {
 
 	init() {

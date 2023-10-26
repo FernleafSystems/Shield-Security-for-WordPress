@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaPasskeyAuthenticationStart;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -130,6 +132,20 @@ class MfaController {
 		}, 10, 2 );
 	}
 
+	public function getLoginIntentJavascript( int $userID ) :array {
+		$active = $this->getProvidersActiveForUser( Services::WpUsers()->getUserById( $userID ) );
+		return [
+			'ajax' => [
+				'passkey_auth_start'  => ActionData::Build( MfaPasskeyAuthenticationStart::class, true, [
+					'active_wp_user' => $userID,
+				] ),
+			],
+			'flags' => [
+				'passkey_auth_auto' => \count( $active ) === 1 && isset( $active[ Provider\Passkey::ProviderSlug() ] ),
+			],
+		];
+	}
+
 	/**
 	 * @return Provider\Provider2faInterface[]
 	 */
@@ -152,7 +168,7 @@ class MfaController {
 			Provider\GoogleAuth::class,
 			Provider\Yubikey::class,
 			Provider\BackupCodes::class,
-			Provider\WebAuthN::class,
+			Provider\Passkey::class,
 		];
 		$finalProviders = apply_filters( 'shield/2fa_providers', $shieldProviders );
 

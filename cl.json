@@ -1,4 +1,55 @@
 {
+  "18.5": {
+    "version":     "18.5",
+    "released_at": 1698330000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease185",
+      "upgrade": "https://shsec.io/shieldupgradeguide185"
+    },
+    "title":       "Performance Optimisations",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Passkey/WebAuthn/FIDO2 Support",
+        "description": [
+          "Seamless WordPress Two-Factor Authentication with support for all FIDO2-compliant devices and Passkeys."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Export IP Rules",
+        "description": [
+          "Download all IP Rules as CSV."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Complete Javascript Rewrite",
+        "description": [
+          "All plugin Javascript code has been completely cleaned & rewritten."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Optimised Plugin Assets",
+        "description": [
+          "All plugin JS & CSS are optimised, built and packaged using Webpack."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.4": {
     "version":     "18.4",
     "released_at": 1695730000,

@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { BaseService } from "./BaseService";
 import { Login2faEmail } from "./Login2faEmail";
 import { Login2faGoogleAuth } from "./Login2faGoogleAuth";
-import { Login2faWebauthn } from "./Login2faWebauthn";
+import { Login2faPasskey } from "./Login2faPasskey";
 
 export class Login2faHandler extends BaseService {
 
@@ -15,7 +15,7 @@ export class Login2faHandler extends BaseService {
 	run() {
 		new Login2faEmail();
 		new Login2faGoogleAuth();
-		new Login2faWebauthn( this._base_data );
+		new Login2faPasskey( this._base_data );
 		if ( this.timeRemainingP ) {
 			this.countdownTimer();
 		}

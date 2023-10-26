@@ -398,6 +398,20 @@
       "description": "For Use With AnitBot JS (above)."
     },
     {
+      "key":         "enable_passkeys",
+      "section":     "section_hardware_authentication",
+      "premium":     true,
+      "cap":         "2fa_webauthn",
+      "default":     "N",
+      "type":        "checkbox",
+      "beacon_id":   763,
+      "link_info":   "",
+      "link_blog":   "https://shsec.io/i9",
+      "name":        "Enable Passkeys",
+      "summary":     "Allow Registration Of Passkeys",
+      "description": "Allow Registration Of Passkeys."
+    },
+    {
       "key":         "enable_yubikey",
       "section":     "section_hardware_authentication",
       "default":     "N",

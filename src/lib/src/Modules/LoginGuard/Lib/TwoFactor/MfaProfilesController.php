@@ -137,8 +137,8 @@ class MfaProfilesController {
 		}, 10, $this->isFrontend ? 1 : 2 );
 	}
 
-	public function renderUserProfileMFA( array $attributes = [] ) :string {
+	public function renderUserProfileMFA() :string {
 		$this->rendered = true;
-		return self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG, $attributes );
+		return '<div id="ShieldMfaUserProfileForm"><p>Loading ...</p></div>';
 	}
 }

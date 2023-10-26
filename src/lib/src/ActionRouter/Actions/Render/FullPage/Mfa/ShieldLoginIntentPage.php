@@ -32,16 +32,28 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 			],
 			'vars'    => [
 				'inline_js' => [
-					sprintf( 'var shield_vars_login_2fa = %s;', \json_encode( [
-						'vars'    => [
-							'time_remaining' => $this->getLoginIntentExpiresAt() - Services::Request()->ts(),
-						],
-						'strings' => [
-							'seconds'       => \strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
-							'minutes'       => \strtolower( __( 'Minutes', 'wp-simple-firewall' ) ),
-							'login_expired' => __( 'Login Expired', 'wp-simple-firewall' ),
+					sprintf( 'var shield_vars_login_2fa = %s;', \json_encode(
+						[
+							'comps' => [
+								'login_2fa' => Services::DataManipulation()->mergeArraysRecursive(
+									[
+										'vars'    => [
+											'time_remaining' => $this->getLoginIntentExpiresAt() - Services::Request()
+																										   ->ts(),
+										],
+										'strings' => [
+											'seconds'       => \strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
+											'minutes'       => \strtolower( __( 'Minutes', 'wp-simple-firewall' ) ),
+											'login_expired' => __( 'Login Expired', 'wp-simple-firewall' ),
+										],
+									],
+									$con->getModule_LoginGuard()
+										->getMfaController()
+										->getLoginIntentJavascript( (int)$this->action_data[ 'user_id' ] )
+								)
+							]
 						]
-					] ) )
+					) ),
 				],
 			]
 		];

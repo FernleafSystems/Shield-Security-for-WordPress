@@ -63,9 +63,10 @@ class BackupCodes extends AbstractShieldProvider {
 			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
 			'value'       => '',
-			'placeholder' => __( 'Please use your Backup Code to login.', 'wp-simple-firewall' ),
-			'text'        => __( 'Login Backup Code', 'wp-simple-firewall' ),
+			'placeholder' => __( 'Supply Backup Code', 'wp-simple-firewall' ),
+			'text'        => __( 'Backup Code', 'wp-simple-firewall' ),
 			'help_link'   => '',
+			'description' => __( "When you can't access your 2FA codes.", 'wp-simple-firewall' ),
 		];
 	}
 

@@ -1,11 +1,11 @@
 import { BaseService } from "../BaseService";
 import { AjaxService } from "../AjaxService";
+import { ObjectOps } from "../ObjectOps";
 import { ProviderEmail } from "./ProviderEmail";
 import { ProviderYubikey } from "./ProviderYubikey";
 import { ProviderGA } from "./ProviderGA";
 import { ProviderBackupCodes } from "./ProviderBackupCodes";
-import { ObjectOps } from "../ObjectOps";
-import { ProviderWebauthn } from "./ProviderWebauthn";
+import { ProviderPasskeys } from "./ProviderPasskeys";
 
 export class MfaUserProfileRender extends BaseService {
 
@@ -45,8 +45,8 @@ export class MfaUserProfileRender extends BaseService {
 				if ( 'backupcode' in providers ) {
 					this.providers[ 'backupcode' ] = new ProviderBackupCodes( providers.backupcode, this );
 				}
-				if ( 'wan' in providers ) {
-					this.providers[ 'wan' ] = new ProviderWebauthn( providers.wan, this );
+				if ( 'passkey' in providers ) {
+					this.providers[ 'passkey' ] = new ProviderPasskeys( providers.passkey, this );
 				}
 			}
 		} )

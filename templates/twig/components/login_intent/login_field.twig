@@ -6,9 +6,11 @@
 		<div class="col">
 			<label class="form-label"
 			       for="{{ field.id|default(field.name) }}">{{ field.text }}</label>
-			<div class="input-group shield_2fa_field_container">
+			<div class="input-group shield_2fa_field_container shield_{{ field.slug }}_container">
 
-				{% include '/components/html/input.twig' %}
+				{% block login_field_input %}
+					{% include '/components/html/input.twig' %}
+				{% endblock %}
 
 				{% if flags.show_branded_links|default(false) %}
 					<div class="input-group-text">

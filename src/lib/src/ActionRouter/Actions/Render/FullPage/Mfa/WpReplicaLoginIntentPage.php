@@ -2,11 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaWebauthnAuthenticationStart;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaWebauthnAuthenticationVerify;
-use FernleafSystems\Wordpress\Services\Services;
-
 class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 
 	public const SLUG = 'render_login_intent_wploginreplica';
@@ -22,16 +17,10 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 						'login_2fa',
 					],
 					'data'    => function () {
-						return [
-							'ajax' => [
-								'wan_auth_start'  => ActionData::Build( MfaWebauthnAuthenticationStart::class, true, [
-									'active_wp_user' => $this->action_data[ 'user_id' ],
-								] ),
-								'wan_auth_verify' => ActionData::Build( MfaWebauthnAuthenticationVerify::class, true, [
-									'active_wp_user' => $this->action_data[ 'user_id' ],
-								] ),
-							],
-						];
+						return self::con()
+								   ->getModule_LoginGuard()
+								   ->getMfaController()
+								   ->getLoginIntentJavascript( (int)$this->action_data[ 'user_id' ] );
 					},
 				];
 				return $components;

@@ -36,7 +36,6 @@ export class ProviderGA extends ProviderBase {
 			.toCanvas( svgCodeCanvas, this._base_data.vars.qr_code_auth, {
 				width: 300,
 			} )
-			/*.then( url =>console.log( url )  )*/
 			.catch( err => console.error( err ) );
 		}
 	}

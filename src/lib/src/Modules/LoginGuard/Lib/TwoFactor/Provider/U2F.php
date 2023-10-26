@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @deprecated
+ * @deprecated 18.5
  */
 class U2F extends AbstractShieldProvider {
 

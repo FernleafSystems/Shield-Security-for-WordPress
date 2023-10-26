@@ -2,11 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\WebAuthN;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 
-class MfaWebauthnRegistrationStart extends MfaUserConfigBase {
+class MfaPasskeyAuthenticationStart extends MfaUserConfigBase {
 
-	public const SLUG = 'mfa_webauthn_registration_start';
+	use AuthNotRequired;
+
+	public const SLUG = 'mfa_passkey_auth_start';
 
 	protected function exec() {
 
@@ -24,22 +27,22 @@ class MfaWebauthnRegistrationStart extends MfaUserConfigBase {
 							  ->getModule_LoginGuard()
 							  ->getMfaController()
 							  ->getProvidersAvailableToUser( $user );
-			/** @var WebAuthN $provider */
-			$provider = $available[ WebAuthN::ProviderSlug() ] ?? null;
+			/** @var Passkey $provider */
+			$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
 			if ( empty( $provider ) ) {
-				$response[ 'message' ] = __( "WebAuthN isn't available for this user.", 'wp-simple-firewall' );
+				$response[ 'message' ] = __( "Passkeys aren't available for this user.", 'wp-simple-firewall' );
 			}
 			else {
 				try {
 					$response = [
 						'success'     => true,
-						'challenge' => $provider->startNewRegistrationRequest(),
+						'challenge'   => $provider->startNewAuthRequest(),
 						'page_reload' => false
 					];
 				}
 				catch ( \Exception $e ) {
-					$response[ 'message' ] = __( "There was a problem preparing the WebAuthN Registration Challenge.", 'wp-simple-firewall' );
+					$response[ 'message' ] = __( "There was a problem preparing the Passkey Auth Challenge.", 'wp-simple-firewall' );
 				}
 			}
 		}

@@ -354,6 +354,15 @@ class Strings extends Base\Strings {
 				$desc = [ __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' ) ];
 				break;
 
+			case 'enable_passkeys' :
+				$name = __( 'Allow Passkeys', 'wp-simple-firewall' );
+				$summary = __( 'Allow Passkey Registration', 'wp-simple-firewall' );
+				$desc = [
+					__( 'Allow users to register Passkeys & FIDO2 devices to complete their WordPress login.', 'wp-simple-firewall' ),
+					__( "Passkeys include Windows Hello, compatible Fingerprint readers, and most recent Yubikey & Google Titan devices.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'enable_yubikey' :
 				$name = __( 'Allow Yubikey OTP', 'wp-simple-firewall' );
 				$summary = __( 'Allow Yubikey Registration For One Time Passwords', 'wp-simple-firewall' );
