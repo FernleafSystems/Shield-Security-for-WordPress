@@ -146,7 +146,7 @@ class SectionNotices {
 				}
 				break;
 
-			case 'section_2fa_ga':
+			case 'section_2fa_otp':
 				try {
 					$diff = ( new WorldTimeApi() )->diffServerWithReal();
 					if ( $diff > 10 ) {

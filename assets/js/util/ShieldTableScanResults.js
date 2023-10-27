@@ -24,7 +24,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			'td.actions > button.action.delete',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( this._base_data.strings.are_you_sure ) ) {
+				if ( confirm( shieldServices.string( 'are_you_sure' ) ) ) {
 					this.bulkTableAction.call( this, 'delete', [ evt.currentTarget.dataset.rid ] );
 				}
 				return false;
@@ -109,7 +109,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				name: 'selected-ignore',
 				className: 'action selected-action ignore btn-outline-secondary mb-2',
 				action: ( e, dt, node, config ) => {
-					if ( confirm( this._base_data.strings.are_you_sure ) ) {
+					if ( confirm( shieldServices.string( 'are_you_sure' ) ) ) {
 						this.bulkTableAction.call( this, 'ignore' );
 					}
 				}
@@ -122,7 +122,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 					if ( dt.rows( { selected: true } ).count() > 20 ) {
 						alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
 					}
-					else if ( confirm( this._base_data.strings.absolutely_sure ) ) {
+					else if ( confirm( shieldServices.string( 'absolutely_sure' ) ) ) {
 						this.bulkTableAction.call( this, 'repair-delete' );
 					}
 				}

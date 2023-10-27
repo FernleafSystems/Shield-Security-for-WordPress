@@ -38,7 +38,6 @@ class BlockRequestCrowdsec {
 			] );
 		}
 		catch ( ActionException $e ) {
-			error_log( __CLASS__.': '.$e->getMessage() );
 		}
 	}
 }

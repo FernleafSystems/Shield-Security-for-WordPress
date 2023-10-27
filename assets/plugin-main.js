@@ -4,6 +4,7 @@ import $ from 'jquery';
 import { BootstrapTooltips } from "./js/util/BootstrapTooltips";
 import { ChartsSummaryCharts } from "./js/util/ChartsSummaryCharts";
 import { ConfigImport } from "./js/util/ConfigImport";
+import { DivPrinter } from "./js/util/DivPrinter";
 import { DynamicActionButtons } from "./js/util/DynamicActionButtons";
 import { FileLocker } from "./js/util/FileLocker";
 import { HelpscoutBeacon } from "./js/util/HelpscoutBeacon";
@@ -32,9 +33,11 @@ import { TrafficLiveLogs } from "./js/util/TrafficLiveLogs";
 import { ShieldTableSessions } from "./js/util/ShieldTableSessions";
 
 $( document ).ready( function () {
-	global.shieldServices = ShieldServicesPlugin.Instance();
 
 	if ( 'shield_vars_main' in window ) {
+
+		global.shieldServices = new ShieldServicesPlugin( window.shield_vars_main.service );
+
 		const comps = window.shield_vars_main.comps;
 
 		/**
@@ -55,6 +58,7 @@ $( document ).ready( function () {
 		( 'license' in comps ) && new LicenseHandler( comps.license );
 		( 'merlin' in comps ) && new Merlin( comps.merlin );
 		new MiscHooks();
+		new DivPrinter();
 		( 'notices' in comps ) && new NoticeHandler( comps.notices );
 		( 'navi' in comps ) && new Navigation( comps.navi );
 		( 'mod_options' in comps ) && new OptionsHandler( comps.mod_options );

@@ -38,8 +38,9 @@ class PluginImportFromSite extends BaseAction {
 		}
 
 		$this->response()->action_response_data = [
-			'success' => $success,
-			'message' => $msg
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => $success,
 		];
 	}
 }

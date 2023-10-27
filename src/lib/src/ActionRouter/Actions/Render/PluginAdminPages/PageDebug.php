@@ -25,7 +25,9 @@ class PageDebug extends BasePluginAdminPage {
 			],
 			[
 				'text' => __( 'Print', 'wp-simple-firewall' ),
-				'href' => "javascript:{shieldServices.divPrinter().print('apto-PageMainBody-Inner');}",
+				'href'    => "javascript:{}",
+				'classes' => [ 'shield_div_print' ],
+				'datas'   => [ 'selector' => '#apto-PageMainBody-Inner' ],
 			],
 		];
 	}

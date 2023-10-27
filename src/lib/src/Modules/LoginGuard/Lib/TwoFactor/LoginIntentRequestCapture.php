@@ -152,14 +152,7 @@ class LoginIntentRequestCapture {
 			}
 			else {
 				$con->getAdminNotices()
-					->addFlash(
-						\implode( ' ', [
-							__( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ),
-							__( 'Thank you for authenticating your login.', 'wp-simple-firewall' ),
-							__( "To use a backup code again to login, you'll need to create it in your user profile.", 'wp-simple-firewall' )
-						] ),
-						$this->user
-					);
+					->addFlash( __( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ), $this->user );
 			}
 
 			$redirect = $req->request( 'redirect_to', false, $req->getPath() );

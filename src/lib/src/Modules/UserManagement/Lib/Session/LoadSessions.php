@@ -71,9 +71,6 @@ class LoadSessions {
 						if ( Services::Request()->ts() <= $session[ 'expiration' ] && !empty( $session[ 'shield' ] ) ) {
 							$this->sessions[ $UID ][] = $session;
 						}
-//						else {
-//							error_log( var_export( $session, true ) );
-//						}
 					}
 					$this->sessions = \array_filter( $this->sessions );
 				}

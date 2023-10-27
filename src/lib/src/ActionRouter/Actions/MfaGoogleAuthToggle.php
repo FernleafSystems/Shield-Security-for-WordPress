@@ -17,7 +17,7 @@ class MfaGoogleAuthToggle extends MfaUserConfigBase {
 		/** @var GoogleAuth $provider */
 		$provider = $available[ GoogleAuth::ProviderSlug() ];
 
-		$otp = Services::Request()->post( 'ga_otp', '' );
+		$otp = $this->action_data[ 'ga_otp' ] ?? '';
 		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );
 
 		$this->response()->action_response_data = [

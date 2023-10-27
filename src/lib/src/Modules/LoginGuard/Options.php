@@ -100,7 +100,7 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 	}
 
 	/**
-	 * @deprecated 18.4
+	 * @deprecated 18.5
 	 */
 	public function isEnabledU2F() :bool {
 		return $this->isOpt( 'enable_u2f', 'Y' );

@@ -75,9 +75,9 @@
       ]
     },
     {
-      "slug":        "section_2fa_ga",
-      "title":       "Google Authenticator Two-Factor Authentication",
-      "title_short": "2FA - Google Authenticator",
+      "slug":        "section_2fa_otp",
+      "title":       "One-Time Passwords",
+      "title_short": "OTP",
       "beacon_id":   244,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
@@ -86,7 +86,7 @@
       ]
     },
     {
-      "slug":        "section_hardware_authentication",
+      "slug":        "section_2fa_passkeys",
       "title":       "Hardware 2-Factor Authentication",
       "title_short": "2FA - Hardware",
       "beacon_id":   249,
@@ -247,7 +247,7 @@
     },
     {
       "key":         "enable_google_authenticator",
-      "section":     "section_2fa_ga",
+      "section":     "section_2fa_otp",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/shld7",
@@ -256,6 +256,44 @@
       "name":        "Enable Google Authenticator",
       "summary":     "Allow Users To Use Google Authenticator",
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
+    },
+    {
+      "key":         "enable_yubikey",
+      "section":     "section_2fa_otp",
+      "default":     "N",
+      "type":        "checkbox",
+      "beacon_id":   358,
+      "link_info":   "https://shsec.io/4f",
+      "link_blog":   "https://shsec.io/9t",
+      "name":        "Allow Yubikey OTP",
+      "summary":     "Allow Yubikey Registration For One Time Passwords",
+      "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
+    },
+    {
+      "key":         "yubikey_app_id",
+      "section":     "section_2fa_otp",
+      "sensitive":   true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://shsec.io/4g",
+      "link_blog":   "",
+      "beacon_id":   360,
+      "name":        "Yubikey App ID",
+      "summary":     "Your Unique Yubikey App ID",
+      "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
+    },
+    {
+      "key":         "yubikey_api_key",
+      "section":     "section_2fa_otp",
+      "sensitive":   true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://shsec.io/4g",
+      "link_blog":   "",
+      "beacon_id":   360,
+      "name":        "Yubikey API Key",
+      "summary":     "Your Unique Yubikey App API Key",
+      "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
     {
       "key":         "enable_sms_auth",
@@ -399,7 +437,7 @@
     },
     {
       "key":         "enable_passkeys",
-      "section":     "section_hardware_authentication",
+      "section":     "section_2fa_passkeys",
       "premium":     true,
       "cap":         "2fa_webauthn",
       "default":     "N",
@@ -410,44 +448,6 @@
       "name":        "Enable Passkeys",
       "summary":     "Allow Registration Of Passkeys",
       "description": "Allow Registration Of Passkeys."
-    },
-    {
-      "key":         "enable_yubikey",
-      "section":     "section_hardware_authentication",
-      "default":     "N",
-      "type":        "checkbox",
-      "beacon_id":   358,
-      "link_info":   "https://shsec.io/4f",
-      "link_blog":   "https://shsec.io/9t",
-      "name":        "Allow Yubikey OTP",
-      "summary":     "Allow Yubikey Registration For One Time Passwords",
-      "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
-    },
-    {
-      "key":         "yubikey_app_id",
-      "section":     "section_hardware_authentication",
-      "sensitive":   true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/4g",
-      "link_blog":   "",
-      "beacon_id":   360,
-      "name":        "Yubikey App ID",
-      "summary":     "Your Unique Yubikey App ID",
-      "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
-    },
-    {
-      "key":         "yubikey_api_key",
-      "section":     "section_hardware_authentication",
-      "sensitive":   true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/4g",
-      "link_blog":   "",
-      "beacon_id":   360,
-      "name":        "Yubikey API Key",
-      "summary":     "Your Unique Yubikey App API Key",
-      "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
     {
       "key":         "text_imahuman",

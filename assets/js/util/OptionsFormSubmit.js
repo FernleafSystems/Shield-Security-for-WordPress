@@ -21,11 +21,13 @@ export class OptionsFormSubmit extends BaseService {
 
 		let passwordsReady = true;
 		this.form.querySelectorAll( 'input[type=password]' ).forEach( ( passwordField ) => {
-			if ( passwordField.value ) {
-				const confirmPass = this.form.getElementById( passwordField.id + '_confirm' ) || false;
-				if ( confirmPass && passwordField.value && !confirmPass.value ) {
+
+			if ( passwordField.value && passwordField.value.length > 0 ) {
+
+				const confirmPass = this.form.querySelector( '#' + passwordField.id + '_confirm' );
+				if ( confirmPass && ( confirmPass.value.length === 0 || passwordField.value !== confirmPass.value ) ) {
 					confirmPass.classList.add( 'is-invalid' );
-					alert( 'Form not submitted due to error: password confirmation field not provided.' );
+					alert( 'Form not submitted due to error: security admin PIN and confirm PIN do not match.' );
 					passwordsReady = false;
 				}
 			}

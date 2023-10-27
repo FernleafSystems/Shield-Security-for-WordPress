@@ -258,7 +258,6 @@ class ProcessIPs extends ProcessBase {
 					];
 				}
 				catch ( \Exception $e ) {
-//					error_log( $e->getMessage() );
 				}
 			}
 		}

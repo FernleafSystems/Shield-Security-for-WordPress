@@ -2,6 +2,7 @@ import { ShieldOverlay } from "./ShieldOverlay";
 import { AjaxParseResponseService } from "./AjaxParseResponseService";
 import { ObjectOps } from "./ObjectOps";
 import qs from "qs";
+import { Random } from "./Random";
 
 export class AjaxService {
 
@@ -19,6 +20,8 @@ export class AjaxService {
 		if ( showOverlay ) {
 			ShieldOverlay.Show();
 		}
+
+		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
 
 		return fetch(
 			url,
@@ -59,11 +62,11 @@ export class AjaxService {
 		} );
 	};
 
-	constructFetchRequestDataOld( core, method = 'POST' ) {
+	constructFetchRequestData( core, method = 'POST' ) {
 		core.apto_wrap_response = 1;
 		return {
 			method: method,
-			body: ( new URLSearchParams( core ) ).toString(),
+			body: ( new URLSearchParams( qs.stringify( core ) ) ).toString(),
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
 				'X-Requested-With': 'XMLHttpRequest',
@@ -71,11 +74,11 @@ export class AjaxService {
 		};
 	};
 
-	constructFetchRequestData( core, method = 'POST' ) {
+	constructFetchRequestDataOld( core, method = 'POST' ) {
 		core.apto_wrap_response = 1;
 		return {
 			method: method,
-			body: ( new URLSearchParams( qs.stringify( core ) ) ).toString(),
+			body: ( new URLSearchParams( core ) ).toString(),
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
 				'X-Requested-With': 'XMLHttpRequest',

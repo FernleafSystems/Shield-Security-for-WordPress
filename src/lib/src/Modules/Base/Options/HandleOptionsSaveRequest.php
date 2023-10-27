@@ -27,7 +27,6 @@ class HandleOptionsSaveRequest {
 			}
 
 			$form = $this->getForm();
-			error_log( var_export( $form, true ) );
 			if ( empty( $form ) ) {
 				throw new \Exception( 'options form parameters were empty.' );
 			}

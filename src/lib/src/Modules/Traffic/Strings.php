@@ -155,7 +155,10 @@ class Strings extends Base\Strings {
 			case 'enable_limiter' :
 				$name = __( 'Enable Rate Limiting', 'wp-simple-firewall' );
 				$summary = __( 'Turn On The Rate Limiting Feature', 'wp-simple-firewall' );
-				$desc = [ __( 'Enable or disable the rate limiting feature according to your rate limiting parameters.', 'wp-simple-firewall' ) ];
+				$desc = [
+					__( 'Limit requests to your site based on the your rate-limiting settings.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Enabling this option automatically switches-on the traffic log.', 'wp-simple-firewall' ) ),
+				];
 				break;
 
 			case 'limit_requests' :

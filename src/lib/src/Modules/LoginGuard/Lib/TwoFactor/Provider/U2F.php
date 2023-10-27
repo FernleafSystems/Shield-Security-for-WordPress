@@ -22,7 +22,6 @@ class U2F extends AbstractShieldProvider {
 			'reg_request' => $reg,
 			'signs'       => $signs,
 			'flags'       => [
-				'has_validated' => $this->hasValidatedProfile(),
 				'is_available'  => $this->isProviderAvailableToUser(),
 			],
 			'strings'     => [

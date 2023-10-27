@@ -199,12 +199,11 @@ class MfaController {
 			}
 		);
 		if ( !empty( $duplicateSlugs ) ) {
-			error_log( sprintf( 'Duplicate 2FA Provider Slugs: %s', \implode( ', ', \array_keys( $duplicateSlugs ) ) ) );
 			$finalValid = \array_filter(
 				$finalValid,
 				function ( $providerClass ) use ( $duplicateSlugs ) {
 					/** @var Provider\Provider2faInterface $providerClass */
-					return !array_key_exists( $providerClass::ProviderSlug(), $duplicateSlugs );
+					return !\array_key_exists( $providerClass::ProviderSlug(), $duplicateSlugs );
 				}
 			);
 		}

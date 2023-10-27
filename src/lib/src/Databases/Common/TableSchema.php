@@ -45,9 +45,7 @@ class TableSchema extends DynPropertiesClass {
 		$cols[] = $this->getPrimaryKeyDef();
 
 		return sprintf(
-			'CREATE TABLE %s (
-				%s
-			) %s;',
+			'CREATE TABLE %s ( %s ) %s;',
 			$this->table,
 			\implode( ", ", $cols ),
 			Services::WpDb()->getCharCollate()
@@ -91,7 +89,7 @@ class TableSchema extends DynPropertiesClass {
 			'deleted_at' => 'Soft Deleted At',
 		];
 
-		if ( $this->has_updated_at && !array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
+		if ( $this->has_updated_at && !\array_key_exists( 'updated_at', $this->cols_timestamps ) ) {
 			$standardTsCols = \array_merge(
 				[ 'updated_at' => 'Updated At', ],
 				$standardTsCols

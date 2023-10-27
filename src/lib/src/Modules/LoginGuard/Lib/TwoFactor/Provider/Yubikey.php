@@ -18,14 +18,14 @@ class Yubikey extends AbstractShieldProvider {
 	public const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	public function getJavascriptVars() :array {
-		return [
-			'ajax'  => [
-				'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
-			],
-			'flags' => [
-				'is_available' => $this->isProviderAvailableToUser(),
-			],
-		];
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getJavascriptVars(),
+			[
+				'ajax' => [
+					'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
+				],
+			]
+		);
 	}
 
 	protected function getUserProfileFormRenderData() :array {

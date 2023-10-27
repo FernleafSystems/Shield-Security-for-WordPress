@@ -965,7 +965,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function getConfigStoreKey() :string {
-		return 'aptoweb_controller_'.\substr( \md5( \get_class() ), 0, 6 );
+		return 'aptoweb_controller_'.\substr( \md5( \get_class( $this ) ), 0, 6 );
 	}
 
 	public function deleteForceOffFile() {

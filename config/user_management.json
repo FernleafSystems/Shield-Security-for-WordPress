@@ -279,7 +279,7 @@
       "premium":       true,
       "cap":           "user_password_policies",
       "type":          "select",
-      "default":       "0",
+      "default":       "3",
       "value_options": [
         {
           "value_key": "0",

@@ -92,7 +92,7 @@ class Strings extends Base\Strings {
 			case 'section_enable_plugin_feature_login_protection' :
 				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->mod()
 																						->getMainFeatureName() );
-				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$short = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Login Guard blocks all automated and brute force attempts to log in to your site.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) ) )
@@ -101,7 +101,7 @@ class Strings extends Base\Strings {
 
 			case 'section_rename_wplogin' :
 				$title = __( 'Hide WordPress Login Page', 'wp-simple-firewall' );
-				$titleShort = __( 'Hide Login', 'wp-simple-firewall' );
+				$short = __( 'Hide Login', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.', 'wp-simple-firewall' ) ),
@@ -114,8 +114,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_twofactor_auth' :
-				$title = __( 'Two-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( 'Two-Factor Auth', 'wp-simple-firewall' );
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'General' ) );
+				$title = __( '2FA General Configuration', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.', 'wp-simple-firewall' ) ),
 					__( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' )
@@ -123,8 +123,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_2fa_email' :
-				$title = __( 'Email Two-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( '2FA By Email', 'wp-simple-firewall' );
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'Email' ) );
+				$title = __( '2FA by Email', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '.__( 'However, if your host blocks email sending you may lock yourself out.', 'wp-simple-firewall' ) ),
@@ -132,30 +132,29 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_2fa_ga' :
-				$title = __( 'One-Time Passwords', 'wp-simple-firewall' );
-				$titleShort = __( 'One-Time Passwords', 'wp-simple-firewall' );
+			case 'section_2fa_otp' :
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'OTP' ) );
+				$title = __( '2FA One-Time Passwords', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
 				];
 				break;
 
-			case 'section_brute_force_login_protection' :
-				$title = __( 'Brute Force Login Protection', 'wp-simple-firewall' );
-				$titleShort = __( 'Bots', 'wp-simple-firewall' );
+			case 'section_2fa_passkeys' :
+				$short = sprintf( '%s :: %s', __( '2FA', 'wp-simple-firewall' ), __( 'Passkeys' ) );
+				$title = __( '2FA with Passkeys (WebAuthn)', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Blocks brute force hacking attacks against your login and registration pages.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies user login with Passkeys/Authenticators via WebAuthn.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
-			case 'section_hardware_authentication' :
-				$title = __( 'Hardware 2-Factor Authentication', 'wp-simple-firewall' );
-				$titleShort = __( 'Hardware 2FA', 'wp-simple-firewall' );
+			case 'section_brute_force_login_protection' :
+				$title = __( 'Brute Force Login Protection', 'wp-simple-firewall' );
+				$short = __( 'Brute Force Protection', 'wp-simple-firewall' );
 				$summary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.', 'wp-simple-firewall' ) ),
-					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Blocks brute force hacking attacks against your login and registration pages.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -165,7 +164,7 @@ class Strings extends Base\Strings {
 
 		return [
 			'title'       => $title,
-			'title_short' => $titleShort,
+			'title_short' => $short,
 			'summary'     => $summary,
 		];
 	}
@@ -235,8 +234,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mfa_user_setup_pages' :
-				$name = __( '2FA Config For Users', 'wp-simple-firewall' );
-				$summary = __( '2FA Config Pages For User Control', 'wp-simple-firewall' );
+				$name = __( '2FA User Config Page', 'wp-simple-firewall' );
+				$summary = __( 'Config Pages For User 2FA Setup', 'wp-simple-firewall' );
 				$desc = [
 					__( 'Specify pages available to users to configure 2FA on their account.', 'wp-simple-firewall' ),
 					__( 'At least 1 option must be provided and defaults to the user profile page within the WP admin area.', 'wp-simple-firewall' )
@@ -259,9 +258,11 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_google_authenticator' :
-				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) );
+				$name = __( 'Google Authenticator', 'wp-simple-firewall' );
 				$summary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
-				$desc = [ __( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' ) ];
+				$desc = [
+					__( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'enable_email_authentication' :
@@ -356,11 +357,23 @@ class Strings extends Base\Strings {
 
 			case 'enable_passkeys' :
 				$name = __( 'Allow Passkeys', 'wp-simple-firewall' );
-				$summary = __( 'Allow Passkey Registration', 'wp-simple-firewall' );
+				$summary = __( 'Allow Users To Register Passkeys', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Allow users to register Passkeys & FIDO2 devices to complete their WordPress login.', 'wp-simple-firewall' ),
-					__( "Passkeys include Windows Hello, compatible Fingerprint readers, and most recent Yubikey & Google Titan devices.", 'wp-simple-firewall' ),
+					__( 'Allow users to register Passkeys & FIDO2-compatible devices to complete their WordPress login.', 'wp-simple-firewall' ),
 				];
+
+				$desc[] = __( 'Passkeys include any FIDO2-compatible devices, such as:', 'wp-simple-firewall' );
+				foreach ( [
+					'Windows Hello',
+					'Apple Face ID',
+					'Apple Touch ID',
+					'Compatible fingerprint readers',
+					'FIDO2 Yubikeys',
+					'FIDO2 Google Titan keys',
+					'1Password, BitWarden, etc.',
+				] as $type ) {
+					$desc[] = sprintf( '- %s', $type );
+				}
 				break;
 
 			case 'enable_yubikey' :

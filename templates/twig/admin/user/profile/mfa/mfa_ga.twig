@@ -1,19 +1,3 @@
-<style>
-	#shield_ga_secret {
-	  letter-spacing: 5px;
-	  font-family: monospace;
-	  font-size: 24px;
-	  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
-	  border: 1px solid rgba(0, 0, 0, 0.1);
-	  padding: 0 7px;
-	  background-color: whitesmoke;
-  }
-  .shield_gacode {
-	  text-align: center;
-	  width: 350px
-  }
-</style>
-
 {% if flags.is_profile_active %}
 
 	<tr>
@@ -35,8 +19,10 @@
 	<tr>
 		<th><label for="ShieldGaCode" class="form-label">{{ strings.title }}</label></th>
 		<td style="text-align: center;">
-			<canvas style="margin-bottom: 8px;" class="shield-SvgQrCode"></canvas>
-			<div style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;" id="shield_ga_secret">{{ vars.ga_secret }}</div>
+			<canvas style="margin-bottom: 8px;" class="shield-SvgQrCode" data-qr_url="{{ vars.qr_url }}"></canvas>
+			<div class="shield_ga_secret"
+				 style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;"
+				 id="shield_ga_secret">{{ vars.secret }}</div>
 
 			<input class="regular-text shield_gacode"
 			       type="text"

@@ -12,10 +12,10 @@
 			</button>
 		</p>
 
-		{% if vars.registrations|length > 0 %}
+		{% if vars.passkeys|length > 0 %}
 			<h4>{{ strings.registered_devices }}</h4>
 			<ul style=" list-style: circle inside; ">
-				{% for reg in vars.registrations %}
+				{% for reg in vars.passkeys %}
 					<li style="margin: 10px 0 0;">
 						<code>{{ reg.label }}</code>
 						<a href="#"

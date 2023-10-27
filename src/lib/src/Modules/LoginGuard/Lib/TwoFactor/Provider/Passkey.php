@@ -40,31 +40,34 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 	}
 
 	public function getJavascriptVars() :array {
-		return [
-			'ajax'    => [
-				'passkey_start_registration'  => ActionData::Build( MfaPasskeyRegistrationStart::class ),
-				'passkey_verify_registration' => ActionData::Build( MfaPasskeyRegistrationVerify::class ),
-				'passkey_remove_registration' => ActionData::Build( MfaPasskeyRemoveSource::class ),
-			],
-			'flags'   => [
-				'has_validated' => $this->hasValidatedProfile()
-			],
-			'strings' => [
-				'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
-				'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
-									   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
-									   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
-				'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
-									   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
-				'prompt_dialog'     => __( 'Please provide a label to identify the new authenticator.', 'wp-simple-firewall' ),
-				'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
-				'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
-				'are_you_sure'      => __( 'Are you sure?', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'username' => $this->getUser()->user_login,
-			],
-		];
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getJavascriptVars(),
+			[
+				'ajax' => [
+					'passkey_start_registration'  => ActionData::Build( MfaPasskeyRegistrationStart::class ),
+					'passkey_verify_registration' => ActionData::Build( MfaPasskeyRegistrationVerify::class ),
+					'passkey_remove_registration' => ActionData::Build( MfaPasskeyRemoveSource::class ),
+				],
+				'flags'   => [
+					'has_validated' => $this->hasValidatedProfile()
+				],
+				'strings' => [
+					'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+					'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
+										   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
+										   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+					'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
+										   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
+					'prompt_dialog'     => __( 'Please provide a label to identify the new authenticator.', 'wp-simple-firewall' ),
+					'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+					'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+					'are_you_sure'      => __( 'Are you sure?', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'username' => $this->getUser()->user_login,
+				],
+			]
+		);
 	}
 
 	public function getFormField() :array {
@@ -178,7 +181,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 	/**
 	 * @return \stdClass[]
 	 */
-	private function getAuthenticatorForDisplay() :array {
+	private function getPasskeysForDisplay() :array {
 		$sources = $this->loadRawSourcesData();
 
 		/**
@@ -240,7 +243,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 					'is_validated' => $this->hasValidatedProfile(),
 				],
 				'vars'    => [
-					'registrations' => $this->getAuthenticatorForDisplay(),
+					'passkeys' => $this->getPasskeysForDisplay(),
 				],
 			]
 		);
@@ -455,6 +458,11 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 			$user->display_name,
 			get_avatar_url( $user->user_email, [ "scheme" => "https" ] )
 		);
+	}
+
+	public function removeFromProfile() {
+		self::con()->user_metas->for( $this->getUser() )->passkeys = [];
+		parent::removeFromProfile();
 	}
 
 	private function setPasskeysData( array $WAN ) :self {
