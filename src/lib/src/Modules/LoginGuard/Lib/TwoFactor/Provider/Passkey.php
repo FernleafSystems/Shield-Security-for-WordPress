@@ -168,7 +168,7 @@ class Passkey extends AbstractShieldProvider {
 			PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
 			\array_map( function ( PublicKeyCredentialSource $credential ) {
 				return $credential->getPublicKeyCredentialDescriptor();
-			}, $this->getSourceRepo()->findAllForUserEntity( $this->getUserEntity() ) ),
+			}, $this->getSourceRepo()->getExcludedSourcesFromAllUsers() ),
 			new AuthenticatorSelectionCriteria(
 				AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
 				false,
@@ -182,7 +182,7 @@ class Passkey extends AbstractShieldProvider {
 	 * @return \stdClass[]
 	 */
 	private function getPasskeysForDisplay() :array {
-		$records = $this->getSourceRepo()->getAllSourceRecords();
+		$records = $this->getSourceRepo()->getUserSourceRecords();
 
 		/**
 		 * Order by most recently used first, then most recently registered.

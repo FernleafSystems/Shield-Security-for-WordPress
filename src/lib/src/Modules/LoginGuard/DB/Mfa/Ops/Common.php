@@ -16,11 +16,7 @@ trait Common {
 		return $this->addWhereEquals( 'user_id', $ID );
 	}
 
-	public function filterByUnverified() {
-		return $this->addWhereEquals( 'verified_at', 0 );
-	}
-
-	public function filterByVerified() {
-		return $this->addWhereNewerThan( 0, 'verified_at' );
+	public function filterByPasswordless() {
+		return $this->addWhereEquals( 'passwordless', 1 );
 	}
 }

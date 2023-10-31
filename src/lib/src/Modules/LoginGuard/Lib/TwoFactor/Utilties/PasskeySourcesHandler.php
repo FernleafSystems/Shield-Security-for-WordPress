@@ -38,18 +38,13 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 		if ( $user->ID !== $this->getWpUser()->ID ) {
 			throw new \Exception( 'Invalid user query!!' );
 		}
-		return \array_filter( \array_map(
-			function ( MfaDB\Record $record ) {
-				return $this->getSourceFromRecord( $record );
-			},
-			$this->getAllSourceRecords()
-		) );
+		return $this->getSourcesFromRecords( $this->getUserSourceRecords() );
 	}
 
 	/**
 	 * @return MfaDB\Record[]
 	 */
-	public function getAllSourceRecords() :array {
+	public function getUserSourceRecords() :array {
 		/** @var MfaDB\Select $selector */
 		$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
 		/** @var MfaDB\Record[] $record */
@@ -57,6 +52,19 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 							->filterBySlug( Passkey::ProviderSlug() )
 							->queryWithResult();
 		return \is_array( $records ) ? $records : [];
+	}
+
+	/**
+	 * @return PublicKeyCredentialSource[]
+	 */
+	public function getExcludedSourcesFromAllUsers() :array {
+		/** @var MfaDB\Select $selector */
+		$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
+		/** @var MfaDB\Record[] $record */
+		$records = $selector->filterBySlug( Passkey::ProviderSlug() )
+							->filterByPasswordless()
+							->queryWithResult();
+		return $this->getSourcesFromRecords( \is_array( $records ) ? $records : [] );
 	}
 
 	/**
@@ -73,6 +81,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			$record->unique_id = $this->normalisedSourceID( $publicKeyCredentialSource->getPublicKeyCredentialId() );
 			$record->label = 'No Label';
 			$record->data = $publicKeyCredentialSource->jsonSerialize();
+			$record->passwordless = 1;
 
 			$dbh->getQueryInserter()->insert( $record );
 		}
@@ -130,5 +139,17 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			$source = null;
 		}
 		return $source;
+	}
+
+	/**
+	 * @param MfaDB\Record[] $records
+	 */
+	private function getSourcesFromRecords( array $records ) :array {
+		return \array_filter( \array_map(
+			function ( MfaDB\Record $record ) {
+				return $this->getSourceFromRecord( $record );
+			},
+			$records
+		) );
 	}
 }

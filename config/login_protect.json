@@ -532,6 +532,11 @@
         "data":      {
           "macro_type": "meta",
           "comment":    "Data"
+        },
+        "passwordless": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Can be used passwordless"
         }
       },
       "cols_timestamps": {

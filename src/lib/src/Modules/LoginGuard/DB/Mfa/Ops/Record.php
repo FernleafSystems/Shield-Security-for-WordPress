@@ -8,6 +8,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops;
  * @property string $unique_id
  * @property string $label
  * @property array  $data
+ * @property bool   $passwordless
  * @property int    $used_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
