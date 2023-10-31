@@ -67,6 +67,7 @@ class PluginDelete {
 				$con->getModule_IPs()->getDbH_CrowdSecSignals(),
 				$con->getModule_IPs()->getDbH_BotSignal(),
 				$con->getModule_IPs()->getDbH_IPRules(),
+				$con->getModule_LoginGuard()->getDbH_Mfa(),
 				$con->getModule_Data()->getDbH_ReqLogs(),
 				$con->getModule_Data()->getDbH_UserMeta(),
 				$con->getModule_Data()->getDbH_IPs(),

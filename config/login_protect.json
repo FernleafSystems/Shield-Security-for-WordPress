@@ -495,6 +495,54 @@
   "definitions":   {
     "login_intent_timeout":      5,
     "login_intent_max_attempts": 5,
+    "db_handler_classes":        {
+      "mfa": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\LoginGuard\\DB\\Mfa\\Ops\\Handler"
+    },
+    "db_table_mfa":              {
+      "name":            "MFA",
+      "slug":            "mfa",
+      "autoexpire":      0,
+      "has_updated_at":  true,
+      "has_deleted_at":  true,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "user_id":   {
+          "macro_type": "unsigned_int",
+          "type":       "bigint",
+          "length":     11
+        },
+        "slug":      {
+          "macro_type": "varchar",
+          "length":     10,
+          "comment":    "Factor Slug"
+        },
+        "unique_id": {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "Unique Identifier",
+          "attr":       [
+            "UNIQUE"
+          ]
+        },
+        "label":     {
+          "macro_type": "varchar",
+          "length":     64,
+          "comment":    "Label"
+        },
+        "data":      {
+          "macro_type": "meta",
+          "comment":    "Data"
+        }
+      },
+      "cols_timestamps": {
+        "used_at":    {
+          "comment": "Used At"
+        },
+        "created_at": {
+          "comment": "Registered At"
+        }
+      }
+    },
     "events":                    {
       "2fa_verify_success":    {
         "audit_params": [

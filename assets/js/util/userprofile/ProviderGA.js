@@ -1,14 +1,18 @@
-import $ from 'jquery';
 import QRCode from 'qrcode'
 import { ProviderBase } from "./ProviderBase";
 import { ObjectOps } from "../ObjectOps";
 
 export class ProviderGA extends ProviderBase {
 
-	init() {
-		$( this.container() ).on( 'click', '.shield_ga_remove', () => {
-			this.sendReq( this._base_data.ajax.profile_ga_toggle );
-		} );
+	attachRemove() {
+		const remove = this.container().querySelector( '.shield_ga_remove' );
+		if ( remove ) {
+			remove.addEventListener( 'click', () => {
+				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+					this.sendReq( this._base_data.ajax.profile_ga_toggle );
+				}
+			}, false );
+		}
 	}
 
 	generateSVG() {
@@ -24,6 +28,7 @@ export class ProviderGA extends ProviderBase {
 
 	postRender() {
 		this.generateSVG();
+		this.attachRemove();
 
 		const gaCode = this.container().querySelector( 'input[type=text].shield_gacode' );
 		if ( gaCode ) {

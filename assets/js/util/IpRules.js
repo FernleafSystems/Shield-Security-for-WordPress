@@ -43,7 +43,7 @@ export class IpRules extends BaseService {
 
 	handleIpDelete() {
 		$( document ).on( 'click', 'td.ip_linked a.ip_delete', ( evt ) => {
-			if ( confirm( this._base_data.strings.are_you_sure ) ) {
+			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
 				( new AjaxService() )
 				.send( ObjectOps.Merge(
 					this._base_data.ajax.delete,

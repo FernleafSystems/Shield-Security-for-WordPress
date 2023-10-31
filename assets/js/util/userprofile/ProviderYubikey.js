@@ -14,8 +14,10 @@ export class ProviderYubikey extends ProviderBase {
 		} );
 		$( this.container() ).on( 'click', 'a.shield_remove_yubi', ( evt ) => {
 			evt.preventDefault();
-			this._base_data.ajax.profile_yubikey_toggle.otp = $( evt.currentTarget ).data( 'yubikeyid' );
-			this.sendReq( this._base_data.ajax.profile_yubikey_toggle );
+			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				this._base_data.ajax.profile_yubikey_toggle.otp = $( evt.currentTarget ).data( 'yubikeyid' );
+				this.sendReq( this._base_data.ajax.profile_yubikey_toggle );
+			}
 			return false;
 		} );
 	}

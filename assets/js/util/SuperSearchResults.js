@@ -53,10 +53,7 @@ export class SuperSearchResults extends BaseService {
 						alert( resp.data.error );
 					}
 				} )
-				.catch( ( error ) => {
-					alert( 'Sorry, something went wrong with the request.' );
-					console.log( error );
-				} );
+				.finally();
 			}, 700 );
 		}
 	}

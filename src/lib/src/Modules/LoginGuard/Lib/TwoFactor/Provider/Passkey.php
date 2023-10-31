@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MfaPasskeyRegistrationVerify,
 	Actions\MfaPasskeyRegistrationStart
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use FernleafSystems\Wordpress\Services\Services;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
@@ -25,18 +27,19 @@ use Webauthn\{
 	PublicKeyCredentialRequestOptions,
 	PublicKeyCredentialRpEntity,
 	PublicKeyCredentialSource,
-	PublicKeyCredentialSourceRepository,
 	PublicKeyCredentialUserEntity,
 	Server,
 	TokenBinding\IgnoreTokenBindingHandler
 };
 
-class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourceRepository {
+class Passkey extends AbstractShieldProvider {
 
 	protected const SLUG = 'passkey';
 
+	private $sourceRepo = null;
+
 	public function hasValidatedProfile() :bool {
-		return \count( $this->loadRawSourcesData() ) > 0;
+		return $this->getSourceRepo()->count() > 0;
 	}
 
 	public function getJavascriptVars() :array {
@@ -100,14 +103,10 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 	/**
 	 * @throws \Exception
 	 */
-	public function startNewRegistrationRequest( string $label = '' ) :array {
+	public function startNewRegistrationRequest() :array {
 		$newReg = $this->generateNewCredentialsCreation()->jsonSerialize();
 		$WAN = $this->getPasskeysData();
 		$WAN[ 'reg_start' ] = $newReg;
-		$WAN[ 'reg_start_meta' ] = [
-			'label'  => sanitize_text_field( $label ),
-			'reg_at' => Services::Request()->ts(),
-		];
 		$this->setPasskeysData( $WAN );
 		return $newReg;
 	}
@@ -134,7 +133,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
 				null //Icon
 			),
-			$this,
+			$this->getSourceRepo(),
 			null
 		);
 
@@ -142,8 +141,9 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 			AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED,
 			\array_map( function ( PublicKeyCredentialSource $credential ) {
 				return $credential->getPublicKeyCredentialDescriptor();
-			}, $this->findAllForUserEntity( $this->getUserEntity() ) )
+			}, $this->getSourceRepo()->findAllForUserEntity( $this->getUserEntity() ) )
 		);
+
 		return $publicKeyCredentialRequestOptions->setTimeout( 60000 );
 	}
 
@@ -158,7 +158,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
 				null //Icon
 			),
-			$this,
+			$this->getSourceRepo(),
 			null
 		);
 
@@ -168,7 +168,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 			PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
 			\array_map( function ( PublicKeyCredentialSource $credential ) {
 				return $credential->getPublicKeyCredentialDescriptor();
-			}, $this->findAllForUserEntity( $this->getUserEntity() ) ),
+			}, $this->getSourceRepo()->findAllForUserEntity( $this->getUserEntity() ) ),
 			new AuthenticatorSelectionCriteria(
 				AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
 				false,
@@ -182,17 +182,17 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 	 * @return \stdClass[]
 	 */
 	private function getPasskeysForDisplay() :array {
-		$sources = $this->loadRawSourcesData();
+		$records = $this->getSourceRepo()->getAllSourceRecords();
 
 		/**
 		 * Order by most recently used first, then most recently registered.
 		 */
-		\usort( $sources, function ( array $a, array $b ) {
-			$atA = $a[ 'meta' ][ 'used_at' ] ?? 0;
-			$atB = $b[ 'meta' ][ 'used_at' ] ?? 0;
+		\usort( $records, function ( Record $a, Record $b ) {
+			$atA = $a->used_at;
+			$atB = $b->used_at;
 			if ( $atA === $atB ) {
-				$atA = $a[ 'meta' ][ 'reg_at' ] ?? 0;
-				$atB = $b[ 'meta' ][ 'reg_at' ] ?? 0;
+				$atA = $a->created_at;
+				$atB = $b->created_at;
 				$ret = $atA == $atB ? 0 : ( $atA > $atB ? -1 : 1 );
 			}
 			else {
@@ -202,30 +202,29 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 		} );
 
 		return \array_map(
-			function ( array $source ) {
-				$meta = $source[ 'meta' ];
+			function ( Record $record ) {
 				return [
-					'id'      => $meta[ 'source_id' ],
-					'label'   => empty( $meta[ 'label' ] ) ? __( 'No Name' ) : $meta[ 'label' ],
+					'id'      => $record->unique_id,
+					'label'   => $record->label,
 					'used_at' => sprintf(
 						'%s: %s', __( 'Used', 'wp-simple-firewall' ),
-						empty( $meta[ 'used_at' ] ) ? __( 'Never' ) :
+						$record->used_at === 0 ? __( 'Never' ) :
 							Services::Request()
 									->carbon( true )
-									->setTimestamp( $meta[ 'used_at' ] )
+									->setTimestamp( $record->used_at )
 									->diffForHumans()
 					),
 					'reg_at'  => sprintf(
 						'%s: %s', __( 'Registered', 'wp-simple-firewall' ),
-						empty( $meta[ 'reg_at' ] ) ? __( 'Unknown' ) :
+						$record->created_at === 0 ? __( 'Unknown' ) :
 							Services::Request()
 									->carbon( true )
-									->setTimestamp( $meta[ 'reg_at' ] )
+									->setTimestamp( $record->created_at )
 									->diffForHumans()
 					)
 				];
 			},
-			$sources
+			$records
 		);
 	}
 
@@ -259,7 +258,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 					\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
 					null //Icon
 				),
-				$this,
+				$this->getSourceRepo(),
 				null
 			);
 
@@ -278,7 +277,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 				$creator->fromGlobals()
 			);
 
-			$this->updateSource( $publicKeyCredentialSource, [
+			$this->getSourceRepo()->updateSource( $publicKeyCredentialSource, [
 				'used_at' => Services::Request()->ts(),
 			] );
 
@@ -312,7 +311,7 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 
 			$authenticatorAttestationResponseValidator = new AuthenticatorAttestationResponseValidator(
 				$attestationStatementSupportManager,
-				$this,
+				$this->getSourceRepo(),
 				new IgnoreTokenBindingHandler(),
 				new ExtensionOutputCheckerHandler()
 			);
@@ -331,8 +330,8 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 				$creator->fromGlobals()
 			);
 
-			$this->saveCredentialSource( $publicKeyCredentialSource );
-			$this->updateSource( $publicKeyCredentialSource, [
+			$this->getSourceRepo()->saveCredentialSource( $publicKeyCredentialSource );
+			$this->getSourceRepo()->updateSource( $publicKeyCredentialSource, [
 				'label' => sanitize_text_field( \trim( $label ) ),
 			] );
 
@@ -360,80 +359,8 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 		return 'Passkeys';
 	}
 
-	public function findOneByCredentialId( string $publicKeyCredentialId ) :?PublicKeyCredentialSource {
-		return $this->loadRawSourcesData()[ \base64_encode( $publicKeyCredentialId ) ][ 'source' ] ?? null;
-	}
-
-	/**
-	 * @return PublicKeyCredentialSource[]
-	 */
-	public function findAllForUserEntity( PublicKeyCredentialUserEntity $publicKeyCredentialUserEntity ) :array {
-		return \array_values( \array_filter( \array_map(
-			function ( array $data ) {
-				return $data[ 'source' ];
-			},
-			$this->loadRawSourcesData()
-		) ) );
-	}
-
-	private function loadRawSourcesData() :array {
-		return \array_map(
-			function ( array $data ) {
-				try {
-					return [
-						'source' => PublicKeyCredentialSource::createFromArray( \json_decode( \base64_decode( $data[ 'source' ] ), true ) ),
-						'meta'   => $data[ 'meta' ],
-					];
-				}
-				catch ( \InvalidArgumentException $e ) {
-					return null;
-				}
-			},
-			$this->getPasskeysData()[ 'public_credential_sources' ] ?? []
-		);
-	}
-
-	public function saveCredentialSource( PublicKeyCredentialSource $publicKeyCredentialSource ) :void {
-
-		$WAN = $this->getPasskeysData();
-		$startMeta = $WAN[ 'reg_start_meta' ] ?? [];
-		unset( $WAN[ 'reg_start_meta' ] );
-		$this->setPasskeysData( $WAN );
-
-		if ( Services::Request()->ts() - ( $startMeta[ 'reg_at' ] ?? 0 ) > 60 ) {
-			$startMeta = [];
-		}
-
-		$this->updateSource( $publicKeyCredentialSource, $startMeta );
-	}
-
 	public function deleteSource( string $encodedID ) :bool {
-		$WAN = $this->getPasskeysData();
-		unset( $WAN[ 'public_credential_sources' ][ $encodedID ] );
-		$this->setPasskeysData( $WAN );
-		return true;
-	}
-
-	public function updateSource( PublicKeyCredentialSource $publicKeyCredentialSource, array $meta = [] ) :void {
-		$WAN = $this->getPasskeysData();
-
-		if ( empty( $WAN[ 'public_credential_sources' ] ) ) {
-			$WAN[ 'public_credential_sources' ] = [];
-		}
-
-		$sourceID = \base64_encode( $publicKeyCredentialSource->getPublicKeyCredentialId() );
-		$meta[ 'source_id' ] = $sourceID;
-
-		// Encoding ensures data fidelity
-		$WAN[ 'public_credential_sources' ][ $sourceID ] = [
-			'meta'   => \array_merge(
-				$WAN[ 'public_credential_sources' ][ $sourceID ][ 'meta' ] ?? [],
-				$meta
-			),
-			'source' => \base64_encode( \json_encode( $publicKeyCredentialSource->jsonSerialize() ) ),
-		];
-
-		$this->setPasskeysData( $WAN );
+		return $this->getSourceRepo()->deleteSource( $encodedID );
 	}
 
 	private function getUserWanKey() :string {
@@ -465,8 +392,11 @@ class Passkey extends AbstractShieldProvider implements PublicKeyCredentialSourc
 		parent::removeFromProfile();
 	}
 
-	private function setPasskeysData( array $WAN ) :self {
+	private function setPasskeysData( array $WAN ) :void {
 		$this->con()->user_metas->for( $this->getUser() )->passkeys = $WAN;
-		return $this;
+	}
+
+	private function getSourceRepo() :PasskeySourcesHandler {
+		return $this->sourceRepo ?? $this->sourceRepo = ( new PasskeySourcesHandler() )->setWpUser( $this->getUser() );
 	}
 }

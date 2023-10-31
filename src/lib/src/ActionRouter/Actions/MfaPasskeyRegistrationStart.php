@@ -34,7 +34,7 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 				try {
 					$response = [
 						'success'     => true,
-						'challenge' => $provider->startNewRegistrationRequest( $this->action_data[ 'label' ] ?? '' ),
+						'challenge'   => $provider->startNewRegistrationRequest(),
 						'page_reload' => false
 					];
 				}

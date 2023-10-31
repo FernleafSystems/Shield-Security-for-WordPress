@@ -31,12 +31,14 @@ import { SuperSearchService } from "./js/util/SuperSearchService";
 import { Tours } from "./js/util/Tours";
 import { TrafficLiveLogs } from "./js/util/TrafficLiveLogs";
 import { ShieldTableSessions } from "./js/util/ShieldTableSessions";
+import { ShieldStrings } from "./js/util/ShieldStrings";
 
 $( document ).ready( function () {
 
 	if ( 'shield_vars_main' in window ) {
 
-		global.shieldServices = new ShieldServicesPlugin( window.shield_vars_main.service );
+		global.shieldServices = new ShieldServicesPlugin();
+		global.shieldStrings = new ShieldStrings( window.shield_vars_main.strings );
 
 		const comps = window.shield_vars_main.comps;
 
