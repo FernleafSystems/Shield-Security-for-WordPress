@@ -10,9 +10,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Email extends AbstractShieldProvider {
+class Email extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'email';
+
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacyEnabled = $meta->email_validated;
+		if ( $legacyEnabled ) {
+			$this->toggleEmail2FA( $legacyEnabled );
+			unset( $meta->email_validated );
+			unset( $meta->email_secret );
+		}
+	}
 
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
@@ -30,13 +40,20 @@ class Email extends AbstractShieldProvider {
 	 * Otherwise, we just check whether the OTP exists.
 	 */
 	protected function processOtp( string $otp ) :bool {
-		$secret = $this->getSecret()[ $this->workingHashedLoginNonce ] ?? '';
-		return !empty( $secret ) && wp_check_password( $otp, $secret );
+		$valid = false;
+		foreach ( $this->loadMfaRecords() as $record ) {
+			if ( $record->data[ 'hashed_login_nonce' ] === $this->workingHashedLoginNonce
+				 && wp_check_password( $otp, $record->unique_id ) ) {
+				$valid = true;
+				$this->removeFromProfile();
+			}
+		}
+		return $valid;
 	}
 
 	public function postSuccessActions() {
 		parent::postSuccessActions();
-		return $this->setSecret( [] );
+		$this->removeFromProfile();
 	}
 
 	public function getFormField() :array {
@@ -62,29 +79,25 @@ class Email extends AbstractShieldProvider {
 		];
 	}
 
+	public function toggleEmail2FA( bool $onOrOff ) :void {
+		self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled = $onOrOff;
+	}
+
 	public function hasValidatedProfile() :bool {
-		$validated = parent::hasValidatedProfile();
-		$this->setProfileValidated(
-			$this->isEnforced() || ( $validated && $this->opts()->isEnabledEmailAuthAnyUserSet() )
-		);
-		return parent::hasValidatedProfile();
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		return $this->isEnforced()
+			   || ( $this->opts()->isEnabledEmailAuthAnyUserSet() && $meta->email_2fa_enabled );
 	}
 
 	public function isEnforced() :bool {
 		return \count( \array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
-	protected function hasValidSecret() :bool {
-		return true;
-	}
-
 	public function sendEmailTwoFactorVerify( string $plainNonce ) :bool {
 		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
-		$userMeta = $con->user_metas->for( $user );
-		$sureCon = $con->getModule_Comms()->getSureSendController();
-		$useSureSend = $sureCon->isEnabled2Fa() && $sureCon->canUserSend( $user );
+		$useSureSend = $con->getModule_Comms()->getSureSendController()->can_2FA( $user );
 
 		$success = false;
 		try {
@@ -95,7 +108,7 @@ class Email extends AbstractShieldProvider {
 			$hashedNonce = $mfaCon->findHashedNonce( $user, $plainNonce );
 			$intents = $mfaCon->getActiveLoginIntents( $user );
 			$intents[ $hashedNonce ][ 'auto_email_sent' ] = true;
-			$userMeta->login_intents = $intents;
+			$con->user_metas->for( $user )->login_intents = $intents;
 
 			$otp = $this->generate2faCode( $hashedNonce );
 
@@ -143,19 +156,10 @@ class Email extends AbstractShieldProvider {
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
-		$secrets = $this->getSecret();
-		if ( !\is_array( $secrets ) ) {
-			$secrets = [];
-		}
-
 		$otp = apply_filters( 'shield/2fa_email_otp', PasswordGenerator::Gen( 6, true, false, false ) );
-		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
-
-		// Clean old secrets linked to expired login intents
-		$this->setSecret( \array_intersect_key(
-			$secrets,
-			$this->mod()->getMfaController()->getActiveLoginIntents( $this->getUser() )
-		) );
+		$this->createNewSecretRecord( wp_hash_password( $otp ), 'Email 2FA', [
+			'hashed_login_nonce' => $hashedLoginNonce
+		] );
 		return $otp;
 	}
 

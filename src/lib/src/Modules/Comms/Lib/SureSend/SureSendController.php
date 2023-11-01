@@ -9,12 +9,12 @@ class SureSendController {
 
 	use ModConsumer;
 
-	public function canUserSend( \WP_User $user ) :bool {
-		return Services::WpUsers()->isUserAdmin( $user );
+	public function can_2FA( \WP_User $user ) :bool {
+		return $this->isEnabled( '2fa' ) && $this->canUserSend( $user );
 	}
 
-	public function isEnabled2Fa() :bool {
-		return $this->isEnabled( '2fa' );
+	public function canUserSend( \WP_User $user ) :bool {
+		return Services::WpUsers()->isUserAdmin( $user );
 	}
 
 	private function isEnabled( string $slug ) :bool {

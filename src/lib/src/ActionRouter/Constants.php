@@ -59,7 +59,6 @@ class Constants {
 		Actions\MfaPasskeyRemoveSource::class,
 		Actions\MfaPasskeyAuthenticationStart::class,
 		Actions\MfaPasskeyAuthenticationVerify::class,
-		Actions\MfaPasskeyCheckLabel::class,
 		Actions\MfaPasskeyRegistrationStart::class,
 		Actions\MfaPasskeyRegistrationVerify::class,
 		Actions\MfaYubikeyToggle::class,

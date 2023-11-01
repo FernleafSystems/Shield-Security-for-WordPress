@@ -37,7 +37,7 @@ class MfaPasskeyAuthenticationStart extends MfaUserConfigBase {
 				try {
 					$response = [
 						'success'     => true,
-						'challenge'   => $provider->startNewAuthRequest(),
+						'challenge'   => $provider->startNewAuth(),
 						'page_reload' => false
 					];
 				}

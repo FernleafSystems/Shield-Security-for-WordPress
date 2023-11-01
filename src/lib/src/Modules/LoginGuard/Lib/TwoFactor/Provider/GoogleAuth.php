@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops as MfaDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use Dolondro\GoogleAuthenticator\{
 	GoogleAuthenticator,
 	Secret,
@@ -12,18 +14,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
+use Psr\Cache\InvalidArgumentException;
 
-class GoogleAuth extends AbstractShieldProvider {
+class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'ga';
 
 	/**
 	 * @var Secret
 	 */
-	private $workingSecret;
+	private $tempSecret;
 
-	public function isProfileActive() :bool {
-		return $this->hasValidSecret() && $this->hasValidatedProfile();
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacySecret = $meta->ga_secret;
+		if ( !empty( $legacySecret ) && \strlen( $legacySecret ) === 16 && $meta->ga_validated ) {
+			$this->createNewSecretRecord( $legacySecret, 'Google Auth' );
+			unset( $meta->ga_secret );
+			unset( $meta->ga_validated );
+		}
 	}
 
 	public function getJavascriptVars() :array {
@@ -54,11 +63,12 @@ class GoogleAuth extends AbstractShieldProvider {
 					'title'                 => __( 'Google Authenticator', 'wp-simple-firewall' ),
 					'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Google Authenticator' ),
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) ),
-					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()->getHumanName() ),
+					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()
+																										  ->getHumanName() ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
 					'remove_google_auth'    => __( 'Remove Google Authenticator', 'wp-simple-firewall' )
 				],
-				'vars' => [
+				'vars'    => [
 					'secret' => $this->isProfileActive() ? '' : $this->resetSecret(),
 					'qr_url' => $this->getQrUrl(),
 				],
@@ -67,7 +77,7 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	private function getQrUrl() :string {
-		$sec = $this->getGaSecret();
+		$sec = $this->genTempSecret();
 		return URL::Build( sprintf( 'otpauth://totp/%s', \urlencode( $sec->getIssuer().':'.$sec->getAccountName() ) ), [
 			'secret' => $sec->getSecretKey(),
 			'issuer' => $sec->getIssuer(),
@@ -76,29 +86,47 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	public function removeGA() :StdResponse {
-		$this->setProfileValidated( false )->resetSecret();
+		/** @var MfaDB\Delete $deleter */
+		$deleter = $this->mod()->getDbH_Mfa()->getQueryDeleter();
+		$deleter->filterBySlug( $this::ProviderSlug() )
+				->filterByUserID( $this->getUser()->ID )
+				->query();
 
 		$r = new StdResponse();
 		$r->success = true;
-		$r->msg_text = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
+		$r->msg_text = __( 'Google Authenticator was removed from the account.', 'wp-simple-firewall' );
 		return $r;
 	}
 
 	public function activateGA( string $otp ) :StdResponse {
 		$r = new StdResponse();
-		$r->success = $this->processOtp( $otp );
-		if ( $r->success ) {
-			$this->setProfileValidated( true );
-			$r->msg_text = sprintf(
-				__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
-				__( 'Google Authenticator', 'wp-simple-firewall' )
-			);
+
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		try {
+			if ( $this->hasValidSecret() ) {
+				throw new \Exception( 'A GA profile already exists.' );
+			}
+			$r->success = ( new GoogleAuthenticator() )->authenticate( $meta->ga_temp_secret, $otp )
+						  && $this->createNewSecretRecord( $meta->ga_temp_secret, 'Google Auth' );
+			if ( $r->success ) {
+				$r->msg_text = sprintf(
+					__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
+					__( 'Google Authenticator', 'wp-simple-firewall' )
+				);
+			}
+			else {
+				$r->error_text = sprintf( '%s %s', __( 'Request Failed.', 'wp-simple-firewall' ),
+					__( "OTP couldn't be verified.", 'wp-simple-firewall' ) );
+			}
 		}
-		else {
-			$this->resetSecret();
-			$r->error_text = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
-							 .' '.__( 'Please try again.', 'wp-simple-firewall' );
+		catch ( \Exception|InvalidArgumentException $e ) {
+			$r->success = false;
+			$r->error_text = sprintf( '%s %s', __( 'Failed to register.', 'wp-simple-firewall' ), $e->getMessage() );
 		}
+		finally {
+			unset( $meta->ga_temp_secret );
+		}
+
 		return $r;
 	}
 
@@ -119,33 +147,43 @@ class GoogleAuth extends AbstractShieldProvider {
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		$valid = false;
 		try {
 			$valid = \preg_match( '#^\d{6}$#', $otp )
-					 && ( new GoogleAuthenticator() )->authenticate( $this->getSecret(), $otp );
+					 && ( new GoogleAuthenticator() )->authenticate( $this->getSecret()->unique_id, $otp );
+			if ( $valid ) {
+				( new MfaRecordsHandler() )->update( $this->getSecret(), [
+					'used_at' => Services::Request()->ts()
+				] );
+			}
 		}
 		catch ( \Exception|\Psr\Cache\CacheException $e ) {
+			$valid = false;
 		}
 		return $valid;
 	}
 
 	protected function genNewSecret() :string {
-		return $this->getGaSecret()->getSecretKey();
+		return $this->genTempSecret()->getSecretKey();
 	}
 
-	private function getGaSecret() :Secret {
-		if ( !isset( $this->workingSecret ) ) {
-			$this->workingSecret = ( new SecretFactory() )->create(
+	private function genTempSecret() :Secret {
+		if ( !isset( $this->tempSecret ) ) {
+			$this->tempSecret = ( new SecretFactory() )->create(
 				\preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
 				sanitize_user( $this->getUser()->user_login )
 			);
 		}
-		return $this->workingSecret;
+		return $this->tempSecret;
 	}
 
-	protected function hasValidSecret() :bool {
-		$secret = $this->getSecret();
-		return \is_string( $secret ) && \strlen( $secret ) === 16;
+	public function resetSecret() :string {
+		$temp = $this->genNewSecret();
+		self::con()->user_metas->for( $this->getUser() )->ga_temp_secret = $temp;
+		return $temp;
+	}
+
+	protected function isValidSecret( $secret ) :bool {
+		return parent::isValidSecret( $secret ) && \strlen( $secret->unique_id ) === 16;
 	}
 
 	public function isProviderEnabled() :bool {

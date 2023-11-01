@@ -19,9 +19,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	use WpUserConsumer;
 
 	public function count() :int {
-		/** @var MfaDB\Select $selector */
-		$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
-		return $selector->filterBySlug( Passkey::ProviderSlug() )->count();
+		return \count( $this->getUserSourceRecords() );
 	}
 
 	public function findOneByCredentialId( string $publicKeyCredentialId ) :?PublicKeyCredentialSource {
@@ -45,26 +43,21 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	 * @return MfaDB\Record[]
 	 */
 	public function getUserSourceRecords() :array {
-		/** @var MfaDB\Select $selector */
-		$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
-		/** @var MfaDB\Record[] $record */
-		$records = $selector->filterByUserID( $this->getWpUser()->ID )
-							->filterBySlug( Passkey::ProviderSlug() )
-							->queryWithResult();
-		return \is_array( $records ) ? $records : [];
+		return ( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() );
 	}
 
 	/**
 	 * @return PublicKeyCredentialSource[]
 	 */
 	public function getExcludedSourcesFromAllUsers() :array {
-		/** @var MfaDB\Select $selector */
-		$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
 		/** @var MfaDB\Record[] $record */
-		$records = $selector->filterBySlug( Passkey::ProviderSlug() )
-							->filterByPasswordless()
-							->queryWithResult();
-		return $this->getSourcesFromRecords( \is_array( $records ) ? $records : [] );
+		$records = \array_filter(
+			( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ),
+			function ( MfaDB\Record $record ) {
+				return $record->passwordless;
+			}
+		);
+		return $this->getSourcesFromRecords( $records );
 	}
 
 	/**
@@ -83,7 +76,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			$record->data = $publicKeyCredentialSource->jsonSerialize();
 			$record->passwordless = 1;
 
-			$dbh->getQueryInserter()->insert( $record );
+			( new MfaRecordsHandler() )->insert( $record );
 		}
 		else {
 			$this->updateSource( $publicKeyCredentialSource );
@@ -93,16 +86,15 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	/**
 	 * @throws \Exception
 	 */
-	public function updateSource( PublicKeyCredentialSource $publicKeyCredentialSource, array $meta = [] ) :void {
+	public function updateSource( PublicKeyCredentialSource $publicKeyCredentialSource, array $data = [] ) :void {
 		$record = $this->getRecordFromSource( $publicKeyCredentialSource );
 		if ( empty( $record ) ) {
 			throw new \Exception( 'Source does not exist.' );
 		}
 
-		$record->data = $publicKeyCredentialSource->jsonSerialize();
+		$data[ 'data']= \base64_encode( \wp_json_encode( $publicKeyCredentialSource->jsonSerialize() ) );
 
-		$dbh = $this->mod()->getDbH_Mfa();
-		$dbh->getQueryUpdater()->updateRecord( $record, $meta );
+		( new MfaRecordsHandler() )->update( $record, $data );
 	}
 
 	public function deleteSource( string $encodedID ) :bool {
@@ -123,12 +115,13 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	}
 
 	private function getRecordFromSourceID( string $publicKeyCredentialId ) :?MfaDB\Record {
-		/** @var MfaDB\Select $selector */
-		$selector = $this->mod()->getDbH_Mfa()->getQuerySelector();
-		/** @var ?MfaDB\Record $record */
-		return $selector->filterByUniqueID( $this->normalisedSourceID( $publicKeyCredentialId ) )
-						->filterBySlug( Passkey::ProviderSlug() )
-						->first();
+		$records = \array_filter(
+			( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ),
+			function ( MfaDB\Record $record ) use ( $publicKeyCredentialId ) {
+				return $record->unique_id === $this->normalisedSourceID( $publicKeyCredentialId );
+			}
+		);
+		return empty( $records ) ? null : \reset( $records );
 	}
 
 	private function getSourceFromRecord( MfaDB\Record $record ) :?PublicKeyCredentialSource {

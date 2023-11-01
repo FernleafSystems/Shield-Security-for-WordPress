@@ -3,13 +3,26 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaBackupCodeAdd;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaBackupCodeDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	MfaBackupCodeAdd,
+	MfaBackupCodeDelete
+};
 use FernleafSystems\Wordpress\Services\Services;
 
-class BackupCodes extends AbstractShieldProvider {
+class BackupCodes extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'backupcode';
+
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacySecret = $meta->backupcode_secret;
+		if ( !empty( $legacySecret ) ) {
+			$this->removeFromProfile();
+			$this->createNewSecretRecord( $legacySecret, 'Backup Code' );
+			unset( $meta->backupcode_secret );
+			unset( $meta->backupcode_validated );
+		}
+	}
 
 	public function isProviderStandalone() :bool {
 		return false;
@@ -70,40 +83,39 @@ class BackupCodes extends AbstractShieldProvider {
 		];
 	}
 
-	public function hasValidatedProfile() :bool {
-		$this->setProfileValidated( $this->hasValidSecret() );
-		return parent::hasValidatedProfile();
-	}
-
 	public function postSuccessActions() {
 		parent::postSuccessActions();
-		$this->removeFromProfile();
 		$this->sendBackupCodeUsedEmail();
 		return $this;
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		return (bool)wp_check_password( \str_replace( '-', '', $otp ), $this->getSecret() );
+		$valid = false;
+		foreach ( $this->loadMfaRecords() as $loadMfaRecord ) {
+			if ( wp_check_password( \str_replace( '-', '', $otp ), $loadMfaRecord->unique_id ) ) {
+				$valid = true;
+				$this->mod()
+					 ->getDbH_Mfa()
+					 ->getQueryDeleter()
+					 ->deleteRecord( $loadMfaRecord );
+			}
+		}
+		return $valid;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function genNewSecret() {
-		return (string)wp_generate_password( 25, false );
+	protected function genNewSecret() :string {
+		return wp_generate_password( 25, false );
 	}
 
 	public function isProviderEnabled() :bool {
 		return $this->opts()->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
-	/**
-	 * @param string $secret
-	 * @return $this
-	 */
-	protected function setSecret( $secret ) {
-		parent::setSecret( wp_hash_password( $secret ) );
-		return $this;
+	public function resetSecret() :string {
+		$this->removeFromProfile();
+		$temp = $this->genNewSecret();
+		$this->createNewSecretRecord( wp_hash_password( $temp ), 'Backup Code' );
+		return $temp;
 	}
 
 	private function sendBackupCodeUsedEmail() {

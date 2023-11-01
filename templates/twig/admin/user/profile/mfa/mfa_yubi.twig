@@ -1,8 +1,3 @@
-<style>
-	#icwp_wpsf_yubi_otp {
-		width: 350px
-	}
-</style>
 <tr>
 	<th>
 		<label for="{{ vars.otp_field_name }}" class="form-label">{{ strings.title }}</label>
@@ -12,15 +7,20 @@
 			{% if flags.show_explanatory_text %}
 				<p>{{ strings.registered_yubi_ids }}</p>
 			{% endif %}
+
 			<ul style=" list-style: circle inside; ">
-				{% for yubi_id in vars.yubi_ids %}
-					<li>
-						<code>{{ yubi_id }}</code>
+				{% for reg in vars.yubikeys %}
+					<li style="margin: 10px 0 0;">
+						<code>{{ reg.id }}</code>
 						<a href="#"
 						   class="shield_remove_yubi"
 						   style="text-decoration: none;"
 						   title="Remove"
-						   data-yubikeyid="{{ yubi_id }}">&#10006;</a>
+						   data-yubikeyid="{{ reg.id }}">&#10006;</a>
+						<ul style="list-style: none; margin-left: 20px; margin-top: 0;">
+							<li style="margin: 0;">{{ reg.used_at }}</li>
+							<li>{{ reg.reg_at }}</li>
+						</ul>
 					</li>
 				{% endfor %}
 			</ul>
@@ -33,7 +33,7 @@
 		{% if flags.show_explanatory_text %}
 			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>
 		{% endif %}
-		<input class="regular-text"
+		<input class="regular-text shield_yubi_otp"
 			   type="text"
 			   id="{{ vars.otp_field_name }}"
 			   name="{{ vars.otp_field_name }}"

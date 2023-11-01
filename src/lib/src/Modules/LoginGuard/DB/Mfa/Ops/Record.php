@@ -22,6 +22,11 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 					$value = [];
 				}
 				break;
+			case 'label':
+			case 'unique_id':
+			case 'slug':
+				$value = (string)$value;
+				break;
 			default:
 				break;
 		}

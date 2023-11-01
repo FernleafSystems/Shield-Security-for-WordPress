@@ -59,11 +59,11 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	/**
-	 * @param string|array $secret
+	 * @param string|array $records
 	 * @return $this
 	 */
-	protected function setSecret( $secret ) {
-		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
+	protected function setSecret( $records ) {
+		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $records;
 		return $this;
 	}
 

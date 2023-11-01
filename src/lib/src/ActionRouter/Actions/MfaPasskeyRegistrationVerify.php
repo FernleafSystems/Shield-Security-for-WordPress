@@ -26,7 +26,7 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 			];
 		}
 		else {
-			$result = $provider->verifyNewRegistration( $wanAuth, $this->action_data[ 'label' ] ?? '' );
+			$result = $provider->verifyRegistrationResponse( $wanAuth, $this->action_data[ 'label' ] ?? '' );
 			$response = [
 				'success'     => $result->success,
 				'message'     => $result->success ? $result->msg_text : $result->error_text,

@@ -519,10 +519,7 @@
         "unique_id": {
           "macro_type": "varchar",
           "length":     256,
-          "comment":    "Unique Identifier",
-          "attr":       [
-            "UNIQUE"
-          ]
+          "comment":    "Unique Identifier"
         },
         "label":     {
           "macro_type": "varchar",

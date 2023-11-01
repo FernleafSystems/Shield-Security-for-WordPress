@@ -23,7 +23,7 @@ class MfaController {
 	public const LOGIN_INTENT_PAGE_FORMAT_WP = 'wp_login';
 
 	/**
-	 * @var Provider\Provider2faInterface[]
+	 * @var Provider\AbstractProvider[][]
 	 */
 	private $providers;
 
@@ -136,7 +136,7 @@ class MfaController {
 		$active = $this->getProvidersActiveForUser( Services::WpUsers()->getUserById( $userID ) );
 		return [
 			'ajax' => [
-				'passkey_auth_start'  => ActionData::Build( MfaPasskeyAuthenticationStart::class, true, [
+				'passkey_auth_start' => ActionData::Build( MfaPasskeyAuthenticationStart::class, true, [
 					'active_wp_user' => $userID,
 				] ),
 			],
@@ -147,20 +147,7 @@ class MfaController {
 	}
 
 	/**
-	 * @return Provider\Provider2faInterface[]
-	 */
-	public function getProviders() :array {
-		if ( !\is_array( $this->providers ) ) {
-			$this->providers = [];
-			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
-				$this->providers[ $providerClass::ProviderSlug() ] = new $providerClass();
-			}
-		}
-		return $this->providers;
-	}
-
-	/**
-	 * @return Provider\Provider2faInterface[]
+	 * @return Provider\AbstractProvider[]
 	 */
 	private function collateMfaProviderClasses() :array {
 		$shieldProviders = [
@@ -179,11 +166,14 @@ class MfaController {
 			$finalProviders = $shieldProviders;
 		}
 
-		$finalValid = \array_filter( $finalProviders, function ( string $providerClass ) {
-			/** @var Provider\Provider2faInterface $providerClass - not really, but helps with intelli */
-			return isset( \class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
-				   && \preg_match( '#^[a-z0-9]+$#', $providerClass::ProviderSlug() );
-		} );
+		$finalValid = \array_filter(
+			$finalProviders,
+			function ( string $providerClass ) {
+				/** @var Provider\Provider2faInterface $providerClass - not really, but helps with intelli */
+				return isset( \class_implements( $providerClass )[ Provider\Provider2faInterface::class ] )
+					   && \preg_match( '#^[a-z0-9]+$#', $providerClass::ProviderSlug() );
+			}
+		);
 
 		// Filter out any duplicate slugs.
 		$duplicateSlugs = \array_filter(
@@ -216,10 +206,20 @@ class MfaController {
 	 * @return Provider\Provider2faInterface[]
 	 */
 	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
+
+		if ( !\is_array( $this->providers ) ) {
+			$this->providers = [];
+		}
+		if ( !isset( $this->providers[ $user->ID ] ) ) {
+			$this->providers[ $user->ID ] = [];
+			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
+				$this->providers[ $user->ID ][ $providerClass::ProviderSlug() ] = new $providerClass( $user );
+			}
+		}
+
 		$Ps = \array_filter(
-			$this->getProviders(),
-			function ( $provider ) use ( $user, $onlyActive ) {
-				$provider->setUser( $user );
+			$this->providers[ $user->ID ],
+			function ( $provider ) use ( $onlyActive ) {
 				return $provider->isProviderAvailableToUser() && ( !$onlyActive || $provider->isProfileActive() );
 			}
 		);
@@ -314,5 +314,19 @@ class MfaController {
 			] );
 		}
 		return $valid;
+	}
+
+	/**
+	 * @return Provider\Provider2faInterface[]
+	 * @deprecated 18.5
+	 */
+	public function getProviders() :array {
+		if ( !\is_array( $this->providers ) ) {
+			$this->providers = [];
+			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
+				$this->providers[ $providerClass::ProviderSlug() ] = new $providerClass();
+			}
+		}
+		return $this->providers;
 	}
 }

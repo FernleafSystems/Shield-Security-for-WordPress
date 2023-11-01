@@ -7,15 +7,35 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\InvalidYubikeyAppConfiguration;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
-class Yubikey extends AbstractShieldProvider {
+class Yubikey extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'yubi';
 	public const OTP_LENGTH = 12;
 	public const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
+
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacySecret = $meta->yubi_secret;
+		if ( !empty( $legacySecret ) ) {
+
+			$ids = \array_filter( \array_map( '\trim', \explode( ',', $legacySecret ) ) );
+			if ( !self::con()->caps->hasCap( '2fa_multi_yubikey' ) ) {
+				$ids = \array_slice( $ids, 0, 1 );
+			}
+			foreach ( $ids as $id ) {
+				$this->createNewSecretRecord( $id, 'Yubikey' );
+			}
+			unset( $meta->yubi_secret );
+			unset( $meta->yubi_validated );
+		}
+	}
 
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
@@ -33,7 +53,7 @@ class Yubikey extends AbstractShieldProvider {
 			parent::getUserProfileFormRenderData(),
 			[
 				'vars'    => [
-					'yubi_ids' => $this->getYubiIds(),
+					'yubikeys' => ( new MfaRecordsForDisplay() )->run( $this->loadMfaRecords() ),
 				],
 				'strings' => [
 					'registered_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
@@ -59,21 +79,24 @@ class Yubikey extends AbstractShieldProvider {
 	}
 
 	private function getYubiIds() :array {
-		$ids = \array_filter( \array_map( '\trim', \explode( ',', $this->getSecret() ) ) );
-		return self::con()->caps->hasCap( '2fa_multi_yubikey' ) ? $ids : \array_slice( $ids, 0, 1 );
-	}
-
-	public function isProfileActive() :bool {
-		return \count( $this->getYubiIds() ) > 0;
+		return \array_map(
+			function ( Record $record ) {
+				return $record->unique_id;
+			},
+			$this->loadMfaRecords()
+		);
 	}
 
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
 
-		foreach ( $this->getYubiIds() as $key ) {
+		foreach ( $this->loadMfaRecords() as $record ) {
 			try {
-				if ( \strpos( $otp, $key ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
+				if ( \strpos( $otp, $record->unique_id ) === 0 && $this->sendYubiOtpRequest( $otp ) ) {
 					$valid = true;
+					( new MfaRecordsHandler() )->update( $record, [
+						'used_at' => Services::Request()->ts()
+					] );
 					break;
 				}
 			}
@@ -124,6 +147,8 @@ class Yubikey extends AbstractShieldProvider {
 		$response = new StdResponse();
 		$response->success = true;
 
+		$keyOrOTP = \trim( $keyOrOTP );
+
 		if ( empty( $keyOrOTP ) ) {
 			$response->success = false;
 			$response->error_text = 'One-Time Password was empty';
@@ -134,20 +159,33 @@ class Yubikey extends AbstractShieldProvider {
 		}
 		else {
 			$keyID = \substr( $keyOrOTP, 0, self::OTP_LENGTH );
-			$IDs = $this->getYubiIds();
 
-			if ( \in_array( $keyID, $IDs ) ) {
-				$IDs = Services::DataManipulation()->removeFromArrayByValue( $IDs, $keyID );
+			$deleted = false;
+			foreach ( $this->loadMfaRecords() as $record ) {
+				if ( $keyID === $record->unique_id ) {
+					$this->mod()
+						 ->getDbH_Mfa()
+						 ->getQueryDeleter()
+						 ->deleteRecord( $record );
+					$deleted = true;
+					break;
+				}
+			}
+
+			if ( $deleted ) {
 				$response->msg_text = sprintf(
 					__( '%s was removed from your profile.', 'wp-simple-firewall' ),
 					__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
 				);
 			}
-			// If we're going to add the device, we test it
 			else {
 				try {
+					if ( !self::con()->caps->hasCap( '2fa_multi_yubikey' ) && $this->hasValidatedProfile() ) {
+						throw new \Exception( 'Upgrade to add multiple Yubikeys to your profile.' );
+					}
+
 					if ( $this->sendYubiOtpRequest( $keyOrOTP ) ) {
-						$IDs[] = $keyID;
+						$this->createNewSecretRecord( $keyID, 'Yubikey' );
 						$response->msg_text = sprintf(
 							__( '%s was added to your profile.', 'wp-simple-firewall' ),
 							__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )
@@ -168,10 +206,10 @@ class Yubikey extends AbstractShieldProvider {
 						__( 'Your Yubikey APP configuration may be invalid', 'wp-simple-firewall' )
 					);
 				}
-			}
-
-			if ( $response->success ) {
-				$this->setSecret( \implode( ',', \array_unique( \array_filter( $IDs ) ) ) );
+				catch ( \Exception $e ) {
+					$response->success = false;
+					$response->error_text = $e->getMessage();
+				}
 			}
 		}
 
@@ -193,16 +231,6 @@ class Yubikey extends AbstractShieldProvider {
 
 	public function isProviderEnabled() :bool {
 		return $this->opts()->isEnabledYubikey();
-	}
-
-	protected function hasValidSecret() :bool {
-		$secret = $this->getSecret();
-		return \count( \array_filter(
-				\explode( ',', \is_string( $secret ) ? $secret : '' ),
-				function ( $yubiID ) {
-					return (bool)\preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $yubiID );
-				}
-			) ) > 0;
 	}
 
 	public function getProviderName() :string {

@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MfaPasskeyRegistrationStart
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use FernleafSystems\Wordpress\Services\Services;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -89,7 +90,7 @@ class Passkey extends AbstractShieldProvider {
 				'help_link'         => '',
 				'description'       => 'Passkey, Windows Hello, FIDO2, Yubikey, Titan',
 				'datas'             => [
-					'auth_challenge' => \base64_encode( \json_encode( $this->startNewAuthRequest() ) ),
+					'auth_challenge' => \base64_encode( \json_encode( $this->startNewAuth() ) ),
 				]
 			];
 		}
@@ -103,67 +104,9 @@ class Passkey extends AbstractShieldProvider {
 	/**
 	 * @throws \Exception
 	 */
-	public function startNewRegistrationRequest() :array {
-		$newReg = $this->generateNewCredentialsCreation()->jsonSerialize();
-		$WAN = $this->getPasskeysData();
-		$WAN[ 'reg_start' ] = $newReg;
-		$this->setPasskeysData( $WAN );
-		return $newReg;
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	public function startNewAuthRequest() :array {
-		$authChallenge = $this->generateNewAuthChallenge()->jsonSerialize();
-		$WAN = $this->getPasskeysData();
-		$WAN[ 'auth_challenge' ] = $authChallenge;
-		$this->setPasskeysData( $WAN );
-		return $authChallenge;
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function generateNewAuthChallenge() :PublicKeyCredentialRequestOptions {
-
-		$wanServer = new Server(
-			new PublicKeyCredentialRpEntity(
-				sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
-				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
-				null //Icon
-			),
-			$this->getSourceRepo(),
-			null
-		);
-
-		$publicKeyCredentialRequestOptions = $wanServer->generatePublicKeyCredentialRequestOptions(
-			AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED,
-			\array_map( function ( PublicKeyCredentialSource $credential ) {
-				return $credential->getPublicKeyCredentialDescriptor();
-			}, $this->getSourceRepo()->findAllForUserEntity( $this->getUserEntity() ) )
-		);
-
-		return $publicKeyCredentialRequestOptions->setTimeout( 60000 );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function generateNewCredentialsCreation() :PublicKeyCredentialCreationOptions {
-
-		$wanServer = new Server(
-			new PublicKeyCredentialRpEntity(
-				sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
-				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
-				null //Icon
-			),
-			$this->getSourceRepo(),
-			null
-		);
-
-		// Create a creation challenge
-		$publicKeyCredentialCreationOptions = $wanServer->generatePublicKeyCredentialCreationOptions(
+	public function startNewRegistration() :array {
+		// New registration challenge
+		$publicKeyCredentialCreationOptions = $this->getPasskeyServer()->generatePublicKeyCredentialCreationOptions(
 			$this->getUserEntity(),
 			PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
 			\array_map( function ( PublicKeyCredentialSource $credential ) {
@@ -172,60 +115,36 @@ class Passkey extends AbstractShieldProvider {
 			new AuthenticatorSelectionCriteria(
 				AuthenticatorSelectionCriteria::AUTHENTICATOR_ATTACHMENT_NO_PREFERENCE,
 				false,
-				AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_DISCOURAGED
+				AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED
 			)
 		);
-		return $publicKeyCredentialCreationOptions->setTimeout( 60000 );
+		$publicKeyCredentialCreationOptions->setTimeout( 60000 );
+
+		$WAN = $this->getPasskeysData();
+		$WAN[ 'reg_start' ] = $publicKeyCredentialCreationOptions->jsonSerialize();
+		$this->setPasskeysData( $WAN );
+
+		return $WAN[ 'reg_start' ];
 	}
 
 	/**
-	 * @return \stdClass[]
+	 * @throws \Exception
 	 */
-	private function getPasskeysForDisplay() :array {
-		$records = $this->getSourceRepo()->getUserSourceRecords();
-
-		/**
-		 * Order by most recently used first, then most recently registered.
-		 */
-		\usort( $records, function ( Record $a, Record $b ) {
-			$atA = $a->used_at;
-			$atB = $b->used_at;
-			if ( $atA === $atB ) {
-				$atA = $a->created_at;
-				$atB = $b->created_at;
-				$ret = $atA == $atB ? 0 : ( $atA > $atB ? -1 : 1 );
-			}
-			else {
-				$ret = $atA > $atB ? -1 : 1;
-			}
-			return $ret;
-		} );
-
-		return \array_map(
-			function ( Record $record ) {
-				return [
-					'id'      => $record->unique_id,
-					'label'   => $record->label,
-					'used_at' => sprintf(
-						'%s: %s', __( 'Used', 'wp-simple-firewall' ),
-						$record->used_at === 0 ? __( 'Never' ) :
-							Services::Request()
-									->carbon( true )
-									->setTimestamp( $record->used_at )
-									->diffForHumans()
-					),
-					'reg_at'  => sprintf(
-						'%s: %s', __( 'Registered', 'wp-simple-firewall' ),
-						$record->created_at === 0 ? __( 'Unknown' ) :
-							Services::Request()
-									->carbon( true )
-									->setTimestamp( $record->created_at )
-									->diffForHumans()
-					)
-				];
-			},
-			$records
+	public function startNewAuth() :array {
+		// New auth challenge
+		$publicKeyCredentialRequestOptions = $this->getPasskeyServer()->generatePublicKeyCredentialRequestOptions(
+			AuthenticatorSelectionCriteria::USER_VERIFICATION_REQUIREMENT_PREFERRED,
+			\array_map( function ( PublicKeyCredentialSource $credential ) {
+				return $credential->getPublicKeyCredentialDescriptor();
+			}, $this->getSourceRepo()->findAllForUserEntity( $this->getUserEntity() ) )
 		);
+		$publicKeyCredentialRequestOptions->setTimeout( 60000 );
+
+		$WAN = $this->getPasskeysData();
+		$WAN[ 'auth_challenge' ] = $publicKeyCredentialRequestOptions->jsonSerialize();
+		$this->setPasskeysData( $WAN );
+
+		return $WAN[ 'auth_challenge' ];
 	}
 
 	protected function getUserProfileFormRenderData() :array {
@@ -242,7 +161,7 @@ class Passkey extends AbstractShieldProvider {
 					'is_validated' => $this->hasValidatedProfile(),
 				],
 				'vars'    => [
-					'passkeys' => $this->getPasskeysForDisplay(),
+					'passkeys' => ( new MfaRecordsForDisplay() )->run( $this->getSourceRepo()->getUserSourceRecords() ),
 				],
 			]
 		);
@@ -252,16 +171,6 @@ class Passkey extends AbstractShieldProvider {
 		$response = new StdResponse();
 
 		try {
-			$wanServer = new Server(
-				new PublicKeyCredentialRpEntity(
-					sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
-					\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
-					null //Icon
-				),
-				$this->getSourceRepo(),
-				null
-			);
-
 			$psr17Factory = new Psr17Factory();
 			$creator = new ServerRequestCreator(
 				$psr17Factory, // ServerRequestFactory
@@ -270,7 +179,7 @@ class Passkey extends AbstractShieldProvider {
 				$psr17Factory  // StreamFactory
 			);
 
-			$publicKeyCredentialSource = $wanServer->loadAndCheckAssertionResponse(
+			$publicKeyCredentialSource = $this->getPasskeyServer()->loadAndCheckAssertionResponse(
 				$rawJsonEncodedWanResponse,
 				PublicKeyCredentialRequestOptions::createFromArray( $this->getPasskeysData()[ 'auth_challenge' ] ),
 				$this->getUserEntity(),
@@ -293,7 +202,7 @@ class Passkey extends AbstractShieldProvider {
 		return $response;
 	}
 
-	public function verifyNewRegistration( string $rawJsonEncodedWanResponse, string $label = '' ) :StdResponse {
+	public function verifyRegistrationResponse( string $rawJsonEncodedWanResponse, string $label = '' ) :StdResponse {
 		$response = new StdResponse();
 
 		$attestationStatementSupportManager = new AttestationStatementSupportManager();
@@ -303,8 +212,9 @@ class Passkey extends AbstractShieldProvider {
 		);
 
 		try {
-			$publicKeyCredential = $publicKeyCredentialLoader->load( $rawJsonEncodedWanResponse );
-			$authenticatorAttestationResponse = $publicKeyCredential->getResponse();
+			$authenticatorAttestationResponse = $publicKeyCredentialLoader
+				->load( $rawJsonEncodedWanResponse )
+				->getResponse();
 			if ( !$authenticatorAttestationResponse instanceof AuthenticatorAttestationResponse ) {
 				throw new \Exception( 'invalid AuthenticatorAttestationResponse response' );
 			}
@@ -375,6 +285,18 @@ class Passkey extends AbstractShieldProvider {
 	private function getPasskeysData() :array {
 		$meta = $this->con()->user_metas->for( $this->getUser() );
 		return \is_array( $meta->passkeys ) ? $meta->passkeys : ( $meta->passkeys = [] );
+	}
+
+	private function getPasskeyServer() :Server {
+		return new Server(
+			new PublicKeyCredentialRpEntity(
+				sprintf( 'Shield Security on %s', Services::WpGeneral()->getSiteName() ), //Name
+				\parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST ), //ID
+				null //Icon
+			),
+			$this->getSourceRepo(),
+			null
+		);
 	}
 
 	private function getUserEntity() :PublicKeyCredentialUserEntity {
