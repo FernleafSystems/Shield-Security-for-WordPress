@@ -47,6 +47,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	}
 
 	protected function getUserProfileFormRenderData() :array {
+		$record = \current( $this->loadMfaRecords() );
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[
@@ -66,7 +67,13 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), self::con()
 																										  ->getHumanName() ),
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
-					'remove_google_auth'    => __( 'Remove Google Authenticator', 'wp-simple-firewall' )
+					'remove_google_auth' => __( 'Remove Google Authenticator', 'wp-simple-firewall' ),
+					'generated_at'       => sprintf( '%s: %s', __( 'Registered', 'wp-simple-firewall' ),
+						empty( $record ) ? '' : Services::Request()
+														->carbon()
+														->setTimestamp( $record->created_at )
+														->diffForHumans()
+					),
 				],
 				'vars'    => [
 					'secret' => $this->isProfileActive() ? '' : $this->resetSecret(),

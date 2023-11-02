@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { Tab } from 'bootstrap';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
@@ -7,25 +6,41 @@ import { ObjectOps } from "./ObjectOps";
 export class Navigation extends BaseService {
 
 	init() {
-		$( document ).on( 'click', 'a.dynamic_body_load', ( evt ) => {
-			evt.preventDefault();
-			this.currentMenuLoadItem = evt.currentTarget;
-			this.renderDynamicPageLoad( $( this.currentMenuLoadItem ).data( 'dynamic_page_load' ) );
-			return false;
-		} );
+		this.navSideBar = document.getElementById( 'NavSideBar' ) || false;
+		this.exec();
+	}
 
-		let activePageLink = $( '#NavSideBar a.active.body_content_link.dynamic_body_load' );
-		if ( activePageLink.length === 1 ) {
-			this.currentMenuLoadItem = activePageLink[ 0 ];
-			this.renderDynamicPageLoad( $( activePageLink ).data( 'dynamic_page_load' ) );
+	canRun() {
+		return this.navSideBar;
+	}
+
+	run() {
+		this.navSideBar.addEventListener( 'click', ( evt ) => {
+			const el = evt.target;
+			if ( el.nodeName === 'A' && 'classList' in el && el.classList.contains( 'dynamic_body_load' ) ) {
+				evt.preventDefault();
+				this.activeMenuItem = el;
+				this.renderFromActiveMenuItem();
+				return false;
+			}
+		}, false );
+
+		let activePageLink = document.querySelector( '#NavSideBar a.active.body_content_link.dynamic_body_load' );
+		if ( activePageLink ) {
+			this.activeMenuItem = activePageLink;
+			this.renderFromActiveMenuItem();
 		}
+	}
+
+	renderFromActiveMenuItem() {
+		this.renderDynamicPageLoad( JSON.parse( this.activeMenuItem.dataset[ 'dynamic_page_load' ] ) );
 	}
 
 	renderDynamicPageLoad( params ) {
 		let placeholder = document.getElementById( 'ShieldLoadingPlaceholder' ).cloneNode( true );
 		placeholder.id = '';
 		placeholder.classList.remove( 'd-none' );
-		document.querySelector( '#apto-PageMainBody-Inner' ).innerHTML = placeholder.innerHTML;
+		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = placeholder.innerHTML;
 
 		let req = ObjectOps.ObjClone( this._base_data.ajax.dynamic_load );
 		req.dynamic_load_params = params;
@@ -37,7 +52,7 @@ export class Navigation extends BaseService {
 	};
 
 	handleDynamicLoad( response ) {
-		document.querySelector( '#apto-PageMainBody-Inner' ).innerHTML = response.data.html;
+		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = response.data.html;
 
 		let urlHash = window.location.hash ? window.location.hash : '';
 		// Using links to specific config sections, we extract the section and trigger the tab show()
@@ -47,7 +62,8 @@ export class Navigation extends BaseService {
 				( new Tab( theTabToShow ) ).show();
 			}
 		}
-		$( 'html,body' ).scrollTop( 0 );
+
+		window.scroll( { top: 0, left: 0, behavior: 'smooth' } );
 
 		/**
 		 *  we then update the window URL (only after triggering tabs)
@@ -69,9 +85,9 @@ export class Navigation extends BaseService {
 		for ( let i = 0; i < activeLinks.length; i++ ) {
 			activeLinks[ i ].classList.remove( 'active' );
 		}
-		this.currentMenuLoadItem.classList.add( 'active' );
+		this.activeMenuItem.classList.add( 'active' );
 
-		let parentNav = this.currentMenuLoadItem.closest( 'ul' ).closest( 'li.nav-item' );
+		let parentNav = this.activeMenuItem.closest( 'ul' ).closest( 'li.nav-item' );
 		if ( parentNav !== null ) {
 			parentNav.querySelector( 'li.nav-item > a.nav-link' ).classList.add( 'active' );
 		}

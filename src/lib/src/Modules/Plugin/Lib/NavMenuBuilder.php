@@ -164,20 +164,19 @@ class NavMenuBuilder {
 		];
 
 		$subItems = [];
-		foreach ( $con->modules as $module ) {
-			$cfg = $module->cfg;
+		foreach ( $con->modules as $mod ) {
+			$cfg = $mod->cfg;
 			if ( $cfg->properties[ 'show_module_options' ] ) {
 				$subItems[ $cfg->slug ] = [
 					'mod_slug'      => $cfg->slug,
 					'slug'          => PluginNavs::NAV_OPTIONS_CONFIG.'-'.$cfg->slug,
 					'title'         => __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ),
-					'tooltip'       => $module->isModOptEnabled() ?
+					'tooltip'       => $mod->isModOptEnabled() ?
 						sprintf( 'Configure options for %s', __( $cfg->properties[ 'sidebar_name' ], 'wp-simple-firewall' ) )
 						: sprintf( '%s: %s', __( 'Warning' ), __( 'Module is completely disabled' ) ),
-					'href'          => $con->plugin_urls->modCfg( $module ),
-					// 'href'          => $this->getOffCanvasJavascriptLinkForModule( $module ),
+					'href'          => $con->plugin_urls->modCfg( $mod ),
 					'classes'       => \array_filter( \array_merge( $baseClasses, [
-						$module->isModOptEnabled() ? '' : 'text-danger'
+						$mod->isModOptEnabled() ? '' : 'text-danger'
 					] ) ),
 					'data'          => [
 						'dynamic_page_load' => \json_encode( [

@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Data,
 	HackGuard,
 	IPs,
+	LoginGuard,
 	Plugin,
 	Traffic
 };
@@ -24,6 +25,7 @@ class CleanDatabases {
 		$this->cleanIpRules();
 		$this->cleanBotSignals();
 		$this->cleanUserMeta();
+		$this->cleanOldEmail2FA();
 		$this->cleanStaleReports();
 		$this->cleanStaleScans();
 		$this->purgeUnreferencedIPs();
@@ -84,10 +86,22 @@ class CleanDatabases {
 	private function cleanUserMeta() {
 		Services::WpDb()->doSql( sprintf(
 			'DELETE `meta` FROM `%s` as `meta`
-				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id` WHERE `users`.`ID` IS NULL',
+				LEFT JOIN `%s` as `users` on `users`.`ID`=`meta`.`user_id`
+				WHERE `users`.`ID` IS NULL;',
 			self::con()->getModule_Data()->getDbH_UserMeta()->getTableSchema()->table,
 			Services::WpDb()->getTable_Users()
 		) );
+	}
+
+	private function cleanOldEmail2FA() {
+		/** @var LoginGuard\DB\Mfa\Ops\Delete $deleter */
+		$deleter = self::con()
+					   ->getModule_LoginGuard()
+					   ->getDbH_Mfa()
+					   ->getQueryDeleter();
+		$deleter->filterBySlug( LoginGuard\Lib\TwoFactor\Provider\Email::ProviderSlug() )
+				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 10 )->timestamp )
+				->query();
 	}
 
 	public function purgeUnreferencedIPs() :void {

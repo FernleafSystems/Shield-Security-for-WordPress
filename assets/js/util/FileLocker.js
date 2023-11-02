@@ -14,39 +14,42 @@ export class FileLocker extends BaseService {
 		let $selected = $( evt.currentTarget ).find( ":selected" );
 		if ( $selected.val() !== '-' ) {
 
-			const data = ObjectOps.ObjClone( this._base_data.ajax.render_diff );
-			data[ 'rid' ] = $selected.val();
+			const params = ObjectOps.ObjClone( this._base_data.ajax.render_diff );
+			params.rid = $selected.val();
 
 			( new AjaxService() )
-			.send( data )
+			.send( params )
 			.then( ( resp ) => {
 				if ( resp.success ) {
-					$( '#FileLockerDiffContents' ).html( resp.data.html );
+					document.getElementById( 'FileLockerDiffContents' ).innerHTML = resp.data.html;
 				}
 				else {
 					alert( resp.data.error );
 				}
 			} )
-			.finally();
-			$( 'option[value="-"]', $selected ).prop( 'selected', true );
+			.finally( () => {
+				$( 'option[value="-"]', $selected ).prop( 'selected', true );
+			} );
 		}
 	};
 
 	#fileAction( evt ) {
 		evt.preventDefault();
 
-		let $form = $( evt.currentTarget );
+		const form = evt.currentTarget;
+		const buttonSubmit = form.querySelector( 'input[type=submit]' );
+		if ( buttonSubmit ) {
+			buttonSubmit.setAttribute( 'disabled', 'disabled' );
 
-		let ajax_vars = ObjectOps.ObjClone( this._base_data.ajax.file_action );
-		let $button = $( 'input[type=submit]', $form );
-		$button.attr( 'disabled', 'disabled' )
-		ajax_vars.confirmed = $( 'input[type=checkbox]', $form ).is( ':checked' ) ? 1 : 0;
-		ajax_vars.rid = $button.data( 'rid' );
-		ajax_vars.file_action = $button.data( 'action' );
+			const params = ObjectOps.ObjClone( this._base_data.ajax.file_action );
+			params.confirmed = form.querySelector( 'input[type=checkbox]' ).checked ? 1 : 0;
+			params.rid = buttonSubmit.dataset[ 'rid' ];
+			params.file_action = buttonSubmit.dataset[ 'action' ];
 
-		( new AjaxService() )
-		.send( ajax_vars )
-		.finally( () => $button.removeAttr( 'disabled' ) );
+			( new AjaxService() )
+			.send( params )
+			.finally( () => buttonSubmit.removeAttribute( 'disabled' ) );
+		}
 
 		return false;
 	}

@@ -267,37 +267,33 @@ div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
   border: 1px solid transparent;
 }
 
-/** INSIGHTS **/
 /* TABLES */
-#odp-PageContainer .card {
+#PageContainer-Shield .card {
   box-shadow: none;
   margin-top: 0;
   max-width: none;
   padding: 0;
 }
 
-#odp-PageHead {
-}
-
-.page-insights #odp-PageHead {
+.page-insights #PageHead-Shield {
   top: 40px;
   z-index: 3;
 }
 
-#odp-PageHead .navbar {
+#PageHead-Shield .navbar {
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-#odp-PageHead .nav-link {
+#PageHead-Shield .nav-link {
   color: #343434;
 }
 
-#odp-PageHead .nav-link.active {
+#PageHead-Shield .nav-link.active {
   font-weight: bold;
   color: #008000;
 }
 
-#odp-PageMain {
+#PageMain-Shield {
   font-size: 13px;
 }
 
@@ -329,7 +325,7 @@ div.dtsp-topRow.dtsp-bordered.dtsp-bordered:hover {
   padding: 0.5rem;
 }
 
-#odp-PageMain .card.config {
+#PageMain-Shield .card.config {
   margin-top: 20px;
 }
 
@@ -754,7 +750,7 @@ dl.pro-features dd {
   padding: 1.25rem;
 }
 
-#odp-PageContainer .overview.card {
+#PageContainer-Shield .overview.card {
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -997,26 +993,23 @@ body.folded #FooterBannerGoPro {
   font-weight: normal;
 }
 
-#odp-PageHead {
-}
-
 .odp-outercontainer {
   background-color: #f1f1f1;
 }
 
-#apto-PageMainSide {
+#PageMainSide-Shield {
   background-color: transparent;
   border: 0 none;
   min-width: 200px;
   width: 200px;
 }
 
-#apto-PageMainSide .nav-link.disabled {
+#PageMainSide-Shield .nav-link.disabled {
   opacity: 0.4 !important;
   color: #b7b7b7 !important;
 }
 
-#apto-PageMainBody-Inner {
+#PageMainBody_Inner-Shield {
   background-color: rgba(251, 251, 251, 1);
   padding: 14px 20px 20px;
   min-height: 800px;
@@ -1024,9 +1017,9 @@ body.folded #FooterBannerGoPro {
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
 }
 
-#apto-PageMainBody-Inner p,
-#apto-PageMainBody-Inner li,
-#apto-PageMainBody-Inner label {
+#PageMainBody_Inner-Shield p,
+#PageMainBody_Inner-Shield li,
+#PageMainBody_Inner-Shield label {
   font-size: 14px;
 }
 

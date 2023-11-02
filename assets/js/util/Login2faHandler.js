@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { BaseService } from "./BaseService";
 import { Login2faEmail } from "./Login2faEmail";
 import { Login2faGoogleAuth } from "./Login2faGoogleAuth";
@@ -8,7 +7,10 @@ export class Login2faHandler extends BaseService {
 
 	init() {
 		this.timeRemainingP = document.getElementById( 'TimeRemaining' ) || false;
-		$( 'form#loginform input[type=text]:first' ).focus();
+		const firstInput = document.querySelector( 'form#loginform input[type=text]' );
+		if ( firstInput ) {
+			firstInput.focus();
+		}
 		this.exec();
 	}
 

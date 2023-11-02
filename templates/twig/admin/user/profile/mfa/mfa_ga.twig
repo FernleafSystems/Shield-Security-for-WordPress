@@ -1,5 +1,4 @@
 {% if flags.is_profile_active %}
-
 	<tr>
 		<th>
 			<label for="shield_turn_off_ga" class="form-label">{{ strings.label_check_to_remove }}</label>
@@ -8,14 +7,13 @@
 			<button type="button" class="button shield_ga_remove"
 			        name="shield_turn_off_ga"
 			>{{ strings.remove_google_auth }}</button>
+			<p style="margin-bottom: 0;">{{ strings.generated_at }}</p>
 			{% if flags.show_explanatory_text %}
 				<p class="description">{{ strings.desc_remove }}</p>
 			{% endif %}
 		</td>
 	</tr>
-
 {% else %}
-
 	<tr>
 		<th><label for="ShieldGaCode" class="form-label">{{ strings.title }}</label></th>
 		<td style="text-align: center;">
@@ -40,5 +38,4 @@
 			{% endif %}
 		</td>
 	</tr>
-
 {% endif %}

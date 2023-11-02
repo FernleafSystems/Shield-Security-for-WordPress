@@ -1,7 +1,7 @@
 {
   "18.5": {
     "version":     "18.5",
-    "released_at": 1698330000,
+    "released_at": 1698934000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease185",
       "upgrade": "https://shsec.io/shieldupgradeguide185"
@@ -16,6 +16,15 @@
         "title":       "Passkey/WebAuthn/FIDO2 Support",
         "description": [
           "Seamless WordPress Two-Factor Authentication with support for all FIDO2-compliant devices and Passkeys."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Email 2FA Auto-Login",
+        "description": [
+          "Email 2FA option to provide automatic login links alongside 2FA codes."
         ],
         "href":        ""
       },

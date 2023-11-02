@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { BaseService } from "./BaseService";
 import { AjaxService } from "./AjaxService";
 import { ObjectOps } from "./ObjectOps";
@@ -9,23 +8,27 @@ export class IpAnalyse extends BaseService {
 	init() {
 		this.runAnalysisOnLoad();
 
-		$( document ).on( 'click', '.offcanvas_ip_analysis', ( evt ) => {
-			evt.preventDefault();
-			this.render( $( evt.currentTarget ).data( 'ip' ) );
-			return false;
-		} );
+		shieldServices.container_ShieldPage().addEventListener( 'click', ( evt ) => {
+			const t = evt.target;
+			if ( 'classList' in t ) {
 
-		$( document ).on( 'click', 'a.ip_analyse_action', ( evt ) => {
-			evt.preventDefault();
-			if ( confirm( 'Are you sure?' ) ) {
-				let $thisHref = $( evt.currentTarget );
-				let params = ObjectOps.ObjClone( this._base_data.ajax.action );
-				params.ip = $thisHref.data( 'ip' );
-				params.ip_action = $thisHref.data( 'ip_action' );
-				( new AjaxService() ).send( params ).finally();
+				if ( t.classList.contains( 'offcanvas_ip_analysis' ) ) {
+					evt.preventDefault();
+					this.render( t.dataset[ 'ip' ] );
+					return false;
+				}
+				else if ( t.classList.contains( 'ip_analyse_action' ) ) {
+					evt.preventDefault();
+					if ( confirm( 'Are you sure?' ) ) {
+						let params = ObjectOps.ObjClone( this._base_data.ajax.action );
+						params.ip = t.dataset[ 'ip' ];
+						params.ip_action = t.dataset[ 'ip_action' ];
+						( new AjaxService() ).send( params ).finally();
+					}
+					return false;
+				}
 			}
-			return false;
-		} );
+		}, false );
 	}
 
 	runAnalysisOnLoad() {
