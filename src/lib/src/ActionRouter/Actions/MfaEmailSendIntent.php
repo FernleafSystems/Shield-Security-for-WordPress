@@ -12,11 +12,9 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 	public const SLUG = 'mfa_email_intent_code_send';
 
 	protected function exec() {
-		$req = Services::Request();
-
 		$success = false;
-		$userID = $req->post( 'wp_user_id' );
-		$plainNonce = $req->post( 'login_nonce' );
+		$userID = $this->action_data[ 'wp_user_id' ];
+		$plainNonce = $this->action_data[ 'login_nonce' ];
 		if ( !empty( $userID ) && !empty( $plainNonce ) ) {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
@@ -25,7 +23,7 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 						 ->getModule_LoginGuard()
 						 ->getMfaController()
 						 ->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
-				$success = !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce );
+				$success = !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce, $this->action_data[ 'redirect_to' ] ?? '' );
 			}
 		}
 
@@ -39,6 +37,13 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 				] )
 				: __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ),
 			'page_reload' => false
+		];
+	}
+
+	protected function getRequiredDataKeys() :array {
+		return [
+			'login_nonce',
+			'wp_user_id',
 		];
 	}
 }

@@ -47,9 +47,7 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 											'login_expired' => __( 'Login Expired', 'wp-simple-firewall' ),
 										],
 									],
-									$con->getModule_LoginGuard()
-										->getMfaController()
-										->getLoginIntentJavascript( (int)$this->action_data[ 'user_id' ] )
+									$this->getLoginIntentJavascript()
 								)
 							]
 						]

@@ -23,5 +23,6 @@ class ShieldActionResponseAdapter extends BaseAdapter {
 			default:
 				break;
 		}
+
 	}
 }

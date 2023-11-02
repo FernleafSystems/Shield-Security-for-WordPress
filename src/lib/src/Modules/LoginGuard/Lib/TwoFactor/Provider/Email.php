@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailAutoLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
@@ -68,10 +69,9 @@ class Email extends AbstractShieldProviderMfaDB {
 			'help_link'   => 'https://shsec.io/3t',
 			'size'        => 6,
 			'datas'       => [
-				'auto_send'              => $this->mod()
-												 ->getMfaController()
-												 ->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
-				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::class ),
+				'auto_send' => $this->mod()
+									->getMfaController()
+									->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
 			],
 			'supp'        => [
 				'send_email' => __( 'Send OTP Code', 'wp-simple-firewall' ),
@@ -93,7 +93,7 @@ class Email extends AbstractShieldProviderMfaDB {
 		return \count( \array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
-	public function sendEmailTwoFactorVerify( string $plainNonce ) :bool {
+	public function sendEmailTwoFactorVerify( string $plainNonce, string $autoRedirect = '' ) :bool {
 		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
@@ -118,10 +118,20 @@ class Email extends AbstractShieldProviderMfaDB {
 						   $user->user_email,
 						   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
 						   $con->action_router->render( MfaLoginCode::SLUG, [
-							   'home_url' => Services::WpGeneral()->getHomeUrl(),
-							   'ip'       => $con->this_req->ip,
-							   'user_id'  => $user->ID,
-							   'otp'      => $otp,
+							   'home_url'       => Services::WpGeneral()->getHomeUrl(),
+							   'ip'             => $con->this_req->ip,
+							   'user_id'        => $user->ID,
+							   'otp'            => $otp,
+							   'url_auto_login' => $con->plugin_urls->noncedPluginAction(
+								   MfaEmailAutoLogin::class,
+								   null,
+								   [
+									   $this->getLoginIntentFormParameter() => $otp,
+									   'login_nonce'                        => $plainNonce,
+									   'user_id'                            => $user->ID,
+									   'redirect_to'                        => $autoRedirect,
+								   ]
+							   ),
 						   ] )
 					   );
 		}

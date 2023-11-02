@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaPasskeyAuthenticationStart;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
@@ -132,11 +133,15 @@ class MfaController {
 		}, 10, 2 );
 	}
 
-	public function getLoginIntentJavascript( int $userID ) :array {
+	public function getLoginIntentJavascript( int $userID, array $data= [] ) :array {
 		$active = $this->getProvidersActiveForUser( Services::WpUsers()->getUserById( $userID ) );
+		error_log( var_export( $data, true ) );
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'passkey_auth_start' => ActionData::Build( MfaPasskeyAuthenticationStart::class, true, [
+					'active_wp_user' => $userID,
+				] ),
+				'email_code_send'    => ActionData::Build( MfaEmailSendIntent::class, true, [
 					'active_wp_user' => $userID,
 				] ),
 			],

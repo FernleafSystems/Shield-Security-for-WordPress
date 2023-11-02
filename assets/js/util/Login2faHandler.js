@@ -13,7 +13,7 @@ export class Login2faHandler extends BaseService {
 	}
 
 	run() {
-		new Login2faEmail();
+		new Login2faEmail( this._base_data );
 		new Login2faGoogleAuth();
 		new Login2faPasskey( this._base_data );
 		if ( this.timeRemainingP ) {

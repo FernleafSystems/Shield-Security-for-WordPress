@@ -31,14 +31,10 @@ export class Login2faEmail extends Login2faBase {
 	}
 
 	sendEmail() {
-		this.emailSend.setAttribute( 'disabled', true );
-
-		let reqParams = JSON.parse( this.emailInput.dataset[ 'ajax_intent_email_send' ] );
-		reqParams.wp_user_id = document.getElementById( 'wp_user_id' ).value;
-		reqParams.login_nonce = document.getElementById( 'login_nonce' ).value;
+		this.emailSend.setAttribute( 'disabled', 'disabled' );
 
 		( new AjaxService() )
-		.send( reqParams, true, true )
+		.send( this._base_data.ajax.email_code_send, true, true )
 		.then( ( resp ) => {
 
 			/** TODO: TEST THIS?*/

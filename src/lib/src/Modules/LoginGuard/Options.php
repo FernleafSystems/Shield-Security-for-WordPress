@@ -6,6 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Mfa
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
+	public function canAutoLoginURL() :bool {
+		return $this->isOpt( 'enable_email_auto_login', 'Y' );
+	}
+
 	public function getBotProtectionLocations() :array {
 		return $this->getOpt( 'bot_protection_locations' );
 	}

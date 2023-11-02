@@ -17,10 +17,7 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 						'login_2fa',
 					],
 					'data'    => function () {
-						return self::con()
-								   ->getModule_LoginGuard()
-								   ->getMfaController()
-								   ->getLoginIntentJavascript( (int)$this->action_data[ 'user_id' ] );
+						return $this->getLoginIntentJavascript();
 					},
 				];
 				return $components;

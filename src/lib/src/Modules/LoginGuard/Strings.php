@@ -271,6 +271,16 @@ class Strings extends Base\Strings {
 				$desc = [ __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' ) ];
 				break;
 
+			case 'enable_email_auto_login' :
+				$name = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Auto-Login Links', 'wp-simple-firewall' ) );
+				$summary = __( 'Provide Auto-Login Links For Simple Email 2FA', 'wp-simple-firewall' );
+				$desc = [
+					__( 'When active, 2FA emails will contain a link that will automatically login the user without the need to enter 2FA Codes.', 'wp-simple-firewall' ),
+					__( "Links may only be used once.", 'wp-simple-firewall' ),
+					__( "If you believe, for whatever reason, you or your users' mailboxes are compromised, you should disable this option.", 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'email_any_user_set' :
 				$name = __( 'Allow Any User', 'wp-simple-firewall' );
 				$summary = __( 'Allow Any User To Turn-On Two-Factor Authentication By Email.', 'wp-simple-firewall' );

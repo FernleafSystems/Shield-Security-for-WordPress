@@ -43,6 +43,7 @@ class Constants {
 		Actions\MfaBackupCodeAdd::class,
 		Actions\MfaBackupCodeDelete::class,
 		Actions\MfaCanEmailSendVerify::class,
+		Actions\MfaEmailAutoLogin::class,
 		Actions\MfaEmailDisable::class,
 		Actions\MfaEmailToggle::class,
 		Actions\MfaEmailSendIntent::class,
