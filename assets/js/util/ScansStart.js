@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
 import { Forms } from "./Forms";
@@ -8,15 +7,13 @@ import { ScansCheck } from "./ScansCheck";
 export class ScansStart extends BaseService {
 
 	init() {
-		$( document ).on( "submit", 'form#StartScans', ( evt ) => this.startScans( evt ) );
+		shieldEventsHandler_Main.add_Submit( 'form#StartScans', ( targetEl ) => this.startScans( targetEl ) );
 	}
 
-	startScans( evt ) {
-		evt.preventDefault();
-
+	startScans( form ) {
 		( new AjaxService() )
 		.send(
-			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( evt.currentTarget ) } )
+			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( form ) } )
 		)
 		.then( ( resp ) => {
 
@@ -40,8 +37,6 @@ export class ScansStart extends BaseService {
 			alert( 'Scan failed because the site killed the request. ' +
 				'Likely your webhost imposes a maximum time limit for processes, and this limit was reached.' ) )
 		.finally();
-
-		return false;
 	};
 
 	#loadResultsPage() {

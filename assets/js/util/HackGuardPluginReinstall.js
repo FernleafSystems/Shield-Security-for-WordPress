@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
 import { ObjectOps } from "./ObjectOps";
@@ -20,16 +19,15 @@ export class HackGuardPluginReinstall extends BaseService {
 	run() {
 		const self = this;
 
-		$( 'table.wp-list-table.plugins > tbody  > tr' ).each( ( idx, element ) => {
-			let $row = $( element );
-			let plugin = element.dataset.plugin ?? false;
+		document.querySelectorAll( 'table.wp-list-table.plugins > tbody  > tr' ).forEach( ( row ) => {
+			let plugin = row.dataset.plugin ?? false;
 			if ( plugin && this._base_data.vars.reinstallable.indexOf( plugin ) >= 0 ) {
-				$row.addClass( 'reinstallable' );
+				row.classList.add( 'reinstallable' );
 			}
 		} );
 
-		$( document ).on( 'click', 'tr.reinstallable .row-actions .shield-reinstall a', ( evt ) => this.promptReinstall( evt ) );
-		$( document ).on( 'click', 'tr.reinstallable .row-actions .activate a', ( evt ) => this.promptActivate( evt ) );
+		shieldEventsHandler_Main.add_Click( 'tr.reinstallable .row-actions .shield-reinstall a', ( targetEl ) => this.promptReinstall( targetEl ) );
+		shieldEventsHandler_Main.add_Click( 'tr.reinstallable .row-actions .activate a', ( targetEl ) => this.promptActivate( targetEl ) );
 
 		this.dialogReinstall.querySelector( '.reinstall' ).addEventListener( 'click', () => {
 			self.#reinstall_plugin.call( self );
@@ -44,94 +42,27 @@ export class HackGuardPluginReinstall extends BaseService {
 		}, false );
 	}
 
-	/*
-	initDialogsJquery() {
-		let commonSettings = {
-			title: 'Re-Install Plugin',
-			dialogClass: 'wp-dialog',
-			autoOpen: false,
-			draggable: false,
-			width: 'auto',
-			modal: true,
-			resizable: false,
-			closeOnEscape: true,
-			position: {
-				my: "center",
-				at: "center",
-				of: window
-			},
-			open: function () {
-				// close dialog by clicking the overlay behind it
-				$( '.ui-widget-overlay' ).on( 'click', function () {
-					$( this ).dialog( 'close' );
-				} )
-			},
-			create: function () {
-				// style fix for WordPress admin
-				$( '.ui-dialog-titlebar-close' ).addClass( 'ui-button' );
-			}
-		};
-
-		commonSettings[ 'buttons' ] = [
-			{
-				text: this._base_data.strings.okay_reinstall,
-				id: 'btnOkayReinstall',
-				click: () => {
-					this.dialogReinstall.dialog( 'close' );
-					this.#reinstall_plugin( 1 );
-				}
-			},
-			{
-				text: this._base_data.strings.cancel,
-				id: 'btnCancel',
-				click: () => this.dialogReinstall.dialog( 'close' )
-			}
-		];
-		this.dialogReinstall.dialog( commonSettings );
-
-		commonSettings[ 'buttons' ] = [
-			{
-				text: this._base_data.strings.reinstall_first,
-				id: 'btnReinstallFirst',
-				click: () => {
-					this.dialogActivateReinstall.dialog( 'close' );
-					this.#reinstall_plugin( 1 );
-				}
-			},
-			{
-				text: this._base_data.strings.activate_only,
-				id: 'btnActivateOnly',
-				click: () => window.location.assign( this.hrefActivate )
-			}
-		];
-		this.dialogActivateReinstall.dialog( commonSettings );
-	}*/
-
-	promptReinstall( evt ) {
-		evt.preventDefault();
-
+	promptReinstall( targetEl ) {
 		MicroModal.show( this.dialogReinstall.id );
 
-		let $current = $( evt.currentTarget ).closest( 'tr' );
+		let current = targetEl.closest( 'tr' );
 		this.active_modal_id = this.dialogReinstall.id;
 		this.doActivate = 0;
-		this.activeFile = $current.data( 'plugin' );
-		this.hrefActivate = $( 'span.activate > a', $current ).attr( 'href' )
+		this.activeFile = current.dataset[ 'plugin' ];
 
-		return false;
+		const activateHref = current.querySelector( 'span.activate > a' );
+		this.hrefActivate = activateHref ? activateHref.getAttribute( 'href' ) : '';
 	};
 
-	promptActivate( evt ) {
-		evt.preventDefault();
-
+	promptActivate( targetEl ) {
 		MicroModal.show( this.dialogActivateReinstall.id );
-		let $current = $( evt.currentTarget ).closest( 'tr' );
+		let current = targetEl.closest( 'tr' );
 		this.active_modal_id = this.dialogReinstall.id;
 		this.doActivate = 1;
-		this.activeFile = $current.data( 'plugin' );
-		this.hrefActivate = $( 'span.activate > a', $current ).attr( 'href' )
+		this.activeFile = current.dataset[ 'plugin' ];
 
-		return false;
+		const activateHref = current.querySelector( 'span.activate > a' );
+		this.hrefActivate = activateHref ? activateHref.getAttribute( 'href' ) : '';
 	};
 
 	#reinstall_plugin() {

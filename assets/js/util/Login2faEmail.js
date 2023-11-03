@@ -15,19 +15,19 @@ export class Login2faEmail extends Login2faBase {
 
 	run() {
 		this.emailInput.value = '';
-		this.emailInput.addEventListener( 'keypress', this.cleanInput, false );
-		this.emailInput.addEventListener( 'change', this.cleanInput, false );
+
+		shieldEventsHandler_Login2fa.add_Change( '#' + this.emailInput.id, ( targetEl ) => this.cleanInput( targetEl ) );
+		shieldEventsHandler_Login2fa.add_Keypress( '#' + this.emailInput.id, ( targetEl ) => this.cleanInput( targetEl ) );
+		shieldEventsHandler_Login2fa.add_Click( '#' + this.emailSend.id, () => this.sendEmail() );
 
 		if ( Number( this.emailInput.dataset[ 'auto_send' ] ) === 1 ) {
 			this.sendEmail();
 		}
-
-		this.emailSend.addEventListener( 'click', () => this.sendEmail(), false );
 	}
 
-	cleanInput() {
-		this.value = this.value.toUpperCase();
-		this.value = this.value.replace( /[^0-9A-Z]/, '' ).substring( 0, 6 );
+	cleanInput( targetEl ) {
+		targetEl.value = targetEl.value.toUpperCase();
+		targetEl.value = targetEl.value.replace( /[^0-9A-Z]/, '' ).substring( 0, 6 );
 	}
 
 	sendEmail() {

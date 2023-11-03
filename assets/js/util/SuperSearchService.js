@@ -11,9 +11,7 @@ export class SuperSearchService extends BaseService {
 
 		this.theModal = null;
 
-		$( document ).on( 'click', '#SuperSearchLaunch input', ( evt ) => {
-			evt.preventDefault();
-
+		shieldEventsHandler_Main.add_Click( '#SuperSearchLaunch input', () => {
 			if ( this.theModal === null ) {
 				this.theModal = document.getElementById( 'ModalSuperSearchBox' );
 				this.theModal.addEventListener( 'shown.bs.modal', event => {
@@ -21,10 +19,7 @@ export class SuperSearchService extends BaseService {
 				} );
 				new SuperSearchResults( this._base_data )
 			}
-
 			( new Modal( this.theModal ) ).show();
-
-			return false;
 		} );
 
 		$( '#SuperSearchBox select' ).select2( {

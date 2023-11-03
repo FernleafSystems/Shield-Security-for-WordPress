@@ -13,11 +13,11 @@ export class Login2faGoogleAuth extends Login2faBase {
 
 	run() {
 		this.gaInput.value = '';
-		this.gaInput.addEventListener( 'keypress', this.cleanCode, false );
-		this.gaInput.addEventListener( 'change', this.cleanCode, false );
+		shieldEventsHandler_Login2fa.add_Change( '#' + this.gaInput.id, ( targetEl ) => this.cleanCode( targetEl ) );
+		shieldEventsHandler_Login2fa.add_Keypress( '#' + this.gaInput.id, ( targetEl ) => this.cleanCode( targetEl ) );
 	}
 
-	cleanCode() {
-		this.value = this.value.replace( /[^0-9]/, '' ).substring( 0, 6 );
+	cleanCode( targetEl ) {
+		targetEl.value = targetEl.value.replace( /[^0-9]/, '' ).substring( 0, 6 );
 	}
 }

@@ -1,21 +1,17 @@
-import $ from 'jquery';
 import BigPicture from "bigpicture";
 import { BaseService } from "./BaseService";
 
 export class MiscHooks extends BaseService {
 	init() {
-		/** TODO: test this fully */
-		$( document ).on( 'submit', 'form.icwp-form-dynamic-action',
-			( evt ) => evt.currentTarget.action = window.location.href
-		);
+		// shieldEventsHandler_Main.add_Submit( 'form.icwp-form-dynamic-action', ( form ) => {
+		// 	form.action = window.location.href
+		// } );
 
-		$( document ).on( 'click', '.option-video', ( evt ) => {
-			evt.preventDefault();
+		shieldEventsHandler_Main.add_Click( '.option-video', ( targetEl ) => {
 			BigPicture( {
-				el: evt.target,
-				vimeoSrc: $( evt.currentTarget ).data( 'vimeoid' ),
+				el: targetEl,
+				vimeoSrc: targetEl.dataset[ 'vimeoid' ],
 			} );
-			return false;
 		} );
 	}
 }

@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { Base64 } from 'js-base64';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
@@ -10,14 +9,11 @@ import { ToasterService } from "./ToasterService";
 export class OptionsFormSubmit extends BaseService {
 
 	init() {
-		$( document ).on( "submit", 'form.icwpOptionsForm', ( evt ) => this.#submitOptionsForm( evt ) );
+		shieldEventsHandler_Main.add_Submit( 'form.icwpOptionsForm', ( targetEl ) => this.#submitOptionsForm( targetEl ) );
 	}
 
-	#submitOptionsForm( evt ) {
-		evt.preventDefault();
-
-		this.form = evt.currentTarget;
-		this.$form = $( evt.currentTarget );
+	#submitOptionsForm( form ) {
+		this.form = form;
 
 		let passwordsReady = true;
 		this.form.querySelectorAll( 'input[type=password]' ).forEach( ( passwordField ) => {
@@ -36,8 +32,6 @@ export class OptionsFormSubmit extends BaseService {
 		if ( passwordsReady ) {
 			this.#sendForm( false );
 		}
-
-		return false;
 	};
 
 	/**
@@ -58,7 +52,7 @@ export class OptionsFormSubmit extends BaseService {
 		)
 		.then( ( resp ) => {
 			setTimeout( () => {
-				if ( this.$form.data( 'context' ) !== 'offcanvas' || resp.data.page_reload ) {
+				if ( this.form.dataset[ 'context' ] !== 'offcanvas' || resp.data.page_reload ) {
 					window.location.reload();
 				}
 				else {

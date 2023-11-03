@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
 import { Forms } from "./Forms";
@@ -7,12 +6,11 @@ import { ObjectOps } from "./ObjectOps";
 export class MalaiFileScanQuery extends BaseService {
 
 	init() {
-		$( document ).on( 'submit', 'form#FileScanMalaiQuery', ( evt ) => {
-			evt.preventDefault();
+		shieldEventsHandler_Main.add_Submit( 'form#FileScanMalaiQuery', ( targetEl ) => {
 
 			let ready = true;
 
-			evt.currentTarget.querySelectorAll( 'input[type=checkbox]' ).forEach(
+			targetEl.querySelectorAll( 'input[type=checkbox]' ).forEach(
 				( checkbox ) => {
 					ready = ready && checkbox.checked;
 				}
@@ -20,14 +18,12 @@ export class MalaiFileScanQuery extends BaseService {
 
 			if ( ready ) {
 				( new AjaxService() )
-				.send( ObjectOps.Merge( this._base_data.ajax.malai_file_query, Forms.Serialize( evt.target ) ) )
+				.send( ObjectOps.Merge( this._base_data.ajax.malai_file_query, Forms.Serialize( targetEl ) ) )
 				.finally();
 			}
 			else {
 				alert( 'Please check the box to agree.' );
 			}
-
-			return false;
 		} );
 	}
 }

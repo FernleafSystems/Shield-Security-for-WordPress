@@ -16,33 +16,27 @@ export class SecurityAdmin extends BaseService {
 
 			this.restrictWPOptions();
 
-			$( document ).on( 'submit', 'form#SecurityAdminForm', ( evt ) => {
-				evt.preventDefault();
-				( new AjaxService() )
-				.send(
-					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { form_params: Forms.Serialize( evt.currentTarget ) } )
-				)
-				.finally();
-				return false;
-			} );
-
 			if ( this._base_data.flags.run_checks ) {
 				this.scheduleSecAdminCheck();
 			}
 
-			$( document ).on( 'click', '#SecAdminRemoveConfirmEmail',
-				( evt ) => {
-					evt.preventDefault();
-					if ( confirm( this._base_data.strings.confirm_disable ) ) {
-						( new AjaxService() )
-						.send( this._base_data.ajax.req_email_remove )
-						.finally();
-					}
-					return false;
-				}
-			);
+			shieldEventsHandler_Main.add_Submit( 'form#SecurityAdminForm', ( form ) => {
+				( new AjaxService() )
+				.send(
+					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { form_params: Forms.Serialize( form ) } )
+				)
+				.finally();
+			} );
 
-			$( document ).on( 'click', '#SecAdminDialog a', ( evt ) => this.#performSecAdminDialogLogin( evt ) );
+			shieldEventsHandler_Main.add_Click( '#SecAdminRemoveConfirmEmail', () => {
+				if ( confirm( this._base_data.strings.confirm_disable ) ) {
+					( new AjaxService() )
+					.send( this._base_data.ajax.req_email_remove )
+					.finally();
+				}
+			} );
+
+			shieldEventsHandler_Main.add_Click( '#SecAdminDialog a', () => this.#performSecAdminDialogLogin() );
 		}
 	}
 
@@ -93,14 +87,13 @@ export class SecurityAdmin extends BaseService {
 					'<span class="dashicons dashicons-lock"></span>' +
 					this._base_data.strings.editing_restricted +
 					' ' + this._base_data.strings.unlock_link +
-					'</div>' );
+					'</div>'
+				);
 			} );
 		}
 	};
 
-	#performSecAdminDialogLogin( evt ) {
-		evt.preventDefault();
-
+	#performSecAdminDialogLogin() {
 		let pinInput = document.getElementById( 'SecAdminPinInput' );
 		this._base_data.ajax.sec_admin_login.sec_admin_key = pinInput.value;
 

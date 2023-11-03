@@ -8,6 +8,10 @@ export class ProviderBase extends BaseService {
 		this.profileRenderer = profileRenderer;
 	}
 
+	init() {
+		this.exec();
+	}
+
 	sendReq( params ) {
 		( new AjaxService() )
 		.send( params )

@@ -32,6 +32,7 @@ import { Tours } from "./js/util/Tours";
 import { TrafficLiveLogs } from "./js/util/TrafficLiveLogs";
 import { ShieldTableSessions } from "./js/util/ShieldTableSessions";
 import { ShieldStrings } from "./js/util/ShieldStrings";
+import { ShieldEventsHandler } from "./js/util/ShieldEventsHandler";
 
 $( document ).ready( function () {
 
@@ -39,6 +40,9 @@ $( document ).ready( function () {
 
 		global.shieldServices = new ShieldServicesPlugin();
 		global.shieldStrings = new ShieldStrings( window.shield_vars_main.strings );
+		global.shieldEventsHandler_Main = new ShieldEventsHandler( {
+			events_container_selector: '#PageContainer-Shield'
+		} );
 
 		const comps = window.shield_vars_main.comps;
 

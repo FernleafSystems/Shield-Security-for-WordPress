@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { BaseService } from "./BaseService";
 import { AjaxService } from "./AjaxService";
 import { ObjectOps } from "./ObjectOps";
@@ -17,38 +16,27 @@ export class IpRules extends BaseService {
 	}
 
 	handleIpRuleOffcanvasForm() {
-		$( document ).on( 'click', 'a.offcanvas_form_create_ip_rule', ( evt ) => {
-			evt.preventDefault();
+		shieldEventsHandler_Main.add_Click( 'a.offcanvas_form_create_ip_rule', () => {
 			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas ).finally();
-			return false;
 		} );
 	}
 
 	handleIpRuleForm() {
-		document.addEventListener( 'submit', ( evt ) => {
-			if ( evt.target.id === 'IpRuleAddForm' ) {
-				evt.preventDefault();
-
-				( new AjaxService() )
-				.send( ObjectOps.Merge(
-					this._base_data.ajax.add_form_submit,
-					{ 'form_data': Object.fromEntries( new FormData( evt.target ) ) }
-				) )
-				.finally();
-
-				return false;
-			}
+		shieldEventsHandler_Main.add_Submit( '#IpRuleAddForm', ( targetEl ) => {
+			( new AjaxService() )
+			.send( ObjectOps.Merge(
+				this._base_data.ajax.add_form_submit,
+				{ 'form_data': Object.fromEntries( new FormData( targetEl ) ) }
+			) )
+			.finally();
 		} );
 	}
 
 	handleIpDelete() {
-		$( document ).on( 'click', 'td.ip_linked a.ip_delete', ( evt ) => {
+		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', ( targetEl ) => {
 			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
 				( new AjaxService() )
-				.send( ObjectOps.Merge(
-					this._base_data.ajax.delete,
-					{ 'rid': $( evt.currentTarget ).data( 'rid' ) }
-				) )
+				.send( ObjectOps.Merge( this._base_data.ajax.delete, { rid: targetEl.dataset[ 'rid' ] } ) )
 				.finally();
 			}
 		} );

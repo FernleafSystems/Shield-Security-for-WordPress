@@ -1,4 +1,3 @@
-import $ from "jquery";
 import { AjaxService } from "./AjaxService";
 import { BaseService } from "./BaseService";
 import { DateRangePicker } from "vanillajs-datepicker";
@@ -12,37 +11,24 @@ export class ReportingHandler extends BaseService {
 		this.exec();
 	}
 
-	run() {
-		if ( this._base_data.flags.can_run_report ) {
-			$( document ).on( 'click', 'a.offcanvas_report_create_form', ( evt ) => {
-				evt.preventDefault();
-				OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas )
-								.then( () => this.postRender() )
-								.finally();
-				return false;
-			} );
-		}
+	canRun() {
+		return this._base_data.flags.can_run_report;
 	}
 
-	postRender() {
-		let form = OffCanvasService.offCanvasEl.querySelector( 'form' );
-		let $form = $( form );
-
-		new DateRangePicker( form.querySelector( '.input-daterange' ), {
-			format: 'yyyy-mm-dd',
-			minDate: new Date( this._base_data.vars.earliest_date ),
-			maxDate: new Date( this._base_data.vars.latest_date ),
-			weekStart: 1,
+	run() {
+		shieldEventsHandler_Main.add_Click( 'a.offcanvas_report_create_form', () => {
+			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas )
+							.then( () => this.postRender() )
+							.finally();
 		} );
 
-		let requestRunning = false;
+		this.requestRunning = false;
 
-		$form.on( "submit", ( evt ) => {
-			evt.preventDefault();
-			if ( requestRunning ) {
+		shieldEventsHandler_Main.add_Submit( 'form.form_create_report', ( form ) => {
+			if ( this.requestRunning ) {
 				return false;
 			}
-			requestRunning = true;
+			this.requestRunning = true;
 
 			const buttonSubmit = form.querySelector( 'button[type=submit]' );
 			buttonSubmit.setAttribute( 'disabled', 'disabled' );
@@ -64,10 +50,18 @@ export class ReportingHandler extends BaseService {
 				.catch( () => {
 					buttonSubmit.removeAttribute( 'disabled' );
 				} )
-				.finally();
+				.finally( () => this.requestRunning = false );
 			}
+		} );
+	}
 
-			return false;
+	postRender() {
+		let form = OffCanvasService.offCanvasEl.querySelector( 'form.form_create_report' );
+		new DateRangePicker( form.querySelector( '.input-daterange' ), {
+			format: 'yyyy-mm-dd',
+			minDate: new Date( this._base_data.vars.earliest_date ),
+			maxDate: new Date( this._base_data.vars.latest_date ),
+			weekStart: 1,
 		} );
 	}
 }

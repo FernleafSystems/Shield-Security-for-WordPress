@@ -8,9 +8,7 @@ export class SuperSearchResults extends BaseService {
 	init() {
 		this.searchTimeout = false;
 
-		$( document ).on( 'keyup', '#ModalSuperSearchBox input.search-text', ( evt ) => {
-			this.displayResults( $( evt.currentTarget ).val() )
-		} );
+		shieldEventsHandler_Main.add_Keyup( '#ModalSuperSearchBox input.search-text', ( targetEl ) => this.displayResults( targetEl.value ) );
 
 		$( document ).on( 'select2:open', () => {
 			document.querySelector( '.select2-search__field' ).focus();

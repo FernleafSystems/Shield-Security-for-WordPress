@@ -15,6 +15,7 @@ export class DashboardWidget extends BaseService {
 	}
 
 	run() {
+		shieldEventsHandler_Main.add_Click( `#${this.widgetContainer.id} a.refresh_widget`, () => this.renderWidget( true ) );
 		this.renderWidget();
 	}
 
@@ -38,13 +39,6 @@ export class DashboardWidget extends BaseService {
 				this.widgetContainer.textContent = 'There was a problem loading the content.';
 			}
 			return resp;
-		} )
-		.then( ( resp ) => {
-			if ( resp.success ) {
-				this.widgetContainer
-					.querySelector( '.refresh_widget' )
-					.addEventListener( 'click', () => this.renderWidget( true ) );
-			}
 		} )
 		.catch( ( error ) => {
 			this.widgetContainer.textContent = 'There was a problem loading the content.';

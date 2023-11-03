@@ -19,16 +19,15 @@ export class Merlin extends BaseService {
 
 	run() {
 		this.$merlin = $( this.merlinContainer ).smartWizard( this._base_data.vars.smartwizard_cfg );
-		$( 'form.merlin-form.ajax-form', $( this.merlinContainer ) ).on( 'submit', ( evt ) => this.#runSettingUpdate( evt ) );
-		$( this.merlinContainer ).on( 'click', 'a.skip-step', () => this.$merlin.smartWizard( 'next' ) );
+
+		shieldEventsHandler_Main.add_Submit( 'form.merlin-form.ajax-form', ( targetEl ) => this.#runSettingUpdate( targetEl ) );
+		shieldEventsHandler_Main.add_Click( '#merlin a.skip-step', () => this.$merlin.smartWizard( 'next' ) );
 	}
 
-	#runSettingUpdate( evt ) {
-		evt.preventDefault();
-
+	#runSettingUpdate( form ) {
 		( new AjaxService() )
 		.send(
-			ObjectOps.Merge( this._base_data.ajax.action, { form_params: Forms.Serialize( evt.currentTarget ) } )
+			ObjectOps.Merge( this._base_data.ajax.action, { form_params: Forms.Serialize( form ) } )
 		)
 		.then( ( resp ) => {
 
@@ -42,10 +41,6 @@ export class Merlin extends BaseService {
 		.catch( ( error ) => {
 			console.log( error );
 		} )
-		.finally( ( resp ) => {
-			ShieldOverlay.Hide();
-		} );
-
-		return false;
+		.finally( () => ShieldOverlay.Hide() );
 	};
 }

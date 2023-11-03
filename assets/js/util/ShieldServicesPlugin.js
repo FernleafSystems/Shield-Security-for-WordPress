@@ -7,11 +7,7 @@ export class ShieldServicesPlugin extends BaseService {
 		return new ToasterService();
 	}
 
-	container_OffCanvas() {
-		return document.getElementById( 'ShieldOffcanvas' );
-	}
-
 	container_ShieldPage() {
-		return document.getElementById( 'PageContainer-Shield' );
+		return document.getElementById( 'PageContainer-Shield' ) || false;
 	}
 }

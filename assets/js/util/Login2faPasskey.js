@@ -20,7 +20,7 @@ export class Login2faPasskey extends Login2faBase {
 			if ( this._base_data.flags.passkey_auth_auto ) {
 				this.auth();
 			}
-			this.buttonStartPasskey.addEventListener( 'click', () => this.auth(), false );
+			shieldEventsHandler_Login2fa.add_Click( 'button[name=icwp_wpsf_start_passkey]', () => this.auth() );
 		}
 		else {
 			this.buttonStartPasskey.setAttribute( 'disabled', 'disabled' );

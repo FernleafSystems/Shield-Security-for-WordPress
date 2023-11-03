@@ -1,11 +1,7 @@
 export class DivPrinter {
 
 	constructor() {
-		document.addEventListener( 'click', ( evt ) => {
-			if ( 'classList' in evt.target && evt.target.classList.contains( 'shield_div_print' ) ) {
-				this.print( evt.target.dataset );
-			}
-		}, false );
+		shieldEventsHandler_Main.add_Click( '.shield_div_print', ( targetEl ) => this.print( targetEl.dataset ) );
 	}
 
 	print( params ) {

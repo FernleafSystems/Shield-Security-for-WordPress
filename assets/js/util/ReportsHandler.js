@@ -12,19 +12,15 @@ export class ReportsHandler extends BaseService {
 	}
 
 	run() {
-		this.changeReportSection.querySelectorAll( 'input[name=change_report_type]' ).forEach( ( input ) => {
-
-			input.addEventListener( 'click', ( evt ) => {
-				this.changeReportSection.querySelectorAll( 'div.detailed' ).forEach( ( elem ) => {
-					if ( input.value === 'detailed' ) {
-						elem.classList.remove( 'd-none' )
-					}
-					else if ( !elem.classList.contains( 'd-none') ) {
-						elem.classList.add( 'd-none' )
-					}
-				} );
-			}, false );
-
+		shieldEventsHandler_Reports.add_Click( 'input[name=change_report_type]', ( targetEl ) => {
+			this.changeReportSection.querySelectorAll( 'div.detailed' ).forEach( ( elem ) => {
+				if ( targetEl.value === 'detailed' ) {
+					elem.classList.remove( 'd-none' )
+				}
+				else if ( !elem.classList.contains( 'd-none') ) {
+					elem.classList.add( 'd-none' )
+				}
+			} );
 		} );
 	}
 }

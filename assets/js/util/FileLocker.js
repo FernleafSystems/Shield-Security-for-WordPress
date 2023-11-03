@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { BaseService } from "./BaseService";
 import { AjaxService } from "./AjaxService";
 import { ObjectOps } from "./ObjectOps";
@@ -6,16 +5,20 @@ import { ObjectOps } from "./ObjectOps";
 export class FileLocker extends BaseService {
 
 	init() {
-		$( document ).on( 'change', '#FileLockerFileSelect', ( evt ) => this.#select( evt ) );
-		$( document ).on( 'submit', 'form.filelocker_fileaction', ( evt ) => this.#fileAction( evt ) );
+		shieldEventsHandler_Main.add_Change( '#FileLockerFileSelect', ( targetEl ) => {
+			this.#select( targetEl );
+		} );
+		shieldEventsHandler_Main.add_Submit( 'form.filelocker_fileaction', ( targetEl ) => {
+			this.#fileAction( targetEl );
+		} );
 	}
 
-	#select( evt ) {
-		let $selected = $( evt.currentTarget ).find( ":selected" );
-		if ( $selected.val() !== '-' ) {
+	#select( targetEl ) {
+		let selected = targetEl.options[ targetEl.selectedIndex ];
+		if ( selected.value !== '-' ) {
 
 			const params = ObjectOps.ObjClone( this._base_data.ajax.render_diff );
-			params.rid = $selected.val();
+			params.rid = selected.value;
 
 			( new AjaxService() )
 			.send( params )
@@ -28,26 +31,22 @@ export class FileLocker extends BaseService {
 				}
 			} )
 			.finally( () => {
-				$( 'option[value="-"]', $selected ).prop( 'selected', true );
+				targetEl.selectedIndex = 0;
 			} );
 		}
 	};
 
-	#fileAction( evt ) {
-		evt.preventDefault();
-
-		const form = evt.currentTarget;
+	#fileAction( form ) {
 		const buttonSubmit = form.querySelector( 'input[type=submit]' );
 		if ( buttonSubmit ) {
 			buttonSubmit.setAttribute( 'disabled', 'disabled' );
 
-			const params = ObjectOps.ObjClone( this._base_data.ajax.file_action );
-			params.confirmed = form.querySelector( 'input[type=checkbox]' ).checked ? 1 : 0;
-			params.rid = buttonSubmit.dataset[ 'rid' ];
-			params.file_action = buttonSubmit.dataset[ 'action' ];
-
 			( new AjaxService() )
-			.send( params )
+			.send( ObjectOps.Merge( this._base_data.ajax.file_action, {
+				confirmed: form.querySelector( 'input[type=checkbox]' ).checked ? 1 : 0,
+				rid: buttonSubmit.dataset[ 'rid' ],
+				file_action: buttonSubmit.dataset[ 'action' ]
+			} ) )
 			.finally( () => buttonSubmit.removeAttribute( 'disabled' ) );
 		}
 

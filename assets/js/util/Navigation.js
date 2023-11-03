@@ -15,15 +15,10 @@ export class Navigation extends BaseService {
 	}
 
 	run() {
-		this.navSideBar.addEventListener( 'click', ( evt ) => {
-			const el = evt.target;
-			if ( el.nodeName === 'A' && 'classList' in el && el.classList.contains( 'dynamic_body_load' ) ) {
-				evt.preventDefault();
-				this.activeMenuItem = el;
-				this.renderFromActiveMenuItem();
-				return false;
-			}
-		}, false );
+		shieldEventsHandler_Main.add_Click( '#NavSideBar a.dynamic_body_load', ( targetEl ) => {
+			this.activeMenuItem = targetEl;
+			this.renderFromActiveMenuItem();
+		} );
 
 		let activePageLink = document.querySelector( '#NavSideBar a.active.body_content_link.dynamic_body_load' );
 		if ( activePageLink ) {

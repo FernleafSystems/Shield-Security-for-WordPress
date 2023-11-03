@@ -1,24 +1,21 @@
-import $ from 'jquery';
 import { ProviderBase } from "./ProviderBase";
 
 export class ProviderYubikey extends ProviderBase {
 
-	init() {
-		$( this.container() ).on( 'keypress', 'input.shield_yubi_otp', ( evt ) => {
+	run() {
+		shieldEventsHandler_UserProfile.add_Keypress( 'input.shield_yubi_otp', ( targetEl, evt ) => {
 			if ( evt.key === 'Enter' || evt.keyCode === 13 ) {
 				evt.preventDefault();
-				this._base_data.ajax.profile_yubikey_toggle.otp = $( evt.currentTarget ).val();
+				this._base_data.ajax.profile_yubikey_toggle.otp = targetEl.value;
 				this.sendReq( this._base_data.ajax.profile_yubikey_toggle );
 				return false;
 			}
 		} );
-		$( this.container() ).on( 'click', 'a.shield_remove_yubi', ( evt ) => {
-			evt.preventDefault();
+		shieldEventsHandler_UserProfile.add_Click( 'a.shield_remove_yubi', ( targetEl ) => {
 			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				this._base_data.ajax.profile_yubikey_toggle.otp = $( evt.currentTarget ).data( 'yubikeyid' );
+				this._base_data.ajax.profile_yubikey_toggle.otp = targetEl.dataset[ 'yubikeyid' ];
 				this.sendReq( this._base_data.ajax.profile_yubikey_toggle );
 			}
-			return false;
 		} );
 	}
 }

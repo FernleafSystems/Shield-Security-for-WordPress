@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import { BaseService } from "./BaseService";
 
 export class HelpscoutBeacon extends BaseService {
@@ -17,17 +16,14 @@ export class HelpscoutBeacon extends BaseService {
 		window.Beacon( 'init', this._base_data.beacon_id );
 		Beacon( 'navigate', '/' );
 
-		$( document ).on( 'click', 'a.beacon-article', ( evt ) => {
-			evt.preventDefault();
-			let link = evt.currentTarget;
-			if ( link.dataset[ 'beacon_article_id' ] ?? false ) {
+		shieldEventsHandler_Main.add_Click( 'a.beacon-article', ( targetEl ) => {
+			if ( targetEl.dataset[ 'beacon_article_id' ] ?? false ) {
 				let format = '';
-				if ( link.dataset[ 'beacon_article_format' ] ?? false ) {
-					format = link.dataset[ 'beacon_article_format' ];
+				if ( targetEl.dataset[ 'beacon_article_format' ] ?? false ) {
+					format = targetEl.dataset[ 'beacon_article_format' ];
 				}
-				Beacon( 'article', String( link.dataset[ 'beacon_article_id' ] ), { type: format } );
+				Beacon( 'article', String( targetEl.dataset[ 'beacon_article_id' ] ), { type: format } );
 			}
-			return false;
 		} );
 	}
 

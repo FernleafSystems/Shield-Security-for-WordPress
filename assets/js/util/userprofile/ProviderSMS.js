@@ -4,25 +4,15 @@ import { ProviderBase } from "./ProviderBase";
 export class ProviderSMS extends ProviderBase {
 
 	init() {
-		$( 'a.shield_sms_remove' ).on( 'click', ( evt ) => {
-			evt.preventDefault();
+		shieldEventsHandler_UserProfile.add_Click( 'a.shield_sms_remove', ( targetEl ) => {
 			if ( confirm( this._base_data.strings.are_you_sure ) ) {
 				this.sendReq( this._base_data.ajax.profile_sms2fa_remove );
 			}
-			return false;
 		} );
 
-		$( document ).on( 'change keyup', '#shield_mfasms_phone', ( evt ) => {
-			let $this = $( evt.currentTarget );
-			const regex = /[^0-9]+/;
-			$this.val( $this.val().replace( regex, '' ) );
-			if ( $this.val().length > 15 ) {
-				$this.val( $this.val().substring( 0, 15 ) );
-			}
-		} );
+		shieldEventsHandler_UserProfile.add_Change( '#shield_mfasms_phone', ( targetEl ) => this.cleanPhone( targetEl ) );
 
-		$( document ).on( 'click', '#shield_mfasms_verify', ( evt ) => {
-			let $this = $( evt.currentTarget );
+		shieldEventsHandler_UserProfile.add_Click( '#shield_mfasms_verify', ( targetEl ) => {
 			let reqAddParams = this._base_data.ajax.profile_sms2fa_add;
 
 			let $countrySelect = $( 'select#shield_mfasms_country' );
@@ -38,7 +28,7 @@ export class ProviderSMS extends ProviderBase {
 				alert( "Phone number doesn't seem long enough." )
 			}
 			else if ( confirm( 'Are you sure this country code and number are correct: ' + combined ) ) {
-				$this.attr( 'disabled', 'disabled' );
+				targetEl.setAttribute( 'disabled', 'disabled' );
 				let ajaxurl = reqAddParams.ajaxurl;
 				delete reqAddParams.ajaxurl;
 
@@ -67,10 +57,17 @@ export class ProviderSMS extends ProviderBase {
 						}
 					}
 				)
-				.always( () => $this.removeAttr( 'disabled', 'disabled' ) );
+				.always( () => targetEl.removeAttribute( 'disabled', 'disabled' ) );
 
 				reqAddParams.ajaxurl = ajaxurl;
 			}
 		} );
+	}
+
+	cleanPhone( phoneInput ) {
+		phoneInput.value = phoneInput.value.replace( /[^0-9]+/, '' );
+		if ( phoneInput.value.length > 15 ) {
+			phoneInput.value = phoneInput.value.substring( 0, 15 );
+		}
 	}
 }
