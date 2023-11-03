@@ -10,7 +10,7 @@ window.addEventListener( 'load', () => {
 	else if ( 'userprofile' in window.shield_vars_userprofile.comps ) {
 		global.shieldStrings = new ShieldStrings( window.shield_vars_userprofile.strings );
 		global.shieldEventsHandler_UserProfile = new ShieldEventsHandler( {
-			events_container_selector: '#ShieldMfaUserProfileForm'
+			events_container_selector: '.shield_user_mfa_container'
 		} );
 		new UserProfileHandler( window.shield_vars_userprofile.comps.userprofile );
 	}

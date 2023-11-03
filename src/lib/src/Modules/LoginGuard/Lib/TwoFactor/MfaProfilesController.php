@@ -25,7 +25,7 @@ class MfaProfilesController {
 		if ( self::con()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
 				$this->rendered = true;
-				return '<div id="ShieldMfaUserProfileForm"><p>Loading ...</p></div>';
+				return '<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container"><p>Loading ...</p></div>';
 			} );
 		}
 
@@ -139,6 +139,6 @@ class MfaProfilesController {
 
 	public function renderUserProfileMFA() :string {
 		$this->rendered = true;
-		return '<div id="ShieldMfaUserProfileForm"><p>Loading ...</p></div>';
+		return '<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container"><p>Loading ...</p></div>';
 	}
 }

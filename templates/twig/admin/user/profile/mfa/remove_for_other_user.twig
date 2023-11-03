@@ -1,4 +1,4 @@
-<div id="shield-options-mfa-authentication" class="shield-user-options-block">
+<div class="shield-user-options-block shield_user_mfa_container">
 	<h3>{{ strings.title }}
 		<small style="margin-left: 10px">({{ strings.provided_by }})</small>
 	</h3>
@@ -18,8 +18,7 @@
 
 					{% if flags.can_remove %}
 						<div>
-							<button class="button"
-									id="ShieldMfaRemoveAll"
+							<button class="button shield_mfa_remove_all"
 									type="button"
 									data-user_id="{{ vars.user_id }}"
 							>

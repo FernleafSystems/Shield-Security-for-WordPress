@@ -176,4 +176,9 @@ class Email extends AbstractShieldProviderMfaDB {
 	public function getProviderName() :string {
 		return 'Email';
 	}
+
+	public function removeFromProfile() :void {
+		parent::removeFromProfile();
+		$this->toggleEmail2FA( false );
+	}
 }

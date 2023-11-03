@@ -45,7 +45,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 		return $newSecret;
 	}
 
-	public function removeFromProfile() {
+	public function removeFromProfile() :void {
 		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
 		$this->setProfileValidated( false );
 	}

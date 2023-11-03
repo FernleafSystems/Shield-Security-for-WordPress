@@ -51,7 +51,7 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 		return $dbh->getQueryInserter()->insert( $record );
 	}
 
-	public function removeFromProfile() {
+	public function removeFromProfile() :void {
 		foreach ( $this->loadMfaRecords() as $record ) {
 			( new MfaRecordsHandler() )->delete( $record );
 		}

@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MfaPasskeyRegistrationVerify,
 	Actions\MfaPasskeyRegistrationStart
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;
 use FernleafSystems\Wordpress\Services\Services;
@@ -33,15 +32,11 @@ use Webauthn\{
 	TokenBinding\IgnoreTokenBindingHandler
 };
 
-class Passkey extends AbstractShieldProvider {
+class Passkey extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'passkey';
 
 	private $sourceRepo = null;
-
-	public function hasValidatedProfile() :bool {
-		return $this->getSourceRepo()->count() > 0;
-	}
 
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
@@ -309,7 +304,7 @@ class Passkey extends AbstractShieldProvider {
 		);
 	}
 
-	public function removeFromProfile() {
+	public function removeFromProfile() :void {
 		self::con()->user_metas->for( $this->getUser() )->passkeys = [];
 		parent::removeFromProfile();
 	}

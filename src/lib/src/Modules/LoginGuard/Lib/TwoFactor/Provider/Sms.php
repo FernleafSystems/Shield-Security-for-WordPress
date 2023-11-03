@@ -145,7 +145,7 @@ class Sms extends AbstractShieldProvider {
 		return true;
 	}
 
-	public function removeFromProfile() {
+	public function removeFromProfile() :void {
 		self::con()->user_metas->for( $this->getUser() )->sms_registration = [];
 		parent::removeFromProfile();
 	}
