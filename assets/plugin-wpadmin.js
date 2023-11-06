@@ -1,12 +1,12 @@
 import "./css/plugin-wpadmin.scss";
 
-import { DashboardWidget } from "./js/util/DashboardWidget";
-import { HackGuardPluginReinstall } from "./js/util/HackGuardPluginReinstall";
-import { IpSourceAutoDetect } from "./js/util/IpSourceAutoDetect";
-import { NoticeHandler } from "./js/util/NoticeHandler";
-import { SecurityAdmin } from "./js/util/SecurityAdmin";
-import { ShieldServicesWpAdmin } from "./js/util/ShieldServicesWpAdmin";
-import { ShieldEventsHandler } from "./js/util/ShieldEventsHandler";
+import { DashboardWidget } from "./js/components/general/DashboardWidget";
+import { HackGuardPluginReinstall } from "./js/components/general/HackGuardPluginReinstall";
+import { IpSourceAutoDetect } from "./js/components/ips/IpSourceAutoDetect";
+import { NoticeHandler } from "./js/components/notices/NoticeHandler";
+import { SecurityAdmin } from "./js/components/general/SecurityAdmin";
+import { ShieldServicesWpAdmin } from "./js/services/ShieldServicesWpAdmin";
+import { ShieldEventsHandler } from "./js/services/ShieldEventsHandler";
 
 window.addEventListener( 'load', () => {
 	global.shieldServices = ShieldServicesWpAdmin.Instance();

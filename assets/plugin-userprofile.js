@@ -1,7 +1,7 @@
 import "./css/plugin-userprofile.scss";
-import { ShieldStrings } from "./js/util/ShieldStrings";
-import { UserProfileHandler } from "./js/util/UserProfileHandler";
-import { ShieldEventsHandler } from "./js/util/ShieldEventsHandler";
+import { ShieldStrings } from "./js/services/ShieldStrings";
+import { UserProfileHandler } from "./js/components/userprofile/UserProfileHandler";
+import { ShieldEventsHandler } from "./js/services/ShieldEventsHandler";
 
 window.addEventListener( 'load', () => {
 	if ( typeof window.shield_vars_userprofile === 'undefined' ) {

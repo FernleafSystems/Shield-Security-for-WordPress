@@ -1,6 +1,6 @@
-import { BlockPageAutoRecover } from "./js/util/BlockPageAutoRecover";
-import { BlockPageMagicLink } from "./js/util/BlockPageMagicLink";
-import { ShieldServicesWpAdmin } from "./js/util/ShieldServicesWpAdmin";
+import { BlockPageAutoRecover } from "./js/components/block/BlockPageAutoRecover";
+import { BlockPageMagicLink } from "./js/components/block/BlockPageMagicLink";
+import { ShieldServicesWpAdmin } from "./js/services/ShieldServicesWpAdmin";
 
 import "./css/plugin-blockpage.scss";
 
