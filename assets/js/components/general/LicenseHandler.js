@@ -4,9 +4,11 @@ import { AjaxService } from "../services/AjaxService";
 export class LicenseHandler extends BaseComponent {
 	init() {
 		shieldEventsHandler_Main.add_Click( '.license-action', ( targetEl ) => {
-			( new AjaxService() )
-			.send( this._base_data.ajax[ targetEl.dataset[ 'action' ] ] )
-			.finally();
+			if ( targetEl.dataset[ 'action' ] !== 'clear' || confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				( new AjaxService() )
+				.send( this._base_data.ajax[ targetEl.dataset[ 'action' ] ] )
+				.finally();
+			}
 		} );
 	}
 }

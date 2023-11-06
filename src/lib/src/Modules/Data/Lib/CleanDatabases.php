@@ -56,7 +56,12 @@ class CleanDatabases {
 
 		$con->getModule_Data()
 			->getDbH_ReqLogs()
-			->tableCleanExpired( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) );
+			->deleteRowsOlderThan(
+				Services::Request()
+						->carbon( true )
+						->startOfDay()
+						->subDays( \max( $optsAudit->getAutoCleanDays(), $optsTraffic->getAutoCleanDays() ) )->timestamp
+			);
 
 		// 2. Delete transient logs older than 1 hr.
 		$con->getModule_Data()
@@ -107,17 +112,15 @@ class CleanDatabases {
 	public function purgeUnreferencedIPs() :void {
 		$con = self::con();
 
-		/** @var Select[] $dbSelectors */
-		$dbSelectors = [
-			'req'   => $con->getModule_Data()->getDbH_ReqLogs()->getQuerySelector(),
-			'bot'   => $con->getModule_IPs()->getDbH_BotSignal()->getQuerySelector(),
-			'rules' => $con->getModule_IPs()->getDbH_IPRules()->getQuerySelector(),
-			'user'  => $con->getModule_Data()->getDbH_UserMeta()->getQuerySelector(),
-		];
-
 		// This is more work, but it optimises the array of ip_ref's so that it's not massive and then has to be "uniqued"
 		$ipIDsInUse = [];
-		foreach ( $dbSelectors as $dbSelector ) {
+		foreach ( [
+			$con->getModule_Data()->getDbH_ReqLogs()->getQuerySelector(),
+			$con->getModule_IPs()->getDbH_BotSignal()->getQuerySelector(),
+			$con->getModule_IPs()->getDbH_IPRules()->getQuerySelector(),
+			$con->getModule_Data()->getDbH_UserMeta()->getQuerySelector(),
+		] as $dbSelector ) {
+			/** @var Select $dbSelector */
 			$ipIDsInUse = \array_unique( \array_merge(
 				$ipIDsInUse,
 				\array_map( '\intval', $dbSelector->getDistinctForColumn( 'ip_ref' ) )
