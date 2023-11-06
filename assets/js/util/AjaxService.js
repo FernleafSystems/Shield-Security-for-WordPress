@@ -12,23 +12,12 @@ export class AjaxService {
 
 	send( data, showOverlay = true, quiet = false ) {
 
-		let reqData = ObjectOps.ObjClone( data );
-
-		let url = typeof ajaxurl === 'undefined' ? reqData.ajaxurl : ajaxurl;
-		delete reqData.ajaxurl;
-
 		if ( showOverlay ) {
 			ShieldOverlay.Show();
 		}
 
-		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
-
-		return fetch(
-			url,
-			this.constructFetchRequestData( reqData )
-		)
-		.then( raw => raw.text() )
-		.then( respTEXT => AjaxParseResponseService.ParseIt( respTEXT ) )
+		return this
+		.req( data )
 		.then( respJSON => {
 			if ( !quiet && respJSON.data.message.length > 0 ) {
 
@@ -61,6 +50,17 @@ export class AjaxService {
 			return error;
 		} );
 	};
+
+	req( data ) {
+		let reqData = ObjectOps.ObjClone( data );
+		let url = typeof ajaxurl === 'undefined' ? reqData.ajaxurl : ajaxurl;
+		delete reqData.ajaxurl;
+		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
+
+		return fetch( url, this.constructFetchRequestData( reqData ) )
+		.then( raw => raw.text() )
+		.then( respTEXT => AjaxParseResponseService.ParseIt( respTEXT ) );
+	}
 
 	constructFetchRequestData( core, method = 'POST' ) {
 		core.apto_wrap_response = 1;

@@ -32,12 +32,6 @@ export class ShieldTableBase extends BaseService {
 		this.setupDatatable();
 	}
 
-	bindEvents() {
-		[ 'xhr', 'draw', 'select', 'deselect' ].forEach( ( event ) => {
-			this.$table.on( event, () => this.rowSelectionChanged() );
-		} );
-	}
-
 	getTableSelector() {
 		return '';
 	}
@@ -46,6 +40,35 @@ export class ShieldTableBase extends BaseService {
 		this.$table = this.$el.DataTable( this.buildDatatableConfig() );
 		this.addButtons();
 		this.bindEvents();
+		this.ensureSearchDelay();
+	}
+
+	bindEvents() {
+		[ 'xhr', 'draw', 'select', 'deselect' ].forEach( ( event ) => {
+			this.$table.on( event, () => this.rowSelectionChanged() );
+		} );
+	}
+
+	ensureSearchDelay() {
+		$( '.dataTables_filter input', this.$table )
+		.unbind() // Unbind previous default bindings
+		.bind(
+			'input',
+			( delay( ( e ) => { // Bind our desired behavior
+				this.$table.search( e.currentTarget.value ).draw();
+			}, 800 ) )
+		); // Set delay in milliseconds
+
+		function delay( callback, ms ) {
+			let timer = 0;
+			return function () {
+				let context = this, args = arguments;
+				clearTimeout( timer );
+				timer = setTimeout( function () {
+					callback.apply( context, args );
+				}, ms || 0 );
+			};
+		}
 	}
 
 	buildDatatableConfig() {
