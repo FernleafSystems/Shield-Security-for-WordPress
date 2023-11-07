@@ -9,9 +9,14 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'flags' => [
+			'flags'   => [
 				'is_available' => $this->isProviderAvailableToUser(),
 			],
+			'strings' => [
+				'err_no_label'        => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+				'err_invalid_label'   => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+				'label_prompt_dialog' => __( 'Please provide a label to identify the device.', 'wp-simple-firewall' ),
+			]
 		];
 	}
 
@@ -76,11 +81,10 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @return $this
+	 * @return void
 	 */
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		self::con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
-		return $this;
 	}
 
 	protected function getUserProfileFormRenderData() :array {

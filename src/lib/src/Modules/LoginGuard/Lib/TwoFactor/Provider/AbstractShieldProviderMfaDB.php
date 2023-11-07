@@ -46,14 +46,16 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 		$record->slug = $this::ProviderSlug();
 		$record->user_id = $this->getUser()->ID;
 		$record->unique_id = $secret;
-		$record->label = $label;
+		$record->label = preg_replace( '#[^\sa-z0-9_-]#i', '', $label );
 		$record->data = $data;
 		return $dbh->getQueryInserter()->insert( $record );
 	}
 
 	public function removeFromProfile() :void {
-		foreach ( $this->loadMfaRecords() as $record ) {
-			( new MfaRecordsHandler() )->delete( $record );
-		}
+		$this->deleteAllSecrets();
+	}
+
+	public function deleteAllSecrets() :void {
+		( new MfaRecordsHandler() )->deleteFor( $this->getUser(), static::ProviderSlug() );
 	}
 }

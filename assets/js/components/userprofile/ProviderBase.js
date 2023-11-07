@@ -13,9 +13,18 @@ export class ProviderBase extends BaseComponent {
 	}
 
 	sendReq( params ) {
-		( new AjaxService() )
+		return ( new AjaxService() )
 		.send( params )
 		.finally( () => this.profileRenderer.render.call( this.profileRenderer ) );
+		/*
+
+		return ( new AjaxService() )
+		.send( params )
+		.then( ( resp ) => {
+			this.profileRenderer.render.call( this.profileRenderer );
+			return resp;
+		} );
+		 */
 	};
 
 	container() {

@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\InvalidYubikeyAppConfiguration;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
@@ -44,6 +43,17 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 				'ajax' => [
 					'profile_yubikey_toggle' => ActionData::Build( Actions\MfaYubikeyToggle::class ),
 				],
+				'strings' => [
+					'invalid_otp' => __( "This doesn't appear to be a valid Yubikey OTP" ),
+				],
+				'vars'    => [
+					'registered_yubikeys' => \array_map(
+						function ( $record ) {
+							return \substr( $record->unique_id, 0, self::OTP_LENGTH );
+						},
+						$this->loadMfaRecords()
+					),
+				],
 			]
 		);
 	}
@@ -75,15 +85,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
 				],
 			]
-		);
-	}
-
-	private function getYubiIds() :array {
-		return \array_map(
-			function ( Record $record ) {
-				return $record->unique_id;
-			},
-			$this->loadMfaRecords()
 		);
 	}
 
@@ -143,7 +144,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 		return $success;
 	}
 
-	public function toggleRegisteredYubiID( string $keyOrOTP ) :StdResponse {
+	public function toggleRegisteredYubiID( string $keyOrOTP, string $label = '' ) :StdResponse {
 		$response = new StdResponse();
 		$response->success = true;
 
@@ -185,7 +186,7 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 					}
 
 					if ( $this->sendYubiOtpRequest( $keyOrOTP ) ) {
-						$this->createNewSecretRecord( $keyID, 'Yubikey' );
+						$this->createNewSecretRecord( $keyID, $label );
 						$response->msg_text = sprintf(
 							__( '%s was added to your profile.', 'wp-simple-firewall' ),
 							__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $keyID )

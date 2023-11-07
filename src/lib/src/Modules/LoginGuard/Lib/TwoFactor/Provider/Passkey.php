@@ -51,15 +51,13 @@ class Passkey extends AbstractShieldProviderMfaDB {
 					'has_validated' => $this->hasValidatedProfile()
 				],
 				'strings' => [
-					'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+					'not_supported'     => __( "Passkey registration isn't supported in this browser", 'wp-simple-firewall' ),
 					'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
 										   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
 										   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
 					'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
 										   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
 					'prompt_dialog'     => __( 'Please provide a label to identify the new authenticator.', 'wp-simple-firewall' ),
-					'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
-					'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
 					'are_you_sure'      => __( 'Are you sure?', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
@@ -305,8 +303,8 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	public function removeFromProfile() :void {
-		self::con()->user_metas->for( $this->getUser() )->passkeys = [];
 		parent::removeFromProfile();
+		$this->setPasskeysData( [] );
 	}
 
 	private function setPasskeysData( array $WAN ) :void {

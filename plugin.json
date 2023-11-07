@@ -13,7 +13,6 @@
     "show_admin_bar_menu":     true,
     "autoupdate":              "confidence",
     "autoupdate_days":         5,
-    "options_encoding":        "json",
     "enable_premium":          true
   },
   "requirements":     {

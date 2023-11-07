@@ -38,6 +38,24 @@ class MfaRecordsHandler {
 		unset( self::$records[ $record->user_id ] );
 	}
 
+	public function deleteFor( \WP_User $user, string $providerSlug ) :void {
+		\array_map(
+			function ( $record ) {
+				$this->delete( $record );
+			},
+			$this->loadFor( $user, $providerSlug )
+		);
+	}
+
+	public function deleteAllForUser( \WP_User $user ) :void {
+		\array_map(
+			function ( $record ) {
+				$this->delete( $record );
+			},
+			$this->loadForUser( $user )
+		);
+	}
+
 	/**
 	 * @return MfaDB\Record[]
 	 */

@@ -22,18 +22,15 @@ class U2F extends AbstractShieldProvider {
 			'reg_request' => $reg,
 			'signs'       => $signs,
 			'flags'       => [
-				'is_available'  => $this->isProviderAvailableToUser(),
+				'is_available' => $this->isProviderAvailableToUser(),
 			],
 			'strings'     => [
-				'not_supported'     => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
-				'failed'            => __( 'Key registration failed.', 'wp-simple-firewall' )
-									   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
-									   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
-				'do_save'           => __( 'Key registration was successful.', 'wp-simple-firewall' )
-									   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
-				'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
-				'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
-				'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+				'not_supported'       => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+				'failed'              => __( 'Key registration failed.', 'wp-simple-firewall' )
+										 .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
+										 .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+				'do_save'             => __( 'Key registration was successful.', 'wp-simple-firewall' )
+										 .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
 			]
 		];
 	}

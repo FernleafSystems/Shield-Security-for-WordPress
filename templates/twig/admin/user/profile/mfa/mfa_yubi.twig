@@ -11,7 +11,7 @@
 			<ul style=" list-style: circle inside; ">
 				{% for reg in vars.yubikeys %}
 					<li style="margin: 10px 0 0;">
-						<code>{{ reg.id }}</code>
+						<code>{{ reg.label }} ({{ reg.id }})</code>
 						<a href="#"
 						   class="shield_remove_yubi"
 						   style="text-decoration: none;"

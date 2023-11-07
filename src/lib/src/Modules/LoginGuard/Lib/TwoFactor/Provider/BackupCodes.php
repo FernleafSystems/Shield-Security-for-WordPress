@@ -94,10 +94,9 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 		];
 	}
 
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		parent::postSuccessActions();
 		$this->sendBackupCodeUsedEmail();
-		return $this;
 	}
 
 	protected function processOtp( string $otp ) :bool {

@@ -109,13 +109,12 @@ class Sms extends AbstractShieldProvider {
 		( new SendSms() )->send2FA( $this->getUser(), $meta->sms_registration[ 'code' ] );
 	}
 
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		parent::postSuccessActions();
 		$meta = self::con()->user_metas->for( $this->getUser() );
 		$reg = $meta->sms_registration;
 		unset( $reg[ 'code' ] );
 		$meta->sms_registration = $reg;
-		return $this;
 	}
 
 	protected function processOtp( string $otp ) :bool {

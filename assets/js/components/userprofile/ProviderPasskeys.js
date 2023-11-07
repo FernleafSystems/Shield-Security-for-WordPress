@@ -49,21 +49,26 @@ export class ProviderPasskeys extends ProviderBase {
 				let label, valid;
 				do {
 					valid = false;
-					label = prompt( this._base_data.strings.prompt_dialog, "<Insert Label>" );
-					if ( typeof label !== 'string' ) {
-						alert( this._base_data.strings.err_no_label )
+					label = prompt( this._base_data.strings.label_prompt_dialog, "<Provide A Label>" );
+					if ( label === null ) {
+						break;
+					}
+					else if ( typeof label !== 'string' ) {
+						alert( this._base_data.strings.err_no_label );
 					}
 					else if ( !( new RegExp( "^[\\s\\da-zA-Z_-]{1,16}$" ) ).test( label ) ) {
-						alert( this._base_data.strings.err_invalid_label )
+						alert( this._base_data.strings.err_invalid_label );
 					}
 					else {
 						valid = true;
 					}
 				} while ( !valid );
 
-				this.sendReq( ObjectOps.Merge( this._base_data.ajax.passkey_verify_registration, {
-					label: label, reg: JSON.stringify( attResp ),
-				} ) );
+				if ( valid ) {
+					this.sendReq( ObjectOps.Merge( this._base_data.ajax.passkey_verify_registration, {
+						label: label, reg: JSON.stringify( attResp ),
+					} ) );
+				}
 			}
 		} )
 		.finally();
