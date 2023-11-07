@@ -84,6 +84,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function onWpLoaded() {
+		parent::onWpLoaded();
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}
