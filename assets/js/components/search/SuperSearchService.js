@@ -9,18 +9,23 @@ export class SuperSearchService extends BaseComponent {
 
 	init() {
 
+		this.theModalDisplayed = false;
 		this.theModal = null;
 
-		shieldEventsHandler_Main.add_Click( '#SuperSearchLaunch input', () => {
-			if ( this.theModal === null ) {
-				this.theModal = document.getElementById( 'ModalSuperSearchBox' );
-				this.theModal.addEventListener( 'shown.bs.modal', event => {
-					this.theModal.getElementsByTagName( 'input' )[ 0 ].focus();
-				} );
-				new SuperSearchResults( this._base_data )
+		shieldEventsHandler_Main.add_Click( '#SuperSearchLaunch input', () => this.launchModal() );
+
+		/**
+		 * https://www.freecodecamp.org/news/javascript-keycode-list-keypress-event-key-codes/
+		 * So we only intercept Ctrl+k if the modal isn't currently displayed. Otherwise, we let the browser
+		 * have its say on what happens. This allows for accessing the browser address field with a double-press.
+		 */
+		document.addEventListener( 'keydown', ( evt ) => {
+			if ( evt.ctrlKey && evt.key === 'k' && !this.theModalDisplayed ) {
+				evt.preventDefault();
+				this.launchModal();
+				return false;
 			}
-			( new Modal( this.theModal ) ).show();
-		} );
+		}, false );
 
 		$( '#SuperSearchBox select' ).select2( {
 			minimumInputLength: 3,
@@ -49,5 +54,20 @@ export class SuperSearchService extends BaseComponent {
 			}
 		} );
 
+	}
+
+	launchModal() {
+		if ( this.theModalDisplayed !== true ) {
+			this.theModalDisplayed = true;
+			if ( this.theModal === null ) {
+				this.theModal = document.getElementById( 'ModalSuperSearchBox' );
+				this.theModal.addEventListener( 'shown.bs.modal', evt => {
+					this.theModal.getElementsByTagName( 'input' )[ 0 ].focus();
+				} );
+				this.theModal.addEventListener( 'hidden.bs.modal', evt => this.theModalDisplayed = false );
+				new SuperSearchResults( this._base_data )
+			}
+			( new Modal( this.theModal ) ).show();
+		}
 	}
 }
