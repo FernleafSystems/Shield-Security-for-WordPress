@@ -80,7 +80,6 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
-		add_action( 'rest_api_init', [ $this, 'onRestApiInit' ] );
 
 		$this->collateRuleBuilders();
 		$this->setupCronHooks();
@@ -143,26 +142,32 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
+		if ( self::con()->is_rest_enabled ) {
+			$this->initRestApi();
+		}
 	}
 
-	public function onRestApiInit() {
-		if ( self::con()->is_rest_enabled ) {
-			$cfg = $this->opts()->getDef( 'rest_api' );
-			if ( !empty( $cfg[ 'publish' ] ) ) {
-				add_action( 'rest_api_init', function () use ( $cfg ) {
-					try {
-						$restClass = $this->findElementClass( 'Rest' );
-						/** @var Shield\Modules\Base\Rest $rest */
-						if ( @\class_exists( $restClass ) ) {
-							$rest = new $restClass( $cfg );
-							$rest->setMod( $this )->init();
-						}
+	protected function initRestApi() {
+		if ( !empty( $this->opts()->getDef( 'rest_api' )[ 'publish' ] ) ) {
+			add_action( 'rest_api_init', function () {
+				try {
+					$restClass = $this->findElementClass( 'Rest' );
+					/** @var Shield\Modules\Base\Rest $rest */
+					if ( @\class_exists( $restClass ) ) {
+						$rest = new $restClass( $this->opts()->getDef( 'rest_api' ) );
+						$rest->setMod( $this )->init();
 					}
-					catch ( \Exception $e ) {
-					}
-				} );
-			}
+				}
+				catch ( \Exception $e ) {
+				}
+			} );
 		}
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function onRestApiInit() {
 	}
 
 	public function onWpInit() {
