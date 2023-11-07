@@ -49,6 +49,16 @@
     ],
     "patches":     [
       {
+        "version":     "6",
+        "released_at": 1699364000,
+        "items":       [
+          {
+            "title": "REST API endpoints were not always being initiated.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "5",
         "released_at": 1698231000,
         "items":       [
