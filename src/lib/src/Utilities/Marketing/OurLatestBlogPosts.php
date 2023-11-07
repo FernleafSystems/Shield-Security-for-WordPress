@@ -8,15 +8,16 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class OurLatestBlogPosts {
 
-	public function retrieve() :array {
+	public function retrieve( int $limit = 2, bool $refresh = false ) :array {
 		$posts = Transient::Get( 'apto-shield-latest-blog-posts' );
-		if ( !\is_array( $posts ) ) {
+		if ( $refresh || !\is_array( $posts ) ) {
 			$rawPosts = @\json_decode(
 				Services::HttpRequest()->getContent( URL::Build( 'https://getshieldsecurity.com/wp-json/wp/v2/posts', [
 					'per_page' => '5'
 				] ) ),
 				true
 			);
+
 			$posts = \array_slice( \array_filter( \array_map(
 				function ( $post ) {
 					if ( !\is_array( $post ) || $post[ 'type' ] !== 'post' || empty( $post[ 'id' ] )
@@ -36,9 +37,9 @@ class OurLatestBlogPosts {
 					];
 				},
 				\is_array( $rawPosts ) ? $rawPosts : []
-			) ), 0, 2 );
+			) ), 0, $limit );
 
-			Transient::Set( 'apto-shield-latest-blog-posts', $posts, \WEEK_IN_SECONDS );
+			Transient::Set( 'apto-shield-latest-blog-posts', $posts, \DAY_IN_SECONDS*3 );
 		}
 		return $posts;
 	}

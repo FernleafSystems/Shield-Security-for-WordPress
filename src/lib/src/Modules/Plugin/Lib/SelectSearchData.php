@@ -336,6 +336,15 @@ class SelectSearchData {
 						'icon'   => $con->svgs->raw( 'magic.svg' ),
 					],
 					[
+						'id'     => 'tool_reports',
+						'text'   => __( 'Reports', 'wp-simple-firewall' ),
+						'link'   => [
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_WIZARD ),
+						],
+						'tokens' => 'reports report reporting alert alerts',
+						'icon'   => $con->svgs->raw( 'clipboard-data-fill.svg' ),
+					],
+					[
 						'id'     => 'tool_debug',
 						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
 						'link'   => [

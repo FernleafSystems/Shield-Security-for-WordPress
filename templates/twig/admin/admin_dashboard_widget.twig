@@ -24,7 +24,7 @@
 		</small>
 	</h3>
 	{% for post in vars.blog_posts %}
-		<h4 style="margin:7px 5px 3px 5px"><a href="{{ post.href }}" target="_blank">{{ post.title }}</a></h4>
+		<h4 style="margin:7px 5px 3px 5px; font-weight: 600; letter-spacing: -0.5px;"><a href="{{ post.href }}" target="_blank">{{ post.title }}</a></h4>
 		<p style="margin:3px 5px;">{{ post.excerpt|raw }}</p>
 	{% endfor %}
 {% endif %}
