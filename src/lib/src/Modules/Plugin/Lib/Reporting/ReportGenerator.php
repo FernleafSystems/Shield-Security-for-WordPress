@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\DB\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports\Ops as ReportsDB;
@@ -142,11 +143,14 @@ class ReportGenerator {
 		$report->areas_data = $data;
 	}
 
+	/**
+	 * @param ReportVO[] $reports
+	 */
 	private function sendNotificationEmail( array $reports ) {
 		$con = self::con();
 
 		try {
-			$con->email_con->send(
+			$email = EmailVO::Factory(
 				$con->getModule_Plugin()->getPluginReportEmail(),
 				__( 'Security Report', 'wp-simple-firewall' ).' - '.$con->getHumanName(),
 				$con->action_router->render(
@@ -157,6 +161,14 @@ class ReportGenerator {
 					]
 				)
 			);
+			foreach ( $reports as $report ) {
+				if ( $report->type === Constants::REPORT_TYPE_ALERT ) {
+					$email->is_alert = true;
+					break;
+				}
+			}
+
+			$con->email_con->sendVO( $email );
 
 			$con->fireEvent( 'report_sent', [
 				'audit_params' => [
@@ -172,7 +184,6 @@ class ReportGenerator {
 	private function markAlertsAsNotified() {
 		$modHG = self::con()->getModule_HackGuard();
 
-		// File Locker
 		/** @var FileLockerDB\Update $updater */
 		$updater = $modHG->getDbH_FileLocker()->getQueryUpdater();
 		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {

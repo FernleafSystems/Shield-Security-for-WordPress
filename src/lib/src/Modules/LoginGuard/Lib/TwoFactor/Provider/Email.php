@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailAutoLogin;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
@@ -114,25 +114,27 @@ class Email extends AbstractShieldProviderMfaDB {
 
 			$success = ( $useSureSend && ( new SendEmail() )->send2FA( $this->getUser(), $otp ) )
 					   ||
-					   $con->email_con->send(
-						   $user->user_email,
-						   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-						   $con->action_router->render( MfaLoginCode::SLUG, [
-							   'home_url'       => Services::WpGeneral()->getHomeUrl(),
-							   'ip'             => $con->this_req->ip,
-							   'user_id'        => $user->ID,
-							   'otp'            => $otp,
-							   'url_auto_login' => $con->plugin_urls->noncedPluginAction(
-								   MfaEmailAutoLogin::class,
-								   null,
-								   [
-									   $this->getLoginIntentFormParameter() => $otp,
-									   'login_nonce'                        => $plainNonce,
-									   'user_id'                            => $user->ID,
-									   'redirect_to'                        => $autoRedirect,
-								   ]
-							   ),
-						   ] )
+					   $con->email_con->sendVO(
+						   EmailVO::Factory(
+							   $user->user_email,
+							   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+							   $con->action_router->render( MfaLoginCode::SLUG, [
+								   'home_url'       => Services::WpGeneral()->getHomeUrl(),
+								   'ip'             => $con->this_req->ip,
+								   'user_id'        => $user->ID,
+								   'otp'            => $otp,
+								   'url_auto_login' => $con->plugin_urls->noncedPluginAction(
+									   MfaEmailAutoLogin::class,
+									   null,
+									   [
+										   $this->getLoginIntentFormParameter() => $otp,
+										   'login_nonce'                        => $plainNonce,
+										   'user_id'                            => $user->ID,
+										   'redirect_to'                        => $autoRedirect,
+									   ]
+								   ),
+							   ] )
+						   )
 					   );
 		}
 		catch ( \Exception $e ) {

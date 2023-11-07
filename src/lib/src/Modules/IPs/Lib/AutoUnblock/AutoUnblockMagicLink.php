@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UnblockMagicLink;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AutoUnblockMagicLink extends BaseAutoUnblockShield {
@@ -30,14 +31,16 @@ class AutoUnblockMagicLink extends BaseAutoUnblockShield {
 			throw new \Exception( 'IP does not match.' );
 		}
 
-		$con->email_con->send(
-			$user->user_email,
-			__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
-			$con->action_router->render( UnblockMagicLink::SLUG, [
-				'home_url' => Services::WpGeneral()->getHomeUrl(),
-				'ip'       => $con->this_req->ip,
-				'user_id'  => $user->ID,
-			] )
+		$con->email_con->sendVO(
+			EmailVO::Factory(
+				$user->user_email,
+				__( 'Automatic IP Unblock Request', 'wp-simple-firewall' ),
+				$con->action_router->render( UnblockMagicLink::SLUG, [
+					'home_url' => Services::WpGeneral()->getHomeUrl(),
+					'ip'       => $con->this_req->ip,
+					'user_id'  => $user->ID,
+				] )
+			)
 		);
 	}
 }
