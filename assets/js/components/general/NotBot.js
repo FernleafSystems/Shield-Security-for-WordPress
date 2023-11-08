@@ -10,6 +10,9 @@ export class NotBot extends BaseComponent {
 		this.use_fetch = typeof fetch !== typeof undefined;
 		this.shield_ajaxurl = this._base_data.ajax.not_bot.ajaxurl;
 		delete this._base_data.ajax.not_bot.ajaxurl;
+		delete this._base_data.ajax.not_bot._rest_url;
+		/** todo: remove after switch to REST */
+		delete this._base_data.ajax.not_bot._wpnonce;
 
 		this.exec();
 	}

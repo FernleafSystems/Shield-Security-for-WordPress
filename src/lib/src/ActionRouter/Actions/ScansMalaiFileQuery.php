@@ -39,11 +39,10 @@ class ScansMalaiFileQuery extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function getMalaiStatus() :string {
-		$req = Services::Request();
 		$FS = Services::WpFs();
 
 		/** @var ResultItem $item */
-		$item = ( new RetrieveItems() )->byID( (int)$req->post( 'rid' ) );
+		$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] ?? -1 );
 		$path = $item->path_full;
 		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new \Exception( 'There was a problem locating or reading the file on this site' );

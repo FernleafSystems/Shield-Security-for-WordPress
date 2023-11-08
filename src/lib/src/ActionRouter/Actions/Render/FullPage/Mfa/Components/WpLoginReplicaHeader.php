@@ -94,7 +94,7 @@ class WpLoginReplicaHeader extends Base {
 		 */
 		$login_header_text = apply_filters( 'login_headertext', $login_header_text );
 
-		$classes = [ 'login-action-'.Services::Request()->request( 'action', 'login' ), 'wp-core-ui' ];
+		$classes = [ 'login-action-'.$this->action_data[ 'action' ] ?? 'login', 'wp-core-ui' ];
 
 		if ( is_rtl() ) {
 			$classes[] = 'rtl';

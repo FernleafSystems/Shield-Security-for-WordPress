@@ -23,10 +23,14 @@ class NotBotHandler {
 	protected function run() {
 		( new InsertNotBotJs() )->execute();
 		if ( $this->opts()->isOpt( 'force_notbot', 'Y' ) ) {
-			$this->sendNotBotNonceCookie();
+			add_action( 'setup_theme', [ $this, 'sendNotBotNonceCookie' ] );
 		}
 	}
 
+	/**
+	 * Hooked to "setup_theme" as ActionData::Build() requires $wp_rewrite to be initialised,
+	 * and this is the earliest we can hook into.
+	 */
 	public function sendNotBotNonceCookie() {
 		Services::Response()->cookieSet(
 			'shield-notbot-nonce',

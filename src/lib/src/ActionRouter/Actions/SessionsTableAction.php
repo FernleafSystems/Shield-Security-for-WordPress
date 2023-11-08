@@ -15,7 +15,7 @@ class SessionsTableAction extends BaseAction {
 					$response = $this->retrieveTableData();
 					break;
 				default:
-					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$this->action_data[ 'sub_action' ] );
+					throw new \Exception( 'Not a supported Sessions table sub_action: '.$this->action_data[ 'sub_action' ] );
 			}
 		}
 		catch ( \Exception $e ) {

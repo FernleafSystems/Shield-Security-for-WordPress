@@ -52,14 +52,43 @@ export class AjaxService {
 	};
 
 	req( data ) {
+		/* const isRest = '_rest_url' in data; */
+		const isRest = false;
+		let url = isRest ? data._rest_url : ( typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl );
+
 		let reqData = ObjectOps.ObjClone( data );
-		let url = typeof ajaxurl === 'undefined' ? reqData.ajaxurl : ajaxurl;
 		delete reqData.ajaxurl;
+		delete reqData._rest_url;
 		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
 
-		return fetch( url, this.constructFetchRequestData( reqData ) )
-		.then( raw => raw.text() )
-		.then( respTEXT => AjaxParseResponseService.ParseIt( respTEXT ) );
+		if ( isRest ) {
+			const headers = {
+				"Content-Type": "application/json",
+				"X-WP-Nonce": reqData._wpnonce,
+			};
+
+			delete reqData.action;
+			delete reqData.ex;
+			delete reqData.exnonce;
+			delete reqData.shield_uniq;
+			delete reqData._wpnonce;
+
+			return fetch( url, {
+				method: 'POST',
+				body: JSON.stringify( { payload: reqData } ),
+				cache: "no-cache",
+				credentials: "same-origin",
+				headers: headers,
+				redirect: "follow",
+				referrerPolicy: "no-referrer",
+			} ).then( ( resp ) => resp.json() );
+		}
+		else {
+			delete reqData._wpnonce;
+			return fetch( url, this.constructFetchRequestData( reqData ) )
+			.then( raw => raw.text() )
+			.then( respTEXT => AjaxParseResponseService.ParseIt( respTEXT ) );
+		}
 	}
 
 	constructFetchRequestData( core, method = 'POST' ) {

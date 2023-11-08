@@ -13,14 +13,14 @@ class ScansFileLockerAction extends ScansBase {
 	public const SLUG = 'filelocker_fileaction';
 
 	protected function exec() {
-		$req = Services::Request();
+		$reqData = $this->action_data;
 		$success = false;
 
-		if ( $req->post( 'confirmed' ) == '1' ) {
+		if ( $reqData[ 'confirmed' ] ?? false ) {
 			try {
-				$lock = self::con()->getModule_HackGuard()->getFileLocker()->getFileLock( (int)$req->post( 'rid' ) );
+				$lock = self::con()->getModule_HackGuard()->getFileLocker()->getFileLock( (int)$reqData[ 'rid' ] );
 
-				switch ( $req->post( 'file_action' ) ) {
+				switch ( $reqData[ 'file_action' ] ) {
 					case 'accept':
 						$success = ( new Accept() )->run( $lock );
 						break;

@@ -56,7 +56,7 @@ class TabSiteManage extends BaseSubPage {
 	}
 
 	protected function getActiveSiteID() :int {
-		return (int)Services::Request()->query( 'site_id' );
+		return (int)$this->action_data[ 'site_id' ] ?? 0;
 	}
 
 	protected function getMenuTopNavItems() :array {
