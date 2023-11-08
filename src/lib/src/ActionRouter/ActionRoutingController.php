@@ -14,11 +14,13 @@ class ActionRoutingController {
 
 	public const ACTION_AJAX = 1;
 	public const ACTION_SHIELD = 2;
+	public const ACTION_REST = 3;
 
 	protected function run() {
 		( new CaptureRedirects() )->run();
 		( new CaptureShieldAction() )->execute();
 		( new CaptureAjaxAction() )->execute();
+		( new CaptureRestApiAction() )->execute();
 	}
 
 	/**
@@ -36,6 +38,9 @@ class ActionRoutingController {
 				break;
 			case self::ACTION_SHIELD:
 				$adapter = new ResponseAdapter\ShieldActionResponseAdapter();
+				break;
+			case self::ACTION_REST:
+				$adapter = new ResponseAdapter\RestApiActionResponseAdapter();
 				break;
 			default:
 				throw new Exceptions\ActionTypeDoesNotExistException( $type );

@@ -137,32 +137,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( self::con()->is_rest_enabled ) {
-			$this->initRestApi();
-		}
-	}
-
-	protected function initRestApi() {
-		if ( !empty( $this->opts()->getDef( 'rest_api' )[ 'publish' ] ) ) {
-			add_action( 'rest_api_init', function () {
-				try {
-					$restClass = $this->findElementClass( 'Rest' );
-					/** @var Shield\Modules\Base\Rest $rest */
-					if ( @\class_exists( $restClass ) ) {
-						$rest = new $restClass( $this->opts()->getDef( 'rest_api' ) );
-						$rest->setMod( $this )->init();
-					}
-				}
-				catch ( \Exception $e ) {
-				}
-			} );
-		}
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function onRestApiInit() {
 	}
 
 	public function onWpInit() {
@@ -496,12 +470,9 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $element
-	 * @param bool   $bThrowException
-	 * @return string|null
 	 * @throws \Exception
 	 */
-	protected function findElementClass( string $element, $bThrowException = true ) {
+	public function findElementClass( string $element ) :string {
 		$theClass = null;
 
 		$roots = \array_map( function ( $root ) {
@@ -518,7 +489,7 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		}
 
-		if ( $bThrowException && \is_null( $theClass ) ) {
+		if ( $theClass === null ) {
 			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
 		}
 		return $theClass;
