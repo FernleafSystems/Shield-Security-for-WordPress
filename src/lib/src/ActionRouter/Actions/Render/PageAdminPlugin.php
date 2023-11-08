@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\Handler;
-use FernleafSystems\Wordpress\Services\Services;
 
 class PageAdminPlugin extends BaseRender {
 
@@ -19,12 +18,11 @@ class PageAdminPlugin extends BaseRender {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$req = Services::Request();
 
 		$nav = $con->getModule_Plugin()->isAccessRestricted()
 			? PluginNavs::NAV_RESTRICTED
-			: $req->query( Constants::NAV_ID, PluginNavs::NAV_DASHBOARD );
-		$subNav = $nav === PluginNavs::NAV_RESTRICTED ? '' : (string)$req->query( Constants::NAV_SUB_ID );
+			: $this->action_data[ Constants::NAV_ID ] ?? PluginNavs::NAV_DASHBOARD;
+		$subNav = $nav === PluginNavs::NAV_RESTRICTED ? '' : $this->action_data[ Constants::NAV_SUB_ID ] ?? '';
 		if ( empty( $subNav ) || $subNav === PluginNavs::SUBNAV_INDEX ) {
 			$subNav = PluginNavs::GetDefaultSubNavForNav( $nav );
 		}

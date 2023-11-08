@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
-use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Factory;
 
 class IpRuleAddSubmit extends BaseAction {
@@ -12,9 +11,8 @@ class IpRuleAddSubmit extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
-		$mod = $con->getModule_IPs();
-		$dbh = $mod->getDbH_IPRules();
-		$form = Services::Request()->post( 'form_data' );
+		$dbh = $con->getModule_IPs()->getDbH_IPRules();
+		$form = $this->action_data[ 'form_data' ];
 		try {
 			if ( empty( $form ) || !\is_array( $form ) ) {
 				throw new \Exception( 'No data. Please retry' );

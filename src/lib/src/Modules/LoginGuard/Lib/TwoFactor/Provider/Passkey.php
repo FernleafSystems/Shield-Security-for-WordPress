@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\MfaPasskeyRemoveSource,
+	Actions\MfaPasskeyRegistrationStart,
 	Actions\MfaPasskeyRegistrationVerify,
-	Actions\MfaPasskeyRegistrationStart
+	Actions\MfaPasskeyRemoveSource
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeySourcesHandler;

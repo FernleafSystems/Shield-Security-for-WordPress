@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 /**
  * @deprecated 18.5
  */
@@ -12,15 +10,13 @@ class UserSessionsTableBulkAction extends SecurityAdminBase {
 	public const SLUG = 'user_sessions_bulk_action';
 
 	protected function exec() {
-		$req = Services::Request();
-
 		$success = false;
 
-		$IDs = $req->post( 'ids' );
+		$IDs = $this->action_data[ 'ids' ] ?? null;
 		if ( empty( $IDs ) || !\is_array( $IDs ) ) {
 			$msg = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		elseif ( $req->post( 'bulk_action' ) != 'delete' ) {
+		elseif ( $this->action_data[ 'bulk_action' ] != 'delete' ) {
 			$msg = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {

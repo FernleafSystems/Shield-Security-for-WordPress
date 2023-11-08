@@ -15,11 +15,9 @@ class PluginReinstall extends ScansBase {
 	protected function exec() {
 		$success = false;
 
-		$req = Services::Request();
+		$file = sanitize_text_field( wp_unslash( $this->action_data[ 'file' ] ?? '' ) );
 
-		$file = sanitize_text_field( wp_unslash( $req->post( 'file' ) ) );
-
-		if ( $req->post( 'reinstall' ) ) {
+		if ( $this->action_data[ 'reinstall' ] ?? false ) {
 			$WPP = Services::WpPlugins();
 			$plugin = $WPP->getPluginAsVo( $file );
 			if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {

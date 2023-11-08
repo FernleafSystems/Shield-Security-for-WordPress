@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class UserSessionDelete extends SecurityAdminBase {
 
 	public const SLUG = 'user_session_delete';

@@ -17,8 +17,6 @@ class TabSiteManage extends BaseSubPage {
 	protected function getRenderData() :array {
 		$con = self::con();
 		$mwp = $con->mwpVO;
-		$WP = Services::WpGeneral();
-		$req = Services::Request();
 
 		return [
 			'hrefs'   => [

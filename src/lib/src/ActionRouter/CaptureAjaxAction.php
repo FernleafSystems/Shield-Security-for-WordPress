@@ -80,7 +80,9 @@ class CaptureAjaxAction extends CaptureActionBase {
 		if ( !empty( $response ) ) {
 			( new Response() )->issue( [
 				'success'     => $response[ 'success' ] ?? false,
-				'data'        => $response,
+				'data'        => \array_diff_key( $response, \array_flip( [
+					'action_data', /** TODO: refine action process to ensure that excess data isn't included */
+				] ) ),
 				'noise'       => $noise,
 				'status_code' => $statusCode ?? 200
 			] );

@@ -18,13 +18,12 @@ class Render extends BaseAction {
 	public const SLUG = 'render';
 
 	protected function exec() {
-		$req = Services::Request();
 		$this->setResponse(
 			self::con()->action_router->action(
 				$this->action_data[ 'render_action_slug' ],
 				Services::DataManipulation()->mergeArraysRecursive(
-					$req->query,
-					$req->post,
+					Services::Request()->query,
+					Services::Request()->post,
 					\array_filter( $this->action_data[ 'render_action_data' ] ?? [], function ( $item ) {
 						return !\is_null( $item );
 					} )

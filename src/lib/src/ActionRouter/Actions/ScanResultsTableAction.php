@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\ScanTables\BuildScanTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ScanResultsTableAction extends ScansBase {
 
@@ -12,7 +11,7 @@ class ScanResultsTableAction extends ScansBase {
 
 	protected function exec() {
 		try {
-			$response = $this->delegate( Services::Request()->post( 'sub_action' ) );
+			$response = $this->delegate( $this->action_data[ 'sub_action' ] ?? '' );
 		}
 		catch ( \Exception $e ) {
 			$response = [
@@ -116,14 +115,14 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function getItemIDs() :array {
-		$items = Services::Request()->post( 'rids' );
+		$items = $this->action_data[ 'rids' ] ?? '';
 		if ( empty( $items ) || !\is_array( $items ) ) {
 			throw new \Exception( 'No items selected.' );
 		}
 		return \array_filter(
 			\array_map(
 				function ( $rid ) {
-					return is_numeric( $rid ) ? intval( $rid ) : null;
+					return \is_numeric( $rid ) ? \intval( $rid ) : null;
 				},
 				$items
 			),
@@ -137,11 +136,10 @@ class ScanResultsTableAction extends ScansBase {
 	 * @throws \Exception
 	 */
 	private function retrieveTableData() :array {
-		$req = Services::Request();
 		$builder = new BuildScanTableData();
-		$builder->table_data = (array)$req->post( 'table_data', [] );
-		$builder->type = (string)$req->post( 'type', '' );
-		$builder->file = (string)$req->post( 'file', '' );
+		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
+		$builder->type = $this->action_data[ 'type' ] ?? '';
+		$builder->file = $this->action_data[ 'file' ] ?? '';
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MfaEmailToggle extends MfaUserConfigBase {
 

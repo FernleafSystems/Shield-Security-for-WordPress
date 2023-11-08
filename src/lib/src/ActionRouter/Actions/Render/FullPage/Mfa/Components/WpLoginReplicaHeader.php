@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\Components;
 
 use FernleafSystems\Utilities\Data\CaptureOutput;
-use FernleafSystems\Wordpress\Services\Services;
 
 class WpLoginReplicaHeader extends Base {
 

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
 	Accept,
 	Restore
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class ScansFileLockerAction extends ScansBase {
 

@@ -3,15 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Sms;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MfaSmsAdd extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_sms_add';
 
 	protected function exec() {
-		$req = Services::Request();
-
 		$available = self::con()
 						 ->getModule_LoginGuard()
 						 ->getMfaController()
@@ -19,8 +16,8 @@ class MfaSmsAdd extends MfaUserConfigBase {
 		/** @var Sms $provider */
 		$provider = $available[ Sms::ProviderSlug() ];
 
-		$countryCode = $req->post( 'sms_country' );
-		$phoneNum = $req->post( 'sms_phone' );
+		$countryCode = $this->action_data[ 'sms_country' ] ?? '';
+		$phoneNum = $this->action_data[ 'sms_phone' ] ?? '';
 
 		$response = [
 			'success'     => false,

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePlu
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class PageDebug extends BasePluginAdminPage {
@@ -36,7 +35,7 @@ class PageDebug extends BasePluginAdminPage {
 		$con = self::con();
 
 		$availableTests = [];
-		if ( $con->this_req->is_security_admin && Services::Request()->query( 'show' ) ) {
+		if ( $con->this_req->is_security_admin && ( $this->action_data[ 'show' ] ?? false ) ) {
 			$availableTests = \array_map(
 				function ( $method ) {
 					return sprintf(

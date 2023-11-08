@@ -589,7 +589,10 @@ class Controller extends DynPropertiesClass {
 		$this->action_router->execute();
 
 		try {
-			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class );
+			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class, \array_merge(
+				Services::Request()->query,
+				Services::Request()->post
+			) );
 		}
 		catch ( ActionException $e ) {
 		}
@@ -603,7 +606,7 @@ class Controller extends DynPropertiesClass {
 	public function getInstallationID() :array {
 		$WP = Services::WpGeneral();
 		$urlParts = wp_parse_url( $WP->getWpUrl() );
-		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ] ?? '', '/' );
+		$url = $urlParts[ 'host' ].\trim( $urlParts[ 'path' ] ?? '', '/' );
 		$optKey = $this->prefixOption( 'shield_site_id' );
 
 		$IDs = $WP->getOption( $optKey );
