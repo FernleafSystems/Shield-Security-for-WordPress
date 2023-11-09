@@ -1,13 +1,9 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 
-export class IpRules extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class IpRules extends BaseAutoExecComponent {
 
 	run() {
 		this.handleIpRuleOffcanvasForm();

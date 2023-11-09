@@ -1,12 +1,8 @@
 import $ from 'jquery';
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
-import { BaseComponent } from "../BaseComponent";
 
-export class IpSourceAutoDetect extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class IpSourceAutoDetect extends BaseAutoExecComponent {
 
 	canRun() {
 		return this._base_data.flags.is_check_required;

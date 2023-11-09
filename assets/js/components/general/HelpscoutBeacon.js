@@ -1,10 +1,6 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 
-export class HelpscoutBeacon extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class HelpscoutBeacon extends BaseAutoExecComponent {
 
 	canRun() {
 		return this._base_data.visible;

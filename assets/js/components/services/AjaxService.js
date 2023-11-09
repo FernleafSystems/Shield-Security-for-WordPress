@@ -3,6 +3,7 @@ import { AjaxParseResponseService } from "./AjaxParseResponseService";
 import { ObjectOps } from "../../util/ObjectOps";
 import qs from "qs";
 import { Random } from "../../util/Random";
+import { RestService } from "./RestService";
 
 export class AjaxService {
 
@@ -54,37 +55,20 @@ export class AjaxService {
 	req( data ) {
 		/* const isRest = '_rest_url' in data; */
 		const isRest = false;
-		let url = isRest ? data._rest_url : ( typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl );
-
-		let reqData = ObjectOps.ObjClone( data );
-		delete reqData.ajaxurl;
-		delete reqData._rest_url;
-		reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
 
 		if ( isRest ) {
-			const headers = {
-				"Content-Type": "application/json",
-				"X-WP-Nonce": reqData._wpnonce,
-			};
-
-			delete reqData.action;
-			delete reqData.ex;
-			delete reqData.exnonce;
-			delete reqData.shield_uniq;
-			delete reqData._wpnonce;
-
-			return fetch( url, {
-				method: 'POST',
-				body: JSON.stringify( { payload: reqData } ),
-				cache: "no-cache",
-				credentials: "same-origin",
-				headers: headers,
-				redirect: "follow",
-				referrerPolicy: "no-referrer",
-			} ).then( ( resp ) => resp.json() );
+			return ( new RestService() ).req( data );
 		}
 		else {
+			let url = typeof ajaxurl === 'undefined' ? data.ajaxurl : ajaxurl;
+
+			let reqData = ObjectOps.ObjClone( data );
+			reqData[ 'shield_uniq' ] = Random.Int( 1000, 9999 );
+
 			delete reqData._wpnonce;
+			delete reqData._rest_url;
+			delete reqData.ajaxurl;
+
 			return fetch( url, this.constructFetchRequestData( reqData ) )
 			.then( raw => raw.text() )
 			.then( respTEXT => AjaxParseResponseService.ParseIt( respTEXT ) );

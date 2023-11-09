@@ -33,6 +33,7 @@ import { ShieldEventsHandler } from "./js/services/ShieldEventsHandler";
 import { SuperSearchService } from "./js/components/search/SuperSearchService";
 import { Tours } from "./js/components/general/Tours";
 import { TrafficLiveLogs } from "./js/components/general/TrafficLiveLogs";
+import { TestRest } from "./js/components/general/TestRest";
 
 $( document ).ready( function () {
 
@@ -79,5 +80,6 @@ $( document ).ready( function () {
 		( 'ip_rules' in comps.tables ) && new ShieldTableIpRules( comps.tables.ip_rules );
 		( 'sessions' in comps.tables ) && new ShieldTableSessions( comps.tables.sessions );
 		( 'traffic' in comps.tables ) && new ShieldTableTrafficLog( comps.tables.traffic );
+		( 'testrest' in comps ) && new TestRest( comps.testrest );
 	}
 } );

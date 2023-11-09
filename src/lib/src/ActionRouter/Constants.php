@@ -112,6 +112,8 @@ class Constants {
 
 		Actions\PluginAdmin\PluginAdminPageHandler::class,
 
+		Actions\TestRestFetchRequests::class,
+
 		Actions\Render::class,
 		Actions\Render\GenericRender::class,
 

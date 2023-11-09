@@ -1,13 +1,9 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { OptionsFormSubmit } from "./OptionsFormSubmit";
 
-export class OptionsHandler extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class OptionsHandler extends BaseAutoExecComponent {
 
 	run() {
 		new OptionsFormSubmit( this._base_data );

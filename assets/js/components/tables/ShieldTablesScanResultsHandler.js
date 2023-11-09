@@ -1,12 +1,8 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableScanResults } from "./ShieldTableScanResults";
 
-export class ShieldTablesScanResultsHandler extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class ShieldTablesScanResultsHandler extends BaseAutoExecComponent {
 
 	run() {
 		Object.keys( this._base_data ).forEach(

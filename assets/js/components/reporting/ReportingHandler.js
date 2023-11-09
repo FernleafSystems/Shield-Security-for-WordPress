@@ -1,15 +1,11 @@
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
-import { BaseComponent } from "../BaseComponent";
 import { DateRangePicker } from "vanillajs-datepicker";
 import { Forms } from "../../util/Forms";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 
-export class ReportingHandler extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class ReportingHandler extends BaseAutoExecComponent {
 
 	canRun() {
 		return this._base_data.flags.can_run_report;

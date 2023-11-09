@@ -182,8 +182,8 @@ class AssetsCustomizer {
 					'visible'   => $con->isPluginAdminPageRequest()
 				],
 			],
-			'import' => [
-				'key' => 'import',
+			'import'           => [
+				'key'     => 'import',
 				'handles' => [
 					'main',
 				],
@@ -566,6 +566,45 @@ class AssetsCustomizer {
 					}
 					return $data;
 				}
+			],
+			'testrest'         => [
+				'key'     => 'testrest',
+				'handles' => [
+					'main',
+				],
+				'data'    => function () {
+					/**
+					 * This is temporary and only to be used to determine (via telemetry) whether clients can
+					 * actually use this method of requests.
+					 * @deprecated 18.5
+					 */
+					$opts = self::con()->getModule_Plugin()->opts();
+					$data = $opts->getOpt( 'test_rest_data' );
+					if ( empty( $data[ 'test_at' ] ) ) {
+						$data = [
+							'success_at' => 0,
+						];
+					}
+					if ( Services::Request()->ts() - ( $data[ 'test_at' ] ?? 0 ) > DAY_IN_SECONDS ) {
+						$run = true;
+						$data[ 'test_at' ] = Services::Request()->ts();
+					}
+					else {
+						$run = false;
+					}
+
+					$opts->setOpt( 'test_rest_data', $data );
+					self::con()->opts->store();
+
+					return [
+						'ajax'  => [
+							'test_rest' => ActionData::Build( Actions\TestRestFetchRequests::class ),
+						],
+						'flags' => [
+							'can_run' => $run,
+						],
+					];
+				},
 			],
 			'tours'            => [
 				'key'     => 'tours',

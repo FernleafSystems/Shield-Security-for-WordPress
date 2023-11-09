@@ -1,13 +1,9 @@
 import CircleProgress from "js-circle-progress";
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 
-export class ProgressMeters extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class ProgressMeters extends BaseAutoExecComponent {
 
 	run() {
 		shieldEventsHandler_Main.add_Click( 'a.offcanvas_meter_analysis', ( targetEl ) => {

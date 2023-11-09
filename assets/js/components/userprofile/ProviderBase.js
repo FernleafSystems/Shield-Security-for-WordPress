@@ -1,15 +1,11 @@
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
-import { BaseComponent } from "../BaseComponent";
 
-export class ProviderBase extends BaseComponent {
+export class ProviderBase extends BaseAutoExecComponent {
 
 	constructor( props, profileRenderer ) {
 		super( props );
 		this.profileRenderer = profileRenderer;
-	}
-
-	init() {
-		this.exec();
 	}
 
 	sendReq( params ) {

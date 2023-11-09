@@ -1,10 +1,6 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 
-export class LeanBe extends BaseComponent {
-
-	init() {
-		this.exec();
-	}
+export class LeanBe extends BaseAutoExecComponent {
 
 	canRun() {
 		return typeof this._base_data.vars.widget_key !== 'undefined';
