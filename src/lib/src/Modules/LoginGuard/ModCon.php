@@ -21,23 +21,16 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return $this->mfaCon ?? $this->mfaCon = new Lib\TwoFactor\MfaController();
 	}
 
-	public function preProcessOptions() {
+	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		if ( $opts->isOptChanged( 'enable_email_authentication' ) ) {
-			$opts->setOpt( 'email_can_send_verified_at', 0 );
 			try {
 				self::con()->action_router->action( MfaEmailSendVerification::class );
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanLoginUrlPath() {
 	}
 
 	public function getGaspKey() :string {
@@ -92,5 +85,17 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 */
 	public function getCaptchaCfg() {
 		return parent::getCaptchaCfg();
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function preProcessOptions() {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	private function cleanLoginUrlPath() {
 	}
 }

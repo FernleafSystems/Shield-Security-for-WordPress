@@ -14,8 +14,6 @@ class PluginNavs {
 	public const FIELD_NAV = 'nav';
 	public const FIELD_SUBNAV = 'nav_sub';
 	public const NAV_ACTIVITY = 'activity';
-	/** @deprecated 18.5 */
-	public const SUBNAV_ACTIVITY_LOG = 'log';
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
 	public const NAV_LICENSE = 'license';
@@ -34,8 +32,6 @@ class PluginNavs {
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
-	/** @deprecated 18.5 */
-	public const SUBNAV_TRAFFIC_LOG = 'log';
 	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
@@ -46,6 +42,9 @@ class PluginNavs {
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
+	/** @deprecated 18.5 */
+	public const SUBNAV_ACTIVITY_LOG = 'log';
+	public const SUBNAV_TRAFFIC_LOG = 'log';
 
 	public static function GetNav() :string {
 		return (string)Services::Request()->query( self::FIELD_NAV );

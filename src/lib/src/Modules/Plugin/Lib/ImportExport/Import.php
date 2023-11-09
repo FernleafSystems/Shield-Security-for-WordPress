@@ -218,9 +218,10 @@ class Import {
 				);
 
 				$anythingChanged = $anythingChanged || $theseOpts->getNeedSave();
-				$mod->saveModOptions( true );
 			}
 		}
+
+		self::con()->opts->store();
 
 		if ( !empty( $data[ 'ip_rules' ] ) ) {
 			$dbh = self::con()->getModule_IPs()->getDbH_IPRules();

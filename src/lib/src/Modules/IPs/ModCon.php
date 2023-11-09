@@ -72,7 +72,7 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
-	public function preProcessOptions() {
+	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		if ( $opts->isOptChanged( 'cs_block' ) && !$opts->isEnabledCrowdSecAutoBlock() ) {
@@ -123,5 +123,11 @@ class ModCon extends BaseShield\ModCon {
 	 * @deprecated 18.5
 	 */
 	private function cleanPathWhitelist() {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function preProcessOptions() {
 	}
 }

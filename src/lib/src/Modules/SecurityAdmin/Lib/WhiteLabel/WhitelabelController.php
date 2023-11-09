@@ -107,6 +107,9 @@ class WhitelabelController {
 		return $updateData;
 	}
 
+	/**
+	 * Verify whitelabel images
+	 */
 	public function verifyUrls() {
 		$DP = Services::Data();
 		$opts = $this->opts();

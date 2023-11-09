@@ -75,6 +75,9 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( self::con()->prefix( 'pre_options_store' ), function () {
+			$this->onConfigChanged();
+		} );
 
 		$this->collateRuleBuilders();
 		$this->setupCronHooks();
@@ -154,21 +157,6 @@ abstract class ModCon extends DynPropertiesClass {
 		if ( $con->isPremiumActive() ) {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
-		}
-	}
-
-	/**
-	 * We have to do it this way as the "page hook" is built upon the top-level plugin
-	 * menu name. But what if we white label?  So we need to dynamically grab the page hook
-	 */
-	public function onSetCurrentScreen() {
-		global $page_hook;
-		add_action( 'load-'.$page_hook, [ $this, 'onLoadOptionsScreen' ] );
-	}
-
-	public function onLoadOptionsScreen() {
-		if ( self::con()->isValidAdminArea() ) {
-			$this->buildContextualHelp();
 		}
 	}
 
@@ -341,46 +329,31 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.2.5
+	 * Handle any required actions after particular configuration changes.
 	 */
-	public function saveModOptions( bool $preProcessOptions = false ) {
-		if ( $preProcessOptions ) {
-			$this->preProcessOptions();
-		}
+	public function onConfigChanged() :void {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function saveModOptions() {
 		self::con()->opts->store();
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function preProcessOptions() {
 	}
 
 	/**
-	 * This is the point where you would want to do any options verification
 	 * @deprecated 18.5
 	 */
 	public function doPrePluginOptionsSave() {
 	}
 
 	public function onPluginDeactivate() {
-	}
-
-	protected function buildContextualHelp() {
-		if ( !\function_exists( 'get_current_screen' ) ) {
-			require_once( ABSPATH.'wp-admin/includes/screen.php' );
-		}
-		$screen = get_current_screen();
-		//$screen->remove_help_tabs();
-		$screen->add_help_tab( [
-			'id'      => 'my-plugin-default',
-			'title'   => __( 'Default' ),
-			'content' => 'This is where I would provide tabbed help to the user on how everything in my admin panel works. Formatted HTML works fine in here too'
-		] );
-		//add more help tabs as needed with unique id's
-
-		// Help sidebars are optional
-		$screen->set_help_sidebar(
-			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
-			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
-		);
 	}
 
 	public function isAccessRestricted() :bool {

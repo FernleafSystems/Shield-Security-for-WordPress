@@ -38,6 +38,12 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 				\array_unique( \array_merge( $posts, [ 'publish', 'delete' ] ) )
 			);
 		}
+
+		if ( $this->isOptChanged( 'sec_admin_users' ) ) {
+			$this->setOpt( 'sec_admin_users',
+				( new Lib\SecurityAdmin\VerifySecurityAdminList() )->run( $this->getSecurityAdminUsers() )
+			);
+		}
 	}
 
 	private function getRestrictedOptions() :array {

@@ -31,6 +31,9 @@ class ModCon extends BaseShield\ModCon {
 		];
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function preProcessOptions() {
 	}
 

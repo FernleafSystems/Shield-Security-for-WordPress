@@ -126,6 +126,6 @@ class HandleOptionsSaveRequest {
 				->save( $form );
 		}
 
-		$this->mod->saveModOptions( true );
+		self::con()->opts->store();
 	}
 }

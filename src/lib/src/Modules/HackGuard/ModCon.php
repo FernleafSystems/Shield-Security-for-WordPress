@@ -73,7 +73,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 		return self::con()->db_con->loadDbH( 'scanresults' );
 	}
 
-	public function preProcessOptions() {
+	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
 
@@ -81,19 +81,21 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 			$this->getScansCon()->deleteCron();
 		}
 
-		$lockFiles = $opts->getFilesToLock();
-		if ( !empty( $lockFiles ) ) {
-			if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
-				unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
-				$opts->setOpt( 'file_locker', $lockFiles );
-			}
+		if ( $opts->isOptChanged( 'file_locker' ) ) {
+			$lockFiles = $opts->getFilesToLock();
+			if ( !empty( $lockFiles ) ) {
+				if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
+					unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
+					$opts->setOpt( 'file_locker', $lockFiles );
+				}
 
-			if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
-																 ->getModule_Plugin()
-																 ->getShieldNetApiController()
-																 ->canHandshake() ) {
-				$opts->setOpt( 'file_locker', [] );
-				$this->getFileLocker()->purge();
+				if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
+																	 ->getModule_Plugin()
+																	 ->getShieldNetApiController()
+																	 ->canHandshake() ) {
+					$opts->setOpt( 'file_locker', [] );
+					$this->getFileLocker()->purge();
+				}
 			}
 		}
 
@@ -150,5 +152,11 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	 * @deprecated 18.5
 	 */
 	private function cleanScanExclusions() {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function preProcessOptions() {
 	}
 }

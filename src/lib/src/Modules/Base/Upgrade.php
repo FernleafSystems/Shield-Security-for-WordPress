@@ -26,7 +26,7 @@ class Upgrade extends ExecOnceModConsumer {
 	}
 
 	protected function upgradeCommon() {
-		$this->mod()->saveModOptions( true );
+		self::con()->opts->store();
 	}
 
 	/**

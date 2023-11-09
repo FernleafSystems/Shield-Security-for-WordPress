@@ -14,6 +14,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->userSuspendCon ?? $this->userSuspendCon = new Lib\Suspend\UserSuspendController();
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function preProcessOptions() {
 	}
 }

@@ -56,7 +56,6 @@ class DbCon {
 	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbKey, bool $reload = false ) {
-		$req = Services::Request();
 		$con = self::con();
 
 		$dbh = $this->getHandlers()[ $dbKey ] ?? null;
@@ -92,11 +91,12 @@ class DbCon {
 
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
-			$modPlugin = $con->getModule_Plugin();
+			$modPlug = $con->getModule_Plugin();
 			/** @var Databases\Base\Handler|mixed $dbh */
 			$dbh = new $dbh[ 'class' ]( $dbDef );
-			$dbh->use_table_ready_cache = $modPlugin->getActivateLength() > Databases\Common\TableReadyCache::READY_LIFETIME
-										  && ( $req->ts() - $modPlugin->getTracking()->last_upgrade_at > 10 );
+			$dbh->use_table_ready_cache = $modPlug->getActivateLength() > Databases\Common\TableReadyCache::READY_LIFETIME
+										  &&
+										  ( Services::Request()->ts() - $modPlug->getTracking()->last_upgrade_at > 10 );
 			$dbh->execute();
 
 			$this->dbHandlers[ $dbKey ][ 'handler' ] = $dbh;

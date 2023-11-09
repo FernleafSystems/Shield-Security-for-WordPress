@@ -29,6 +29,7 @@ class ShieldPluginAction extends \FernleafSystems\Wordpress\Plugin\Shield\Module
 //		catch ( SecurityAdminRequiredException $e ) {
 //		}
 		catch ( Exceptions\ActionException $e ) {
+//			error_log( $e->getMessage() );
 			$data = [
 				'success' => false,
 			];

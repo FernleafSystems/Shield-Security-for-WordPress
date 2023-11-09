@@ -38,33 +38,32 @@ class ModCon extends BaseShield\ModCon {
 		$this->runMuHandler();
 	}
 
-	private function runMuHandler() {
-		/** @var Options $opts */
-		$opts = $this->opts();
+	public function onConfigChanged() :void {
+		$this->getWhiteLabelController()->verifyUrls();
+		if ( $this->opts()->isOptChanged( 'enable_mu' ) ) {
+			$this->runMuHandler();
+		}
+	}
 
+	private function runMuHandler() {
 		$mu = self::con()->mu_handler;
 		try {
-			$opts->isOpt( 'enable_mu', 'Y' ) ? $mu->convertToMU() : $mu->convertToStandard();
+			$this->opts()->isOpt( 'enable_mu', 'Y' ) ? $mu->convertToMU() : $mu->convertToStandard();
 		}
 		catch ( \Exception $e ) {
 		}
-		$opts->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
+		$this->opts()->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function preProcessOptions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		// Verify whitelabel images
-		$this->getWhiteLabelController()->verifyUrls();
-
-		$opts->setOpt( 'sec_admin_users',
-			( new Lib\SecurityAdmin\VerifySecurityAdminList() )->run( $opts->getSecurityAdminUsers() )
-		);
-
-		$this->runMuHandler();
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function doPrePluginOptionsSave() {
 	}
 }
