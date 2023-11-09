@@ -65,45 +65,6 @@ class ModCon extends BaseShield\ModCon {
 		$this->runMuHandler();
 	}
 
-	/**
-	 * This is the point where you would want to do any options verification
-	 */
 	public function doPrePluginOptionsSave() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		// Restricting Activate Plugins also means restricting the rest.
-		$plugins = $opts->getOpt( 'admin_access_restrict_plugins', [] );
-		if ( \in_array( 'activate_plugins', \is_array( $plugins ) ? $plugins : [] ) ) {
-			$opts->setOpt( 'admin_access_restrict_plugins',
-				\array_unique( \array_merge( $plugins, [
-					'install_plugins',
-					'update_plugins',
-					'delete_plugins'
-				] ) )
-			);
-		}
-
-		// Restricting Switch (Activate) Themes also means restricting the rest.
-		$themes = $opts->getOpt( 'admin_access_restrict_themes', [] );
-		if ( \is_array( $themes ) && \in_array( 'switch_themes', $themes ) && \in_array( 'edit_theme_options', $themes ) ) {
-			$opts->setOpt( 'admin_access_restrict_themes',
-				\array_unique( \array_merge( $themes, [
-					'install_themes',
-					'update_themes',
-					'delete_themes'
-				] ) )
-			);
-		}
-
-		$posts = $opts->getOpt( 'admin_access_restrict_posts', [] );
-		if ( !\is_array( $posts ) ) {
-			$posts = [];
-		}
-		if ( \in_array( 'edit', $posts ) ) {
-			$opts->setOpt( 'admin_access_restrict_posts',
-				\array_unique( \array_merge( $posts, [ 'publish', 'delete' ] ) )
-			);
-		}
 	}
 }

@@ -184,7 +184,7 @@ class Export {
 		if ( $verified && !empty( $id ) ) {
 			$urlIDs[ \md5( $url ) ] = $id;
 			$this->opts()->setOpt( 'import_url_ids', $urlIDs );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 		}
 
 		return $verified;

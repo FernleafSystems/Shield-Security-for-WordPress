@@ -4,8 +4,36 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
+
+	public function preSave() :void {
+		if ( !\defined( \strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
+			$this->resetOptToDefault( 'auto_expire' );
+		}
+
+		if ( $this->isOptChanged( 'request_whitelist' ) ) {
+			$WP = Services::WpGeneral();
+			$this->setOpt( 'request_whitelist',
+				( new WildCardOptions() )->clean(
+					$this->getOpt( 'request_whitelist', [] ),
+					\array_unique( \array_map(
+						function ( $url ) {
+							return (string)wp_parse_url( $url, \PHP_URL_PATH );
+						},
+						[
+							'/',
+							$WP->getHomeUrl(),
+							$WP->getWpUrl(),
+							$WP->getAdminUrl( 'admin.php' ),
+						]
+					) ),
+					WildCardOptions::URL_PATH
+				)
+			);
+		}
+	}
 
 	public function getAutoExpireTime() :int {
 		return (int)constant( \strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );

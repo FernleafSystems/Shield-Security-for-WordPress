@@ -15,10 +15,10 @@ class RemoveSecAdmin {
 		if ( $opts->hasSecurityPIN() ) {
 			self::con()->this_req->is_security_admin = true;
 
-			$opts->clearSecurityAdminKey();
-			// If you delete the PIN, you also delete the sec admins. Prevents a lock out bug.
-			$opts->setOpt( 'sec_admin_users', [] );
-			$this->mod()->saveModOptions();
+			// If you delete the PIN, you also delete the sec admins. Prevents a lockout scenario.
+			$opts->setOpt( 'admin_access_key', '' )
+				 ->setOpt( 'sec_admin_users', [] );
+			self::con()->opts->store();
 
 			( new ToggleSecAdminStatus() )->turnOff();
 

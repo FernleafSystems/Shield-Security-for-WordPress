@@ -3,15 +3,28 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ArrayOps;
 
 class Options extends BaseShield\Options {
+
+	public function preSave() :void {
+		$rest = $this->getRestApiAnonymousExclusions();
+		if ( !\in_array( 'shield', $rest ) ) {
+			$rest[] = 'shield';
+			$this->setOpt( 'api_namespace_exclusions', $rest );
+		}
+	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getRestApiAnonymousExclusions() :array {
-		$exc = apply_filters( 'shield/anonymous_rest_api_exclusions', $this->getOpt( 'api_namespace_exclusions' ) );
-		return $this->mod()->cleanStringArray( $exc, '#[^\da-z_-]#i' );
+		return \array_unique( \array_merge(
+			ArrayOps::CleanStrings(
+				apply_filters( 'shield/anonymous_rest_api_exclusions', $this->getOpt( 'api_namespace_exclusions' ) ),
+				'#[^\da-z_-]#i'
+			)
+		) );
 	}
 
 	public function isOptFileEditingDisabled() :bool {

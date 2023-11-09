@@ -36,19 +36,9 @@ class Options {
 	protected $aOptionsKeys;
 
 	/**
-	 * @description 18.2.5
+	 * @deprecated 18.5
 	 */
-	public function doOptionsSave( bool $deleteFirst = false, bool $isPremium = false ) :bool {
-		$saved = true;
-		if ( $this->getNeedSave() ) {
-			$this->setNeedSave( false );
-			$saved = ( new Options\Storage() )->setMod( $this->mod() )->storeOptions( $this->getAllOptionsValues() );
-		}
-		return $saved;
-	}
-
 	public function deleteStorage() {
-		( new Options\Storage() )->setMod( $this->mod() )->deleteOptions();
 	}
 
 	public function getAllOptionsValues() :array {
@@ -490,7 +480,9 @@ class Options {
 	 * @throws \Exception
 	 */
 	protected function preSetOptChecks( string $key, $newValue ) {
+	}
 
+	public function preSave() :void {
 	}
 
 	/**

@@ -24,22 +24,18 @@ class ModCon extends BaseShield\ModCon {
 	 * @param string $namespace
 	 * @return bool
 	 */
-	public function isPermittedAnonRestApiNamespace( $namespace ) {
+	public function isPermittedAnonRestApiNamespace( $namespace ) :bool {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		return \in_array( $namespace, $opts->getRestApiAnonymousExclusions() );
 	}
 
 	public function preProcessOptions() {
-		$this->cleanApiExclusions();
 	}
 
-	private function cleanApiExclusions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$opts->setOpt(
-			'api_namespace_exclusions',
-			$this->cleanStringArray( $opts->getRestApiAnonymousExclusions(), '#[^\da-z_-]#i' )
-		);
+	/**
+	 * @deprecated 18.5
+	 */
+	private function cleanApiExclusions() :void {
 	}
 }

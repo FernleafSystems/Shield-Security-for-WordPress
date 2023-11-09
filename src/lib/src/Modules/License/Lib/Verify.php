@@ -81,7 +81,7 @@ class Verify {
 
 		$existing->last_request_at = Services::Request()->ts();
 		$licHandler->updateLicenseData( $existing->getRawData() );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 
 		if ( !$isSuccessfulApiRequest ) {
 			throw new \Exception( 'License API HTTP Request Failed.' );
@@ -91,7 +91,7 @@ class Verify {
 	private function preVerify() {
 		Services::WpFs()->touch( self::con()->paths->forFlag( 'license_check' ) );
 		$this->opts()->setOpt( 'license_last_checked_at', Services::Request()->ts() );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 	}
 
 	private function sendRequest() :ShieldLicense {

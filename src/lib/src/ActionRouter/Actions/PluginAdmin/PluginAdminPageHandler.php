@@ -89,7 +89,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );
 		}
 
-		$currentNav = (string)$this->action_data[ Constants::NAV_ID ] ?? '';
+		$currentNav = $this->action_data[ Constants::NAV_ID ] ?? '';
 		foreach ( $navs as $submenuNavID => $submenuTitle ) {
 
 			$markupTitle = sprintf( '<span style="color:#fff;font-weight: 600">%s</span>', $submenuTitle );

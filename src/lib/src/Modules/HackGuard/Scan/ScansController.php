@@ -118,7 +118,7 @@ class ScansController {
 	private function cronScan() {
 		if ( $this->getCanScansExecute() ) {
 			$this->opts()->setIsScanCron( true );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 			$this->startNewScans( $this->getAllScanCons() );
 		}
 		else {

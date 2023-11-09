@@ -343,22 +343,11 @@ abstract class ModCon extends DynPropertiesClass {
 	/**
 	 * @deprecated 18.2.5
 	 */
-	public function saveModOptions( bool $preProcessOptions = false, bool $store = true ) {
-
+	public function saveModOptions( bool $preProcessOptions = false ) {
 		if ( $preProcessOptions ) {
 			$this->preProcessOptions();
 		}
-
-		$this->doPrePluginOptionsSave();
-
-		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
-		if ( $this->opts()->getNeedSave() ) {
-			do_action( self::con()->prefix( 'pre_options_store' ), $this );
-		}
-
-		if ( $store ) {
-			self::con()->opts->store();
-		}
+		self::con()->opts->store();
 	}
 
 	public function preProcessOptions() {
@@ -366,6 +355,7 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * This is the point where you would want to do any options verification
+	 * @deprecated 18.5
 	 */
 	public function doPrePluginOptionsSave() {
 	}
@@ -495,7 +485,7 @@ abstract class ModCon extends DynPropertiesClass {
 		return $theClass;
 	}
 
-	protected function getBaseNamespace() {
+	protected function getBaseNamespace() :string {
 		return __NAMESPACE__;
 	}
 
@@ -516,6 +506,5 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
-		$this->saveModOptions();
 	}
 }

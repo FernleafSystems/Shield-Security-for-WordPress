@@ -137,7 +137,7 @@ class Import {
 
 		// Begin the handshake process.
 		$opts->setOpt( 'importexport_handshake_expires_at', $req->carbon()->addMinutes( 20 )->timestamp );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 
 		// Don't send the network setup request if it's the cron.
 		$data = [
@@ -201,7 +201,7 @@ class Import {
 		}
 
 		// store & clean the master URL
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 	}
 
 	private function processDataImport( array $data, string $source = 'unspecified' ) {
@@ -254,7 +254,7 @@ class Import {
 		if ( empty( $id ) ) {
 			$id = \bin2hex( \random_bytes( 8 ) );
 			$this->opts()->setOpt( 'import_id', $id );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 		}
 		return $id;
 	}

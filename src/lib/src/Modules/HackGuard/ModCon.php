@@ -2,12 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'hack_protect';
 
@@ -104,31 +102,6 @@ class ModCon extends BaseShield\ModCon {
 				$con->purge();
 			}
 		}
-
-		$this->cleanScanExclusions();
-	}
-
-	private function cleanScanExclusions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		$specialDirs = \array_map( 'trailingslashit', [
-			ABSPATH,
-			path_join( ABSPATH, 'wp-admin' ),
-			path_join( ABSPATH, 'wp-includes' ),
-			untrailingslashit( WP_CONTENT_DIR ),
-			path_join( WP_CONTENT_DIR, 'plugins' ),
-			path_join( WP_CONTENT_DIR, 'themes' ),
-		] );
-
-		$values = $opts->getOpt( 'scan_path_exclusions', [] );
-		$opts->setOpt( 'scan_path_exclusions',
-			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
-				\is_array( $values ) ? $values : [],
-				$specialDirs,
-				Shield\Modules\Base\Options\WildCardOptions::FILE_PATH_REL
-			)
-		);
 	}
 
 	protected function setCustomCronSchedules() {
@@ -167,10 +140,15 @@ class ModCon extends BaseShield\ModCon {
 
 		$carbon = Services::Request()->carbon();
 		if ( $carbon->isSunday() ) {
-			( new Shield\Scans\Afs\Processing\FileScanOptimiser() )
-				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
+			( new FileScanOptimiser() )->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		}
 
 		( new Lib\Utility\CleanOutOldGuardFiles() )->execute();
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	private function cleanScanExclusions() {
 	}
 }

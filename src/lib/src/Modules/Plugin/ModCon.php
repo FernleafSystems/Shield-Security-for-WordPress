@@ -133,11 +133,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function preProcessOptions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
-			$opts->setOpt( 'ipdetect_at', 0 );
-		}
 	}
 
 	public function deleteAllPluginCrons() {
@@ -207,17 +202,6 @@ class ModCon extends BaseShield\ModCon {
 	 * This is the point where you would want to do any options verification
 	 */
 	public function doPrePluginOptionsSave() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		$this->storeRealInstallDate();
-
-		if ( $opts->isTrackingEnabled() && !$opts->isTrackingPermissionSet() ) {
-			$opts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
-		}
-
-		$this->cleanImportExportWhitelistUrls();
-		$this->cleanImportExportMasterImportUrl();
 	}
 
 	public function getFirstInstallDate() :int {
@@ -262,26 +246,16 @@ class ModCon extends BaseShield\ModCon {
 		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	private function cleanImportExportWhitelistUrls() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$cleaned = [];
-		$whitelist = $opts->getImportExportWhitelist();
-		foreach ( $whitelist as $url ) {
-
-			$url = Services::Data()->validateSimpleHttpUrl( $url );
-			if ( $url !== false ) {
-				$cleaned[] = $url;
-			}
-		}
-		$opts->setOpt( 'importexport_whitelist', \array_unique( $cleaned ) );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	private function cleanImportExportMasterImportUrl() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
-		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
 	public function runDailyCron() {

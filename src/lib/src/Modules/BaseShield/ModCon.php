@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-abstract class ModCon extends Base\ModCon {
+abstract class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public function getPluginReportEmail() :string {
 		return self::con()
@@ -30,18 +29,6 @@ abstract class ModCon extends Base\ModCon {
 				   ->isXmlrpcBypass();
 	}
 
-	public function cleanStringArray( array $arr, string $pregReplacePattern ) :array {
-		$cleaned = [];
-
-		foreach ( $arr as $val ) {
-			$val = \preg_replace( $pregReplacePattern, '', $val );
-			if ( \strlen( $val ) > 0 ) {
-				$cleaned[] = $val;
-			}
-		}
-		return $cleaned;
-	}
-
 	protected function getNamespaceRoots() :array {
 		// Ensure order of namespaces is 'Module', 'BaseShield', then 'Base'
 		return [
@@ -49,6 +36,20 @@ abstract class ModCon extends Base\ModCon {
 			self::con()->getModulesNamespace().'\\BaseShield',
 			$this->getBaseNamespace(),
 		];
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function cleanStringArray( array $arr, string $pregReplacePattern ) :array {
+		$cleaned = [];
+		foreach ( $arr as $val ) {
+			$val = \preg_replace( $pregReplacePattern, '', $val );
+			if ( \strlen( $val ) > 0 ) {
+				$cleaned[] = $val;
+			}
+		}
+		return $cleaned;
 	}
 
 	/**

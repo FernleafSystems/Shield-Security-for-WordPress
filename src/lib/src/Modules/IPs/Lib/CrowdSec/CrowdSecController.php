@@ -44,7 +44,7 @@ class CrowdSecController {
 
 	public function storeCfg( CrowdSecCfg $cfg ) {
 		$this->opts()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 	}
 
 	public function runHourlyCron() {

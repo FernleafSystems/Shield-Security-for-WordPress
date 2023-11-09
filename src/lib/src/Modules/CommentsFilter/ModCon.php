@@ -9,17 +9,5 @@ class ModCon extends BaseShield\ModCon {
 	public const SLUG = 'comments_filter';
 
 	public function preProcessOptions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		// clean roles
-		$opts->setOpt( 'trusted_user_roles',
-			\array_unique( \array_filter( \array_map(
-				function ( $role ) {
-					return sanitize_key( \strtolower( $role ) );
-				},
-				$opts->getTrustedRoles()
-			) ) )
-		);
 	}
 }

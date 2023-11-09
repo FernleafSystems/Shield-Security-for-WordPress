@@ -3,11 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\BulkUpdateUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	/**
 	 * This module is set to "run if whitelisted", so we must ensure any

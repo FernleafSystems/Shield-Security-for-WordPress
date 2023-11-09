@@ -28,6 +28,10 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function resetToDefaults() {
+		$this->mod_opts_free = $this->mod_opts_pro = [];
+		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
+			Services::WpGeneral()->deleteOption( $this->key( $type ) );
+		}
 	}
 
 	/**
@@ -114,15 +118,11 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function commit() :void {
-		foreach ( self::con()->modules as $module ) {
-			$module->saveModOptions( false, false );
-		}
 		$this->store();
 	}
 
 	public function store() {
 		$con = self::con();
-
 		if ( !$con->plugin_deleting ) {
 			add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 			$this->preStore();
@@ -135,6 +135,15 @@ class OptsHandler extends DynPropertiesClass {
 
 	private function preStore() {
 		$con = self::con();
+
+		// Pre-process options.
+		foreach ( self::con()->modules as $mod ) {
+			$opts = $mod->opts();
+			if ( \method_exists( $opts, 'preSave' ) ) {
+				$opts->preSave();
+			}
+		}
+
 		do_action( $con->prefix( 'pre_options_store' ) );
 
 		$type = $con->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;

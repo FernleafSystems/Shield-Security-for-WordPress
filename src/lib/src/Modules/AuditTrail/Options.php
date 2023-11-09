@@ -16,6 +16,21 @@ class Options extends BaseShield\Options {
 		}
 	}
 
+	public function preSave() :void {
+		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
+			$current = $this->getOpt( $optKey );
+			if ( empty( $current ) ) {
+				$this->resetOptToDefault( $optKey );
+			}
+			elseif ( \in_array( 'disabled', $this->getOpt( $optKey ) ) ) {
+				$this->setOpt( $optKey, [ 'disabled' ] );
+			}
+		}
+		if ( \in_array( 'same_as_db', $this->getOpt( 'log_level_file' ) ) ) {
+			$this->setOpt( 'log_level_file', [ 'same_as_db' ] );
+		}
+	}
+
 	public function getLogFilePath() :string {
 		try {
 			$dir = ( new LogFileDirCreate() )->run();

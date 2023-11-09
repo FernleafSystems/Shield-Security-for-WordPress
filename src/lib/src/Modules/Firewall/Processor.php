@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 }

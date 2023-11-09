@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
-
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	protected function run() {
 		self::con()->getModule_SecAdmin()->getSecurityAdminController()->execute();

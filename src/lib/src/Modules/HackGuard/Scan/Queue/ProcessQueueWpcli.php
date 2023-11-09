@@ -25,7 +25,7 @@ class ProcessQueueWpcli {
 
 		foreach ( \array_keys( $this->opts()->getScansToBuild() ) as $scan ) {
 			$this->opts()->addRemoveScanToBuild( $scan, false );
-			$mod->saveModOptions();
+			self::con()->opts->store();
 			try {
 				WP_CLI::log( sprintf( 'Building scan items for scan: %s',
 					$mod->getScansCon()->getScanCon( $scan )->getScanName() ) );

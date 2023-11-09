@@ -46,7 +46,7 @@ class ImportExportController {
 			$urls = $this->opts()->getImportExportWhitelist();
 			$urls[] = $url;
 			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 		}
 	}
 
@@ -59,7 +59,7 @@ class ImportExportController {
 				unset( $urls[ $key ] );
 			}
 			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 		}
 	}
 

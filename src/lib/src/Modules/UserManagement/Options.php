@@ -6,6 +6,31 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function preSave() :void {
+		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
+			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
+		}
+
+		if ( $this->isOptChanged( 'auto_idle_roles' ) ) {
+			$this->setOpt( 'auto_idle_roles',
+				\array_unique( \array_filter( \array_map(
+					function ( $role ) {
+						return \preg_replace( '#[^\s\da-z_-]#i', '', \trim( \strtolower( $role ) ) );
+					},
+					$this->getSuspendAutoIdleUserRoles()
+				) ) )
+			);
+		}
+
+		if ( $this->isOptChanged( 'email_checks' ) ) {
+			$checks = $this->getEmailValidationChecks();
+			if ( !empty( $checks ) ) {
+				$checks[] = 'syntax';
+			}
+			$this->setOpt( 'email_checks', \array_unique( $checks ) );
+		}
+	}
+
 	public function getSuspendAutoIdleUserRoles() :array {
 		return $this->getOpt( 'auto_idle_roles', [] );
 	}

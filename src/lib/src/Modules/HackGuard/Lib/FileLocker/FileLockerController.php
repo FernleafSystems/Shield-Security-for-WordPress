@@ -243,7 +243,7 @@ class FileLockerController {
 
 	protected function setState( array $state ) {
 		$this->opts()->setOpt( 'filelocker_state', $state );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 	}
 
 	/**

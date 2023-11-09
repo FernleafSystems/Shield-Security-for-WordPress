@@ -36,7 +36,7 @@ class SecurityBadge extends Base {
 			$mod->setIsMainFeatureEnabled( true );
 		}
 		$mod->opts()->setOpt( 'display_plugin_badge', $toEnable ? 'Y' : 'N' );
-		$mod->saveModOptions();
+		self::con()->opts->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

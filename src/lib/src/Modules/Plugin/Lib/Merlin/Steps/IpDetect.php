@@ -49,7 +49,7 @@ class IpDetect extends Base {
 		}
 
 		$opts->setVisitorAddressSource( $source );
-		$mod->saveModOptions();
+		self::con()->opts->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

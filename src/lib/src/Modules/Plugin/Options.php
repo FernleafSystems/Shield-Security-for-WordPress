@@ -7,6 +7,29 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
 
+	public function preSave() :void {
+
+		if ( $this->getIpSource() === 'AUTO_DETECT_IP' ) {
+			$this->setOpt( 'ipdetect_at', 0 );
+		}
+
+		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
+			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		}
+
+		if ( $this->isOptChanged( 'importexport_whitelist' ) ) {
+			$this->setOpt( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
+				function ( $url ) {
+					return Services::Data()->validateSimpleHttpUrl( $url );
+				},
+				$this->getOpt( 'importexport_whitelist' )
+			) ) ) );
+		}
+
+		$url = Services::Data()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		$this->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
+	}
+
 	public function getImportExportMasterImportUrl() :string {
 		return (string)$this->getOpt( 'importexport_masterurl', '' );
 	}
