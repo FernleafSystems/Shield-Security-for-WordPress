@@ -1,12 +1,12 @@
 {
   "18.5": {
     "version":     "18.5",
-    "released_at": 1698934000,
+    "released_at": 1699622000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease185",
       "upgrade": "https://shsec.io/shieldupgradeguide185"
     },
-    "title":       "Performance Optimisations",
+    "title":       "Smoother WordPress Two-Factor Authentication",
     "description": [
     ],
     "items":       [
@@ -52,6 +52,16 @@
         "title":       "Optimised Plugin Assets",
         "description": [
           "All plugin JS & CSS are optimised, built and packaged using Webpack."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "removed",
+        "pro_only":    false,
+        "title":       "Google reCAPTCHA and hCAPTHCA",
+        "description": [
+          "reCAPTCHA has been deprecated for over a year already and have finally been removed from the plugin.",
+          "Consider using Shield's own Antibot Detection Engine feature."
         ],
         "href":        ""
       }
