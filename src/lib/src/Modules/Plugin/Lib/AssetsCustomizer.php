@@ -585,7 +585,7 @@ class AssetsCustomizer {
 							'success_at' => 0,
 						];
 					}
-					if ( Services::Request()->ts() - ( $data[ 'test_at' ] ?? 0 ) > DAY_IN_SECONDS ) {
+					if ( Services::Request()->ts() - ( $data[ 'test_at' ] ?? 0 ) > \WEEK_IN_SECONDS ) {
 						$run = true;
 						$data[ 'test_at' ] = Services::Request()->ts();
 					}

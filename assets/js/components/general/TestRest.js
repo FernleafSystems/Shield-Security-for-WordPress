@@ -4,7 +4,6 @@ import { RestService } from "../services/RestService";
 export class TestRest extends BaseAutoExecComponent {
 
 	canRun() {
-		console.log( this._base_data );
 		return this._base_data.flags.can_run;
 	}
 

@@ -24,8 +24,7 @@
 
 	<div class="tab-content container-fluid">
 		{% for opt_section in vars.all_options %}
-			<div class="tab-pane {% if opt_section.slug == vars.focus_section %}active show{% endif %}
-"
+			<div class="tab-pane {% if opt_section.slug == vars.focus_section %}active show{% endif %}"
 			     role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">
@@ -97,6 +96,8 @@
 						</div>
 					{% endfor %}
 				{% endif %}
+
+				{% include '/components/config/custom/'~opt_section.slug~'.twig' ignore missing %}
 
 				{% for key, option in opt_section.options %}
 					{% include '/components/config/option.twig' %}
