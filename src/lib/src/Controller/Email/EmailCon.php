@@ -30,7 +30,7 @@ class EmailCon {
 	 * @param array  $message
 	 */
 	public function sendEmailWithWrap( $to = '', $subject = '', $message = [] ) :bool {
-		$this->sendVO(
+		return $this->sendVO(
 			EmailVO::Factory(
 				$to,
 				$subject,
@@ -50,13 +50,10 @@ class EmailCon {
 	 * @deprecated 18.5
 	 */
 	public function send( $to = '', $sub = '', $body = '' ) :bool {
-		return (bool)$this->sendVO( EmailVO::Factory( $this->verifyEmailAddress( $to ), $sub, $body ) );
+		return $this->sendVO( EmailVO::Factory( $this->verifyEmailAddress( $to ), $sub, $body ) );
 	}
 
-	/**
-	 * @return mixed
-	 */
-	public function sendVO( EmailVO $vo ) {
+	public function sendVO( EmailVO $vo ) :bool {
 		$this->emailFilters( true );
 		$result = wp_mail(
 			$this->verifyEmailAddress( $vo->to ),
@@ -64,7 +61,7 @@ class EmailCon {
 			$vo->html
 		);
 		$this->emailFilters( false );
-		return $result;
+		return (bool)$result;
 	}
 
 	/**
@@ -127,9 +124,8 @@ class EmailCon {
 	 * Will send email to the default recipient setup in the object.
 	 * @param string $subject
 	 * @param array  $message
-	 * @return bool
 	 */
-	public function sendEmail( $subject, $message ) {
+	public function sendEmail( $subject, $message ) :bool {
 		return $this->sendEmailWithWrap( null, $subject, $message );
 	}
 

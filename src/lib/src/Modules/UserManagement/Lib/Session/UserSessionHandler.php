@@ -70,7 +70,18 @@ class UserSessionHandler {
 								  ->getMfaController()
 								  ->isSubjectToLoginIntent( $user );
 			if ( !$hasLoginIntent ) {
-				$this->sendUserLoginEmailNotification( $user );
+				self::con()->email_con->sendVO(
+					EmailVO::Factory(
+						$user->user_email,
+						sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
+						self::con()->action_router->render( UserLoginNotice::SLUG, [
+							'home_url'  => Services::WpGeneral()->getHomeUrl(),
+							'username'  => $user->user_login,
+							'ip'        => self::con()->this_req->ip,
+							'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
+						] )
+					)
+				);
 			}
 		}
 	}
@@ -161,21 +172,6 @@ class UserSessionHandler {
 				);
 			}
 		}
-	}
-
-	private function sendUserLoginEmailNotification( \WP_User $user ) :void {
-		self::con()->email_con->sendVO(
-			EmailVO::Factory(
-				$user->user_email,
-				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-				self::con()->action_router->render( UserLoginNotice::SLUG, [
-					'home_url'  => Services::WpGeneral()->getHomeUrl(),
-					'username'  => $user->user_login,
-					'ip'        => self::con()->this_req->ip,
-					'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
-				] )
-			)
-		);
 	}
 
 	public function onWpLoaded() {

@@ -300,6 +300,7 @@
           "wpcf7-form",
           "yoast_wpseo_metadesc",
           "icwp_wpsf_passkey_otp",
+          "_rest_url",
           "shield_action",
           "appId",
           "ping_sites",
