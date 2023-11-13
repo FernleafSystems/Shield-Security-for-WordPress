@@ -6,6 +6,21 @@ import { OffCanvasService } from "../ui/OffCanvasService";
 export class ProgressMeters extends BaseAutoExecComponent {
 
 	run() {
+		this.drawCharts();
+		this.events();
+	}
+
+	drawCharts() {
+		document.querySelectorAll( '.circle-progress' )
+				.forEach( ( elem, idx, ) => {
+					new CircleProgress( elem, ObjectOps.Merge( {
+						max: 100,
+						textFormat: ( value, max ) => elem.dataset.grade,
+					}, { value: elem.dataset.value } ) );
+				} );
+	}
+
+	events() {
 		shieldEventsHandler_Main.add_Click( 'a.offcanvas_meter_analysis', ( targetEl ) => {
 			OffCanvasService.RenderCanvas( ObjectOps.Merge( this._base_data.ajax.render_offcanvas, targetEl.dataset ) )
 							.finally();
@@ -15,12 +30,5 @@ export class ProgressMeters extends BaseAutoExecComponent {
 				( toggleableElem ) => toggleableElem.classList.toggle( 'hidden' )
 			);
 		} );
-		document.querySelectorAll( '.circle-progress' )
-				.forEach( ( elem, idx, ) => {
-					new CircleProgress( elem, ObjectOps.Merge( {
-						max: 100,
-						textFormat: ( value, max ) => elem.dataset.grade,
-					}, { value: elem.dataset.value } ) );
-				} );
 	}
 }
