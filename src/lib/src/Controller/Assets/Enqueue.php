@@ -67,6 +67,7 @@ class Enqueue {
 			$default = [
 				'cerber_css',
 				'bootstrap',
+				'custom-admin-style', // fixed-admin-menu
 				'wp-notes',
 				'wpforo',
 				'fs_common',

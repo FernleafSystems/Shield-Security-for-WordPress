@@ -19,7 +19,8 @@
 				  {% if comp.is_optcfg|default(false) or not comp.href_full_target_blank %}{% else %}target="_blank"{% endif %}
 			  {% endif %}
 			  data-config_item="{{ comp.config_item }}"
-			  class="meter-analysis-link list-group-item list-group-item-action offcanvas_form_mod_cfg
+			  class="list-group-item list-group-item-action meter-analysis-link
+				     {% if comp.is_optcfg %}offcanvas_form_mod_cfg{% endif %}
 				     {{ comp.is_critical|default(false) ? 'list-group-item-danger' : (comp.is_protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
 			  aria-current="true">
 

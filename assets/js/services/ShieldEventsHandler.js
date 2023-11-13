@@ -14,7 +14,8 @@ export class ShieldEventsHandler extends BaseService {
 			change: {},
 			keypress: {},
 			keyup: {},
-			submit: {}
+			submit: {},
+			'shown.bs.tab': {}
 		}
 
 		const container = document.querySelector( this._base_data.events_container_selector );

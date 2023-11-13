@@ -20,6 +20,25 @@ export class Navigation extends BaseComponent {
 			this.renderFromActiveMenuItem();
 		} );
 
+		// Add the active nav-tab to the current URL to support refresh.
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.tab',
+			'#PageMainBody_Inner-Shield .nav-item > a.nav-link',
+			( targetEl ) => {
+				const d = targetEl.dataset;
+				if ( 'bsToggle' in d && targetEl.id ) {
+					let href = window.location.href;
+					window.history.replaceState(
+						{},
+						'',
+						( href.indexOf( '#' ) > 0 ? href.substring( 0, href.indexOf( '#' ) ) : href ) + '#' + targetEl.id
+					);
+				}
+			}
+		);
+
+		this.setActiveNavTab( window.location.hash );
+
 		let activePageLink = document.querySelector( '#NavSideBar a.active.body_content_link.dynamic_body_load' );
 		if ( activePageLink ) {
 			this.activeMenuItem = activePageLink;
@@ -46,17 +65,20 @@ export class Navigation extends BaseComponent {
 		.finally();
 	};
 
-	handleDynamicLoad( response ) {
-		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = response.data.html;
-
-		let urlHash = window.location.hash ? window.location.hash : '';
-		// Using links to specific config sections, we extract the section and trigger the tab show()
+	setActiveNavTab( urlHash = null ) {
 		if ( urlHash ) {
-			let theTabToShow = document.querySelector( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
+			let theTabToShow = document.querySelector( urlHash );
 			if ( theTabToShow ) {
 				( new Tab( theTabToShow ) ).show();
 			}
 		}
+	};
+
+	handleDynamicLoad( response ) {
+		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = response.data.html;
+
+		const urlHash = window.location.hash ? window.location.hash : '';
+		this.setActiveNavTab( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
 
 		window.scroll( { top: 0, left: 0, behavior: 'smooth' } );
 

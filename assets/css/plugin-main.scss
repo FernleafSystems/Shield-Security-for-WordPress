@@ -395,11 +395,11 @@ table.scan-table.wp-list-table button.toggle-row {
   display: none;
 }
 
-ul.nav.nav-tabs.insights-sub-nav {
+ul.nav.nav-tabs.shield_body-sub-nav {
   border-bottom: transparent !important;
 }
 
-ul.nav.nav-tabs.insights-sub-nav a.nav-link {
+ul.nav.nav-tabs.shield_body-sub-nav a.nav-link {
   color: #2b2b2b;
   font-size: 0.9rem;
   border-color: rgba(0, 0, 0, 0.1);
@@ -412,11 +412,12 @@ ul.nav.nav-tabs.insights-sub-nav a.nav-link {
   margin: 0 5px -1px -1px;
 }
 
-ul.nav.nav-tabs.insights-sub-nav a.nav-link:hover {
+ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:hover {
   opacity: 1;
+  cursor: pointer;
 }
 
-ul.nav.nav-tabs.insights-sub-nav a.nav-link.active {
+ul.nav.nav-tabs.shield_body-sub-nav a.nav-link.active {
   color: #008000;
   background-color: transparent;
   border-bottom-color: transparent;

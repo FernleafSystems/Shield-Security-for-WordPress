@@ -1,7 +1,9 @@
-<ul class="nav nav-tabs insights-sub-nav" id="ScanResultsTabsNav" role="tablist">
+<ul class="nav nav-tabs shield_body-sub-nav" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-wordpress-tab" data-bs-toggle="tab" href="#h-tabs-wordpress"
+		<a class="nav-link active" id="h-tabs-wordpress-tab"
+		   data-bs-toggle="tab"
+		   data-bs-target="#h-tabs-wordpress"
 		   role="tab" aria-controls="h-tabs-wordpress">
 			WordPress
 			{% if vars.sections.wordpress.count > 0 %}
@@ -13,7 +15,10 @@
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-plugins-tab" data-bs-toggle="tab" href="#h-tabs-plugins"
+		<a class="nav-link"
+		   id="h-tabs-plugins-tab"
+		   data-bs-toggle="tab"
+		   data-bs-target="#h-tabs-plugins"
 		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
 			{% if vars.sections.plugins.count > 0 %}
