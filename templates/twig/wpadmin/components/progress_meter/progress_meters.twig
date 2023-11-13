@@ -1,14 +1,17 @@
 {# https://github.com/tomik23/circular-progress-bar #}
 <div class="row row-cols-1 justify-content-center">
-	<div class="col mt-1 mb-5">
-		{{ content.primary_meter|raw }}
+	<div class="col mt-4 mb-5">
+		<div class="progress-metercard progress-metercard-{{ vars.primary_meter_slug }}"
+			 data-meter_slug="{{ vars.primary_meter_slug }}"></div>
   </div>
 </div>
 
-{% for meter in content.meters %}
+{% for meter_slug in vars.meter_slugs %}
 	<div class="row row-cols-1">
 		<div class="col mb-4 pb-4">
-			{{ meter|raw }}
+			<div class="progress-metercard progress-metercard-{{ meter_slug }}"
+				 style="height: 100%"
+				 data-meter_slug="{{ meter_slug }}"></div>
 	  </div>
 	</div>
 {% endfor %}

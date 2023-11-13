@@ -1,7 +1,7 @@
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const CssMinimizerPlugin = require( "css-minimizer-webpack-plugin" );
 const TerserPlugin = require( "terser-webpack-plugin" );
-const BrowserSyncPlugin = require( 'browser-sync-webpack-plugin' );
+// const BrowserSyncPlugin = require( 'browser-sync-webpack-plugin' );
 const path = require( 'path' );
 const autoprefixer = require( 'autoprefixer' )
 

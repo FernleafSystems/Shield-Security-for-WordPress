@@ -1164,27 +1164,26 @@ body.folded #FooterBannerGoPro {
   line-height: 3.5rem;
 }
 
-.progress-meter .letter-score {
+.progress-metercard .letter-score {
   position: absolute;
   font-size: 3rem;
   margin: -10px auto 0;
   text-shadow: 2px 2px 2px rgb(0 0 0 / 40%);
 }
 
-.progress-meter .description {
+.progress-metercard .description {
   border-bottom: 1px solid #dddddd;
 }
 
-.progress-meter.progress-meter-summary .description {
+.progress-metercard.progress-metercard-summary .description {
   border-bottom-color: transparent;
 }
 
-.progress-meter .toggleable {
+.progress-metercard .toggleable {
   cursor: pointer;
 }
 
-.progress-meter-summary {
-  padding: 30px 0;
+.progress-metercard-summary {
 }
 
 #ScanResultsTabs table td.actions {

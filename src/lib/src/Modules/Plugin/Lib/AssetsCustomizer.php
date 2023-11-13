@@ -403,6 +403,7 @@ class AssetsCustomizer {
 				'data'     => function () {
 					return [
 						'ajax' => [
+							'render_metercard' => ActionData::BuildAjaxRender( Components\Meters\MeterCard::class ),
 							'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\MeterAnalysis::class ),
 						],
 					];

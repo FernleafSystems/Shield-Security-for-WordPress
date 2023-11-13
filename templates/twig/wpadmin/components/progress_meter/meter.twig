@@ -3,7 +3,7 @@
 	{% set meter = vars.meter %}
 	{% set meter_slug = vars.meter_slug %}
 
-	<div class="progress-meter progress-meter-{{ meter_slug }}
+	<div class="
 	{% if meter.has_critical|default(false) %}
 		meter-critical
 	{% elseif meter.totals.percentage > 50 %}
@@ -14,31 +14,16 @@
 	">
 	{# https://github.com/tomik23/circular-progress-bar #}
 		<div class="row">
-			<div class="{{ vars.display.dimensions_column_chart|default('col-lg-3 col-xl-2') }} d-flex justify-content-center align-items-start">
+			<div class="{{ vars.display.dimensions_column_chart|default('col-xl-3 mb-4 mb-xl-0') }} d-flex justify-content-center align-items-start px-3">
 				<div class="circle-progress circle-progress-status-{{ meter.status }} d-flex align-items-center justify-content-center mx-auto"
 					 data-value="{{ meter.totals.percentage }}"
 					 data-grade="{{ meter.totals.letter_score }}"
 					 data-rgbs="{{ meter.rgbs|join(',') }}"
 				>
-{#					<div class="letter-score"#}
-{#						 style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div>#}
 				</div>
 
 			</div>
-			{#            <div class="{{ vars.display.dimensions_column_chart|default('col-lg-3 col-xl-2') }} d-flex justify-content-center align-items-start"> #}
-			{#                <div class="pie d-flex align-items-center justify-content-center mx-auto" data-pie='{ #}
-			{#                  "number": false, #}
-			{#                  "colorCircle": "rgba( {{ meter.rgbs|join(',') }},0.2 )", #}
-			{#                  "colorSlice": "rgb( {{ meter.rgbs|join(',') }} )", #}
-			{#                  "percent": {{ meter.totals.percentage }}, #}
-			{#                  "size": {{ vars.display.progress_chart_size|default(120) }} #}
-			{#                }'> #}
-			{#                    <div class="letter-score" #}
-			{#                         style="color: rgb( {{ meter.rgbs|join(',') }} )">{{ meter.totals.letter_score }}</div> #}
-			{#                </div> #}
-
-			{#            </div> #}
-			<div class="{{ vars.display.dimensions_column_description|default('col') }} description pb-1 px-4">
+			<div class="{{ vars.display.dimensions_column_description|default('col') }} description pb-1 px-2">
 			  <h6>
 		      {{ meter.title }}
 				  <br /><small class="text-muted">{{ meter.subtitle }}</small>

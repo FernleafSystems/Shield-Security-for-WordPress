@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCardPrimary;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	OverviewTraffic
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterSummary;
 
 class PageDashboardOverview extends BasePluginAdminPage {
@@ -45,10 +44,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'title'     => false,
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
 						'href_text' => __( 'View All Security Grades', 'wp-simple-firewall' ),
-						'content'   => $con->action_router->render( MeterCardPrimary::class, [
-							'meter_slug' => MeterSummary::SLUG,
-							'meter_data' => ( new Handler() )->getMeter( MeterSummary::class ),
-						] ),
+						'content'   => '<div class="progress-metercard progress-metercard-summary" data-meter_slug="summary"></div>',
 						'width'     => 12,
 					],
 				],

@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
+/**
+ * @deprecated 18.5
+ */
 class MeterCardPrimary extends MeterCard {
 
 	public const SLUG = 'render_progress_meter_card_primary';
