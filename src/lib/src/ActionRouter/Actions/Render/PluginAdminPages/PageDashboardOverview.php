@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\GenericRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
 	OverviewActivity,
 	OverviewIpBlocks,
@@ -44,7 +44,13 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'title'     => false,
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
 						'href_text' => __( 'View All Security Grades', 'wp-simple-firewall' ),
-						'content'   => '<div class="progress-metercard progress-metercard-summary" data-meter_slug="summary"></div>',
+						'content' => sprintf(
+							'<div class="progress-metercard progress-metercard-summary" data-meter_slug="%s">%s</div>',
+							MeterSummary::SLUG,
+							$con->action_router->render( GenericRender::class, [
+								'render_action_template' => '/components/html/loading_placeholders/progress_meter.twig',
+							] )
+						),
 						'width'     => 12,
 					],
 				],

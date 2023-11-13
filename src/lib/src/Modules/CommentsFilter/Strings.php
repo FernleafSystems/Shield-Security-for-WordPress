@@ -37,6 +37,15 @@ class Strings extends Base\Strings {
 					__( 'Blocked repeated attempts by the same visitor to post multiple SPAM comments.', 'wp-simple-firewall' ),
 				],
 			],
+			'spam_block_cooldown' => [
+				'name'  => sprintf( '%s: %s',
+					__( 'SPAM Blocked', 'wp-simple-firewall' ),
+					__( 'Cooldown Triggered', 'wp-simple-firewall' )
+				),
+				'audit' => [
+					__( 'Blocked comment that triggered the Comment Cooldown.', 'wp-simple-firewall' ),
+				],
+			],
 			'spam_block_bot'           => [
 				'name'  => sprintf( '%s: %s',
 					__( 'SPAM Blocked', 'wp-simple-firewall' ),

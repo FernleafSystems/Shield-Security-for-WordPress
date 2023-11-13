@@ -51,7 +51,7 @@ export class Navigation extends BaseComponent {
 	}
 
 	renderDynamicPageLoad( params ) {
-		let placeholder = document.getElementById( 'ShieldLoadingPlaceholder' ).cloneNode( true );
+		let placeholder = document.querySelector( '.shield_loading_placeholder_config' ).cloneNode( true );
 		placeholder.id = '';
 		placeholder.classList.remove( 'd-none' );
 		document.querySelector( '#PageMainBody_Inner-Shield' ).innerHTML = placeholder.innerHTML;

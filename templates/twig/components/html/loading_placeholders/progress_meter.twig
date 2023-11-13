@@ -1,0 +1,17 @@
+<div class="shield_loading_placeholder shield_loading_placeholder_progress_meter">
+	<div class="row mb-4">
+		<div class="col-3">
+			<div class="load-wrapper d-inline-block m-auto" style="height: 120px; width: 120px;"><div class="activity"></div></div>
+		</div>
+		<div class="col-7">
+			<div class="col" style="height: 140px;">
+				{% for i in 0..4 %}
+					<div class="load-wrapper mb-1 {{ random(['w-100','w-25','w-75','w-50']) }}" style="height: 20px;"><div class="activity"></div></div>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="col-1">
+			<div class="load-wrapper d-inline-block" style="height: 30px;"><div class="activity"></div></div>
+		</div>
+	</div>
+</div>
