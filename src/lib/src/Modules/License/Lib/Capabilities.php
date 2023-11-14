@@ -226,7 +226,6 @@ class Capabilities {
 			'traffic_live_log',
 			'mainwp_level_1',
 			'mainwp_level_2',
-			'rest_api_level_1',
 			'rest_api_level_2',
 			'run_as_mu',
 			'user_password_policies',
