@@ -24,7 +24,7 @@ class IpRuleDelete extends BaseAction {
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
-			'page_reload' => $success,
+			'page_reload' => false,
 			'message'     => $msg,
 		];
 	}

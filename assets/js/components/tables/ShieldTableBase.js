@@ -139,7 +139,7 @@ export class ShieldTableBase extends BaseComponent {
 			name: 'table-reload',
 			className: 'action table-refresh btn-outline-secondary mb-2',
 			action: ( e, dt, node, config ) => {
-				dt.ajax.reload( null );
+				this.tableReload();
 			}
 		} ];
 	}
@@ -170,7 +170,7 @@ export class ShieldTableBase extends BaseComponent {
 			.then( ( resp ) => {
 
 				if ( resp.success ) {
-					this.$table.ajax.reload( null );
+					this.tableReload();
 					shieldServices.notification().showMessage( resp.data.message, resp.success );
 				}
 				else {
@@ -185,4 +185,8 @@ export class ShieldTableBase extends BaseComponent {
 			} );
 		}
 	};
+
+	tableReload() {
+		this.$table.ajax.reload( null );
+	}
 }

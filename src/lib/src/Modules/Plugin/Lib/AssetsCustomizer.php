@@ -240,7 +240,6 @@ class AssetsCustomizer {
 					return [
 						'ajax'    => [
 							'add_form_submit'  => ActionData::Build( Actions\IpRuleAddSubmit::class ),
-							'delete'           => ActionData::Build( Actions\IpRuleDelete::class ),
 							'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\IpRuleAddForm::class ),
 						],
 						'strings' => [
@@ -538,6 +537,7 @@ class AssetsCustomizer {
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
 						$data[ 'ip_rules' ] = [
 							'ajax' => [
+								'rule_delete' => ActionData::Build( Actions\IpRuleDelete::class ),
 								'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
 							],
 							'vars' => [

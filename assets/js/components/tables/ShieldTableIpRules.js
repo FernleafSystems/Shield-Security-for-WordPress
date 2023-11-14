@@ -1,4 +1,6 @@
 import { ShieldTableBase } from "./ShieldTableBase";
+import { AjaxService } from "../services/AjaxService";
+import { ObjectOps } from "../../util/ObjectOps";
 
 export class ShieldTableIpRules extends ShieldTableBase {
 
@@ -6,19 +8,32 @@ export class ShieldTableIpRules extends ShieldTableBase {
 		return '#ShieldTable-IpRules';
 	}
 
+	bindEvents() {
+		super.bindEvents();
+
+		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', ( targetEl ) => {
+			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				( new AjaxService() )
+				.send( ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid: targetEl.dataset[ 'rid' ] } ) )
+				.then( () => this.tableReload() )
+				.finally();
+			}
+		} );
+		shieldEventsHandler_Main.addHandler(
+			'hidden.bs.offcanvas',
+			'.offcanvas.offcanvas_form_ip_rule_add',
+			() => this.tableReload()
+		);
+		shieldEventsHandler_Main.addHandler(
+			'hidden.bs.offcanvas',
+			'.offcanvas.offcanvas_ipanalysis',
+			() => this.tableReload()
+		);
+	}
+
 	buildDatatableConfig() {
 		let cfg = super.buildDatatableConfig();
 		cfg.language.search = "Search IP";
 		return cfg;
 	}
-
-	/** https://datatables.net/forums/discussion/comment/164708/#Comment_164708 **/
-	// TODO: $.fn.dataTable.Debounce = function ( table, options ) {
-	// 	let tableId = table.settings()[ 0 ].sTableId;
-	// 	$( '.dataTables_filter input[aria-controls="' + tableId + '"]' ) // select the correct input field
-	// 	.unbind() // Unbind previous default bindings
-	// 	.bind( 'input', (delay( function ( e ) { // Bind our desired behavior
-	// 		table.search( $( this ).val() ).draw();
-	// 	}, 600 )) ); // Set delay in milliseconds
-	// }
 }

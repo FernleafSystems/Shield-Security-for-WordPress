@@ -7,7 +7,6 @@ export class IpRules extends BaseAutoExecComponent {
 
 	run() {
 		this.handleIpRuleOffcanvasForm();
-		this.handleIpDelete();
 		this.handleIpRuleForm();
 	}
 
@@ -24,17 +23,8 @@ export class IpRules extends BaseAutoExecComponent {
 				this._base_data.ajax.add_form_submit,
 				{ 'form_data': Object.fromEntries( new FormData( targetEl ) ) }
 			) )
+			.then( () => OffCanvasService.CloseCanvas() )
 			.finally();
-		} );
-	}
-
-	handleIpDelete() {
-		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', ( targetEl ) => {
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				( new AjaxService() )
-				.send( ObjectOps.Merge( this._base_data.ajax.delete, { rid: targetEl.dataset[ 'rid' ] } ) )
-				.finally();
-			}
 		} );
 	}
 }
