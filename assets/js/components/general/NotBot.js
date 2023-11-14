@@ -1,11 +1,12 @@
 import { BaseComponent } from "../BaseComponent";
+import { AjaxParseResponseService } from "../services/AjaxParseResponseService";
 import { GetCookie } from "../../util/GetCookie";
+import { ObjectOps } from "../../util/ObjectOps";
 
 export class NotBot extends BaseComponent {
 
 	init() {
 		this.can_send_request = true;
-		this.nonce_cook = '';
 		this.request_count = 0;
 		this.use_fetch = typeof fetch !== typeof undefined;
 		this.shield_ajaxurl = this._base_data.ajax.not_bot.ajaxurl;
@@ -29,7 +30,6 @@ export class NotBot extends BaseComponent {
 	 * sent quickly, before browser has fired NotBot request.
 	 */
 	run() {
-		this.readNotBotNonceFromCookie();
 		this.fire();
 	};
 
@@ -42,93 +42,73 @@ export class NotBot extends BaseComponent {
 				let current = GetCookie.Get( 'icwp-wpsf-notbot' );
 				if ( typeof current === typeof undefined || current === undefined || current === '' ) {
 					this.request_count++;
-					this.use_fetch ? this.notBotViaGetNonce() : this.legacyReq();
+					this.use_fetch ? this.runNotBot() : this.legacyReq();
 				}
 			}
-			window.setTimeout( this.fire, 60000 );
+			window.setTimeout( () => this.fire(), 10000 );
 		}
 	};
 
 	/** Overcome limitations of page caching by passing latest nonce via cookie **/
 	readNotBotNonceFromCookie() {
-		this.nonce_cook = GetCookie.Get( 'shield-notbot-nonce' );
-		if ( typeof this.nonce_cook !== typeof undefined && this.nonce_cook.length > 0 ) {
-			this._base_data.ajax.not_bot.exnonce = this.nonce_cook;
+		let nonce_cook = GetCookie.Get( 'shield-notbot-nonce' );
+		if ( typeof nonce_cook === typeof undefined || nonce_cook.length === 0 ) {
+			nonce_cook = '';
 		}
-		return this.nonce_cook;
+		if ( nonce_cook.length > 0 ) {
+			this.setNotBotNonce( nonce_cook );
+		}
+		return nonce_cook;
 	};
 
-	async notBotViaGetNonce() {
-		this.readNotBotNonceFromCookie();
+	setNotBotNonce( nonce ) {
+		this._base_data.ajax.not_bot.exnonce = nonce;
+	}
 
+	getNotBotNonce() {
+		this.readNotBotNonceFromCookie();
+		return this._base_data.ajax.not_bot.exnonce;
+	}
+
+	async runNotBot() {
 		/** If we don't have a nonce i.e. it's been cleared by a failed attempt **/
-		if ( this._base_data.ajax.not_bot.exnonce === '' ) {
-			try {
-				fetch( this.shield_ajaxurl, this.constructFetchRequestData( this._base_data.ajax.not_bot_nonce ) )
-				.then( response => {
-					let newNonceCookie = this.readNotBotNonceFromCookie();
-					if ( newNonceCookie === '' ) {
-						throw new Error( "Can't read new notbot nonce cookie." )
-					}
-					return response;
-				} )
-				.then( response => response.json() )
-				.then( response_data => {
-					if ( response_data ) {
-						this.can_send_request = response_data && response_data.success;
-						this.notBotSendReqWithFetch();
-					}
-					else {
-						this.use_fetch = false;
-					}
-					return response_data;
-				} )
-				.catch( error => {
-					console.log( error );
-					this.use_fetch = false;
-				} );
-			}
-			catch ( error ) {
-				this.use_fetch = false;
-				console.log( error );
-			}
-		}
-		else {
-			await this.notBotSendReqWithFetch();
+		await this.fetch_RetrieveNotBotNonce()
+				  .then( () => this.fetch_NotBot() );
+	}
+
+	async fetch_RetrieveNotBotNonce() {
+		if ( this.getNotBotNonce().length === 0 ) {
+			fetch( this.shield_ajaxurl, this.constructFetchRequestData( this._base_data.ajax.not_bot_nonce ) )
+			.then( raw => raw.text() )
+			.then( rawText => {
+				const json = AjaxParseResponseService.ParseIt( rawText );
+				this.can_send_request = !ObjectOps.IsEmpty( json );
+				if ( this.getNotBotNonce().length === 0 ) {
+					this.setNotBotNonce( json.data.nonce );
+				}
+				return rawText;
+			} )
+			.catch( error => console.log( error ) );
 		}
 	}
 
-	async notBotSendReqWithFetch() {
-		this.readNotBotNonceFromCookie();
-		try {
+	async fetch_NotBot() {
+		if ( this.getNotBotNonce().length > 0 ) {
 			fetch( this.shield_ajaxurl, this.constructFetchRequestData( this._base_data.ajax.not_bot ) )
-			.then( response => {
-				if ( response.status === 401 ) {
-					this._base_data.ajax.not_bot.exnonce = '';
-					this.notBotViaGetNonce();
-					throw new Error( 'notBotSendReqWithFetch() chain cancelled with failed nonce' );
+			.then( raw => {
+				if ( raw.status === 401 ) {
+					this.setNotBotNonce( '' );
 				}
-				return response;
+				return raw;
 			} )
-			.then( response => response.json() )
-			.then( response_data => {
-				if ( response_data ) {
-					this.can_send_request = response_data && response_data.success;
-				}
-				else {
-					this.use_fetch = false;
-				}
-				return response_data;
+			.then( raw => raw.text() )
+			.then( rawText => {
+				this.can_send_request = !ObjectOps.IsEmpty( AjaxParseResponseService.ParseIt( rawText ) );
+				return rawText;
 			} )
 			.catch( error => {
-				console.log( 'notBotSendReqWithFetch() error:' );
-				console.log( error );
-				this.use_fetch = false;
+				console.log( 'notBotSendReqWithFetch() error: ' + error );
 			} );
-		}
-		catch ( error ) {
-			this.use_fetch = false;
-			console.log( error );
 		}
 	}
 

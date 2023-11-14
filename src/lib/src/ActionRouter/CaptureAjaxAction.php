@@ -66,7 +66,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 			];
 		}
 		catch ( ActionException $e ) {
-			$statusCode = 400;
+			$statusCode = empty( $e->getCode() ) ? 400 : $e->getCode();
 			$response = [
 				'success' => false,
 				'message' => $e->getMessage(),

@@ -35,7 +35,7 @@ class NotBotHandler {
 		Services::Response()->cookieSet(
 			'shield-notbot-nonce',
 			ActionData::Build( CaptureNotBot::class )[ ActionData::FIELD_NONCE ],
-			60
+			75
 		);
 	}
 

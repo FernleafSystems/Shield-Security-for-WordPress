@@ -14,8 +14,8 @@ class Response {
 			unset( $response[ 'status_code' ] );
 		}
 
-		header( 'Content-Type: application/json; charset='.get_option( 'blog_charset' ) );
 		nocache_headers();
+		\header( 'Content-Type: application/json; charset='.get_option( 'blog_charset' ) );
 
 		if ( $wrap ) {
 			echo '##APTO_OPEN##';

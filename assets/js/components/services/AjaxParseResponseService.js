@@ -6,22 +6,25 @@ export class AjaxParseResponseService {
 			parsed = JSON.parse( raw );
 		}
 		catch ( e ) {
-			let openJsonTag = '##APTO_OPEN##';
-			let closeJsonTag = '##APTO_CLOSE##';
+			const openJsonTag = '##APTO_OPEN##';
+			const closeJsonTag = '##APTO_CLOSE##';
 			let start = 0;
 			let end = 0;
 
 			if ( raw.indexOf( openJsonTag ) >= 0 ) {
 				start = raw.indexOf( openJsonTag ) + openJsonTag.length;
 				end = raw.indexOf( closeJsonTag );
-				try {
-					parsed = JSON.parse( raw.substring( start, end ) );
-				}
-				catch ( e ) {
-					start = raw.indexOf( '{' );
-					end = raw.lastIndexOf( '}' ) + 1;
-					parsed = JSON.parse( raw.substring( start, end ) );
-				}
+			}
+			else {
+				start = raw.indexOf( '{' );
+				end = raw.lastIndexOf( '}' );
+			}
+
+			try {
+				parsed = JSON.parse( raw.substring( start, end ) );
+			}
+			catch ( e ) {
+				parsed = {};
 			}
 		}
 		return parsed;
