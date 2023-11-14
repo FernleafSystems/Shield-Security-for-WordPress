@@ -88,6 +88,9 @@ class ModCon extends BaseShield\ModCon {
 		}
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function canLinkCheese() :bool {
 		$isSplit = \trim( (string)parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' )
 				   !== \trim( (string)parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_PATH ), '/' );
