@@ -1,7 +1,7 @@
 {
   "18.5": {
     "version":     "18.5",
-    "released_at": 1699951064,
+    "released_at": 1700000000,
     "hrefs":       {
       "release": "https://shsec.io/shieldrelease185",
       "upgrade": "https://shsec.io/shieldupgradeguide185"
@@ -43,6 +43,42 @@
         "title":       "Complete Javascript Rewrite",
         "description": [
           "All plugin Javascript code has been completely cleaned & rewritten."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Realtime Dashboard Updates",
+        "description": [
+          "The dashboard progress meters are automatically updated as settings are changed via Analysis tabs. Further improvements to come."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Bot Detection Javascript Improved",
+        "description": [
+          "NotBot JS javascript is more reliable and handles page caching nonce-staleness better."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Link-Cheese Honeypot Is Improved",
+        "description": [
+          "Some improvements have been made to the reliability of the Link-Cheese feature."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Navigation Improvements",
+        "description": [
+          "Automatically selects the previously active navigation tab when page is reloaded."
         ],
         "href":        ""
       },
