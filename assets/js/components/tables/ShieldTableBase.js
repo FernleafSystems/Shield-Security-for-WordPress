@@ -149,13 +149,7 @@ export class ShieldTableBase extends BaseComponent {
 
 	bulkTableAction( action, RIDs = [] ) {
 		if ( RIDs.length === 0 ) {
-			this.$table
-				.rows( { selected: true } )
-				.every(
-					function ( rowIdx, tableLoop, rowLoop ) {
-						RIDs.push( this.data().rid );
-					}
-				);
+			RIDs = this.getSelectedRIDs();
 		}
 
 		if ( RIDs.length > 0 ) {
@@ -180,11 +174,21 @@ export class ShieldTableBase extends BaseComponent {
 			} )
 			.catch( ( error ) => {
 				console.log( error );
-			} )
-			.finally( () => {
 			} );
 		}
 	};
+
+	getSelectedRIDs() {
+		const RIDs = [];
+		this.$table
+			.rows( { selected: true } )
+			.every(
+				function ( rowIdx, tableLoop, rowLoop ) {
+					RIDs.push( this.data().rid );
+				}
+			);
+		return RIDs;
+	}
 
 	tableReload() {
 		this.$table.ajax.reload( null );

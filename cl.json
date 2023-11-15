@@ -76,6 +76,15 @@
       {
         "type":        "improved",
         "pro_only":    false,
+        "title":       "User Sessions Management",
+        "description": [
+          "Users sessions table now uses our new UI."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
         "title":       "Navigation Improvements",
         "description": [
           "Automatically selects the previously active navigation tab when page is reloaded."

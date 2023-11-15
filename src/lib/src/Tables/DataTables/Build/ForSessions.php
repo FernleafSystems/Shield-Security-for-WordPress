@@ -14,6 +14,7 @@ class ForSessions extends Base {
 
 	protected function getColumnsToDisplay() :array {
 		return [
+			'rid',
 			'details',
 			'is_secadmin',
 			'last_activity_at',
@@ -23,6 +24,18 @@ class ForSessions extends Base {
 
 	protected function getColumnDefs() :array {
 		return [
+			'rid'        => [
+				'data'           => 'rid',
+				'title'          => __( 'ID' ),
+				'className'      => 'rid',
+				'orderable'      => false,
+				'searchable'     => false,
+				'search_builder' => false,
+				'visible'        => false,
+				'searchPanes'    => [
+					'show' => false,
+				],
+			],
 			'details'     => [
 				'data'        => 'details',
 				'title'       => __( 'Details' ),

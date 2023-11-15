@@ -26,6 +26,7 @@ class BuildSessionsTableData extends BaseBuildTableData {
 			function ( $s ) {
 				$shield = $s[ 'shield' ] ?? [];
 				$data = [];
+				$data[ 'rid' ] = $shield[ 'unique' ] ?? '';
 				$data[ 'details' ] = $this->getColumnContent_Details( $s );
 				$data[ 'is_secadmin' ] = ( $shield[ 'secadmin_at' ] ?? 0 ) > 0 ? $this->getColumnContent_Date( $shield[ 'secadmin_at' ] ) : 'no';
 				$data[ 'last_activity_at' ] = $this->getColumnContent_Date( $shield[ 'last_activity_at' ] ?? $s[ 'login' ] );
@@ -52,7 +53,7 @@ class BuildSessionsTableData extends BaseBuildTableData {
 	 * @return array[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
-		return $this->getRecordsLoader()->allOrderedByLastActivityAt();
+		return \array_slice( $this->getRecordsLoader()->allOrderedByLastActivityAt(), $offset, $limit );
 	}
 
 	private function getColumnContent_Details( array $session ) :string {

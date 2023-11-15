@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\Table\BuildSessionsTableData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\DeleteSession;
 
 class SessionsTableAction extends BaseAction {
 
@@ -14,6 +15,14 @@ class SessionsTableAction extends BaseAction {
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
 					break;
+				case 'delete':
+					( new DeleteSession() )->byShieldIDs( $this->action_data[ 'rids' ] );
+					$response = [
+						'success'     => true,
+						'page_reload' => false,
+						'message'     => __( 'Selected Sessions Deleted.', 'wp-simple-firewall' ),
+					];
+					break;
 				default:
 					throw new \Exception( 'Not a supported Sessions table sub_action: '.$this->action_data[ 'sub_action' ] );
 			}
@@ -21,7 +30,7 @@ class SessionsTableAction extends BaseAction {
 		catch ( \Exception $e ) {
 			$response = [
 				'success'     => false,
-				'page_reload' => true,
+				'page_reload' => false,
 				'message'     => $e->getMessage(),
 			];
 		}
