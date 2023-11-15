@@ -121,6 +121,7 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
+			Rules\Build\RequestIsSiteLockdownBlocked::class,
 			Rules\Build\RequestStatusIsAdmin::class,
 			Rules\Build\RequestStatusIsAjax::class,
 			Rules\Build\RequestStatusIsXmlRpc::class,

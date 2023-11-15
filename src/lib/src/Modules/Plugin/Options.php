@@ -34,6 +34,18 @@ class Options extends BaseShield\Options {
 		return (string)$this->getOpt( 'importexport_masterurl', '' );
 	}
 
+	public function getBlockdownCfg() :Lib\SiteLockdown\SiteBlockdownCfg {
+		return ( new Lib\SiteLockdown\SiteBlockdownCfg() )->applyFromArray(
+			\array_merge( [
+				'activated_at' => 0,
+				'activated_by' => '',
+				'disabled_at'  => 0,
+				'exclusions'   => [],
+				'whitelist_me' => '',
+			], $this->getOpt( 'blockdown_cfg' ) )
+		);
+	}
+
 	/**
 	 * @return string[]
 	 */

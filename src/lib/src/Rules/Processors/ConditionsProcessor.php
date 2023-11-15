@@ -44,7 +44,11 @@ class ConditionsProcessor extends BaseProcessor {
 						$matched = !$matched;
 					}
 				}
-				catch ( RuleNotYetRunException|AttemptToAccessNonExistingRuleException $e ) {
+				catch ( RuleNotYetRunException $e ) {
+//					error_log( $e->getMessage() );
+					return false;
+				}
+				catch ( AttemptToAccessNonExistingRuleException $e ) {
 					error_log( $e->getMessage() );
 					return false;
 				}
@@ -89,7 +93,7 @@ class ConditionsProcessor extends BaseProcessor {
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
 		$result = $this->rulesCon->getRule( $rule )->result;
-		if ( is_null( $result ) ) {
+		if ( \is_null( $result ) ) {
 			throw new RuleNotYetRunException( 'Rule not yet run: '.$rule );
 		}
 		return $result;

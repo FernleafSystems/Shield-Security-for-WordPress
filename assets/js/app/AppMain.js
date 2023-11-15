@@ -1,4 +1,5 @@
 import { AppBase } from "./AppBase";
+import { Blockdown } from "../components/general/Blockdown";
 import { BootstrapTooltips } from "../components/ui/BootstrapTooltips";
 import { ChartsSummaryCharts } from "../components/charts/ChartsSummaryCharts";
 import { ConfigImport } from "../components/options/ConfigImport";
@@ -54,6 +55,7 @@ export class AppMain extends AppBase {
 
 		this.components.offcanvas = new OffCanvasService();
 		this.components.bootstrap_tooltips = new BootstrapTooltips();
+		this.components.blockdown = ( 'blockdown' in comps ) ? new Blockdown( comps.blockdown ) : null;
 		this.components.charts = ( 'charts' in comps ) ? new ChartsSummaryCharts( comps.charts ) : null;
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
 		this.components.dynamic_buttons = new DynamicActionButtons();

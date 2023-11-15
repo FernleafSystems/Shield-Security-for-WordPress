@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Arrays;
 
 class NavMenuBuilder {
 
@@ -269,6 +268,11 @@ class NavMenuBuilder {
 					__( 'User Sessions', 'wp-simple-firewall' ),
 					PluginNavs::NAV_TOOLS,
 					PluginNavs::SUBNAV_TOOLS_SESSIONS
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Site Lockdown', 'wp-simple-firewall' ),
+					PluginNavs::NAV_TOOLS,
+					PluginNavs::SUBNAV_TOOLS_BLOCKDOWN
 				),
 				$this->createSubItemForNavAndSub(
 					__( 'Import/Export', 'wp-simple-firewall' ),

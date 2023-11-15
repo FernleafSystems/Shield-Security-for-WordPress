@@ -114,6 +114,10 @@ class Capabilities {
 		return $this->hasCap( 'rest_api_level_2' );
 	}
 
+	public function canSiteBlockdown() :bool {
+		return $this->hasCap( 'site_blockdown' );
+	}
+
 	public function canThirdPartyScanSpam() :bool {
 		return $this->hasCap( 'thirdparty_scan_spam' );
 	}
@@ -219,6 +223,7 @@ class Capabilities {
 			'scan_auto_repair',
 			'scan_vulnerabilities',
 			'scan_vulnerabilities_autoupdate',
+			'site_blockdown',
 			'thirdparty_scan_spam',
 			'thirdparty_scan_users',
 			'thirdparty_activity_logs',

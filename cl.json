@@ -30,6 +30,16 @@
       },
       {
         "type":        "new",
+        "pro_only":    true,
+        "title":       "Site Lockdown",
+        "description": [
+          "You can now completely lockdown access to your site to prevent any access whatsoever.",
+          "All traffic will be met with a block page, except for IP addresses present on the bypass/whitelist."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
         "pro_only":    false,
         "title":       "Export IP Rules",
         "description": [

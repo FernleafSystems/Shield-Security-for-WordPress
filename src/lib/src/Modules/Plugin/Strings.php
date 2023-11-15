@@ -23,6 +23,18 @@ class Strings extends Base\Strings {
 					__( 'Plugin option "{{name}}" ({{key}}) was updated to "{{value}}".', 'wp-simple-firewall' ),
 				]
 			],
+			'site_blockdown_started' => [
+				'name'  => __( 'Site Lockdown Started', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Site was placed into lockdown by {{user_login}}.', 'wp-simple-firewall' ),
+				]
+			],
+			'site_blockdown_ended'   => [
+				'name'  => __( 'Site Lockdown Started', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Site was taken out of lockdown.', 'wp-simple-firewall' ),
+				]
+			],
 			'frontpage_load'            => [
 				'name'  => sprintf( '%s: %s', __( 'Loaded', 'wp-simple-firewall' ),
 					__( 'Front Page', 'wp-simple-firewall' ) ),

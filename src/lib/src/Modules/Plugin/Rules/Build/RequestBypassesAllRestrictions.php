@@ -26,23 +26,32 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
+			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'condition' => Conditions\IsForceOff::SLUG,
-				],
-				[
-					'rule'         => IsPublicWebRequest::SLUG,
+					'rule'         => RequestIsSiteLockdownBlocked::SLUG,
 					'invert_match' => true,
 				],
 				[
-					'rule' => IsTrustedBot::SLUG,
-				],
-				[
-					'rule' => Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::SLUG,
-				],
-				[
-					'rule' => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
+					'logic' => static::LOGIC_OR,
+					'group' => [
+						[
+							'condition' => Conditions\IsForceOff::SLUG,
+						],
+						[
+							'rule'         => IsPublicWebRequest::SLUG,
+							'invert_match' => true,
+						],
+						[
+							'rule' => IsTrustedBot::SLUG,
+						],
+						[
+							'rule' => Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::SLUG,
+						],
+						[
+							'rule' => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
+						],
+					]
 				],
 			]
 		];

@@ -25,6 +25,14 @@
     "enabled": true
   },
   "admin_notices": {
+    "blockdown-active":  {
+      "id":               "blockdown-active",
+      "schedule":         "conditions",
+      "valid_admin":      false,
+      "plugin_page_only": false,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
     "override-forceoff": {
       "id":               "override-forceoff",
       "schedule":         "conditions",
@@ -504,6 +512,13 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "blockdown_cfg",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
@@ -592,6 +607,18 @@
       "test_cron_run":             {
         "level":  "debug",
         "recent": true
+      },
+      "site_blockdown_started":    {
+        "level":        "alert",
+        "audit_params": [
+          "user_login"
+        ]
+      },
+      "site_blockdown_ended":      {
+        "level":        "alert",
+        "audit_params": [
+          "user_login"
+        ]
       },
       "plugin_option_changed":     {
         "level":          "info",

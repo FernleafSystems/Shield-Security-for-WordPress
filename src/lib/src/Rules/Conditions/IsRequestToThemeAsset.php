@@ -15,7 +15,7 @@ class IsRequestToThemeAsset extends Base {
 		$pathMatcher->request_path = $this->getRequestPath();
 		$pathMatcher->is_match_regex = true;
 		$pathMatcher->match_paths = [
-			sprintf( '^%s/.+/.+', \dirname( wp_parse_url( get_stylesheet_directory_uri(), PHP_URL_PATH ) ) )
+			sprintf( '^%s/.+/.+', \dirname( wp_parse_url( get_stylesheet_directory_uri(), \PHP_URL_PATH ) ) )
 		];
 		return $pathMatcher->run();
 	}

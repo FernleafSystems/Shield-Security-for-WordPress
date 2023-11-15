@@ -100,6 +100,20 @@ class AssetsCustomizer {
 					];
 				},
 			],
+			'blockdown' => [
+				'key'     => 'blockdown',
+				'handles' => [
+					'main',
+				],
+				'data'    => function () {
+					return [
+						'ajax' => [
+							Actions\BlockdownFormSubmit::SLUG => ActionData::Build( Actions\BlockdownFormSubmit::class ),
+							Actions\BlockdownDisableFormSubmit::SLUG => ActionData::Build( Actions\BlockdownDisableFormSubmit::class ),
+						],
+					];
+				},
+			],
 			'charts'           => [
 				'key'     => 'charts',
 				'handles' => [

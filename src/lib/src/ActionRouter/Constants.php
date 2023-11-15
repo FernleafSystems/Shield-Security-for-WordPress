@@ -12,6 +12,8 @@ class Constants {
 	 */
 	public const ACTIONS = [
 		Actions\ActivityLogTableAction::class,
+		Actions\BlockdownDisableFormSubmit::class,
+		Actions\BlockdownFormSubmit::class,
 		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
@@ -186,6 +188,7 @@ class Constants {
 		Actions\Render\FullPage\Block\BlockFirewall::class,
 		Actions\Render\FullPage\Block\BlockIpAddressShield::class,
 		Actions\Render\FullPage\Block\BlockIpAddressCrowdsec::class,
+		Actions\Render\FullPage\Block\BlockPageSiteBlockdown::class,
 		Actions\Render\FullPage\Block\Components\AutoUnblockCrowdsec::class,
 		Actions\Render\FullPage\Block\Components\AutoUnblockShield::class,
 		Actions\Render\FullPage\Block\Components\MagicLink::class,
@@ -226,6 +229,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageStats::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogLive::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
+		Actions\Render\PluginAdminPages\PageToolLockdown::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
 		Actions\Render\Utility\DbDescribeTable::class,
 	];

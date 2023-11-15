@@ -37,6 +37,7 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
 	public const SUBNAV_TOOLS_DOCS = 'docs';
+	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
@@ -171,6 +172,9 @@ class PluginNavs {
 				self::NAV_TOOLS          => [
 					'name'     => __( 'Tools', 'wp-simple-firewall' ),
 					'sub_navs' => [
+						self::SUBNAV_TOOLS_BLOCKDOWN => [
+							'handler' => PluginAdminPages\PageToolLockdown::class,
+						],
 						self::SUBNAV_TOOLS_SESSIONS => [
 							'handler' => PluginAdminPages\PageUserSessions::class,
 						],
