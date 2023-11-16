@@ -18,8 +18,8 @@ class BlockdownFormSubmit extends BaseAction {
 
 		$form = $this->action_data[ 'form_data' ];
 		try {
-			if ( !$con->caps->canSiteBlockdown()) {
-				throw new \Exception( 'Sorry, please upgrade your ShieldPRO plan to make use of this feature.' );
+			if ( !$con->caps->canSiteBlockdown() ) {
+				throw new \Exception( 'Please upgrade your ShieldPRO plan to make use of this feature.' );
 			}
 
 			if ( empty( $form ) || !\is_array( $form ) ) {
@@ -33,7 +33,7 @@ class BlockdownFormSubmit extends BaseAction {
 			}
 
 			$confirm = $form[ 'confirm' ] ?? [];
-			if ( !empty( \array_diff( [ 'consequences', 'authority', 'responsibility', 'access' ], $confirm ) ) ) {
+			if ( !empty( \array_diff( [ 'consequences', 'authority', 'access', 'cache' ], $confirm ) ) ) {
 				throw new \Exception( 'Please check all confirmation boxes.' );
 			}
 

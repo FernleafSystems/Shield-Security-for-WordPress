@@ -52,6 +52,18 @@
 			<div class="mb-3">
 				<h6 class="mb-2">Confirmation</h6>
 				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
+						   value="cache">
+					<label class="form-check-label" for="confirm_cache">
+						I know that if I use caching and I don't clear it afterward, it'll will cause trouble for visitors.</label>
+				</div>
+				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
+						   value="access">
+					<label class="form-check-label" for="confirm_access">
+						I know how to regain access to the site if I become locked-out (e.g. my IP address changes).</label>
+				</div>
+				<div class="form-check">
 					<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
 						   value="consequences">
 					<label class="form-check-label"
@@ -62,18 +74,6 @@
 						   value="authority">
 					<label class="form-check-label"
 						   for="confirm_authority">I have authority to block all traffic to this site.</label>
-				</div>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="confirm_responsibility" name="confirm[]"
-						   value="responsibility">
-					<label class="form-check-label" for="confirm_responsibility">
-						I assume full responsibility for all consequences of blocking traffic to this site.</label>
-				</div>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
-						   value="access">
-					<label class="form-check-label" for="confirm_access">
-						I know how to regain access to the site if I become locked-out (e.g. my IP address changes).</label>
 				</div>
 			</div>
 

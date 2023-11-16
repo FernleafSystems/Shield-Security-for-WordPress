@@ -44,11 +44,7 @@ class ConditionsProcessor extends BaseProcessor {
 						$matched = !$matched;
 					}
 				}
-				catch ( RuleNotYetRunException $e ) {
-//					error_log( $e->getMessage() );
-					return false;
-				}
-				catch ( AttemptToAccessNonExistingRuleException $e ) {
+				catch ( RuleNotYetRunException|AttemptToAccessNonExistingRuleException $e ) {
 					error_log( $e->getMessage() );
 					return false;
 				}

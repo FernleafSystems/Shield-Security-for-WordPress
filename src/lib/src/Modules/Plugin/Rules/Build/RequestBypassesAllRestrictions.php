@@ -29,7 +29,7 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => RequestIsSiteLockdownBlocked::SLUG,
+					'rule'         => RequestIsSiteBlockdownBlocked::SLUG,
 					'invert_match' => true,
 				],
 				[

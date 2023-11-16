@@ -10,11 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
-class RequestIsSiteLockdownBlocked extends BuildRuleCoreShieldBase {
+class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
 
-	public const SLUG = 'shield/request_is_site_lockdown_blocked';
+	public const SLUG = 'shield/request_is_site_blockdown_blocked';
 
 	protected function getName() :string {
 		return 'The Request Is Blocked By Site Lockdown';

@@ -121,7 +121,8 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
-			Rules\Build\RequestIsSiteLockdownBlocked::class,
+			Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::class, // this is place here as a hack, so it runs early
+			Rules\Build\RequestIsSiteBlockdownBlocked::class,
 			Rules\Build\RequestStatusIsAdmin::class,
 			Rules\Build\RequestStatusIsAjax::class,
 			Rules\Build\RequestStatusIsXmlRpc::class,
