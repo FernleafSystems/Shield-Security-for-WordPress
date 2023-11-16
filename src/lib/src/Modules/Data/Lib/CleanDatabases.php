@@ -21,13 +21,13 @@ class CleanDatabases {
 	use Data\ModConsumer;
 
 	protected function run() {
-		$this->cleanRequestLogs();
 		$this->cleanIpRules();
 		$this->cleanBotSignals();
 		$this->cleanUserMeta();
 		$this->cleanOldEmail2FA();
 		$this->cleanStaleReports();
 		$this->cleanStaleScans();
+		$this->cleanRequestLogs();
 		$this->purgeUnreferencedIPs();
 	}
 
@@ -70,6 +70,24 @@ class CleanDatabases {
 			->addWhereOlderThan( Services::Request()->carbon( true )->subHour()->timestamp )
 			->addWhereEquals( 'transient', '1' )
 			->query();
+
+		// 3. Delete traffic logs past their TTL that aren't referenced by activity logs.
+		if ( $optsTraffic->isTrafficLoggerEnabled() && $optsTraffic->getAutoCleanDays() < $optsAudit->getAutoCleanDays() ) {
+			$oldest = Services::Request()
+							  ->carbon( true )
+							  ->startOfDay()
+							  ->subDays( $optsTraffic->getAutoCleanDays() )->timestamp;
+			Services::WpDb()->doSql(
+				sprintf( 'DELETE FROM `%s` WHERE `created_at` < %s AND `id` NOT IN ( %s );',
+					$con->getModule_Data()->getDbH_ReqLogs()->getTableSchema()->table,
+					$oldest,
+					sprintf( 'SELECT DISTINCT `req_ref` FROM `%s` WHERE `created_at` < %s',
+						$con->getModule_AuditTrail()->getDbH_Logs()->getTableSchema()->table,
+						$oldest
+					)
+				)
+			);
+		}
 	}
 
 	public function cleanStaleReports() :void {
