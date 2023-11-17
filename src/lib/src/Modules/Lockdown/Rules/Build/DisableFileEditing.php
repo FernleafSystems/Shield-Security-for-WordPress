@@ -2,13 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
-	Responses
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class DisableFileEditing extends BuildRuleCoreShieldBase {
+class DisableFileEditing extends BuildRuleLockdownBase {
 
 	public const SLUG = 'shield/disable_file_editing';
 
@@ -25,7 +22,7 @@ class DisableFileEditing extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 			]

@@ -17,13 +17,14 @@
 	{% else %}
 
 		<div class="alert alert-warning d-inline-block" role="alert">
-			<h4 class="alert-heading">Take Care</h4>
+			<h4 class="alert-heading">Proceed With Extreme Caution</h4>
 			<p>Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots).</p>
 			<p>Only traffic originating from whitelisted IP addresses and the hosting server itself will be permitted.</p>
 			{% if not flags.is_your_ip_whitelisted %}
 				<p class="fw-bold">Your IP address is not whitelisted, so you'll be locked-out if you enable this without whitelisting your IP.</p>
 			{% endif %}
-			<p class="mb-0">Proceed with caution.</p>
+			<p>Note: To prevent other admins from using this tool, consider switching on the Security Admin feature.</p>
+			<p class="mb-0">Proceed with caution. [<a href="https://shsec.io/lo" target="_blank">further help</a>]</p>
 		</div>
 
 		<form class="form" id="FormBlockdown" autocomplete="off">
@@ -44,7 +45,7 @@
 							{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
 					<label class="form-check-label" for="whitelist_me">
 						Add my IP address (<code>{{ vars.your_ip }}</code>) to the bypass/whitelist
-						<br><small>(it'll be automatically removed from the whitelist when lockdown is disabled)</small>
+						<br><small>(when lockdown is disabled, the IP address will automatically be removed from the whitelist)</small>
 					</label>
 				</div>
 			</div>
@@ -61,7 +62,7 @@
 					<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
 						   value="access">
 					<label class="form-check-label" for="confirm_access">
-						I know how to regain access to the site if I become locked-out (e.g. my IP address changes).</label>
+						I know how to regain access if I become locked-out (e.g. my IP address changes).</label>
 				</div>
 				<div class="form-check">
 					<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
@@ -77,7 +78,11 @@
 				</div>
 			</div>
 
-			<button type="submit" class="btn btn-danger mb-3">Lockdown The Site</button>
+			{% if flags.can_blockdown %}
+				<button type="submit" class="btn btn-danger mb-3">Lockdown The Site</button>
+			{% else %}
+				<button class="btn btn-danger mb-3" disabled="disabled">Upgrade Your ShieldPRO Membership</button>
+			{% endif %}
 
 		</form>
 	{% endif %}

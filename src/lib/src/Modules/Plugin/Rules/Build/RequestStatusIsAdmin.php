@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Conditions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\WpIsAdmin;
 
 class RequestStatusIsAdmin extends RequestStatusBase {
 
@@ -20,7 +17,7 @@ class RequestStatusIsAdmin extends RequestStatusBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'condition' => Conditions\WpIsAdmin::SLUG,
+					'condition' => WpIsAdmin::SLUG,
 				],
 			]
 		];

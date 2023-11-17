@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
-class DisableXmlrpc extends BuildRuleCoreShieldBase {
+class DisableXmlrpc extends BuildRuleLockdownBase {
 
 	public const SLUG = 'shield/disable_xmlrpc';
 
@@ -26,7 +25,7 @@ class DisableXmlrpc extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[

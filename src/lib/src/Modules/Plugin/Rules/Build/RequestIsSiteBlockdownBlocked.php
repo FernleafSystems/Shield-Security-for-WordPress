@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\IpWhitelisted;
 
 class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 
@@ -39,7 +39,7 @@ class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 					'rule' => IsPublicWebRequest::SLUG,
 				],
 				[
-					'rule'         => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
+					'rule'         => IpWhitelisted::SLUG,
 					'invert_match' => true,
 				],
 			]

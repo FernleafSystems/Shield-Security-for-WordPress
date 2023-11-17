@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
-class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
+class BotTrackInvalidScript extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_invalidscript';
 
@@ -22,13 +21,11 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -39,7 +36,7 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 					'invert_match' => true,
 					'params'       => [
 						'is_match_regex'     => false,
-						'match_script_names' => $opts->botSignalsGetAllowableScripts(),
+						'match_script_names' => $this->opts()->botSignalsGetAllowableScripts(),
 					],
 				],
 			]
@@ -47,15 +44,13 @@ class BotTrackInvalidScript extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->opts();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,
 				'params'   => [
 					'event'            => 'bottrack_invalidscript',
-					'offense_count'    => $opts->getOffenseCountFor( 'track_invalidscript' ),
-					'block'            => $opts->isTrackOptImmediateBlock( 'track_invalidscript' ),
+					'offense_count'    => $this->opts()->getOffenseCountFor( 'track_invalidscript' ),
+					'block'            => $this->opts()->isTrackOptImmediateBlock( 'track_invalidscript' ),
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

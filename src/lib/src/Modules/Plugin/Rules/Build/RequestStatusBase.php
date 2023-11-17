@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\BuildRuleCoreShieldBase;
-
-abstract class RequestStatusBase extends BuildRuleCoreShieldBase {
+abstract class RequestStatusBase extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\BuildRuleCoreShieldBase {
 
 	protected function getDescription() :string {
 		return sprintf( '%s - %s', __( 'Request Status' ), $this->getName() );

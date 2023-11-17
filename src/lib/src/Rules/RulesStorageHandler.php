@@ -13,11 +13,11 @@ class RulesStorageHandler {
 	/**
 	 * @throws \Exception
 	 */
-	public function loadRules( bool $attemptRebuild = true ) :array {
+	public function loadRules( bool $attemptRebuildIfRequired = true ) :array {
 
 		$rules = $this->loadRawFromWP();
-		if ( $attemptRebuild && ( empty( $rules ) || empty( $rules[ 'rules' ] ) ) ) {
-			$this->buildAndStore();
+		if ( $attemptRebuildIfRequired && ( empty( $rules ) || empty( $rules[ 'rules' ] ) ) ) {
+			$this->getRulesCon()->buildAndStore();
 			$rules = $this->loadRules( false );
 		}
 
@@ -28,6 +28,9 @@ class RulesStorageHandler {
 		return $rules;
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function buildAndStore() {
 		$this->store(
 			( new Builder() )
@@ -36,13 +39,7 @@ class RulesStorageHandler {
 		);
 	}
 
-	public function build() :array {
-		return ( new Builder() )
-			->setRulesCon( $this->getRulesCon() )
-			->run();
-	}
-
-	private function store( array $rules ) {
+	public function store( array $rules ) {
 
 		$rulesForStorage = \array_map( function ( RuleVO $rule ) {
 			return $rule->getRawData();

@@ -2,12 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
 	Responses
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\{
+	IpWhitelisted,
+	IsPathWhitelisted
 };
 
 class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
@@ -46,10 +49,10 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 							'rule' => IsTrustedBot::SLUG,
 						],
 						[
-							'rule' => Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::SLUG,
+							'rule' => IsPathWhitelisted::SLUG,
 						],
 						[
-							'rule' => Shield\Modules\IPs\Rules\Build\IpWhitelisted::SLUG,
+							'rule' => IpWhitelisted::SLUG,
 						],
 					]
 				],

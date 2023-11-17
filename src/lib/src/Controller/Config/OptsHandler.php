@@ -149,37 +149,42 @@ class OptsHandler extends DynPropertiesClass {
 		$type = $con->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;
 		$latest = $this->{'mod_opts_'.$type};
 		$stored = Services::WpGeneral()->getOption( $this->key( $type ) );
+		$hasDiff = false;
 		$diffs = [];
 		foreach ( \array_intersect_key( $latest, $con->modules ) as $slug => $options ) {
 			$mod = $con->modules[ $slug ];
 			$opts = $mod->opts();
 			$hidden = \array_keys( $opts->getHiddenOptions() );
 			foreach ( $options as $optKey => $optValue ) {
-				if ( !\in_array( $optKey, $hidden )
-					 && \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $optKey ] ?? null )
-				) {
-					if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
-						$optValue = $optValue === 'Y' ? 'on' : 'off';
-					}
-					elseif ( !\is_scalar( $optValue ) ) {
-						switch ( $opts->getOptionType( $optKey ) ) {
-							case 'array':
-							case 'multiple_select':
-								$optValue = \implode( ', ', $optValue );
-								break;
-							default:
-								$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
-								break;
+
+				if ( \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $optKey ] ?? null ) ) {
+
+					$hasDiff = true;
+
+					if ( !\in_array( $optKey, $hidden ) ) {
+						if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
+							$optValue = $optValue === 'Y' ? 'on' : 'off';
 						}
-					}
-					try {
-						$diffs[ $optKey ] = [
-							'name'  => $mod->getStrings()->getOptionStrings( $optKey )[ 'name' ],
-							'key'   => $optKey,
-							'value' => $optValue,
-						];
-					}
-					catch ( \Exception $e ) {
+						elseif ( !\is_scalar( $optValue ) ) {
+							switch ( $opts->getOptionType( $optKey ) ) {
+								case 'array':
+								case 'multiple_select':
+									$optValue = \implode( ', ', $optValue );
+									break;
+								default:
+									$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
+									break;
+							}
+						}
+						try {
+							$diffs[ $optKey ] = [
+								'name'  => $mod->getStrings()->getOptionStrings( $optKey )[ 'name' ],
+								'key'   => $optKey,
+								'value' => $optValue,
+							];
+						}
+						catch ( \Exception $e ) {
+						}
 					}
 				}
 			}
@@ -190,5 +195,7 @@ class OptsHandler extends DynPropertiesClass {
 				'audit_params' => $params
 			] );
 		}
+
+		do_action( $con->prefix( 'after_pre_options_store' ), $hasDiff );
 	}
 }

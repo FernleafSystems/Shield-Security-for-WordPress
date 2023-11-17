@@ -2,16 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class IsPathWhitelisted extends BuildRuleCoreShieldBase {
+class IsPathWhitelisted extends BuildRuleIpsBase {
 
 	use RuleTraits\InstantExec;
 

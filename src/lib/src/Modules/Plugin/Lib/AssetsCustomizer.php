@@ -228,8 +228,6 @@ class AssetsCustomizer {
 					'wpadmin',
 				],
 				'data'    => function () {
-					$con = self::con();
-					$con->getModule_Plugin()->opts()->setOpt( 'ipdetect_at', Services::Request()->ts() );
 					return [
 						'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
 						'ajax'    => ActionData::Build( Actions\PluginIpDetect::class ),

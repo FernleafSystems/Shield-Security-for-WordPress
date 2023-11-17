@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
-class BotTrack404 extends BuildRuleCoreShieldBase {
+class BotTrack404 extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_404';
 
@@ -22,13 +21,11 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = self::con()->getModule_IPs()->opts();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -48,7 +45,7 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 							'params'    => [
 								'is_match_regex' => true,
 								'match_paths'    => [
-									sprintf( "\\.(%s)$", \implode( '|', $opts->botSignalsGetAllowable404s() ) )
+									sprintf( "\\.(%s)$", \implode( '|', $this->opts()->botSignalsGetAllowable404s() ) )
 								],
 							],
 						],
@@ -65,7 +62,6 @@ class BotTrack404 extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
 		$opts = $this->opts();
 		return [
 			[

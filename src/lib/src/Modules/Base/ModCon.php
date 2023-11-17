@@ -79,18 +79,23 @@ abstract class ModCon extends DynPropertiesClass {
 			$this->onConfigChanged();
 		} );
 
-		$this->collateRuleBuilders();
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	protected function collateRuleBuilders() {
 		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
+			error_log( $this->getModSlug( false ) );
 			return \array_merge( $builders, \array_map(
 				function ( $class ) {
 					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
 					$theClass = new $class();
-					$theClass->setMod( $this );
+					if ( \method_exists( $theClass, 'setMod' ) ) {
+						$theClass->setMod( $this );
+					}
 					return $theClass;
 				},
 				\array_filter( $this->enumRuleBuilders() )

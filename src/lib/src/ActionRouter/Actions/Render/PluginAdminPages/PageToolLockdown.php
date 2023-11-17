@@ -11,27 +11,6 @@ class PageToolLockdown extends BasePluginAdminPage {
 	public const SLUG = 'admin_plugin_page_tools_lockdown';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/tool_lockdown.twig';
 
-	protected function getPageContextualHrefs() :array {
-		return [
-			[
-				'text'    => __( 'User Controls', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => self::con()->getModule_UserManagement()->cfg->slug
-				],
-			],
-			[
-				'text'    => __( 'Configure Security Admin', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_form_mod_cfg' ],
-				'datas'   => [
-					'config_item' => self::con()->getModule_SecAdmin()->cfg->slug
-				],
-			],
-		];
-	}
-
 	protected function getRenderData() :array {
 		$con = self::con();
 		/** @var Options $opts */
@@ -47,6 +26,7 @@ class PageToolLockdown extends BasePluginAdminPage {
 			],
 			'flags'   => [
 				'blockdown_active'       => $cfg->isLockdownActive(),
+				'can_blockdown'          => $con->caps->canSiteBlockdown(),
 				'is_your_ip_whitelisted' => ( new IpRuleStatus( $con->this_req->ip ) )->isBypass(),
 			],
 			'vars'    => [

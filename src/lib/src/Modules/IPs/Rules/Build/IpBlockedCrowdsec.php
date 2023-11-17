@@ -2,16 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
-class IpBlockedCrowdsec extends BuildRuleCoreShieldBase {
+class IpBlockedCrowdsec extends BuildRuleIpsBase {
 
 	use RuleTraits\InstantExec;
 
@@ -30,7 +28,7 @@ class IpBlockedCrowdsec extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
