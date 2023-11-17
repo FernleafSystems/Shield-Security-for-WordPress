@@ -12,9 +12,7 @@ class Content extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/scan_item_analysis/file_content.twig';
 
 	protected function getRenderData() :array {
-		$item = $this->getScanItem();
-
-		$path = \path_join( ABSPATH, $item->path_fragment );
+		$path = \path_join( ABSPATH, $this->getScanItem()->path_fragment );
 		$FS = Services::WpFs();
 		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new ActionException( 'File does not exist.' );
@@ -27,7 +25,7 @@ class Content extends Base {
 
 		return [
 			'lines' => \explode( "\n",
-				str_replace( "\t", "    ", ( new ConvertLineEndings() )->fileDosToLinux( $path ) )
+				\str_replace( "\t", "    ", ( new ConvertLineEndings() )->fileDosToLinux( $path ) )
 			),
 		];
 	}

@@ -65,10 +65,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				.send( data )
 				.then( ( resp ) => {
 					if ( resp.success ) {
-						let $fileViewModal = $( '#ShieldModalContainer' );
-						$( '.modal-content', $fileViewModal ).html( resp.data.html );
-						$fileViewModal.modal( 'show' );
-						$fileViewModal[ 0 ].querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
+						const modal = document.getElementById( 'ShieldModalContainer' );
+						modal.querySelector( '.modal-content' ).innerHTML = resp.data.html;
+						$( modal ).modal( 'show' );
+						modal.querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
 							// hljs.highlightElement( el );
 						} );
 					}

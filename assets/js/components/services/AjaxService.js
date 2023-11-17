@@ -21,7 +21,6 @@ export class AjaxService {
 		.req( data )
 		.then( respJSON => {
 			if ( !quiet && respJSON.data.message.length > 0 ) {
-
 				if ( typeof shieldServices === 'undefined' ) {
 					alert( respJSON.data.message );
 				}

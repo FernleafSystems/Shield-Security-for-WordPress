@@ -13,7 +13,7 @@ export class AjaxParseResponseService {
 
 			if ( raw.indexOf( openJsonTag ) >= 0 ) {
 				start = raw.indexOf( openJsonTag ) + openJsonTag.length;
-				end = raw.indexOf( closeJsonTag );
+				end = raw.lastIndexOf( closeJsonTag );
 			}
 			else {
 				start = raw.indexOf( '{' );
