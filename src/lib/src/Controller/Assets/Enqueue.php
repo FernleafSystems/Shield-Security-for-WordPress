@@ -227,14 +227,12 @@ class Enqueue {
 
 	private function localise() {
 		$locals = apply_filters( 'shield/custom_localisations', [], $this->adminHookSuffix, $this->enqueuedHandles );
-		if ( \is_array( $locals ) ) {
-			foreach ( $locals as $local ) {
-				if ( \is_array( $local ) && \count( $local ) === 3 ) {
-					wp_localize_script( $this->normaliseHandle( $local[ 0 ] ), $local[ 1 ], $local[ 2 ] );
-				}
-				else {
-					\error_log( 'Invalid localisation: '.\var_export( $local, true ) );
-				}
+		foreach ( \is_array( $locals ) ? $locals : [] as $local ) {
+			if ( \is_array( $local ) && \count( $local ) === 3 ) {
+				wp_localize_script( $this->normaliseHandle( $local[ 0 ] ), $local[ 1 ], $local[ 2 ] );
+			}
+			else {
+				\error_log( 'Invalid localisation: '.\var_export( $local, true ) );
 			}
 		}
 	}

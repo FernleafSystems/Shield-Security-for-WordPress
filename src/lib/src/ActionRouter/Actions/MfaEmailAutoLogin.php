@@ -47,7 +47,7 @@ class MfaEmailAutoLogin extends BaseAction {
 			}
 		}
 		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
+			error_log( 'failed auto login:'.$e->getMessage() );
 		}
 		finally {
 			$con->fireEvent(
@@ -65,9 +65,14 @@ class MfaEmailAutoLogin extends BaseAction {
 		$this->response()->action_response_data = [
 			'success' => $success,
 		];
+
+		$redirectTo = $this->action_data[ 'redirect_to' ] ?? '';
+		if ( !empty( $redirectTo ) ) {
+			$redirectTo = \base64_decode( $redirectTo );
+		}
 		$this->response()->next_step = [
 			'type' => 'redirect',
-			'url'  => $this->action_data[ 'redirect_to' ] ?? Services::WpGeneral()->getHomeUrl(),
+			'url' => empty( $redirectTo ) ? Services::WpGeneral()->getHomeUrl() : $redirectTo,
 		];
 	}
 

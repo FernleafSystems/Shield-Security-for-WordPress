@@ -131,7 +131,8 @@
       {
         "handle": "login_2fa",
         "zones":  [
-          "login_2fa"
+          "login_2fa",
+          "page_login"
         ],
         "deps":   [
           "wp-jquery"

@@ -29,7 +29,7 @@ export class DashboardWidget extends BaseComponent {
 		data[ 'refresh' ] = refresh;
 
 		( new AjaxService() )
-		.send( data, false )
+		.bg( data, false, true )
 		.then( ( resp ) => {
 			ShieldOverlay.Hide();
 			if ( resp.success ) {

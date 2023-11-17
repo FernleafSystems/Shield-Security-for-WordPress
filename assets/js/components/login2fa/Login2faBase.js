@@ -1,11 +1,4 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 
-export class Login2faBase extends BaseComponent {
-
-	init() {
-		this.exec()
-	}
-
-	run() {
-	}
+export class Login2faBase extends BaseAutoExecComponent {
 }

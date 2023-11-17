@@ -131,7 +131,8 @@ class Email extends AbstractShieldProviderMfaDB {
 										   $this->getLoginIntentFormParameter() => $otp,
 										   'login_nonce'                        => $plainNonce,
 										   'user_id'                            => $user->ID,
-										   'redirect_to'                        => $autoRedirect,
+										   // breaks without encoding.
+										   'redirect_to'                        => \base64_encode( $autoRedirect ),
 									   ]
 								   ),
 							   ] )

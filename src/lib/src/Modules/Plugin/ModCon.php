@@ -83,8 +83,8 @@ class ModCon extends BaseShield\ModCon {
 		$this->declareWooHposCompat();
 	}
 
-	public function onWpLoaded() {
-		parent::onWpLoaded();
+	public function onWpInit() {
+		parent::onWpInit();
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}

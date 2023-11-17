@@ -27,7 +27,8 @@ class CaptureShieldAction extends CaptureActionBase {
 		if ( !empty( $this->actionResponse ) && !empty( $this->actionResponse->next_step ) ) {
 			switch ( $this->actionResponse->next_step[ 'type' ] ) {
 				case 'redirect':
-					Services::Response()->redirect( $this->actionResponse->next_step[ 'url' ] );
+					$url = $this->actionResponse->next_step[ 'url' ];
+					Services::Response()->redirect( empty( $url ) ? Services::WpGeneral()->getHomeUrl() : $url );
 					break;
 				default:
 					break;

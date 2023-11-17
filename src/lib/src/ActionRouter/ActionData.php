@@ -58,10 +58,6 @@ class ActionData {
 			self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$VO->action::SLUG, $VO->ip_in_nonce ),
 		], $VO->aux );
 
-		if ( $VO->is_ajax ) {
-			$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
-		}
-
 		if ( $VO->unique ) {
 			$data[ 'uniq' ] = PasswordGenerator::Gen( 4, true, true, false );
 		}
@@ -70,18 +66,22 @@ class ActionData {
 			$data = \array_diff_key( $data, \array_flip( $VO->excluded_fields ) );
 		}
 
-		$data[ self::FIELD_REST_NONCE ] = wp_create_nonce( 'wp_rest' );
-		$data[ self::FIELD_REST_URL ] = URL::Build(
-			get_rest_url( null, sprintf( 'shield/v1/action/%s', $VO->action::SLUG ) ),
-			\array_diff_key(
-				$data,
-				\array_flip( [
-					self::FIELD_ACTION,
-					self::FIELD_EXECUTE,
-					self::FIELD_AJAXURL,
-				] )
-			)
-		);
+		if ( $VO->is_ajax ) {
+			$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
+
+			$data[ self::FIELD_REST_NONCE ] = wp_create_nonce( 'wp_rest' );
+			$data[ self::FIELD_REST_URL ] = URL::Build(
+				get_rest_url( null, sprintf( 'shield/v1/action/%s', $VO->action::SLUG ) ),
+				\array_diff_key(
+					$data,
+					\array_flip( [
+						self::FIELD_ACTION,
+						self::FIELD_EXECUTE,
+						self::FIELD_AJAXURL,
+					] )
+				)
+			);
+		}
 
 		return $data;
 	}

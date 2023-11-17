@@ -11,7 +11,7 @@
 
 	{% if body.flags.can_auto_login|default(false) %}
 		<p>{{ body.strings.auto_login }}:
-			<br /><a href="{{ body.hrefs.auto_login }}" target="_blank">{{ body.hrefs.auto_login|raw }}</a>
+			<br /><a href="{{ body.hrefs.auto_login|raw }}" target="_blank">{{ body.hrefs.auto_login|raw }}</a>
 		</p>
 	{% endif %}
 
