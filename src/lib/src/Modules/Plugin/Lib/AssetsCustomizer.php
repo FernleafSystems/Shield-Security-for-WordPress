@@ -9,7 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	LoginGuard,
+	Plugin
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
@@ -100,7 +103,7 @@ class AssetsCustomizer {
 					];
 				},
 			],
-			'blockdown' => [
+			'blockdown'        => [
 				'key'     => 'blockdown',
 				'handles' => [
 					'main',
@@ -653,9 +656,15 @@ class AssetsCustomizer {
 
 	private function isIpAutoDetectRequired() :bool {
 		$req = Services::Request();
+		/** @var Plugin\Options $optsPlugin */
 		$optsPlugin = self::con()->getModule_Plugin()->opts();
-		return ( Services::Request()->ts() - $optsPlugin->getOpt( 'ipdetect_at' ) > \MONTH_IN_SECONDS )
-			   || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) );
+		$ipDetectAt = $optsPlugin->getOpt( 'ipdetect_at' );
+		$sinceLastRequest = $req->ts() - $ipDetectAt;
+		return !empty( $ipDetectAt ) &&
+			   ( $sinceLastRequest > \MONTH_IN_SECONDS
+				 || ( $optsPlugin->getIpSource() === 'AUTO_DETECT_IP' && $sinceLastRequest > \DAY_IN_SECONDS )
+				 || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
+			   );
 	}
 
 	/**

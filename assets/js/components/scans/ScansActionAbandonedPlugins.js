@@ -11,7 +11,13 @@ export class ScansActionAbandonedPlugins extends BaseComponent {
 			reqData.rids = targetEl.dataset[ 'rid' ];
 
 			( new AjaxService() )
-			.send( reqData )
+			.send(
+				ObjectOps.Merge( this._base_data.ajax.results_action, {
+					sub_action: targetEl.dataset[ 'action' ],
+					rids: [ targetEl.dataset[ 'rid' ] ],
+				} )
+			)
+			.then( () => window.location.reload() )
 			.finally();
 		} );
 	}
