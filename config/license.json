@@ -147,7 +147,7 @@
     "keyless_handshake_expire":     90,
     "events":                       {
       "lic_check_success":   {
-        "level": "debug",
+        "level": "notice",
         "stat":  false
       },
       "lic_check_fail":      {

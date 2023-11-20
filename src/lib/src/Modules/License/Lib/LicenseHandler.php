@@ -95,6 +95,21 @@ class LicenseHandler {
 		$this->unsetLicense();
 	}
 
+	public function maybeDeactivateWithGrace() {
+		if ( Services::Request()->ts() > $this->getRegistrationExpiresAt() ) {
+			$this->deactivate();
+		}
+		elseif ( $this->isLastVerifiedExpired() ) {
+			/**
+			 * At this stage we have a license stored, but we couldn't
+			 * verify it, but we're within the grace period for checking.
+			 *
+			 * We don't remove the license yet, but we warn the user
+			 */
+			( new LicenseEmails() )->sendLicenseWarningEmail();
+		}
+	}
+
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
