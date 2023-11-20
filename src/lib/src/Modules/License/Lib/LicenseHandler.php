@@ -95,6 +95,21 @@ class LicenseHandler {
 		$this->unsetLicense();
 	}
 
+	public function maybeDeactivateWithGrace() {
+		if ( Services::Request()->ts() > $this->getRegistrationExpiresAt() ) {
+			$this->deactivate();
+		}
+		elseif ( $this->isLastVerifiedExpired() ) {
+			/**
+			 * At this stage we have a license stored, but we couldn't
+			 * verify it, but we're within the grace period for checking.
+			 *
+			 * We don't remove the license yet, but we warn the user
+			 */
+			( new LicenseEmails() )->sendLicenseWarningEmail();
+		}
+	}
+
 	public function deactivate( bool $sendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
@@ -104,14 +119,6 @@ class LicenseHandler {
 			}
 			self::con()->fireEvent( 'lic_fail_deactivate' );
 		}
-	}
-
-	protected function getActivatedAt() :int {
-		return (int)$this->opts()->getOpt( 'license_activated_at' );
-	}
-
-	protected function getDeactivatedAt() :int {
-		return (int)$this->opts()->getOpt( 'license_deactivated_at' );
 	}
 
 	public function getLicense() :ShieldLicense {
@@ -163,8 +170,9 @@ class LicenseHandler {
 	}
 
 	public function isActive() :bool {
-		return ( $this->getActivatedAt() > 0 )
-			   && ( $this->getDeactivatedAt() < $this->getActivatedAt() );
+		$opts = $this->opts();
+		return ( $opts->getOpt( 'license_activated_at' ) > 0 )
+			   && ( $opts->getOpt( 'license_deactivated_at' ) < $opts->getOpt( 'license_activated_at' ) );
 	}
 
 	public function isLastVerifiedExpired() :bool {
@@ -230,5 +238,19 @@ class LicenseHandler {
 
 	private function getLicExpireGraceDays() :int {
 		return $this->opts()->getDef( 'lic_verify_expire_grace_days' );
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	protected function getActivatedAt() :int {
+		return (int)$this->opts()->getOpt( 'license_activated_at' );
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	protected function getDeactivatedAt() :int {
+		return (int)$this->opts()->getOpt( 'license_deactivated_at' );
 	}
 }

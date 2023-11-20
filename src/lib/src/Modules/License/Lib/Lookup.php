@@ -12,9 +12,15 @@ class Lookup extends \FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyl
 
 	public const API_ACTION = 'licenses';
 
+	/**
+	 * @throws Exceptions\FailedLicenseRequestHttpException
+	 */
 	public function lookup() :array {
 		$raw = $this->sendReq();
-		return ( \is_array( $raw ) && $raw[ 'error_code' ] === 0 ) ? $raw[ 'licenses' ] : [];
+		if ( !\is_array( $raw ) || ( $raw[ 'error_code' ] ?? 0 ) !== 0 ) {
+			throw new Exceptions\FailedLicenseRequestHttpException( 'HTTP Request Failed' );
+		}
+		return $raw[ 'licenses' ] ?? [];
 	}
 
 	/**
