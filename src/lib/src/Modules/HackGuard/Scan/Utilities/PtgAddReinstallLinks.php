@@ -57,11 +57,6 @@ class PtgAddReinstallLinks {
 			];
 			return $components;
 		}, 10, 2 );
-
-		/** @deprecated 18.5 */
-		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
-			return $localz;
-		}, 10, 2 );
 	}
 
 	private function addActionLinkRefresh( array $links, string $file ) :array {

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
 /**
- * @deprecated 18.5
+ * @deprecated 18.6
  */
 class MeterCardPrimary extends MeterCard {
 

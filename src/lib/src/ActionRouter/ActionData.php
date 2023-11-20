@@ -21,34 +21,12 @@ class ActionData {
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
 
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
-		if ( \method_exists( ActionData::class, 'BuildVO' ) ) {
-			$vo = new ActionDataVO();
-			$vo->action = $actionClass;
-			$vo->is_ajax = $isAjax;
-			$vo->aux = $aux;
-			$vo->unique = $uniq;
-			$data = self::BuildVO( $vo );
-		}
-		else {
-			/**
-			 * @deprecated 18.5
-			 */
-			/** @var BaseAction $actionClass */
-			$data = \array_merge( [
-				self::FIELD_ACTION  => self::FIELD_SHIELD,
-				self::FIELD_EXECUTE => $actionClass::SLUG,
-				self::FIELD_NONCE   => Nonce::Create( self::FIELD_SHIELD.'-'.$actionClass::SLUG ),
-			], $aux );
-			if ( $isAjax ) {
-				$data[ self::FIELD_AJAXURL ] = Services::WpGeneral()->ajaxURL();
-			}
-
-			if ( $uniq ) {
-				$data[ 'uniq' ] = wp_generate_password( 4, false );
-			}
-		}
-
-		return $data;
+		$vo = new ActionDataVO();
+		$vo->action = $actionClass;
+		$vo->is_ajax = $isAjax;
+		$vo->aux = $aux;
+		$vo->unique = $uniq;
+		return self::BuildVO( $vo );
 	}
 
 	public static function BuildVO( ActionDataVO $VO ) :array {

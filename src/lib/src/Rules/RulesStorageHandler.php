@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -26,17 +25,6 @@ class RulesStorageHandler {
 		}
 
 		return $rules;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function buildAndStore() {
-		$this->store(
-			( new Builder() )
-				->setRulesCon( $this->getRulesCon() )
-				->run()
-		);
 	}
 
 	public function store( array $rules ) {

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\U2F;
 
 /**
- * @deprecated 18.5
+ * @deprecated 18.6
  */
 class MfaU2fAdd extends MfaUserConfigBase {
 

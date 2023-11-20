@@ -255,37 +255,4 @@ class Enqueue {
 		}
 		return $handle;
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function runEnqueueOnAssets( string $type, array $asset ) {
-		\array_map(
-			function ( $asset ) use ( $type ) {
-				$type == self::CSS ? wp_enqueue_style( $asset ) : wp_enqueue_script( $asset );
-			},
-			$this->normaliseHandles( $asset )
-		);
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function getAdminAssetsToEnq() {
-		$con = self::con();
-		$admin = $con->cfg->includes[ 'admin' ];
-		if ( $con->getIsPage_PluginAdmin() ) {
-			$plugin = $con->cfg->includes[ 'plugin_admin' ];
-			$admin[ 'css' ] = \array_unique( \array_merge( $admin[ 'css' ], $plugin[ 'css' ] ) );
-			$admin[ 'js' ] = \array_unique( \array_merge( $admin[ 'js' ], $plugin[ 'js' ] ) );
-		}
-		return $admin;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function getFrontendAssetsToEnq() :array {
-		return self::con()->cfg->includes[ 'frontend' ] ?? [];
-	}
 }

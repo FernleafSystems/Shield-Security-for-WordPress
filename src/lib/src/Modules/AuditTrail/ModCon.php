@@ -125,7 +125,4 @@ class ModCon extends BaseShield\ModCon {
 		}
 		return $data;
 	}
-
-	public function doPrePluginOptionsSave() {
-	}
 }

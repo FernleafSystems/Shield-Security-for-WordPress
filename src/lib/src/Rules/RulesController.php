@@ -52,7 +52,7 @@ class RulesController {
 		// Rebuild the rules when configuration is updated
 		add_action( self::con()->prefix( 'after_pre_options_store' ), function ( $cfgChanged ) {
 			if ( $cfgChanged ) {
-				\method_exists( $this, 'buildAndStore' ) ? $this->buildAndStore() : $this->storageHandler->buildAndStore();
+				$this->buildAndStore();
 			}
 		} );
 

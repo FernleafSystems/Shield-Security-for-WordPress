@@ -83,30 +83,6 @@ abstract class ModCon extends DynPropertiesClass {
 		$this->setupCustomHooks();
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	protected function collateRuleBuilders() {
-		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
-			error_log( $this->getModSlug( false ) );
-			return \array_merge( $builders, \array_map(
-				function ( $class ) {
-					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
-					$theClass = new $class();
-					if ( \method_exists( $theClass, 'setMod' ) ) {
-						$theClass->setMod( $this );
-					}
-					return $theClass;
-				},
-				\array_filter( $this->enumRuleBuilders() )
-			) );
-		} );
-	}
-
-	protected function enumRuleBuilders() :array {
-		return [];
-	}
-
 	protected function setupCustomHooks() {
 	}
 
@@ -344,18 +320,6 @@ abstract class ModCon extends DynPropertiesClass {
 	 */
 	public function saveModOptions() {
 		self::con()->opts->store();
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function doPrePluginOptionsSave() {
 	}
 
 	public function onPluginDeactivate() {

@@ -119,24 +119,6 @@ class ModCon extends BaseShield\ModCon {
 		} );
 	}
 
-	protected function enumRuleBuilders() :array {
-		return [
-			Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::class, // this is place here as a hack, so it runs early
-			Rules\Build\RequestIsSiteBlockdownBlocked::class,
-			Rules\Build\RequestStatusIsAdmin::class,
-			Rules\Build\RequestStatusIsAjax::class,
-			Rules\Build\RequestStatusIsXmlRpc::class,
-			Rules\Build\RequestStatusIsWpCli::class,
-			Rules\Build\IsServerLoopback::class,
-			Rules\Build\IsTrustedBot::class,
-			Rules\Build\IsPublicWebRequest::class,
-			Rules\Build\RequestBypassesAllRestrictions::class,
-		];
-	}
-
-	public function preProcessOptions() {
-	}
-
 	public function deleteAllPluginCrons() {
 		$con = self::con();
 		$wpCrons = Services::WpCron();
@@ -200,12 +182,6 @@ class ModCon extends BaseShield\ModCon {
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
-	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	public function doPrePluginOptionsSave() {
-	}
-
 	public function getFirstInstallDate() :int {
 		return (int)Services::WpGeneral()->getOption( self::con()->prefixOption( 'install_date' ) );
 	}
@@ -248,18 +224,6 @@ class ModCon extends BaseShield\ModCon {
 		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanImportExportWhitelistUrls() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanImportExportMasterImportUrl() {
-	}
-
 	public function runDailyCron() {
 		parent::runDailyCron();
 		( new Shield\Utilities\Integration\WhitelistUs() )->all();
@@ -291,12 +255,5 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		return !$opts->isPluginGloballyDisabled();
-	}
-
-	/**
-	 * @param string $optionKey
-	 * @deprecated 18.5
-	 */
-	protected function cleanRecaptchaKey( $optionKey ) {
 	}
 }

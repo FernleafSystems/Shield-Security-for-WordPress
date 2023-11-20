@@ -42,17 +42,6 @@ class EmailCon {
 		);
 	}
 
-	/**
-	 * @param string $to
-	 * @param string $sub
-	 * @param string $body
-	 * @uses wp_mail
-	 * @deprecated 18.5
-	 */
-	public function send( $to = '', $sub = '', $body = '' ) :bool {
-		return $this->sendVO( EmailVO::Factory( $this->verifyEmailAddress( $to ), $sub, $body ) );
-	}
-
 	public function sendVO( EmailVO $vo ) :bool {
 		$this->emailFilters( true );
 		$result = wp_mail(

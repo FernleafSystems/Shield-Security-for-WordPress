@@ -19,12 +19,6 @@ class ModCon extends BaseShield\ModCon {
 	 */
 	private $securityAdminCon;
 
-	protected function enumRuleBuilders() :array {
-		return [
-			Rules\Build\IsSecurityAdmin::class,
-		];
-	}
-
 	public function getWhiteLabelController() :Lib\WhiteLabel\WhitelabelController {
 		return $this->whitelabelCon ?? $this->whitelabelCon = new Lib\WhiteLabel\WhitelabelController();
 	}
@@ -53,17 +47,5 @@ class ModCon extends BaseShield\ModCon {
 		catch ( \Exception $e ) {
 		}
 		$this->opts()->setOpt( 'enable_mu', $mu->isActiveMU() ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function doPrePluginOptionsSave() {
 	}
 }

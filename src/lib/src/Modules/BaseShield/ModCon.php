@@ -37,31 +37,4 @@ abstract class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\B
 			$this->getBaseNamespace(),
 		];
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function cleanStringArray( array $arr, string $pregReplacePattern ) :array {
-		$cleaned = [];
-		foreach ( $arr as $val ) {
-			$val = \preg_replace( $pregReplacePattern, '', $val );
-			if ( \strlen( $val ) > 0 ) {
-				$cleaned[] = $val;
-			}
-		}
-		return $cleaned;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function getCaptchaCfg() {
-		/** @var Plugin\Options $plugOpts */
-		$plugOpts = self::con()->getModule_Plugin()->opts();
-		$cfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $plugOpts->getCaptchaConfig() );
-		$cfg->invisible = $cfg->theme === 'invisible';
-		$cfg->url_api = '';
-		$cfg->js_handle = self::con()->prefix( $cfg->provider );
-		return $cfg;
-	}
 }

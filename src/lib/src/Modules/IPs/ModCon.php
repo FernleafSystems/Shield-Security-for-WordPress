@@ -50,21 +50,6 @@ class ModCon extends BaseShield\ModCon {
 		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
 	}
 
-	protected function enumRuleBuilders() :array {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		return [
-			Rules\Build\IpWhitelisted::class,
-			Rules\Build\IsPathWhitelisted::class,
-			Rules\Build\IpBlockedShield::class,
-			$opts->isEnabledCrowdSecAutoBlock() ? Rules\Build\IpBlockedCrowdsec::class : null,
-			Rules\Build\BotTrack404::class,
-			Rules\Build\BotTrackXmlrpc::class,
-			Rules\Build\BotTrackFakeWebCrawler::class,
-			Rules\Build\BotTrackInvalidScript::class,
-		];
-	}
-
 	/**
 	 * @throws \Exception
 	 */
@@ -86,16 +71,6 @@ class ModCon extends BaseShield\ModCon {
 			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
 			$deleter->filterByType( $this->getDbH_IPRules()::T_AUTO_BLOCK )->query();
 		}
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function canLinkCheese() :bool {
-		$isSplit = \trim( (string)parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' )
-				   !== \trim( (string)parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_PATH ), '/' );
-		return !Services::WpFs()->exists( path_join( ABSPATH, 'robots.txt' ) )
-			   && ( !$isSplit || !Services::WpFs()->exists( path_join( \dirname( ABSPATH ), 'robots.txt' ) ) );
 	}
 
 	public function getTextOptDefault( string $key ) :string {
@@ -120,17 +95,5 @@ class ModCon extends BaseShield\ModCon {
 	public function runDailyCron() {
 		parent::runDailyCron();
 		( new TableIndices( $this->getDbH_IPRules()->getTableSchema() ) )->applyFromSchema();
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	private function cleanPathWhitelist() {
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function preProcessOptions() {
 	}
 }

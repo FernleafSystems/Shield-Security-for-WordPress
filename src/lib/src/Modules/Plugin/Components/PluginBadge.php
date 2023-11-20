@@ -54,13 +54,6 @@ class PluginBadge {
 		return self::con()->prefix( 'badgeState' );
 	}
 
-	/**
-	 * @deprecated 18.5
-	 */
-	public function includeJquery() {
-		wp_enqueue_script( 'jquery', null, [], false, true );
-	}
-
 	public function printPluginBadge() {
 		echo $this->render( true );
 	}

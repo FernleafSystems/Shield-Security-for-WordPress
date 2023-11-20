@@ -103,16 +103,4 @@ class Options extends BaseShield\Options {
 	public function setVisitorAddressSource( string $source ) {
 		$this->setOpt( 'visitor_address_source', $source );
 	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function getCaptchaConfig() :array {
-		return [
-			'provider' => '',
-			'key'      => '',
-			'secret'   => '',
-			'theme'    => '',
-		];
-	}
 }

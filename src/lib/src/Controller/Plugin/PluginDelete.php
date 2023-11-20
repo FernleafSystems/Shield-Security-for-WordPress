@@ -20,10 +20,6 @@ class PluginDelete {
 
 	private function deleteOptions() {
 
-		foreach ( self::con()->modules as $mod ) {
-			$mod->opts()->deleteStorage();
-		}
-
 		self::con()->opts->delete();
 
 		foreach (

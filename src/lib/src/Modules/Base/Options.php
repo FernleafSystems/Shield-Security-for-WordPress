@@ -35,12 +35,6 @@ class Options {
 	 */
 	protected $aOptionsKeys;
 
-	/**
-	 * @deprecated 18.5
-	 */
-	public function deleteStorage() {
-	}
-
 	public function getAllOptionsValues() :array {
 		try {
 			$values = self::con()->opts->getFor( $this->mod() );
