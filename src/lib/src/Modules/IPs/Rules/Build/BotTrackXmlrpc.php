@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
-class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
+class BotTrackXmlrpc extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_xmlrpc';
 
@@ -26,7 +25,7 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -49,15 +48,13 @@ class BotTrackXmlrpc extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
-		/** @var Shield\Modules\IPs\Options $opts */
-		$opts = $this->opts();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,
 				'params'   => [
 					'event'            => 'bottrack_xmlrpc',
-					'offense_count'    => $opts->getOffenseCountFor( 'track_xmlrpc' ),
-					'block'            => $opts->isTrackOptImmediateBlock( 'track_xmlrpc' ),
+					'offense_count'    => $this->opts()->getOffenseCountFor( 'track_xmlrpc' ),
+					'block'            => $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' ),
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
 			],

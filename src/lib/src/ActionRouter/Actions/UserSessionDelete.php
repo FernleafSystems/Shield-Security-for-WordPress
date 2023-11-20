@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class UserSessionDelete extends SecurityAdminBase {
 
 	public const SLUG = 'user_session_delete';
@@ -12,7 +10,7 @@ class UserSessionDelete extends SecurityAdminBase {
 		$sessionCon = self::con()->getModule_Plugin()->getSessionCon();
 		$success = false;
 
-		[ $userID, $uniqueID ] = \explode( '-', Services::Request()->post( 'rid', '' ) );
+		[ $userID, $uniqueID ] = \explode( '-', $this->action_data[ 'rid' ] ?? [] );
 
 		if ( empty( $userID ) || !\is_numeric( $userID ) || $userID < 0 || empty( $uniqueID ) ) {
 			$msg = __( 'Invalid session selected', 'wp-simple-firewall' );

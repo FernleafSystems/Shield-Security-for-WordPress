@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\FileDownload,
 	Actions\FileDownloadAsStream,
-	Constants};
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Utilities\OptUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -17,24 +18,6 @@ class PluginURLs {
 
 	use PluginControllerConsumer;
 
-	public const NAV_ACTIVITY_LOG = 'activity_log';
-	public const NAV_DEBUG = 'debug';
-	public const NAV_DOCS = 'docs';
-	public const NAV_IMPORT_EXPORT = 'importexport';
-	public const NAV_IP_RULES = 'ips';
-	public const NAV_LICENSE = 'license';
-	public const NAV_OPTIONS_CONFIG = 'config';
-	public const NAV_OVERVIEW = 'overview';
-	public const NAV_RESTRICTED = 'restricted';
-	public const NAV_REPORTS = 'reports';
-	public const NAV_RULES_VIEW = 'rules';
-	public const NAV_SCANS_RESULTS = 'scans_results';
-	public const NAV_SCANS_RUN = 'scans_run';
-	public const NAV_STATS = 'stats';
-	public const NAV_TRAFFIC_VIEWER = 'traffic';
-	public const NAV_USER_SESSIONS = 'users';
-	public const NAV_WIZARD = 'merlin';
-
 	public function rootAdminPage() :string {
 		return Services::WpGeneral()->getUrl_AdminPage(
 			$this->rootAdminPageSlug(), (bool)self::con()->cfg->properties[ 'wpms_network_admin_only' ] );
@@ -42,16 +25,6 @@ class PluginURLs {
 
 	public function rootAdminPageSlug() :string {
 		return self::con()->getModule_Plugin()->getModSlug();
-	}
-
-	public static function GetAllNavs() :array {
-		$cons = ( new \ReflectionClass( __CLASS__ ) )->getConstants();
-		return \array_intersect_key( $cons, \array_flip( \array_filter(
-			\array_keys( $cons ),
-			function ( string $nav ) {
-				return \strpos( $nav, 'NAV_' ) === 0;
-			}
-		) ) );
 	}
 
 	public function adminHome() :string {
@@ -125,18 +98,23 @@ class PluginURLs {
 
 	/**
 	 * @param string $trigger - option, section, module
+	 * @deprecated 18.5
 	 */
 	public function offCanvasTrigger( string $trigger ) :string {
-		return sprintf( "javascript:{iCWP_WPSF_OffCanvas.%s}", $trigger );
+		return sprintf( "javascript:{shieldServices.offCanvas().%s}", $trigger );
 	}
 
 	/**
 	 * @param string $for - option, section, module
+	 * @deprecated 18.5
 	 */
 	public function offCanvasConfigRender( string $for ) :string {
 		return $this->offCanvasTrigger( sprintf( "renderConfig('%s')", $for ) );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function isValidNav( string $navID ) :bool {
 		return \in_array( $navID, PluginNavs::GetAllNavs() );
 	}

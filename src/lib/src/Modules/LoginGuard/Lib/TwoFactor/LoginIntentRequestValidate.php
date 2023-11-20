@@ -47,6 +47,7 @@ class LoginIntentRequestValidate {
 		$validatedSlug = null;
 		foreach ( $providers as $provider ) {
 			try {
+				\ob_start();
 				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
 					$provider->postSuccessActions();
 					$this->auditLoginIntent( true, $provider->getProviderName() );
@@ -60,6 +61,9 @@ class LoginIntentRequestValidate {
 			catch ( Exceptions\OtpVerificationFailedException $e ) {
 				$this->auditLoginIntent( false, $provider->getProviderName() );
 				throw $e;
+			}
+			finally {
+				\ob_end_clean();
 			}
 		}
 

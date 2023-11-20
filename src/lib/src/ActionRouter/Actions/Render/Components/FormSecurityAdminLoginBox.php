@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 
@@ -25,9 +23,6 @@ class FormSecurityAdminLoginBox extends BaseRender {
 			'strings' => [
 				'access_message' => __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ),
 			],
-			'ajax'    => [
-				'sec_admin_login' => ActionData::BuildJson( SecurityAdminLogin::class ),
-			]
 		];
 	}
 }

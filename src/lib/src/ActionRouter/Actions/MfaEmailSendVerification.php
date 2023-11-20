@@ -23,9 +23,9 @@ class MfaEmailSendVerification extends BaseAction {
 			$msg = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		else {
-			$msg = __( 'Verification email resent.', 'wp-simple-firewall' );
 			$opts->setOpt( 'email_can_send_verified_at', 0 );
 			$this->sendEmailVerifyCanSend();
+			$msg = __( 'Verification email resent.', 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [

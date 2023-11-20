@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCardPrimary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\GenericRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
 	OverviewActivity,
 	OverviewIpBlocks,
@@ -13,9 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	OverviewScans,
 	OverviewTraffic
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterSummary;
 
 class PageDashboardOverview extends BasePluginAdminPage {
@@ -29,9 +26,6 @@ class PageDashboardOverview extends BasePluginAdminPage {
 		$counter = $scansCon->getScanResultsCount();
 		$filesCount = $counter->countThemeFiles() + $counter->countPluginFiles() + $counter->countWPFiles();
 		return [
-			'ajax'    => [
-				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
-			],
 			'content' => [
 				'summary_charts' => $con->action_router->render( ChartsSummary::class, [
 					'reports_limit' => 5,
@@ -50,10 +44,13 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'title'     => false,
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
 						'href_text' => __( 'View All Security Grades', 'wp-simple-firewall' ),
-						'content'   => $con->action_router->render( MeterCardPrimary::class, [
-							'meter_slug' => MeterSummary::SLUG,
-							'meter_data' => ( new Handler() )->getMeter( MeterSummary::class ),
-						] ),
+						'content' => sprintf(
+							'<div class="progress-metercard progress-metercard-summary" data-meter_slug="%s">%s</div>',
+							MeterSummary::SLUG,
+							$con->action_router->render( GenericRender::class, [
+								'render_action_template' => '/components/html/loading_placeholders/progress_meter.twig',
+							] )
+						),
 						'width'     => 12,
 					],
 				],
@@ -139,7 +136,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 					],
 					[
 						'title'     => __( 'Recent Activity', 'wp-simple-firewall' ),
-						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 						'href_text' => __( 'View Activity Logs', 'wp-simple-firewall' ),
 						'content'   => $con->action_router->render( OverviewActivity::class, [
 							'limit' => 5,
@@ -147,7 +144,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 					],
 					[
 						'title'     => __( 'Recent Traffic', 'wp-simple-firewall' ),
-						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 						'href_text' => __( 'View Site Traffic', 'wp-simple-firewall' ),
 						'content'   => $con->action_router->render( OverviewTraffic::class, [
 							'limit' => 5,

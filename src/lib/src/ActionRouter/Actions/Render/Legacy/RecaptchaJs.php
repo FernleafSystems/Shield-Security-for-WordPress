@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Le
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 
+/**
+ * @deprecated 18.5
+ */
 class RecaptchaJs extends BaseRender {
 
 	use Traits\AuthNotRequired;

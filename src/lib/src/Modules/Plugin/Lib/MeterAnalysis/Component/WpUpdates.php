@@ -17,6 +17,10 @@ class WpUpdates extends Base {
 		return Services::WpGeneral()->getAdminUrl_Updates();
 	}
 
+	protected function hrefFullTargetBlank() :bool {
+		return true;
+	}
+
 	public function title() :string {
 		return __( 'WordPress Version', 'wp-simple-firewall' );
 	}

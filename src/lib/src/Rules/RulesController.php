@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\{
 	ConditionsProcessor,
 	ResponseProcessor
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
 
 class RulesController {
@@ -45,12 +46,14 @@ class RulesController {
 
 		// Rebuild the rules upon upgrade or settings change
 		if ( self::con()->cfg->rebuilt ) {
-			$this->storageHandler->buildAndStore();
+			$this->buildAndStore();
 		}
 
 		// Rebuild the rules when configuration is updated
-		add_action( self::con()->prefix( 'pre_options_store' ), function () {
-			$this->storageHandler->buildAndStore();
+		add_action( self::con()->prefix( 'after_pre_options_store' ), function ( $cfgChanged ) {
+			if ( $cfgChanged ) {
+				\method_exists( $this, 'buildAndStore' ) ? $this->buildAndStore() : $this->storageHandler->buildAndStore();
+			}
 		} );
 
 		// Rebuild the rules every hour
@@ -58,7 +61,15 @@ class RulesController {
 	}
 
 	public function runHourlyCron() {
-		$this->storageHandler->buildAndStore();
+		$this->buildAndStore();
+	}
+
+	public function buildAndStore() {
+		$this->storageHandler->store(
+			( new Builder() )
+				->setRulesCon( $this )
+				->run()
+		);
 	}
 
 	public function getRulesResultsSummary() :array {

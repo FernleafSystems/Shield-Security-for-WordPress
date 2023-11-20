@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionDataVO;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBotNonce;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -54,44 +53,51 @@ class InsertNotBotJs {
 	}
 
 	protected function enqueueJS() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
-			$enqueues[ Enqueue::JS ][] = 'shield/notbot';
+		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
+			$assets[] = 'notbot';
+
+			add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+				$components[ 'notbot' ] = [
+					'key'      => 'notbot',
+					'required' => !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+					'handles'  => [
+						'notbot',
+					],
+					'data'     => function () {
+						$notBotVO = new ActionDataVO();
+						$notBotVO->action = CaptureNotBot::class;
+						$notBotVO->ip_in_nonce = false;
+
+						$notBotNonceVO = new ActionDataVO();
+						$notBotNonceVO->action = CaptureNotBotNonce::class;
+						$notBotNonceVO->excluded_fields = [
+							ActionData::FIELD_NONCE,
+							ActionData::FIELD_AJAXURL,
+						];
+
+						return [
+							'ajax'  => [
+								'not_bot'       => ActionData::BuildVO( $notBotVO ),
+								'not_bot_nonce' => ActionData::BuildVO( $notBotNonceVO ),
+							],
+							'flags' => [
+								'run' => !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
+							],
+						];
+					},
+				];
+				return $components;
+			} );
 
 			/**
-			 * @since 11.2 - don't fire for GTMetrix page requests
+			 * @since      11.2 - don't fire for GTMetrix page requests
+			 * @deprecated 18.5
 			 */
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$notBotVO = new ActionDataVO();
-				$notBotVO->action = CaptureNotBot::class;
-				$notBotVO->ip_in_nonce = false;
-
-				$notBotNonceVO = new ActionDataVO();
-				$notBotNonceVO->action = CaptureNotBotNonce::class;
-				$notBotNonceVO->excluded_fields = [
-					ActionData::FIELD_NONCE,
-					ActionData::FIELD_AJAXURL,
-				];
-
-				$localz[] = [
-					'shield/notbot',
-					'shield_vars_notbotjs',
-					apply_filters( 'shield/notbot_data_js', [
-						'ajax'  => [
-							'not_bot'       => ActionData::BuildVO( $notBotVO ),
-							'not_bot_nonce' => ActionData::BuildVO( $notBotNonceVO ),
-						],
-						'flags' => [
-							'run' => !\in_array( Services::IP()->getIpDetector()->getIPIdentity(), [ 'gtmetrix' ] ),
-						],
-						'vars'  => [
-							'ajaxurl' => admin_url( 'admin-ajax.php' ),
-						],
-					] )
-				];
 				return $localz;
 			} );
 
-			return $enqueues;
+			return $assets;
 		} );
 	}
 }

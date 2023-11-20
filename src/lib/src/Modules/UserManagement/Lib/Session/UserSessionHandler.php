@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Ses
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
@@ -69,7 +70,18 @@ class UserSessionHandler {
 								  ->getMfaController()
 								  ->isSubjectToLoginIntent( $user );
 			if ( !$hasLoginIntent ) {
-				$this->sendUserLoginEmailNotification( $user );
+				self::con()->email_con->sendVO(
+					EmailVO::Factory(
+						$user->user_email,
+						sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
+						self::con()->action_router->render( UserLoginNotice::SLUG, [
+							'home_url'  => Services::WpGeneral()->getHomeUrl(),
+							'username'  => $user->user_login,
+							'ip'        => self::con()->this_req->ip,
+							'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
+						] )
+					)
+				);
 			}
 		}
 	}
@@ -160,19 +172,6 @@ class UserSessionHandler {
 				);
 			}
 		}
-	}
-
-	private function sendUserLoginEmailNotification( \WP_User $user ) {
-		self::con()->email_con->send(
-			$user->user_email,
-			sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
-			self::con()->action_router->render( UserLoginNotice::SLUG, [
-				'home_url'  => Services::WpGeneral()->getHomeUrl(),
-				'username'  => $user->user_login,
-				'ip'        => self::con()->this_req->ip,
-				'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
-			] )
-		);
 	}
 
 	public function onWpLoaded() {

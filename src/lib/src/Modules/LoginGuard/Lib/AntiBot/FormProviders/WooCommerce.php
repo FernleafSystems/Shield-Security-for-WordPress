@@ -43,22 +43,14 @@ class WooCommerce extends BaseFormProvider {
 	 * @return void
 	 */
 	public function formInsertsPrint_WooLogin() {
-		$inserts = $this->buildFormInsert();
-		if ( $this->mod()->getCaptchaCfg()->invisible ) {
-			$inserts .= '<input type="hidden" name="login" value="Log in" />';
-		}
-		echo $inserts;
+		echo $this->buildFormInsert();
 	}
 
 	/**
 	 * @return void
 	 */
 	public function formInsertsPrint_WooRegister() {
-		$inserts = $this->buildFormInsert();
-		if ( $this->mod()->getCaptchaCfg()->invisible ) {
-			$inserts .= '<input type="hidden" name="register" value="Register" />';
-		}
-		echo $inserts;
+		echo $this->buildFormInsert();
 	}
 
 	/**

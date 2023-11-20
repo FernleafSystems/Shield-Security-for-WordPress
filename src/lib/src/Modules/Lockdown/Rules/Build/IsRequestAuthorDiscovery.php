@@ -2,15 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
-class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
+class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 
 	public const SLUG = 'shield/is_request_author_discovery';
 
@@ -27,7 +25,7 @@ class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -47,14 +45,12 @@ class IsRequestAuthorDiscovery extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
-		/** @var Options $opts */
-		$opts = $this->opts();
 		return [
 			[
 				'response' => Responses\EventFire::SLUG,
 				'params'   => [
 					'event'         => 'block_author_fishing',
-					'offense_count' => $opts->isBlockAuthorDiscovery() ? 1 : 0,
+					'offense_count' => $this->opts()->isBlockAuthorDiscovery() ? 1 : 0,
 					'block'         => false,
 				],
 			],

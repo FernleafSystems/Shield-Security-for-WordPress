@@ -19,7 +19,7 @@ class IpStatus extends Base {
 				'type'      => 'warning',
 				'text'      => [
 					sprintf( __( 'Something not working? No security features apply to you because your IP (%s) is whitelisted.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
+						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
 				],
 				'locations' => [
 					'shield_admin_top_page',
@@ -32,7 +32,7 @@ class IpStatus extends Base {
 				'type'      => 'danger',
 				'text'      => [
 					sprintf( __( 'It looks like your IP (%s) is currently blocked.', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" class="render_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
+						sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>', $con->plugin_urls->ipAnalysis( $ip ), $ip, $ip ) )
 				],
 				'locations' => [
 					'shield_admin_top_page',

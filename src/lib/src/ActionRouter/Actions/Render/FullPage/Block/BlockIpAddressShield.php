@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIpBlock;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
@@ -36,6 +38,19 @@ class BlockIpAddressShield extends BaseBlock {
 				'subtitle'      => __( 'Access from your IP address has been temporarily restricted.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
 			],
+			'vars' => [
+				'inline_js' => [
+					sprintf( 'var shield_vars_blockpage = %s;', \json_encode( [
+						'magic_unblock' => [
+							'ajax' => [
+								'unblock_request' => ActionData::Build( IpAutoUnblockShieldUserLinkRequest::class, true, [
+									'ip' => self::con()->this_req->ip
+								] )
+							],
+						],
+					] ) )
+				],
+			]
 		];
 	}
 

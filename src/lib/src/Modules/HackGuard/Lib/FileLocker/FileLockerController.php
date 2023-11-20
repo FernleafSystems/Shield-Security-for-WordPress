@@ -143,10 +143,7 @@ class FileLockerController {
 		return $lock;
 	}
 
-	/**
-	 * @deprecated 18.5 - switch to private.
-	 */
-	public function runAnalysis() {
+	private function runAnalysis() {
 		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 			$this->opts()->setOpt( 'file_locker', [] );
 			$this->setState( [] );
@@ -246,7 +243,7 @@ class FileLockerController {
 
 	protected function setState( array $state ) {
 		$this->opts()->setOpt( 'filelocker_state', $state );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 	}
 
 	/**

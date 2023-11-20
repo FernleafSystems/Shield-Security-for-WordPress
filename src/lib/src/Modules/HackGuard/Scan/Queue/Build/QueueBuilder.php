@@ -100,7 +100,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function save() {
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 		return $this;
 	}
 

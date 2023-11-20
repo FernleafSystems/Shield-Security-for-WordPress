@@ -2,16 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\IpBlockedShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
+
+	use ModConsumer;
 
 	public const SCAN_CATEGORY = '';
 
@@ -41,11 +43,11 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
-					'rule'         => Shield\Modules\IPs\Rules\Build\IpBlockedShield::SLUG,
+					'rule'         => IpBlockedShield::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -133,7 +135,6 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getExclusions() :array {
-		/** @var Options $opts */
 		$opts = $this->opts();
 		$exclusions = $opts->getDef( 'default_whitelist' );
 		foreach ( $opts->getCustomWhitelist() as $page => $params ) {

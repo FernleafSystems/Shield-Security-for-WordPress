@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -46,7 +46,7 @@ class ImportExportController {
 			$urls = $this->opts()->getImportExportWhitelist();
 			$urls[] = $url;
 			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 		}
 	}
 
@@ -59,7 +59,7 @@ class ImportExportController {
 				unset( $urls[ $key ] );
 			}
 			$this->opts()->setOpt( 'importexport_whitelist', $urls );
-			$this->mod()->saveModOptions();
+			self::con()->opts->store();
 		}
 	}
 

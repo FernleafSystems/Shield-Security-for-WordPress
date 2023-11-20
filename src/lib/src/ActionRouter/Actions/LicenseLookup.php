@@ -30,8 +30,9 @@ class LicenseLookup extends LicenseBase {
 		}
 
 		$this->response()->action_response_data = [
-			'success' => $success,
-			'message' => $msg,
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => true,
 		];
 	}
 }

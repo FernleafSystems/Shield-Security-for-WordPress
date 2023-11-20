@@ -20,8 +20,10 @@
 	{% endif %}
 
 	<p>
+		<a href="{{ cancel_href }}" style="margin: 5px 0; display: inline-block; float: left;">{{ strings.button_cancel }}</a>
+
 		<input type="submit" name="wp-submit"
-		       id="wp-submit" class="button button-primary button-large"
-		       value="{{ strings.button_submit }}" />
+			   id="wp-submit" class="button button-primary button-large"
+			   value="{{ strings.button_submit }}" />
 	</p>
 </form>

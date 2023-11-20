@@ -12,6 +12,8 @@ class Constants {
 	 */
 	public const ACTIONS = [
 		Actions\ActivityLogTableAction::class,
+		Actions\BlockdownDisableFormSubmit::class,
+		Actions\BlockdownFormSubmit::class,
 		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
@@ -43,6 +45,7 @@ class Constants {
 		Actions\MfaBackupCodeAdd::class,
 		Actions\MfaBackupCodeDelete::class,
 		Actions\MfaCanEmailSendVerify::class,
+		Actions\MfaEmailAutoLogin::class,
 		Actions\MfaEmailDisable::class,
 		Actions\MfaEmailToggle::class,
 		Actions\MfaEmailSendIntent::class,
@@ -56,6 +59,11 @@ class Constants {
 		//			Actions\MfaSmsIntentSend::class,
 		Actions\MfaU2fAdd::class,
 		Actions\MfaU2fRemove::class,
+		Actions\MfaPasskeyRemoveSource::class,
+		Actions\MfaPasskeyAuthenticationStart::class,
+		Actions\MfaPasskeyAuthenticationVerify::class,
+		Actions\MfaPasskeyRegistrationStart::class,
+		Actions\MfaPasskeyRegistrationVerify::class,
 		Actions\MfaYubikeyToggle::class,
 		Actions\ModuleOptionsSave::class,
 		Actions\CaptureNotBot::class,
@@ -90,10 +98,9 @@ class Constants {
 		Actions\ScansFileLockerAction::class,
 		Actions\ScanResultsTableAction::class,
 		Actions\SecurityOverviewViewAs::class,
+		Actions\SessionsTableAction::class,
 		Actions\TrafficLogTableAction::class,
 		Actions\UserSessionDelete::class,
-		Actions\UserSessionsTableRender::class,
-		Actions\UserSessionsTableBulkAction::class,
 
 		Actions\Debug\SimplePluginTests::class,
 		Actions\FullPageDisplay\DisplayBlockPage::class,
@@ -106,6 +113,8 @@ class Constants {
 		Actions\DynamicLoad\Config::class,
 
 		Actions\PluginAdmin\PluginAdminPageHandler::class,
+
+		Actions\TestRestFetchRequests::class,
 
 		Actions\Render::class,
 		Actions\Render\GenericRender::class,
@@ -179,6 +188,7 @@ class Constants {
 		Actions\Render\FullPage\Block\BlockFirewall::class,
 		Actions\Render\FullPage\Block\BlockIpAddressShield::class,
 		Actions\Render\FullPage\Block\BlockIpAddressCrowdsec::class,
+		Actions\Render\FullPage\Block\BlockPageSiteBlockdown::class,
 		Actions\Render\FullPage\Block\Components\AutoUnblockCrowdsec::class,
 		Actions\Render\FullPage\Block\Components\AutoUnblockShield::class,
 		Actions\Render\FullPage\Block\Components\MagicLink::class,
@@ -192,7 +202,6 @@ class Constants {
 		Actions\Render\FullPage\Mfa\Components\WpLoginReplicaFooter::class,
 		Actions\Render\FullPage\Report\SecurityReport::class,
 		Actions\Render\Legacy\GaspJs::class,
-		Actions\Render\Legacy\RecaptchaJs::class,
 		Actions\Render\MainWP\SitesListTableColumn::class,
 		Actions\Render\MainWP\ExtensionPageContainer::class,
 		Actions\Render\MainWP\ExtPage\MwpOutOfDate::class,
@@ -220,6 +229,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageStats::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogLive::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
+		Actions\Render\PluginAdminPages\PageToolLockdown::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
 		Actions\Render\Utility\DbDescribeTable::class,
 	];

@@ -4,10 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionRoutingController,
+	Actions,
+	Exceptions\ActionException
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	Base,
 	AuditTrail,
 	Autoupdates,
+	Base,
 	CommentsFilter,
 	Comms,
 	Data,
@@ -25,12 +31,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionRoutingController,
-	Actions,
-	Exceptions\ActionException
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -589,7 +589,10 @@ class Controller extends DynPropertiesClass {
 		$this->action_router->execute();
 
 		try {
-			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class );
+			$this->action_router->action( Actions\PluginAdmin\PluginAdminPageHandler::class, \array_merge(
+				Services::Request()->query,
+				Services::Request()->post
+			) );
 		}
 		catch ( ActionException $e ) {
 		}
@@ -603,7 +606,7 @@ class Controller extends DynPropertiesClass {
 	public function getInstallationID() :array {
 		$WP = Services::WpGeneral();
 		$urlParts = wp_parse_url( $WP->getWpUrl() );
-		$url = $urlParts[ 'host' ].trim( $urlParts[ 'path' ] ?? '', '/' );
+		$url = $urlParts[ 'host' ].\trim( $urlParts[ 'path' ] ?? '', '/' );
 		$optKey = $this->prefixOption( 'shield_site_id' );
 
 		$IDs = $WP->getOption( $optKey );
@@ -942,13 +945,6 @@ class Controller extends DynPropertiesClass {
 		return $this->cfg->properties[ 'text_domain' ];
 	}
 
-	/**
-	 * @deprecated 18.3
-	 */
-	public function getVersion() :string {
-		return $this->cfg->version();
-	}
-
 	public function isPremiumActive() :bool {
 		return isset( $this->modules[ Shield\Modules\License\ModCon::SLUG ] )
 			   && $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
@@ -972,7 +968,7 @@ class Controller extends DynPropertiesClass {
 	}
 
 	private function getConfigStoreKey() :string {
-		return 'aptoweb_controller_'.\substr( \md5( \get_class() ), 0, 6 );
+		return 'aptoweb_controller_'.\substr( \md5( \get_class( $this ) ), 0, 6 );
 	}
 
 	public function deleteForceOffFile() {
@@ -1014,13 +1010,6 @@ class Controller extends DynPropertiesClass {
 
 	public function getModule_Data() :Shield\Modules\Data\ModCon {
 		return $this->getModule( 'data' );
-	}
-
-	/**
-	 * @deprecated 18.4.1
-	 */
-	public function getModule_Email() :Shield\Modules\Email\ModCon {
-		return $this->getModule( 'email' );
 	}
 
 	public function getModule_Events() :Shield\Modules\Events\ModCon {

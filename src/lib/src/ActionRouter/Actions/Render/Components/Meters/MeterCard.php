@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 
 class MeterCard extends BaseRender {
 
@@ -10,19 +11,23 @@ class MeterCard extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/progress_meter/meter.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
+		$data = $this->action_data[ 'meter_data' ] ?? [];
+		if ( empty( $data ) ) {
+			$data = ( new Handler() )->getMeter( $this->action_data[ 'meter_slug' ] );
+		}
+
 		return [
 			'strings' => [
 				'analysis' => __( 'Analysis', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
 				'svgs' => [
-					'analysis' => $con->svgs->raw( 'clipboard2-data-fill.svg' ),
+					'analysis' => self::con()->svgs->raw( 'clipboard2-data-fill.svg' ),
 				],
 			],
 			'vars'    => [
 				'meter_slug' => $this->action_data[ 'meter_slug' ],
-				'meter'      => $this->action_data[ 'meter_data' ],
+				'meter'      => $data,
 			],
 		];
 	}
@@ -30,7 +35,6 @@ class MeterCard extends BaseRender {
 	protected function getRequiredDataKeys() :array {
 		return [
 			'meter_slug',
-			'meter_data',
 		];
 	}
 }

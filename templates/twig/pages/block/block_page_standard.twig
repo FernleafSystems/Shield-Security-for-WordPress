@@ -6,28 +6,26 @@
 
 	{% block body_header %}
 		<div class="overflow-hidden" style="max-height: 30vh;">
-	    <div class="container px-5">
-	      <img src="{{ imgs.logo_banner }}" class="img-fluid rounded-3 mb-4" alt="Logo" width="400" loading="lazy">
-	    </div>
-	  </div>
+			<div class="container px-5">
+			  <img src="{{ imgs.logo_banner }}" class="img-fluid rounded-3 mb-4" alt="Logo" width="400" loading="lazy">
+			</div>
+		</div>
 
 		<div class="row">
-	    <div class="col-lg-6 col-md-9 mx-auto">
+			<div class="col-lg-6 col-md-9 mx-auto">
 
 				<h1 class="display-4 fw-bold mb-3">
 					{% block block_header_title %}
 						{{ strings.title|default('NO TITLE') }}
 					{% endblock %}
-			  </h1>
-
-	      <p class="lead mb-1">
-	        {% block block_header_subtitle %}
-		        {{ strings.subtitle|default('NO SUBTITLE') }}
-	        {% endblock %}
-	      </p>
-
-	    </div>
-	  </div>
+				</h1>
+				<p class="lead mb-1">
+					{% block block_header_subtitle %}
+						{{ strings.subtitle|default('NO SUBTITLE') }}
+					{% endblock %}
+				</p>
+			</div>
+		</div>
 	{% endblock %}
 
 	{% block body_content %}

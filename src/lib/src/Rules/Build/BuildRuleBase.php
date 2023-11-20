@@ -2,17 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	RuleVO,
+	WPHooksOrder
+};
 
 abstract class BuildRuleBase {
-
-	use Shield\Modules\ModConsumer;
 
 	public const LOGIC_AND = 'AND';
 	public const LOGIC_OR = 'OR';
 
-	public function build() :Shield\Rules\RuleVO {
+	public function build() :RuleVO {
 		$rule = new RuleVO();
 		$rule->slug = $this->getSlug();
 		$rule->name = $this->getName();
@@ -35,7 +35,7 @@ abstract class BuildRuleBase {
 	}
 
 	protected function getWpHookLevel() :int {
-		return Shield\Rules\WPHooksOrder::NONE;
+		return WPHooksOrder::NONE;
 	}
 
 	protected function getConditions() :array {

@@ -2,9 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansCheck;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Strings;
@@ -22,8 +19,12 @@ class PageScansRun extends BasePluginAdminPage {
 				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			[
-				'text' => __( 'Configure Scans', 'wp-simple-firewall' ),
-				'href' => $con->plugin_urls->offCanvasConfigRender( $con->getModule_HackGuard()->cfg->slug ),
+				'text'    => __( 'Configure Scans', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => $con->getModule_HackGuard()->cfg->slug
+				],
 			],
 		];
 	}
@@ -37,10 +38,6 @@ class PageScansRun extends BasePluginAdminPage {
 		// Can Scan Checks:
 		$reasonsCantScan = $mod->getScansCon()->getReasonsScansCantExecute();
 		return [
-			'ajax'    => [
-				'scans_start' => ActionData::BuildJson( ScansStart::class ),
-				'scans_check' => ActionData::BuildJson( ScansCheck::class ),
-			],
 			'flags'   => [
 				'can_scan'        => \count( $reasonsCantScan ) === 0,
 				'module_disabled' => !$mod->isModOptEnabled(),
@@ -73,7 +70,6 @@ class PageScansRun extends BasePluginAdminPage {
 			],
 			'scans'   => $this->buildScansVars(),
 			'vars'    => [
-				'initial_check'       => $mod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
 		];

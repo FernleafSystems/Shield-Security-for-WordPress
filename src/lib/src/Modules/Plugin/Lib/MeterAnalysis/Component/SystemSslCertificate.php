@@ -25,6 +25,10 @@ class SystemSslCertificate extends Base {
 		return $this->getSslStatus() === 'ssl_valid';
 	}
 
+	protected function hrefFullTargetBlank() :bool {
+		return true;
+	}
+
 	protected function hrefFull() :string {
 		switch ( $this->getSslStatus() ) {
 			case 'visitor_unprotected':

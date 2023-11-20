@@ -3,12 +3,14 @@
 		<label for="shield_backup_code" class="form-label">{{ strings.label_enter_code }}</label>
 	</th>
 	<td>
-		<button id="IcwpWpsfGenBackupLoginCode" type="button"
-				class="button button-primary">{{ strings.button_gen_code }}</button>
+		<button type="button"
+				class="button button-primary shield-gen-backup-login-code">{{ strings.button_gen_code }}</button>
 		{% if flags.has_validated_profile %}
-			<button id="IcwpWpsfDelBackupLoginCode" type="button"
-					class="button">{{ strings.button_del_code }}</button>
+			<button type="button"
+					class="button shield-del-backup-login-code">{{ strings.button_del_code }}</button>
+			<p style="margin-bottom: 0;">{{ strings.generated_at }}</p>
 		{% endif %}
+
 		{% if flags.show_explanatory_text %}
 			<p class="description">
 				{{ strings.description_code }}

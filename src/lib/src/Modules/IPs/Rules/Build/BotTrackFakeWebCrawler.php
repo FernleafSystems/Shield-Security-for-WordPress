@@ -2,18 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
-	IPs,
-	Plugin
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
+class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_fakewebcrawler';
 
@@ -30,7 +26,7 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 				[
@@ -56,7 +52,6 @@ class BotTrackFakeWebCrawler extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getResponses() :array {
-		/** @var IPs\Options $opts */
 		$opts = $this->opts();
 		return [
 			[

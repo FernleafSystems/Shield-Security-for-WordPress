@@ -139,13 +139,14 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
-	protected function getColumnContent_Date( int $ts ) :string {
-		return sprintf( '%s<br /><small>%s</small>',
+	protected function getColumnContent_Date( int $ts, bool $includeTimestamp = true ) :string {
+		return sprintf( '%s%s',
 			Services::Request()
 					->carbon( true )
 					->setTimestamp( $ts )
 					->diffForHumans(),
-			Services::WpGeneral()->getTimeStringForDisplay( $ts )
+			$includeTimestamp ? sprintf( '<br /><small>%s</small>',
+				Services::WpGeneral()->getTimeStringForDisplay( $ts ) ) : ''
 		);
 	}
 
@@ -187,6 +188,13 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return $content;
 	}
 
+	protected function getUserHref( int $uid ) :string {
+		$user = Services::WpUsers()->getUserById( $uid );
+		return empty( $user ) ?
+			sprintf( 'Unavailable (ID:%s)', $uid ) :
+			sprintf( '<a href="%s" target="_blank">%s</a>', Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+	}
+
 	protected function getIpAnalysisLink( string $ip ) :string {
 		$srvIP = Services::IP();
 
@@ -202,7 +210,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
 				self::con()->plugin_urls->ipAnalysis( $ip ),
 				__( 'IP Analysis', 'wp-simple-firewall' ),
-				'render_ip_analysis ipv'.Services::IP()->version( $ip ),
+				'offcanvas_ip_analysis ipv'.Services::IP()->version( $ip ),
 				$ip,
 				$ip
 			);

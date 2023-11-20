@@ -26,14 +26,4 @@
 
 	{% block body_footer %}
 	{% endblock %}
-
-	{% block inline_js %}
-		<script type="text/javascript">
-			jQuery( document ).ready( function () {
-		  jQuery( '#ShieldMainwpExtension' ).icwpWpsfMainwpExt( {
-			  'ajax_actions':{{ ajax.actions|json_encode()|raw }}
-		  } );
-	  } );
-		</script>
-	{% endblock %}
 </div>

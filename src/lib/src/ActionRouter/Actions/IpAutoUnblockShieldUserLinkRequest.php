@@ -19,7 +19,7 @@ class IpAutoUnblockShieldUserLinkRequest extends BaseAction {
 				$unBlocker->processEmailSend();
 				$this->response()->action_response_data = [
 					'success' => true,
-					'message' => 'Email sent',
+					'message' => 'Please check your email for the unblocking link.',
 				];
 			}
 			catch ( \Exception $e ) {

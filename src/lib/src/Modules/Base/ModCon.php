@@ -38,11 +38,6 @@ abstract class ModCon extends DynPropertiesClass {
 	private $wpCli;
 
 	/**
-	 * @var Databases
-	 */
-	private $dbHandler;
-
-	/**
 	 * @var AdminNotices
 	 */
 	private $adminNotices;
@@ -80,19 +75,27 @@ abstract class ModCon extends DynPropertiesClass {
 	protected function setupHooks() {
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_MOD_CON_DEFAULT );
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+		add_action( self::con()->prefix( 'pre_options_store' ), function () {
+			$this->onConfigChanged();
+		} );
 
-		$this->collateRuleBuilders();
 		$this->setupCronHooks();
 		$this->setupCustomHooks();
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	protected function collateRuleBuilders() {
 		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
+			error_log( $this->getModSlug( false ) );
 			return \array_merge( $builders, \array_map(
 				function ( $class ) {
 					/** @var Shield\Rules\Build\BuildRuleBase $theClass */
 					$theClass = new $class();
-					$theClass->setMod( $this );
+					if ( \method_exists( $theClass, 'setMod' ) ) {
+						$theClass->setMod( $this );
+					}
 					return $theClass;
 				},
 				\array_filter( $this->enumRuleBuilders() )
@@ -142,32 +145,6 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function onWpLoaded() {
-		if ( self::con()->is_rest_enabled ) {
-			$this->initRestApi();
-		}
-	}
-
-	protected function initRestApi() {
-		if ( !empty( $this->opts()->getDef( 'rest_api' )[ 'publish' ] ) ) {
-			add_action( 'rest_api_init', function () {
-				try {
-					$restClass = $this->findElementClass( 'Rest' );
-					/** @var Shield\Modules\Base\Rest $rest */
-					if ( @\class_exists( $restClass ) ) {
-						$rest = new $restClass( $this->opts()->getDef( 'rest_api' ) );
-						$rest->setMod( $this )->init();
-					}
-				}
-				catch ( \Exception $e ) {
-				}
-			} );
-		}
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function onRestApiInit() {
 	}
 
 	public function onWpInit() {
@@ -185,21 +162,6 @@ abstract class ModCon extends DynPropertiesClass {
 		if ( $con->isPremiumActive() ) {
 			add_filter( $con->prefix( 'wpPrivacyExport' ), [ $this, 'onWpPrivacyExport' ], 10, 3 );
 			add_filter( $con->prefix( 'wpPrivacyErase' ), [ $this, 'onWpPrivacyErase' ], 10, 3 );
-		}
-	}
-
-	/**
-	 * We have to do it this way as the "page hook" is built upon the top-level plugin
-	 * menu name. But what if we white label?  So we need to dynamically grab the page hook
-	 */
-	public function onSetCurrentScreen() {
-		global $page_hook;
-		add_action( 'load-'.$page_hook, [ $this, 'onLoadOptionsScreen' ] );
-	}
-
-	public function onLoadOptionsScreen() {
-		if ( self::con()->isValidAdminArea() ) {
-			$this->buildContextualHelp();
 		}
 	}
 
@@ -233,23 +195,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function getUrl_OptionsConfigPage() :string {
 		return self::con()->plugin_urls->modCfg( $this );
-	}
-
-	/**
-	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
-	 * @return Modules\Email\ModCon
-	 * @throws \Exception
-	 * @deprecated 18.4.1
-	 */
-	public function getEmailHandler() {
-		return self::con()->getModule_Email();
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailCon
-	 */
-	public function getEmailProcessor() {
-		return self::con()->email_con ? self::con()->email_con : $this->getEmailHandler()->getProcessor();
 	}
 
 	/**
@@ -389,66 +334,31 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.2.5
+	 * Handle any required actions after particular configuration changes.
 	 */
-	public function saveModOptions( bool $preProcessOptions = false, bool $store = true ) {
-
-		if ( $preProcessOptions ) {
-			$this->preProcessOptions();
-		}
-
-		$this->doPrePluginOptionsSave();
-
-		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
-		if ( $this->opts()->getNeedSave() ) {
-			do_action( self::con()->prefix( 'pre_options_store' ), $this );
-		}
-
-		if ( $store ) {
-			self::con()->opts->store();
-		}
+	public function onConfigChanged() :void {
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
+	public function saveModOptions() {
+		self::con()->opts->store();
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
 	public function preProcessOptions() {
 	}
 
 	/**
-	 * @deprecated 18.2.5
-	 */
-	private function store() {
-		$con = self::con();
-		add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->opts()->doOptionsSave( false, $con->isPremiumActive() );
-		remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-	}
-
-	/**
-	 * This is the point where you would want to do any options verification
+	 * @deprecated 18.5
 	 */
 	public function doPrePluginOptionsSave() {
 	}
 
 	public function onPluginDeactivate() {
-	}
-
-	protected function buildContextualHelp() {
-		if ( !\function_exists( 'get_current_screen' ) ) {
-			require_once( ABSPATH.'wp-admin/includes/screen.php' );
-		}
-		$screen = get_current_screen();
-		//$screen->remove_help_tabs();
-		$screen->add_help_tab( [
-			'id'      => 'my-plugin-default',
-			'title'   => __( 'Default' ),
-			'content' => 'This is where I would provide tabbed help to the user on how everything in my admin panel works. Formatted HTML works fine in here too'
-		] );
-		//add more help tabs as needed with unique id's
-
-		// Help sidebars are optional
-		$screen->set_help_sidebar(
-			'<p><strong>'.__( 'For more information:' ).'</strong></p>'.
-			'<p><a href="http://wordpress.org/support/" target="_blank">'._( 'Support Forums' ).'</a></p>'
-		);
 	}
 
 	public function isAccessRestricted() :bool {
@@ -479,14 +389,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	/**
 	 * @return null|Shield\Modules\Base\Options|mixed
-	 * @deprecated 18.3
-	 */
-	public function getOptions() {
-		return \method_exists( $this, 'opts' ) ? $this->opts() : $this->opts;
-	}
-
-	/**
-	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function opts() {
 		return $this->opts ?? $this->opts = $this->loadModElement( 'Options' );
@@ -508,13 +410,6 @@ abstract class ModCon extends DynPropertiesClass {
 
 	public function getAdminNotices() {
 		return $this->adminNotices ?? $this->adminNotices = $this->loadModElement( 'AdminNotices' );
-	}
-
-	/**
-	 * @return Shield\Modules\Base\Databases|mixed
-	 */
-	public function getDbHandler() {
-		return $this->dbHandler ?? $this->dbHandler = $this->loadModElement( 'Databases' );
 	}
 
 	/**
@@ -543,12 +438,9 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	/**
-	 * @param string $element
-	 * @param bool   $bThrowException
-	 * @return string|null
 	 * @throws \Exception
 	 */
-	protected function findElementClass( string $element, $bThrowException = true ) {
+	public function findElementClass( string $element ) :string {
 		$theClass = null;
 
 		$roots = \array_map( function ( $root ) {
@@ -565,13 +457,13 @@ abstract class ModCon extends DynPropertiesClass {
 			}
 		}
 
-		if ( $bThrowException && \is_null( $theClass ) ) {
+		if ( $theClass === null ) {
 			throw new \Exception( sprintf( 'Could not find class for element "%s".', $element ) );
 		}
 		return $theClass;
 	}
 
-	protected function getBaseNamespace() {
+	protected function getBaseNamespace() :string {
 		return __NAMESPACE__;
 	}
 
@@ -592,13 +484,5 @@ abstract class ModCon extends DynPropertiesClass {
 	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
-		$this->saveModOptions();
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function getAllDbClasses() :array {
-		return [];
 	}
 }

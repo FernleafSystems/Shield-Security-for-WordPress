@@ -6,6 +6,49 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Mfa
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
+	public function preSave() :void {
+
+		if ( $this->isEnabledAntiBot() ) {
+			$this->setOpt( 'enable_login_gasp_check', 'N' );
+		}
+
+		$this->setOpt( 'two_factor_auth_user_roles', $this->getEmail2FaRoles() );
+
+		$redirect = \preg_replace( '#[^\da-z_\-/.]#i', '', (string)$this->getOpt( 'rename_wplogin_redirect' ) );
+		if ( !empty( $redirect ) ) {
+			$redirect = \preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
+			if ( !empty( $redirect ) ) {
+				$redirect = '/'.\ltrim( $redirect, '/' );
+			}
+		}
+		$this->setOpt( 'rename_wplogin_redirect', $redirect );
+
+		if ( empty( $this->getOpt( 'mfa_user_setup_pages' ) ) ) {
+			$this->setOpt( 'mfa_user_setup_pages', [ 'profile' ] );
+		}
+		if ( $this->isOptChanged( 'antibot_form_ids' ) ) {
+			$this->setOpt( 'antibot_form_ids',
+				\array_values( \array_unique( \array_filter(
+					$this->getOpt( 'antibot_form_ids', [] ),
+					function ( $id ) {
+						return \trim( strip_tags( (string)$id ) );
+					}
+				) ) )
+			);
+		}
+		if ( $this->isOptChanged( 'rename_wplogin_path' ) ) {
+			$path = $this->getCustomLoginPath();
+			if ( !empty( $path ) ) {
+				$path = \preg_replace( '#[^\da-zA-Z-]#', '', \trim( $path, '/' ) );
+				$this->setOpt( 'rename_wplogin_path', $path );
+			}
+		}
+	}
+
+	public function canAutoLoginURL() :bool {
+		return $this->isOpt( 'enable_email_auto_login', 'Y' );
+	}
+
 	public function getBotProtectionLocations() :array {
 		return $this->getOpt( 'bot_protection_locations' );
 	}
@@ -27,7 +70,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 
 	public function getAntiBotFormSelectors() :array {
 		$ids = $this->getOpt( 'antibot_form_ids', [] );
-		return self::con()->isPremiumActive() ? $ids : [];
+		return \array_merge( [
+			'#loginform',
+		], self::con()->isPremiumActive() ? $ids : [] );
 	}
 
 	public function getCooldownInterval() :int {
@@ -97,6 +142,9 @@ class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShiel
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function isEnabledU2F() :bool {
 		return $this->isOpt( 'enable_u2f', 'Y' );
 	}

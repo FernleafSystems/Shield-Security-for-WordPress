@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
@@ -12,6 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 };
 
 class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
+
+	use ModConsumer;
 
 	public const SLUG = 'shield/is_rate_limit_exceeded';
 
@@ -24,8 +25,6 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		/** @var Options $opts */
-		$opts = $this->opts();
 		return [
 			'logic' => static::LOGIC_AND,
 			'group' => [
@@ -39,8 +38,8 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 				[
 					'condition' => Conditions\IsRateLimitExceeded::SLUG,
 					'params'    => [
-						'limit_count'     => $opts->getLimitRequestCount(),
-						'limit_time_span' => $opts->getLimitTimeSpan(),
+						'limit_count'     => $this->opts()->getLimitRequestCount(),
+						'limit_time_span' => $this->opts()->getLimitTimeSpan(),
 					],
 				],
 			]

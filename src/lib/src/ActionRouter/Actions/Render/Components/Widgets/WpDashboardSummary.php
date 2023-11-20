@@ -2,22 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Marketing\OurLatestBlogPosts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Marketing\OurLatestBlogPosts;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
-	use SecurityAdminNotRequired;
+	use AnyUserAuthRequired;
 
 	public const SLUG = 'render_dashboard_widget';
 	public const TEMPLATE = '/admin/admin_dashboard_widget.twig';
@@ -33,7 +33,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			'hrefs'   => [
 				'overview'   => $con->plugin_urls->adminHome(),
 				'logo'       => $con->labels->PluginURI,
-				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				'sessions'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
 				'ips'        => $con->plugin_urls->adminIpRules(),
 				'blog_posts' => 'https://shsec.io/recentblogposts',
@@ -92,12 +92,12 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 						'svg'  => $con->svgs->raw( 'diagram-3.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 						'text' => __( 'Activity', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'person-lines-fill.svg' ),
 					],
 					[
-						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+						'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 						'text' => __( 'Traffic', 'wp-simple-firewall' ),
 						'svg'  => $con->svgs->raw( 'stoplights.svg' ),
 					],
@@ -107,7 +107,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 						'svg'  => $con->svgs->raw( 'sliders.svg' ),
 					],
 				],
-				'blog_posts'         => ( new OurLatestBlogPosts() )->retrieve(),
+				'blog_posts'         => ( new OurLatestBlogPosts() )->retrieve( 3, $refresh ),
 				'recent_events'      => \array_map(
 					function ( $evt ) {
 						/** @var EventsDB\Record $evt */

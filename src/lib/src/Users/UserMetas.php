@@ -84,7 +84,6 @@ class UserMetas {
 				'backup',
 				'email',
 				'ga',
-				'u2f',
 				'yubi',
 			];
 			foreach ( $mfaProfiles as $profile ) {

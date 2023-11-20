@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MfaEmailToggle extends MfaUserConfigBase {
 
@@ -17,8 +16,8 @@ class MfaEmailToggle extends MfaUserConfigBase {
 		/** @var ?Email $provider */
 		$provider = $available[ Email::ProviderSlug() ] ?? null;
 		if ( !empty( $provider ) && !$provider->isEnforced() ) {
-			$turnOn = Services::Request()->post( 'direction' ) === 'on';
-			$provider->setProfileValidated( $turnOn );
+			$turnOn = ( $this->action_data[ 'direction' ] ?? '' ) === 'on';
+			$provider->toggleEmail2FA( $turnOn );
 			$success = $turnOn === $provider->isProfileActive();
 
 			if ( $success ) {
@@ -37,7 +36,6 @@ class MfaEmailToggle extends MfaUserConfigBase {
 		$this->response()->action_response_data = [
 			'success'     => $success,
 			'message'     => $msg,
-			'page_reload' => true
 		];
 	}
 }

@@ -2,10 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends BaseShield\Options {
+class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
+
+	public function preSave() :void {
+		if ( $this->isOptChanged( 'custom_exclusions' ) ) {
+			$this->setOpt( 'custom_exclusions', \array_filter( \array_map(
+				function ( $excl ) {
+					return \trim( esc_js( $excl ) );
+				},
+				$this->getOpt( 'custom_exclusions' )
+			) ) );
+		}
+
+		if ( $this->isOpt( 'enable_limiter', 'Y' ) && !$this->isTrafficLoggerEnabled() ) {
+			$this->setOpt( 'enable_logger', 'Y' );
+			if ( $this->getAutoCleanDays() === 0 ) {
+				$this->resetOptToDefault( 'auto_clean' );
+			}
+		}
+
+		if ( $this->isOpt( 'enable_live_log', 'Y' ) && !$this->isTrafficLoggerEnabled() ) {
+			$this->setOpt( 'enable_live_log', 'N' )
+				 ->setOpt( 'live_log_started_at', 0 );
+		}
+	}
 
 	/**
 	 * @inheritDoc

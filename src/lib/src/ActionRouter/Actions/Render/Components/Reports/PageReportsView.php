@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\FormReportCreate;
+
 class PageReportsView extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	public const SLUG = 'render_page_reports_view';
@@ -15,14 +17,14 @@ class PageReportsView extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 			'flags'   => [
 				'can_create_report' => self::con()->caps->canReportsLocal(),
 			],
-			'hrefs'   => [
-				'create_custom_report' => self::con()->plugin_urls->offCanvasTrigger( 'renderReportCreate()' ),
-			],
 			'strings' => [
 				'table_title'                => __( 'Security Reports', 'wp-simple-firewall' ),
 				'create_custom_report'       => __( 'Create Custom Report', 'wp-simple-firewall' ),
 				'custom_reports_unavailable' => __( 'Upgrade To Create Custom Reports', 'wp-simple-firewall' ),
 				'view_report'                => __( 'View Report', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'offcanvas_render_slug' => FormReportCreate::SLUG,
 			],
 		];
 	}

@@ -1,0 +1,64 @@
+﻿/** https://tigrr.github.io/circle-progress/examples.html **/
+
+.circle-progress circle-progress::part(base) {
+  width: 140px;
+  height: auto;
+}
+
+.circle-progress circle-progress::part(value),
+.circle-progress-value {
+  stroke-width: 12px;
+}
+
+.circle-progress circle-progress::part(circle),
+.circle-progress-circle {
+  stroke: white;
+  stroke-width: 12px;
+  fill: #eee;
+}
+
+.circle-progress circle-progress::part(text),
+.circle-progress-text {
+  font-size: 2rem;
+  fill: #008000;
+}
+
+.circle-progress.circle-progress-status-x circle-progress::part(text),
+.circle-progress.circle-progress-status-x .circle-progress-text {
+  fill: rgb(47, 192, 10);
+}
+
+.circle-progress.circle-progress-status-x circle-progress::part(value),
+.circle-progress.circle-progress-status-x .circle-progress-value svg::part(value) {
+  stroke: rgb(47, 192, 10);
+}
+
+.circle-progress.circle-progress-status-h circle-progress::part(text),
+.circle-progress.circle-progress-status-h .circle-progress-text {
+  fill: rgb(16, 128, 0);
+}
+
+.circle-progress.circle-progress-status-h circle-progress::part(value),
+.circle-progress.circle-progress-status-h .circle-progress-value {
+  stroke: rgb(16, 128, 0);
+}
+
+.circle-progress.circle-progress-status-m circle-progress::part(text),
+.circle-progress.circle-progress-status-m .circle-progress-text {
+  fill: rgb(200, 150, 10);
+}
+
+.circle-progress.circle-progress-status-m circle-progress::part(value),
+.circle-progress.circle-progress-status-m .circle-progress-value {
+  stroke: rgb(200, 150, 10);
+}
+
+.circle-progress.circle-progress-status-l circle-progress::part(text),
+.circle-progress.circle-progress-status-l .circle-progress-text {
+  fill: rgb(200, 50, 10);
+}
+
+.circle-progress.circle-progress-status-l circle-progress::part(value),
+.circle-progress.circle-progress-status-l .circle-progress-value {
+  stroke: rgb(200, 50, 10);
+}

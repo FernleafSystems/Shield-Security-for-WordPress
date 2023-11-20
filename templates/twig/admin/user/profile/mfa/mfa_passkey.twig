@@ -1,0 +1,41 @@
+<tr>
+	<th>
+		<label for="{% if flags.is_validated %}icwp_passkey_reg{% endif %}"
+			   class="form-label">
+			{{ strings.title }}</label>
+	</th>
+
+	<td id="shield_section_passkeys">
+		<p style="margin: 0 0 20px;">
+			<button type="button" class="button button button-primary shield_passkey_reg" id="icwp_passkey_reg" disabled="disabled">
+				{{ strings.button_reg_key }}
+			</button>
+		</p>
+
+		{% if vars.passkeys|length > 0 %}
+			<h4>{{ strings.registered_devices }}</h4>
+			<ul style=" list-style: circle inside; ">
+				{% for reg in vars.passkeys %}
+					<li style="margin: 10px 0 0;">
+						<code>{{ reg.label }}</code>
+						<a href="#"
+						   class="shield_remove_passkey"
+						   style="text-decoration: none;"
+						   title="Remove"
+						   data-wan_source_id="{{ reg.id }}">&#10006;</a>
+						<ul style="list-style: none; margin-left: 20px; margin-top: 0;">
+							<li style="margin: 0;">{{ reg.used_at }}</li>
+							<li>{{ reg.reg_at }}</li>
+						</ul>
+					</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<p>There are no passkeys registered to this account.</p>
+		{% endif %}
+
+		{% if flags.show_explanatory_text %}
+			<p class="description">{{ strings.prompt }}</p>
+		{% endif %}
+	</td>
+</tr>

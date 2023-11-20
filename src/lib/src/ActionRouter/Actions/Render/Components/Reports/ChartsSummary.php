@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ReportingChartSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops as IpRulesDB;
 
@@ -71,7 +69,6 @@ class ChartsSummary extends Base {
 					\number_format( $eventSelector->clearWheres()->sumEvents( [
 						'spam_block_bot',
 						'spam_block_human',
-						'spam_block_recaptcha'
 					] ) ) ),
 				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
 			],
@@ -84,10 +81,7 @@ class ChartsSummary extends Base {
 		}
 
 		return [
-			'ajax'  => [
-				'render_summary_chart' => ActionData::BuildJson( ReportingChartSummary::class ),
-			],
-			'vars'  => [
+			'vars' => [
 				'stats' => $statsData,
 			],
 		];

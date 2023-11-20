@@ -2,13 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 class SecurityAdmin extends Base {
 
 	public const SLUG = 'security_admin';
 
-	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+	public function processStepFormSubmit( array $form ) :Response {
 
 		$pin = $form[ 'SecAdminPIN' ] ?? '';
 		if ( empty( $pin ) ) {
@@ -24,8 +25,8 @@ class SecurityAdmin extends Base {
 		$mod = self::con()->getModule_SecAdmin();
 		$mod->setIsMainFeatureEnabled( true );
 		$mod->opts()->setOpt( 'admin_access_key', \md5( $pin ) );
-		( new Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\ToggleSecAdminStatus() )->turnOn();
-		$mod->saveModOptions();
+		( new ToggleSecAdminStatus() )->turnOn();
+		self::con()->opts->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

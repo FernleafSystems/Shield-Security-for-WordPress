@@ -28,35 +28,40 @@ class EmailCon {
 	 * @param string $to
 	 * @param string $subject
 	 * @param array  $message
-	 * @return bool
 	 */
 	public function sendEmailWithWrap( $to = '', $subject = '', $message = [] ) :bool {
-		return $this->send(
-			$to,
-			$subject,
-			sprintf( '<html lang="%s">%s</html>',
-				Services::WpGeneral()->getLocale( '-' ),
-				\implode( "<br />", \array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
+		return $this->sendVO(
+			EmailVO::Factory(
+				$to,
+				$subject,
+				sprintf( '<html lang="%s">%s</html>',
+					Services::WpGeneral()->getLocale( '-' ),
+					\implode( "<br />", \array_merge( $this->getEmailHeader(), $message, $this->getEmailFooter() ) )
+				)
 			)
 		);
 	}
 
 	/**
 	 * @param string $to
-	 * @param string $subject
+	 * @param string $sub
 	 * @param string $body
-	 * @return bool
 	 * @uses wp_mail
+	 * @deprecated 18.5
 	 */
-	public function send( $to = '', $subject = '', $body = '' ) :bool {
+	public function send( $to = '', $sub = '', $body = '' ) :bool {
+		return $this->sendVO( EmailVO::Factory( $this->verifyEmailAddress( $to ), $sub, $body ) );
+	}
+
+	public function sendVO( EmailVO $vo ) :bool {
 		$this->emailFilters( true );
-		$success = wp_mail(
-			$this->verifyEmailAddress( $to ),
-			sprintf( '[%s] %s', html_entity_decode( Services::WpGeneral()->getSiteName(), \ENT_QUOTES ), $subject ),
-			$body
+		$result = wp_mail(
+			$this->verifyEmailAddress( $vo->to ),
+			$vo->buildSubject(),
+			$vo->html
 		);
 		$this->emailFilters( false );
-		return (bool)$success;
+		return (bool)$result;
 	}
 
 	/**
@@ -119,9 +124,8 @@ class EmailCon {
 	 * Will send email to the default recipient setup in the object.
 	 * @param string $subject
 	 * @param array  $message
-	 * @return bool
 	 */
-	public function sendEmail( $subject, $message ) {
+	public function sendEmail( $subject, $message ) :bool {
 		return $this->sendEmailWithWrap( null, $subject, $message );
 	}
 

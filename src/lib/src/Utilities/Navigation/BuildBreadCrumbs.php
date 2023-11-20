@@ -46,9 +46,9 @@ class BuildBreadCrumbs {
 		}
 
 		$crumbs[] = [
-			'text' => $navStruct[ 'name' ],
+			'text'  => $navStruct[ 'name' ],
 			'title' => sprintf( '%s: %s', __( 'Navigation' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
-			'href' => $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) ),
+			'href'  => $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) ),
 		];
 
 		foreach ( $navStruct[ 'parents' ] as $parentNav ) {

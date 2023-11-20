@@ -36,7 +36,7 @@ class LoginProtection extends Base {
 			$mod->setIsMainFeatureEnabled( true );
 		}
 		$mod->opts()->setOpt( 'enable_antibot_check', $toEnable ? 'Y' : 'N' );
-		$mod->saveModOptions();
+		self::con()->opts->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

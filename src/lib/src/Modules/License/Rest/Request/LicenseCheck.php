@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Rest\Request;
 
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\ModCon;
 
 class LicenseCheck extends Base {
 

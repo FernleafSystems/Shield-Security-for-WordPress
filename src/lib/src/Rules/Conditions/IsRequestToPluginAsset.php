@@ -15,7 +15,7 @@ class IsRequestToPluginAsset extends Base {
 		$pathMatcher->request_path = $this->getRequestPath();
 		$pathMatcher->is_match_regex = true;
 		$pathMatcher->match_paths = [
-			sprintf( '^%s/.+/.+', \rtrim( wp_parse_url( plugins_url(), PHP_URL_PATH ), '/' ) )
+			sprintf( '^%s/.+/.+', \rtrim( wp_parse_url( plugins_url(), \PHP_URL_PATH ), '/' ) )
 		];
 		return $pathMatcher->run();
 	}

@@ -8,6 +8,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
 
+	public function preSave() :void {
+		$this->cleanScanExclusions();
+	}
+
 	public function getFilesToLock() :array {
 		return $this->getOpt( 'file_locker', [] );
 	}
@@ -172,7 +176,7 @@ class Options extends BaseShield\Options {
 				\array_flip( self::con()->getModule_HackGuard()->getScansCon()->getScanSlugs() )
 			)
 		);
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 		return $this;
 	}
 
@@ -186,5 +190,27 @@ class Options extends BaseShield\Options {
 
 	public function setIsScanCron( bool $isCron ) {
 		$this->setOpt( 'is_scan_cron', $isCron );
+	}
+
+	private function cleanScanExclusions() {
+		/** @var Options $opts */
+		$opts = $this->opts();
+
+		if ( $opts->isOptChanged( 'scan_path_exclusions' ) ) {
+			$opts->setOpt( 'scan_path_exclusions',
+				( new WildCardOptions() )->clean(
+					$opts->getOpt( 'scan_path_exclusions', [] ),
+					\array_map( 'trailingslashit', [
+						ABSPATH,
+						path_join( ABSPATH, 'wp-admin' ),
+						path_join( ABSPATH, 'wp-includes' ),
+						untrailingslashit( WP_CONTENT_DIR ),
+						path_join( WP_CONTENT_DIR, 'plugins' ),
+						path_join( WP_CONTENT_DIR, 'themes' ),
+					] ),
+					WildCardOptions::FILE_PATH_REL
+				)
+			);
+		}
 	}
 }

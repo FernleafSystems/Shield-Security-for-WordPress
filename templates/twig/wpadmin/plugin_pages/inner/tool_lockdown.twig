@@ -1,0 +1,89 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+
+	{% if flags.blockdown_active %}
+		<div class="alert alert-danger d-inline-block" role="alert">
+			<h4 class="alert-heading">Site Is In Lockdown</h4>
+			<p>Your site is currently in lockdown.</p>
+			<ul class="mb-0">
+				<li>Lockdown started: {{ vars.active_since }}</li>
+				<li>Lockdown activated by: {{ vars.active_by }}</li>
+			</ul>
+		</div>
+		<form class="form" id="FormBlockdownDisable" autocomplete="off">
+			<button type="submit" class="btn btn-success mb-3">Disable Site Lockdown</button>
+		</form>
+	{% else %}
+
+		<div class="alert alert-warning d-inline-block" role="alert">
+			<h4 class="alert-heading">Proceed With Extreme Caution</h4>
+			<p>Switching-on this feature will block all traffic to your site. Absolutely everything will be blocked (including Google Bots).</p>
+			<p>Only traffic originating from whitelisted IP addresses and the hosting server itself will be permitted.</p>
+			{% if not flags.is_your_ip_whitelisted %}
+				<p class="fw-bold">Your IP address is not whitelisted, so you'll be locked-out if you enable this without whitelisting your IP.</p>
+			{% endif %}
+			<p>Note: To prevent other admins from using this tool, consider switching on the Security Admin feature.</p>
+			<p class="mb-0">Proceed with caution. [<a href="https://shsec.io/lo" target="_blank">further help</a>]</p>
+		</div>
+
+		<form class="form" id="FormBlockdown" autocomplete="off">
+
+{#			<div class="mb-3">#}
+{#				<h6 class="mb-2">Exclusions (Services That Bypass Lockdown)</h6>#}
+{#				<div class="form-check">#}
+{#					<input type="checkbox" class="form-check-input" id="exclusions_search" name="exclusions[]"#}
+{#						   value="search">#}
+{#					<label class="form-check-label" for="exclusions_search">Search Engines</label>#}
+{#				</div>#}
+{#			</div>#}
+
+			<div class="mb-3">
+				<h6 class="mb-2">Whitelist Me</h6>
+				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="whitelist_me" name="whitelist_me" value="Y"
+							{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
+					<label class="form-check-label" for="whitelist_me">
+						Add my IP address (<code>{{ vars.your_ip }}</code>) to the bypass/whitelist
+						<br><small>(when lockdown is disabled, the IP address will automatically be removed from the whitelist)</small>
+					</label>
+				</div>
+			</div>
+
+			<div class="mb-3">
+				<h6 class="mb-2">Confirmation</h6>
+				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
+						   value="cache">
+					<label class="form-check-label" for="confirm_cache">
+						I know that if I use caching and I don't clear it afterward, it'll will cause trouble for visitors.</label>
+				</div>
+				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
+						   value="access">
+					<label class="form-check-label" for="confirm_access">
+						I know how to regain access if I become locked-out (e.g. my IP address changes).</label>
+				</div>
+				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
+						   value="consequences">
+					<label class="form-check-label"
+						   for="confirm_consequences">I understand the consequences of blocking all traffic to this site.</label>
+				</div>
+				<div class="form-check">
+					<input type="checkbox" class="form-check-input" id="confirm_authority" name="confirm[]"
+						   value="authority">
+					<label class="form-check-label"
+						   for="confirm_authority">I have authority to block all traffic to this site.</label>
+				</div>
+			</div>
+
+			{% if flags.can_blockdown %}
+				<button type="submit" class="btn btn-danger mb-3">Lockdown The Site</button>
+			{% else %}
+				<button class="btn btn-danger mb-3" disabled="disabled">Upgrade Your ShieldPRO Membership</button>
+			{% endif %}
+
+		</form>
+	{% endif %}
+{% endblock %}

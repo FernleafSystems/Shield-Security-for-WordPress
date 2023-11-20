@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
-class AdminNotices extends Shield\Modules\Base\AdminNotices {
+class AdminNotices extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AdminNotices {
 
 	protected function processNotice( NoticeVO $notice ) {
 
 		switch ( $notice->id ) {
+			case 'blockdown-active':
+				$this->buildNotice_SiteLockdownActive( $notice );
+				break;
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $notice );
 				break;
@@ -44,6 +47,21 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		];
 	}
 
+	private function buildNotice_SiteLockdownActive( NoticeVO $notice ) {
+		$notice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'     => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Site In Lockdown', 'wp-simple-firewall' ) ),
+				'message'   => __( 'All access to your site is blocked.', 'wp-simple-firewall' ),
+				'configure' => __( 'Configure lockdown', 'wp-simple-firewall' ),
+
+			],
+			'hrefs'             => [
+				'configure' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN )
+			],
+		];
+	}
+
 	private function buildNotice_AllowTracking( NoticeVO $notice ) {
 		$name = self::con()->getHumanName();
 
@@ -70,7 +88,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'learn_more'       => 'https://translate.fernleafsystems.com',
 				'link_to_see'      => self::con()->getModule_Plugin()->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
-
 			]
 		];
 	}
@@ -98,6 +115,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 			case 'allow-tracking':
 				$needed = !$opts->isTrackingPermissionSet();
+				break;
+			case 'blockdown-active':
+				$needed = self::con()->this_req->is_site_lockdown_active && !self::con()->isPluginAdminPageRequest();
 				break;
 			default:
 				$needed = parent::isDisplayNeeded( $notice );

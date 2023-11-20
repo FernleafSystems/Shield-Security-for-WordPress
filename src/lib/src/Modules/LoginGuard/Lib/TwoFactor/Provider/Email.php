@@ -3,23 +3,38 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendIntent;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailAutoLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Email extends AbstractShieldProvider {
+class Email extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'email';
 
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacyEnabled = $meta->email_validated;
+		if ( $legacyEnabled ) {
+			$this->toggleEmail2FA( $legacyEnabled );
+			unset( $meta->email_validated );
+			unset( $meta->email_secret );
+		}
+	}
+
 	public function getJavascriptVars() :array {
-		return [
-			'ajax' => [
-				'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::class ),
-			],
-		];
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getJavascriptVars(),
+			[
+				'ajax' => [
+					'profile_email2fa_toggle' => ActionData::Build( MfaEmailToggle::class ),
+				],
+			]
+		);
 	}
 
 	/**
@@ -27,13 +42,20 @@ class Email extends AbstractShieldProvider {
 	 * Otherwise, we just check whether the OTP exists.
 	 */
 	protected function processOtp( string $otp ) :bool {
-		$secret = $this->getSecret()[ $this->workingHashedLoginNonce ] ?? '';
-		return !empty( $secret ) && wp_check_password( $otp, $secret );
+		$valid = false;
+		foreach ( $this->loadMfaRecords() as $record ) {
+			if ( $record->data[ 'hashed_login_nonce' ] === $this->workingHashedLoginNonce
+				 && wp_check_password( $otp, $record->unique_id ) ) {
+				$valid = true;
+				$this->deleteAllSecrets();
+			}
+		}
+		return $valid;
 	}
 
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		parent::postSuccessActions();
-		return $this->setSecret( [] );
+		( new MfaRecordsHandler() )->clearForUser( $this->getUser() );
 	}
 
 	public function getFormField() :array {
@@ -48,10 +70,9 @@ class Email extends AbstractShieldProvider {
 			'help_link'   => 'https://shsec.io/3t',
 			'size'        => 6,
 			'datas'       => [
-				'auto_send'              => $this->mod()
-												 ->getMfaController()
-												 ->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
-				'ajax_intent_email_send' => ActionData::BuildJson( MfaEmailSendIntent::class ),
+				'auto_send' => $this->mod()
+									->getMfaController()
+									->isAutoSend2faEmail( $this->getUser() ) ? 1 : 0,
 			],
 			'supp'        => [
 				'send_email' => __( 'Send OTP Code', 'wp-simple-firewall' ),
@@ -59,29 +80,25 @@ class Email extends AbstractShieldProvider {
 		];
 	}
 
+	public function toggleEmail2FA( bool $onOrOff ) :void {
+		self::con()->user_metas->for( $this->getUser() )->email_2fa_enabled = $onOrOff;
+	}
+
 	public function hasValidatedProfile() :bool {
-		$validated = parent::hasValidatedProfile();
-		$this->setProfileValidated(
-			$this->isEnforced() || ( $validated && $this->opts()->isEnabledEmailAuthAnyUserSet() )
-		);
-		return parent::hasValidatedProfile();
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		return $this->isEnforced()
+			   || ( $this->opts()->isEnabledEmailAuthAnyUserSet() && $meta->email_2fa_enabled );
 	}
 
 	public function isEnforced() :bool {
 		return \count( \array_intersect( $this->opts()->getEmail2FaRoles(), $this->getUser()->roles ) ) > 0;
 	}
 
-	protected function hasValidSecret() :bool {
-		return true;
-	}
-
-	public function sendEmailTwoFactorVerify( string $plainNonce ) :bool {
+	public function sendEmailTwoFactorVerify( string $plainNonce, string $autoRedirect = '' ) :bool {
 		$con = self::con();
 		$mfaCon = $this->mod()->getMfaController();
 		$user = $this->getUser();
-		$userMeta = $con->user_metas->for( $user );
-		$sureCon = $con->getModule_Comms()->getSureSendController();
-		$useSureSend = $sureCon->isEnabled2Fa() && $sureCon->canUserSend( $user );
+		$useSureSend = $con->getModule_Comms()->getSureSendController()->can_2FA( $user );
 
 		$success = false;
 		try {
@@ -92,21 +109,34 @@ class Email extends AbstractShieldProvider {
 			$hashedNonce = $mfaCon->findHashedNonce( $user, $plainNonce );
 			$intents = $mfaCon->getActiveLoginIntents( $user );
 			$intents[ $hashedNonce ][ 'auto_email_sent' ] = true;
-			$userMeta->login_intents = $intents;
+			$con->user_metas->for( $user )->login_intents = $intents;
 
 			$otp = $this->generate2faCode( $hashedNonce );
 
 			$success = ( $useSureSend && ( new SendEmail() )->send2FA( $this->getUser(), $otp ) )
 					   ||
-					   $con->email_con->send(
-						   $user->user_email,
-						   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-						   $con->action_router->render( MfaLoginCode::SLUG, [
-							   'home_url' => Services::WpGeneral()->getHomeUrl(),
-							   'ip'       => $con->this_req->ip,
-							   'user_id'  => $user->ID,
-							   'otp'      => $otp,
-						   ] )
+					   $con->email_con->sendVO(
+						   EmailVO::Factory(
+							   $user->user_email,
+							   __( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+							   $con->action_router->render( MfaLoginCode::SLUG, [
+								   'home_url'       => Services::WpGeneral()->getHomeUrl(),
+								   'ip'             => $con->this_req->ip,
+								   'user_id'        => $user->ID,
+								   'otp'            => $otp,
+								   'url_auto_login' => $con->plugin_urls->noncedPluginAction(
+									   MfaEmailAutoLogin::class,
+									   null,
+									   [
+										   $this->getLoginIntentFormParameter() => $otp,
+										   'login_nonce'                        => $plainNonce,
+										   'user_id'                            => $user->ID,
+										   // breaks without encoding.
+										   'redirect_to'                        => \base64_encode( $autoRedirect ),
+									   ]
+								   ),
+							   ] )
+						   )
 					   );
 		}
 		catch ( \Exception $e ) {
@@ -140,23 +170,19 @@ class Email extends AbstractShieldProvider {
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
-		$secrets = $this->getSecret();
-		if ( !\is_array( $secrets ) ) {
-			$secrets = [];
-		}
-
 		$otp = apply_filters( 'shield/2fa_email_otp', PasswordGenerator::Gen( 6, true, false, false ) );
-		$secrets[ $hashedLoginNonce ] = wp_hash_password( $otp );
-
-		// Clean old secrets linked to expired login intents
-		$this->setSecret( \array_intersect_key(
-			$secrets,
-			$this->mod()->getMfaController()->getActiveLoginIntents( $this->getUser() )
-		) );
+		$this->createNewSecretRecord( wp_hash_password( $otp ), 'Email 2FA', [
+			'hashed_login_nonce' => $hashedLoginNonce
+		] );
 		return $otp;
 	}
 
 	public function getProviderName() :string {
 		return 'Email';
+	}
+
+	public function removeFromProfile() :void {
+		parent::removeFromProfile();
+		$this->toggleEmail2FA( false );
 	}
 }

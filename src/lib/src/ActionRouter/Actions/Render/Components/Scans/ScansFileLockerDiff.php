@@ -19,7 +19,7 @@ class ScansFileLockerDiff extends BaseScans {
 		$FS = Services::WpFs();
 
 		try {
-			$RID = (int)Services::Request()->post( 'rid' );
+			$RID = (int)$this->action_data[ 'rid' ] ?? -1;
 			$lock = $FLCon->getFileLock( $RID );
 			$isDifferent = $lock->detected_at > 0;
 

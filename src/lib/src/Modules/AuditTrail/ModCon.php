@@ -25,22 +25,19 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_Logs() :DB\Logs\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'at_logs' ) : $this->getDbHandler()->loadDbH( 'at_logs' );
+		return self::con()->db_con->loadDbH( 'at_logs' );
 	}
 
 	public function getDbH_Meta() :DB\Meta\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'at_meta' ) : $this->getDbHandler()->loadDbH( 'at_meta' );
+		return self::con()->db_con->loadDbH( 'at_meta' );
 	}
 
 	public function getDbH_Snapshots() :DB\Snapshots\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'snapshots' ) : $this->getDbHandler()->loadDbH( 'snapshots' );
+		return self::con()->db_con->loadDbH( 'snapshots' );
 	}
 
 	public function getAuditLogger() :Lib\AuditLogger {
-		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger( self::con() );
+		return $this->auditLogger ?? $this->auditLogger = new Lib\AuditLogger();
 	}
 
 	/**
@@ -130,18 +127,5 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function doPrePluginOptionsSave() {
-		$opts = $this->opts();
-		foreach ( [ 'log_level_db', 'log_level_file' ] as $optKey ) {
-			$current = $opts->getOpt( $optKey );
-			if ( empty( $current ) ) {
-				$opts->resetOptToDefault( $optKey );
-			}
-			elseif ( \in_array( 'disabled', $opts->getOpt( $optKey ) ) ) {
-				$opts->setOpt( $optKey, [ 'disabled' ] );
-			}
-		}
-		if ( \in_array( 'same_as_db', $opts->getOpt( 'log_level_file' ) ) ) {
-			$opts->setOpt( 'log_level_file', [ 'same_as_db' ] );
-		}
 	}
 }

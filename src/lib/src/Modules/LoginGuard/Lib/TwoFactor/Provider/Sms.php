@@ -20,10 +20,13 @@ class Sms extends AbstractShieldProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax' => [
+			'ajax'  => [
 				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::class ),
 				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::class ),
 				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::class ),
+			],
+			'flags' => [
+				'is_available' => $this->isProviderAvailableToUser(),
 			],
 		];
 	}
@@ -106,13 +109,12 @@ class Sms extends AbstractShieldProvider {
 		( new SendSms() )->send2FA( $this->getUser(), $meta->sms_registration[ 'code' ] );
 	}
 
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		parent::postSuccessActions();
 		$meta = self::con()->user_metas->for( $this->getUser() );
 		$reg = $meta->sms_registration;
 		unset( $reg[ 'code' ] );
 		$meta->sms_registration = $reg;
-		return $this;
 	}
 
 	protected function processOtp( string $otp ) :bool {
@@ -142,7 +144,7 @@ class Sms extends AbstractShieldProvider {
 		return true;
 	}
 
-	public function removeFromProfile() {
+	public function removeFromProfile() :void {
 		self::con()->user_metas->for( $this->getUser() )->sms_registration = [];
 		parent::removeFromProfile();
 	}

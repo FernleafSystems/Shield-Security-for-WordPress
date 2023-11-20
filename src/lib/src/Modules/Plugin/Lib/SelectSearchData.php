@@ -85,7 +85,7 @@ class SelectSearchData {
 							'text'        => $ip,
 							'link'        => [
 								'href'    => self::con()->plugin_urls->ipAnalysis( $ip ),
-								'classes' => [ 'render_ip_analysis' ],
+								'classes' => [ 'offcanvas_ip_analysis' ],
 								'data'    => [
 									'ip' => $ip
 								],
@@ -276,7 +276,7 @@ class SelectSearchData {
 						'id'     => 'tool_activity_log',
 						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_LOG ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 						],
 						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
 						'icon'   => $con->svgs->raw( 'person-lines-fill.svg' ),
@@ -285,7 +285,7 @@ class SelectSearchData {
 						'id'     => 'tool_traffic_log',
 						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_TRAFFIC_LOG ),
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 						],
 						'tokens' => 'tool activity log table traffic request requests bots review',
 						'icon'   => $con->svgs->raw( 'stoplights.svg' ),
@@ -334,6 +334,15 @@ class SelectSearchData {
 						],
 						'tokens' => 'tool setup guide guided wizard',
 						'icon'   => $con->svgs->raw( 'magic.svg' ),
+					],
+					[
+						'id'     => 'tool_reports',
+						'text'   => __( 'Reports', 'wp-simple-firewall' ),
+						'link'   => [
+							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_WIZARD ),
+						],
+						'tokens' => 'reports report reporting alert alerts',
+						'icon'   => $con->svgs->raw( 'clipboard-data-fill.svg' ),
 					],
 					[
 						'id'     => 'tool_debug',

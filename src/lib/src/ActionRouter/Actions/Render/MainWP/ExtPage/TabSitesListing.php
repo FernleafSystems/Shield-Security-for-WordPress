@@ -14,7 +14,6 @@ class TabSitesListing extends BaseSubPage {
 		$con = self::con();
 		$mwp = $con->mwpVO;
 		$WP = Services::WpGeneral();
-		$req = Services::Request();
 
 		$statsHead = [
 			'connected'    => 0,

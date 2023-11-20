@@ -8,23 +8,17 @@ trait OptConfigBased {
 
 	abstract protected function getOptConfigKey() :string;
 
-	protected function getOptConfigKeyRelevant() :string {
+	protected function cfgItem() :string {
 		$mod = OptUtils::ModFromOpt( $this->getOptConfigKey() );
 		return $mod->isModOptEnabled() ? $this->getOptConfigKey() : $mod->getEnableModOptKey();
 	}
 
-	protected function getOptLink( string $for, bool $offCanvasJS = false ) :string {
-		return $offCanvasJS ?
-			self::con()->plugin_urls->offCanvasConfigRender( $for )
-			: self::con()->plugin_urls->modCfgOption( $for );
+	protected function getOptLink( string $for ) :string {
+		return self::con()->plugin_urls->modCfgOption( $for );
 	}
 
 	protected function hrefFull() :string {
-		return $this->getOptLink( $this->getOptConfigKeyRelevant() );
-	}
-
-	protected function hrefOffCanvas() :string {
-		return $this->getOptLink( $this->getOptConfigKeyRelevant(), true );
+		return $this->getOptLink( $this->cfgItem() );
 	}
 
 	protected function isOptConfigBased() :bool {

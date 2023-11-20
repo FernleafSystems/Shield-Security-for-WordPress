@@ -9,17 +9,6 @@ class Storage {
 
 	use ModConsumer;
 
-	public function storeOptions( array $optsValues, bool $preDelete = false ) :bool {
-		if ( $preDelete ) {
-			$this->deleteOptions();
-		}
-		return (bool)Services::WpGeneral()->updateOption( $this->mod()->getOptionsStorageKey(), $optsValues );
-	}
-
-	public function deleteOptions() {
-		Services::WpGeneral()->deleteOption( $this->mod()->getOptionsStorageKey() );
-	}
-
 	/**
 	 * @throws \Exception
 	 */

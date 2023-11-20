@@ -22,7 +22,9 @@ class Rest extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandler {
 			function ( $route ) {
 				return $route->setMod( $this->mod() );
 			},
-			$routes
+			\array_filter( $routes, function ( $route ) {
+				return $route->isRouteAvailable();
+			} )
 		);
 	}
 

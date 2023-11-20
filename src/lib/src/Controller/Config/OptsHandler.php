@@ -28,6 +28,10 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function resetToDefaults() {
+		$this->mod_opts_free = $this->mod_opts_pro = [];
+		foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
+			Services::WpGeneral()->deleteOption( $this->key( $type ) );
+		}
 	}
 
 	/**
@@ -114,15 +118,11 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function commit() :void {
-		foreach ( self::con()->modules as $module ) {
-			$module->saveModOptions( false, false );
-		}
 		$this->store();
 	}
 
 	public function store() {
 		$con = self::con();
-
 		if ( !$con->plugin_deleting ) {
 			add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 			$this->preStore();
@@ -135,42 +135,56 @@ class OptsHandler extends DynPropertiesClass {
 
 	private function preStore() {
 		$con = self::con();
+
+		// Pre-process options.
+		foreach ( self::con()->modules as $mod ) {
+			$opts = $mod->opts();
+			if ( \method_exists( $opts, 'preSave' ) ) {
+				$opts->preSave();
+			}
+		}
+
 		do_action( $con->prefix( 'pre_options_store' ) );
 
 		$type = $con->isPremiumActive() ? self::TYPE_PRO : self::TYPE_FREE;
 		$latest = $this->{'mod_opts_'.$type};
 		$stored = Services::WpGeneral()->getOption( $this->key( $type ) );
+		$hasDiff = false;
 		$diffs = [];
 		foreach ( \array_intersect_key( $latest, $con->modules ) as $slug => $options ) {
 			$mod = $con->modules[ $slug ];
 			$opts = $mod->opts();
 			$hidden = \array_keys( $opts->getHiddenOptions() );
 			foreach ( $options as $optKey => $optValue ) {
-				if ( !\in_array( $optKey, $hidden )
-					 && \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $optKey ] ?? null )
-				) {
-					if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
-						$optValue = $optValue === 'Y' ? 'on' : 'off';
-					}
-					elseif ( !\is_scalar( $optValue ) ) {
-						switch ( $opts->getOptionType( $optKey ) ) {
-							case 'array':
-							case 'multiple_select':
-								$optValue = \implode( ', ', $optValue );
-								break;
-							default:
-								$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
-								break;
+
+				if ( \serialize( $optValue ) !== \serialize( $stored[ $slug ][ $optKey ] ?? null ) ) {
+
+					$hasDiff = true;
+
+					if ( !\in_array( $optKey, $hidden ) ) {
+						if ( $opts->getOptionType( $optKey ) === 'checkbox' ) {
+							$optValue = $optValue === 'Y' ? 'on' : 'off';
 						}
-					}
-					try {
-						$diffs[ $optKey ] = [
-							'name'  => $mod->getStrings()->getOptionStrings( $optKey )[ 'name' ],
-							'key'   => $optKey,
-							'value' => $optValue,
-						];
-					}
-					catch ( \Exception $e ) {
+						elseif ( !\is_scalar( $optValue ) ) {
+							switch ( $opts->getOptionType( $optKey ) ) {
+								case 'array':
+								case 'multiple_select':
+									$optValue = \implode( ', ', $optValue );
+									break;
+								default:
+									$optValue = sprintf( '%s (JSON Encoded)', \json_encode( $optValue ) );
+									break;
+							}
+						}
+						try {
+							$diffs[ $optKey ] = [
+								'name'  => $mod->getStrings()->getOptionStrings( $optKey )[ 'name' ],
+								'key'   => $optKey,
+								'value' => $optValue,
+							];
+						}
+						catch ( \Exception $e ) {
+						}
 					}
 				}
 			}
@@ -181,5 +195,7 @@ class OptsHandler extends DynPropertiesClass {
 				'audit_params' => $params
 			] );
 		}
+
+		do_action( $con->prefix( 'after_pre_options_store' ), $hasDiff );
 	}
 }

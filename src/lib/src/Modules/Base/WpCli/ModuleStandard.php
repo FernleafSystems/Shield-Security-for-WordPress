@@ -90,30 +90,22 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdModAction( $null, $args ) {
-		$oMod = $this->mod();
-
 		switch ( $args[ 'action' ] ) {
-
 			case 'status':
-				$oMod->isModOptEnabled() ?
+				$this->mod()->isModOptEnabled() ?
 					\WP_CLI::log( 'Module is currently enabled.' )
 					: \WP_CLI::log( 'Module is currently disabled.' );
 				break;
-
 			case 'enable':
-				$this->mod()
-					 ->setIsMainFeatureEnabled( true )
-					 ->saveModOptions();
+				$this->mod()->setIsMainFeatureEnabled( true );
 				\WP_CLI::success( 'Module enabled.' );
 				break;
-
 			case 'disable':
-				$this->mod()
-					 ->setIsMainFeatureEnabled( false )
-					 ->saveModOptions();
+				$this->mod()->setIsMainFeatureEnabled( false );
 				\WP_CLI::success( 'Module disabled.' );
 				break;
 		}
+		self::con()->opts->store();
 	}
 
 	public function cmdOptGet( array $null, array $args ) {

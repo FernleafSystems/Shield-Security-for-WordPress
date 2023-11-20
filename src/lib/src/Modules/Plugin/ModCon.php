@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 use FernleafSystems\Wordpress\Services\Utilities\Net\VisitorIpDetection;
@@ -39,6 +40,11 @@ class ModCon extends BaseShield\ModCon {
 	private $sessionCon;
 
 	/**
+	 * @var Lib\Merlin\MerlinController
+	 */
+	private $wizardCon;
+
+	/**
 	 * @var Lib\TrackingVO
 	 */
 	private $tracking;
@@ -63,16 +69,12 @@ class ModCon extends BaseShield\ModCon {
 		return $this->shieldNetCon ?? $this->shieldNetCon = new Shield\ShieldNetApi\ShieldNetApiController();
 	}
 
-	/**
-	 * @deprecated 18.3.1
-	 */
-	public function getDbH_ReportLogs() :DB\Reports\Ops\Handler {
-		return $this->getDbHandler()->loadDbH( 'reports' );
+	public function getWizardCon() :Lib\Merlin\MerlinController {
+		return $this->wizardCon ?? $this->wizardCon = new Lib\Merlin\MerlinController();
 	}
 
 	public function getDbH_Reports() :DB\Reports\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'reports' ) : $this->getDbHandler()->loadDbH( 'reports' );
+		return self::con()->db_con->loadDbH( 'reports' );
 	}
 
 	protected function doPostConstruction() {
@@ -81,11 +83,12 @@ class ModCon extends BaseShield\ModCon {
 		$this->declareWooHposCompat();
 	}
 
-	public function onWpLoaded() {
+	public function onWpInit() {
+		parent::onWpInit();
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
 		}
-		parent::onWpLoaded();
+		( new AssetsCustomizer() )->execute();
 	}
 
 	protected function setupCacheDir() {
@@ -118,6 +121,8 @@ class ModCon extends BaseShield\ModCon {
 
 	protected function enumRuleBuilders() :array {
 		return [
+			Shield\Modules\IPs\Rules\Build\IsPathWhitelisted::class, // this is place here as a hack, so it runs early
+			Rules\Build\RequestIsSiteBlockdownBlocked::class,
 			Rules\Build\RequestStatusIsAdmin::class,
 			Rules\Build\RequestStatusIsAjax::class,
 			Rules\Build\RequestStatusIsXmlRpc::class,
@@ -130,12 +135,6 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function preProcessOptions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		if ( $opts->getIpSource() === 'AUTO_DETECT_IP' ) {
-			$opts->setOpt( 'ipdetect_at', 0 );
-		}
-		( new Lib\Captcha\CheckCaptchaSettings() )->checkAll();
 	}
 
 	public function deleteAllPluginCrons() {
@@ -205,20 +204,6 @@ class ModCon extends BaseShield\ModCon {
 	 * This is the point where you would want to do any options verification
 	 */
 	public function doPrePluginOptionsSave() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		$this->storeRealInstallDate();
-
-		if ( $opts->isTrackingEnabled() && !$opts->isTrackingPermissionSet() ) {
-			$opts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
-		}
-
-		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
-		$this->cleanRecaptchaKey( 'google_recaptcha_secret_key' );
-
-		$this->cleanImportExportWhitelistUrls();
-		$this->cleanImportExportMasterImportUrl();
 	}
 
 	public function getFirstInstallDate() :int {
@@ -255,20 +240,6 @@ class ModCon extends BaseShield\ModCon {
 		return $finalDate;
 	}
 
-	/**
-	 * @param string $optionKey
-	 */
-	protected function cleanRecaptchaKey( $optionKey ) {
-		$opts = $this->opts();
-		$captchaKey = \trim( (string)$opts->getOpt( $optionKey, '' ) );
-		$spacePos = \strpos( $captchaKey, ' ' );
-		if ( $spacePos !== false ) {
-			$captchaKey = \substr( $captchaKey, 0, $spacePos + 1 ); // cut off the string if there's spaces
-		}
-		$captchaKey = \preg_replace( '#[^\da-zA-Z_-]#', '', $captchaKey ); // restrict character set
-		$opts->setOpt( $optionKey, $captchaKey );
-	}
-
 	public function getActivateLength() :int {
 		return Services::Request()->ts() - (int)$this->opts()->getOpt( 'activated_at', 0 );
 	}
@@ -277,26 +248,16 @@ class ModCon extends BaseShield\ModCon {
 		$this->opts()->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	private function cleanImportExportWhitelistUrls() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$cleaned = [];
-		$whitelist = $opts->getImportExportWhitelist();
-		foreach ( $whitelist as $url ) {
-
-			$url = Services::Data()->validateSimpleHttpUrl( $url );
-			if ( $url !== false ) {
-				$cleaned[] = $url;
-			}
-		}
-		$opts->setOpt( 'importexport_whitelist', \array_unique( $cleaned ) );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	private function cleanImportExportMasterImportUrl() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$url = Services::Data()->validateSimpleHttpUrl( $opts->getImportExportMasterImportUrl() );
-		$opts->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
 	public function runDailyCron() {
@@ -330,5 +291,12 @@ class ModCon extends BaseShield\ModCon {
 		/** @var Options $opts */
 		$opts = $this->opts();
 		return !$opts->isPluginGloballyDisabled();
+	}
+
+	/**
+	 * @param string $optionKey
+	 * @deprecated 18.5
+	 */
+	protected function cleanRecaptchaKey( $optionKey ) {
 	}
 }

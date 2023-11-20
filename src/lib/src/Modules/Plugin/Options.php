@@ -7,17 +7,43 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends BaseShield\Options {
 
-	public function getCaptchaConfig() :array {
-		return [
-			'provider' => $this->getOpt( 'captcha_provider', 'grecaptcha' ),
-			'key'      => $this->getOpt( 'google_recaptcha_site_key' ),
-			'secret'   => $this->getOpt( 'google_recaptcha_secret_key' ),
-			'theme'    => $this->getOpt( 'google_recaptcha_style' ),
-		];
+	public function preSave() :void {
+
+		if ( $this->getIpSource() === 'AUTO_DETECT_IP' ) {
+			$this->setOpt( 'ipdetect_at', 0 );
+		}
+
+		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
+			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		}
+
+		if ( $this->isOptChanged( 'importexport_whitelist' ) ) {
+			$this->setOpt( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
+				function ( $url ) {
+					return Services::Data()->validateSimpleHttpUrl( $url );
+				},
+				$this->getOpt( 'importexport_whitelist' )
+			) ) ) );
+		}
+
+		$url = Services::Data()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		$this->setOpt( 'importexport_masterurl', $url === false ? '' : $url );
 	}
 
 	public function getImportExportMasterImportUrl() :string {
 		return (string)$this->getOpt( 'importexport_masterurl', '' );
+	}
+
+	public function getBlockdownCfg() :Lib\SiteLockdown\SiteBlockdownCfg {
+		return ( new Lib\SiteLockdown\SiteBlockdownCfg() )->applyFromArray(
+			\array_merge( [
+				'activated_at' => 0,
+				'activated_by' => '',
+				'disabled_at'  => 0,
+				'exclusions'   => [],
+				'whitelist_me' => '',
+			], $this->getOpt( 'blockdown_cfg' ) )
+		);
 	}
 
 	/**
@@ -76,5 +102,17 @@ class Options extends BaseShield\Options {
 
 	public function setVisitorAddressSource( string $source ) {
 		$this->setOpt( 'visitor_address_source', $source );
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function getCaptchaConfig() :array {
+		return [
+			'provider' => '',
+			'key'      => '',
+			'secret'   => '',
+			'theme'    => '',
+		];
 	}
 }

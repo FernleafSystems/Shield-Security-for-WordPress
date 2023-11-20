@@ -7,6 +7,6 @@ class ReportingChartSummary extends ReportingChartBase {
 	public const SLUG = 'render_chart_summary';
 
 	protected function exec() {
-		$this->renderChart( $_POST );
+		$this->renderChart( $this->action_data );
 	}
 }

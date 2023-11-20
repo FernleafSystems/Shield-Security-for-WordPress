@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable\BuildTrafficTableData;
-use FernleafSystems\Wordpress\Services\Services;
 
 class TrafficLogTableAction extends BaseAction {
 
@@ -11,13 +10,13 @@ class TrafficLogTableAction extends BaseAction {
 
 	protected function exec() {
 		try {
-			$action = Services::Request()->post( 'sub_action' );
+			$action = $this->action_data[ 'sub_action' ];
 			switch ( $action ) {
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
 					break;
 				default:
-					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
+					throw new \Exception( 'Not a supported Traffic Log table sub_action: '.$action );
 			}
 		}
 		catch ( \Exception $e ) {
@@ -32,7 +31,7 @@ class TrafficLogTableAction extends BaseAction {
 
 	private function retrieveTableData() :array {
 		$builder = new BuildTrafficTableData();
-		$builder->table_data = Services::Request()->post( 'table_data', [] );
+		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),

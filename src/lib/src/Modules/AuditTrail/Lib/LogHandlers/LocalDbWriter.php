@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
+use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Logs\Ops as LogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\Meta\Ops as MetaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 use FernleafSystems\Wordpress\Services\Services;
-use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
 
 class LocalDbWriter extends AbstractProcessingHandler {
 
@@ -118,14 +118,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
 		// Create the underlying request log.
-		$reqLogger = self::con()
-						 ->getModule_Traffic()
-						 ->getRequestLogger();
-		/** @deprecated 18.3.2 - remove this check */
-		if ( !\method_exists( $reqLogger, 'createDependentLog' ) ) {
-			throw new \Exception( 'We appear to be upgrading, aborting log creation.' );
-		}
-		$reqLogger->createDependentLog();
+		self::con()
+			->getModule_Traffic()
+			->getRequestLogger()
+			->createDependentLog();
 
 		$record->req_ref = ( new ReqLogs\RequestRecords() )
 			->loadReq(

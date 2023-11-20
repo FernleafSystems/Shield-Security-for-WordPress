@@ -2,10 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\TrafficLogTableAction
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
@@ -28,9 +24,6 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 		/** @var Options $opts */
 		$opts = self::con()->getModule_Traffic()->opts();
 		return [
-			'ajax'    => [
-				'traffictable_action' => ActionData::BuildJson( TrafficLogTableAction::class ),
-			],
 			'flags'   => [
 				'is_enabled' => $opts->isTrafficLoggerEnabled(),
 			],
@@ -45,7 +38,7 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 				'inner_page_subtitle' => __( 'View and explore details of HTTP requests made to your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'datatables_init' => ( new ForTraffic() )->build()
+				'datatables_init' => ( new ForTraffic() )->build(),
 			],
 		];
 	}

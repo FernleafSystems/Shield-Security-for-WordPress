@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-class Processor extends Modules\BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	use ModConsumer;
 

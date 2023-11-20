@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.2.5
 Recommended PHP: 7.4
 Tested up to: 6.4
-Stable tag: 18.4.6
+Stable tag: 18.5.4
 
 Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, before they hack your site.
 
@@ -18,7 +18,11 @@ Bad Bots Are Your #1 Security Threat. Real security is stopping attackers dead, 
 
 ### Bad Bot Protection
 
-Bad bots are you're #1 security threat. They are responsible for all 99% of WordPress security probes, attacks, injections, malware and vulnerability exploitation. Bad bots are relentless, and never tire of probing your security defenses. Detecting them, and them blocking their access, is the key to powerful security that works. Prevention, when it comes to WordPress security, is cheaper, faster and much less stressful than **cure**
+Bad bots are you're #1 security threat. They account for 99.99% all WordPress security probes, attacks, injections, malware and vulnerability exploitation.
+
+Malicious bots can't be bargained with, can't be reasoned with; they don't feel pity or remorse or fear, and they absolutely will not stop.
+
+Detecting them, and them blocking their access, is the key to powerful security that works. Prevention, when it comes to WordPress security, is cheaper, faster and much less stressful than **cure**
 
 ### Comprehensive Activity Log Coverage
 

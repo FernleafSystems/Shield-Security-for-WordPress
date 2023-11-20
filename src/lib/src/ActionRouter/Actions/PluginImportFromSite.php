@@ -16,10 +16,9 @@ class PluginImportFromSite extends BaseAction {
 			'MasterSiteSecretKey' => '',
 		], FormParams::Retrieve() );
 
-		// TODO: align with wizard AND combine with file upload errors
 		if ( $formParams[ 'confirm' ] !== 'Y' ) {
 			$success = false;
-			$msg = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
+			$msg = __( 'Please check the box to confirm.', 'wp-simple-firewall' );
 		}
 		else {
 			$doNetwork = ( $formParams[ 'ShieldNetwork' ] === 'Y' ) ? true : ( ( $formParams[ 'ShieldNetwork' ] === 'N' ) ? false : null );
@@ -30,17 +29,18 @@ class PluginImportFromSite extends BaseAction {
 					$doNetwork
 				);
 				$success = true;
+				$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
 			}
 			catch ( \Exception $e ) {
 				$success = false;
+				$msg = $e->getMessage();
 			}
-
-			$msg = $success ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
 
 		$this->response()->action_response_data = [
-			'success' => $success,
-			'message' => $msg
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => $success,
 		];
 	}
 }

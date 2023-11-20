@@ -2,16 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-class IsPathWhitelisted extends BuildRuleCoreShieldBase {
+class IsPathWhitelisted extends BuildRuleIpsBase {
 
 	use RuleTraits\InstantExec;
 
@@ -41,7 +39,7 @@ class IsPathWhitelisted extends BuildRuleCoreShieldBase {
 	}
 
 	private function buildPaths() :array {
-		$homeUrlPath = (string)wp_parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH );
+		$homeUrlPath = (string)wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH );
 		if ( empty( $homeUrlPath ) ) {
 			$homeUrlPath = '/';
 		}

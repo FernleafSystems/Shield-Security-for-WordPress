@@ -4,6 +4,25 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
 class Options extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Options {
 
+	public function preSave() :void {
+		if ( $this->isOptChanged( 'xcsp_custom' ) ) {
+			$this->setOpt( 'xcsp_custom', \array_unique( \array_filter( \array_map(
+				function ( $rule ) {
+					$rule = \trim( \preg_replace( '#;|\s{2,}#', '', \html_entity_decode( $rule, \ENT_QUOTES ) ) );
+					if ( !empty( $rule ) ) {
+						$rule .= ';';
+					}
+					return $rule;
+				},
+				$this->getOpt( 'xcsp_custom', [] )
+			) ) ) );
+		}
+
+		if ( empty( $this->getOpt( 'xcsp_custom', [] ) ) ) {
+			$this->setOpt( 'enable_x_content_security_policy', 'N' );
+		}
+	}
+
 	public function getCspCustomRules() :array {
 		$csp = \is_array( $this->getOpt( 'xcsp_custom' ) ) ? $this->getOpt( 'xcsp_custom' ) : [];
 		$this->setOpt( 'xcsp_custom', \array_filter( \array_map( '\trim', $csp ) ) );

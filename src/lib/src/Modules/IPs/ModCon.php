@@ -35,22 +35,19 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function loadOffenseTracker() :Lib\OffenseTracker {
-		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker( self::con() );
+		return $this->offenseTracker ?? $this->offenseTracker = new Lib\OffenseTracker();
 	}
 
 	public function getDbH_BotSignal() :DB\BotSignal\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'botsignal' ) : $this->getDbHandler()->loadDbH( 'botsignal' );
+		return self::con()->db_con->loadDbH( 'botsignal' );
 	}
 
 	public function getDbH_IPRules() :DB\IpRules\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'ip_rules' ) : $this->getDbHandler()->loadDbH( 'ip_rules' );
+		return self::con()->db_con->loadDbH( 'ip_rules' );
 	}
 
 	public function getDbH_CrowdSecSignals() :DB\CrowdSecSignals\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'crowdsec_signals' ) : $this->getDbHandler()->loadDbH( 'crowdsec_signals' );
+		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
 	}
 
 	protected function enumRuleBuilders() :array {
@@ -75,13 +72,9 @@ class ModCon extends BaseShield\ModCon {
 		return $this->getDbH_IPRules()->isReady() && parent::isReadyToExecute();
 	}
 
-	public function preProcessOptions() {
+	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
-		if ( !\defined( \strtoupper( $opts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
-			$opts->resetOptToDefault( 'auto_expire' );
-		}
-
 		if ( $opts->isOptChanged( 'cs_block' ) && !$opts->isEnabledCrowdSecAutoBlock() ) {
 			/** @var DB\IpRules\Ops\Delete $deleter */
 			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
@@ -93,36 +86,14 @@ class ModCon extends BaseShield\ModCon {
 			$deleter = $this->getDbH_IPRules()->getQueryDeleter();
 			$deleter->filterByType( $this->getDbH_IPRules()::T_AUTO_BLOCK )->query();
 		}
-
-		$this->cleanPathWhitelist();
 	}
 
-	private function cleanPathWhitelist() {
-		$WP = Services::WpGeneral();
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$opts->setOpt( 'request_whitelist',
-			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
-				$opts->getOpt( 'request_whitelist', [] ),
-				\array_unique( \array_map(
-					function ( $url ) {
-						return (string)wp_parse_url( $url, PHP_URL_PATH );
-					},
-					[
-						'/',
-						$WP->getHomeUrl(),
-						$WP->getWpUrl(),
-						$WP->getAdminUrl( 'admin.php' ),
-					]
-				) ),
-				Shield\Modules\Base\Options\WildCardOptions::URL_PATH
-			)
-		);
-	}
-
+	/**
+	 * @deprecated 18.5
+	 */
 	public function canLinkCheese() :bool {
-		$isSplit = \trim( (string)parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ), '/' )
-				   !== \trim( (string)parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ), '/' );
+		$isSplit = \trim( (string)parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_PATH ), '/' )
+				   !== \trim( (string)parse_url( Services::WpGeneral()->getWpUrl(), \PHP_URL_PATH ), '/' );
 		return !Services::WpFs()->exists( path_join( ABSPATH, 'robots.txt' ) )
 			   && ( !$isSplit || !Services::WpFs()->exists( path_join( \dirname( ABSPATH ), 'robots.txt' ) ) );
 	}
@@ -149,5 +120,17 @@ class ModCon extends BaseShield\ModCon {
 	public function runDailyCron() {
 		parent::runDailyCron();
 		( new TableIndices( $this->getDbH_IPRules()->getTableSchema() ) )->applyFromSchema();
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	private function cleanPathWhitelist() {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function preProcessOptions() {
 	}
 }

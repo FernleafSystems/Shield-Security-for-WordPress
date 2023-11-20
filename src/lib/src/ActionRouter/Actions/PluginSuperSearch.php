@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
-use FernleafSystems\Wordpress\Services\Services;
 
 class PluginSuperSearch extends BaseAction {
 
@@ -12,7 +11,7 @@ class PluginSuperSearch extends BaseAction {
 	protected function exec() {
 		$this->response()->action_response_data = [
 			'success' => true,
-			'results' => ( new SelectSearchData() )->build( Services::Request()->request( 'search' ) ),
+			'results' => ( new SelectSearchData() )->build( $this->action_data[ 'search' ] ?? '' ),
 		];
 	}
 }

@@ -11,7 +11,7 @@ class Builder {
 
 	public function run() :array {
 		$rules = [];
-		foreach ( $this->getRuleBuilders() as $builder ) {
+		foreach ( ( new RuleBuilderEnumerator() )->run() as $builder ) {
 			$rule = $builder->build();
 			$rules[ $rule->slug ] = $rule;
 		}
@@ -29,6 +29,6 @@ class Builder {
 	 * @return BuildRuleBase[]
 	 */
 	private function getRuleBuilders() :array {
-		return \apply_filters( 'shield/collate_rule_builders', [] );
+		return ( new RuleBuilderEnumerator() )->run();
 	}
 }

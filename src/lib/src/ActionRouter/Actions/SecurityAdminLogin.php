@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Lib\Request\FormParams;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\QueryRemainingOffenses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\Ops\{
 	ToggleSecAdminStatus,
 	VerifyPinRequest
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityAdminLogin extends SecurityAdminBase {
 
@@ -22,12 +22,19 @@ class SecurityAdminLogin extends SecurityAdminBase {
 							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 		}
 		else {
-			$resp->success = ( new VerifyPinRequest() )->run( (string)Services::Request()->post( 'sec_admin_key' ) );
+			$pin = $this->action_data[ 'sec_admin_key' ] ?? '';
+			if ( empty( $pin ) ) {
+				$pin = FormParams::Retrieve()[ 'sec_admin_key' ] ?? '';
+			}
+			$resp->success = ( new VerifyPinRequest() )->run( $pin );
 
 			if ( $resp->success ) {
 				( new ToggleSecAdminStatus() )->turnOn();
-				$resp->message = __( 'Security Admin PIN Accepted.', 'wp-simple-firewall' )
-								 .' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
+				$resp->message = \implode( ' ', [
+					__( 'Security Admin PIN Accepted.', 'wp-simple-firewall' ),
+					__( 'Reloading', 'wp-simple-firewall' ),
+					'...'
+				] );
 			}
 			else {
 				$remaining = ( new QueryRemainingOffenses() )

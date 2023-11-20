@@ -1,0 +1,6 @@
+{% extends '/components/login_intent/login_field.twig' %}
+
+{% block login_field_input %}
+	{{ parent() }}
+	<input type="hidden" name="{{ field.hidden_input_name }}" value="">
+{% endblock %}

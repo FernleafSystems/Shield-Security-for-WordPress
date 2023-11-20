@@ -2,11 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\LicenseLookup;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\MainwpExtensionTableSites;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerActions\{
-	MainwpServerClientActionHandler,
 	SiteActionActivate,
 	SiteActionDeactivate,
 	SiteActionInstall,
@@ -38,9 +35,6 @@ class BaseSubPage extends BaseMWP {
 
 	protected function getCommonSubPageData() :array {
 		return [
-			'ajax'    => [
-				'actions' => $this->getAjaxActionsData(),
-			],
 			'vars'    => [
 				'menu_topnav'  => $this->getMenuTopNavItems(),
 				'site_actions' => \array_map(
@@ -97,7 +91,6 @@ class BaseSubPage extends BaseMWP {
 	 * @throws \Exception
 	 */
 	protected function buildEntireSiteData( array $site ) :array {
-		$WP = Services::WpGeneral();
 		$req = Services::Request();
 		$con = self::con();
 		$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
@@ -134,7 +127,7 @@ class BaseSubPage extends BaseMWP {
 
 		if ( $shd[ 'is_active' ] ) {
 
-			$shd[ 'sync_at_text' ] = $WP->getTimeStringForDisplay( $meta->sync_at );
+			$shd[ 'sync_at_text' ] = Services::WpGeneral()->getTimeStringForDisplay( $meta->sync_at );
 			$shd[ 'sync_at_diff' ] = $req->carbon()->setTimestamp( $meta->sync_at )->diffForHumans();
 
 			if ( empty( $sync->modules[ 'hack_protect' ][ 'scan_issues' ] ) ) {
@@ -197,13 +190,6 @@ class BaseSubPage extends BaseMWP {
 				'icon'    => 'list alternate outline',
 				'active'  => $this->getCurrentTab() === TabSitesListing::TAB,
 			]
-		];
-	}
-
-	protected function getAjaxActionsData() :array {
-		return [
-			'site_action' => ActionData::Build( MainwpServerClientActionHandler::class ),
-			'ext_table'   => ActionData::Build( MainwpExtensionTableSites::class ),
 		];
 	}
 

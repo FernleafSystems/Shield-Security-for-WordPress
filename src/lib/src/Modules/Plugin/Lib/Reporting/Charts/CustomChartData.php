@@ -10,10 +10,6 @@ class CustomChartData extends BaseBuildChartData {
 		/** @var CustomChartRequestVO $req */
 		$req = $this->getChartRequest();
 
-		if ( $req->render_location === static::LOCATION_SUMMARYCARD ) {
-			$req->interval = 'daily';
-		}
-
 		$theEvent = \current( $req->events );
 		$possibleEvents = \array_keys( self::con()->loadEventsService()->getEvents() );
 		switch ( $theEvent ) {

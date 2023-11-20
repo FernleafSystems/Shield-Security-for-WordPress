@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\U2F;
-use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.5
+ */
 class MfaU2fAdd extends MfaUserConfigBase {
 
 	public const SLUG = 'mfa_profile_u2f_add';
@@ -17,7 +19,7 @@ class MfaU2fAdd extends MfaUserConfigBase {
 		/** @var U2F $provider */
 		$provider = $available[ U2F::ProviderSlug() ];
 
-		$u2fReg = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
+		$u2fReg = $this->action_data[ 'icwp_wpsf_new_u2f_response' ] ?? '';
 		if ( empty( $u2fReg ) ) {
 			$response = [
 				'success'     => false,

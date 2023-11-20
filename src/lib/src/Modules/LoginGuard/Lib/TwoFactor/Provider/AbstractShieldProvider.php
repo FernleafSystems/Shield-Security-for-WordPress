@@ -8,7 +8,16 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	public function getJavascriptVars() :array {
-		return [];
+		return [
+			'flags'   => [
+				'is_available' => $this->isProviderAvailableToUser(),
+			],
+			'strings' => [
+				'err_no_label'        => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+				'err_invalid_label'   => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
+				'label_prompt_dialog' => __( 'Please provide a label to identify the device.', 'wp-simple-firewall' ),
+			]
+		];
 	}
 
 	/**
@@ -41,7 +50,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 		return $newSecret;
 	}
 
-	public function removeFromProfile() {
+	public function removeFromProfile() :void {
 		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = null;
 		$this->setProfileValidated( false );
 	}
@@ -55,11 +64,11 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	/**
-	 * @param string|array $secret
+	 * @param string|array $records
 	 * @return $this
 	 */
-	protected function setSecret( $secret ) {
-		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $secret;
+	protected function setSecret( $records ) {
+		self::con()->user_metas->for( $this->getUser() )->{static::ProviderSlug().'_secret'} = $records;
 		return $this;
 	}
 
@@ -72,11 +81,10 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @return $this
+	 * @return void
 	 */
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		self::con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
-		return $this;
 	}
 
 	protected function getUserProfileFormRenderData() :array {

@@ -21,7 +21,7 @@
 		<form id="FileScanMalaiQuery" autocomplete="off" method="post"
 			  action="#"
 			  enctype="multipart/form-data">
-			{% for input_name,input_value in vars.malai_query_nonce %}
+			{% for input_name,input_value in vars.form %}
 				<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
 			{% endfor %}
 

@@ -11,8 +11,9 @@ class LicenseClear extends LicenseBase {
 		$licHandler->deactivate( false );
 		$licHandler->clearLicense();
 		$this->response()->action_response_data = [
-			'success' => true,
-			'message' => __( 'ShieldPRO License Cleared', 'wp-simple-firewall' ),
+			'success'     => true,
+			'message'     => __( 'ShieldPRO License Cleared', 'wp-simple-firewall' ),
+			'page_reload' => true,
 		];
 	}
 }

@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	/**
 	 * @var array
@@ -437,7 +436,7 @@ class Processor extends BaseShield\Processor {
 
 		$body[] = __( 'Thank you.', 'wp-simple-firewall' );
 
-		( self::con()->email_con ? self::con()->email_con : $this->mod()->getEmailProcessor() )->sendEmailWithWrap(
+		self::con()->email_con->sendEmailWithWrap(
 			$this->opts()->getOpt( 'override_email_address' ),
 			sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) ),
 			$body

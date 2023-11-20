@@ -17,6 +17,10 @@ class SystemPhpVersion extends Base {
 		return 'https://shsec.io/helpshieldminimumrequirements';
 	}
 
+	protected function hrefFullTargetBlank() :bool {
+		return true;
+	}
+
 	public function title() :string {
 		return __( 'PHP Version', 'wp-simple-firewall' );
 	}

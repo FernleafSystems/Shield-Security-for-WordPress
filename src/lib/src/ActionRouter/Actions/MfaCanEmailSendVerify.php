@@ -13,7 +13,7 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 
 		if ( $opts->getOpt( 'email_can_send_verified_at' ) < 1 ) {
 			$opts->setOpt( 'email_can_send_verified_at', Services::Request()->ts() );
-			self::con()->getModule_LoginGuard()->saveModOptions();
+			self::con()->opts->store();
 			self::con()
 				->getAdminNotices()
 				->addFlash(

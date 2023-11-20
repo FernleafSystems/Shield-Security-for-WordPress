@@ -1,4 +1,129 @@
 {
+  "18.5": {
+    "version":     "18.5",
+    "released_at": 1700478000,
+    "hrefs":       {
+      "release": "https://shsec.io/shieldrelease185",
+      "upgrade": "https://shsec.io/shieldupgradeguide185"
+    },
+    "title":       "Smoother WordPress Two-Factor Authentication",
+    "description": [
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Passkey/WebAuthn/FIDO2 Support",
+        "description": [
+          "Seamless WordPress Two-Factor Authentication with support for all FIDO2-compliant devices and Passkeys."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Email 2FA Auto-Login",
+        "description": [
+          "Email 2FA option to provide automatic login links alongside 2FA codes."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    true,
+        "title":       "Site Lockdown",
+        "description": [
+          "You can now completely lockdown access to your site to prevent any access whatsoever.",
+          "All traffic will be met with a block page, except for IP addresses present on the bypass/whitelist."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "new",
+        "pro_only":    false,
+        "title":       "Export IP Rules",
+        "description": [
+          "Download all IP Rules as CSV."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Complete Javascript Rewrite",
+        "description": [
+          "All plugin Javascript code has been completely cleaned & rewritten."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Realtime Dashboard Updates",
+        "description": [
+          "The dashboard progress meters are automatically updated as settings are changed via Analysis tabs. Further improvements to come."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Bot Detection Javascript Improved",
+        "description": [
+          "NotBot JS javascript is more reliable and handles page caching nonce-staleness better."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Link-Cheese Honeypot Is Improved",
+        "description": [
+          "Some improvements have been made to the reliability of the Link-Cheese feature."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "User Sessions Management",
+        "description": [
+          "Users sessions table now uses our new UI."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Navigation Improvements",
+        "description": [
+          "Automatically selects the previously active navigation tab when page is reloaded."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "improved",
+        "pro_only":    false,
+        "title":       "Optimised Plugin Assets",
+        "description": [
+          "All plugin JS & CSS are optimised, built and packaged using Webpack."
+        ],
+        "href":        ""
+      },
+      {
+        "type":        "removed",
+        "pro_only":    false,
+        "title":       "Google reCAPTCHA and hCAPTHCA",
+        "description": [
+          "reCAPTCHA has been deprecated for over a year already and have finally been removed from the plugin.",
+          "Consider using Shield's own Antibot Detection Engine feature."
+        ],
+        "href":        ""
+      }
+    ],
+    "patches":     [
+    ]
+  },
   "18.4": {
     "version":     "18.4",
     "released_at": 1695730000,

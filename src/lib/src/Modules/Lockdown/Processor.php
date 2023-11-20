@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Processor extends BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	public function runDailyCron() {
 		( new Lib\CleanRubbish() )->execute();
@@ -33,15 +32,14 @@ class Processor extends BaseShield\Processor {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), self::con()
-																																  ->getHumanName() ),
+				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ),
+					self::con()->getHumanName() ),
 				[ 'status' => rest_authorization_required_code() ] );
 
-			self::con()
-				->fireEvent(
-					'block_anonymous_restapi',
-					[ 'audit_params' => [ 'namespace' => $namespace ] ]
-				);
+			self::con()->fireEvent(
+				'block_anonymous_restapi',
+				[ 'audit_params' => [ 'namespace' => $namespace ] ]
+			);
 		}
 
 		return $mStatus;

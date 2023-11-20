@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Yubikey;
-use FernleafSystems\Wordpress\Services\Services;
 
 class MfaYubikeyToggle extends MfaUserConfigBase {
 
@@ -15,12 +14,11 @@ class MfaYubikeyToggle extends MfaUserConfigBase {
 						->getModule_LoginGuard()
 						->getMfaController()
 						->getProvidersAvailableToUser( $this->getActiveWPUser() )[ Yubikey::ProviderSlug() ];
-		$result = $provider->toggleRegisteredYubiID( (string)Services::Request()->post( 'otp', '' ) );
+		$result = $provider->toggleRegisteredYubiID( $this->action_data[ 'otp' ] ?? '', $this->action_data[ 'label' ] ?? '' );
 
 		$this->response()->action_response_data = [
 			'success'     => $result->success,
 			'message'     => $result->success ? $result->msg_text : $result->error_text,
-			'page_reload' => true
 		];
 	}
 }

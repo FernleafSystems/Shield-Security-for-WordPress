@@ -2,18 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends BaseScans {
 
 	protected function getRenderData() :array {
 		return [
-			'ajax'    => [
-				'scanresults_action' => ActionData::BuildJson( ScanResultsTableAction::class ),
-			],
 			'strings' => [
 				'author'            => __( 'Author' ),
 				'version'           => __( 'Version' ),

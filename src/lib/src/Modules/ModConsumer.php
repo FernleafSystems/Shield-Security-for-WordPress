@@ -46,14 +46,6 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @return Modules\Base\Options
-	 * @deprecated 18.3.4
-	 */
-	public function getOptions() {
-		return $this->mod()->opts();
-	}
-
-	/**
 	 * @param Modules\Base\ModCon $mod
 	 * @return $this
 	 */

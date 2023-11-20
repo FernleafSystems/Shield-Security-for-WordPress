@@ -21,9 +21,6 @@ class UnblockMagicLink extends EmailBase {
 		$homeURL = $this->action_data[ 'home_url' ];
 
 		return [
-			'flags'   => [
-				'show_login_link' => !self::con()->isRelabelled()
-			],
 			'hrefs'   => [
 				'unblock' => $con->plugin_urls->noncedPluginAction(
 					IpAutoUnblockShieldUserLinkVerify::class,

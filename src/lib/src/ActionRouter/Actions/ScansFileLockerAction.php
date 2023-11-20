@@ -6,21 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
 	Accept,
 	Restore
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class ScansFileLockerAction extends ScansBase {
 
 	public const SLUG = 'filelocker_fileaction';
 
 	protected function exec() {
-		$req = Services::Request();
+		$reqData = $this->action_data;
 		$success = false;
 
-		if ( $req->post( 'confirmed' ) == '1' ) {
+		if ( $reqData[ 'confirmed' ] ?? false ) {
 			try {
-				$lock = self::con()->getModule_HackGuard()->getFileLocker()->getFileLock( (int)$req->post( 'rid' ) );
+				$lock = self::con()->getModule_HackGuard()->getFileLocker()->getFileLock( (int)$reqData[ 'rid' ] );
 
-				switch ( $req->post( 'file_action' ) ) {
+				switch ( $reqData[ 'file_action' ] ) {
 					case 'accept':
 						$success = ( new Accept() )->run( $lock );
 						break;
@@ -44,8 +43,9 @@ class ScansFileLockerAction extends ScansBase {
 		}
 
 		$this->response()->action_response_data = [
-			'success' => $success,
-			'message' => $msg,
+			'success'     => $success,
+			'message'     => $msg,
+			'page_reload' => $success,
 		];
 	}
 }

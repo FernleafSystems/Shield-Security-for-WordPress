@@ -19,6 +19,7 @@ class Afs extends Base {
 
 	protected function run() {
 		parent::run();
+
 		( new Scan\Utilities\PtgAddReinstallLinks() )
 			->setScanController( $this )
 			->execute();
@@ -99,12 +100,6 @@ class Afs extends Base {
 		$record->meta = $meta;
 
 		return $record;
-	}
-
-	/**
-	 * @deprecated 18.5
-	 */
-	public function onWpLoaded() {
 	}
 
 	public function runHourlyCron() {

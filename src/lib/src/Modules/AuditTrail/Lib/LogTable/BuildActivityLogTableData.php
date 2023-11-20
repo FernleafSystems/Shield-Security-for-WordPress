@@ -177,7 +177,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		return $content;
 	}
 
-	private function getColumnContent_User() :string {
+	protected function getColumnContent_User() :string {
 		$content = '-';
 		$uid = $this->log->meta_data[ 'uid' ] ?? '';
 		if ( !empty( $uid ) ) {

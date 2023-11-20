@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table\BuildIpRulesTableData;
-use FernleafSystems\Wordpress\Services\Services;
 
 class IpRulesTableAction extends BaseAction {
 
@@ -12,12 +11,12 @@ class IpRulesTableAction extends BaseAction {
 	protected function exec() {
 		$resp = $this->response();
 		try {
-			$action = Services::Request()->post( 'sub_action' );
+			$action = $this->action_data[ 'sub_action' ];
 			switch ( $action ) {
 
 				case 'retrieve_table_data':
 					$builder = new BuildIpRulesTableData();
-					$builder->table_data = Services::Request()->post( 'table_data', [] );
+					$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 					$response = [
 						'success'        => true,
 						'datatable_data' => $builder->build(),
@@ -25,7 +24,7 @@ class IpRulesTableAction extends BaseAction {
 					break;
 
 				default:
-					throw new \Exception( 'Not a supported Activity Log table sub_action: '.$action );
+					throw new \Exception( 'Not a supported IP Rules table sub_action: '.$action );
 			}
 		}
 		catch ( \Exception $e ) {

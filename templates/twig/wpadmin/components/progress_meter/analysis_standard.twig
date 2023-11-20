@@ -8,17 +8,19 @@
 			  </span>
 		  </h4>
 	  </div>
+
 	  <ul class="list-group">
 
 		  {% for slug,comp in vars.components %}
-			  {% set comp_href = comp.is_optcfg ? comp.href_offcanvas : comp.href_full %}
-			  {% if comp_href is empty %}
+			  {% if comp.href_full is empty %}
 				  <span
 			  {% else %}
-				  <a href="{{ comp_href }}"
-				  {% if comp.is_optcfg|default(false) or not component.href_full_target_blank %}{% else %}target="_blank"{% endif %}
+				  <a href="{{ comp.href_full }}"
+				  {% if comp.is_optcfg|default(false) or not comp.href_full_target_blank %}{% else %}target="_blank"{% endif %}
 			  {% endif %}
-			  class="meter-analysis-link list-group-item list-group-item-action
+			  data-config_item="{{ comp.config_item }}"
+			  class="list-group-item list-group-item-action meter-analysis-link
+				     {% if comp.is_optcfg %}offcanvas_form_mod_cfg{% endif %}
 				     {{ comp.is_critical|default(false) ? 'list-group-item-danger' : (comp.is_protected ? 'list-group-item-success' : 'list-group-item-warning') }}"
 			  aria-current="true">
 
@@ -47,7 +49,7 @@
 				  {{ comp.is_protected ? comp.desc_protected|default('NO DESCRIPTION') : comp.desc_unprotected|default('NO DESCRIPTION') }}
 			  </p>
 
-			  {% if comp_href is empty %}
+			  {% if comp.href_full is empty %}
 				  </span>
 			  {% else %}
 				  </a>

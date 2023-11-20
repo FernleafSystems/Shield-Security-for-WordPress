@@ -31,27 +31,10 @@ class ModCon extends BaseShield\ModCon {
 		];
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function preProcessOptions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-		$opts->setOpt( 'custom_exclusions', \array_filter( \array_map(
-			function ( $excl ) {
-				return \trim( esc_js( $excl ) );
-			},
-			$opts->getCustomExclusions()
-		) ) );
-
-		if ( $opts->isOpt( 'enable_limiter', 'Y' ) && !$opts->isTrafficLoggerEnabled() ) {
-			$opts->setOpt( 'enable_logger', 'Y' );
-			if ( $opts->getAutoCleanDays() === 0 ) {
-				$opts->resetOptToDefault( 'auto_clean' );
-			}
-		}
-
-		if ( $opts->isOpt( 'enable_live_log', 'Y' ) && !$opts->isTrafficLoggerEnabled() ) {
-			$opts->setOpt( 'enable_live_log', 'N' )
-				 ->setOpt( 'live_log_started_at', 0 );
-		}
 	}
 
 	protected function isReadyToExecute() :bool {

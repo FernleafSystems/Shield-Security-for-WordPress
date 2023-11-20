@@ -3,13 +3,26 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaBackupCodeAdd;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaBackupCodeDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	MfaBackupCodeAdd,
+	MfaBackupCodeDelete
+};
 use FernleafSystems\Wordpress\Services\Services;
 
-class BackupCodes extends AbstractShieldProvider {
+class BackupCodes extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'backupcode';
+
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacySecret = $meta->backupcode_secret;
+		if ( !empty( $legacySecret ) ) {
+			$this->removeFromProfile();
+			$this->createNewSecretRecord( $legacySecret, 'Backup Code' );
+			unset( $meta->backupcode_secret );
+			unset( $meta->backupcode_validated );
+		}
+	}
 
 	public function isProviderStandalone() :bool {
 		return false;
@@ -20,15 +33,23 @@ class BackupCodes extends AbstractShieldProvider {
 	}
 
 	public function getJavascriptVars() :array {
-		return [
-			'ajax' => [
-				'profile_backup_codes_gen' => ActionData::Build( MfaBackupCodeAdd::class ),
-				'profile_backup_codes_del' => ActionData::Build( MfaBackupCodeDelete::class ),
-			],
-		];
+		$record = \current( $this->loadMfaRecords() );
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getJavascriptVars(),
+			[
+				'ajax'  => [
+					'profile_backup_codes_gen' => ActionData::Build( MfaBackupCodeAdd::class ),
+					'profile_backup_codes_del' => ActionData::Build( MfaBackupCodeDelete::class ),
+				],
+				'flags' => [
+					'has_backup_code' => !empty( $record ),
+				],
+			]
+		);
 	}
 
 	protected function getUserProfileFormRenderData() :array {
+		$record = \current( $this->loadMfaRecords() );
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getUserProfileFormRenderData(),
 			[
@@ -48,8 +69,14 @@ class BackupCodes extends AbstractShieldProvider {
 					'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Backup Codes', 'wp-simple-firewall' ) ),
 					'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
 						self::con()->getHumanName() ),
-					'remove_more_info'      => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' )
-				]
+					'remove_more_info' => __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ),
+					'generated_at'     => sprintf( '%s: %s', __( 'Code Generated', 'wp-simple-firewall' ),
+						empty( $record ) ? '' : Services::Request()
+														->carbon()
+														->setTimestamp( $record->created_at )
+														->diffForHumans()
+					),
+				],
 			]
 		);
 	}
@@ -60,46 +87,45 @@ class BackupCodes extends AbstractShieldProvider {
 			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
 			'value'       => '',
-			'placeholder' => __( 'Please use your Backup Code to login.', 'wp-simple-firewall' ),
-			'text'        => __( 'Login Backup Code', 'wp-simple-firewall' ),
+			'placeholder' => __( 'Supply Backup Code', 'wp-simple-firewall' ),
+			'text'        => __( 'Backup Code', 'wp-simple-firewall' ),
 			'help_link'   => '',
+			'description' => __( "When you can't access your 2FA codes.", 'wp-simple-firewall' ),
 		];
 	}
 
-	public function hasValidatedProfile() :bool {
-		$this->setProfileValidated( $this->hasValidSecret() );
-		return parent::hasValidatedProfile();
-	}
-
-	public function postSuccessActions() {
+	public function postSuccessActions() :void {
 		parent::postSuccessActions();
-		$this->removeFromProfile();
 		$this->sendBackupCodeUsedEmail();
-		return $this;
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		return (bool)wp_check_password( \str_replace( '-', '', $otp ), $this->getSecret() );
+		$valid = false;
+		foreach ( $this->loadMfaRecords() as $loadMfaRecord ) {
+			if ( wp_check_password( \str_replace( '-', '', $otp ), $loadMfaRecord->unique_id ) ) {
+				$valid = true;
+				$this->mod()
+					 ->getDbH_Mfa()
+					 ->getQueryDeleter()
+					 ->deleteRecord( $loadMfaRecord );
+			}
+		}
+		return $valid;
 	}
 
-	/**
-	 * @return string
-	 */
-	protected function genNewSecret() {
-		return (string)wp_generate_password( 25, false );
+	protected function genNewSecret() :string {
+		return wp_generate_password( 25, false );
 	}
 
 	public function isProviderEnabled() :bool {
 		return $this->opts()->isOpt( 'allow_backupcodes', 'Y' );
 	}
 
-	/**
-	 * @param string $secret
-	 * @return $this
-	 */
-	protected function setSecret( $secret ) {
-		parent::setSecret( wp_hash_password( $secret ) );
-		return $this;
+	public function resetSecret() :string {
+		$this->removeFromProfile();
+		$temp = $this->genNewSecret();
+		$this->createNewSecretRecord( wp_hash_password( $temp ), 'Backup Code' );
+		return $temp;
 	}
 
 	private function sendBackupCodeUsedEmail() {

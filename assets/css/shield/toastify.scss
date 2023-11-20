@@ -1,0 +1,13 @@
+﻿@import "~toastify-js/src/toastify.css";
+/** https://apvarun.github.io/toastify-js/ */
+
+.shield-toastify {
+  font-size: 1.2rem;
+  padding: 20px 30px;
+}
+.shield-toastify.toastify-success {
+  background: linear-gradient(to right, rgb(0 128 0), rgb(61 160 83));
+}
+.shield-toastify.toastify-failure {
+  background: linear-gradient(to right, rgb(128 70 0), rgb(160 115 61));
+}

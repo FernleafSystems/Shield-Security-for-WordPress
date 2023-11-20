@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-
 abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
 
 	public const SLUG = '';

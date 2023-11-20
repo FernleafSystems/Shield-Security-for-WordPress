@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
+use AptowebDeps\Monolog\Logger;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
-use AptowebDeps\Monolog\Logger;
 
 class RequestLogger {
 
@@ -96,26 +96,5 @@ class RequestLogger {
 			Processors\UserMetaProcessor::class,
 			Processors\WpMetaProcessor::class,
 		];
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function isRequestToBeLogged() :bool {
-		return false;
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function isRequestTypeExcluded() :bool {
-		return true;
-	}
-
-	/**
-	 * @deprecated 18.3
-	 */
-	private function isCustomExcluded() :bool {
-		return true;
 	}
 }

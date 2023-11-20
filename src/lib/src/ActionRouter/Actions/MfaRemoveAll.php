@@ -30,8 +30,9 @@ class MfaRemoveAll extends MfaUserConfigBase {
 						  ->getMfaController()
 						  ->removeAllFactorsForUser( (int)$userID );
 			$response = [
-				'success' => $result->success,
-				'message' => $result->success ? $result->msg_text : $result->error_text,
+				'success'     => $result->success,
+				'message'     => $result->success ? $result->msg_text : $result->error_text,
+				'page_reload' => true,
 			];
 		}
 

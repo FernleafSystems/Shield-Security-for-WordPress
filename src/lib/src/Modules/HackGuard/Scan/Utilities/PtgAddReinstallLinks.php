@@ -37,39 +37,39 @@ class PtgAddReinstallLinks {
 			}
 		} );
 
-		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
-			$con = $this->getScanController()->con();
-			if ( $hook === 'plugins.php' && $con->this_req->is_security_admin ) {
-				$localz[] = [
-					'global-plugin',
-					'icwp_wpsf_vars_hp',
-					[
-						'ajax_plugin_reinstall' => ActionData::Build( PluginReinstall::class ),
-						'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
-						'strings'               => [
-							'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
-												 .'. '.__( 'Then Activate', 'wp-simple-firewall' ),
-							'okay_reinstall'  => sprintf( '%s, %s',
-								__( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
-							'activate_only'   => __( 'Activate Only', 'wp-simple-firewall' ),
-							'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
+		add_filter( 'shield/custom_localisations/components', function ( array $components, string $hook ) {
+			$components[ 'plugin_reinstall' ] = [
+				'key'      => 'plugin_reinstall',
+				'required' => $hook === 'plugins.php' && $this->getScanController()->con()->this_req->is_security_admin,
+				'handles'  => [
+					'wpadmin',
+				],
+				'data'     => function () {
+					return [
+						'ajax' => [
+							'plugin_reinstall' => ActionData::Build( PluginReinstall::class ),
+						],
+						'vars' => [
+							'reinstallable' => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
 						]
-					]
-				];
-			}
+					];
+				},
+			];
+			return $components;
+		}, 10, 2 );
+
+		/** @deprecated 18.5 */
+		add_filter( 'shield/custom_localisations', function ( array $localz, $hook ) {
 			return $localz;
 		}, 10, 2 );
 	}
 
 	private function addActionLinkRefresh( array $links, string $file ) :array {
-		$WPP = Services::WpPlugins();
-
-		$plugin = $WPP->getPluginAsVo( $file );
+		$plugin = Services::WpPlugins()->getPluginAsVo( $file );
 		if ( !empty( $plugin ) && $plugin->asset_type === 'plugin'
-			 && $plugin->isWpOrg() && !$WPP->isUpdateAvailable( $file ) ) {
+			 && $plugin->isWpOrg() && !Services::WpPlugins()->isUpdateAvailable( $file ) ) {
 			$links[ 'shield-reinstall' ] = sprintf( '<a href="javascript:void(0)">%s</a>', __( 'Re-Install', 'wp-simple-firewall' ) );
 		}
-
 		return $links;
 	}
 }

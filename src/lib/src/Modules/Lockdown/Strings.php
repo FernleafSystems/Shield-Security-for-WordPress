@@ -35,8 +35,7 @@ class Strings extends Base\Strings {
 
 			case 'section_enable_plugin_feature_wordpress_lockdown' :
 				$titleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->mod()
-																						->getMainFeatureName() );
+				$title = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->mod()->getMainFeatureName() );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Lockdown', 'wp-simple-firewall' ) ) )
@@ -45,29 +44,29 @@ class Strings extends Base\Strings {
 
 			case 'section_apixml' :
 				$title = __( 'API & XML-RPC', 'wp-simple-firewall' );
+				$titleShort = __( 'API & XML-RPC', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Lockdown certain core WordPress system features.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'This depends on your usage and needs for certain WordPress functions and features.', 'wp-simple-firewall' ) )
 				];
-				$titleShort = __( 'API & XML-RPC', 'wp-simple-firewall' );
 				break;
 
 			case 'section_permission_access_options' :
 				$title = __( 'Permissions and Access Options', 'wp-simple-firewall' );
+				$titleShort = __( 'Permissions', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control of certain WordPress permissions.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Only enable SSL if you have a valid certificate installed.', 'wp-simple-firewall' ) )
 				];
-				$titleShort = __( 'Permissions', 'wp-simple-firewall' );
 				break;
 
 			case 'section_wordpress_obscurity_options' :
 				$title = __( 'WordPress Obscurity Options', 'wp-simple-firewall' );
+				$titleShort = __( 'Obscurity', 'wp-simple-firewall' );
 				$summary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Obscures certain WordPress settings from public view.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Obscurity is not true security and so these settings are down to your personal tastes.', 'wp-simple-firewall' ) )
 				];
-				$titleShort = __( 'Obscurity', 'wp-simple-firewall' );
 				break;
 
 			default:

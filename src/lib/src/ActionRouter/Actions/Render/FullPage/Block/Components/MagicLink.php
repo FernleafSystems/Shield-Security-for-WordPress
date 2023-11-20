@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpAutoUnblockShieldUserLinkRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ActiveWpUserConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\AutoUnblock\AutoUnblockMagicLink;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,10 +26,7 @@ class MagicLink extends Base {
 				'ajaxurl' => Services::WpGeneral()->ajaxURL(),
 			],
 			'vars'    => [
-				'email'         => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
-				'nonce_unblock' => ActionData::BuildJson( IpAutoUnblockShieldUserLinkRequest::class, true, [
-					'ip' => self::con()->this_req->ip
-				] ),
+				'email'     => $available ? Obfuscate::Email( $this->getActiveWPUser()->user_email ) : '',
 			],
 			'strings' => [
 				'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),

@@ -2,12 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ModCon extends BaseShield\ModCon {
+class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ModCon {
 
 	public const SLUG = 'hack_protect';
 
@@ -48,41 +46,34 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getDbH_FileLocker() :DB\FileLocker\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'file_locker' ) : $this->getDbHandler()->loadDbH( 'file_locker' );
+		return self::con()->db_con->loadDbH( 'file_locker' );
 	}
 
 	public function getDbH_Malware() :DB\Malware\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'malware' ) : $this->getDbHandler()->loadDbH( 'malware' );
+		return self::con()->db_con->loadDbH( 'malware' );
 	}
 
 	public function getDbH_Scans() :DB\Scans\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'scans' ) : $this->getDbHandler()->loadDbH( 'scans' );
+		return self::con()->db_con->loadDbH( 'scans' );
 	}
 
 	public function getDbH_ScanItems() :DB\ScanItems\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'scanitems' ) : $this->getDbHandler()->loadDbH( 'scanitems' );
+		return self::con()->db_con->loadDbH( 'scanitems' );
 	}
 
 	public function getDbH_ResultItems() :DB\ResultItems\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'resultitems' ) : $this->getDbHandler()->loadDbH( 'resultitems' );
+		return self::con()->db_con->loadDbH( 'resultitems' );
 	}
 
 	public function getDbH_ResultItemMeta() :DB\ResultItemMeta\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'resultitem_meta' ) : $this->getDbHandler()->loadDbH( 'resultitem_meta' );
+		return self::con()->db_con->loadDbH( 'resultitem_meta' );
 	}
 
 	public function getDbH_ScanResults() :DB\ScanResults\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'scanresults' ) : $this->getDbHandler()->loadDbH( 'scanresults' );
+		return self::con()->db_con->loadDbH( 'scanresults' );
 	}
 
-	public function preProcessOptions() {
+	public function onConfigChanged() :void {
 		/** @var Options $opts */
 		$opts = $this->opts();
 
@@ -90,19 +81,21 @@ class ModCon extends BaseShield\ModCon {
 			$this->getScansCon()->deleteCron();
 		}
 
-		$lockFiles = $opts->getFilesToLock();
-		if ( !empty( $lockFiles ) ) {
-			if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
-				unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
-				$opts->setOpt( 'file_locker', $lockFiles );
-			}
+		if ( $opts->isOptChanged( 'file_locker' ) ) {
+			$lockFiles = $opts->getFilesToLock();
+			if ( !empty( $lockFiles ) ) {
+				if ( \in_array( 'root_webconfig', $lockFiles ) && !Services::Data()->isWindows() ) {
+					unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles ) ] );
+					$opts->setOpt( 'file_locker', $lockFiles );
+				}
 
-			if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
-																 ->getModule_Plugin()
-																 ->getShieldNetApiController()
-																 ->canHandshake() ) {
-				$opts->setOpt( 'file_locker', [] );
-				$this->getFileLocker()->purge();
+				if ( \count( $opts->getFilesToLock() ) === 0 || !self::con()
+																	 ->getModule_Plugin()
+																	 ->getShieldNetApiController()
+																	 ->canHandshake() ) {
+					$opts->setOpt( 'file_locker', [] );
+					$this->getFileLocker()->purge();
+				}
 			}
 		}
 
@@ -111,31 +104,6 @@ class ModCon extends BaseShield\ModCon {
 				$con->purge();
 			}
 		}
-
-		$this->cleanScanExclusions();
-	}
-
-	private function cleanScanExclusions() {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
-		$specialDirs = \array_map( 'trailingslashit', [
-			ABSPATH,
-			path_join( ABSPATH, 'wp-admin' ),
-			path_join( ABSPATH, 'wp-includes' ),
-			untrailingslashit( WP_CONTENT_DIR ),
-			path_join( WP_CONTENT_DIR, 'plugins' ),
-			path_join( WP_CONTENT_DIR, 'themes' ),
-		] );
-
-		$values = $opts->getOpt( 'scan_path_exclusions', [] );
-		$opts->setOpt( 'scan_path_exclusions',
-			( new Shield\Modules\Base\Options\WildCardOptions() )->clean(
-				\is_array( $values ) ? $values : [],
-				$specialDirs,
-				Shield\Modules\Base\Options\WildCardOptions::FILE_PATH_REL
-			)
-		);
 	}
 
 	protected function setCustomCronSchedules() {
@@ -174,10 +142,21 @@ class ModCon extends BaseShield\ModCon {
 
 		$carbon = Services::Request()->carbon();
 		if ( $carbon->isSunday() ) {
-			( new Shield\Scans\Afs\Processing\FileScanOptimiser() )
-				->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
+			( new FileScanOptimiser() )->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		}
 
 		( new Lib\Utility\CleanOutOldGuardFiles() )->execute();
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	private function cleanScanExclusions() {
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function preProcessOptions() {
 	}
 }

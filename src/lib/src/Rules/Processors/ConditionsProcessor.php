@@ -89,7 +89,7 @@ class ConditionsProcessor extends BaseProcessor {
 	 */
 	private function lookupPreviousRule( string $rule ) :bool {
 		$result = $this->rulesCon->getRule( $rule )->result;
-		if ( is_null( $result ) ) {
+		if ( \is_null( $result ) ) {
 			throw new RuleNotYetRunException( 'Rule not yet run: '.$rule );
 		}
 		return $result;

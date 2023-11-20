@@ -20,8 +20,7 @@ class SetSecAdminPin {
 		}
 
 		$this->opts()->setOpt( 'admin_access_key', \md5( $pin ) );
-		$this->mod()
-			 ->setIsMainFeatureEnabled( true )
-			 ->saveModOptions();
+		$this->mod()->setIsMainFeatureEnabled( true );
+		self::con()->opts->store();
 	}
 }

@@ -9,6 +9,12 @@
 	{# Note: When customizing this template, always output the variable below: body.vars.code #}
 	<p>{{ body.strings.verification }}: <strong>{{ body.vars.code }}</strong></p>
 
+	{% if body.flags.can_auto_login|default(false) %}
+		<p>{{ body.strings.auto_login }}:
+			<br /><a href="{{ body.hrefs.auto_login|raw }}" target="_blank">{{ body.hrefs.auto_login|raw }}</a>
+		</p>
+	{% endif %}
+
 	<p><strong>{{ body.strings.details_heading }}</strong></p>
 	<ul>
 		<li>{{ body.strings.details_url }}</li>
@@ -16,7 +22,4 @@
 		<li>{{ body.strings.details_ip }}</li>
 	</ul>
 
-	{% if body.flags.show_login_link %}
-		<a href="{{ body.hrefs.login_link }}" target="_blank">{{ body.strings.login_link }}</a>
-	{% endif %}
 {% endblock %}

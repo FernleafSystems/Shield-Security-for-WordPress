@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class IpAnalyseAction extends BaseAction {
@@ -12,7 +11,7 @@ class IpAnalyseAction extends BaseAction {
 	public const SLUG = 'ip_analyse_action';
 
 	protected function exec() {
-		$ip = Services::Request()->post( 'ip' );
+		$ip = $this->action_data[ 'ip' ];
 
 		try {
 			[ $ipKey, $ipName ] = ( new IpID( $ip ) )->run();
@@ -32,7 +31,7 @@ class IpAnalyseAction extends BaseAction {
 		else {
 			$ruleStatus = new IpRules\IpRuleStatus( $ip );
 
-			switch ( Services::Request()->post( 'ip_action' ) ) {
+			switch ( $this->action_data[ 'ip_action' ] ) {
 
 				case 'reset_offenses':
 					try {

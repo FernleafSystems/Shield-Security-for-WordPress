@@ -14,21 +14,23 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string          $ip_id
  * @property bool            $is_force_off
  * @property bool            $is_security_admin
- * @property bool            $is_trusted_bot
- * @property bool            $is_ip_blocked
- * @property bool            $is_ip_blocked_crowdsec
- * @property bool            $is_ip_blocked_shield
- * @property bool            $is_ip_blocked_shield_auto
- * @property bool            $is_ip_blocked_shield_manual
- * @property bool            $is_ip_blacklisted
- * @property bool            $is_ip_whitelisted
- * @property bool            $is_server_loopback
- * @property bool            $request_bypasses_all_restrictions
- * @property bool            $wp_is_admin
- * @property bool            $wp_is_networkadmin
- * @property bool            $wp_is_ajax
- * @property bool            $wp_is_wpcli
- * @property bool            $wp_is_xmlrpc
+ * @property bool $is_trusted_bot
+ * @property bool $is_ip_blocked
+ * @property bool $is_ip_blocked_crowdsec
+ * @property bool $is_ip_blocked_shield
+ * @property bool $is_ip_blocked_shield_auto
+ * @property bool $is_ip_blocked_shield_manual
+ * @property bool $is_ip_blacklisted
+ * @property bool $is_ip_whitelisted
+ * @property bool $is_server_loopback
+ * @property bool $request_bypasses_all_restrictions
+ * @property bool $is_site_lockdown_active
+ * @property bool $is_site_lockdown_blocked
+ * @property bool $wp_is_admin
+ * @property bool $wp_is_networkadmin
+ * @property bool $wp_is_ajax
+ * @property bool $wp_is_wpcli
+ * @property bool $wp_is_xmlrpc
  */
 class ThisRequest extends DynPropertiesClass {
 

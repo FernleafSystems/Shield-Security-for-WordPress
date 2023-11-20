@@ -75,9 +75,9 @@
       ]
     },
     {
-      "slug":        "section_2fa_ga",
-      "title":       "Google Authenticator Two-Factor Authentication",
-      "title_short": "2FA - Google Authenticator",
+      "slug":        "section_2fa_otp",
+      "title":       "One-Time Passwords",
+      "title_short": "OTP",
       "beacon_id":   244,
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.",
@@ -86,7 +86,7 @@
       ]
     },
     {
-      "slug":        "section_hardware_authentication",
+      "slug":        "section_2fa_passkeys",
       "title":       "Hardware 2-Factor Authentication",
       "title_short": "2FA - Hardware",
       "beacon_id":   249,
@@ -247,7 +247,7 @@
     },
     {
       "key":         "enable_google_authenticator",
-      "section":     "section_2fa_ga",
+      "section":     "section_2fa_otp",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/shld7",
@@ -256,6 +256,44 @@
       "name":        "Enable Google Authenticator",
       "summary":     "Allow Users To Use Google Authenticator",
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
+    },
+    {
+      "key":         "enable_yubikey",
+      "section":     "section_2fa_otp",
+      "default":     "N",
+      "type":        "checkbox",
+      "beacon_id":   358,
+      "link_info":   "https://shsec.io/4f",
+      "link_blog":   "https://shsec.io/9t",
+      "name":        "Allow Yubikey OTP",
+      "summary":     "Allow Yubikey Registration For One Time Passwords",
+      "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
+    },
+    {
+      "key":         "yubikey_app_id",
+      "section":     "section_2fa_otp",
+      "sensitive":   true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://shsec.io/4g",
+      "link_blog":   "",
+      "beacon_id":   360,
+      "name":        "Yubikey App ID",
+      "summary":     "Your Unique Yubikey App ID",
+      "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
+    },
+    {
+      "key":         "yubikey_api_key",
+      "section":     "section_2fa_otp",
+      "sensitive":   true,
+      "default":     "",
+      "type":        "text",
+      "link_info":   "https://shsec.io/4g",
+      "link_blog":   "",
+      "beacon_id":   360,
+      "name":        "Yubikey API Key",
+      "summary":     "Your Unique Yubikey App API Key",
+      "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
     },
     {
       "key":         "enable_sms_auth",
@@ -281,6 +319,20 @@
       "name":        "Enable Email Authentication",
       "summary":     "Two-Factor Login Authentication By Email",
       "description": "All users will be required to verify their login by email-based two-factor authentication."
+    },
+    {
+      "key":         "enable_email_auto_login",
+      "section":     "section_2fa_email",
+      "premium":     true,
+      "cap":         "2fa_webauthn",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/3t",
+      "link_blog":   "https://shsec.io/9q",
+      "beacon_id":   247,
+      "name":        "Email Auto-Login",
+      "summary":     "Enable Email Auto-Login Links",
+      "description": "2FA Email will contain an auto-login link so the user doesn't need to enter 2FA code manually."
     },
     {
       "key":         "two_factor_auth_user_roles",
@@ -384,40 +436,6 @@
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {
-      "key":           "enable_google_recaptcha_login",
-      "section":       "section_deprecated",
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
-        {
-          "value_key": "default",
-          "text":      "Default Style"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible"
-        }
-      ],
-      "link_info":     "https://shsec.io/9m",
-      "link_blog":     "",
-      "beacon_id":     269,
-      "name":          "CAPTCHA",
-      "summary":       "Enable CAPTCHA",
-      "description":   "Use CAPTCHA on the login screen."
-    },
-    {
       "key":         "antibot_form_ids",
       "section":     "section_deprecated",
       "advanced":    true,
@@ -432,56 +450,18 @@
       "description": "For Use With AnitBot JS (above)."
     },
     {
-      "key":         "enable_u2f",
-      "section":     "section_hardware_authentication",
+      "key":         "enable_passkeys",
+      "section":     "section_2fa_passkeys",
       "premium":     true,
-      "cap":         "2fa_u2f",
+      "cap":         "2fa_webauthn",
       "default":     "N",
       "type":        "checkbox",
-      "beacon_id":   757,
+      "beacon_id":   763,
       "link_info":   "",
       "link_blog":   "https://shsec.io/i9",
-      "name":        "Allow U2F",
-      "summary":     "Allow Registration Of U2F Devices",
-      "description": "Allow Registration Of U2F Devices."
-    },
-    {
-      "key":         "enable_yubikey",
-      "section":     "section_hardware_authentication",
-      "default":     "N",
-      "type":        "checkbox",
-      "beacon_id":   358,
-      "link_info":   "https://shsec.io/4f",
-      "link_blog":   "https://shsec.io/9t",
-      "name":        "Allow Yubikey OTP",
-      "summary":     "Allow Yubikey Registration For One Time Passwords",
-      "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
-    },
-    {
-      "key":         "yubikey_app_id",
-      "section":     "section_hardware_authentication",
-      "sensitive":   true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/4g",
-      "link_blog":   "",
-      "beacon_id":   360,
-      "name":        "Yubikey App ID",
-      "summary":     "Your Unique Yubikey App ID",
-      "description": "Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication."
-    },
-    {
-      "key":         "yubikey_api_key",
-      "section":     "section_hardware_authentication",
-      "sensitive":   true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/4g",
-      "link_blog":   "",
-      "beacon_id":   360,
-      "name":        "Yubikey API Key",
-      "summary":     "Your Unique Yubikey App API Key",
-      "description": "Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication."
+      "name":        "Enable Passkeys",
+      "summary":     "Allow Registration Of Passkeys",
+      "description": "Allow Registration Of Passkeys."
     },
     {
       "key":         "text_imahuman",
@@ -529,6 +509,56 @@
   "definitions":   {
     "login_intent_timeout":      5,
     "login_intent_max_attempts": 5,
+    "db_handler_classes":        {
+      "mfa": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\LoginGuard\\DB\\Mfa\\Ops\\Handler"
+    },
+    "db_table_mfa":              {
+      "name":            "MFA",
+      "slug":            "mfa",
+      "autoexpire":      0,
+      "has_updated_at":  true,
+      "has_deleted_at":  true,
+      "col_older_than":  "created_at",
+      "cols_custom":     {
+        "user_id":   {
+          "macro_type": "unsigned_int",
+          "type":       "bigint",
+          "length":     11
+        },
+        "slug":      {
+          "macro_type": "varchar",
+          "length":     10,
+          "comment":    "Factor Slug"
+        },
+        "unique_id": {
+          "macro_type": "varchar",
+          "length":     256,
+          "comment":    "Unique Identifier"
+        },
+        "label":     {
+          "macro_type": "varchar",
+          "length":     64,
+          "comment":    "Label"
+        },
+        "data":      {
+          "macro_type": "meta",
+          "comment":    "Data"
+        },
+        "passwordless": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "Can be used passwordless"
+        }
+      },
+      "cols_timestamps": {
+        "used_at":    {
+          "comment": "Used At"
+        },
+        "created_at": {
+          "comment": "Registered At"
+        }
+      }
+    },
     "events":                    {
       "2fa_verify_success":    {
         "audit_params": [

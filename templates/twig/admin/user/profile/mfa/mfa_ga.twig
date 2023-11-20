@@ -1,46 +1,30 @@
-<style>
-	#shield_ga_secret {
-	  letter-spacing: 5px;
-	  font-family: monospace;
-	  font-size: 24px;
-	  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
-	  border: 1px solid rgba(0, 0, 0, 0.1);
-	  padding: 0 7px;
-	  background-color: whitesmoke;
-  }
-  #shield_gacode {
-	  text-align: center;
-	  width: 350px
-  }
-</style>
-
 {% if flags.is_profile_active %}
-
 	<tr>
 		<th>
 			<label for="shield_turn_off_ga" class="form-label">{{ strings.label_check_to_remove }}</label>
 		</th>
 		<td>
-			<button type="button" class="button"
-			        name="shield_turn_off_ga" id="shield_ga_remove"
+			<button type="button" class="button shield_ga_remove"
+			        name="shield_turn_off_ga"
 			>{{ strings.remove_google_auth }}</button>
+			<p style="margin-bottom: 0;">{{ strings.generated_at }}</p>
 			{% if flags.show_explanatory_text %}
 				<p class="description">{{ strings.desc_remove }}</p>
 			{% endif %}
 		</td>
 	</tr>
-
 {% else %}
-
 	<tr>
-		<th><label for="shield_gacode" class="form-label">{{ strings.title }}</label></th>
-		<td>
-			<div style="width: 350px; margin-bottom: 8px; text-align: center" id="SvgQrCode"></div>
-			<div style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;" id="shield_ga_secret">{{ vars.ga_secret }}</div>
+		<th><label for="ShieldGaCode" class="form-label">{{ strings.title }}</label></th>
+		<td style="text-align: center;">
+			<canvas style="margin-bottom: 8px;" class="shield-SvgQrCode" data-qr_url="{{ vars.qr_url }}"></canvas>
+			<div class="shield_ga_secret"
+				 style="width: fit-content; text-align: center; padding: 8px 4px; margin: 7px auto;"
+				 id="shield_ga_secret">{{ vars.secret }}</div>
 
-			<input class="regular-text"
+			<input class="regular-text shield_gacode"
 			       type="text"
-			       id="shield_gacode"
+			       id="ShieldGaCode"
 			       name="{{ vars.otp_field_name }}"
 			       placeholder="{{ strings.enter_auth_app_code }}"
 			       value="" autocomplete="off" />
@@ -54,5 +38,4 @@
 			{% endif %}
 		</td>
 	</tr>
-
 {% endif %}

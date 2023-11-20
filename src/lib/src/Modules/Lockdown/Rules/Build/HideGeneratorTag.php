@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
-	Responses
+	Responses,
+	WPHooksOrder
 };
 
-class HideGeneratorTag extends BuildRuleCoreShieldBase {
+class HideGeneratorTag extends BuildRuleLockdownBase {
 
 	public const SLUG = 'shield/hide_generator_tag';
 
@@ -21,7 +21,7 @@ class HideGeneratorTag extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getWpHookLevel() :int {
-		return Shield\Rules\WPHooksOrder::WP;
+		return WPHooksOrder::WP;
 	}
 
 	protected function getConditions() :array {
@@ -29,7 +29,7 @@ class HideGeneratorTag extends BuildRuleCoreShieldBase {
 			'logic' => static::LOGIC_AND,
 			'group' => [
 				[
-					'rule'         => Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions::SLUG,
+					'rule'         => RequestBypassesAllRestrictions::SLUG,
 					'invert_match' => true
 				],
 			]

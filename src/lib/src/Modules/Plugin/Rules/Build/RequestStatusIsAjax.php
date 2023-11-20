@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Conditions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\WpIsAjax;
 
 class RequestStatusIsAjax extends RequestStatusBase {
 
@@ -20,7 +17,7 @@ class RequestStatusIsAjax extends RequestStatusBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'condition' => Conditions\WpIsAjax::SLUG,
+					'condition' => WpIsAjax::SLUG,
 				],
 			]
 		];

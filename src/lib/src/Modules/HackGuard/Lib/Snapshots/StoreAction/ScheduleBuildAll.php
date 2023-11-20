@@ -81,10 +81,4 @@ class ScheduleBuildAll extends BaseExec {
 			}
 		);
 	}
-
-	/**
-	 * @deprecated 18.4.2
-	 */
-	public function schedule() {
-	}
 }

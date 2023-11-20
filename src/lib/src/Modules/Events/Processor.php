@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
-class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\Processor {
+class Processor extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Processor {
 
 	protected function run() {
 		( new Lib\StatsWriter() )->setIfCommit( true );

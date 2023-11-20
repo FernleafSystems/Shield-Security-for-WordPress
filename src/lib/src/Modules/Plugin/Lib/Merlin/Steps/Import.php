@@ -41,7 +41,7 @@ class Import extends Base {
 		$opts->setOpt( 'transgression_limit', $offenses );
 		$opts->setOpt( 'auto_expire', $blockLength );
 		$opts->setOpt( 'cs_block', $csBlock === 'Y' ? 'block_with_unblock' : 'disabled' );
-		$mod->saveModOptions();
+		self::con()->opts->store();
 
 		$resp = parent::processStepFormSubmit( $form );
 		$resp->success = true;

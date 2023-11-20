@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogTable\BuildActivityLogTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\GetRequestMeta;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ActivityLogTableAction extends BaseAction {
 
@@ -12,7 +11,7 @@ class ActivityLogTableAction extends BaseAction {
 
 	protected function exec() {
 		try {
-			$action = Services::Request()->post( 'sub_action' );
+			$action = $this->action_data[ 'sub_action' ];
 			switch ( $action ) {
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();
@@ -37,7 +36,7 @@ class ActivityLogTableAction extends BaseAction {
 
 	private function retrieveTableData() :array {
 		$builder = new BuildActivityLogTableData();
-		$builder->table_data = (array)Services::Request()->post( 'table_data', [] );
+		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),
@@ -50,7 +49,7 @@ class ActivityLogTableAction extends BaseAction {
 	private function getRequestMeta() :array {
 		return [
 			'success' => true,
-			'html'    => ( new GetRequestMeta() )->retrieve( (string)Services::Request()->post( 'rid' ) )
+			'html' => ( new GetRequestMeta() )->retrieve( $this->action_data[ 'rid' ] ?? '' )
 		];
 	}
 }

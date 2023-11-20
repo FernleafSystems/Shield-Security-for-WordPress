@@ -49,7 +49,7 @@ class HandleOptionsSaveRequest {
 	}
 
 	private function getForm() :array {
-		return $this->form ?? $this->form = FormParams::Retrieve( FormParams::ENC_BASE64 );
+		return $this->form ?? $this->form = FormParams::Retrieve();
 	}
 
 	/**
@@ -126,6 +126,6 @@ class HandleOptionsSaveRequest {
 				->save( $form );
 		}
 
-		$this->mod->saveModOptions( true );
+		self::con()->opts->store();
 	}
 }

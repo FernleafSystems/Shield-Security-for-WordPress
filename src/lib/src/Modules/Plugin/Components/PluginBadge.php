@@ -14,23 +14,31 @@ class PluginBadge {
 
 	protected function run() {
 
-		$display = apply_filters( 'shield/show_security_badge',
-			$this->opts()->isOpt( 'display_plugin_badge', 'Y' )
-			&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
-		);
-
-		if ( $display ) {
-			add_action( 'wp_enqueue_scripts', [ $this, 'includeJquery' ] );
-			add_action( 'login_enqueue_scripts', [ $this, 'includeJquery' ] );
-			add_action( 'wp_footer', [ $this, 'printPluginBadge' ], 100 );
-			add_action( 'login_footer', [ $this, 'printPluginBadge' ], 100 );
-		}
+		$this->floatingBadge();
 
 		add_action( 'widgets_init', [ $this, 'addPluginBadgeWidget' ] );
 
 		add_shortcode( 'SHIELD_BADGE', function () {
 			$this->render();
 		} );
+	}
+
+	private function floatingBadge() {
+		if ( !Services::WpGeneral()->isAjax() && !( is_admin() || is_network_admin() ) ) {
+
+			$display = apply_filters( 'shield/show_security_badge',
+				$this->opts()->isOpt( 'display_plugin_badge', 'Y' )
+				&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
+			);
+
+			if ( $display ) {
+				add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
+					return \array_merge( $assets, [ 'badge' ] );
+				} );
+				add_action( 'wp_footer', [ $this, 'printPluginBadge' ], 100 );
+				add_action( 'login_footer', [ $this, 'printPluginBadge' ], 100 );
+			}
+		}
 	}
 
 	/**
@@ -46,6 +54,9 @@ class PluginBadge {
 		return self::con()->prefix( 'badgeState' );
 	}
 
+	/**
+	 * @deprecated 18.5
+	 */
 	public function includeJquery() {
 		wp_enqueue_script( 'jquery', null, [], false, true );
 	}

@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Conditions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\WpIsXmlrpc;
 
 class RequestStatusIsXmlRpc extends RequestStatusBase {
 
@@ -20,7 +17,7 @@ class RequestStatusIsXmlRpc extends RequestStatusBase {
 			'logic' => static::LOGIC_OR,
 			'group' => [
 				[
-					'condition' => Conditions\WpIsXmlrpc::SLUG,
+					'condition' => WpIsXmlrpc::SLUG,
 				],
 			]
 		];

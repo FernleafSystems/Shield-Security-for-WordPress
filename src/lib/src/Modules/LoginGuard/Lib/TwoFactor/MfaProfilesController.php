@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,7 +24,8 @@ class MfaProfilesController {
 		// shortcode for placing user authentication handling anywhere
 		if ( self::con()->isPremiumActive() ) {
 			add_shortcode( 'SHIELD_USER_PROFILE_MFA', function ( $attributes ) {
-				return $this->renderUserProfileMFA( \is_array( $attributes ) ? $attributes : [] );
+				$this->rendered = true;
+				return '<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container"><p>Loading ...</p></div>';
 			} );
 		}
 
@@ -82,63 +82,63 @@ class MfaProfilesController {
 
 	private function enqueueAssets( bool $isFrontend ) {
 		$this->isFrontend = $isFrontend;
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues, $hook = '' ) {
+
+		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook = '' ) {
 
 			$isPageWithProfileDisplay = \preg_match( '#^(profile\.php|user-edit\.php|[a-z_\-]+shield-login-security)$#', (string)$hook );
 			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
-				$enqueues[ Enqueue::JS ][] = 'shield/userprofile';
-				$enqueues[ Enqueue::CSS ][] = 'shield/dialog';
-				$enqueues[ Enqueue::CSS ][] = 'shield/userprofile';
+				$assets[] = 'userprofile';
 
 				add_filter( 'shield/custom_dequeues', function ( $assets ) {
 					if ( !$this->rendered ) {
-						$assets[ Enqueue::JS ][] = 'shield/userprofile';
-						$assets[ Enqueue::CSS ][] = 'shield/dialog';
-						$assets[ Enqueue::CSS ][] = 'shield/userprofile';
+						$assets[] = 'userprofile';
 					}
 					return $assets;
 				} );
 
-				add_filter( 'shield/custom_localisations', function ( array $localz ) {
-					$user = Services::WpUsers()->getCurrentWpUser();
-					$providers = $user instanceof \WP_User ?
-						$this->mod()->getMfaController()->getProvidersAvailableToUser( $user ) : [];
-					$localz[] = [
-						'shield/userprofile',
-						'shield_vars_userprofile',
-						[
-							'ajax'    => [
-								'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
-							],
-							'vars'    => [
-								'providers' => \array_map( function ( $provider ) {
-									return $provider->getJavascriptVars();
-								}, $providers )
-							],
-							'strings' => [
-								'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
-							],
-						]
+				add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+					$components[ 'userprofile' ] = [
+						'key'     => 'userprofile',
+						'handles' => [
+							'userprofile',
+						],
+						'data'    => function () {
+							$user = Services::WpUsers()->getCurrentWpUser();
+							$providers = $user instanceof \WP_User ?
+								$this->mod()->getMfaController()->getProvidersAvailableToUser( $user ) : [];
+							return [
+								'ajax'    => [
+									'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
+									'render_profile' => ActionData::BuildAjaxRender( Actions\Render\Components\UserMfa\ConfigForm::class ),
+								],
+								'vars'    => [
+									'providers' => \array_map( function ( $provider ) {
+										return $provider->getJavascriptVars();
+									}, $providers )
+								],
+								'strings' => [
+									'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
+								],
+							];
+						},
 					];
+					return $components;
+				} );
+
+				/**
+				 * @deprecated 18.5
+				 */
+				add_filter( 'shield/custom_localisations', function ( array $localz ) {
 					return $localz;
 				} );
 			}
 
-			return $enqueues;
+			return $assets;
 		}, 10, $this->isFrontend ? 1 : 2 );
 	}
 
-	public function renderUserProfileMFA( array $attributes = [] ) :string {
+	public function renderUserProfileMFA() :string {
 		$this->rendered = true;
-		return self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigForm::SLUG,
-			\array_merge(
-				[
-					'title'    => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
-					'subtitle' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ),
-						self::con()->getHumanName() )
-				],
-				$attributes
-			)
-		);
+		return '<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container"><p>Loading ...</p></div>';
 	}
 }

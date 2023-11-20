@@ -1,0 +1,30 @@
+#ShieldUserProfileMFA {
+	margin-top: 1em;
+}
+#ShieldUserProfileMFA th {
+	text-align: left;
+	vertical-align: top;
+	padding: 20px 10px 20px 0;
+	width: 200px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+#ShieldUserProfileMFA td {
+	vertical-align: top;
+  padding: 20px 0;
+}
+
+.shield_ga_secret {
+  letter-spacing: 5px;
+  font-family: monospace;
+  font-size: 24px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0 7px;
+  background-color: whitesmoke;
+}
+
+.shield_gacode {
+  text-align: center;
+  width: 350px
+}

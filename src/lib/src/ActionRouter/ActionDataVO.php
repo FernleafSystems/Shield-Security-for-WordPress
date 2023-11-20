@@ -4,12 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property string|BaseAction $action
  * @property array             $aux
  * @property bool              $is_ajax
  * @property bool              $ip_in_nonce
+ * @property bool              $is_rest
  * @property bool              $unique
  * @property array             $excluded_fields
  */
@@ -43,6 +45,11 @@ class ActionDataVO extends DynPropertiesClass {
 			case 'unique':
 				if ( !\is_bool( $val ) ) {
 					$val = false;
+				}
+				break;
+			case 'is_rest':
+				if ( !\is_bool( $val ) ) {
+					$val = $this->is_ajax && Services::WpUsers()->isUserLoggedIn();
 				}
 				break;
 

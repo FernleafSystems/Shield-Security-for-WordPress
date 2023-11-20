@@ -11,8 +11,6 @@ class BaseBuildChartData {
 	use ModConsumer;
 	use ChartRequestConsumer;
 
-	public const LOCATION_SUMMARYCARD = 'insights-overview-statcard';
-
 	/**
 	 * @var array
 	 */

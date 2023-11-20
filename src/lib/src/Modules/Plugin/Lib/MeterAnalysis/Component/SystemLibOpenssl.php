@@ -16,6 +16,10 @@ class SystemLibOpenssl extends Base {
 		return 'https://www.openssl.org/news/vulnerabilities.html';
 	}
 
+	protected function hrefFullTargetBlank() :bool {
+		return true;
+	}
+
 	protected function isApplicable() :bool {
 		return \function_exists( '\curl_version' ) && \in_array( 'openssl', get_loaded_extensions() );
 	}

@@ -14,7 +14,6 @@ class PluginNavs {
 	public const FIELD_NAV = 'nav';
 	public const FIELD_SUBNAV = 'nav_sub';
 	public const NAV_ACTIVITY = 'activity';
-	public const SUBNAV_ACTIVITY_LOG = 'log';
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
 	public const NAV_LICENSE = 'license';
@@ -33,26 +32,20 @@ class PluginNavs {
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
 	public const NAV_TRAFFIC = 'traffic';
-	public const SUBNAV_TRAFFIC_LOG = 'log';
 	public const SUBNAV_LIVE = 'live';
 	public const NAV_TOOLS = 'tools';
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
 	public const SUBNAV_TOOLS_DOCS = 'docs';
+	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
 	public const SUBNAV_LOGS = 'logs';
-	/** @deprecated 18.3 */
-	public const NAV_OVERVIEW = 'overview';
-	public const NAV_IMPORT_EXPORT = 'importexport';
-	public const NAV_SCANS_RESULTS = 'scans_results';
-	public const NAV_SCANS_RUN = 'scans_run';
-	public const NAV_USER_SESSIONS = 'users';
-	public const NAV_RULES_VIEW = 'rules';
-	public const SUBNAV_REPORTS_CHARTS = 'charts';
-	public const SUBNAV_REPORTS_STATS = 'stats';
+	/** @deprecated 18.5 */
+	public const SUBNAV_ACTIVITY_LOG = 'log';
+	public const SUBNAV_TRAFFIC_LOG = 'log';
 
 	public static function GetNav() :string {
 		return (string)Services::Request()->query( self::FIELD_NAV );
@@ -60,6 +53,10 @@ class PluginNavs {
 
 	public static function GetSubNav() :string {
 		return (string)Services::Request()->query( self::FIELD_SUBNAV );
+	}
+
+	public static function IsNavs( string $nav, string $subNav ) :bool {
+		return self::GetNav() === $nav && self::GetSubNav() === $subNav;
 	}
 
 	public static function GetAllNavs() :array {
@@ -94,10 +91,7 @@ class PluginNavs {
 				self::NAV_ACTIVITY       => [
 					'name'     => __( 'Activity', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_ACTIVITY_LOG => [
-							'handler' => PluginAdminPages\PageActivityLogTable::class,
-						],
-						self::SUBNAV_LOGS => [
+						self::SUBNAV_LOGS         => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
 					],
@@ -178,6 +172,9 @@ class PluginNavs {
 				self::NAV_TOOLS          => [
 					'name'     => __( 'Tools', 'wp-simple-firewall' ),
 					'sub_navs' => [
+						self::SUBNAV_TOOLS_BLOCKDOWN => [
+							'handler' => PluginAdminPages\PageToolLockdown::class,
+						],
 						self::SUBNAV_TOOLS_SESSIONS => [
 							'handler' => PluginAdminPages\PageUserSessions::class,
 						],
@@ -195,13 +192,10 @@ class PluginNavs {
 				self::NAV_TRAFFIC        => [
 					'name'     => __( 'Traffic', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_TRAFFIC_LOG => [
-							'handler' => PluginAdminPages\PageTrafficLogTable::class,
-						],
 						self::SUBNAV_LOGS => [
 							'handler' => PluginAdminPages\PageTrafficLogTable::class,
 						],
-						self::SUBNAV_LIVE        => [
+						self::SUBNAV_LIVE => [
 							'handler' => PluginAdminPages\PageTrafficLogLive::class,
 						],
 					],

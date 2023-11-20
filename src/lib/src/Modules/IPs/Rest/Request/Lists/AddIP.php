@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rest\Request\Lists
 
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModCon;
 
 class AddIP extends Base {
 

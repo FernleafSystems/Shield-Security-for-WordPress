@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallBlock extends Base {
@@ -77,13 +77,15 @@ class FirewallBlock extends Base {
 		}
 		$blockMeta[ 'firewall_rule_name' ] = $ruleName;
 
-		return $con->email_con->send(
-			$con->getModule_Plugin()->getPluginReportEmail(),
-			__( 'Firewall Block Alert', 'wp-simple-firewall' ),
-			$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
-				'ip'         => $con->this_req->ip,
-				'block_meta' => $blockMeta
-			] )
+		return $con->email_con->sendVO(
+			EmailVO::Factory(
+				$con->getModule_Plugin()->getPluginReportEmail(),
+				__( 'Firewall Block Alert', 'wp-simple-firewall' ),
+				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
+					'ip'         => $con->this_req->ip,
+					'block_meta' => $blockMeta
+				] )
+			)
 		);
 	}
 }

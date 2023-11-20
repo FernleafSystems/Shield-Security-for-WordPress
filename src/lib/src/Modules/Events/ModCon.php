@@ -7,8 +7,7 @@ class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield
 	public const SLUG = 'events';
 
 	public function getDbH_Events() :DB\Event\Ops\Handler {
-		return self::con()->db_con ?
-			self::con()->db_con->loadDbH( 'event' ) : $this->getDbHandler()->loadDbH( 'event' );
+		return self::con()->db_con->loadDbH( 'event' );
 	}
 
 	/**

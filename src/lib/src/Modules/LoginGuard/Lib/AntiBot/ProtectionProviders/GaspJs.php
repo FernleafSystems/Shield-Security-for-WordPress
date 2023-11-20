@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Services\Services;
 
 class GaspJs extends BaseProtectionProvider {
@@ -16,35 +15,18 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	public function enqueueJS() {
-		add_filter( 'shield/custom_enqueues', function ( array $enqueues ) {
-			$enqueues[ Enqueue::JS ][] = 'shield/loginbot';
 
+		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
+			$assets[] = 'login_guard';
+
+			/**
+			 * @deprecated 18.5
+			 */
 			add_filter( 'shield/custom_localisations', function ( array $localz ) {
-				$mod = $this->mod();
-				$opts = $this->opts();
-
-				$localz[] = [
-					'shield/loginbot',
-					'icwp_wpsf_vars_lpantibot',
-					[
-						'form_selectors' => \implode( ',', $opts->getAntiBotFormSelectors() ),
-						'uniq'           => \preg_replace( '#[^\da-zA-Z]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-						'cbname'         => $mod->getGaspKey(),
-						'strings'        => [
-							'label'   => $mod->getTextImAHuman(),
-							'alert'   => $mod->getTextPleaseCheckBox(),
-							'loading' => __( 'Loading', 'wp-simple-firewall' )
-						],
-						'flags'          => [
-							'gasp'    => $opts->isEnabledGaspCheck(),
-							'captcha' => $mod->isEnabledCaptcha(),
-						]
-					]
-				];
 				return $localz;
 			} );
 
-			return $enqueues;
+			return $assets;
 		} );
 	}
 

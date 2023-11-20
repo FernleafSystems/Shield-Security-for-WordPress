@@ -10,6 +10,7 @@ class LoginIntentFormWpReplica extends BaseForm {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
+				'button_cancel' => __( 'Cancel', 'wp-simple-firewall' ),
 				'button_submit' => __( 'Complete Login', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

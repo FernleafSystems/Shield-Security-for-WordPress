@@ -6,16 +6,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
 class Options extends BaseShield\Options {
 
+	public function preSave() :void {
+		if ( $this->isOptChanged( 'trusted_user_roles' ) ) {
+			$this->setOpt( 'trusted_user_roles',
+				\array_unique( \array_filter( \array_map(
+					function ( $role ) {
+						return sanitize_key( \strtolower( $role ) );
+					},
+					$this->getTrustedRoles()
+				) ) )
+			);
+		}
+	}
+
 	public function getApprovedMinimum() :int {
 		return (int)$this->getOpt( 'trusted_commenter_minimum', 1 );
 	}
 
 	public function getHumanSpamFilterItems() :array {
 		$default = $this->getOptDefault( 'human_spam_items' );
-		$items = apply_filters(
-			self::con()->prefix( 'human_spam_items' ),
-			$this->getOpt( 'human_spam_items', [] )
-		);
+		$items = apply_filters( self::con()->prefix( 'human_spam_items' ), $this->getOpt( 'human_spam_items', [] ) );
 		return \is_array( $items ) ? \array_intersect( $default, $items ) : $default;
 	}
 

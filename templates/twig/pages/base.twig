@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html
-{% for htmlattr, htmlattrval in head.html %} {{ htmlattr }}="{{ htmlattrval }}"{% endfor %}>
+<html {% for htmlattr, htmlattrval in head.html %} {{ htmlattr }}="{{ htmlattrval }}"{% endfor %}>
 
 {% block head %}
 	<head>
@@ -24,14 +23,16 @@
 		{% block head_inline_styles %}
 			<style>
 				body {
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		}
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				}
 			</style>
 		{% endblock %}
 
-		{% block head_scripts %}
-			{% for headscript_key,headscript in head.scripts|default([]) %}
-				<script id="{{ headscript.id }}-js" type="text/javascript" src="{{ headscript.src }}"></script>
+		{% block scripts_head %}
+			{% for script_key,script in head.scripts|default([]) %}
+				{% if not script.footer|default(false) %}
+					<script id="{{ script.id }}-js" type="text/javascript" src="{{ script.src }}"></script>
+				{% endif %}
 			{% endfor %}
 		{% endblock %}
 
@@ -81,6 +82,24 @@
 	</main>
 
 	{% block pre_body_close %}
+	{% endblock %}
+
+	{% block scripts_footer %}
+		{% for script_key,script in head.scripts|default([]) %}
+			{% if script.footer|default(false) %}
+				<script id="{{ script.id }}-js" type="text/javascript" src="{{ script.src }}"></script>
+			{% endif %}
+		{% endfor %}
+	{% endblock %}
+
+	{% block inline_js %}
+		{% if vars.inline_js|default([]) is not empty %}
+			<script type="text/javascript">
+				{% for ijs in vars.inline_js %}
+				{{ ijs|raw }}
+				{% endfor %}
+			</script>
+		{% endif %}
 	{% endblock %}
 	</body>
 {% endblock %}

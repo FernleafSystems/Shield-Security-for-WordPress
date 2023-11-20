@@ -15,7 +15,7 @@ abstract class EventsListener {
 	private $commit;
 
 	/**
-	 * @param ?Controller\Controller $con - @deprecated 18.1
+	 * @param ?Controller\Controller $con - @deprecated 18.4
 	 */
 	public function __construct( ?Controller\Controller $con = null, bool $commit = false ) {
 		$this->commit = $commit;

@@ -1,0 +1,42 @@
+<div class="d-none shield_loading_placeholder shield_loading_placeholder_config">
+	<div class="row border-bottom mb-3">
+		<div class="col">
+				<div class="load-wrapper mb-2" style="height: 35px; width: 200px;"><div class="activity"></div></div>
+				<div class="load-wrapper mb-2" style="height: 25px; width: 300px;"><div class="activity"></div></div>
+		</div>
+
+		<div class="col-2 text-end inner-page-config">
+			<div class="btn-group dropstart">
+				<div class="load-wrapper mb-2" style="height: 40px; width: 40px;"><div class="activity"></div></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<div class="load-wrapper mb-3 w-50" style="height: 30px;"><div class="activity"></div></div>
+			<div class="load-wrapper mb-5 w-25" style="height: 30px;"><div class="activity"></div></div>
+		</div>
+	</div>
+
+	{% for i in 0..3 %}
+		<div class="row mb-3">
+			<div class="col-2" style="height: 140px;">
+				<div class="load-wrapper {{ random(['w-100','w-75']) }}" style="height: 20px;"><div class="activity"></div></div>
+			</div>
+			<div class="col-4" style="height: 140px;">
+				<div class="w-100 mb-1">
+					<div class="load-wrapper d-inline-block" style="width: 20px; height: 20px;"><div class="activity"></div></div>
+					<div class="load-wrapper w-75 d-inline-block" style="height: 20px;"><div class="activity"></div></div>
+				</div>
+				<div class="load-wrapper w-50" style="height: 20px;"><div class="activity"></div></div>
+			</div>
+			<div class="col" style="height: 140px;">
+				{% for i in 0..4 %}
+					<div class="load-wrapper mb-1 {{ random(['w-100','w-75','w-50']) }}" style="height: 20px;"><div class="activity"></div></div>
+				{% endfor %}
+			</div>
+		</div>
+	{% endfor %}
+
+</div>

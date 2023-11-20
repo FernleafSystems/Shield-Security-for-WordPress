@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\DismissAdminNotice,
 	Actions\Render\BaseRender,
 	Actions\Traits\SecurityAdminNotRequired
 };
@@ -32,13 +30,8 @@ class AdminNotice extends BaseRender {
 		$data[ 'notice_classes' ][] = 'notice-'.$notice->id;
 		$data[ 'notice_classes' ] = \implode( ' ', \array_unique( $data[ 'notice_classes' ] ) );
 
-		$data[ 'unique_render_id' ] = uniqid( (string)$notice->id );
+		$data[ 'unique_render_id' ] = \uniqid( (string)$notice->id );
 		$data[ 'notice_id' ] = $notice->id;
-
-		$data[ 'ajax' ][ 'dismiss_admin_notice' ] = ActionData::BuildJson( DismissAdminNotice::class, true, [
-			'notice_id' => $notice->id,
-			'hide'      => 1,
-		] );
 
 		return $data;
 	}

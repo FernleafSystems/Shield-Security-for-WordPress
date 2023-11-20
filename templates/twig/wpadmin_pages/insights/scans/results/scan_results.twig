@@ -1,7 +1,9 @@
-<ul class="nav nav-tabs insights-sub-nav" id="ScanResultsTabsNav" role="tablist">
+<ul class="nav nav-tabs shield_body-sub-nav" id="ScanResultsTabsNav" role="tablist">
 
 	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-wordpress-tab" data-bs-toggle="tab" href="#h-tabs-wordpress"
+		<a class="nav-link active" id="h-tabs-wordpress-tab"
+		   data-bs-toggle="tab"
+		   data-bs-target="#h-tabs-wordpress"
 		   role="tab" aria-controls="h-tabs-wordpress">
 			WordPress
 			{% if vars.sections.wordpress.count > 0 %}
@@ -13,7 +15,10 @@
 	</li>
 
 	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-plugins-tab" data-bs-toggle="tab" href="#h-tabs-plugins"
+		<a class="nav-link"
+		   id="h-tabs-plugins-tab"
+		   data-bs-toggle="tab"
+		   data-bs-target="#h-tabs-plugins"
 		   role="tab" aria-controls="h-tabs-plugins">
 			Plugins
 			{% if vars.sections.plugins.count > 0 %}
@@ -85,25 +90,8 @@
 		{{ content.section.malware|raw }}
 	</div>
 
-{#	<div class="tab-pane" id="h-tabs-log" role="tabpanel"#}
-{#		 aria-labelledby="h-tabs-log-tab">#}
-{#		{{ content.section.logs|raw }}#}
-{#	</div>#}
-
 	<div class="tab-pane show" id="h-tabs-file_locker" role="tabpanel"
 		 aria-labelledby="h-tabs-file_locker-tab">
 		{{ content.section.filelocker|raw }}
 	</div>
 </div>
-
-<script>
-	(function ( $ ) {
-		$( document ).ready( function () {
-			$( '.nav-vertical a[data-bs-toggle="tab"]' ).on( 'shown.bs.tab', function ( evt ) {
-				console.log();
-				let target = document.querySelector( evt.currentTarget.getAttribute( 'href' ) );
-				window.scrollTo( { top: 0, behavior: 'smooth' } )
-			} );
-		} );
-	})( jQuery );
-</script>

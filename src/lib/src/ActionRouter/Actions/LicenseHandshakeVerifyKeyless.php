@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
-use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandshakeVerifyKeyless extends LicenseBase {
 
@@ -13,7 +12,7 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 	public const SLUG = 'keyless_handshake';
 
 	protected function exec() {
-		$nonce = Services::Request()->query( 'nonce' );
+		$nonce = $this->action_data[ 'nonce' ] ?? '';
 		if ( !empty( $nonce ) ) {
 			die( \json_encode( [
 				'success' => ( new HandshakingNonce() )->verify( $nonce )

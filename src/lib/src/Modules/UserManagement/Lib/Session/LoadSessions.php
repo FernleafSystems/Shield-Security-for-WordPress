@@ -2,14 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\UserMeta\Ops\Select;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LoadSessions {
-
-	use ModConsumer;
+class LoadSessions extends SessionsBase {
 
 	/**
 	 * @var array[]
@@ -71,9 +66,6 @@ class LoadSessions {
 						if ( Services::Request()->ts() <= $session[ 'expiration' ] && !empty( $session[ 'shield' ] ) ) {
 							$this->sessions[ $UID ][] = $session;
 						}
-//						else {
-//							error_log( var_export( $session, true ) );
-//						}
 					}
 					$this->sessions = \array_filter( $this->sessions );
 				}
@@ -85,34 +77,8 @@ class LoadSessions {
 				}
 
 				$page++;
-
 			} while ( true );
 		}
 		return $this->sessions;
-	}
-
-	private function queryUserMetaForIDs( int $page ) :array {
-		// Select the most recently active based on updated Shield User Meta
-		/** @var Select $metaSelect */
-		$metaSelect = self::con()
-						  ->getModule_Data()
-						  ->getDbH_UserMeta()
-						  ->getQuerySelector();
-		if ( !empty( $this->userID ) ) {
-			$metaSelect->filterByUser( $this->userID );
-		}
-		$results = $metaSelect->setResultsAsVo( false )
-							  ->setSelectResultsFormat( ARRAY_A )
-							  ->setColumnsToSelect( [ 'user_id' ] )
-							  ->setOrderBy( 'updated_at' )
-							  ->setPage( $page )
-							  ->setLimit( 200 )
-							  ->queryWithResult();
-		return \array_map(
-			function ( $res ) {
-				return (int)$res[ 'user_id' ];
-			},
-			\is_array( $results ) ? $results : []
-		);
 	}
 }

@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	PluginBadgeClose,
 	Render\BaseRender,
 	Traits\AuthNotRequired
 };
@@ -64,9 +62,6 @@ class RenderPluginBadge extends BaseRender {
 		}
 
 		return [
-			'ajax'    => [
-				'plugin_badge_close' => ActionData::BuildJson( PluginBadgeClose::class ),
-			],
 			'content' => [
 				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
 			],

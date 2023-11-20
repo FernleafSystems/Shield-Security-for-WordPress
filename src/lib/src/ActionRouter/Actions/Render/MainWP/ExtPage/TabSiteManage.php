@@ -17,8 +17,6 @@ class TabSiteManage extends BaseSubPage {
 	protected function getRenderData() :array {
 		$con = self::con();
 		$mwp = $con->mwpVO;
-		$WP = Services::WpGeneral();
-		$req = Services::Request();
 
 		return [
 			'hrefs'   => [
@@ -56,7 +54,7 @@ class TabSiteManage extends BaseSubPage {
 	}
 
 	protected function getActiveSiteID() :int {
-		return (int)Services::Request()->query( 'site_id' );
+		return (int)$this->action_data[ 'site_id' ] ?? 0;
 	}
 
 	protected function getMenuTopNavItems() :array {

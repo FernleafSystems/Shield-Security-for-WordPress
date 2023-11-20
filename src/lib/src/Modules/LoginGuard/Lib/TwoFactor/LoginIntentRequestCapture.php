@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\FullPage\Mfa\WpReplicaLoginIntentPage,
 	Exceptions\ActionException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\{
 	CouldNotValidate2FA,
 	InvalidLoginIntentException,
@@ -20,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exc
 	OtpVerificationFailedException,
 	TooManyAttemptsException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LoginIntentRequestCapture {
@@ -152,14 +152,7 @@ class LoginIntentRequestCapture {
 			}
 			else {
 				$con->getAdminNotices()
-					->addFlash(
-						\implode( ' ', [
-							__( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ),
-							__( 'Thank you for authenticating your login.', 'wp-simple-firewall' ),
-							__( "To use a backup code again to login, you'll need to create it in your user profile.", 'wp-simple-firewall' )
-						] ),
-						$this->user
-					);
+					->addFlash( __( 'Two-Factor Authentication Success!', 'wp-simple-firewall' ), $this->user );
 			}
 
 			$redirect = $req->request( 'redirect_to', false, $req->getPath() );

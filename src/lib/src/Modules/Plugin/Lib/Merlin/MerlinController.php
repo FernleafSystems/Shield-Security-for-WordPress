@@ -2,16 +2,31 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 
 class MerlinController {
 
-	use Shield\Modules\PluginControllerConsumer;
+	use ExecOnce;
+	use ModConsumer;
+
+	protected function canRun() :bool {
+		return PluginNavs::GetNav() === PluginNavs::NAV_WIZARD;
+	}
+
+	protected function run() {
+		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook ) {
+			$assets[] = 'shield/tp/vimeo_player';
+			return $assets;
+		}, 10, 2 );
+	}
 
 	/**
 	 * @throws \Exception
 	 */
-	public function processFormSubmit( array $form ) :Shield\Utilities\Response {
+	public function processFormSubmit( array $form ) :Response {
 		$step = $form[ 'step_slug' ] ?? '';
 		if ( empty( $step ) ) {
 			throw new \Exception( 'No step configured for this form' );

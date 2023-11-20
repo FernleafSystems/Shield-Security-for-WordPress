@@ -51,4 +51,11 @@ abstract class RouteBase extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Rou
 		}
 		return $isShield;
 	}
+
+	/**
+	 * The entire REST API is available to cap:level_2 only, but the licenses endpoints are cap:level_1.
+	 */
+	public function isRouteAvailable() :bool {
+		return self::con()->caps->canRestAPILevel2();
+	}
 }

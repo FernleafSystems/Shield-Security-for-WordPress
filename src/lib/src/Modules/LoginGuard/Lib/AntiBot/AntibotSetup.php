@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
@@ -18,7 +17,6 @@ class AntibotSetup {
 	}
 
 	protected function run() {
-		$mod = $this->mod();
 		$opts = $this->opts();
 
 		$providers = [];
@@ -26,20 +24,8 @@ class AntibotSetup {
 			$providers[] = new AntiBot\ProtectionProviders\CoolDown();
 		}
 
-		if ( !$opts->isEnabledAntiBot() ) {
-			if ( $opts->isEnabledGaspCheck() ) {
-				$providers[] = new AntiBot\ProtectionProviders\GaspJs();
-			}
-
-			if ( $mod->isEnabledCaptcha() ) {
-				$cfg = $mod->getCaptchaCfg();
-				if ( $cfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
-					$providers[] = new AntiBot\ProtectionProviders\GoogleRecaptcha();
-				}
-				elseif ( $cfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
-					$providers[] = new AntiBot\ProtectionProviders\HCaptcha();
-				}
-			}
+		if ( !$opts->isEnabledAntiBot() && $opts->isEnabledGaspCheck() ) {
+			$providers[] = new AntiBot\ProtectionProviders\GaspJs();
 		}
 
 		if ( !empty( $providers ) ) {

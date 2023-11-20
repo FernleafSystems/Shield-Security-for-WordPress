@@ -3,6 +3,7 @@
 {% block modal_body %}
 	{% include '/wpadmin_pages/insights/scans/modal/scan_item_analysis/tabpanel.twig' %}
 {% endblock %}
+
 {% block modal_footer %}
 
 	<a href="{{ flags.can_download ? hrefs.file_download : '#' }}"

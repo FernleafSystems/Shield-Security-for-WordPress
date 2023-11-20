@@ -1,8 +1,8 @@
 {
   "properties":       {
-    "version":                 "18.4.6",
-    "release_timestamp":       1699364000,
-    "build":                   "202311.0701",
+    "version":                 "18.5.4",
+    "release_timestamp":       1700478000,
+    "build":                   "202311.2001",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "text_domain":             "wp-simple-firewall",
@@ -13,7 +13,6 @@
     "show_admin_bar_menu":     true,
     "autoupdate":              "confidence",
     "autoupdate_days":         5,
-    "options_encoding":        "json",
     "enable_premium":          true
   },
   "requirements":     {
@@ -45,7 +44,7 @@
     "config":           "config",
     "source":           "src",
     "autoload":         "lib/vendor/autoload.php",
-    "assets":           "resources",
+    "assets":           "assets",
     "languages":        "languages",
     "templates":        "templates",
     "custom_templates": "shield_templates",
@@ -53,342 +52,160 @@
     "cache":            "shield"
   },
   "includes":         {
-    "admin":        {
-      "css": [
-        "global-plugin"
-      ],
-      "js":  [
-        "global-plugin",
-        "shield/ip_detect"
-      ]
+    "tp":   {
+      "bootstrap":    {
+        "css": "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css",
+        "js":  "https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"
+      },
+      "highlightjs":  {
+        "js": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
+      },
+      "hcaptcha":     {
+        "js": "https://hcaptcha.com/1/api.js"
+      },
+      "recaptcha":    {
+        "js": "https://www.google.com/recaptcha/api.js"
+      },
+      "vimeo_player": {
+        "js": "https://player.vimeo.com/api/player.js"
+      }
     },
-    "plugin_admin": {
-      "css": [
-        "select2",
-        "plugin",
-        "jquery/featherlight",
-        "introjs",
-        "shield/datatables",
-        "tp/vanillajs-datepicker"
-      ],
-      "js":  [
-        "select2",
-        "plugin",
-        "jquery/featherlight",
-        "shield/ipanalyse",
-        "shield/scanners",
-        "shield/tours",
-        "shield/datatables/activity_log",
-        "shield/datatables/ip_rules",
-        "shield/datatables/scans",
-        "shield/datatables/traffic",
-        "tp/circular-progress",
-        "tp/vanillajs-datepicker"
-      ]
-    },
-    "frontend":     {
-      "css": [],
-      "js":  []
-    },
-    "register":     {
-      "css": {
-        "bootstrap":                         {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.1/css/bootstrap.min.css"
-        },
-        "select2":                           {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css",
-          "deps": [
-            "plugin"
-          ]
-        },
-        "datatables":                        {
-          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.5/b-2.4.1/sp-2.2.0/sl-1.7.0/datatables.min.css",
-          "deps": [
-            "bootstrap"
-          ]
-        },
-        "jquery/smartwizard":                {
-          "url": "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/css/smart_wizard_all.min.css"
-        },
-        "global-plugin":                     {},
-        "plugin":                            {
-          "deps": [
-            "bootstrap",
-            "global-plugin"
-          ]
-        },
-        "shield/merlin":                     {
-          "deps": [
-            "bootstrap",
-            "global-plugin",
-            "jquery/smartwizard"
-          ]
-        },
-        "jquery/featherlight":               {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.css"
-        },
-        "chartist":                          {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.css"
-        },
-        "chartist-plugin-legend":            {
-          "deps": [
-            "chartist"
-          ]
-        },
-        "tp/vanillajs-datepicker":           {
-          "url":  "https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/css/datepicker-bs5.min.css",
-          "deps": [
-          ]
-        },
-        "introjs":                           {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css"
-        },
-        "shield/userprofile":                {
-          "deps":   [],
-          "footer": true
-        },
-        "shield/charts":                     {
-          "deps": [
-            "plugin"
-          ]
-        },
-        "shield/dialog":                     {
-          "deps":   [
-            "wp-wp-jquery-ui-dialog"
-          ],
-          "footer": true
-        },
-        "shield/datatables":                 {
-          "deps": [
-            "datatables",
-            "tp/highlightjs"
-          ]
-        },
-        "shield/login2fa":                   {
-        },
-        "shield/integrations/mainwp-server": {},
-        "tp/highlightjs":                    {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/styles/default.min.css"
+    "dist": [
+      {
+        "handle": "main",
+        "zones":  [
+          "plugin_admin"
+        ],
+        "deps":   [
+          "wp-jquery"
+        ],
+        "types":  [
+          "js",
+          "css"
+        ],
+        "flags":  {
+          "admin_only": true
         }
       },
-      "js":  {
-        "bootstrap":                         {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.1/js/bootstrap.bundle.min.js",
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "tp/circular-progress":              {
-          "url":  "https://cdn.jsdelivr.net/gh/tomik23/circular-progress-bar@1.1.9/dist/circularProgressBar.min.js",
-          "deps": [
-          ]
-        },
-        "tp/vanillajs-datepicker":           {
-          "url":  "https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker-full.min.js",
-          "deps": [
-          ]
-        },
-        "select2":                           {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js",
-          "deps": [
-            "plugin"
-          ]
-        },
-        "datatables":                        {
-          "url":  "https://cdn.datatables.net/v/bs5/dt-1.13.5/b-2.4.1/sp-2.2.0/sl-1.7.0/datatables.min.js",
-          "deps": [
-            "bootstrap",
-            "wp-jquery"
-          ]
-        },
-        "global-plugin":                     {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "plugin":                            {
-          "deps": [
-            "bootstrap",
-            "datatables",
-            "global-plugin",
-            "shield/navigation",
-            "shield/ipanalyse",
-            "shield/tables",
-            "base64.min",
-            "lz-string.min",
-            "bigpicture"
-          ]
-        },
-        "base64.min":                        {
-          "url": "https://cdn.jsdelivr.net/npm/js-base64@2.6.4/base64.min.js"
-        },
-        "lz-string.min":                     {},
-        "jquery/jquery.qrcode":              {
-          "deps":   [
-            "wp-jquery"
-          ],
-          "footer": true
-        },
-        "jquery/smartwizard":                {
-          "url":  "https://cdn.jsdelivr.net/npm/smartwizard@6/dist/js/jquery.smartWizard.min.js",
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "jquery/featherlight":               {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"
-        },
-        "chartist":                          {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.4/chartist.min.js"
-        },
-        "chartist-plugin-legend":            {
-          "deps": [
-            "chartist"
-          ]
-        },
-        "introjs":                           {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"
-        },
-        "bigpicture":                        {
-          "url":  "https://cdnjs.cloudflare.com/ajax/libs/bigpicture/2.6.2/BigPicture.min.js",
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/charts":                     {
-          "deps": [
-            "chartist",
-            "chartist-plugin-legend",
-            "plugin"
-          ]
-        },
-        "shield/dialog":                     {
-          "deps": [
-            "wp-jquery-ui-dialog"
-          ]
-        },
-        "shield/loginbot":                   {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/navigation":                 {},
-        "shield/secadmin":                   {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/scanners":                   {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/tables":                     {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/ip_detect":                  {
-          "deps": [
-            "global-plugin",
-            "wp-jquery"
-          ]
-        },
-        "shield/datatables/activity_log":    {
-          "deps": [
-            "shield/datatables/common"
-          ]
-        },
-        "shield/datatables/ip_rules":        {
-          "deps": [
-            "shield/datatables/common"
-          ]
-        },
-        "shield/datatables/scans":           {
-          "deps": [
-            "shield/datatables/common"
-          ]
-        },
-        "shield/datatables/traffic":         {
-          "deps": [
-            "shield/datatables/common"
-          ]
-        },
-        "shield/datatables/common":          {
-          "deps": [
-            "datatables",
-            "tp/highlightjs"
-          ]
-        },
-        "shield/tours":                      {
-          "deps": [
-            "plugin",
-            "introjs"
-          ]
-        },
-        "shield/notbot":                     {
-        },
-        "shield/scans":                      {
-          "deps": [
-            "shield/tables"
-          ]
-        },
-        "shield/import":                     {
-          "deps": [
-            "plugin"
-          ]
-        },
-        "shield/ipanalyse":                  {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/integrations/mainwp-server": {
-          "deps": [
-            "wp-jquery"
-          ]
-        },
-        "shield/userprofile":                {
-          "deps":   [
-            "u2f-bundle",
-            "jquery/jquery.qrcode",
-            "shield/dialog"
-          ],
-          "footer": true
-        },
-        "shield/merlin":                     {
-          "deps": [
-            "bootstrap",
-            "global-plugin",
-            "jquery/smartwizard"
-          ]
-        },
-        "shield/login2fa":                   {
-          "deps": [
-            "u2f-bundle",
-            "wp-jquery"
-          ]
-        },
-        "u2f-bundle":                        {},
-        "tp/grecaptcha":                     {
-          "url":        "https://www.google.com/recaptcha/api.js",
-          "attributes": {
-            "async": "async",
-            "defer": "defer"
-          }
-        },
-        "tp/hcaptcha":                       {
-          "url":        "https://hcaptcha.com/1/api.js",
-          "attributes": {
-            "async": "async",
-            "defer": "defer"
-          }
-        },
-        "tp/highlightjs":                    {
-          "url": "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js"
+      {
+        "handle": "wpadmin",
+        "zones":  [
+          "wp_admin"
+        ],
+        "deps":   [
+          "wp-jquery"
+        ],
+        "types":  [
+          "js",
+          "css"
+        ],
+        "flags":  {
+          "admin_only": true
+        }
+      },
+      {
+        "handle": "badge",
+        "zones":  [
+          "front"
+        ],
+        "types":  [
+          "js"
+        ],
+        "flags":  {
+          "admin_only": false
+        }
+      },
+      {
+        "handle": "blockpage",
+        "zones":  [
+          "page_shield_block"
+        ],
+        "types":  [
+          "js",
+          "css"
+        ],
+        "flags":  {
+          "admin_only": false
+        }
+      },
+      {
+        "handle": "login_2fa",
+        "zones":  [
+          "login_2fa",
+          "page_login"
+        ],
+        "deps":   [
+          "wp-jquery"
+        ],
+        "types":  [
+          "js",
+          "css"
+        ],
+        "flags":  {
+          "admin_only": false
+        }
+      },
+      {
+        "handle": "login_guard",
+        "zones":  [
+          "page_login"
+        ],
+        "deps":   [
+          "wp-jquery"
+        ],
+        "types":  [
+          "js"
+        ],
+        "flags":  {
+          "admin_only": false
+        }
+      },
+      {
+        "handle": "notbot",
+        "types":  [
+          "js"
+        ],
+        "flags":  {
+          "admin_only": false
+        }
+      },
+      {
+        "handle": "reports",
+        "types":  [
+          "js"
+        ],
+        "flags":  {
+          "admin_only": true
+        }
+      },
+      {
+        "handle": "userprofile",
+        "zones":  [
+          "page_user_profile",
+          "page_shield_login_security"
+        ],
+        "types":  [
+          "js",
+          "css"
+        ],
+        "deps":   [
+          "wp-jquery"
+        ],
+        "flags":  {
+          "admin_only": false
+        }
+      },
+      {
+        "handle": "mainwp_server",
+        "types":  [
+          "js",
+          "css"
+        ],
+        "flags":  {
+          "admin_only": true
         }
       }
-    }
+    ]
   },
   "menu":             {
     "show":           true,

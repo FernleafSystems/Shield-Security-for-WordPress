@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
@@ -25,7 +24,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	protected function exec() {
 		if ( ( is_admin() || is_network_admin() ) && !Services::WpGeneral()->isAjax() ) {
-
 			if ( apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
 				add_action( 'admin_menu', function () {
 					$this->createAdminMenu();
@@ -34,8 +32,6 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 					$this->createNetworkAdminMenu();
 				} );
 			}
-
-			( new AssetsCustomizer() )->execute();
 		}
 	}
 
@@ -93,7 +89,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', 'ShieldPRO' );
 		}
 
-		$currentNav = (string)Services::Request()->query( Constants::NAV_ID );
+		$currentNav = $this->action_data[ Constants::NAV_ID ] ?? '';
 		foreach ( $navs as $submenuNavID => $submenuTitle ) {
 
 			$markupTitle = sprintf( '<span style="color:#fff;font-weight: 600">%s</span>', $submenuTitle );

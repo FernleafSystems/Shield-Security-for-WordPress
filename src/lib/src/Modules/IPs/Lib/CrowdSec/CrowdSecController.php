@@ -26,7 +26,7 @@ class CrowdSecController {
 	protected function run() {
 		$this->setupCronHooks();
 
-		new Signals\EventsToSignals( self::con(), self::con()->is_mode_live );
+		new Signals\EventsToSignals( null, self::con()->is_mode_live );
 
 		add_action( self::con()->prefix( 'adhoc_cron_crowdsec_signals' ), function () {
 			// This cron is initiated from within SignalsBuilder
@@ -44,7 +44,7 @@ class CrowdSecController {
 
 	public function storeCfg( CrowdSecCfg $cfg ) {
 		$this->opts()->setOpt( 'crowdsec_cfg', $cfg->getRawData() );
-		$this->mod()->saveModOptions();
+		self::con()->opts->store();
 	}
 
 	public function runHourlyCron() {

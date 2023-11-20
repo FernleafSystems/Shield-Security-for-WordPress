@@ -37,7 +37,7 @@ interface Provider2faInterface {
 
 	public function isEnforced() :bool;
 
-	public function removeFromProfile();
+	public function removeFromProfile() :void;
 
 	public function renderUserProfileConfigFormField() :string;
 

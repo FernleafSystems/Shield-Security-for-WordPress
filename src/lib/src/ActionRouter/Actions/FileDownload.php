@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Utility\GetLo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\DbTableExport;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Download\IssueFileDownloadResponse;
 
 class FileDownload extends BaseAction {
@@ -15,11 +14,11 @@ class FileDownload extends BaseAction {
 
 	protected function exec() {
 		try {
-			$id = Services::Request()->query( 'download_category' );
-			if ( empty( $id ) ) {
+			$cat = $this->action_data[ 'download_category' ] ?? '';
+			if ( empty( $cat ) ) {
 				throw new \Exception( 'Invalid download request.' );
 			}
-			$contents = $this->getFileDownloadContents( $id );
+			$contents = $this->getFileDownloadContents( $cat );
 
 			( new IssueFileDownloadResponse( $contents[ 'name' ] ) )
 				->fromString( $contents[ 'content' ], [ 'Set-cookie' => 'fileDownload=true; path=/' ] );
@@ -54,8 +53,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			case 'scan_file':
-				$fileDetails = ( new FileDownloadHandler() )
-					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
+				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( (int)$this->action_data[ 'rid' ] ?? -1 );
 				break;
 
 			case 'db_ip':
@@ -73,7 +71,7 @@ class FileDownload extends BaseAction {
 					'name'    => wp_rand().'.pdf',
 					'content' => $con->getModule_Plugin()
 									 ->getReportingController()
-									 ->convertToPdf( (int)Services::Request()->query( 'rid', -1 ) )
+									 ->convertToPdf( (int)$this->action_data[ 'rid' ] ?? -1 )
 				];
 				break;
 

@@ -12,14 +12,25 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/ip_rules.twig';
 
 	protected function getPageContextualHrefs() :array {
+		$con = self::con();
 		return [
 			[
-				'text' => __( 'Create New IP Rule', 'wp-simple-firewall' ),
-				'href' => 'javascript:{iCWP_WPSF_OffCanvas.renderIpRuleAddForm()}',
+				'text'    => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'href'    => 'javascript:{}',
+				'classes' => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
-				'text' => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
-				'href' => self::con()->plugin_urls->offCanvasConfigRender( self::con()->getModule_IPs()->cfg->slug ),
+				'text'    => __( 'Configure IP Blocking', 'wp-simple-firewall' ),
+				'href'    => '#',
+				'classes' => [ 'offcanvas_form_mod_cfg' ],
+				'datas'   => [
+					'config_item' => $con->getModule_IPs()->cfg->slug
+				],
+			],
+			[
+				'text'     => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
+				'href'     => $con->plugin_urls->fileDownloadAsStream( 'ip_rules' ),
+				'disabled' => !$con->isPremiumActive(),
 			],
 		];
 	}

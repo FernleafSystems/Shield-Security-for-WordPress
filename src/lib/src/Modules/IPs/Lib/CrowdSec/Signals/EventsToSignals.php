@@ -181,9 +181,6 @@ class EventsToSignals extends EventsListener {
 			'spam_block_human'        => [
 				'scenario' => 'humanspam',
 			],
-			'spam_block_recaptcha'    => [
-				'scenario' => 'markspam',
-			],
 			'spam_block_bot'          => [
 				'scenario' => 'markspam',
 			],

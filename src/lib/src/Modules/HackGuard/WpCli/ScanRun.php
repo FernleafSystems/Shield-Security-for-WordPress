@@ -3,9 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
-	ModCon
-};
 use WP_CLI;
 
 class ScanRun extends Base\WpCli\BaseWpCliCmd {

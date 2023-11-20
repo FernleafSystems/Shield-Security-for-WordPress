@@ -13,11 +13,6 @@ class Urls {
 
 	public $includeTS = true;
 
-	public function forCss( string $asset ) :string {
-		$url = $this->lookupAssetUrlInSpec( $asset, 'css' );
-		return empty( $url ) ? $this->forAsset( 'css/'.Paths::AddExt( $asset, 'css' ) ) : $url;
-	}
-
 	public function forImage( string $asset ) :string {
 		return $this->forAsset( 'images/'.$asset );
 	}
@@ -26,9 +21,16 @@ class Urls {
 		return $this->forImage( 'bootstrap/'.Paths::AddExt( $asset, 'svg' ) );
 	}
 
-	public function forJs( string $asset ) :string {
-		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
-		return empty( $url ) ? $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) ) : $url;
+	public function forDist( string $asset, string $type ) :string {
+		return $this->forAsset( sprintf( 'dist/shield-%s.bundle.%s', $asset, $type ) );
+	}
+
+	public function forDistCSS( string $asset ) :string {
+		return $this->forDist( $asset, 'css' );
+	}
+
+	public function forDistJS( string $asset ) :string {
+		return $this->forDist( $asset, 'js' );
 	}
 
 	public function forAsset( string $asset ) :string {
@@ -42,6 +44,10 @@ class Urls {
 		return URL::Build( plugins_url( $path, self::con()->getRootFile() ), [ 'ver' => self::con()->cfg->version() ] );
 	}
 
+	public function forThirdParty( string $slug, string $type ) :string {
+		return self::con()->cfg->includes[ 'tp' ][ $slug ][ $type ];
+	}
+
 	protected function lookupAssetUrlInSpec( string $asset, string $type ) :?string {
 		$asset = $this->lookupAssetInSpec( $asset, $type );
 		return empty( $asset[ 'url' ] ) ? null : $asset[ 'url' ];
@@ -49,5 +55,21 @@ class Urls {
 
 	protected function lookupAssetInSpec( string $asset, string $type ) :array {
 		return self::con()->cfg->includes[ 'register' ][ $type ][ $asset ] ?? [];
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function forCss( string $asset ) :string {
+		$url = $this->lookupAssetUrlInSpec( $asset, 'css' );
+		return empty( $url ) ? $this->forAsset( 'css/'.Paths::AddExt( $asset, 'css' ) ) : $url;
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	public function forJs( string $asset ) :string {
+		$url = $this->lookupAssetUrlInSpec( $asset, 'js' );
+		return empty( $url ) ? $this->forAsset( 'js/'.Paths::AddExt( $asset, 'js' ) ) : $url;
 	}
 }

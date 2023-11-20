@@ -25,6 +25,14 @@
     "enabled": true
   },
   "admin_notices": {
+    "blockdown-active":  {
+      "id":               "blockdown-active",
+      "schedule":         "conditions",
+      "valid_admin":      false,
+      "plugin_page_only": false,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
     "override-forceoff": {
       "id":               "override-forceoff",
       "schedule":         "conditions",
@@ -64,12 +72,6 @@
       "title":       "Import / Export",
       "title_short": "Import / Export",
       "beacon_id":   129
-    },
-    {
-      "slug":        "section_third_party_captcha",
-      "title":       "CAPTCHA",
-      "title_short": "CAPTCHA",
-      "beacon_id":   390
     },
     {
       "slug":        "section_global_security_options",
@@ -345,81 +347,6 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
-      "key":           "captcha_provider",
-      "section":       "section_third_party_captcha",
-      "default":       "grecaptcha",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "grecaptcha",
-          "text":      "Google reCAPTCHA v2"
-        },
-        {
-          "value_key": "hcaptcha",
-          "text":      "hCaptcha"
-        }
-      ],
-      "link_info":     "https://shsec.io/dq",
-      "link_blog":     "",
-      "beacon_id":     390,
-      "name":          "CAPTCHA Provider",
-      "summary":       "Which CAPTCHA Provider To Use Throughout",
-      "description":   "You can choose the CAPTCHA provider depending on your preferences."
-    },
-    {
-      "key":           "google_recaptcha_style",
-      "section":       "section_third_party_captcha",
-      "premium":       true,
-      "default":       "light",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible"
-        }
-      ],
-      "link_info":     "https://shsec.io/dq",
-      "link_blog":     "",
-      "beacon_id":     269,
-      "name":          "CAPTCHA Type",
-      "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
-      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
-    },
-    {
-      "key":         "google_recaptcha_site_key",
-      "section":     "section_third_party_captcha",
-      "sensitive":   true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/shld5",
-      "link_blog":   "",
-      "beacon_id":   390,
-      "name":        "reCAPTCHA Site Key",
-      "summary":     "Google reCAPTCHA Site Key - Only v2 or Invisible. v3 NOT supported.",
-      "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
-    },
-    {
-      "key":         "google_recaptcha_secret_key",
-      "section":     "section_third_party_captcha",
-      "sensitive":   true,
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/shld5",
-      "link_blog":   "",
-      "beacon_id":   390,
-      "name":        "reCAPTCHA Secret",
-      "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
-      "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
-    },
-    {
       "key":           "frequency_alert",
       "section":       "section_reporting",
       "type":          "select",
@@ -545,13 +472,6 @@
       "default":      []
     },
     {
-      "key":          "captcha_checked_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "int",
-      "default":      -1
-    },
-    {
       "key":          "last_known_cache_basedirs",
       "transferable": false,
       "section":      "section_non_ui",
@@ -581,6 +501,20 @@
     },
     {
       "key":          "sec_overview_prefs",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "test_rest_data",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "blockdown_cfg",
       "transferable": false,
       "section":      "section_non_ui",
       "type":         "array",
@@ -674,6 +608,18 @@
         "level":  "debug",
         "recent": true
       },
+      "site_blockdown_started":    {
+        "level":        "alert",
+        "audit_params": [
+          "user_login"
+        ]
+      },
+      "site_blockdown_ended":      {
+        "level":        "alert",
+        "audit_params": [
+          "user_login"
+        ]
+      },
       "plugin_option_changed":     {
         "level":          "info",
         "audit_params":   [
@@ -731,14 +677,6 @@
         ],
         "level":        "warning",
         "stat":         false
-      },
-      "recaptcha_success":         {
-        "level": "debug"
-      },
-      "recaptcha_fail":            {
-        "level":   "warning",
-        "audit":   true,
-        "offense": true
       },
       "antibot_pass":              {
         "audit_params": [

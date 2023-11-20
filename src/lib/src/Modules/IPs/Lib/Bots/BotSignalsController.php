@@ -104,7 +104,6 @@ class BotSignalsController {
 		];
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-
 			if ( !self::con()->this_req->request_bypasses_all_restrictions ) {
 				if ( $this->opts()->isEnabledTrackLoginFailed() ) {
 					$trackers[] = BotTrack\TrackLoginFailed::class;
@@ -113,10 +112,10 @@ class BotSignalsController {
 					$trackers[] = BotTrack\TrackLoginInvalid::class;
 				}
 			}
+		}
 
-			if ( $this->opts()->isEnabledTrackLinkCheese() && $this->mod()->canLinkCheese() ) {
-				$trackers[] = BotTrack\TrackLinkCheese::class;
-			}
+		if ( $this->opts()->isEnabledTrackLinkCheese() ) {
+			$trackers[] = BotTrack\TrackLinkCheese::class;
 		}
 
 		return $trackers;

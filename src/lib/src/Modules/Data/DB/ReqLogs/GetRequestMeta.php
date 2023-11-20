@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\{
-	DB\ReqLogs\Ops,
 	DB\ReqLogs\Ops\Handler,
 	ModConsumer
 };

@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\Sessions;
-
+/**
+ * @deprecated 18.5
+ */
 class UserSessionsTableRender extends SecurityAdminBase {
 
 	public const SLUG = 'render_table_sessions';
@@ -11,7 +12,6 @@ class UserSessionsTableRender extends SecurityAdminBase {
 	protected function exec() {
 		$this->response()->action_response_data = [
 			'success' => true,
-			'html'    => ( new Sessions() )->render()
 		];
 	}
 }

@@ -2,15 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
 	Responses
 };
 
-class IpWhitelisted extends BuildRuleCoreShieldBase {
+class IpWhitelisted extends BuildRuleIpsBase {
 
 	use RuleTraits\InstantExec;
 

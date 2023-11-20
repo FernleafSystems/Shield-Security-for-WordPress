@@ -17,7 +17,7 @@ class PluginTelemetry {
 			$data = $this->collectTrackingData();
 			if ( !empty( $data ) ) {
 				$this->opts()->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-				$this->mod()->saveModOptions();
+				self::con()->opts->store();
 				( new SendPluginTelemetry() )->send( $data );
 			}
 		}
@@ -116,6 +116,7 @@ class PluginTelemetry {
 				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,
 				'locale'           => get_locale(),
+				'can_ajax_rest'    => $con->getModule_Plugin()->opts()->getOpt( 'test_rest_data' )[ 'success_at' ] ?? 0,
 				'plugins_total'    => \count( $WPP->getPlugins() ),
 				'plugins_active'   => \count( $WPP->getActivePlugins() ),
 				'plugins_updates'  => \count( $WPP->getUpdates() ),

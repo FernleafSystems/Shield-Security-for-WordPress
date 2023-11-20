@@ -2,14 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class IpRuleDelete extends BaseAction {
 
 	public const SLUG = 'ip_rule_delete';
 
 	protected function exec() {
-		$ID = (int)Services::Request()->post( 'rid', -1 );
+		$ID = (int)$this->action_data[ 'rid' ] ?? -1;
 
 		if ( $ID < 0 ) {
 			$success = false;
@@ -26,7 +24,7 @@ class IpRuleDelete extends BaseAction {
 
 		$this->response()->action_response_data = [
 			'success'     => $success,
-			'page_reload' => $success,
+			'page_reload' => false,
 			'message'     => $msg,
 		];
 	}
