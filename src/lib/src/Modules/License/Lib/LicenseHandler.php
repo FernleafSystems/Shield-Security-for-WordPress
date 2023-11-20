@@ -121,14 +121,6 @@ class LicenseHandler {
 		}
 	}
 
-	protected function getActivatedAt() :int {
-		return (int)$this->opts()->getOpt( 'license_activated_at' );
-	}
-
-	protected function getDeactivatedAt() :int {
-		return (int)$this->opts()->getOpt( 'license_deactivated_at' );
-	}
-
 	public function getLicense() :ShieldLicense {
 		if ( !isset( $this->license ) ) {
 			$data = $this->opts()->getOpt( 'license_data', [] );
@@ -178,8 +170,9 @@ class LicenseHandler {
 	}
 
 	public function isActive() :bool {
-		return ( $this->getActivatedAt() > 0 )
-			   && ( $this->getDeactivatedAt() < $this->getActivatedAt() );
+		$opts = $this->opts();
+		return ( $opts->getOpt( 'license_activated_at' ) > 0 )
+			   && ( $opts->getOpt( 'license_deactivated_at' ) < $opts->getOpt( 'license_activated_at' ) );
 	}
 
 	public function isLastVerifiedExpired() :bool {
@@ -245,5 +238,19 @@ class LicenseHandler {
 
 	private function getLicExpireGraceDays() :int {
 		return $this->opts()->getDef( 'lic_verify_expire_grace_days' );
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	protected function getActivatedAt() :int {
+		return (int)$this->opts()->getOpt( 'license_activated_at' );
+	}
+
+	/**
+	 * @deprecated 18.5
+	 */
+	protected function getDeactivatedAt() :int {
+		return (int)$this->opts()->getOpt( 'license_deactivated_at' );
 	}
 }
