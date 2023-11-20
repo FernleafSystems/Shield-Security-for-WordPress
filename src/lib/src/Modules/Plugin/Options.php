@@ -9,8 +9,10 @@ class Options extends BaseShield\Options {
 
 	public function preSave() :void {
 
-		if ( $this->getIpSource() === 'AUTO_DETECT_IP' ) {
-			$this->setOpt( 'ipdetect_at', 0 );
+		if ( $this->getOpt( 'ipdetect_at' ) === 0
+			 || ( $this->isOptChanged( 'visitor_address_source' ) && $this->getIpSource() === 'AUTO_DETECT_IP' )
+		) {
+			$this->setOpt( 'ipdetect_at', 1 );
 		}
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {

@@ -122,6 +122,20 @@
       }
     ],
     "patches":     [
+      {
+        "version":     "5",
+        "released_at": 1700500000,
+        "items":       [
+          {
+            "title": "Bug: IP auto-detect displaying admin notices instead of running in the background.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug: unable to click-to-ignore abandoned plugin results.",
+            "type":  "fixed"
+          }
+        ]
+      }
     ]
   },
   "18.4": {
