@@ -138,19 +138,6 @@
       "description": "Ensures that visitors with a high reputation are never blocked by Shield."
     },
     {
-      "key":         "force_notbot",
-      "section":     "section_antibot",
-      "advanced":    true,
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/jy",
-      "link_blog":   "https://shsec.io/jz",
-      "beacon_id":   448,
-      "name":        "Force NotBot JS",
-      "summary":     "Force Loading Of NotBot JS",
-      "description": "Use this option if you're using an aggressive caching plugin or system to ensure NotBot JS is loaded for visitors."
-    },
-    {
       "key":         "transgression_limit",
       "section":     "section_auto_black_list",
       "type":        "integer",

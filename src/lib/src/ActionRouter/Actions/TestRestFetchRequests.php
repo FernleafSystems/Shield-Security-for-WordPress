@@ -10,8 +10,8 @@ class TestRestFetchRequests extends BaseAction {
 
 	protected function exec() {
 		$opts = self::con()->getModule_Plugin()->opts();
+
 		$data = $opts->getOpt( 'test_rest_data' );
-		error_log( var_export( $data, true ) );
 		$data[ 'success_at' ] = Services::Request()->ts();
 		$opts->setOpt( 'test_rest_data', $data );
 

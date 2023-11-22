@@ -28,4 +28,11 @@ class CaptureNotBot extends BaseAction {
 
 		$this->response()->success = true;
 	}
+
+	public static function NonceCfg() :array {
+		return [
+			'ip'  => false,
+			'ttl' => 24,
+		];
+	}
 }

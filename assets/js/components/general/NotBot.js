@@ -1,13 +1,15 @@
-import { BaseComponent } from "../BaseComponent";
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxParseResponseService } from "../services/AjaxParseResponseService";
 import { GetCookie } from "../../util/GetCookie";
 import { ObjectOps } from "../../util/ObjectOps";
+import { PageQueryParam } from "../../util/PageQueryParam";
 
-export class NotBot extends BaseComponent {
+export class NotBot extends BaseAutoExecComponent {
 
 	init() {
 		this.can_send_request = true;
 		this.request_count = 0;
+		this.notbot_request_success = false;
 		this.use_fetch = typeof fetch !== typeof undefined;
 		this.shield_ajaxurl = this._base_data.ajax.not_bot.ajaxurl;
 		delete this._base_data.ajax.not_bot.ajaxurl;
@@ -15,11 +17,7 @@ export class NotBot extends BaseComponent {
 		/** todo: remove after switch to REST */
 		delete this._base_data.ajax.not_bot._wpnonce;
 
-		this.exec();
-	}
-
-	canRun() {
-		return this._base_data.flags.run;
+		super.init();
 	}
 
 	/**
@@ -28,24 +26,19 @@ export class NotBot extends BaseComponent {
 	 * This is AJAX, so it's asynchronous and won't hold up any other part of the page load.
 	 * Early execution also helps mitigate the case where login requests are
 	 * sent quickly, before browser has fired NotBot request.
+	 * @since 12.0.10 - rather than auto send each page load, check for cookie repeatedly and send if absent.
 	 */
 	run() {
 		this.fire();
 	};
 
-	/**
-	 * @since 12.0.10 - rather than auto send each page load, check for cookie repeatedly and send if absent.
-	 */
 	fire() {
-		if ( this.request_count < 10 ) {
-			if ( this.can_send_request ) {
-				let current = GetCookie.Get( 'icwp-wpsf-notbot' );
-				if ( typeof current === typeof undefined || current === undefined || current === '' ) {
-					this.request_count++;
-					this.use_fetch ? this.runNotBot() : this.legacyReq();
-				}
+		if ( this.request_count < 5 ) {
+			if ( this.can_send_request && !this.notbot_request_success && ( this.isNotBotRequestRequired() || this.isNotBotFlagCookieMissing() ) ) {
+				this.request_count++;
+				this.use_fetch ? this.runNotBot() : this.legacyReq();
 			}
-			window.setTimeout( () => this.fire(), 10000 );
+			window.setTimeout( () => this.fire(), 60000 );
 		}
 	};
 
@@ -68,6 +61,15 @@ export class NotBot extends BaseComponent {
 	getNotBotNonce() {
 		this.readNotBotNonceFromCookie();
 		return this._base_data.ajax.not_bot.exnonce;
+	}
+
+	isNotBotRequestRequired() {
+		return this._base_data.flags.required || PageQueryParam.Retrieve( 'force_notbot' ) === '1';
+	}
+
+	isNotBotFlagCookieMissing() {
+		const current = GetCookie.Get( 'icwp-wpsf-notbot' );
+		return typeof current === typeof undefined || current === undefined || current === '';
 	}
 
 	async runNotBot() {
@@ -103,7 +105,14 @@ export class NotBot extends BaseComponent {
 			} )
 			.then( raw => raw.text() )
 			.then( rawText => {
-				this.can_send_request = !ObjectOps.IsEmpty( AjaxParseResponseService.ParseIt( rawText ) );
+				const json = AjaxParseResponseService.ParseIt( rawText );
+				if ( ObjectOps.IsEmpty( json ) ) {
+					this.can_send_request = this.notbot_request_success = false;
+				}
+				else {
+					this.can_send_request = true;
+					this.notbot_request_success = json.success;
+				}
 				return rawText;
 			} )
 			.catch( error => {

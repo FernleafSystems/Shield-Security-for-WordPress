@@ -8,6 +8,9 @@ class Nonce {
 
 	public const LIFETIME = 12;
 
+	/**
+	 * @deprecated 18.5.6
+	 */
 	public static function Create( string $action, bool $includeIP = true ) :string {
 		return self::CreateNonces( $action, $includeIP )[ 0 ];
 	}

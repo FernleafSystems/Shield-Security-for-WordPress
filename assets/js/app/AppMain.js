@@ -77,12 +77,13 @@ export class AppMain extends AppBase {
 		this.components.super_search = ( 'super_search' in comps ) ? new SuperSearchService( comps.super_search ) : null;
 		this.components.scans = ( 'scans' in comps ) ? new ScansHandler( comps.scans ) : null;
 		this.components.sec_admin = ( 'sec_admin' in comps ) ? new SecurityAdmin( comps.sec_admin ) : null;
+		this.components.testrest = ( 'testrest' in comps ) ? new TestRest( comps.testrest ) : null;
 		this.components.tours = ( 'tours' in comps ) ? new Tours( comps.tours ) : null;
 		this.components.traffic = ( 'traffic' in comps ) ? new TrafficLiveLogs( comps.traffic ) : null;
+
 		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;
 		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
 		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;
 		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
-		this.components.testrest = ( 'testrest' in comps.tables ) ? new TestRest( comps.tables.testrest ) : null;
 	}
 }
