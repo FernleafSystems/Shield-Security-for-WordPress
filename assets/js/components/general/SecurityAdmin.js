@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
+import { Forms } from "../../util/Forms";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
-import { Forms } from "../../util/Forms";
 
 export class SecurityAdmin extends BaseComponent {
 
