@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\Nonce;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\PasswordGenerator;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -34,8 +32,7 @@ class ActionData {
 		$data = \array_merge( [
 			self::FIELD_ACTION  => self::FIELD_SHIELD,
 			self::FIELD_EXECUTE => $VO->action::SLUG,
-			self::FIELD_NONCE   => \class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce' ) ?
-				ActionNonce::Create( $VO->action ) : Nonce::Create( self::FIELD_SHIELD.'-'.$VO->action::SLUG ),
+			self::FIELD_NONCE   => ActionNonce::Create( $VO->action ),
 		], $VO->aux );
 
 		if ( $VO->unique ) {

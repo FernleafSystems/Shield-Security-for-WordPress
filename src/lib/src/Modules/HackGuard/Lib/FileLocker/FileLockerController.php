@@ -151,8 +151,7 @@ class FileLockerController {
 		}
 		else {
 			// 1. Look for any changes in config: has a lock type been removed?
-			$locks = \method_exists( $this, 'getLocks' ) ? $this->getLocks() : ( new Ops\LoadFileLocks() )->loadLocks();
-			foreach ( $locks as $lock ) {
+			foreach ( $this->getLocks() as $lock ) {
 				if ( !\in_array( $lock->type, $this->opts()->getFilesToLock() ) ) {
 					( new Ops\DeleteFileLock() )->delete( $lock );
 				}
@@ -169,12 +168,6 @@ class FileLockerController {
 				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
 			}
 		}
-	}
-
-	/**
-	 * @deprecated 18.4.4
-	 */
-	private function maybeRunLocksCreation() {
 	}
 
 	private function getCronHook() :string {

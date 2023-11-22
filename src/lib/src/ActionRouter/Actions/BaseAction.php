@@ -159,14 +159,4 @@ abstract class BaseAction extends DynPropertiesClass {
 			'ttl' => 12,
 		];
 	}
-
-	/**
-	 * @deprecated 18.5.6
-	 */
-	public function verifyNonce() :bool {
-		$req = Services::Request();
-		return \class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce' ) ?
-			ActionNonce::Verify( $req->request( ActionData::FIELD_EXECUTE ), $req->request( ActionData::FIELD_NONCE ) )
-			: Nonce::Verify( ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE ), $req->request( ActionData::FIELD_NONCE ) );
-	}
 }

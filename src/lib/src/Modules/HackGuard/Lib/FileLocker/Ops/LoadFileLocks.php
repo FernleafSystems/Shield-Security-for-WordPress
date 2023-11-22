@@ -36,9 +36,8 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function ofType( string $type ) :array {
-		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
+			$this->mod()->getFileLocker()->getLocks(),
 			function ( $lock ) use ( $type ) {
 				return $lock->type === $type;
 			}
@@ -49,9 +48,8 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withProblems() :array {
-		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
+			$this->mod()->getFileLocker()->getLocks(),
 			function ( $lock ) {
 				return $lock->detected_at > 0;
 			}
@@ -74,9 +72,8 @@ class LoadFileLocks {
 	 * @return FileLockerDB\Record[]
 	 */
 	public function withoutProblems() :array {
-		$flCon = $this->mod()->getFileLocker();
 		return \array_filter(
-			\method_exists( $flCon, 'getLocks' ) ? $flCon->getLocks() : $this->loadLocks(),
+			$this->mod()->getFileLocker()->getLocks(),
 			function ( $lock ) {
 				return $lock->detected_at == 0;
 			}

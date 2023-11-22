@@ -129,9 +129,7 @@ class OptsHandler extends DynPropertiesClass {
 			foreach ( [ self::TYPE_PRO, self::TYPE_FREE ] as $type ) {
 				Services::WpGeneral()->updateOption( $this->key( $type ), $this->{'mod_opts_'.$type} );
 			}
-			if ( \method_exists( $this, 'postStore' ) ) {
-				$this->postStore();
-			}
+			$this->postStore();
 			remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 		}
 	}
@@ -141,10 +139,7 @@ class OptsHandler extends DynPropertiesClass {
 
 		// Pre-process options.
 		foreach ( self::con()->modules as $mod ) {
-			$opts = $mod->opts();
-			if ( \method_exists( $opts, 'preSave' ) ) {
-				$opts->preSave();
-			}
+			$mod->opts()->preSave();
 		}
 
 		do_action( $con->prefix( 'pre_options_store' ) );
@@ -204,10 +199,7 @@ class OptsHandler extends DynPropertiesClass {
 
 	private function postStore() {
 		foreach ( self::con()->modules as $mod ) {
-			$opts = $mod->opts();
-			if ( \method_exists( $opts, 'resetChangedOpts' ) ) {
-				$opts->resetChangedOpts();
-			}
+			$mod->opts()->resetChangedOpts();
 		}
 	}
 }
