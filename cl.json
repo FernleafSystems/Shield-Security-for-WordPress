@@ -131,11 +131,11 @@
             "type":  "improved"
           },
           {
-            "title": "Email 2FA capability verification email was sent twice.",
+            "title": "Bug: Email 2FA capability verification email was sent twice.",
             "type":  "fixed"
           },
           {
-            "title": "Couldn't dismiss in-plugin notices.",
+            "title": "Bug: Couldn't dismiss in-plugin notices.",
             "type":  "fixed"
           }
         ]
