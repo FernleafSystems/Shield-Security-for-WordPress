@@ -2,6 +2,7 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
+import { PageQueryParam } from "../../util/PageQueryParam";
 
 export class IpAnalyse extends BaseAutoExecComponent {
 
@@ -30,7 +31,7 @@ export class IpAnalyse extends BaseAutoExecComponent {
 	}
 
 	runAnalysisOnLoad() {
-		let theIP = ( new URLSearchParams( window.location.search ) ).get( 'analyse_ip' );
+		let theIP = PageQueryParam.Retrieve( 'analyse_ip' );
 		if ( theIP ) {
 			this.render( theIP );
 		}
