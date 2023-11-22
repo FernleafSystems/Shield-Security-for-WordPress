@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CaptureNotBot;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\CaptureNotBot,
+	ActionNonce
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,27 +19,38 @@ class NotBotHandler {
 	public const LIFETIME = 600;
 	public const SLUG = 'notbot';
 
+	private $previousNotBotSignalAt = null;
+
 	protected function canRun() :bool {
 		return (bool)apply_filters( 'shield/can_run_antibot', true );
 	}
 
 	protected function run() {
-		( new InsertNotBotJs() )->execute();
-		if ( $this->opts()->isOpt( 'force_notbot', 'Y' ) ) {
-			add_action( 'setup_theme', [ $this, 'sendNotBotNonceCookie' ] );
+		if ( \defined( 'LOGGED_IN_COOKIE' ) && Services::Request()->cookie( LOGGED_IN_COOKIE ) ) {
+			add_action( 'init', [ $this, 'sendNotBotNonceCookie' ] );
 		}
+		else {
+			$this->sendNotBotNonceCookie();
+		}
+
+		( new InsertNotBotJs() )->execute();
+	}
+
+	public function getLastNotBotSignalAt() :int {
+		if ( $this->previousNotBotSignalAt === null ) {
+			$this->previousNotBotSignalAt = ( new BotSignalsRecord() )
+				->setIP( self::con()->this_req->ip )
+				->retrieveNotBotAt();
+		}
+		return $this->previousNotBotSignalAt;
 	}
 
 	/**
-	 * Hooked to "setup_theme" as ActionData::Build() requires $wp_rewrite to be initialised,
+	 * Hooked to "setup_theme" (at least) as ActionData::Build() requires $wp_rewrite to be initialised,
 	 * and this is the earliest we can hook into.
 	 */
 	public function sendNotBotNonceCookie() {
-		Services::Response()->cookieSet(
-			'shield-notbot-nonce',
-			ActionData::Build( CaptureNotBot::class )[ ActionData::FIELD_NONCE ],
-			75
-		);
+		Services::Response()->cookieSet( 'shield-notbot-nonce', ActionNonce::Create( CaptureNotBot::class ), 120 );
 	}
 
 	public function hasCookie() :bool {

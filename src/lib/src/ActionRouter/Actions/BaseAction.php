@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
@@ -84,7 +85,7 @@ abstract class BaseAction extends DynPropertiesClass {
 			throw new SecurityAdminRequiredException( sprintf( 'Security admin required for action: %s', static::SLUG ) );
 		}
 
-		if ( $this->isNonceVerifyRequired() && !$this->verifyNonce() ) {
+		if ( $this->isNonceVerifyRequired() && !ActionNonce::VerifyFromRequest() ) {
 			throw new InvalidActionNonceException( 'Invalid Action Nonce Exception.' );
 		}
 	}
@@ -152,11 +153,20 @@ abstract class BaseAction extends DynPropertiesClass {
 		return [];
 	}
 
+	public static function NonceCfg() :array {
+		return [
+			'ip'  => true,
+			'ttl' => 12,
+		];
+	}
+
+	/**
+	 * @deprecated 18.5.6
+	 */
 	public function verifyNonce() :bool {
 		$req = Services::Request();
-		return Nonce::Verify(
-			ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE ),
-			$req->request( ActionData::FIELD_NONCE )
-		);
+		return \class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce' ) ?
+			ActionNonce::Verify( $req->request( ActionData::FIELD_EXECUTE ), $req->request( ActionData::FIELD_NONCE ) )
+			: Nonce::Verify( ActionData::FIELD_SHIELD.'-'.$req->request( ActionData::FIELD_EXECUTE ), $req->request( ActionData::FIELD_NONCE ) );
 	}
 }

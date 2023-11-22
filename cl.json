@@ -123,6 +123,16 @@
     ],
     "patches":     [
       {
+        "version":     "6",
+        "released_at": 1700730000,
+        "items":       [
+          {
+            "title": "Optimisations to NotBot JS to further reduce AJAX requests.",
+            "type":  "improved"
+          }
+        ]
+      },
+      {
         "version":     "5",
         "released_at": 1700500000,
         "items":       [
