@@ -6,7 +6,6 @@ import { NoticeHandler } from "../components/notices/NoticeHandler";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesWpAdmin } from "../services/ShieldServicesWpAdmin";
 import { ShieldEventsHandler } from "../services/ShieldEventsHandler";
-import { Blockdown } from "../components/general/Blockdown";
 
 export class AppWpAdmin extends AppBase {
 

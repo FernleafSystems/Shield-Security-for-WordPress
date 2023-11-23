@@ -34,14 +34,14 @@ class ShieldNetApiController extends DynPropertiesClass {
 	 * API will always reject those requests. Don't fiddle with this function, please.  You may get
 	 * away with nulling the plugin for some PRO features, but you can't 'null' our API, sorry.
 	 */
-	public function canHandshake() :bool {
+	public function canHandshake( bool $forceAttempt = false ) :bool {
 		$req = Services::Request();
 		$now = $req->ts();
 
 		$canAttempt = ( $this->vo->last_handshake_at === 0 || $now - $this->vo->last_handshake_at > \MONTH_IN_SECONDS )
 					  && $now - \MINUTE_IN_SECONDS*min( $this->vo->handshake_fail_count, 60 ) > $this->vo->last_handshake_attempt_at;
 
-		if ( $canAttempt && $req->query( ActionData::FIELD_EXECUTE ) !== 'snapi_handshake' ) {
+		if ( $forceAttempt || ( $canAttempt && $req->query( ActionData::FIELD_EXECUTE ) !== 'snapi_handshake' ) ) {
 			$this->vo->last_handshake_attempt_at = $now;
 			$this->storeVoData();
 
