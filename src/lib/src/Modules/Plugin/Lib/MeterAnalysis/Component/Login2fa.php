@@ -18,7 +18,8 @@ class Login2fa extends Base {
 		return $mod->isModOptEnabled()
 			   && ( $opts->isEmailAuthenticationActive()
 					|| $opts->isEnabledGoogleAuthenticator()
-					|| $opts->isEnabledYubikey() );
+					|| $opts->isEnabledYubikey()
+					|| $opts->isOpt( 'enable_passkeys', 'Y' ) );
 	}
 
 	protected function getOptConfigKey() :string {
@@ -30,7 +31,7 @@ class Login2fa extends Base {
 	}
 
 	public function descProtected() :string {
-		return __( 'At least 1 2FA option is available to help users protect their accounts.', 'wp-simple-firewall' );
+		return __( 'At least 1 2FA option is available to protect user accounts.', 'wp-simple-firewall' );
 	}
 
 	public function descUnprotected() :string {

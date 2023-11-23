@@ -576,6 +576,10 @@ class Options {
 		return \is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
+	public function resetChangedOpts() {
+		$this->aOld = [];
+	}
+
 	/**
 	 * @return $this
 	 */

@@ -123,12 +123,20 @@
     ],
     "patches":     [
       {
-        "version":     "6",
+        "version":     "7",
         "released_at": 1700730000,
         "items":       [
           {
             "title": "Optimisations to NotBot JS to further reduce AJAX requests.",
             "type":  "improved"
+          },
+          {
+            "title": "Bug: Email 2FA capability verification email was sent twice.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug: Couldn't dismiss in-plugin notices.",
+            "type":  "fixed"
           }
         ]
       },

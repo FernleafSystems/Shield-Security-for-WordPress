@@ -232,7 +232,7 @@ class AssetsCustomizer {
 				],
 				'data'    => function () {
 					return [
-						'url'     => 'https://net.getshieldsecurity.com/wp-json/apto-snapi/v2/tools/what_is_my_ip',
+						'url'     => 'https://ip-detect.workers.aptoweb.com',
 						'ajax'    => ActionData::Build( Actions\PluginIpDetect::class ),
 						'flags'   => [
 							'is_check_required' => $this->isIpAutoDetectRequired(),

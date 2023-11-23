@@ -95,6 +95,13 @@ class SimplePluginTests extends BaseAction {
 			->getToken();
 	}
 
+	private function dbg_handshake() {
+		$snapi = self::con()->getModule_Plugin()->getShieldNetApiController();
+		var_dump( $snapi->vo );
+		var_dump( $snapi->canHandshake(true) );
+		var_dump( $snapi->vo );
+	}
+
 	private function dbg_changetrack() {
 		$params = [
 			'fields'             =>

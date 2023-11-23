@@ -44,7 +44,7 @@ export class AppMain extends AppBase {
 		global.shieldServices = new ShieldServicesPlugin();
 		global.shieldStrings = new ShieldStrings( window.shield_vars_main.strings );
 		global.shieldEventsHandler_Main = new ShieldEventsHandler( {
-			events_container_selector: '#PageContainer-Shield'
+			events_container_selector: 'body'
 		} );
 	}
 
@@ -58,6 +58,7 @@ export class AppMain extends AppBase {
 		this.components.blockdown = ( 'blockdown' in comps ) ? new Blockdown( comps.blockdown ) : null;
 		this.components.charts = ( 'charts' in comps ) ? new ChartsSummaryCharts( comps.charts ) : null;
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
+		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();
 		this.components.file_locker = ( 'file_locker' in comps ) ? new FileLocker( comps.file_locker ) : null;
 		this.components.helpscout = ( 'helpscout' in comps ) ? new HelpscoutBeacon( comps.helpscout ) : null;
@@ -68,7 +69,6 @@ export class AppMain extends AppBase {
 		this.components.license = ( 'license' in comps ) ? new LicenseHandler( comps.license ) : null;
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
 		this.components.misc_hooks = new MiscHooks();
-		this.components.div_printer = new DivPrinter();
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
