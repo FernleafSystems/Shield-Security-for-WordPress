@@ -35,11 +35,6 @@ if ( version_compare( PHP_VERSION, '7.2.5', '<' ) ) {
 	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 	include_once( dirname( __FILE__ ).'/unsupported.php' );
 }
-elseif ( version_compare( PHP_VERSION, '8.3', '>=' ) ) {
-	global $sIcwpWpsfPluginFile;
-	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
-	include_once( dirname( __FILE__ ).'/unsupported_83.php' );
-}
 elseif ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
 
 	require_once( dirname( __FILE__ ).'/plugin_autoload.php' );
