@@ -39,6 +39,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Config\ConfigVO                                        $cfg
  * @property Config\OptsHandler                                     $opts
  * @property ActionRoutingController                                $action_router
+ * @property ExtensionsController                                   $extensions_controller
  * @property Database\DbCon                                         $db_con
  * @property Email\EmailCon                                         $email_con
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
@@ -169,6 +170,12 @@ class Controller extends DynPropertiesClass {
 				if ( !$val instanceof Email\EmailCon ) {
 					$val = new Email\EmailCon();
 					$this->email_con = $val;
+				}
+				break;
+
+			case 'extensions_controller':
+				if ( !$val instanceof ExtensionsController ) {
+					$this->extensions_controller = $val = new ExtensionsController();
 				}
 				break;
 
@@ -405,6 +412,8 @@ class Controller extends DynPropertiesClass {
 		( new Shield\Controller\I18n\LoadTextDomain() )->run();
 
 		$this->loadModules();
+
+		$this->extensions_controller->execute();
 
 		// Upgrade modules
 		( new Shield\Controller\Utilities\Upgrade() )->execute();
@@ -857,7 +866,7 @@ class Controller extends DynPropertiesClass {
 		$this->cfg->mods_cfg = $modConfigs;
 		// Sanity checking: count to ensure that when we set the cfgs, they were correctly set.
 		if ( \count( $this->cfg->getRawData()[ 'mods_cfg' ] ?? [] ) !== \count( $modConfigs ) ) {
-			throw new Exceptions\PluginConfigInvalidException( "Building and storing module configurations failed." );
+			throw new Exceptions\PluginConfigInvalidException( 'Building and storing module configurations failed.' );
 		}
 	}
 

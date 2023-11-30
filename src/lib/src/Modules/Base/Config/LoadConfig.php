@@ -37,10 +37,14 @@ class LoadConfig {
 		$rebuild = self::con()->cfg->rebuilt
 				   || !$this->cfg instanceof ModConfigVO
 				   || ( Services::WpFs()->getModifiedTime( $this->pathToCfg ) > $this->cfg->meta[ 'ts_mod' ] );
+//		$rebuild = true;
 		if ( $rebuild ) {
 			self::con()->cfg->rebuilt = true;
 		}
-		return $rebuild ? ( new ModConfigVO() )->applyFromArray( $this->fromFile() ) : $this->cfg;
+
+		$cfg = $rebuild ? ( new ModConfigVO() )->applyFromArray( $this->fromFile() ) : $this->cfg;
+
+		return apply_filters( 'shield/load_mod_cfg', $cfg, $this->slug );
 	}
 
 	/**
