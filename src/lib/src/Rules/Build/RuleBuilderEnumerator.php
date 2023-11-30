@@ -27,6 +27,18 @@ class RuleBuilderEnumerator {
 	 * @return BuildRuleBase[]
 	 */
 	private function direct() :array {
+		return \array_filter( \array_map(
+			function ( string $class ) {
+				return ( \class_exists( $class ) && \is_subclass_of( $class, BuildRuleBase::class ) ) ? new $class() : null;
+			},
+			\array_merge(
+				$this->shieldCoreRules(),
+				\apply_filters( 'shield/collate_rule_builders', [] )
+			)
+		) );
+	}
+
+	private function shieldCoreRules() :array {
 		$con = self::con();
 
 		/** @var IPs\Options $ipsOpts */
@@ -36,10 +48,7 @@ class RuleBuilderEnumerator {
 		/** @var Traffic\Options $trafficOpts */
 		$trafficOpts = $con->getModule_Traffic()->opts();
 
-		return \array_map(
-			function ( string $class ) {
-				return new $class();
-			},
+		return
 			\array_filter( \array_merge(
 				[
 					IPs\Rules\Build\IsPathWhitelisted::class, // this is here as a hack, so it runs early
@@ -90,8 +99,7 @@ class RuleBuilderEnumerator {
 								   ->isOpt( 'block_'.$blockTypeClass::SCAN_CATEGORY, 'Y' );
 					}
 				)
-			) )
-		);
+			) );
 	}
 
 	/**
