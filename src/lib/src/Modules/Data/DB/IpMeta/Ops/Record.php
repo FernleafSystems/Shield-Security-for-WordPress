@@ -16,6 +16,9 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		if ( $key === 'ip_ref' ) {
 			$value = (int)$value;
 		}
+		elseif ( $key === 'pc_is_proxy' ) {
+			$value = (bool)$value;
+		}
 
 		return $value;
 	}

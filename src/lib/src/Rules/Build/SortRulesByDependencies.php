@@ -168,7 +168,6 @@ class SortRulesByDependencies {
 					$handlerClass = self::con()->rules->locateConditionHandlerClass( $conditionSlug );
 					$this->dependencies[ $conditionSlug ] = \array_map(
 						function ( $className ) {
-							/** Base */
 							return $className::SLUG;
 						},
 						$handlerClass::BuildRequiredConditions()

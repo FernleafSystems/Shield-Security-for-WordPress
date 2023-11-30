@@ -25,6 +25,8 @@ class LoadIpMeta extends BaseLoadRecordsForIPJoins {
 	protected function getDefaultSelectFieldsForJoinedTable() :array {
 		return [
 			'id',
+			'pc_is_proxy',
+			'pc_last_check_at',
 		];
 	}
 
