@@ -25,6 +25,7 @@
   "definitions": {
     "db_handler_classes": {
       "ips":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IPs\\Ops\\Handler",
+      "ip_meta":   "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\IpMeta\\Ops\\Handler",
       "req_logs":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\ReqLogs\\Ops\\Handler",
       "user_meta": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\Data\\DB\\UserMeta\\Ops\\Handler"
     },
@@ -45,6 +46,31 @@
         "geo": {
           "macro_type": "meta",
           "comment":    "GeoIP Data"
+        }
+      }
+    },
+    "db_table_ip_meta":         {
+      "name":            "IP Meta",
+      "autoexpire":      0,
+      "slug":            "ip_meta",
+      "has_updated_at":  true,
+      "col_older_than":  "updated_at",
+      "cols_custom":     {
+        "ip_ref":     {
+          "macro_type":  "foreign_key_id",
+          "foreign_key": {
+            "ref_table": "icwp_wpsf_ips"
+          }
+        },
+        "pc_is_proxy": {
+          "macro_type": "bool",
+          "default":    0,
+          "comment":    "ProxyCheck: Is Proxy?"
+        }
+      },
+      "cols_timestamps": {
+        "pc_last_check_at":  {
+          "comment": "ProxyCheck last lookup at"
         }
       }
     },

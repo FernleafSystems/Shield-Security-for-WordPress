@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Extensions\BaseExtension;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ExtensionsController {
+class ExtensionsCon {
 
 	use ExecOnce;
 	use PluginControllerConsumer;
@@ -52,6 +52,8 @@ class ExtensionsController {
 
 				$modCfg->options = $modCfgOpts;
 				$modCfg->sections = $modCfgSections;
+
+				$ext->execute();
 			}
 		}
 	}
