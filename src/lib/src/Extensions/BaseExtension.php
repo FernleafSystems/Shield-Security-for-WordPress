@@ -11,13 +11,21 @@ abstract class BaseExtension {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
+	public const SLUG = '';
+
 	/**
 	 * @var ExtensionConfigVO
 	 */
 	private $cfg;
 
+	/**
+	 * @throws \Exception
+	 */
 	public function __construct( array $cfg ) {
 		$this->cfg = ( new ExtensionConfigVO() )->applyFromArray( $cfg );
+		if ( empty( static::SLUG ) || static::SLUG !== $this->cfg->slug ) {
+			throw new \Exception( 'Invalid Shield extension configuration' );
+		}
 	}
 
 	public function cfg() :ExtensionConfigVO {
@@ -61,10 +69,10 @@ abstract class BaseExtension {
 	protected function requirements() :array {
 		return [
 			'php'    => [
-				'min' => '7.4',
+				'min' => '8.2',
 			],
 			'shield' => [
-				'min' => '18.5.8',
+				'min' => '18.5.7',
 			],
 			'wp'     => [
 				'min' => '5.7',

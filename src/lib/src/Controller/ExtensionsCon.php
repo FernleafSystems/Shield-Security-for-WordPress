@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Extensions\BaseExtension;
+use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ProxyCheck\ExtProxyCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,7 +19,7 @@ class ExtensionsCon {
 	private $extensions = null;
 
 	protected function canRun() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && self::con()->isPremiumActive();
+		return Services::Data()->getPhpVersionIsAtLeast( '8.2' ) && self::con()->isPremiumActive();
 	}
 
 	protected function run() {
@@ -26,7 +27,7 @@ class ExtensionsCon {
 		add_filter( 'shield/collate_rule_builders', [ $this, 'extendRuleBuilders' ] );
 	}
 
-	private function initExtensions() {
+	private function initExtensions() :void {
 		foreach ( $this->getAvailableExtensions() as $ext ) {
 			$extCfg = $ext->cfg();
 
@@ -65,18 +66,25 @@ class ExtensionsCon {
 		return $rules;
 	}
 
+	public function getExtension( string $slug ) :?BaseExtension {
+		return $this->getAvailableExtensions()[ $slug ] ?? null;
+	}
+
+	public function getExtension_ProxyCheck() :ExtProxyCheck {
+		return $this->getExtension( ExtProxyCheck::SLUG );
+	}
+
 	/**
 	 * @return BaseExtension[]
 	 */
 	protected function getExtensions() :array {
 		if ( $this->extensions === null ) {
-			$extensions = apply_filters( 'shield/get_extensions', [] );
-			$this->extensions = \array_filter(
-				\is_array( $extensions ) ? $extensions : [],
-				function ( $ext ) {
-					return \is_a( $ext, BaseExtension::class );
+			/** @var BaseExtension $ext */
+			foreach ( apply_filters( 'shield/get_extensions', [] ) as $ext ) {
+				if ( \is_object( $ext ) && \is_a( $ext, BaseExtension::class ) ) {
+					$this->extensions[ $ext->cfg()->slug ] = $ext;
 				}
-			);
+			}
 		}
 		return $this->extensions;
 	}
