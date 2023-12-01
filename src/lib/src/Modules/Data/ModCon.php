@@ -12,6 +12,10 @@ class ModCon extends BaseShield\ModCon {
 		return self::con()->db_con->loadDbH( 'ips' );
 	}
 
+	public function getDbH_IPMeta() :DB\IpMeta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'ip_meta' );
+	}
+
 	public function getDbH_UserMeta() :DB\UserMeta\Ops\Handler {
 		return self::con()->db_con->loadDbH( 'user_meta' );
 	}
