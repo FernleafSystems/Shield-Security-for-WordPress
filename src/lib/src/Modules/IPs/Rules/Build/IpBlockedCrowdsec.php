@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class IpBlockedCrowdsec extends BuildRuleIpsBase {
 
@@ -26,21 +25,9 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
-				],
-				[
-					'rule'         => IpBlockedShield::SLUG,
-					'invert_match' => true
-				],
-				[
-					'condition'    => Conditions\IsIpHighReputation::SLUG,
-					'invert_match' => true
-				],
-				[
-					'condition' => Conditions\IsIpBlockedCrowdsec::SLUG,
+					'conditions' => Conditions\IsIpBlockedCrowdsec::class,
 				],
 			]
 		];
@@ -49,7 +36,7 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpBlockedCrowdsec::SLUG,
+				'response' => Responses\ProcessIpBlockedCrowdsec::class,
 			],
 		];
 	}

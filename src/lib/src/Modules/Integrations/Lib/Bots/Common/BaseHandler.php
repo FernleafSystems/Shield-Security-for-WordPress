@@ -49,7 +49,7 @@ abstract class BaseHandler {
 	}
 
 	protected function isBot() :bool {
-		if ( is_null( self::$isBot ) ) {
+		if ( \is_null( self::$isBot ) ) {
 			self::$isBot = self::con()
 							   ->getModule_IPs()
 							   ->getBotSignalsController()

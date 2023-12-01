@@ -6,7 +6,7 @@ class HideGeneratorTag extends Base {
 
 	public const SLUG = 'hide_generator_tag';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		remove_action( 'wp_head', 'wp_generator' );
 		return true;
 	}

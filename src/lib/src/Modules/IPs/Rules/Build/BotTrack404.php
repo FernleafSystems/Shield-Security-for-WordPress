@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Constants,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class BotTrack404 extends BuildRuleIpsBase {
 
@@ -22,27 +22,24 @@ class BotTrack404 extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => static::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG
+					'conditions' => Conditions\IsNotLoggedInNormal::class
 				],
 				[
-					'condition' => Conditions\MatchRequestStatusCode::SLUG,
-					'params'    => [
-						'code' => '404',
-					],
+					'conditions' => Conditions\IsRequestStatus404::class,
 				],
 				[
-					'logic' => static::LOGIC_OR,
-					'group' => [
+					'logic'      => static::LOGIC_OR,
+					'conditions' => [
 						[
-							'condition' => Conditions\NotMatchRequestPath::SLUG,
-							'params'    => [
+							'conditions' => Conditions\NotMatchRequestPath::class,
+							'params'     => [
 								'is_match_regex' => true,
 								'match_paths'    => [
 									sprintf( "\\.(%s)$", \implode( '|', $this->opts()->botSignalsGetAllowable404s() ) )
@@ -50,10 +47,10 @@ class BotTrack404 extends BuildRuleIpsBase {
 							],
 						],
 						[
-							'condition' => Conditions\IsRequestToInvalidPlugin::SLUG,
+							'conditions' => Conditions\IsRequestToInvalidPlugin::class,
 						],
 						[
-							'condition' => Conditions\IsRequestToInvalidTheme::SLUG,
+							'conditions' => Conditions\IsRequestToInvalidTheme::class,
 						],
 					]
 				]
@@ -65,7 +62,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 		$opts = $this->opts();
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_404',
 					'offense_count'    => $opts->getOffenseCountFor( 'track_404' ),

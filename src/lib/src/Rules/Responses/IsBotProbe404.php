@@ -6,7 +6,7 @@ class IsBotProbe404 extends Base {
 
 	public const SLUG = 'is_bot_probe_404';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		return true;
 	}
 }

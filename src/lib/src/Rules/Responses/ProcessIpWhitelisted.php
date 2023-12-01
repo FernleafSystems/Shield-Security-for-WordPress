@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
-class SetIpWhitelisted extends Base {
+class ProcessIpWhitelisted extends Base {
 
-	public const SLUG = 'set_ip_whitelisted';
+	public const SLUG = 'process_ip_whitelisted';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		$con = self::con();
 
 		$ipRecord = \current( ( new IpRuleStatus( $con->this_req->ip ) )->getRulesForBypass() );
@@ -19,7 +19,6 @@ class SetIpWhitelisted extends Base {
 			$updater->updateLastAccessAt( $ipRecord );
 		}
 
-		$con->this_req->is_ip_whitelisted = true;
 		return true;
 	}
 }

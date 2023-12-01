@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -14,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class IsRateLimitExceededProxyCheck extends Conditions\Base {
 
-	use RequestIP;
+	use Traits\RequestIP;
 
 	public const SLUG = 'is_rate_limit_exceeded_proxy_check';
 

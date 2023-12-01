@@ -36,7 +36,7 @@ class Lookup {
 
 			$ipRecord = ( new IPRecords() )->loadIP( $this->getIP(), false );
 
-			if ( is_null( $ipRecord->geo )
+			if ( \is_null( $ipRecord->geo )
 				 || Services::Request()->carbon()->subMonth()->timestamp > ( $ipRecord->geo[ 'ts' ] ?? 0 ) ) {
 
 				if ( $this->reqCount++ > 30 ) {

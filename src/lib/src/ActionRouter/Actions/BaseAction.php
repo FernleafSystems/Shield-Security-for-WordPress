@@ -71,7 +71,8 @@ abstract class BaseAction extends DynPropertiesClass {
 	 */
 	protected function checkAccess() {
 		$con = self::con();
-		if ( $con->this_req->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
+		$thisReq = $con->this_req;
+		if ( !$thisReq->request_bypasses_all_restrictions && $thisReq->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
 			throw new IpBlockedException( sprintf( 'IP Address blocked so cannot process action: %s', static::SLUG ) );
 		}
 
@@ -81,7 +82,7 @@ abstract class BaseAction extends DynPropertiesClass {
 			throw new UserAuthRequiredException( sprintf( 'Must be logged-in to execute this action: %s', static::SLUG ) );
 		}
 
-		if ( !$con->this_req->is_security_admin && $this->isSecurityAdminRequired() ) {
+		if ( !$thisReq->is_security_admin && $this->isSecurityAdminRequired() ) {
 			throw new SecurityAdminRequiredException( sprintf( 'Security admin required for action: %s', static::SLUG ) );
 		}
 

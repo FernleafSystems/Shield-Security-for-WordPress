@@ -23,7 +23,7 @@ class MatchRequestPath extends Base {
 		$this->addConditionTriggerMeta( 'matched_path', $path );
 		foreach ( $this->match_paths as $matchPath ) {
 			$matched = $this->is_match_regex ?
-				(bool)preg_match( sprintf( '#%s#i', $matchPath ), $path ) : $matchPath == $path;
+				(bool)\preg_match( sprintf( '#%s#i', $matchPath ), $path ) : $matchPath == $path;
 
 			if ( $matched ) {
 				break;

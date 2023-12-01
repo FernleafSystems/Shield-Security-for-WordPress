@@ -14,6 +14,7 @@ abstract class BuildRuleBase {
 
 	public function build() :RuleVO {
 		$rule = new RuleVO();
+		$rule->class = \get_class( $this );
 		$rule->slug = $this->getSlug();
 		$rule->name = $this->getName();
 		$rule->description = $this->getDescription();
@@ -38,12 +39,7 @@ abstract class BuildRuleBase {
 		return WPHooksOrder::NONE;
 	}
 
-	protected function getConditions() :array {
-		return [
-			'logic' => static::LOGIC_AND,
-			'group' => []
-		];
-	}
+	abstract protected function getConditions() :array;
 
 	protected function getFlags() :array {
 		return [];

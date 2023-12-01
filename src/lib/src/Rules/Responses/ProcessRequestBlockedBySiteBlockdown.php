@@ -4,12 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\BlockRequestSiteLockdown;
 
-class SetRequestIsSiteLockdownBlocked extends Base {
+class ProcessRequestBlockedBySiteBlockdown extends Base {
 
-	public const SLUG = 'set_request_is_site_lockdown_blocked';
+	public const SLUG = 'process_request_blocked_by_site_blockdown';
 
-	protected function execResponse() :bool {
-		self::con()->this_req->is_site_lockdown_blocked = true;
+	public function execResponse() :bool {
 		( new BlockRequestSiteLockdown() )->execute();
 		return true;
 	}

@@ -12,11 +12,6 @@ abstract class Base {
 	public const SLUG = '';
 
 	/**
-	 * @var RuleVO
-	 */
-	protected $rule;
-
-	/**
 	 * @var array
 	 */
 	protected $responseParams;
@@ -26,45 +21,30 @@ abstract class Base {
 	 */
 	protected $conditionTriggerMeta;
 
-	public function __construct( array $responseParams ) {
+	public function __construct( array $responseParams = [], array $conditionTriggerMeta = [] ) {
 		$this->responseParams = $responseParams;
+		$this->conditionTriggerMeta = $conditionTriggerMeta;
 	}
 
-	public function setRule( RuleVO $rule ) {
-		$this->rule = $rule;
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public function setRule( RuleVO $rule ) :self {
 		return $this;
 	}
 
+	/**
+	 * @deprecated 18.5.8
+	 */
 	public function setConditionTriggerMeta( array $meta ) :self {
 		$this->conditionTriggerMeta = $meta;
 		return $this;
 	}
 
-	public function run() {
-		$con = self::con();
-		if ( $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
-			$this->runExecResponse();
-		}
-		else {
-			add_action( $con->prefix( 'after_run_processors' ), function () {
-				$this->runExecResponse();
-			} );
-		}
-	}
-
-	private function runExecResponse() :bool {
-		try {
-			return $this->execResponse();
-		}
-		catch ( \Exception $e ) {
-			return false;
-		}
-	}
-
 	/**
 	 * @throws \Exception
 	 */
-	abstract protected function execResponse() :bool;
+	abstract public function execResponse() :bool;
 
 	protected function getConsolidatedConditionMeta() :array {
 		$meta = [];

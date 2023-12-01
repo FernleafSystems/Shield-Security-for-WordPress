@@ -25,9 +25,9 @@ class IpWhitelisted extends BuildRuleIpsBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'condition' => Conditions\IsIpWhitelisted::SLUG
+					'conditions' => Conditions\IsIpWhitelisted::class
 				],
 			]
 		];
@@ -36,7 +36,7 @@ class IpWhitelisted extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpWhitelisted::SLUG,
+				'response' => Responses\ProcessIpWhitelisted::class,
 			],
 		];
 	}

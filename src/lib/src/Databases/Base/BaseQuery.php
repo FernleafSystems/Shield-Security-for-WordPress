@@ -256,7 +256,7 @@ abstract class BaseQuery {
 	 * @return $this
 	 */
 	public function filterByCreatedAt( $ts, $comparisonOp ) {
-		if ( !preg_match( '#[^=<>]#', $comparisonOp ) && is_numeric( $ts ) ) {
+		if ( !preg_match( '#[^=<>]#', $comparisonOp ) && \is_numeric( $ts ) ) {
 			$this->addWhere( 'created_at', (int)$ts, $comparisonOp );
 		}
 		return $this;

@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsIpValidPublic extends Base {
 
-	use RequestIP;
+	use Traits\RequestIP;
 
 	public const SLUG = 'is_ip_valid_public';
 

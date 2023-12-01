@@ -6,13 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
+	Constants,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\{
-	IpWhitelisted,
-	IsPathWhitelisted
-};
 
+/**
+ * @deprecated 18.5.8
+ */
 class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	use RuleTraits\InstantExec;
@@ -27,32 +27,29 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 		return 'Does the request bypass all plugin restrictions.';
 	}
 
-	protected function getConditions() :array {
+	protected function getConditions2() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic'      => static::LOGIC_AND,
+			'conditions' => [
 				[
-					'rule'         => RequestIsSiteBlockdownBlocked::SLUG,
-					'invert_match' => true,
+					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
+					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
-					'logic' => static::LOGIC_OR,
-					'group' => [
+					'logic'      => static::LOGIC_OR,
+					'conditions' => [
 						[
-							'condition' => Conditions\IsForceOff::SLUG,
+							'conditions' => Conditions\IsForceOff::class,
 						],
 						[
-							'rule'         => IsPublicWebRequest::SLUG,
-							'invert_match' => true,
+							'conditions' => Conditions\RequestIsPublicWebOrigin::class,
+							'logic'      => Constants::LOGIC_INVERT,
 						],
 						[
-							'rule' => IsTrustedBot::SLUG,
+							'conditions' => Conditions\RequestIsTrustedBot::class,
 						],
 						[
-							'rule' => IsPathWhitelisted::SLUG,
-						],
-						[
-							'rule' => IpWhitelisted::SLUG,
+							'conditions' => Conditions\RequestIsPathWhitelisted::class,
 						],
 					]
 				],
@@ -60,11 +57,36 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 		];
 	}
 
-	protected function getResponses() :array {
+	protected function getConditions() :array {
 		return [
-			[
-				'response' => Responses\SetRequestBypassesAllRestrictions::SLUG,
-			],
+			'logic' => static::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
+					'logic'      => Constants::LOGIC_INVERT,
+				],
+				[
+					'logic' => static::LOGIC_OR,
+					'conditions' => [
+						[
+							'conditions' => Conditions\IsForceOff::class,
+						],
+						[
+							'conditions' => Conditions\RequestIsPublicWebOrigin::class,
+							'logic'      => Constants::LOGIC_INVERT,
+						],
+						[
+							'conditions' => Conditions\RequestIsTrustedBot::class,
+						],
+						[
+							'conditions' => Conditions\RequestIsPathWhitelisted::class,
+						],
+						[
+							'conditions' => Conditions\RequestIsPathWhitelisted::class,
+						],
+					]
+				],
+			]
 		];
 	}
 }

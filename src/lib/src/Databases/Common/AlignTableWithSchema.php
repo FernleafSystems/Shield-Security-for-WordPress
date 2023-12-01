@@ -92,7 +92,7 @@ class AlignTableWithSchema {
 	 * @return string[]
 	 */
 	private function getColumnsActual() :array {
-		if ( is_null( $this->cols ) ) {
+		if ( \is_null( $this->cols ) ) {
 			$this->cols = Services::WpDb()->getColumnsForTable( $this->schema->table );
 		}
 		return \is_array( $this->cols ) ? \array_map( '\strtolower', $this->cols ) : [];

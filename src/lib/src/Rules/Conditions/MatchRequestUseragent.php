@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\UserAgent;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchUseragentsUnavailableException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
 
@@ -11,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUna
  */
 class MatchRequestUseragent extends Base {
 
-	use UserAgent;
+	use Traits\UserAgent;
 
 	public const SLUG = 'match_request_useragent';
 
@@ -27,7 +26,7 @@ class MatchRequestUseragent extends Base {
 
 		$match = false;
 		foreach ( $uAgents as $possibleAgent ) {
-			if ( stripos( $this->getUserAgent(), $possibleAgent ) !== false ) {
+			if ( \stripos( $this->getUserAgent(), $possibleAgent ) !== false ) {
 				$match = true;
 				$this->addConditionTriggerMeta( 'matched_useragent', $possibleAgent );
 				break;

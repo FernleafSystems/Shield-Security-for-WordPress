@@ -65,7 +65,7 @@ class Delete extends BaseQuery {
 	 * @throws \Exception
 	 */
 	public function deleteExcess( $maxEntries, $orderByColumn = 'created_at', $bOldestFirst = true ) {
-		if ( is_null( $maxEntries ) ) {
+		if ( \is_null( $maxEntries ) ) {
 			throw new \Exception( 'Max Entries not specified for table excess delete.' );
 		}
 

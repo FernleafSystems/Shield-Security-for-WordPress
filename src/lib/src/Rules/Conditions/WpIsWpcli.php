@@ -9,10 +9,14 @@ class WpIsWpcli extends Base {
 	public const SLUG = 'wp_is_wpcli';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = self::con()->this_req;
-		if ( !isset( $thisReq->wp_is_wpcli ) ) {
-			$thisReq->wp_is_wpcli = Services::WpGeneral()->isWpCli();
-		}
-		return $thisReq->wp_is_wpcli;
+		return Services::WpGeneral()->isWpCli();
+	}
+
+	protected function getPreviousResult() :?bool {
+		return self::con()->this_req->wp_is_wpcli;
+	}
+
+	protected function postExecConditionCheck( bool $result ) :void {
+		self::con()->this_req->wp_is_wpcli = $result;
 	}
 }

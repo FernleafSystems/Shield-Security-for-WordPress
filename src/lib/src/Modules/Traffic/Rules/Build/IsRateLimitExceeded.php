@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
+	Constants,
 	Responses
 };
 
@@ -27,16 +27,16 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG,
+					'conditions' => Conditions\IsNotLoggedInNormal::class,
 				],
 				[
-					'condition' => Conditions\IsRateLimitExceeded::SLUG,
+					'conditions' => Conditions\IsRateLimitExceeded::class,
 					'params'    => [
 						'limit_count'     => $this->opts()->getLimitRequestCount(),
 						'limit_time_span' => $this->opts()->getLimitTimeSpan(),
@@ -49,7 +49,7 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'request_limit_exceeded',
 					'offense_count'    => 1,
@@ -58,7 +58,7 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 				],
 			],
 			[
-				'response' => Responses\TrafficRateLimitExceeded::SLUG,
+				'response' => Responses\TrafficRateLimitExceeded::class,
 			],
 		];
 	}

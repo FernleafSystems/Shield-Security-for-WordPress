@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Constants,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 
@@ -23,16 +23,16 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG,
+					'conditions' => Conditions\IsNotLoggedInNormal::class,
 				],
 				[
-					'condition' => Conditions\RequestQueryParamIs::SLUG,
+					'conditions' => Conditions\RequestQueryParamIs::class,
 					'params'    => [
 						'match_param'    => 'author',
 						'match_patterns' => [
@@ -47,7 +47,7 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'         => 'block_author_fishing',
 					'offense_count' => $this->opts()->isBlockAuthorDiscovery() ? 1 : 0,
@@ -55,7 +55,7 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 				],
 			],
 			[
-				'response' => Responses\BlockAuthorFishing::SLUG,
+				'response' => Responses\BlockAuthorFishing::class,
 			],
 		];
 	}

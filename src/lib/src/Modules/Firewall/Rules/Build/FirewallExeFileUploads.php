@@ -2,8 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\MatchRequestParamFileUploads;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
+	MatchRequestParamFileUploads,
+	RequestBypassesAllRestrictions
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class FirewallExeFileUploads extends BuildFirewallBase {
 
@@ -13,23 +16,23 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 	protected function getConditions() :array {
 		$conditions = [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 			]
 		];
 
 		$matchGroup = [
 			'logic' => static::LOGIC_OR,
-			'group' => [],
+			'conditions' => [],
 		];
 
 		$simple = $this->getFirewallPatterns_Simple();
 		if ( !empty( $simple ) ) {
-			$matchGroup[ 'group' ][] = [
-				'condition' => MatchRequestParamFileUploads::SLUG,
+			$matchGroup[ 'conditions' ][] = [
+				'conditions' => MatchRequestParamFileUploads::class,
 				'params'    => [
 					'is_match_regex' => false,
 					'match_patterns' => $simple,
@@ -40,8 +43,8 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 
 		$regex = $this->getFirewallPatterns_Regex();
 		if ( !empty( $regex ) ) {
-			$matchGroup[ 'group' ][] = [
-				'condition' => MatchRequestParamFileUploads::SLUG,
+			$matchGroup[ 'conditions' ][] = [
+				'conditions' => MatchRequestParamFileUploads::class,
 				'params'    => [
 					'is_match_regex' => true,
 					'match_patterns' => $regex,
@@ -50,7 +53,7 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 			];
 		}
 
-		$conditions[ 'group' ][] = $matchGroup;
+		$conditions[ 'conditions' ][] = $matchGroup;
 
 		return $conditions;
 	}

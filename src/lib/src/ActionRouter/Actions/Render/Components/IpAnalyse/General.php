@@ -109,7 +109,7 @@ class General extends Base {
 					'is_bypass'              => $ruleStatus->isBypass(),
 					'is_crowdsec'            => $ruleStatus->isBlockedByCrowdsec(),
 					'ip_reputation_score'    => $botScore,
-					'snapi_reputation_score' => is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
+					'snapi_reputation_score' => \is_numeric( $shieldNetScore ) ? $shieldNetScore : 'Unavailable',
 					'is_bot'                 => $isBot,
 				],
 				'identity' => [
