@@ -6,7 +6,7 @@ class IsSiteLockdownActive extends Base {
 
 	public const SLUG = 'is_site_lockdown_active';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Is Shield's Site Lockdown active.", 'wp-simple-firewall' );
 	}
 

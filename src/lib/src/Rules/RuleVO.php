@@ -53,7 +53,6 @@ class RuleVO extends DynPropertiesClass {
 			case 'conditions':
 				$value = ( new ConditionsVO() )->applyFromArray( \is_array( $value ) ? $value : [] );
 				break;
-				break;
 
 			case 'is_valid':
 				$value = $value || $value === null;

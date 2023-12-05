@@ -10,7 +10,7 @@ class IsIpValidPublic extends Base {
 
 	public const SLUG = 'is_ip_valid_public';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the request originate from a valid public IP address.', 'wp-simple-firewall' );
 	}
 

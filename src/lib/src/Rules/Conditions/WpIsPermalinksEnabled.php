@@ -8,7 +8,7 @@ class WpIsPermalinksEnabled extends Base {
 
 	public const SLUG = 'wp_is_permalinks_enabled';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Are WordPress permalinks enabled.', 'wp-simple-firewall' );
 	}
 

@@ -8,7 +8,7 @@ class MatchRequestParamQuery extends MatchRequestParam {
 
 	public const SLUG = 'match_request_param_query';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Do any QUERY parameters in the request match the given set of parameters.", 'wp-simple-firewall' );
 	}
 

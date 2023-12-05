@@ -15,7 +15,7 @@ class MatchRequestScriptName extends Base {
 
 	public const SLUG = 'match_request_script_name';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the request script name match the given set of names.', 'wp-simple-firewall' );
 	}
 

@@ -8,7 +8,7 @@ class RequestIsTrustedBot extends Base {
 
 	public const SLUG = 'request_is_trusted_bot';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Is the request a bot that originates from a trusted service provider.', 'wp-simple-firewall' );
 	}
 

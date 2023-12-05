@@ -38,7 +38,7 @@ class RulesController {
 	protected function run() {
 
 		// Rebuild the rules upon upgrade or settings change
-		if ( self::con()->cfg->rebuilt ) {
+		if ( true ) {
 			$this->buildAndStore();
 		}
 

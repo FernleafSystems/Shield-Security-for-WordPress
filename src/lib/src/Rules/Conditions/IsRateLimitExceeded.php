@@ -17,7 +17,7 @@ class IsRateLimitExceeded extends Conditions\Base {
 
 	public const SLUG = 'is_rate_limit_exceeded';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the request exceed any traffic rate limits.', 'wp-simple-firewall' );
 	}
 

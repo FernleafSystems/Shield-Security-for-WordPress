@@ -29,14 +29,14 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	protected function getConditions2() :array {
 		return [
-			'logic'      => static::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
 					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
-					'logic'      => static::LOGIC_OR,
+					'logic'      => Constants::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => Conditions\IsForceOff::class,
@@ -59,14 +59,14 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
+			'logic' => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
 					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
-					'logic' => static::LOGIC_OR,
+					'logic' => Constants::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => Conditions\IsForceOff::class,

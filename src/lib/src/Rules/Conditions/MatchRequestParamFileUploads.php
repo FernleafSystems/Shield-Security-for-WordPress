@@ -6,7 +6,7 @@ class MatchRequestParamFileUploads extends MatchRequestParam {
 
 	public const SLUG = 'match_request_param_file_uploads';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Do any files uploaded in the request match the given set of filenames.", 'wp-simple-firewall' );
 	}
 

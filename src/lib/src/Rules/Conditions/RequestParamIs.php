@@ -12,7 +12,7 @@ class RequestParamIs extends Base {
 
 	public const SLUG = 'request_param_is';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the value of the given request parameter match against the given patterns.', 'wp-simple-firewall' );
 	}
 

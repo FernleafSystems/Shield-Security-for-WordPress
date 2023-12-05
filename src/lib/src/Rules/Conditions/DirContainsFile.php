@@ -15,7 +15,7 @@ class DirContainsFile extends Base {
 
 	public const SLUG = 'dir_contains_file';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does a given file exist in a given directory.', 'wp-simple-firewall' );
 	}
 

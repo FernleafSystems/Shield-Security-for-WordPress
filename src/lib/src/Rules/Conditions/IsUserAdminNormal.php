@@ -9,7 +9,7 @@ class IsUserAdminNormal extends Base {
 
 	public const SLUG = 'is_user_admin_normal';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Is current user a logged-in WordPress administrator.", 'wp-simple-firewall' );
 	}
 

@@ -15,7 +15,7 @@ class MatchRequestStatusCode extends Base {
 
 	public const SLUG = 'match_request_status_code';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the request response status code match the given code.', 'wp-simple-firewall' );
 	}
 

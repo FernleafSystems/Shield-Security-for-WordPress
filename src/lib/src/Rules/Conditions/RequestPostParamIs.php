@@ -8,7 +8,7 @@ class RequestPostParamIs extends RequestParamIs {
 
 	public const SLUG = 'request_post_param_is';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the value of the given POST request parameter match against the given patterns.', 'wp-simple-firewall' );
 	}
 

@@ -11,7 +11,7 @@ class IsIpBlockedCrowdsec extends Base {
 
 	public const SLUG = 'is_ip_blocked_crowdsec';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Is the request IP on Shield's CrowdSec block list.", 'wp-simple-firewall' );
 	}
 

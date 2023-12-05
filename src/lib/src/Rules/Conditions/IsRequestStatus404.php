@@ -6,7 +6,7 @@ class IsRequestStatus404 extends Base {
 
 	public const SLUG = 'is_request_status_404';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Is the request an HTTP 404.', 'wp-simple-firewall' );
 	}
 

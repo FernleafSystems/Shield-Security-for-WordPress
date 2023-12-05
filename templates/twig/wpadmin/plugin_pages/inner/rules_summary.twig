@@ -1,6 +1,8 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
+	{% import '/common/macros_rules.twig' as macros_rules %}
+
 	<div class="accordion" id="RulesByHooks">
 		{% for hook in vars.components.hooks %}
 
@@ -34,12 +36,13 @@
 									   data-bs-parent="#RulesForHook-{{ hook }}">
 									  <div class="accordion-body">
 										  <p>{{ rule.description }}</p>
-										  <p>Rule Sub-Conditions</p>
-										  <ul>
-											  {% for sub_cond in rule.sub_conditions %}
-												  <li>{{ sub_cond.name }}</li>
-											  {% endfor %}
-										  </ul>
+										  <p>Rule Conditions</p>
+										  {{ macros_rules.render_conditions_parsed( rule.conditions_parsed, true ) }}
+{#										  <ul>#}
+{#											  {% for sub_cond in rule.sub_conditions %}#}
+{#												  <li>{{ sub_cond.name }}</li>#}
+{#											  {% endfor %}#}
+{#										  </ul>#}
 									  </div>
 								  </div>
 							  </div>

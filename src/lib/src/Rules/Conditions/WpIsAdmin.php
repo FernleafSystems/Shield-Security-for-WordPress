@@ -6,7 +6,7 @@ class WpIsAdmin extends Base {
 
 	public const SLUG = 'wp_is_admin';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Is the request to the WordPress admin area.', 'wp-simple-firewall' );
 	}
 

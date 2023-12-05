@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\ConditionsVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions;
 
 class PageRulesSummary extends BasePluginAdminPage {
@@ -35,11 +37,14 @@ class PageRulesSummary extends BasePluginAdminPage {
 				$data = $rule->getRawData();
 				$data[ 'simple_id' ] = $simpleID++;
 				$data[ 'conditions' ] = $rule->conditions;
+				$data[ 'conditions_parsed' ] = $this->parseConditionsForDisplay( $rule->conditions );
+
 				$data[ 'sub_conditions' ] = \array_map(
 					function ( string $conditionClass ) {
 						$cond = new $conditionClass();
 						return [
-							'name' => $cond->getName(),
+							'name' => $cond->getDescription(),
+							'slug' => $cond->getSlug(),
 						];
 					},
 					( new ExtractSubConditions() )->fromRule( $rule )[ 'classes' ]
@@ -59,5 +64,32 @@ class PageRulesSummary extends BasePluginAdminPage {
 				'rules'      => $rules,
 			]
 		];
+	}
+
+	private function parseConditionsForDisplay( ConditionsVO $conditionsVO ) :array {
+		$parsed = [
+			'type'   => $conditionsVO->type,
+			'logic'  => $conditionsVO->logic,
+			'params' => $conditionsVO->params,
+		];
+		if ( $parsed[ 'type' ] === 'single' ) {
+			$conditionClass = $conditionsVO->conditions;
+			/** @var Base $condition */
+			$condition = new $conditionClass();
+			$parsed[ 'conditions' ] = [
+				'name'        => $condition->getName(),
+				'slug'        => $condition->getSlug(),
+				'class'       => $conditionClass,
+				'description' => $condition->getDescription(),
+			];
+		}
+		elseif ( $parsed[ 'type' ] === 'group' ) {
+			$parsed[ 'conditions' ] = [];
+			foreach ( $conditionsVO->conditions as $conditions ) {
+				$parsed[ 'conditions' ][] = $this->parseConditionsForDisplay( $conditions );
+			}
+		}
+		/** else callable */
+		return $parsed;
 	}
 }

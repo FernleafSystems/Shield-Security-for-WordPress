@@ -6,7 +6,7 @@ class MatchRequestNotIpIdentity extends MatchRequestIpIdentity {
 
 	public const SLUG = 'match_request_not_ip_identity';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Does the current request NOT originate from a given set of services/providers.", 'wp-simple-firewall' );
 	}
 

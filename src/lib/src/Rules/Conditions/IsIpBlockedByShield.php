@@ -10,7 +10,7 @@ class IsIpBlockedByShield extends Base {
 
 	public const SLUG = 'is_ip_blocked_by_shield';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Is the request IP on any of Shield's block lists.", 'wp-simple-firewall' );
 	}
 

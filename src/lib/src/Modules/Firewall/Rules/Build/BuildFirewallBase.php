@@ -39,7 +39,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		$conditions = [
-			'logic' => static::LOGIC_AND,
+			'logic' => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
@@ -50,7 +50,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'conditions' => Conditions\RequestHasParameters::class,
+					'conditions' => Conditions\RequestHasAnyParameters::class,
 				],
 			]
 		];
@@ -58,7 +58,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		$excludedPaths = $this->getExcludedPaths();
 		if ( !empty( $excludedPaths ) ) {
 			$conditions[ 'conditions' ][] = [
-				'conditions' => Conditions\NotMatchRequestPath::class,
+				'conditions' => Conditions\MatchRequestPath::class,
+				'logic'      => Constants::LOGIC_INVERT,
 				'params'    => [
 					'is_match_regex' => false,
 					'match_paths'    => $excludedPaths,
@@ -74,7 +75,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		}
 
 		$firewallRulesGroup = [
-			'logic' => static::LOGIC_OR,
+			'logic' => Constants::LOGIC_OR,
 			'conditions' => [],
 		];
 

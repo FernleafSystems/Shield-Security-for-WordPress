@@ -15,7 +15,7 @@ class MatchRequestParam extends Base {
 
 	public const SLUG = 'match_request_param';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Do any parameters in the request match the given set of parameters to test.", 'wp-simple-firewall' );
 	}
 

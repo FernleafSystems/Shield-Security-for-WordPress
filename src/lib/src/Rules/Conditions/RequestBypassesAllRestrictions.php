@@ -8,7 +8,7 @@ class RequestBypassesAllRestrictions extends Base {
 
 	public const SLUG = 'request_bypasses_all_restrictions';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Does the request bypass any and all Shield restrictions.", 'wp-simple-firewall' );
 	}
 

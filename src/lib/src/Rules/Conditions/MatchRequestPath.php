@@ -14,7 +14,7 @@ class MatchRequestPath extends Base {
 
 	public const SLUG = 'match_request_path';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Does the request path match the given set of paths.', 'wp-simple-firewall' );
 	}
 

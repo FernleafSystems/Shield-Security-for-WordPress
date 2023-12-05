@@ -8,7 +8,7 @@ class WpIsXmlrpc extends Base {
 
 	public const SLUG = 'wp_is_xmlrpc';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Is the request to the WordPress XML-RPC endpoint.', 'wp-simple-firewall' );
 	}
 

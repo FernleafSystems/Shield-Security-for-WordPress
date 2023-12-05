@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
+use FernleafSystems\Wordpress\Services\Utilities\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	RuleVO,
 	ConditionsVO,
@@ -33,12 +34,17 @@ abstract class Base extends DynPropertiesClass {
 		return WPHooksOrder::NONE;
 	}
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return $this->getSlug();
 	}
 
+	public function getName() :string {
+		$name = \preg_replace( '#(?<!^)[A-Z]#', ' $0', ( new \ReflectionClass( $this ) )->getShortName() );
+		return str_ireplace( [ 'Wp ', 'Ip ', 'ajax', 'wpcli' ], [ 'WP ', 'IP ', 'AJAX', 'WP-CLI' ], $name );
+	}
+
 	public function getSlug() :string {
-		return ( new \ReflectionClass( $this ) )->getShortName();
+		return Strings::CamelToSnake( ( new \ReflectionClass( $this ) )->getShortName() );
 	}
 
 	public function __get( string $key ) {

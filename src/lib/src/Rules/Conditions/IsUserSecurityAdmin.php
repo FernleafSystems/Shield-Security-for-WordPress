@@ -6,7 +6,7 @@ class IsUserSecurityAdmin extends Base {
 
 	public const SLUG = 'is_user_security_admin';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( "Is current user Security Admin.", 'wp-simple-firewall' );
 	}
 

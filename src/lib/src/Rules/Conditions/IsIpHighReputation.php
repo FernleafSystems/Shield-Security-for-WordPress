@@ -10,7 +10,7 @@ class IsIpHighReputation extends Base {
 
 	public const SLUG = 'is_ip_high_reputation';
 
-	public function getName() :string {
+	public function getDescription() :string {
 		return __( 'Is the current IP address considered "high reputation".', 'wp-simple-firewall' );
 	}
 
