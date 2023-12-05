@@ -9,6 +9,14 @@ class IsSiteLockdownActive extends Base {
 	protected function execConditionCheck() :bool {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options $opts */
 		$opts = self::con()->getModule_Plugin()->opts();
-		return self::con()->this_req->is_site_lockdown_active = $opts->getBlockdownCfg()->isLockdownActive();
+		return $opts->getBlockdownCfg()->isLockdownActive();
+	}
+
+	protected function getPreviousResult() :?bool {
+		return self::con()->this_req->is_site_lockdown_active;
+	}
+
+	protected function postExecConditionCheck( bool $result ) :void {
+		self::con()->this_req->is_site_lockdown_active = $result;
 	}
 }

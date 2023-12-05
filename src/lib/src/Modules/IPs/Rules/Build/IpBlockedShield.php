@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class IpBlockedShield extends BuildRuleIpsBase {
 
@@ -26,31 +25,10 @@ class IpBlockedShield extends BuildRuleIpsBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\IsIpBlockedByShield::class,
 				],
-				[
-					'logic' => static::LOGIC_OR,
-					'group' => [
-						[
-							'condition' => Conditions\IsIpBlockedManual::SLUG,
-						],
-						[
-							'logic' => static::LOGIC_AND,
-							'group' => [
-								[
-									'condition' => Conditions\IsIpBlockedAuto::SLUG,
-								],
-								[
-									'condition'    => Conditions\IsIpHighReputation::SLUG,
-									'invert_match' => true
-								],
-							]
-						]
-					]
-				]
 			]
 		];
 	}
@@ -58,7 +36,7 @@ class IpBlockedShield extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetIpBlockedShield::SLUG,
+				'response' => Responses\ProcessIpBlockedShield::class,
 			],
 		];
 	}

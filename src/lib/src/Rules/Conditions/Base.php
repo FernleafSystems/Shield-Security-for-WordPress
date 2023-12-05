@@ -4,8 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	RuleVO,
+	ConditionsVO,
+	WPHooksOrder
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base extends DynPropertiesClass {
@@ -25,6 +29,9 @@ abstract class Base extends DynPropertiesClass {
 		$this->applyFromArray( $conditionParams );
 	}
 
+	/**
+	 * @deprecated 18.5.8
+	 */
 	public function setRule( RuleVO $rule ) :self {
 		$this->rule = $rule;
 		return $this;
@@ -48,6 +55,9 @@ abstract class Base extends DynPropertiesClass {
 		return (int)$minimum;
 	}
 
+	/**
+	 * @TODO TODO TODO TODO
+	 */
 	public static function RequiredConditions() :array {
 		return [];
 	}
@@ -61,7 +71,6 @@ abstract class Base extends DynPropertiesClass {
 		switch ( $key ) {
 			case 'match_ips':
 			case 'match_ip_ids':
-			case 'match_not_ip_ids':
 			case 'match_useragents':
 				if ( !\is_array( $value ) ) {
 					$value = [];
@@ -84,12 +93,18 @@ abstract class Base extends DynPropertiesClass {
 	}
 
 	public function run() :bool {
-		try {
-			$result = $this->execConditionCheck();
+		$result = $this->getPreviousResult();
+		if ( $result === null ) {
+			try {
+				$result = ( new ProcessConditions( $this->getSubConditionsVO() ) )->process();
+			}
+			catch ( \Exception $e ) {
+				$result = false;
+			}
 		}
-		catch ( \Exception $e ) {
-			$result = false;
-		}
+
+		$this->postExecConditionCheck( $result );
+
 		return $result;
 	}
 
@@ -97,10 +112,19 @@ abstract class Base extends DynPropertiesClass {
 		return $this->conditionTriggerMeta;
 	}
 
+	protected function getPreviousResult() :?bool {
+		return null;
+	}
+
 	/**
 	 * @throws \Exception
 	 */
-	abstract protected function execConditionCheck() :bool;
+	protected function execConditionCheck() :bool {
+		return true;
+	}
+
+	protected function postExecConditionCheck( bool $result ) :void {
+	}
 
 	protected function addConditionTriggerMeta( string $item, $value ) :self {
 		$this->conditionTriggerMeta[ $item ] = $value;
@@ -117,5 +141,21 @@ abstract class Base extends DynPropertiesClass {
 	protected function removeTriggerMeta( string $item ) :self {
 		unset( $this->conditionTriggerMeta[ $item ] );
 		return $this;
+	}
+
+	public function getSubConditionsVO() :ConditionsVO {
+		return ( new ConditionsVO() )->applyFromArray( $this->getSubConditions() );
+	}
+
+	protected function getSubConditions() :array {
+		return [
+			'conditions' => $this->getDefaultConditionCheckCallable(),
+		];
+	}
+
+	protected function getDefaultConditionCheckCallable() :\Closure {
+		return function () {
+			return $this->execConditionCheck();
+		};
 	}
 }

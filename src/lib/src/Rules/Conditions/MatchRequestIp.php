@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
+use FernleafSystems\Wordpress\Services\Exceptions\NotAnIpAddressOrRangeException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	IpsToMatchUnavailableException,
 	RequestIpUnavailableException
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MatchRequestIp extends Base {
 
-	use RequestIP;
+	use Traits\RequestIP;
 
 	public const SLUG = 'match_request_ip';
 
@@ -23,6 +23,12 @@ class MatchRequestIp extends Base {
 		if ( empty( $this->match_ips ) ) {
 			throw new IpsToMatchUnavailableException();
 		}
-		return Services::IP()->checkIp( $this->getRequestIP(), $this->match_ips );
+		try {
+			$in = Services::IP()->IpIn( $this->getRequestIP(), $this->match_ips );
+		}
+		catch ( NotAnIpAddressOrRangeException $e ) {
+			$in = false;
+		}
+		return $in;
 	}
 }

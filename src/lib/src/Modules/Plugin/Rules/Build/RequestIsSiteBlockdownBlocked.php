@@ -6,9 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
+	Constants,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\IpWhitelisted;
 
 class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 
@@ -21,26 +21,15 @@ class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getDescription() :string {
-		return 'Does the request fail to mean any Site Lockdown exclusions and is to be blocked.';
+		return 'Does the request fail to meet any Site Lockdown exclusions and is to be blocked.';
 	}
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'group' => [
+			'logic' => Constants::LOGIC_AND,
+			'conditions' => [
 				[
-					'condition'    => Conditions\IsSiteLockdownActive::SLUG,
-				],
-				[
-					'condition'    => Conditions\IsForceOff::SLUG,
-					'invert_match' => true,
-				],
-				[
-					'rule' => IsPublicWebRequest::SLUG,
-				],
-				[
-					'rule'         => IpWhitelisted::SLUG,
-					'invert_match' => true,
+					'conditions' => Conditions\IsRequestBlockedBySiteBlockdown::class,
 				],
 			]
 		];
@@ -49,7 +38,7 @@ class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetRequestIsSiteLockdownBlocked::SLUG,
+				'response' => Responses\ProcessRequestBlockedBySiteBlockdown::class,
 			],
 		];
 	}

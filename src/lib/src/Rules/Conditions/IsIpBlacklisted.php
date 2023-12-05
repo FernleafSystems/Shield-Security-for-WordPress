@@ -3,20 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
 
 class IsIpBlacklisted extends Base {
 
-	use RequestIP;
+	use Traits\RequestIP;
 
 	public const SLUG = 'is_ip_blacklisted';
 
 	protected function execConditionCheck() :bool {
-		$thisReq = self::con()->this_req;
-		if ( !isset( $thisReq->is_ip_blacklisted ) ) {
-			$status = new IpRuleStatus( $this->getRequestIP() );
-			$thisReq->is_ip_blacklisted = $status->isBlockedByShield() || $status->isAutoBlacklisted();
-		}
-		return $thisReq->is_ip_blacklisted;
+		$status = new IpRuleStatus( $this->getRequestIP() );
+		return $status->isBlockedByShield() || $status->isAutoBlacklisted();
+	}
+
+	protected function getPreviousResult() :?bool {
+		return self::con()->this_req->is_ip_blacklisted;
+	}
+
+	protected function postExecConditionCheck( bool $result ) :void {
+		self::con()->this_req->is_ip_blacklisted = $result;
 	}
 }

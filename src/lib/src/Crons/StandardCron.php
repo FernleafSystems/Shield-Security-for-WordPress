@@ -51,8 +51,8 @@ trait StandardCron {
 	 * @return int
 	 */
 	protected function getNextCronRun() {
-		$nNext = wp_next_scheduled( $this->getCronName() );
-		return is_numeric( $nNext ) ? $nNext : 0;
+		$next = wp_next_scheduled( $this->getCronName() );
+		return \is_numeric( $next ) ? $next : 0;
 	}
 
 	public function deleteCron() {

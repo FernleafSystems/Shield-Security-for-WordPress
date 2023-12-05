@@ -8,7 +8,7 @@ class DisableXmlrpc extends Base {
 
 	private $processed = false;
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		return true;

@@ -50,23 +50,17 @@ class RuleBuilderEnumerator {
 
 		return \array_merge(
 			[
-				IPs\Rules\Build\IsPathWhitelisted::class, // this is here as a hack, so it runs early
-				Plugin\Rules\Build\RequestIsSiteBlockdownBlocked::class,
 				Plugin\Rules\Build\RequestStatusIsAdmin::class,
 				Plugin\Rules\Build\RequestStatusIsAjax::class,
 				Plugin\Rules\Build\RequestStatusIsXmlRpc::class,
 				Plugin\Rules\Build\RequestStatusIsWpCli::class,
-				Plugin\Rules\Build\IsServerLoopback::class,
-				Plugin\Rules\Build\IsTrustedBot::class,
-				Plugin\Rules\Build\IsPublicWebRequest::class,
-				Plugin\Rules\Build\RequestBypassesAllRestrictions::class,
 
 				SecurityAdmin\Rules\Build\IsSecurityAdmin::class,
 
 				$trafficOpts->isTrafficLimitEnabled() ? Traffic\Rules\Build\IsRateLimitExceeded::class : null,
 
 				IPs\Rules\Build\IpWhitelisted::class,
-				//				IPs\Rules\Build\IsPathWhitelisted::class,
+				Plugin\Rules\Build\RequestIsSiteBlockdownBlocked::class,
 				IPs\Rules\Build\IpBlockedShield::class,
 				$ipsOpts->isEnabledCrowdSecAutoBlock() ? IPs\Rules\Build\IpBlockedCrowdsec::class : null,
 				IPs\Rules\Build\BotTrack404::class,
@@ -99,12 +93,5 @@ class RuleBuilderEnumerator {
 				}
 			)
 		);
-	}
-
-	/**
-	 * @return BuildRuleBase[]
-	 */
-	private function viaFilters() :array {
-		return \apply_filters( 'shield/collate_rule_builders', [] );
 	}
 }

@@ -6,7 +6,7 @@ class EventFire extends Base {
 
 	public const SLUG = 'event_fire';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		$params = $this->responseParams;
 		$event = $params[ 'event' ] ?? '';
 		if ( !empty( $event ) ) {
@@ -32,8 +32,6 @@ class EventFire extends Base {
 //			error_log( var_export( $params, true ) );
 			self::con()->fireEvent( $event, $params );
 		}
-
-		self::con()->fireEvent( 'shield/rules/response/'.$this->rule->slug );
 
 		return true;
 	}

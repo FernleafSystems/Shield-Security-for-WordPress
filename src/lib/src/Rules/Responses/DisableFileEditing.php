@@ -6,7 +6,7 @@ class DisableFileEditing extends Base {
 
 	public const SLUG = 'disable_file_editing';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		if ( !\defined( 'DISALLOW_FILE_EDIT' ) ) {
 			\define( 'DISALLOW_FILE_EDIT', true );
 		}

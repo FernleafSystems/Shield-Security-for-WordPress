@@ -2,27 +2,23 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestIP;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\UserAgent;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchIpIdsUnavailableException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
  * @property string[] $match_ip_ids
- * @property string[] $match_not_ip_ids
  */
 class MatchRequestIpIdentity extends Base {
 
-	use RequestIP;
-	use UserAgent;
+	use Traits\RequestIP;
+	use Traits\UserAgent;
 
 	public const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
 		$matchIDs = $this->match_ip_ids;
-		$matchNotIDs = $this->match_not_ip_ids;
-		if ( empty( $matchIDs ) && empty( $matchNotIDs ) ) {
+		if ( empty( $matchIDs ) ) {
 			throw new MatchIpIdsUnavailableException();
 		}
 
@@ -33,20 +29,9 @@ class MatchRequestIpIdentity extends Base {
 			$ua = '';
 		}
 
-		$match = false;
 		$id = ( new IpID( $this->getRequestIP(), $ua ) )->run()[ 0 ];
+		$this->addConditionTriggerMeta( 'ip_id', $id );
 
-		if ( !empty( $matchIDs ) ) {
-			$match = \in_array( $id, $matchIDs );
-		}
-		elseif ( !empty( $matchNotIDs ) ) {
-			$match = !\in_array( $id, $matchNotIDs );
-		}
-
-		if ( $match ) {
-			$this->addConditionTriggerMeta( 'ip_id', $id );
-		}
-
-		return $match;
+		return \in_array( $id, $matchIDs );
 	}
 }

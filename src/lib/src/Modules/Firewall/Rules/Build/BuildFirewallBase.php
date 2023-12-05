@@ -3,13 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build\IpBlockedShield;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
+	Constants,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
@@ -41,25 +40,25 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	protected function getConditions() :array {
 		$conditions = [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'rule'         => IpBlockedShield::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\IsIpBlockedByShield::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\RequestHasParameters::SLUG,
+					'conditions' => Conditions\RequestHasParameters::class,
 				],
 			]
 		];
 
 		$excludedPaths = $this->getExcludedPaths();
 		if ( !empty( $excludedPaths ) ) {
-			$conditions[ 'group' ][] = [
-				'condition' => Conditions\NotMatchRequestPath::SLUG,
+			$conditions[ 'conditions' ][] = [
+				'conditions' => Conditions\NotMatchRequestPath::class,
 				'params'    => [
 					'is_match_regex' => false,
 					'match_paths'    => $excludedPaths,
@@ -68,21 +67,21 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 		}
 
 		if ( $this->opts()->isOpt( 'whitelist_admins', 'Y' ) ) {
-			$conditions[ 'group' ][] = [
-				'condition'    => Conditions\IsUserAdminNormal::SLUG,
-				'invert_match' => true,
+			$conditions[ 'conditions' ][] = [
+				'conditions' => Conditions\IsUserAdminNormal::class,
+				'logic'      => Constants::LOGIC_INVERT,
 			];
 		}
 
 		$firewallRulesGroup = [
 			'logic' => static::LOGIC_OR,
-			'group' => [],
+			'conditions' => [],
 		];
 
 		$simple = $this->getFirewallPatterns_Simple();
 		if ( !empty( $simple ) ) {
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamQuery::SLUG,
+			$firewallRulesGroup[ 'conditions' ][] = [
+				'conditions' => Conditions\MatchRequestParamQuery::class,
 				'params'    => [
 					'is_match_regex'  => false,
 					'match_patterns'  => $simple,
@@ -90,8 +89,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'excluded_params' => $this->getExclusions(),
 				],
 			];
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamPost::SLUG,
+			$firewallRulesGroup[ 'conditions' ][] = [
+				'conditions' => Conditions\MatchRequestParamPost::class,
 				'params'    => [
 					'is_match_regex'  => false,
 					'match_patterns'  => $simple,
@@ -103,8 +102,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 		$regex = $this->getFirewallPatterns_Regex();
 		if ( !empty( $regex ) ) {
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamQuery::SLUG,
+			$firewallRulesGroup[ 'conditions' ][] = [
+				'conditions' => Conditions\MatchRequestParamQuery::class,
 				'params'    => [
 					'is_match_regex'  => true,
 					'match_patterns'  => $regex,
@@ -112,8 +111,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'excluded_params' => $this->getExclusions(),
 				],
 			];
-			$firewallRulesGroup[ 'group' ][] = [
-				'condition' => Conditions\MatchRequestParamPost::SLUG,
+			$firewallRulesGroup[ 'conditions' ][] = [
+				'conditions' => Conditions\MatchRequestParamPost::class,
 				'params'    => [
 					'is_match_regex'  => true,
 					'match_patterns'  => $regex,
@@ -123,7 +122,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			];
 		}
 
-		$conditions[ 'group' ][] = $firewallRulesGroup;
+		$conditions[ 'conditions' ][] = $firewallRulesGroup;
 
 		return $conditions;
 	}
@@ -154,7 +153,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'firewall_block',
 					'offense_count'    => 1,
@@ -166,7 +165,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				],
 			],
 			[
-				'response' => Responses\FirewallBlock::SLUG,
+				'response' => Responses\FirewallBlock::class,
 				'params'   => [],
 			],
 		];

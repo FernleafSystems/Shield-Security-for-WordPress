@@ -8,7 +8,7 @@ class BlockAuthorFishing extends Base {
 
 	public const SLUG = 'block_author_fishing';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 			'render_slug' => Actions\Render\FullPage\Block\BlockAuthorFishing::SLUG
 		] );

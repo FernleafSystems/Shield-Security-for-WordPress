@@ -84,7 +84,7 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 	protected function getNameForLog( LogRecord $log ) :string {
 		$postID = $log->meta_data[ 'post_id' ];
 		$post = empty( $postID ) ? null : get_post( $postID );
-		return is_null( $post ) ? ( $log->meta_data[ 'title' ] ?? __( 'Unknown', 'wp-simple-firewall' ) ) : $post->post_title;
+		return \is_null( $post ) ? ( $log->meta_data[ 'title' ] ?? __( 'Unknown', 'wp-simple-firewall' ) ) : $post->post_title;
 	}
 
 	protected function getUniqFromLog( LogRecord $log ) :string {

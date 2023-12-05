@@ -175,7 +175,7 @@ class BotSignalsRecord {
 		}
 
 		$record = $this->retrieve(); // false as we're going to store it anyway
-		$record->{$field} = is_null( $ts ) ? Services::Request()->ts() : $ts;
+		$record->{$field} = \is_null( $ts ) ? Services::Request()->ts() : $ts;
 
 		$this->store( $record );
 

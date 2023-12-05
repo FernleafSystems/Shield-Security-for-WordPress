@@ -79,6 +79,7 @@ class ExtensionsCon {
 	 */
 	protected function getExtensions() :array {
 		if ( $this->extensions === null ) {
+			$this->extensions = [];
 			/** @var BaseExtension $ext */
 			foreach ( apply_filters( 'shield/get_extensions', [] ) as $ext ) {
 				if ( \is_object( $ext ) && \is_a( $ext, BaseExtension::class ) ) {

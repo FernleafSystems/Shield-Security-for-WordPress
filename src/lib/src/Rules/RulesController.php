@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	AttemptToAccessNonExistingRuleException,
 	NoConditionActionDefinedException,
@@ -12,11 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	NoSuchConditionHandlerException,
 	NoSuchResponseHandlerException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\{
-	ConditionsProcessor,
-	ResponseProcessor
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
 
 class RulesController {
@@ -33,13 +29,10 @@ class RulesController {
 	/**
 	 * @var RulesStorageHandler
 	 */
-	private $storageHandler;
-
 	public $processComplete;
 
 	public function __construct() {
 		$this->processComplete = false;
-		$this->storageHandler = ( new RulesStorageHandler() )->setRulesCon( $this );
 	}
 
 	protected function run() {
@@ -65,27 +58,17 @@ class RulesController {
 	}
 
 	public function buildAndStore() {
-		$this->storageHandler->store(
-			( new Builder() )
-				->setRulesCon( $this )
-				->run()
-		);
-	}
-
-	public function getRulesResultsSummary() :array {
-		return \array_map(
-			function ( $rule ) {
-				return $rule->result;
-			},
-			$this->getRules()
-		);
+		( new RulesStorageHandler() )->store( ( new Builder() )->run() );
 	}
 
 	public function isRulesEngineReady() :bool {
 		return !empty( $this->getRules() );
 	}
 
-	public function processRules() {
+	/**
+	 * @throws \Exception
+	 */
+	public function processRules() :void {
 		if ( !$this->processComplete && $this->isRulesEngineReady() ) {
 
 			foreach ( $this->getImmediateRules() as $rule ) {
@@ -117,12 +100,28 @@ class RulesController {
 		}
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function processRule( RuleVO $rule ) {
-		$conditionPro = new ConditionsProcessor( $rule, $this );
 		if ( !isset( $rule->result ) ) {
-			$rule->result = $conditionPro->runAllRuleConditions();
+
+			$conditionsResult = true;
+
+			$resultMetaData = [];
+			$conditions = $rule->conditions ?? null;
+			if ( $conditions !== null ) {
+				$processor = new Processors\ProcessConditions( $conditions );
+				$conditionsResult = $processor->process();
+				$resultMetaData = $processor->getConsolidatedMeta();
+			}
+			else {
+				error_log( 'invalid: empty conditions for: '.var_export( $rule, true ) );
+			}
+
+			$rule->result = $conditionsResult;
 			if ( $rule->result ) {
-				( new ResponseProcessor( $rule, $this, $conditionPro->getConsolidatedMeta() ) )->run();
+				( new Processors\ResponseProcessor( $rule, $resultMetaData ) )->run();
 			}
 		}
 	}
@@ -148,9 +147,7 @@ class RulesController {
 					function ( $rule ) {
 						return ( new RuleVO() )->applyFromArray( $rule );
 					},
-					( new RulesStorageHandler() )
-						->setRulesCon( $this )
-						->loadRules()[ 'rules' ]
+					( new RulesStorageHandler() )->loadRules()[ 'rules' ]
 				);
 			}
 			catch ( \Exception $e ) {
@@ -182,27 +179,35 @@ class RulesController {
 	 * @throws NoSuchConditionHandlerException
 	 */
 	public function getConditionHandler( array $condition ) {
-		if ( empty( $condition[ 'condition' ] ) ) {
+		if ( empty( $condition[ 'conditions' ] ) ) {
 			throw new NoConditionActionDefinedException( 'No Condition Handler available for: '.var_export( $condition, true ) );
 		}
-		$class = $this->locateConditionHandlerClass( $condition[ 'condition' ] );
+		$class = $this->locateConditionHandlerClass( $condition[ 'conditions' ] );
 		return new $class( $condition[ 'params' ] ?? [] );
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public function getDefaultEventFireResponseHandler() :Responses\EventFire {
+		return new EventFire( [] );
 	}
 
 	/**
 	 * @throws NoSuchConditionHandlerException
 	 */
-	public function locateConditionHandlerClass( string $condition ) :string {
-		$theHandlerClass = sprintf( '%s\\Conditions\\%s', __NAMESPACE__,
-			\implode( '', \array_map( '\ucfirst', \explode( '_', $condition ) ) ) );
-		if ( !\class_exists( $theHandlerClass ) ) {
-			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$theHandlerClass );
+	public function locateConditionHandlerClass( string $conditionClassOrSlug ) :string {
+		if ( \class_exists( $conditionClassOrSlug ) ) {
+			$theHandlerClass = $conditionClassOrSlug;
+		}
+		else {
+			$theHandlerClass = sprintf( '%s\\Conditions\\%s', __NAMESPACE__,
+				\implode( '', \array_map( '\ucfirst', \explode( '_', $conditionClassOrSlug ) ) ) );
+			if ( !\class_exists( $theHandlerClass ) ) {
+				throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$theHandlerClass );
+			}
 		}
 		return $theHandlerClass;
-	}
-
-	public function getDefaultEventFireResponseHandler() :Responses\EventFire {
-		return new EventFire( [] );
 	}
 
 	/**
@@ -211,22 +216,13 @@ class RulesController {
 	 * @throws NoSuchResponseHandlerException
 	 */
 	public function getResponseHandler( array $response ) {
-		if ( empty( $response[ 'response' ] ) ) {
+		$responseClass = $response[ 'response' ] ?? null;
+		if ( empty( $responseClass ) ) {
 			throw new NoResponseActionDefinedException( 'No Response Handler available for: '.var_export( $response, true ) );
 		}
-		$theResponseClass = $this->locateResponseHandlerClass( $response[ 'response' ] );
-		return new $theResponseClass( $response[ 'params' ] ?? [] );
-	}
-
-	/**
-	 * @throws NoSuchResponseHandlerException
-	 */
-	public function locateResponseHandlerClass( string $response ) :string {
-		$theHandlerClass = sprintf( '%s\\Responses\\%s', __NAMESPACE__,
-			\implode( '', \array_map( '\ucfirst', \explode( '_', $response ) ) ) );
-		if ( !\class_exists( $theHandlerClass ) ) {
-			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$theHandlerClass );
+		if ( !\class_exists( $response[ 'response' ] ) ) {
+			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$responseClass );
 		}
-		return $theHandlerClass;
+		return new $responseClass( $response[ 'params' ] ?? [] );
 	}
 }

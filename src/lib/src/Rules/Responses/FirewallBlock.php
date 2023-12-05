@@ -10,7 +10,7 @@ class FirewallBlock extends Base {
 
 	public const SLUG = 'firewall_block';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		$this->runBlock();
 		return true;
 	}

@@ -6,7 +6,7 @@ class TrafficRateLimitExceeded extends Base {
 
 	public const SLUG = 'traffic_rate_limit_exceeded';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 //		wp_die( 'Too many requests' );
 		return true;
 	}

@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RulesStorageHandler {
 
-	use RulesControllerConsumer;
+	use PluginControllerConsumer;
 
 	/**
 	 * @throws \Exception
@@ -16,7 +16,7 @@ class RulesStorageHandler {
 
 		$rules = $this->loadRawFromWP();
 		if ( $attemptRebuildIfRequired && ( empty( $rules ) || empty( $rules[ 'rules' ] ) ) ) {
-			$this->getRulesCon()->buildAndStore();
+			self::con()->rules->buildAndStore();
 			$rules = $this->loadRules( false );
 		}
 
@@ -48,6 +48,6 @@ class RulesStorageHandler {
 	}
 
 	private function getWpStorageKey() :string {
-		return $this->getRulesCon()->con()->prefix( 'rules' );
+		return self::con()->prefix( 'rules' );
 	}
 }

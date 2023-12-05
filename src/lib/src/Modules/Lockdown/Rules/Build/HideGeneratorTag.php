@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	Constants,
 	Responses,
 	WPHooksOrder
 };
@@ -27,10 +28,10 @@ class HideGeneratorTag extends BuildRuleLockdownBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 			]
 		];
@@ -39,7 +40,7 @@ class HideGeneratorTag extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\HideGeneratorTag::SLUG,
+				'response' => Responses\HideGeneratorTag::class,
 			],
 		];
 	}

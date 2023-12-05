@@ -15,9 +15,9 @@ class RequestStatusIsWpCli extends RequestStatusBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_OR,
-			'group' => [
+			'conditions' => [
 				[
-					'condition' => WpIsWpcli::SLUG,
+					'conditions' => WpIsWpcli::class,
 				],
 			]
 		];

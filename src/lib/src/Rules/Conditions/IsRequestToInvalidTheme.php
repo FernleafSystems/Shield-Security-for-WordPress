@@ -2,26 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits\RequestPath;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class IsRequestToInvalidTheme extends Base {
 
-	use RequestPath;
+	use Traits\RequestPath;
 
 	public const SLUG = 'is_request_to_invalid_theme';
 
-	protected function execConditionCheck() :bool {
-		$asset = new IsRequestToThemeAsset();
-		$asset->request_path = $this->getRequestPath();
-		$validAsset = new IsRequestToValidThemeAsset();
-		$validAsset->request_path = $this->getRequestPath();
-		return $asset->run() && !$validAsset->run();
-	}
-
-	public static function RequiredConditions() :array {
+	protected function getSubConditions() :array {
 		return [
-			IsRequestToThemeAsset::class,
-			IsRequestToValidThemeAsset::class
+			'logic'      => Constants::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => IsRequestToThemeAsset::class,
+				],
+				[
+					'conditions' => IsRequestToValidThemeAsset::class,
+					'logic'      => Constants::LOGIC_INVERT
+				],
+			]
 		];
 	}
 }

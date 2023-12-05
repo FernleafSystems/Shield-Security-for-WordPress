@@ -6,7 +6,7 @@ class ForceSslAdmin extends Base {
 
 	public const SLUG = 'force_ssl_admin';
 
-	protected function execResponse() :bool {
+	public function execResponse() :bool {
 		if ( !\defined( 'FORCE_SSL_ADMIN' ) ) {
 			\define( 'FORCE_SSL_ADMIN', true );
 		}

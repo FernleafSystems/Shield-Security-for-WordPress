@@ -19,7 +19,7 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\ForceSslAdmin::SLUG,
+				'response' => Responses\ForceSslAdmin::class,
 			],
 		];
 	}

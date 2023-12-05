@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	Constants,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build\RequestBypassesAllRestrictions;
 
 class BotTrackXmlrpc extends BuildRuleIpsBase {
 
@@ -23,19 +23,19 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 	protected function getConditions() :array {
 		return [
 			'logic' => static::LOGIC_AND,
-			'group' => [
+			'conditions' => [
 				[
-					'rule'         => RequestBypassesAllRestrictions::SLUG,
-					'invert_match' => true
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'condition' => Conditions\IsNotLoggedInNormal::SLUG
+					'conditions' => Conditions\IsNotLoggedInNormal::class
 				],
 				[
-					'condition' => Conditions\WpIsXmlrpc::SLUG,
+					'conditions' => Conditions\WpIsXmlrpc::class,
 				],
 				[
-					'condition' => Conditions\MatchRequestPath::SLUG,
+					'conditions' => Conditions\MatchRequestPath::class,
 					'params'    => [
 						'is_match_regex' => true,
 						'match_paths'    => [
@@ -50,7 +50,7 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\EventFire::SLUG,
+				'response' => Responses\EventFire::class,
 				'params'   => [
 					'event'            => 'bottrack_xmlrpc',
 					'offense_count'    => $this->opts()->getOffenseCountFor( 'track_xmlrpc' ),
