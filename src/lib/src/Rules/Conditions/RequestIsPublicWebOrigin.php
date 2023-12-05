@@ -8,6 +8,10 @@ class RequestIsPublicWebOrigin extends Base {
 
 	public const SLUG = 'request_is_public_web_origin';
 
+	public function getName() :string {
+		return __( "Does the request originate from the public web.", 'wp-simple-firewall' );
+	}
+
 	protected function getSubConditions() :array {
 		return [
 			'logic' => Constants::LOGIC_AND,

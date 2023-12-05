@@ -15,6 +15,10 @@ class MatchRequestParam extends Base {
 
 	public const SLUG = 'match_request_param';
 
+	public function getName() :string {
+		return __( "Do any parameters in the request match the given set of parameters to test.", 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_patterns ) ) {
 			throw new PathsToMatchUnavailableException();

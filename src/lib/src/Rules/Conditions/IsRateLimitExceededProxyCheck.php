@@ -17,6 +17,10 @@ class IsRateLimitExceededProxyCheck extends Conditions\Base {
 
 	public const SLUG = 'is_rate_limit_exceeded_proxy_check';
 
+	public function getName() :string {
+		return __( 'Does the request exceed any traffic rate limits and originate from a proxy.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		$ip = $this->getRequestIP();
 

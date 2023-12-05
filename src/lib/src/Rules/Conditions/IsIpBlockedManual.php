@@ -10,6 +10,10 @@ class IsIpBlockedManual extends Base {
 
 	public const SLUG = 'is_ip_blocked_manual';
 
+	public function getName() :string {
+		return __( "Is the request IP on Shield's Manual block list.", 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		return ( new IpRuleStatus( $this->getRequestIP() ) )->hasManualBlock();
 	}

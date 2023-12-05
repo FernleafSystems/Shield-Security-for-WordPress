@@ -10,6 +10,10 @@ class IsRequestToInvalidPlugin extends Base {
 
 	public const SLUG = 'is_request_to_invalid_plugin';
 
+	public function getName() :string {
+		return __( 'Is the request to a path within a potentially installed WordPress plugin but is invalid.', 'wp-simple-firewall' );
+	}
+
 	protected function getSubConditions() :array {
 		return [
 			'logic'      => Constants::LOGIC_AND,

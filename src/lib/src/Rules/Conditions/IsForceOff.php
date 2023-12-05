@@ -10,6 +10,10 @@ class IsForceOff extends Base {
 
 	public const SLUG = 'is_force_off';
 
+	public function getName() :string {
+		return __( 'Is the Shield plugin in "forceoff" state.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		return $this->findForceOffFile() !== false;
 	}

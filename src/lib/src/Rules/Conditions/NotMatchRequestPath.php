@@ -8,6 +8,10 @@ class NotMatchRequestPath extends MatchRequestPath {
 
 	public const SLUG = 'not_match_request_path';
 
+	public function getName() :string {
+		return __( 'Does the request useragent NOT match the given useragents.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		return !parent::execConditionCheck();
 	}

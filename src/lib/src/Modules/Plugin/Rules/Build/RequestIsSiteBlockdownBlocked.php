@@ -29,7 +29,7 @@ class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 			'logic' => Constants::LOGIC_AND,
 			'conditions' => [
 				[
-					'conditions' => Conditions\IsRequestBlockedBySiteBlockdown::class,
+					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
 				],
 			]
 		];

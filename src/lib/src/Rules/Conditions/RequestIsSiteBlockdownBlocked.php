@@ -8,6 +8,10 @@ class RequestIsSiteBlockdownBlocked extends Base {
 
 	public const SLUG = 'request_is_site_blockdown_blocked';
 
+	public function getName() :string {
+		return __( "Is the request blocked by Shield's Site Lockdown feature.", 'wp-simple-firewall' );
+	}
+
 	protected function getSubConditions() :array {
 		return [
 			'logic' => Constants::LOGIC_AND,

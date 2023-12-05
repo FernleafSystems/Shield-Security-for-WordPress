@@ -6,6 +6,10 @@ class IsUserSecurityAdmin extends Base {
 
 	public const SLUG = 'is_user_security_admin';
 
+	public function getName() :string {
+		return __( "Is current user Security Admin.", 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		$secAdminCon = self::con()->getModule_SecAdmin()->getSecurityAdminController();
 		return (

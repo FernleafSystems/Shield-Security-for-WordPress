@@ -11,6 +11,7 @@ class ExtractSubConditions {
 	private static $AllConditions = [];
 
 	/**
+	 * @return array{classes: Rules\Conditions\Base[]|string[], callables: callable[]}
 	 * @throws \Exception
 	 */
 	public function fromRule( Rules\RuleVO $ruleVO ) :array {
@@ -18,6 +19,7 @@ class ExtractSubConditions {
 	}
 
 	/**
+	 * @return array{classes: Rules\Conditions\Base[]|string[], callables: callable[]}
 	 * @throws \Exception
 	 */
 	public function fromConditions( Rules\ConditionsVO $conditionsVO ) :array {

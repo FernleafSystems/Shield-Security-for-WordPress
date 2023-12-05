@@ -2,14 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions;
+
 class PageRulesSummary extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_rules_summary';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/rules_summary.twig';
 
 	protected function getRenderData() :array {
-		$rules = self::con()->rules->getRules();
-
 		$components = [
 			'hooks' => [
 				'immediate'
@@ -17,14 +17,32 @@ class PageRulesSummary extends BasePluginAdminPage {
 		];
 
 		$simpleID = 0;
-		foreach ( $rules as $rule ) {
+
+		$rules = [];
+		foreach ( self::con()->rules->getRules() as $idx => $rule ) {
+
 			if ( empty( $rule->wp_hook ) ) {
 				$rule->wp_hook = 'immediate';
 			}
-			else {
-				$components[ 'hooks' ][] = $rule->wp_hook;
+			$components[ 'hooks' ][] = $rule->wp_hook;
+
+			try {
+				$data = $rule->getRawData();
+				$data[ 'simple_id' ] = $simpleID++;
+				$data[ 'sub_conditions' ] = \array_map(
+					function ( string $conditionClass ) {
+						$cond = new $conditionClass();
+						return [
+							'name' => $cond->getName(),
+						];
+					},
+					( new ExtractSubConditions() )->fromRule( $rule )[ 'classes' ]
+				);
+
+				$rules[ $data[ 'simple_id' ] ] = $data;
 			}
-			$rule->simple_id = $simpleID++;
+			catch ( \Exception $e ) {
+			}
 		}
 
 		$components[ 'hooks' ] = \array_unique( $components[ 'hooks' ] );

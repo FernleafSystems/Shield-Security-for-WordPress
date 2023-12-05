@@ -9,6 +9,10 @@ class IsLoggedInNormal extends Base {
 
 	public const SLUG = 'is_logged_in_normal';
 
+	public function getName() :string {
+		return __( 'Is the request coming from a logged-in user.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		return Services::WpUsers()->isUserLoggedIn();
 	}

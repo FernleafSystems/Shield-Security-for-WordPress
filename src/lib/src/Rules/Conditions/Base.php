@@ -29,41 +29,16 @@ abstract class Base extends DynPropertiesClass {
 		$this->applyFromArray( $conditionParams );
 	}
 
-	/**
-	 * @deprecated 18.5.8
-	 */
-	public function setRule( RuleVO $rule ) :self {
-		$this->rule = $rule;
-		return $this;
-	}
-
-	public static function BuildRequiredConditions() :array {
-		$conditions = static::RequiredConditions();
-		foreach ( static::RequiredConditions() as $requiredCondition ) {
-			/** @var $requiredCondition Base */
-			$conditions = \array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
-		}
-		return \array_unique( $conditions );
-	}
-
-	public static function FindMinimumHook() :int {
-		$minimum = static::MinimumHook();
-		foreach ( static::BuildRequiredConditions() as $requiredCondition ) {
-			/** @var $requiredCondition Base */
-			$minimum = \max( $minimum, $requiredCondition::MinimumHook() );
-		}
-		return (int)$minimum;
-	}
-
-	/**
-	 * @TODO TODO TODO TODO
-	 */
-	public static function RequiredConditions() :array {
-		return [];
-	}
-
 	public static function MinimumHook() :int {
 		return WPHooksOrder::NONE;
+	}
+
+	public function getName() :string {
+		return $this->getSlug();
+	}
+
+	public function getSlug() :string {
+		return ( new \ReflectionClass( $this ) )->getShortName();
 	}
 
 	public function __get( string $key ) {
@@ -157,5 +132,39 @@ abstract class Base extends DynPropertiesClass {
 		return function () {
 			return $this->execConditionCheck();
 		};
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public static function BuildRequiredConditions() :array {
+		$conditions = static::RequiredConditions();
+		foreach ( static::RequiredConditions() as $requiredCondition ) {
+			/** @var $requiredCondition Base */
+			$conditions = \array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
+		}
+		return \array_unique( $conditions );
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public static function RequiredConditions() :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public static function FindMinimumHook() :int {
+		return static::MinimumHook();
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public function setRule( RuleVO $rule ) :self {
+		$this->rule = $rule;
+		return $this;
 	}
 }

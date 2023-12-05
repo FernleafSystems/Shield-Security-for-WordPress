@@ -14,6 +14,10 @@ class MatchRequestUseragent extends Base {
 
 	public const SLUG = 'match_request_useragent';
 
+	public function getName() :string {
+		return __( 'Does the request useragent match the given useragents.', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @throws RequestUseragentUnavailableException
 	 * @throws MatchUseragentsUnavailableException
