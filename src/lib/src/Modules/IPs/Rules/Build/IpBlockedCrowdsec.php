@@ -24,12 +24,7 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'conditions' => [
-				[
-					'conditions' => Conditions\IsIpBlockedCrowdsec::class,
-				],
-			]
+			'conditions' => Conditions\IsIpBlockedCrowdsec::class,
 		];
 	}
 

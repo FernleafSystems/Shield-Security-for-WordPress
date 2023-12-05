@@ -14,12 +14,7 @@ class RequestStatusIsAjax extends RequestStatusBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'conditions' => [
-				[
-					'conditions' => WpIsAjax::class,
-				],
-			]
+			'conditions' => WpIsAjax::class,
 		];
 	}
 }

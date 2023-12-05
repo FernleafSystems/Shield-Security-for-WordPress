@@ -22,13 +22,8 @@ class DisableFileEditing extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'conditions' => [
-				[
-					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => Constants::LOGIC_INVERT
-				],
-			]
+			'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+			'logic'      => Constants::LOGIC_INVERT
 		];
 	}
 

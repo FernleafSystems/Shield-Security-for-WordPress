@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
-	Conditions
+	Conditions,
+	Constants
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,15 +26,10 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'conditions' => [
-				[
-					'conditions' => Conditions\MatchRequestIp::class,
-					'params'    => [
-						'match_ips' => Services::IP()->getServerPublicIPs(),
-					],
-				],
-			]
+			'conditions' => Conditions\MatchRequestIp::class,
+			'params'     => [
+				'match_ips' => Services::IP()->getServerPublicIPs(),
+			],
 		];
 	}
 }

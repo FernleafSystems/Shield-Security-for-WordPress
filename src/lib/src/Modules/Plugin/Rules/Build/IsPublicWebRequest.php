@@ -25,7 +25,7 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
+			'logic' => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\WpIsWpcli::class,

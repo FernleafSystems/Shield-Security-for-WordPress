@@ -15,6 +15,10 @@ class PageRulesSummary extends BasePluginAdminPage {
 				'immediate'
 			],
 		];
+		add_action( 'apto/services/pre_render_twig', function ( $env ) {
+			/** @var \Twig_Environment $env */
+			$env->addExtension( new \Twig\Extension\DebugExtension() );
+		} );
 
 		$simpleID = 0;
 
@@ -30,6 +34,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 			try {
 				$data = $rule->getRawData();
 				$data[ 'simple_id' ] = $simpleID++;
+				$data[ 'conditions' ] = $rule->conditions;
 				$data[ 'sub_conditions' ] = \array_map(
 					function ( string $conditionClass ) {
 						$cond = new $conditionClass();

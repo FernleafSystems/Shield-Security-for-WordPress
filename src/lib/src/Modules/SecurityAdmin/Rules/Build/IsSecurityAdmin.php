@@ -24,12 +24,7 @@ class IsSecurityAdmin extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'conditions' => [
-				[
-					'conditions' => Conditions\IsSecurityAdmin::class,
-				],
-			]
+			'conditions' => Conditions\IsSecurityAdmin::class,
 		];
 	}
 }
