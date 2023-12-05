@@ -24,6 +24,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 			if ( empty( $rule->wp_hook ) ) {
 				$rule->wp_hook = 'immediate';
 			}
+
 			$components[ 'hooks' ][] = $rule->wp_hook;
 
 			try {
