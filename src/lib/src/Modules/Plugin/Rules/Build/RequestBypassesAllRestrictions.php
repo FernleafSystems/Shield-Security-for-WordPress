@@ -6,8 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
-	Constants,
-	Responses
+	Constants
 };
 
 /**
@@ -40,6 +39,9 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 					'conditions' => [
 						[
 							'conditions' => Conditions\IsForceOff::class,
+						],
+						[
+							'conditions' => Conditions\IsShieldPluginDisabled::class,
 						],
 						[
 							'conditions' => Conditions\RequestIsPublicWebOrigin::class,
