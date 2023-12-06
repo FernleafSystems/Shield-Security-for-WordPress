@@ -16,6 +16,10 @@ class MatchRequestIpIdentity extends Base {
 
 	public const SLUG = 'match_request_ip_identity';
 
+	public function getDescription() :string {
+		return __( "Does the current request originate from a given set of services/providers.", 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		$matchIDs = $this->match_ip_ids;
 		if ( empty( $matchIDs ) ) {

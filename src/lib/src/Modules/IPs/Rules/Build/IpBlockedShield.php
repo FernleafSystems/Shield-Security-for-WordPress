@@ -24,12 +24,7 @@ class IpBlockedShield extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_AND,
-			'conditions' => [
-				[
-					'conditions' => Conditions\IsIpBlockedByShield::class,
-				],
-			]
+			'conditions' => Conditions\IsIpBlockedByShield::class,
 		];
 	}
 

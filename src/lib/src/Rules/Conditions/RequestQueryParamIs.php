@@ -8,6 +8,10 @@ class RequestQueryParamIs extends RequestParamIs {
 
 	public const SLUG = 'request_query_param_is';
 
+	public function getDescription() :string {
+		return __( 'Does the value of the given QUERY request parameter match against the given patterns.', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @return mixed|null
 	 */

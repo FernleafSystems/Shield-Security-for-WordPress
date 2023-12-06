@@ -14,12 +14,7 @@ class RequestStatusIsAdmin extends RequestStatusBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'conditions' => [
-				[
-					'conditions' => WpIsAdmin::class,
-				],
-			]
+			'conditions' => WpIsAdmin::class,
 		];
 	}
 }

@@ -10,6 +10,10 @@ class IsIpBlacklisted extends Base {
 
 	public const SLUG = 'is_ip_blacklisted';
 
+	public function getDescription() :string {
+		return __( 'Is the request IP blacklisted by Shield.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		$status = new IpRuleStatus( $this->getRequestIP() );
 		return $status->isBlockedByShield() || $status->isAutoBlacklisted();

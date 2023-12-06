@@ -2,16 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class IsForceOff extends Base {
-
-	use Traits\RequestIP;
 
 	public const SLUG = 'is_force_off';
 
-	protected function execConditionCheck() :bool {
-		return $this->findForceOffFile() !== false;
+	public function getDescription() :string {
+		return __( 'Is the Shield plugin in "forceoff" state.', 'wp-simple-firewall' );
 	}
 
 	protected function getPreviousResult() :?bool {
@@ -22,15 +18,14 @@ class IsForceOff extends Base {
 		self::con()->this_req->is_force_off = $result;
 	}
 
-	/**
-	 * @return false|string
-	 */
-	private function findForceOffFile() {
-		$con = self::con();
-		if ( !isset( $con->file_forceoff ) ) {
-			$file = Services::WpFs()->findFileInDir( 'forceoff', $con->getRootDir(), false );
-			$con->file_forceoff = empty( $file ) ? false : $file;
-		}
-		return $con->file_forceoff;
+	protected function getSubConditions() :array {
+		return [
+			'conditions' => DirContainsFile::class,
+			'params'     => [
+				'path_dir'  => self::con()->getRootDir(),
+				'file_name' => 'forceoff',
+				'fuzzy'     => true,
+			]
+		];
 	}
 }

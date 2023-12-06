@@ -15,6 +15,10 @@ class MatchRequestStatusCode extends Base {
 
 	public const SLUG = 'match_request_status_code';
 
+	public function getDescription() :string {
+		return __( 'Does the request response status code match the given code.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		if ( !isset( $this->code ) ) {
 			throw new NoStatusProvidedToCheckException( 'No status parameter provided to check' );

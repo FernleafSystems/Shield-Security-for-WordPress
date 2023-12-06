@@ -10,6 +10,10 @@ class IsIpBlockedByShield extends Base {
 
 	public const SLUG = 'is_ip_blocked_by_shield';
 
+	public function getDescription() :string {
+		return __( "Is the request IP on any of Shield's block lists.", 'wp-simple-firewall' );
+	}
+
 	protected function postExecConditionCheck( bool $result ) :void {
 		self::con()->this_req->is_ip_blocked_shield = $result;
 	}

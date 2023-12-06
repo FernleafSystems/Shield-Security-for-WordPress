@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
+use FernleafSystems\Wordpress\Services\Utilities\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	RuleVO,
 	ConditionsVO,
@@ -29,41 +30,21 @@ abstract class Base extends DynPropertiesClass {
 		$this->applyFromArray( $conditionParams );
 	}
 
-	/**
-	 * @deprecated 18.5.8
-	 */
-	public function setRule( RuleVO $rule ) :self {
-		$this->rule = $rule;
-		return $this;
-	}
-
-	public static function BuildRequiredConditions() :array {
-		$conditions = static::RequiredConditions();
-		foreach ( static::RequiredConditions() as $requiredCondition ) {
-			/** @var $requiredCondition Base */
-			$conditions = \array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
-		}
-		return \array_unique( $conditions );
-	}
-
-	public static function FindMinimumHook() :int {
-		$minimum = static::MinimumHook();
-		foreach ( static::BuildRequiredConditions() as $requiredCondition ) {
-			/** @var $requiredCondition Base */
-			$minimum = \max( $minimum, $requiredCondition::MinimumHook() );
-		}
-		return (int)$minimum;
-	}
-
-	/**
-	 * @TODO TODO TODO TODO
-	 */
-	public static function RequiredConditions() :array {
-		return [];
-	}
-
 	public static function MinimumHook() :int {
 		return WPHooksOrder::NONE;
+	}
+
+	public function getDescription() :string {
+		return $this->getSlug();
+	}
+
+	public function getName() :string {
+		$name = \preg_replace( '#(?<!^)[A-Z]#', ' $0', ( new \ReflectionClass( $this ) )->getShortName() );
+		return str_ireplace( [ 'Wp ', 'Ip ', 'ajax', 'wpcli' ], [ 'WP ', 'IP ', 'AJAX', 'WP-CLI' ], $name );
+	}
+
+	public function getSlug() :string {
+		return Strings::CamelToSnake( ( new \ReflectionClass( $this ) )->getShortName() );
 	}
 
 	public function __get( string $key ) {
@@ -157,5 +138,39 @@ abstract class Base extends DynPropertiesClass {
 		return function () {
 			return $this->execConditionCheck();
 		};
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public static function BuildRequiredConditions() :array {
+		$conditions = static::RequiredConditions();
+		foreach ( static::RequiredConditions() as $requiredCondition ) {
+			/** @var $requiredCondition Base */
+			$conditions = \array_merge( $conditions, $requiredCondition::BuildRequiredConditions() );
+		}
+		return \array_unique( $conditions );
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public static function RequiredConditions() :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public static function FindMinimumHook() :int {
+		return static::MinimumHook();
+	}
+
+	/**
+	 * @deprecated 18.5.8
+	 */
+	public function setRule( RuleVO $rule ) :self {
+		$this->rule = $rule;
+		return $this;
 	}
 }

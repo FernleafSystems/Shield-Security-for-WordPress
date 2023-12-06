@@ -10,6 +10,10 @@ class IsIpHighReputation extends Base {
 
 	public const SLUG = 'is_ip_high_reputation';
 
+	public function getDescription() :string {
+		return __( 'Is the current IP address considered "high reputation".', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		return ( new IpRuleStatus( $this->getRequestIP() ) )->hasHighReputation();
 	}

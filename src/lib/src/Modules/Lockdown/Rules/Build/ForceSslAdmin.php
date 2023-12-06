@@ -23,4 +23,8 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 			],
 		];
 	}
+
+	protected function getConditions() :array {
+		// TODO: Implement getConditions() method.
+	}
 }

@@ -14,12 +14,7 @@ class RequestStatusIsXmlRpc extends RequestStatusBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => static::LOGIC_OR,
-			'conditions' => [
-				[
-					'conditions' => WpIsXmlrpc::class,
-				],
-			]
+			'conditions' => WpIsXmlrpc::class,
 		];
 	}
 }

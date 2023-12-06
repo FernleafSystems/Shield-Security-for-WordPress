@@ -15,6 +15,10 @@ class MatchRequestIp extends Base {
 
 	public const SLUG = 'match_request_ip';
 
+	public function getDescription() :string {
+		return __( 'Does the current request originate from a given set of IP Addresses.', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @throws IpsToMatchUnavailableException
 	 * @throws RequestIpUnavailableException

@@ -15,7 +15,7 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 
 	protected function getConditions() :array {
 		$conditions = [
-			'logic' => static::LOGIC_AND,
+			'logic' => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestBypassesAllRestrictions::class,
@@ -25,7 +25,7 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 		];
 
 		$matchGroup = [
-			'logic' => static::LOGIC_OR,
+			'logic' => Constants::LOGIC_OR,
 			'conditions' => [],
 		];
 

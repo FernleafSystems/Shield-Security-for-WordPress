@@ -9,6 +9,10 @@ class RequestIsServerLoopback extends Base {
 
 	public const SLUG = 'request_is_server_loopback';
 
+	public function getDescription() :string {
+		return __( 'Is the request a server loopback request.', 'wp-simple-firewall' );
+	}
+
 	protected function getSubConditions() :array {
 		return [
 			'conditions' => MatchRequestIp::class,

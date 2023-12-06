@@ -63,7 +63,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property bool                                                   $plugin_reset
  * @property Shield\Utilities\CacheDirHandler                       $cache_dir_handler
  * @property bool                                                   $user_can_base_permissions
- * @property false|string                                           $file_forceoff
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
@@ -981,10 +980,13 @@ class Controller extends DynPropertiesClass {
 	}
 
 	public function deleteForceOffFile() {
-		if ( $this->this_req->is_force_off && !empty( $this->file_forceoff ) ) {
-			Services::WpFs()->deleteFile( $this->file_forceoff );
+		if ( $this->this_req->is_force_off ) {
+			$file = Services::WpFs()->findFileInDir( 'forceoff', $this->getRootDir(), false );
+			if ( !empty( $file ) ) {
+				Services::WpFs()->deleteFile( $file );
+				\clearstatcache();
+			}
 			$this->this_req->is_force_off = false;
-			\clearstatcache();
 		}
 	}
 

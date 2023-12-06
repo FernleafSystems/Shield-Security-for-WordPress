@@ -22,7 +22,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => static::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
@@ -35,10 +35,11 @@ class BotTrack404 extends BuildRuleIpsBase {
 					'conditions' => Conditions\IsRequestStatus404::class,
 				],
 				[
-					'logic'      => static::LOGIC_OR,
+					'logic'      => Constants::LOGIC_OR,
 					'conditions' => [
 						[
-							'conditions' => Conditions\NotMatchRequestPath::class,
+							'conditions' => Conditions\MatchRequestPath::class,
+							'logic'      => Constants::LOGIC_INVERT,
 							'params'     => [
 								'is_match_regex' => true,
 								'match_paths'    => [

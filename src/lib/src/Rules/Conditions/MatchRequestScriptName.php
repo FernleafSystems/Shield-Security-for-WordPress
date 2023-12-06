@@ -15,6 +15,10 @@ class MatchRequestScriptName extends Base {
 
 	public const SLUG = 'match_request_script_name';
 
+	public function getDescription() :string {
+		return __( 'Does the request script name match the given set of names.', 'wp-simple-firewall' );
+	}
+
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_script_names ) ) {
 			throw new ScriptNamesToMatchUnavailableException();
