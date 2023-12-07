@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestIsServerLoopback extends Base {
+
+	use Traits\TypeRequest;
 
 	public const SLUG = 'request_is_server_loopback';
 
@@ -15,8 +16,8 @@ class RequestIsServerLoopback extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'conditions' => MatchRequestIp::class,
-			'params'    => [
+			'conditions' => MatchRequestIpAddresses::class,
+			'params'     => [
 				'match_ips' => Services::IP()->getServerPublicIPs(),
 			],
 		];

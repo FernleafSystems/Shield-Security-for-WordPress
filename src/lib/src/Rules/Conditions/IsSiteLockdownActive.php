@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsSiteLockdownActive extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'is_site_lockdown_active';
 
 	public function getDescription() :string {

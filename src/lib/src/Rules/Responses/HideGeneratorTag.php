@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+/**
+ * @deprecated 18.5.8
+ */
 class HideGeneratorTag extends Base {
 
 	public const SLUG = 'hide_generator_tag';

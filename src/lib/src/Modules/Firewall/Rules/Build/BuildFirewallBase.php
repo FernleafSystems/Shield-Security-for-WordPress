@@ -38,9 +38,10 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		$conditions = [
-			'logic' => Constants::LOGIC_AND,
-			'conditions' => [
+		$excludedPaths = $this->getExcludedPaths();
+		return [
+			'logic'      => Constants::LOGIC_AND,
+			'conditions' => \array_filter( [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => Constants::LOGIC_INVERT
@@ -52,80 +53,53 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				[
 					'conditions' => Conditions\RequestHasAnyParameters::class,
 				],
-			]
+
+				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
+					'conditions' => Conditions\IsUserAdminNormal::class,
+					'logic'      => Constants::LOGIC_INVERT,
+				] : null,
+
+				!empty( $excludedPaths ) ? [
+					'conditions' => Conditions\MatchRequestPaths::class,
+					'logic'      => Constants::LOGIC_INVERT,
+					'params'     => [
+						'match_paths'    => $excludedPaths,
+						'is_match_regex' => false,
+					],
+				] : null,
+
+				[
+					'logic'      => Constants::LOGIC_OR,
+					'conditions' => \array_merge(
+						$this->buildPatternMatchingSubConditions( 'simple' ),
+						$this->buildPatternMatchingSubConditions( 'regex' )
+					),
+				]
+			] )
 		];
+	}
 
-		$excludedPaths = $this->getExcludedPaths();
-		if ( !empty( $excludedPaths ) ) {
-			$conditions[ 'conditions' ][] = [
-				'conditions' => Conditions\MatchRequestPath::class,
-				'logic'      => Constants::LOGIC_INVERT,
-				'params'    => [
-					'is_match_regex' => false,
-					'match_paths'    => $excludedPaths,
+	private function buildPatternMatchingSubConditions( string $type ) :array {
+		return [
+			[
+				'conditions' => Conditions\MatchRequestParamQuery::class,
+				'params'     => [
+					'is_match_regex'  => $type === 'regex',
+					'match_patterns'  => $this->getFirewallPatterns()[ $type ] ?? [],
+					'match_category'  => static::SCAN_CATEGORY,
+					'excluded_params' => $this->getExclusions(),
 				],
-			];
-		}
-
-		if ( $this->opts()->isOpt( 'whitelist_admins', 'Y' ) ) {
-			$conditions[ 'conditions' ][] = [
-				'conditions' => Conditions\IsUserAdminNormal::class,
-				'logic'      => Constants::LOGIC_INVERT,
-			];
-		}
-
-		$firewallRulesGroup = [
-			'logic' => Constants::LOGIC_OR,
-			'conditions' => [],
+			],
+			[
+				'conditions' => Conditions\MatchRequestParamPost::class,
+				'params'     => [
+					'is_match_regex'  => $type === 'regex',
+					'match_patterns'  => $this->getFirewallPatterns()[ $type ] ?? [],
+					'match_category'  => static::SCAN_CATEGORY,
+					'excluded_params' => $this->getExclusions(),
+				],
+			],
 		];
-
-		$simple = $this->getFirewallPatterns_Simple();
-		if ( !empty( $simple ) ) {
-			$firewallRulesGroup[ 'conditions' ][] = [
-				'conditions' => Conditions\MatchRequestParamQuery::class,
-				'params'    => [
-					'is_match_regex'  => false,
-					'match_patterns'  => $simple,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-			$firewallRulesGroup[ 'conditions' ][] = [
-				'conditions' => Conditions\MatchRequestParamPost::class,
-				'params'    => [
-					'is_match_regex'  => false,
-					'match_patterns'  => $simple,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-		}
-
-		$regex = $this->getFirewallPatterns_Regex();
-		if ( !empty( $regex ) ) {
-			$firewallRulesGroup[ 'conditions' ][] = [
-				'conditions' => Conditions\MatchRequestParamQuery::class,
-				'params'    => [
-					'is_match_regex'  => true,
-					'match_patterns'  => $regex,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-			$firewallRulesGroup[ 'conditions' ][] = [
-				'conditions' => Conditions\MatchRequestParamPost::class,
-				'params'    => [
-					'is_match_regex'  => true,
-					'match_patterns'  => $regex,
-					'match_category'  => static::SCAN_CATEGORY,
-					'excluded_params' => $this->getExclusions(),
-				],
-			];
-		}
-
-		$conditions[ 'conditions' ][] = $firewallRulesGroup;
-
-		return $conditions;
 	}
 
 	protected function getExcludedPaths() :array {

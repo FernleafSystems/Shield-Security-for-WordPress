@@ -31,7 +31,7 @@ class IpWhitelisted extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\ProcessIpWhitelisted::class,
+				'response' => Responses\UpdateIpRuleLastAccessAt::class,
 			],
 		];
 	}

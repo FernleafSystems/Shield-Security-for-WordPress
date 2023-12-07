@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsUserSecurityAdmin extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'is_user_security_admin';
 
 	public function getDescription() :string {

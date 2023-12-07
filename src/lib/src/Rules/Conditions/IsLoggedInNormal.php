@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsLoggedInNormal extends Base {
 
+	use Traits\TypeUser;
+
 	public const SLUG = 'is_logged_in_normal';
 
 	public function getDescription() :string {

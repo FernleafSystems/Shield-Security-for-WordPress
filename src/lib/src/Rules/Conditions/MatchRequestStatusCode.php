@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
  */
 class MatchRequestStatusCode extends Base {
 
+	use Traits\TypeRequest;
 	use Traits\RequestPath;
 
 	public const SLUG = 'match_request_status_code';
@@ -38,5 +39,14 @@ class MatchRequestStatusCode extends Base {
 
 	public static function MinimumHook() :int {
 		return WPHooksOrder::TEMPLATE_REDIRECT;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'code' => [
+				'type'  => 'int',
+				'label' => __( 'Match Response Status Code', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

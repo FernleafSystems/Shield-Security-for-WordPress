@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsForceOff extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'is_force_off';
 
 	public function getDescription() :string {

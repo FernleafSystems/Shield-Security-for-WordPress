@@ -66,7 +66,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 			$condition = new $conditionClass();
 			$parsed[ 'conditions' ] = [
 				'name'        => $condition->getName(),
-				'slug'        => $condition::Slug(),
+				'slug'        => $condition->getSlug(),
 				'class'       => $conditionClass,
 				'description' => $condition->getDescription(),
 			];

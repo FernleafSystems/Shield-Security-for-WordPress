@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class IsRequestSecurityAdmin extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'is_request_security_admin';
 
 	public function getDescription() :string {

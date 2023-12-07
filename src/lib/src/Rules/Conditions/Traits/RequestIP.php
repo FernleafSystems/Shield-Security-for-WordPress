@@ -6,8 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestIpUnavailabl
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string   $request_ip
- * @property string[] $match_ips
+ * @property string $request_ip
  */
 trait RequestIP {
 

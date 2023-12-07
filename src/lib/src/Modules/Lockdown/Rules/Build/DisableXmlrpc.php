@@ -22,7 +22,7 @@ class DisableXmlrpc extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
@@ -38,7 +38,28 @@ class DisableXmlrpc extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\DisableXmlrpc::class,
+				'response' => Responses\HookAddFilter::class,
+				'params'   => [
+					'hook'     => 'xmlrpc_enabled',
+					'callback' => '__return_false',
+					'priority' => 1000,
+					'args'     => 0,
+				]
+			],
+			[
+				'response' => Responses\HookAddFilter::class,
+				'params'   => [
+					'hook'     => 'xmlrpc_methods',
+					'callback' => '__return_empty_array',
+					'priority' => 1000,
+					'args'     => 0,
+				]
+			],
+			[
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'block_xml',
+				],
 			],
 		];
 	}

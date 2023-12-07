@@ -6,9 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
-	Constants,
 	Responses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockPageSiteBlockdown;
 
 class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 
@@ -33,7 +33,10 @@ class RequestIsSiteBlockdownBlocked extends BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\ProcessRequestBlockedBySiteBlockdown::class,
+				'response' => Responses\DisplayBlockPage::class,
+				'params'   => [
+					'block_page_slug' => BlockPageSiteBlockdown::SLUG,
+				],
 			],
 		];
 	}

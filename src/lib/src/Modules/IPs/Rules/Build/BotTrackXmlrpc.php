@@ -22,7 +22,7 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
@@ -36,11 +36,9 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 				],
 				[
 					'conditions' => Conditions\MatchRequestPath::class,
-					'params'    => [
+					'params'     => [
 						'is_match_regex' => true,
-						'match_paths'    => [
-							'/xmlrpc\\.php$'
-						],
+						'match_path'     => '/xmlrpc\\.php$',
 					],
 				],
 			]

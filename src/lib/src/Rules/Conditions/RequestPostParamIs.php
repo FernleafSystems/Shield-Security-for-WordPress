@@ -4,7 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 18.5.8
+ */
 class RequestPostParamIs extends RequestParamIs {
+
+	use Traits\TypeRequest;
 
 	public const SLUG = 'request_post_param_is';
 

@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpIsAjax extends Base {
 
+	use Traits\TypeWordpress;
+
 	public const SLUG = 'wp_is_ajax';
 
 	public function getDescription() :string {

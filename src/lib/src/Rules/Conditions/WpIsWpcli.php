@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpIsWpcli extends Base {
 
+	use Traits\TypeWordpress;
+
 	public const SLUG = 'wp_is_wpcli';
 
 	public function getDescription() :string {

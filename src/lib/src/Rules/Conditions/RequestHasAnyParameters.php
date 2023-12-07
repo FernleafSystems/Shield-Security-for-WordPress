@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class RequestHasAnyParameters extends Base {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'request_has_any_parameters';
 
 	public function getDescription() :string {

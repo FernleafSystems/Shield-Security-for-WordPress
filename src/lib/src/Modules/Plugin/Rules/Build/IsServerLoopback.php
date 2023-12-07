@@ -25,11 +25,6 @@ class IsServerLoopback extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
-		return [
-			'conditions' => Conditions\MatchRequestIp::class,
-			'params'     => [
-				'match_ips' => Services::IP()->getServerPublicIPs(),
-			],
-		];
+		return [];
 	}
 }

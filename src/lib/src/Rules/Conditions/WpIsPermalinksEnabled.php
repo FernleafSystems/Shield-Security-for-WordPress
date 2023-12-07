@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpIsPermalinksEnabled extends Base {
 
+	use Traits\TypeWordpress;
+
 	public const SLUG = 'wp_is_permalinks_enabled';
 
 	public function getDescription() :string {

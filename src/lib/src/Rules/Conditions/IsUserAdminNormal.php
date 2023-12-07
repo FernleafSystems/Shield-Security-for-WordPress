@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class IsUserAdminNormal extends Base {
 
+	use Traits\TypeUser;
+
 	public const SLUG = 'is_user_admin_normal';
 
 	public function getDescription() :string {

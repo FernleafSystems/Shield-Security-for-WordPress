@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+/**
+ * @deprecated 18.5.8
+ */
 class MatchRequestNotIpIdentity extends MatchRequestIpIdentity {
 
 	public const SLUG = 'match_request_not_ip_identity';

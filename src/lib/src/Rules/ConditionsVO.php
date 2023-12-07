@@ -46,8 +46,8 @@ class ConditionsVO extends DynPropertiesClass {
 				break;
 			case 'logic':
 				if ( $this->type === 'single' ) {
-					if ( !\in_array( $value, [ Constants::LOGIC_NONE, Constants::LOGIC_INVERT ] ) ) {
-						$value = Constants::LOGIC_NONE;
+					if ( !\in_array( $value, [ Constants::LOGIC_ASIS, Constants::LOGIC_INVERT ] ) ) {
+						$value = Constants::LOGIC_ASIS;
 					}
 				}
 				elseif ( !\in_array( $value, [ Constants::LOGIC_AND, Constants::LOGIC_OR ] ) ) {

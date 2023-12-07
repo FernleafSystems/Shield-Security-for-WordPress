@@ -38,14 +38,14 @@ class RulesController {
 	protected function run() {
 
 		// Rebuild the rules upon upgrade or settings change
-		if ( true ) {
+		if ( self::con()->cfg->rebuilt ) {
 			$this->buildAndStore();
 		}
 
 		// Rebuild the rules when configuration is updated
 		add_action( self::con()->prefix( 'after_pre_options_store' ), function ( $cfgChanged ) {
 			if ( $cfgChanged ) {
-				\method_exists( $this, 'buildAndStore' ) ? $this->buildAndStore() : ( new RulesStorageHandler() )->buildAndStore();
+				$this->buildAndStore();
 			}
 		} );
 
@@ -106,20 +106,18 @@ class RulesController {
 	private function processRule( RuleVO $rule ) {
 		if ( !isset( $rule->result ) ) {
 
-			$conditionsResult = true;
-
 			$resultMetaData = [];
 			$conditions = $rule->conditions ?? null;
 			if ( $conditions !== null ) {
 				$processor = new Processors\ProcessConditions( $conditions );
-				$conditionsResult = $processor->process();
+				$rule->result = $processor->process();
 				$resultMetaData = $processor->getConsolidatedMeta();
 			}
 			else {
+				$rule->result = true;
 				error_log( 'invalid: empty conditions for: '.var_export( $rule, true ) );
 			}
 
-			$rule->result = $conditionsResult;
 			if ( $rule->result ) {
 				( new Processors\ResponseProcessor( $rule, $resultMetaData ) )->run();
 			}

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 class IsIpHighReputation extends Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_high_reputation';
 

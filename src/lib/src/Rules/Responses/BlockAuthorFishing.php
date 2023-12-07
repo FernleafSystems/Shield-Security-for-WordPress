@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+/**
+ * @deprecated 18.5.8
+ */
 class BlockAuthorFishing extends Base {
 
 	public const SLUG = 'block_author_fishing';

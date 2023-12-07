@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	Responses
+};
 
 class ForceSslAdmin extends BuildRuleLockdownBase {
 
@@ -19,12 +23,26 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\ForceSslAdmin::class,
+				'response' => Responses\SetPhpDefine::class,
+				'params'   => [
+					'define_name'  => 'FORCE_SSL_ADMIN',
+					'define_value' => true,
+				]
+			],
+			[
+				'response' => Responses\CallUserFuncArray::class,
+				'params'   => [
+					'callback' => '\\force_ssl_admin',
+					'args'     => [ true ],
+				]
 			],
 		];
 	}
 
 	protected function getConditions() :array {
-		// TODO: Implement getConditions() method.
+		return [
+			'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+			'logic'      => Constants::LOGIC_INVERT
+		];
 	}
 }

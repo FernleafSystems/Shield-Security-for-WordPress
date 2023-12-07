@@ -7,12 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUna
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
- * @property string[] $match_ip_ids
+ * @property string $match_ip_id
  */
 class MatchRequestIpIdentity extends Base {
 
 	use Traits\RequestIP;
 	use Traits\UserAgent;
+	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_ip_identity';
 
@@ -21,8 +22,7 @@ class MatchRequestIpIdentity extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$matchIDs = $this->match_ip_ids;
-		if ( empty( $matchIDs ) ) {
+		if ( empty( $this->match_ip_id ) ) {
 			throw new MatchIpIdsUnavailableException();
 		}
 
@@ -36,6 +36,15 @@ class MatchRequestIpIdentity extends Base {
 		$id = ( new IpID( $this->getRequestIP(), $ua ) )->run()[ 0 ];
 		$this->addConditionTriggerMeta( 'ip_id', $id );
 
-		return \in_array( $id, $matchIDs );
+		return $id === $this->match_ip_id;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'match_ip_id' => [
+				'type'  => 'string',
+				'label' => __( 'IP ID To Match', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

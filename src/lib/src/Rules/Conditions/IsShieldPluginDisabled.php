@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsShieldPluginDisabled extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'is_shield_plugin_disabled';
 
 	public function getDescription() :string {

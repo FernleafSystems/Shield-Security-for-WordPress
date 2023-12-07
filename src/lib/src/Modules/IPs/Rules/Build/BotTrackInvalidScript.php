@@ -32,7 +32,7 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 					'conditions' => Conditions\IsNotLoggedInNormal::class
 				],
 				[
-					'conditions' => Conditions\MatchRequestScriptName::class,
+					'conditions' => Conditions\MatchRequestScriptNames::class,
 					'logic'      => Constants::LOGIC_INVERT,
 					'params'       => [
 						'is_match_regex'     => false,

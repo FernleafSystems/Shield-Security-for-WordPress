@@ -13,6 +13,8 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class MatchRequestParam extends Base {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'match_request_param';
 
 	public function getDescription() :string {
@@ -94,5 +96,28 @@ class MatchRequestParam extends Base {
 
 	protected function getRequestParamsToTest() :array {
 		return [];
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'is_match_regex'  => [
+				'type'  => 'bool',
+				'label' => __( 'Is Match Regex', 'wp-simple-firewall' ),
+			],
+			'match_patterns'  => [
+				'type'     => 'array',
+				'label'    => __( 'Match Patterns', 'wp-simple-firewall' ),
+			],
+			'match_category'  => [
+				'type'     => 'string',
+				'label'    => __( 'Match Category', 'wp-simple-firewall' ),
+				'optional' => true,
+			],
+			'excluded_params' => [
+				'type'     => 'array',
+				'label'    => __( 'Excluded Parameters', 'wp-simple-firewall' ),
+				'optional' => true,
+			],
+		];
 	}
 }

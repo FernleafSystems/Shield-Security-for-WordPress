@@ -408,6 +408,17 @@ class AssetsCustomizer {
 					],
 				],
 			],
+			'rule_builder'     => [
+				'key'     => 'rule_builder',
+				'handles' => [
+					'main',
+				],
+				'data'    => [
+					'ajax' => [
+						'render_rule_builder' => ActionData::BuildAjaxRender( Components\Rules\RuleBuilder::class ),
+					],
+				],
+			],
 			'progress_meters'  => [
 				'key'      => 'progress_meters',
 				'required' => PluginNavs::GetNav() === PluginNavs::NAV_DASHBOARD,

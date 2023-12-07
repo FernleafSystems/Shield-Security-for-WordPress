@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class RequestIsSiteBlockdownBlocked extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'request_is_site_blockdown_blocked';
 
 	public function getDescription() :string {
@@ -14,17 +16,13 @@ class RequestIsSiteBlockdownBlocked extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
+					'conditions' => RequestSubjectToAnyShieldRestrictions::class,
+				],
+				[
 					'conditions' => IsSiteLockdownActive::class,
-				],
-				[
-					'conditions' => IsForceOff::class,
-					'logic'      => Constants::LOGIC_INVERT,
-				],
-				[
-					'conditions' => RequestIsPublicWebOrigin::class,
 				],
 				[
 					'conditions' => IsIpWhitelisted::class,

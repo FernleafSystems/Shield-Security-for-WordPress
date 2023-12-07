@@ -5,9 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
+	ConditionsVO,
 	Constants,
-	Exceptions\NoSuchConditionHandlerException,
-	ConditionsVO
+	Exceptions\NoSuchConditionHandlerException
 };
 
 class ProcessConditions {
@@ -22,7 +22,7 @@ class ProcessConditions {
 	private $consolidatedMeta;
 
 	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Rules\ConditionsVO
+	 * @var ConditionsVO
 	 */
 	private $condition;
 

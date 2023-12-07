@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class RequestIsPublicWebOrigin extends Base {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'request_is_public_web_origin';
 
 	public function getDescription() :string {
@@ -14,7 +16,7 @@ class RequestIsPublicWebOrigin extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => WpIsWpcli::class,

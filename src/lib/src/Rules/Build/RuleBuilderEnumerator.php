@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Firewall,
 	IPs,
@@ -20,7 +21,11 @@ class RuleBuilderEnumerator {
 	 * @return BuildRuleBase[]
 	 */
 	public function run() :array {
-		return $this->direct();
+		$rules = $this->direct();
+		if ( self::con()->isPremiumActive() ) {
+//			$rules = \array_merge( $rules, $this->custom() );
+		}
+		return $rules;
 	}
 
 	/**
@@ -36,6 +41,15 @@ class RuleBuilderEnumerator {
 				\apply_filters( 'shield/collate_rule_builders', [] )
 			) )
 		) );
+	}
+
+	private function custom() :array {
+		return \array_map(
+			function ( array $raw ) {
+				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $raw ) );
+			},
+			self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules' )
+		);
 	}
 
 	private function shieldCoreRules() :array {
