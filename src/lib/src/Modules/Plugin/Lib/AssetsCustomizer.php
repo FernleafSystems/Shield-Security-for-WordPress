@@ -111,7 +111,7 @@ class AssetsCustomizer {
 				'data'    => function () {
 					return [
 						'ajax' => [
-							Actions\BlockdownFormSubmit::SLUG => ActionData::Build( Actions\BlockdownFormSubmit::class ),
+							Actions\BlockdownFormSubmit::SLUG        => ActionData::Build( Actions\BlockdownFormSubmit::class ),
 							Actions\BlockdownDisableFormSubmit::SLUG => ActionData::Build( Actions\BlockdownDisableFormSubmit::class ),
 						],
 					];
@@ -552,7 +552,7 @@ class AssetsCustomizer {
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
 						$data[ 'ip_rules' ] = [
 							'ajax' => [
-								'rule_delete' => ActionData::Build( Actions\IpRuleDelete::class ),
+								'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
 								'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
 							],
 							'vars' => [
@@ -587,6 +587,7 @@ class AssetsCustomizer {
 				'key'     => 'testrest',
 				'handles' => [
 					'main',
+					'wpadmin',
 				],
 				'data'    => function () {
 					/**
@@ -596,14 +597,21 @@ class AssetsCustomizer {
 					 */
 					$opts = self::con()->getModule_Plugin()->opts();
 					$data = $opts->getOpt( 'test_rest_data' );
-					if ( empty( $data[ 'test_at' ] ) ) {
-						$data = [
-							'success_at' => 0,
-						];
+					if ( empty( $data ) || \array_key_exists( 'test_at', $data ) ) {
+						$data = [];
 					}
-					if ( Services::Request()->ts() - ( $data[ 'test_at' ] ?? 0 ) > \WEEK_IN_SECONDS ) {
+
+					$data = \array_merge( [
+						'maybe_test_at'   => 0,
+						'success_test_at' => 0,
+					], $data );
+
+					$now = Services::Request()->ts();
+
+					$hasSuccess = $data[ 'success_test_at' ] > 0;
+					if ( $now - $data[ 'maybe_test_at' ] > ( $hasSuccess ? \WEEK_IN_SECONDS : \DAY_IN_SECONDS ) ) {
 						$run = true;
-						$data[ 'test_at' ] = Services::Request()->ts();
+						$data[ 'maybe_test_at' ] = $now;
 					}
 					else {
 						$run = false;
