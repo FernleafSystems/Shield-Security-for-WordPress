@@ -1,4 +1,5 @@
 {% macro render_conditions_parsed( conditions, first = false ) %}
+	{% import '/common/macros_rules.twig' as macros_rules %}
 
 	{% if first %}
 		<table class="table table-hover border border-1 p-3">

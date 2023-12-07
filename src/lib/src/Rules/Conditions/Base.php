@@ -34,17 +34,17 @@ abstract class Base extends DynPropertiesClass {
 		return WPHooksOrder::NONE;
 	}
 
+	public static function Slug() :string {
+		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
+	}
+
 	public function getDescription() :string {
-		return $this->getSlug();
+		return 'description';
 	}
 
 	public function getName() :string {
-		$name = \preg_replace( '#(?<!^)[A-Z]#', ' $0', ( new \ReflectionClass( $this ) )->getShortName() );
+		$name = \ucwords( \str_replace( '_', ' ', static::Slug() ) );
 		return str_ireplace( [ 'Wp ', 'Ip ', 'ajax', 'wpcli' ], [ 'WP ', 'IP ', 'AJAX', 'WP-CLI' ], $name );
-	}
-
-	public function getSlug() :string {
-		return Strings::CamelToSnake( ( new \ReflectionClass( $this ) )->getShortName() );
 	}
 
 	public function __get( string $key ) {

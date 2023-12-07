@@ -38,18 +38,6 @@ class PageRulesSummary extends BasePluginAdminPage {
 				$data[ 'simple_id' ] = $simpleID++;
 				$data[ 'conditions' ] = $rule->conditions;
 				$data[ 'conditions_parsed' ] = $this->parseConditionsForDisplay( $rule->conditions );
-
-				$data[ 'sub_conditions' ] = \array_map(
-					function ( string $conditionClass ) {
-						$cond = new $conditionClass();
-						return [
-							'name' => $cond->getDescription(),
-							'slug' => $cond->getSlug(),
-						];
-					},
-					( new ExtractSubConditions() )->fromRule( $rule )[ 'classes' ]
-				);
-
 				$rules[ $data[ 'simple_id' ] ] = $data;
 			}
 			catch ( \Exception $e ) {
@@ -78,7 +66,7 @@ class PageRulesSummary extends BasePluginAdminPage {
 			$condition = new $conditionClass();
 			$parsed[ 'conditions' ] = [
 				'name'        => $condition->getName(),
-				'slug'        => $condition->getSlug(),
+				'slug'        => $condition::Slug(),
 				'class'       => $conditionClass,
 				'description' => $condition->getDescription(),
 			];

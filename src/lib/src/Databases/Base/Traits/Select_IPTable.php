@@ -14,7 +14,7 @@ trait Select_IPTable {
 		if ( $this->getDbH()->getTableSchema()->is_ip_binary ) {
 			$ips = \array_filter( \array_map(
 				function ( $binaryIP ) {
-					return empty( $binaryIP ) ? '' : inet_ntop( $binaryIP );
+					return empty( $binaryIP ) ? '' : \inet_ntop( $binaryIP );
 				},
 				$ips
 			) );
