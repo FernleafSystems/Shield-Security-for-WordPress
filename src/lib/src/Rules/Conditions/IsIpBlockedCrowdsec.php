@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 class IsIpBlockedCrowdsec extends Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blocked_crowdsec';
 
@@ -36,15 +37,15 @@ class IsIpBlockedCrowdsec extends Base {
 					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
+					'conditions' => RequestIsServerLoopback::class,
+					'logic'      => Constants::LOGIC_INVERT
+				],
+				[
 					'conditions' => IsIpBlockedByShield::class,
 					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
 					'conditions' => IsIpHighReputation::class,
-					'logic'      => Constants::LOGIC_INVERT
-				],
-				[
-					'conditions' => RequestIsServerLoopback::class,
 					'logic'      => Constants::LOGIC_INVERT
 				],
 				[

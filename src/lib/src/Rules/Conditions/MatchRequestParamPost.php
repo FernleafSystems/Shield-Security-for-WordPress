@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MatchRequestParamPost extends MatchRequestParam {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'match_request_param_post';
 
 	public function getDescription() :string {

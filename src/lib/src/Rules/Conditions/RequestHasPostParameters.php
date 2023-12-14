@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class RequestHasPostParameters extends Base {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'request_has_post_parameters';
 
 	public function getDescription() :string {

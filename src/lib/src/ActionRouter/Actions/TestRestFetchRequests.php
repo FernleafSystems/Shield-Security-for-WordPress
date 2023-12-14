@@ -12,7 +12,7 @@ class TestRestFetchRequests extends BaseAction {
 		$opts = self::con()->getModule_Plugin()->opts();
 
 		$data = $opts->getOpt( 'test_rest_data' );
-		$data[ 'success_at' ] = Services::Request()->ts();
+		$data[ 'success_test_at' ] = Services::Request()->ts();
 		$opts->setOpt( 'test_rest_data', $data );
 
 		$this->response()->action_response_data = [

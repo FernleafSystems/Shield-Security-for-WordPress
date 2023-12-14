@@ -4,17 +4,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
-use FernleafSystems\Wordpress\Services\Utilities\Strings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	RuleVO,
 	ConditionsVO,
+	RuleVO,
+	Traits\AutoSnakeCaseSlug,
+	Utility\RulesEnum,
 	WPHooksOrder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
 abstract class Base extends DynPropertiesClass {
 
+	use AutoSnakeCaseSlug;
 	use PluginControllerConsumer;
 
 	public const SLUG = '';
@@ -26,25 +29,56 @@ abstract class Base extends DynPropertiesClass {
 	 */
 	protected $rule;
 
-	public function __construct( array $conditionParams = [] ) {
-		$this->applyFromArray( $conditionParams );
+	/**
+	 * @var array
+	 */
+	protected $params;
+
+	public function __construct( array $params = [] ) {
+		$this->setParams( $params );
+	}
+
+	protected function setParams( array $params ) {
+		foreach ( $this->getParamsDef() as $key => $def ) {
+			if ( !isset( $params[ $key ] ) ) {
+				$default = $def[ 'default' ] ?? null;
+				if ( $default === null ) {
+					switch ( $def[ 'type' ] ) {
+						case 'array':
+							$default = [];
+							break;
+						case 'string':
+						default:
+							$default = '';
+							break;
+					}
+				}
+				$params[ $key ] = $default;
+			}
+		}
+		$this->applyFromArray( $params );
 	}
 
 	public static function MinimumHook() :int {
 		return WPHooksOrder::NONE;
 	}
 
+	public static function Slug() :string {
+		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
+	}
+
 	public function getDescription() :string {
-		return $this->getSlug();
+		return 'description';
 	}
 
 	public function getName() :string {
-		$name = \preg_replace( '#(?<!^)[A-Z]#', ' $0', ( new \ReflectionClass( $this ) )->getShortName() );
-		return str_ireplace( [ 'Wp ', 'Ip ', 'ajax', 'wpcli' ], [ 'WP ', 'IP ', 'AJAX', 'WP-CLI' ], $name );
-	}
-
-	public function getSlug() :string {
-		return Strings::CamelToSnake( ( new \ReflectionClass( $this ) )->getShortName() );
+		return \preg_replace_callback(
+			sprintf( '#\b(%s)\b#i', \implode( '|', [ 'wp', 'ip', 'ajax', 'wpcli', 'ade' ] ) ),
+			function ( $matches ) {
+				return \strtoupper( $matches[ 0 ] );
+			},
+			\ucwords( \str_replace( '_', ' ', $this->getSlug() ) )
+		);
 	}
 
 	public function __get( string $key ) {
@@ -138,6 +172,14 @@ abstract class Base extends DynPropertiesClass {
 		return function () {
 			return $this->execConditionCheck();
 		};
+	}
+
+	public function getParamsDef() :array {
+		return [];
+	}
+
+	public function getType() :string {
+		return RulesEnum::TYPE_NORMAL;
 	}
 
 	/**

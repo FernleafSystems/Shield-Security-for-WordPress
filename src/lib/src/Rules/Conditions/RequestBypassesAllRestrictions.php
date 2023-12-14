@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
 class RequestBypassesAllRestrictions extends Base {
 
+	use Traits\TypeShield;
+
 	public const SLUG = 'request_bypasses_all_restrictions';
 
 	public function getDescription() :string {
@@ -22,30 +24,27 @@ class RequestBypassesAllRestrictions extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestIsSiteBlockdownBlocked::class,
 					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
-					'logic' => Constants::LOGIC_OR,
+					'logic'      => Constants::LOGIC_OR,
 					'conditions' => [
 						[
-							'conditions' => IsForceOff::class,
-						],
-						[
+							'conditions' => RequestSubjectToAnyShieldRestrictions::class,
 							'logic'      => Constants::LOGIC_INVERT,
-							'conditions' => RequestIsPublicWebOrigin::class,
-						],
-						[
-							'conditions' => RequestIsServerLoopback::class,
 						],
 						[
 							'conditions' => RequestIsTrustedBot::class,
 						],
 						[
 							'conditions' => RequestIsPathWhitelisted::class,
+						],
+						[
+							'conditions' => IsIpWhitelisted::class,
 						],
 					]
 				],

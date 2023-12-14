@@ -2,9 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class RequestIsTrustedBot extends Base {
+
+	use Traits\TypeRequest;
 
 	public const SLUG = 'request_is_trusted_bot';
 
@@ -22,8 +25,9 @@ class RequestIsTrustedBot extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'conditions' => MatchRequestNotIpIdentity::class,
-			'params'    => [
+			'conditions' => MatchRequestIpIdentities::class,
+			'logic'      => Constants::LOGIC_INVERT,
+			'params'     => [
 				'match_ip_ids' => (array)apply_filters( 'shield/untrusted_service_providers', [
 					IpID::UNKNOWN,
 					IpID::THIS_SERVER,

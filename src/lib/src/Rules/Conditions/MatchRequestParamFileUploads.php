@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class MatchRequestParamFileUploads extends MatchRequestParam {
 
+	use Traits\TypeRequest;
+
 	public const SLUG = 'match_request_param_file_uploads';
 
 	public function getDescription() :string {

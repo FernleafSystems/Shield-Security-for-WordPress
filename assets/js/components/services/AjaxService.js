@@ -52,6 +52,10 @@ export class AjaxService {
 	};
 
 	req( data ) {
+		if ( data === null || ObjectOps.IsEmpty( data ) ) {
+			throw new Error( 'Empty or null Ajax data.' );
+		}
+
 		/* const isRest = '_rest_url' in data; */
 		const isRest = false;
 

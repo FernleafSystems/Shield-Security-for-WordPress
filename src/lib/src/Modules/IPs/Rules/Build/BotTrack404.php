@@ -21,6 +21,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
+		$opts = $this->opts();
 		return [
 			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
@@ -42,9 +43,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 							'logic'      => Constants::LOGIC_INVERT,
 							'params'     => [
 								'is_match_regex' => true,
-								'match_paths'    => [
-									sprintf( "\\.(%s)$", \implode( '|', $this->opts()->botSignalsGetAllowable404s() ) )
-								],
+								'match_path'     => sprintf( "\\.(%s)$", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
 							],
 						],
 						[

@@ -4,9 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
-class IsSecurityAdmin extends Base {
+class IsRequestSecurityAdmin extends Base {
 
-	public const SLUG = 'is_security_admin';
+	use Traits\TypeShield;
+
+	public const SLUG = 'is_request_security_admin';
 
 	public function getDescription() :string {
 		return __( 'Is the request from a user authenticated as a Shield Security Admin.', 'wp-simple-firewall' );
@@ -22,16 +24,16 @@ class IsSecurityAdmin extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_OR,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
-					'conditions' => RequestBypassesAllRestrictions::class,
+					'conditions' => IsUserAdminNormal::class,
 				],
 				[
-					'logic' => Constants::LOGIC_AND,
+					'logic'      => Constants::LOGIC_OR,
 					'conditions' => [
 						[
-							'conditions' => IsUserAdminNormal::class,
+							'conditions' => RequestBypassesAllRestrictions::class,
 						],
 						[
 							'conditions' => IsUserSecurityAdmin::class,

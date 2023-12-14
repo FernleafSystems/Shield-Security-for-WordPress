@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+/**
+ * @deprecated 18.5.8
+ */
 class DisableXmlrpc extends Base {
 
 	public const SLUG = 'disable_xmlrpc';

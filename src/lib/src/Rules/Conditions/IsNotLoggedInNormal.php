@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsNotLoggedInNormal extends IsLoggedInNormal {
 
+	use Traits\TypeUser;
+
 	public const SLUG = 'is_not_logged_in_normal';
 
 	public function getDescription() :string {

@@ -31,6 +31,9 @@ class IpBlockedShield extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
+				'response' => Responses\UpdateIpRuleLastAccessAt::class,
+			],
+			[
 				'response' => Responses\ProcessIpBlockedShield::class,
 			],
 		];

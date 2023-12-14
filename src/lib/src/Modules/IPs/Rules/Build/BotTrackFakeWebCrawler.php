@@ -23,7 +23,7 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
@@ -34,16 +34,14 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 				],
 				[
 					'conditions' => Conditions\MatchRequestPath::class,
-					'params'    => [
+					'params'     => [
 						'is_match_regex' => true,
-						'match_paths'    => [
-							'.*'
-						],
+						'match_path'     => '.*',
 					],
 				],
 				[
-					'conditions' => Conditions\MatchRequestUseragent::class,
-					'params'    => [
+					'conditions' => Conditions\MatchRequestUseragents::class,
+					'params'     => [
 						'match_useragents' => Services::ServiceProviders()->getAllCrawlerUseragents(),
 					],
 				],

@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $is_ip_whitelisted
  * @property bool            $is_server_loopback
  * @property bool            $request_bypasses_all_restrictions
+ * @property bool            $request_subject_to_shield_restrictions
  * @property bool            $is_site_lockdown_active
  * @property bool            $is_site_lockdown_blocked
  * @property bool            $wp_is_admin

@@ -12,11 +12,30 @@ use FernleafSystems\Wordpress\Services\Services;
 class DirContainsFile extends Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeFilesystem;
 
 	public const SLUG = 'dir_contains_file';
 
 	public function getDescription() :string {
 		return __( 'Does a given file exist in a given directory.', 'wp-simple-firewall' );
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'path_dir'  => [
+				'type'  => 'string',
+				'label' => __( 'Path Dir', 'wp-simple-firewall' ),
+			],
+			'file_name' => [
+				'type'  => 'string',
+				'label' => __( 'File Name', 'wp-simple-firewall' ),
+			],
+			'fuzzy'     => [
+				'type'    => 'bool',
+				'default' => true,
+				'label'   => __( 'Fuzzy Search', 'wp-simple-firewall' ),
+			],
+		];
 	}
 
 	protected function execConditionCheck() :bool {

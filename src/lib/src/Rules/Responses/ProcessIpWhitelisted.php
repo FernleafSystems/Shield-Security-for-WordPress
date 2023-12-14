@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Update;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 
+/**
+ * @deprecated 18.5.8
+ */
 class ProcessIpWhitelisted extends Base {
 
 	public const SLUG = 'process_ip_whitelisted';

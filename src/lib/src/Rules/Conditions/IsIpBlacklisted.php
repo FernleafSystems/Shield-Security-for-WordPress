@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 class IsIpBlacklisted extends Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blacklisted';
 

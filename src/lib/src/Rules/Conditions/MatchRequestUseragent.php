@@ -3,49 +3,42 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchUseragentsUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
 
 /**
- * @property string[] $match_useragents
+ * @property string $match_useragent
  */
 class MatchRequestUseragent extends Base {
 
+	use Traits\TypeRequest;
 	use Traits\UserAgent;
 
 	public const SLUG = 'match_request_useragent';
 
 	public function getDescription() :string {
-		return __( 'Does the request useragent match the given useragents.', 'wp-simple-firewall' );
-	}
-
-	/**
-	 * @throws RequestUseragentUnavailableException
-	 * @throws MatchUseragentsUnavailableException
-	 */
-	protected function matchUserAgent() :bool {
-		$uAgents = $this->match_useragents;
-		if ( empty( $uAgents ) ) {
-			throw new MatchUseragentsUnavailableException();
-		}
-
-		$match = false;
-		foreach ( $uAgents as $possibleAgent ) {
-			if ( \stripos( $this->getUserAgent(), $possibleAgent ) !== false ) {
-				$match = true;
-				$this->addConditionTriggerMeta( 'matched_useragent', $possibleAgent );
-				break;
-			}
-		}
-		return $match;
+		return __( 'Does the request useragent match the given useragent.', 'wp-simple-firewall' );
 	}
 
 	protected function execConditionCheck() :bool {
+		$agent = $this->match_useragent;
 		try {
-			$detected = $this->matchUserAgent();
+			if ( empty( $agent ) ) {
+				throw new MatchUseragentsUnavailableException();
+			}
+			$this->addConditionTriggerMeta( 'matched_useragent', $agent );
+			$matched = \stripos( $this->getUserAgent(), $agent ) !== false;
 		}
 		catch ( \Exception $e ) {
-			$detected = false;
+			$matched = false;
 		}
-		return $detected;
+		return $matched;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'match_useragent' => [
+				'type'  => 'string',
+				'label' => __( 'Match Useragent', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

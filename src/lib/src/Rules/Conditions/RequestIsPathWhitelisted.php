@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class RequestIsPathWhitelisted extends Base {
 
 	use ModConsumer;
+	use Traits\TypeShield;
 
 	public const SLUG = 'request_is_path_whitelisted';
 
@@ -18,8 +19,8 @@ class RequestIsPathWhitelisted extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'conditions' => MatchRequestPath::class,
-			'params'    => [
+			'conditions' => MatchRequestPaths::class,
+			'params'     => [
 				'is_match_regex' => true,
 				'match_paths'    => $this->buildPaths(),
 			]

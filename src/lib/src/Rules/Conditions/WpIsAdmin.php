@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class WpIsAdmin extends Base {
 
+	use Traits\TypeWordpress;
+
 	public const SLUG = 'wp_is_admin';
 
 	public function getDescription() :string {

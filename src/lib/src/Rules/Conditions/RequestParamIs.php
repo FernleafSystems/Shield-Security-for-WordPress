@@ -5,10 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\PathsToMatchUnavailableException;
 
 /**
- * @property string   $match_param
- * @property string[] $match_patterns
+ * @deprecated 18.5.8
  */
-class RequestParamIs extends Base {
+abstract class RequestParamIs extends Base {
+
+	use Traits\TypeRequest;
 
 	public const SLUG = 'request_param_is';
 
@@ -48,5 +49,18 @@ class RequestParamIs extends Base {
 	 */
 	protected function getRequestParamValue() {
 		return null;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'match_param'    => [
+				'type'  => 'string',
+				'label' => __( 'Match Parameter Name', 'wp-simple-firewall' ),
+			],
+			'match_patterns' => [
+				'type'  => 'array',
+				'label' => __( 'Match Parameter Value Pattern', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

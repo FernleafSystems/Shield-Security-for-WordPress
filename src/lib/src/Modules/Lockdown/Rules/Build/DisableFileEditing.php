@@ -32,6 +32,13 @@ class DisableFileEditing extends BuildRuleLockdownBase {
 			[
 				'response' => Responses\DisableFileEditing::class,
 			],
+			[
+				'response' => Responses\SetPhpDefine::class,
+				'params'   => [
+					'define_name'  => 'DISALLOW_FILE_EDIT',
+					'define_value' => true,
+				]
+			],
 		];
 	}
 }

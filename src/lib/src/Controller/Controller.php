@@ -36,20 +36,20 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                         $cfg
- * @property Config\OptsHandler                      $opts
- * @property ActionRoutingController                 $action_router
- * @property ExtensionsCon                           $extensions_controller
- * @property Database\DbCon                          $db_con
- * @property Email\EmailCon                          $email_con
- * @property Shield\Controller\Plugin\PluginURLs     $plugin_urls
- * @property Shield\Controller\Assets\Urls           $urls
- * @property Shield\Controller\Assets\Paths          $paths
- * @property Shield\Controller\Assets\Svgs           $svgs
- * @property Shield\Request\ThisRequest              $this_req
- * @property Shield\Modules\License\Lib\Capabilities $caps
- * @property Config\Labels                           $labels
- * @property array                                   $prechecks
+ * @property Config\ConfigVO                                        $cfg
+ * @property Config\OptsHandler                                     $opts
+ * @property ActionRoutingController                                $action_router
+ * @property ExtensionsCon                                          $extensions_controller
+ * @property Database\DbCon                                         $db_con
+ * @property Email\EmailCon                                         $email_con
+ * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
+ * @property Shield\Controller\Assets\Urls                          $urls
+ * @property Shield\Controller\Assets\Paths                         $paths
+ * @property Shield\Controller\Assets\Svgs                          $svgs
+ * @property Shield\Request\ThisRequest                             $this_req
+ * @property Shield\Modules\License\Lib\Capabilities                $caps
+ * @property Config\Labels                                          $labels
+ * @property array                                                  $prechecks
  * @property array                                                  $flags
  * @property bool                                                   $is_activating
  * @property bool                                                   $is_mode_debug

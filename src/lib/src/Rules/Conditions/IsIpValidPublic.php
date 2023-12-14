@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class IsIpValidPublic extends Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeRequest;
 
 	public const SLUG = 'is_ip_valid_public';
 
@@ -17,5 +18,9 @@ class IsIpValidPublic extends Base {
 	protected function execConditionCheck() :bool {
 		$ip = $this->getRequestIP();
 		return !empty( $ip ) && Services::IP()->isValidIp_PublicRemote( $ip );
+	}
+
+	public function getName() :string {
+		return __( 'Is Valid Public IP Address', 'wp-simple-firewall' );
 	}
 }

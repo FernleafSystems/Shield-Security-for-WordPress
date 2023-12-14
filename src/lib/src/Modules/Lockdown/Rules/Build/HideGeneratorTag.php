@@ -35,7 +35,12 @@ class HideGeneratorTag extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\HideGeneratorTag::class,
+				'response' => Responses\HookRemoveAction::class,
+				'params'   => [
+					'hook'     => 'wp_head',
+					'callback' => 'wp_generator',
+					'priority' => 10,
+				]
 			],
 		];
 	}

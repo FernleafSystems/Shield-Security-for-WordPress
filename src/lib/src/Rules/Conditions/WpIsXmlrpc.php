@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WpIsXmlrpc extends Base {
 
+	use Traits\TypeWordpress;
+
 	public const SLUG = 'wp_is_xmlrpc';
 
 	public function getDescription() :string {

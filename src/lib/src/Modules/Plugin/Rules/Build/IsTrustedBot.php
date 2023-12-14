@@ -36,16 +36,6 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 					'conditions' => Conditions\RequestIsServerLoopback::class,
 					'logic'      => Constants::LOGIC_INVERT,
 				],
-				[
-					'conditions' => Conditions\MatchRequestIpIdentity::class,
-					'params'    => [
-						'match_ip_ids' => (array)apply_filters( 'shield/untrusted_service_providers', [
-							IpID::UNKNOWN,
-							IpID::THIS_SERVER,
-							IpID::VISITOR,
-						] ),
-					],
-				],
 			]
 		];
 	}

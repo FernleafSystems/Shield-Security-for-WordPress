@@ -6,8 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Exceptions\NoResponseActionDefinedException,
 	Exceptions\NoSuchResponseHandlerException,
+	Exceptions\ParametersException,
 	Responses,
-	RuleVO
+	RuleVO,
+	Utility
 };
 
 class ResponseProcessor {
@@ -34,23 +36,31 @@ class ResponseProcessor {
 			try {
 				$responseClass = $respDef[ 'response' ] ?? null;
 				if ( empty( $responseClass ) ) {
-					throw new NoResponseActionDefinedException( 'No Response Handler definied for: '.var_export( $respDef, true ) );
+					throw new NoResponseActionDefinedException( 'No Response Handler defined for: '.var_export( $respDef, true ) );
 				}
 				if ( !\class_exists( $responseClass ) ) {
 					throw new NoSuchResponseHandlerException( 'No Such Response Handler Class: '.$responseClass );
 				}
 
+				$params = $respDef[ 'params' ] ?? [];
 				/** @var Responses\Base $response */
-				$response = new $responseClass( $response[ 'params' ] ?? [], $this->triggerMetaData );
+				$response = new $responseClass( $params, $this->triggerMetaData );
+				( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
 				$this->execResponse( $response );
 			}
 			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
 				error_log( $e->getMessage() );
 			}
+			catch ( ParametersException $e ) {
+			}
 		}
 
-		// We always fire the default event
-		$this->execResponse( new Responses\EventFireDefault( [ 'rule_slug' => $this->rule->slug ] ) );
+		try {
+			// We always fire the default event
+			$this->execResponse( new Responses\EventFireDefault( [ 'rule_slug' => $this->rule->slug ] ) );
+		}
+		catch ( \Exception $e ) {
+		}
 	}
 
 	/**

@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class IsRateLimitExceededProxyCheck extends Conditions\Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_rate_limit_exceeded_proxy_check';
 
@@ -50,5 +51,18 @@ class IsRateLimitExceededProxyCheck extends Conditions\Base {
 		}
 
 		return $matched;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'limit_count'     => [
+				'type'  => 'int',
+				'label' => __( 'Request Limit Count', 'wp-simple-firewall' ),
+			],
+			'limit_time_span' => [
+				'type'  => 'int',
+				'label' => __( 'Request Limit Interval', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

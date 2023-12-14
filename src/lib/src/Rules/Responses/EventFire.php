@@ -7,7 +7,7 @@ class EventFire extends Base {
 	public const SLUG = 'event_fire';
 
 	public function execResponse() :bool {
-		$params = $this->responseParams;
+		$params = $this->params;
 		$event = $params[ 'event' ] ?? '';
 		if ( !empty( $event ) ) {
 			unset( $params[ 'event' ] );
@@ -34,5 +34,19 @@ class EventFire extends Base {
 		}
 
 		return true;
+	}
+
+	public function getParamsDef() :array {
+		return [
+			'event'            => [
+				'type' => 'string',
+				'label' => __( 'Event To Trigger', 'wp-simple-firewall' ),
+			],
+			'audit_params_map' => [
+				'type'    => 'array',
+				'default' => [],
+				'label' => __( 'Activity Log Parameter Map', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }

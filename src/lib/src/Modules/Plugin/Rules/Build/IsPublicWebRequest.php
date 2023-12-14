@@ -34,10 +34,6 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 				[
 					'conditions' => Conditions\IsIpValidPublic::class,
 				],
-				[
-					'conditions' => Conditions\RequestIsServerLoopback::class,
-					'logic'      => Constants::LOGIC_INVERT,
-				],
 			]
 		];
 	}

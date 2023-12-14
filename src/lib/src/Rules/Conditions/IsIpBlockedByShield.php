@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 class IsIpBlockedByShield extends Base {
 
 	use Traits\RequestIP;
+	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blocked_by_shield';
 
@@ -20,20 +21,20 @@ class IsIpBlockedByShield extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestBypassesAllRestrictions::class,
 					'logic'      => Constants::LOGIC_INVERT
 				],
 				[
-					'logic' => Constants::LOGIC_OR,
+					'logic'      => Constants::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => IsIpBlockedManual::class,
 						],
 						[
-							'logic' => Constants::LOGIC_AND,
+							'logic'      => Constants::LOGIC_AND,
 							'conditions' => [
 								[
 									'conditions' => IsIpBlockedAuto::class,
