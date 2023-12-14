@@ -6,9 +6,10 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	ConditionsVO,
+	Enum\EnumParameters,
+	Enum\EnumRules,
 	RuleVO,
 	Traits\AutoSnakeCaseSlug,
-	Utility\RulesEnum,
 	WPHooksOrder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
@@ -44,10 +45,10 @@ abstract class Base extends DynPropertiesClass {
 				$default = $def[ 'default' ] ?? null;
 				if ( $default === null ) {
 					switch ( $def[ 'type' ] ) {
-						case 'array':
+						case EnumParameters::TYPE_ARRAY:
 							$default = [];
 							break;
-						case 'string':
+						case EnumParameters::TYPE_STRING:
 						default:
 							$default = '';
 							break;
@@ -179,7 +180,7 @@ abstract class Base extends DynPropertiesClass {
 	}
 
 	public function getType() :string {
-		return RulesEnum::TYPE_NORMAL;
+		return EnumRules::CONDITION_TYPE_NORMAL;
 	}
 
 	/**

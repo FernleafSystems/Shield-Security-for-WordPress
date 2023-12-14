@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesEnum;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumRules;
 
 trait TypeFilesystem {
 
 	public function getType() :string {
-		return RulesEnum::TYPE_FS;
+		return EnumRules::CONDITION_TYPE_FS;
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestIsServerLoopback extends Base {
@@ -18,7 +19,8 @@ class RequestIsServerLoopback extends Base {
 		return [
 			'conditions' => MatchRequestIpAddresses::class,
 			'params'     => [
-				'match_ips' => Services::IP()->getServerPublicIPs(),
+				'match_type' => EnumMatchTypes::MATCH_TYPE_IP_EQUALS,
+				'match_ips'  => Services::IP()->getServerPublicIPs(),
 			],
 		];
 	}

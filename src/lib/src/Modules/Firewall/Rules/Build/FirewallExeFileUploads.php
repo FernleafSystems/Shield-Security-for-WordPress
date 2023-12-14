@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
 	MatchRequestParamFileUploads,
 	RequestBypassesAllRestrictions
@@ -15,7 +16,7 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 
 	protected function getConditions() :array {
 		$conditions = [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestBypassesAllRestrictions::class,
@@ -25,7 +26,7 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 		];
 
 		$matchGroup = [
-			'logic' => Constants::LOGIC_OR,
+			'logic'      => Constants::LOGIC_OR,
 			'conditions' => [],
 		];
 
@@ -33,8 +34,8 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 		if ( !empty( $simple ) ) {
 			$matchGroup[ 'conditions' ][] = [
 				'conditions' => MatchRequestParamFileUploads::class,
-				'params'    => [
-					'is_match_regex' => false,
+				'params'     => [
+					'match_type'     => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
 					'match_patterns' => $simple,
 					'match_category' => static::SCAN_CATEGORY,
 				],
@@ -45,8 +46,8 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 		if ( !empty( $regex ) ) {
 			$matchGroup[ 'conditions' ][] = [
 				'conditions' => MatchRequestParamFileUploads::class,
-				'params'    => [
-					'is_match_regex' => true,
+				'params'     => [
+					'match_type'     => EnumMatchTypes::MATCH_TYPE_REGEX,
 					'match_patterns' => $regex,
 					'match_category' => static::SCAN_CATEGORY,
 				],

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+
 class IsRequestToPluginAsset extends Base {
 
 	use Traits\TypeWordpress;
@@ -16,8 +18,8 @@ class IsRequestToPluginAsset extends Base {
 		return [
 			'conditions' => MatchRequestPath::class,
 			'params'     => [
-				'is_match_regex' => true,
-				'match_path'     => sprintf( '^%s/.+/.+', \rtrim( wp_parse_url( plugins_url(), \PHP_URL_PATH ), '/' ) ),
+				'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'match_path' => sprintf( '^%s/.+/.+', \rtrim( wp_parse_url( plugins_url(), \PHP_URL_PATH ), '/' ) ),
 			],
 		];
 	}

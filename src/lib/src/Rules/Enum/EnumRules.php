@@ -1,17 +1,17 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Conditions\MatchRequestIpIdentities,
-	Responses};
+	Responses
+};
 
-class RulesEnum {
+class EnumRules {
 
 	private const CONDITIONS = [
 		Conditions\DirContainsFile::class,
-		Conditions\IsAdeScoreAtLeast::class,
+		Conditions\IsAdeScore::class,
 		Conditions\IsForceOff::class,
 		Conditions\IsIpBlacklisted::class,
 		Conditions\IsIpBlockedAuto::class,
@@ -97,12 +97,12 @@ class RulesEnum {
 		Responses\ProcessIpBlockedCrowdsec::class,
 		Responses\ProcessRequestBlockedBySiteBlockdown::class,
 	];
-	public const TYPE_NORMAL = 'normal';
-	public const TYPE_REQUEST = 'request';
-	public const TYPE_SHIELD = 'shield';
-	public const TYPE_FS = 'filesystem';
-	public const TYPE_USER = 'user';
-	public const TYPE_WP = 'wordpress';
+	public const CONDITION_TYPE_NORMAL = 'normal';
+	public const CONDITION_TYPE_REQUEST = 'request';
+	public const CONDITION_TYPE_SHIELD = 'shield';
+	public const CONDITION_TYPE_FS = 'filesystem';
+	public const CONDITION_TYPE_USER = 'user';
+	public const CONDITION_TYPE_WP = 'wordpress';
 
 	/**
 	 * Retrieves the conditions used in the application.
@@ -131,11 +131,11 @@ class RulesEnum {
 
 	public static function Types() :array {
 		return \apply_filters( 'shield/rules/enum_types', [
-			self::TYPE_REQUEST,
-			self::TYPE_SHIELD,
-			self::TYPE_USER,
-			self::TYPE_WP,
-			self::TYPE_FS,
+			self::CONDITION_TYPE_REQUEST,
+			self::CONDITION_TYPE_SHIELD,
+			self::CONDITION_TYPE_USER,
+			self::CONDITION_TYPE_WP,
+			self::CONDITION_TYPE_FS,
 		] );
 	}
 }

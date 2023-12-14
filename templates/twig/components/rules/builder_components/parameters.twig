@@ -17,7 +17,7 @@
 				<label class="form-check-label" for="{{ param_name }}">{{ param.label }}</label>
 			{% else %}
 				<label class="form-label" for="{{ param_name }}">{{ param.label }}</label>
-				{% if param.param_type in ['string', 'scalar', 'callback'] %}
+				{% if param.param_type in ['string', 'scalar', 'callback', 'ip_address'] %}
 					<input type="text"
 						   class="form-control {{ param_has_error ? 'is-invalid' : 'is-valid' }}"
 						   name="{{ param_name }}"
@@ -33,6 +33,14 @@
 						   id="{{ param_name }}"
 						   placeholder="{{ param.label }}"
 					/>
+				{% elseif param.param_type in ['enum'] %}
+					<select name="{{ param_name }}" class="form-select">
+						{% for param_type_enum_key,param_type_enum_label in param.enum_labels %}
+							<option value="{{ param_type_enum_key }}"
+									{% if param.value == param_type_enum_key %}selected{% endif %}
+							>{{ param_type_enum_label }}</option>
+						{% endfor %}
+					</select>
 				{% endif %}
 			{% endif %}
 			{% if param_has_error %}

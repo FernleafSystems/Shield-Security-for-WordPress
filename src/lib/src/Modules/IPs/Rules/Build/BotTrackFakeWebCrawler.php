@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Constants,
+	Enum\EnumMatchTypes,
 	Responses
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -35,8 +36,8 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 				[
 					'conditions' => Conditions\MatchRequestPath::class,
 					'params'     => [
-						'is_match_regex' => true,
-						'match_path'     => '.*',
+						'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_path' => '.*',
 					],
 				],
 				[

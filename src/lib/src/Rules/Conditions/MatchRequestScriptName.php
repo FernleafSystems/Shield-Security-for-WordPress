@@ -2,10 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\ScriptNamesToMatchUnavailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
 /**
- * @property bool   $is_match_regex
+ * @property string $match_type
  * @property string $match_script_name
  */
 class MatchRequestScriptName extends Base {
@@ -25,25 +28,22 @@ class MatchRequestScriptName extends Base {
 		}
 
 		$scriptName = $this->getRequestScriptName();
-
 		// always add this in-case we need to invert_match
 		$this->addConditionTriggerMeta( 'matched_script_name', $scriptName );
-
-		return $this->is_match_regex ?
-			(bool)\preg_match( sprintf( '#%s#i', \preg_quote( $this->match_script_name, '#' ) ), $scriptName )
-			: $scriptName === $this->match_script_name;
+		return ( new PerformConditionMatch( $scriptName, $this->match_script_name, $this->match_type ) )->doMatch();
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'match_script_name' => [
-				'type'  => 'string',
-				'label' => __( 'Script Name To Match', 'wp-simple-firewall' ),
+			'match_type'        => [
+				'type'      => EnumParameters::TYPE_ENUM,
+				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
-			'is_match_regex'    => [
-				'type'    => 'bool',
-				'label'   => __( 'Is Match Regex', 'wp-simple-firewall' ),
-				'default' => true,
+			'match_script_name' => [
+				'type'  => EnumParameters::TYPE_STRING,
+				'label' => __( 'Script Name To Match', 'wp-simple-firewall' ),
 			],
 		];
 	}

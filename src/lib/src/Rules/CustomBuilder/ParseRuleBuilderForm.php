@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\VerifyParams;
 
 class ParseRuleBuilderForm {
@@ -112,13 +114,12 @@ class ParseRuleBuilderForm {
 
 					$conditionParams = [];
 					$rawFormParams = $this->extractParamsForCondition( $name );
-					$conditionDef = $this->findDefFromSlug( $value, GetAvailable::Conditions() );
-					foreach ( $conditionDef[ 'params_def' ] as $paramName => $paramDef ) {
+					foreach ( $this->findDefFromSlug( $value, GetAvailable::Conditions() )[ 'params_def' ] as $paramName => $paramDef ) {
 
 						$paramValue = $rawFormParams[ $paramName ] ?? null;
 						try {
 							$paramValue = ( new VerifyParams() )->verifyParam( $paramValue, $paramDef, $paramName );
-							if ( $paramDef[ 'type' ] === 'bool' ) {
+							if ( $paramDef[ 'type' ] === EnumParameters::TYPE_BOOL ) {
 								$paramValue = $paramValue ? 'Y' : 'N';
 							}
 							$error = '';
@@ -129,12 +130,14 @@ class ParseRuleBuilderForm {
 						}
 
 						$conditionParams[ $paramName ] = [
-							'type'       => 'condition_param',
-							'name'       => $paramName,
-							'value'      => $paramValue,
-							'param_type' => $paramDef[ 'type' ],
-							'label'      => $paramDef[ 'label' ],
-							'error' => $error,
+							'type'        => 'condition_param',
+							'name'        => $paramName,
+							'value'       => $paramValue,
+							'param_type'  => $paramDef[ 'type' ],
+							'enum_labels' => $paramDef[ 'enum_labels' ] ??
+											 \array_intersect_key( EnumMatchTypes::MatchTypeNames(), \array_flip( $paramDef[ 'type_enum' ] ?? [] ) ),
+							'label'       => $paramDef[ 'label' ],
+							'error'       => $error,
 						];
 					}
 
@@ -233,12 +236,14 @@ class ParseRuleBuilderForm {
 						$this->hasErrors = $this->hasErrors || $paramValue === null;
 
 						$response[ 'params' ][ $paramName ] = [
-							'type'       => 'response_param',
-							'name'       => $paramName,
-							'value'      => $paramValue,
-							'param_type' => $paramDef[ 'type' ],
-							'label'      => $paramDef[ 'label' ],
-							'error' => $error,
+							'type'        => 'response_param',
+							'name'        => $paramName,
+							'value'       => $paramValue,
+							'param_type'  => $paramDef[ 'type' ],
+							'enum_labels' => $paramDef[ 'enum_labels' ] ??
+											 \array_intersect_key( EnumMatchTypes::MatchTypeNames(), \array_flip( $paramDef[ 'type_enum' ] ?? [] ) ),
+							'label'       => $paramDef[ 'label' ],
+							'error'       => $error,
 						];
 					}
 

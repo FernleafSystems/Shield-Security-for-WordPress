@@ -2,12 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	RequestParamNameUnavailableException,
 	RequestParamValueMatchPatternUnavailableException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
 /**
+ * @property string $match_type
  * @property string $param_name
  * @property string $match_pattern
  */
@@ -32,7 +36,7 @@ abstract class RequestParamValueMatchesBase extends Base {
 		$this->addConditionTriggerMeta( 'match_request_param', $this->param_name );
 		$this->addConditionTriggerMeta( 'match_request_value', $value );
 
-		return (bool)\preg_match( sprintf( '#%s#i', $this->match_pattern ), $value );
+		return ( new PerformConditionMatch( $value, $this->match_pattern, $this->match_type ) )->doMatch();
 	}
 
 	protected function getRequestParamValue() :string {
@@ -42,12 +46,18 @@ abstract class RequestParamValueMatchesBase extends Base {
 	public function getParamsDef() :array {
 		return [
 			'param_name'    => [
-				'type'  => 'string',
+				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Parameter Name', 'wp-simple-firewall' ),
 			],
+			'match_type'      => [
+				'type'      => EnumParameters::TYPE_ENUM,
+				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
+			],
 			'match_pattern' => [
-				'type'  => 'string',
-				'label' => __( 'Match Parameter Value Pattern', 'wp-simple-firewall' ),
+				'type'  => EnumParameters::TYPE_STRING,
+				'label' => __( 'Compare Parameter Value To', 'wp-simple-firewall' ),
 			],
 		];
 	}

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Firewall,
 	IPs,
@@ -12,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	SecurityAdmin,
 	Traffic
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 
 class RuleBuilderEnumerator {
 
@@ -44,6 +44,7 @@ class RuleBuilderEnumerator {
 	}
 
 	private function custom() :array {
+		self::con()->getModule_Plugin()->opts()->setOpt( 'custom_rules', [] );
 		return \array_map(
 			function ( array $raw ) {
 				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $raw ) );

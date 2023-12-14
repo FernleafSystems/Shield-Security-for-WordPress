@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+
 class DoAction extends Base {
 
 	public const SLUG = 'do_action';
@@ -14,7 +16,7 @@ class DoAction extends Base {
 	public function getParamsDef() :array {
 		return [
 			'hook' => [
-				'type'  => 'string',
+				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Hook Name', 'wp-simple-firewall' ),
 			],
 		];

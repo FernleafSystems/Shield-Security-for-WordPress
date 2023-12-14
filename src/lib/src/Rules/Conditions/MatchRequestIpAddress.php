@@ -2,14 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	IpsToMatchUnavailableException,
 	RequestIpUnavailableException
 };
-use FernleafSystems\Wordpress\Services\Exceptions\NotAnIpAddressOrRangeException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @property string $match_type
  * @property string $match_ip
  */
 class MatchRequestIpAddress extends Base {
@@ -20,31 +23,32 @@ class MatchRequestIpAddress extends Base {
 	public const SLUG = 'match_request_ip_address';
 
 	public function getDescription() :string {
-		return __( 'Does the current request originate from a given set of IP Addresses.', 'wp-simple-firewall' );
+		return __( 'Does the current request originate match the given IP Address.', 'wp-simple-firewall' );
 	}
 
 	/**
 	 * @throws IpsToMatchUnavailableException
 	 * @throws RequestIpUnavailableException
+	 * @throws \Exception
 	 */
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->match_ip ) ) {
+		$ip = $this->match_ip;
+		if ( !\is_string( $ip ) || !Services::IP()->isValidIpOrRange( $ip ) ) {
 			throw new IpsToMatchUnavailableException();
 		}
-
-		try {
-			$in = Services::IP()->IpIn( $this->getRequestIP(), [ $this->match_ip ] );
-		}
-		catch ( NotAnIpAddressOrRangeException $e ) {
-			$in = false;
-		}
-		return $in;
+		return ( new PerformConditionMatch( $this->getRequestIP(), $ip, $this->match_type ) )->doMatch();
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'match_ip' => [
-				'type'  => 'string',
+			'match_type' => [
+				'type'      => EnumParameters::TYPE_ENUM,
+				'type_enum' => EnumMatchTypes::MatchTypesForIPs(),
+				'default'   => EnumMatchTypes::MATCH_TYPE_IP_EQUALS,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
+			],
+			'match_ip'   => [
+				'type'  => EnumParameters::TYPE_IP_ADDRESS,
 				'label' => __( 'IP Address To Match', 'wp-simple-firewall' ),
 			],
 		];

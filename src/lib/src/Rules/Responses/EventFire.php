@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+
 class EventFire extends Base {
 
 	public const SLUG = 'event_fire';
@@ -39,11 +41,11 @@ class EventFire extends Base {
 	public function getParamsDef() :array {
 		return [
 			'event'            => [
-				'type' => 'string',
+				'type' => EnumParameters::TYPE_STRING,
 				'label' => __( 'Event To Trigger', 'wp-simple-firewall' ),
 			],
 			'audit_params_map' => [
-				'type'    => 'array',
+				'type'  => EnumParameters::TYPE_ARRAY,
 				'default' => [],
 				'label' => __( 'Activity Log Parameter Map', 'wp-simple-firewall' ),
 			],

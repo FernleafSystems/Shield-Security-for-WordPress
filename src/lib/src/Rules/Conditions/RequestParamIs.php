@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\PathsToMatchUnavailableException;
 
 /**
@@ -54,11 +55,11 @@ abstract class RequestParamIs extends Base {
 	public function getParamsDef() :array {
 		return [
 			'match_param'    => [
-				'type'  => 'string',
+				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Match Parameter Name', 'wp-simple-firewall' ),
 			],
 			'match_patterns' => [
-				'type'  => 'array',
+				'type'  => EnumParameters::TYPE_ARRAY,
 				'label' => __( 'Match Parameter Value Pattern', 'wp-simple-firewall' ),
 			],
 		];

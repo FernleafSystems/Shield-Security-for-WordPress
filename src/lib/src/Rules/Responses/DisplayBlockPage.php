@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\{
+	Block,
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class DisplayBlockPage extends Base {
 
@@ -22,23 +26,33 @@ class DisplayBlockPage extends Base {
 	}
 
 	private function displayPage() {
-		self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
+		self::con()->action_router->action( FullPageDisplay\DisplayBlockPage::class, [
 			'render_slug' => $this->params[ 'block_page_slug' ],
 		] );
 	}
 
 	public function getParamsDef() :array {
+		$blockPages = [
+			Block\BlockIpAddressShield::SLUG   => 'IP Block Page (Shield)',
+			Block\BlockIpAddressCrowdsec::SLUG => 'IP Block Page (CrowdSec)',
+			Block\BlockFirewall::SLUG          => 'Firewall Block Page',
+			Block\BlockAuthorFishing::SLUG     => 'Author Fishing Block Page',
+			Block\BlockPageSiteBlockdown::SLUG => 'Site Locked Down Block Page',
+		];
 		return [
 			'block_page_slug' => [
-				'type'  => 'string',
-				'label' => __( 'Block page slug', 'wp-simple-firewall' ),
+				'type'        => EnumParameters::TYPE_ENUM,
+				'type_enum'   => \array_keys( $blockPages ),
+				'enum_labels' => $blockPages,
+				'label'       => __( 'Block Page', 'wp-simple-firewall' ),
 			],
 			'hook'            => [
-				'type'    => 'string',
+				'type'    => EnumParameters::TYPE_STRING,
 				'label'   => __( 'Hook to attach to', 'wp-simple-firewall' ),
+				'default' => ''
 			],
 			'hook_priority'   => [
-				'type'    => 'int',
+				'type'    => EnumParameters::TYPE_INT,
 				'default' => 10,
 				'label'   => __( 'Hook priority', 'wp-simple-firewall' ),
 			],

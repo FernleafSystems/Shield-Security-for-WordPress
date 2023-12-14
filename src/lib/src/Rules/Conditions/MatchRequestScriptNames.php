@@ -3,9 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
- * @property bool     $is_match_regex
+ * @property string   $match_type
  * @property string[] $match_script_names
  */
 class MatchRequestScriptNames extends Base {
@@ -26,8 +28,8 @@ class MatchRequestScriptNames extends Base {
 					return [
 						'conditions' => MatchRequestScriptName::class,
 						'params'     => [
+							'match_type'        => $this->match_type,
 							'match_script_name' => $name,
-							'is_match_regex'    => $this->is_match_regex
 						],
 					];
 				},
@@ -38,14 +40,15 @@ class MatchRequestScriptNames extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'match_script_names' => [
-				'type'  => 'array',
-				'label' => __( 'Match Script Names', 'wp-simple-firewall' ),
+			'match_type'         => [
+				'type'      => EnumParameters::TYPE_ENUM,
+				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
-			'is_match_regex'     => [
-				'type'    => 'bool',
-				'label'   => __( 'Is Match Regex', 'wp-simple-firewall' ),
-				'default' => true,
+			'match_script_names' => [
+				'type'  => EnumParameters::TYPE_ARRAY,
+				'label' => __( 'Match Script Names', 'wp-simple-firewall' ),
 			],
 		];
 	}

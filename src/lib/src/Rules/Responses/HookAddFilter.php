@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+
 class HookAddFilter extends Base {
 
 	public const SLUG = 'hook_add_filter';
@@ -19,20 +21,20 @@ class HookAddFilter extends Base {
 	public function getParamsDef() :array {
 		return [
 			'hook'     => [
-				'type' => 'string',
+				'type' => EnumParameters::TYPE_STRING,
 				'label' => __( 'Hook Name', 'wp-simple-firewall' ),
 			],
 			'callback' => [
-				'type' => 'callback',
+				'type' => EnumParameters::TYPE_CALLBACK,
 				'label' => __( 'Callback', 'wp-simple-firewall' ),
 			],
 			'priority' => [
-				'type'    => 'int',
+				'type'    => EnumParameters::TYPE_INT,
 				'default' => 10,
 				'label' => __( 'Priority', 'wp-simple-firewall' ),
 			],
 			'args'     => [
-				'type'    => 'int',
+				'type'    => EnumParameters::TYPE_INT,
 				'default' => 1,
 				'label' => __( 'Number of Arguments', 'wp-simple-firewall' ),
 			],

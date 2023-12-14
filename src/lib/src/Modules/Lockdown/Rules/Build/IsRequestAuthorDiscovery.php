@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Constants,
+	Enum\EnumMatchTypes,
 	Responses
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockAuthorFishing;
@@ -35,6 +36,7 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 				[
 					'conditions' => Conditions\RequestParamValueMatchesQuery::class,
 					'params'     => [
+						'match_type'    => EnumMatchTypes::MATCH_TYPE_REGEX,
 						'param_name'    => 'author',
 						'match_pattern' => '\d',
 					],

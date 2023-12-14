@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Traits;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\RulesEnum;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumRules;
 
 trait TypeWordpress {
 
 	public function getType() :string {
-		return RulesEnum::TYPE_WP;
+		return EnumRules::CONDITION_TYPE_WP;
 	}
 }

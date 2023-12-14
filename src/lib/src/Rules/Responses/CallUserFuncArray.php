@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+
 class CallUserFuncArray extends Base {
 
 	public const SLUG = 'call_user_func_array';
@@ -14,11 +16,11 @@ class CallUserFuncArray extends Base {
 	public function getParamsDef() :array {
 		return [
 			'callback' => [
-				'type'  => 'callback',
+				'type'  => EnumParameters::TYPE_CALLBACK,
 				'label' => __( 'Callback', 'wp-simple-firewall' ),
 			],
 			'args'     => [
-				'type'    => 'array',
+				'type'    => EnumParameters::TYPE_ARRAY,
 				'default' => [],
 				'label'   => __( 'Callback Arguments', 'wp-simple-firewall' ),
 			],

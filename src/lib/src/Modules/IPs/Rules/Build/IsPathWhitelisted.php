@@ -28,7 +28,6 @@ class IsPathWhitelisted extends BuildRuleIpsBase {
 		return [
 			'conditions' => Conditions\MatchRequestPaths::class,
 			'params'     => [
-				'is_match_regex' => true,
 				'match_paths'    => $this->buildPaths(),
 			]
 		];

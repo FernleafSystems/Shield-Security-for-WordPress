@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -23,15 +24,15 @@ class DirContainsFile extends Base {
 	public function getParamsDef() :array {
 		return [
 			'path_dir'  => [
-				'type'  => 'string',
+				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Path Dir', 'wp-simple-firewall' ),
 			],
 			'file_name' => [
-				'type'  => 'string',
+				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'File Name', 'wp-simple-firewall' ),
 			],
 			'fuzzy'     => [
-				'type'    => 'bool',
+				'type'    => EnumParameters::TYPE_BOOL,
 				'default' => true,
 				'label'   => __( 'Fuzzy Search', 'wp-simple-firewall' ),
 			],

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestIsPathWhitelisted extends Base {
@@ -21,8 +22,8 @@ class RequestIsPathWhitelisted extends Base {
 		return [
 			'conditions' => MatchRequestPaths::class,
 			'params'     => [
-				'is_match_regex' => true,
-				'match_paths'    => $this->buildPaths(),
+				'match_type'  => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'match_paths' => $this->buildPaths(),
 			]
 		];
 	}

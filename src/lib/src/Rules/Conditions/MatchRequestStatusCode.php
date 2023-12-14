@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\NoStatusProvidedToCheckException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\UnsupportedStatusException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
@@ -44,7 +45,7 @@ class MatchRequestStatusCode extends Base {
 	public function getParamsDef() :array {
 		return [
 			'code' => [
-				'type'  => 'int',
+				'type'  => EnumParameters::TYPE_INT,
 				'label' => __( 'Match Response Status Code', 'wp-simple-firewall' ),
 			],
 		];

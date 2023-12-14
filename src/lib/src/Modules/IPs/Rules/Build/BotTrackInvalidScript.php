@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Constants,
+	Enum\EnumMatchTypes,
 	Responses
 };
 
@@ -22,7 +23,7 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
@@ -34,8 +35,8 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 				[
 					'conditions' => Conditions\MatchRequestScriptNames::class,
 					'logic'      => Constants::LOGIC_INVERT,
-					'params'       => [
-						'is_match_regex'     => false,
+					'params'     => [
+						'match_type'         => EnumMatchTypes::MATCH_TYPE_EQUALS,
 						'match_script_names' => $this->opts()->botSignalsGetAllowableScripts(),
 					],
 				],

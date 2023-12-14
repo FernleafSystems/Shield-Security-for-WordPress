@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
 	Constants,
+	Enum\EnumMatchTypes,
 	Responses
 };
 
@@ -63,16 +64,16 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'conditions' => Conditions\MatchRequestPaths::class,
 					'logic'      => Constants::LOGIC_INVERT,
 					'params'     => [
-						'match_paths'    => $excludedPaths,
-						'is_match_regex' => false,
+						'match_type'  => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+						'match_paths' => $excludedPaths,
 					],
 				] : null,
 
 				[
 					'logic'      => Constants::LOGIC_OR,
 					'conditions' => \array_merge(
-						$this->buildPatternMatchingSubConditions( 'simple' ),
-						$this->buildPatternMatchingSubConditions( 'regex' )
+						$this->buildPatternMatchingSubConditions( EnumMatchTypes::MATCH_TYPE_CONTAINS_I ),
+						$this->buildPatternMatchingSubConditions( EnumMatchTypes::MATCH_TYPE_REGEX )
 					),
 				]
 			] )
@@ -80,12 +81,13 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	private function buildPatternMatchingSubConditions( string $type ) :array {
+		$convertedType = EnumMatchTypes::MATCH_TYPE_REGEX === $type ? 'regex' : 'simple';
 		return [
 			[
 				'conditions' => Conditions\MatchRequestParamQuery::class,
 				'params'     => [
-					'is_match_regex'  => $type === 'regex',
-					'match_patterns'  => $this->getFirewallPatterns()[ $type ] ?? [],
+					'match_type'      => $type,
+					'match_patterns'  => $this->getFirewallPatterns()[ $convertedType ] ?? [],
 					'match_category'  => static::SCAN_CATEGORY,
 					'excluded_params' => $this->getExclusions(),
 				],
@@ -93,8 +95,8 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 			[
 				'conditions' => Conditions\MatchRequestParamPost::class,
 				'params'     => [
-					'is_match_regex'  => $type === 'regex',
-					'match_patterns'  => $this->getFirewallPatterns()[ $type ] ?? [],
+					'match_type'      => $type,
+					'match_patterns'  => $this->getFirewallPatterns()[ $convertedType ] ?? [],
 					'match_category'  => static::SCAN_CATEGORY,
 					'excluded_params' => $this->getExclusions(),
 				],

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Constants,
+	Enum\EnumMatchTypes,
 	Responses
 };
 
@@ -42,8 +43,8 @@ class BotTrack404 extends BuildRuleIpsBase {
 							'conditions' => Conditions\MatchRequestPath::class,
 							'logic'      => Constants::LOGIC_INVERT,
 							'params'     => [
-								'is_match_regex' => true,
-								'match_path'     => sprintf( "\\.(%s)$", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
+								'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
+								'match_path' => sprintf( "\\.(%s)$", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
 							],
 						],
 						[

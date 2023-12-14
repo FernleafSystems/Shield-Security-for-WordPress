@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Services\Services;
 
 class IsRequestToValidThemeAsset extends Base {
@@ -18,8 +19,8 @@ class IsRequestToValidThemeAsset extends Base {
 		return [
 			'conditions' => MatchRequestPath::class,
 			'params'     => [
-				'is_match_regex' => true,
-				'match_path'     => sprintf( '^%s/(%s)/',
+				'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'match_path' => sprintf( '^%s/(%s)/',
 					\rtrim( \dirname( wp_parse_url( get_stylesheet_directory_uri(), \PHP_URL_PATH ) ), '/' ),
 					\implode( '|', \array_filter( \array_map(
 						function ( $themeDir ) {

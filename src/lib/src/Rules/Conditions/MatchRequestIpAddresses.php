@@ -3,13 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
+ * @property string   $match_type
  * @property string[] $match_ips
  */
 class MatchRequestIpAddresses extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_ip_addresses';
@@ -26,7 +28,8 @@ class MatchRequestIpAddresses extends Base {
 					return [
 						'conditions' => MatchRequestIpAddress::class,
 						'params'     => [
-							'match_ip' => $ip,
+							'match_ip'   => $ip,
+							'match_type' => $this->match_type,
 						],
 					];
 				},
@@ -37,9 +40,18 @@ class MatchRequestIpAddresses extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'match_ip' => [
-				'type'  => 'array',
+			'match_ips'  => [
+				'type'  => EnumParameters::TYPE_ARRAY,
 				'label' => __( 'IP Addresses To Match', 'wp-simple-firewall' ),
+			],
+			'match_type' => [
+				'type'      => EnumParameters::TYPE_ENUM,
+				'type_enum' => [
+					EnumMatchTypes::MATCH_TYPE_IP_EQUALS,
+					EnumMatchTypes::MATCH_TYPE_IP_RANGE,
+				],
+				'default'   => EnumMatchTypes::MATCH_TYPE_IP_EQUALS,
+				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 		];
 	}

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Select;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -48,12 +49,12 @@ class IsRateLimitExceeded extends Conditions\Base {
 	public function getParamsDef() :array {
 		return [
 			'limit_count'     => [
-				'type'  => 'int',
+				'type'  => EnumParameters::TYPE_INT,
 				'label' => __( 'Request Limit Count', 'wp-simple-firewall' ),
 			],
 			'limit_time_span' => [
-				'type'  => 'int',
-				'label' => __( 'Request Limit Interval', 'wp-simple-firewall' ),
+				'type'  => EnumParameters::TYPE_INT,
+				'label' => sprintf( '%s (%s)', __( 'Request Limit Interval', 'wp-simple-firewall' ), __( 'seconds' ) ),
 			],
 		];
 	}
