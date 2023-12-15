@@ -2,16 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumConditions,
+	EnumResponses
+};
 
 class FindFromSlug {
 
 	public static function Condition( string $slug ) :?string {
-		return self::Find( $slug, EnumRules::Conditions() );
+		return self::Find( $slug, EnumConditions::Conditions() );
 	}
 
 	public static function Response( string $slug ) :?string {
-		return self::Find( $slug, EnumRules::Responses() );
+		return self::Find( $slug, EnumResponses::Responses() );
 	}
 
 	private static function Find( string $slug, array $collection ) :?string {

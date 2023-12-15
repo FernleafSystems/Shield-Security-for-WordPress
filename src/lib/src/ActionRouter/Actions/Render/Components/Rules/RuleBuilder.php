@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\GetAvailable;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\ParseRuleBuilderForm;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumConditions;
 
 class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -74,7 +74,7 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 
 	private function conditionTypesForDisplay() :array {
 		$theTypes = [];
-		$rawTypes = EnumRules::Types();
+		$rawTypes = EnumConditions::Types();
 		foreach ( $rawTypes as $type ) {
 			$theTypes[ $type ] = \ucfirst( __( $type, 'wp-simple-firewall' ) );
 		}

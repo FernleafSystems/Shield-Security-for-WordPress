@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumConditions,
+	EnumResponses
+};
 
 class GetAvailable {
 
@@ -16,7 +19,7 @@ class GetAvailable {
 					'type'       => $condition->getType(),
 					'params_def' => $condition->getParamsDef(),
 				];
-			}, EnumRules::Conditions() ),
+			}, EnumConditions::Conditions() ),
 			function ( array $condition ) {
 				$available = true;
 				// we don't (yet) allow for condition with array parameters
@@ -40,7 +43,7 @@ class GetAvailable {
 					'slug'       => $response->getSlug(),
 					'params_def' => $response->getParamsDef(),
 				];
-			}, EnumRules::Responses() ),
+			}, EnumResponses::Responses() ),
 			function ( array $response ) {
 				return true;
 			}
