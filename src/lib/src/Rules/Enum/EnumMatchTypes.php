@@ -20,15 +20,15 @@ class EnumMatchTypes {
 
 	public static function MatchTypeNames() :array {
 		return [
-			self::MATCH_TYPE_CONTAINS   => __( 'Contains', 'wp-simple-firewall' ),
-			self::MATCH_TYPE_CONTAINS_I => sprintf( '%s (%s)', __( 'Contains', 'wp-simple-firewall' ), __( 'case-insensitive', 'wp-simple-firewall' ) ),
-			self::MATCH_TYPE_EQUALS     => __( 'Equals', 'wp-simple-firewall' ),
-			self::MATCH_TYPE_EQUALS_I   => sprintf( '%s (%s)', __( 'Equals', 'wp-simple-firewall' ), __( 'case-insensitive', 'wp-simple-firewall' ) ),
-			self::MATCH_TYPE_IP_EQUALS  => __( 'IP Equals', 'wp-simple-firewall' ),
-			self::MATCH_TYPE_IP_RANGE   => __( 'IP Range', 'wp-simple-firewall' ),
-			self::MATCH_TYPE_REGEX      => __( 'Regular Expression', 'wp-simple-firewall' ),
-			self::MATCH_TYPE_LESS_THAN   => __( 'Less Than', 'wp-simple-firewall' ),
-			self::MATCH_TYPE_GREATER_THAN      => __( 'Greater Than', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_CONTAINS     => __( 'Contains', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_CONTAINS_I   => sprintf( '%s (%s)', __( 'Contains', 'wp-simple-firewall' ), __( 'case-insensitive', 'wp-simple-firewall' ) ),
+			self::MATCH_TYPE_EQUALS       => __( 'Equals', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_EQUALS_I     => sprintf( '%s (%s)', __( 'Equals', 'wp-simple-firewall' ), __( 'case-insensitive', 'wp-simple-firewall' ) ),
+			self::MATCH_TYPE_IP_EQUALS    => __( 'IP Equals', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_IP_RANGE     => __( 'IP Range', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_REGEX        => __( 'Regular Expression', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_LESS_THAN    => __( 'Less Than', 'wp-simple-firewall' ),
+			self::MATCH_TYPE_GREATER_THAN => __( 'Greater Than', 'wp-simple-firewall' ),
 		];
 	}
 
