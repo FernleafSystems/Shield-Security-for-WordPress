@@ -33,11 +33,12 @@ class DisplayBlockPage extends Base {
 
 	public function getParamsDef() :array {
 		$blockPages = [
-			Block\BlockIpAddressShield::SLUG   => 'IP Block Page (Shield)',
-			Block\BlockIpAddressCrowdsec::SLUG => 'IP Block Page (CrowdSec)',
-			Block\BlockFirewall::SLUG          => 'Firewall Block Page',
-			Block\BlockAuthorFishing::SLUG     => 'Author Fishing Block Page',
-			Block\BlockPageSiteBlockdown::SLUG => 'Site Locked Down Block Page',
+			Block\BlockIpAddressShield::SLUG         => 'IP Block Page (Shield)',
+			Block\BlockIpAddressCrowdsec::SLUG        => 'IP Block Page (CrowdSec)',
+			Block\BlockFirewall::SLUG                 => 'Firewall Block Page',
+			Block\BlockAuthorFishing::SLUG            => 'Author Fishing Block Page',
+			Block\BlockPageSiteBlockdown::SLUG        => 'Site Locked Down Block Page',
+			Block\BlockTrafficRateLimitExceeded::SLUG => 'Traffic Rate Limit Exceeded Block Page',
 		];
 		return [
 			'block_page_slug' => [

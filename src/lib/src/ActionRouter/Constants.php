@@ -187,6 +187,7 @@ class Constants {
 		Actions\Render\FullPage\Block\BlockIpAddressShield::class,
 		Actions\Render\FullPage\Block\BlockIpAddressCrowdsec::class,
 		Actions\Render\FullPage\Block\BlockPageSiteBlockdown::class,
+		Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded::class,
 		Actions\Render\FullPage\Block\Components\AutoUnblockCrowdsec::class,
 		Actions\Render\FullPage\Block\Components\AutoUnblockShield::class,
 		Actions\Render\FullPage\Block\Components\MagicLink::class,
