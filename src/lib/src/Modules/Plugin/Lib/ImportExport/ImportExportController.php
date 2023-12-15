@@ -94,6 +94,10 @@ class ImportExportController {
 	 * We've been notified that there's an update to pull in from the master site, so we set a cron to do this.
 	 */
 	public function runOptionsUpdateNotified() {
+
+		// Ensure import/export feature is enabled (for cron and auto-import to run)
+		$this->opts()->setOpt( 'importexport_enable', 'Y' );
+
 		$cronHook = self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 		if ( !wp_next_scheduled( $cronHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + \rand( 30, 180 ), $cronHook );
