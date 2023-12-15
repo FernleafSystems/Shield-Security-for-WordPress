@@ -117,7 +117,8 @@
         "tho",
         "woocommerce",
         "tribe",
-        "wpstatistics"
+        "wpstatistics",
+        "iawp"
       ],
       "type":        "array",
       "link_info":   "",

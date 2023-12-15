@@ -123,6 +123,24 @@
     ],
     "patches":     [
       {
+        "version":     "8",
+        "released_at": 1702640000,
+        "items":       [
+          {
+            "title": "Security fix for XSS (details to follow at a future date).",
+            "type":  "fixed"
+          },
+          {
+            "title": "Bug: Automatic Import/Export with Master sites could be inadvertently disabled.",
+            "type":  "fixed"
+          },
+          {
+            "title": "Allow Shield to run under PHP 8.3 - there may still be issues as-yet undetected.",
+            "type":  "improved"
+          }
+        ]
+      },
+      {
         "version":     "7",
         "released_at": 1700730000,
         "items":       [
