@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Upgrade extends Base\Upgrade {
+class Upgrade extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Upgrade {
 
 	protected function upgradeCommon() {
 		parent::upgradeCommon();
