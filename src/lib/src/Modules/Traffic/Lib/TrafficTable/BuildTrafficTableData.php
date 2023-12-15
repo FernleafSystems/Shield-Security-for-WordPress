@@ -242,14 +242,13 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		$query = $this->log->meta[ 'query' ] ?? '';
 
 		$content = sprintf( '<span class="badge bg-secondary me-1">%s</span>', Handler::GetTypeName( $this->log->type ) );
-		if ( $this->isWpCli() ) {
-			$content .= sprintf( '<code>:> %s</code>', esc_html( $this->log->path.' '.$query ) );
-		}
-		else {
-			$content .= \strtoupper( $this->log->verb ).': <code>'.$this->log->path
-						.( empty( $query ) ? '' : '?<br/>'.ltrim( $query, '?' ) ).'</code>';
-		}
-		return $content;
+		$path = esc_html( $this->log->path );
+		$query = esc_html( $query );
+		return $content.(
+			$this->isWpCli() ?
+				sprintf( '<code>:> %s %s</code>', $path, $query )
+				: sprintf( '%s: <code>%s%s</code>', \strtoupper( $this->log->verb ), $path, empty( $query ) ? '' : '?<br/>'.\ltrim( $query, '?' ) )
+			);
 	}
 
 	private function getIpInfo( string $ip ) {
