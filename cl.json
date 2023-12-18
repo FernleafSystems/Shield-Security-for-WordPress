@@ -123,6 +123,16 @@
     ],
     "patches":     [
       {
+        "version":     "9",
+        "released_at": 1702670000,
+        "items":       [
+          {
+            "title": "Mitigate potential fatal error with invalid data populated by 3rd party code.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "8",
         "released_at": 1702640000,
         "items":       [

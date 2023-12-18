@@ -42,7 +42,7 @@ class Enqueue {
 		}, 1000 );
 
 		add_action( 'admin_enqueue_scripts', function ( $hook_suffix ) {
-			$this->adminHookSuffix = $hook_suffix;
+			$this->adminHookSuffix = (string)$hook_suffix; /** ALWAYS cast to string when setting this property */
 			$this->enqueue();
 			add_action( 'admin_footer', function () {
 				$this->dequeue();
