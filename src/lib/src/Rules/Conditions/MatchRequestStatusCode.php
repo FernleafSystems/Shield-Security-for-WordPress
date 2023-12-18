@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
 
 /**
  * @property string $code
+ * @deprecated 18.6
  */
 class MatchRequestStatusCode extends Base {
 

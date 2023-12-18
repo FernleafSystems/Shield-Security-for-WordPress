@@ -23,7 +23,7 @@ class RuleBuilderEnumerator {
 	public function run() :array {
 		$rules = $this->direct();
 		if ( self::con()->isPremiumActive() ) {
-//			$rules = \array_merge( $rules, $this->custom() );
+			$rules = \array_merge( $rules, $this->custom() );
 		}
 		return $rules;
 	}
@@ -44,12 +44,13 @@ class RuleBuilderEnumerator {
 	}
 
 	private function custom() :array {
-		self::con()->getModule_Plugin()->opts()->setOpt( 'custom_rules', [] );
+//		self::con()->getModule_Plugin()->opts()->setOpt( 'custom_rules', [] );
+//		error_log( var_export( self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules' ), true ) );
 		return \array_map(
 			function ( array $raw ) {
 				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $raw ) );
 			},
-			self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules' )
+			self::con()->rules->getCustomRuleForms()
 		);
 	}
 

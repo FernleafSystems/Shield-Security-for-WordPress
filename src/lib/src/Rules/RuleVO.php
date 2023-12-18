@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 /**
  * @property string       $class
  * @property string       $slug
- * @property bool         $is_valid
  * @property string       $name
  * @property string       $description
+ * @property bool         $is_valid
  * @property string       $wp_hook
  * @property int          $wp_hook_level
  * @property int          $wp_hook_priority

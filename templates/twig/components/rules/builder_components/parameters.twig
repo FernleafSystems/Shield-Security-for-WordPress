@@ -11,7 +11,6 @@
 					   name="{{ param_name }}"
 					   value="{{ param.value }}"
 					   id="{{ param_name }}"
-					   placeholder="{{ param.label }}"
 					   {% if param.value == 'Y' %}checked="checked" aria-checked="true"{% endif %}
 				/>
 				<label class="form-check-label" for="{{ param_name }}">{{ param.label }}</label>

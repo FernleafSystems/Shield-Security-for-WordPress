@@ -4,29 +4,32 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 
-class RequestIsSiteBlockdownBlocked extends Base {
+class IsRequestWhitelisted extends Base {
 
 	use Traits\TypeShield;
 
-	public const SLUG = 'request_is_site_blockdown_blocked';
+	public const SLUG = 'is_request_whitelisted';
 
 	public function getDescription() :string {
-		return __( "Is the request blocked by Shield's Site Lockdown feature.", 'wp-simple-firewall' );
+		return __( "Is the request whitelisted?", 'wp-simple-firewall' );
 	}
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => Constants::LOGIC_OR,
 			'conditions' => [
 				[
 					'conditions' => ShieldRestrictionsEnabled::class,
+					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
-					'conditions' => IsSiteLockdownActive::class,
+					'conditions' => RequestIsTrustedBot::class,
+				],
+				[
+					'conditions' => RequestIsPathWhitelisted::class,
 				],
 				[
 					'conditions' => IsIpWhitelisted::class,
-					'logic'      => Constants::LOGIC_INVERT,
 				],
 			]
 		];

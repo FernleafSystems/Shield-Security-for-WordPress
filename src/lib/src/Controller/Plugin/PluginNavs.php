@@ -27,6 +27,7 @@ class PluginNavs {
 	public const SUBNAV_REPORTS_LIST = 'list';
 	public const NAV_RULES = 'rules';
 	public const SUBNAV_RULES_BUILD = 'build';
+	public const SUBNAV_RULES_MANAGE = 'manage';
 	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
 	public const SUBNAV_SCANS_RESULTS = 'results';
@@ -153,6 +154,9 @@ class PluginNavs {
 					'sub_navs' => [
 						self::SUBNAV_RULES_BUILD     => [
 							'handler' => PluginAdminPages\PageRulesBuild::class,
+						],
+						self::SUBNAV_RULES_MANAGE     => [
+							'handler' => PluginAdminPages\PageRulesManage::class,
 						],
 						self::SUBNAV_RULES_SUMMARY => [
 							'handler' => PluginAdminPages\PageRulesSummary::class,

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllRestrictions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
@@ -33,10 +34,6 @@ class ParseRuleBuilderForm {
 	}
 
 	public function parseForm() :RuleFormBuilderVO {
-		if ( $this->action === 'reset' ) {
-			$this->form = [];
-		}
-
 		$this->deleteElements();
 		$this->extractedForm->conditions = $this->extractConditions();
 		$this->extractedForm->responses = $this->extractResponses();
@@ -45,22 +42,55 @@ class ParseRuleBuilderForm {
 		$this->extractedForm->has_errors = $this->hasErrors;
 
 		$this->nameAndDescription();
+		$this->assessWarnings();
 		$this->assessReadiness();
 
 		return $this->extractedForm;
 	}
 
 	private function nameAndDescription() :void {
-		$this->extractedForm->rule_name = \trim( \preg_replace( '#[^a-z0-9_\s-]#i', '', $this->form[ 'rule_name' ] ?? '' ) );
-		$this->extractedForm->rule_description = \trim( \preg_replace( '#[^a-z0-9_\s-]#i', '', $this->form[ 'rule_description' ] ?? '' ) );
+		$this->extractedForm->name = \trim( \preg_replace( '#[^a-z0-9_\s-]#i', '', $this->form[ 'rule_name' ] ?? '' ) );
+		$this->extractedForm->description = \trim( \preg_replace( '#[^a-z0-9_\s-]#i', '', $this->form[ 'rule_description' ] ?? '' ) );
+		$this->extractedForm->edit_rule_id = $this->form[ 'edit_rule_id' ] ?? -1;
 	}
 
 	private function assessReadiness() :void {
-		$this->extractedForm->ready_to_create = !$this->hasErrors
-												&& !empty( $this->extractedForm->rule_name )
-												&& !empty( $this->extractedForm->rule_description )
-												&& $this->extractedForm->count_set_conditions > 0
-												&& $this->extractedForm->count_set_responses > 0;
+		$ready = self::con()->caps->canCreateCustomRules()
+				 && !$this->hasErrors
+				 && !empty( $this->extractedForm->name )
+				 && !empty( $this->extractedForm->description )
+				 && $this->extractedForm->count_set_conditions > 0
+				 && $this->extractedForm->count_set_responses > 0;
+		if ( $ready ) {
+			foreach ( $this->extractedForm->warnings as $def ) {
+				if ( $def[ 'value' ] !== 'Y' ) {
+					$ready = false;
+					break;
+				}
+			}
+		}
+		$this->extractedForm->ready_to_create = $ready;
+	}
+
+	private function assessWarnings() :void {
+		$warnings = [];
+
+		$hasBypassAllInverted = false;
+		foreach ( $this->extractedForm->conditions as $condition ) {
+			if ( $condition[ 'value' ] === RequestBypassesAllRestrictions::Slug() && $condition[ 'invert' ][ 'value' ] === Constants::LOGIC_INVERT ) {
+				$hasBypassAllInverted = true;
+			}
+		}
+
+		if ( !$hasBypassAllInverted ) {
+			$warnings[ 'has_bypass_all_inverted' ] = [
+				'name'  => 'has_bypass_all_inverted',
+				'value' => $this->form[ 'has_bypass_all_inverted' ] ?? 'N',
+				'label' => __( "I understand the risk of creating a rule that doesn't include the inverted 'Request Bypasses All Restrictions' condition.", 'wp-simple-firewall' ),
+			];
+		}
+
+		$this->extractedForm->warnings = $warnings;
 	}
 
 	private function deleteElements() :void {
@@ -322,5 +352,12 @@ class ParseRuleBuilderForm {
 			}
 		}
 		return $found;
+	}
+
+	private function defaultForm() :array {
+		return [
+			'condition_1'        => RequestBypassesAllRestrictions::Slug(),
+			'condition_1_invert' => Constants::LOGIC_INVERT,
+		];
 	}
 }

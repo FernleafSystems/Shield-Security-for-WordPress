@@ -59,8 +59,7 @@ class AssetsCustomizer {
 			$components = \array_filter(
 				$allComponents,
 				function ( array $comp ) use ( $handle ) {
-					return \in_array( $handle, $comp[ 'handles' ] )
-						   && ( !isset( $comp[ 'required' ] ) || $comp[ 'required' ] );
+					return \in_array( $handle, $comp[ 'handles' ] ) && ( !isset( $comp[ 'required' ] ) || $comp[ 'required' ] );
 				}
 			);
 
@@ -416,6 +415,17 @@ class AssetsCustomizer {
 				'data'    => [
 					'ajax' => [
 						'render_rule_builder' => ActionData::BuildAjaxRender( Components\Rules\RuleBuilder::class ),
+					],
+				],
+			],
+			'rules_manager'    => [
+				'key'     => 'rules_manager',
+				'handles' => [
+					'main',
+				],
+				'data'    => [
+					'ajax' => [
+						'render_rules_manager' => ActionData::BuildAjaxRender( Components\Rules\RulesManager::class ),
 					],
 				],
 			],

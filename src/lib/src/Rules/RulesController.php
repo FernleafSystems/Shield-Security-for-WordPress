@@ -171,6 +171,10 @@ class RulesController {
 		} );
 	}
 
+	public function getCustomRuleForms() :array {
+		return self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules', [] );
+	}
+
 	/**
 	 * @return Conditions\Base|mixed
 	 * @throws NoConditionActionDefinedException

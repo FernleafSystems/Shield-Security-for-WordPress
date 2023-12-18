@@ -10,12 +10,12 @@ class PerformConditionMatch {
 
 	private $matchType;
 
-	private $value;
+	private $incomingValue;
 
 	private $matchAgainst;
 
 	public function __construct( $incomingValue, $matchAgainst, string $matchType ) {
-		$this->value = $incomingValue;
+		$this->incomingValue = $incomingValue;
 		$this->matchAgainst = $matchAgainst;
 		$this->matchType = $matchType;
 	}
@@ -37,8 +37,18 @@ class PerformConditionMatch {
 			case EnumMatchTypes::MATCH_TYPE_CONTAINS:
 				$matched = $this->matchContains();
 				break;
+			case EnumMatchTypes::MATCH_TYPE_CONTAINS_I:
+				$matched = $this->matchContainsI();
+				break;
+			case EnumMatchTypes::MATCH_TYPE_IP_EQUALS:
 			case EnumMatchTypes::MATCH_TYPE_IP_RANGE:
 				$matched = $this->matchIpRange();
+				break;
+			case EnumMatchTypes::MATCH_TYPE_LESS_THAN:
+				$matched = $this->matchLessThan();
+				break;
+			case EnumMatchTypes::MATCH_TYPE_GREATER_THAN:
+				$matched = $this->matchGreaterThan();
 				break;
 			default:
 				throw new \Exception( 'No handling for match type: '.$this->matchType );
@@ -47,28 +57,40 @@ class PerformConditionMatch {
 	}
 
 	private function matchRegex() :bool {
-		return (bool)\preg_match( sprintf( '#%s#i', $this->matchAgainst ), $this->value );
+		return (bool)\preg_match( sprintf( '#%s#i', $this->matchAgainst ), $this->incomingValue );
 	}
 
 	private function matchEquals() :bool {
-		return \strval( $this->value ) === \strval( $this->matchAgainst );
+		return \strval( $this->incomingValue ) === \strval( $this->matchAgainst );
 	}
 
 	private function matchContains() :bool {
-		return \str_contains( $this->value, $this->matchAgainst );
+		return \str_contains( $this->incomingValue, $this->matchAgainst );
+	}
+
+	private function matchContainsI() :bool {
+		return \str_contains( \strtolower( $this->incomingValue ), \strtolower( $this->matchAgainst ) );
 	}
 
 	private function matchEqualsI() :bool {
-		return \strtolower( $this->value ) === \strtolower( $this->matchAgainst );
+		return \strtolower( $this->incomingValue ) === \strtolower( $this->matchAgainst );
 	}
 
 	private function matchIpRange() :bool {
 		try {
-			$in = Services::IP()->IpIn( $this->value, [ $this->matchAgainst ] );
+			$in = Services::IP()->IpIn( $this->incomingValue, [ $this->matchAgainst ] );
 		}
 		catch ( NotAnIpAddressOrRangeException $e ) {
 			$in = false;
 		}
 		return $in;
+	}
+
+	private function matchLessThan() :bool {
+		return $this->incomingValue < $this->matchAgainst;
+	}
+
+	private function matchGreaterThan() :bool {
+		return $this->incomingValue > $this->matchAgainst;
 	}
 }

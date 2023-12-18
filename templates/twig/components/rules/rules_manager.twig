@@ -1,0 +1,48 @@
+<h5 class="my-3">
+	{{ strings.title }}
+	<small class="float-end">
+		{% if flags.can_create_rule %}
+			<a href="{{ hrefs.rules_builder }}"
+			   class="btn btn-sm btn-primary"
+			   title="">{{ strings.create_custom_rule }}</a>
+		{% else %}
+			<button disabled="disabled" aria-disabled="true"
+					class="btn btn-sm disabled">{{ strings.custom_rules_unavailable }}</button>
+		{% endif %}
+	</small>
+</h5>
+{% if flags.has_custom_rules %}
+	<div id="RulesManager">
+		<table class="table">
+			<thead>
+			<tr>
+				<th>Name</th>
+				<th>Description</th>
+				<th>Created</th>
+				<th>Builder Version</th>
+				<th>Action</th>
+			</tr>
+			</thead>
+			<tbody>
+				{% for rule in vars.custom_rules %}
+					<tr>
+						<td>{{ rule.name }}</td>
+						<td>{{ rule.description }}</td>
+						<td>{{ rule.created_at }}</td>
+						<td>{{ rule.version }}</td>
+						<td>
+							<a class="btn btn-outline-secondary svg-container"
+							   href="{{ rule.href_edit }}">{{ imgs.icon_edit|raw }}</a>
+							<button class="btn btn-outline-warning svg-container"
+									data-action="delete"
+									data-rule_id="{{ rule.rule_id }}"
+							>{{ imgs.icon_delete|raw }}</button>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% else %}
+	<p>There are no custom rules, yet.</p>
+{% endif %}

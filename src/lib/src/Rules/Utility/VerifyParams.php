@@ -36,7 +36,7 @@ class VerifyParams {
 				$invalidMsg = __( "Provide a valid callable function", 'wp-simple-firewall' );
 				break;
 			case EnumParameters::TYPE_INT:
-				$invalidType = !\is_numeric( $paramValue ) || !\preg_match( '#^\d+$#', (string)$paramValue );
+				$invalidType = !\preg_match( '#^\d+$#', (string)$paramValue );
 				if ( !$invalidType ) {
 					$paramValue = (int)$paramValue;
 				}
@@ -50,7 +50,7 @@ class VerifyParams {
 				$invalidType = !\is_scalar( $paramValue );
 				break;
 			case EnumParameters::TYPE_ENUM:
-				$invalidType = empty( $def[ 'enum_type' ] ) || !\in_array( $paramValue, $def[ 'enum_type' ] );
+				$invalidType = empty( $def[ 'type_enum' ] ) || !\in_array( $paramValue, $def[ 'type_enum' ] );
 				$invalidMsg = __( 'Please select one of the options available', 'wp-simple-firewall' );
 				break;
 			case EnumParameters::TYPE_BOOL:

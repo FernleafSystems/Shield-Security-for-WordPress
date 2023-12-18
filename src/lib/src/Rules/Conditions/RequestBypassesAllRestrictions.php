@@ -31,22 +31,7 @@ class RequestBypassesAllRestrictions extends Base {
 					'logic'      => Constants::LOGIC_INVERT,
 				],
 				[
-					'logic'      => Constants::LOGIC_OR,
-					'conditions' => [
-						[
-							'conditions' => RequestSubjectToAnyShieldRestrictions::class,
-							'logic'      => Constants::LOGIC_INVERT,
-						],
-						[
-							'conditions' => RequestIsTrustedBot::class,
-						],
-						[
-							'conditions' => RequestIsPathWhitelisted::class,
-						],
-						[
-							'conditions' => IsIpWhitelisted::class,
-						],
-					]
+					'conditions' => IsRequestWhitelisted::class,
 				],
 			]
 		];

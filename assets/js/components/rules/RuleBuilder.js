@@ -3,6 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { Forms } from "../../util/Forms";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
+import { PageQueryParam } from "../../util/PageQueryParam";
 
 export class RuleBuilder extends BaseAutoExecComponent {
 
@@ -58,9 +59,9 @@ export class RuleBuilder extends BaseAutoExecComponent {
 		} );
 
 		shieldEventsHandler_Main.add_Click( baseSelector + ' button.reset', ( button ) => {
-			this.renderBuilder( {
-				builder_action: 'reset'
-			}, button.closest( 'form' ) );
+			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				location.reload();
+			}
 		} );
 	}
 
@@ -97,6 +98,8 @@ export class RuleBuilder extends BaseAutoExecComponent {
 		if ( !( 'builder_action' in params ) ) {
 			params.builder_action = 'update';
 		}
+
+		params.edit_rule_id = PageQueryParam.Retrieve( 'edit_rule_id' );
 
 		( new AjaxService() )
 		.bg( ObjectOps.Merge( this._base_data.ajax.render_rule_builder, params ) )

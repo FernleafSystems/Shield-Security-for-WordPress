@@ -20,6 +20,10 @@ class Capabilities {
 		return $this->hasCap( 'activity_logs_integrations' );
 	}
 
+	public function canCreateCustomRules() :bool {
+		return $this->hasCap( 'create_custom_rules' );
+	}
+
 	public function canBotsAdvancedBlocking() :bool {
 		return $this->hasCap( 'bots_advanced_blocking' );
 	}
@@ -209,6 +213,7 @@ class Capabilities {
 			'crowdsec_level_1',
 			'crowdsec_level_2',
 			'crowdsec_level_3',
+			'create_custom_rules',
 			'http_headers_csp',
 			'import_export_level_1',
 			'import_export_level_2',

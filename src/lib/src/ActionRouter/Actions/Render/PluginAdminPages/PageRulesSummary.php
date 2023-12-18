@@ -2,16 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\ConditionsVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions;
+use FernleafSystems\Wordpress\Services\Services;
 
-class PageRulesSummary extends BasePluginAdminPage {
+class PageRulesSummary extends PageRulesBase {
 
 	public const SLUG = 'admin_plugin_page_rules_summary';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/rules_summary.twig';
 
+	protected function getPageContextualHrefs() :array {
+		$con = self::con();
+		return [
+			[
+				'text' => __( 'Rules Builder', 'wp-simple-firewall' ),
+				'href' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+			],
+		];
+	}
+
 	protected function getRenderData() :array {
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getRenderData(),
+			$this->getRenderDataRules()
+		);
+	}
+
+	protected function getRenderDataRules() :array {
 		$components = [
 			'hooks' => [
 				'immediate'
@@ -79,5 +97,13 @@ class PageRulesSummary extends BasePluginAdminPage {
 		}
 		/** else callable */
 		return $parsed;
+	}
+
+	protected function getInnerPageTitle() :string {
+		return __( 'Active Rules Summary', 'wp-simple-firewall' );
+	}
+
+	protected function getInnerPageSubTitle() :string {
+		return __( 'View all active rules on your site at-a-glance', 'wp-simple-firewall' );
 	}
 }

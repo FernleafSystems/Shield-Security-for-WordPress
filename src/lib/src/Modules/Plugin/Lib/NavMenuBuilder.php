@@ -22,6 +22,7 @@ class NavMenuBuilder {
 			$this->activity(),
 			$this->traffic(),
 			$this->configuration(),
+			$this->rules(),
 			$this->tools(),
 			$this->gopro(),
 		];
@@ -249,6 +250,37 @@ class NavMenuBuilder {
 			'img_hover' => $con->svgs->raw( 'award-fill' ),
 			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
 			'sub_items' => $subItems,
+		];
+	}
+
+	private function rules() :array {
+		$pageURLs = self::con()->plugin_urls;
+		return [
+			'slug'      => PluginNavs::NAV_RULES,
+			'title'     => __( 'Rules', 'wp-simple-firewall' ),
+			'subtitle'  => __( 'Security Rules', 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->raw( 'node-plus-fill' ),
+			'introjs'   => [
+				'title' => __( 'Security Rules', 'wp-simple-firewall' ),
+				'body'  => __( "Create and view all your custom security rules.", 'wp-simple-firewall' ),
+			],
+			'sub_items' => [
+				$this->createSubItemForNavAndSub(
+					__( 'Build', 'wp-simple-firewall' ),
+					PluginNavs::NAV_RULES,
+					PluginNavs::SUBNAV_RULES_BUILD
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Manage', 'wp-simple-firewall' ),
+					PluginNavs::NAV_RULES,
+					PluginNavs::SUBNAV_RULES_MANAGE
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'Summary', 'wp-simple-firewall' ),
+					PluginNavs::NAV_RULES,
+					PluginNavs::SUBNAV_RULES_SUMMARY
+				),
+			],
 		];
 	}
 
