@@ -25,7 +25,7 @@ class PageRulesBuild extends PageRulesBase {
 	}
 
 	protected function getInnerPageTitle() :string {
-		return __( 'Build New Rule', 'wp-simple-firewall' );
+		return __( 'Create New Security Rule', 'wp-simple-firewall' );
 	}
 
 	protected function getInnerPageSubTitle() :string {

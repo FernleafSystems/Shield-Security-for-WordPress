@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
@@ -171,8 +172,17 @@ class RulesController {
 		} );
 	}
 
+	/**
+	 * @return RulesDB\Record[]
+	 */
 	public function getCustomRuleForms() :array {
-		return self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules', [] );
+		$dbh = self::con()->db_con->getDbH_Rules();
+		/** @var RulesDB\Select $selector */
+		$selector = self::con()->db_con->getDbH_Rules()->getQuerySelector();
+		$records = $selector->filterByType( $dbh::TYPE_CUSTOM )
+							->filterByActive()
+							->queryWithResult();
+		return \is_array( $records ) ? $records : [];
 	}
 
 	/**

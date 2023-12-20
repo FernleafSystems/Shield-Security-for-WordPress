@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Insert extends Base\Insert {
+class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Insert {
 
 	/**
 	 * @param Record $record

@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\GetAvailable;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\ParseRuleBuilderForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumConditions;
-use FernleafSystems\Wordpress\Services\Services;
 
 class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -23,9 +22,13 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 		if ( !isset( $this->action_data[ 'rule_form' ] ) ) {
 			$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
 			if ( $maybeEditRuleID >= 0 ) {
-				$savedForm = self::con()->rules->getCustomRuleForms()[ $maybeEditRuleID ] ?? null;
-				if ( !empty( $savedForm ) ) {
-					$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $savedForm );
+				$savedForm = null;
+				foreach ( self::con()->rules->getCustomRuleForms() as $record ) {
+					if ( $record->id === (int)$maybeEditRuleID ) {
+						$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $record->form );
+					}
+				}
+				if ( !empty( $parsed ) ) {
 					$parsed->edit_rule_id = $maybeEditRuleID;
 				}
 			}
@@ -43,19 +46,13 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 			) )->parseForm();
 
 			if ( $parsed->ready_to_create && $this->action_data[ 'builder_action' ] === 'create_rule' ) {
-				$opts = $con->getModule_Plugin()->opts();
 				$parsed->form_builder_version = $con->cfg->version();
-				$parsed->created_at = Services::Request()->ts();
-
-				$custom = $opts->getOpt( 'custom_rules' );
-				if ( $parsed->edit_rule_id >= 0 ) {
-					$custom[ $parsed->edit_rule_id ] = $parsed->getRawData();
+				try {
+					$con->db_con->getDbH_Rules()->insertFromForm( $parsed );
 				}
-				else {
-					$custom[] = $parsed->getRawData();
+				catch ( \Exception $e ) {
+					error_log( $e->getMessage() );
 				}
-
-				$opts->setOpt( 'custom_rules', $custom );
 			}
 		}
 
@@ -105,7 +102,6 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'rule_description'     => $parsed->description,
 				'all_conditions'       => GetAvailable::Conditions(),
 				'all_responses'        => GetAvailable::Responses(),
-				'warnings'             => $parsed->warnings,
 			]
 		];
 	}

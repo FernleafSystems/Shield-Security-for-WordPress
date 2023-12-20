@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Core\Databases\Base;
-
-class Handler extends Base\Handler {
+class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
 	public const TYPE_AJAX = 'A';
 	public const TYPE_CRON = 'C';

@@ -41,7 +41,7 @@ class ParseRuleBuilderForm {
 		$this->extractedForm->has_errors = $this->hasErrors;
 
 		$this->nameAndDescription();
-		$this->handleCheckboxes();
+		$this->handleChecks();
 		$this->assessReadiness();
 
 		return $this->extractedForm;
@@ -71,7 +71,7 @@ class ParseRuleBuilderForm {
 		$this->extractedForm->ready_to_create = $ready;
 	}
 
-	private function handleCheckboxes() :void {
+	private function handleChecks() :void {
 		$autoInclude = $this->form[ 'checkbox_auto_include_bypass' ] ?? 'Y';
 		$checks = [
 			'checkbox_auto_include_bypass' => [

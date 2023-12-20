@@ -519,13 +519,6 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
-    },
-    {
-      "key":          "custom_rules",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "array",
-      "default":      []
     }
   ],
   "definitions":   {

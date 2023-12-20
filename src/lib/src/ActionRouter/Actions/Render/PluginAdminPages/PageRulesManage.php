@@ -19,7 +19,7 @@ class PageRulesManage extends PageRulesBase {
 	}
 
 	protected function getInnerPageTitle() :string {
-		return __( 'Manage Custom Rules', 'wp-simple-firewall' );
+		return __( 'Custom Rules Manager', 'wp-simple-firewall' );
 	}
 
 	protected function getInnerPageSubTitle() :string {

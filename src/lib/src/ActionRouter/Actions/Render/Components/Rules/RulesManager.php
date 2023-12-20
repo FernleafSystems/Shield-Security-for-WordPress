@@ -19,9 +19,10 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		if ( !empty( $managerAction ) ) {
 			switch ( $managerAction[ 'action' ] ?? '' ) {
 				case 'delete':
-					$rules = self::con()->rules->getCustomRuleForms();
-					unset( $rules[ $managerAction[ 'rule_id' ] ] );
-					$con->getModule_Plugin()->opts()->setOpt( 'custom_rules', $rules );
+					$con->db_con
+						->getDbH_Rules()
+						->getQueryDeleter()
+						->deleteById( $managerAction[ 'rule_id' ] );
 					break;
 				default:
 					break;
@@ -29,18 +30,17 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		}
 
 		$customRules = [];
-		foreach ( self::con()->rules->getCustomRuleForms() as $key => $rawRule ) {
-			$formRule = ( new RuleFormBuilderVO() )->applyFromArray( $rawRule );
-			$customRules[] = [
-				'rule_id'     => $key,
-				'name'        => $formRule->name,
-				'description' => $formRule->description,
-				'created_at'  => $formRule->created_at ?? 0,
-				'version'     => $formRule->form_builder_version ?? '0',
+		foreach ( self::con()->rules->getCustomRuleForms() as $ruleRecord ) {
+			$customRules[ $ruleRecord->id ] = [
+				'rule_id'     => $ruleRecord->id,
+				'name'        => $ruleRecord->name,
+				'description' => $ruleRecord->description,
+				'created_at'  => $ruleRecord->created_at ?? 0,
+				'version'     => $ruleRecord->builder_version ?? '0',
 				'href_edit'   => URL::Build(
 					$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
 					[
-						'edit_rule_id' => $key,
+						'edit_rule_id' => $ruleRecord->id,
 					]
 				)
 			];

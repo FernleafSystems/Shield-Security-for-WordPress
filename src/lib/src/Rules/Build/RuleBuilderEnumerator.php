@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	SecurityAdmin,
 	Traffic
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 
 class RuleBuilderEnumerator {
@@ -47,8 +48,8 @@ class RuleBuilderEnumerator {
 //		self::con()->getModule_Plugin()->opts()->setOpt( 'custom_rules', [] );
 //		error_log( var_export( self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules' ), true ) );
 		return \array_map(
-			function ( array $raw ) {
-				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $raw ) );
+			function ( RulesDB\Record $record ) {
+				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $record->form ) );
 			},
 			self::con()->rules->getCustomRuleForms()
 		);

@@ -1,5 +1,11 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div id="RuleBuilderContainer"></div>
+	{% if flags.can_custom_rules %}
+		<div id="RuleBuilderContainer"></div>
+	{% else %}
+		<div class="alert alert-info d-inline-block mt-3">
+			{{ strings.cant_custom_rules }}
+		</div>
+	{% endif %}
 {% endblock %}

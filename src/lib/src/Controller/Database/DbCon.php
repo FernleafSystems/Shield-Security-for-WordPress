@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,6 +15,10 @@ class DbCon {
 	 * @var ?|array
 	 */
 	private $dbHandlers = null;
+
+	public function getDbH_Rules() :Rules\Ops\Handler {
+		return $this->loadDbH( 'rules' );
+	}
 
 	/**
 	 * @return array[]

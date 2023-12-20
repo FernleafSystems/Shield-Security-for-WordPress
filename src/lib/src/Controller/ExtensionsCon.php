@@ -19,7 +19,7 @@ class ExtensionsCon {
 	private $extensions = null;
 
 	protected function canRun() :bool {
-		return Services::Data()->getPhpVersionIsAtLeast( '8.2' ) && self::con()->isPremiumActive();
+		return Services::Data()->getPhpVersionIsAtLeast( '7.4' ) && self::con()->caps->canRunShieldAddons();
 	}
 
 	protected function run() {

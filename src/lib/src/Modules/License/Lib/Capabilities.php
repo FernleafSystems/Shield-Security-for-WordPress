@@ -21,8 +21,11 @@ class Capabilities {
 	}
 
 	public function canCreateCustomRules() :bool {
-		return true;
-		return $this->hasCap( 'create_custom_rules' );
+		return $this->hasCap( 'custom_security_rules' );
+	}
+
+	public function canRunShieldAddons() :bool {
+		return $this->hasCap( 'run_addons' );
 	}
 
 	public function canBotsAdvancedBlocking() :bool {
@@ -214,7 +217,8 @@ class Capabilities {
 			'crowdsec_level_1',
 			'crowdsec_level_2',
 			'crowdsec_level_3',
-			'create_custom_rules',
+			'custom_security_rules',
+			'run_addons',
 			'http_headers_csp',
 			'import_export_level_1',
 			'import_export_level_2',
