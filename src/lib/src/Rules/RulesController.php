@@ -179,9 +179,7 @@ class RulesController {
 		$dbh = self::con()->db_con->getDbH_Rules();
 		/** @var RulesDB\Select $selector */
 		$selector = self::con()->db_con->getDbH_Rules()->getQuerySelector();
-		$records = $selector->filterByType( $dbh::TYPE_CUSTOM )
-							->filterByActive()
-							->queryWithResult();
+		$records = $selector->filterByType( $dbh::TYPE_CUSTOM )->queryWithResult();
 		return \is_array( $records ) ? $records : [];
 	}
 

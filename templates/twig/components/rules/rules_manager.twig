@@ -1,35 +1,37 @@
-<h5 class="my-3">
-	{{ strings.title }}
-	<small class="float-end">
-		{% if flags.can_create_rule %}
-			<a href="{{ hrefs.rules_builder }}"
-			   class="btn btn-sm btn-primary"
-			   title="">{{ strings.create_custom_rule }}</a>
-		{% else %}
-			<button disabled="disabled" aria-disabled="true"
-					class="btn btn-sm disabled">{{ strings.custom_rules_unavailable }}</button>
-		{% endif %}
-	</small>
-</h5>
 {% if flags.has_custom_rules %}
 	<div id="RulesManager">
 		<table class="table">
 			<thead>
 			<tr>
+				<th>&nbsp;</th>
 				<th>Name</th>
 				<th>Description</th>
 				<th>Created</th>
 				<th>Builder Version</th>
 				<th>Action</th>
+				<th>Export</th>
 			</tr>
 			</thead>
 			<tbody>
 				{% for rule in vars.custom_rules %}
 					<tr>
+						<td>
+							<div class="form-check form-switch">
+								<input class="form-check-input active-switch"
+									   title="{{ rule.is_active ? strings.deactivate : strings.activate }}"
+									   type="checkbox"
+									   role="switch"
+									   data-action="{{ rule.is_active ? 'deactivate' : 'activate' }}"
+									   data-rule_id="{{ rule.rule_id }}"
+									   {% if rule.is_active %}checked{% endif %} >
+							</div>
+						</td>
+
 						<td>{{ rule.name }}</td>
 						<td>{{ rule.description }}</td>
 						<td>{{ rule.created_at }}</td>
 						<td>{{ rule.version }}</td>
+
 						<td>
 							<a class="btn btn-outline-secondary svg-container"
 							   href="{{ rule.href_edit }}">{{ imgs.icon_edit|raw }}</a>
@@ -37,6 +39,18 @@
 									data-action="delete"
 									data-rule_id="{{ rule.rule_id }}"
 							>{{ imgs.icon_delete|raw }}</button>
+						</td>
+
+						<td>
+							<div class="form-check form-switch">
+								<input class="form-check-input active-switch"
+									   title="{{ rule.can_export ? strings.set_no_export : strings.set_to_export }}"
+									   type="checkbox"
+									   role="switch"
+									   data-action="{{ rule.can_export ? 'set_no_export' : 'set_to_export' }}"
+									   data-rule_id="{{ rule.rule_id }}"
+									   {% if rule.can_export %}checked{% endif %} >
+							</div>
 						</td>
 					</tr>
 				{% endfor %}

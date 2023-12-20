@@ -10,12 +10,11 @@ class PageRulesManage extends PageRulesBase {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/rules_manage.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
-		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getRenderData(),
-			[
+		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
+			'strings' => [
+				'create_custom_rule' => __( 'Create Custom Rule', 'wp-simple-firewall' ),
 			]
-		);
+		] );
 	}
 
 	protected function getInnerPageTitle() :string {

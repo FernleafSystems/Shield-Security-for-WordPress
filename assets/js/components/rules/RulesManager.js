@@ -19,16 +19,25 @@ export class RulesManager extends BaseAutoExecComponent {
 		const baseSelector = '#' + this.containerID + ' ';
 		shieldEventsHandler_Main.add_Click( baseSelector + ' button', ( button ) => {
 			if ( button.dataset.action !== 'delete' || confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				this.renderManager( button.dataset );
+				this.action( button.dataset );
 			}
+		} );
+		shieldEventsHandler_Main.add_Click( baseSelector + ' input[type=checkbox].active-switch', ( button ) => {
+			this.action( button.dataset );
 		} );
 	}
 
-	renderManager( params = {} ) {
+	action( params = {} ) {
 		( new AjaxService() )
-		.send( ObjectOps.Merge( this._base_data.ajax.render_rules_manager, {
+		.send( ObjectOps.Merge( this._base_data.ajax.rules_manager_action, {
 			manager_action: params
 		} ) )
+		.finally( () => this.renderManager() );
+	}
+
+	renderManager() {
+		( new AjaxService() )
+		.send( this._base_data.ajax.render_rules_manager )
 		.then( ( respJSON ) => {
 			this.rules_manager_container.innerHTML = respJSON.data.html;
 		} )

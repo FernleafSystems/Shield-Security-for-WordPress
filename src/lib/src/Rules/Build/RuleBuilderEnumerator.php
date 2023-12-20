@@ -45,13 +45,16 @@ class RuleBuilderEnumerator {
 	}
 
 	private function custom() :array {
-//		self::con()->getModule_Plugin()->opts()->setOpt( 'custom_rules', [] );
-//		error_log( var_export( self::con()->getModule_Plugin()->opts()->getOpt( 'custom_rules' ), true ) );
 		return \array_map(
 			function ( RulesDB\Record $record ) {
 				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $record->form ) );
 			},
-			self::con()->rules->getCustomRuleForms()
+			\array_filter(
+				self::con()->rules->getCustomRuleForms(),
+				function ( RulesDB\Record $record ) {
+					return $record->is_active;
+				}
+			)
 		);
 	}
 

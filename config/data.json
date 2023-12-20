@@ -194,6 +194,10 @@
         "form":             {
           "macro_type": "meta",
           "comment":    "Form Data"
+        },
+        "form_draft": {
+          "macro_type": "meta",
+          "comment":    "Draft Form Data"
         }
       }
     },

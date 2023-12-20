@@ -10,9 +10,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops;
  * @property bool   $is_active
  * @property bool   $is_apply_default
  * @property int    $user_id
+ * @property bool   $can_export
  * @property string $builder_version
  * @property array  $rules_as_json
  * @property array  $form
+ * @property array  $form_draft
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
@@ -21,6 +23,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 
 		switch ( $key ) {
 			case 'form':
+			case 'form_draft':
 			case 'rules_as_json':
 				$value = @\json_decode( @\base64_decode( $value ), true );
 				if ( !\is_array( $value ) ) {
@@ -37,6 +40,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 	public function __set( string $key, $value ) {
 		switch ( $key ) {
 			case 'form':
+			case 'form_draft':
 			case 'rules_as_json':
 				if ( !\is_array( $value ) ) {
 					$value = [];

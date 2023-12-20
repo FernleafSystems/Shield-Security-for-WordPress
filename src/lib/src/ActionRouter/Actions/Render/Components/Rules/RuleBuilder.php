@@ -22,7 +22,6 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 		if ( !isset( $this->action_data[ 'rule_form' ] ) ) {
 			$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
 			if ( $maybeEditRuleID >= 0 ) {
-				$savedForm = null;
 				foreach ( self::con()->rules->getCustomRuleForms() as $record ) {
 					if ( $record->id === (int)$maybeEditRuleID ) {
 						$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $record->form );

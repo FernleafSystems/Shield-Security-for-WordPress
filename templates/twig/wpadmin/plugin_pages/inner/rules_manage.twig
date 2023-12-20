@@ -2,6 +2,13 @@
 
 {% block inner_page_body %}
 	{% if flags.can_custom_rules %}
+		<h5 class="my-3">&nbsp;
+			<small class="float-end">
+				<a href="{{ hrefs.rules_builder }}"
+				   class="btn btn-sm btn-primary"
+				   title="">{{ strings.create_custom_rule }}</a>
+			</small>
+		</h5>
 		<div id="RulesManagerContainer"></div>
 	{% else %}
 		<div class="alert alert-info d-inline-block mt-3">

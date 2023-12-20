@@ -81,6 +81,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\OffCanvasBase::class,
 		Actions\PluginSuperSearch::class,
 		Actions\PluginSetTracking::class,
+		Actions\RulesManagerActions::class,
 		Actions\ReportingChartCustom::class,
 		Actions\ReportingChartSummary::class,
 		Actions\ReportCreateCustom::class,
