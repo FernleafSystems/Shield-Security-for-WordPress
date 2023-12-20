@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
-	Constants
+	Enum\EnumLogic
 };
 
 /**
@@ -28,14 +28,14 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	protected function getConditions2() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'logic'      => Constants::LOGIC_OR,
+					'logic'      => EnumLogic::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => Conditions\IsForceOff::class,
@@ -45,7 +45,7 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 						],
 						[
 							'conditions' => Conditions\RequestIsPublicWebOrigin::class,
-							'logic'      => Constants::LOGIC_INVERT,
+							'logic'      => EnumLogic::LOGIC_INVERT,
 						],
 						[
 							'conditions' => Conditions\RequestIsTrustedBot::class,
@@ -61,21 +61,21 @@ class RequestBypassesAllRestrictions extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic' => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestIsSiteBlockdownBlocked::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'logic' => Constants::LOGIC_OR,
+					'logic' => EnumLogic::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => Conditions\IsForceOff::class,
 						],
 						[
 							'conditions' => Conditions\RequestIsPublicWebOrigin::class,
-							'logic'      => Constants::LOGIC_INVERT,
+							'logic'      => EnumLogic::LOGIC_INVERT,
 						],
 						[
 							'conditions' => Conditions\RequestIsTrustedBot::class,

@@ -19,7 +19,6 @@ class EnumResponses {
 		Responses\HookRemoveAction::class,
 		Responses\ProcessIpBlockedShield::class,
 		Responses\SetPhpDefine::class,
-		Responses\TrafficRateLimitExceeded::class,
 		Responses\TriggerIpBlock::class,
 		Responses\TriggerIpOffense::class,
 		Responses\UpdateIpRuleLastAccessAt::class,

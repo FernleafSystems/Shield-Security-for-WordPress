@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 /**
  * @property string|Base|callable|ConditionsVO[] $conditions
@@ -46,12 +47,12 @@ class ConditionsVO extends DynPropertiesClass {
 				break;
 			case 'logic':
 				if ( $this->type === 'single' ) {
-					if ( !\in_array( $value, [ Constants::LOGIC_ASIS, Constants::LOGIC_INVERT ] ) ) {
-						$value = Constants::LOGIC_ASIS;
+					if ( !\in_array( $value, [ EnumLogic::LOGIC_ASIS, EnumLogic::LOGIC_INVERT ] ) ) {
+						$value = EnumLogic::LOGIC_ASIS;
 					}
 				}
-				elseif ( !\in_array( $value, [ Constants::LOGIC_AND, Constants::LOGIC_OR ] ) ) {
-					$value = Constants::LOGIC_AND;
+				elseif ( !\in_array( $value, [ EnumLogic::LOGIC_AND, EnumLogic::LOGIC_OR ] ) ) {
+					$value = EnumLogic::LOGIC_AND;
 				}
 				break;
 			default:

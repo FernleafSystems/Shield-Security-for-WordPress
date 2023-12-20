@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
-	Constants
+	Enum\EnumLogic
 };
 use FernleafSystems\Wordpress\Services\Services;
 

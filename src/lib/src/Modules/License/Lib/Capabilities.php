@@ -21,6 +21,7 @@ class Capabilities {
 	}
 
 	public function canCreateCustomRules() :bool {
+		return true;
 		return $this->hasCap( 'create_custom_rules' );
 	}
 

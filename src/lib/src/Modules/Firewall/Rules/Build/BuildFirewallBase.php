@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
-	Constants,
+	Enum\EnumLogic,
 	Enum\EnumMatchTypes,
 	Responses
 };
@@ -41,15 +41,15 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	protected function getConditions() :array {
 		$excludedPaths = $this->getExcludedPaths();
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\IsIpBlockedByShield::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\RequestHasAnyParameters::class,
@@ -57,12 +57,12 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
 					'conditions' => Conditions\IsUserAdminNormal::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				] : null,
 
 				!empty( $excludedPaths ) ? [
 					'conditions' => Conditions\MatchRequestPaths::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 					'params'     => [
 						'match_type'  => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
 						'match_paths' => $excludedPaths,
@@ -70,7 +70,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				] : null,
 
 				[
-					'logic'      => Constants::LOGIC_OR,
+					'logic'      => EnumLogic::LOGIC_OR,
 					'conditions' => \array_merge(
 						$this->buildPatternMatchingSubConditions( EnumMatchTypes::MATCH_TYPE_CONTAINS_I ),
 						$this->buildPatternMatchingSubConditions( EnumMatchTypes::MATCH_TYPE_REGEX )

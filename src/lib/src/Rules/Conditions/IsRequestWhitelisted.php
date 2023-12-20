@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsRequestWhitelisted extends Base {
 
@@ -16,11 +16,11 @@ class IsRequestWhitelisted extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_OR,
+			'logic'      => EnumLogic::LOGIC_OR,
 			'conditions' => [
 				[
 					'conditions' => ShieldRestrictionsEnabled::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => RequestIsTrustedBot::class,

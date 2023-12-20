@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
@@ -22,7 +22,7 @@ class MatchRequestScriptNames extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_OR,
+			'logic'      => EnumLogic::LOGIC_OR,
 			'conditions' => \array_map(
 				function ( $name ) {
 					return [

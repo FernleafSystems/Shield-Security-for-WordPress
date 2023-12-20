@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
-	Constants
+	Enum\EnumLogic
 };
 
 /**
@@ -25,11 +25,11 @@ class IsPublicWebRequest extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic' => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\WpIsWpcli::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\IsIpValidPublic::class,

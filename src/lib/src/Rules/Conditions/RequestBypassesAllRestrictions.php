@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class RequestBypassesAllRestrictions extends Base {
 
@@ -24,11 +24,11 @@ class RequestBypassesAllRestrictions extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestIsSiteBlockdownBlocked::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => IsRequestWhitelisted::class,

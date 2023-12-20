@@ -20,11 +20,11 @@ export class ShieldOverlay {
 	 */
 	static Show( containerID = null ) {
 		JsLoadingOverlay.show( {
-			"overlayBackgroundColor": "#666666",
-			"overlayOpacity": "0.5",
-			"spinnerIcon": "ball-triangle-path",
+			"overlayBackgroundColor": "#ffffff",
+			"overlayOpacity": "0.7",
+			"spinnerIcon": "ball-spin-clockwise-fade",
 			"spinnerColor": "#008000",
-			"spinnerSize": "3x",
+			"spinnerSize": "2x",
 			"overlayIDName": "ShieldOverlay",
 			"spinnerIDName": "ShieldOverlaySpinner",
 			"offsetX": 0,

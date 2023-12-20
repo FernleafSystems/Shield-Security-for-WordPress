@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsRequestToInvalidPlugin extends Base {
 
@@ -17,14 +17,14 @@ class IsRequestToInvalidPlugin extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => IsRequestToPluginAsset::class,
 				],
 				[
 					'conditions' => IsRequestToValidPluginAsset::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 			]
 		];

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsIpBlockedCrowdsec extends Base {
 
@@ -30,23 +30,23 @@ class IsIpBlockedCrowdsec extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestBypassesAllRestrictions::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => RequestIsServerLoopback::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => IsIpBlockedByShield::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => IsIpHighReputation::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => $this->getDefaultConditionCheckCallable(),

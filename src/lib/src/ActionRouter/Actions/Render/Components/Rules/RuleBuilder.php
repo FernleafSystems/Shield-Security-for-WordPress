@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Rules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\GetAvailable;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\ParseRuleBuilderForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
@@ -84,21 +83,22 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'form_data'            => [
 					'conditions' => $parsed->conditions,
 					'responses'  => $parsed->responses,
+					'checks'     => $parsed->checks,
 				],
 				'types'                => $this->conditionTypesForDisplay(),
 				'conditions_logic'     => [
 					'name'    => 'conditions_logic',
 					'value'   => $parsed->conditions_logic,
 					'options' => [
-						Constants::LOGIC_AND => \strtoupper( __( 'and', 'wp-simple-firewall' ) ),
-						Constants::LOGIC_OR  => \strtoupper( __( 'or', 'wp-simple-firewall' ) ),
+						EnumLogic::LOGIC_AND => \strtoupper( __( 'and', 'wp-simple-firewall' ) ),
+						EnumLogic::LOGIC_OR  => \strtoupper( __( 'or', 'wp-simple-firewall' ) ),
 					],
 				],
 				'responses_logic'      => [
 					'name'    => 'responses_logic',
-					'value'   => Constants::LOGIC_AND,
+					'value'   => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic::LOGIC_AND,
 					'options' => [
-						Constants::LOGIC_AND => \strtoupper( __( 'and', 'wp-simple-firewall' ) ),
+						\FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic::LOGIC_AND => \strtoupper( __( 'and', 'wp-simple-firewall' ) ),
 					],
 				],
 				'rule_name'            => $parsed->name,
@@ -111,10 +111,7 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 	}
 
 	private function defaultForm() :array {
-		return [
-			'condition_1'        => RequestBypassesAllRestrictions::Slug(),
-			'condition_1_invert' => Constants::LOGIC_INVERT,
-		];
+		return [];
 	}
 
 	private function conditionTypesForDisplay() :array {

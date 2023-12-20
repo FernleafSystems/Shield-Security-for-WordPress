@@ -10,7 +10,7 @@
 		</div>
 
 		<div class="row">
-			<div class="col-3">
+			<div class="col-xl-2 col-3">
 				{% if flags.show_conditions_logic %}
 					{% set logic = vars.conditions_logic %}
 					{% include '/components/rules/builder_components/logic_sidebar.twig' %}
@@ -41,7 +41,7 @@
 					</div>
 
 					<div class="row">
-						<div class="col-3">
+						<div class="col-xl-2 col-3">
 							{% if flags.show_responses_logic %}
 								{% set logic = vars.responses_logic %}
 								{% include '/components/rules/builder_components/logic_sidebar.twig' %}
@@ -94,28 +94,9 @@
 			</div>
 		</div>
 
-		{% if vars.warnings|length > 0 %}
-			<hr>
-			{% for warning_def in vars.warnings %}
-				<div class="row mb-4">
-					<div class="col">
-						<div class="form-check">
-							<input type="checkbox"
-								   class="form-check-input"
-								   name="{{ warning_def.name }}"
-								   value="Y"
-								   id="warning_{{ warning_def.name }}"
-								   {% if warning_def.value == 'Y' %}checked="checked" aria-checked="true"{% endif %}
-							/>
-							<label class="form-check-label" for="warning_{{ warning_def.name }}">{{ warning_def.label }}</label>
-						</div>
-					</div>
-				</div>
-			{% endfor %}
+		{% include '/components/rules/builder_components/checks.twig' %}
 
-		{% endif %}
-
-		<div class="row">
+		<div class="row mt-4">
 			<div class="col-6">
 				<button class="btn btn-success create-rule {% if not flags.allow_submit %}disabled{% endif %}"
 						{% if not flags.allow_submit %}disabled="disabled"{% endif %}

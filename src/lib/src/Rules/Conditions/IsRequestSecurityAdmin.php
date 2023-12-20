@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsRequestSecurityAdmin extends Base {
 
@@ -24,13 +24,13 @@ class IsRequestSecurityAdmin extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => IsUserAdminNormal::class,
 				],
 				[
-					'logic'      => Constants::LOGIC_OR,
+					'logic'      => EnumLogic::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => RequestBypassesAllRestrictions::class,

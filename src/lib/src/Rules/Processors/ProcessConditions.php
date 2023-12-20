@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	ConditionsVO,
-	Constants,
+	Enum\EnumLogic,
 	Exceptions\NoSuchConditionHandlerException
 };
 
@@ -75,7 +75,7 @@ class ProcessConditions {
 				if ( $groupResult === null ) {
 					$groupResult = $subConditionsResult;
 				}
-				elseif ( $groupLogic === Constants::LOGIC_AND ) {
+				elseif ( $groupLogic === EnumLogic::LOGIC_AND ) {
 					$groupResult = $groupResult && $subConditionsResult;
 				}
 				else {
@@ -83,7 +83,7 @@ class ProcessConditions {
 				}
 
 				// Short circuit processing
-				if ( ( $groupLogic === Constants::LOGIC_AND && !$groupResult ) || ( $groupLogic === Constants::LOGIC_OR && $groupResult ) ) {
+				if ( ( $groupLogic === EnumLogic::LOGIC_AND && !$groupResult ) || ( $groupLogic === EnumLogic::LOGIC_OR && $groupResult ) ) {
 					break;
 				}
 			}
@@ -110,7 +110,7 @@ class ProcessConditions {
 			self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] = $matched;
 		}
 
-		return $condition->logic === Constants::LOGIC_INVERT ? !$matched : $matched;
+		return $condition->logic === EnumLogic::LOGIC_INVERT ? !$matched : $matched;
 	}
 
 	public function getConsolidatedMeta() :array {

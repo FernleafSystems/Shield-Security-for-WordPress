@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Build\RuleTraits,
 	Conditions,
-	Constants,
+	Enum\EnumLogic,
 	Responses
 };
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -30,11 +30,11 @@ class IsTrustedBot extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic' => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestIsServerLoopback::class,
-					'logic'      => Constants::LOGIC_INVERT,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 			]
 		];

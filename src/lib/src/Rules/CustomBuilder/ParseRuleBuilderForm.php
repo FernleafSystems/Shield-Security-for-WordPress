@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllRestrictions;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\VerifyParams;
@@ -42,7 +41,7 @@ class ParseRuleBuilderForm {
 		$this->extractedForm->has_errors = $this->hasErrors;
 
 		$this->nameAndDescription();
-		$this->assessWarnings();
+		$this->handleCheckboxes();
 		$this->assessReadiness();
 
 		return $this->extractedForm;
@@ -62,8 +61,8 @@ class ParseRuleBuilderForm {
 				 && $this->extractedForm->count_set_conditions > 0
 				 && $this->extractedForm->count_set_responses > 0;
 		if ( $ready ) {
-			foreach ( $this->extractedForm->warnings as $def ) {
-				if ( $def[ 'value' ] !== 'Y' ) {
+			foreach ( $this->extractedForm->checks as $check ) {
+				if ( $check[ 'value' ] !== 'Y' ) {
 					$ready = false;
 					break;
 				}
@@ -72,25 +71,31 @@ class ParseRuleBuilderForm {
 		$this->extractedForm->ready_to_create = $ready;
 	}
 
-	private function assessWarnings() :void {
-		$warnings = [];
+	private function handleCheckboxes() :void {
+		$autoInclude = $this->form[ 'checkbox_auto_include_bypass' ] ?? 'Y';
+		$checks = [
+			'checkbox_auto_include_bypass' => [
+				'name'  => 'checkbox_auto_include_bypass',
+				'value' => $autoInclude,
+				'label' => __( "Automatically honour Shield's existing whitelisting rules and exceptions.", 'wp-simple-firewall' ),
+			],
+		];
 
-		$hasBypassAllInverted = false;
-		foreach ( $this->extractedForm->conditions as $condition ) {
-			if ( $condition[ 'value' ] === RequestBypassesAllRestrictions::Slug() && $condition[ 'invert' ][ 'value' ] === Constants::LOGIC_INVERT ) {
-				$hasBypassAllInverted = true;
-			}
-		}
-
-		if ( !$hasBypassAllInverted ) {
-			$warnings[ 'has_bypass_all_inverted' ] = [
-				'name'  => 'has_bypass_all_inverted',
-				'value' => $this->form[ 'has_bypass_all_inverted' ] ?? 'N',
-				'label' => __( "I understand the risk of creating a rule that doesn't include the inverted 'Request Bypasses All Restrictions' condition.", 'wp-simple-firewall' ),
+		if ( $autoInclude !== 'Y' ) {
+			$checks[ 'checkbox_has_bypass_all_inverted' ] = [
+				'name'  => 'checkbox_has_bypass_all_inverted',
+				'value' => $this->form[ 'checkbox_has_bypass_all_inverted' ] ?? 'N',
+				'label' => __( "I understand the risks of creating a rule that doesn't honour Shield's whitelists and exceptions, and I may find it difficult to regain access if I get locked out.", 'wp-simple-firewall' ),
 			];
 		}
 
-		$this->extractedForm->warnings = $warnings;
+		$checks[ 'checkbox_accept_rules_warning' ] = [
+			'name'  => 'checkbox_accept_rules_warning',
+			'value' => $this->form[ 'checkbox_accept_rules_warning' ] ?? 'N',
+			'label' => __( "Creating custom rules is an advanced feature and I accept full responsibility for any problems arising from the rules I create.", 'wp-simple-firewall' ),
+		];
+
+		$this->extractedForm->checks = $checks;
 	}
 
 	private function deleteElements() :void {
@@ -122,7 +127,7 @@ class ParseRuleBuilderForm {
 	}
 
 	private function extractConditionsLogic() :string {
-		return $this->form[ 'conditions_logic' ] ?? Constants::LOGIC_AND;
+		return $this->form[ 'conditions_logic' ] ?? EnumLogic::LOGIC_AND;
 	}
 
 	private function extractConditions() :array {
@@ -178,10 +183,10 @@ class ParseRuleBuilderForm {
 						'params' => $conditionParams,
 						'invert' => [
 							'name'    => 'invert',
-							'value'   => $this->form[ $name.'_invert' ] ?? Constants::LOGIC_ASIS,
+							'value'   => $this->form[ $name.'_invert' ] ?? EnumLogic::LOGIC_ASIS,
 							'options' => [
-								Constants::LOGIC_ASIS   => 'As-Is',
-								Constants::LOGIC_INVERT => 'Invert',
+								EnumLogic::LOGIC_ASIS   => 'As-Is',
+								EnumLogic::LOGIC_INVERT => 'Invert',
 							],
 						],
 					];
@@ -205,10 +210,10 @@ class ParseRuleBuilderForm {
 				'value'  => '--',
 				'invert' => [
 					'name'    => 'condition_'.$nextID.'_invert',
-					'value'   => Constants::LOGIC_ASIS,
+					'value'   => EnumLogic::LOGIC_ASIS,
 					'options' => [
-						Constants::LOGIC_ASIS   => 'As-Is',
-						Constants::LOGIC_INVERT => 'Invert',
+						EnumLogic::LOGIC_ASIS   => 'As-Is',
+						EnumLogic::LOGIC_INVERT => 'Invert',
 					],
 				],
 			];
@@ -352,12 +357,5 @@ class ParseRuleBuilderForm {
 			}
 		}
 		return $found;
-	}
-
-	private function defaultForm() :array {
-		return [
-			'condition_1'        => RequestBypassesAllRestrictions::Slug(),
-			'condition_1_invert' => Constants::LOGIC_INVERT,
-		];
 	}
 }

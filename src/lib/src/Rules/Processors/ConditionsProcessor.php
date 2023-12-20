@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	AttemptToAccessNonExistingRuleException,
 	NoConditionActionDefinedException,
@@ -28,7 +28,7 @@ class ConditionsProcessor extends BaseProcessor {
 		$condition = true;
 		$conditions = $this->rule->conditions ?? [];
 		if ( !empty( $conditions[ 'conditions' ] ) ) {
-			$processor = new ProcessConditions( $conditions[ 'conditions' ], $conditions[ 'logic' ] ?? Constants::LOGIC_AND );
+			$processor = new ProcessConditions( $conditions[ 'conditions' ], $conditions[ 'logic' ] ?? EnumLogic::LOGIC_AND );
 			$condition = $processor->process();
 			$this->consolidatedMeta = $processor->getConsolidatedMeta();
 		}

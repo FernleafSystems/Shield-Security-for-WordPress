@@ -1,0 +1,19 @@
+{% if vars.form_data.checks|length > 0 %}
+	<hr>
+	{% for check in vars.form_data.checks %}
+		<div class="row mb-2">
+			<div class="col">
+				<div class="form-check">
+					<input type="checkbox"
+						   class="form-check-input me-0"
+						   name="{{ check.name }}"
+						   value="Y"
+						   id="check_{{ check.name }}"
+						   {% if check.value == 'Y' %}checked="checked" aria-checked="true"{% endif %}
+					/>
+					<label class="form-check-label" for="check_{{ check.name }}">{{ check.label }}</label>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+{% endif %}

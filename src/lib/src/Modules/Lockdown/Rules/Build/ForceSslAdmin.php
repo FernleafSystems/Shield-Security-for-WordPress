@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Responses
@@ -42,7 +42,7 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 	protected function getConditions() :array {
 		return [
 			'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-			'logic'      => Constants::LOGIC_INVERT
+			'logic'      => EnumLogic::LOGIC_INVERT
 		];
 	}
 }

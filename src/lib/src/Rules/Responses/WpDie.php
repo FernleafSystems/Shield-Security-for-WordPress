@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class WpDie extends Base {
 
+	use Traits\IsTerminating;
+
 	public const SLUG = 'wp_die';
 
 	public function execResponse() :bool {

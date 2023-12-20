@@ -10,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class DisplayBlockPage extends Base {
 
+	use Traits\IsTerminating;
+
 	public const SLUG = 'display_block_page';
 
 	public function execResponse() :bool {

@@ -78,4 +78,8 @@ abstract class Base {
 	public function getParamsDef() :array {
 		return [];
 	}
+
+	public function isTerminating() :bool {
+		return false;
+	}
 }

@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Rules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum;
 
-class Constants {
+class EnumLogic {
 
 	public const LOGIC_AND = 'AND';
 	public const LOGIC_OR = 'OR';

@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllRestrictions;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\FindFromSlug;
 
@@ -53,7 +55,40 @@ class BuildRuleFromForm extends BuildRuleBase {
 			$conditions[ 'conditions' ][] = $subCondition;
 		}
 
-		// Small optimisation to flat conditions if there's only 1.
+		/**
+		 * We automatically add Invert-RequestBypassesAllRestrictions if the checkbox to do so is provided.
+		 */
+		if ( $this->form->checks[ 'checkbox_auto_include_bypass' ][ 'value' ] === 'Y' ) {
+			$containsBypassCondition = false;
+			foreach ( $conditions[ 'conditions' ] as $condition ) {
+				if ( $condition[ 'conditions' ] === RequestBypassesAllRestrictions::class
+					 && $condition[ 'logic' ] === EnumLogic::LOGIC_AND ) {
+					$containsBypassCondition = true;
+					break;
+				}
+			}
+
+			if ( $conditions[ 'logic' ] === EnumLogic::LOGIC_OR ) {
+				$conditions = [
+					'logic'      => EnumLogic::LOGIC_AND,
+					'conditions' => [
+						[
+							'logic'      => EnumLogic::LOGIC_INVERT,
+							'conditions' => RequestBypassesAllRestrictions::class,
+						],
+						$conditions
+					],
+				];
+			}
+			elseif ( !$containsBypassCondition ) {
+				\array_unshift( $conditions[ 'conditions' ], [
+					'logic'      => EnumLogic::LOGIC_INVERT,
+					'conditions' => RequestBypassesAllRestrictions::class,
+				] );
+			}
+		}
+
+		// Small optimisation to flatten conditions if there's only 1.
 		if ( \count( $conditions[ 'conditions' ] ) === 1 ) {
 			$conditions = \array_pop( $conditions[ 'conditions' ] );
 		}

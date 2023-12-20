@@ -5,31 +5,30 @@
 		{% set unselected_response = form_item.value == '--' %}
 
 		<div class="row">
-			<div class="col-7 mb-3">
+			<div class="col-4">
+				<select class="form-select" name="{{ form_item.name }}" class="form-control">
 
-				<div class="input-group">
-					<select class="form-select" name="{{ form_item.name }}" class="form-control">
+					{% if form_item.value == '--' %}
+						<option value="--" selected>+ Select Response</option>
+					{% else %}
+						<option value="--">- Delete This Response</option>
+					{% endif %}
 
-						{% if form_item.value == '--' %}
-							<option value="--" selected>+ Select Response</option>
-						{% else %}
-							<option value="--">- Delete This Response</option>
+					{% for response in vars.all_responses %}
+						{% if response.type == type %}
+							<option value="{{ response.slug }}"
+									{% if form_item.value == response.slug %}selected{% endif %}>
+								{{ response.name }}
+							</option>
 						{% endif %}
+					{% endfor %}
+				</select>
+			</div>
 
-						{% for response in vars.all_responses %}
-							{% if response.type == type %}
-								<option value="{{ response.slug }}"
-										{% if form_item.value == response.slug %}selected{% endif %}>
-									{{ response.name }}
-								</option>
-							{% endif %}
-						{% endfor %}
-					</select>
-
-					<button class="btn btn-outline-warning svg-container delete-response"
-							data-response_name="{{ form_item.name }}"
-							type="button">{{ imgs.icon_delete|raw }}</button>
-				</div>
+			<div class="col-1 offset-3">
+				<button class="btn btn-outline-warning svg-container delete-response"
+						data-response_name="{{ form_item.name }}"
+						type="button">{{ imgs.icon_delete|raw }}</button>
 			</div>
 		</div>
 

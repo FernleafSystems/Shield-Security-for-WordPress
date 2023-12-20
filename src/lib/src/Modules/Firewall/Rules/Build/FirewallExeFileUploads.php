@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
 	MatchRequestParamFileUploads,
 	RequestBypassesAllRestrictions
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class FirewallExeFileUploads extends BuildFirewallBase {
 
@@ -16,17 +16,17 @@ class FirewallExeFileUploads extends BuildFirewallBase {
 
 	protected function getConditions() :array {
 		$conditions = [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestBypassesAllRestrictions::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 			]
 		];
 
 		$matchGroup = [
-			'logic'      => Constants::LOGIC_OR,
+			'logic'      => EnumLogic::LOGIC_OR,
 			'conditions' => [],
 		];
 

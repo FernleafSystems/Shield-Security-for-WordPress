@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
-	Constants,
+	Enum\EnumLogic,
 	Responses
 };
 
@@ -26,11 +26,11 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => Constants::LOGIC_AND,
+			'logic' => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\IsNotLoggedInNormal::class,
@@ -56,9 +56,6 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 					'block'            => false,
 					'audit_params_map' => $this->getCommonAuditParamsMapping(),
 				],
-			],
-			[
-				'response' => Responses\TrafficRateLimitExceeded::class,
 			],
 		];
 	}

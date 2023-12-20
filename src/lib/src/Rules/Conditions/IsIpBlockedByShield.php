@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsIpBlockedByShield extends Base {
 
@@ -21,27 +21,27 @@ class IsIpBlockedByShield extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'logic'      => Constants::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => RequestBypassesAllRestrictions::class,
-					'logic'      => Constants::LOGIC_INVERT
+					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'logic'      => Constants::LOGIC_OR,
+					'logic'      => EnumLogic::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => IsIpBlockedManual::class,
 						],
 						[
-							'logic'      => Constants::LOGIC_AND,
+							'logic'      => EnumLogic::LOGIC_AND,
 							'conditions' => [
 								[
 									'conditions' => IsIpBlockedAuto::class,
 								],
 								[
 									'conditions' => IsIpHighReputation::class,
-									'logic'      => Constants::LOGIC_INVERT
+									'logic'      => EnumLogic::LOGIC_INVERT
 								],
 							]
 						]
