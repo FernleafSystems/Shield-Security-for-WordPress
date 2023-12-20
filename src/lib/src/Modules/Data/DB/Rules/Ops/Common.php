@@ -19,4 +19,9 @@ trait Common {
 	public function filterByInactive() {
 		return $this->addWhereEquals( 'is_active', 0 );
 	}
+
+	public function filterByEarlyDraft() {
+		return $this->filterByInactive()
+					->addRawWhere( [ '`form`', 'IS', 'NULL' ] );
+	}
 }

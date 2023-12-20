@@ -25,37 +25,42 @@ class RulesManagerActions extends BaseAction {
 					$msg = __( 'No Such Rule', 'wp-simple-firewall' );
 				}
 				else {
+					$updateData = [];
 					switch ( $managerAction[ 'action' ] ?? '' ) {
 						case 'delete':
 							$success = $dbh->getQueryDeleter()->deleteById( $ruleID );
 							$msg = __( 'Rule Deleted', 'wp-simple-firewall' );
 							break;
 						case 'activate':
-							$success = $dbh->getQueryUpdater()->updateRecord( $rule, [
+							$updateData = [
 								'is_active' => 1,
-							] );
+							];
 							$msg = __( 'Rule Activated', 'wp-simple-firewall' );
 							break;
 						case 'deactivate':
-							$success = $dbh->getQueryUpdater()->updateRecord( $rule, [
+							$updateData = [
 								'is_active' => 0,
-							] );
+							];
 							$msg = __( 'Rule Deactivated', 'wp-simple-firewall' );
 							break;
 						case 'set_to_export':
-							$success = $dbh->getQueryUpdater()->updateRecord( $rule, [
+							$updateData = [
 								'can_export' => 1,
-							] );
+							];
 							$msg = __( 'Rule will be exported during sync', 'wp-simple-firewall' );
 							break;
 						case 'set_no_export':
-							$success = $dbh->getQueryUpdater()->updateRecord( $rule, [
+							$updateData = [
 								'can_export' => 0,
-							] );
+							];
 							$msg = __( "Rule won't be exported during sync", 'wp-simple-firewall' );
 							break;
 						default:
 							break;
+					}
+
+					if ( !empty( $updateData ) ) {
+						$success = $dbh->getQueryUpdater()->updateRecord( $rule, $updateData );
 					}
 				}
 			}

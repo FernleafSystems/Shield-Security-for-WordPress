@@ -30,6 +30,7 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 				'version'     => $ruleRecord->builder_version ?? '0',
 				'is_active'   => $ruleRecord->is_active,
 				'can_export'  => $ruleRecord->can_export,
+				'is_viable'   => !empty( $ruleRecord->form ),
 				'href_edit'   => URL::Build(
 					$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
 					[

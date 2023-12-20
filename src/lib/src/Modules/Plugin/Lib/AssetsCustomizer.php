@@ -414,8 +414,8 @@ class AssetsCustomizer {
 				],
 				'data'    => [
 					'ajax' => [
-						'render_rule_builder'      => ActionData::BuildAjaxRender( Components\Rules\RuleBuilder::class ),
-						'rule_builder_form_action' => ActionData::Build( Actions\RuleBuilderFormAction::class ),
+						'render_rule_builder' => ActionData::BuildAjaxRender( Components\Rules\RuleBuilder::class ),
+						'rule_builder_action' => ActionData::Build( Actions\RuleBuilderAction::class ),
 					],
 				],
 			],

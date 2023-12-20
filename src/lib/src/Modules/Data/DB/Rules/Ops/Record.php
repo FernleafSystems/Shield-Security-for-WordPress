@@ -15,6 +15,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops;
  * @property array  $rules_as_json
  * @property array  $form
  * @property array  $form_draft
+ * @property int    $updated_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
 
@@ -25,7 +26,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 			case 'form':
 			case 'form_draft':
 			case 'rules_as_json':
-				$value = @\json_decode( @\base64_decode( $value ), true );
+				$value = @\json_decode( @\base64_decode( (string)$value ), true );
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}

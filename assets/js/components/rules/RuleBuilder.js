@@ -2,13 +2,13 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { Forms } from "../../util/Forms";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { PageQueryParam } from "../../util/PageQueryParam";
 
 export class RuleBuilder extends BaseAutoExecComponent {
 
 	init() {
 		this.containerID = 'RuleBuilderContainer';
+		this.edit_rule_id = PageQueryParam.Retrieve( 'edit_rule_id' );
 		this.rule_builder_container = document.getElementById( this.containerID ) || false;
 		super.init();
 	}
@@ -20,49 +20,54 @@ export class RuleBuilder extends BaseAutoExecComponent {
 	run() {
 		this.renderBuilder();
 
-		const baseSelector = '#' + this.containerID + ' form';
+		const formSelector = this.getFormSelector();
 
-		shieldEventsHandler_Main.add_Change( baseSelector, ( form ) => {
-			this.renderBuilder( {}, form );
+		shieldEventsHandler_Main.add_Change( formSelector, ( form ) => {
+			this.action( {
+				builder_action: 'update',
+			}, form );
 		} );
 
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button.add-condition', ( button ) => {
-			this.renderBuilder( {
+		shieldEventsHandler_Main.add_Click( formSelector + ' button.add-condition', ( button ) => {
+			this.action( {
 				builder_action: 'add_condition',
 			}, button.closest( 'form' ) );
 		} );
-
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button.add-response', ( button ) => {
-			this.renderBuilder( {
-				builder_action: 'add_response',
-			}, button.closest( 'form' ) );
-		} );
-
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button.create-rule', ( button ) => {
-			this.renderBuilder( {
-				builder_action: 'create_rule',
-			}, button.closest( 'form' ) );
-		} );
-
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button.delete-condition', ( button ) => {
-			this.renderBuilder( {
+		shieldEventsHandler_Main.add_Click( formSelector + ' button.delete-condition', ( button ) => {
+			this.action( {
 				builder_action: 'delete_condition',
 				builder_action_vars: button.dataset,
 			}, button.closest( 'form' ) );
 		} );
 
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button.delete-response', ( button ) => {
-			this.renderBuilder( {
+		shieldEventsHandler_Main.add_Click( formSelector + ' button.add-response', ( button ) => {
+			this.action( {
+				builder_action: 'add_response',
+			}, button.closest( 'form' ) );
+		} );
+
+		shieldEventsHandler_Main.add_Click( formSelector + ' button.delete-response', ( button ) => {
+			this.action( {
 				builder_action: 'delete_response',
 				builder_action_vars: button.dataset,
 			}, button.closest( 'form' ) );
 		} );
 
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button.reset', ( button ) => {
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				location.reload();
-			}
+		shieldEventsHandler_Main.add_Click( formSelector + ' button.create-rule', ( button ) => {
+			this.action( {
+				builder_action: 'create_rule',
+			}, button.closest( 'form' ) );
 		} );
+
+		shieldEventsHandler_Main.add_Click( formSelector + ' button.reset', ( button ) => {
+			this.action( {
+				builder_action: 'reset',
+			}, button.closest( 'form' ) );
+		} );
+	}
+
+	getFormSelector() {
+		return '#' + this.containerID + ' form';
 	}
 
 	/**
@@ -72,9 +77,7 @@ export class RuleBuilder extends BaseAutoExecComponent {
 	 * @param {HTMLFormElement} ruleForm - The rule form element.
 	 * @return {void}
 	 */
-	renderBuilder( params = {}, ruleForm = null ) {
-
-		ShieldOverlay.Show( this.containerID );
+	action( params = {}, ruleForm = null ) {
 
 		if ( ruleForm !== null ) {
 
@@ -99,15 +102,29 @@ export class RuleBuilder extends BaseAutoExecComponent {
 			params.builder_action = 'update';
 		}
 
-		params.edit_rule_id = PageQueryParam.Retrieve( 'edit_rule_id' );
+		let editRuleId = -1;
 
 		( new AjaxService() )
-		.bg( ObjectOps.Merge( this._base_data.ajax.render_rule_builder, params ) )
+		.send( ObjectOps.Merge( this._base_data.ajax.rule_builder_action, params ) )
+		.finally( () => this.renderBuilder( editRuleId ) );
+	}
+
+	renderBuilder() {
+		( new AjaxService() )
+		.send(
+			ObjectOps.Merge( this._base_data.ajax.render_rule_builder, {
+				edit_rule_id: this.edit_rule_id
+			} )
+		)
 		.then( ( respJSON ) => {
 			this.rule_builder_container.innerHTML = respJSON.data.html;
+
+			const inputRuleID = document.querySelector( this.getFormSelector() + ' input[name=edit_rule_id]' );
+			if ( inputRuleID ) {
+				this.edit_rule_id = inputRuleID.value;
+			}
 		} )
 		.finally( () => {
-			ShieldOverlay.Hide();
 		} );
 	}
 }

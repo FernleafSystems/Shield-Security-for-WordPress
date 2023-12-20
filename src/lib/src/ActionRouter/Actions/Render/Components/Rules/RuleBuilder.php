@@ -2,11 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Rules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\GetAvailable;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\ParseRuleBuilderForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumConditions;
+use FernleafSystems\Wordpress\Services\Services;
 
 class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -14,45 +17,39 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 	public const TEMPLATE = '/components/rules/rule_builder.twig';
 
 	protected function getRenderData() :array {
+		$req = Services::Request()->ts();
 		$con = self::con();
 
 		$parsed = null;
 
 		// Either we're editing a rule, or starting a new rule.
-		if ( !isset( $this->action_data[ 'rule_form' ] ) ) {
-			$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
-			if ( $maybeEditRuleID >= 0 ) {
-				foreach ( self::con()->rules->getCustomRuleForms() as $record ) {
-					if ( $record->id === (int)$maybeEditRuleID ) {
-						$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $record->form );
-					}
+		$record = null;
+		$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
+		if ( $maybeEditRuleID >= 0 ) {
+			foreach ( self::con()->rules->getCustomRuleForms() as $maybe ) {
+				if ( $maybe->id === (int)$maybeEditRuleID ) {
+					$record = $maybe;
+					break;
 				}
-				if ( !empty( $parsed ) ) {
-					$parsed->edit_rule_id = $maybeEditRuleID;
-				}
-			}
-			else {
-				$parsed = ( new ParseRuleBuilderForm( $this->defaultForm(), 'add_condition', [] ) )->parseForm();
-				$parsed->edit_rule_id = -1;
 			}
 		}
 
-		if ( empty( $parsed ) ) {
-			$parsed = ( new ParseRuleBuilderForm(
-				$this->action_data[ 'rule_form' ] ?? [],
-				$this->action_data[ 'builder_action' ] ?? '',
-				$this->action_data[ 'builder_action_vars' ] ?? []
-			) )->parseForm();
+		// find a potential recent (5 minutes) draft.
+		if ( empty( $record ) ) {
+			/** @var ?RulesDB\Record $record */
+			$record = ( new RuleRecords() )->getLatestFirstDraft();
+		}
 
-			if ( $parsed->ready_to_create && $this->action_data[ 'builder_action' ] === 'create_rule' ) {
-				$parsed->form_builder_version = $con->cfg->version();
-				try {
-					$con->db_con->getDbH_Rules()->insertFromForm( $parsed );
-				}
-				catch ( \Exception $e ) {
-					error_log( $e->getMessage() );
-				}
-			}
+		// Parse the record into a usable form
+		if ( !empty( $record ) && ( !empty( $record->form_draft ) || !empty( $record->form ) ) ) {
+			$asDraft = $req - $record->updated_at < MINUTE_IN_SECONDS*5 && !empty( $record->form_draft );
+			$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $asDraft ? $record->form_draft : $record->form );
+			$parsed->edit_rule_id = $record->id;
+		}
+
+		if ( empty( $parsed ) ) {
+			$parsed = ( new ParseRuleBuilderForm( [] ) )->parseForm();
+			$parsed->edit_rule_id = -1;
 		}
 
 		return [
@@ -92,9 +89,9 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				],
 				'responses_logic'      => [
 					'name'    => 'responses_logic',
-					'value'   => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic::LOGIC_AND,
+					'value'   => EnumLogic::LOGIC_AND,
 					'options' => [
-						\FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic::LOGIC_AND => \strtoupper( __( 'and', 'wp-simple-firewall' ) ),
+						EnumLogic::LOGIC_AND => \strtoupper( __( 'and', 'wp-simple-firewall' ) ),
 					],
 				],
 				'rule_name'            => $parsed->name,
@@ -103,10 +100,6 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'all_responses'        => GetAvailable::Responses(),
 			]
 		];
-	}
-
-	private function defaultForm() :array {
-		return [];
 	}
 
 	private function conditionTypesForDisplay() :array {
