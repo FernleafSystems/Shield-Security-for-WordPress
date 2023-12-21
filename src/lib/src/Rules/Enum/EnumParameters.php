@@ -12,4 +12,5 @@ class EnumParameters {
 	public const TYPE_IP_ADDRESS = 'ip_address';
 	public const TYPE_SCALAR = 'scalar';
 	public const TYPE_STRING = 'string';
+	public const TYPE_URL = 'url';
 }

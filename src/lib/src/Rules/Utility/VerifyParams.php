@@ -46,6 +46,10 @@ class VerifyParams {
 				$invalidType = empty( Factory::parseRangeString( $paramValue ) );
 				$invalidMsg = __( 'Provide a valid IP address or range', 'wp-simple-firewall' );
 				break;
+			case EnumParameters::TYPE_URL:
+				$invalidType = filter_var( $paramValue, FILTER_VALIDATE_URL ) === false;
+				$invalidMsg = __( 'Provide a complete URL', 'wp-simple-firewall' );
+				break;
 			case EnumParameters::TYPE_SCALAR:
 				$invalidType = !\is_scalar( $paramValue );
 				break;

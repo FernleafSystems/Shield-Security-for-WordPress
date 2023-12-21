@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
@@ -12,6 +13,7 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 	public const TEMPLATE = '/components/rules/rules_manager.twig';
 
 	protected function getRenderData() :array {
+		$WP = Services::WpGeneral();
 		$con = self::con();
 
 		$dbh = $con->db_con->getDbH_Rules();
@@ -21,20 +23,20 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 		$records = $selector->filterByType( $dbh::TYPE_CUSTOM )->queryWithResult();
 
 		$customRules = [];
-		foreach ( $records as $ruleRecord ) {
-			$customRules[ $ruleRecord->id ] = [
-				'rule_id'     => $ruleRecord->id,
-				'name'        => $ruleRecord->name,
-				'description' => $ruleRecord->description,
-				'created_at'  => $ruleRecord->created_at ?? 0,
-				'version'     => $ruleRecord->builder_version ?? '0',
-				'is_active'   => $ruleRecord->is_active,
-				'can_export'  => $ruleRecord->can_export,
-				'is_viable'   => !empty( $ruleRecord->form ),
+		foreach ( $records as $rule ) {
+			$customRules[ $rule->id ] = [
+				'rule_id'     => $rule->id,
+				'name'        => $rule->name,
+				'description' => $rule->description,
+				'created_at'  => $WP->getTimeStampForDisplay( $rule->updated_at ),
+				'version'     => $rule->builder_version ?? '0',
+				'is_active'   => $rule->is_active,
+				'can_export'  => $rule->can_export,
+				'is_viable'   => !empty( $rule->form ),
 				'href_edit'   => URL::Build(
 					$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
 					[
-						'edit_rule_id' => $ruleRecord->id,
+						'edit_rule_id' => $rule->id,
 					]
 				)
 			];

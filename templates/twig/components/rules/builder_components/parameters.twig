@@ -16,7 +16,7 @@
 				<label class="form-check-label" for="{{ param_name }}">{{ param.label }}</label>
 			{% else %}
 				<label class="form-label" for="{{ param_name }}">{{ param.label }}</label>
-				{% if param.param_type in ['string', 'scalar', 'callback', 'ip_address'] %}
+				{% if param.param_type in ['string', 'scalar', 'callback', 'ip_address', 'url'] %}
 					<input type="text"
 						   class="form-control {{ param_has_error ? 'is-invalid' : 'is-valid' }}"
 						   name="{{ param_name }}"

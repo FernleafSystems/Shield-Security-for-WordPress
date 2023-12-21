@@ -52,6 +52,7 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 			$parsed->edit_rule_id = -1;
 		}
 
+		$isDraft = empty( $record ) || empty( $record->form );
 		return [
 			'flags'   => [
 				'show_conditions_logic' => \count( $parsed->conditions ) > 1,
@@ -61,13 +62,20 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'has_unset_condition'   => $parsed->has_unset_condition,
 				'has_unset_response'    => $parsed->has_unset_response,
 				'is_rule_edit'          => $parsed->edit_rule_id >= 0,
+				'is_early_draft'        => $isDraft,
 			],
 			'imgs'    => [
 				'icon_delete' => $con->svgs->raw( 'trash3-fill.svg' ),
 			],
 			'strings' => [
-				'create_rule' => __( 'Create This Rule', 'wp-simple-firewall' ),
-				'update_rule' => __( 'Update This Rule', 'wp-simple-firewall' ),
+				'title'             => $isDraft ? __( 'Create New Rule', 'wp-simple-firewall' )
+					: sprintf( __( 'Edit Rule #%s (%s)', 'wp-simple-firewall' ), $record->id, $record->name ),
+				'create_rule'       => __( 'Create New Rule', 'wp-simple-firewall' ),
+				'update_rule'       => __( 'Update This Rule', 'wp-simple-firewall' ),
+				'creating_new_rule' => __( 'Create New Rule', 'wp-simple-firewall' ),
+				'if'                => __( 'If', 'wp-simple-firewall' ),
+				'then'              => __( 'Then', 'wp-simple-firewall' ),
+				'reset'             => __( 'Reset', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'edit_rule_id'         => $parsed->edit_rule_id,

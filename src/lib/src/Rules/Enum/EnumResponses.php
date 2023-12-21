@@ -17,6 +17,7 @@ class EnumResponses {
 		Responses\HookAddAction::class,
 		Responses\HookAddFilter::class,
 		Responses\HookRemoveAction::class,
+		Responses\HttpRedirect::class,
 		Responses\ProcessIpBlockedShield::class,
 		Responses\SetPhpDefine::class,
 		Responses\TriggerIpBlock::class,

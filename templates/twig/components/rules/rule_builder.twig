@@ -1,11 +1,16 @@
 <div id="RuleBuilder">
+
+	<h6 class="my-3">{{ strings.title }}:</h6>
+
 	<form>
 
 		<input type="hidden" name="edit_rule_id" value="{{ vars.edit_rule_id }}">
 
 		<div class="row">
 			<div class="col">
-				<h3>If...</h3>
+				<div class="alert alert-secondary d-inline-block">
+					<h5 class="m-0">{{ strings.if }} ...</h5>
+				</div>
 			</div>
 		</div>
 
@@ -36,7 +41,9 @@
 
 					<div class="row">
 						<div class="col">
-							<h3>Then...</h3>
+							<div class="alert alert-secondary d-inline-block">
+								<h5 class="m-0">{{ strings.then }} ...</h5>
+							</div>
 						</div>
 					</div>
 
@@ -89,7 +96,7 @@
 					   id="rule_description"
 					   value="{{ vars.rule_description }}"
 					   placeholder="Describe this rule"
-					   required >
+					   required>
 				<div class="invalid-feedback">A description is required.</div>
 			</div>
 		</div>
@@ -100,8 +107,8 @@
 			<div class="col-6">
 				<button class="btn btn-success create-rule {% if not flags.allow_submit %}disabled{% endif %}"
 						{% if not flags.allow_submit %}disabled="disabled"{% endif %}
-				>{{ flags.is_rule_edit ? strings.update_rule : strings.create_rule }}</button>
-				<button class="btn btn-outline-secondary ms-3 reset">Reset</button>
+				>{{ flags.is_early_draft ? strings.create_rule : strings.update_rule }}</button>
+				<button class="btn btn-outline-secondary ms-3 reset">{{ strings.reset }}</button>
 			</div>
 		</div>
 

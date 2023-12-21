@@ -4,9 +4,10 @@
 			<thead>
 			<tr>
 				<th>&nbsp;</th>
+				<th>#ID</th>
 				<th>Name</th>
 				<th>Description</th>
-				<th>Created</th>
+				<th>Updated</th>
 				{#                <th>Builder Version</th> #}
 				<th>Action</th>
 				<th>Export</th>
@@ -31,6 +32,7 @@
 							</div>
 						</td>
 
+						<td>{{ rule.rule_id }}</td>
 						<td>{{ rule.name }}</td>
 						<td>{{ rule.description }}</td>
 						<td>{{ rule.created_at }}</td>
