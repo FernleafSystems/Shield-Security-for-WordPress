@@ -15,7 +15,7 @@
 			</thead>
 			<tbody>
 				{% for rule in vars.custom_rules %}
-					<tr>
+					<tr class="{{ rule.is_active ? '' : 'table-secondary' }}">
 						<td>
 							<div class="form-check form-switch">
 								<input class="form-check-input active-switch"
