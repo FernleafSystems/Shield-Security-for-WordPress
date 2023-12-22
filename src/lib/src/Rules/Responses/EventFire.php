@@ -41,13 +41,13 @@ class EventFire extends Base {
 	public function getParamsDef() :array {
 		return [
 			'event'            => [
-				'type' => EnumParameters::TYPE_STRING,
+				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Event To Trigger', 'wp-simple-firewall' ),
 			],
 			'audit_params_map' => [
-				'type'  => EnumParameters::TYPE_ARRAY,
+				'type'    => EnumParameters::TYPE_ARRAY,
 				'default' => [],
-				'label' => __( 'Activity Log Parameter Map', 'wp-simple-firewall' ),
+				'label'   => __( 'Activity Log Parameter Map', 'wp-simple-firewall' ),
 			],
 		];
 	}

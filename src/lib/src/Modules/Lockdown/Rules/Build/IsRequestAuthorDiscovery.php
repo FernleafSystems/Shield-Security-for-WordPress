@@ -38,7 +38,7 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 					'params'     => [
 						'match_type'    => EnumMatchTypes::MATCH_TYPE_REGEX,
 						'param_name'    => 'author',
-						'match_pattern' => '\d',
+						'match_pattern' => '\\d',
 					],
 				],
 			]

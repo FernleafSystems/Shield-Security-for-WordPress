@@ -141,6 +141,6 @@ class BuildRuleFromForm extends BuildRuleBase {
 	}
 
 	protected function getSlug() :string {
-		return 'test'.wp_rand();
+		return 'custom/'.sanitize_key( $this->form->name );
 	}
 }

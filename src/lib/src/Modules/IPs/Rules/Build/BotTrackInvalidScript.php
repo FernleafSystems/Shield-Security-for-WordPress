@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
+/**
+ * @TODO sort out the preg_quote - do we build our own full preg strings, or wrap internally?
+ */
 class BotTrackInvalidScript extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_invalidscript';
@@ -33,11 +36,15 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 					'conditions' => Conditions\IsNotLoggedInNormal::class
 				],
 				[
-					'conditions' => Conditions\MatchRequestScriptNames::class,
+					'conditions' => Conditions\MatchRequestScriptName::class,
 					'logic'      => EnumLogic::LOGIC_INVERT,
 					'params'     => [
-						'match_type'         => EnumMatchTypes::MATCH_TYPE_EQUALS,
-						'match_script_names' => $this->opts()->botSignalsGetAllowableScripts(),
+						'match_type'        => EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_script_name' => sprintf( '(%s)',
+							implode( '|', \array_map( function ( $script ) {
+								return \preg_quote( $script, '#' );
+							}, $this->opts()->botSignalsGetAllowableScripts() ) )
+						),
 					],
 				],
 			]

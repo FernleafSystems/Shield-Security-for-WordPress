@@ -51,7 +51,8 @@ class ResponseProcessor {
 			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
 				error_log( $e->getMessage() );
 			}
-			catch ( ParametersException $e ) {
+			catch ( ParametersException|\Exception $e ) {
+//				error_log( $e->getMessage() );
 			}
 		}
 

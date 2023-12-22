@@ -44,7 +44,6 @@ class EnumConditions {
 		Conditions\MatchRequestPath::class,
 		Conditions\MatchRequestPaths::class,
 		Conditions\MatchRequestScriptName::class,
-		Conditions\MatchRequestScriptNames::class,
 		Conditions\MatchRequestUseragent::class,
 		Conditions\MatchRequestUseragents::class,
 		Conditions\RequestBypassesAllRestrictions::class,

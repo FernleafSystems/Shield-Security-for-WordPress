@@ -7,8 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
- * @property string   $match_type
- * @property string[] $match_script_names
+ * @deprecated 18.6
  */
 class MatchRequestScriptNames extends Base {
 

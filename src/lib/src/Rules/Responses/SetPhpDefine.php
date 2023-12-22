@@ -20,7 +20,7 @@ class SetPhpDefine extends Base {
 			'define_name'  => [
 				'type'         => EnumParameters::TYPE_STRING,
 				'label'        => __( 'PHP Define Name', 'wp-simple-firewall' ),
-				'verify_regex' => '/^[a-z_]+[0-9a-z_]*$/'
+				'verify_regex' => '/^[A-Za-z_]+[0-9a-z_]*$/'
 			],
 			'define_value' => [
 				'type'  => EnumParameters::TYPE_SCALAR,

@@ -20,14 +20,14 @@ class HttpRedirect extends Base {
 		return [
 			'redirect_url' => [
 				'type'  => EnumParameters::TYPE_URL,
-				'label' => __( 'HTTP Redirect Location', 'wp-simple-firewall' ),
+				'label' => __( 'Redirect Location', 'wp-simple-firewall' ),
 			],
 			'status_code'  => [
 				'type'        => EnumParameters::TYPE_ENUM,
 				'type_enum'   => \array_keys( $statusCodes ),
 				'enum_labels' => $statusCodes,
 				'default'     => '302',
-				'label'       => __( 'HTTP Redirect Code', 'wp-simple-firewall' ),
+				'label'       => __( 'Redirect Status', 'wp-simple-firewall' ),
 			],
 		];
 	}
