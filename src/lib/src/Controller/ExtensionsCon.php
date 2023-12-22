@@ -24,7 +24,7 @@ class ExtensionsCon {
 
 	protected function run() {
 		$this->initExtensions();
-		add_filter( 'shield/collate_rule_builders', [ $this, 'extendRuleBuilders' ] );
+		$this->extendRules();
 	}
 
 	private function initExtensions() :void {
@@ -59,11 +59,31 @@ class ExtensionsCon {
 		}
 	}
 
-	public function extendRuleBuilders( array $rules ) :array {
-		foreach ( $this->getExtensions() as $extension ) {
-			$rules = \array_merge( $rules, $extension->getRuleBuilders() );
-		}
-		return $rules;
+	public function extendRules() :void {
+		add_filter( 'shield/rules/enum_conditions', function ( array $conditions ) {
+			foreach ( $this->getExtensions() as $extension ) {
+				if ( $extension->canExtendRules() ) {
+					$conditions = \array_merge( $conditions, $extension->getRuleConditions() );
+				}
+			}
+			return \array_unique( $conditions );
+		} );
+		add_filter( 'shield/rules/enum_responses', function ( array $responses ) {
+			foreach ( $this->getExtensions() as $extension ) {
+				if ( $extension->canExtendRules() ) {
+					$responses = \array_merge( $responses, $extension->getRuleResponses() );
+				}
+			}
+			return \array_unique( $responses );
+		} );
+		add_filter( 'shield/collate_rule_builders', function ( array $builders ) {
+			foreach ( $this->getExtensions() as $extension ) {
+				if ( $extension->canExtendRules() ) {
+					$builders = \array_merge( $builders, $extension->getRuleBuilders() );
+				}
+			}
+			return \array_unique( $builders );
+		} );
 	}
 
 	public function getExtension( string $slug ) :?BaseExtension {

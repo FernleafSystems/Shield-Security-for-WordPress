@@ -104,24 +104,21 @@ class ProcessConditions {
 		}
 		$conditionHandler = new $handlerClass( $condition->params );
 
-		$matched = $this->getCachedConditionResult( $conditionHandler );
-		if ( $matched === null ) {
-			$matched = $conditionHandler->run();
-			self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] = $matched;
+		$cachedMatchStatus = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] ?? null;
+		if ( $cachedMatchStatus === null ) {
+			self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] = [
+				$conditionHandler->run(),
+				$conditionHandler->getConditionTriggerMetaData(),
+			];
 		}
+
+		[ $matched, $this->consolidatedMeta ] = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ];
 
 		return $condition->logic === EnumLogic::LOGIC_INVERT ? !$matched : $matched;
 	}
 
 	public function getConsolidatedMeta() :array {
-		return \array_filter( $this->consolidatedMeta );
-	}
-
-	/**
-	 * @param Conditions\Base|mixed $handler
-	 */
-	private function getCachedConditionResult( $handler ) :?bool {
-		return self::$ConditionsCache[ $this->hashHandler( $handler ) ] ?? null;
+		return $this->consolidatedMeta;
 	}
 
 	/**

@@ -63,11 +63,7 @@ abstract class Base {
 	abstract public function execResponse() :bool;
 
 	protected function getConsolidatedConditionMeta() :array {
-		$meta = [];
-		foreach ( $this->conditionTriggerMeta as $m ) {
-			$meta = \array_merge( $meta, $m );
-		}
-		return $meta;
+		return $this->conditionTriggerMeta;
 	}
 
 	public function getName() :string {

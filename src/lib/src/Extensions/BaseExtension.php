@@ -40,7 +40,19 @@ abstract class BaseExtension {
 		return self::con()->isPremiumActive() && $this->requirementsMet();
 	}
 
+	public function canExtendRules() :bool {
+		return true;
+	}
+
 	public function getRuleBuilders() :array {
+		return [];
+	}
+
+	public function getRuleConditions() :array {
+		return [];
+	}
+
+	public function getRuleResponses() :array {
 		return [];
 	}
 
