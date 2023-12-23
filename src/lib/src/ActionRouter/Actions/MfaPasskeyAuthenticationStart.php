@@ -20,7 +20,7 @@ class MfaPasskeyAuthenticationStart extends MfaUserConfigBase {
 
 		$user = $this->getActiveWPUser();
 		if ( empty( $user ) ) {
-			$response[ 'message' ] = __( "User must be logged-in.", 'wp-simple-firewall' );
+			$response[ 'message' ] = __( 'User must be logged-in.', 'wp-simple-firewall' );
 		}
 		else {
 			$available = $this->con()

@@ -16,14 +16,11 @@ class Export {
 	public function run( string $method ) {
 		try {
 			switch ( $method ) {
-				case 'file':
-					$this->toFile();
-					break;
-
 				case 'json':
-				default:
 					$this->toJson();
 					break;
+				default:
+					throw new \Exception();
 			}
 		}
 		catch ( \Exception $e ) {
@@ -31,7 +28,7 @@ class Export {
 		die();
 	}
 
-	public function toJson() {
+	public function toJson() :void {
 		$ieCon = $this->mod()->getImpExpController();
 		$req = Services::Request();
 

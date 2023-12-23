@@ -115,7 +115,6 @@ class Constants {
 		Actions\TestRestFetchRequests::class,
 
 		Actions\Render::class,
-		Actions\Render\GenericRender::class,
 
 		Actions\Render\Components\AdminNotice::class,
 		Actions\Render\Components\Widgets\WpDashboardSummary::class,
@@ -149,6 +148,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\ModConfig::class,
 		Actions\Render\Components\OffCanvas\FormReportCreate::class,
 		Actions\Render\Components\Options\OptionsForm::class,
+		Actions\Render\Components\Placeholders\PlaceholderMeter::class,
 		Actions\Render\Components\Reports\ReportsTable::class,
 		Actions\Render\Components\Reports\FormCreateReport::class,
 		Actions\Render\Components\Reports\PageReportsView::class,
@@ -180,6 +180,8 @@ class Constants {
 		Actions\Render\Components\UserMfa\ConfigEdit::class,
 		Actions\Render\Components\UserMfa\ConfigForm::class,
 		Actions\Render\Components\UserMfa\ConfigFormForProvider::class,
+		Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldShield::class,
+		Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldWpReplica::class,
 		Actions\Render\Components\Users\ProfileSuspend::class,
 		Actions\Render\FullPage\Block\BlockAuthorFishing::class,
 		Actions\Render\FullPage\Block\BlockFirewall::class,
