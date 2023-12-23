@@ -3,12 +3,25 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Merlin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MerlinStep extends BaseRender {
 
 	public const SLUG = 'render_merlin_step';
 	public const TEMPLATE = '/components/merlin/steps/%s.twig';
+
+	/**
+	 * @throws ActionException
+	 */
+	protected function checkAvailableData() {
+		parent::checkAvailableData();
+
+		$slug = $this->action_data[ 'vars' ][ 'step_slug' ] ?? null;
+		if ( !\preg_match( '#^[a-z0-9_]+$#', (string)$slug ) ) {
+			throw new ActionException( 'Invalid Step Slug' );
+		}
+	}
 
 	protected function getRenderData() :array {
 		return [

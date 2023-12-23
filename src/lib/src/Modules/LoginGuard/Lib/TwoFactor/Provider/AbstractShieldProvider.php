@@ -136,24 +136,24 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	protected function renderLoginIntentFormFieldForShield() :string {
 		return self::con()->action_router->render(
-			Render\GenericRender::SLUG,
+			Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldShield::class,
 			[
-				'render_action_template' => sprintf( '/components/login_intent/login_field_%s.twig', static::ProviderSlug() ),
-				'render_action_data'     => [
-					'field' => $this->getFormField()
-				],
+				'vars' => [
+					'provider_slug' => static::ProviderSlug(),
+					'field'         => $this->getFormField()
+				]
 			]
 		);
 	}
 
 	protected function renderLoginIntentFormFieldForWpLoginReplica() :string {
 		return self::con()->action_router->render(
-			Render\GenericRender::SLUG,
+			Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldWpReplica::class,
 			[
-				'render_action_template' => sprintf( '/components/wplogin_replica/login_field_%s.twig', static::ProviderSlug() ),
-				'render_action_data'     => [
-					'field' => $this->getFormField()
-				],
+				'vars' => [
+					'provider_slug' => static::ProviderSlug(),
+					'field'         => $this->getFormField()
+				]
 			]
 		);
 	}

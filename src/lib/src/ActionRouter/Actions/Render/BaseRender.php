@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionExcept
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 abstract class BaseRender extends BaseAction {
 
@@ -48,20 +47,13 @@ abstract class BaseRender extends BaseAction {
 		}
 
 		try {
-			$renderer = self::con()->getRenderer();
-
-			$ext = Paths::Ext( $template );
-			if ( empty( $ext ) || \strtolower( $ext ) === 'twig' ) {
-				$renderer->setTemplateEngineTwig();
-			}
-			else {
-				$renderer->setTemplateEnginePhp();
-			}
-
-			$output = $renderer->setTemplate( $template )
-							   ->setRenderVars( $renderData )
-							   ->setTwigEnvironmentVars( $this->getTwigEnvironmentVars() )
-							   ->render();
+			$output = self::con()
+						  ->getRenderer()
+						  ->setTemplateEngineTwig()
+						  ->setTemplate( $template )
+						  ->setRenderVars( $renderData )
+						  ->setTwigEnvironmentVars( $this->getTwigEnvironmentVars() )
+						  ->render();
 		}
 		catch ( \Exception $e ) {
 			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, $e->getMessage() );
