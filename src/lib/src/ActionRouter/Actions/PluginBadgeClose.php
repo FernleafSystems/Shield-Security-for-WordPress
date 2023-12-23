@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 class PluginBadgeClose extends BaseAction {
 
 	use Traits\AuthNotRequired;
-	use Traits\NonceVerifyNotRequired;
 
 	public const SLUG = 'plugin_badge_close';
 

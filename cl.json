@@ -123,6 +123,16 @@
     ],
     "patches":     [
       {
+        "version":     "10",
+        "released_at": 1703350000,
+        "items":       [
+          {
+            "title": "Security fix for LFI (details to follow at a future date). Patched and released within 6hrs of responsible disclosure.",
+            "type":  "fixed"
+          }
+        ]
+      },
+      {
         "version":     "9",
         "released_at": 1702670000,
         "items":       [

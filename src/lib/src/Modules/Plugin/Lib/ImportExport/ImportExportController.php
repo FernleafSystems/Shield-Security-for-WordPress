@@ -94,7 +94,6 @@ class ImportExportController {
 	 * We've been notified that there's an update to pull in from the master site, so we set a cron to do this.
 	 */
 	public function runOptionsUpdateNotified() {
-
 		// Ensure import/export feature is enabled (for cron and auto-import to run)
 		$this->opts()->setOpt( 'importexport_enable', 'Y' );
 

@@ -25,6 +25,7 @@ class MfaEmailAutoLogin extends BaseAction {
 			throw new ActionException( 'No such user' );
 		}
 		if ( !$mfaCon->verifyLoginNonce( $user, $this->action_data[ 'login_nonce' ] ) ) {
+			// TODO: trigger offense?
 			throw new ActionException( 'invalid login nonce' );
 		}
 		$providers = $mfaCon->getProvidersActiveForUser( $user );

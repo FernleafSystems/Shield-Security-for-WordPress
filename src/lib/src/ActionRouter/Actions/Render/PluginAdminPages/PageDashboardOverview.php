@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Placeholders\PlaceholderMeter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\GenericRender;
@@ -44,13 +45,9 @@ class PageDashboardOverview extends BasePluginAdminPage {
 						'title'     => false,
 						'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
 						'href_text' => __( 'View All Security Grades', 'wp-simple-firewall' ),
-						'content' => sprintf(
-							'<div class="progress-metercard progress-metercard-summary" data-meter_slug="%s">%s</div>',
-							MeterSummary::SLUG,
-							$con->action_router->render( GenericRender::class, [
-								'render_action_template' => '/components/html/loading_placeholders/progress_meter.twig',
-							] )
-						),
+						'content'   => $con->action_router->render( PlaceholderMeter::class, [
+							'meter_slug' => MeterSummary::SLUG,
+						] ),
 						'width'     => 12,
 					],
 				],
