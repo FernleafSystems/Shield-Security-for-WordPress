@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class DirContainsFile extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeFilesystem;
 
 	public const SLUG = 'dir_contains_file';
@@ -25,13 +24,9 @@ class DirContainsFile extends Base {
 
 		$result = false;
 		if ( !empty( $dir ) && !empty( $file ) && $FS->isAccessibleDir( $dir ) ) {
-			if ( !isset( $this->fuzzy ) || $this->fuzzy ) {
-				$foundFile = Services::WpFs()->findFileInDir( $file, $dir, false );
-				$result = !empty( $foundFile );
-			}
-			else {
-				$result = Services::WpFs()->isAccessibleFile( path_join( $dir, $file ) );
-			}
+			$result = $this->fuzzy ?
+				!empty( $FS->findFileInDir( $file, $dir, false ) )
+				: $FS->isAccessibleFile( path_join( $dir, $file ) );
 		}
 
 		return $result;

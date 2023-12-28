@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	IpsToMatchUnavailableException,
-	RequestIpUnavailableException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
@@ -17,14 +16,12 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class MatchRequestIpAddress extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_ip_address';
 
 	/**
 	 * @throws IpsToMatchUnavailableException
-	 * @throws RequestIpUnavailableException
 	 * @throws \Exception
 	 */
 	protected function execConditionCheck() :bool {
@@ -32,7 +29,7 @@ class MatchRequestIpAddress extends Base {
 		if ( !\is_string( $ip ) || !Services::IP()->isValidIpOrRange( $ip ) ) {
 			throw new IpsToMatchUnavailableException();
 		}
-		return ( new PerformConditionMatch( $this->getRequestIP(), $ip, $this->match_type ) )->doMatch();
+		return ( new PerformConditionMatch( $this->req->ip, $ip, $this->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {

@@ -8,14 +8,13 @@ class HookAddFilter extends Base {
 
 	public const SLUG = 'hook_add_filter';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		add_filter(
 			$this->params[ 'hook' ],
 			$this->params[ 'callback' ],
 			$this->params[ 'priority' ],
 			$this->params[ 'args' ]
 		);
-		return true;
 	}
 
 	public function getParamsDef() :array {

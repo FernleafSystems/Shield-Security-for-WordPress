@@ -17,11 +17,11 @@ class ShieldRestrictionsEnabled extends Base {
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->request_subject_to_shield_restrictions;
+		return $this->req->request_subject_to_shield_restrictions;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->request_subject_to_shield_restrictions = $result;
+		$this->req->request_subject_to_shield_restrictions = $result;
 	}
 
 	protected function getSubConditions() :array {
@@ -29,11 +29,11 @@ class ShieldRestrictionsEnabled extends Base {
 			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
-					'conditions' => RequestIsPublicWebOrigin::class,
-				],
-				[
 					'conditions' => IsForceOff::class,
 					'logic'      => EnumLogic::LOGIC_INVERT,
+				],
+				[
+					'conditions' => RequestIsPublicWebOrigin::class,
 				],
 				[
 					'conditions' => IsShieldPluginDisabled::class,

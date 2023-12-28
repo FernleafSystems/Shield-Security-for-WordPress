@@ -17,11 +17,11 @@ class RequestIsTrustedBot extends Base {
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->is_trusted_bot;
+		return $this->req->is_trusted_bot;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->is_trusted_bot = $result;
+		$this->req->is_trusted_bot = $result;
 	}
 
 	protected function getSubConditions() :array {

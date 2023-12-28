@@ -9,7 +9,6 @@ class ProcessIpBlockedShield extends Base {
 
 	public const SLUG = 'process_ip_blocked_shield';
 
-	public function execResponse() :bool {
-		return true;
+	public function execResponse() :void {
 	}
 }

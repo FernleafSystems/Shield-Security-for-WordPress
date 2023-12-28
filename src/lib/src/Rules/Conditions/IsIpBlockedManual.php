@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 
 class IsIpBlockedManual extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blocked_manual';
@@ -16,14 +15,14 @@ class IsIpBlockedManual extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return ( new IpRuleStatus( $this->getRequestIP() ) )->hasManualBlock();
+		return ( new IpRuleStatus( $this->req->ip ) )->hasManualBlock();
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->is_ip_blocked_shield_manual;
+		return $this->req->is_ip_blocked_shield_manual;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->is_ip_blocked_shield_manual = $result;
+		$this->req->is_ip_blocked_shield_manual = $result;
 	}
 }

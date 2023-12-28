@@ -6,10 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class HttpRedirect extends Base {
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		\header( 'Cache-Control: no-store, no-cache' );
 		wp_redirect( $this->params[ 'redirect_url' ], $this->params[ 'status_code' ] );
-		return true;
 	}
 
 	public function getParamsDef() :array {

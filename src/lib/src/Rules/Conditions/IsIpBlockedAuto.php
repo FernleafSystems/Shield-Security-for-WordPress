@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 
 class IsIpBlockedAuto extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blocked_auto';
@@ -17,14 +16,14 @@ class IsIpBlockedAuto extends Base {
 
 	protected function execConditionCheck() :bool {
 		/** Note: Don't be tempted to set the flag on $this_req for auto block as we must first consider High Reputation */
-		return apply_filters( 'shield/is_ip_blocked_auto', ( new IpRuleStatus( $this->getRequestIP() ) )->hasAutoBlock() );
+		return apply_filters( 'shield/is_ip_blocked_auto', ( new IpRuleStatus( $this->req->ip ) )->hasAutoBlock() );
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->is_ip_blocked_shield_auto;
+		return $this->req->is_ip_blocked_shield_auto;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->is_ip_blocked_shield_auto = $result;
+		$this->req->is_ip_blocked_shield_auto = $result;
 	}
 }

@@ -14,13 +14,12 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class IsRateLimitExceeded extends Conditions\Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeShield;
 
 	public const SLUG = 'is_rate_limit_exceeded';
 
 	protected function execConditionCheck() :bool {
-		$ip = ( new IPRecords() )->loadIP( $this->getRequestIP(), false );
+		$ip = ( new IPRecords() )->loadIP( $this->req->ip, false );
 		/** @var Select $selector */
 		$selector = self::con()
 						->getModule_Data()
@@ -32,9 +31,9 @@ class IsRateLimitExceeded extends Conditions\Base {
 						  )
 						  ->count();
 
-		$this->addConditionTriggerMeta( 'request_count', $count );
-		$this->addConditionTriggerMeta( 'limit_count', $this->limit_count );
-		$this->addConditionTriggerMeta( 'limit_time_span', $this->limit_time_span );
+		$this->addConditionTriggerMeta( 'requests', $count );
+		$this->addConditionTriggerMeta( 'count', $this->limit_count );
+		$this->addConditionTriggerMeta( 'span', $this->limit_time_span );
 
 		return $count > $this->limit_count;
 	}

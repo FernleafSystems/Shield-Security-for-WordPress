@@ -7,12 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	ConditionsVO,
 	Enum\EnumLogic,
-	Exceptions\NoSuchConditionHandlerException
+	Exceptions\NoSuchConditionHandlerException,
+	Traits\ThisRequestConsumer
 };
 
 class ProcessConditions {
 
 	use PluginControllerConsumer;
+	use ThisRequestConsumer;
 
 	private static $ConditionsCache;
 
@@ -65,7 +67,7 @@ class ProcessConditions {
 
 				try {
 					$conditionProc = new ProcessConditions( $subCondition );
-					$subConditionsResult = $conditionProc->process();
+					$subConditionsResult = $conditionProc->setThisRequest( $this->req )->process();
 					$this->consolidatedMeta = \array_merge( $this->consolidatedMeta, $conditionProc->getConsolidatedMeta() );
 				}
 				catch ( \Exception $e ) {
@@ -103,6 +105,7 @@ class ProcessConditions {
 			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$handlerClass );
 		}
 		$conditionHandler = new $handlerClass( $condition->params );
+		$conditionHandler->setThisRequest( $this->req );
 
 		$cachedMatchStatus = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] ?? null;
 		if ( $cachedMatchStatus === null ) {

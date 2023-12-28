@@ -15,11 +15,11 @@ class IsRequestSecurityAdmin extends Base {
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->is_security_admin;
+		return $this->req->is_security_admin;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->is_security_admin = $result;
+		$this->req->is_security_admin = $result;
 	}
 
 	protected function getSubConditions() :array {

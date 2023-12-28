@@ -5,12 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\AutoSnakeCaseSlug;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
 abstract class Base {
 
 	use AutoSnakeCaseSlug;
 	use PluginControllerConsumer;
+	use ThisRequestConsumer;
 
 	public const SLUG = '';
 
@@ -60,7 +62,7 @@ abstract class Base {
 	/**
 	 * @throws \Exception
 	 */
-	abstract public function execResponse() :bool;
+	abstract public function execResponse() :void;
 
 	protected function getConsolidatedConditionMeta() :array {
 		return $this->conditionTriggerMeta;

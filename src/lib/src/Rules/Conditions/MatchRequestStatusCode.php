@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
 class MatchRequestStatusCode extends Base {
 
 	use Traits\TypeRequest;
-	use Traits\RequestPath;
 
 	public const SLUG = 'match_request_status_code';
 
@@ -30,7 +29,7 @@ class MatchRequestStatusCode extends Base {
 		switch ( $this->code ) {
 			case '404':
 				$match = is_404();
-				$this->addConditionTriggerMeta( 'path', $this->getRequestPath() );
+				$this->addConditionTriggerMeta( 'path', $this->req->path );
 				break;
 			default:
 				throw new UnsupportedStatusException( 'Status parameter provided is not supported: '.$this->code );

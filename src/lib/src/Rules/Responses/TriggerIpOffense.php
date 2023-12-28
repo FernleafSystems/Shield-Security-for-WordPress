@@ -8,12 +8,11 @@ class TriggerIpOffense extends Base {
 
 	public const SLUG = 'trigger_ip_offense';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		self::con()
 			->getModule_IPs()
 			->loadOffenseTracker()
 			->incrementCount( $this->params[ 'count' ] );
-		return true;
 	}
 
 	public function getParamsDef() :array {

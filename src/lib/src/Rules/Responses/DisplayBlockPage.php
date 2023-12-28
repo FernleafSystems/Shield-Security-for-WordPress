@@ -14,7 +14,7 @@ class DisplayBlockPage extends Base {
 
 	public const SLUG = 'display_block_page';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		$hook = $this->params[ 'hook' ];
 		if ( empty( $hook ) ) {
 			$this->displayPage();
@@ -24,7 +24,6 @@ class DisplayBlockPage extends Base {
 				$this->displayPage();
 			}, $this->params[ 'hook_priority' ], 0 );
 		}
-		return true;
 	}
 
 	private function displayPage() {

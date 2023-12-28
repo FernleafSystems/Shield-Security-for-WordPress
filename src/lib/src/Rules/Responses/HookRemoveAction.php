@@ -8,13 +8,12 @@ class HookRemoveAction extends Base {
 
 	public const SLUG = 'hook_remove_action';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		remove_action(
 			$this->params[ 'hook' ],
 			$this->params[ 'callback' ],
 			$this->params[ 'priority' ]
 		);
-		return true;
 	}
 
 	public function getParamsDef() :array {

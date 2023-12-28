@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumMatchTypes,
+	EnumParameters
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
 /**
@@ -13,13 +15,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 class MatchRequestUseragent extends Base {
 
 	use Traits\TypeRequest;
-	use Traits\UserAgent;
 
 	public const SLUG = 'match_request_useragent';
 
 	protected function execConditionCheck() :bool {
-		$this->addConditionTriggerMeta( 'matched_useragent', $this->getUserAgent() );
-		return ( new PerformConditionMatch( $this->getUserAgent(), $this->match_useragent, $this->match_type ) )->doMatch();
+		$this->addConditionTriggerMeta( 'matched_useragent', $this->req->useragent );
+		return ( new PerformConditionMatch( $this->req->useragent, $this->match_useragent, $this->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {

@@ -15,11 +15,11 @@ class RequestBypassesAllRestrictions extends Base {
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->request_bypasses_all_restrictions;
+		return $this->req->request_bypasses_all_restrictions;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->request_bypasses_all_restrictions = $result;
+		$this->req->request_bypasses_all_restrictions = $result;
 	}
 
 	protected function getSubConditions() :array {

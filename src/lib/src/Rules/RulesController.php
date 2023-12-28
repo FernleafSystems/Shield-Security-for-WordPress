@@ -21,6 +21,7 @@ class RulesController {
 	use ExecOnce;
 	use PluginCronsConsumer;
 	use PluginControllerConsumer;
+	use Traits\ThisRequestConsumer;
 
 	/**
 	 * @var RuleVO[]
@@ -103,7 +104,7 @@ class RulesController {
 			$conditions = $rule->conditions ?? null;
 			if ( $conditions !== null ) {
 				$processor = new Processors\ProcessConditions( $conditions );
-				$rule->result = $processor->process();
+				$rule->result = $processor->setThisRequest( $this->req )->process();
 				$resultMetaData = $processor->getConsolidatedMeta();
 			}
 			else {
@@ -112,7 +113,9 @@ class RulesController {
 			}
 
 			if ( $rule->result ) {
-				( new Processors\ResponseProcessor( $rule, $resultMetaData ) )->run();
+				( new Processors\ResponseProcessor( $rule, $resultMetaData ) )
+					->setThisRequest( $this->req )
+					->run();
 			}
 		}
 	}

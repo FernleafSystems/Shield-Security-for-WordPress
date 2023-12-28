@@ -9,8 +9,7 @@ class SetIsTrustedBot extends Base {
 
 	public const SLUG = 'set_is_trusted_bot';
 
-	public function execResponse() :bool {
-		self::con()->this_req->is_trusted_bot = true;
-		return true;
+	public function execResponse() :void {
+		$this->req->is_trusted_bot = true;
 	}
 }

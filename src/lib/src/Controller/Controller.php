@@ -38,6 +38,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 /**
  * @property Config\ConfigVO                                        $cfg
  * @property Config\OptsHandler                                     $opts
+ * @property Shield\Rules\RulesController                           $rules
  * @property ActionRoutingController                                $action_router
  * @property ExtensionsCon                                          $extensions_controller
  * @property Database\DbCon                                         $db_con
@@ -66,7 +67,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property string                                                 $base_file
  * @property string                                                 $root_file
  * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
- * @property Shield\Rules\RulesController                           $rules
  * @property Shield\Utilities\MU\MUHandler                          $mu_handler
  * @property Shield\Modules\Events\Lib\EventsService                $service_events
  * @property Shield\Users\UserMetas                                 $user_metas
@@ -187,8 +187,10 @@ class Controller extends DynPropertiesClass {
 
 			case 'this_req':
 				if ( \is_null( $val ) ) {
-					$val = new Shield\Request\ThisRequest();
-					$this->this_req = $val;
+					if ( !$this->modules_loaded ) {
+						throw new \Exception( 'Modules must be loaded before $this_req is queried.' );
+					}
+					$this->this_req = $val = Shield\Request\ThisRequest::Instance();
 				}
 				break;
 
@@ -417,8 +419,11 @@ class Controller extends DynPropertiesClass {
 		// Upgrade modules
 		( new Shield\Controller\Utilities\Upgrade() )->execute();
 
+		// Should execute after modules have initiated
 		$this->rules = new Shield\Rules\RulesController();
-		$this->rules->execute();
+		$this->rules
+			->setThisRequest( $this->this_req )
+			->execute();
 
 		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
 

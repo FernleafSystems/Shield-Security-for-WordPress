@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\MatchIpIdsUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\RequestUseragentUnavailableException;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumMatchTypes,
+	EnumParameters
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -16,25 +17,16 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
  */
 class MatchRequestIpIdentity extends Base {
 
-	use Traits\RequestIP;
-	use Traits\UserAgent;
 	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_ip_id ) ) {
-			throw new MatchIpIdsUnavailableException();
+			throw new Exceptions\MatchIpIdsUnavailableException();
 		}
 
-		try {
-			$ua = $this->getUserAgent();
-		}
-		catch ( RequestUseragentUnavailableException $e ) {
-			$ua = '';
-		}
-
-		$id = ( new IpID( $this->getRequestIP(), $ua ) )->run()[ 0 ];
+		$id = ( new IpID( $this->req->ip, $this->req->useragent ) )->run()[ 0 ];
 		$this->addConditionTriggerMeta( 'ip_id', $id );
 
 		return ( new PerformConditionMatch( $id, $this->match_ip_id, $this->match_type ) )->doMatch();

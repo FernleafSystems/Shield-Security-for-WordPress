@@ -26,16 +26,6 @@ class EnumResponses {
 		Responses\UpdateIpRuleLastAccessAt::class,
 		Responses\WpDie::class,
 	];
-	private const RESPONSES_DEPRECATED = [
-		Responses\BlockAuthorFishing::class,
-		Responses\DisableXmlrpc::class,
-		Responses\ForceSslAdmin::class,
-		Responses\HideGeneratorTag::class,
-		Responses\ProcessIpWhitelisted::class,
-		Responses\ProcessIpBlockedCrowdsec::class,
-		Responses\ProcessIpBlockedShield::class,
-		Responses\ProcessRequestBlockedBySiteBlockdown::class,
-	];
 
 	/**
 	 * Retrieves the responses for the shield rules.

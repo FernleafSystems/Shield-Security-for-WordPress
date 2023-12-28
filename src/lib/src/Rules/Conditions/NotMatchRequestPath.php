@@ -7,8 +7,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
  */
 class NotMatchRequestPath extends MatchRequestPath {
 
-	use Traits\RequestPath;
-
 	public const SLUG = 'not_match_request_path';
 
 	public function getDescription() :string {

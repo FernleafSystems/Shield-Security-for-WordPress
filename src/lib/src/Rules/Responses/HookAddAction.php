@@ -6,13 +6,12 @@ class HookAddAction extends HookAddFilter {
 
 	public const SLUG = 'hook_add_action';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		add_action(
 			$this->params[ 'hook' ],
 			$this->params[ 'callback' ],
 			$this->params[ 'priority' ],
 			$this->params[ 'args' ]
 		);
-		return true;
 	}
 }

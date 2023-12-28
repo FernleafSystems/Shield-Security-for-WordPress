@@ -2,11 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class IsIpValidPublic extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeRequest;
 
 	public const SLUG = 'is_ip_valid_public';
@@ -16,8 +13,7 @@ class IsIpValidPublic extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$ip = $this->getRequestIP();
-		return !empty( $ip ) && Services::IP()->isValidIp_PublicRemote( $ip );
+		return $this->req->ip_is_public;
 	}
 
 	public function getName() :string {

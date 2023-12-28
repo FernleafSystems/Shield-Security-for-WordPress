@@ -8,7 +8,7 @@ class EventFire extends Base {
 
 	public const SLUG = 'event_fire';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		$params = $this->params;
 		$event = $params[ 'event' ] ?? '';
 		if ( !empty( $event ) ) {
@@ -34,8 +34,6 @@ class EventFire extends Base {
 //			error_log( var_export( $params, true ) );
 			self::con()->fireEvent( $event, $params );
 		}
-
-		return true;
 	}
 
 	public function getParamsDef() :array {

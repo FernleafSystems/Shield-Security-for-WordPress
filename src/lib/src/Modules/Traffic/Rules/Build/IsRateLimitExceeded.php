@@ -60,12 +60,4 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 			],
 		];
 	}
-
-	protected function getCommonAuditParamsMapping() :array {
-		return \array_merge( parent::getCommonAuditParamsMapping(), [
-			'requests' => 'request_count',
-			'count'    => 'limit_count',
-			'span'     => 'limit_time_span',
-		] );
-	}
 }

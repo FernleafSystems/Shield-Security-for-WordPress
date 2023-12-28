@@ -8,9 +8,8 @@ class CallUserFuncArray extends Base {
 
 	public const SLUG = 'call_user_func_array';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		\call_user_func_array( $this->params[ 'callback' ], $this->params[ 'args' ] );
-		return true;
 	}
 
 	public function getParamsDef() :array {

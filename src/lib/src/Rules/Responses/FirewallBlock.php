@@ -10,9 +10,8 @@ class FirewallBlock extends Base {
 
 	public const SLUG = 'firewall_block';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		$this->runBlock();
-		return true;
 	}
 
 	/**
@@ -82,7 +81,7 @@ class FirewallBlock extends Base {
 				$con->getModule_Plugin()->getPluginReportEmail(),
 				__( 'Firewall Block Alert', 'wp-simple-firewall' ),
 				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::SLUG, [
-					'ip'         => $con->this_req->ip,
+					'ip'         => $this->req->ip,
 					'block_meta' => $blockMeta
 				] )
 			)

@@ -10,7 +10,7 @@ class WpDie extends Base {
 
 	public const SLUG = 'wp_die';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		wp_die( $this->params[ 'message' ] );
 	}
 

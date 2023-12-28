@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
  */
 class MatchRequestPath extends Base {
 
-	use Traits\RequestPath;
 	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_path';
@@ -23,10 +22,9 @@ class MatchRequestPath extends Base {
 			throw new PathsToMatchUnavailableException();
 		}
 
-		$path = $this->getRequestPath();
-		$this->addConditionTriggerMeta( 'matched_path', $path );
+		$this->addConditionTriggerMeta( 'path', $this->req->path );
 
-		return ( new PerformConditionMatch($path, $this->match_path,$this->match_type ) )->doMatch();
+		return ( new PerformConditionMatch( $this->req->path, $this->match_path, $this->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {

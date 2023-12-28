@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumMatchTypes,
+	EnumParameters
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\ScriptNamesToMatchUnavailableException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
@@ -13,7 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
  */
 class MatchRequestScriptName extends Base {
 
-	use Traits\RequestScriptName;
 	use Traits\TypeRequest;
 
 	public const SLUG = 'match_request_script_name';
@@ -23,10 +24,9 @@ class MatchRequestScriptName extends Base {
 			throw new ScriptNamesToMatchUnavailableException();
 		}
 
-		$scriptName = $this->getRequestScriptName();
 		// always add this in-case we need to invert_match
-		$this->addConditionTriggerMeta( 'matched_script_name', $scriptName );
-		return ( new PerformConditionMatch( $scriptName, $this->match_script_name, $this->match_type ) )->doMatch();
+		$this->addConditionTriggerMeta( 'script', $this->req->script_name );
+		return ( new PerformConditionMatch( $this->req->script_name, $this->match_script_name, $this->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {

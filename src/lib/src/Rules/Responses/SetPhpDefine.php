@@ -8,11 +8,10 @@ class SetPhpDefine extends Base {
 
 	public const SLUG = 'set_php_define';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		if ( !\defined( $this->params[ 'define_name' ] ) ) {
 			\define( $this->params[ 'define_name' ], $this->params[ 'define_value' ] );
 		}
-		return true;
 	}
 
 	public function getParamsDef() :array {

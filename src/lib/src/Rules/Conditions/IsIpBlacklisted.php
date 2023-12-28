@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus
 
 class IsIpBlacklisted extends Base {
 
-	use Traits\RequestIP;
 	use Traits\TypeShield;
 
 	public const SLUG = 'is_ip_blacklisted';
@@ -16,15 +15,15 @@ class IsIpBlacklisted extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$status = new IpRuleStatus( $this->getRequestIP() );
+		$status = new IpRuleStatus( $this->req->ip );
 		return $status->isBlockedByShield() || $status->isAutoBlacklisted();
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->is_ip_blacklisted;
+		return $this->req->is_ip_blacklisted;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->is_ip_blacklisted = $result;
+		$this->req->is_ip_blacklisted = $result;
 	}
 }

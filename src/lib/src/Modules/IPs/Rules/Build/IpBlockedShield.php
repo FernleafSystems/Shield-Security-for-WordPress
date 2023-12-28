@@ -43,6 +43,12 @@ class IpBlockedShield extends BuildRuleIpsBase {
 				],
 			],
 			[
+				'response' => Responses\DoAction::class,
+				'params'   => [
+					'hook' => 'shield/maybe_intercept_block_shield',
+				],
+			],
+			[
 				'response' => Responses\DisplayBlockPage::class,
 				'params'   => [
 					'block_page_slug' => BlockIpAddressShield::SLUG,

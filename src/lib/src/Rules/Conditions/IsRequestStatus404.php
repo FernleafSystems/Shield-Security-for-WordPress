@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\WPHooksOrder;
 class IsRequestStatus404 extends Base {
 
 	use Traits\TypeRequest;
-	use Traits\RequestPath;
 
 	public const SLUG = 'is_request_status_404';
 
@@ -16,7 +15,7 @@ class IsRequestStatus404 extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$this->addConditionTriggerMeta( 'path', $this->getRequestPath() );
+		$this->addConditionTriggerMeta( 'path', $this->req->path );
 		return is_404();
 	}
 

@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumMatchTypes,
+	EnumParameters
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
 /**
@@ -16,7 +18,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 class IsAdeScore extends Base {
 
 	use Traits\TypeShield;
-	use Traits\RequestIP;
 
 	public function getDescription() :string {
 		return __( 'Is Visitor ADE Score ...', 'wp-simple-firewall' );
@@ -25,7 +26,7 @@ class IsAdeScore extends Base {
 	protected function execConditionCheck() :bool {
 		return ( new PerformConditionMatch(
 			( new CalculateVisitorBotScores() )
-				->setIP( $this->getRequestIP() )
+				->setIP( $this->req->ip )
 				->total(),
 			$this->score,
 			$this->match_type

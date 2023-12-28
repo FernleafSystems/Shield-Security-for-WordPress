@@ -6,11 +6,10 @@ class TriggerIpBlock extends Base {
 
 	public const SLUG = 'trigger_ip_block';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		self::con()
 			->getModule_IPs()
 			->loadOffenseTracker()
 			->setIsBlocked( true );
-		return true;
 	}
 }

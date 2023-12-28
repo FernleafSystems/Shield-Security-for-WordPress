@@ -9,7 +9,6 @@ class ProcessRequestBlockedBySiteBlockdown extends Base {
 
 	public const SLUG = 'process_request_blocked_by_site_blockdown';
 
-	public function execResponse() :bool {
-		return true;
+	public function execResponse() :void {
 	}
 }

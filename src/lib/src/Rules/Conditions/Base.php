@@ -7,11 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	ConditionsVO,
 	Enum,
+	Processors,
 	RuleVO,
 	Traits\AutoSnakeCaseSlug,
+	Traits\ThisRequestConsumer,
 	WPHooksOrder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
@@ -19,10 +20,9 @@ abstract class Base extends DynPropertiesClass {
 
 	use AutoSnakeCaseSlug;
 	use PluginControllerConsumer;
+	use ThisRequestConsumer;
 
 	public const SLUG = '';
-
-	protected $conditionTriggerMeta = [];
 
 	/**
 	 * @var RuleVO
@@ -33,6 +33,8 @@ abstract class Base extends DynPropertiesClass {
 	 * @var array
 	 */
 	protected $params;
+
+	protected $conditionTriggerMeta = [];
 
 	public function __construct( array $params = [] ) {
 		$this->setParams( $params );
@@ -91,11 +93,6 @@ abstract class Base extends DynPropertiesClass {
 					$value = [];
 				}
 				break;
-			case 'request_ip':
-				if ( empty( $value ) ) {
-					$value = self::con()->this_req->ip;
-				}
-				break;
 			case 'request_useragent':
 				if ( empty( $value ) ) {
 					$value = Services::Request()->getUserAgent();
@@ -111,7 +108,9 @@ abstract class Base extends DynPropertiesClass {
 		$result = $this->getPreviousResult();
 		if ( $result === null ) {
 			try {
-				$result = ( new ProcessConditions( $this->getSubConditionsVO() ) )->process();
+				$result = ( new Processors\ProcessConditions( $this->getSubConditionsVO() ) )
+					->setThisRequest( $this->req )
+					->process();
 			}
 			catch ( \Exception $e ) {
 				$result = false;

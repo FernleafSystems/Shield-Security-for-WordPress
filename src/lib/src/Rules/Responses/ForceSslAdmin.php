@@ -9,8 +9,7 @@ class ForceSslAdmin extends Base {
 
 	public const SLUG = 'force_ssl_admin';
 
-	public function execResponse() :bool {
+	public function execResponse() :void {
 		force_ssl_admin( true );
-		return true;
 	}
 }

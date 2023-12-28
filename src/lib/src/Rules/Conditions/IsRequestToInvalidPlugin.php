@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsRequestToInvalidPlugin extends Base {
 
-	use Traits\RequestPath;
 	use Traits\TypeWordpress;
 
 	public const SLUG = 'is_request_to_invalid_plugin';

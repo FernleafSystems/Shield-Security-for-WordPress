@@ -13,11 +13,11 @@ class IsForceOff extends Base {
 	}
 
 	protected function getPreviousResult() :?bool {
-		return self::con()->this_req->is_force_off;
+		return $this->req->is_force_off;
 	}
 
 	protected function postExecConditionCheck( bool $result ) :void {
-		self::con()->this_req->is_force_off = $result;
+		$this->req->is_force_off = $result;
 	}
 
 	protected function getSubConditions() :array {
