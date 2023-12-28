@@ -37,15 +37,7 @@ class IsIpBlockedCrowdsec extends Base {
 					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'conditions' => RequestIsServerLoopback::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
-				],
-				[
 					'conditions' => IsIpBlockedByShield::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
-				],
-				[
-					'conditions' => IsIpHighReputation::class,
 					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[

@@ -81,6 +81,7 @@ class RuleBuilderEnumerator {
 
 				IPs\Rules\Build\IpWhitelisted::class,
 				Plugin\Rules\Build\RequestIsSiteBlockdownBlocked::class,
+				IPs\Rules\Build\HighReputationIp::class,
 				IPs\Rules\Build\IpBlockedShield::class,
 				$ipsOpts->isEnabledCrowdSecAutoBlock() ? IPs\Rules\Build\IpBlockedCrowdsec::class : null,
 				IPs\Rules\Build\BotTrack404::class,
