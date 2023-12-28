@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-class OverrideShieldIpBlock extends Base {
+class PreventShieldIpAutoBlock extends Base {
 
 	public function execResponse() :bool {
-		add_filter( 'shield/is_request_blocked', '__return_false' );
+		add_filter( 'shield/is_ip_blocked_auto', '__return_false' );
 		return true;
 	}
 }

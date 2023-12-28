@@ -17,7 +17,7 @@ class IsIpBlockedAuto extends Base {
 
 	protected function execConditionCheck() :bool {
 		/** Note: Don't be tempted to set the flag on $this_req for auto block as we must first consider High Reputation */
-		return ( new IpRuleStatus( $this->getRequestIP() ) )->hasAutoBlock();
+		return apply_filters( 'shield/is_ip_blocked_auto', ( new IpRuleStatus( $this->getRequestIP() ) )->hasAutoBlock() );
 	}
 
 	protected function getPreviousResult() :?bool {

@@ -16,6 +16,7 @@ class IsIpBlockedByShield extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
+		/** We start with `true` here since we'd only be here if all other conditions have been met. */
 		return apply_filters( 'shield/is_request_blocked', true );
 	}
 

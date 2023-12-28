@@ -76,21 +76,13 @@ class RulesController {
 				$this->processRule( $rule );
 			}
 
-			$hooks = [];
 			foreach ( $this->getRules() as $rule ) {
 				$hook = $rule->wp_hook;
 				if ( !empty( $hook ) ) {
-					$priority = $rule->wp_hook_priority;
-					$hooks[ $hook ] = isset( $hooks[ $hook ] ) ? \min( $priority, $hooks[ $hook ] ) : $priority;
-				}
-			}
-
-			foreach ( $hooks as $wpHook => $priority ) {
-				add_action( $wpHook, function () use ( $wpHook ) {
-					foreach ( $this->getRulesForHook( $wpHook ) as $rule ) {
+					add_action( $hook, function () use ( $rule ) {
 						$this->processRule( $rule );
-					}
-				}, $priority );
+					}, $rule->wp_hook_priority );
+				}
 			}
 
 			$this->processComplete = true;
