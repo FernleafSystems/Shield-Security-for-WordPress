@@ -19,7 +19,6 @@ class EnumConditions {
 		Conditions\IsIpValidPublic::class,
 		Conditions\IsIpWhitelisted::class,
 		Conditions\IsLoggedInNormal::class,
-		Conditions\IsNotLoggedInNormal::class,
 		Conditions\IsRateLimitExceeded::class,
 		Conditions\IsRequestSecurityAdmin::class,
 		Conditions\IsRequestStatus404::class,

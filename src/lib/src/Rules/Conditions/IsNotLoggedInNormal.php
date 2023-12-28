@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+/**
+ * @deprecated 18.6
+ */
 class IsNotLoggedInNormal extends IsLoggedInNormal {
 
 	use Traits\TypeUser;

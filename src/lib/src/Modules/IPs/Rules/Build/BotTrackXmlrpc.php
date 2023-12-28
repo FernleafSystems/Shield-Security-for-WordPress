@@ -30,7 +30,8 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'conditions' => Conditions\IsNotLoggedInNormal::class
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\WpIsXmlrpc::class,

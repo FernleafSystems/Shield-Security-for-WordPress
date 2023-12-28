@@ -26,18 +26,19 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic' => EnumLogic::LOGIC_AND,
+			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'conditions' => Conditions\IsNotLoggedInNormal::class,
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\IsRateLimitExceeded::class,
-					'params'    => [
+					'params' => [
 						'limit_count'     => $this->opts()->getLimitRequestCount(),
 						'limit_time_span' => $this->opts()->getLimitTimeSpan(),
 					],

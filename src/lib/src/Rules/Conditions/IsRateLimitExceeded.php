@@ -20,26 +20,23 @@ class IsRateLimitExceeded extends Conditions\Base {
 	public const SLUG = 'is_rate_limit_exceeded';
 
 	protected function execConditionCheck() :bool {
-		$ip = $this->getRequestIP();
-		$ip = ( new IPRecords() )->loadIP( $ip, false );
-		$now = Services::Request()->carbon();
+		$ip = ( new IPRecords() )->loadIP( $this->getRequestIP(), false );
 		/** @var Select $selector */
 		$selector = self::con()
 						->getModule_Data()
 						->getDbH_ReqLogs()
 						->getQuerySelector();
 		$count = $selector->filterByIP( $ip->id )
-						  ->filterByCreatedAt( $now->subSeconds( $this->limit_time_span )->timestamp, '>' )
+						  ->filterByCreatedAt(
+							  Services::Request()->carbon()->subSeconds( $this->limit_time_span )->timestamp, '>'
+						  )
 						  ->count();
-		$matched = $count > $this->limit_count;
 
-		if ( $matched ) {
-			$this->addConditionTriggerMeta( 'request_count', $count );
-			$this->addConditionTriggerMeta( 'limit_count', $this->limit_count );
-			$this->addConditionTriggerMeta( 'limit_time_span', $this->limit_time_span );
-		}
+		$this->addConditionTriggerMeta( 'request_count', $count );
+		$this->addConditionTriggerMeta( 'limit_count', $this->limit_count );
+		$this->addConditionTriggerMeta( 'limit_time_span', $this->limit_time_span );
 
-		return $matched;
+		return $count > $this->limit_count;
 	}
 
 	public function getDescription() :string {

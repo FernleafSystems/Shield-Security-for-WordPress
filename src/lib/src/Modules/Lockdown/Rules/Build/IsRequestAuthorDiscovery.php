@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockAuthorFishing;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum\EnumLogic,
 	Enum\EnumMatchTypes,
 	Responses
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockAuthorFishing;
 
 class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 
@@ -31,7 +31,8 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'conditions' => Conditions\IsNotLoggedInNormal::class,
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\RequestParamValueMatchesQuery::class,

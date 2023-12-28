@@ -31,7 +31,8 @@ class BotTrack404 extends BuildRuleIpsBase {
 					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'conditions' => Conditions\IsNotLoggedInNormal::class
+					'conditions' => Conditions\IsLoggedInNormal::class,
+					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\IsRequestStatus404::class,
