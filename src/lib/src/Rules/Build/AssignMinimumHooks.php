@@ -37,7 +37,7 @@ class AssignMinimumHooks {
 			}
 			catch ( \Exception $e ) {
 				$rule->is_valid = false;
-				error_log( $e->getMessage() );
+				error_log( sprintf( '[Rule::%s] %s', $rule->slug, $e->getMessage() ) );
 			}
 		}
 	}

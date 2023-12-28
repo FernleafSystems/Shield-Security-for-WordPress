@@ -45,6 +45,10 @@ class ExtractSubConditions {
 					throw new \Exception( sprintf( 'Found condition which may have a mutual dependency: %s', $conditionClass ) );
 				}
 
+				if ( empty( $conditionClass ) || !\class_exists( $conditionClass ) ) {
+					throw new \Exception( sprintf( 'A Condition class is referenced but does not exist: %s', $conditionClass ) );
+				}
+
 				self::$AllConditions[] = $conditionClass;
 
 				/** @var Rules\Conditions\Base $condition */

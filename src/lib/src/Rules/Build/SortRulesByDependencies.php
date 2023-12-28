@@ -39,6 +39,7 @@ class SortRulesByDependencies {
 
 	/**
 	 * Assigns the most appropriate WP Hook to a rule based on its (sub)conditions.
+	 * @throws \Exception
 	 */
 	private function assignWpHooks() {
 		foreach ( $this->rules as $rule ) {
