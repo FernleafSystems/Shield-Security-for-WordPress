@@ -22,10 +22,6 @@ class MatchRequestIpAddress extends Base {
 
 	public const SLUG = 'match_request_ip_address';
 
-	public function getDescription() :string {
-		return __( 'Does the current request originate match the given IP Address.', 'wp-simple-firewall' );
-	}
-
 	/**
 	 * @throws IpsToMatchUnavailableException
 	 * @throws RequestIpUnavailableException
@@ -37,6 +33,10 @@ class MatchRequestIpAddress extends Base {
 			throw new IpsToMatchUnavailableException();
 		}
 		return ( new PerformConditionMatch( $this->getRequestIP(), $ip, $this->match_type ) )->doMatch();
+	}
+
+	public function getDescription() :string {
+		return __( 'Does the current request originate match the given IP Address.', 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {

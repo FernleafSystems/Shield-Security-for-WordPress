@@ -19,10 +19,6 @@ class IsRateLimitExceeded extends Conditions\Base {
 
 	public const SLUG = 'is_rate_limit_exceeded';
 
-	public function getDescription() :string {
-		return __( 'Does the request exceed any traffic rate limits.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		$ip = $this->getRequestIP();
 		$ip = ( new IPRecords() )->loadIP( $ip, false );
@@ -44,6 +40,10 @@ class IsRateLimitExceeded extends Conditions\Base {
 		}
 
 		return $matched;
+	}
+
+	public function getDescription() :string {
+		return __( 'Does the request exceed any traffic rate limits.', 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {

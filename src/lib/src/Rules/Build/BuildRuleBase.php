@@ -20,6 +20,7 @@ abstract class BuildRuleBase {
 		$rule->description = $this->getDescription();
 		$rule->wp_hook = '';
 		$rule->wp_hook_level = $this->getWpHookLevel();
+		$rule->wp_hook_priority = $this->getWpHookPriority();
 		$rule->flags = $this->getFlags();
 		$rule->conditions = $this->getConditions();
 		$rule->responses = $this->getResponses();
@@ -37,6 +38,10 @@ abstract class BuildRuleBase {
 
 	protected function getWpHookLevel() :int {
 		return WPHooksOrder::NONE;
+	}
+
+	protected function getWpHookPriority() :?int {
+		return null;
 	}
 
 	abstract protected function getConditions() :array;

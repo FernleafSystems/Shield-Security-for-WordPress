@@ -10,12 +10,12 @@ class WpIsXmlrpc extends Base {
 
 	public const SLUG = 'wp_is_xmlrpc';
 
-	public function getDescription() :string {
-		return __( 'Is the request to the WordPress XML-RPC endpoint.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		return Services::WpGeneral()->isXmlrpc();
+	}
+
+	public function getDescription() :string {
+		return __( 'Is the request to the WordPress XML-RPC endpoint.', 'wp-simple-firewall' );
 	}
 
 	protected function getPreviousResult() :?bool {

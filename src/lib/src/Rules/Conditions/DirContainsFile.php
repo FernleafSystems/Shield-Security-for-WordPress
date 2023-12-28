@@ -17,6 +17,26 @@ class DirContainsFile extends Base {
 
 	public const SLUG = 'dir_contains_file';
 
+	protected function execConditionCheck() :bool {
+		$FS = Services::WpFs();
+
+		$dir = $this->path_dir;
+		$file = $this->file_name;
+
+		$result = false;
+		if ( !empty( $dir ) && !empty( $file ) && $FS->isAccessibleDir( $dir ) ) {
+			if ( !isset( $this->fuzzy ) || $this->fuzzy ) {
+				$foundFile = Services::WpFs()->findFileInDir( $file, $dir, false );
+				$result = !empty( $foundFile );
+			}
+			else {
+				$result = Services::WpFs()->isAccessibleFile( path_join( $dir, $file ) );
+			}
+		}
+
+		return $result;
+	}
+
 	public function getDescription() :string {
 		return __( 'Does a given file exist in a given directory.', 'wp-simple-firewall' );
 	}
@@ -37,25 +57,5 @@ class DirContainsFile extends Base {
 				'label'   => __( 'Fuzzy Search', 'wp-simple-firewall' ),
 			],
 		];
-	}
-
-	protected function execConditionCheck() :bool {
-		$FS = Services::WpFs();
-
-		$dir = $this->path_dir;
-		$file = $this->file_name;
-
-		$result = false;
-		if ( !empty( $dir ) && !empty( $file ) && $FS->isAccessibleDir( $dir ) ) {
-			if ( !isset( $this->fuzzy ) || $this->fuzzy ) {
-				$foundFile = Services::WpFs()->findFileInDir( $file, $dir, false );
-				$result = !empty( $foundFile );
-			}
-			else {
-				$result = Services::WpFs()->isAccessibleFile( path_join( $dir, $file ) );
-			}
-		}
-
-		return $result;
 	}
 }

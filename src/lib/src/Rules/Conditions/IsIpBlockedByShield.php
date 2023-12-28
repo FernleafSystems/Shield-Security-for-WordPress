@@ -15,6 +15,10 @@ class IsIpBlockedByShield extends Base {
 		return __( "Is the request IP on any of Shield's block lists.", 'wp-simple-firewall' );
 	}
 
+	protected function execConditionCheck() :bool {
+		return apply_filters( 'shield/is_request_blocked', true );
+	}
+
 	protected function postExecConditionCheck( bool $result ) :void {
 		self::con()->this_req->is_ip_blocked_shield = $result;
 	}
@@ -46,7 +50,10 @@ class IsIpBlockedByShield extends Base {
 							]
 						]
 					]
-				]
+				],
+				[
+					'conditions' => $this->getDefaultConditionCheckCallable(),
+				],
 			]
 		];
 	}

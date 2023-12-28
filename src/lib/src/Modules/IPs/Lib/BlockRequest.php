@@ -6,6 +6,9 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 
+/**
+ * @deprecated 18.6
+ */
 class BlockRequest {
 
 	use ExecOnce;

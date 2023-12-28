@@ -10,12 +10,12 @@ class WpIsWpcli extends Base {
 
 	public const SLUG = 'wp_is_wpcli';
 
-	public function getDescription() :string {
-		return __( 'Is the request triggered by WP-CLI.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		return Services::WpGeneral()->isWpCli();
+	}
+
+	public function getDescription() :string {
+		return __( 'Is the request triggered by WP-CLI.', 'wp-simple-firewall' );
 	}
 
 	protected function getPreviousResult() :?bool {

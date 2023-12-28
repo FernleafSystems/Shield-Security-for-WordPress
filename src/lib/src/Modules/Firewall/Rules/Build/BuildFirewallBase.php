@@ -48,10 +48,6 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'logic'      => EnumLogic::LOGIC_INVERT
 				],
 				[
-					'conditions' => Conditions\IsIpBlockedByShield::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
-				],
-				[
 					'conditions' => Conditions\RequestHasAnyParameters::class,
 				],
 

@@ -19,10 +19,6 @@ abstract class RequestParamValueMatchesBase extends Base {
 
 	use Traits\TypeRequest;
 
-	public function getDescription() :string {
-		return __( 'Does the value of the given request parameter match the given pattern.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->param_name ) ) {
 			throw new RequestParamNameUnavailableException();
@@ -37,6 +33,10 @@ abstract class RequestParamValueMatchesBase extends Base {
 		$this->addConditionTriggerMeta( 'match_request_value', $value );
 
 		return ( new PerformConditionMatch( $value, $this->match_pattern, $this->match_type ) )->doMatch();
+	}
+
+	public function getDescription() :string {
+		return __( 'Does the value of the given request parameter match the given pattern.', 'wp-simple-firewall' );
 	}
 
 	protected function getRequestParamValue() :string {

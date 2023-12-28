@@ -17,13 +17,13 @@ class MatchRequestUseragent extends Base {
 
 	public const SLUG = 'match_request_useragent';
 
-	public function getDescription() :string {
-		return __( 'Does the request useragent match the given useragent.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		$this->addConditionTriggerMeta( 'matched_useragent', $this->getUserAgent() );
 		return ( new PerformConditionMatch( $this->getUserAgent(), $this->match_useragent, $this->match_type ) )->doMatch();
+	}
+
+	public function getDescription() :string {
+		return __( 'Does the request useragent match the given useragent.', 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {

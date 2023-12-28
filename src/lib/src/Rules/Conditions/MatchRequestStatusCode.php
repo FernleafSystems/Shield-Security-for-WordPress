@@ -18,8 +18,8 @@ class MatchRequestStatusCode extends Base {
 
 	public const SLUG = 'match_request_status_code';
 
-	public function getDescription() :string {
-		return __( 'Does the request response status code match the given code.', 'wp-simple-firewall' );
+	public static function MinimumHook() :int {
+		return WPHooksOrder::TEMPLATE_REDIRECT;
 	}
 
 	protected function execConditionCheck() :bool {
@@ -39,8 +39,8 @@ class MatchRequestStatusCode extends Base {
 		return $match;
 	}
 
-	public static function MinimumHook() :int {
-		return WPHooksOrder::TEMPLATE_REDIRECT;
+	public function getDescription() :string {
+		return __( 'Does the request response status code match the given code.', 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {

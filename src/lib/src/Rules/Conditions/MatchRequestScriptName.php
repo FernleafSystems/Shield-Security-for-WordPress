@@ -18,10 +18,6 @@ class MatchRequestScriptName extends Base {
 
 	public const SLUG = 'match_request_script_name';
 
-	public function getDescription() :string {
-		return __( 'Does the request script name match the given name.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_script_name ) ) {
 			throw new ScriptNamesToMatchUnavailableException();
@@ -31,6 +27,10 @@ class MatchRequestScriptName extends Base {
 		// always add this in-case we need to invert_match
 		$this->addConditionTriggerMeta( 'matched_script_name', $scriptName );
 		return ( new PerformConditionMatch( $scriptName, $this->match_script_name, $this->match_type ) )->doMatch();
+	}
+
+	public function getDescription() :string {
+		return __( 'Does the request script name match the given name.', 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {

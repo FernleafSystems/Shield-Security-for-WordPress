@@ -20,10 +20,6 @@ class MatchRequestParam extends Base {
 
 	public const SLUG = 'match_request_param';
 
-	public function getDescription() :string {
-		return __( "Do any parameters in the request match the given set of parameters to test.", 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_patterns ) ) {
 			throw new PathsToMatchUnavailableException();
@@ -51,6 +47,10 @@ class MatchRequestParam extends Base {
 			}
 		}
 		return $matched;
+	}
+
+	public function getDescription() :string {
+		return __( "Do any parameters in the request match the given set of parameters to test.", 'wp-simple-firewall' );
 	}
 
 	protected function getFinalRequestParamsToTest() :array {
@@ -96,10 +96,6 @@ class MatchRequestParam extends Base {
 		return $finalParams;
 	}
 
-	protected function getRequestParamsToTest() :array {
-		return [];
-	}
-
 	public function getParamsDef() :array {
 		return [
 			'match_type'      => [
@@ -123,5 +119,9 @@ class MatchRequestParam extends Base {
 				'default' => [],
 			],
 		];
+	}
+
+	protected function getRequestParamsToTest() :array {
+		return [];
 	}
 }

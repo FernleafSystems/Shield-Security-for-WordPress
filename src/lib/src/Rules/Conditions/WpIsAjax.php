@@ -10,12 +10,12 @@ class WpIsAjax extends Base {
 
 	public const SLUG = 'wp_is_ajax';
 
-	public function getDescription() :string {
-		return __( 'Is the request to the standard WordPress AJAX endpoint.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		return Services::WpGeneral()->isAjax();
+	}
+
+	public function getDescription() :string {
+		return __( 'Is the request to the standard WordPress AJAX endpoint.', 'wp-simple-firewall' );
 	}
 
 	protected function getPreviousResult() :?bool {

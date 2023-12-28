@@ -10,12 +10,12 @@ class RequestHasPostParameters extends Base {
 
 	public const SLUG = 'request_has_post_parameters';
 
-	public function getDescription() :string {
-		return __( "Does the request have any POST parameters.", 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		$post = Services::Request()->post;
 		return Services::Request()->isPost() && \is_array( $post ) && !empty( $post );
+	}
+
+	public function getDescription() :string {
+		return __( "Does the request have any POST parameters.", 'wp-simple-firewall' );
 	}
 }

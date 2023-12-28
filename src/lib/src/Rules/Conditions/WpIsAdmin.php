@@ -8,12 +8,12 @@ class WpIsAdmin extends Base {
 
 	public const SLUG = 'wp_is_admin';
 
-	public function getDescription() :string {
-		return __( 'Is the request to the WordPress admin area.', 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		return is_network_admin() || is_admin();
+	}
+
+	public function getDescription() :string {
+		return __( 'Is the request to the WordPress admin area.', 'wp-simple-firewall' );
 	}
 
 	protected function getPreviousResult() :?bool {

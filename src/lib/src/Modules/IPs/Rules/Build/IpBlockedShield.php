@@ -5,8 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
 	Conditions,
-	Responses
+	Responses,
+	WPHooksOrder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockIpAddressShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 
 class IpBlockedShield extends BuildRuleIpsBase {
 
@@ -34,8 +37,25 @@ class IpBlockedShield extends BuildRuleIpsBase {
 				'response' => Responses\UpdateIpRuleLastAccessAt::class,
 			],
 			[
-				'response' => Responses\ProcessIpBlockedShield::class,
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'conn_kill',
+				],
+			],
+			[
+				'response' => Responses\DisplayBlockPage::class,
+				'params'   => [
+					'block_page_slug' => BlockIpAddressShield::SLUG,
+				],
 			],
 		];
+	}
+
+	protected function getWpHookLevel() :int {
+		return WPHooksOrder::INIT;
+	}
+
+	protected function getWpHookPriority() :?int {
+		return HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_SHIELD;
 	}
 }

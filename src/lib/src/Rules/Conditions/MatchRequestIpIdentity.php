@@ -22,10 +22,6 @@ class MatchRequestIpIdentity extends Base {
 
 	public const SLUG = 'match_request_ip_identity';
 
-	public function getDescription() :string {
-		return __( "Does the current request originate from a given set of services/providers.", 'wp-simple-firewall' );
-	}
-
 	protected function execConditionCheck() :bool {
 		if ( empty( $this->match_ip_id ) ) {
 			throw new MatchIpIdsUnavailableException();
@@ -42,6 +38,10 @@ class MatchRequestIpIdentity extends Base {
 		$this->addConditionTriggerMeta( 'ip_id', $id );
 
 		return ( new PerformConditionMatch( $id, $this->match_ip_id, $this->match_type ) )->doMatch();
+	}
+
+	public function getDescription() :string {
+		return __( "Does the current request originate from a given set of services/providers.", 'wp-simple-firewall' );
 	}
 
 	public function getParamsDef() :array {

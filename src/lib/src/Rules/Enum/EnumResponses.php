@@ -19,7 +19,6 @@ class EnumResponses {
 		Responses\HookRemoveAction::class,
 		Responses\HttpRedirect::class,
 		Responses\OverrideShieldIpBlock::class,
-		Responses\ProcessIpBlockedShield::class,
 		Responses\SetPhpDefine::class,
 		Responses\SetRequestToBeLogged::class,
 		Responses\TriggerIpBlock::class,
@@ -34,6 +33,7 @@ class EnumResponses {
 		Responses\HideGeneratorTag::class,
 		Responses\ProcessIpWhitelisted::class,
 		Responses\ProcessIpBlockedCrowdsec::class,
+		Responses\ProcessIpBlockedShield::class,
 		Responses\ProcessRequestBlockedBySiteBlockdown::class,
 	];
 
