@@ -84,6 +84,14 @@ class ExtensionsCon {
 			}
 			return \array_unique( $builders );
 		} );
+		add_filter( 'shield/rules/enum_types', function ( array $builders ) {
+			foreach ( $this->getExtensions() as $extension ) {
+				if ( $extension->canExtendRules() ) {
+					$builders = \array_merge( $builders, $extension->getRuleEnumTypes() );
+				}
+			}
+			return \array_unique( $builders );
+		} );
 	}
 
 	public function getExtension( string $slug ) :?BaseExtension {

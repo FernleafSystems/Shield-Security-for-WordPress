@@ -70,6 +70,7 @@ class EnumConditions {
 	public const CONDITION_TYPE_FS = 'filesystem';
 	public const CONDITION_TYPE_USER = 'user';
 	public const CONDITION_TYPE_WP = 'wordpress';
+	public const CONDITION_TYPE_PROXYCHECK = 'proxycheck';
 
 	/**
 	 * Retrieves the conditions used in the application.
