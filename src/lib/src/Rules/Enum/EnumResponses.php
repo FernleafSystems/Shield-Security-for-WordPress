@@ -20,6 +20,7 @@ class EnumResponses {
 		Responses\HttpRedirect::class,
 		Responses\ProcessIpBlockedShield::class,
 		Responses\SetPhpDefine::class,
+		Responses\SetRequestToBeLogged::class,
 		Responses\TriggerIpBlock::class,
 		Responses\TriggerIpOffense::class,
 		Responses\UpdateIpRuleLastAccessAt::class,

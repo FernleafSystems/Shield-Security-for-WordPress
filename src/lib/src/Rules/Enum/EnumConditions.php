@@ -37,6 +37,7 @@ class EnumConditions {
 		Conditions\MatchRequestIpIdentity::class,
 		Conditions\MatchRequestIpIdentities::class,
 		Conditions\MatchRequestIpAddresses::class,
+		Conditions\MatchRequestMethod::class,
 		Conditions\MatchRequestParam::class,
 		Conditions\MatchRequestParamFileUploads::class,
 		Conditions\MatchRequestParamPost::class,
