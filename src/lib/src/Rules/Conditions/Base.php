@@ -75,7 +75,7 @@ abstract class Base extends DynPropertiesClass {
 
 	public function getName() :string {
 		return \preg_replace_callback(
-			sprintf( '#\b(%s)\b#i', \implode( '|', [ 'wp', 'ip', 'ajax', 'wpcli', 'ade' ] ) ),
+			sprintf( '#\b(%s)\b#i', \implode( '|', [ 'wp', 'http', 'https', 'ip', 'ajax', 'wpcli', 'ade' ] ) ),
 			function ( $matches ) {
 				return \strtoupper( $matches[ 0 ] );
 			},
@@ -145,18 +145,6 @@ abstract class Base extends DynPropertiesClass {
 		return $this;
 	}
 
-	/**
-	 * @return mixed|null
-	 */
-	protected function getConditionTriggerMeta( string $item ) {
-		return $this->conditionTriggerMeta[ $item ] ?? null;
-	}
-
-	protected function removeTriggerMeta( string $item ) :self {
-		unset( $this->conditionTriggerMeta[ $item ] );
-		return $this;
-	}
-
 	public function getSubConditionsVO() :ConditionsVO {
 		return ( new ConditionsVO() )->applyFromArray( $this->getSubConditions() );
 	}
@@ -212,6 +200,22 @@ abstract class Base extends DynPropertiesClass {
 	 */
 	public function setRule( RuleVO $rule ) :self {
 		$this->rule = $rule;
+		return $this;
+	}
+
+	/**
+	 * @return mixed|null
+	 * @deprecated 18.6
+	 */
+	protected function getConditionTriggerMeta( string $item ) {
+		return $this->conditionTriggerMeta[ $item ] ?? null;
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
+	protected function removeTriggerMeta( string $item ) :self {
+		unset( $this->conditionTriggerMeta[ $item ] );
 		return $this;
 	}
 }

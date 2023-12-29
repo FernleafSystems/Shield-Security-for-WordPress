@@ -3,12 +3,25 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Services\Services;
 
 class HttpRedirect extends Base {
 
 	public function execResponse() :void {
+		if ( !$this->canRedirect() ) {
+			throw new \Exception( 'Redirection skipped to prevent infinite redirects.' );
+		}
 		\header( 'Cache-Control: no-store, no-cache' );
 		wp_redirect( $this->params[ 'redirect_url' ], $this->params[ 'status_code' ] );
+	}
+
+	/**
+	 * Prevents any sort of infinite redirects
+	 */
+	private function canRedirect() :bool {
+		$to = $this->params[ 'redirect_url' ];
+		return \parse_url( $to, \PHP_URL_HOST ) !== \parse_url( Services::WpGeneral()->getWpUrl() )
+			   || \trim( \parse_url( $to, \PHP_URL_PATH ), '/' ) !== \trim( $this->req->path, '/' );
 	}
 
 	public function getParamsDef() :array {

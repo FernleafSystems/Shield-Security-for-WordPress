@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
-class MatchRequestMethod extends MatchRequestParam {
+class MatchRequestMethod extends Base {
 
 	use Traits\TypeRequest;
 

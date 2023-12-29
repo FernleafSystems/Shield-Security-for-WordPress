@@ -38,7 +38,7 @@ class IsAdeScore extends Base {
 			'match_type' => [
 				'type'      => EnumParameters::TYPE_ENUM,
 				'type_enum' => EnumMatchTypes::MatchTypesForNumbers(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_EQUALS_I,
+				'default'   => EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 			'score'      => [

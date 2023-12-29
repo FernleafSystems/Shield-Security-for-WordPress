@@ -4,11 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signa
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\{
-	ModConsumer,
-	Options
+	Lib\CrowdSec\Api\PushSignals,
+	ModConsumer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\CrowdSecSignals\Ops as CrowdsecSignalsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Api\PushSignals;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Exceptions\PushSignalsFailedException;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -100,9 +99,8 @@ class PushSignalsToCS {
 	private function shouldRecordBeSent( CrowdsecSignalsDB\Record $record ) :bool {
 		$send = true;
 		if ( $record->scenario === 'btxml' ) {
-			/** @var Options $opts */
-			$opts = self::con()->getModule_IPs()->opts();
-			$send = $opts->isTrackOptImmediateBlock( 'track_xmlrpc' ) || $opts->getOffenseCountFor( 'track_xmlrpc' ) > 0;
+			$send = $this->opts()->isTrackOptImmediateBlock( 'track_xmlrpc' )
+					|| $this->opts()->getOffenseCountFor( 'track_xmlrpc' ) > 0;
 		}
 		return $send;
 	}
