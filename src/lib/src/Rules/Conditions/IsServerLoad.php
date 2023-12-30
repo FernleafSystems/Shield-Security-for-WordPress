@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
  */
 class IsServerLoad extends Base {
 
-	use Traits\TypeRequest;
+	use Traits\TypeSystem;
 
 	protected function execConditionCheck() :bool {
 		$load = \function_exists( '\sys_getloadavg' ) ? \sys_getloadavg() : null;

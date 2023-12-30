@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 class EnumConditions {
 
 	private const CONDITIONS = [
+		Conditions\AccessiblePathExists::class,
 		Conditions\DirContainsFile::class,
 		Conditions\IsAdeScore::class,
 		Conditions\IsForceOff::class,
@@ -39,6 +40,7 @@ class EnumConditions {
 		Conditions\IsUserPasswordExpired::class,
 		Conditions\IsUserSecurityAdmin::class,
 		Conditions\UserHasWpCapability::class,
+		Conditions\UserHasWpRole::class,
 		Conditions\MatchRequestIpAddress::class,
 		Conditions\MatchRequestIpIdentity::class,
 		Conditions\MatchRequestMethod::class,
@@ -49,7 +51,7 @@ class EnumConditions {
 		Conditions\MatchRequestPath::class,
 		Conditions\MatchRequestScriptName::class,
 		Conditions\MatchRequestUseragent::class,
-		Conditions\AccessiblePathExists::class,
+		Conditions\PhpDefineIs::class,
 		Conditions\RequestBypassesAllRestrictions::class,
 		Conditions\RequestHasAnyParameters::class,
 		Conditions\RequestHasPostParameters::class,
@@ -71,6 +73,8 @@ class EnumConditions {
 	];
 	public const CONDITION_TYPE_NORMAL = 'normal';
 	public const CONDITION_TYPE_REQUEST = 'request';
+	public const CONDITION_TYPE_PHP = 'php';
+	public const CONDITION_TYPE_SYSTEM = 'system';
 	public const CONDITION_TYPE_SHIELD = 'shield';
 	public const CONDITION_TYPE_FS = 'filesystem';
 	public const CONDITION_TYPE_USER = 'user';
@@ -95,7 +99,10 @@ class EnumConditions {
 			self::CONDITION_TYPE_REQUEST,
 			self::CONDITION_TYPE_SHIELD,
 			self::CONDITION_TYPE_USER,
+			self::CONDITION_TYPE_USER,
 			self::CONDITION_TYPE_WP,
+			self::CONDITION_TYPE_PHP,
+			self::CONDITION_TYPE_SYSTEM,
 			self::CONDITION_TYPE_FS,
 		] );
 	}

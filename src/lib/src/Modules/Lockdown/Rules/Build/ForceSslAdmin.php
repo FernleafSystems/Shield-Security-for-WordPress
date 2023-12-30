@@ -23,14 +23,14 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\SetPhpDefine::class,
+				'response' => Responses\PhpSetDefine::class,
 				'params'   => [
 					'define_name'  => 'FORCE_SSL_ADMIN',
 					'define_value' => true,
 				]
 			],
 			[
-				'response' => Responses\CallUserFuncArray::class,
+				'response' => Responses\PhpCallUserFuncArray::class,
 				'params'   => [
 					'callback' => '\\force_ssl_admin',
 					'args'     => [ true ],

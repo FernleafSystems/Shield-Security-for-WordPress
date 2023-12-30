@@ -37,9 +37,12 @@ class RequestParameterExists extends Base {
 		if ( \str_contains( $this->param_source, 'post' ) ) {
 			$paramSources[] = Services::Request()->post;
 		}
+		if ( \str_contains( $this->param_source, 'cookie' ) ) {
+			$paramSources[] = Services::Request()->cookie_copy;
+		}
 
-		foreach ( \array_map( '\array_keys', $paramSources ) as $paramSource ) {
-			foreach ( $paramSource as $paramName ) {
+		foreach ( \array_map( '\array_keys', $paramSources ) as $paramsSource ) {
+			foreach ( $paramsSource as $paramName ) {
 				if ( ( new PerformConditionMatch( $paramName, $this->match_pattern, $this->match_type ) )->doMatch() ) {
 					$matches = true;
 					break;
@@ -50,15 +53,13 @@ class RequestParameterExists extends Base {
 		return $matches;
 	}
 
-	protected function getParams() :array {
-		return [];
-	}
-
 	public function getParamsDef() :array {
 		$sources = [
-			'get'      => '$_GET',
-			'post'     => '$_POST',
-			'get_post' => '$_GET & $_POST',
+			'get'             => '$_GET',
+			'post'            => '$_POST',
+			'cookie'          => '$_COOKIE',
+			'get_post'        => '$_GET & $_POST',
+			'get_post_cookie' => '$_GET & $_POST & $_COOKIE',
 		];
 		return [
 			'param_source'  => [

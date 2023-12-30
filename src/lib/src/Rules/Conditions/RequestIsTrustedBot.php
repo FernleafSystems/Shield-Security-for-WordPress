@@ -35,8 +35,8 @@ class RequestIsTrustedBot extends Base {
 						'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 						'conditions' => Conditions\MatchRequestIpIdentity::class,
 						'params'     => [
-							'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-							'match_path' => $ID,
+							'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+							'match_ip_id' => $ID,
 						],
 					];
 				},

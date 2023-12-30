@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
-	EnumMatchTypes,
-	EnumParameters
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Exceptions
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -40,15 +39,15 @@ class MatchRequestIpIdentity extends Base {
 		$providers = $this->enumProviders();
 		return [
 			'match_type'  => [
-				'type'      => EnumParameters::TYPE_ENUM,
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
 				'type_enum' => [
-					EnumMatchTypes::MATCH_TYPE_EQUALS,
+					Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 				],
-				'default'   => EnumMatchTypes::MATCH_TYPE_EQUALS,
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 			'match_ip_id' => [
-				'type'        => EnumParameters::TYPE_ENUM,
+				'type'        => Enum\EnumParameters::TYPE_ENUM,
 				'type_enum'   => \array_keys( $providers ),
 				'enum_labels' => $providers,
 				'label'       => __( 'IP ID To Match', 'wp-simple-firewall' ),
@@ -63,7 +62,7 @@ class MatchRequestIpIdentity extends Base {
 		}
 		$providers = \array_unique( $providers );
 		$providers = \array_combine( $providers, $providers );
-
+		\ksort( $providers );
 		return \array_merge( [
 			IpID::LOOPBACK    => '- Server Loopback -',
 			IpID::THIS_SERVER => '- This Server -',

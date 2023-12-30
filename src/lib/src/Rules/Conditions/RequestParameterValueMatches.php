@@ -35,6 +35,9 @@ class RequestParameterValueMatches extends Base {
 		elseif ( $this->param_source === 'post' ) {
 			$value = Services::Request()->post( $this->param_name );
 		}
+		elseif ( $this->param_source === 'cookie' ) {
+			$value = Services::Request()->cookie( $this->param_name );
+		}
 		else {
 			$value = null;
 		}
@@ -59,8 +62,9 @@ class RequestParameterValueMatches extends Base {
 
 	public function getParamsDef() :array {
 		$sources = [
-			'get'  => '$_GET',
-			'post' => '$_POST',
+			'get'    => '$_GET',
+			'post'   => '$_POST',
+			'cookie' => '$_COOKIE',
 		];
 		return [
 			'param_source'  => [

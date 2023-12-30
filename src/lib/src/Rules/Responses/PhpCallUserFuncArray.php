@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
-class CallUserFuncArray extends Base {
+class PhpCallUserFuncArray extends Base {
 
-	public const SLUG = 'call_user_func_array';
+	public const SLUG = 'php_call_user_func_array';
 
 	public function execResponse() :void {
 		\call_user_func_array( $this->params[ 'callback' ], $this->params[ 'args' ] );

@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 class EnumResponses {
 
 	private const RESPONSES = [
-		Responses\CallUserFuncArray::class,
 		Responses\DisableFileEditing::class,
 		Responses\DisplayBlockPage::class,
 		Responses\DoAction::class,
@@ -17,9 +16,14 @@ class EnumResponses {
 		Responses\HookAddAction::class,
 		Responses\HookAddFilter::class,
 		Responses\HookRemoveAction::class,
+		Responses\HttpCookieSet::class,
 		Responses\HttpRedirect::class,
+		Responses\PhpCallUserFuncArray::class,
+		Responses\PhpDie::class,
+		Responses\PhpErrorLog::class,
+		Responses\PhpSendHttpHeader::class,
+		Responses\PhpSetDefine::class,
 		Responses\PreventShieldIpAutoBlock::class,
-		Responses\SetPhpDefine::class,
 		Responses\SetRequestToBeLogged::class,
 		Responses\TriggerIpBlock::class,
 		Responses\TriggerIpOffense::class,

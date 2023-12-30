@@ -6,27 +6,32 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumLogic,
 	EnumParameters
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string $cap
+ * @property string $role
  */
-class UserHasWpCapability extends Base {
+class UserHasWpRole extends Base {
 
 	use Traits\TypeUser;
 
 	public function getDescription() :string {
-		return __( "Is current user a logged-in WordPress administrator.", 'wp-simple-firewall' );
+		return __( 'Does current user have the given WP role.', 'wp-simple-firewall' );
 	}
 
 	protected function execConditionCheck() :bool {
-		return current_user_can( $this->cap );
+		$roles = Services::WpUsers()->getCurrentWpUser()->roles;
+		return \in_array(
+			\strtolower( $this->role ),
+			\array_map( '\strtolower', \is_array( $roles ) ? $roles : (array)$roles )
+		);
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'cap' => [
+			'role' => [
 				'type'         => EnumParameters::TYPE_STRING,
-				'label'        => __( 'Capability Key', 'wp-simple-firewall' ),
+				'label'        => __( 'User Role', 'wp-simple-firewall' ),
 				'verify_regex' => '/^[a-zA-Z0-9_-]+$/'
 			],
 		];

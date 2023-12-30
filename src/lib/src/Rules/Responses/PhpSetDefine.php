@@ -4,24 +4,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
-class SetPhpDefine extends Base {
+class PhpSetDefine extends Base {
 
-	public const SLUG = 'set_php_define';
+	public const SLUG = 'php_set_define';
 
 	public function execResponse() :void {
-		if ( !\defined( $this->params[ 'define_name' ] ) ) {
-			\define( $this->params[ 'define_name' ], $this->params[ 'define_value' ] );
+		if ( !\defined( $this->params[ 'name' ] ) ) {
+			\define( $this->params[ 'name' ], $this->params[ 'value' ] );
 		}
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'define_name'  => [
+			'name'  => [
 				'type'         => EnumParameters::TYPE_STRING,
 				'label'        => __( 'PHP Define Name', 'wp-simple-firewall' ),
 				'verify_regex' => '/^[A-Za-z_]+[0-9a-z_]*$/'
 			],
-			'define_value' => [
+			'value' => [
 				'type'  => EnumParameters::TYPE_SCALAR,
 				'label' => __( 'PHP Define Value', 'wp-simple-firewall' ),
 			],
