@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
-	Enum\EnumMatchTypes,
+	Enum,
 	Responses
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,29 +23,38 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\IsLoggedInNormal::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\MatchRequestPath::class,
 					'params'     => [
-						'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 						'match_path' => '.*',
 					],
 				],
 				[
-					'conditions' => Conditions\MatchRequestUseragents::class,
-					'params'     => [
-						'match_useragents' => Services::ServiceProviders()->getAllCrawlerUseragents(),
-					],
-				],
+					'logic'      => Enum\EnumLogic::LOGIC_OR,
+					'conditions' => \array_map(
+						function ( $agent ) {
+							return [
+								'conditions' => Conditions\MatchRequestUseragent::class,
+								'params'     => [
+									'match_type'      => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+									'match_useragent' => $agent,
+								],
+							];
+						},
+						Services::ServiceProviders()->getAllCrawlerUseragents()
+					),
+				]
 			]
 		];
 	}

@@ -6,8 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\BuildRuleCoreShieldBase,
 	Conditions,
-	Enum\EnumLogic,
-	Enum\EnumMatchTypes,
+	Enum,
 	Responses
 };
 
@@ -39,13 +38,15 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getConditions() :array {
+
 		$excludedPaths = $this->getExcludedPaths();
+
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\RequestHasAnyParameters::class,
@@ -53,23 +54,31 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 
 				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
 					'conditions' => Conditions\IsUserAdminNormal::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				] : null,
 
-				!empty( $excludedPaths ) ? [
-					'conditions' => Conditions\MatchRequestPaths::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
-					'params'     => [
-						'match_type'  => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
-						'match_paths' => $excludedPaths,
-					],
-				] : null,
+				empty( $excludedPaths ) ? null : [
+					'logic'      => Enum\EnumLogic::LOGIC_AND,
+					'conditions' => \array_map(
+						function ( string $path ) {
+							return [
+								'conditions' => Conditions\MatchRequestPath::class,
+								'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+								'params'     => [
+									'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+									'match_path' => $path,
+								],
+							];
+						},
+						$this->getExcludedPaths()
+					),
+				],
 
 				[
-					'logic'      => EnumLogic::LOGIC_OR,
+					'logic'      => Enum\EnumLogic::LOGIC_OR,
 					'conditions' => \array_merge(
-						$this->buildPatternMatchingSubConditions( EnumMatchTypes::MATCH_TYPE_CONTAINS_I ),
-						$this->buildPatternMatchingSubConditions( EnumMatchTypes::MATCH_TYPE_REGEX )
+						$this->buildPatternMatchingSubConditions( Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I ),
+						$this->buildPatternMatchingSubConditions( Enum\EnumMatchTypes::MATCH_TYPE_REGEX )
 					),
 				]
 			] )
@@ -77,7 +86,7 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	private function buildPatternMatchingSubConditions( string $type ) :array {
-		$convertedType = EnumMatchTypes::MATCH_TYPE_REGEX === $type ? 'regex' : 'simple';
+		$convertedType = Enum\EnumMatchTypes::MATCH_TYPE_REGEX === $type ? 'regex' : 'simple';
 		return [
 			[
 				'conditions' => Conditions\MatchRequestParamQuery::class,

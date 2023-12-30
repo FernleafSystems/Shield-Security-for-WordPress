@@ -2,13 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	Build\RuleTraits,
-	Conditions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\RuleTraits;
 
 /**
- * @deprecated 18.5.8
+ * @deprecated 18.6
  */
 class IsPathWhitelisted extends BuildRuleIpsBase {
 
@@ -25,12 +22,7 @@ class IsPathWhitelisted extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
-		return [
-			'conditions' => Conditions\MatchRequestPaths::class,
-			'params'     => [
-				'match_paths' => $this->buildPaths(),
-			]
-		];
+		return [];
 	}
 
 	private function buildPaths() :array {

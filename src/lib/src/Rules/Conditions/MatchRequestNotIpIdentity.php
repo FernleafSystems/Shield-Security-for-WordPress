@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 /**
- * @deprecated 18.5.8
+ * @deprecated 18.6
  */
 class MatchRequestNotIpIdentity extends MatchRequestIpIdentity {
 

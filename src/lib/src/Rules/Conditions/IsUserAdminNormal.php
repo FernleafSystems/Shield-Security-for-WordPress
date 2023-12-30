@@ -22,7 +22,7 @@ class IsUserAdminNormal extends Base {
 					'conditions' => IsLoggedInNormal::class,
 				],
 				[
-					'conditions' => UserHasCapability::class,
+					'conditions' => UserHasWpCapability::class,
 					'params'     => [
 						'cap' => 'manage_options',
 					],

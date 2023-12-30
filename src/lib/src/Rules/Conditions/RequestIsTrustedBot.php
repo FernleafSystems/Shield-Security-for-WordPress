@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	Enum
+};
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class RequestIsTrustedBot extends Base {
@@ -26,16 +28,24 @@ class RequestIsTrustedBot extends Base {
 
 	protected function getSubConditions() :array {
 		return [
-			'conditions' => MatchRequestIpIdentities::class,
-			'logic'      => EnumLogic::LOGIC_INVERT,
-			'params'     => [
-				'match_types'  => EnumMatchTypes::MATCH_TYPE_EQUALS,
-				'match_ip_ids' => (array)apply_filters( 'shield/untrusted_service_providers', [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => \array_map(
+				function ( string $ID ) {
+					return [
+						'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+						'conditions' => Conditions\MatchRequestIpIdentity::class,
+						'params'     => [
+							'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+							'match_path' => $ID,
+						],
+					];
+				},
+				(array)apply_filters( 'shield/untrusted_service_providers', [
 					IpID::UNKNOWN,
 					IpID::THIS_SERVER,
 					IpID::VISITOR,
-				] ),
-			],
+				] )
+			),
 		];
 	}
 }

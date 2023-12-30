@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
+	Enum
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestIsPathWhitelisted extends Base {
@@ -15,16 +18,24 @@ class RequestIsPathWhitelisted extends Base {
 	public const SLUG = 'request_is_path_whitelisted';
 
 	public function getDescription() :string {
-		return __( "Is the request path whitelisted by Shield.", 'wp-simple-firewall' );
+		return __( 'Is the request path whitelisted by Shield.', 'wp-simple-firewall' );
 	}
 
 	protected function getSubConditions() :array {
 		return [
-			'conditions' => MatchRequestPaths::class,
-			'params'     => [
-				'match_type'  => EnumMatchTypes::MATCH_TYPE_REGEX,
-				'match_paths' => $this->buildPaths(),
-			]
+			'logic'      => Enum\EnumLogic::LOGIC_OR,
+			'conditions' => \array_map(
+				function ( string $path ) {
+					return [
+						'conditions' => Conditions\MatchRequestPath::class,
+						'params'     => [
+							'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+							'match_path' => $path,
+						],
+					];
+				},
+				$this->buildPaths()
+			),
 		];
 	}
 

@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 /**
  * @property string $cap
  */
-class UserHasCapability extends Base {
+class UserHasWpCapability extends Base {
 
 	use Traits\TypeUser;
 

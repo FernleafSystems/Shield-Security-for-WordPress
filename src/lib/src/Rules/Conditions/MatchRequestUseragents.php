@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 /**
  * @property string   $match_type
  * @property string[] $match_useragents
+ * @deprecated 18.6
  */
 class MatchRequestUseragents extends Base {
 

@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 /**
  * @property string   $match_type
  * @property string[] $match_ip_ids
+ * @deprecated 18.6
  */
 class MatchRequestIpIdentities extends Base {
 

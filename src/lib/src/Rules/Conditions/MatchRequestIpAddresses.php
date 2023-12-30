@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 /**
  * @property string   $match_type
  * @property string[] $match_ips
+ * @deprecated 18.6
  */
 class MatchRequestIpAddresses extends Base {
 
