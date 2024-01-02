@@ -10,11 +10,7 @@ class HttpCookieSet extends Base {
 	public const SLUG = 'http_cookie_set';
 
 	public function execResponse() :void {
-		Services::Response()->cookieSet(
-			$this->params[ 'name' ],
-			$this->params[ 'value' ],
-			$this->params[ 'duration' ]
-		);
+		Services::Response()->cookieSet( $this->p->name, $this->p->value, $this->p->duration );
 	}
 
 	public function getParamsDef() :array {

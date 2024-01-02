@@ -3,16 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\AutoSnakeCaseSlug;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\ThisRequestConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	RuleVO,
+	Traits
+};
 use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
 abstract class Base {
 
-	use AutoSnakeCaseSlug;
 	use PluginControllerConsumer;
-	use ThisRequestConsumer;
+	use Traits\AutoSnakeCaseSlug;
+	use Traits\ParamsConsumer;
+	use Traits\ThisRequestConsumer;
 
 	public const SLUG = '';
 
@@ -35,24 +37,15 @@ abstract class Base {
 		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
 	}
 
-	protected function setParams( array $params ) {
-		$this->params = $params;
-		foreach ( $this->getParamsDef() as $key => $def ) {
-			if ( !isset( $this->params[ $key ] ) && isset( $def[ 'default' ] ) ) {
-				$this->params[ $key ] = $def[ 'default' ];
-			}
-		}
-	}
-
 	/**
-	 * @deprecated 18.5.8
+	 * @deprecated 18.6
 	 */
 	public function setRule( RuleVO $rule ) :self {
 		return $this;
 	}
 
 	/**
-	 * @deprecated 18.5.8
+	 * @deprecated 18.6
 	 */
 	public function setConditionTriggerMeta( array $meta ) :self {
 		$this->conditionTriggerMeta = $meta;

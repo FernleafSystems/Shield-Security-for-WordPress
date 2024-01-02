@@ -7,9 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumParameters
 };
 
-/**
- * @property string $cap
- */
 class UserHasWpCapability extends Base {
 
 	use Traits\TypeUser;
@@ -19,12 +16,12 @@ class UserHasWpCapability extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return current_user_can( $this->cap );
+		return \function_exists( '\current_user_can' ) && current_user_can( $this->p->user_cap );
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'cap' => [
+			'user_cap' => [
 				'type'         => EnumParameters::TYPE_STRING,
 				'label'        => __( 'Capability Key', 'wp-simple-firewall' ),
 				'verify_regex' => '/^[a-zA-Z0-9_-]+$/'

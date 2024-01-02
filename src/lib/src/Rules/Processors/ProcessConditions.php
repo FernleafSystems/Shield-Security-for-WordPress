@@ -128,8 +128,13 @@ class ProcessConditions {
 	 * @param Conditions\Base|mixed $handler
 	 */
 	private function hashHandler( $handler ) :string {
-		$params = $handler->getRawData();
-		\ksort( $params );
-		return \sha1( \get_class( $handler ).\serialize( $params ) );
+		$data = [
+			$handler->getRawData(),
+			$handler->p->getRawData()
+		];
+		foreach ( $data as &$datum ) {
+			\ksort( $datum );
+		}
+		return \sha1( \get_class( $handler ).\serialize( $data ) );
 	}
 }

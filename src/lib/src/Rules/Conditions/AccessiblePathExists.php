@@ -5,9 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @property string $path
- */
 class AccessiblePathExists extends Base {
 
 	use Traits\TypeFilesystem;
@@ -16,7 +13,7 @@ class AccessiblePathExists extends Base {
 
 	protected function execConditionCheck() :bool {
 		$FS = Services::WpFs();
-		return $FS->isAccessibleDir( $this->path ) || $FS->isAccessibleFile( $this->path );
+		return $FS->isAccessibleDir( $this->p->match_path ) || $FS->isAccessibleFile( $this->p->match_path );
 	}
 
 	public function getDescription() :string {
@@ -25,7 +22,7 @@ class AccessiblePathExists extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'path' => [
+			'match_path' => [
 				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Path To Check', 'wp-simple-firewall' ),
 			],

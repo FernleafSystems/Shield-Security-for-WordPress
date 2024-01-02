@@ -9,14 +9,14 @@ class PhpErrorLog extends Base {
 	public const SLUG = 'php_error_log';
 
 	public function execResponse() :void {
-		\error_log( $this->params[ 'log' ] );
+		\error_log( $this->p->message );
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'log' => [
-				'type'    => EnumParameters::TYPE_STRING,
-				'label'   => __( 'Error Log Message', 'wp-simple-firewall' ),
+			'message' => [
+				'type'  => EnumParameters::TYPE_STRING,
+				'label' => __( 'Error Log Message', 'wp-simple-firewall' ),
 			],
 		];
 	}

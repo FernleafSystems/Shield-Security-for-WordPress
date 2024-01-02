@@ -9,7 +9,7 @@ class PhpCallUserFuncArray extends Base {
 	public const SLUG = 'php_call_user_func_array';
 
 	public function execResponse() :void {
-		\call_user_func_array( $this->params[ 'callback' ], $this->params[ 'args' ] );
+		\call_user_func_array( $this->p->callback, $this->p->args );
 	}
 
 	public function getParamsDef() :array {

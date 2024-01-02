@@ -2,23 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumMatchTypes,
+	EnumParameters
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
-/**
- * @property string $match_type
- * @property string $load
- * @property string $range
- */
 class IsServerLoad extends Base {
 
 	use Traits\TypeSystem;
 
 	protected function execConditionCheck() :bool {
 		$load = \function_exists( '\sys_getloadavg' ) ? \sys_getloadavg() : null;
-		return \is_array( $load ) && isset( $load[ (int)$this->range ] )
-			   && ( new PerformConditionMatch( $load[ (int)$this->range ], $this->load, $this->match_type ) )->doMatch();
+		$range = (int)$this->p->sys_load_range;
+		return \is_array( $load ) && isset( $load[ $range ] )
+			   && ( new PerformConditionMatch( $load[ $range ], $this->p->match_sys_load, $this->p->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {
@@ -32,7 +30,7 @@ class IsServerLoad extends Base {
 			'15' => __( '15-minute', 'wp-simple-firewall' ),
 		];
 		return [
-			'match_type' => [
+			'match_type'     => [
 				'type'      => EnumParameters::TYPE_ENUM,
 				'type_enum' => [
 					EnumMatchTypes::MATCH_TYPE_LESS_THAN,
@@ -41,12 +39,12 @@ class IsServerLoad extends Base {
 				'default'   => EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
-			'load'       => [
+			'match_sys_load' => [
 				'type'    => EnumParameters::TYPE_INT,
 				'default' => 1,
 				'label'   => __( 'Load', 'wp-simple-firewall' ),
 			],
-			'range'      => [
+			'sys_load_range' => [
 				'type'        => EnumParameters::TYPE_ENUM,
 				'type_enum'   => \array_keys( $ranges ),
 				'enum_labels' => $ranges,

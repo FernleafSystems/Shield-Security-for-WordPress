@@ -10,10 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @property string $match_type
- * @property string $match_ip
- */
 class MatchRequestIpAddress extends Base {
 
 	use Traits\TypeRequest;
@@ -25,11 +21,11 @@ class MatchRequestIpAddress extends Base {
 	 * @throws \Exception
 	 */
 	protected function execConditionCheck() :bool {
-		$ip = $this->match_ip;
-		if ( !\is_string( $ip ) || !Services::IP()->isValidIpOrRange( $ip ) ) {
+		$reqIP = $this->req->ip;
+		if ( !\is_string( $reqIP ) || !Services::IP()->isValidIpOrRange( $reqIP ) ) {
 			throw new IpsToMatchUnavailableException();
 		}
-		return ( new PerformConditionMatch( $this->req->ip, $ip, $this->match_type ) )->doMatch();
+		return ( new PerformConditionMatch( $reqIP, $this->p->match_ip, $this->p->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {

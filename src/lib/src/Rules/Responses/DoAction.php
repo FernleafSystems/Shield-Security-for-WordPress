@@ -9,7 +9,7 @@ class DoAction extends Base {
 	public const SLUG = 'do_action';
 
 	public function execResponse() :void {
-		do_action( $this->params[ 'hook' ] );
+		do_action( $this->p->hook );
 	}
 
 	public function getParamsDef() :array {

@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
- * @property string   $match_type
- * @property string[] $match_ips
  * @deprecated 18.6
  */
 class MatchRequestIpAddresses extends Base {
@@ -30,21 +28,17 @@ class MatchRequestIpAddresses extends Base {
 						'conditions' => MatchRequestIpAddress::class,
 						'params'     => [
 							'match_ip'   => $ip,
-							'match_type' => $this->match_type,
+							'match_type' => $this->p->match_type,
 						],
 					];
 				},
-				$this->match_ips
+				[]
 			),
 		];
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'match_ips'  => [
-				'type'  => EnumParameters::TYPE_ARRAY,
-				'label' => __( 'IP Addresses To Match', 'wp-simple-firewall' ),
-			],
 			'match_type' => [
 				'type'      => EnumParameters::TYPE_ENUM,
 				'type_enum' => [

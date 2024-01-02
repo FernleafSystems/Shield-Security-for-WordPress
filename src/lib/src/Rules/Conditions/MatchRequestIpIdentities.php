@@ -9,8 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 };
 
 /**
- * @property string   $match_type
- * @property string[] $match_ip_ids
  * @deprecated 18.6
  */
 class MatchRequestIpIdentities extends Base {
@@ -31,12 +29,12 @@ class MatchRequestIpIdentities extends Base {
 					return [
 						'conditions' => MatchRequestIpIdentity::class,
 						'params'     => [
-							'match_type'  => $this->match_type,
+							'match_type'  => $this->p->match_type,
 							'match_ip_id' => $id,
 						],
 					];
 				},
-				$this->match_ip_ids
+				[]
 			),
 		];
 	}
@@ -48,10 +46,6 @@ class MatchRequestIpIdentities extends Base {
 				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
 				'default'   => EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
-			],
-			'match_ip_ids' => [
-				'type'  => EnumParameters::TYPE_ARRAY,
-				'label' => __( 'IP IDs To Match', 'wp-simple-firewall' ),
 			],
 		];
 	}

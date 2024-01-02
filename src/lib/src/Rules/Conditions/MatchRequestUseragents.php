@@ -3,12 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
- * @property string   $match_type
- * @property string[] $match_useragents
  * @deprecated 18.6
  */
 class MatchRequestUseragents extends Base {
@@ -29,28 +25,17 @@ class MatchRequestUseragents extends Base {
 					return [
 						'conditions' => MatchRequestUseragent::class,
 						'params'     => [
-							'match_type'      => $this->match_type,
+							'match_type'      => '',
 							'match_useragent' => $agent,
 						],
 					];
 				},
-				$this->match_useragents
+				[]
 			),
 		];
 	}
 
 	public function getParamsDef() :array {
-		return [
-			'match_type'       => [
-				'type'      => EnumParameters::TYPE_ENUM,
-				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
-				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
-			],
-			'match_useragents' => [
-				'type'  => EnumParameters::TYPE_ARRAY,
-				'label' => __( 'Match Useragents', 'wp-simple-firewall' ),
-			],
-		];
+		return [];
 	}
 }

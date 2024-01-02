@@ -5,9 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @property string $file
- */
 class IsPluginInstalled extends Base {
 
 	use Traits\TypeWordpress;
@@ -15,7 +12,7 @@ class IsPluginInstalled extends Base {
 	public const SLUG = 'is_plugin_installed';
 
 	protected function execConditionCheck() :bool {
-		return Services::WpPlugins()->isInstalled( $this->file );
+		return Services::WpPlugins()->isInstalled( $this->p->plugin_file );
 	}
 
 	public function getDescription() :string {
@@ -24,7 +21,7 @@ class IsPluginInstalled extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'file' => [
+			'plugin_file' => [
 				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Plugin basename to check (e.g. "dir/plugin.php")', 'wp-simple-firewall' ),
 			],

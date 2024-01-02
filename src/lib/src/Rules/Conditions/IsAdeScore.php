@@ -3,18 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
-	EnumMatchTypes,
-	EnumParameters
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
-/**
- * Represents a class for checking if the visitor has a certain ADE score.
- *
- * @property string $match_type The match type for the ADE score comparison.
- * @property string $score
- */
 class IsAdeScore extends Base {
 
 	use Traits\TypeShield;
@@ -24,26 +17,26 @@ class IsAdeScore extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return ( new PerformConditionMatch(
+		return ( new Utility\PerformConditionMatch(
 			( new CalculateVisitorBotScores() )
 				->setIP( $this->req->ip )
 				->total(),
-			$this->score,
-			$this->match_type
+			$this->p->match_visitor_ade_score,
+			$this->p->match_type
 		) )->doMatch();
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'match_type' => [
-				'type'      => EnumParameters::TYPE_ENUM,
-				'type_enum' => EnumMatchTypes::MatchTypesForNumbers(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_EQUALS,
+			'match_type'              => [
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => Enum\EnumMatchTypes::MatchTypesForNumbers(),
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
-			'score'      => [
-				'type'  => EnumParameters::TYPE_INT,
-				'label' => __( 'Compare ADE Score To', 'wp-simple-firewall' ),
+			'match_visitor_ade_score' => [
+				'type'    => Enum\EnumParameters::TYPE_INT,
+				'label'   => __( 'Compare ADE Score To', 'wp-simple-firewall' ),
 				'default' => 0,
 			],
 		];

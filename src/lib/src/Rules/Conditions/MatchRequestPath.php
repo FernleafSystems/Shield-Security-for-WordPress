@@ -2,15 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\PathsToMatchUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
+};
 
-/**
- * @property string $match_type
- * @property string $match_path
- */
 class MatchRequestPath extends Base {
 
 	use Traits\TypeRequest;
@@ -18,13 +14,8 @@ class MatchRequestPath extends Base {
 	public const SLUG = 'match_request_path';
 
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->match_path ) ) {
-			throw new PathsToMatchUnavailableException();
-		}
-
 		$this->addConditionTriggerMeta( 'path', $this->req->path );
-
-		return ( new PerformConditionMatch( $this->req->path, $this->match_path, $this->match_type ) )->doMatch();
+		return ( new Utility\PerformConditionMatch( $this->req->path, $this->p->match_path, $this->p->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {
@@ -34,13 +25,13 @@ class MatchRequestPath extends Base {
 	public function getParamsDef() :array {
 		return [
 			'match_type' => [
-				'type'      => EnumParameters::TYPE_ENUM,
-				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 			'match_path' => [
-				'type'  => EnumParameters::TYPE_STRING,
+				'type'  => Enum\EnumParameters::TYPE_STRING,
 				'label' => __( 'Path To Match', 'wp-simple-firewall' ),
 			],
 		];

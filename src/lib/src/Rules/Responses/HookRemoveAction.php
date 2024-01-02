@@ -10,9 +10,9 @@ class HookRemoveAction extends Base {
 
 	public function execResponse() :void {
 		remove_action(
-			$this->params[ 'hook' ],
-			$this->params[ 'callback' ],
-			$this->params[ 'priority' ]
+			$this->p->hook,
+			$this->p->callback,
+			$this->p->priority
 		);
 	}
 

@@ -4,16 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
-	Exceptions
+	Utility
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-/**
- * @property string $match_type
- * @property string $match_ip_id
- */
 class MatchRequestIpIdentity extends Base {
 
 	use Traits\TypeRequest;
@@ -21,14 +16,9 @@ class MatchRequestIpIdentity extends Base {
 	public const SLUG = 'match_request_ip_identity';
 
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->match_ip_id ) ) {
-			throw new Exceptions\MatchIpIdsUnavailableException();
-		}
-
 		$id = ( new IpID( $this->req->ip, $this->req->useragent ) )->run()[ 0 ];
 		$this->addConditionTriggerMeta( 'ip_id', $id );
-
-		return ( new PerformConditionMatch( $id, $this->match_ip_id, $this->match_type ) )->doMatch();
+		return ( new Utility\PerformConditionMatch( $id, $this->p->match_ip_id, $this->p->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
+
 class WpIsWpcli extends Base {
 
 	use Traits\TypeWordpress;
@@ -14,5 +16,19 @@ class WpIsWpcli extends Base {
 
 	public function getDescription() :string {
 		return __( 'Is the request triggered by WP-CLI.', 'wp-simple-firewall' );
+	}
+
+	protected function getSubConditions() :array {
+		return [
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => IsPhpCli::class,
+				],
+				[
+					'conditions' => $this->getDefaultConditionCheckCallable(),
+				],
+			]
+		];
 	}
 }

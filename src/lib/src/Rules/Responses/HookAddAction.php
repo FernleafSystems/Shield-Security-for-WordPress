@@ -8,10 +8,10 @@ class HookAddAction extends HookAddFilter {
 
 	public function execResponse() :void {
 		add_action(
-			$this->params[ 'hook' ],
-			$this->params[ 'callback' ],
-			$this->params[ 'priority' ],
-			$this->params[ 'args' ]
+			$this->p->hook,
+			$this->p->callback,
+			$this->p->priority,
+			$this->p->args
 		);
 	}
 }

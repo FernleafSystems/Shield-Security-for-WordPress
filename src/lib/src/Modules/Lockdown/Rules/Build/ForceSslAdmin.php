@@ -25,8 +25,8 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 			[
 				'response' => Responses\PhpSetDefine::class,
 				'params'   => [
-					'define_name'  => 'FORCE_SSL_ADMIN',
-					'define_value' => true,
+					'name'  => 'FORCE_SSL_ADMIN',
+					'value' => true,
 				]
 			],
 			[

@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 /**
- * @property string   $match_type
- * @property string[] $match_paths
  * @deprecated 18.6
  */
 class MatchRequestPaths extends Base {
@@ -30,11 +28,11 @@ class MatchRequestPaths extends Base {
 						'conditions' => MatchRequestPath::class,
 						'params'     => [
 							'match_path' => $path,
-							'match_type' => $this->match_type,
+							'match_type' => '',
 						],
 					];
 				},
-				$this->match_paths
+				[]
 			),
 		];
 	}

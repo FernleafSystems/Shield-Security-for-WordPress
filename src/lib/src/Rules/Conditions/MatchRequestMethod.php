@@ -3,10 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Services\Services;
 
 class MatchRequestMethod extends Base {
 
 	use Traits\TypeRequest;
+
+	protected function execConditionCheck() :bool {
+		return Services::Request()->getMethod() === \strtolower( $this->p->match_method );
+	}
 
 	public function getDescription() :string {
 		return __( "Does the method of the request match the given specified method to match.", 'wp-simple-firewall' );
@@ -23,11 +28,11 @@ class MatchRequestMethod extends Base {
 			'DELETE',
 		];
 		return [
-			'match_method'  => [
+			'match_method' => [
 				'type'        => EnumParameters::TYPE_ENUM,
 				'type_enum'   => $methods,
 				'enum_labels' => \array_combine( $methods, $methods ),
-				'default'     => 'GET',
+				'default'     => \current( $methods ),
 				'label'       => __( 'Redirect Method', 'wp-simple-firewall' ),
 			],
 		];

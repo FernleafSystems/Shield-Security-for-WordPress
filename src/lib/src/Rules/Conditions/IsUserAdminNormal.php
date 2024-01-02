@@ -24,7 +24,7 @@ class IsUserAdminNormal extends Base {
 				[
 					'conditions' => UserHasWpCapability::class,
 					'params'     => [
-						'cap' => 'manage_options',
+						'user_cap' => 'manage_options',
 					],
 				],
 			]

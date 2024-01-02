@@ -2,62 +2,46 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
-	RequestParamNameUnavailableException,
-	RequestParamValueMatchPatternUnavailableException
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @property string $param_source
- * @property string $match_type
- * @property string $param_name
- * @property string $match_pattern
- */
 class RequestParameterValueMatches extends Base {
 
 	use Traits\TypeRequest;
 
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->param_name ) ) {
-			throw new RequestParamNameUnavailableException();
+		$req = Services::Request();
+		if ( $this->p->req_param_source === 'get' ) {
+			$value = $req->query( $this->p->param_name );
 		}
-		if ( empty( $this->match_pattern ) ) {
-			throw new RequestParamValueMatchPatternUnavailableException();
+		elseif ( $this->p->req_param_source === 'post' ) {
+			$value = $req->post( $this->p->param_name );
 		}
-
-		if ( $this->param_source === 'get' ) {
-			$value = Services::Request()->query( $this->param_name );
+		elseif ( $this->p->req_param_source === 'cookie' ) {
+			$value = $req->cookie( $this->p->param_name );
 		}
-		elseif ( $this->param_source === 'post' ) {
-			$value = Services::Request()->post( $this->param_name );
-		}
-		elseif ( $this->param_source === 'cookie' ) {
-			$value = Services::Request()->cookie( $this->param_name );
+		elseif ( $this->p->req_param_source === 'header' ) {
+			$value = $req->headers()[ $this->p->param_name ] ?? null;
 		}
 		else {
 			$value = null;
 		}
 
-		$matches = false;
+		$isMatch = false;
 		if ( $value !== null ) {
-			$matches = ( new PerformConditionMatch( $value, $this->match_pattern, $this->match_type ) )->doMatch();
-			$this->addConditionTriggerMeta( 'match_pattern', $this->match_pattern );
-			$this->addConditionTriggerMeta( 'match_request_param', $this->param_name );
+			$isMatch = ( new Utility\PerformConditionMatch( $value, $this->p->match_pattern, $this->p->match_type ) )->doMatch();
+			$this->addConditionTriggerMeta( 'match_pattern', $this->p->match_pattern );
+			$this->addConditionTriggerMeta( 'match_request_param', $this->p->param_name );
 			$this->addConditionTriggerMeta( 'match_request_value', $value );
 		}
-		return $matches;
+		return $isMatch;
 	}
 
 	public function getDescription() :string {
 		return __( 'Does the value of the given request parameter match the given pattern.', 'wp-simple-firewall' );
-	}
-
-	protected function getRequestParamValue() :string {
-		return '';
 	}
 
 	public function getParamsDef() :array {
@@ -65,27 +49,28 @@ class RequestParameterValueMatches extends Base {
 			'get'    => '$_GET',
 			'post'   => '$_POST',
 			'cookie' => '$_COOKIE',
+			'header' => 'HTTP Header',
 		];
 		return [
-			'param_source'  => [
-				'type'        => EnumParameters::TYPE_ENUM,
+			'req_param_source' => [
+				'type'        => Enum\EnumParameters::TYPE_ENUM,
 				'type_enum'   => \array_keys( $sources ),
 				'enum_labels' => $sources,
 				'default'     => 'get',
 				'label'       => __( 'Which Parameters To Check', 'wp-simple-firewall' ),
 			],
-			'param_name'    => [
-				'type'  => EnumParameters::TYPE_STRING,
+			'param_name'       => [
+				'type'  => Enum\EnumParameters::TYPE_STRING,
 				'label' => __( 'Parameter Name', 'wp-simple-firewall' ),
 			],
-			'match_type'    => [
-				'type'      => EnumParameters::TYPE_ENUM,
-				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_REGEX,
+			'match_type'       => [
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
-			'match_pattern' => [
-				'type'  => EnumParameters::TYPE_STRING,
+			'match_pattern'    => [
+				'type'  => Enum\EnumParameters::TYPE_STRING,
 				'label' => __( 'Compare Parameter Value To', 'wp-simple-firewall' ),
 			],
 		];

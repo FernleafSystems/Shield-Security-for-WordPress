@@ -9,7 +9,7 @@ class PhpSendHttpHeader extends Base {
 	public const SLUG = 'php_send_http_header';
 
 	public function execResponse() :void {
-		\header( $this->params[ 'header' ] );
+		\header( $this->p->header );
 	}
 
 	public function getParamsDef() :array {

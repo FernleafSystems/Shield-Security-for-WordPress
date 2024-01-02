@@ -12,7 +12,7 @@ class TriggerIpOffense extends Base {
 		self::con()
 			->getModule_IPs()
 			->loadOffenseTracker()
-			->incrementCount( $this->params[ 'count' ] );
+			->incrementCount( $this->p->count );
 	}
 
 	public function getParamsDef() :array {

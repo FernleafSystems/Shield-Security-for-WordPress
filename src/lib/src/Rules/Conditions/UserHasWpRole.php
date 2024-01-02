@@ -8,9 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @property string $role
- */
 class UserHasWpRole extends Base {
 
 	use Traits\TypeUser;
@@ -22,14 +19,14 @@ class UserHasWpRole extends Base {
 	protected function execConditionCheck() :bool {
 		$roles = Services::WpUsers()->getCurrentWpUser()->roles;
 		return \in_array(
-			\strtolower( $this->role ),
+			\strtolower( $this->p->user_role ),
 			\array_map( '\strtolower', \is_array( $roles ) ? $roles : (array)$roles )
 		);
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'role' => [
+			'user_role' => [
 				'type'         => EnumParameters::TYPE_STRING,
 				'label'        => __( 'User Role', 'wp-simple-firewall' ),
 				'verify_regex' => '/^[a-zA-Z0-9_-]+$/'

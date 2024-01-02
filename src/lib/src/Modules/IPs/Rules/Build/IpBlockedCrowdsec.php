@@ -52,7 +52,7 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 				'params'   => [
 					'block_page_slug' => BlockIpAddressCrowdsec::SLUG,
 					'hook'            => 'init',
-					'hook_priority'   => HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC,
+					'priority'        => HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC,
 				],
 			],
 		];

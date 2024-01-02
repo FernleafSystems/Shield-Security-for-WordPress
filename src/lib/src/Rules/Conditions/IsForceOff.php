@@ -24,9 +24,9 @@ class IsForceOff extends Base {
 		return [
 			'conditions' => DirContainsFile::class,
 			'params'     => [
-				'path_dir'  => self::con()->getRootDir(),
-				'file_name' => 'forceoff',
-				'fuzzy'     => true,
+				'path_dir'        => self::con()->getRootDir(),
+				'path_basename'   => 'forceoff',
+				'is_fuzzy_search' => true,
 			]
 		];
 	}

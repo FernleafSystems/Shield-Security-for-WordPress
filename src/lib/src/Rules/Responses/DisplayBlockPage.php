@@ -15,20 +15,20 @@ class DisplayBlockPage extends Base {
 	public const SLUG = 'display_block_page';
 
 	public function execResponse() :void {
-		$hook = $this->params[ 'hook' ];
+		$hook = $this->p->hook;
 		if ( empty( $hook ) ) {
 			$this->displayPage();
 		}
 		else {
 			add_action( $hook, function () {
 				$this->displayPage();
-			}, $this->params[ 'hook_priority' ], 0 );
+			}, $this->p->priority, 0 );
 		}
 	}
 
 	private function displayPage() {
 		self::con()->action_router->action( FullPageDisplay\DisplayBlockPage::class, [
-			'render_slug' => $this->params[ 'block_page_slug' ],
+			'render_slug' => $this->p->block_page_slug,
 		] );
 	}
 
@@ -53,7 +53,7 @@ class DisplayBlockPage extends Base {
 				'label'   => __( 'Hook to attach to', 'wp-simple-firewall' ),
 				'default' => ''
 			],
-			'hook_priority'   => [
+			'priority'        => [
 				'type'    => EnumParameters::TYPE_INT,
 				'default' => 10,
 				'label'   => __( 'Hook priority', 'wp-simple-firewall' ),

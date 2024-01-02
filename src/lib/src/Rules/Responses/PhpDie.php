@@ -9,7 +9,7 @@ class PhpDie extends Base {
 	public const SLUG = 'php_die';
 
 	public function execResponse() :void {
-		die( $this->params[ 'message' ] );
+		die( $this->p->message );
 	}
 
 	public function getParamsDef() :array {

@@ -99,7 +99,6 @@ class RulesController {
 	 */
 	private function processRule( RuleVO $rule ) {
 		if ( !isset( $rule->result ) ) {
-
 			$resultMetaData = [];
 			$conditions = $rule->conditions ?? null;
 			if ( $conditions !== null ) {

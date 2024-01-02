@@ -37,10 +37,10 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 				[
 					'conditions' => Conditions\RequestParameterValueMatches::class,
 					'params'     => [
-						'param_source'  => 'get',
-						'match_type'    => EnumMatchTypes::MATCH_TYPE_REGEX,
-						'param_name'    => 'author',
-						'match_pattern' => '\\d',
+						'req_param_source' => 'get',
+						'match_type'       => EnumMatchTypes::MATCH_TYPE_REGEX,
+						'param_name'       => 'author',
+						'match_pattern'    => '\\d',
 					],
 				],
 			]

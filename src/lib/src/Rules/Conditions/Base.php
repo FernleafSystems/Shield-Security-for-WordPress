@@ -9,8 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Processors,
 	RuleVO,
-	Traits\AutoSnakeCaseSlug,
-	Traits\ThisRequestConsumer,
+	Traits,
+	Utility\ParamsVO,
 	WPHooksOrder
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,9 +18,10 @@ use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
 abstract class Base extends DynPropertiesClass {
 
-	use AutoSnakeCaseSlug;
 	use PluginControllerConsumer;
-	use ThisRequestConsumer;
+	use Traits\AutoSnakeCaseSlug;
+	use Traits\ParamsConsumer;
+	use Traits\ThisRequestConsumer;
 
 	public const SLUG = '';
 
@@ -38,27 +39,6 @@ abstract class Base extends DynPropertiesClass {
 
 	public function __construct( array $params = [] ) {
 		$this->setParams( $params );
-	}
-
-	protected function setParams( array $params ) {
-		foreach ( $this->getParamsDef() as $key => $def ) {
-			if ( !isset( $params[ $key ] ) ) {
-				$default = $def[ 'default' ] ?? null;
-				if ( $default === null ) {
-					switch ( $def[ 'type' ] ) {
-						case Enum\EnumParameters::TYPE_ARRAY:
-							$default = [];
-							break;
-						case Enum\EnumParameters::TYPE_STRING:
-						default:
-							$default = '';
-							break;
-					}
-				}
-				$params[ $key ] = $default;
-			}
-		}
-		$this->applyFromArray( $params );
 	}
 
 	public static function MinimumHook() :int {
@@ -86,8 +66,6 @@ abstract class Base extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
-			case 'match_ips':
-			case 'match_ip_ids':
 			case 'match_useragents':
 				if ( !\is_array( $value ) ) {
 					$value = [];

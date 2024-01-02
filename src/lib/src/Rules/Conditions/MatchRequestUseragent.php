@@ -2,16 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
-	EnumMatchTypes,
-	EnumParameters
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
-/**
- * @property string $match_type
- * @property string $match_useragent
- */
 class MatchRequestUseragent extends Base {
 
 	use Traits\TypeRequest;
@@ -20,7 +15,11 @@ class MatchRequestUseragent extends Base {
 
 	protected function execConditionCheck() :bool {
 		$this->addConditionTriggerMeta( 'matched_useragent', $this->req->useragent );
-		return ( new PerformConditionMatch( $this->req->useragent, $this->match_useragent, $this->match_type ) )->doMatch();
+		return ( new Utility\PerformConditionMatch(
+			$this->req->useragent,
+			$this->p->match_useragent,
+			$this->p->match_type
+		) )->doMatch();
 	}
 
 	public function getDescription() :string {
@@ -30,13 +29,13 @@ class MatchRequestUseragent extends Base {
 	public function getParamsDef() :array {
 		return [
 			'match_type'      => [
-				'type'      => EnumParameters::TYPE_ENUM,
-				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 			'match_useragent' => [
-				'type'  => EnumParameters::TYPE_STRING,
+				'type'  => Enum\EnumParameters::TYPE_STRING,
 				'label' => __( 'Match Useragent', 'wp-simple-firewall' ),
 			],
 		];

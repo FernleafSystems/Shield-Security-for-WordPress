@@ -9,8 +9,8 @@ class PhpSetDefine extends Base {
 	public const SLUG = 'php_set_define';
 
 	public function execResponse() :void {
-		if ( !\defined( $this->params[ 'name' ] ) ) {
-			\define( $this->params[ 'name' ], $this->params[ 'value' ] );
+		if ( !\defined( $this->p->name ) ) {
+			\define( $this->p->name, $this->p->value );
 		}
 	}
 

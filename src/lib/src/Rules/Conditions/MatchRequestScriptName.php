@@ -2,17 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
-	EnumMatchTypes,
-	EnumParameters
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Enum,
+	Utility
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\ScriptNamesToMatchUnavailableException;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 
-/**
- * @property string $match_type
- * @property string $match_script_name
- */
 class MatchRequestScriptName extends Base {
 
 	use Traits\TypeRequest;
@@ -20,13 +14,13 @@ class MatchRequestScriptName extends Base {
 	public const SLUG = 'match_request_script_name';
 
 	protected function execConditionCheck() :bool {
-		if ( empty( $this->match_script_name ) ) {
-			throw new ScriptNamesToMatchUnavailableException();
-		}
-
 		// always add this in-case we need to invert_match
 		$this->addConditionTriggerMeta( 'script', $this->req->script_name );
-		return ( new PerformConditionMatch( $this->req->script_name, $this->match_script_name, $this->match_type ) )->doMatch();
+		return ( new Utility\PerformConditionMatch(
+			$this->req->script_name,
+			$this->p->match_script_name,
+			$this->p->match_type
+		) )->doMatch();
 	}
 
 	public function getDescription() :string {
@@ -36,13 +30,13 @@ class MatchRequestScriptName extends Base {
 	public function getParamsDef() :array {
 		return [
 			'match_type'        => [
-				'type'      => EnumParameters::TYPE_ENUM,
-				'type_enum' => EnumMatchTypes::MatchTypesForStrings(),
-				'default'   => EnumMatchTypes::MATCH_TYPE_REGEX,
+				'type'      => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 			'match_script_name' => [
-				'type'  => EnumParameters::TYPE_STRING,
+				'type'  => Enum\EnumParameters::TYPE_STRING,
 				'label' => __( 'Script Name To Match', 'wp-simple-firewall' ),
 			],
 		];

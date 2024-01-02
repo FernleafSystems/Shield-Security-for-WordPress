@@ -2,10 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 /**
- * @deprecated 18.5.8
+ * @deprecated 18.6
  */
 class RequestPostParamIs extends RequestParamIs {
 
@@ -21,6 +19,6 @@ class RequestPostParamIs extends RequestParamIs {
 	 * @return mixed|null
 	 */
 	protected function getRequestParamValue() {
-		return Services::Request()->post( $this->match_param );
+		return null;
 	}
 }
