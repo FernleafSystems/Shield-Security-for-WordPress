@@ -27,6 +27,8 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $match_type
  * @property string   $match_value
  * @property string   $match_useragent
+ * @property string   $match_userid
+ * @property string   $match_username
  * @property string   $param_name
  * @property string   $plugin_file
  * @property string   $theme_dir
@@ -39,6 +41,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $callback
  * @property int      $count
  * @property string   $duration
+ * @property string   $event
  * @property string   $header
  * @property string   $hook
  * @property string   $message
@@ -47,6 +50,9 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $rule_slug
  * @property int      $status_code
  * @property string   $value
+ * @property int      $offense_count
+ * @property bool     $block
+ * @property bool     $do_log
  */
 class ParamsVO extends DynPropertiesClass {
 

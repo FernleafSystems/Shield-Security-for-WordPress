@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
-	Enum\EnumMatchTypes,
+	Enum,
 	Responses
 };
 
@@ -24,28 +23,37 @@ class BotTrack404 extends BuildRuleIpsBase {
 	protected function getConditions() :array {
 		$opts = $this->opts();
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\IsLoggedInNormal::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\IsRequestStatus404::class,
 				],
 				[
-					'logic'      => EnumLogic::LOGIC_OR,
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'track_404',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
+				],
+				[
+					'logic'      => Enum\EnumLogic::LOGIC_OR,
 					'conditions' => [
 						[
 							'conditions' => Conditions\MatchRequestPath::class,
-							'logic'      => EnumLogic::LOGIC_INVERT,
+							'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 							'params'     => [
-								'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
-								'match_path' => sprintf( "\\.(%s)$", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
+								'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+								'match_path' => sprintf( "#\\.(%s)$#i", \implode( '|', $opts->botSignalsGetAllowable404s() ) ),
 							],
 						],
 						[

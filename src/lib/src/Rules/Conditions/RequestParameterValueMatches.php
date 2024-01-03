@@ -6,25 +6,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Utility
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class RequestParameterValueMatches extends Base {
 
 	use Traits\TypeRequest;
 
 	protected function execConditionCheck() :bool {
-		$req = Services::Request();
 		if ( $this->p->req_param_source === 'get' ) {
-			$value = $req->query( $this->p->param_name );
+			$value = $this->req->query[ $this->p->param_name ] ?? null;
 		}
 		elseif ( $this->p->req_param_source === 'post' ) {
-			$value = $req->post( $this->p->param_name );
+			$value = $this->req->post[ $this->p->param_name ] ?? null;
 		}
 		elseif ( $this->p->req_param_source === 'cookie' ) {
-			$value = $req->cookie( $this->p->param_name );
+			$value = $this->req->cookies[ $this->p->param_name ] ?? null;
 		}
 		elseif ( $this->p->req_param_source === 'header' ) {
-			$value = $req->headers()[ $this->p->param_name ] ?? null;
+			$value = $this->req->headers[ $this->p->param_name ] ?? null;
 		}
 		else {
 			$value = null;

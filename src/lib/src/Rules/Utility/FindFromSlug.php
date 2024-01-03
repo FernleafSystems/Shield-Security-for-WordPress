@@ -6,9 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumConditions,
 	EnumResponses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 
 class FindFromSlug {
 
+	/**
+	 * @return ?Base|string
+	 */
 	public static function Condition( string $slug ) :?string {
 		return self::Find( $slug, EnumConditions::Conditions() );
 	}

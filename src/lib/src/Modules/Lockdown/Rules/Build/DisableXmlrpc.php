@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
+	Enum,
 	Responses
 };
 
@@ -22,14 +22,22 @@ class DisableXmlrpc extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\WpIsXmlrpc::class,
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'disable_xmlrpc',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
 				],
 			]
 		];

@@ -70,13 +70,10 @@ class RuleBuilderEnumerator {
 
 		return \array_merge(
 			[
-				Plugin\Rules\Build\RequestStatusIsAdmin::class,
-				Plugin\Rules\Build\RequestStatusIsAjax::class,
-				Plugin\Rules\Build\RequestStatusIsXmlRpc::class,
-				Plugin\Rules\Build\RequestStatusIsWpCli::class,
-
 				SecurityAdmin\Rules\Build\IsSecurityAdmin::class,
 
+				Traffic\Rules\Build\ShieldLogRequest::class,
+				Traffic\Rules\Build\ShieldExcludeLogRequest::class,
 				$trafficOpts->isTrafficLimitEnabled() ? Traffic\Rules\Build\IsRateLimitExceeded::class : null,
 
 				IPs\Rules\Build\IpWhitelisted::class,
@@ -89,11 +86,11 @@ class RuleBuilderEnumerator {
 				IPs\Rules\Build\BotTrackFakeWebCrawler::class,
 				IPs\Rules\Build\BotTrackInvalidScript::class,
 
-				$lockdownOpts->isXmlrpcDisabled() ? Lockdown\Rules\Build\DisableXmlrpc::class : null,
-				$lockdownOpts->isOptFileEditingDisabled() ? Lockdown\Rules\Build\DisableFileEditing::class : null,
-				$lockdownOpts->isOpt( 'block_author_discovery', 'Y' ) ? Lockdown\Rules\Build\IsRequestAuthorDiscovery::class : null,
-				$lockdownOpts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ? Lockdown\Rules\Build\HideGeneratorTag::class : null,
-				$lockdownOpts->isOpt( 'force_ssl_admin', 'Y' ) ? Lockdown\Rules\Build\ForceSslAdmin::class : null,
+				Lockdown\Rules\Build\DisableXmlrpc::class,
+				Lockdown\Rules\Build\DisableFileEditing::class,
+				Lockdown\Rules\Build\ForceSslAdmin::class,
+				Lockdown\Rules\Build\IsRequestAuthorDiscovery::class,
+				Lockdown\Rules\Build\HideGeneratorTag::class,
 			],
 			\array_filter(
 				[

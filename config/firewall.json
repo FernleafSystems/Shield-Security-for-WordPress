@@ -273,8 +273,8 @@
       },
       "*":                             {
         "regex":  [
-          "^wordpress_logged_in_[0-9a-f]+$",
-          "^et_.*"
+          "#^wordpress_logged_in_[0-9a-f]+$#",
+          "#^et_.*#"
         ],
         "simple": [
           "affwp_action",
@@ -335,32 +335,32 @@
           "wp-config.php"
         ],
         "regex":  [
-          "^user_login",
-          "^user_pass"
+          "#^user_login#",
+          "#^user_pass#"
         ]
       },
       "field_truncation": {
         "regex": [
-          "\\s{49,}",
-          "\\x00"
+          "#\\s{49,}#",
+          "#\\x00#"
         ]
       },
       "sql_queries":      {
         "regex": [
-          "concat\\s*\\(",
-          "group_concat",
-          "union.*select"
+          "#concat\\s*\\(#i",
+          "#group_concat#i",
+          "#union.*select#i"
         ]
       },
       "exe_file_uploads": {
         "regex": [
-          "\\.(dll|rb|py|exe|php[3-6]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$"
+          "#\\.(dll|rb|py|exe|php[3-9]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$#i"
         ]
       },
       "php_code":         {
         "simple": null,
         "regex":  [
-          "(include|include_once|require|require_once)\\s*\\(.*\\)"
+          "#(include|include_once|require|require_once)\\s*\\(.*\\)#"
         ]
       },
       "aggressive":       {
@@ -378,11 +378,11 @@
           "boot.ini"
         ],
         "regex":  [
-          "GLOBALS(=|\\[|%%)",
-          "REQUEST(=|\\[|%%)",
-          "(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)",
-          "drop\\s+table\\s+(`|'?)[a-z0-9]+\\1",
-          "'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+"
+          "#GLOBALS(=|\\[|%%)#",
+          "#REQUEST(=|\\[|%%)#",
+          "#(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)",
+          "#drop\\s+table\\s+(`|'?)[a-z0-9]+\\1",
+          "#'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+#"
         ]
       }
     },

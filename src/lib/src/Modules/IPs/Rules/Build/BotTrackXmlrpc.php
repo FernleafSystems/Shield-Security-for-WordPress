@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
-	Enum\EnumMatchTypes,
+	Enum,
 	Responses
 };
 
@@ -23,25 +22,27 @@ class BotTrackXmlrpc extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\IsLoggedInNormal::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => Conditions\WpIsXmlrpc::class,
 				],
 				[
-					'conditions' => Conditions\MatchRequestPath::class,
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 					'params'     => [
-						'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
-						'match_path' => '/xmlrpc\\.php$',
-					],
+						'name'        => 'track_xmlrpc',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
 				],
 			]
 		];

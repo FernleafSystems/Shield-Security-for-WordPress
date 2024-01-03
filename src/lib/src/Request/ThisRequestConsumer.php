@@ -1,8 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits;
-
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 trait ThisRequestConsumer {
 

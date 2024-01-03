@@ -19,7 +19,7 @@ class IsRequestToLoginPage extends Base {
 			'conditions' => MatchRequestPath::class,
 			'params'     => [
 				'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
-				'match_path' => sprintf( '^/%s$', \trim( $loginPath, '/' ) ),
+				'match_path' => sprintf( '#^/%s$#', \trim( $loginPath, '/' ) ),
 			],
 		];
 	}

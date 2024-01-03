@@ -7,9 +7,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRe
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @property \Carbon\Carbon $carbon
+ * @property \Carbon\Carbon $carbon_tz
+ *
  * @property string          $ip
  * @property bool            $ip_is_public
  * @property string          $ip_id
+ *
+ * @property string         $method
+ * @property array          $post
+ * @property array          $query
+ * @property array          $cookies
+ * @property array          $headers
  *
  * @property string          $path
  * @property string          $script_name
@@ -50,13 +59,22 @@ class ThisRequest extends DynPropertiesClass {
 	}
 
 	public function __construct( array $params = [] ) {
+		$req = Services::Request();
 		$WP = Services::WpGeneral();
 		$srvIP = Services::IP();
-		$req = Services::Request();
+
+		$this->carbon = $req->carbon();
+		$this->carbon_tz = $req->carbon( true );
 
 		$this->ip = $req->ip();
 		$this->ip_is_public = !empty( $this->ip ) && $srvIP->isValidIp_PublicRemote( $this->ip );
 		$this->ip_id = $srvIP->getIpDetector()->getIPIdentity();
+
+		$this->method = $req->getMethod();
+		$this->post = $req->post;
+		$this->query = $req->query;
+		$this->cookies = $req->cookie_copy;
+		$this->headers = $req->headers();
 
 		$this->path = empty( $req->getPath() ) ? '/' : $req->getPath();
 		$this->useragent = $req->getUserAgent();

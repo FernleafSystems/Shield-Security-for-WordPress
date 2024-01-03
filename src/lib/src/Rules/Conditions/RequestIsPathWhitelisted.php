@@ -50,7 +50,7 @@ class RequestIsPathWhitelisted extends Base {
 				if ( \strpos( $regEx, $homeUrlPath ) !== 0 ) {
 					$regEx = '/'.\ltrim( \rtrim( $homeUrlPath, '/' ).'/'.\ltrim( $regEx, '/' ), '/' );
 				}
-				return '^'.$regEx;
+				return '#^'.$regEx.'#i';
 			},
 			self::con()->isPremiumActive() ? $this->opts()->getOpt( 'request_whitelist', [] ) : []
 		);

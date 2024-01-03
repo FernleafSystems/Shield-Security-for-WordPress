@@ -11,7 +11,8 @@ trait ParamsConsumer {
 	 */
 	public $p = null;
 
-	protected function setParams( array $params ) {
+	public function setParams( array $params ) {
 		$this->p = ( new ParamsVO( $this->getParamsDef() ) )->applyFromArray( $params );
+		return $this;
 	}
 }

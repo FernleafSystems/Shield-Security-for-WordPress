@@ -15,6 +15,6 @@ class MatchRequestParamPost extends MatchRequestParam {
 	}
 
 	protected function getRequestParamsToTest() :array {
-		return Services::Request()->post;
+		return $this->req->post;
 	}
 }

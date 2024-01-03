@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-class IsShieldPluginDisabled extends Base {
+class ShieldConfigPluginGlobalDisabled extends Base {
 
 	use Traits\TypeShield;
 

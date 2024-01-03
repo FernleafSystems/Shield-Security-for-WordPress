@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -15,6 +16,8 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 	protected function getRenderData() :array {
 		$WP = Services::WpGeneral();
 		$con = self::con();
+
+		( new RuleRecords() )->deleteOldDrafts();
 
 		$dbh = $con->db_con->getDbH_Rules();
 		/** @var RulesDB\Select $selector */

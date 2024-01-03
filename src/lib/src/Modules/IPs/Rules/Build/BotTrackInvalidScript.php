@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
-	Enum\EnumMatchTypes,
+	Enum,
 	Responses
 };
 
@@ -26,22 +25,31 @@ class BotTrackInvalidScript extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\IsLoggedInNormal::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'track_invalidscript',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
 				],
 				[
 					'conditions' => Conditions\MatchRequestScriptName::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 					'params'     => [
-						'match_type'        => EnumMatchTypes::MATCH_TYPE_REGEX,
-						'match_script_name' => sprintf( '(%s)',
+						'match_type'        => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_script_name' => sprintf( '#(%s)#i',
 							implode( '|', \array_map( function ( $script ) {
 								return \preg_quote( $script, '#' );
 							}, $this->opts()->botSignalsGetAllowableScripts() ) )

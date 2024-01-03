@@ -8,27 +8,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	ConditionsVO,
 	Enum,
 	Processors,
-	RuleVO,
-	Traits,
-	Utility\ParamsVO,
 	WPHooksOrder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\{
+	AutoSnakeCaseSlug,
+	ParamsConsumer,
+	RuleConsumer,
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
 abstract class Base extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
-	use Traits\AutoSnakeCaseSlug;
-	use Traits\ParamsConsumer;
-	use Traits\ThisRequestConsumer;
+	use AutoSnakeCaseSlug;
+	use ParamsConsumer;
+	use RuleConsumer;
+	use ThisRequestConsumer;
 
 	public const SLUG = '';
-
-	/**
-	 * @var RuleVO
-	 */
-	protected $rule;
 
 	/**
 	 * @var array
@@ -61,25 +60,6 @@ abstract class Base extends DynPropertiesClass {
 			},
 			\ucwords( \str_replace( '_', ' ', $this->getSlug() ) )
 		);
-	}
-
-	public function __get( string $key ) {
-		$value = parent::__get( $key );
-		switch ( $key ) {
-			case 'match_useragents':
-				if ( !\is_array( $value ) ) {
-					$value = [];
-				}
-				break;
-			case 'request_useragent':
-				if ( empty( $value ) ) {
-					$value = Services::Request()->getUserAgent();
-				}
-				break;
-			default:
-				break;
-		}
-		return $value;
 	}
 
 	public function run() :bool {
@@ -160,25 +140,17 @@ abstract class Base extends DynPropertiesClass {
 	}
 
 	/**
-	 * @deprecated 18.5.8
+	 * @deprecated 18.6
 	 */
 	public static function RequiredConditions() :array {
 		return [];
 	}
 
 	/**
-	 * @deprecated 18.5.8
+	 * @deprecated 18.6
 	 */
 	public static function FindMinimumHook() :int {
 		return static::MinimumHook();
-	}
-
-	/**
-	 * @deprecated 18.5.8
-	 */
-	public function setRule( RuleVO $rule ) :self {
-		$this->rule = $rule;
-		return $this;
 	}
 
 	/**

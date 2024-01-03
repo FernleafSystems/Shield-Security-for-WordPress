@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Utility
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class RequestParameterExists extends Base {
 
@@ -17,22 +16,21 @@ class RequestParameterExists extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		$req = Services::Request();
 		$this->addConditionTriggerMeta( 'match_pattern', $this->p->match_pattern );
 
 		$paramSources = [];
 		if ( $this->p->req_param_source === 'headers' ) {
-			$paramSources[] = $req->headers();
+			$paramSources[] = $this->req->headers;
 		}
 		else {
 			if ( \str_contains( $this->p->req_param_source, 'get' ) ) {
-				$paramSources[] = $req->query;
+				$paramSources[] = $this->req->query;
 			}
 			if ( \str_contains( $this->p->req_param_source, 'post' ) ) {
-				$paramSources[] = $req->post;
+				$paramSources[] = $this->req->post;
 			}
 			if ( \str_contains( $this->p->req_param_source, 'cookie' ) ) {
-				$paramSources[] = $req->cookie_copy;
+				$paramSources[] = $this->req->cookies;
 			}
 		}
 

@@ -20,6 +20,26 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 		return 'Force SSL Admin.';
 	}
 
+	protected function getConditions() :array {
+		return [
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'force_ssl_admin',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
+				],
+			]
+		];
+	}
+
 	protected function getResponses() :array {
 		return [
 			[
@@ -36,13 +56,6 @@ class ForceSslAdmin extends BuildRuleLockdownBase {
 					'args'     => [ true ],
 				]
 			],
-		];
-	}
-
-	protected function getConditions() :array {
-		return [
-			'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-			'logic'      => Enum\EnumLogic::LOGIC_INVERT
 		];
 	}
 }

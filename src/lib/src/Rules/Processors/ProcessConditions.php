@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	ConditionsVO,
 	Enum\EnumLogic,
-	Exceptions\NoSuchConditionHandlerException,
-	Traits\ThisRequestConsumer
+	Exceptions\NoSuchConditionHandlerException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 class ProcessConditions {
 
@@ -104,8 +104,9 @@ class ProcessConditions {
 		if ( !\class_exists( $handlerClass ) ) {
 			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$handlerClass );
 		}
-		$conditionHandler = new $handlerClass( $condition->params );
-		$conditionHandler->setThisRequest( $this->req );
+		$conditionHandler = new $handlerClass();
+		$conditionHandler->setParams( $condition->params )
+						 ->setThisRequest( $this->req );
 
 		$cachedMatchStatus = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] ?? null;
 		if ( $cachedMatchStatus === null ) {

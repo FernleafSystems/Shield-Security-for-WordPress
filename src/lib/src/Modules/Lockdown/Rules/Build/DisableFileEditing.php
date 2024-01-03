@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
+	Enum,
 	Responses
 };
 
@@ -22,8 +22,21 @@ class DisableFileEditing extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-			'logic'      => EnumLogic::LOGIC_INVERT
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'disable_file_editing',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
+				],
+			]
 		];
 	}
 

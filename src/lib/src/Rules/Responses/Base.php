@@ -3,18 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
-	RuleVO,
-	Traits
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\{
+	AutoSnakeCaseSlug,
+	ParamsConsumer,
+	RuleConsumer,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
 abstract class Base {
 
 	use PluginControllerConsumer;
-	use Traits\AutoSnakeCaseSlug;
-	use Traits\ParamsConsumer;
-	use Traits\ThisRequestConsumer;
+	use AutoSnakeCaseSlug;
+	use ParamsConsumer;
+	use RuleConsumer;
+	use ThisRequestConsumer;
 
 	public const SLUG = '';
 
@@ -35,13 +38,6 @@ abstract class Base {
 
 	public static function Slug() :string {
 		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public function setRule( RuleVO $rule ) :self {
-		return $this;
 	}
 
 	/**

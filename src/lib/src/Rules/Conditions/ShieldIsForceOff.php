@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-class IsForceOff extends Base {
+class ShieldIsForceOff extends Base {
 
 	use Traits\TypeShield;
 

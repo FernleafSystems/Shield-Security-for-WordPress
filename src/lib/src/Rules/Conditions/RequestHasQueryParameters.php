@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class RequestHasQueryParameters extends Base {
 
 	use Traits\TypeRequest;
@@ -11,11 +9,11 @@ class RequestHasQueryParameters extends Base {
 	public const SLUG = 'request_has_query_parameters';
 
 	protected function execConditionCheck() :bool {
-		$query = Services::Request()->query;
+		$query = $this->req->query;
 		return \is_array( $query ) && !empty( $query );
 	}
 
 	public function getDescription() :string {
-		return __( "Does the request have any QUERY parameters.", 'wp-simple-firewall' );
+		return __( 'Does the request have any QUERY parameters.', 'wp-simple-firewall' );
 	}
 }

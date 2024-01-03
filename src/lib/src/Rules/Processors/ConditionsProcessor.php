@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	NoSuchConditionHandlerException,
 	RuleNotYetRunException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\FindFromSlug;
 
 /**
  * @deprecated 18.5.8
@@ -61,8 +62,13 @@ class ConditionsProcessor extends BaseProcessor {
 			}
 			else {
 				try {
-					$handler = $this->rulesCon->getConditionHandler( $subCondition );
-					$matched = $handler->setRule( $this->rule )
+					$handlerClass = FindFromSlug::Condition( $subCondition[ 'conditions' ] );
+					if ( empty( $handlerClass ) || !\class_exists( $handlerClass ) ) {
+						throw new NoSuchConditionHandlerException();
+					}
+					$handler = new $handlerClass();
+					$matched = $handler->setParams( $subCondition[ 'params' ] ?? [] )
+									   ->setRule( $this->rule )
 									   ->run();
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;

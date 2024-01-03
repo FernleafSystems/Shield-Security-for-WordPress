@@ -37,6 +37,9 @@ class IsRateLimitExceeded extends BuildRuleCoreShieldBase {
 					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
+					'conditions' => Conditions\ShieldConfigIsTrafficRateLimitingEnabled::class,
+				],
+				[
 					'conditions' => Conditions\IsRateLimitExceeded::class,
 					'params' => [
 						'limit_count'     => $this->opts()->getLimitRequestCount(),

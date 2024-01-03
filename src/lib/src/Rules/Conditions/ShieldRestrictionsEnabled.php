@@ -29,14 +29,14 @@ class ShieldRestrictionsEnabled extends Base {
 			'logic'      => EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
-					'conditions' => IsForceOff::class,
+					'conditions' => ShieldIsForceOff::class,
 					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
 					'conditions' => RequestIsPublicWebOrigin::class,
 				],
 				[
-					'conditions' => IsShieldPluginDisabled::class,
+					'conditions' => ShieldConfigPluginGlobalDisabled::class,
 					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 			]

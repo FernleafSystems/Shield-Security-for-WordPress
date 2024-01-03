@@ -34,11 +34,13 @@ class BotTrackFakeWebCrawler extends BuildRuleIpsBase {
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'conditions' => Conditions\MatchRequestPath::class,
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 					'params'     => [
-						'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
-						'match_path' => '.*',
-					],
+						'name'        => 'track_fakewebcrawler',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
 				],
 				[
 					'logic'      => Enum\EnumLogic::LOGIC_OR,

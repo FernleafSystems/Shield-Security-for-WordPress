@@ -123,13 +123,13 @@ class SectionNotices {
 				if ( $section === 'section_traffic_options' ) {
 					if ( $trafficOpts->liveLoggingTimeRemaining() > 0 ) {
 						$warnings[] = \implode( ' ', [
-							__( 'Live traffic logging increases load on your database and is designed to active only temporarily.', 'wp-simple-firewall' ),
+							__( 'Live traffic logging increases load on your database and is designed to be active only temporarily.', 'wp-simple-firewall' ),
 							__( 'We recommend disabling it if you no longer need it running.', 'wp-simple-firewall' ),
 						] );
 					}
 					if ( $trafficOpts->isTrafficLimitEnabled() > 0 ) {
 						$warnings[] = \implode( ' ', [
-							__( 'Traffic logging may not be disabled as you have Traffic Limiting switched-on.', 'wp-simple-firewall' ),
+							__( "To disable traffic logging, please first disable Traffic Rate Limiting.", 'wp-simple-firewall' ),
 						] );
 					}
 				}

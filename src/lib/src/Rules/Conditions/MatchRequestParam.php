@@ -54,7 +54,7 @@ abstract class MatchRequestParam extends Base {
 			foreach ( \array_keys( $finalParams ) as $paramKey ) {
 				foreach ( $allPagesExclusions[ 'regex' ] ?? [] as $exclKeyRegex ) {
 					// You can have numeric parameter keys in query: e.g. ?asdf=123&456&
-					if ( \preg_match( sprintf( '#%s#i', $exclKeyRegex ), (string)$paramKey ) ) {
+					if ( \preg_match( $exclKeyRegex, (string)$paramKey ) ) {
 						unset( $finalParams[ $paramKey ] );
 					}
 				}
@@ -63,10 +63,9 @@ abstract class MatchRequestParam extends Base {
 
 		if ( !empty( $finalParams ) ) {
 			unset( $allExcluded[ '*' ] );
-			$thePage = Services::Request()->getPath();
 			foreach ( $allExcluded as $pageName => $pageParams ) {
 
-				if ( \strpos( $thePage, $pageName ) !== false ) {
+				if ( \strpos( $this->req->path, $pageName ) !== false ) {
 
 					if ( empty( $pageParams ) ) {
 						$finalParams = [];

@@ -15,8 +15,10 @@ class EventFireDefault extends Base {
 	public function getParamsDef() :array {
 		return [
 			'rule_slug' => [
-				'type'  => EnumParameters::TYPE_STRING,
-				'label' => __( 'Rule Slug', 'wp-simple-firewall' ),
+				'type'    => EnumParameters::TYPE_STRING,
+				'label'   => __( 'Rule Slug', 'wp-simple-firewall' ),
+				'default' => '',
+				'hidden'  => true,
 			],
 		];
 	}

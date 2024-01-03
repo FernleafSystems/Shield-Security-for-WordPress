@@ -425,7 +425,7 @@ class Controller extends DynPropertiesClass {
 			->setThisRequest( $this->this_req )
 			->execute();
 
-		if ( !$this->cfg->rebuilt && $this->rules->isRulesEngineReady() ) {
+		if ( !$this->cfg->rebuilt ) {
 
 			$this->rules->processRules();
 

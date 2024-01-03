@@ -10,7 +10,7 @@ class MatchRequestMethod extends Base {
 	use Traits\TypeRequest;
 
 	protected function execConditionCheck() :bool {
-		return Services::Request()->getMethod() === \strtolower( $this->p->match_method );
+		return $this->req->method === \strtolower( $this->p->match_method );
 	}
 
 	public function getDescription() :string {

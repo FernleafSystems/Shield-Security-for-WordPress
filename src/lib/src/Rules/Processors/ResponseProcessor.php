@@ -9,9 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Exceptions\ParametersException,
 	Responses,
 	RuleVO,
-	Traits\ThisRequestConsumer,
 	Utility
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 class ResponseProcessor {
 
@@ -45,9 +45,11 @@ class ResponseProcessor {
 				}
 
 				$params = $respDef[ 'params' ] ?? [];
-				/** @var Responses\Base $response */
+				/** @var Responses\Base $responseClass */
 				$response = new $responseClass( $params, $this->triggerMetaData );
-				$response->setThisRequest( $this->req );
+				$response->setRule( $this->rule )
+						 ->setParams( $params )
+						 ->setThisRequest( $this->req );
 				( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
 				$this->execResponse( $response );
 			}

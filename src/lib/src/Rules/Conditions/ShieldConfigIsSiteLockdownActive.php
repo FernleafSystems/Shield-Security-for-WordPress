@@ -2,11 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-class IsSiteLockdownActive extends Base {
+class ShieldConfigIsSiteLockdownActive extends Base {
 
 	use Traits\TypeShield;
-
-	public const SLUG = 'is_site_lockdown_active';
 
 	public function getDescription() :string {
 		return __( "Is Shield's Site Lockdown active.", 'wp-simple-firewall' );

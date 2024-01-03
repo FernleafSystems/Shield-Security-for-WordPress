@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Builder;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	AttemptToAccessNonExistingRuleException,
 	NoConditionActionDefinedException,
@@ -14,14 +14,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Exceptions\{
 	NoSuchConditionHandlerException,
 	NoSuchResponseHandlerException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
 
 class RulesController {
 
 	use ExecOnce;
 	use PluginCronsConsumer;
 	use PluginControllerConsumer;
-	use Traits\ThisRequestConsumer;
+	use ThisRequestConsumer;
 
 	/**
 	 * @var RuleVO[]
@@ -60,7 +59,7 @@ class RulesController {
 	}
 
 	public function buildAndStore() {
-		( new RulesStorageHandler() )->store( ( new Builder() )->run() );
+		( new RulesStorageHandler() )->store( ( new Build\Builder() )->run() );
 	}
 
 	public function isRulesEngineReady() :bool {
@@ -71,22 +70,21 @@ class RulesController {
 	 * @throws \Exception
 	 */
 	public function processRules() :void {
-		if ( !$this->processComplete && $this->isRulesEngineReady() ) {
+		if ( !$this->processComplete ) {
 
-			foreach ( $this->getImmediateRules() as $rule ) {
-				$this->processRule( $rule );
-			}
+			$this->processComplete = true;
 
 			foreach ( $this->getRules() as $rule ) {
 				$hook = $rule->wp_hook;
-				if ( !empty( $hook ) ) {
+				if ( empty( $hook ) ) {
+					$this->processRule( $rule );
+				}
+				else {
 					add_action( $hook, function () use ( $rule ) {
 						$this->processRule( $rule );
 					}, $rule->wp_hook_priority );
 				}
 			}
-
-			$this->processComplete = true;
 
 			add_action( self::con()->prefix( 'plugin_shutdown' ), function () {
 //				error_log( var_export( $this->getRulesResultsSummary(), true ) );
@@ -120,17 +118,6 @@ class RulesController {
 	}
 
 	/**
-	 * @throws AttemptToAccessNonExistingRuleException
-	 */
-	public function getRule( string $slug ) :RuleVO {
-		$rules = $this->getRules();
-		if ( !isset( $rules[ $slug ] ) ) {
-			throw new AttemptToAccessNonExistingRuleException( sprintf( 'Rule "%s" does not exist', $slug ) );
-		}
-		return $rules[ $slug ];
-	}
-
-	/**
 	 * @return RuleVO[]
 	 */
 	public function getRules() :array {
@@ -151,22 +138,6 @@ class RulesController {
 	}
 
 	/**
-	 * @return RuleVO[]
-	 */
-	private function getImmediateRules() :array {
-		return $this->getRulesForHook( '' );
-	}
-
-	/**
-	 * @return RuleVO[]
-	 */
-	private function getRulesForHook( string $hook ) :array {
-		return \array_filter( $this->getRules(), function ( $rule ) use ( $hook ) {
-			return $rule->wp_hook === $hook;
-		} );
-	}
-
-	/**
 	 * @return RulesDB\Record[]
 	 */
 	public function getCustomRuleForms() :array {
@@ -178,27 +149,39 @@ class RulesController {
 	}
 
 	/**
-	 * @return Conditions\Base|mixed
-	 * @throws NoConditionActionDefinedException
-	 * @throws NoSuchConditionHandlerException
+	 * @throws AttemptToAccessNonExistingRuleException
+	 * @deprecated 18.6
 	 */
-	public function getConditionHandler( array $condition ) {
-		if ( empty( $condition[ 'conditions' ] ) ) {
-			throw new NoConditionActionDefinedException( 'No Condition Handler available for: '.var_export( $condition, true ) );
-		}
-		$class = $this->locateConditionHandlerClass( $condition[ 'conditions' ] );
-		return new $class( $condition[ 'params' ] ?? [] );
+	public function getRule( string $slug ) :RuleVO {
+		throw new AttemptToAccessNonExistingRuleException();
 	}
 
 	/**
-	 * @deprecated 18.5.8
+	 * @return RuleVO[]
+	 * @deprecated 18.6
+	 */
+	private function getImmediateRules() :array {
+		return [];
+	}
+
+	/**
+	 * @return RuleVO[]
+	 * @deprecated 18.6
+	 */
+	private function getRulesForHook() :array {
+		return [];
+	}
+
+	/**
+	 * @deprecated 18.6
 	 */
 	public function getDefaultEventFireResponseHandler() :Responses\EventFire {
-		return new EventFire( [] );
+		return new Responses\EventFire( [] );
 	}
 
 	/**
 	 * @throws NoSuchConditionHandlerException
+	 * @deprecated 18.6
 	 */
 	public function locateConditionHandlerClass( string $conditionClassOrSlug ) :string {
 		if ( \class_exists( $conditionClassOrSlug ) ) {
@@ -218,6 +201,7 @@ class RulesController {
 	 * @return Responses\Base|mixed
 	 * @throws NoResponseActionDefinedException
 	 * @throws NoSuchResponseHandlerException
+	 * @deprecated 18.6
 	 */
 	public function getResponseHandler( array $response ) {
 		$responseClass = $response[ 'response' ] ?? null;
@@ -228,5 +212,18 @@ class RulesController {
 			throw new NoSuchResponseHandlerException( 'No Response Handler Class for: '.$responseClass );
 		}
 		return new $responseClass( $response[ 'params' ] ?? [] );
+	}
+
+	/**
+	 * @return Conditions\Base|mixed
+	 * @throws NoConditionActionDefinedException
+	 * @deprecated 18.6
+	 */
+	public function getConditionHandler( array $condition ) {
+		if ( empty( $condition[ 'conditions' ] ) ) {
+			throw new NoConditionActionDefinedException( 'No Condition Handler available for: '.var_export( $condition, true ) );
+		}
+		$class = Utility\FindFromSlug::Condition( $condition[ 'conditions' ] );
+		return new $class( $condition[ 'params' ] ?? [] );
 	}
 }

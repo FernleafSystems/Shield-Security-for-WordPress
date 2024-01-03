@@ -20,7 +20,7 @@ class IsRequestToValidPluginAsset extends Base {
 			'conditions' => MatchRequestPath::class,
 			'params'     => [
 				'match_type' => EnumMatchTypes::MATCH_TYPE_REGEX,
-				'match_path' => sprintf( '^%s/(%s)/',
+				'match_path' => sprintf( '#^%s/(%s)/#',
 					\rtrim( wp_parse_url( plugins_url(), \PHP_URL_PATH ), '/' ),
 					\implode( '|', \array_filter( \array_map(
 						function ( $pluginFile ) {

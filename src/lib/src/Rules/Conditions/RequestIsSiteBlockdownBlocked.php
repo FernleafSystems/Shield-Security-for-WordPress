@@ -22,7 +22,7 @@ class RequestIsSiteBlockdownBlocked extends Base {
 					'conditions' => ShieldRestrictionsEnabled::class,
 				],
 				[
-					'conditions' => IsSiteLockdownActive::class,
+					'conditions' => ShieldConfigIsSiteLockdownActive::class,
 				],
 				[
 					'conditions' => IsIpWhitelisted::class,

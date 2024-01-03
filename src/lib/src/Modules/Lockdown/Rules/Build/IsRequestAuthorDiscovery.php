@@ -5,8 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockAuthorFishing;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
-	Enum\EnumLogic,
-	Enum\EnumMatchTypes,
+	Enum,
 	Responses
 };
 
@@ -24,23 +23,31 @@ class IsRequestAuthorDiscovery extends BuildRuleLockdownBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
 				[
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
-					'logic'      => EnumLogic::LOGIC_INVERT
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
 				[
 					'conditions' => Conditions\IsLoggedInNormal::class,
-					'logic'      => EnumLogic::LOGIC_INVERT,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+				],
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'params'     => [
+						'name'        => 'block_author_discovery',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'Y',
+					]
 				],
 				[
 					'conditions' => Conditions\RequestParameterValueMatches::class,
 					'params'     => [
 						'req_param_source' => 'get',
-						'match_type'       => EnumMatchTypes::MATCH_TYPE_REGEX,
+						'match_type'       => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 						'param_name'       => 'author',
-						'match_pattern'    => '\\d',
+						'match_pattern'    => '#\\d#',
 					],
 				],
 			]

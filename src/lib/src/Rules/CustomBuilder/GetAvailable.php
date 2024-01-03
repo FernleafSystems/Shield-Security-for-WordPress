@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumConditions,
 	EnumResponses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFireDefault;
 
 class GetAvailable {
 
@@ -45,7 +46,7 @@ class GetAvailable {
 				];
 			}, EnumResponses::Responses() ),
 			function ( array $response ) {
-				return true;
+				return $response[ 'slug' ] !== EventFireDefault::Slug();
 			}
 		);
 	}

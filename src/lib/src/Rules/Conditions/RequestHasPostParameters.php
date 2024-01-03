@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class RequestHasPostParameters extends Base {
 
@@ -11,11 +11,28 @@ class RequestHasPostParameters extends Base {
 	public const SLUG = 'request_has_post_parameters';
 
 	protected function execConditionCheck() :bool {
-		$post = Services::Request()->post;
-		return Services::Request()->isPost() && \is_array( $post ) && !empty( $post );
+		$post = $this->req->post;
+		return \is_array( $post ) && !empty( $post );
 	}
 
 	public function getDescription() :string {
 		return __( "Does the request have any POST parameters.", 'wp-simple-firewall' );
+	}
+
+	protected function getSubConditions() :array {
+		return [
+			'logic'      => EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => MatchRequestMethod::class,
+					'params'     => [
+						'match_method' => 'POST',
+					],
+				],
+				[
+					'conditions' => $this->getDefaultConditionCheckCallable(),
+				],
+			]
+		];
 	}
 }

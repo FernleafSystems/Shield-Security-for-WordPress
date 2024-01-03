@@ -57,15 +57,27 @@ class PerformConditionMatch {
 	}
 
 	private function matchRegex() :bool {
-		return (bool)\preg_match( sprintf( '#%s#i', $this->matchAgainst ), $this->incomingValue );
+		return (bool)\preg_match( $this->matchAgainst, $this->incomingValue );
 	}
 
 	private function matchEquals() :bool {
 		return \strval( $this->incomingValue ) === \strval( $this->matchAgainst );
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function matchContains() :bool {
-		return \str_contains( $this->incomingValue, $this->matchAgainst );
+		if ( \is_scalar( $this->incomingValue ) ) {
+			$match = \str_contains( \strval( $this->incomingValue ), \strval( $this->matchAgainst ) );
+		}
+		elseif ( \is_array( $this->incomingValue ) ) {
+			$match = \in_array( \strval( $this->matchAgainst ), \array_map( '\strval', $this->incomingValue ) );
+		}
+		else {
+			throw new \Exception( sprintf( 'Invalid type for incoming value: %s', var_export( $this->incomingValue, true ) ) );
+		}
+		return $match;
 	}
 
 	private function matchContainsI() :bool {
