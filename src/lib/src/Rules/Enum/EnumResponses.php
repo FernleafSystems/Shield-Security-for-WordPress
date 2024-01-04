@@ -28,6 +28,11 @@ class EnumResponses {
 		Responses\TriggerIpBlock::class,
 		Responses\TriggerIpOffense::class,
 		Responses\UpdateIpRuleLastAccessAt::class,
+		Responses\UserLogoutAllSessions::class,
+		Responses\UserLogoutCurrentSession::class,
+		Responses\UserSetMeta::class,
+		Responses\UserSuspend::class,
+		Responses\UserUnsuspend::class,
 		Responses\WpDie::class,
 	];
 

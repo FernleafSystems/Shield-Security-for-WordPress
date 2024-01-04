@@ -55,6 +55,8 @@ class EnumConditions {
 		Conditions\MatchRequestPath::class,
 		Conditions\MatchRequestScriptName::class,
 		Conditions\MatchRequestUseragent::class,
+		Conditions\MatchUserEmail::class,
+		Conditions\MatchUserMeta::class,
 		Conditions\MatchUsername::class,
 		Conditions\PhpDefineIs::class,
 		Conditions\RequestBypassesAllRestrictions::class,

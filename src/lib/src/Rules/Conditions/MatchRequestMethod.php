@@ -33,7 +33,7 @@ class MatchRequestMethod extends Base {
 				'type_enum'   => $methods,
 				'enum_labels' => \array_combine( $methods, $methods ),
 				'default'     => \current( $methods ),
-				'label'       => __( 'Redirect Method', 'wp-simple-firewall' ),
+				'label'       => __( 'Request Method', 'wp-simple-firewall' ),
 			],
 		];
 	}

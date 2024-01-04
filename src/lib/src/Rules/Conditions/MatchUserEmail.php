@@ -6,14 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MatchUsername extends Base {
+class MatchUserEmail extends Base {
 
 	use Traits\TypeUser;
 
 	protected function execConditionCheck() :bool {
 		$user = Services::WpUsers()->getCurrentWpUser();
 		return $user instanceof \WP_User
-			   && ( new PerformConditionMatch( $user->user_login, $this->p->match_username, $this->p->match_type ) )->doMatch();
+			   && ( new PerformConditionMatch( $user->user_email, $this->p->match_email, $this->p->match_type ) )->doMatch();
 	}
 
 	public function getDescription() :string {
@@ -22,19 +22,19 @@ class MatchUsername extends Base {
 
 	public function getParamsDef() :array {
 		return [
-			'match_type'     => [
+			'match_type'  => [
 				'type'      => Enum\EnumParameters::TYPE_ENUM,
 				'type_enum' => [
-					Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-					Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS,
+					Enum\EnumMatchTypes::MATCH_TYPE_EQUALS_I,
+					Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
 					Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
 				],
-				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS,
+				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
-			'match_username' => [
+			'match_email' => [
 				'type'  => Enum\EnumParameters::TYPE_STRING,
-				'label' => __( 'Match Username', 'wp-simple-firewall' ),
+				'label' => __( 'Match User Email Address', 'wp-simple-firewall' ),
 			],
 		];
 	}

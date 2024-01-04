@@ -8,6 +8,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * -- Conditions --
  * @property string[] $excluded_params
  * @property string   $is_fuzzy_search
+ * @property string   $key
  * @property int      $limit_count
  * @property int      $limit_time_span
  * @property string   $path_basename
@@ -29,6 +30,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $match_useragent
  * @property string   $match_userid
  * @property string   $match_username
+ * @property string   $match_email
  * @property string   $param_name
  * @property string   $plugin_file
  * @property string   $theme_dir
