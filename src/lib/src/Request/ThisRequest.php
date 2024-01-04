@@ -46,6 +46,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool            $wp_is_networkadmin
  * @property bool            $wp_is_ajax
  * @property bool            $wp_is_cron
+ * @property bool            $wp_is_debug
  * @property bool            $wp_is_wpcli
  * @property bool            $wp_is_xmlrpc
  * @property bool            $wp_is_permalinks_enabled
@@ -89,6 +90,7 @@ class ThisRequest extends DynPropertiesClass {
 		$this->wp_is_networkadmin = is_network_admin();
 		$this->wp_is_ajax = $WP->isAjax();
 		$this->wp_is_cron = $WP->isCron();
+		$this->wp_is_debug = $WP->isDebug();
 		$this->wp_is_wpcli = $WP->isWpCli();
 		$this->wp_is_xmlrpc = $WP->isXmlrpc();
 		$this->wp_is_permalinks_enabled = $WP->isPermalinksEnabled();

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
 	EnumConditions,
 	EnumResponses
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Common\BaseConditionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 
 class FindFromSlug {
@@ -24,6 +25,7 @@ class FindFromSlug {
 	private static function Find( string $slug, array $collection ) :?string {
 		$theClass = null;
 		foreach ( $collection as $item ) {
+			/** @var BaseConditionResponse|string $item */
 			if ( $item::Slug() === $slug ) {
 				$theClass = $item;
 				break;

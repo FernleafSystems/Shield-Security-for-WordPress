@@ -2,29 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\{
-	AutoSnakeCaseSlug,
-	ParamsConsumer,
-	RuleConsumer,
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
-use FernleafSystems\Wordpress\Services\Utilities\Strings;
-
-abstract class Base {
-
-	use PluginControllerConsumer;
-	use AutoSnakeCaseSlug;
-	use ParamsConsumer;
-	use RuleConsumer;
-	use ThisRequestConsumer;
+abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Common\BaseConditionResponse {
 
 	public const SLUG = '';
-
-	/**
-	 * @var array
-	 */
-	protected $params;
 
 	/**
 	 * @var array
@@ -32,20 +12,8 @@ abstract class Base {
 	protected $conditionTriggerMeta;
 
 	public function __construct( array $params = [], array $conditionTriggerMeta = [] ) {
-		$this->setParams( $params );
+		parent::__construct( $params );
 		$this->conditionTriggerMeta = $conditionTriggerMeta;
-	}
-
-	public static function Slug() :string {
-		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
-	}
-
-	/**
-	 * @deprecated 18.6
-	 */
-	public function setConditionTriggerMeta( array $meta ) :self {
-		$this->conditionTriggerMeta = $meta;
-		return $this;
 	}
 
 	/**
@@ -57,16 +25,15 @@ abstract class Base {
 		return $this->conditionTriggerMeta;
 	}
 
-	public function getName() :string {
-		$name = \ucwords( \str_replace( '_', ' ', $this->getSlug() ) );
-		return \str_ireplace( [ 'Wp ', 'Ip ', 'ajax', 'wpcli' ], [ 'WP ', 'IP ', 'AJAX', 'WP-CLI' ], $name );
-	}
-
-	public function getParamsDef() :array {
-		return [];
-	}
-
 	public function isTerminating() :bool {
 		return false;
+	}
+
+	/**
+	 * @deprecated 18.6
+	 */
+	public function setConditionTriggerMeta( array $meta ) :self {
+		$this->conditionTriggerMeta = $meta;
+		return $this;
 	}
 }

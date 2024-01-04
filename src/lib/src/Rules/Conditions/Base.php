@@ -2,64 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Common,
 	ConditionsVO,
 	Enum,
 	Processors,
 	WPHooksOrder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Traits\{
-	AutoSnakeCaseSlug,
-	ParamsConsumer,
-	RuleConsumer,
-};
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Strings;
 
-abstract class Base extends DynPropertiesClass {
-
-	use PluginControllerConsumer;
-	use AutoSnakeCaseSlug;
-	use ParamsConsumer;
-	use RuleConsumer;
-	use ThisRequestConsumer;
+abstract class Base extends Common\BaseConditionResponse {
 
 	public const SLUG = '';
 
 	/**
 	 * @var array
+	 * @deprecated 18.6
 	 */
 	protected $params;
 
 	protected $conditionTriggerMeta = [];
 
-	public function __construct( array $params = [] ) {
-		$this->setParams( $params );
-	}
-
 	public static function MinimumHook() :int {
 		return WPHooksOrder::NONE;
-	}
-
-	public static function Slug() :string {
-		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
-	}
-
-	public function getDescription() :string {
-		return 'description';
-	}
-
-	public function getName() :string {
-		return \preg_replace_callback(
-			sprintf( '#\b(%s)\b#i', \implode( '|', [ 'wp', 'http', 'https', 'ip', 'ajax', 'wpcli', 'ade' ] ) ),
-			function ( $matches ) {
-				return \strtoupper( $matches[ 0 ] );
-			},
-			\ucwords( \str_replace( '_', ' ', $this->getSlug() ) )
-		);
 	}
 
 	public function run() :bool {
@@ -117,10 +81,6 @@ abstract class Base extends DynPropertiesClass {
 		return function () {
 			return $this->execConditionCheck();
 		};
-	}
-
-	public function getParamsDef() :array {
-		return [];
 	}
 
 	public function getType() :string {

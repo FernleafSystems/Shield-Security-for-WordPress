@@ -38,6 +38,7 @@ class PhpDefineIs extends Base {
 				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
 				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
+				'for_param' => 'match_value',
 			],
 			'match_value' => [
 				'type'  => Enum\EnumParameters::TYPE_SCALAR,

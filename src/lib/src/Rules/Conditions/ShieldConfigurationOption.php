@@ -49,7 +49,7 @@ class ShieldConfigurationOption extends Base {
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],
 			'match_value' => [
-				'type'  => Enum\EnumParameters::TYPE_STRING,
+				'type'  => Enum\EnumParameters::TYPE_SCALAR,
 				'label' => __( 'Value To Match', 'wp-simple-firewall' ),
 			],
 		];

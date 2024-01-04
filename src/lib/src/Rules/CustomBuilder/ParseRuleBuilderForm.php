@@ -34,8 +34,8 @@ class ParseRuleBuilderForm {
 
 	public function parseForm() :RuleFormBuilderVO {
 		$this->deleteElements();
-		$this->extractedForm->conditions = $this->extractConditions();
-		$this->extractedForm->responses = $this->extractResponses();
+		$this->extractConditionsAndResponses();
+//		$this->extractedForm->responses = $this->extractResponses();
 		$this->extractedForm->conditions_logic = $this->extractConditionsLogic();
 		$this->counts();
 		$this->extractedForm->has_errors = $this->hasErrors;
@@ -130,27 +130,37 @@ class ParseRuleBuilderForm {
 		return $this->form[ 'conditions_logic' ] ?? EnumLogic::LOGIC_AND;
 	}
 
-	private function extractConditions() :array {
+	private function extractConditionsAndResponses() :void {
 
 		$conditions = [];
+		$responses = [];
 		$unselectedConditionPresent = false;
 
 		if ( !empty( $this->form ) ) {
 			$allConditionIDs = [];
+			$allResponseIDs = [];
+			$availableConditions = GetAvailable::Conditions();
+			$availableResponses = GetAvailable::Responses();
 			foreach ( $this->form as $name => $value ) {
-				if ( \preg_match( '#^condition_(\d+)$#', $name, $matches ) ) {
+				if ( \preg_match( '#^(condition|response)_(\d+)$#', $name, $matches ) ) {
+
+					$type = $matches[ 1 ];
+					$isCondition = $type === 'condition';
 
 					if ( $value === '--' ) {
-						$unselectedConditionPresent = true;
+						if ( $isCondition ) {
+							$unselectedConditionPresent = true;
+						}
 						continue;
 					}
 
-					$allConditionIDs[] = (int)$matches[ 1 ];
+					$id = (int)$matches[ 2 ];
+					$isCondition ? $allConditionIDs[] = $id : $allResponseIDs[] = $id;
 
-					$conditionParams = [];
-					$rawFormParams = $this->extractParamsForCondition( $name );
-					foreach ( $this->findDefFromSlug( $value, GetAvailable::Conditions() )[ 'params_def' ] as $paramName => $paramDef ) {
-
+					$itemParams = [];
+					$rawFormParams = $this->extractParamsForItem( $name );
+					$paramsDefForItem = $this->findDefFromSlug( $value, $isCondition ? $availableConditions : $availableResponses )[ 'params_def' ];
+					foreach ( $paramsDefForItem as $paramName => $paramDef ) {
 						$paramValue = $rawFormParams[ $paramName ] ?? null;
 						try {
 							$paramValue = ( new VerifyParams() )->verifyParam( $paramValue, $paramDef, $paramName );
@@ -164,8 +174,8 @@ class ParseRuleBuilderForm {
 							$this->hasErrors = true;
 						}
 
-						$conditionParams[ $paramName ] = [
-							'type'        => 'condition_param',
+						$itemParams[ $paramName ] = [
+							'type'        => $isCondition ? 'condition_param' : 'response_param',
 							'name'        => $paramName,
 							'value'       => $paramValue,
 							'param_type'  => $paramDef[ 'type' ],
@@ -176,116 +186,85 @@ class ParseRuleBuilderForm {
 						];
 					}
 
-					$conditions[ $name ] = [
-						'type'   => 'condition',
-						'name'   => $name,
-						'value'  => $value,
-						'params' => $conditionParams,
-						'invert' => [
-							'name'    => 'invert',
-							'value'   => $this->form[ $name.'_invert' ] ?? EnumLogic::LOGIC_ASIS,
-							'options' => [
-								EnumLogic::LOGIC_ASIS   => 'As-Is',
-								EnumLogic::LOGIC_INVERT => 'Invert',
-							],
-						],
-					];
-				}
-			}
-		}
-
-		$countPreDuplicates = \count( $conditions );
-		$conditions = $this->removeDuplicates( $conditions );
-
-		if ( $unselectedConditionPresent
-			 || $countPreDuplicates > \count( $conditions )
-			 || \count( $conditions ) === 0
-			 || $this->action === 'add_condition' ) {
-
-			$this->extractedForm->has_unset_condition = true;
-			$nextID = empty( $allConditionIDs ) ? 1 : \max( $allConditionIDs ) + 1;
-			$conditions[] = [
-				'type'   => 'condition',
-				'name'   => 'condition_'.$nextID,
-				'value'  => '--',
-				'invert' => [
-					'name'    => 'condition_'.$nextID.'_invert',
-					'value'   => EnumLogic::LOGIC_ASIS,
-					'options' => [
-						EnumLogic::LOGIC_ASIS   => 'As-Is',
-						EnumLogic::LOGIC_INVERT => 'Invert',
-					],
-				],
-			];
-		}
-		else {
-			$this->extractedForm->has_unset_condition = false;
-		}
-
-		return $conditions;
-	}
-
-	private function extractResponses() :array {
-		if ( !isset( $this->extractedForm->conditions ) ) {
-			$this->extractedForm->conditions = $this->extractConditions();
-		}
-
-		if ( $this->extractedForm->count_set_conditions === 0 ) {
-			$responses = [];
-		}
-		else {
-			$allResponseIDs = [];
-			$responses = [];
-			foreach ( $this->form as $name => $value ) {
-				if ( \preg_match( '#^response_(\d+)$#', $name, $matches ) ) {
-
-					if ( $value === '--' ) {
-						continue;
-					}
-
-					$allResponseIDs[] = (int)$matches[ 1 ];
-
-					$response = [
-						'type'   => 'response',
-						'name'   => $name,
-						'value'  => $value,
-						'params' => []
-					];
-					$rawFormParams = $this->extractParamsForResponse( $name );
-					$responseDef = $this->findDefFromSlug( $value, GetAvailable::Responses() );
-					foreach ( $responseDef[ 'params_def' ] as $paramName => $paramDef ) {
-
-						$paramValue = $rawFormParams[ $paramName ] ?? null;
-						try {
-							$paramValue = ( new VerifyParams() )->verifyParam( $paramValue, $paramDef, $paramName );
-							if ( $paramDef[ 'type' ] === 'bool' ) {
-								$paramValue = $paramValue ? 'Y' : 'N';
+					/**
+					 * After verifying all the parameters, we want to go back and look at any parameters
+					 * that have a match_type set to Regex, and see if the value to match against is in-fact a valid
+					 * regular expression.
+					 */
+					foreach ( $itemParams as $paramName => $paramDetails ) {
+						$forParamName = $paramsDefForItem[ $paramName ][ 'for_param' ] ?? null;
+						if ( !empty( $forParamName ) && $paramDetails[ 'value' ] === EnumMatchTypes::MATCH_TYPE_REGEX ) {
+							$forParamDetails = $itemParams[ $forParamName ];
+							$forParamDetails[ 'param_subtype' ] = EnumParameters::SUBTYPE_REGEX;
+							if ( empty( $forParamDetails[ 'error' ] ) && @\preg_match( \addslashes( $forParamDetails[ 'value' ] ), '' ) === false ) {
+								$forParamDetails[ 'error' ] = __( 'Please provide a valid regular expression.', 'wp-simple-firewall' );
+								$this->hasErrors = true;
 							}
-							$error = '';
+							$itemParams[ $forParamName ] = $forParamDetails;
 						}
-						catch ( \Exception $e ) {
-							$error = $e->getMessage();
-							$this->hasErrors = true;
-						}
-
-						$this->hasErrors = $this->hasErrors || $paramValue === null;
-
-						$response[ 'params' ][ $paramName ] = [
-							'type'        => 'response_param',
-							'name'        => $paramName,
-							'value'       => $paramValue,
-							'param_type'  => $paramDef[ 'type' ],
-							'enum_labels' => $paramDef[ 'enum_labels' ] ??
-											 \array_intersect_key( EnumMatchTypes::MatchTypeNames(), \array_flip( $paramDef[ 'type_enum' ] ?? [] ) ),
-							'label'       => $paramDef[ 'label' ],
-							'error'       => $error,
-						];
 					}
 
-					$responses[ $name ] = $response;
+					if ( $isCondition ) {
+						$conditions[ $name ] = [
+							'type'   => 'condition',
+							'name'   => $name,
+							'value'  => $value,
+							'params' => $itemParams,
+							'invert' => [
+								'name'    => 'invert',
+								'value'   => $this->form[ $name.'_invert' ] ?? EnumLogic::LOGIC_ASIS,
+								'options' => [
+									EnumLogic::LOGIC_ASIS   => 'As-Is',
+									EnumLogic::LOGIC_INVERT => 'Invert',
+								],
+							],
+						];
+					}
+					else {
+						$responses[ $name ] = [
+							'type'   => 'response',
+							'name'   => $name,
+							'value'  => $value,
+							'params' => $itemParams,
+						];
+					}
 				}
 			}
+		}
 
+		{ // Post-process Conditions
+			$countPreDuplicates = \count( $conditions );
+			$conditions = $this->removeDuplicates( $conditions );
+
+			if ( $unselectedConditionPresent
+				 || $countPreDuplicates > \count( $conditions )
+				 || \count( $conditions ) === 0
+				 || $this->action === 'add_condition' ) {
+
+				$this->extractedForm->has_unset_condition = true;
+				$nextID = empty( $allConditionIDs ) ? 1 : \max( $allConditionIDs ) + 1;
+				$conditions[] = [
+					'type'   => 'condition',
+					'name'   => 'condition_'.$nextID,
+					'value'  => '--',
+					'invert' => [
+						'name'    => 'condition_'.$nextID.'_invert',
+						'value'   => EnumLogic::LOGIC_ASIS,
+						'options' => [
+							EnumLogic::LOGIC_ASIS   => 'As-Is',
+							EnumLogic::LOGIC_INVERT => 'Invert',
+						],
+					],
+				];
+			}
+			else {
+				$this->extractedForm->has_unset_condition = false;
+			}
+
+			$this->extractedForm->conditions = $conditions;
+		}
+
+		{ // Post-Process Responses
 			$countPreDuplicates = \count( $responses );
 			$responses = $this->removeDuplicates( $responses );
 
@@ -304,25 +283,14 @@ class ParseRuleBuilderForm {
 			else {
 				$this->extractedForm->has_unset_response = false;
 			}
+			$this->extractedForm->responses = $responses;
 		}
-
-		return $responses;
 	}
 
-	private function extractParamsForCondition( string $conditionName ) :array {
+	private function extractParamsForItem( string $itemName ) :array {
 		$params = [];
 		foreach ( $this->form as $name => $value ) {
-			if ( \preg_match( sprintf( '#^%s_param_(.+)$#', $conditionName ), $name, $matches ) ) {
-				$params[ $matches[ 1 ] ] = $value;
-			}
-		}
-		return $params;
-	}
-
-	private function extractParamsForResponse( string $responseName ) :array {
-		$params = [];
-		foreach ( $this->form as $name => $value ) {
-			if ( \preg_match( sprintf( '#^%s_param_(.+)$#', $responseName ), $name, $matches ) ) {
+			if ( \preg_match( sprintf( '#^%s_param_(.+)$#', $itemName ), $name, $matches ) ) {
 				$params[ $matches[ 1 ] ] = $value;
 			}
 		}

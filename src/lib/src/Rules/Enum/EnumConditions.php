@@ -73,6 +73,7 @@ class EnumConditions {
 		Conditions\WpIsAdmin::class,
 		Conditions\WpIsAjax::class,
 		Conditions\WpIsCron::class,
+		Conditions\WpIsDebug::class,
 		Conditions\WpIsPermalinksEnabled::class,
 		Conditions\WpIsWpcli::class,
 		Conditions\WpIsXmlrpc::class,
