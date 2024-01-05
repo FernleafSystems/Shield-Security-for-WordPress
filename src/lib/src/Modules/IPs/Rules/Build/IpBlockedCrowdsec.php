@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Rules\Build;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
 	Conditions,
+	Enum,
 	Responses
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockIpAddressCrowdsec;
@@ -26,7 +27,21 @@ class IpBlockedCrowdsec extends BuildRuleIpsBase {
 
 	protected function getConditions() :array {
 		return [
-			'conditions' => Conditions\IsIpBlockedCrowdsec::class,
+			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'conditions' => [
+				[
+					'conditions' => Conditions\ShieldConfigurationOption::class,
+					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
+					'params'     => [
+						'name'        => 'cs_block',
+						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+						'match_value' => 'disabled',
+					]
+				],
+				[
+					'conditions' => Conditions\IsIpBlockedCrowdsec::class,
+				]
+			],
 		];
 	}
 

@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * -- Conditions --
- * @property string[] $excluded_params
+ * @property array[]  $excluded_params
  * @property string   $is_fuzzy_search
  * @property string   $key
  * @property int      $limit_count
@@ -32,6 +32,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string   $match_username
  * @property string   $match_email
  * @property string   $param_name
+ * @property string   $pattern
  * @property string   $plugin_file
  * @property string   $theme_dir
  * @property string   $req_param_source

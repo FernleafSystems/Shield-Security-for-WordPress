@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Services\Services;
-
+/**
+ * @deprecated 18.6
+ */
 class MatchRequestParamQuery extends MatchRequestParam {
 
 	use Traits\TypeRequest;

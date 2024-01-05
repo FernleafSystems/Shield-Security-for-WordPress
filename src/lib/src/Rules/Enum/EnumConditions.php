@@ -50,8 +50,6 @@ class EnumConditions {
 		Conditions\MatchRequestIpIdentity::class,
 		Conditions\MatchRequestMethod::class,
 		Conditions\MatchRequestParamFileUploads::class,
-		Conditions\MatchRequestParamPost::class,
-		Conditions\MatchRequestParamQuery::class,
 		Conditions\MatchRequestPath::class,
 		Conditions\MatchRequestScriptName::class,
 		Conditions\MatchRequestUseragent::class,

@@ -10,14 +10,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Responses
 };
 
-abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
+class Firewall extends BuildRuleCoreShieldBase {
 
 	use ModConsumer;
 
-	public const SCAN_CATEGORY = '';
+	public const SLUG = 'shield/firewall';
 
 	protected function getName() :string {
-		return '';
+		return __( 'Firewall', 'wp-simple-firewall' );
 	}
 
 	protected function getCommonAuditParamsMapping() :array {
@@ -31,12 +31,10 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 	}
 
 	protected function getDescription() :string {
-		return sprintf( __( 'Check request parameters that trigger "%s" patterns.', 'wp-simple-firewall' ), $this->getName() );
+		return sprintf( __( 'Check request parameters that trigger firewall patterns.', 'wp-simple-firewall' ), $this->getName() );
 	}
 
 	protected function getConditions() :array {
-		$opts = $this->opts();
-
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => \array_filter( [
@@ -44,30 +42,12 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 					'conditions' => Conditions\RequestBypassesAllRestrictions::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT
 				],
-				[
-					'conditions' => Conditions\RequestHasAnyParameters::class,
-				],
-
 				$this->opts()->isOpt( 'whitelist_admins', 'Y' ) ? [
 					'conditions' => Conditions\IsUserAdminNormal::class,
 					'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				] : null,
-
-				empty( $opts->getDef( 'whitelisted_paths' ) ) ? null : [
-					'logic'      => Enum\EnumLogic::LOGIC_AND,
-					'conditions' => \array_map(
-						function ( string $path ) {
-							return [
-								'conditions' => Conditions\MatchRequestPath::class,
-								'logic'      => Enum\EnumLogic::LOGIC_INVERT,
-								'params'     => [
-									'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS_I,
-									'match_path' => $path,
-								],
-							];
-						},
-						$opts->getDef( 'whitelisted_paths' )
-					),
+				[
+					'conditions' => Conditions\RequestTriggersFirewall::class,
 				],
 			] )
 		];
@@ -92,17 +72,5 @@ abstract class BuildFirewallBase extends BuildRuleCoreShieldBase {
 				'params'   => [],
 			],
 		];
-	}
-
-	protected function getFirewallPatterns() :array {
-		return $this->opts()->getDef( 'firewall_patterns' )[ static::SCAN_CATEGORY ] ?? [];
-	}
-
-	protected function getFirewallPatterns_Regex() :array {
-		return $this->getFirewallPatterns()[ 'regex' ] ?? [];
-	}
-
-	protected function getFirewallPatterns_Simple() :array {
-		return $this->getFirewallPatterns()[ 'simple' ] ?? [];
 	}
 }

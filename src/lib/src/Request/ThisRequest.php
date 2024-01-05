@@ -7,18 +7,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRe
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property \Carbon\Carbon $carbon
- * @property \Carbon\Carbon $carbon_tz
+ * @property \Carbon\Carbon  $carbon
+ * @property \Carbon\Carbon  $carbon_tz
  *
  * @property string          $ip
  * @property bool            $ip_is_public
  * @property string          $ip_id
  *
- * @property string         $method
- * @property array          $post
- * @property array          $query
- * @property array          $cookies
- * @property array          $headers
+ * @property string          $method
+ * @property array           $post
+ * @property array           $query
+ * @property array           $cookies
+ * @property array           $headers
  *
  * @property string          $path
  * @property string          $script_name

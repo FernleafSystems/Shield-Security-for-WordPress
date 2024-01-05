@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumMatchTypes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\PerformConditionMatch;
-use FernleafSystems\Wordpress\Services\Services;
 
 abstract class MatchRequestParam extends Base {
 
@@ -16,7 +15,6 @@ abstract class MatchRequestParam extends Base {
 	protected function execConditionCheck() :bool {
 		$matched = false;
 		foreach ( $this->getFinalRequestParamsToTest() as $param => $value ) {
-
 			if ( empty( $value ) || !\is_string( $value ) ) {
 				continue;
 			}

@@ -231,160 +231,127 @@
     }
   ],
   "definitions": {
+    "whitelisted_paths": [
+      "/wp-admin/options-general.php",
+      "/wp-admin/post-new.php",
+      "/wp-admin/page-new",
+      "/wp-admin/link-add.php",
+      "/wp-admin/media-upload.php",
+      "/wp-admin/page.php",
+      "/wp-admin/admin-ajax.php"
+    ],
     "default_whitelist": {
-      "/wp-admin/options-general.php": [],
-      "/wp-admin/options.php":         {
-        "simple": [
-          "home",
-          "siteurl"
-        ]
-      },
-      "/wp-admin/plugins.php":         {
-        "simple": [
-          "plugin"
-        ]
-      },
-      "/wp-admin/post-new.php":        [],
-      "/wp-admin/page-new.php":        [],
-      "/wp-admin/link-add.php":        [],
-      "/wp-admin/media-upload.php":    [],
-      "/wp-admin/admin.php":           {
-        "simple": [
-          "page"
-        ]
-      },
-      "/wp-admin/post.php":            {
-        "simple": [
-          "content"
-        ]
-      },
-      "/wp-admin/plugin-editor.php":   {
-        "simple": [
-          "newcontent"
-        ]
-      },
-      "/wp-admin/page.php":            [],
-      "/wp-admin/admin-ajax.php":      [],
-      "/wp-comments-post.php":         {
-        "simple": [
-          "url",
-          "comment"
-        ]
-      },
-      "*":                             {
-        "regex":  [
-          "#^wordpress_logged_in_[0-9a-f]+$#",
-          "#^et_.*#"
-        ],
-        "simple": [
-          "affwp_action",
-          "ajaxurl",
-          "g-recaptcha-response",
-          "verify_sign",
-          "txn_id",
-          "wp_http_referer",
-          "_wp_http_referer",
-          "_wp_original_http_referer",
-          "JCS_INENREF",
-          "pass1",
-          "pass1-text",
-          "pwd",
-          "url",
-          "referredby",
-          "return",
-          "redirect_to",
-          "jetpack_sso_original_request",
-          "jetpack_sso_redirect_to",
-          "edd_action",
-          "edd_redirect",
-          "wpcf7-form",
-          "yoast_wpseo_metadesc",
-          "icwp_wpsf_passkey_otp",
-          "_rest_url",
-          "shield_action",
-          "appId",
-          "ping_sites",
-          "aioseo-post-settings",
-          "joe-chnlcustid",
-          "spd-custhash",
-          "joe-custinfo",
-          "_wpcf7cf_hidden_group_fields",
-          "wl_homeurl",
-          "_gform_setting_routing",
-          "where",
-          "customized"
-        ]
-      }
+      "*":                           [
+        "#^wordpress_logged_in_[0-9a-f]+$#",
+        "#^et_.*#",
+        "#^affwp_action$#i",
+        "#^ajaxurl$#i",
+        "#^g-recaptcha-response$#i",
+        "#^verify_sign$#i",
+        "#^txn_id$#i",
+        "#^wp_http_referer$#i",
+        "#^_wp_http_referer$#i",
+        "#^_wp_original_http_referer$#i",
+        "#^JCS_INENREF$#i",
+        "#^pass1$#i",
+        "#^pass1-text$#i",
+        "#^pwd$#i",
+        "#^url$#i",
+        "#^referredby$#i",
+        "#^return$#i",
+        "#^redirect_to$#i",
+        "#^jetpack_sso_original_request$#i",
+        "#^jetpack_sso_redirect_to$#i",
+        "#^edd_action$#i",
+        "#^edd_redirect$#i",
+        "#^wpcf7-form$#i",
+        "#^yoast_wpseo_metadesc$#i",
+        "#^icwp_wpsf_passkey_otp$#i",
+        "#^_rest_url$#i",
+        "#^shield_action$#i",
+        "#^appId$#i",
+        "#^ping_sites$#i",
+        "#^aioseo-post-settings$#i",
+        "#^joe-chnlcustid$#i",
+        "#^spd-custhash$#i",
+        "#^joe-custinfo$#i",
+        "#^_wpcf7cf_hidden_group_fields$#i",
+        "#^wl_homeurl$#i",
+        "#^_gform_setting_routing$#i",
+        "#^where$#i",
+        "#^customized$#i"
+      ],
+      "/wp-admin/options.php":       [
+        "#^home#i",
+        "#^siteurl#i"
+      ],
+      "/wp-admin/plugins.php":       [
+        "#^plugin#i"
+      ],
+      "/wp-admin/admin.php":         [
+        "#^page#i"
+      ],
+      "/wp-admin/post.php":          [
+        "#^content#i"
+      ],
+      "/wp-admin/plugin-editor.php": [
+        "#^newcontent#i"
+      ],
+      "/wp-comments-post.php":       [
+        "#^url#i",
+        "#^comment$#i"
+      ]
     },
     "firewall_patterns": {
-      "dir_traversal":    {
-        "simple": [
-          "etc/passwd",
-          "proc/self/environ",
-          "etc/passwd",
-          "makefile",
-          "wwwroot",
-          "pingserver",
-          "../",
-          "loopback"
-        ]
-      },
-      "wordpress_terms":  {
-        "simple": [
-          "/**/",
-          "wp-config.php"
-        ],
-        "regex":  [
-          "#^user_login#",
-          "#^user_pass#"
-        ]
-      },
-      "field_truncation": {
-        "regex": [
-          "#\\s{49,}#",
-          "#\\x00#"
-        ]
-      },
-      "sql_queries":      {
-        "regex": [
-          "#concat\\s*\\(#i",
-          "#group_concat#i",
-          "#union.*select#i"
-        ]
-      },
-      "exe_file_uploads": {
-        "regex": [
-          "#\\.(dll|rb|py|exe|php[3-9]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$#i"
-        ]
-      },
-      "php_code":         {
-        "simple": null,
-        "regex":  [
-          "#(include|include_once|require|require_once)\\s*\\(.*\\)#"
-        ]
-      },
-      "aggressive":       {
-        "simple": [
-          "eval(",
-          "(null)",
-          "base64_",
-          "localhost",
-          "(function(",
-          "{x.html(",
-          ").html(",
-          "...",
-          "/httpdocs/",
-          "/tmp/",
-          "boot.ini"
-        ],
-        "regex":  [
-          "#GLOBALS(=|\\[|%%)#",
-          "#REQUEST(=|\\[|%%)#",
-          "#(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)#",
-          "#drop\\s+table\\s+(`|'?)[a-z0-9]+\\1#i",
-          "#'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+#"
-        ]
-      }
+      "dir_traversal":    [
+        "#etc/passwd#i",
+        "#proc/self/environ#i",
+        "#etc/passwd#i",
+        "#makefile#i",
+        "#wwwroot#i",
+        "#pingserver#i",
+        "#\\.\\./#i",
+        "#loopback#i"
+      ],
+      "wordpress_terms":  [
+        "#/\\*\\*/#i",
+        "#wp-config.php#i",
+        "#^user_login#",
+        "#^user_pass#"
+      ],
+      "field_truncation": [
+        "#\\s{49,}#",
+        "#\\x00#"
+      ],
+      "sql_queries":      [
+        "#concat\\s*\\(#i",
+        "#group_concat#i",
+        "#union.*select#i"
+      ],
+      "exe_file_uploads": [
+        "#\\.(dll|rb|py|exe|php[3-9]?|pl|perl|ph[34]|phl|phtml|phtm|sql|ini|jsp|asp|git|svn|tar)$#i"
+      ],
+      "php_code":         [
+        "#(include|include_once|require|require_once)\\s*\\(.*\\)#"
+      ],
+      "aggressive":       [
+        "#eval\\(#i",
+        "#\\(null\\)#i",
+        "#base64\\_#i",
+        "#localhost#i",
+        "#\\(function\\(#i",
+        "#\\{x\\.html\\(#i",
+        "#\\)\\.html\\(#i",
+        "#\\.\\.\\.#i",
+        "#/httpdocs/#i",
+        "#/tmp/#i",
+        "#boot\\.ini#i",
+        "#GLOBALS(=|\\[|%%)#",
+        "#REQUEST(=|\\[|%%)#",
+        "#(`|\\<|\\>|\\[|\\]|\\{|\\}|\\?)#",
+        "#drop\\s+table\\s+(`|'?)[a-z0-9]+\\1#i",
+        "#'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+#"
+      ]
     },
     "events":            {
       "firewall_block":   {
