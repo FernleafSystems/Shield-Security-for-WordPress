@@ -30,6 +30,7 @@ class Components {
 		Component\FirewallSqlQueries::class,
 		Component\FirewallWpTerms::class,
 		Component\HttpHeaders::class,
+		Component\IpAddressSource::class,
 		Component\IpAutoBlockShield::class,
 		Component\IpAutoBlockOffenseLimit::class,
 		Component\IpAutoBlockCrowdsec::class,

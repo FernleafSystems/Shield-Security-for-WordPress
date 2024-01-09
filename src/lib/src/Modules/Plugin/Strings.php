@@ -294,6 +294,8 @@ class Strings extends Base\Strings {
 							'https://shsec.io/shieldwhatismyip',
 							__( 'What Is My IP Address?', 'wp-simple-firewall' )
 						),
+						sprintf( __( "If the correct setting is not %s, we recommend contacting your hosting provider to request that they configure your hosting so that %s contains the actual visitor IP address.", 'wp-simple-firewall' ),
+							sprintf( '<code>%s</code>', 'REMOTE_ADDR' ), sprintf( '<code>%s</code>', 'REMOTE_ADDR' ) )
 					] ),
 				];
 				break;
