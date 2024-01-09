@@ -26,7 +26,7 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 		$record = null;
 		$maybeEditRuleID = $this->action_data[ 'edit_rule_id' ] ?? -1;
 		if ( $maybeEditRuleID >= 0 ) {
-			foreach ( self::con()->rules->getCustomRuleForms() as $maybe ) {
+			foreach ( ( new RuleRecords() )->getCustom() as $maybe ) {
 				if ( $maybe->id === (int)$maybeEditRuleID ) {
 					$record = $maybe;
 					break;

@@ -18,7 +18,7 @@ class RulesManagerActions extends BaseAction {
 		if ( !empty( $managerAction ) ) {
 			$ruleID = $managerAction[ 'rule_id' ] ?? -1;
 			if ( \is_numeric( $ruleID ) && $ruleID > 0 ) {
-				$dbh = $con->db_con->getDbH_Rules();
+				$dbh = $con->db_con->dbhRules();
 				/** @var ?RulesDB\Record $rule */
 				$rule = $dbh->getQuerySelector()->byId( (int)$ruleID );
 				if ( empty( $rule ) ) {
@@ -32,27 +32,19 @@ class RulesManagerActions extends BaseAction {
 							$msg = __( 'Rule Deleted', 'wp-simple-firewall' );
 							break;
 						case 'activate':
-							$updateData = [
-								'is_active' => 1,
-							];
+							$updateData[ 'is_active' ] = 1;
 							$msg = __( 'Rule Activated', 'wp-simple-firewall' );
 							break;
 						case 'deactivate':
-							$updateData = [
-								'is_active' => 0,
-							];
+							$updateData[ 'is_active' ] = 0;
 							$msg = __( 'Rule Deactivated', 'wp-simple-firewall' );
 							break;
 						case 'set_to_export':
-							$updateData = [
-								'can_export' => 1,
-							];
+							$updateData[ 'can_export' ] = 1;
 							$msg = __( 'Rule will be exported during sync', 'wp-simple-firewall' );
 							break;
 						case 'set_no_export':
-							$updateData = [
-								'can_export' => 0,
-							];
+							$updateData[ 'can_export' ] = 0;
 							$msg = __( "Rule won't be exported during sync", 'wp-simple-firewall' );
 							break;
 						default:
@@ -62,6 +54,8 @@ class RulesManagerActions extends BaseAction {
 					if ( !empty( $updateData ) ) {
 						$success = $dbh->getQueryUpdater()->updateRecord( $rule, $updateData );
 					}
+
+					$con->rules->buildAndStore();
 				}
 			}
 		}

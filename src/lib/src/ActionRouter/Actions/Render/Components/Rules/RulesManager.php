@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Rules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -14,24 +13,17 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 	public const TEMPLATE = '/components/rules/rules_manager.twig';
 
 	protected function getRenderData() :array {
-		$WP = Services::WpGeneral();
 		$con = self::con();
 
 		( new RuleRecords() )->deleteOldDrafts();
 
-		$dbh = $con->db_con->getDbH_Rules();
-		/** @var RulesDB\Select $selector */
-		$selector = self::con()->db_con->getDbH_Rules()->getQuerySelector();
-		/** @var RulesDB\Record[] $records */
-		$records = $selector->filterByType( $dbh::TYPE_CUSTOM )->queryWithResult();
-
 		$customRules = [];
-		foreach ( $records as $rule ) {
+		foreach ( ( new RuleRecords() )->getCustom() as $rule ) {
 			$customRules[ $rule->id ] = [
 				'rule_id'     => $rule->id,
 				'name'        => $rule->name,
 				'description' => $rule->description,
-				'created_at'  => $WP->getTimeStampForDisplay( $rule->updated_at ),
+				'created_at'  => Services::WpGeneral()->getTimeStampForDisplay( $rule->updated_at ),
 				'version'     => $rule->builder_version ?? '0',
 				'is_active'   => $rule->is_active,
 				'can_export'  => $rule->can_export,

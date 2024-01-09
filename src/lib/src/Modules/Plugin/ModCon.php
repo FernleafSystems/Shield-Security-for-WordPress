@@ -73,10 +73,6 @@ class ModCon extends BaseShield\ModCon {
 		return $this->wizardCon ?? $this->wizardCon = new Lib\Merlin\MerlinController();
 	}
 
-	public function getDbH_Reports() :DB\Reports\Ops\Handler {
-		return self::con()->db_con->loadDbH( 'reports' );
-	}
-
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
 		$this->setupCacheDir();

@@ -54,7 +54,7 @@ class ParseRuleBuilderForm {
 	}
 
 	private function assessReadiness() :void {
-		$ready = self::con()->caps->canCreateCustomRules()
+		$ready = self::con()->caps->canCustomSecurityRules()
 				 && !$this->hasErrors
 				 && !empty( $this->extractedForm->name )
 				 && !empty( $this->extractedForm->description )

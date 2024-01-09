@@ -61,6 +61,7 @@ class ReportGenerator {
 	 * @throws Exceptions\ReportDataEmptyException
 	 */
 	private function buildAndStore( ReportVO $report ) :ReportsDB\Record {
+		$con = self::con();
 
 		$areasData = [];
 		foreach ( $report->areas as $slug => $area ) {
@@ -89,7 +90,7 @@ class ReportGenerator {
 		}
 
 		try {
-			$report->content = self::con()->action_router->action( FullPageDisplayNonTerminating::class, [
+			$report->content = $con->action_router->action( FullPageDisplayNonTerminating::class, [
 				'render_slug' => SecurityReport::SLUG,
 				'render_data' => [
 					'report' => $report->getRawData(),
@@ -101,7 +102,7 @@ class ReportGenerator {
 		}
 
 		/** @var ReportsDB\Record $record */
-		$record = $this->mod()->getDbH_Reports()->getRecord();
+		$record = $con->db_con->dbhReports()->getRecord();
 		$record->interval_start_at = $report->start_at;
 		$record->interval_end_at = $report->end_at;
 		$record->interval_length = $report->interval ?? 'custom';
@@ -110,9 +111,9 @@ class ReportGenerator {
 		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;
 		$record->title = $report->title;
 		$record->content = \function_exists( '\gzdeflate' ) ? \gzdeflate( $report->content ) : $report->content;
-		$this->mod()->getDbH_Reports()->getQueryInserter()->insert( $record );
+		$con->db_con->dbhReports()->getQueryInserter()->insert( $record );
 
-		self::con()->fireEvent( 'report_generated', [
+		$con->fireEvent( 'report_generated', [
 			'audit_params' => [
 				'type'     => $this->mod()
 								   ->getReportingController()

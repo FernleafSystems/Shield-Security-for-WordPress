@@ -138,17 +138,6 @@ class RulesController {
 	}
 
 	/**
-	 * @return RulesDB\Record[]
-	 */
-	public function getCustomRuleForms() :array {
-		$dbh = self::con()->db_con->getDbH_Rules();
-		/** @var RulesDB\Select $selector */
-		$selector = self::con()->db_con->getDbH_Rules()->getQuerySelector();
-		$records = $selector->filterByType( $dbh::TYPE_CUSTOM )->queryWithResult();
-		return \is_array( $records ) ? $records : [];
-	}
-
-	/**
 	 * @throws AttemptToAccessNonExistingRuleException
 	 * @deprecated 18.6
 	 */

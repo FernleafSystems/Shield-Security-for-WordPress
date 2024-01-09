@@ -20,7 +20,7 @@ class Capabilities {
 		return $this->hasCap( 'activity_logs_integrations' );
 	}
 
-	public function canCreateCustomRules() :bool {
+	public function canCustomSecurityRules() :bool {
 		return $this->hasCap( 'custom_security_rules' );
 	}
 

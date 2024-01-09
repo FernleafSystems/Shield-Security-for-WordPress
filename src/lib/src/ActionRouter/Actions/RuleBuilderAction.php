@@ -2,9 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\ParseRuleBuilderForm;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\{
+	Ops as RulesDB,
+	RuleRecords
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\{
+	ParseRuleBuilderForm,
+	RuleFormBuilderVO
+};
 
 class RuleBuilderAction extends BaseAction {
 
@@ -21,8 +26,6 @@ class RuleBuilderAction extends BaseAction {
 			$msg = __( 'Please provide the builder form' );
 		}
 		else {
-			$dbh = $con->db_con->getDbH_Rules();
-
 			$action = $this->action_data[ 'builder_action' ] ?? '';
 			$editRuleID = (int)( $rawForm[ 'edit_rule_id' ] ?? -1 );
 
@@ -32,15 +35,18 @@ class RuleBuilderAction extends BaseAction {
 				$parsed = ( new ParseRuleBuilderForm( [] ) )->parseForm();
 
 				if ( $editRuleID >= 0 ) {
-					/** @var RulesDB\Record $recordToReset */
-					$recordToReset = $dbh->getQuerySelector()->byId( $editRuleID );
-					if ( empty( $recordToReset->form ) ) {
-						$parsed->edit_rule_id = $editRuleID;
-						$msg = 'Rule Reset';
+					try {
+						$recordToReset = ( new RuleRecords() )->byID( $editRuleID );
+						if ( empty( $recordToReset->form ) ) {
+							$parsed->edit_rule_id = $editRuleID;
+							$msg = 'Rule Reset';
+						}
+						else {
+							$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $recordToReset->form );
+							$msg = 'Rule reset to previous saved state';
+						}
 					}
-					else {
-						$parsed = ( new RuleFormBuilderVO() )->applyFromArray( $recordToReset->form );
-						$msg = 'Rule reset to previous saved state';
+					catch ( \Exception $e ) {
 					}
 				}
 			}
@@ -57,7 +63,7 @@ class RuleBuilderAction extends BaseAction {
 			$parsed->form_builder_version = $con->cfg->version();
 
 			try {
-				$record = $dbh->insertFromForm( $parsed, $asDraft );
+				$record = $con->db_con->dbhRules()->insertFromForm( $parsed, $asDraft );
 				$success = true;
 				if ( !$asDraft ) {
 					$msg = __( 'Rule Saved' );

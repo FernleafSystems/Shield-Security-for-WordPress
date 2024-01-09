@@ -38,10 +38,11 @@ class ReportingController {
 	 */
 	public function convertToPdf( int $reportID ) :string {
 		/** @var Record $report */
-		$report = $this->mod()
-					   ->getDbH_Reports()
-					   ->getQuerySelector()
-					   ->byId( $reportID );
+		$report = self::con()
+			->db_con
+			->dbhReports()
+			->getQuerySelector()
+			->byId( $reportID );
 		if ( empty( $report ) ) {
 			throw new \Exception( 'Invalid report' );
 		}

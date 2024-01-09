@@ -3,7 +3,35 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Database;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\{
+	Logs,
+	Meta,
+	Snapshots
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\{
+	IPs,
+	IpMeta,
+	UserMeta,
+	ReqLogs
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Hackguard\DB\{
+	FileLocker,
+	Malware,
+	Scans,
+	ScanItems,
+	ResultItems,
+	ResultItemMeta,
+	ScanResults,
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\{
+	BotSignal,
+	CrowdSecSignals,
+	IpRules,
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\DB\Mfa;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\DB\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,8 +44,88 @@ class DbCon {
 	 */
 	private $dbHandlers = null;
 
-	public function getDbH_Rules() :Rules\Ops\Handler {
+	public function dbhLogs() :Logs\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'at_logs' );
+	}
+
+	public function dbhMeta() :Meta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'at_meta' );
+	}
+
+	public function dbhSnapshots() :Snapshots\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'snapshots' );
+	}
+
+	public function dbhRules() :Rules\Ops\Handler {
 		return $this->loadDbH( 'rules' );
+	}
+
+	public function dbhIPs() :IPs\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'ips' );
+	}
+
+	public function dbhIPMeta() :IpMeta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'ip_meta' );
+	}
+
+	public function dbhUserMeta() :UserMeta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'user_meta' );
+	}
+
+	public function dbhReqLogs() :ReqLogs\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'req_logs' );
+	}
+
+	public function dbhEvents() :Event\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'event' );
+	}
+
+	public function dbhFileLocker() :FileLocker\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'file_locker' );
+	}
+
+	public function dbhMalware() :Malware\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'malware' );
+	}
+
+	public function dbhScans() :Scans\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'scans' );
+	}
+
+	public function dbhScanItems() :ScanItems\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'scanitems' );
+	}
+
+	public function dbhResultItems() :ResultItems\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'resultitems' );
+	}
+
+	public function dbhResultItemMeta() :ResultItemMeta\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'resultitem_meta' );
+	}
+
+	public function dbhScanResults() :ScanResults\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'scanresults' );
+	}
+
+	public function dbhBotSignal() :BotSignal\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'botsignal' );
+	}
+
+	public function dbhIPRules() :IpRules\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'ip_rules' );
+	}
+
+	public function dbhCrowdSecSignals() :CrowdSecSignals\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'crowdsec_signals' );
+	}
+
+	public function dbhMfa() :Mfa\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'mfa' );
+	}
+
+	public function dbhReports() :Reports\Ops\Handler {
+		return self::con()->db_con->loadDbH( 'reports' );
 	}
 
 	/**

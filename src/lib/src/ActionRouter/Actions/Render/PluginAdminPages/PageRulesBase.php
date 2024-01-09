@@ -10,7 +10,7 @@ class PageRulesBase extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			'flags'   => [
-				'can_custom_rules' => $con->caps->canCreateCustomRules(),
+				'can_custom_rules' => $con->caps->canCustomSecurityRules(),
 			],
 			'hrefs'   => [
 				'rules_builder' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),

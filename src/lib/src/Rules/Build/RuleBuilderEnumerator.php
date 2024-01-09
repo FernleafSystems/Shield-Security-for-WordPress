@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	Data\DB\Rules\RuleRecords,
 	Firewall,
 	IPs,
 	Lockdown,
@@ -11,8 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	SecurityAdmin,
 	Traffic
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
 
 class RuleBuilderEnumerator {
 
@@ -22,11 +23,7 @@ class RuleBuilderEnumerator {
 	 * @return BuildRuleBase[]
 	 */
 	public function run() :array {
-		$rules = $this->direct();
-		if ( self::con()->isPremiumActive() ) {
-			$rules = \array_merge( $rules, $this->custom() );
-		}
-		return $rules;
+		return \array_merge( $this->direct(), $this->custom() );
 	}
 
 	/**
@@ -49,17 +46,14 @@ class RuleBuilderEnumerator {
 			function ( RulesDB\Record $record ) {
 				return new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( $record->form ) );
 			},
-			\array_filter(
-				self::con()->rules->getCustomRuleForms(),
-				function ( RulesDB\Record $record ) {
-					return $record->is_active;
-				}
-			)
+			( new RuleRecords() )->getActiveCustom()
 		);
 	}
 
 	private function shieldCoreRules() :array {
 		return [
+			Plugin\Rules\Build\RequestIsSiteBlockdownBlocked::class,
+
 			SecurityAdmin\Rules\Build\IsSecurityAdmin::class,
 
 			Traffic\Rules\Build\ShieldLogRequest::class,
@@ -67,7 +61,6 @@ class RuleBuilderEnumerator {
 			Traffic\Rules\Build\IsRateLimitExceeded::class,
 
 			IPs\Rules\Build\IpWhitelisted::class,
-			Plugin\Rules\Build\RequestIsSiteBlockdownBlocked::class,
 			IPs\Rules\Build\HighReputationIp::class,
 			IPs\Rules\Build\IpBlockedShield::class,
 			IPs\Rules\Build\IpBlockedCrowdsec::class,
