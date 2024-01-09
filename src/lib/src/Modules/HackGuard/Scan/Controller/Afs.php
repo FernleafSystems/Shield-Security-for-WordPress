@@ -19,13 +19,8 @@ class Afs extends Base {
 
 	protected function run() {
 		parent::run();
-
-		( new Scan\Utilities\PtgAddReinstallLinks() )
-			->setScanController( $this )
-			->execute();
-
 		$this->setupCronHooks();
-
+		( new Scan\Utilities\PtgAddReinstallLinks() )->execute();
 		( new Lib\Snapshots\StoreAction\ScheduleBuildAll() )->execute();
 	}
 
