@@ -25,22 +25,6 @@
     "enabled":  true,
     "cmd_base": "secadmin"
   },
-  "admin_notices": {
-    "certain-options-restricted": {
-      "id":           "certain-options-restricted",
-      "schedule":     "conditions",
-      "plugin_admin": "no",
-      "per_user":     true,
-      "type":         "warning"
-    },
-    "admin-users-restricted":     {
-      "id":           "admin-users-restricted",
-      "schedule":     "conditions",
-      "plugin_admin": "no",
-      "type":         "warning",
-      "per_user":     true
-    }
-  },
   "sections":      [
     {
       "slug":        "section_security_admin_settings",

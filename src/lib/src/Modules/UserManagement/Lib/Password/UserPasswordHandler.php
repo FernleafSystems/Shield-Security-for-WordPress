@@ -126,7 +126,7 @@ class UserPasswordHandler {
 			if ( $user && ( !Services::WpGeneral()->isLoginUrl() || !\in_array( $action, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$msg .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
-				$con->getAdminNotices()->addFlash( $msg, $user, true, true );
+				$con->admin_notices->addFlash( $msg, $user, true, true );
 				$con->fireEvent( 'password_policy_force_change', [
 					'audit_params' => [
 						'user_login' => $user->user_login

@@ -43,6 +43,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property ExtensionsCon                                          $extensions_controller
  * @property Database\DbCon                                         $db_con
  * @property Email\EmailCon                                         $email_con
+ * @property Shield\Utilities\AdminNotices\Controller               $admin_notices
  * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
  * @property Shield\Controller\Assets\Urls                          $urls
  * @property Shield\Controller\Assets\Paths                         $paths
@@ -82,21 +83,6 @@ class Controller extends DynPropertiesClass {
 	 */
 	public static $oInstance;
 
-	/**
-	 * @var string
-	 */
-	protected static $sSessionId;
-
-	/**
-	 * @var string
-	 */
-	protected $sAdminNoticeError = '';
-
-	/**
-	 * @var Shield\Utilities\AdminNotices\Controller
-	 */
-	protected $oNotices;
-
 	public function fireEvent( string $event, array $meta = [] ) :self {
 		$this->loadEventsService()->fireEvent( $event, $meta );
 		return $this;
@@ -134,8 +120,6 @@ class Controller extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
 
-		$FS = Services::WpFs();
-
 		switch ( $key ) {
 
 			case 'caps':
@@ -172,6 +156,13 @@ class Controller extends DynPropertiesClass {
 				}
 				break;
 
+			case 'admin_notices':
+				if ( !$val instanceof Shield\Utilities\AdminNotices\Controller ) {
+					$val = new Shield\Utilities\AdminNotices\Controller();
+					$this->admin_notices = $val;
+				}
+				break;
+
 			case 'extensions_controller':
 				if ( !$val instanceof ExtensionsCon ) {
 					$this->extensions_controller = $val = new ExtensionsCon();
@@ -205,7 +196,7 @@ class Controller extends DynPropertiesClass {
 
 			case 'plugin_reset':
 				if ( $val === null ) {
-					$val = $FS->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
+					$val = Services::WpFs()->isAccessibleFile( $this->paths->forFlag( 'reset' ) );
 					$this->plugin_reset = $val;
 				}
 				break;
@@ -645,7 +636,7 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpLoaded() {
 		$this->getInstallationID();
-		$this->getAdminNotices();
+		$this->admin_notices->execute();
 		$this->initCrons();
 		( new Utilities\CaptureMyUpgrade() )->execute();
 		( new Admin\AdminBarMenu() )->execute();
@@ -662,16 +653,10 @@ class Controller extends DynPropertiesClass {
 
 	/**
 	 * @return Shield\Utilities\AdminNotices\Controller
+	 * @deprecated 18.6
 	 */
 	public function getAdminNotices() :Shield\Utilities\AdminNotices\Controller {
-		if ( !isset( $this->oNotices ) ) {
-			if ( $this->getIsPage_PluginAdmin() ) {
-				remove_all_filters( 'admin_notices' );
-				remove_all_filters( 'network_admin_notices' );
-			}
-			$this->oNotices = new Shield\Utilities\AdminNotices\Controller();
-		}
-		return $this->oNotices;
+		return $this->admin_notices;
 	}
 
 	/**
@@ -991,7 +976,6 @@ class Controller extends DynPropertiesClass {
 				Services::WpFs()->deleteFile( $file );
 				\clearstatcache();
 			}
-			$this->this_req->is_force_off = false;
 		}
 	}
 

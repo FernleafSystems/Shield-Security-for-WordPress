@@ -10,16 +10,8 @@ class LoginIntentFormShield extends BaseForm {
 	public const TEMPLATE = '/components/login_intent/form.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
-		$notice = $con->getAdminNotices()->getFlashNotice();
-		if ( $notice instanceof NoticeVO ) {
-			$msg = $notice->render_data[ 'message' ];
-		}
-		else {
-			$msg = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
-		}
-
-		if ( !empty( $msg ) && !$con->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
+		$msg = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
+		if ( !self::con()->getModule_SecAdmin()->getWhiteLabelController()->isEnabled() ) {
 			$msg .= sprintf( ' [<a href="%s" target="_blank">%s</a>]', 'https://shsec.io/shieldwhatis2fa', __( 'More Info', 'wp-simple-firewall' ) );
 		}
 

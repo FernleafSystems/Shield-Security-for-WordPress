@@ -2,15 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
+	Plugin,
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 
 class AdminNotices extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AdminNotices {
 
 	protected function processNotice( NoticeVO $notice ) {
-
 		switch ( $notice->id ) {
 			case 'blockdown-active':
 				$this->buildNotice_SiteLockdownActive( $notice );
@@ -32,7 +36,6 @@ class AdminNotices extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
 
 	private function buildNotice_OverrideForceoff( NoticeVO $notice ) {
 		$name = self::con()->getHumanName();
-
 		$notice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -106,14 +109,13 @@ class AdminNotices extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base
 	}
 
 	protected function isDisplayNeeded( NoticeVO $notice ) :bool {
-		/** @var Options $opts */
-		$opts = $this->opts();
-
 		switch ( $notice->id ) {
 			case 'override-forceoff':
 				$needed = self::con()->this_req->is_force_off && !self::con()->isPluginAdminPageRequest();
 				break;
 			case 'allow-tracking':
+				/** @var Plugin\Options $opts */
+				$opts = $this->opts();
 				$needed = !$opts->isTrackingPermissionSet();
 				break;
 			case 'blockdown-active':

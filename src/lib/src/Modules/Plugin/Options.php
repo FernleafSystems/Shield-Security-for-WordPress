@@ -105,4 +105,10 @@ class Options extends BaseShield\Options {
 	public function setVisitorAddressSource( string $source ) {
 		$this->setOpt( 'visitor_address_source', $source );
 	}
+
+	protected function getVirtualCommonOptions() :array {
+		$opts = parent::getVirtualCommonOptions();
+		$opts[] = 'dismissed_notices';
+		return \array_unique( $opts );
+	}
 }
