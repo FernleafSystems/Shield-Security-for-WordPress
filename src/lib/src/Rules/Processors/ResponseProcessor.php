@@ -46,10 +46,10 @@ class ResponseProcessor {
 
 				$params = $respDef[ 'params' ] ?? [];
 				/** @var Responses\Base $responseClass */
-				$response = new $responseClass( $params, $this->triggerMetaData );
-				$response->setRule( $this->rule )
-						 ->setParams( $params )
-						 ->setThisRequest( $this->req );
+				$response = new $responseClass( $this->triggerMetaData );
+				$response->setThisRequest( $this->req )
+						 ->setRule( $this->rule )
+						 ->setParams( $params );
 				( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
 				$this->execResponse( $response );
 			}
@@ -63,7 +63,11 @@ class ResponseProcessor {
 
 		try {
 			// We always fire the default event
-			$this->execResponse( new Responses\EventFireDefault( [ 'rule_slug' => $this->rule->slug ] ) );
+			$defaultEventResponse = new Responses\EventFireDefault( [ 'rule_slug' => $this->rule->slug ] );
+			$defaultEventResponse->setThisRequest( $this->req )
+								 ->setRule( $this->rule )
+								 ->setParams( [ 'rule_slug' => $this->rule->slug ] );
+			$this->execResponse( $defaultEventResponse );
 		}
 		catch ( \Exception $e ) {
 		}

@@ -12,7 +12,9 @@ trait ParamsConsumer {
 	public $p = null;
 
 	public function setParams( array $params ) {
-		$this->p = ( new ParamsVO( $this->getParamsDef() ) )->applyFromArray( $params );
+		$this->p = ( new ParamsVO( $this->getParamsDef() ) )
+			->setThisRequest( $this->req )
+			->applyFromArray( $params );
 		return $this;
 	}
 }

@@ -20,10 +20,6 @@ abstract class BaseConditionResponse extends \FernleafSystems\Utilities\Data\Ada
 	use RuleConsumer;
 	use ThisRequestConsumer;
 
-	public function __construct( array $params = [] ) {
-		$this->setParams( $params );
-	}
-
 	public static function Slug() :string {
 		return Strings::CamelToSnake( ( new \ReflectionClass( static::class ) )->getShortName() );
 	}

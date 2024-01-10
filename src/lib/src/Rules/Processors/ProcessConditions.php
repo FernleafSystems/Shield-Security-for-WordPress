@@ -105,8 +105,8 @@ class ProcessConditions {
 			throw new NoSuchConditionHandlerException( 'No such Condition Handler Class for: '.$handlerClass );
 		}
 		$conditionHandler = new $handlerClass();
-		$conditionHandler->setParams( $condition->params )
-						 ->setThisRequest( $this->req );
+		$conditionHandler->setThisRequest( $this->req )
+						 ->setParams( $condition->params );
 
 		$cachedMatchStatus = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] ?? null;
 		if ( $cachedMatchStatus === null ) {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
 
 /**
  * -- Conditions --
@@ -59,6 +60,8 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  */
 class ParamsVO extends DynPropertiesClass {
 
+	use ThisRequestConsumer;
+
 	/**
 	 * @var array
 	 */
@@ -85,5 +88,15 @@ class ParamsVO extends DynPropertiesClass {
 			}
 		}
 		return parent::applyFromArray( $data, \array_keys( $this->def ) );
+	}
+
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+
+		if ( \is_string( $value ) && \preg_match( '#\{\{request\.([a-z0-9]+)}}#', $value, $matches ) ) {
+			$value = $this->req->{$matches[ 1 ]} ?? $value;
+		}
+
+		return $value;
 	}
 }

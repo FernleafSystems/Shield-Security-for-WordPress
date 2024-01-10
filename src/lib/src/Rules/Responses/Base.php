@@ -11,8 +11,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Commo
 	 */
 	protected $conditionTriggerMeta;
 
-	public function __construct( array $params = [], array $conditionTriggerMeta = [] ) {
-		parent::__construct( $params );
+	public function __construct( array $conditionTriggerMeta = [] ) {
 		$this->conditionTriggerMeta = $conditionTriggerMeta;
 	}
 
