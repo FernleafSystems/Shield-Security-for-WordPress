@@ -67,6 +67,7 @@ class EnumConditions {
 		Conditions\RequestIsSiteBlockdownBlocked::class,
 		Conditions\ShieldConfigurationOption::class,
 		Conditions\ShieldRestrictionsEnabled::class,
+		Conditions\ShieldSessionParameterValueMatches::class,
 		Conditions\RequestIsTrustedBot::class,
 		Conditions\RequestParameterExists::class,
 		Conditions\RequestParameterValueMatches::class,

@@ -57,9 +57,11 @@ class BuildSessionsTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Details( array $session ) :string {
-		return sprintf( '%s<br />%s<br />%s',
+		$ua = esc_html( $session[ 'shield' ][ 'useragent' ] ?? '' );
+		return sprintf( '%s<br />%s%s<br />%s',
 			$this->getUserHref( $session[ 'shield' ][ 'user_id' ] ),
 			$this->getIpAnalysisLink( $session[ 'ip' ] ),
+			empty( $ua ) ? '' : sprintf( '<br/><code style="font-size: small">%s</code>', $ua ),
 			sprintf( '%s: %s', __( 'Expires' ), $this->getColumnContent_Date( $session[ 'expiration' ], false ) )
 		);
 	}

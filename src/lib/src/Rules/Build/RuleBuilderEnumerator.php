@@ -10,7 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Plugin,
 	PluginControllerConsumer,
 	SecurityAdmin,
-	Traffic
+	Traffic,
+	UserManagement
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops as RulesDB;
@@ -75,7 +76,9 @@ class RuleBuilderEnumerator {
 			Lockdown\Rules\Build\IsRequestAuthorDiscovery::class,
 			Lockdown\Rules\Build\HideGeneratorTag::class,
 
-			Firewall\Rules\Build\Firewall::class
+			Firewall\Rules\Build\Firewall::class,
+
+			UserManagement\Rules\Build\LockSessionFail::class
 		];
 	}
 }

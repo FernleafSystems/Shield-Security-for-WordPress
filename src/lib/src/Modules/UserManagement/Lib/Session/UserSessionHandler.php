@@ -234,11 +234,6 @@ class UserSessionHandler {
 		if ( $opts->hasSessionIdleTimeout() && ( $ts - $sess->shield[ 'last_activity_at' ] > $opts->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
-
-		$srvIP = Services::IP();
-		if ( $opts->isLockToIp() && !$srvIP->IpIn( self::con()->this_req->ip, [ $sess->ip ] ) ) {
-			throw new \Exception( 'session_iplock' );
-		}
 	}
 
 	/**

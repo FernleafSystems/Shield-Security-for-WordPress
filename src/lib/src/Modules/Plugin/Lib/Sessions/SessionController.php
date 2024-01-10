@@ -81,6 +81,12 @@ class SessionController {
 						if ( empty( $shieldSessionMeta[ 'unique' ] ) ) {
 							$shieldSessionMeta[ 'unique' ] = uniqid();
 						}
+						if ( !isset( $shieldSessionMeta[ 'useragent' ] ) ) {
+							$shieldSessionMeta[ 'useragent' ] = self::con()->this_req->useragent;
+						}
+						if ( !isset( $shieldSessionMeta[ 'ip' ] ) ) {
+							$shieldSessionMeta[ 'ip' ] = self::con()->this_req->ip;
+						}
 
 						$session[ 'shield' ] = $shieldSessionMeta;
 						$manager->update( $parsed[ 'token' ], $session );
