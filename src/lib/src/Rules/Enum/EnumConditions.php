@@ -67,6 +67,8 @@ class EnumConditions {
 		Conditions\RequestIsSiteBlockdownBlocked::class,
 		Conditions\ShieldConfigurationOption::class,
 		Conditions\ShieldRestrictionsEnabled::class,
+		Conditions\UserSessionAge::class,
+		Conditions\UserSessionTokenAge::class,
 		Conditions\ShieldSessionParameterValueMatches::class,
 		Conditions\RequestIsTrustedBot::class,
 		Conditions\RequestParameterExists::class,
@@ -80,11 +82,12 @@ class EnumConditions {
 		Conditions\WpIsXmlrpc::class,
 	];
 	public const CONDITION_TYPE_NORMAL = 'normal';
-	public const CONDITION_TYPE_REQUEST = 'request';
-	public const CONDITION_TYPE_PHP = 'php';
-	public const CONDITION_TYPE_SYSTEM = 'system';
-	public const CONDITION_TYPE_SHIELD = 'shield';
 	public const CONDITION_TYPE_FS = 'filesystem';
+	public const CONDITION_TYPE_PHP = 'php';
+	public const CONDITION_TYPE_REQUEST = 'request';
+	public const CONDITION_TYPE_SESSION = 'session';
+	public const CONDITION_TYPE_SHIELD = 'shield';
+	public const CONDITION_TYPE_SYSTEM = 'system';
 	public const CONDITION_TYPE_USER = 'user';
 	public const CONDITION_TYPE_WP = 'wordpress';
 	public const CONDITION_TYPE_PROXYCHECK = 'proxycheck';
@@ -110,6 +113,7 @@ class EnumConditions {
 			self::CONDITION_TYPE_USER,
 			self::CONDITION_TYPE_WP,
 			self::CONDITION_TYPE_PHP,
+			self::CONDITION_TYPE_SESSION,
 			self::CONDITION_TYPE_SYSTEM,
 			self::CONDITION_TYPE_FS,
 		] );

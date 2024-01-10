@@ -420,7 +420,7 @@
           "user_login"
         ]
       },
-      "session_iplock":               {
+      "session_lock":               {
         "audit_params": [
           "user_login"
         ]

@@ -6,21 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum,
 	Utility
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldSessionParameterValueMatches extends Base {
 
-	use Traits\TypeRequest;
+	use Traits\TypeSession;
 
 	protected function execConditionCheck() :bool {
 		$matched = false;
-
-		$value = self::con()
-					 ->getModule_Plugin()
-					 ->getSessionCon()
-					 ->current()
-					 ->shield[ $this->p->param_name ] ?? null;
+		$session = $this->req->session;
+		$value = $session->shield[ $this->p->param_name ] ?? null;
 		if ( $value !== null ) {
 			$matched = ( new Utility\PerformConditionMatch( $value, $this->p->match_pattern, $this->p->match_type ) )->doMatch();
+			$user = Services::WpUsers()->getUserById( $session->shield[ 'user_id' ] ?? 0 );
+			$this->addConditionTriggerMeta( 'user_login', $user->user_login ?? '' );
 			$this->addConditionTriggerMeta( 'match_pattern', $this->p->match_pattern );
 			$this->addConditionTriggerMeta( 'match_request_param', $this->p->param_name );
 			$this->addConditionTriggerMeta( 'match_request_value', $value );
@@ -40,7 +39,9 @@ class ShieldSessionParameterValueMatches extends Base {
 			],
 			'match_type'    => [
 				'type'      => Enum\EnumParameters::TYPE_ENUM,
-				'type_enum' => Enum\EnumMatchTypes::MatchTypesForStrings(),
+				'type_enum' => \array_unique( \array_merge(
+					Enum\EnumMatchTypes::MatchTypesForStrings(), Enum\EnumMatchTypes::MatchTypesForNumbers()
+				) ),
 				'default'   => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
 				'label'     => __( 'Match Type', 'wp-simple-firewall' ),
 			],

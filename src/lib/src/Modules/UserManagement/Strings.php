@@ -64,10 +64,10 @@ class Strings extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Stri
 					__( 'Logging out.', 'wp-simple-firewall' )
 				],
 			],
-			'session_iplock'               => [
-				'name'  => __( 'Session Locked To IP', 'wp-simple-firewall' ),
+			'session_lock'                 => [
+				'name'  => __( 'Session Locked', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Access to an established user session ({{user_login}}) from a different IP address.', 'wp-simple-firewall' ),
+					__( "Core properties of an established user session ({{user_login}}) have changed.", 'wp-simple-firewall' ),
 					__( 'Logging out.', 'wp-simple-firewall' )
 				],
 			],

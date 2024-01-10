@@ -16,7 +16,11 @@ class IsLoggedInNormal extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return Services::WpUsers()->isUserLoggedIn();
+		$matched = Services::WpUsers()->isUserLoggedIn();
+		if ( $matched ) {
+			$this->req->session = self::con()->getModule_Plugin()->getSessionCon()->current();
+		}
+		return $matched;
 	}
 
 	public static function MinimumHook() :int {

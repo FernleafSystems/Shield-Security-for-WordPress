@@ -16,11 +16,11 @@ class LockSessionFail extends Build\BuildRuleCoreShieldBase {
 	public const SLUG = 'shield/lock_session';
 
 	protected function getName() :string {
-		return 'The Request Is Blocked By Site Lockdown';
+		return 'Session Lock';
 	}
 
 	protected function getDescription() :string {
-		return 'Does the request fail to meet any Site Lockdown exclusions and is to be blocked.';
+		return 'Lock sessions to either IP address, browser, or both and prevent usage.';
 	}
 
 	protected function getConditions() :array {
@@ -106,7 +106,16 @@ class LockSessionFail extends Build\BuildRuleCoreShieldBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\UserClearAuthCookies::class,
+				'response' => Responses\EventFire::class,
+				'params'   => [
+					'event' => 'session_lock',
+					'audit_params_map' => [
+						'user_login' => 'user_login',
+					],
+				],
+			],
+			[
+				'response' => Responses\UserLogoutCurrentSession::class,
 			],
 			[
 				'response' => Responses\HttpRedirect::class,

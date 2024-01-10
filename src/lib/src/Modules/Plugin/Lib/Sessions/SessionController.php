@@ -44,6 +44,7 @@ class SessionController {
 		}
 
 		if ( !$this->current->valid ) {
+			$req = Services::Request();
 
 			if ( !empty( $this->getLoggedInCookie() ) ) {
 				$parsed = wp_parse_auth_cookie( $this->getLoggedInCookie() );
@@ -61,7 +62,10 @@ class SessionController {
 
 				$WPUsers = Services::WpUsers();
 				$user = $WPUsers->getCurrentWpUser();
-				$userID = $user instanceof \WP_User ? $user->ID : $this->getCapturedUserID();
+				if ( !$user instanceof \WP_User ) {
+					$user = $WPUsers->getUserById( $this->getCapturedUserID() );
+				}
+				$userID = $user instanceof \WP_User ? $user->ID : null;
 
 				if ( !empty( $userID ) ) {
 					$manager = \WP_Session_Tokens::get_instance( $userID );
@@ -75,20 +79,27 @@ class SessionController {
 							$session[ 'ip' ] = $ip;
 						}
 
-						$shieldSessionMeta = $session[ 'shield' ] ?? [];
-						$shieldSessionMeta[ 'user_id' ] = $userID;
-						$shieldSessionMeta[ 'last_activity_at' ] = Services::Request()->ts();
-						if ( empty( $shieldSessionMeta[ 'unique' ] ) ) {
-							$shieldSessionMeta[ 'unique' ] = uniqid();
+						$shieldMeta = $session[ 'shield' ] ?? [];
+						$shieldMeta[ 'user_id' ] = $userID;
+						$shieldMeta[ 'idle_interval' ] = $req->ts() - ( $shieldMeta[ 'last_activity_at' ] ?? $req->ts() );
+						$shieldMeta[ 'last_activity_at' ] = $req->ts();
+						if ( empty( $shieldMeta[ 'unique' ] ) ) {
+							$shieldMeta[ 'unique' ] = uniqid();
 						}
-						if ( !isset( $shieldSessionMeta[ 'useragent' ] ) ) {
-							$shieldSessionMeta[ 'useragent' ] = self::con()->this_req->useragent;
+						if ( !isset( $shieldMeta[ 'useragent' ] ) ) {
+							$shieldMeta[ 'useragent' ] = self::con()->this_req->useragent;
 						}
-						if ( !isset( $shieldSessionMeta[ 'ip' ] ) ) {
-							$shieldSessionMeta[ 'ip' ] = self::con()->this_req->ip;
+						if ( !isset( $shieldMeta[ 'ip' ] ) ) {
+							$shieldMeta[ 'ip' ] = self::con()->this_req->ip;
+						}
+						if ( !isset( $shieldMeta[ 'session_started_at' ] ) ) {
+							$shieldMeta[ 'session_started_at' ] = $session[ 'login' ] ?? $req->ts();
+						}
+						if ( !isset( $shieldMeta[ 'token_started_at' ] ) ) {
+							$shieldMeta[ 'token_started_at' ] = $session[ 'login' ] ?? $req->ts();
 						}
 
-						$session[ 'shield' ] = $shieldSessionMeta;
+						$session[ 'shield' ] = $shieldMeta;
 						$manager->update( $parsed[ 'token' ], $session );
 
 						// all that follows should not be stored
@@ -101,7 +112,7 @@ class SessionController {
 
 						// Update User Last Seen IP.
 						try {
-							$userMeta = self::con()->user_metas->for( $WPUsers->getUserById( $userID ) );
+							$userMeta = self::con()->user_metas->for( $user );
 							if ( !empty( $userMeta ) ) {
 								$userMeta->record->ip_ref = ( new IPRecords() )
 									->loadIP( $session[ 'ip' ] )

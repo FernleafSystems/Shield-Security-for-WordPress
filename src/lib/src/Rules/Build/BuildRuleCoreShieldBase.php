@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+
 abstract class BuildRuleCoreShieldBase extends BuildRuleBase {
+
+	use PluginControllerConsumer;
 
 	public const SLUG = '';
 

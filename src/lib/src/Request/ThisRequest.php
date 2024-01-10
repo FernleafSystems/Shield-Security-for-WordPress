@@ -4,11 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property \Carbon\Carbon  $carbon
  * @property \Carbon\Carbon  $carbon_tz
+ *
+ * This is set within Rule processing when checking for logged-in user.
+ * @property SessionVO $session
  *
  * @property string          $ip
  * @property bool            $ip_is_public

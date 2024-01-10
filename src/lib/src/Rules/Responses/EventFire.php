@@ -12,9 +12,10 @@ class EventFire extends Base {
 	public function execResponse() :void {
 		$params = $this->p->getRawData();
 		$event = $params[ 'event' ] ?? '';
+
 		if ( !empty( $event ) ) {
 			unset( $params[ 'event' ] );
-			error_log( var_export( $params, true ) );
+
 			// Translate rules condition meta items to audit trail params.
 			if ( !empty( $params[ 'audit_params_map' ] ) ) {
 				if ( empty( $params[ 'audit_params' ] ) ) {

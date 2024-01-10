@@ -78,7 +78,8 @@ class RuleBuilderEnumerator {
 
 			Firewall\Rules\Build\Firewall::class,
 
-			UserManagement\Rules\Build\LockSessionFail::class
+			UserManagement\Rules\Build\LockSessionFail::class,
+			UserManagement\Rules\Build\DestroyIdleSessions::class,
 		];
 	}
 }
