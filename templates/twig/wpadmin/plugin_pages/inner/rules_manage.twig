@@ -4,6 +4,10 @@
 	{% if flags.can_custom_rules %}
 		<h5 class="my-3">&nbsp;
 			<small class="float-end">
+				<button id="RulesManagerDisableAll"
+						class="btn btn-sm btn-secondary"
+						data-action="disable_all"
+						title="">{{ strings.disable_all_rules }}</button>
 				<a href="{{ hrefs.rules_builder }}"
 				   class="btn btn-sm btn-primary"
 				   title="">{{ strings.create_custom_rule }}</a>

@@ -3,12 +3,12 @@
 		<table class="table">
 			<thead>
 			<tr>
-				<th>&nbsp;</th>
-				<th>#ID</th>
+				<th>#</th>
 				<th>Name</th>
 				<th>Description</th>
 				<th>Updated</th>
 				{#                <th>Builder Version</th> #}
+				<th>Active</th>
 				<th>Action</th>
 				<th>Export</th>
 			</tr>
@@ -16,6 +16,13 @@
 			<tbody>
 				{% for rule in vars.custom_rules %}
 					<tr class="{{ rule.is_active ? '' : 'table-secondary' }}">
+
+						<td>{{ rule.rule_id }}</td>
+						<td>{{ rule.name }}</td>
+						<td>{{ rule.description }}</td>
+						<td>{{ rule.created_at }}</td>
+						{#                        <td>{{ rule.version }}</td> #}
+
 						<td>
 							<div class="form-check form-switch">
 								<input class="form-check-input active-switch"
@@ -31,12 +38,6 @@
 										{% if rule.is_active %}checked{% endif %} >
 							</div>
 						</td>
-
-						<td>{{ rule.rule_id }}</td>
-						<td>{{ rule.name }}</td>
-						<td>{{ rule.description }}</td>
-						<td>{{ rule.created_at }}</td>
-						{#                        <td>{{ rule.version }}</td> #}
 
 						<td>
 							<a class="btn btn-outline-secondary svg-container"

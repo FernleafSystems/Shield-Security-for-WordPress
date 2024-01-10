@@ -17,6 +17,11 @@ export class RulesManager extends BaseAutoExecComponent {
 	run() {
 		this.renderManager();
 		const baseSelector = '#' + this.containerID + ' ';
+		shieldEventsHandler_Main.add_Click( '#RulesManagerDisableAll', ( button ) => {
+			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				this.action( button.dataset );
+			}
+		} );
 		shieldEventsHandler_Main.add_Click( baseSelector + ' button', ( button ) => {
 			if ( button.dataset.action !== 'delete' || confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
 				this.action( button.dataset );

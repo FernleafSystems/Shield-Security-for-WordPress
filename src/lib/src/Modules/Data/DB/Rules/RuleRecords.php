@@ -27,6 +27,13 @@ class RuleRecords {
 		) );
 	}
 
+	public function disableAll() :void {
+		Services::WpDb()->doSql( sprintf( 'UPDATE `%s` SET `is_active`=0, `updated_at`=%s WHERE `is_active`=1;',
+			self::con()->db_con->dbhRules()->getTableSchema()->table,
+			Services::Request()->ts()
+		) );
+	}
+
 	public function getLatestFirstDraft() :?Ops\Record {
 		$this->deleteOldDrafts();
 		return self::con()->caps->canCustomSecurityRules() ? $this->getSelector()->filterByEarlyDraft()->first() : null;

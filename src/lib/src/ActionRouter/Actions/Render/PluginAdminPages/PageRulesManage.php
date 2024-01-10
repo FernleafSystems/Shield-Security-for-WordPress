@@ -13,6 +13,7 @@ class PageRulesManage extends PageRulesBase {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
 				'create_custom_rule' => __( 'Create Custom Rule', 'wp-simple-firewall' ),
+				'disable_all_rules' => __( 'Disable All Rules', 'wp-simple-firewall' ),
 			]
 		] );
 	}
