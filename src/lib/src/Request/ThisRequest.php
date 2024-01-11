@@ -12,7 +12,10 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property \Carbon\Carbon  $carbon_tz
  *
  * This is set within Rule processing when checking for logged-in user.
- * @property SessionVO $session
+ * @property SessionVO       $session
+ *
+ * @property string          $rest_api_root
+ * @property \WP_REST_Server $rest_server
  *
  * @property string          $ip
  * @property bool            $ip_is_public
@@ -23,8 +26,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property array           $query
  * @property array           $cookies
  * @property array           $headers
- * @property array $server
- * @property array $env
+ * @property array           $server
+ * @property array           $env
  *
  * @property string          $path
  * @property string          $script_name
@@ -104,6 +107,16 @@ class ThisRequest extends DynPropertiesClass {
 		$this->wp_is_permalinks_enabled = $WP->isPermalinksEnabled();
 
 		$this->applyFromArray( \array_merge( $this->getRawData(), $params ) );
+		$this->setupRest();
+	}
+
+	private function setupRest() {
+		add_action( 'init', function () {
+			$this->rest_api_root = rest_url();
+		} );
+		add_action( 'rest_api_init', function ( $wp_rest_server = null ) {
+			$this->rest_server = $wp_rest_server instanceof \WP_REST_Server ? $wp_rest_server : null;
+		}, 0 );
 	}
 
 	public function __get( string $key ) {

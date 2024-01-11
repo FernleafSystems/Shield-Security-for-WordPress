@@ -4,16 +4,23 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
+/**
+ * Disabling REST API is added within the rest_api_init hook with a high priority, so that we can again hook into
+ * rest_api_init before our system disables authentication, and test whether the request "would" have been authenticated
+ * if we hadn't intervened.
+ */
 class DisableRestApiRequest extends Base {
 
 	public function execResponse() :void {
-		add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], $this->p->priority );
+		add_action( 'rest_api_init', function () {
+			add_filter( 'rest_authentication_errors', [ $this, 'disableRestApi' ], $this->p->priority );
+		}, 1000 );
 	}
 
 	/**
 	 * @param \WP_Error|true|null $mStatus
 	 */
-	public function disableAnonymousRestApi( $mStatus ) {
+	public function disableRestApi( $mStatus ) {
 		return ( $mStatus === true || is_wp_error( $mStatus ) ) ?
 			$mStatus :
 			new \WP_Error(
