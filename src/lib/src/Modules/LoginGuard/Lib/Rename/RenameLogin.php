@@ -188,6 +188,8 @@ class RenameLogin {
 
 	public function loadWpLoginContent() {
 		if ( Services::WpGeneral()->isLoginUrl() ) {
+			nocache_headers();
+			Services::WpGeneral()->turnOffCache();
 			// To prevent PHP warnings about undefined vars
 			$user_login = $error = '';
 			@require_once( ABSPATH.'wp-login.php' );

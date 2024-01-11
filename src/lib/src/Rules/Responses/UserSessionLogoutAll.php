@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class UserLogoutAllSessions extends Base {
+class UserSessionLogoutAll extends Base {
 
 	public function execResponse() :void {
 		$id = Services::WpUsers()->getCurrentWpUserId();

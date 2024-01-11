@@ -32,10 +32,19 @@ class ShieldSessionParameterValueMatches extends Base {
 	}
 
 	public function getParamsDef() :array {
+		$parameters = [
+			'ip'               => __( 'IP Address' ),
+			'useragent'        => __( 'Useragent' ),
+			'idle_interval'    => __( 'Idle Interval' ),
+			'session_duration' => __( 'Session Duration (seconds)' ),
+			'token_duration'   => __( 'Session Token Duration (seconds)' ),
+		];
 		return [
 			'param_name'    => [
-				'type'  => Enum\EnumParameters::TYPE_STRING,
-				'label' => __( 'Session Parameter Name', 'wp-simple-firewall' ),
+				'type'        => Enum\EnumParameters::TYPE_ENUM,
+				'type_enum'   => \array_keys( $parameters ),
+				'enum_labels' => $parameters,
+				'label'       => __( 'Session Parameter', 'wp-simple-firewall' ),
 			],
 			'match_type'    => [
 				'type'      => Enum\EnumParameters::TYPE_ENUM,

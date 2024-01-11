@@ -266,14 +266,14 @@ class NavMenuBuilder {
 			],
 			'sub_items' => [
 				$this->createSubItemForNavAndSub(
-					__( 'Build', 'wp-simple-firewall' ),
-					PluginNavs::NAV_RULES,
-					PluginNavs::SUBNAV_RULES_BUILD
-				),
-				$this->createSubItemForNavAndSub(
 					__( 'Manage', 'wp-simple-firewall' ),
 					PluginNavs::NAV_RULES,
 					PluginNavs::SUBNAV_RULES_MANAGE
+				),
+				$this->createSubItemForNavAndSub(
+					__( 'New', 'wp-simple-firewall' ),
+					PluginNavs::NAV_RULES,
+					PluginNavs::SUBNAV_RULES_BUILD
 				),
 				$this->createSubItemForNavAndSub(
 					__( 'Summary', 'wp-simple-firewall' ),

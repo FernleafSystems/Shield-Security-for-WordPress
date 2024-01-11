@@ -124,7 +124,9 @@ export class RuleBuilder extends BaseAutoExecComponent {
 				this.edit_rule_id = inputRuleID.value;
 			}
 		} )
-		.finally( () => {
-		} );
+		.finally( () => this.postRender() );
+	}
+
+	postRender() {
 	}
 }

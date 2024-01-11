@@ -7,23 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Utility
 };
 
-class UserSessionTokenAge extends Base {
+class UserSessionTokenDuration extends Base {
 
 	use Traits\TypeSession;
 
 	protected function execConditionCheck() :bool {
-		$startedAt = self::con()
-						 ->getModule_Plugin()
-						 ->getSessionCon()
-						 ->current()
-						 ->shield[ 'token_started_at' ] ?? 0;
-		return $startedAt > 0
-			   &&
-			   ( new Utility\PerformConditionMatch(
-				   $this->req->carbon->timestamp - $startedAt,
-				   $this->p->match_value,
-				   $this->p->match_type
-			   ) )->doMatch();
+		return ( new Utility\PerformConditionMatch(
+			self::con()
+				->getModule_Plugin()
+				->getSessionCon()
+				->current()
+				->shield[ 'token_duration' ] ?? 0,
+			$this->p->match_value,
+			$this->p->match_type
+		) )->doMatch();
 	}
 
 	public function getDescription() :string {

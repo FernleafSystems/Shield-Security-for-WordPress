@@ -15,8 +15,9 @@ class PhpSendHttpHeader extends Base {
 	public function getParamsDef() :array {
 		return [
 			'header' => [
-				'type'  => EnumParameters::TYPE_STRING,
-				'label' => __( 'HTTP Response Header To Send', 'wp-simple-firewall' ),
+				'type'         => EnumParameters::TYPE_STRING,
+				'verify_regex' => '/^[a-z]+:.+$/i',
+				'label'        => __( 'HTTP Response Header To Send', 'wp-simple-firewall' ),
 			],
 		];
 	}

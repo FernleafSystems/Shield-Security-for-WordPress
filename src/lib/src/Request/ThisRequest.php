@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property \Carbon\Carbon  $carbon_tz
  *
  * This is set within Rule processing when checking for logged-in user.
- * @property SessionVO       $session
+ * @property ?SessionVO      $session
  *
  * @property string          $rest_api_root
  * @property \WP_REST_Server $rest_server

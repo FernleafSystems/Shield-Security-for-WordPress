@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class UserLogoutCurrentSession extends Base {
+class UserSessionLogoutCurrent extends Base {
 
 	public function execResponse() :void {
 		Services::WpUsers()->logoutUser();

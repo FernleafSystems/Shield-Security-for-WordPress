@@ -10,12 +10,17 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property int    $expiration
  * @property int    $login
  * @property array  $shield
- * /** Not Stored:
- * @property bool   $valid
- * @property string $token
- * @property string $hashed_token
  */
 class SessionVO extends DynPropertiesClass {
+
+	/**
+	 * @var bool
+	 */
+	public $valid;
+	/**
+	 * @var string
+	 */
+	public $token;
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

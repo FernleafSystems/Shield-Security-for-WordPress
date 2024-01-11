@@ -53,7 +53,6 @@ export class SuperSearchService extends BaseComponent {
 				},
 			}
 		} );
-
 	}
 
 	launchModal() {

@@ -115,7 +115,7 @@ class LockSessionFail extends Build\BuildRuleCoreShieldBase {
 				],
 			],
 			[
-				'response' => Responses\UserLogoutCurrentSession::class,
+				'response' => Responses\UserSessionLogoutCurrent::class,
 			],
 			[
 				'response' => Responses\HttpRedirect::class,
