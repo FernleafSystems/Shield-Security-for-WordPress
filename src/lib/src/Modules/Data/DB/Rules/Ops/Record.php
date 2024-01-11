@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops;
 
 /**
+ * @property string $uuid
  * @property string $slug
  * @property string $name
  * @property string $description

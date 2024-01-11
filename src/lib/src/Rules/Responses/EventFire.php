@@ -42,10 +42,13 @@ class EventFire extends Base {
 	}
 
 	public function getParamsDef() :array {
+		$events = self::con()->service_events->getEventNames();
 		return [
 			'event'            => [
-				'type'  => EnumParameters::TYPE_STRING,
-				'label' => __( 'Event To Trigger', 'wp-simple-firewall' ),
+				'type'        => EnumParameters::TYPE_ENUM,
+				'type_enum'   => \array_keys( $events ),
+				'enum_labels' => $events,
+				'label'       => __( 'Event To Trigger', 'wp-simple-firewall' ),
 			],
 			'offense_count'    => [
 				'type'    => EnumParameters::TYPE_INT,
@@ -55,7 +58,7 @@ class EventFire extends Base {
 			'block'            => [
 				'type'    => EnumParameters::TYPE_BOOL,
 				'default' => false,
-				'label'   => __( 'Do Block?', 'wp-simple-firewall' ),
+				'label'   => __( 'Block IP Address?', 'wp-simple-firewall' ),
 			],
 			'audit_params_map' => [
 				'type'    => EnumParameters::TYPE_ARRAY,

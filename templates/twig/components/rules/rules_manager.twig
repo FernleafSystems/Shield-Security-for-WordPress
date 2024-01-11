@@ -10,7 +10,9 @@
 				{#                <th>Builder Version</th> #}
 				<th>Active</th>
 				<th>Action</th>
-				<th>Export</th>
+				{% if flags.show_export %}
+					<th>Export</th>
+				{% endif %}
 			</tr>
 			</thead>
 			<tbody>
@@ -48,26 +50,28 @@
 							>{{ imgs.icon_delete|raw }}</button>
 						</td>
 
-						<td>
-							<div class="form-check form-switch">
-								<input class="form-check-input active-switch"
-									   title="{{ rule.can_export ? strings.set_no_export : strings.set_to_export }}"
-									   type="checkbox"
-									   role="switch"
-										{% if rule.is_viable %}
-											data-action="{{ rule.can_export ? 'set_no_export' : 'set_to_export' }}"
-											data-rule_id="{{ rule.rule_id }}"
-										{% else %}
-											disabled="disabled"
-										{% endif %}
-									   {% if rule.can_export %}checked{% endif %} >
-							</div>
-						</td>
+						{% if flags.show_export %}
+							<td>
+								<div class="form-check form-switch">
+									<input class="form-check-input active-switch"
+										   title="{{ rule.can_export ? strings.set_no_export : strings.set_to_export }}"
+										   type="checkbox"
+										   role="switch"
+											{% if rule.is_viable %}
+												data-action="{{ rule.can_export ? 'set_no_export' : 'set_to_export' }}"
+												data-rule_id="{{ rule.rule_id }}"
+											{% else %}
+												disabled="disabled"
+											{% endif %}
+											{% if rule.can_export %}checked{% endif %} >
+								</div>
+							</td>
+						{% endif %}
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
 {% else %}
-	<p>There are no custom rules, yet.</p>
+	<div class="alert-info alert d-inline-block">There are no custom rules, yet.</div>
 {% endif %}

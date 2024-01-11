@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -162,7 +163,10 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 
 					switch ( $record->type ) {
 						case Handler::T_AUTO_BLOCK:
-							if ( ( new IpRuleStatus( $record->ip ) )->hasHighReputation() ) {
+							$highRep = ( new IsHighReputationIP() )
+								->setIP( $record->ip )
+								->query();
+							if ( $highRep ) {
 								$color = 'warning';
 								$blockedStatus = sprintf( '%s (%s: %s)',
 									__( 'Blocked/High Reputation', 'wp-simple-firewall' ), __( 'expires', 'wp-simple-firewall' ),

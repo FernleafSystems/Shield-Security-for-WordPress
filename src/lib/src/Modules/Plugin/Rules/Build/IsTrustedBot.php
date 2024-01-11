@@ -7,9 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
 	Conditions,
 	Enum\EnumLogic,
-	Responses
 };
-use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
  * @deprecated 18.5.8

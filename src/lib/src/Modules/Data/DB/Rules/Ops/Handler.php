@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Uuid;
 
 class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler {
 
@@ -33,8 +34,8 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 			$recordData[ 'is_apply_default' ] = $form->checks[ 'checkbox_auto_include_bypass' ][ 'value' ] === 'Y';
 		}
 
+		/** @var Record $record */
 		if ( $form->edit_rule_id >= 0 ) {
-			/** @var Record $record */
 			$record = $this->getQuerySelector()->byId( (int)$form->edit_rule_id );
 			if ( empty( $record ) ) {
 				throw new \Exception( "Failed to update rule as it doesn't exist." );
@@ -50,8 +51,10 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 			$record = $this->getQuerySelector()->byId( $form->edit_rule_id );
 		}
 		else {
-			/** @var Record $record */
 			$record = $this->getRecord()->applyFromArray( $recordData );
+			if ( !isset( $record->uuid ) ) {
+				$record->uuid = ( new Uuid() )->V4();
+			}
 			$success = $this->getQueryInserter()->insert( $record );
 
 			$record = $this->getQuerySelector()

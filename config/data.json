@@ -145,6 +145,9 @@
       "has_deleted_at": false,
       "col_older_than": "updated_at",
       "cols_custom":    {
+        "uuid":             {
+          "macro_type": "uuid4"
+        },
         "slug":             {
           "macro_type": "varchar",
           "length":     128

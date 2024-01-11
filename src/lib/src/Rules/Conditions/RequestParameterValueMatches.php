@@ -12,21 +12,32 @@ class RequestParameterValueMatches extends Base {
 	use Traits\TypeRequest;
 
 	protected function execConditionCheck() :bool {
-		if ( $this->p->req_param_source === 'get' ) {
-			$value = $this->req->query[ $this->p->param_name ] ?? null;
+
+		switch ( $this->p->req_param_source ) {
+			case 'get':
+				$source = $this->req->query;
+				break;
+			case 'post':
+				$source = $this->req->post;
+				break;
+			case 'cookie':
+				$source = $this->req->cookies;
+				break;
+			case 'headers':
+				$source = $this->req->headers;
+				break;
+			case 'server':
+				$source = $this->req->server;
+				break;
+			case 'env':
+				$source = $this->req->env;
+				break;
+			default:
+				$source = [];
+				break;
 		}
-		elseif ( $this->p->req_param_source === 'post' ) {
-			$value = $this->req->post[ $this->p->param_name ] ?? null;
-		}
-		elseif ( $this->p->req_param_source === 'cookie' ) {
-			$value = $this->req->cookies[ $this->p->param_name ] ?? null;
-		}
-		elseif ( $this->p->req_param_source === 'header' ) {
-			$value = $this->req->headers[ $this->p->param_name ] ?? null;
-		}
-		else {
-			$value = null;
-		}
+
+		$value = $source[ $this->p->param_name ] ?? null;
 
 		$isMatch = false;
 		if ( $value !== null ) {
@@ -44,10 +55,12 @@ class RequestParameterValueMatches extends Base {
 
 	public function getParamsDef() :array {
 		$sources = [
-			'get'    => '$_GET',
-			'post'   => '$_POST',
-			'cookie' => '$_COOKIE',
-			'header' => 'HTTP Header',
+			'get'     => '$_GET',
+			'post'    => '$_POST',
+			'cookie'  => '$_COOKIE',
+			'server'  => '$_SERVER',
+			'env'     => '$_ENV',
+			'headers' => 'HTTP Headers',
 		];
 		return [
 			'req_param_source' => [

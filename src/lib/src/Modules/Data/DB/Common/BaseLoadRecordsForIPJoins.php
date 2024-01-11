@@ -41,9 +41,9 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 
 	public function getDistinctIPs() :array {
 		$results = Services::WpDb()->selectCustom(
-			sprintf( 'SELECT DISTINCT INET6_NTOA(ips.ip) as ip
+			sprintf( 'SELECT DISTINCT INET6_NTOA(`ips`.`ip`) as `ip`
 						FROM `%s` as `%s`
-						INNER JOIN `%s` as `ips` ON `ips`.id = `%s`.ip_ref;',
+						INNER JOIN `%s` as `ips` ON `ips`.`id` = `%s`.`ip_ref`;',
 				$this->getTableSchemaForJoinedTable()->table,
 				$this->getJoinedTableAbbreviation(),
 				self::con()->getModule_Data()->getDbH_IPs()->getTableSchema()->table,

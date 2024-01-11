@@ -17,6 +17,7 @@ class GenerateNameFromSlug {
 	private function abbreviations() :array {
 		return [
 			'ade',
+			'api',
 			'cli',
 			'ajax',
 			'http',

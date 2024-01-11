@@ -8,11 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 };
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
-class RequestIsTrustedBot extends Base {
+class IsTrustedBot extends Base {
 
-	use Traits\TypeRequest;
-
-	public const SLUG = 'request_is_trusted_bot';
+	use Traits\TypeBots;
 
 	public function getDescription() :string {
 		return __( 'Is the request a bot that originates from a trusted service provider.', 'wp-simple-firewall' );

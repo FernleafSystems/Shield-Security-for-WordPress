@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 
 class IsIpHighReputation extends Base {
 
@@ -15,7 +15,9 @@ class IsIpHighReputation extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return ( new IpRuleStatus( $this->req->ip ) )->hasHighReputation();
+		return ( new IsHighReputationIP() )
+			->setIP( $this->req->ip )
+			->query();
 	}
 
 	protected function getPreviousResult() :?bool {

@@ -39,10 +39,16 @@ class RuleRecords {
 		return self::con()->caps->canCustomSecurityRules() ? $this->getSelector()->filterByEarlyDraft()->first() : null;
 	}
 
+	/**
+	 * @return Ops\Record[]
+	 */
 	public function getActiveCustom() :array {
 		return $this->getCustom( true );
 	}
 
+	/**
+	 * @return Ops\Record[]
+	 */
 	public function getCustom( ?bool $active = null ) :array {
 		$records = [];
 		if ( self::con()->caps->canCustomSecurityRules() ) {

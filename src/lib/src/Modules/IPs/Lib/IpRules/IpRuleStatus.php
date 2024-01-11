@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\{
 	MergeAutoBlockRules,
 	Ops\Handler
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -174,11 +173,11 @@ class IpRuleStatus {
 		return !empty( $rule ) && $rule->blocked_at > 0 && ( $rule->blocked_at >= $rule->unblocked_at );
 	}
 
+	/**
+	 * @deprecated 18.6
+	 */
 	public function hasHighReputation() :bool {
-		return $this->hasAutoBlock()
-			   && ( new IsHighReputationIP() )
-				   ->setIP( $this->getRuleForAutoBlock()->ip )
-				   ->query();
+		return false;
 	}
 
 	public function hasManualBlock() :bool {

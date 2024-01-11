@@ -23,6 +23,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property array           $query
  * @property array           $cookies
  * @property array           $headers
+ * @property array $server
+ * @property array $env
  *
  * @property string          $path
  * @property string          $script_name
@@ -80,6 +82,8 @@ class ThisRequest extends DynPropertiesClass {
 		$this->query = $req->query;
 		$this->cookies = $req->cookie_copy;
 		$this->headers = $req->headers();
+		$this->server = $req->server;
+		$this->env = $_ENV;
 
 		$this->path = empty( $req->getPath() ) ? '/' : $req->getPath();
 		$this->useragent = $req->getUserAgent();

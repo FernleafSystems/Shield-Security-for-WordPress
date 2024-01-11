@@ -4,6 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Traits;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 
+/**
+ * @deprecated 18.6
+ */
 trait Select_IPTable {
 
 	/**

@@ -67,6 +67,7 @@ class RuleBuilderAction extends BaseAction {
 				$success = true;
 				if ( !$asDraft ) {
 					$msg = __( 'Rule Saved' );
+					$con->rules->buildAndStore();
 				}
 			}
 			catch ( \Exception $e ) {

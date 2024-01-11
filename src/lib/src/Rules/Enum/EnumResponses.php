@@ -8,6 +8,7 @@ class EnumResponses {
 
 	private const RESPONSES = [
 		Responses\DisableFileEditing::class,
+		Responses\DisableRestApiRequest::class,
 		Responses\DisplayBlockPage::class,
 		Responses\DoAction::class,
 		Responses\EventFire::class,

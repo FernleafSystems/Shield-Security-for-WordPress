@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 class IsPhpCli extends Base {
 
-	use Traits\TypeSystem;
+	use Traits\TypePhp;
 
 	protected function execConditionCheck() :bool {
 		$sapi = \defined( 'PHP_SAPI' ) ? \PHP_SAPI : ( \function_exists( '\php_sapi_name' ) ? \php_sapi_name() : null );

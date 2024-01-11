@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class IsBotOfType extends Base {
 
-	use Traits\TypeRequest;
+	use Traits\TypeBots;
 
 	public function getDescription() :string {
 		return __( 'Is visiting bot of the given type.', 'wp-simple-firewall' );

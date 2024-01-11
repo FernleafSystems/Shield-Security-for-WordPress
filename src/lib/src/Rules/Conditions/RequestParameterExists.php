@@ -18,20 +18,28 @@ class RequestParameterExists extends Base {
 	protected function execConditionCheck() :bool {
 		$this->addConditionTriggerMeta( 'match_pattern', $this->p->match_pattern );
 
-		$paramSources = [];
-		if ( $this->p->req_param_source === 'headers' ) {
-			$paramSources[] = $this->req->headers;
-		}
-		else {
-			if ( \str_contains( $this->p->req_param_source, 'get' ) ) {
-				$paramSources[] = $this->req->query;
-			}
-			if ( \str_contains( $this->p->req_param_source, 'post' ) ) {
-				$paramSources[] = $this->req->post;
-			}
-			if ( \str_contains( $this->p->req_param_source, 'cookie' ) ) {
-				$paramSources[] = $this->req->cookies;
-			}
+		switch ( $this->p->req_param_source ) {
+			case 'headers':
+				$paramSources = [ $this->req->headers ];
+				break;
+			case 'server':
+				$paramSources = [ $this->req->server ];
+				break;
+			case 'env':
+				$paramSources = [ $this->req->env ];
+				break;
+			default:
+				$paramSources = [];
+				if ( \str_contains( $this->p->req_param_source, 'get' ) ) {
+					$paramSources[] = $this->req->query;
+				}
+				if ( \str_contains( $this->p->req_param_source, 'post' ) ) {
+					$paramSources[] = $this->req->post;
+				}
+				if ( \str_contains( $this->p->req_param_source, 'cookie' ) ) {
+					$paramSources[] = $this->req->cookies;
+				}
+				break;
 		}
 
 		$matches = false;
@@ -54,7 +62,9 @@ class RequestParameterExists extends Base {
 			'cookie'          => '$_COOKIE',
 			'get_post'        => '$_GET & $_POST',
 			'get_post_cookie' => '$_GET & $_POST & $_COOKIE',
-			'headers'         => 'HTTP Request Headers',
+			'headers'         => 'HTTP Headers',
+			'server'          => '$_SERVER',
+			'env'             => '$_ENV',
 		];
 		return [
 			'req_param_source' => [

@@ -17,30 +17,32 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 
 		( new RuleRecords() )->deleteOldDrafts();
 
-		$customRules = [];
-		foreach ( ( new RuleRecords() )->getCustom() as $rule ) {
-			$customRules[ $rule->id ] = [
-				'rule_id'     => $rule->id,
-				'name'        => $rule->name,
-				'description' => $rule->description,
-				'created_at'  => Services::WpGeneral()->getTimeStampForDisplay( $rule->updated_at ),
-				'version'     => $rule->builder_version ?? '0',
-				'is_active'   => $rule->is_active,
-				'can_export'  => $rule->can_export,
-				'is_viable'   => !empty( $rule->form ),
-				'href_edit'   => URL::Build(
-					$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
-					[
-						'edit_rule_id' => $rule->id,
-					]
-				)
-			];
-		}
+		$customRules = \array_map(
+			function ( $rule ) {
+				return [
+					'rule_id'     => $rule->id,
+					'name'        => $rule->name,
+					'description' => $rule->description,
+					'created_at'  => Services::WpGeneral()->getTimeStampForDisplay( $rule->updated_at ),
+					'version'     => $rule->builder_version ?? '0',
+					'is_active'   => $rule->is_active,
+					'can_export'  => $rule->can_export,
+					'is_viable'   => !empty( $rule->form ),
+					'href_edit'   => URL::Build(
+						self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+						[
+							'edit_rule_id' => $rule->id,
+						]
+					)
+				];
+			},
+			( new RuleRecords() )->getCustom()
+		);
 
 		return [
 			'flags'   => [
 				'has_custom_rules' => !empty( $customRules ),
-				'can_create_rule'  => $con->isPremiumActive(),
+				'show_export'      => false,
 			],
 			'imgs'    => [
 				'icon_delete' => $con->svgs->raw( 'trash3-fill.svg' ),

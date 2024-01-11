@@ -23,7 +23,7 @@ class IsRequestWhitelisted extends Base {
 					'logic'      => EnumLogic::LOGIC_INVERT,
 				],
 				[
-					'conditions' => RequestIsTrustedBot::class,
+					'conditions' => IsTrustedBot::class,
 				],
 				[
 					'conditions' => RequestIsPathWhitelisted::class,

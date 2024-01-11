@@ -8,7 +8,9 @@ class RequestIsSiteBlockdownBlocked extends Base {
 
 	use Traits\TypeShield;
 
-	public const SLUG = 'request_is_site_blockdown_blocked';
+	public function getName() :string {
+		return __( "Request Blocked by Site Lockdown.", 'wp-simple-firewall' );
+	}
 
 	public function getDescription() :string {
 		return __( "Is the request blocked by Shield's Site Lockdown feature.", 'wp-simple-firewall' );

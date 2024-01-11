@@ -70,7 +70,7 @@ class EnumConditions {
 		Conditions\UserSessionAge::class,
 		Conditions\UserSessionTokenAge::class,
 		Conditions\ShieldSessionParameterValueMatches::class,
-		Conditions\RequestIsTrustedBot::class,
+		Conditions\IsTrustedBot::class,
 		Conditions\RequestParameterExists::class,
 		Conditions\RequestParameterValueMatches::class,
 		Conditions\WpIsAdmin::class,
@@ -81,6 +81,7 @@ class EnumConditions {
 		Conditions\WpIsWpcli::class,
 		Conditions\WpIsXmlrpc::class,
 	];
+	public const CONDITION_TYPE_BOTS = 'bots';
 	public const CONDITION_TYPE_NORMAL = 'normal';
 	public const CONDITION_TYPE_FS = 'filesystem';
 	public const CONDITION_TYPE_PHP = 'php';
@@ -107,6 +108,7 @@ class EnumConditions {
 
 	public static function Types() :array {
 		return \apply_filters( 'shield/rules/enum_types', [
+			self::CONDITION_TYPE_BOTS,
 			self::CONDITION_TYPE_REQUEST,
 			self::CONDITION_TYPE_SHIELD,
 			self::CONDITION_TYPE_USER,
