@@ -25,12 +25,14 @@ class LoadIpMeta extends BaseLoadRecordsForIPJoins {
 	protected function getDefaultSelectFieldsForJoinedTable() :array {
 		return [
 			'id',
+			'country_iso2',
+			'asn',
 			'pc_is_proxy',
 			'pc_last_check_at',
 		];
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {
-		return self::con()->getModule_Data()->getDbH_IPMeta()->getTableSchema();
+		return self::con()->db_con->dbhIPMeta()->getTableSchema();
 	}
 }

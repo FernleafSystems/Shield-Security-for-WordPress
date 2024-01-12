@@ -57,13 +57,23 @@
       "has_updated_at":  true,
       "col_older_than":  "updated_at",
       "cols_custom":     {
-        "ip_ref":      {
+        "ip_ref":       {
           "macro_type":  "foreign_key_id",
           "foreign_key": {
             "ref_table": "icwp_wpsf_ips"
           }
         },
-        "pc_is_proxy": {
+        "asn":          {
+          "macro_type": "unsigned_int",
+          "length":     10,
+          "comment":    "ASN"
+        },
+        "country_iso2": {
+          "macro_type": "char",
+          "length":     2,
+          "comment":    "Country Code ISO 3166-1 alpha-2"
+        },
+        "pc_is_proxy":  {
           "macro_type": "bool",
           "default":    0,
           "comment":    "ProxyCheck: Is Proxy?"
