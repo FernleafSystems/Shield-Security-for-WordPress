@@ -1,10 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Extensions\BaseExtension;
-use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ProxyCheck\ExtProxyCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -94,12 +92,15 @@ class ExtensionsCon {
 		} );
 	}
 
-	public function getExtension( string $slug ) :?BaseExtension {
-		return $this->getAvailableExtensions()[ $slug ] ?? null;
-	}
-
-	public function getExtension_ProxyCheck() :ExtProxyCheck {
-		return $this->getExtension( ExtProxyCheck::SLUG );
+	/**
+	 * @throws \Exception
+	 */
+	public function getExtension( string $slug ) :BaseExtension {
+		$ext = $this->getAvailableExtensions()[ $slug ] ?? null;
+		if ( empty( $ext ) ) {
+			throw new \Exception( sprintf( '%s extension is unavailable.', $slug ) );
+		}
+		return $ext;
 	}
 
 	/**

@@ -14,6 +14,11 @@ abstract class BaseExtension {
 	public const SLUG = '';
 
 	/**
+	 * @var string
+	 */
+	private $file;
+
+	/**
 	 * @var ExtensionConfigVO
 	 */
 	private $cfg;
@@ -21,7 +26,8 @@ abstract class BaseExtension {
 	/**
 	 * @throws \Exception
 	 */
-	public function __construct( array $cfg ) {
+	public function __construct( string $file, array $cfg ) {
+		$this->file = $file;
 		$this->cfg = ( new ExtensionConfigVO() )->applyFromArray( $cfg );
 		if ( empty( static::SLUG ) || static::SLUG !== $this->cfg->slug ) {
 			throw new \Exception( 'Invalid Shield extension configuration' );
@@ -36,8 +42,17 @@ abstract class BaseExtension {
 		return $this->isAvailable();
 	}
 
+	protected function run() {
+		add_action( 'init', function () {
+			$this->initUpgrades();
+		} );
+	}
+
 	public function isAvailable() :bool {
-		return self::con()->isPremiumActive() && $this->requirementsMet();
+		return $this->requirementsMet();
+	}
+
+	protected function initUpgrades() {
 	}
 
 	public function canExtendRules() :bool {
@@ -81,14 +96,21 @@ abstract class BaseExtension {
 	protected function requirements() :array {
 		return [
 			'php'    => [
-				'min' => '8.2',
+				'min' => '7.4',
 			],
 			'shield' => [
-				'min' => '18.5.7',
+				'min' => '18.5',
 			],
 			'wp'     => [
 				'min' => '5.7',
 			],
+		];
+	}
+
+	protected function getUpgradeConfig() :array {
+		return [
+			'file' => $this->file,
+			'slug' => sprintf( 'shield-ext-%s', static::SLUG ),
 		];
 	}
 }

@@ -31,6 +31,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Traffic,
 	UserManagement,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Extensions\ExtensionsCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Config\LoadConfig;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
