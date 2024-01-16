@@ -22,9 +22,9 @@ class General extends Base {
 		$mod = $con->getModule_IPs();
 		$ip = $this->action_data[ 'ip' ];
 
-		$geo = ( new Lookup() )
+		$countryCode = ( new Lookup() )
 			->setIP( $ip )
-			->lookup();
+			->countryCode();
 
 		try {
 			[ $ipKey, $ipName ] = ( new IpID( $ip ) )
@@ -56,7 +56,7 @@ class General extends Base {
 		$ruleStatus = new IpRuleStatus( $ip );
 		return [
 			'flags'   => [
-				'has_geo' => !empty( $geo->getRawData() ),
+				'has_geo' => !empty( $countryCode ),
 			],
 			'hrefs'   => [
 				'snapi_reputation_details' => URL::Build( 'https://shsec.io/botornot', [ 'ip' => $ip ] ),
@@ -115,12 +115,7 @@ class General extends Base {
 				'identity' => [
 					'who_is_it'    => $ipName,
 					'rdns'         => empty( $info[ 'rdns' ][ 'hostname' ] ) ? __( 'Unavailable', 'wp-simple-firewall' ) : $info[ 'rdns' ][ 'hostname' ],
-					'country_name' => $geo->countryName ?? __( 'Unknown', 'wp-simple-firewall' ),
-					'timezone'     => $geo->timeZone ?? __( 'Unknown', 'wp-simple-firewall' ),
-					'coordinates'  => $geo->latitude ? sprintf( '%s: %s; %s: %s;',
-						__( 'Latitude', 'wp-simple-firewall' ), $geo->latitude,
-						__( 'Longitude', 'wp-simple-firewall' ), $geo->longitude )
-						: __( 'Unknown', 'wp-simple-firewall' )
+					'country_name' => empty( $countryCode ) ? __( 'Unknown', 'wp-simple-firewall' ) : $countryCode,
 				],
 				'extras'   => [
 					'ip_whois' => sprintf( 'https://whois.domaintools.com/%s', $ip ),

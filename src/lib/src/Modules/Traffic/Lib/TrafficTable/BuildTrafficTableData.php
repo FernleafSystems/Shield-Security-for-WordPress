@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTable;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IPs\IPGeoVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
@@ -22,11 +21,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	 * @var LogRecord
 	 */
 	private $log;
-
-	/**
-	 * @var Lookup
-	 */
-	private $geoLookup;
 
 	private $users = [];
 
@@ -68,9 +62,9 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
 
-				$geo = $this->getCountryIP( $this->log->ip );
-				$data[ 'country' ] = empty( $geo->countryCode ) ?
-					__( 'Unknown', 'wp-simple-firewall' ) : $geo->countryName;
+				$data[ 'country' ] = ( new Lookup() )
+					->setIP( $this->log->ip )
+					->countryCode();
 
 				$userID = $this->log->uid;
 				if ( $userID > 0 && !isset( $users[ $userID ] ) ) {
@@ -164,16 +158,18 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Details() :string {
-		$geo = $this->getCountryIP( $this->log->ip );
-		if ( empty( $geo->countryCode ) ) {
+		$code = ( new Lookup() )
+			->setIP( $this->log->ip )
+			->countryCode();
+		if ( empty( $code ) ) {
 			$country = '';//__( 'Unknown', 'wp-simple-firewall' );
 		}
 		else {
 			$country = sprintf(
 				'<img class="icon-flag" src="%s" alt="%s" width="24px"/> %s',
-				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', \strtolower( $geo->countryCode ) ),
-				$geo->countryCode,
-				$geo->countryName
+				sprintf( 'https://api.aptoweb.com/api/v1/country/flag/%s.svg', \strtolower( $code ) ),
+				$code,
+				$code
 			);
 		}
 
@@ -290,15 +286,6 @@ class BuildTrafficTableData extends BaseBuildTableData {
 		}
 
 		return $this->ipInfo[ $ip ];
-	}
-
-	private function getCountryIP( string $ip ) :IPGeoVO {
-		if ( empty( $this->geoLookup ) ) {
-			$this->geoLookup = new Lookup();
-		}
-		return $this->geoLookup
-			->setIP( $ip )
-			->lookup();
 	}
 
 	private function isWpCli() :bool {

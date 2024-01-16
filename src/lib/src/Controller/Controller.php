@@ -37,45 +37,45 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 /**
- * @property Config\ConfigVO                                        $cfg
- * @property Config\OptsHandler                                     $opts
- * @property Shield\Rules\RulesController                           $rules
- * @property ActionRoutingController                                $action_router
- * @property ExtensionsCon                                          $extensions_controller
- * @property Database\DbCon                                         $db_con
- * @property Email\EmailCon                                         $email_con
- * @property Shield\Utilities\AdminNotices\Controller               $admin_notices
- * @property Shield\Controller\Plugin\PluginURLs                    $plugin_urls
- * @property Shield\Controller\Assets\Urls                          $urls
- * @property Shield\Controller\Assets\Paths                         $paths
- * @property Shield\Controller\Assets\Svgs                          $svgs
- * @property Shield\Request\ThisRequest                             $this_req
- * @property Shield\Modules\License\Lib\Capabilities                $caps
- * @property Config\Labels                                          $labels
- * @property array                                                  $prechecks
- * @property array                                                  $flags
- * @property bool                                                   $is_activating
- * @property bool                                                   $is_mode_debug
- * @property bool                                                   $is_mode_staging
- * @property bool                                                   $is_mode_live
- * @property bool                                                   $is_my_upgrade
- * @property bool                                                   $is_rest_enabled
- * @property bool                                                   $modules_loaded
- * @property bool                                                   $plugin_deactivating
- * @property bool                                                   $plugin_deleting
- * @property bool                                                   $plugin_reset
- * @property Shield\Utilities\CacheDirHandler                       $cache_dir_handler
- * @property bool                                                   $user_can_base_permissions
- * @property string                                                 $base_file
- * @property string                                                 $root_file
- * @property Shield\Modules\Integrations\Lib\MainWP\Common\MainWPVO $mwpVO
- * @property Shield\Utilities\MU\MUHandler                          $mu_handler
- * @property Shield\Modules\Events\Lib\EventsService                $service_events
- * @property Shield\Users\UserMetas                                 $user_metas
- * @property Shield\Modules\Base\ModCon[]                           $modules
- * @property Shield\Crons\HourlyCron                                $cron_hourly
- * @property Shield\Crons\DailyCron                                 $cron_daily
- * @property string[]                                               $reqs_not_met
+ * @property Config\ConfigVO                          $cfg
+ * @property Config\OptsHandler                       $opts
+ * @property Shield\Rules\RulesController             $rules
+ * @property ActionRoutingController                  $action_router
+ * @property ExtensionsCon                            $extensions_controller
+ * @property Database\DbCon                           $db_con
+ * @property Email\EmailCon                           $email_con
+ * @property Shield\Utilities\AdminNotices\Controller $admin_notices
+ * @property Shield\Controller\Plugin\PluginURLs      $plugin_urls
+ * @property Shield\Controller\Assets\Urls            $urls
+ * @property Shield\Controller\Assets\Paths           $paths
+ * @property Shield\Controller\Assets\Svgs            $svgs
+ * @property Shield\Request\ThisRequest               $this_req
+ * @property License\Lib\Capabilities                 $caps
+ * @property Config\Labels                            $labels
+ * @property array                                    $prechecks
+ * @property array                                    $flags
+ * @property bool                                     $is_activating
+ * @property bool                                     $is_mode_debug
+ * @property bool                                     $is_mode_staging
+ * @property bool                                     $is_mode_live
+ * @property bool                                     $is_my_upgrade
+ * @property bool                                     $is_rest_enabled
+ * @property bool                                     $modules_loaded
+ * @property bool                                     $plugin_deactivating
+ * @property bool                                     $plugin_deleting
+ * @property bool                                     $plugin_reset
+ * @property Shield\Utilities\CacheDirHandler         $cache_dir_handler
+ * @property bool                                     $user_can_base_permissions
+ * @property string                                   $base_file
+ * @property string                                   $root_file
+ * @property Integrations\Lib\MainWP\Common\MainWPVO  $mwpVO
+ * @property Shield\Utilities\MU\MUHandler            $mu_handler
+ * @property Events\Lib\EventsService                 $service_events
+ * @property Shield\Users\UserMetas                   $user_metas
+ * @property Base\ModCon[]                            $modules
+ * @property Shield\Crons\HourlyCron                  $cron_hourly
+ * @property Shield\Crons\DailyCron                   $cron_daily
+ * @property string[]                                 $reqs_not_met
  */
 class Controller extends DynPropertiesClass {
 
@@ -85,11 +85,14 @@ class Controller extends DynPropertiesClass {
 	public static $oInstance;
 
 	public function fireEvent( string $event, array $meta = [] ) :self {
-		$this->loadEventsService()->fireEvent( $event, $meta );
+		( $this->service_events ?? $this->loadEventsService() )->fireEvent( $event, $meta );
 		return $this;
 	}
 
-	public function loadEventsService() :Shield\Modules\Events\Lib\EventsService {
+	/**
+	 * @deprecated 18.6
+	 */
+	public function loadEventsService() :Events\Lib\EventsService {
 		return $this->service_events ?? $this->service_events = new Shield\Modules\Events\Lib\EventsService();
 	}
 
@@ -154,6 +157,12 @@ class Controller extends DynPropertiesClass {
 				if ( !$val instanceof Email\EmailCon ) {
 					$val = new Email\EmailCon();
 					$this->email_con = $val;
+				}
+				break;
+
+			case 'service_events':
+				if ( !$val instanceof Events\Lib\EventsService ) {
+					$this->service_events = $val = new Events\Lib\EventsService();
 				}
 				break;
 

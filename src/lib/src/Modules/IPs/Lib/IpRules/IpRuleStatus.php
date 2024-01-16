@@ -291,7 +291,7 @@ class IpRuleStatus {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ips`.ip=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
+				sprintf( "`ips`.`ip`=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
 			];
 
 			foreach ( \array_merge( $this->getRanges(), $this->getBypasses(), $loader->select() ) as $rec ) {

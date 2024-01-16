@@ -74,7 +74,7 @@ class BuildForStats extends BuildBase {
 			$sumPrevious = $countsPrevious[ $event ];
 			$diff = $sumCurrent - $sumPrevious;
 			$data[ $event ] = [
-				'name'                   => $con->loadEventsService()->getEventName( $event ),
+				'name'                   => $con->service_events->getEventName( $event ),
 				'count_current_period'   => $sumCurrent,
 				'count_previous_period'  => $sumPrevious,
 				'is_zero_stat'           => empty( $sumCurrent ) && empty( $sumPrevious ),

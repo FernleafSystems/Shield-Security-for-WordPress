@@ -43,10 +43,6 @@
           "attr":       [
             "UNIQUE"
           ]
-        },
-        "geo": {
-          "macro_type": "meta",
-          "comment":    "GeoIP Data"
         }
       }
     },

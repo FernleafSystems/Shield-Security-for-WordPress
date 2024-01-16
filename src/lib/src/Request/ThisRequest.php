@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\IpMetaRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\LoadIpMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,6 +18,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *
  * @property string          $rest_api_root
  * @property \WP_REST_Server $rest_server
+ *
+ * @property ?IpMetaRecord   $ip_meta_record
  *
  * @property string          $ip
  * @property bool            $ip_is_public
@@ -122,6 +126,12 @@ class ThisRequest extends DynPropertiesClass {
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
+
+			case 'ip_meta_record':
+				if ( $value === null ) {
+					$this->ip_meta_record = $value = empty( $this->ip ) ? null : ( new LoadIpMeta() )->single( $this->ip );
+				}
+				break;
 
 			case 'is_ip_blocked':
 				if ( \is_null( $value ) ) {

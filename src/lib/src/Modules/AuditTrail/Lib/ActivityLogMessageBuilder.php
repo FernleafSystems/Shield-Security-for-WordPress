@@ -4,16 +4,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\DB\LogRecord;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+
 use function FernleafSystems\Wordpress\Plugin\Shield\Functions\get_plugin;
 
 class ActivityLogMessageBuilder {
+
+	use PluginControllerConsumer;
 
 	public static function BuildFromLogRecord( LogRecord $log, string $logSeparator = "\n" ) :array {
 		return \explode( "\n", self::Build( $log->event_slug, $log->meta_data ?? [], $logSeparator ) );
 	}
 
 	public static function Build( string $event, array $metaData = [], string $logSeparator = "\n" ) :string {
-		$srvEvents = get_plugin()->getController()->loadEventsService();
+		$srvEvents = \method_exists( __CLASS__, 'con' ) ?
+			self::con()->service_events ?? self::con()->loadEventsService()
+			: get_plugin()->getController()->loadEventsService();
 
 		$raw = \implode( $logSeparator, $srvEvents->getEventAuditStrings( $event ) );
 

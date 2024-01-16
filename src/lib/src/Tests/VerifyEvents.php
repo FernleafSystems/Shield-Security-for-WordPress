@@ -17,7 +17,7 @@ class VerifyEvents {
 		$OldStyleSprintfSubstitutions = [];
 		$NotEnoughParams = [];
 		$NoMsgs = [];
-		$srvEvents = $con->loadEventsService();
+		$srvEvents = $con->service_events;
 		foreach ( $srvEvents->getEvents() as $evt ) {
 			$key = $evt[ 'key' ] ?? '';
 			if ( empty( $key ) ) {

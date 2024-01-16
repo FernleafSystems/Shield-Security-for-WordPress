@@ -48,7 +48,7 @@ class BaseBuildChartData {
 		$legend = [];
 		if ( !$req->combine_events ) {
 			foreach ( $req->events as $event ) {
-				$legend[] = self::con()->loadEventsService()->getEventName( $event );
+				$legend[] = self::con()->service_events->getEventName( $event );
 			}
 		}
 		return $legend;

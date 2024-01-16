@@ -27,7 +27,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 	}
 
 	private function getData() :array {
-		$srvEvents = self::con()->loadEventsService();
+		$srvEvents = self::con()->service_events;
 
 		$theStats = \array_filter(
 			$srvEvents->getEvents(),

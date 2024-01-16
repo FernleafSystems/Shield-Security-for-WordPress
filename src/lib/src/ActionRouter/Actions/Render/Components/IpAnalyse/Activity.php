@@ -16,9 +16,8 @@ class Activity extends Base {
 		$logLoader->limit = 100;
 
 		$logs = [];
-		$srvEvents = self::con()->loadEventsService();
 		foreach ( $logLoader->run() as $key => $record ) {
-			if ( $srvEvents->eventExists( $record->event_slug ) ) {
+			if ( self::con()->service_events->eventExists( $record->event_slug ) ) {
 				$asArray = $record->getRawData();
 
 				$asArray[ 'event' ] = \implode( ' ', ActivityLogMessageBuilder::BuildFromLogRecord( $record ) );

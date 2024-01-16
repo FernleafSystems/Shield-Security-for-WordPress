@@ -11,11 +11,17 @@ class LoadIpMeta extends BaseLoadRecordsForIPJoins {
 	 * @return IpMetaRecord[]
 	 */
 	public function select() :array {
+		$this->includeIpMeta = false;
 		$results = [];
 		foreach ( $this->selectRaw() as $raw ) {
 			$results[ $raw[ 'id' ] ] = new IpMetaRecord( $raw );
 		}
 		return $results;
+	}
+
+	public function single( string $ip ) :?IpMetaRecord {
+		$record = \current( $this->setIP( $ip )->select() );
+		return empty( $record ) ? null : $record;
 	}
 
 	protected function getJoinedTableAbbreviation() :string {

@@ -44,7 +44,6 @@ class PageStats extends BasePluginAdminPage {
 	private function buildStats() :array {
 		$allStats = [];
 
-		$srvEvents = self::con()->loadEventsService();
 		foreach ( $this->getAllEvents() as $eventSection ) {
 			$stats = [];
 			foreach ( $eventSection[ 'events' ] as $event ) {
@@ -52,7 +51,7 @@ class PageStats extends BasePluginAdminPage {
 				if ( !empty( \array_filter( $sums ) ) ) {
 					$stats[ $event ] = [
 						'key'    => $event,
-						'name'   => $srvEvents->getEventName( $event ),
+						'name'   => self::con()->service_events->getEventName( $event ),
 						'counts' => $this->buildSums( $event ),
 					];
 				}
