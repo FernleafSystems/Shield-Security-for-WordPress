@@ -1,76 +1,74 @@
 {% if flags.has_custom_rules %}
 	<div id="RulesManager">
-		<table class="table">
-			<thead>
-			<tr>
-				<th>#</th>
-				<th>Name</th>
-				<th>Description</th>
-				<th>Updated</th>
-				{#                <th>Builder Version</th> #}
-				<th>Active</th>
-				<th>Action</th>
-				{% if flags.show_export %}
-					<th>Export</th>
-				{% endif %}
-			</tr>
-			</thead>
-			<tbody>
-				{% for rule in vars.custom_rules %}
-					<tr class="{{ rule.is_active ? '' : 'table-secondary' }}">
+		<div class="row fw-bolder bg-light py-3 mb-2">
+			<div class="col-1">{{ strings.active }}</div>
+			<div class="col-5">{{ strings.name }}</div>
+			<div class="col-3">{{ strings.updated }}</div>
+			<div class="col-2">{{ strings.action }}</div>
+			{% if flags.show_export %}
+				<div class="col-1">{{ strings.export }}</div>
+			{% endif %}
+			<div class="col-1">{{ strings.order }}</div>
+		</div>
+		<div class="list-group">
+			{% for rule in vars.custom_rules %}
+				<div data-rule_id="{{ rule.rule_id }}"
+					 class="row list-group-item py-3 d-flex {{ rule.is_active ? 'list-group-item-success' : 'list-group-item-secondary' }}">
 
-						<td>{{ rule.rule_id }}</td>
-						<td>{{ rule.name }}</td>
-						<td>{{ rule.description }}</td>
-						<td>{{ rule.created_at }}</td>
-						{#                        <td>{{ rule.version }}</td> #}
+					<div class="col-1 d-flex align-items-center">
+						<div class="form-check form-switch">
+							<input class="form-check-input active-switch"
+								   title="{{ rule.is_active ? strings.deactivate : strings.activate }}"
+								   type="checkbox"
+								   role="switch"
+									{% if rule.is_viable %}
+										data-action="{{ rule.is_active ? 'deactivate' : 'activate' }}"
+										data-rule_id="{{ rule.rule_id }}"
+									{% else %}
+										disabled="disabled"
+									{% endif %}
+									{% if rule.is_active %}checked{% endif %} >
+						</div>
+					</div>
 
-						<td>
+					<div class="col-5">
+						<h6>{{ rule.name }}</h6>
+						<p class="m-0">{{ rule.description }}</p>
+					</div>
+
+					<div class="col-3 d-flex align-items-center">{{ rule.created_at }}</div>
+
+					<div class="col-2">
+						<a class="btn btn-outline-secondary svg-container"
+						   href="{{ rule.href_edit }}">{{ imgs.icon_edit|raw }}</a>
+						<button class="btn btn-outline-warning svg-container"
+								data-action="delete"
+								data-rule_id="{{ rule.rule_id }}"
+						>{{ imgs.icon_delete|raw }}</button>
+					</div>
+
+					{% if flags.show_export %}
+						<div class="col-1">
 							<div class="form-check form-switch">
 								<input class="form-check-input active-switch"
-									   title="{{ rule.is_active ? strings.deactivate : strings.activate }}"
+									   title="{{ rule.can_export ? strings.set_no_export : strings.set_to_export }}"
 									   type="checkbox"
 									   role="switch"
 										{% if rule.is_viable %}
-											data-action="{{ rule.is_active ? 'deactivate' : 'activate' }}"
+											data-action="{{ rule.can_export ? 'set_no_export' : 'set_to_export' }}"
 											data-rule_id="{{ rule.rule_id }}"
 										{% else %}
 											disabled="disabled"
 										{% endif %}
-										{% if rule.is_active %}checked{% endif %} >
+										{% if rule.can_export %}checked{% endif %} >
 							</div>
-						</td>
+						</div>
+					{% endif %}
 
-						<td>
-							<a class="btn btn-outline-secondary svg-container"
-							   href="{{ rule.href_edit }}">{{ imgs.icon_edit|raw }}</a>
-							<button class="btn btn-outline-warning svg-container"
-									data-action="delete"
-									data-rule_id="{{ rule.rule_id }}"
-							>{{ imgs.icon_delete|raw }}</button>
-						</td>
-
-						{% if flags.show_export %}
-							<td>
-								<div class="form-check form-switch">
-									<input class="form-check-input active-switch"
-										   title="{{ rule.can_export ? strings.set_no_export : strings.set_to_export }}"
-										   type="checkbox"
-										   role="switch"
-											{% if rule.is_viable %}
-												data-action="{{ rule.can_export ? 'set_no_export' : 'set_to_export' }}"
-												data-rule_id="{{ rule.rule_id }}"
-											{% else %}
-												disabled="disabled"
-											{% endif %}
-											{% if rule.can_export %}checked{% endif %} >
-								</div>
-							</td>
-						{% endif %}
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
+					<div class="col-1 drag-handle d-flex justify-content-center align-items-center">{{ imgs.drag_handle|raw }}</div>
+				</div>
+			{% endfor %}
+		</div>
 	</div>
 {% else %}
 	<div class="alert-info alert d-inline-block">There are no custom rules, yet.</div>

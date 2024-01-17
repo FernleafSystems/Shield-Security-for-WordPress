@@ -1,3 +1,4 @@
+import Sortable from 'sortablejs';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
@@ -46,7 +47,37 @@ export class RulesManager extends BaseAutoExecComponent {
 		.then( ( respJSON ) => {
 			this.rules_manager_container.innerHTML = respJSON.data.html;
 		} )
-		.finally( () => {
-		} );
+		.finally( () => this.postRender() );
+	}
+
+	postRender() {
+		const group = document.querySelector( '#RulesManager .list-group' );
+		if ( group ) {
+			/** https://github.com/SortableJS/Sortable **/
+			Sortable.create( group, {
+				animation: 150,
+				easing: 'cubic-bezier(1, 0, 0, 1)',
+
+				handle: '.drag-handle',
+
+				ghostClass: 'list-group-item-info',
+				chosenClass: 'list-group-item-info',
+				dragClass: 'list-group-item-info',
+
+				onEnd: ( evt ) => {
+					if ( evt.newIndex !== evt.oldIndex ) {
+						const items = [];
+						group.querySelectorAll( '.list-group-item' )
+							 .forEach( ( item ) => {
+								 items.push( item.dataset.rule_id );
+							 } );
+						this.action( {
+							action: 'reorder',
+							order: items,
+						} );
+					}
+				},
+			} );
+		}
 	}
 }

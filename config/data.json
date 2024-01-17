@@ -174,7 +174,7 @@
           "macro_type": "unsigned_int",
           "type":       "smallint",
           "length":     5,
-          "default":    1000,
+          "default":    0,
           "comment":    "Execution Order"
         },
         "is_active":        {

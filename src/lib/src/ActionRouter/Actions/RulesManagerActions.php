@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\Rules\RuleRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ReorderCustomRules;
 
 class RulesManagerActions extends BaseAction {
 
@@ -22,6 +23,10 @@ class RulesManagerActions extends BaseAction {
 			if ( $theAction === 'disable_all' ) {
 				( new RuleRecords() )->disableAll();
 				$msg = __( 'All rules have been disabled', 'wp-simple-firewall' );
+				$success = true;
+			}
+			elseif ( $theAction === 'reorder' && !empty( $managerAction[ 'order' ] ) ) {
+				( new ReorderCustomRules() )->run( $managerAction[ 'order' ] );
 				$success = true;
 			}
 			else {

@@ -57,6 +57,8 @@ class RuleRecords {
 			if ( $active !== null ) {
 				$active ? $selector->filterByActive() : $selector->filterByInactive();
 			}
+			$selector->setOrderBy( 'exec_order', 'ASC', true )
+					 ->setOrderBy( 'id', 'ASC' );
 			$records = $selector->queryWithResult();
 		}
 		return \is_array( $records ) ? $records : [];

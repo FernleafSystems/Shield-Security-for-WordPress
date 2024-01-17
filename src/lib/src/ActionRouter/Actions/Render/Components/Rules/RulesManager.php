@@ -47,12 +47,20 @@ class RulesManager extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 			'imgs'    => [
 				'icon_delete' => $con->svgs->raw( 'trash3-fill.svg' ),
 				'icon_edit'   => $con->svgs->raw( 'pencil-square.svg' ),
+				'drag_handle' => $con->svgs->raw( 'arrows-move.svg' ),
 			],
 			'strings' => [
 				'activate'      => __( 'Activate Rule', 'wp-simple-firewall' ),
 				'deactivate'    => __( 'Deactivate Rule', 'wp-simple-firewall' ),
 				'set_to_export' => __( 'Allow Export', 'wp-simple-firewall' ),
 				'set_no_export' => __( 'Prevent Export', 'wp-simple-firewall' ),
+				'name'          => __( 'Name' ),
+				'description'   => __( 'Description' ),
+				'updated'       => __( 'Updated' ),
+				'active'        => __( 'Active' ),
+				'action'        => __( 'Action', 'wp-simple-firewall' ),
+				'export'        => __( 'Export' ),
+				'order'         => __( 'Order' ),
 			],
 			'vars'    => [
 				'custom_rules' => $customRules,
