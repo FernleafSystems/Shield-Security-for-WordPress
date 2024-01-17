@@ -52,10 +52,14 @@ class BuildRuleFromForm extends BuildRuleBase {
 			];
 			foreach ( $singleCondition[ 'params' ] as $paramValueDef ) {
 				$value = $paramValueDef[ 'value' ];
-				// subtype is set as the form builder processes submitted form. We don't store with added slashes.
 				if ( ( $paramValueDef[ 'param_subtype' ] ?? null ) === EnumParameters::SUBTYPE_REGEX ) {
 					$value = \addslashes( $value );
 				}
+				elseif ( $paramValueDef[ 'param_type' ] === EnumParameters::TYPE_BOOL ) {
+					$value = $paramValueDef[ 'value' ] === 'Y';
+				}
+				// subtype is set as the form builder processes submitted form. We don't store with added slashes.
+
 				$subCondition[ 'params' ][ $paramValueDef[ 'name' ] ] = $value;
 			}
 			$conditions[ 'conditions' ][] = $subCondition;
@@ -139,7 +143,11 @@ class BuildRuleFromForm extends BuildRuleBase {
 				'params'   => [],
 			];
 			foreach ( $responseToParse[ 'params' ] as $paramDef ) {
-				$response[ 'params' ][ $paramDef[ 'name' ] ] = $paramDef[ 'value' ];
+				$value = $paramDef[ 'value' ];
+				if ( $paramDef[ 'param_type' ] === EnumParameters::TYPE_BOOL ) {
+					$value = $paramDef[ 'value' ] === 'Y';
+				}
+				$response[ 'params' ][ $paramDef[ 'name' ] ] = $value;
 			}
 			$responses[] = $response;
 		}

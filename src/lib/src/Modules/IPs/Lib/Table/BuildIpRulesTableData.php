@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Table;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\CleanIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\IpRules\LoadIpRules;
@@ -36,7 +36,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 				$data[ 'is_blocked' ] = $record->ip > 0;
 				$data[ 'status' ] = $this->getColumnContent_Status( $record );
 				$data[ 'type' ] = Handler::GetTypeName( $data[ 'type' ] );
-				$data[ 'country' ] = ( new Lookup() )
+				$data[ 'country' ] = ( new LookupMeta() )
 					->setIP( $record->ip )
 					->countryCode();
 				$data[ 'last_seen' ] = $this->getColumnContent_LastSeen( $record->last_access_at );
@@ -63,7 +63,7 @@ class BuildIpRulesTableData extends BaseBuildTableData {
 	}
 
 	/**
-	 * The Wheres need to align with the structure of the Query called from getRecords()
+	 * The WHEREs need to align with the structure of the Query called from getRecords()
 	 */
 	protected function buildWheresFromSearchParams() :array {
 		$wheres = [];

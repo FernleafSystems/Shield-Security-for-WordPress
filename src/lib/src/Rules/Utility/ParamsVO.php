@@ -55,6 +55,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
  * @property int      $status_code
  * @property string   $value
  * @property int      $offense_count
+ * @property bool     $use_cloudflare
  * @property bool     $block
  * @property bool     $do_log
  */

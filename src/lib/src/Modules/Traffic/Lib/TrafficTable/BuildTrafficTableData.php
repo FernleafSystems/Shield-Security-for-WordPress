@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\TrafficTab
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LoadRequestLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\ReqLogs\Ops\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\Lookup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
@@ -62,7 +62,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'path' ] = empty( $this->log->path ) ? '-' : $this->log->path;
 
-				$data[ 'country' ] = ( new Lookup() )
+				$data[ 'country' ] = ( new LookupMeta() )
 					->setIP( $this->log->ip )
 					->countryCode();
 
@@ -158,7 +158,7 @@ class BuildTrafficTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_Details() :string {
-		$code = ( new Lookup() )
+		$code = ( new LookupMeta() )
 			->setIP( $this->log->ip )
 			->countryCode();
 		if ( empty( $code ) ) {

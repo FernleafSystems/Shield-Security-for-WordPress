@@ -28,6 +28,7 @@ class EnumResponses {
 		Responses\SetRequestToBeLogged::class,
 		Responses\TriggerIpBlock::class,
 		Responses\TriggerIpOffense::class,
+		Responses\UpdateIpGeoData::class,
 		Responses\UpdateIpRuleLastAccessAt::class,
 		Responses\UserClearAuthCookies::class,
 		Responses\UserSessionRotateAuthCookies::class,

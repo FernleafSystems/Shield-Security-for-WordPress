@@ -35,7 +35,6 @@ class ParseRuleBuilderForm {
 	public function parseForm() :RuleFormBuilderVO {
 		$this->deleteElements();
 		$this->extractConditionsAndResponses();
-//		$this->extractedForm->responses = $this->extractResponses();
 		$this->extractedForm->conditions_logic = $this->extractConditionsLogic();
 		$this->counts();
 		$this->extractedForm->has_errors = $this->hasErrors;

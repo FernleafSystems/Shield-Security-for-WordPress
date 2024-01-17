@@ -35,6 +35,7 @@ class LoadIpMeta extends BaseLoadRecordsForIPJoins {
 			'asn',
 			'pc_is_proxy',
 			'pc_last_check_at',
+			'updated_at',
 		];
 	}
 

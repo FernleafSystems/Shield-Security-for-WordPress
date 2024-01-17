@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\LoadIpMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-class Lookup {
+class LookupMeta {
 
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
@@ -16,8 +16,12 @@ class Lookup {
 	public function countryCode() :string {
 		$ip = $this->getIP();
 		if ( !isset( self::$IPs[ $ip ] ) ) {
-			$ipMeta = ( new LoadIpMeta() )->single( $ip );
-			self::$IPs[ $ip ] = empty( $ipMeta ) ? '' : $ipMeta;
+			if ( $ip === self::con()->this_req->ip ) {
+				self::$IPs[ $ip ] = self::con()->this_req->ip_meta_record;
+			}
+			else {
+				self::$IPs[ $ip ] = ( new LoadIpMeta() )->single( $ip );
+			}
 		}
 		return empty( self::$IPs[ $ip ] ) ? '' : self::$IPs[ $ip ]->country_iso2;
 	}
