@@ -20,8 +20,6 @@ abstract class Base extends Common\BaseConditionResponse {
 	 */
 	protected $params;
 
-	protected $conditionTriggerMeta = [];
-
 	public static function MinimumHook() :int {
 		return WPHooksOrder::NONE;
 	}
@@ -44,10 +42,6 @@ abstract class Base extends Common\BaseConditionResponse {
 		return $result;
 	}
 
-	public function getConditionTriggerMetaData() :array {
-		return $this->conditionTriggerMeta;
-	}
-
 	protected function getPreviousResult() :?bool {
 		return null;
 	}
@@ -63,7 +57,7 @@ abstract class Base extends Common\BaseConditionResponse {
 	}
 
 	protected function addConditionTriggerMeta( string $item, $value ) :self {
-		$this->conditionTriggerMeta[ $item ] = $value;
+		self::con()->rules->getConditionMeta()->{$item} = $value;
 		return $this;
 	}
 
@@ -118,14 +112,13 @@ abstract class Base extends Common\BaseConditionResponse {
 	 * @deprecated 18.6
 	 */
 	protected function getConditionTriggerMeta( string $item ) {
-		return $this->conditionTriggerMeta[ $item ] ?? null;
+		return null;
 	}
 
 	/**
 	 * @deprecated 18.6
 	 */
 	protected function removeTriggerMeta( string $item ) :self {
-		unset( $this->conditionTriggerMeta[ $item ] );
 		return $this;
 	}
 }

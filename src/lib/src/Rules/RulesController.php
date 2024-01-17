@@ -31,6 +31,11 @@ class RulesController {
 	 */
 	public $processComplete;
 
+	/**
+	 * @var ConditionMetaStore
+	 */
+	private $conditionMeta;
+
 	public function __construct() {
 		$this->processComplete = false;
 	}
@@ -96,12 +101,10 @@ class RulesController {
 	 */
 	private function processRule( RuleVO $rule ) {
 		if ( !isset( $rule->result ) ) {
-			$resultMetaData = [];
 			$conditions = $rule->conditions ?? null;
 			if ( $conditions !== null ) {
 				$processor = new Processors\ProcessConditions( $conditions );
 				$rule->result = $processor->setThisRequest( $this->req )->process();
-				$resultMetaData = $processor->getConsolidatedMeta();
 			}
 			else {
 				$rule->result = true;
@@ -109,7 +112,7 @@ class RulesController {
 			}
 
 			if ( $rule->result ) {
-				( new Processors\ResponseProcessor( $rule, $resultMetaData ) )
+				( new Processors\ResponseProcessor( $rule ) )
 					->setThisRequest( $this->req )
 					->run();
 			}
@@ -134,6 +137,10 @@ class RulesController {
 			}
 		}
 		return $this->rules;
+	}
+
+	public function getConditionMeta() :ConditionMetaStore {
+		return $this->conditionMeta ?? $this->conditionMeta = new ConditionMetaStore();
 	}
 
 	/**

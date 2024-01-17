@@ -16,14 +16,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\FindFromSlug;
  */
 class ConditionsProcessor extends BaseProcessor {
 
-	private $consolidatedMeta = [];
-
 	public function getConsolidatedMeta() :array {
-		return \array_filter( $this->consolidatedMeta );
+		return [];
 	}
 
 	/**
 	 * If there are no conditions, then we're 'true'
+	 * @throws \Exception
 	 */
 	public function runAllRuleConditions() :bool {
 		$condition = true;
@@ -31,7 +30,6 @@ class ConditionsProcessor extends BaseProcessor {
 		if ( !empty( $conditions[ 'conditions' ] ) ) {
 			$processor = new ProcessConditions( $conditions[ 'conditions' ], $conditions[ 'logic' ] ?? EnumLogic::LOGIC_AND );
 			$condition = $processor->process();
-			$this->consolidatedMeta = $processor->getConsolidatedMeta();
 		}
 		return $condition;
 	}
@@ -73,9 +71,8 @@ class ConditionsProcessor extends BaseProcessor {
 					if ( $subCondition[ 'invert_match' ] ?? false ) {
 						$matched = !$matched;
 					}
-					$this->consolidatedMeta[ $subCondition[ 'conditions' ] ] = $handler->getConditionTriggerMetaData();
 				}
-				catch ( NoSuchConditionHandlerException|NoConditionActionDefinedException $e ) {
+				catch ( NoSuchConditionHandlerException $e ) {
 					error_log( $e->getMessage() );
 					continue;
 				}

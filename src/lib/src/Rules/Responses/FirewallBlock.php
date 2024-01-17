@@ -35,7 +35,7 @@ class FirewallBlock extends Base {
 				self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 					'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
 					'render_data' => [
-						'block_meta_data' => $this->getConsolidatedConditionMeta()
+						'block_meta_data' => self::con()->rules->getConditionMeta()->getRawData(),
 					],
 				] );
 				break;
@@ -64,7 +64,7 @@ class FirewallBlock extends Base {
 	private function sendBlockEmail() :bool {
 		$con = self::con();
 
-		$blockMeta = $this->getConsolidatedConditionMeta();
+		$blockMeta = $con->rules->getConditionMeta()->getRawData();
 		$fwCategory = $blockMeta[ 'match_category' ] ?? '';
 		try {
 			$ruleName = $con->getModule_Firewall()

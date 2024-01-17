@@ -23,14 +23,8 @@ class ResponseProcessor {
 	 */
 	protected $rule;
 
-	/**
-	 * @var array
-	 */
-	private $triggerMetaData;
-
-	public function __construct( RuleVO $rule, array $triggerMetaData ) {
+	public function __construct( RuleVO $rule ) {
 		$this->rule = $rule;
-		$this->triggerMetaData = $triggerMetaData;
 	}
 
 	public function run() {
@@ -46,7 +40,7 @@ class ResponseProcessor {
 
 				$params = $respDef[ 'params' ] ?? [];
 				/** @var Responses\Base $responseClass */
-				$response = new $responseClass( $this->triggerMetaData );
+				$response = new $responseClass();
 				$response->setThisRequest( $this->req )
 						 ->setRule( $this->rule )
 						 ->setParams( $params );
@@ -63,10 +57,12 @@ class ResponseProcessor {
 
 		try {
 			// We always fire the default event
-			$defaultEventResponse = new Responses\EventFireDefault( [ 'rule_slug' => $this->rule->slug ] );
+			$defaultEventResponse = new Responses\EventFireDefault();
 			$defaultEventResponse->setThisRequest( $this->req )
 								 ->setRule( $this->rule )
-								 ->setParams( [ 'rule_slug' => $this->rule->slug ] );
+								 ->setParams( [
+									 'rule_slug' => $this->rule->slug
+								 ] );
 			$this->execResponse( $defaultEventResponse );
 		}
 		catch ( \Exception $e ) {

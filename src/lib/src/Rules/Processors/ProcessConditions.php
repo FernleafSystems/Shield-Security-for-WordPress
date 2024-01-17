@@ -19,11 +19,6 @@ class ProcessConditions {
 	private static $ConditionsCache;
 
 	/**
-	 * @var array
-	 */
-	private $consolidatedMeta;
-
-	/**
 	 * @var ConditionsVO
 	 */
 	private $condition;
@@ -41,7 +36,6 @@ class ProcessConditions {
 		}
 
 		$this->condition = $condition;
-		$this->consolidatedMeta = [];
 	}
 
 	/**
@@ -68,7 +62,6 @@ class ProcessConditions {
 				try {
 					$conditionProc = new ProcessConditions( $subCondition );
 					$subConditionsResult = $conditionProc->setThisRequest( $this->req )->process();
-					$this->consolidatedMeta = \array_merge( $this->consolidatedMeta, $conditionProc->getConsolidatedMeta() );
 				}
 				catch ( \Exception $e ) {
 					$subConditionsResult = false;
@@ -110,19 +103,11 @@ class ProcessConditions {
 
 		$cachedMatchStatus = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] ?? null;
 		if ( $cachedMatchStatus === null ) {
-			self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] = [
-				$conditionHandler->run(),
-				$conditionHandler->getConditionTriggerMetaData(),
-			];
+			self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ] = $conditionHandler->run();
 		}
 
-		[ $matched, $this->consolidatedMeta ] = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ];
-
+		$matched = self::$ConditionsCache[ $this->hashHandler( $conditionHandler ) ];
 		return $condition->logic === EnumLogic::LOGIC_INVERT ? !$matched : $matched;
-	}
-
-	public function getConsolidatedMeta() :array {
-		return $this->consolidatedMeta;
 	}
 
 	/**

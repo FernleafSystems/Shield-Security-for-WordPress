@@ -7,22 +7,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Rules\Commo
 	public const SLUG = '';
 
 	/**
-	 * @var array
-	 */
-	protected $conditionTriggerMeta;
-
-	public function __construct( array $conditionTriggerMeta = [] ) {
-		$this->conditionTriggerMeta = $conditionTriggerMeta;
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	abstract public function execResponse() :void;
-
-	protected function getConsolidatedConditionMeta() :array {
-		return $this->conditionTriggerMeta;
-	}
 
 	public function isTerminating() :bool {
 		return false;
