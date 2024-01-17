@@ -38,7 +38,7 @@ class Export {
 		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
 		if ( !$this->verifyUrl( $url, (string)$req->query( 'id', '' ), (string)$req->query( 'secret', '' ) ) ) {
 			$code = 3;
-			$msg = __( 'Verification failed.', 'wp-simple-firewall' );
+			$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
 		}
 		else {
 			$code = 0;
