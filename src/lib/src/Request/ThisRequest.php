@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\IpMetaRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\DB\IpMeta\LoadIpMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\DB\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -143,6 +144,23 @@ class ThisRequest extends DynPropertiesClass {
 				if ( \is_null( $value ) ) {
 					$value = $this->is_ip_blocked_shield_auto || $this->is_ip_blocked_shield_manual;
 				}
+				break;
+
+			case 'is_ip_blocked_shield_auto':
+				$value = apply_filters( 'shield/is_ip_blocked_auto', ( new IpRuleStatus( $this->ip ) )->hasAutoBlock() );
+				break;
+
+			case 'is_ip_blocked_crowdsec':
+				$value = ( new IpRuleStatus( $this->ip ) )->hasCrowdsecBlock();
+				break;
+
+			case 'is_ip_blocked_shield_manual':
+				$value = ( new IpRuleStatus( $this->ip ) )->hasManualBlock();
+				break;
+
+			case 'is_ip_blacklisted':
+				$status = new IpRuleStatus( $this->ip );
+				$value = $status->isBlockedByShield() || $status->isAutoBlacklisted();
 				break;
 
 			default:

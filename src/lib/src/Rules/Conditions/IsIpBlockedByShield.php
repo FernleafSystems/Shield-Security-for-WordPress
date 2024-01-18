@@ -16,12 +16,12 @@ class IsIpBlockedByShield extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		/** We start with `true` here since we'd only be here if all other conditions had been met. */
+		/** We start with `true` here since we'd only be here if all other sub-conditions had been met. */
 		return apply_filters( 'shield/is_request_blocked', true );
 	}
 
 	public function getDescription() :string {
-		return __( "Is the request IP on any of Shield's block lists.", 'wp-simple-firewall' );
+		return __( "Is the request IP blocked by Shield auto or manual.", 'wp-simple-firewall' );
 	}
 
 	protected function getSubConditions() :array {

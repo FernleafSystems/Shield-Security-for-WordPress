@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 
 class IsIpBlockedCrowdsec extends Base {
@@ -16,15 +15,7 @@ class IsIpBlockedCrowdsec extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return ( new IpRuleStatus( $this->req->ip ) )->hasCrowdsecBlock();
-	}
-
-	protected function getPreviousResult() :?bool {
 		return $this->req->is_ip_blocked_crowdsec;
-	}
-
-	protected function postExecConditionCheck( bool $result ) :void {
-		$this->req->is_ip_blocked_crowdsec = $result;
 	}
 
 	protected function getSubConditions() :array {

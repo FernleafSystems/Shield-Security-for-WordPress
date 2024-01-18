@@ -75,7 +75,7 @@ class ParamsVO extends DynPropertiesClass {
 	public function applyFromArray( array $data, array $restrictedKeys = [] ) :ParamsVO {
 		$unrecongizedKeys = \array_keys( \array_diff_key( $data, $this->def ) );
 		if ( !empty( $unrecongizedKeys ) ) {
-			error_log( 'ParamsVO: Unrecognised keys: '.var_export( $unrecongizedKeys, true ) );
+//			error_log( 'ParamsVO: Unrecognised keys: '.var_export( $unrecongizedKeys, true ) );
 		}
 		else {
 			$missing = [];

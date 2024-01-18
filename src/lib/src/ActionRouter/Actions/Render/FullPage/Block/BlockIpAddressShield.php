@@ -55,7 +55,7 @@ class BlockIpAddressShield extends BaseBlock {
 	}
 
 	protected function renderAutoUnblock() :string {
-		return self::con()->action_router->render( Components\AutoUnblockShield::SLUG );
+		return self::con()->action_router->render( Components\AutoUnblockShield::class );
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
