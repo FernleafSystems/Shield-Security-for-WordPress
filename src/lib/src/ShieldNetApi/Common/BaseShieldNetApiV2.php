@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,7 +17,7 @@ class BaseShieldNetApiV2 extends BaseShieldNetApi {
 		$con = self::con();
 		return ( $this->shield_net_params_required || $con->isPremiumActive() ) ? [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
-			'install_id' => $con->getInstallationID()[ 'id' ],
+			'install_id' => ( new InstallationID() )->id(),
 			'nonce'      => ( new HandshakingNonce() )->create(),
 		] : [];
 	}

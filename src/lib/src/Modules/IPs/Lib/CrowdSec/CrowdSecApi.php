@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
 use Carbon\Carbon;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -173,7 +174,7 @@ class CrowdSecApi {
 		}
 		$this->storeCsAuth( $auth );
 
-		$machStartID = \str_replace( '-', '', self::con()->getInstallationID()[ 'id' ] );
+		$machStartID = \str_replace( '-', '', ( new InstallationID() )->id() );
 		if ( empty( $auth[ 'machine_id' ] ) || \strpos( $auth[ 'machine_id' ], $machStartID ) !== 0 ) {
 			$auth = [
 				'auth_start_at' => $now,

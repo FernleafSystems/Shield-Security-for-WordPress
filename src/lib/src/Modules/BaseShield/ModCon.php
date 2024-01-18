@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
-
 abstract class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon {
 
 	public function getPluginReportEmail() :string {
@@ -33,7 +31,7 @@ abstract class ModCon extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\B
 		// Ensure order of namespaces is 'Module', 'BaseShield', then 'Base'
 		return [
 			$this->getNamespace(),
-			self::con()->getModulesNamespace().'\\BaseShield',
+			__NAMESPACE__,
 			$this->getBaseNamespace(),
 		];
 	}

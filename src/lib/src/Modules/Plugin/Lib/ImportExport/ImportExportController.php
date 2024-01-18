@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -66,7 +67,7 @@ class ImportExportController {
 	protected function getImportExportSecretKey() :string {
 		$ID = $this->opts()->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $ID ) || $this->isImportExportSecretKeyExpired() ) {
-			$ID = \sha1( self::con()->getInstallationID()[ 'id' ].wp_rand( 0, \PHP_INT_MAX ) );
+			$ID = \sha1( ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
 			$this->opts()
 				 ->setOpt( 'importexport_secretkey', $ID )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );

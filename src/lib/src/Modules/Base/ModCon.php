@@ -162,7 +162,7 @@ abstract class ModCon extends DynPropertiesClass {
 	}
 
 	public function getOptionsStorageKey() :string {
-		return self::con()->prefixOption( $this->cfg->properties[ 'storage_key' ] ).'_options';
+		return self::con()->prefix( $this->cfg->properties[ 'storage_key' ], '_' ).'_options';
 	}
 
 	/**

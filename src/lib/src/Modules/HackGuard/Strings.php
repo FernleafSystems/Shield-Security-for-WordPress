@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
@@ -199,12 +198,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_core_file_integrity_scan' :
-				$name = sprintf( __( 'Automatic %s File Scanner', 'wp-simple-firewall' ),
-					Services::WpGeneral()->isClassicPress() ? 'ClassicPress' : 'WordPress'
-				);
-				$summary = sprintf( __( 'Scan And Monitor %s Files For Changes', 'wp-simple-firewall' ),
-					Services::WpGeneral()->isClassicPress() ? 'ClassicPress' : 'WordPress'
-				);
+				$name = sprintf( __( 'Automatic %s File Scanner', 'wp-simple-firewall' ), 'WordPress' );
+				$summary = sprintf( __( 'Scan And Monitor %s Files For Changes', 'wp-simple-firewall' ), 'WordPress' );
 				$desc = [
 					__( 'It is important to regularly scan your WordPress files for signs of intrusion.', 'wp-simple-firewall' )
 					.' '.__( 'This is one of the fastest ways to detect malicious activity on the site.', 'wp-simple-firewall' ),

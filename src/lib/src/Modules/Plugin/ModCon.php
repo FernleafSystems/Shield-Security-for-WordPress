@@ -121,7 +121,7 @@ class ModCon extends BaseShield\ModCon {
 
 		foreach ( $wpCrons->getCrons() as $key => $cronArgs ) {
 			foreach ( $cronArgs as $hook => $cron ) {
-				if ( \strpos( (string)$hook, $con->prefix() ) === 0 || \strpos( (string)$hook, $con->prefixOption() ) === 0 ) {
+				if ( \strpos( (string)$hook, $con->prefix() ) === 0 || \strpos( (string)$hook, $con->prefix( '', '_' ) ) === 0 ) {
 					$wpCrons->deleteCronJob( $hook );
 				}
 			}
@@ -179,7 +179,7 @@ class ModCon extends BaseShield\ModCon {
 	}
 
 	public function getFirstInstallDate() :int {
-		return (int)Services::WpGeneral()->getOption( self::con()->prefixOption( 'install_date' ) );
+		return (int)Services::WpGeneral()->getOption( self::con()->prefix( 'install_date', '_' ) );
 	}
 
 	public function getInstallDate() :int {
@@ -194,7 +194,7 @@ class ModCon extends BaseShield\ModCon {
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$key = self::con()->prefixOption( 'install_date' );
+		$key = self::con()->prefix( 'install_date', '_' );
 		$wpDate = Services::WpGeneral()->getOption( $key );
 		if ( empty( $wpDate ) ) {
 			$wpDate = Services::Request()->ts();

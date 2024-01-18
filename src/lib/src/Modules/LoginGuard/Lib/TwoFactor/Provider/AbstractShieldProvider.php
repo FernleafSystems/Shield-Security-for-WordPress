@@ -124,7 +124,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 	}
 
 	public function getLoginIntentFormParameter() :string {
-		return self::con()->prefixOption( static::ProviderSlug().'_otp' );
+		return self::con()->prefix( static::ProviderSlug().'_otp', '_' );
 	}
 
 	public function renderUserProfileConfigFormField() :string {

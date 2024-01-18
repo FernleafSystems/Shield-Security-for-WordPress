@@ -26,7 +26,7 @@ class PluginDelete {
 			[
 				'icwp-wpsf-cs_auths',
 				'icwp-wpsf-rules',
-				self::con()->prefixOption( 'ip_rules_cache' ),
+				self::con()->prefix( 'ip_rules_cache', '_' ),
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );
@@ -77,7 +77,7 @@ class PluginDelete {
 				\array_merge(
 					$builtInTablesToDelete,
 					[
-						sprintf( '%s%s', Services::WpDb()->getPrefix(), $con->prefixOption( 'events' ) ),
+						sprintf( '%s%s', Services::WpDb()->getPrefix(), $con->prefix( 'events', '_' ) ),
 					]
 				)
 			)

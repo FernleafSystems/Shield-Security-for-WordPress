@@ -322,9 +322,6 @@ class Collate {
 			'URL - Site' => $WP->getWpUrl(),
 			'WP'         => $WP->getVersion( true ),
 		];
-		if ( $WP->isClassicPress() ) {
-			$data[ 'ClassicPress' ] = $WP->getVersion();
-		}
 
 		return \array_merge( $data, [
 			'URL - Home'  => $WP->getHomeUrl(),

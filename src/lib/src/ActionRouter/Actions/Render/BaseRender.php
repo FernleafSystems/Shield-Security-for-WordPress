@@ -17,7 +17,7 @@ abstract class BaseRender extends BaseAction {
 	public const TEMPLATE = '';
 
 	protected function exec() {
-		return $this->render()->response();
+		$this->render()->response();
 	}
 
 	/**

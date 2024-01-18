@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\DB\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModConsumer;
@@ -67,7 +68,7 @@ class PluginTelemetry {
 		}
 
 		if ( !empty( $data[ 'plugin' ] ) ) {
-			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = self::con()->getInstallationID()[ 'id' ];
+			$data[ 'plugin' ][ 'options' ][ 'unique_installation_id' ] = ( new InstallationID() )->id();
 		}
 
 		return $data;
@@ -106,14 +107,13 @@ class PluginTelemetry {
 		return [
 			'env' => [
 				'slug'             => $con->cfg->properties[ 'slug_plugin' ],
-				'installation_id'  => $con->getInstallationID()[ 'id' ],
+				'installation_id'  => ( new InstallationID() )->id(),
 				'unique_site_hash' => \sha1( network_home_url( '/' ) ),
 				'php'              => Services::Data()->getPhpVersionCleaned(),
 				'wordpress'        => $WP->getVersion(),
 				'version'          => $con->cfg->version(),
 				'plugin_version'   => $con->cfg->version(),
 				'is_wpms'          => $WP->isMultisite() ? 1 : 0,
-				'is_cp'            => $WP->isClassicPress() ? 1 : 0,
 				'ssl'              => is_ssl() ? 1 : 0,
 				'locale'           => get_locale(),
 				'can_ajax_rest'    => $con->getModule_Plugin()->opts()->getOpt( 'test_rest_data' )[ 'success_test_at' ] ?? -1,

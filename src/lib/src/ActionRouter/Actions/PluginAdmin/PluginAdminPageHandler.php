@@ -32,7 +32,23 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 					$this->createNetworkAdminMenu();
 				} );
 			}
+
+			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+	}
+
+	/**
+	 * In order to prevent certain errors when the back button is used
+	 * @param array $h
+	 * @return array
+	 */
+	public function adjustNocacheHeaders( $h ) {
+		if ( \is_array( $h ) && !empty( $h[ 'Cache-Control' ] ) && self::con()->isPluginAdminPageRequest() ) {
+			$Hs = \array_map( '\trim', \explode( ',', $h[ 'Cache-Control' ] ) );
+			$Hs[] = 'no-store';
+			$h[ 'Cache-Control' ] = \implode( ', ', \array_unique( $Hs ) );
+		}
+		return $h;
 	}
 
 	private function createAdminMenu() {

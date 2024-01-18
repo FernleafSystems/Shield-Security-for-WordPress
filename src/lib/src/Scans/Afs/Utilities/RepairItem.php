@@ -6,10 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib,
 	ModConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
-	Processing\MalFalsePositiveReporter,
-	ResultItem
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 use FernleafSystems\Wordpress\Services\{
 	Services,
@@ -94,7 +91,6 @@ class RepairItem {
 					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $item->path_fragment );
 				}
 				catch ( \Exception $e ) {
-					$canRepair = false;
 				}
 			}
 			elseif ( $item->is_in_theme ) {
@@ -128,7 +124,6 @@ class RepairItem {
 					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $item->path_fragment );
 				}
 				catch ( \Exception $e ) {
-					$canRepair = false;
 				}
 			}
 		}
@@ -139,10 +134,8 @@ class RepairItem {
 	private function repairCoreItem() :bool {
 		/** @var ResultItem $item */
 		$item = $this->getScanItem();
-
-		$files = Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 		try {
-			$success = $files->replaceFileFromVcs( $item->path_fragment );
+			$success = ( new WpOrg\Wp\Files() )->replaceFileFromVcs( $item->path_fragment );
 		}
 		catch ( \InvalidArgumentException $e ) {
 			$success = false;

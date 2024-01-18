@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\WPHashes;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,6 +21,6 @@ class SolicitToken extends Common\BaseShieldNetApi {
 	}
 
 	protected function getApiRequestUrl() :string {
-		return sprintf( '%s/%s', parent::getApiRequestUrl(), self::con()->getInstallationID()[ 'id' ] );
+		return sprintf( '%s/%s', parent::getApiRequestUrl(), ( new InstallationID() )->id() );
 	}
 }

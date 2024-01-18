@@ -11,10 +11,9 @@ class DismissAdminNotice extends BaseAction {
 	protected function exec() {
 		$noticeID = sanitize_key( $this->action_data[ 'notice_id' ] );
 		if ( !empty( $noticeID ) ) {
-			$noticeCon = self::con()->admin_notices;
-			foreach ( $noticeCon->getAdminNotices() as $notice ) {
+			foreach ( self::con()->admin_notices->getAdminNotices() as $notice ) {
 				if ( $noticeID == $notice->id ) {
-					$noticeCon->setNoticeDismissed( $notice );
+					self::con()->admin_notices->setNoticeDismissed( $notice );
 					$this->response()->action_response_data = [
 						'success'   => true,
 						'message'   => 'Admin notice dismissed', //not currently rendered
