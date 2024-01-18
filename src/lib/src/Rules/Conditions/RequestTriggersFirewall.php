@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall\Options;
 
 class RequestTriggersFirewall extends Base {
 
@@ -16,18 +17,22 @@ class RequestTriggersFirewall extends Base {
 	}
 
 	protected function getSubConditions() :array {
+		/** @var Options $opts */
+		$opts = self::con()->getModule_Firewall()->opts();
+
 		$paramConditions = [];
 
-		$patterns = self::con()->getModule_Firewall()->opts()->getDef( 'firewall_patterns' );
-		foreach ( \array_diff_key( $patterns, \array_flip( [ 'exe_file_uploads' ] ) ) as $group ) {
-			foreach ( $group as $pattern ) {
-				$paramConditions[] = [
-					'conditions' => Conditions\FirewallPatternFoundInRequest::class,
-					'params'     => [
-						'pattern'    => $pattern,
-						'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
-					]
-				];
+		foreach ( $opts->getDef( 'firewall_patterns' ) as $key => $group ) {
+			if ( $key !== 'exe_file_uploads' && $opts->isOpt( 'block_'.$key, 'Y' ) ) {
+				foreach ( $group as $pattern ) {
+					$paramConditions[] = [
+						'conditions' => Conditions\FirewallPatternFoundInRequest::class,
+						'params'     => [
+							'pattern'    => $pattern,
+							'match_type' => Enum\EnumMatchTypes::MATCH_TYPE_REGEX,
+						]
+					];
+				}
 			}
 		}
 
